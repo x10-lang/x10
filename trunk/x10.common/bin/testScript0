@@ -147,9 +147,13 @@ checkUsage() {
 # Also perform simple checks before running script.
 
   checkGNU egrep
-  checkGNU find
-  checkGNU sed
   checkGNU xargs
+  if [ `uname -a` != Darwin ]; then
+    # MacOSX's find and sed are BSD, not GNU.  They're mostly compatible,
+    # but be careful!
+    checkGNU find
+    checkGNU sed
+  fi
 
   timeLimit=60
   mailDest=""
@@ -268,12 +272,12 @@ extractPackage() {
     RESULT="`sed -ne 's|\.|/|g' -e 's|^\s*package \([^;]*\);|\1|p' "$f"`"
 }
 
-extractPlugins() {
-# extract the plugins from a *.x10 file f
+extractOptions() {
+# extract additional options from a *.x10 file f
 
     chkArgs 1 "$@"
     local f="$1"
-    RESULT="`sed -ne 's|^\s*//\s*PLUGINS*\:\s*\([^\s]*\)|\1|p' -e 's|\s+|,|g' "$f"`"
+    RESULT="`sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' "$f"`"
     echo $RESULT
 }
 
@@ -357,10 +361,10 @@ genTest() {
       pkg="$RESULT"
       path="${path%/$pkg}"
       [ -n "$pkg" ] || pkg='.'
-      extractPlugins "$f"
-      plugins="$RESULT"
+      extractOptions "$f"
+      options="$RESULT"
       # run an actual x10 test case
-      doTest "$pkg" "$path" "${file%.x10}" "$plugins"
+      doTest "$pkg" "$path" "${file%.x10}" "$options"
       #echo 2>&1 "Done with $path/$pkg/$file"
     fi
   done < <(findTests "$topDir")
@@ -668,7 +672,7 @@ doTest() {
   local srcDir="$1"
   local testDir="$2"
   local test="$3"
-  local plugins="$4"
+  local options="$4"
   local x10FileName="$testDir/$srcDir/$test.x10" #./Misc/./a/b/c.x10
   changeSlashToDot "$srcDir/$test"
   local className="$RESULT"             #a.b.c
@@ -681,11 +685,7 @@ doTest() {
 
   let "nTotal = (( $nTotal + 1 ))"
 
-  if [ -n "$plugins" ]; then
-    plugins="-PLUGINS=$plugins"
-  fi
-
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -d $testDir $X10C_EXTRA_OPTS $plugins $x10FileName" "" ""
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
 
   if [[ $? != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
