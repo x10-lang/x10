@@ -96,7 +96,7 @@ public class Worker extends Thread {
      * threads cope better with lags due to GC, dynamic
      * compilation, and multitasking.
      */
-    private static final int SCANS_PER_SLEEP = 31;
+    private static final int SCANS_PER_SLEEP = 1;
 
     /**
      * DL: The amount of time to sleep per empty scan. Sleep durations
@@ -107,7 +107,7 @@ public class Worker extends Thread {
      * the smallest value worth context switching out for on
      * typical platforms.
      */
-    private static final long SLEEP_NANOS_PER_SCAN = (1 << 16);
+    private static final long SLEEP_NANOS_PER_SCAN = 0; //(1 << 16);
 
 
 	/**
@@ -195,7 +195,7 @@ public class Worker extends Thread {
 				Closure res = extractTop(thief);
 				assert (res == cl);
 				thief.checkOut(res);
-				if (reporting) {
+				if ( reporting) {
 					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
 							+ victim + " cache=" + victim.cache.dump());
 				}
@@ -228,20 +228,21 @@ public class Worker extends Thread {
 					child = cl.promoteChild(thief, victim);
 					
 					res = extractTop(thief);
-					assert cl==res;
-					
-					/*if (reporting)
-					System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
 //					 I have work now, so checkout of the barrier.
-					thief.checkOut(res);
-					if ( reporting) {
-						
-						System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
-								+ victim + " cache=" + victim.cache.dump());
-					}
+					thief.checkOutSteal(res, victim);
+				
 				} finally {
 					lock.unlock();
 				}
+				assert cl==res;
+				
+				/*if (reporting)
+				System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
+				if (  reporting) {
+					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
+							+ victim + " cache=" + victim.cache.dump());
+				}
+				
 				try {
 					cl.finishPromote(thief, child);
 					
@@ -266,8 +267,8 @@ public class Worker extends Thread {
 	 * worker. May return null.
 	 * @aparam ws -- the current thread, i.e. Thread.currentThread()=ws
 	 */
-	protected Closure extractTop(Thread ws) {
-		assert lockOwner==ws;
+	protected Closure extractTop(Thread w) {
+		assert lockOwner==w;
 		Closure cl = top;
 		if (cl == null) {
 			assert bottom == null;
@@ -541,6 +542,10 @@ public class Worker extends Thread {
     		pool.barrier.checkOut();
     	}
     }
+    void checkOutSteal(Closure cl, Worker victim) {
+    	assert victim.lockOwner==this;
+    	checkOut(cl);
+    }
     private void wakeup() {
         if (sleepStatus == SLEEPING && 
             sleepStatusUpdater.compareAndSet(this, SLEEPING, WOKEN)) {
@@ -744,16 +749,6 @@ public class Worker extends Thread {
 		lock(this);
 		try {
 			Closure b = bottom;
-			/*if (b == null) {
-				cache.resetExceptionPointer();
-		    	if (cache.empty()) {
-		    		// promote child resulted in a null closure.
-					// work was stolen for a globally quiescent
-					// computation. So return the current job.
-		    		return currentJob();
-		    	}
-		    	return null;
-			} else {*/
 				assert b !=null;
 				b.lock(this);
 				try { 
