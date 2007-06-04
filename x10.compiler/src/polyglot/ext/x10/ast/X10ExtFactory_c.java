@@ -61,4 +61,8 @@ public class X10ExtFactory_c extends AbstractExtFactory_c {
 	public Ext extFutureNodeImpl() {
 		return extNodeImpl();
 	}
+
+	public Ext extAsyncImpl() {
+		return extStmtImpl();
+	}
 }

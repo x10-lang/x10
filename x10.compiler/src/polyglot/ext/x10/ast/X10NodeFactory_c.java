@@ -77,7 +77,7 @@ import polyglot.util.TypedList;
  */
 public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
-    protected ExtensionInfo extInfo;
+	protected ExtensionInfo extInfo;
 	public X10NodeFactory_c(ExtensionInfo extInfo) {
 		super(new X10ExtFactory_c(), new X10DelFactory_c());
 		this.extInfo = extInfo;
@@ -88,27 +88,25 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	public final ExtensionInfo extensionInfo() { return extInfo; }
-    
-    public Disamb disamb() {
-        return new X10Disamb_c();
-    }
 
-     public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, Id name) {
-            AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name);
-            n = (AmbTypeNode)n.ext(extFactory().extAmbTypeNode());
-            n = (AmbTypeNode)n.del(delFactory().delAmbTypeNode());
-            return n;
-        }
-     public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, Id name,
-             DepParameterExpr d) {
-         AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name,d);
-         n = (AmbTypeNode)n.ext(extFactory().extAmbTypeNode());
-         n = (AmbTypeNode)n.del(delFactory().delAmbTypeNode());
-         return n;
-     }
+	public Disamb disamb() {
+		return new X10Disamb_c();
+	}
 
+	public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, Id name) {
+		AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name);
+		n = (AmbTypeNode)n.ext(extFactory().extAmbTypeNode());
+		n = (AmbTypeNode)n.del(delFactory().delAmbTypeNode());
+		return n;
+	}
+	public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, Id name,
+			DepParameterExpr d) {
+		AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name,d);
+		n = (AmbTypeNode)n.ext(extFactory().extAmbTypeNode());
+		n = (AmbTypeNode)n.del(delFactory().delAmbTypeNode());
+		return n;
+	}
 
-       
 	public Instanceof Instanceof(Position pos, Expr expr, TypeNode type) {
 		Instanceof n = new X10Instanceof_c(pos, expr, type);
 		n = (Instanceof) n.ext(extFactory().extInstanceof());
@@ -116,14 +114,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-    public Instanceof DepInstanceof(Position pos, TypeNode compareType,
+	public Instanceof DepInstanceof(Position pos, TypeNode compareType,
 			DepParameterExpr d, Expr expr) {
-        Instanceof n = new DepInstanceof_c(pos, compareType, d, expr);
-        n = (Instanceof)n.ext(extFactory().extInstanceof());
-        n = (Instanceof)n.del(delFactory().delInstanceof());
-        return n;
-    }
-
+		Instanceof n = new DepInstanceof_c(pos, compareType, d, expr);
+		n = (Instanceof)n.ext(extFactory().extInstanceof());
+		n = (Instanceof)n.del(delFactory().delInstanceof());
+		return n;
+	}
 
 	// Wrap the body of the async in a Block so as to ease further code transforamtions.
 	public Async Async(Position pos, Expr place, List clocks, Stmt body) {
@@ -133,8 +130,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			body = Block(body.position(), l);
 		}
 		Async a = new Async_c(pos, place, clocks, body);
-		a = (Async) a.ext(extFactory().extExpr());
-		return (Async) a.del(delFactory().delExpr());
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		a = (Async) a.ext(ext_fac.extAsyncImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		a = (Async) a.del(del_fac.delAsyncImpl());
+		return a;
 	}
 
 	// Wrap the body of an atomic in a block to facilitate code transformation.
@@ -196,7 +196,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (FutureNode) n.ext(ext_fac.extFutureNodeImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
-		n = (FutureNode)n.del(del_fac.delFutureNodeImpl());
+		n = (FutureNode) n.del(del_fac.delFutureNodeImpl());
 		return n;
 	}
 
@@ -214,34 +214,35 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-    public ClassBody ClassBody(Position pos, List members){
-       ClassBody n = new X10ClassBody_c(pos,members);
-       n = (ClassBody)n.ext(extFactory().extClassBody());
-       n = (ClassBody)n.del(delFactory().delClassBody());
-       return n;
-    }
+	public ClassBody ClassBody(Position pos, List members) {
+		ClassBody n = new X10ClassBody_c(pos,members);
+		n = (ClassBody)n.ext(extFactory().extClassBody());
+		n = (ClassBody)n.del(delFactory().delClassBody());
+		return n;
+	}
 
-    public ClassDecl ClassDecl(Position pos, Flags flags,
-            Id name, List<PropertyDecl> properties, Expr ci, TypeNode superClass,
-            List interfaces, ClassBody body)
-    {
-    	return (ClassDecl) TypeDecl(false, pos, flags, name, properties, ci, superClass, interfaces, body);
-        
-    }
+	public ClassDecl ClassDecl(Position pos, Flags flags,
+			Id name, List<PropertyDecl> properties, Expr ci, TypeNode superClass,
+			List interfaces, ClassBody body)
+	{
+		return (ClassDecl) TypeDecl(false, pos, flags, name, properties, ci, superClass, interfaces, body);
+	}
+
 	public ValueClassDecl ValueClassDecl(Position pos, Flags flags,
-            Id name, List<PropertyDecl> properties,  Expr ci, TypeNode superClass,
-            List interfaces, ClassBody body)
+			Id name, List<PropertyDecl> properties,  Expr ci, TypeNode superClass,
+			List interfaces, ClassBody body)
 	{
 		return (ValueClassDecl) TypeDecl(true, pos, flags, name, properties, ci, superClass, interfaces, body);
 	}
+
 	private TypeDecl TypeDecl(boolean isValue, Position pos, Flags flags,
-            Id name, List<PropertyDecl> properties,  Expr ci, TypeNode superClass,
-            List interfaces, ClassBody body)
+			Id name, List<PropertyDecl> properties,  Expr ci, TypeNode superClass,
+			List interfaces, ClassBody body)
 	{
 		X10TypeSystem ts = (X10TypeSystem) this.extensionInfo().typeSystem();
 		superClass = ((superClass == null && ! flags.isInterface()) ?
 				CanonicalTypeNode(Position.COMPILER_GENERATED, ts.X10Object()) :
-					superClass);
+				superClass);
 		X10TypeNode tci = null;
 		if (ci != null) {
 			Position cipos = ci.position();
@@ -250,7 +251,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			tci = Nullable(cipos, tci);
 		}
 		TypeDecl n = (TypeDecl) X10ClassDecl_c.make(pos, flags, name, properties, tci, superClass, interfaces,
-                body, this, isValue);
+				body, this, isValue);
 		n = (TypeDecl)n.ext(extFactory().extClassDecl());
 		n = (TypeDecl)n.del(delFactory().delClassDecl());
 		return n;
@@ -322,12 +323,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public ConstantDistMaker ConstantDistMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
 		TypeSystem ts = this.extensionInfo().typeSystem();
-                Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, "x10.lang.dist.factory");
+		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, "x10.lang.dist.factory");
 		List l = new TypedList(new LinkedList(), Expr.class, false);
 		l.add(e1);
 		l.add(e2);
-		ConstantDistMaker n = new ConstantDistMaker_c(pos, 
-				x10LangDistributionFactory, 
+		ConstantDistMaker n = new ConstantDistMaker_c(pos,
+				x10LangDistributionFactory,
 				Id(pos, "constant"), l);
 		n = (ConstantDistMaker) n.ext(extFactory().extExpr());
 		return (ConstantDistMaker) n.del(delFactory().delExpr());
@@ -359,11 +360,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			l.add(body);
 			body = Block(body.position(), l);
 		}
-        For n = new For_c(pos, inits, cond, iters, body);
-        n = (For)n.ext(extFactory().extFor());
-        n = (For)n.del(delFactory().delFor());
-        return n;
-    }
+		For n = new For_c(pos, inits, cond, iters, body);
+		n = (For)n.ext(extFactory().extFor());
+		n = (For)n.del(delFactory().delFor());
+		return n;
+	}
 
 //	 Wrap the body in a block to facilitate code transformations
 	public X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body)
@@ -433,20 +434,19 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (GenParameterExpr) n.del(delFactory().delStmt());
 	}
 
-	
+
 
 	public X10TypeNode ParametricTypeNode(Position pos,
 												 X10TypeNode t,
 												 GenParameterExpr g,
 												 DepParameterExpr d)
 	{
-	
-       return t.dep(g,d);
+		return t.dep(g,d);
 	}
 	public TypeNode TypeNode(Position pos) {
-	    TypeNode n = new X10TypeNode_c(pos);
-	    n = (TypeNode) n.ext(extFactory().extTypeNode());
-	    return (TypeNode) n.del(delFactory().delTypeNode());
+		TypeNode n = new X10TypeNode_c(pos);
+		n = (TypeNode) n.ext(extFactory().extTypeNode());
+		return (TypeNode) n.del(delFactory().delTypeNode());
 	}
 
 	public X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base,
@@ -669,44 +669,43 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-    public Cast DepCast(Position pos, TypeNode compareType,
+	public Cast DepCast(Position pos, TypeNode compareType,
 			DepParameterExpr d, Expr expr) {
-    	Cast n = new DepCast_c(pos, compareType, d, expr);
-        n = (Cast)n.ext(extFactory().extCast());
-        n = (Cast)n.del(delFactory().delCast());
-        return n;
-    }
-    
-    public MethodDecl MethodDecl(Position pos, DepParameterExpr thisClause, Flags flags,
-             TypeNode returnType, Id name,
-             List formals, Expr whereClause, List throwTypes, Block body)
-    {
-    	setFormalIndices(formals);
-        if (flags != null && flags.contains(X10Flags.ATOMIC))  
-        	
-        	return AtomicMethodDecl(pos, thisClause, flags, returnType, name, formals, 
-        			whereClause, throwTypes, body);
-        
-    	MethodDecl n = new X10MethodDecl_c(pos, thisClause, flags, returnType, name,
-                formals, whereClause, throwTypes, body);
-        n = (MethodDecl)n.ext(extFactory().extMethodDecl());
-        n = (MethodDecl)n.del(delFactory().delMethodDecl());
-        return n;
-    }
-    public MethodDecl AtomicMethodDecl(Position pos, DepParameterExpr thisClause, Flags flags,
-            TypeNode returnType, Id name,
-            List formals, Expr whereClause, List throwTypes, Block body)
-   {
-       flags = flags.clear(X10Flags.ATOMIC).set(X10Flags.SAFE);
-       List<Stmt> ss = new TypedList(new LinkedList<Stmt>(), Stmt.class, false);
-       ss.add(Atomic(pos, Here(pos), body));
-       body = Block(pos, ss);
-    	MethodDecl n = new AtomicMethodDecl_c(pos, thisClause, flags, returnType, name,
-               formals, whereClause, throwTypes, body);
-       n = (MethodDecl)n.ext(extFactory().extMethodDecl());
-       n = (MethodDecl)n.del(delFactory().delMethodDecl());
-       return n;
-   }
+		Cast n = new DepCast_c(pos, compareType, d, expr);
+		n = (Cast)n.ext(extFactory().extCast());
+		n = (Cast)n.del(delFactory().delCast());
+		return n;
+	}
+
+	public MethodDecl MethodDecl(Position pos, DepParameterExpr thisClause, Flags flags,
+			TypeNode returnType, Id name,
+			List formals, Expr whereClause, List throwTypes, Block body)
+	{
+		setFormalIndices(formals);
+		if (flags != null && flags.contains(X10Flags.ATOMIC))
+			return AtomicMethodDecl(pos, thisClause, flags, returnType, name, formals,
+					whereClause, throwTypes, body);
+
+		MethodDecl n = new X10MethodDecl_c(pos, thisClause, flags, returnType, name,
+				formals, whereClause, throwTypes, body);
+		n = (MethodDecl)n.ext(extFactory().extMethodDecl());
+		n = (MethodDecl)n.del(delFactory().delMethodDecl());
+		return n;
+	}
+	public MethodDecl AtomicMethodDecl(Position pos, DepParameterExpr thisClause, Flags flags,
+			TypeNode returnType, Id name,
+			List formals, Expr whereClause, List throwTypes, Block body)
+	{
+		flags = flags.clear(X10Flags.ATOMIC).set(X10Flags.SAFE);
+		List<Stmt> ss = new TypedList(new LinkedList<Stmt>(), Stmt.class, false);
+		ss.add(Atomic(pos, Here(pos), body));
+		body = Block(pos, ss);
+		MethodDecl n = new AtomicMethodDecl_c(pos, thisClause, flags, returnType, name,
+				formals, whereClause, throwTypes, body);
+		n = (MethodDecl)n.ext(extFactory().extMethodDecl());
+		n = (MethodDecl)n.del(delFactory().delMethodDecl());
+		return n;
+	}
 
 	public LocalDecl LocalDecl(Position pos, Flags flags, TypeNode type,
 							   Id name, Expr init)
@@ -716,209 +715,207 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (LocalDecl)n.del(delFactory().delLocalDecl());
 		return n;
 	}
-     public ConstructorDecl ConstructorDecl(Position pos, Flags flags, 
-             Id name,  TypeNode returnType, List formals, List throwTypes, Block body) {
-            ConstructorDecl n = new X10ConstructorDecl_c(pos, flags, name,  
-            		returnType, formals, throwTypes, body);
-            n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
-            n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
-            return n;
-        }
-     void setFormalIndices(List formals) {
-    	 if (formals!=null) {
-         	int i=0;
-         	for (Iterator it = formals.iterator(); it.hasNext();) {
-         		X10Formal f = (X10Formal) it.next();
-         		f.setPositionInArgList(i++);
-         	}
-         }
-     }
-    public ConstructorDecl ConstructorDecl(Position pos, Flags flags, 
-            Id name, TypeNode returnType, 
-            List formals, Expr argWhereClause, 
-            List throwTypes, Block body) {
-    	
-        ConstructorDecl n = 
-            new X10ConstructorDecl_c(pos, flags, 
-                    name, returnType, 
-                    formals, argWhereClause, 
-                    throwTypes, body);
-        setFormalIndices(formals);
-        
-        n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
-        n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
-        return n;
-    }
-    public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type) {
-       // Report.report(1,"X10NodeFactory_c: Golden:" + type + type.getClass());
-        if (! type.isCanonical()) {
-            throw new InternalCompilerError("Cannot construct a canonical " +
-                "type node for a non-canonical type.");
-        }
+	public ConstructorDecl ConstructorDecl(Position pos, Flags flags,
+			Id name,  TypeNode returnType, List formals, List throwTypes, Block body) {
+		ConstructorDecl n = new X10ConstructorDecl_c(pos, flags, name,
+				returnType, formals, throwTypes, body);
+		n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
+		n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
+		return n;
+	}
+	void setFormalIndices(List formals) {
+		if (formals!=null) {
+			int i=0;
+			for (Iterator it = formals.iterator(); it.hasNext();) {
+				X10Formal f = (X10Formal) it.next();
+				f.setPositionInArgList(i++);
+			}
+		}
+	}
+	public ConstructorDecl ConstructorDecl(Position pos, Flags flags,
+			Id name, TypeNode returnType,
+			List formals, Expr argWhereClause,
+			List throwTypes, Block body)
+	{
+		ConstructorDecl n =
+			new X10ConstructorDecl_c(pos, flags,
+					name, returnType,
+					formals, argWhereClause,
+					throwTypes, body);
+		setFormalIndices(formals);
 
-        CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
-        n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
-        n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
-        return n;
-    }
-    public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep) {
-        // Report.report(1,"X10NodeFactory_c: Golden:" + type + type.getClass());
-         if (! type.isCanonical()) {
-             throw new InternalCompilerError("Cannot construct a canonical " +
-                 "type node for a non-canonical type.");
-         }
+		n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
+		n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
+		return n;
+	}
+	public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type) {
+		// Report.report(1,"X10NodeFactory_c: Golden:" + type + type.getClass());
+		if (! type.isCanonical()) {
+			throw new InternalCompilerError("Cannot construct a canonical " +
+					"type node for a non-canonical type.");
+		}
 
-         X10CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type,gen,dep);
-         n = (X10CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
-         n = (X10CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
-         return n;
-     }
-    public PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, Id name) {
-        PropertyDecl n = new PropertyDecl_c(pos, flags, type, name, this);
-        n = (PropertyDecl)n.ext(extFactory().extFieldDecl());
-        n = (PropertyDecl)n.del(delFactory().delFieldDecl());
-        return n;
-    }
-    public final Special Self(Position pos) {
-        return Special(pos, X10Special.SELF, null);
-    }
-    public Special Special(Position pos, Special.Kind kind, TypeNode outer) {
-        Special n = new X10Special_c(pos, kind, outer);
-       n = (Special)n.ext(extFactory().extSpecial());
-       n = (Special)n.del(delFactory().delSpecial());
-       return n;
-   }
+		CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
+		n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+		n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+		return n;
+	}
+	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep) {
+		// Report.report(1,"X10NodeFactory_c: Golden:" + type + type.getClass());
+		if (! type.isCanonical()) {
+			throw new InternalCompilerError("Cannot construct a canonical " +
+					"type node for a non-canonical type.");
+		}
 
-    
-    public Local Local(Position pos, Id name) {
-        Local n = new X10Local_c(pos, name);
-        n = (Local)n.ext(extFactory().extLocal());
-        n = (Local)n.del(delFactory().delLocal());
-        return n;
-    }
-    public BooleanLit BooleanLit(Position pos, boolean value) {
-        BooleanLit n = new X10BooleanLit_c(pos, value);
-        n = (BooleanLit)n.ext(extFactory().extBooleanLit());
-        n = (BooleanLit)n.del(delFactory().delBooleanLit());
-        return n;
-    }
-    public StmtSeq StmtSeq(Position pos, List statements) {
-        StmtSeq n = new StmtSeq_c(pos, statements);
-        n = (StmtSeq)n.ext(extFactory().extBlock());
-        n = (StmtSeq)n.del(delFactory().delBlock());
-        return n;
-    }
-    // Place the consequent and the alternative in blocks to ease
-    // further rewrites of the AST.
-    public If If(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
-    	if (consequent != null) {
-    		List l = new ArrayList();
-    		l.add(consequent);
-    		consequent = Block(consequent.position(), l);
-    	}
-    	
-    	if (alternative != null) {
-    		List l2 = new ArrayList();
-    		l2.add(alternative);
-    		alternative = Block(alternative.position(), l2);
-    	}
-    	
-        If n = new X10If_c(pos, cond, consequent, alternative);
-        n = (If)n.ext(extFactory().extIf());
-        n = (If)n.del(delFactory().delIf());
-        return n;
-    }
-    public RegionMaker RegionMaker(Position pos, Expr e1, Expr e2) {
+		X10CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type,gen,dep);
+		n = (X10CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+		n = (X10CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+		return n;
+	}
+	public PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, Id name) {
+		PropertyDecl n = new PropertyDecl_c(pos, flags, type, name, this);
+		n = (PropertyDecl)n.ext(extFactory().extFieldDecl());
+		n = (PropertyDecl)n.del(delFactory().delFieldDecl());
+		return n;
+	}
+	public final Special Self(Position pos) {
+		return Special(pos, X10Special.SELF, null);
+	}
+	public Special Special(Position pos, Special.Kind kind, TypeNode outer) {
+		Special n = new X10Special_c(pos, kind, outer);
+		n = (Special)n.ext(extFactory().extSpecial());
+		n = (Special)n.del(delFactory().delSpecial());
+		return n;
+	}
+
+	public Local Local(Position pos, Id name) {
+		Local n = new X10Local_c(pos, name);
+		n = (Local)n.ext(extFactory().extLocal());
+		n = (Local)n.del(delFactory().delLocal());
+		return n;
+	}
+	public BooleanLit BooleanLit(Position pos, boolean value) {
+		BooleanLit n = new X10BooleanLit_c(pos, value);
+		n = (BooleanLit)n.ext(extFactory().extBooleanLit());
+		n = (BooleanLit)n.del(delFactory().delBooleanLit());
+		return n;
+	}
+	public StmtSeq StmtSeq(Position pos, List statements) {
+		StmtSeq n = new StmtSeq_c(pos, statements);
+		n = (StmtSeq)n.ext(extFactory().extBlock());
+		n = (StmtSeq)n.del(delFactory().delBlock());
+		return n;
+	}
+	// Place the consequent and the alternative in blocks to ease
+	// further rewrites of the AST.
+	public If If(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
+		if (consequent != null) {
+			List l = new ArrayList();
+			l.add(consequent);
+			consequent = Block(consequent.position(), l);
+		}
+
+		if (alternative != null) {
+			List l2 = new ArrayList();
+			l2.add(alternative);
+			alternative = Block(alternative.position(), l2);
+		}
+
+		If n = new X10If_c(pos, cond, consequent, alternative);
+		n = (If)n.ext(extFactory().extIf());
+		n = (If)n.del(delFactory().delIf());
+		return n;
+	}
+	public RegionMaker RegionMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
 		TypeSystem ts = this.extensionInfo().typeSystem();
-		
-        Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos, "x10.lang.region.factory");
-        List l = new TypedList(new LinkedList(), Expr.class, false);
-        l.add(e1);
-        l.add(e2);
-        RegionMaker n = new RegionMaker_c( pos, x10LangRegionFactory, Id(pos, "region"), l  );
-		
+
+		Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos, "x10.lang.region.factory");
+		List l = new TypedList(new LinkedList(), Expr.class, false);
+		l.add(e1);
+		l.add(e2);
+		RegionMaker n = new RegionMaker_c( pos, x10LangRegionFactory, Id(pos, "region"), l  );
+
 		n = (RegionMaker) n.ext(extFactory().extExpr());
 		return (RegionMaker) n.del(delFactory().delExpr());
 	}
-    public RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, Id name, List args) {
-		
-        RectRegionMaker n = new RectRegionMaker_c( pos, receiver, name, args );
-		
+	public RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, Id name, List args) {
+
+		RectRegionMaker n = new RectRegionMaker_c( pos, receiver, name, args );
+
 		n = (RectRegionMaker) n.ext(extFactory().extExpr());
 		return (RectRegionMaker) n.del(delFactory().delExpr());
 	}
-    public While While(Position pos, Expr cond, Stmt body) {
-        While n = new X10While_c(pos, cond, body);
-        n = (While)n.ext(extFactory().extWhile());
-        n = (While)n.del(delFactory().delWhile());
-        return n;
-    }
-    public IntLit IntLit(Position pos, IntLit.Kind kind, long value) {
-        IntLit n = new X10IntLit_c(pos, kind, value);
-        n = (IntLit)n.ext(extFactory().extIntLit());
-        n = (IntLit)n.del(delFactory().delIntLit());
-        return n;
-    }
-   
-    public StringLit StringLit(Position pos, String value) {
-        StringLit n = new X10StringLit_c(pos, value);
-        n = (StringLit)n.ext(extFactory().extStringLit());
-        n = (StringLit)n.del(delFactory().delStringLit());
-        return n;
-    }
-    public FloatLit FloatLit(Position pos, FloatLit.Kind kind, double value) {
-    
-        FloatLit n = new X10FloatLit_c(pos, kind, value);
-        n = (FloatLit)n.ext(extFactory().extFloatLit());
-        n = (FloatLit)n.del(delFactory().delFloatLit());
-        return n;
-    }
-    public CharLit CharLit(Position pos, char value) {
-        CharLit n = new X10CharLit_c(pos, value);
-        n = (CharLit)n.ext(extFactory().extCharLit());
-        n = (CharLit)n.del(delFactory().delCharLit());
-        return n;
-    }
+	public While While(Position pos, Expr cond, Stmt body) {
+		While n = new X10While_c(pos, cond, body);
+		n = (While)n.ext(extFactory().extWhile());
+		n = (While)n.del(delFactory().delWhile());
+		return n;
+	}
+	public IntLit IntLit(Position pos, IntLit.Kind kind, long value) {
+		IntLit n = new X10IntLit_c(pos, kind, value);
+		n = (IntLit)n.ext(extFactory().extIntLit());
+		n = (IntLit)n.del(delFactory().delIntLit());
+		return n;
+	}
 
-    public AssignPropertyCall AssignPropertyCall(Position pos,  List args) {
-    	AssignPropertyCall  n = new AssignPropertyCall_c(pos, args);
+	public StringLit StringLit(Position pos, String value) {
+		StringLit n = new X10StringLit_c(pos, value);
+		n = (StringLit)n.ext(extFactory().extStringLit());
+		n = (StringLit)n.del(delFactory().delStringLit());
+		return n;
+	}
+	public FloatLit FloatLit(Position pos, FloatLit.Kind kind, double value) {
+		FloatLit n = new X10FloatLit_c(pos, kind, value);
+		n = (FloatLit)n.ext(extFactory().extFloatLit());
+		n = (FloatLit)n.del(delFactory().delFloatLit());
+		return n;
+	}
+	public CharLit CharLit(Position pos, char value) {
+		CharLit n = new X10CharLit_c(pos, value);
+		n = (CharLit)n.ext(extFactory().extCharLit());
+		n = (CharLit)n.del(delFactory().delCharLit());
+		return n;
+	}
+
+	public AssignPropertyCall AssignPropertyCall(Position pos,  List args) {
+		AssignPropertyCall  n = new AssignPropertyCall_c(pos, args);
 		n = (AssignPropertyCall) n.ext(extFactory().extExpr());
 		n= (AssignPropertyCall) n.del(delFactory().delExpr());
 		return n;
 	}
-    public Conditional Conditional(Position pos, Expr cond, Expr consequent, Expr alternative) {
-        Conditional n = new X10Conditional_c(pos, cond, consequent, alternative);
-        n = (Conditional)n.ext(extFactory().extConditional());
-        n = (Conditional)n.del(delFactory().delConditional());
-        return n;
-    }
+	public Conditional Conditional(Position pos, Expr cond, Expr consequent, Expr alternative) {
+		Conditional n = new X10Conditional_c(pos, cond, consequent, alternative);
+		n = (Conditional)n.ext(extFactory().extConditional());
+		n = (Conditional)n.del(delFactory().delConditional());
+		return n;
+	}
 
-    public ConstructorCall ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List args) {
-        ConstructorCall n = new X10ConstructorCall_c(pos, kind, outer, CollectionUtil.nonNullList(args));
-        n = (ConstructorCall)n.ext(extFactory().extConstructorCall());
-        n = (ConstructorCall)n.del(delFactory().delConstructorCall());
-        return n;
-    }
+	public ConstructorCall ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List args) {
+		ConstructorCall n = new X10ConstructorCall_c(pos, kind, outer, CollectionUtil.nonNullList(args));
+		n = (ConstructorCall)n.ext(extFactory().extConstructorCall());
+		n = (ConstructorCall)n.del(delFactory().delConstructorCall());
+		return n;
+	}
 
-    public Closure Closure(Position pos, List formals, TypeNode returnType, List throwTypes, Block body) {
-	Closure n = new Closure_c(pos, formals, returnType, throwTypes, body);
-        n = (Closure) n.ext(extFactory().extExpr());
-        n = (Closure) n.del(delFactory().delExpr());
-        return n;
-    }
+	public Closure Closure(Position pos, List formals, TypeNode returnType, List throwTypes, Block body) {
+		Closure n = new Closure_c(pos, formals, returnType, throwTypes, body);
+		n = (Closure) n.ext(extFactory().extExpr());
+		n = (Closure) n.del(delFactory().delExpr());
+		return n;
+	}
 
-    public ClosureCall ClosureCall(Position pos, Expr closure, List args) {
-	ClosureCall n = new ClosureCall_c(pos, closure, args);
-        n = (ClosureCall) n.ext(extFactory().extExpr());
-        n = (ClosureCall) n.del(delFactory().delExpr());
-        return n;
-    }
+	public ClosureCall ClosureCall(Position pos, Expr closure, List args) {
+		ClosureCall n = new ClosureCall_c(pos, closure, args);
+		n = (ClosureCall) n.ext(extFactory().extExpr());
+		n = (ClosureCall) n.del(delFactory().delExpr());
+		return n;
+	}
 
-     public AnnotationNode AnnotationNode(Position pos, TypeNode tn) {
-    	 AnnotationNode n = new AnnotationNode_c(pos, tn);
-    	 n = (AnnotationNode) n.ext(extFactory().extNode());
-    	 n = (AnnotationNode) n.del(delFactory().delNode());
-    	 return n;
-     }
+	public AnnotationNode AnnotationNode(Position pos, TypeNode tn) {
+		AnnotationNode n = new AnnotationNode_c(pos, tn);
+		n = (AnnotationNode) n.ext(extFactory().extNode());
+		n = (AnnotationNode) n.del(delFactory().delNode());
+		return n;
+	}
 }
