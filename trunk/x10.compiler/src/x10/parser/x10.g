@@ -1050,7 +1050,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
         ./
             | future < Type > 
         /.$BeginJava
-                    setResult(nf.Future(pos(), Type));
+                    setResult(nf.FutureNode(pos(), Type));
           $EndJava
         ./
             

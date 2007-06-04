@@ -574,7 +574,7 @@ public class X10Dom {
 		public FutureNode fromXML(Element e) {
 			Position position = get(new PositionLens(), e, "position");
 			TypeNode tn = get(new CanonicalTypeNodeLens(), e, "type");
-			return nf.Future(position, tn);
+			return nf.FutureNode(position, tn);
 		}
 		
 		public void toXML(DomGenerator v, FutureNode n) {

@@ -191,7 +191,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	 * TODO cvp - do these nodes need specific delegate and extension
 	 * objects?
 	 */
-	public FutureNode Future(Position pos, TypeNode type) {
+	public FutureNode FutureNode(Position pos, TypeNode type) {
 		FutureNode n = new FutureNode_c(pos, type);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (FutureNode) n.ext(ext_fac.extFutureNodeImpl());
