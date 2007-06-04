@@ -301,6 +301,12 @@ public class Pool {
     	startTime = System.nanoTime();
         addJob(job);
     }
+    public void invoke(Job job) {
+    	submit(job);
+    	try {
+			job.waitForCompletion();
+		} catch (InterruptedException z) {}
+    }
 
     /**
      * Enqueue an externally submitted task
