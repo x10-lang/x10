@@ -1,5 +1,5 @@
 
-//#line 18 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+//#line 18 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -19,7 +19,7 @@ package x10.parser;
 
 import lpg.runtime.*;
 
-//#line 28 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+//#line 28 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -309,7 +309,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     }
 
 
-    //#line 289 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+    //#line 289 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -800,9 +800,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 1:  TypeName ::= TypeName . ErrorId
             //
             case 1: {
-                //#line 6 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 6 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 8 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 8 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -815,9 +815,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 2:  PackageName ::= PackageName . ErrorId
             //
             case 2: {
-                //#line 16 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 16 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name PackageName = (Name) getRhsSym(1);
-                //#line 18 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 18 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -830,9 +830,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 3:  ExpressionName ::= AmbiguousName . ErrorId
             //
             case 3: {
-                //#line 26 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 26 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 28 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 28 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -845,9 +845,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 4:  MethodName ::= AmbiguousName . ErrorId
             //
             case 4: {
-                //#line 36 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 36 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 38 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 38 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -860,9 +860,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 5:  PackageOrTypeName ::= PackageOrTypeName . ErrorId
             //
             case 5: {
-                //#line 46 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 46 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name PackageOrTypeName = (Name) getRhsSym(1);
-                //#line 48 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 48 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -875,9 +875,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 6:  AmbiguousName ::= AmbiguousName . ErrorId
             //
             case 6: {
-                //#line 56 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 56 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 58 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 58 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -890,9 +890,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 7:  FieldAccess ::= Primary . ErrorId
             //
             case 7: {
-                //#line 66 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 66 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 68 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 68 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 setResult(nf.Field(pos(), Primary,
                                       nf.Id(pos(getRightSpan()), "*")));
                 break;
@@ -903,7 +903,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 8: {
                 
-                //#line 74 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 74 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())),
                                       nf.Id(pos(getRightSpan()), "*")));
                 break;
@@ -913,11 +913,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 9:  FieldAccess ::= ClassName . super$sup . ErrorId
             //
             case 9: {
-                //#line 78 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 78 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 78 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 78 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 80 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 80 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()),
                                       nf.Id(pos(getRightSpan()), "*")));
                 break;
@@ -927,11 +927,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 10:  MethodInvocation ::= MethodPrimaryPrefix ( ArgumentListopt )
             //
             case 10: {
-                //#line 85 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 85 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Object MethodPrimaryPrefix = (Object) getRhsSym(1);
-                //#line 85 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 85 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 87 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 87 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodPrimaryPrefix)[1];
                 setResult(nf.Call(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
@@ -942,11 +942,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 11:  MethodInvocation ::= MethodSuperPrefix ( ArgumentListopt )
             //
             case 11: {
-                //#line 92 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 92 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 polyglot.lex.Identifier MethodSuperPrefix = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 92 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 92 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 94 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 94 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 polyglot.lex.Identifier identifier = MethodSuperPrefix;
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
                 break;
@@ -956,11 +956,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 12:  MethodInvocation ::= MethodClassNameSuperPrefix ( ArgumentListopt )
             //
             case 12: {
-                //#line 98 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 98 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Object MethodClassNameSuperPrefix = (Object) getRhsSym(1);
-                //#line 98 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 98 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 100 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 100 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name ClassName = (Name) ((Object[]) MethodClassNameSuperPrefix)[0];
                 JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
@@ -972,11 +972,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 13:  MethodPrimaryPrefix ::= Primary . ErrorId$ErrorId
             //
             case 13: {
-                //#line 107 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 107 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 107 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 107 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 109 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 109 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Object[] a = new Object[2];
                 a[0] = Primary;
                 a[1] = id(getRhsFirstTokenIndex(3));
@@ -988,9 +988,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 14:  MethodSuperPrefix ::= super . ErrorId$ErrorId
             //
             case 14: {
-                //#line 115 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 115 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 117 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 117 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 setResult(id(getRhsFirstTokenIndex(3)));
                 break;
             }
@@ -999,13 +999,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 15:  MethodClassNameSuperPrefix ::= ClassName . super$sup . ErrorId$ErrorId
             //
             case 15: {
-                //#line 120 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 120 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 120 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 120 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 120 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 120 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(5);
-                //#line 122 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/MissingId.gi"
+                //#line 122 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/MissingId.gi"
                 Object[] a = new Object[3];
                 a[0] = ClassName;
                 a[1] = pos(getRhsFirstTokenIndex(3));
@@ -1018,9 +1018,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 16:  identifier ::= IDENTIFIER$ident
             //
             case 16: {
-                //#line 94 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 94 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 96 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 96 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                 break;
@@ -1031,7 +1031,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 19: {
                 
-                //#line 121 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 121 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Byte()));
                 break;
             }
@@ -1041,7 +1041,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 20: {
                 
-                //#line 126 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 126 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Char()));
                 break;
             }
@@ -1051,7 +1051,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 21: {
                 
-                //#line 131 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 131 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Short()));
                 break;
             }
@@ -1061,7 +1061,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 22: {
                 
-                //#line 136 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 136 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Int()));
                 break;
             }
@@ -1071,7 +1071,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 23: {
                 
-                //#line 141 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 141 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Long()));
                 break;
             }
@@ -1081,7 +1081,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 24: {
                 
-                //#line 147 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 147 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Float()));
                 break;
             }
@@ -1091,7 +1091,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 25: {
                 
-                //#line 152 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 152 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Double()));
                 break;
             }
@@ -1100,9 +1100,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 28:  TypeName ::= identifier
             //
             case 28: {
-                //#line 175 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 175 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 177 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 177 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1111,11 +1111,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 29:  TypeName ::= TypeName . identifier
             //
             case 29: {
-                //#line 180 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 180 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 180 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 180 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 182 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 182 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1128,11 +1128,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 31:  ArrayType ::= Type [ Annotationsopt ]
             //
             case 31: {
-                //#line 194 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 194 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 194 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 194 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object Annotationsopt = (Object) getRhsSym(3);
-                //#line 196 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 196 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.array(Type, pos(), 1));
                 break;
             }
@@ -1141,9 +1141,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 32:  PackageName ::= identifier
             //
             case 32: {
-                //#line 240 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 240 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 242 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 242 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1152,11 +1152,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 33:  PackageName ::= PackageName . identifier
             //
             case 33: {
-                //#line 245 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 245 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name PackageName = (Name) getRhsSym(1);
-                //#line 245 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 245 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 247 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 247 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1169,9 +1169,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 34:  ExpressionName ::= identifier
             //
             case 34: {
-                //#line 261 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 261 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 263 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 263 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1180,11 +1180,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 35:  ExpressionName ::= AmbiguousName . identifier
             //
             case 35: {
-                //#line 266 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 266 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 266 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 266 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 268 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 268 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1197,9 +1197,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 36:  MethodName ::= identifier
             //
             case 36: {
-                //#line 276 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 276 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 278 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 278 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1208,11 +1208,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 37:  MethodName ::= AmbiguousName . identifier
             //
             case 37: {
-                //#line 281 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 281 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 281 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 281 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 283 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 283 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1225,9 +1225,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 38:  PackageOrTypeName ::= identifier
             //
             case 38: {
-                //#line 291 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 291 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 293 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 293 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1236,11 +1236,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 39:  PackageOrTypeName ::= PackageOrTypeName . identifier
             //
             case 39: {
-                //#line 296 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 296 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name PackageOrTypeName = (Name) getRhsSym(1);
-                //#line 296 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 296 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 298 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 298 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1253,9 +1253,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 40:  AmbiguousName ::= identifier
             //
             case 40: {
-                //#line 306 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 306 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 308 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 308 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1264,11 +1264,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 41:  AmbiguousName ::= AmbiguousName . identifier
             //
             case 41: {
-                //#line 311 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 311 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 311 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 311 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 313 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 313 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1281,13 +1281,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 42:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
             case 42: {
-                //#line 323 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 323 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 323 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 323 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 323 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 323 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 325 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 325 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // Add import x10.lang.* by default.
                 int token_pos = (ImportDeclarationsopt.size() == 0
                                      ? TypeDeclarationsopt.size() == 0
@@ -1306,9 +1306,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 43:  ImportDeclarations ::= ImportDeclaration
             //
             case 43: {
-                //#line 339 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 339 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 341 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 341 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -1319,11 +1319,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 44:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
             case 44: {
-                //#line 346 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 346 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 346 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 346 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 348 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 348 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -1334,9 +1334,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 45:  TypeDeclarations ::= TypeDeclaration
             //
             case 45: {
-                //#line 354 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 354 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 356 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 356 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -1348,11 +1348,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 46:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
             case 46: {
-                //#line 362 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 362 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 362 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 362 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(2);
-                //#line 364 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 364 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -1363,9 +1363,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 49:  SingleTypeImportDeclaration ::= import TypeName ;
             //
             case 49: {
-                //#line 377 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 377 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name TypeName = (Name) getRhsSym(2);
-                //#line 379 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 379 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, TypeName.toString()));
                 break;
             }
@@ -1374,9 +1374,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 50:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
             case 50: {
-                //#line 383 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 383 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name PackageOrTypeName = (Name) getRhsSym(2);
-                //#line 385 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 385 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, PackageOrTypeName.toString()));
                 break;
             }
@@ -1386,7 +1386,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 53: {
                 
-                //#line 399 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 399 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(null);
                 break;
             }
@@ -1395,9 +1395,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 55:  ClassModifiers ::= ClassModifier
             //
             case 55: {
-                //#line 410 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 410 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 412 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 412 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new LinkedList();
                 l.addAll(ClassModifier);
                 setResult(l);
@@ -1408,11 +1408,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 56:  ClassModifiers ::= ClassModifiers ClassModifier
             //
             case 56: {
-                //#line 417 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 417 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassModifiers = (List) getRhsSym(1);
-                //#line 417 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 417 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassModifier = (List) getRhsSym(2);
-                //#line 419 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 419 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassModifiers.addAll(ClassModifier);
                 break;
             }
@@ -1421,9 +1421,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 57:  ClassModifier ::= Annotation
             //
             case 57: {
-                //#line 423 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 423 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 425 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 425 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -1433,7 +1433,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 58: {
                 
-                //#line 430 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 430 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -1443,7 +1443,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 59: {
                 
-                //#line 435 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 435 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -1453,7 +1453,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 60: {
                 
-                //#line 440 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 440 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -1463,7 +1463,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 61: {
                 
-                //#line 445 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 445 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.ABSTRACT));
                 break;
             }
@@ -1473,7 +1473,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 62: {
                 
-                //#line 450 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 450 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -1483,7 +1483,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 63: {
                 
-                //#line 455 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 455 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -1493,7 +1493,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 64: {
                 
-                //#line 460 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 460 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.STRICTFP));
                 break;
             }
@@ -1502,9 +1502,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 65:  Super ::= extends ClassType
             //
             case 65: {
-                //#line 472 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 472 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 474 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 474 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ClassType);
                 break;
             }
@@ -1513,9 +1513,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 66:  Interfaces ::= implements InterfaceTypeList
             //
             case 66: {
-                //#line 483 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 483 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 485 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 485 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(InterfaceTypeList);
                 break;
             }
@@ -1524,9 +1524,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 67:  InterfaceTypeList ::= InterfaceType
             //
             case 67: {
-                //#line 489 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 489 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(1);
-                //#line 491 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 491 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
                 setResult(l);
@@ -1537,11 +1537,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 68:  InterfaceTypeList ::= InterfaceTypeList , InterfaceType
             //
             case 68: {
-                //#line 496 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 496 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 496 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 496 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
-                //#line 498 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 498 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 InterfaceTypeList.add(InterfaceType);
                 setResult(InterfaceTypeList);
                 break;
@@ -1551,9 +1551,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 69:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
             case 69: {
-                //#line 508 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 508 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 510 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 510 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                 break;
             }
@@ -1562,11 +1562,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 71:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
             case 71: {
-                //#line 515 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 515 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 515 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 515 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 517 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 517 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                 break;
@@ -1576,9 +1576,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 73:  ClassBodyDeclaration ::= InstanceInitializer
             //
             case 73: {
-                //#line 523 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 523 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block InstanceInitializer = (Block) getRhsSym(1);
-                //#line 525 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 525 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(nf.Initializer(pos(), Flags.NONE, InstanceInitializer));
                 setResult(l);
@@ -1589,9 +1589,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 74:  ClassBodyDeclaration ::= StaticInitializer
             //
             case 74: {
-                //#line 530 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 530 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block StaticInitializer = (Block) getRhsSym(1);
-                //#line 532 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 532 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(nf.Initializer(pos(), Flags.STATIC, StaticInitializer));
                 setResult(l);
@@ -1602,9 +1602,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 75:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
             case 75: {
-                //#line 537 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 537 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 539 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 539 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -1615,9 +1615,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 77:  ClassMemberDeclaration ::= MethodDeclaration
             //
             case 77: {
-                //#line 546 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 546 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 MethodDecl MethodDeclaration = (MethodDecl) getRhsSym(1);
-                //#line 548 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 548 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -1628,9 +1628,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 78:  ClassMemberDeclaration ::= ClassDeclaration
             //
             case 78: {
-                //#line 553 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 553 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 555 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 555 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -1641,9 +1641,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 79:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
             case 79: {
-                //#line 560 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 560 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 562 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 562 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -1655,7 +1655,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 80: {
                 
-                //#line 569 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 569 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                 break;
@@ -1665,9 +1665,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 81:  VariableDeclarators ::= VariableDeclarator
             //
             case 81: {
-                //#line 577 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 577 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VarDeclarator VariableDeclarator = (VarDeclarator) getRhsSym(1);
-                //#line 579 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 579 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), X10VarDeclarator.class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -1678,11 +1678,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 82:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
             case 82: {
-                //#line 584 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 584 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 584 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 584 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VarDeclarator VariableDeclarator = (VarDeclarator) getRhsSym(3);
-                //#line 586 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 586 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                 break;
@@ -1692,11 +1692,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 84:  VariableDeclarator ::= VariableDeclaratorId = VariableInitializer
             //
             case 84: {
-                //#line 592 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 592 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(1);
-                //#line 592 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 592 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 594 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 594 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VariableDeclaratorId.init = VariableInitializer;
                 VariableDeclaratorId.position(pos());
                 // setResult(VariableDeclaratorId); 
@@ -1707,9 +1707,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 85:  TraditionalVariableDeclaratorId ::= identifier
             //
             case 85: {
-                //#line 600 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 600 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 602 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 602 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new X10VarDeclarator(pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1718,9 +1718,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 86:  TraditionalVariableDeclaratorId ::= TraditionalVariableDeclaratorId [ ]
             //
             case 86: {
-                //#line 605 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 605 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator TraditionalVariableDeclaratorId = (X10VarDeclarator) getRhsSym(1);
-                //#line 607 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 607 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TraditionalVariableDeclaratorId.dims++;
                 TraditionalVariableDeclaratorId.position(pos());
                 // setResult(a);
@@ -1731,11 +1731,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 88:  VariableDeclaratorId ::= identifier [ IdentifierList ]
             //
             case 88: {
-                //#line 614 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 614 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 614 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 614 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 616 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 616 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new X10VarDeclarator(pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()), IdentifierList));
                 break;
             }
@@ -1744,9 +1744,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 89:  VariableDeclaratorId ::= [ IdentifierList ]
             //
             case 89: {
-                //#line 619 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 619 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 621 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 621 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new X10VarDeclarator(pos(), IdentifierList));
                 break;
             }
@@ -1755,9 +1755,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 92:  FieldModifiers ::= FieldModifier
             //
             case 92: {
-                //#line 628 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 628 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FieldModifier = (List) getRhsSym(1);
-                //#line 630 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 630 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new LinkedList();
                 l.addAll(FieldModifier);
                 setResult(l);
@@ -1768,11 +1768,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 93:  FieldModifiers ::= FieldModifiers FieldModifier
             //
             case 93: {
-                //#line 635 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 635 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FieldModifiers = (List) getRhsSym(1);
-                //#line 635 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 635 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FieldModifier = (List) getRhsSym(2);
-                //#line 637 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 637 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 FieldModifiers.addAll(FieldModifier);
                 break;
             }
@@ -1781,9 +1781,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 94:  FieldModifier ::= Annotation
             //
             case 94: {
-                //#line 641 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 641 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 643 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 643 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -1793,7 +1793,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 95: {
                 
-                //#line 648 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 648 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -1803,7 +1803,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 96: {
                 
-                //#line 653 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 653 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -1813,7 +1813,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 97: {
                 
-                //#line 658 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 658 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -1823,7 +1823,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 98: {
                 
-                //#line 663 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 663 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -1833,7 +1833,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 99: {
                 
-                //#line 668 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 668 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -1843,7 +1843,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 100: {
                 
-                //#line 673 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 673 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.TRANSIENT));
                 break;
             }
@@ -1853,7 +1853,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 102: {
                 
-                //#line 690 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 690 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Void()));
                 break;
             }
@@ -1862,9 +1862,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 103:  FormalParameterList ::= LastFormalParameter
             //
             case 103: {
-                //#line 710 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 710 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Formal LastFormalParameter = (Formal) getRhsSym(1);
-                //#line 712 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(LastFormalParameter);
                 setResult(l);
@@ -1875,11 +1875,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 104:  FormalParameterList ::= FormalParameters , LastFormalParameter
             //
             case 104: {
-                //#line 717 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 717 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FormalParameters = (List) getRhsSym(1);
-                //#line 717 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 717 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Formal LastFormalParameter = (Formal) getRhsSym(3);
-                //#line 719 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 719 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 FormalParameters.add(LastFormalParameter);
                 // setResult(FormalParameters);
                 break;
@@ -1889,9 +1889,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 105:  FormalParameters ::= FormalParameter
             //
             case 105: {
-                //#line 724 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 724 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 726 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 726 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -1902,11 +1902,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 106:  FormalParameters ::= FormalParameters , FormalParameter
             //
             case 106: {
-                //#line 731 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 731 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FormalParameters = (List) getRhsSym(1);
-                //#line 731 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 731 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 733 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 733 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 FormalParameters.add(FormalParameter);
                 // setResult(FormalParameters);
                 break;
@@ -1916,13 +1916,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 107:  FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
             //
             case 107: {
-                //#line 738 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 738 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 738 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 738 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 738 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 738 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(3);
-                //#line 740 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 740 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
             Formal f;
         if (VariableDeclaratorId != null)
                 f = nf.X10Formal(pos(), extractFlags(VariableModifiersopt), nf.array(Type, pos(getRhsFirstTokenIndex(2), getRhsLastTokenIndex(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names());
@@ -1937,9 +1937,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 108:  VariableModifiers ::= VariableModifier
             //
             case 108: {
-                //#line 750 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 750 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableModifier = (List) getRhsSym(1);
-                //#line 752 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 752 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new LinkedList();
                 l.addAll(VariableModifier);
                 setResult(l);
@@ -1950,11 +1950,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 109:  VariableModifiers ::= VariableModifiers VariableModifier
             //
             case 109: {
-                //#line 757 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 757 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableModifiers = (List) getRhsSym(1);
-                //#line 757 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 757 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableModifier = (List) getRhsSym(2);
-                //#line 759 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 759 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VariableModifiers.addAll(VariableModifier);
                 break;
             }
@@ -1964,7 +1964,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 110: {
                 
-                //#line 765 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 765 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -1973,9 +1973,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 111:  VariableModifier ::= Annotation
             //
             case 111: {
-                //#line 768 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 768 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 770 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 770 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -1984,15 +1984,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 112:  LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
             //
             case 112: {
-                //#line 774 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 774 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 774 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 774 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 774 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 774 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object opt = (Object) getRhsSym(3);
-                //#line 774 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 774 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(4);
-                //#line 776 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 776 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 assert(opt == null);
                 Formal f = nf.X10Formal(pos(), extractFlags(VariableModifiersopt), nf.array(Type, pos(getRhsFirstTokenIndex(2), getRhsLastTokenIndex(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names());
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
@@ -2004,9 +2004,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 113:  MethodModifiers ::= MethodModifier
             //
             case 113: {
-                //#line 789 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 789 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List MethodModifier = (List) getRhsSym(1);
-                //#line 791 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 791 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new LinkedList();
                 l.addAll(MethodModifier);
                 setResult(l);
@@ -2017,11 +2017,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 114:  MethodModifiers ::= MethodModifiers MethodModifier
             //
             case 114: {
-                //#line 796 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List MethodModifiers = (List) getRhsSym(1);
-                //#line 796 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List MethodModifier = (List) getRhsSym(2);
-                //#line 798 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 798 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 MethodModifiers.addAll(MethodModifier);
                 break;
             }
@@ -2030,9 +2030,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 115:  MethodModifier ::= Annotation
             //
             case 115: {
-                //#line 802 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 802 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 804 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 804 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2042,7 +2042,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 116: {
                 
-                //#line 809 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 809 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2052,7 +2052,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 117: {
                 
-                //#line 814 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 814 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -2062,7 +2062,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 118: {
                 
-                //#line 819 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 819 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -2072,7 +2072,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 119: {
                 
-                //#line 824 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 824 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.ABSTRACT));
                 break;
             }
@@ -2082,7 +2082,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 120: {
                 
-                //#line 829 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 829 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -2092,7 +2092,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 121: {
                 
-                //#line 834 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 834 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -2102,7 +2102,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 122: {
                 
-                //#line 844 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 844 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.NATIVE));
                 break;
             }
@@ -2112,7 +2112,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 123: {
                 
-                //#line 849 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 849 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.STRICTFP));
                 break;
             }
@@ -2121,9 +2121,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 124:  Throws ::= throws ExceptionTypeList
             //
             case 124: {
-                //#line 853 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 853 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 855 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 855 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExceptionTypeList);
                 break;
             }
@@ -2132,9 +2132,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 125:  ExceptionTypeList ::= ExceptionType
             //
             case 125: {
-                //#line 859 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 859 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 861 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 861 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -2145,11 +2145,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 126:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
             case 126: {
-                //#line 866 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 866 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 866 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 866 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 868 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 868 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ExceptionTypeList.add(ExceptionType);
                 // setResult(ExceptionTypeList);
                 break;
@@ -2166,9 +2166,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 131:  StaticInitializer ::= static Block
             //
             case 131: {
-                //#line 888 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 888 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 890 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 890 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Block);
                 break;
             }
@@ -2177,9 +2177,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 132:  SimpleTypeName ::= identifier
             //
             case 132: {
-                //#line 905 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 905 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 907 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 907 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -2188,9 +2188,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 133:  ConstructorModifiers ::= ConstructorModifier
             //
             case 133: {
-                //#line 911 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 911 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstructorModifier = (List) getRhsSym(1);
-                //#line 913 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 913 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new LinkedList();
                 l.addAll(ConstructorModifier);
                 setResult(l);
@@ -2201,11 +2201,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 134:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
             case 134: {
-                //#line 918 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 918 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstructorModifiers = (List) getRhsSym(1);
-                //#line 918 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 918 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstructorModifier = (List) getRhsSym(2);
-                //#line 920 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 920 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
                 break;
             }
@@ -2214,9 +2214,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 135:  ConstructorModifier ::= Annotation
             //
             case 135: {
-                //#line 924 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 924 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 926 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 926 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2226,7 +2226,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 136: {
                 
-                //#line 931 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 931 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2236,7 +2236,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 137: {
                 
-                //#line 936 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 936 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -2246,7 +2246,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 138: {
                 
-                //#line 941 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 941 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -2255,11 +2255,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 139:  ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
             case 139: {
-                //#line 945 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 945 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 945 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 945 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 947 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 947 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt == null)
@@ -2279,9 +2279,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 140:  Arguments ::= ( ArgumentListopt )
             //
             case 140: {
-                //#line 980 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 980 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 982 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 982 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ArgumentListopt);
                 break;
             }
@@ -2290,9 +2290,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 142:  InterfaceModifiers ::= InterfaceModifier
             //
             case 142: {
-                //#line 997 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 997 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceModifier = (List) getRhsSym(1);
-                //#line 999 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 999 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new LinkedList();
                 l.addAll(InterfaceModifier);
                 setResult(l);
@@ -2303,11 +2303,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 143:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
             case 143: {
-                //#line 1004 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1004 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceModifiers = (List) getRhsSym(1);
-                //#line 1004 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1004 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceModifier = (List) getRhsSym(2);
-                //#line 1006 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1006 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
                 break;
             }
@@ -2316,9 +2316,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 144:  InterfaceModifier ::= Annotation
             //
             case 144: {
-                //#line 1010 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1010 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1012 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1012 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2328,7 +2328,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 145: {
                 
-                //#line 1017 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1017 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2338,7 +2338,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 146: {
                 
-                //#line 1022 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1022 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -2348,7 +2348,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 147: {
                 
-                //#line 1027 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1027 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -2358,7 +2358,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 148: {
                 
-                //#line 1032 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1032 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.ABSTRACT));
                 break;
             }
@@ -2368,7 +2368,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 149: {
                 
-                //#line 1037 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1037 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -2378,7 +2378,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 150: {
                 
-                //#line 1042 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1042 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.STRICTFP));
                 break;
             }
@@ -2387,9 +2387,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 151:  ExtendsInterfaces ::= extends InterfaceType
             //
             case 151: {
-                //#line 1046 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1046 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(2);
-                //#line 1048 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1048 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
                 setResult(l);
@@ -2400,11 +2400,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 152:  ExtendsInterfaces ::= ExtendsInterfaces , InterfaceType
             //
             case 152: {
-                //#line 1053 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1053 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 1053 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1053 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
-                //#line 1055 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1055 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ExtendsInterfaces.add(InterfaceType);
                 // setResult(ExtendsInterfaces);
                 break;
@@ -2414,9 +2414,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 153:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
             case 153: {
-                //#line 1065 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1065 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 1067 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1067 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                 break;
             }
@@ -2425,11 +2425,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 155:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
             case 155: {
-                //#line 1072 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1072 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 1072 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1072 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 1074 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1074 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                 break;
@@ -2439,9 +2439,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 157:  InterfaceMemberDeclaration ::= AbstractMethodDeclaration
             //
             case 157: {
-                //#line 1080 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1080 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 MethodDecl AbstractMethodDeclaration = (MethodDecl) getRhsSym(1);
-                //#line 1082 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1082 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(AbstractMethodDeclaration);
                 setResult(l);
@@ -2452,9 +2452,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 158:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
             case 158: {
-                //#line 1087 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1087 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1089 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1089 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -2465,9 +2465,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 159:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
             case 159: {
-                //#line 1094 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1094 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1096 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1096 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -2479,7 +2479,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 160: {
                 
-                //#line 1103 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1103 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -2488,13 +2488,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 161:  ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
             //
             case 161: {
-                //#line 1107 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1107 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstantModifiersopt = (List) getRhsSym(1);
-                //#line 1107 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1107 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1107 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1107 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 1109 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1109 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
                 {
@@ -2518,9 +2518,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 162:  ConstantModifiers ::= ConstantModifier
             //
             case 162: {
-                //#line 1128 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1128 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstantModifier = (List) getRhsSym(1);
-                //#line 1130 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1130 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new LinkedList();
                 l.addAll(ConstantModifier);
                 setResult(l);
@@ -2531,11 +2531,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 163:  ConstantModifiers ::= ConstantModifiers ConstantModifier
             //
             case 163: {
-                //#line 1135 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1135 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstantModifiers = (List) getRhsSym(1);
-                //#line 1135 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1135 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstantModifier = (List) getRhsSym(2);
-                //#line 1137 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1137 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ConstantModifiers.addAll(ConstantModifier);
                 break;
             }
@@ -2544,9 +2544,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 164:  ConstantModifier ::= Annotation
             //
             case 164: {
-                //#line 1141 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1141 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1143 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1143 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2556,7 +2556,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 165: {
                 
-                //#line 1148 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1148 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2566,7 +2566,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 166: {
                 
-                //#line 1153 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1153 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -2576,7 +2576,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 167: {
                 
-                //#line 1158 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1158 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -2585,9 +2585,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 169:  AbstractMethodModifiers ::= AbstractMethodModifier
             //
             case 169: {
-                //#line 1164 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1164 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List AbstractMethodModifier = (List) getRhsSym(1);
-                //#line 1166 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1166 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new LinkedList();
                 l.addAll(AbstractMethodModifier);
                 setResult(l);
@@ -2598,11 +2598,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 170:  AbstractMethodModifiers ::= AbstractMethodModifiers AbstractMethodModifier
             //
             case 170: {
-                //#line 1171 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1171 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List AbstractMethodModifiers = (List) getRhsSym(1);
-                //#line 1171 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1171 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List AbstractMethodModifier = (List) getRhsSym(2);
-                //#line 1173 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1173 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AbstractMethodModifiers.addAll(AbstractMethodModifier);
                 break;
             }
@@ -2611,9 +2611,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 171:  AbstractMethodModifier ::= Annotation
             //
             case 171: {
-                //#line 1177 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1177 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1179 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1179 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2623,7 +2623,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 172: {
                 
-                //#line 1184 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1184 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2633,7 +2633,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 173: {
                 
-                //#line 1189 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1189 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.singletonList(Flags.ABSTRACT));
                 break;
             }
@@ -2642,9 +2642,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 174:  Annotations ::= Annotation
             //
             case 174: {
-                //#line 1222 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1222 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1224 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1224 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -2655,11 +2655,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 175:  Annotations ::= Annotations Annotation
             //
             case 175: {
-                //#line 1229 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1229 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Annotations = (List) getRhsSym(1);
-                //#line 1229 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1229 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 1231 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1231 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Annotations.add(Annotation);
                 break;
             }
@@ -2668,9 +2668,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 176:  Annotation ::= @ InterfaceType
             //
             case 176: {
-                //#line 1235 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1235 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(2);
-                //#line 1237 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1237 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.AnnotationNode(pos(), InterfaceType));
                 break;
             }
@@ -2679,9 +2679,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 177:  SimpleName ::= identifier
             //
             case 177: {
-                //#line 1252 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1252 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1254 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1254 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -2690,11 +2690,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 178:  ArrayInitializer ::= { VariableInitializersopt ,opt$opt }
             //
             case 178: {
-                //#line 1281 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1281 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableInitializersopt = (List) getRhsSym(2);
-                //#line 1281 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1281 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object opt = (Object) getRhsSym(3);
-                //#line 1283 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1283 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (VariableInitializersopt == null)
                      setResult(nf.ArrayInit(pos()));
                 else setResult(nf.ArrayInit(pos(), VariableInitializersopt));
@@ -2705,9 +2705,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 179:  VariableInitializers ::= VariableInitializer
             //
             case 179: {
-                //#line 1289 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1289 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 1291 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1291 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -2718,11 +2718,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 180:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
             case 180: {
-                //#line 1296 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1296 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 1296 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1296 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 1298 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1298 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                 break;
@@ -2732,11 +2732,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 181:  Block ::= Annotationsopt { BlockStatementsopt }
             //
             case 181: {
-                //#line 1317 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1317 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object Annotationsopt = (Object) getRhsSym(1);
-                //#line 1317 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1317 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 1319 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1319 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                 break;
             }
@@ -2745,9 +2745,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 182:  BlockStatements ::= BlockStatement
             //
             case 182: {
-                //#line 1323 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1323 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 1325 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1325 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -2758,11 +2758,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 183:  BlockStatements ::= BlockStatements BlockStatement
             //
             case 183: {
-                //#line 1330 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1330 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 1330 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1330 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 1332 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1332 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                 break;
@@ -2772,9 +2772,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 185:  BlockStatement ::= ClassDeclaration
             //
             case 185: {
-                //#line 1338 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1338 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1340 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1340 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -2785,9 +2785,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 186:  BlockStatement ::= Statement
             //
             case 186: {
-                //#line 1345 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1345 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 1347 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1347 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -2798,13 +2798,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 188:  LocalVariableDeclaration ::= VariableModifiersopt Type VariableDeclarators
             //
             case 188: {
-                //#line 1355 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1355 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 1355 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1355 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1355 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1355 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 1357 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1357 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                 List s = new TypedList(new LinkedList(), Stmt.class, false);
                 if (VariableDeclarators != null) {
@@ -2831,11 +2831,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 213:  IfThenStatement ::= if ( Expression ) Statement
             //
             case 213: {
-                //#line 1421 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1421 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1421 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1421 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1423 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1423 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                 break;
             }
@@ -2844,13 +2844,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 214:  IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
             //
             case 214: {
-                //#line 1427 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1427 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1427 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1427 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1427 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1427 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1429 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1429 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, StatementNoShortIf, Statement));
                 break;
             }
@@ -2859,13 +2859,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 215:  IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf$true_stmt else StatementNoShortIf$false_stmt
             //
             case 215: {
-                //#line 1433 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1433 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1433 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1433 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt true_stmt = (Stmt) getRhsSym(5);
-                //#line 1433 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1433 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt false_stmt = (Stmt) getRhsSym(7);
-                //#line 1435 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1435 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, true_stmt, false_stmt));
                 break;
             }
@@ -2875,7 +2875,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 216: {
                 
-                //#line 1441 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1441 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Empty(pos()));
                 break;
             }
@@ -2884,11 +2884,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 217:  LabeledStatement ::= identifier : Statement
             //
             case 217: {
-                //#line 1445 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1445 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1445 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1445 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1447 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1447 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Labeled(pos(), nf.Id(pos(getLeftSpan()), identifier.getIdentifier()), Statement));
                 break;
             }
@@ -2897,11 +2897,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 218:  LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
             //
             case 218: {
-                //#line 1451 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1451 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1451 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1451 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(3);
-                //#line 1453 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1453 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Labeled(pos(), nf.Id(pos(getLeftSpan()), identifier.getIdentifier()), StatementNoShortIf));
                 break;
             }
@@ -2910,9 +2910,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 219:  ExpressionStatement ::= StatementExpression ;
             //
             case 219: {
-                //#line 1456 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1456 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1458 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1458 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Eval(pos(), StatementExpression));
                 break;
             }
@@ -2921,9 +2921,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 227:  AssertStatement ::= assert Expression ;
             //
             case 227: {
-                //#line 1479 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1479 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1481 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1481 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assert(pos(), Expression));
                 break;
             }
@@ -2932,11 +2932,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 228:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
             case 228: {
-                //#line 1484 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1484 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1484 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1484 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1486 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1486 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                 break;
             }
@@ -2945,11 +2945,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 229:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
             case 229: {
-                //#line 1490 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1490 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1490 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1490 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1492 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1492 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                 break;
             }
@@ -2958,11 +2958,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 230:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
             case 230: {
-                //#line 1496 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1496 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1496 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1496 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1498 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1498 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                 break;
@@ -2972,11 +2972,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 232:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
             case 232: {
-                //#line 1504 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1504 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1504 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1504 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1506 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1506 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                 break;
@@ -2986,11 +2986,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 233:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
             case 233: {
-                //#line 1511 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1511 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1511 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1511 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1513 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1513 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -3002,9 +3002,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 234:  SwitchLabels ::= SwitchLabel
             //
             case 234: {
-                //#line 1520 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1520 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1522 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1522 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -3015,11 +3015,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 235:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
             case 235: {
-                //#line 1527 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1527 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1527 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1527 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1529 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1529 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                 break;
@@ -3029,9 +3029,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 236:  SwitchLabel ::= case ConstantExpression :
             //
             case 236: {
-                //#line 1534 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1534 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1536 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1536 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                 break;
             }
@@ -3041,7 +3041,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 237: {
                 
-                //#line 1543 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1543 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Default(pos()));
                 break;
             }
@@ -3050,11 +3050,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 238:  WhileStatement ::= while ( Expression ) Statement
             //
             case 238: {
-                //#line 1550 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1550 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1550 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1550 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1552 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1552 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                 break;
             }
@@ -3063,11 +3063,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 239:  WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
             //
             case 239: {
-                //#line 1556 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1556 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1556 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1556 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1558 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1558 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.While(pos(), Expression, StatementNoShortIf));
                 break;
             }
@@ -3076,11 +3076,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 240:  DoStatement ::= do Statement while ( Expression ) ;
             //
             case 240: {
-                //#line 1562 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1562 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1562 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1562 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1564 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1564 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                 break;
             }
@@ -3089,15 +3089,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 243:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
             case 243: {
-                //#line 1571 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1571 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1571 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1571 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1571 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1571 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1571 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1571 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1573 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1573 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                 break;
             }
@@ -3106,15 +3106,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 244:  ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
             //
             case 244: {
-                //#line 1577 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1577 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1577 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1577 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1577 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1577 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1577 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1577 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(9);
-                //#line 1579 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1579 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, StatementNoShortIf));
                 break;
             }
@@ -3123,9 +3123,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 246:  ForInit ::= LocalVariableDeclaration
             //
             case 246: {
-                //#line 1584 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1584 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1586 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1586 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -3136,9 +3136,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 248:  StatementExpressionList ::= StatementExpression
             //
             case 248: {
-                //#line 1594 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1594 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1596 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1596 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -3149,11 +3149,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 249:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
             case 249: {
-                //#line 1601 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1601 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1601 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1601 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1603 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1603 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                 //setResult(StatementExpressionList);
                 break;
@@ -3163,9 +3163,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 250:  BreakStatement ::= break identifieropt ;
             //
             case 250: {
-                //#line 1611 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1611 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name identifieropt = (Name) getRhsSym(2);
-                //#line 1613 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1613 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (identifieropt == null)
                      setResult(nf.Break(pos()));
                 else setResult(nf.Break(pos(), identifieropt.toString()));
@@ -3176,9 +3176,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 251:  ContinueStatement ::= continue identifieropt ;
             //
             case 251: {
-                //#line 1619 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1619 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name identifieropt = (Name) getRhsSym(2);
-                //#line 1621 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1621 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (identifieropt == null)
                      setResult(nf.Continue(pos()));
                 else setResult(nf.Continue(pos(), identifieropt.toString()));
@@ -3189,9 +3189,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 252:  ReturnStatement ::= return Expressionopt ;
             //
             case 252: {
-                //#line 1627 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1627 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1629 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1629 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                 break;
             }
@@ -3200,9 +3200,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 253:  ThrowStatement ::= throw Expression ;
             //
             case 253: {
-                //#line 1633 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1633 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1635 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1635 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Throw(pos(), Expression));
                 break;
             }
@@ -3211,11 +3211,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 254:  TryStatement ::= try Block Catches
             //
             case 254: {
-                //#line 1645 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1645 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1645 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1645 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catches = (List) getRhsSym(3);
-                //#line 1647 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1647 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                 break;
             }
@@ -3224,13 +3224,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 255:  TryStatement ::= try Block Catchesopt Finally
             //
             case 255: {
-                //#line 1650 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1650 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1650 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1650 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1650 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1650 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1652 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1652 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                 break;
             }
@@ -3239,9 +3239,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 256:  Catches ::= CatchClause
             //
             case 256: {
-                //#line 1656 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1656 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1658 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1658 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -3252,11 +3252,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 257:  Catches ::= Catches CatchClause
             //
             case 257: {
-                //#line 1663 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1663 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catches = (List) getRhsSym(1);
-                //#line 1663 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1663 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1665 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1665 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                 break;
@@ -3266,11 +3266,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 258:  CatchClause ::= catch ( FormalParameter ) Block
             //
             case 258: {
-                //#line 1670 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1670 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1670 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1670 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1672 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1672 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                 break;
             }
@@ -3279,9 +3279,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 259:  Finally ::= finally Block
             //
             case 259: {
-                //#line 1676 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1676 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1678 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1678 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Block);
                 break;
             }
@@ -3290,9 +3290,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 263:  PrimaryNoNewArray ::= Type . class
             //
             case 263: {
-                //#line 1696 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1696 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1698 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1698 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (Type instanceof Name)
                 {
                     Name a = (Name) Type;
@@ -3316,7 +3316,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 264: {
                 
-                //#line 1717 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1717 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
                 break;
@@ -3327,7 +3327,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 265: {
                 
-                //#line 1723 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1723 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -3336,9 +3336,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 266:  PrimaryNoNewArray ::= ClassName . this
             //
             case 266: {
-                //#line 1726 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1726 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1728 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1728 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -3347,9 +3347,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 267:  PrimaryNoNewArray ::= ( Expression )
             //
             case 267: {
-                //#line 1731 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1731 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1733 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1733 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                 break;
             }
@@ -3358,9 +3358,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 272:  Literal ::= IntegerLiteral$IntegerLiteral
             //
             case 272: {
-                //#line 1741 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1741 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
-                //#line 1743 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1743 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                 break;
@@ -3370,9 +3370,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 273:  Literal ::= LongLiteral$LongLiteral
             //
             case 273: {
-                //#line 1747 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1747 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken LongLiteral = (IToken) getRhsIToken(1);
-                //#line 1749 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1749 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                 break;
@@ -3382,9 +3382,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 274:  Literal ::= FloatingPointLiteral$FloatLiteral
             //
             case 274: {
-                //#line 1753 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1753 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
-                //#line 1755 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1755 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                 break;
@@ -3394,9 +3394,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 275:  Literal ::= DoubleLiteral$DoubleLiteral
             //
             case 275: {
-                //#line 1759 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1759 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
-                //#line 1761 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1761 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                 break;
@@ -3406,9 +3406,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 276:  Literal ::= BooleanLiteral
             //
             case 276: {
-                //#line 1765 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1765 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 1767 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1767 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                 break;
             }
@@ -3417,9 +3417,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 277:  Literal ::= CharacterLiteral$CharacterLiteral
             //
             case 277: {
-                //#line 1770 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1770 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
-                //#line 1772 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1772 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                 break;
@@ -3429,9 +3429,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 278:  Literal ::= StringLiteral$str
             //
             case 278: {
-                //#line 1776 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1776 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 1778 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1778 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                 break;
@@ -3442,7 +3442,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 279: {
                 
-                //#line 1784 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1784 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.NullLit(pos()));
                 break;
             }
@@ -3451,9 +3451,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 280:  BooleanLiteral ::= true$trueLiteral
             //
             case 280: {
-                //#line 1788 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1788 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 1790 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1790 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3462,9 +3462,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 281:  BooleanLiteral ::= false$falseLiteral
             //
             case 281: {
-                //#line 1793 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1793 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 1795 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1795 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3473,9 +3473,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 282:  ArgumentList ::= Expression
             //
             case 282: {
-                //#line 1808 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1808 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1810 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1810 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -3486,11 +3486,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 283:  ArgumentList ::= ArgumentList , Expression
             //
             case 283: {
-                //#line 1815 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1815 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 1815 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1815 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1817 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1817 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ArgumentList.add(Expression);
                 //setResult(ArgumentList);
                 break;
@@ -3500,9 +3500,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 284:  DimExprs ::= DimExpr
             //
             case 284: {
-                //#line 1851 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1851 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr DimExpr = (Expr) getRhsSym(1);
-                //#line 1853 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1853 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
                 setResult(l);
@@ -3513,11 +3513,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 285:  DimExprs ::= DimExprs DimExpr
             //
             case 285: {
-                //#line 1858 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1858 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List DimExprs = (List) getRhsSym(1);
-                //#line 1858 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1858 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr DimExpr = (Expr) getRhsSym(2);
-                //#line 1860 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1860 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 DimExprs.add(DimExpr);
                 //setResult(DimExprs);
                 break;
@@ -3527,9 +3527,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 286:  DimExpr ::= [ Expression ]
             //
             case 286: {
-                //#line 1865 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1865 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1867 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1867 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Expression.position(pos()));
                 break;
             }
@@ -3539,7 +3539,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 287: {
                 
-                //#line 1873 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1873 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(1));
                 break;
             }
@@ -3548,9 +3548,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 288:  Dims ::= Dims [ ]
             //
             case 288: {
-                //#line 1876 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1876 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Integer Dims = (Integer) getRhsSym(1);
-                //#line 1878 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1878 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(Dims.intValue() + 1));
                 break;
             }
@@ -3559,11 +3559,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 289:  FieldAccess ::= Primary . identifier
             //
             case 289: {
-                //#line 1882 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1882 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1882 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1882 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1884 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1884 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
                 break;
             }
@@ -3572,9 +3572,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 290:  FieldAccess ::= super . identifier
             //
             case 290: {
-                //#line 1887 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1887 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1889 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1889 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
                 break;
             }
@@ -3583,13 +3583,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 291:  FieldAccess ::= ClassName . super$sup . identifier
             //
             case 291: {
-                //#line 1892 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1892 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1892 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1892 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1892 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1892 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1894 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1894 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
                 break;
             }
@@ -3598,11 +3598,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 292:  MethodInvocation ::= MethodName ( ArgumentListopt )
             //
             case 292: {
-                //#line 1898 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1898 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name MethodName = (Name) getRhsSym(1);
-                //#line 1898 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1898 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 1900 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1900 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, ArgumentListopt));
@@ -3613,9 +3613,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 294:  PostfixExpression ::= ExpressionName
             //
             case 294: {
-                //#line 1923 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1923 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1925 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1925 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -3624,9 +3624,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 297:  PostIncrementExpression ::= PostfixExpression ++
             //
             case 297: {
-                //#line 1931 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1931 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 1933 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1933 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                 break;
             }
@@ -3635,9 +3635,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 298:  PostDecrementExpression ::= PostfixExpression --
             //
             case 298: {
-                //#line 1937 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1937 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 1939 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1939 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                 break;
             }
@@ -3646,9 +3646,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 301:  UnaryExpression ::= + UnaryExpression
             //
             case 301: {
-                //#line 1945 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1945 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1947 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1947 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpression));
                 break;
             }
@@ -3657,9 +3657,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 302:  UnaryExpression ::= - UnaryExpression
             //
             case 302: {
-                //#line 1950 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1950 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1952 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1952 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpression));
                 break;
             }
@@ -3668,9 +3668,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 304:  PreIncrementExpression ::= ++ UnaryExpression
             //
             case 304: {
-                //#line 1957 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1957 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1959 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1959 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpression));
                 break;
             }
@@ -3679,9 +3679,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 305:  PreDecrementExpression ::= -- UnaryExpression
             //
             case 305: {
-                //#line 1963 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1963 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1965 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1965 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpression));
                 break;
             }
@@ -3690,9 +3690,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 307:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
             case 307: {
-                //#line 1970 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1970 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1972 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1972 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                 break;
             }
@@ -3701,9 +3701,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 308:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
             case 308: {
-                //#line 1975 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1975 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1977 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1977 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                 break;
             }
@@ -3712,11 +3712,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 311:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
             case 311: {
-                //#line 1989 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1989 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1989 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1989 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1991 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1991 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                 break;
             }
@@ -3725,11 +3725,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 312:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
             case 312: {
-                //#line 1994 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1994 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1994 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1994 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1996 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1996 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                 break;
             }
@@ -3738,11 +3738,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 313:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
             case 313: {
-                //#line 1999 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1999 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1999 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1999 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 2001 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2001 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                 break;
             }
@@ -3751,11 +3751,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 315:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 315: {
-                //#line 2006 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2006 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 2006 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2006 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 2008 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2008 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                 break;
             }
@@ -3764,11 +3764,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 316:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
             case 316: {
-                //#line 2011 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2011 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 2011 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2011 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 2013 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2013 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                 break;
             }
@@ -3777,11 +3777,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 318:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 318: {
-                //#line 2018 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2018 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 2018 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2018 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 2020 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2020 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                 break;
             }
@@ -3790,11 +3790,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 319:  ShiftExpression ::= ShiftExpression > > AdditiveExpression
             //
             case 319: {
-                //#line 2023 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2023 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 2023 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2023 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(4);
-                //#line 2025 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2025 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                 break;
@@ -3804,11 +3804,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 320:  ShiftExpression ::= ShiftExpression > > > AdditiveExpression
             //
             case 320: {
-                //#line 2029 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2029 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 2029 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2029 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(5);
-                //#line 2031 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2031 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                 break;
@@ -3818,11 +3818,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 322:  RelationalExpression ::= RelationalExpression < ShiftExpression
             //
             case 322: {
-                //#line 2037 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2037 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 2037 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2037 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 2039 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2039 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
                 break;
             }
@@ -3831,11 +3831,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 323:  RelationalExpression ::= RelationalExpression > ShiftExpression
             //
             case 323: {
-                //#line 2042 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2042 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 2042 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2042 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 2044 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2044 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
                 break;
             }
@@ -3844,11 +3844,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 324:  RelationalExpression ::= RelationalExpression <= ShiftExpression
             //
             case 324: {
-                //#line 2047 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2047 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 2047 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2047 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 2049 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2049 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
                 break;
             }
@@ -3857,11 +3857,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 325:  RelationalExpression ::= RelationalExpression > = ShiftExpression
             //
             case 325: {
-                //#line 2052 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2052 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 2052 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2052 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(4);
-                //#line 2054 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2054 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
                 break;
@@ -3871,11 +3871,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 327:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
             case 327: {
-                //#line 2068 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2068 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 2068 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2068 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 2070 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2070 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                 break;
             }
@@ -3884,11 +3884,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 328:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 328: {
-                //#line 2073 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2073 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 2073 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2073 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 2075 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2075 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                 break;
             }
@@ -3897,11 +3897,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 330:  AndExpression ::= AndExpression & EqualityExpression
             //
             case 330: {
-                //#line 2080 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2080 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 2080 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2080 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 2082 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2082 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                 break;
             }
@@ -3910,11 +3910,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 332:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
             case 332: {
-                //#line 2087 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2087 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 2087 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2087 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 2089 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2089 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                 break;
             }
@@ -3923,11 +3923,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 334:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
             case 334: {
-                //#line 2094 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2094 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 2094 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2094 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 2096 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2096 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                 break;
             }
@@ -3936,11 +3936,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 336:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
             case 336: {
-                //#line 2101 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2101 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 2101 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2101 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 2103 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2103 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                 break;
             }
@@ -3949,11 +3949,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 338:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
             case 338: {
-                //#line 2108 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2108 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 2108 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2108 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 2110 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2110 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                 break;
             }
@@ -3962,13 +3962,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 340:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
             case 340: {
-                //#line 2115 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2115 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 2115 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2115 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2115 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2115 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 2117 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2117 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                 break;
             }
@@ -3977,13 +3977,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 343:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
             case 343: {
-                //#line 2124 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2124 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 2124 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2124 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 2124 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2124 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 2126 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2126 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                 break;
             }
@@ -3992,9 +3992,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 344:  LeftHandSide ::= ExpressionName
             //
             case 344: {
-                //#line 2130 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2130 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 2132 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2132 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -4004,7 +4004,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 347: {
                 
-                //#line 2140 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2140 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.ASSIGN);
                 break;
             }
@@ -4014,7 +4014,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 348: {
                 
-                //#line 2145 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2145 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.MUL_ASSIGN);
                 break;
             }
@@ -4024,7 +4024,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 349: {
                 
-                //#line 2150 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2150 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.DIV_ASSIGN);
                 break;
             }
@@ -4034,7 +4034,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 350: {
                 
-                //#line 2155 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2155 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.MOD_ASSIGN);
                 break;
             }
@@ -4044,7 +4044,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 351: {
                 
-                //#line 2160 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2160 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.ADD_ASSIGN);
                 break;
             }
@@ -4054,7 +4054,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 352: {
                 
-                //#line 2165 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2165 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.SUB_ASSIGN);
                 break;
             }
@@ -4064,7 +4064,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 353: {
                 
-                //#line 2170 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2170 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.SHL_ASSIGN);
                 break;
             }
@@ -4074,7 +4074,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 354: {
                 
-                //#line 2175 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2175 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.SHR_ASSIGN);
                 break;
@@ -4085,7 +4085,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 355: {
                 
-                //#line 2181 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2181 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.USHR_ASSIGN);
                 break;
@@ -4096,7 +4096,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 356: {
                 
-                //#line 2187 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2187 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                 break;
             }
@@ -4106,7 +4106,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 357: {
                 
-                //#line 2192 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2192 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                 break;
             }
@@ -4116,7 +4116,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 358: {
                 
-                //#line 2197 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2197 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                 break;
             }
@@ -4126,7 +4126,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 361: {
                 
-                //#line 2210 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2210 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(0));
                 break;
             }
@@ -4136,7 +4136,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 363: {
                 
-                //#line 2217 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2217 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
@@ -4152,9 +4152,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 366:  identifieropt ::= identifier
             //
             case 366: {
-                //#line 2224 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2224 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2226 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2226 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -4164,7 +4164,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 367: {
                 
-                //#line 2232 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2232 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                 break;
             }
@@ -4181,7 +4181,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 371: {
                 
-                //#line 2243 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2243 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                 break;
             }
@@ -4191,7 +4191,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 373: {
                 
-                //#line 2250 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2250 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                 break;
             }
@@ -4201,7 +4201,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 375: {
                 
-                //#line 2257 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2257 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                 break;
             }
@@ -4211,7 +4211,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 377: {
                 
-                //#line 2264 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2264 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4228,7 +4228,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 381: {
                 
-                //#line 2294 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2294 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4238,7 +4238,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 383: {
                 
-                //#line 2301 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2301 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4248,7 +4248,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 385: {
                 
-                //#line 2308 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2308 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -4258,7 +4258,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 387: {
                 
-                //#line 2315 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2315 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4268,7 +4268,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 389: {
                 
-                //#line 2322 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2322 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4305,7 +4305,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 397: {
                 
-                //#line 2352 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2352 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
@@ -4315,7 +4315,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 399: {
                 
-                //#line 2359 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2359 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
@@ -4332,7 +4332,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 403: {
                 
-                //#line 2370 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2370 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4349,7 +4349,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 407: {
                 
-                //#line 2381 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2381 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
@@ -4359,7 +4359,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 409: {
                 
-                //#line 2388 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2388 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4369,7 +4369,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 411: {
                 
-                //#line 2395 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2395 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4379,7 +4379,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 413: {
                 
-                //#line 2402 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2402 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4389,7 +4389,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 415: {
                 
-                //#line 2409 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2409 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -4399,7 +4399,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 417: {
                 
-                //#line 2416 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2416 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4409,7 +4409,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 419: {
                 
-                //#line 2423 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2423 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                setResult(nf.TypeNodeFromQualifiedName(pos(), "x10.lang.Object"));
                 break;
             }
@@ -4419,7 +4419,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 421: {
                 
-                //#line 2434 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2434 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4442,7 +4442,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 425: {
                 
-                //#line 2446 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2446 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
@@ -4452,7 +4452,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 427: {
                 
-                //#line 2453 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2453 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
@@ -4468,13 +4468,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 431:  ClassType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 431: {
-                //#line 773 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 773 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 773 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 773 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 773 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 773 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 775 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 775 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                      setResult(DepParametersopt == null
                                ? TypeName.toType()
                                : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -4485,13 +4485,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 432:  InterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 432: {
-                //#line 782 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 782 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 782 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 782 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 782 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 782 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 784 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 784 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                  setResult(DepParametersopt == null
                                ? TypeName.toType()
                                : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -4502,9 +4502,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 433:  PackageDeclaration ::= package PackageName ;
             //
             case 433: {
-                //#line 790 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 790 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name PackageName = (Name) getRhsSym(2);
-                //#line 792 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 792 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(PackageName.toPackage());
                 break;
             }
@@ -4513,19 +4513,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 434:  NormalClassDeclaration ::= X10ClassModifiersopt class identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 434: {
-                //#line 796 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List X10ClassModifiersopt = (List) getRhsSym(1);
-                //#line 796 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 796 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 796 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(5);
-                //#line 796 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(6);
-                //#line 796 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(7);
-                //#line 798 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 798 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
       checkTypeName(identifier);
       List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
                   : (List) PropertyListopt[0];
@@ -4546,9 +4546,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 435:  X10ClassModifiers ::= X10ClassModifier
             //
             case 435: {
-                //#line 814 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 814 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List X10ClassModifier = (List) getRhsSym(1);
-                //#line 816 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 816 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
        List l = new LinkedList();
        l.addAll(X10ClassModifier);
        setResult(l);
@@ -4559,11 +4559,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 436:  X10ClassModifiers ::= X10ClassModifiers X10ClassModifier
             //
             case 436: {
-                //#line 821 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 821 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List X10ClassModifiers = (List) getRhsSym(1);
-                //#line 821 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 821 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List X10ClassModifier = (List) getRhsSym(2);
-                //#line 823 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 823 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
        X10ClassModifiers.addAll(X10ClassModifier);
                 break;
             }
@@ -4572,9 +4572,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 437:  X10ClassModifier ::= ClassModifier
             //
             case 437: {
-                //#line 827 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 827 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 829 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 829 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 // Done by extractFlags
                 // X10Flags.toX10Flags(ClassModifier));
                 break;
@@ -4585,7 +4585,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 438: {
                 
-                //#line 835 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 835 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.SAFE));
                 break;
             }
@@ -4594,11 +4594,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 439:  PropertyList ::= ( Properties WhereClauseopt )
             //
             case 439: {
-                //#line 839 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 839 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Properties = (List) getRhsSym(2);
-                //#line 839 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 839 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(3);
-                //#line 841 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 841 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
    Object[] result = new Object[2];
    result[0] = Properties;
    result[1] = WhereClauseopt;
@@ -4609,9 +4609,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 440:  PropertyList ::= ( WhereClause )
             //
             case 440: {
-                //#line 846 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 846 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClause = (Expr) getRhsSym(2);
-                //#line 848 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 848 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
    Object[] result = new Object[2];
    result[0] = null;
    result[1] = WhereClause;
@@ -4622,9 +4622,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 441:  Properties ::= Property
             //
             case 441: {
-                //#line 855 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 855 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 857 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 857 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -4635,11 +4635,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 442:  Properties ::= Properties , Property
             //
             case 442: {
-                //#line 862 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 862 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Properties = (List) getRhsSym(1);
-                //#line 862 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 862 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 864 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 864 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Properties.add(Property);
                 // setResult(FormalParameters);
                 break;
@@ -4649,11 +4649,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 443:  Property ::= Type identifier
             //
             case 443: {
-                //#line 870 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 870 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 870 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 870 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(2);
-                //#line 872 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 872 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
     
                 setResult(nf.PropertyDecl(pos(), Flags.PUBLIC.Final(), Type,
                 nf.Id(identifier.getPosition(), identifier.getIdentifier())));
@@ -4665,19 +4665,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 444:  MethodDeclaration ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt MethodBody
             //
             case 444: {
-                //#line 885 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 885 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 885 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 885 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(2);
-                //#line 885 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 885 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 885 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 885 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object[] MethodDeclarator = (Object[]) getRhsSym(4);
-                //#line 885 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 885 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 885 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 885 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(6);
-                //#line 887 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 887 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
       Name c = (MethodDeclarator != null) ? (Name) MethodDeclarator[0] : null;
       List d = (MethodDeclarator != null) ? (List) MethodDeclarator[1] : null;
       Integer e = (MethodDeclarator != null) ? (Integer) MethodDeclarator[2] : null;
@@ -4706,9 +4706,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 445:  ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
             //
             case 445: {
-                //#line 911 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 911 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 913 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 913 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ThisCall(pos(), ArgumentListopt));
                 break;
             }
@@ -4717,9 +4717,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 446:  ExplicitConstructorInvocation ::= super ( ArgumentListopt ) ;
             //
             case 446: {
-                //#line 916 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 916 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 918 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 918 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.SuperCall(pos(), ArgumentListopt));
                 break;
             }
@@ -4728,11 +4728,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 447:  ExplicitConstructorInvocation ::= Primary . this ( ArgumentListopt ) ;
             //
             case 447: {
-                //#line 921 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 921 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 921 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 921 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 923 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 923 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ThisCall(pos(), Primary, ArgumentListopt));
                 break;
             }
@@ -4741,11 +4741,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 448:  ExplicitConstructorInvocation ::= Primary . super ( ArgumentListopt ) ;
             //
             case 448: {
-                //#line 926 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 926 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 926 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 926 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 928 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 928 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.SuperCall(pos(), Primary, ArgumentListopt));
                 break;
             }
@@ -4754,17 +4754,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 449:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier PropertyListopt ExtendsInterfacesopt InterfaceBody
             //
             case 449: {
-                //#line 932 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 932 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifiersopt = (List) getRhsSym(1);
-                //#line 932 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 932 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 932 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 932 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 932 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 932 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfacesopt = (List) getRhsSym(5);
-                //#line 932 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 932 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(6);
-                //#line 934 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 934 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
       checkTypeName(identifier);
       List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
                   : (List) PropertyListopt[0];
@@ -4786,17 +4786,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 450:  AbstractMethodDeclaration ::= ThisClauseopt AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
             //
             case 450: {
-                //#line 951 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 951 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 951 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 951 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List AbstractMethodModifiersopt = (List) getRhsSym(2);
-                //#line 951 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 951 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 951 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 951 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object[] MethodDeclarator = (Object[]) getRhsSym(4);
-                //#line 951 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 951 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 953 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 953 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
      Name c = (Name) MethodDeclarator[0];
      List d = (List) MethodDeclarator[1];
      Integer e = (Integer) MethodDeclarator[2];
@@ -4826,13 +4826,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 451:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
             //
             case 451: {
-                //#line 978 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 978 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ClassOrInterfaceType = (TypeNode) getRhsSym(2);
-                //#line 978 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 978 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 978 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 978 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(6);
-                //#line 980 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 980 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), ClassOrInterfaceType, ArgumentListopt));
                 else setResult(nf.New(pos(), ClassOrInterfaceType, ArgumentListopt, ClassBodyopt));
@@ -4843,15 +4843,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 452:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt ) ClassBodyopt
             //
             case 452: {
-                //#line 985 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 985 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 985 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 985 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 985 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 985 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 985 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 985 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
-                //#line 987 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 987 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name b = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), Primary, b.toType(), ArgumentListopt));
@@ -4863,15 +4863,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 453:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
             //
             case 453: {
-                //#line 993 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 993 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 993 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 993 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 993 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 993 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 993 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 993 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
-                //#line 995 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 995 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name b = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), AmbiguousName.toExpr(), b.toType(), ArgumentListopt));
@@ -4883,13 +4883,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 454:  MethodInvocation ::= Primary . identifier ( ArgumentListopt )
             //
             case 454: {
-                //#line 1002 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1002 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1002 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1002 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1002 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1002 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1004 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1004 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), Primary, nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4898,11 +4898,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 455:  MethodInvocation ::= super . identifier ( ArgumentListopt )
             //
             case 455: {
-                //#line 1007 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1007 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1007 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1007 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1009 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1009 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4911,15 +4911,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 456:  MethodInvocation ::= ClassName . super$sup . identifier ( ArgumentListopt )
             //
             case 456: {
-                //#line 1012 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1012 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1012 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1012 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1012 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1012 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1012 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1012 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1014 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1014 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4928,9 +4928,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 457:  AssignPropertyCall ::= property ( ArgumentList )
             //
             case 457: {
-                //#line 1019 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1019 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 1021 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1021 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AssignPropertyCall(pos(),  ArgumentList));
                 break;
             }
@@ -4939,11 +4939,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 461:  AnnotatedType ::= Type Annotations
             //
             case 461: {
-                //#line 1034 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1034 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1034 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1034 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1036 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1036 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
 System.out.println("AnnotatedType " + Type + " " + Annotations);
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
@@ -4955,11 +4955,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 462:  SpecialType ::= nullable < Type > DepParametersopt
             //
             case 462: {
-                //#line 1043 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1043 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1043 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1043 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1045 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1045 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10TypeNode t = nf.Nullable(pos(), Type);
                 setResult(DepParametersopt == null ? t 
                 : t.dep(null, DepParametersopt));
@@ -4971,10 +4971,10 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 463:  SpecialType ::= future < Type >
             //
             case 463: {
-                //#line 1051 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1051 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1053 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
-                setResult(nf.Future(pos(), Type));
+                //#line 1053 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                setResult(nf.FutureNode(pos(), Type));
                 break;
             }
      
@@ -4982,11 +4982,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 466:  PrimitiveType ::= NumericType DepParametersopt
             //
             case 466: {
-                //#line 1066 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1066 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode NumericType = (TypeNode) getRhsSym(1);
-                //#line 1066 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1066 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1068 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1068 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               //  System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
                 setResult(DepParametersopt == null
                                ? NumericType
@@ -4998,9 +4998,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 467:  PrimitiveType ::= boolean DepParametersopt
             //
             case 467: {
-                //#line 1074 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1074 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1076 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1076 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10TypeNode res = (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.Boolean());
                 setResult(DepParametersopt==null 
                            ? res 
@@ -5012,13 +5012,13 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 472:  ClassOrInterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 472: {
-                //#line 1088 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1088 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 1088 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1088 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1088 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1088 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 1090 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1090 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
             X10TypeNode type;
             
             if (ts.isPrimitiveTypeName(TypeName.name.id())) {
@@ -5040,9 +5040,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 473:  DepParameters ::= ( DepParameterExpr )
             //
             case 473: {
-                //#line 1107 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1107 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(2);
-                //#line 1109 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1109 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(DepParameterExpr);
                 break;
             }
@@ -5051,11 +5051,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 474:  DepParameterExpr ::= ArgumentList WhereClauseopt
             //
             case 474: {
-                //#line 1113 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1113 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 1113 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1113 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(2);
-                //#line 1115 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1115 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.DepParameterExpr(pos(), ArgumentList, WhereClauseopt));
                 break;
             }
@@ -5064,9 +5064,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 475:  DepParameterExpr ::= WhereClause
             //
             case 475: {
-                //#line 1118 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1118 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClause = (Expr) getRhsSym(1);
-                //#line 1120 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1120 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.DepParameterExpr(pos(), Collections.EMPTY_LIST, WhereClause));
                 break;
             }
@@ -5075,9 +5075,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 476:  WhereClause ::= : ConstExpression
             //
             case 476: {
-                //#line 1124 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1124 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(2);
-                //#line 1126 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1126 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExpression);
                 break;
             }
@@ -5086,9 +5086,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 477:  ConstPrimary ::= Literal
             //
             case 477: {
-                //#line 1131 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1131 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.ast.Lit Literal = (polyglot.ast.Lit) getRhsSym(1);
-                //#line 1133 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1133 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Literal);
                 break;
             }
@@ -5097,9 +5097,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 478:  ConstPrimary ::= Type . class
             //
             case 478: {
-                //#line 1136 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1136 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1138 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1138 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 if (Type instanceof Name)
                 {
                     Name a = (Name) Type;
@@ -5123,7 +5123,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 479: {
                 
-                //#line 1157 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1157 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
                 break;
@@ -5134,7 +5134,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 480: {
                 
-                //#line 1163 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1163 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -5144,7 +5144,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 481: {
                 
-                //#line 1168 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1168 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Here(pos()));
                 break;
             }
@@ -5153,9 +5153,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 482:  ConstPrimary ::= ClassName . this
             //
             case 482: {
-                //#line 1171 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1171 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1173 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1173 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -5164,9 +5164,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 483:  ConstPrimary ::= ( ConstExpression )
             //
             case 483: {
-                //#line 1176 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1176 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(2);
-                //#line 1178 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1178 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExpression);
                 break;
             }
@@ -5176,7 +5176,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 485: {
                 
-                //#line 1184 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1184 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Self(pos()));
                 break;
             }
@@ -5185,9 +5185,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 486:  ConstPostfixExpression ::= ConstPrimary
             //
             case 486: {
-                //#line 1190 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1190 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstPrimary = (Expr) getRhsSym(1);
-                //#line 1192 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1192 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstPrimary);
                         break;
             }
@@ -5196,9 +5196,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 487:  ConstPostfixExpression ::= ExpressionName
             //
             case 487: {
-                //#line 1195 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1195 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1197 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1197 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -5207,9 +5207,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 488:  ConstUnaryExpression ::= ConstPostfixExpression
             //
             case 488: {
-                //#line 1200 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1200 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstPostfixExpression = (Expr) getRhsSym(1);
-                //#line 1202 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1202 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstPostfixExpression);
                         break;
             }
@@ -5218,9 +5218,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 489:  ConstUnaryExpression ::= + ConstUnaryExpression
             //
             case 489: {
-                //#line 1205 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1205 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1207 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1207 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.POS, ConstUnaryExpression));
                 break;
             }
@@ -5229,9 +5229,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 490:  ConstUnaryExpression ::= - ConstUnaryExpression
             //
             case 490: {
-                //#line 1210 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1210 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1212 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1212 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.NEG, ConstUnaryExpression));
                 break;
             }
@@ -5240,9 +5240,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 491:  ConstUnaryExpression ::= ! ConstUnaryExpression
             //
             case 491: {
-                //#line 1215 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1215 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1217 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1217 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.NOT, ConstUnaryExpression));
                 break;
             }
@@ -5251,9 +5251,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 492:  ConstMultiplicativeExpression ::= ConstUnaryExpression
             //
             case 492: {
-                //#line 1221 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1221 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(1);
-                //#line 1223 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1223 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstUnaryExpression);
                 break;
             }
@@ -5262,11 +5262,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 493:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression * ConstUnaryExpression
             //
             case 493: {
-                //#line 1226 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1226 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1226 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1226 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1228 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1228 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MUL, ConstUnaryExpression));
                 break;
             }
@@ -5275,11 +5275,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 494:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression / ConstUnaryExpression
             //
             case 494: {
-                //#line 1231 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1231 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1231 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1231 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1233 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1233 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.DIV, ConstUnaryExpression));
                 break;
             }
@@ -5288,11 +5288,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 495:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression % ConstUnaryExpression
             //
             case 495: {
-                //#line 1236 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1236 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1236 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1236 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1238 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1238 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MOD, ConstUnaryExpression));
                 break;
             }
@@ -5301,9 +5301,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 496:  ConstAdditiveExpression ::= ConstMultiplicativeExpression
             //
             case 496: {
-                //#line 1242 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1242 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1244 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1244 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstMultiplicativeExpression);
                 break;
             }
@@ -5312,11 +5312,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 497:  ConstAdditiveExpression ::= ConstAdditiveExpression + ConstMultiplicativeExpression
             //
             case 497: {
-                //#line 1247 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1247 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1247 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1247 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1249 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1249 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.ADD, ConstMultiplicativeExpression));
                 break;
             }
@@ -5325,11 +5325,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 498:  ConstAdditiveExpression ::= ConstAdditiveExpression - ConstMultiplicativeExpression
             //
             case 498: {
-                //#line 1252 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1252 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1252 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1252 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1254 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1254 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.SUB, ConstMultiplicativeExpression));
                 break;
             }
@@ -5338,9 +5338,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 499:  ConstRelationalExpression ::= ConstAdditiveExpression
             //
             case 499: {
-                //#line 1259 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1259 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1261 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1261 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstAdditiveExpression);
                 break;
             }
@@ -5349,11 +5349,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 500:  ConstRelationalExpression ::= ConstRelationalExpression < ConstAdditiveExpression
             //
             case 500: {
-                //#line 1264 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1264 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1264 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1264 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1266 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1266 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LT, ConstAdditiveExpression));
                 break;
             }
@@ -5362,11 +5362,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 501:  ConstRelationalExpression ::= ConstRelationalExpression > ConstAdditiveExpression
             //
             case 501: {
-                //#line 1269 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1269 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1269 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1269 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1271 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1271 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GT, ConstAdditiveExpression));
                 break;
             }
@@ -5375,11 +5375,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 502:  ConstRelationalExpression ::= ConstRelationalExpression <= ConstAdditiveExpression
             //
             case 502: {
-                //#line 1274 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1274 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1274 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1274 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1276 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1276 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LE, ConstAdditiveExpression));
                 break;
             }
@@ -5388,11 +5388,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 503:  ConstRelationalExpression ::= ConstRelationalExpression > = ConstAdditiveExpression
             //
             case 503: {
-                //#line 1279 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1279 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1279 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1279 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(4);
-                //#line 1281 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1281 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GE, ConstAdditiveExpression));
                 break;
             }
@@ -5401,9 +5401,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 504:  ConstEqualityExpression ::= ConstRelationalExpression
             //
             case 504: {
-                //#line 1285 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1285 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1287 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1287 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstRelationalExpression);
                 break;
             }
@@ -5412,11 +5412,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 505:  ConstEqualityExpression ::= ConstEqualityExpression == ConstRelationalExpression
             //
             case 505: {
-                //#line 1290 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1290 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1290 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1290 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(3);
-                //#line 1292 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1292 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.EQ, ConstRelationalExpression));
                 break;
             }
@@ -5425,11 +5425,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 506:  ConstEqualityExpression ::= ConstEqualityExpression != ConstRelationalExpression
             //
             case 506: {
-                //#line 1295 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1295 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1295 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1295 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(3);
-                //#line 1297 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1297 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.NE, ConstRelationalExpression));
                 break;
             }
@@ -5438,9 +5438,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 507:  ConstAndExpression ::= ConstEqualityExpression
             //
             case 507: {
-                //#line 1301 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1301 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1303 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1303 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstEqualityExpression);
                 break;
             }
@@ -5449,11 +5449,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 508:  ConstAndExpression ::= ConstAndExpression && ConstEqualityExpression
             //
             case 508: {
-                //#line 1306 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1306 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAndExpression = (Expr) getRhsSym(1);
-                //#line 1306 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1306 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(3);
-                //#line 1308 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1308 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAndExpression, Binary.COND_AND, ConstEqualityExpression));
                 break;
             }
@@ -5462,9 +5462,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 509:  ConstExclusiveOrExpression ::= ConstAndExpression
             //
             case 509: {
-                //#line 1312 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1312 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAndExpression = (Expr) getRhsSym(1);
-                //#line 1314 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1314 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstAndExpression);
                 break;
             }
@@ -5473,11 +5473,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 510:  ConstExclusiveOrExpression ::= ConstExclusiveOrExpression ^ ConstAndExpression
             //
             case 510: {
-                //#line 1317 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1317 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1317 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1317 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAndExpression = (Expr) getRhsSym(3);
-                //#line 1319 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1319 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstExclusiveOrExpression, Binary.BIT_XOR, ConstAndExpression));
                 break;
             }
@@ -5486,9 +5486,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 511:  ConstInclusiveOrExpression ::= ConstExclusiveOrExpression
             //
             case 511: {
-                //#line 1323 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1323 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1325 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1325 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExclusiveOrExpression);
                 break;
             }
@@ -5497,11 +5497,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 512:  ConstInclusiveOrExpression ::= ConstInclusiveOrExpression || ConstExclusiveOrExpression
             //
             case 512: {
-                //#line 1328 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1328 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1328 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1328 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 1330 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1330 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstInclusiveOrExpression, Binary.COND_OR, ConstExclusiveOrExpression));
                 break;
             }
@@ -5510,9 +5510,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 513:  ConstExpression ::= ConstInclusiveOrExpression
             //
             case 513: {
-                //#line 1334 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1334 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1336 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1336 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstInclusiveOrExpression);
                 break;
             }
@@ -5521,13 +5521,13 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 514:  ConstExpression ::= ConstInclusiveOrExpression ? ConstExpression$first : ConstExpression
             //
             case 514: {
-                //#line 1339 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1339 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1339 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1339 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr first = (Expr) getRhsSym(3);
-                //#line 1339 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1339 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(5);
-                //#line 1341 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1341 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Conditional(pos(), ConstInclusiveOrExpression, first, ConstExpression));
                 break;
             }
@@ -5536,11 +5536,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 515:  ConstFieldAccess ::= ConstPrimary . identifier
             //
             case 515: {
-                //#line 1346 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1346 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstPrimary = (Expr) getRhsSym(1);
-                //#line 1346 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1346 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1348 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1348 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(), ConstPrimary, nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5549,9 +5549,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 516:  ConstFieldAccess ::= super . identifier
             //
             case 516: {
-                //#line 1351 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1351 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1353 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1353 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5560,13 +5560,13 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 517:  ConstFieldAccess ::= ClassName . super$sup . identifier
             //
             case 517: {
-                //#line 1356 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1356 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1356 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1356 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1356 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1356 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1358 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1358 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5575,9 +5575,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 519:  X10ArrayType ::= Type [ . ]
             //
             case 519: {
-                //#line 1374 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1374 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1376 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1376 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
                 break;
             }
@@ -5586,9 +5586,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 520:  X10ArrayType ::= Type value [ . ]
             //
             case 520: {
-                //#line 1379 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1379 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1381 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1381 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, null));
                 break;
             }
@@ -5597,11 +5597,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 521:  X10ArrayType ::= Type [ DepParameterExpr ]
             //
             case 521: {
-                //#line 1384 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1384 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1384 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1384 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(3);
-                //#line 1386 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1386 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
                 break;
             }
@@ -5610,11 +5610,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 522:  X10ArrayType ::= Type value [ DepParameterExpr ]
             //
             case 522: {
-                //#line 1389 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1389 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1389 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1389 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(4);
-                //#line 1391 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1391 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, DepParameterExpr));
                 break;
             }
@@ -5636,7 +5636,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 525: {
                 
-                //#line 1405 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1405 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.ATOMIC));
                 break;
             }
@@ -5646,7 +5646,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 526: {
                 
-                //#line 1410 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1410 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(Flags.NATIVE));
                 break;
             }
@@ -5656,7 +5656,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 527: {
                 
-                //#line 1415 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1415 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.SAFE));
                 break;
             }
@@ -5666,7 +5666,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 528: {
                 
-                //#line 1420 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1420 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.SEQUENTIAL));
                 break;
             }
@@ -5676,7 +5676,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 529: {
                 
-                //#line 1425 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1425 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.LOCAL));
                 break;
             }
@@ -5686,7 +5686,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 530: {
                 
-                //#line 1430 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1430 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.NON_BLOCKING));
                 break;
             }
@@ -5695,19 +5695,19 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 532:  ValueClassDeclaration ::= X10ClassModifiersopt value identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 532: {
-                //#line 1436 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1436 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List X10ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1436 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1436 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1436 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1436 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 1436 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1436 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(5);
-                //#line 1436 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1436 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(6);
-                //#line 1436 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1436 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(7);
-                //#line 1438 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1438 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
     checkTypeName(identifier);
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
@@ -5723,19 +5723,19 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 533:  ValueClassDeclaration ::= X10ClassModifiersopt value class identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 533: {
-                //#line 1448 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1448 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List X10ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1448 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1448 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 1448 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1448 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object[] PropertyListopt = (Object[]) getRhsSym(5);
-                //#line 1448 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1448 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(6);
-                //#line 1448 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1448 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(7);
-                //#line 1448 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1448 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(8);
-                //#line 1450 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1450 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 checkTypeName(identifier);
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
@@ -5751,15 +5751,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 534:  ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
             //
             case 534: {
-                //#line 1461 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1461 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifiersopt = (List) getRhsSym(1);
-                //#line 1461 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1461 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object[] ConstructorDeclarator = (Object[]) getRhsSym(2);
-                //#line 1461 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1461 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(3);
-                //#line 1461 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1461 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(4);
-                //#line 1463 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1463 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
      Name a = (Name) ConstructorDeclarator[1];
      DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
      List b = (List) ConstructorDeclarator[3];
@@ -5778,15 +5778,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 535:  ConstructorDeclarator ::= SimpleTypeName DepParametersopt ( FormalParameterListopt WhereClauseopt )
             //
             case 535: {
-                //#line 1477 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1477 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name SimpleTypeName = (Name) getRhsSym(1);
-                //#line 1477 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1477 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1477 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1477 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(4);
-                //#line 1477 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1477 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(5);
-                //#line 1479 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1479 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
              Object[] a = new Object[5];
              a[1] = SimpleTypeName;
              a[2] = DepParametersopt;
@@ -5800,9 +5800,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 536:  ThisClause ::= this DepParameters
             //
             case 536: {
-                //#line 1487 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1487 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(2);
-                //#line 1489 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1489 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(DepParameters);
                 break;
             }
@@ -5811,9 +5811,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 537:  Super ::= extends DataType
             //
             case 537: {
-                //#line 1493 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1493 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode DataType = (TypeNode) getRhsSym(2);
-                //#line 1495 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1495 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(DataType);
                 break;
             }
@@ -5822,13 +5822,13 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 538:  MethodDeclarator ::= identifier ( FormalParameterListopt WhereClauseopt )
             //
             case 538: {
-                //#line 1499 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1499 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1499 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1499 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1499 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1499 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(4);
-                //#line 1501 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1501 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
             //   System.out.println("Parsing methoddeclarator...");
                 Object[] a = new Object[5];
                a[0] = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
@@ -5844,9 +5844,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 539:  MethodDeclarator ::= MethodDeclarator [ ]
             //
             case 539: {
-                //#line 1511 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1511 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object[] MethodDeclarator = (Object[]) getRhsSym(1);
-                //#line 1513 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1513 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
                 // setResult(MethodDeclarator);
                break;
@@ -5856,15 +5856,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 540:  FieldDeclaration ::= ThisClauseopt FieldModifiersopt Type VariableDeclarators ;
             //
             case 540: {
-                //#line 1519 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1519 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 1519 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1519 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(2);
-                //#line 1519 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1519 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1519 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1519 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(4);
-                //#line 1521 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1521 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 if (VariableDeclarators != null && VariableDeclarators.size() > 0) {
                     boolean gt1 = (VariableDeclarators.size() > 1);
@@ -5895,15 +5895,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 541:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt Dims ArrayInitializer
             //
             case 541: {
-                //#line 1560 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1560 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1560 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1560 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1560 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1560 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Integer Dims = (Integer) getRhsSym(4);
-                //#line 1560 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1560 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ArrayInit ArrayInitializer = (ArrayInit) getRhsSym(5);
-                //#line 1562 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1562 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 setResult(nf.NewArray(pos(), ArrayBaseType, Dims.intValue(), ArrayInitializer));
                 break;
@@ -5913,15 +5913,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 542:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr Dims
             //
             case 542: {
-                //#line 1566 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1566 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1566 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1566 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1566 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1566 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr DimExpr = (Expr) getRhsSym(4);
-                //#line 1566 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1566 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Integer Dims = (Integer) getRhsSym(5);
-                //#line 1568 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1568 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 setResult(nf.NewArray(pos(), ArrayBaseType, Collections.singletonList(DimExpr), Dims.intValue()));
                 break;
@@ -5931,17 +5931,17 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 543:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr DimExprs Dimsopt
             //
             case 543: {
-                //#line 1572 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1572 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1572 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1572 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1572 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1572 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr DimExpr = (Expr) getRhsSym(4);
-                //#line 1572 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1572 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List DimExprs = (List) getRhsSym(5);
-                //#line 1572 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1572 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Integer Dimsopt = (Integer) getRhsSym(6);
-                //#line 1574 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1574 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
@@ -5954,15 +5954,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 544:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ]
             //
             case 544: {
-                //#line 1581 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1581 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1581 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1581 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Valueopt = (Object) getRhsSym(3);
-                //#line 1581 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1581 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1581 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1581 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(6);
-                //#line 1583 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1583 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, null));
                 break;
             }
@@ -5971,17 +5971,17 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 545:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression$distr ] Expression$initializer
             //
             case 545: {
-                //#line 1586 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1586 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1586 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1586 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Valueopt = (Object) getRhsSym(3);
-                //#line 1586 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1586 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1586 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1586 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr distr = (Expr) getRhsSym(6);
-                //#line 1586 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1586 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr initializer = (Expr) getRhsSym(8);
-                //#line 1588 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1588 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, distr, initializer));
                 break;
             }
@@ -5990,21 +5990,21 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 546:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ] ($lparen FormalParameter ) MethodBody
             //
             case 546: {
-                //#line 1591 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1591 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1591 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1591 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Valueopt = (Object) getRhsSym(3);
-                //#line 1591 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1591 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1591 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1591 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(6);
-                //#line 1591 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1591 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IToken lparen = (IToken) getRhsIToken(8);
-                //#line 1591 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1591 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(9);
-                //#line 1591 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1591 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1593 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1593 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 // Expr initializer = makeInitializer( pos(getRhsFirstTokenIndex(8), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
                 List formals = new TypedList(new ArrayList(1), Formal.class, false);
                 formals.add(FormalParameter);
@@ -6028,7 +6028,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 548: {
                 
-                //#line 1608 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1608 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -6038,9 +6038,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 552:  ArrayBaseType ::= ( Type )
             //
             case 552: {
-                //#line 1616 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1616 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1618 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1618 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Type);
                 break;
             }
@@ -6049,11 +6049,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 553:  ArrayAccess ::= ExpressionName [ ArgumentList ]
             //
             case 553: {
-                //#line 1622 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1622 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1622 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1622 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 1624 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1624 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 if (ArgumentList.size() == 1)
                      setResult(nf.X10ArrayAccess1(pos(), ExpressionName.toExpr(), (Expr) ArgumentList.get(0)));
                 else setResult(nf.X10ArrayAccess(pos(), ExpressionName.toExpr(), ArgumentList));
@@ -6064,11 +6064,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 554:  ArrayAccess ::= PrimaryNoNewArray [ ArgumentList ]
             //
             case 554: {
-                //#line 1629 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1629 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PrimaryNoNewArray = (Expr) getRhsSym(1);
-                //#line 1629 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1629 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 1631 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1631 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 if (ArgumentList.size() == 1)
                      setResult(nf.X10ArrayAccess1(pos(), PrimaryNoNewArray, (Expr) ArgumentList.get(0)));
                 else setResult(nf.X10ArrayAccess(pos(), PrimaryNoNewArray, ArgumentList));
@@ -6079,11 +6079,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 572:  NowStatement ::= now ( Clock ) Statement
             //
             case 572: {
-                //#line 1659 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1659 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1659 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1659 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1661 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1661 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Now(pos(), Clock, Statement));
                 break;
             }
@@ -6092,9 +6092,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 573:  ClockedClause ::= clocked ( ClockList )
             //
             case 573: {
-                //#line 1665 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1665 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1667 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1667 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ClockList);
                 break;
             }
@@ -6103,13 +6103,13 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 574:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
             case 574: {
-                //#line 1671 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1671 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1671 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1671 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1671 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1671 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1673 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1673 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -6121,11 +6121,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 575:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
             //
             case 575: {
-                //#line 1681 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1681 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1681 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1681 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1683 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1683 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
                                                ? nf.Here(pos(getLeftSpan()))
                                                : PlaceExpressionSingleListopt), Statement));
@@ -6136,11 +6136,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 576:  WhenStatement ::= when ( Expression ) Statement
             //
             case 576: {
-                //#line 1690 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1690 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1690 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1690 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1692 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1692 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.When(pos(), Expression, Statement));
                 break;
             }
@@ -6149,15 +6149,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 577:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
             case 577: {
-                //#line 1695 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1695 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1695 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1695 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1695 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1695 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1695 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1695 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1697 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1697 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                 break;
@@ -6167,15 +6167,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 578:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
             case 578: {
-                //#line 1702 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1702 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1702 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1702 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1702 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1702 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1702 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1702 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1704 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1704 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForEach(pos(),
                               FormalParameter.flags(FormalParameter.flags().Final()),
                               Expression,
@@ -6188,15 +6188,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 579:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
             case 579: {
-                //#line 1712 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1712 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1712 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1712 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1714 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1714 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AtEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6209,13 +6209,13 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 580:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
             //
             case 580: {
-                //#line 1722 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1722 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1722 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1722 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1722 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1722 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1724 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1724 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForLoop(pos(),
                         FormalParameter.flags(FormalParameter.flags().Final()),
                         Expression,
@@ -6227,9 +6227,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 581:  FinishStatement ::= finish Statement
             //
             case 581: {
-                //#line 1731 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1731 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1733 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1733 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
@@ -6238,11 +6238,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 582:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
             //
             case 582: {
-                //#line 1738 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1738 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1738 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1738 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1740 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1740 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Now(pos(), Clock, StatementNoShortIf));
                 break;
             }
@@ -6251,13 +6251,13 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 583:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
             //
             case 583: {
-                //#line 1744 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1744 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1744 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1744 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1744 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1744 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(4);
-                //#line 1746 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1746 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt),
@@ -6269,9 +6269,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 584:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
             //
             case 584: {
-                //#line 1753 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1753 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1755 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1755 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), StatementNoShortIf));
                 break;
             }
@@ -6280,11 +6280,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 585:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
             //
             case 585: {
-                //#line 1759 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1759 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1759 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1759 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1761 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1761 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.When(pos(), Expression, StatementNoShortIf));
                 break;
             }
@@ -6293,15 +6293,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 586:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
             //
             case 586: {
-                //#line 1764 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1764 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1764 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1764 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1764 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1764 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1764 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1764 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(6);
-                //#line 1766 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1766 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, StatementNoShortIf);
                 setResult(WhenStatement);
                 break;
@@ -6311,15 +6311,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 587:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
             case 587: {
-                //#line 1771 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1771 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1771 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1771 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1771 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1771 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1771 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1771 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
-                //#line 1773 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1773 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6333,15 +6333,15 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 588:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
             case 588: {
-                //#line 1782 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1782 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1782 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1782 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1782 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1782 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1782 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1782 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
-                //#line 1784 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1784 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AtEach(pos(),
                             FormalParameter.flags(FormalParameter.flags().Final()),
                             Expression,
@@ -6354,13 +6354,13 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 589:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
             //
             case 589: {
-                //#line 1792 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1792 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1792 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1792 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1792 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1792 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(7);
-                //#line 1794 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1794 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                   setResult(nf.ForLoop(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6372,9 +6372,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 590:  FinishStatementNoShortIf ::= finish StatementNoShortIf
             //
             case 590: {
-                //#line 1801 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1801 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1803 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1803 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Finish(pos(), StatementNoShortIf));
                 break;
             }
@@ -6383,9 +6383,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 591:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
             case 591: {
-                //#line 1808 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1808 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1810 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1810 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               setResult(PlaceExpression);
                 break;
             }
@@ -6395,7 +6395,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 593: {
                 
-                //#line 1818 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1818 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Next(pos()));
                 break;
             }
@@ -6404,9 +6404,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 594:  AwaitStatement ::= await Expression ;
             //
             case 594: {
-                //#line 1822 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1822 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1824 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1824 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
@@ -6415,9 +6415,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 595:  ClockList ::= Clock
             //
             case 595: {
-                //#line 1828 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1828 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1830 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1830 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -6428,11 +6428,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 596:  ClockList ::= ClockList , Clock
             //
             case 596: {
-                //#line 1835 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1835 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1835 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1835 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1837 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1837 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClockList.add(Clock);
                 setResult(ClockList);
                 break;
@@ -6442,9 +6442,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 597:  Clock ::= Expression
             //
             case 597: {
-                //#line 1843 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1843 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1845 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1845 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
     setResult(Expression);
                 break;
             }
@@ -6453,11 +6453,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 598:  CastExpression ::= ( PrimitiveType ) UnaryExpression
             //
             case 598: {
-                //#line 1857 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1857 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode PrimitiveType = (TypeNode) getRhsSym(2);
-                //#line 1857 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1857 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(4);
-                //#line 1859 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1859 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), PrimitiveType, UnaryExpression));
                 break;
             }
@@ -6466,11 +6466,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 599:  CastExpression ::= ( SpecialType ) UnaryExpressionNotPlusMinus
             //
             case 599: {
-                //#line 1862 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1862 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode SpecialType = (TypeNode) getRhsSym(2);
-                //#line 1862 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1862 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1864 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1864 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), SpecialType, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6479,11 +6479,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 600:  CastExpression ::= ( ReferenceType ) UnaryExpressionNotPlusMinus
             //
             case 600: {
-                //#line 1867 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1867 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ReferenceType = (TypeNode) getRhsSym(2);
-                //#line 1867 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1867 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1869 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1869 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), ReferenceType, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6492,11 +6492,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 601:  CastExpression ::= ( ! Expression ) UnaryExpressionNotPlusMinus
             //
             case 601: {
-                //#line 1872 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1872 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1872 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1872 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(5);
-                //#line 1874 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1874 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6505,11 +6505,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 602:  CastExpression ::= ( Annotations ) UnaryExpressionNotPlusMinus
             //
             case 602: {
-                //#line 1877 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1877 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1877 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1877 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1879 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1879 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr e = UnaryExpressionNotPlusMinus;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -6520,11 +6520,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 603:  RelationalExpression ::= RelationalExpression instanceof Type
             //
             case 603: {
-                //#line 1891 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1891 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1891 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1891 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1893 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1893 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                 break;
             }
@@ -6533,9 +6533,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 604:  IdentifierList ::= identifier
             //
             case 604: {
-                //#line 1899 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1899 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1901 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1901 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Name.class, false);
                 l.add(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 setResult(l);
@@ -6546,11 +6546,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 605:  IdentifierList ::= IdentifierList , identifier
             //
             case 605: {
-                //#line 1906 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1906 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 1906 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1906 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1908 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1908 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IdentifierList.add(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 setResult(IdentifierList);
                 break;
@@ -6561,7 +6561,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 606: {
                 
-                //#line 1915 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1915 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(((X10NodeFactory) nf).Here(pos()));
 //
 // A "here" expression used to be treated as an ExpressionName instead
@@ -6579,11 +6579,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 609:  RegionExpression ::= Expression$expr1 : Expression$expr2
             //
             case 609: {
-                //#line 1931 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1931 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1931 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1931 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1933 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1933 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 /*Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
 
@@ -6604,9 +6604,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 610:  RegionExpressionList ::= RegionExpression
             //
             case 610: {
-                //#line 1949 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1949 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 1951 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1951 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -6617,11 +6617,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 611:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
             case 611: {
-                //#line 1956 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1956 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 1956 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1956 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 1958 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1958 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                 break;
@@ -6631,9 +6631,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 612:  Primary ::= [ RegionExpressionList ]
             //
             case 612: {
-                //#line 1963 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1963 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(2);
-                //#line 1965 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1965 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Receiver x10LangPointFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.point.factory");
                 Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.region.factory");
                 Tuple tuple = nf.Tuple(pos(), x10LangPointFactory, x10LangRegionFactory, RegionExpressionList);
@@ -6645,11 +6645,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 613:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
             case 613: {
-                //#line 1972 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1972 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1972 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1972 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1974 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1974 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ConstantDistMaker call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                 break;
@@ -6659,11 +6659,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 614:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
             //
             case 614: {
-                //#line 1979 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1979 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1979 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1979 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1981 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1981 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Future(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt), Expression));
@@ -6675,7 +6675,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 615: {
                 
-                //#line 1989 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1989 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.MUTABLE));
                 break;
             }
@@ -6685,7 +6685,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 616: {
                 
-                //#line 1994 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 1994 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL)));
                 break;
             }
@@ -6748,7 +6748,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 626:  MethodModifier ::= synchronized
             //
             case 626: {
-                //#line 2025 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2025 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"synchronized\" is an invalid X10 Method Modifier",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6760,7 +6760,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 627:  FieldModifier ::= volatile
             //
             case 627: {
-                //#line 2034 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2034 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"volatile\" is an invalid X10 Field Modifier",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6772,11 +6772,11 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 628:  SynchronizedStatement ::= synchronized ( Expression ) Block
             //
             case 628: {
-                //#line 2041 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2041 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2041 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2041 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 2043 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2043 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Synchronized Statement is invalid in X10",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6845,7 +6845,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 645: {
                 
-                //#line 2085 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2085 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
          setResult(Collections.singletonList(X10Flags.toX10Flags(Flags.NONE)));
                 break;
             }  
@@ -6861,7 +6861,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 648: {
                 
-                //#line 2093 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2093 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -6878,9 +6878,9 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             // Rule 650:  ParamIdopt ::= identifier
             //
             case 650: {
-                //#line 2100 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2100 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2102 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2102 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -6890,7 +6890,7 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
             //
             case 651: {
                 
-                //#line 2108 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
+                //#line 2108 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
