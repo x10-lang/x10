@@ -341,17 +341,20 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 //	 Wrap the body in a block to facilitate code transformations
-	public X10Loop AtEach(Position pos, Formal formal, Expr domain,
-						  List clocks, Stmt body)
+	public AtEach AtEach(Position pos, Formal formal, Expr domain,
+						 List clocks, Stmt body)
 	{
 		if (body != null) {
 			List l = new ArrayList();
 			l.add(body);
 			body = Block(body.position(), l);
 		}
-		X10Loop n = new AtEach_c(pos, formal, domain, clocks, body);
-		n = (X10Loop) n.ext(extFactory().extStmt());
-		return (X10Loop) n.del(delFactory().delStmt());
+		AtEach n = new AtEach_c(pos, formal, domain, clocks, body);
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (AtEach) n.ext(ext_fac.extAtEachImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (AtEach) n.del(del_fac.delAtEachImpl());
+		return n;
 	}
 
 	public For For(Position pos, List inits, Expr cond, List iters, Stmt body) {
@@ -375,12 +378,15 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			body = Block(body.position(), l);
 		}
 		X10Loop n = new ForLoop_c(pos, formal, domain, body);
-		n = (X10Loop) n.ext(extFactory().extStmt());
-		return (X10Loop) n.del(delFactory().delStmt());
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (X10Loop) n.ext(ext_fac.extForLoopImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (X10Loop) n.del(del_fac.delForLoopImpl());
+		return n;
 	}
 
 //	 Wrap the body in a block to facilitate code transformations
-	public X10Loop ForEach(Position pos, Formal formal, Expr domain,
+	public ForEach ForEach(Position pos, Formal formal, Expr domain,
 						   List clocks, Stmt body)
 	{
 		if (body != null) {
@@ -388,9 +394,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			l.add(body);
 			body = Block(body.position(), l);
 		}
-		X10Loop n = new ForEach_c(pos, formal, domain, clocks, body);
-		n = (X10Loop) n.ext(extFactory().extStmt());
-		return (X10Loop) n.del(delFactory().delStmt());
+		ForEach n = new ForEach_c(pos, formal, domain, clocks, body);
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (ForEach) n.ext(ext_fac.extForEachImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (ForEach) n.del(del_fac.delForEachImpl());
+		return n;
 	}
 
 	// Wrap the body in a block to facilitate code transformations
@@ -401,8 +410,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			body = Block(body.position(), l);
 		}
 		Finish n = new Finish_c(pos, body);
-		n = (Finish) n.ext(extFactory().extStmt());
-		return (Finish) n.del(delFactory().delStmt());
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (Finish) n.ext(ext_fac.extFinishImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (Finish) n.del(del_fac.delFinishImpl());
+		return n;
 	}
 
 	public DepParameterExpr DepParameterExpr(Position pos, List l) {

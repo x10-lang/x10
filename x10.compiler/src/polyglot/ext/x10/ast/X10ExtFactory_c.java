@@ -65,4 +65,20 @@ public class X10ExtFactory_c extends AbstractExtFactory_c {
 	public Ext extAsyncImpl() {
 		return extStmtImpl();
 	}
+
+	public Ext extAtEachImpl() {
+		return extStmtImpl();
+	}
+
+	public Ext extForEachImpl() {
+		return extStmtImpl();
+	}
+
+	public Ext extForLoopImpl() {
+		return extStmtImpl();
+	}
+
+	public Ext extFinishImpl() {
+		return extStmtImpl();
+	}
 }
