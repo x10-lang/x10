@@ -127,5 +127,37 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	public JL delAsyncImpl() {
 		return new TD();
 	}
+
+	/**
+	 * For each ateach loop, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
+	 */
+	public JL delAtEachImpl() {
+		return new TD();
+	}
+
+	/**
+	 * For each foreach loop, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
+	 */
+	public JL delForEachImpl() {
+		return new TD();
+	}
+
+	/**
+	 * For each x10 for loop, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
+	 */
+	public JL delForLoopImpl() {
+		return new TD();
+	}
+
+	/**
+	 * For each finish, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
+	 */
+	public JL delFinishImpl() {
+		return new TD();
+	}
 }
 
