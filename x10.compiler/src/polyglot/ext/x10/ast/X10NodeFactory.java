@@ -63,7 +63,7 @@ public interface X10NodeFactory extends NodeFactory {
 	Now Now(Position pos, Expr expr, Stmt stmt);
 
 	NullableNode Nullable(Position pos, TypeNode type);
-	FutureNode Future(Position pos, TypeNode type);
+	FutureNode FutureNode(Position pos, TypeNode type);
 
     ClassDecl ClassDecl(Position pos, Flags flags, Id name,
               List<PropertyDecl> properties, Expr ci,
