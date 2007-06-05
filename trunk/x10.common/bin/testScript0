@@ -455,7 +455,7 @@ runWithTimeLimit() {
   /usr/bin/kill -9 -$pidTimer &> /dev/null #kill the timer job
   correctExitCode "$mustFindPat" "$mustNotFindPat" "$rcMain" "$tmpFile"
   local rcMain2=$?
-  cat $tmpFile | uniq -c | awk -F'\t' '{t=index($0,"\t");n=substr($0,1,t);if(n>3){print substr($0,t+1)"\n...["(n-2)" identical lines]\n"substr($0,t+1)}else{for(i=0;i<n;i++)print substr($0,t+1)}}' >> logDetail.$tdir.$className
+  cat $tmpFile | uniq -c | awk '{t=8;n=substr($0,1,t);gsub(/ /, "", n);if(n>3){print substr($0,t+1)"\n...["(n-2)" identical lines]\n"substr($0,t+1)}else{for(i=0;i<n;i++)print substr($0,t+1)}}' >> logDetail.$tdir.$className
   rm -f $tmpFile
   return  $rcMain2    #return (possibly corrected) exit code of main job
 
@@ -685,7 +685,7 @@ doTest() {
 
   let "nTotal = (( $nTotal + 1 ))"
 
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath $testDir -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
 
   if [[ $? != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
