@@ -339,7 +339,7 @@ public class X10DelegatingVisitor {
 					public void visit(X10Unary_c n) { visit((Unary_c)n); }
 				public void visit(X10ArrayAccess_c n) { visit((Expr_c)n); }
 				public void visit(X10ArrayAccess1_c n) { visit((Expr_c)n); }
-				public void visit(Closure_c n) { visit((Closure_c)n); }
+				public void visit(Closure_c n) { visit((Expr_c)n); }
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }
 				public void visit(X10FieldDecl_c n) { visit((FieldDecl_c)n); }
 					public void visit(PropertyDecl_c n) { visit((X10FieldDecl_c)n); }
