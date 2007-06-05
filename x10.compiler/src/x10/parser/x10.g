@@ -1033,7 +1033,6 @@ $Rules
            
     AnnotatedType ::= Type Annotations
         /.$BeginJava
-System.out.println("AnnotatedType " + Type + " " + Annotations);
                     TypeNode tn = Type;
                     tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                     setResult(tn);
