@@ -48,6 +48,9 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	public static String PLUGINS = "";
 	private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";
 	
+	public static String PLUGIN_COMPILER = "";
+	private static final String PLUGIN_COMPILER_desc = "Javac-like compiler to use to compile plugins";
+
 	/**
 	 * Parses one argument from the command line.  This allows the user
 	 * to specify options also on the command line (in addition to the
