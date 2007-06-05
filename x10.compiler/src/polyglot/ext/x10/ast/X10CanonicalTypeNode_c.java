@@ -92,8 +92,11 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     public Node visitChildren( NodeVisitor v ) {
         GenParameterExpr gen = (GenParameterExpr) visitChild( this.gen, v);
         DepParameterExpr dep2 = (DepParameterExpr) visitChild( this.dep, v);
-        Node result =  dep(gen,dep2);
-        return result;
+        if (gen != this.gen || dep2 != this.dep) {
+        	Node result = dep(gen,dep2);
+        	return result;
+        }
+        return this;
     }
     
     public Node disambiguateBase(AmbiguityRemover sc) throws SemanticException {
@@ -105,7 +108,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     public boolean isTypeChecked() {
     	boolean result = 
     		type != null && type.typeSystem().isCanonical(type) 
-    		&& dep == null;
+    		    		&& dep == null;
         	return result;
     }
     public boolean isDisambiguated() {
@@ -116,8 +119,8 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     	boolean val = (dep != null && ! dep.isDisambiguated()) ||
     	(gen != null && ! gen.isDisambiguated());
     	if (val) return this;
-              X10TypeNode result = (X10TypeNode) super.disambiguate(sc);
-         return result.dep(gen,dep);
+    	X10TypeNode result = (X10TypeNode) super.disambiguate(sc);
+    	return result.dep(gen,dep);
      }
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	if (isTypeChecked()) return this;
