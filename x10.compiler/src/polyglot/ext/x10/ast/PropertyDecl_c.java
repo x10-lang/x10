@@ -156,6 +156,10 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
     	PropertyDecl_c n = (PropertyDecl_c) super.buildTypes(tb);
     	
+    	// An error occurred.
+    	if (n.fi == null)
+    		return this;
+    	
         // Property fields of interfaces are NOT static.
         Flags f = n.flags;
         f = f.clearStatic();
