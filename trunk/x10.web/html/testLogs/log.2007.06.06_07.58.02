@@ -1,0 +1,1514 @@
+Starting: /u/x10/x10.common/bin/testScript0 -t 150 -shiftLog -m x10-regression@lists.sourceforge.net
+Machine name: rlsecomp1.watson.ibm.com
+Operating system: AIX
+Java home: /u/x10/TOOLS/Java5/j542allan/jre
+Java version: java version "1.5.0"
+  Java(TM) 2 Runtime Environment, Standard Edition (build jclap32dev-20060307)
+  IBM J9 VM (build 2.4, J2RE 1.5.0 IBM J9 2.4 AIX ppc-32  (JIT enabled)
+  J9VM - 20060305_05604_bHdSMR
+  JIT  - 20060303_1803_dev
+  GC   - 20060305_AA)
+  JCL  - 20060307
+Current directory: /u/x10/x10.common/examples
+System load:   07:58AM   up 77 days,  15:43,  2 users,  load average: 0.58, 0.18, 0.08
+
+X10 tests started on 2007-06-06 07:58:02
+553 tests out of 609 met expectations. 56 did not meet expectations.
+21 implementation limitations did not meet expectations.  0 unexpectedly met expectations.
+
+The dates after each error message below show the earliest test run since which the same error message kept occurring continuously.
+
+Misc AssignIntToChar did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+LIMITATION: Misc RemoteAccessCheck did not meet expectation: expected=Success actual=FailRun (2007-06-06 07:58:02).
+LIMITATION: Constructs.StorageClass StorageClassesTest did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+LIMITATION: Constructs.Point PointRebinding did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+LIMITATION: Constructs.PlaceCast PlaceCheck1 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+LIMITATION: Constructs.PlaceCast PlaceCast did not meet expectation: expected=Success actual=FailRun (2007-06-06 07:58:02).
+LIMITATION: Constructs.Nullable NullableOverriding did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+LIMITATION: Constructs.Lit IntLitOctBad_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+LIMITATION: Constructs.Extern AllArrayExternUnsafe did not meet expectation: expected=Success actual=FailRun (2007-06-06 07:58:02).
+LIMITATION: Constructs.Exceptions Exceptions_BadPlace did not meet expectation: expected=Success actual=FailRun (2007-06-06 07:58:02).
+LIMITATION: Constructs.DepType GuardedMethodAccess_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+LIMITATION: Constructs.DepType DepTypeThisClause did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+LIMITATION: Constructs.DepType ConstructorInvocation did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+LIMITATION: Constructs.Atomic AtomicNonLocal_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+LIMITATION: Constructs.Array FlattenPlaceCast did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+LIMITATION: Constructs.Array DimCheck_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+LIMITATION: Constructs.Array DimCheckN_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+LIMITATION: Constructs.Array DimCheckN4_MustFailCompile did not meet expectation: expected=FailCompile actual=FailRun (2007-06-06 07:58:02).
+LIMITATION: Constructs.Array DimCheckN3_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+LIMITATION: Constructs.Array DimCheckN2_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+LIMITATION: Constructs.Array ArrayTypeCheck2_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+LIMITATION: Constructs.Array ArrayArrayInitializerShorthand did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Nullable NullableIntArray did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Nullable NullableInt did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Constructs.DepType InterfaceTypeInvariant_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+Constructs.DepType InconsistentInterfaceInvariants_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+Constructs.DepType DepTypeConsistency1_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2007-06-06 07:58:02).
+Constructs.Clock ClockTest18_MustFailRun did not meet expectation: expected=FailRun actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Clock ClockTest17_MustFailRun did not meet expectation: expected=FailRun actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Clock ClockTest16a_MustFailRun did not meet expectation: expected=FailRun actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Clock ClockTest16 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeAssignmentOverflow did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Async AsyncTest3 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Array ArrayCopy3 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Constructs.Annotations DimTest2 did not meet expectation: expected=Success actual=FailRun (2007-06-06 07:58:02).
+Applications.sparsematmult SparseMatmultAllValuesClean did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.sparsematmult SparseMatmultAllValues did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps QueensList3 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps QueensList did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps LU_Overlap1 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps LU_Overlap0 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps LU_Overlap did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps LU_Dep did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps LU did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Sequential2 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Sequential1 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Parallel6 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Parallel5 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Parallel4b did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Parallel4 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Parallel3 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Parallel2 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.OtherApps Edmiston_Parallel1 did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.sparsematmult.serial JGFSparseMatmultBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.sparsematmult.parallel JGFSparseMatmultBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.sparsematmult.distributed JGFSparseMatmultBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.sor.serial JGFSORBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.sor.parallel JGFSORBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.sor.distributed JGFSORBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.series.serial JGFSeriesBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.series.parallel JGFSeriesBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.series.distributed JGFSeriesBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.raytracer.serial JGFRayTracerBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.raytracer.parallel JGFRayTracerBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.raytracer.distributed JGFRayTracerBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.montecarlo.serial JGFMonteCarloBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.montecarlo.parallel JGFMonteCarloBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.montecarlo.distributed JGFMonteCarloBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.moldyn.serial JGFMolDynBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.moldyn.parallel JGFMolDynBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.moldyn.distributed JGFMolDynBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.lufact.serial JGFLUFactBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.lufact.parallel JGFLUFactBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.lufact.distributed JGFLUFactBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.crypt.serial JGFCryptBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.crypt.parallel JGFCryptBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+Applications.NewJavaGrande.crypt.distributed JGFCryptBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2007-06-06 07:58:02).
+
+
+****** Misc AssignIntToChar ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Misc"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./AssignIntToChar.x10'
+./Misc/./AssignIntToChar.x10:22: Cannot assign int to char.
+1 error.
+
+real	0m2.529s
+user	0m2.756s
+sys	0m0.255s
+
+****** Misc AssignIntToChar failed: compile
+
+****** Misc RemoteAccessCheck ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Misc"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./RemoteAccessCheck.x10'
+
+real	0m5.837s
+user	0m6.576s
+sys	0m0.569s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Misc:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'RemoteAccessCheck'
+2
+3
+error=2 error2=3
+++++++ Test failed.
+
+real	0m1.401s
+user	0m1.246s
+sys	0m0.150s
+
+****** Misc RemoteAccessCheck failed: run
+
+****** Constructs.StorageClass StorageClassesTest ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/StorageClass"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/StorageClass' '-d' './Constructs/StorageClass' './Constructs/StorageClass/./StorageClassesTest.x10'
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:28:13:28:13:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:28:28:29:11:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:29:26:30:16:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:30:18:31:16:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:31:18:32:16:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:32:18:33:16:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:33:18:34:16:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:34:28:35:22:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:35:27:36:20:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:34:18:36:27:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:28:9:37:17:0:0:8: "ERROR_TOKEN" misplaced construct(s)
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:42:13:42:13:0:0:6: "ERROR_TOKEN" unexpected token(s) ignored
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:42:25:42:25:0:0:11: "PlaceType" is invalid
+****Error: ./Constructs/StorageClass/./StorageClassesTest.x10:42:9:42:28:0:0:8: "ERROR_TOKEN" misplaced construct(s)
+./Constructs/StorageClass/./StorageClassesTest.x10:1: Unable to parse
+    StorageClassesTest.x10.
+1 error.
+
+real	0m2.004s
+user	0m2.186s
+sys	0m0.204s
+
+****** Constructs.StorageClass StorageClassesTest failed: compile
+
+****** Constructs.Point PointRebinding ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Point"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Point' '-d' './Constructs/Point' './Constructs/Point/./PointRebinding.x10'
+./Constructs/Point/./PointRebinding.x10:21: Could not find field or local
+    variable "point".
+./Constructs/Point/./PointRebinding.x10:23: Could not find field or local
+    variable "i".
+2 errors.
+
+real	0m2.264s
+user	0m2.460s
+sys	0m0.251s
+
+****** Constructs.Point PointRebinding failed: compile
+
+****** Constructs.PlaceCast PlaceCheck1 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/PlaceCast"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/PlaceCast' '-d' './Constructs/PlaceCast' './Constructs/PlaceCast/./PlaceCheck1.x10'
+****Error: ./Constructs/PlaceCast/./PlaceCheck1.x10:34:18:34:22:0:0:9: ";" inserted to complete scope
+./Constructs/PlaceCast/./PlaceCheck1.x10:34: Could not find type "nullable".
+./Constructs/PlaceCast/./PlaceCheck1.x10:34: Could not find field or local
+    variable "ret".
+./Constructs/PlaceCast/./PlaceCheck1.x10:38: Could not find field or local
+    variable "ret".
+./Constructs/PlaceCast/./PlaceCheck1.x10:42: Could not find field or local
+    variable "ret".
+4 errors.
+
+real	0m2.609s
+user	0m2.992s
+sys	0m0.256s
+
+****** Constructs.PlaceCast PlaceCheck1 failed: compile
+
+****** Constructs.PlaceCast PlaceCast ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/PlaceCast"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/PlaceCast' '-d' './Constructs/PlaceCast' './Constructs/PlaceCast/./PlaceCast.x10'
+
+real	0m5.002s
+user	0m5.450s
+sys	0m0.568s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/PlaceCast:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'PlaceCast'
+num places = [place(id=0), place(id=1), place(id=2), place(id=3)]
+The currentplace is:place(id=0)
+The currentplace is:place(id=1)
+The currentplace is:place(id=2)
+The currentplace is:place(id=3)
+nplaces == 4
+++++++ Test failed.
+
+real	0m1.373s
+user	0m1.170s
+sys	0m0.168s
+
+****** Constructs.PlaceCast PlaceCast failed: run
+
+****** Constructs.Nullable NullableOverriding ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Nullable"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableOverriding.x10'
+x10c: ./Constructs/Nullable/NullableOverriding.java:46: m(NullableOverriding)
+    is already defined in NullableOverriding    
+     m(    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m4.639s
+user	0m5.171s
+sys	0m0.557s
+
+****** Constructs.Nullable NullableOverriding failed: compile
+
+****** Constructs.Lit IntLitOctBad_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Lit"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Lit' '-d' './Constructs/Lit' './Constructs/Lit/./IntLitOctBad_MustFailCompile.x10'
+
+real	0m4.618s
+user	0m4.670s
+sys	0m0.566s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Lit:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'IntLitOctBad_MustFailCompile'
+9
+++++++ Test succeeded.
+
+real	0m1.512s
+user	0m0.956s
+sys	0m0.137s
+
+****** Constructs.Lit IntLitOctBad_MustFailCompile succeeded.
+
+****** Constructs.Extern AllArrayExternUnsafe ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Extern"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Extern' '-d' './Constructs/Extern' './Constructs/Extern/./AllArrayExternUnsafe.x10'
+
+real	0m5.857s
+user	0m6.252s
+sys	0m0.587s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Extern:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'AllArrayExternUnsafe'
+java.lang.AssertionError
+	at x10.array.sharedmemory.DefaultArrayFactory.IntArray(DefaultArrayFactory.java:60)
+	at x10.array.sharedmemory.SpecializedArrayFactory.IntArray(SpecializedArrayFactory.java:46)
+	at AllArrayExternUnsafe.run(AllArrayExternUnsafe.java:145)
+	at harness.x10Test.execute(x10Test.java:115)
+	at AllArrayExternUnsafe.main(AllArrayExternUnsafe.java:425)
+	at AllArrayExternUnsafe$Main.runX10Task(AllArrayExternUnsafe.java:409)
+	at x10.runtime.InvocationStrategy$AsyncInFinishStrategy.invokeX10Task(InvocationStrategy.java:80)
+	at x10.runtime.Activity.run(Activity.java:192)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:797)
+++++++ Test failed.
+
+real	0m1.388s
+user	0m1.375s
+sys	0m0.146s
+
+****** Constructs.Extern AllArrayExternUnsafe failed: run
+
+****** Constructs.Exceptions Exceptions_BadPlace ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Exceptions"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Exceptions' '-d' './Constructs/Exceptions' './Constructs/Exceptions/./Exceptions_BadPlace.x10'
+
+real	0m5.707s
+user	0m6.017s
+sys	0m0.574s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Exceptions:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'Exceptions_BadPlace'
+1
+++++++ Test failed.
+
+real	0m1.383s
+user	0m1.210s
+sys	0m0.146s
+
+****** Constructs.Exceptions Exceptions_BadPlace failed: run
+
+****** Constructs.DepType GuardedMethodAccess_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/DepType"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./GuardedMethodAccess_MustFailCompile.x10'
+
+real	0m4.806s
+user	0m5.190s
+sys	0m0.561s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'GuardedMethodAccess_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.099s
+user	0m0.964s
+sys	0m0.139s
+
+****** Constructs.DepType GuardedMethodAccess_MustFailCompile succeeded.
+
+****** Constructs.DepType DepTypeThisClause ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/DepType"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepTypeThisClause.x10'
+****Error: ./Constructs/DepType/./DepTypeThisClause.x10:21:39:21:39:0:0:5: "<=" expected instead of this input
+./Constructs/DepType/./DepTypeThisClause.x10:1: Unable to parse
+    DepTypeThisClause.x10.
+1 error.
+
+real	0m1.672s
+user	0m1.724s
+sys	0m0.149s
+
+****** Constructs.DepType DepTypeThisClause failed: compile
+
+****** Constructs.DepType ConstructorInvocation ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/DepType"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./ConstructorInvocation.x10'
+./Constructs/DepType/./ConstructorInvocation.x10:24: Instances created by this
+    constructor satisfy (:self.j=j, self.i=i); this is not strong enough to
+    entail the return constraint (:i=j)
+1 error.
+
+real	0m2.562s
+user	0m2.780s
+sys	0m0.255s
+
+****** Constructs.DepType ConstructorInvocation failed: compile
+
+****** Constructs.Atomic AtomicNonLocal_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Atomic"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Atomic' '-d' './Constructs/Atomic' './Constructs/Atomic/./AtomicNonLocal_MustFailCompile.x10'
+
+real	0m5.009s
+user	0m5.527s
+sys	0m0.572s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Atomic:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'AtomicNonLocal_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.346s
+user	0m1.176s
+sys	0m0.159s
+
+****** Constructs.Atomic AtomicNonLocal_MustFailCompile succeeded.
+
+****** Constructs.Array FlattenPlaceCast ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./FlattenPlaceCast.x10'
+****Error: ./Constructs/Array/./FlattenPlaceCast.x10:29:20:29:20:0:0:9: ") UnaryExpressionNotPlusMinus" inserted to complete scope
+****Error: ./Constructs/Array/./FlattenPlaceCast.x10:29:20:29:20:0:0:9: ";" inserted to complete scope
+****Error: ./Constructs/Array/./FlattenPlaceCast.x10:10:15:10:15:0:0:5: "." expected instead of this input
+****Error: ./Constructs/Array/./FlattenPlaceCast.x10:29:20:29:20:0:0:3: "!" expected after this token
+./Constructs/Array/./FlattenPlaceCast.x10:1: Unable to parse
+    FlattenPlaceCast.x10.
+1 error.
+
+real	0m1.655s
+user	0m1.753s
+sys	0m0.153s
+
+****** Constructs.Array FlattenPlaceCast failed: compile
+
+****** Constructs.Array DimCheck_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./DimCheck_MustFailCompile.x10'
+
+real	0m5.258s
+user	0m5.928s
+sys	0m0.566s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'DimCheck_MustFailCompile'
+x10.array.sharedmemory.IntArray_c@52d252d2
+++++++ Test succeeded.
+
+real	0m1.317s
+user	0m1.137s
+sys	0m0.147s
+
+****** Constructs.Array DimCheck_MustFailCompile succeeded.
+
+****** Constructs.Array DimCheckN_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./DimCheckN_MustFailCompile.x10'
+
+real	0m4.855s
+user	0m5.426s
+sys	0m0.568s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'DimCheckN_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.348s
+user	0m1.205s
+sys	0m0.147s
+
+****** Constructs.Array DimCheckN_MustFailCompile succeeded.
+
+****** Constructs.Array DimCheckN4_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./DimCheckN4_MustFailCompile.x10'
+
+real	0m4.822s
+user	0m5.224s
+sys	0m0.567s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'DimCheckN4_MustFailCompile'
+java.lang.ArrayIndexOutOfBoundsException
+	at x10.array.point_c.get(point_c.java:72)
+	at DimCheckN4_MustFailCompile$1.apply(DimCheckN4_MustFailCompile.java:35)
+	at x10.array.IntArray.scan(IntArray.java:300)
+	at x10.array.sharedmemory.IntArray_c.<init>(IntArray_c.java:51)
+	at x10.array.sharedmemory.IntArray_c.<init>(IntArray_c.java:45)
+	at x10.array.sharedmemory.DefaultArrayFactory.IntArray(DefaultArrayFactory.java:61)
+	at x10.array.sharedmemory.SpecializedArrayFactory.IntArray(SpecializedArrayFactory.java:46)
+	at DimCheckN4_MustFailCompile.m(DimCheckN4_MustFailCompile.java:20)
+	at DimCheckN4_MustFailCompile.run(DimCheckN4_MustFailCompile.java:81)
+	at harness.x10Test.execute(x10Test.java:115)
+	at DimCheckN4_MustFailCompile.main(DimCheckN4_MustFailCompile.java:114)
+	at DimCheckN4_MustFailCompile$Main.runX10Task(DimCheckN4_MustFailCompile.java:98)
+	at x10.runtime.InvocationStrategy$AsyncInFinishStrategy.invokeX10Task(InvocationStrategy.java:80)
+	at x10.runtime.Activity.run(Activity.java:192)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:797)
+++++++ Test failed.
+
+real	0m1.329s
+user	0m1.210s
+sys	0m0.147s
+
+****** Constructs.Array DimCheckN4_MustFailCompile failed: run
+
+****** Constructs.Array DimCheckN3_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./DimCheckN3_MustFailCompile.x10'
+
+real	0m5.441s
+user	0m6.871s
+sys	0m0.567s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'DimCheckN3_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.396s
+user	0m1.169s
+sys	0m0.147s
+
+****** Constructs.Array DimCheckN3_MustFailCompile succeeded.
+
+****** Constructs.Array DimCheckN2_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./DimCheckN2_MustFailCompile.x10'
+
+real	0m4.817s
+user	0m5.480s
+sys	0m0.565s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'DimCheckN2_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.403s
+user	0m1.420s
+sys	0m0.149s
+
+****** Constructs.Array DimCheckN2_MustFailCompile succeeded.
+
+****** Constructs.Array ArrayTypeCheck2_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayTypeCheck2_MustFailCompile.x10'
+
+real	0m5.723s
+user	0m5.499s
+sys	0m0.569s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'ArrayTypeCheck2_MustFailCompile'
+1
+2
+3
+4
+5
+Caught RankMismatchException(region {0:2,0:3} accessed as rank 1)
+++++++ Test succeeded.
+
+real	0m1.390s
+user	0m1.217s
+sys	0m0.146s
+
+****** Constructs.Array ArrayTypeCheck2_MustFailCompile succeeded.
+
+****** Constructs.Array ArrayArrayInitializerShorthand ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayArrayInitializerShorthand.x10'
+****Error: ./Constructs/Array/./ArrayArrayInitializerShorthand.x10:22:38:22:38:0:0:11: "Expression" is invalid
+****Error: ./Constructs/Array/./ArrayArrayInitializerShorthand.x10:22:42:22:42:0:0:3: "?" expected after this token
+****Error: ./Constructs/Array/./ArrayArrayInitializerShorthand.x10:22:30:22:56:0:0:9: ": ConditionalExpression" inserted to complete scope
+****Error: ./Constructs/Array/./ArrayArrayInitializerShorthand.x10:22:9:22:56:0:0:9: ";" inserted to complete scope
+./Constructs/Array/./ArrayArrayInitializerShorthand.x10:1: Unable to parse
+    ArrayArrayInitializerShorthand.x10.
+1 error.
+
+real	0m1.720s
+user	0m1.836s
+sys	0m0.164s
+
+****** Constructs.Array ArrayArrayInitializerShorthand failed: compile
+
+****** Constructs.Nullable NullableIntArray ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Nullable"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableIntArray.x10'
+./Constructs/Nullable/./NullableIntArray.x10:18: No least common ancestor
+    found for types "int(::self=3)" and "int(::self=2)".
+1 error.
+
+real	0m2.509s
+user	0m2.755s
+sys	0m0.254s
+
+****** Constructs.Nullable NullableIntArray failed: compile
+
+****** Constructs.Nullable NullableInt ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Nullable"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableInt.x10'
+./Constructs/Nullable/./NullableInt.x10:17: No least common ancestor found for
+    types "int(::self=3)" and "int(::self=2)".
+1 error.
+
+real	0m2.495s
+user	0m2.789s
+sys	0m0.254s
+
+****** Constructs.Nullable NullableInt failed: compile
+
+****** Constructs.DepType InterfaceTypeInvariant_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/DepType"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./InterfaceTypeInvariant_MustFailCompile.x10'
+
+real	0m4.956s
+user	0m5.215s
+sys	0m0.565s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'InterfaceTypeInvariant_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.210s
+user	0m0.982s
+sys	0m0.138s
+
+****** Constructs.DepType InterfaceTypeInvariant_MustFailCompile succeeded.
+
+****** Constructs.DepType InconsistentInterfaceInvariants_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/DepType"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./InconsistentInterfaceInvariants_MustFailCompile.x10'
+
+real	0m4.731s
+user	0m5.116s
+sys	0m0.557s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'InconsistentInterfaceInvariants_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.167s
+user	0m0.933s
+sys	0m0.138s
+
+****** Constructs.DepType InconsistentInterfaceInvariants_MustFailCompile succeeded.
+
+****** Constructs.DepType DepTypeConsistency1_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/DepType"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepTypeConsistency1_MustFailCompile.x10'
+
+real	0m4.818s
+user	0m5.154s
+sys	0m0.561s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'DepTypeConsistency1_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.112s
+user	0m0.900s
+sys	0m0.138s
+
+****** Constructs.DepType DepTypeConsistency1_MustFailCompile succeeded.
+
+****** Constructs.Clock ClockTest18_MustFailRun ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Clock"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Clock' '-d' './Constructs/Clock' './Constructs/Clock/./ClockTest18_MustFailRun.x10'
+./Constructs/Clock/./ClockTest18_MustFailRun.x10:97: No least common ancestor
+    found for types "int(::self=1)" and "int(::self=0)".
+1 error.
+
+real	0m2.691s
+user	0m2.972s
+sys	0m0.257s
+
+****** Constructs.Clock ClockTest18_MustFailRun failed: compile
+
+****** Constructs.Clock ClockTest17_MustFailRun ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Clock"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Clock' '-d' './Constructs/Clock' './Constructs/Clock/./ClockTest17_MustFailRun.x10'
+./Constructs/Clock/./ClockTest17_MustFailRun.x10:123: No least common ancestor
+    found for types "int(::self=1)" and "int(::self=0)".
+1 error.
+
+real	0m2.589s
+user	0m2.955s
+sys	0m0.256s
+
+****** Constructs.Clock ClockTest17_MustFailRun failed: compile
+
+****** Constructs.Clock ClockTest16a_MustFailRun ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Clock"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Clock' '-d' './Constructs/Clock' './Constructs/Clock/./ClockTest16a_MustFailRun.x10'
+./Constructs/Clock/./ClockTest16a_MustFailRun.x10:159: No least common
+    ancestor found for types "int(::self=1)" and "int(::self=0)".
+1 error.
+
+real	0m2.719s
+user	0m2.977s
+sys	0m0.256s
+
+****** Constructs.Clock ClockTest16a_MustFailRun failed: compile
+
+****** Constructs.Clock ClockTest16 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Clock"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Clock' '-d' './Constructs/Clock' './Constructs/Clock/./ClockTest16.x10'
+./Constructs/Clock/./ClockTest16.x10:164: No least common ancestor found for
+    types "int(::self=1)" and "int(::self=0)".
+1 error.
+
+real	0m2.646s
+user	0m3.060s
+sys	0m0.256s
+
+****** Constructs.Clock ClockTest16 failed: compile
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeAssignmentOverflow ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Cast/PrimitiveDependentTypeCast"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveDepTypeAssignmentOverflow.x10'
+Warning! Primitive Cast from int to int(::self=2147473649) is unsafe at line :33,38-67.
+./Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveDepTypeAssignmentOverflow.x10:38:
+    Cannot cast the expression of type "int(::self=2147473649)" to type
+    "int(::self=PrimitiveDepTypeAssignmentOverflow.this.overIntMax)".
+1 error.
+
+real	0m2.422s
+user	0m2.709s
+sys	0m0.256s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeAssignmentOverflow failed: compile
+
+****** Constructs.Async AsyncTest3 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Async"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Async' '-d' './Constructs/Async' './Constructs/Async/./AsyncTest3.x10'
+./Constructs/Async/./AsyncTest3.x10:67: No least common ancestor found for
+    types "int(::self=1)" and "int(::self=0)".
+1 error.
+
+real	0m2.654s
+user	0m3.072s
+sys	0m0.263s
+
+****** Constructs.Async AsyncTest3 failed: compile
+
+****** Constructs.Array ArrayCopy3 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Array"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayCopy3.x10'
+./Constructs/Array/./ArrayCopy3.x10:127-128: The promise A.rank-> 4 is already
+    bound to 4; cannot bind it to 4.
+1 error.
+Exception in thread "main" polyglot.util.InternalCompilerError: :127,42-128:79: The promise A.rank-> 4 is already bound to 4; cannot bind it to 4.
+	at polyglot.ext.x10.types.constr.Promise_c.bind(Promise_c.java:220)
+	at polyglot.ext.x10.types.constr.C_Lit_c.bind(C_Lit_c.java:110)
+	at polyglot.ext.x10.types.constr.Constraint_c.addBindingPromise(Constraint_c.java:329)
+	at polyglot.ext.x10.types.constr.Constraint_c.possiblyAddTypeConstraint(Constraint_c.java:418)
+	at polyglot.ext.x10.types.constr.Constraint_c.addBinding(Constraint_c.java:306)
+	at polyglot.ext.x10.types.constr.Constraint_c.addBindings(Constraint_c.java:145)
+	at polyglot.ext.x10.types.constr.Constraint_c.addIn(Constraint_c.java:126)
+	at polyglot.ext.x10.types.X10ParsedClassType_c.isCastValidImpl(X10ParsedClassType_c.java:909)
+	at polyglot.types.TypeSystem_c.isCastValid(TypeSystem_c.java:335)
+	at polyglot.ext.x10.types.X10TypeSystem_c.isCastValid(X10TypeSystem_c.java:1052)
+	at polyglot.ext.x10.ast.X10Cast_c.typeCheck(X10Cast_c.java:80)
+	at polyglot.ext.x10.ast.DepCast_c.typeCheck(DepCast_c.java:90)
+	at polyglot.ast.JL_c.typeCheck(JL_c.java:187)
+	at polyglot.visit.TypeChecker.leaveCall(TypeChecker.java:108)
+	at polyglot.visit.ErrorHandlingVisitor.leaveCall(ErrorHandlingVisitor.java:142)
+	at polyglot.visit.ErrorHandlingVisitor.leave(ErrorHandlingVisitor.java:272)
+	at polyglot.visit.ContextVisitor.leave(ContextVisitor.java:177)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:258)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ast.LocalDecl_c.visitChildren(LocalDecl_c.java:146)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:45)
+	at polyglot.ext.x10.extension.X10Del_c.visitChildren(X10Del_c.java:93)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ast.Node_c.visitList(Node_c.java:230)
+	at polyglot.ast.AbstractBlock_c.visitChildren(AbstractBlock_c.java:73)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:45)
+	at polyglot.ext.x10.extension.X10Del_c.visitChildren(X10Del_c.java:93)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ast.Node_c.visitList(Node_c.java:230)
+	at polyglot.ast.AbstractBlock_c.visitChildren(AbstractBlock_c.java:73)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:45)
+	at polyglot.ext.x10.extension.X10Del_c.visitChildren(X10Del_c.java:93)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ext.x10.ast.X10Loop_c.visitChildren(X10Loop_c.java:124)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:45)
+	at polyglot.ext.x10.extension.X10Del_c.visitChildren(X10Del_c.java:93)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ast.Node_c.visitList(Node_c.java:230)
+	at polyglot.ast.AbstractBlock_c.visitChildren(AbstractBlock_c.java:73)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:45)
+	at polyglot.ext.x10.extension.X10Del_c.visitChildren(X10Del_c.java:93)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ext.x10.ast.X10MethodDecl_c.typeCheckOverride(X10MethodDecl_c.java:226)
+	at polyglot.ast.JL_c.typeCheckOverride(JL_c.java:168)
+	at polyglot.visit.TypeChecker.override(TypeChecker.java:32)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:214)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ast.Node_c.visitList(Node_c.java:230)
+	at polyglot.ast.ClassBody_c.visitChildren(ClassBody_c.java:63)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:45)
+	at polyglot.ext.x10.extension.X10Del_c.visitChildren(X10Del_c.java:93)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ast.ClassDecl_c.visitChildren(ClassDecl_c.java:159)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:45)
+	at polyglot.ext.x10.extension.X10Del_c.visitChildren(X10Del_c.java:93)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:173)
+	at polyglot.ast.Node_c.visitList(Node_c.java:230)
+	at polyglot.ast.SourceFile_c.visitChildren(SourceFile_c.java:121)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:45)
+	at polyglot.ext.x10.extension.X10Del_c.visitChildren(X10Del_c.java:93)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visit(Node_c.java:177)
+	at polyglot.frontend.VisitorPass.run(VisitorPass.java:56)
+	at polyglot.frontend.Scheduler.runPass(Scheduler.java:596)
+	at polyglot.frontend.Scheduler.runGoal(Scheduler.java:499)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:440)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:412)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:412)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:412)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:364)
+	at polyglot.frontend.Scheduler.runToCompletion(Scheduler.java:297)
+	at polyglot.frontend.Compiler.compile(Compiler.java:171)
+	at polyglot.frontend.Compiler.compileFiles(Compiler.java:138)
+	at polyglot.main.Main.start(Main.java:119)
+	at polyglot.main.Main.start(Main.java:74)
+	at polyglot.main.Main.main(Main.java:252)
+
+real	0m2.908s
+user	0m3.464s
+sys	0m0.268s
+
+****** Constructs.Array ArrayCopy3 failed: compile
+
+****** Constructs.Annotations DimTest2 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Constructs/Annotations"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Annotations' '-d' './Constructs/Annotations' '-PLUGINS=dims.plugin.DimensionTypePlugin' './Constructs/Annotations/./DimTest2.x10'
+x10c: Plugin class dims.plugin.DimensionTypePlugin not found. Continuing
+    without it.
+
+real	0m6.070s
+user	0m7.882s
+sys	0m0.590s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Annotations:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'DimTest2'
+++++++ Test failed.
+
+real	0m1.089s
+user	0m0.948s
+sys	0m0.138s
+
+****** Constructs.Annotations DimTest2 failed: run
+
+****** Applications.sparsematmult SparseMatmultAllValuesClean ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/sparsematmult"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/sparsematmult' '-d' './Applications/sparsematmult' './Applications/sparsematmult/./SparseMatmultAllValuesClean.x10'
+./Applications/sparsematmult/./SparseMatmultAllValuesClean.x10:26: No least
+    common ancestor found for types "int(::self=500)" and
+    "int(::self=100000)".
+./Applications/sparsematmult/./SparseMatmultAllValuesClean.x10:27: No least
+    common ancestor found for types "int(::self=500)" and
+    "int(::self=100000)".
+./Applications/sparsematmult/./SparseMatmultAllValuesClean.x10:28: No least
+    common ancestor found for types "int(::self=2500)" and
+    "int(::self=500000)".
+3 errors.
+
+real	0m2.718s
+user	0m3.132s
+sys	0m0.262s
+
+****** Applications.sparsematmult SparseMatmultAllValuesClean failed: compile
+
+****** Applications.sparsematmult SparseMatmultAllValues ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/sparsematmult"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/sparsematmult' '-d' './Applications/sparsematmult' './Applications/sparsematmult/./SparseMatmultAllValues.x10'
+./Applications/sparsematmult/./SparseMatmultAllValues.x10:23: No least common
+    ancestor found for types "int(::self=500)" and "int(::self=100000)".
+./Applications/sparsematmult/./SparseMatmultAllValues.x10:24: No least common
+    ancestor found for types "int(::self=500)" and "int(::self=100000)".
+./Applications/sparsematmult/./SparseMatmultAllValues.x10:25: No least common
+    ancestor found for types "int(::self=2500)" and "int(::self=500000)".
+3 errors.
+
+real	0m2.866s
+user	0m3.315s
+sys	0m0.263s
+
+****** Applications.sparsematmult SparseMatmultAllValues failed: compile
+
+****** Applications.OtherApps QueensList3 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./QueensList3.x10'
+./Applications/OtherApps/./QueensList3.x10:51-52: No least common ancestor
+    found for types "int(::self=0)" and "int(::self=1)".
+1 error.
+
+real	0m2.858s
+user	0m3.256s
+sys	0m0.265s
+
+****** Applications.OtherApps QueensList3 failed: compile
+
+****** Applications.OtherApps QueensList ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./QueensList.x10'
+./Applications/OtherApps/./QueensList.x10:51-52: No least common ancestor
+    found for types "int(::self=0)" and "int(::self=1)".
+1 error.
+
+real	0m2.281s
+user	0m4.614s
+sys	0m0.260s
+
+****** Applications.OtherApps QueensList failed: compile
+
+****** Applications.OtherApps LU_Overlap1 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./LU_Overlap1.x10'
+./Applications/OtherApps/./LU_Overlap1.x10:205: Could not find type
+    "LU_Overlap1.execute".
+1 error.
+
+real	0m2.789s
+user	0m3.129s
+sys	0m0.257s
+
+****** Applications.OtherApps LU_Overlap1 failed: compile
+
+****** Applications.OtherApps LU_Overlap0 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./LU_Overlap0.x10'
+Warning! Cast from x10.lang.dist to x10.lang.dist(:self.rank=2) is unsafe at line :123,32-88.
+./Applications/OtherApps/./LU_Overlap0.x10:186: No least common ancestor found
+    for types "int(::self=1)" and "int(::self=0)".
+./Applications/OtherApps/./LU_Overlap0.x10:187: No least common ancestor found
+    for types "int(::self=1)" and "int(::self=2)".
+./Applications/OtherApps/./LU_Overlap0.x10:188: No least common ancestor found
+    for types "int(::self=1)" and "int(::self=2)".
+3 errors.
+
+real	0m3.283s
+user	0m4.137s
+sys	0m0.269s
+
+****** Applications.OtherApps LU_Overlap0 failed: compile
+
+****** Applications.OtherApps LU_Overlap ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./LU_Overlap.x10'
+Warning! Cast from x10.lang.dist to x10.lang.dist(:self.rank=2) is unsafe at line :123,32-88.
+./Applications/OtherApps/./LU_Overlap.x10:186: No least common ancestor found
+    for types "int(::self=1)" and "int(::self=0)".
+./Applications/OtherApps/./LU_Overlap.x10:187: No least common ancestor found
+    for types "int(::self=1)" and "int(::self=2)".
+./Applications/OtherApps/./LU_Overlap.x10:188: No least common ancestor found
+    for types "int(::self=1)" and "int(::self=2)".
+3 errors.
+
+real	0m3.211s
+user	0m4.198s
+sys	0m0.271s
+
+****** Applications.OtherApps LU_Overlap failed: compile
+
+****** Applications.OtherApps LU_Dep ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./LU_Dep.x10'
+Warning! Cast from x10.lang.region to x10.lang.region(:self.rank=1) is unsafe at line :97,50-78.
+Warning! Cast from x10.lang.region to x10.lang.region(:self.rank=1) is unsafe at line :97,80-108.
+./Applications/OtherApps/./LU_Dep.x10:137: No least common ancestor found for
+    types "int(::self=1)" and "int(::self=0)".
+./Applications/OtherApps/./LU_Dep.x10:138: No least common ancestor found for
+    types "int(::self=1)" and "int(::self=2)".
+./Applications/OtherApps/./LU_Dep.x10:139: No least common ancestor found for
+    types "int(::self=1)" and "int(::self=2)".
+3 errors.
+
+real	0m3.211s
+user	0m3.747s
+sys	0m0.270s
+
+****** Applications.OtherApps LU_Dep failed: compile
+
+****** Applications.OtherApps LU ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./LU.x10'
+./Applications/OtherApps/./LU.x10:136: No least common ancestor found for
+    types "int(::self=1)" and "int(::self=2)".
+./Applications/OtherApps/./LU.x10:137: No least common ancestor found for
+    types "int(::self=1)" and "int(::self=2)".
+2 errors.
+
+real	0m3.058s
+user	0m3.706s
+sys	0m0.266s
+
+****** Applications.OtherApps LU failed: compile
+
+****** Applications.OtherApps Edmiston_Sequential2 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Sequential2.x10'
+./Applications/OtherApps/./Edmiston_Sequential2.x10:24: No least common
+    ancestor found for types "char(::self=A)" and "char(::self=C)".
+1 error.
+
+real	0m2.796s
+user	0m3.198s
+sys	0m0.263s
+
+****** Applications.OtherApps Edmiston_Sequential2 failed: compile
+
+****** Applications.OtherApps Edmiston_Sequential1 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Sequential1.x10'
+./Applications/OtherApps/./Edmiston_Sequential1.x10:141: Cannot assign int to
+    char.
+1 error.
+
+real	0m2.865s
+user	0m3.329s
+sys	0m0.267s
+
+****** Applications.OtherApps Edmiston_Sequential1 failed: compile
+
+****** Applications.OtherApps Edmiston_Parallel6 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel6.x10'
+./Applications/OtherApps/./Edmiston_Parallel6.x10:26: No least common ancestor
+    found for types "char(::self=A)" and "char(::self=C)".
+1 error.
+
+real	0m2.825s
+user	0m3.198s
+sys	0m0.263s
+
+****** Applications.OtherApps Edmiston_Parallel6 failed: compile
+
+****** Applications.OtherApps Edmiston_Parallel5 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel5.x10'
+./Applications/OtherApps/./Edmiston_Parallel5.x10:273: No least common
+    ancestor found for types "char(::self=A)" and "char(::self=C)".
+1 error.
+
+real	0m3.240s
+user	0m4.020s
+sys	0m0.266s
+
+****** Applications.OtherApps Edmiston_Parallel5 failed: compile
+
+****** Applications.OtherApps Edmiston_Parallel4b ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel4b.x10'
+./Applications/OtherApps/./Edmiston_Parallel4b.x10:200: No least common
+    ancestor found for types "char(::self=A)" and "char(::self=C)".
+1 error.
+
+real	0m3.179s
+user	0m3.923s
+sys	0m0.271s
+
+****** Applications.OtherApps Edmiston_Parallel4b failed: compile
+
+****** Applications.OtherApps Edmiston_Parallel4 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel4.x10'
+Warning! Cast from x10.lang.dist to x10.lang.dist(:self.rank=2) is unsafe at line :65,38-83.
+./Applications/OtherApps/./Edmiston_Parallel4.x10:180: No least common
+    ancestor found for types "char(::self=A)" and "char(::self=C)".
+1 error.
+
+real	0m3.128s
+user	0m3.664s
+sys	0m0.266s
+
+****** Applications.OtherApps Edmiston_Parallel4 failed: compile
+
+****** Applications.OtherApps Edmiston_Parallel3 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel3.x10'
+Warning! Cast from x10.lang.dist to x10.lang.dist(:self.rank=2) is unsafe at line :65,38-82.
+./Applications/OtherApps/./Edmiston_Parallel3.x10:168: No least common
+    ancestor found for types "char(::self=A)" and "char(::self=C)".
+1 error.
+
+real	0m2.971s
+user	0m3.475s
+sys	0m0.268s
+
+****** Applications.OtherApps Edmiston_Parallel3 failed: compile
+
+****** Applications.OtherApps Edmiston_Parallel2 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel2.x10'
+./Applications/OtherApps/./Edmiston_Parallel2.x10:24: No least common ancestor
+    found for types "char(::self=A)" and "char(::self=C)".
+1 error.
+
+real	0m2.805s
+user	0m3.205s
+sys	0m0.264s
+
+****** Applications.OtherApps Edmiston_Parallel2 failed: compile
+
+****** Applications.OtherApps Edmiston_Parallel1 ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/OtherApps"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel1.x10'
+./Applications/OtherApps/./Edmiston_Parallel1.x10:162: Cannot assign int to
+    char.
+1 error.
+
+real	0m2.896s
+user	0m3.411s
+sys	0m0.265s
+
+****** Applications.OtherApps Edmiston_Parallel1 failed: compile
+
+****** Applications.NewJavaGrande.sparsematmult.serial JGFSparseMatmultBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/sparsematmult/serial"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/sparsematmult/serial' '-d' './Applications/NewJavaGrande/sparsematmult/serial' './Applications/NewJavaGrande/sparsematmult/serial/./JGFSparseMatmultBenchSizeA.x10'
+./Applications/NewJavaGrande/sparsematmult/serial/sparsematmult/JGFSparseMatmultBench.x10:30:
+    No least common ancestor found for types "int(::self=100)" and
+    "int(::self=100000)".
+./Applications/NewJavaGrande/sparsematmult/serial/sparsematmult/JGFSparseMatmultBench.x10:31:
+    No least common ancestor found for types "int(::self=100)" and
+    "int(::self=100000)".
+./Applications/NewJavaGrande/sparsematmult/serial/sparsematmult/JGFSparseMatmultBench.x10:32:
+    No least common ancestor found for types "int(::self=500)" and
+    "int(::self=500000)".
+3 errors.
+
+real	0m4.238s
+user	0m5.542s
+sys	0m0.290s
+
+****** Applications.NewJavaGrande.sparsematmult.serial JGFSparseMatmultBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.sparsematmult.parallel JGFSparseMatmultBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/sparsematmult/parallel"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/sparsematmult/parallel' '-d' './Applications/NewJavaGrande/sparsematmult/parallel' './Applications/NewJavaGrande/sparsematmult/parallel/./JGFSparseMatmultBenchSizeA.x10'
+./Applications/NewJavaGrande/sparsematmult/parallel/sparsematmult/JGFSparseMatmultBench.x10:34:
+    No least common ancestor found for types "int(::self=100)" and
+    "int(::self=100000)".
+./Applications/NewJavaGrande/sparsematmult/parallel/sparsematmult/JGFSparseMatmultBench.x10:36:
+    No least common ancestor found for types "int(::self=100)" and
+    "int(::self=100000)".
+./Applications/NewJavaGrande/sparsematmult/parallel/sparsematmult/JGFSparseMatmultBench.x10:38:
+    No least common ancestor found for types "int(::self=500)" and
+    "int(::self=500000)".
+3 errors.
+
+real	0m5.296s
+user	0m6.987s
+sys	0m0.293s
+
+****** Applications.NewJavaGrande.sparsematmult.parallel JGFSparseMatmultBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.sparsematmult.distributed JGFSparseMatmultBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/sparsematmult/distributed"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/sparsematmult/distributed' '-d' './Applications/NewJavaGrande/sparsematmult/distributed' './Applications/NewJavaGrande/sparsematmult/distributed/./JGFSparseMatmultBenchSizeA.x10'
+./Applications/NewJavaGrande/sparsematmult/distributed/sparsematmult/JGFSparseMatmultBench.x10:35:
+    No least common ancestor found for types "int(::self=100)" and
+    "int(::self=100000)".
+./Applications/NewJavaGrande/sparsematmult/distributed/sparsematmult/JGFSparseMatmultBench.x10:37:
+    No least common ancestor found for types "int(::self=100)" and
+    "int(::self=100000)".
+./Applications/NewJavaGrande/sparsematmult/distributed/sparsematmult/JGFSparseMatmultBench.x10:39:
+    No least common ancestor found for types "int(::self=500)" and
+    "int(::self=500000)".
+3 errors.
+
+real	0m5.329s
+user	0m6.778s
+sys	0m0.293s
+
+****** Applications.NewJavaGrande.sparsematmult.distributed JGFSparseMatmultBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.sor.serial JGFSORBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/sor/serial"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/sor/serial' '-d' './Applications/NewJavaGrande/sor/serial' './Applications/NewJavaGrande/sor/serial/./JGFSORBenchSizeA.x10'
+./Applications/NewJavaGrande/sor/serial/sor/JGFSORBench.x10:33: No least
+    common ancestor found for types "int(::self=10)" and "int(::self=1500)".
+1 error.
+
+real	0m4.598s
+user	0m6.578s
+sys	0m0.288s
+
+****** Applications.NewJavaGrande.sor.serial JGFSORBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.sor.parallel JGFSORBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/sor/parallel"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/sor/parallel' '-d' './Applications/NewJavaGrande/sor/parallel' './Applications/NewJavaGrande/sor/parallel/./JGFSORBenchSizeA.x10'
+./Applications/NewJavaGrande/sor/parallel/sor/JGFSORBench.x10:35: No least
+    common ancestor found for types "int(::self=10)" and "int(::self=1500)".
+1 error.
+
+real	0m4.667s
+user	0m6.739s
+sys	0m0.290s
+
+****** Applications.NewJavaGrande.sor.parallel JGFSORBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.sor.distributed JGFSORBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/sor/distributed"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/sor/distributed' '-d' './Applications/NewJavaGrande/sor/distributed' './Applications/NewJavaGrande/sor/distributed/./JGFSORBenchSizeA.x10'
+./Applications/NewJavaGrande/sor/distributed/sor/JGFSORBench.x10:35: No least
+    common ancestor found for types "int(::self=10)" and "int(::self=1500)".
+1 error.
+
+real	0m4.303s
+user	0m5.578s
+sys	0m0.290s
+
+****** Applications.NewJavaGrande.sor.distributed JGFSORBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.series.serial JGFSeriesBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/series/serial"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/series/serial' '-d' './Applications/NewJavaGrande/series/serial' './Applications/NewJavaGrande/series/serial/./JGFSeriesBenchSizeA.x10'
+./Applications/NewJavaGrande/series/serial/series/JGFSeriesBench.x10:47: No
+    least common ancestor found for types "double(::self=2.8729524964837996)"
+    and "double(::self=0.0)".
+1 error.
+
+real	0m5.660s
+user	0m7.315s
+sys	0m0.287s
+
+****** Applications.NewJavaGrande.series.serial JGFSeriesBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.series.parallel JGFSeriesBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/series/parallel"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/series/parallel' '-d' './Applications/NewJavaGrande/series/parallel' './Applications/NewJavaGrande/series/parallel/./JGFSeriesBenchSizeA.x10'
+./Applications/NewJavaGrande/series/parallel/series/JGFSeriesBench.x10:47: No
+    least common ancestor found for types "double(::self=2.8729524964837996)"
+    and "double(::self=0.0)".
+1 error.
+
+real	0m4.406s
+user	0m5.480s
+sys	0m0.292s
+
+****** Applications.NewJavaGrande.series.parallel JGFSeriesBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.series.distributed JGFSeriesBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/series/distributed"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/series/distributed' '-d' './Applications/NewJavaGrande/series/distributed' './Applications/NewJavaGrande/series/distributed/./JGFSeriesBenchSizeA.x10'
+./Applications/NewJavaGrande/series/distributed/series/JGFSeriesBench.x10:27:
+    No least common ancestor found for types "int(::self=10000)" and
+    "int(::self=100000)".
+1 error.
+
+real	0m4.669s
+user	0m6.058s
+sys	0m0.292s
+
+****** Applications.NewJavaGrande.series.distributed JGFSeriesBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.raytracer.serial JGFRayTracerBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/raytracer/serial"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/raytracer/serial' '-d' './Applications/NewJavaGrande/raytracer/serial' './Applications/NewJavaGrande/raytracer/serial/./JGFRayTracerBenchSizeA.x10'
+./Applications/NewJavaGrande/raytracer/serial/raytracer/JGFRayTracerBench.x10:62:
+    No least common ancestor found for types "int(::self=51398)" and
+    "int(::self=29827635)".
+1 error.
+
+real	0m4.697s
+user	0m6.487s
+sys	0m0.310s
+
+****** Applications.NewJavaGrande.raytracer.serial JGFRayTracerBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.raytracer.parallel JGFRayTracerBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/raytracer/parallel"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/raytracer/parallel' '-d' './Applications/NewJavaGrande/raytracer/parallel' './Applications/NewJavaGrande/raytracer/parallel/./JGFRayTracerBenchSizeA.x10'
+./Applications/NewJavaGrande/raytracer/parallel/raytracer/JGFRayTracerBench.x10:62:
+    No least common ancestor found for types "int(::self=51398)" and
+    "int(::self=29827635)".
+1 error.
+
+real	0m4.713s
+user	0m6.174s
+sys	0m0.309s
+
+****** Applications.NewJavaGrande.raytracer.parallel JGFRayTracerBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.raytracer.distributed JGFRayTracerBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/raytracer/distributed"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/raytracer/distributed' '-d' './Applications/NewJavaGrande/raytracer/distributed' './Applications/NewJavaGrande/raytracer/distributed/./JGFRayTracerBenchSizeA.x10'
+./Applications/NewJavaGrande/raytracer/distributed/raytracer/JGFRayTracerBench.x10:62:
+    No least common ancestor found for types "int(::self=51398)" and
+    "int(::self=29827635)".
+1 error.
+
+real	0m5.102s
+user	0m7.254s
+sys	0m0.308s
+
+****** Applications.NewJavaGrande.raytracer.distributed JGFRayTracerBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.montecarlo.serial JGFMonteCarloBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/montecarlo/serial"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/montecarlo/serial' '-d' './Applications/NewJavaGrande/montecarlo/serial' './Applications/NewJavaGrande/montecarlo/serial/./JGFMonteCarloBenchSizeA.x10'
+./Applications/NewJavaGrande/montecarlo/serial/montecarlo/JGFMonteCarloBench.x10:46:
+    No least common ancestor found for types
+    "double(::self=0.03234469082617506)" and
+    "double(::self=0.03215796752868655)".
+1 error.
+
+real	0m4.137s
+user	0m5.333s
+sys	0m0.292s
+
+****** Applications.NewJavaGrande.montecarlo.serial JGFMonteCarloBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.montecarlo.parallel JGFMonteCarloBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/montecarlo/parallel"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/montecarlo/parallel' '-d' './Applications/NewJavaGrande/montecarlo/parallel' './Applications/NewJavaGrande/montecarlo/parallel/./JGFMonteCarloBenchSizeA.x10'
+./Applications/NewJavaGrande/montecarlo/parallel/montecarlo/JGFMonteCarloBench.x10:45:
+    No least common ancestor found for types
+    "double(::self=0.03234469082617506)" and
+    "double(::self=0.03215796752868655)".
+1 error.
+
+real	0m4.911s
+user	0m6.424s
+sys	0m0.293s
+
+****** Applications.NewJavaGrande.montecarlo.parallel JGFMonteCarloBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.montecarlo.distributed JGFMonteCarloBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/montecarlo/distributed"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/montecarlo/distributed' '-d' './Applications/NewJavaGrande/montecarlo/distributed' './Applications/NewJavaGrande/montecarlo/distributed/./JGFMonteCarloBenchSizeA.x10'
+./Applications/NewJavaGrande/montecarlo/distributed/montecarlo/JGFMonteCarloBench.x10:46:
+    No least common ancestor found for types
+    "double(::self=0.03234469082617506)" and
+    "double(::self=0.03215796752868655)".
+1 error.
+
+real	0m4.607s
+user	0m5.893s
+sys	0m0.293s
+
+****** Applications.NewJavaGrande.montecarlo.distributed JGFMonteCarloBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.moldyn.serial JGFMolDynBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/moldyn/serial"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/moldyn/serial' '-d' './Applications/NewJavaGrande/moldyn/serial' './Applications/NewJavaGrande/moldyn/serial/./JGFMolDynBenchSizeA.x10'
+./Applications/NewJavaGrande/moldyn/serial/moldyn/JGFMolDynBench.x10:53: No
+    least common ancestor found for types "double(::self=275.97175611773514)"
+    and "double(::self=7397.392307839352)".
+1 error.
+
+real	0m4.688s
+user	0m6.108s
+sys	0m0.293s
+
+****** Applications.NewJavaGrande.moldyn.serial JGFMolDynBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.moldyn.parallel JGFMolDynBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/moldyn/parallel"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/moldyn/parallel' '-d' './Applications/NewJavaGrande/moldyn/parallel' './Applications/NewJavaGrande/moldyn/parallel/./JGFMolDynBenchSizeA.x10'
+./Applications/NewJavaGrande/moldyn/parallel/moldyn/JGFMolDynBench.x10:61: No
+    least common ancestor found for types "double(::self=275.97175611773514)"
+    and "double(::self=7397.392307839352)".
+1 error.
+
+real	0m4.865s
+user	0m6.816s
+sys	0m0.362s
+
+****** Applications.NewJavaGrande.moldyn.parallel JGFMolDynBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.moldyn.distributed JGFMolDynBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/moldyn/distributed"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/moldyn/distributed' '-d' './Applications/NewJavaGrande/moldyn/distributed' './Applications/NewJavaGrande/moldyn/distributed/./JGFMolDynBenchSizeA.x10'
+./Applications/NewJavaGrande/moldyn/distributed/moldyn/JGFMolDynBench.x10:60:
+    No least common ancestor found for types
+    "double(::self=275.97175611773514)" and
+    "double(::self=7397.392307839352)".
+1 error.
+
+real	0m4.637s
+user	0m6.194s
+sys	0m0.293s
+
+****** Applications.NewJavaGrande.moldyn.distributed JGFMolDynBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.lufact.serial JGFLUFactBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/lufact/serial"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/lufact/serial' '-d' './Applications/NewJavaGrande/lufact/serial' './Applications/NewJavaGrande/lufact/serial/./JGFLUFactBenchSizeA.x10'
+./Applications/NewJavaGrande/lufact/serial/lufact/JGFLUFactBench.x10:27: No
+    least common ancestor found for types "int(::self=500)" and
+    "int(::self=1000)".
+1 error.
+
+real	0m4.855s
+user	0m6.575s
+sys	0m0.294s
+
+****** Applications.NewJavaGrande.lufact.serial JGFLUFactBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.lufact.parallel JGFLUFactBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/lufact/parallel"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/lufact/parallel' '-d' './Applications/NewJavaGrande/lufact/parallel' './Applications/NewJavaGrande/lufact/parallel/./JGFLUFactBenchSizeA.x10'
+./Applications/NewJavaGrande/lufact/parallel/lufact/JGFLUFactBench.x10:33: No
+    least common ancestor found for types "int(::self=50)" and
+    "int(::self=1000)".
+1 error.
+
+real	0m4.800s
+user	0m6.566s
+sys	0m0.290s
+
+****** Applications.NewJavaGrande.lufact.parallel JGFLUFactBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.lufact.distributed JGFLUFactBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/lufact/distributed"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/lufact/distributed' '-d' './Applications/NewJavaGrande/lufact/distributed' './Applications/NewJavaGrande/lufact/distributed/./JGFLUFactBenchSizeA.x10'
+./Applications/NewJavaGrande/lufact/distributed/lufact/JGFLUFactBench.x10:32:
+    No least common ancestor found for types "int(::self=150)" and
+    "int(::self=1000)".
+1 error.
+
+real	0m5.747s
+user	0m7.391s
+sys	0m0.291s
+
+****** Applications.NewJavaGrande.lufact.distributed JGFLUFactBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.crypt.serial JGFCryptBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/crypt/serial"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/crypt/serial' '-d' './Applications/NewJavaGrande/crypt/serial' './Applications/NewJavaGrande/crypt/serial/./JGFCryptBenchSizeA.x10'
+./Applications/NewJavaGrande/crypt/serial/crypt/JGFCryptBench.x10:27: No least
+    common ancestor found for types "int(::self=30000)" and
+    "int(::self=20000000)".
+1 error.
+
+real	0m4.882s
+user	0m6.944s
+sys	0m0.292s
+
+****** Applications.NewJavaGrande.crypt.serial JGFCryptBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.crypt.parallel JGFCryptBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/crypt/parallel"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/crypt/parallel' '-d' './Applications/NewJavaGrande/crypt/parallel' './Applications/NewJavaGrande/crypt/parallel/./JGFCryptBenchSizeA.x10'
+./Applications/NewJavaGrande/crypt/parallel/crypt/JGFCryptBench.x10:27: No
+    least common ancestor found for types "int(::self=30000)" and
+    "int(::self=20000000)".
+1 error.
+
+real	0m4.398s
+user	0m5.778s
+sys	0m0.289s
+
+****** Applications.NewJavaGrande.crypt.parallel JGFCryptBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.crypt.distributed JGFCryptBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j542allan/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar:./Applications/NewJavaGrande/crypt/distributed"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/crypt/distributed' '-d' './Applications/NewJavaGrande/crypt/distributed' './Applications/NewJavaGrande/crypt/distributed/./JGFCryptBenchSizeA.x10'
+./Applications/NewJavaGrande/crypt/distributed/crypt/JGFCryptBench.x10:27: No
+    least common ancestor found for types "int(::self=32000)" and
+    "int(::self=20000000)".
+1 error.
+
+real	0m4.841s
+user	0m6.102s
+sys	0m0.294s
+
+****** Applications.NewJavaGrande.crypt.distributed JGFCryptBenchSizeA failed: compile
