@@ -180,7 +180,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	}
 	public boolean equalsWithoutClauseImpl(X10Type o) {
 		if (! (o instanceof X10PrimitiveType_c)) return false;
-		return super.equals(o);
+		return super.equalsImpl(o);
 	}
 	
 	/**

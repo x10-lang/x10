@@ -71,6 +71,22 @@ public class ParExpr_c extends Expr_c implements ParExpr {
     public Node typeCheck(TypeChecker tc) throws SemanticException {  	
     	return type(expr.type());
     }
+    
+    public boolean constantValueSet() {
+        return expr.constantValueSet();
+    }
+    
+    public boolean isConstant() {
+    	return expr.isConstant();
+    }
+
+    public Object constantValue() {
+        if (! isConstant()) {
+        	return null;
+        }
+        
+    	return expr.constantValue();
+    }
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
