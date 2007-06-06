@@ -130,7 +130,7 @@ public class DimensionTypePlugin extends SimpleTypeAnnotationPlugin {
 			
 			if (b.operator() == Binary.ADD || b.operator() == Binary.SUB) {
 				// 1m + 3
-				throw new SemanticException("Cannot add or subtract values with incompatiable units: " + lu + " and " + ru + ".");
+				throw new SemanticException("Cannot add or subtract values with incompatible units: " + lu + " and " + ru + ".");
 			}
 			
 			if (b.operator() == Binary.MOD && rx != null) {
@@ -193,7 +193,7 @@ public class DimensionTypePlugin extends SimpleTypeAnnotationPlugin {
 					b.operator() == Binary.GE) {
 				
 				if (! lu.equals(ru))
-					throw new SemanticException("Cannot compare values with incompatiable units: " + lx + " and " + rx + ".");
+					throw new SemanticException("Cannot compare values with incompatible units: " + lx + " and " + rx + ".");
 			}
 			
 			if (b.operator() == Binary.MUL || b.operator() == Binary.DIV) {
@@ -204,7 +204,7 @@ public class DimensionTypePlugin extends SimpleTypeAnnotationPlugin {
 			}
 			if (b.operator() == Binary.ADD || b.operator() == Binary.SUB) {
 				if (! lu.equals(ru))
-					throw new SemanticException("Cannot add or subtract values with incompatiable units: " + lx + " and " + rx + ".");
+					throw new SemanticException("Cannot add or subtract values with incompatible units: " + lx + " and " + rx + ".");
 				
 				t = setUnitAnnotation(t, lx, nf);
 				return t;
@@ -772,7 +772,7 @@ public class DimensionTypePlugin extends SimpleTypeAnnotationPlugin {
 			Expr invert = invert(e, fromX, ts, nf);
 			Expr unopt = apply(invert, toX, ts, nf);
 			
-			System.out.println("coercing " + e + " to " + unopt);
+//			System.out.println("coercing " + e + " to " + unopt);
 			
 			e = unopt;
 			
