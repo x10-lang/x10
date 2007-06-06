@@ -200,7 +200,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Finds the definition of a particular type.
 	 */
 	public Named find(String name) throws SemanticException {
-		assert (depType==null);
+//		assert (depType==null);
 		return super.find(name);
 	}
 	
@@ -216,7 +216,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		assert (depType == null);
 		return super.pushClass(classScope, type);
 	}
-	
+
 	/**
 	 * pushes an additional block-scoping level.
 	 */
@@ -300,17 +300,17 @@ public class X10Context_c extends Context_c implements X10Context {
 	
 
 	public Named findInThisScope(String name) {
-		assert (depType==null);
+//		assert (depType==null);
 		return super.findInThisScope(name);
 	}
 	
 	public void addNamedToThisScope(Named type) {
-		assert (depType==null);
+//		assert (depType==null);
 		super.addNamedToThisScope(type);
 	}
 	
 	public ClassType findMethodContainerInThisScope(String name) {
-		assert (depType==null);
+//		assert (depType==null);
 		return super.findMethodContainerInThisScope(name);
 	
 	}

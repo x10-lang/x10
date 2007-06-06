@@ -143,7 +143,6 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			if (changed) {
 				result = (X10Formal_c) result.type(result.type().type(li.type()));
 			}
-			li.setAnnotations(((X10Ext) result.ext()).annotationTypes());
 			return result;
 		
 	 }

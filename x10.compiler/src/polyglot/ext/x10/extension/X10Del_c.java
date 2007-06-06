@@ -4,6 +4,7 @@
 package polyglot.ext.x10.extension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Context;
+import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
 import polyglot.visit.NodeVisitor;
 
@@ -64,15 +66,18 @@ public class X10Del_c extends JL_c implements X10Del {
 	 * @see polyglot.ext.x10.extension.X10Ext#annotations()
 	 */
 	public List<AnnotationNode> annotations() {
+		if (node().ext() == null) return Collections.EMPTY_LIST;
 		return ((X10Ext) node().ext()).annotations();
 	}
 	
 	public List<X10ClassType> annotationTypes() {
+		if (node().ext() == null) return Collections.EMPTY_LIST;
 		return ((X10Ext) node().ext()).annotationTypes();
 	}
 	
-	public X10ClassType annotationNamed(String name) {
-		return ((X10Ext) node().ext()).annotationNamed(name);
+	public List<X10ClassType> annotationMatching(Type t) {
+		if (node().ext() == null) return null;
+		return ((X10Ext) node().ext()).annotationMatching(t);
 	}
 
 	/* (non-Javadoc)

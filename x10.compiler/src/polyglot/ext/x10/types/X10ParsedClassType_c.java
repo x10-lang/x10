@@ -23,10 +23,14 @@ import java.util.Map;
 import java.util.Scanner;
 
 import polyglot.types.ParsedClassType_c;
+import polyglot.ast.BooleanLit;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ext.x10.ExtensionInfo;
+import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.GenParameterExpr;
+import polyglot.ext.x10.ast.PropagateAnnotationsVisitor;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
@@ -44,6 +48,7 @@ import polyglot.ext.x10.visit.X10Dom;
 import polyglot.ext.x10.visit.X10Dom.NodeLens;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.frontend.Source;
+import polyglot.frontend.goals.Goal;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -61,6 +66,8 @@ import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TypeInputStream;
+import polyglot.visit.NodeVisitor;
+import quicktime.qd3d.transform.RotateTransformData;
 
 /** 6/2006 Modified so that every type is now potentially generic and dependent.
  * @author vj
@@ -69,67 +76,166 @@ public class X10ParsedClassType_c extends ParsedClassType_c
 implements X10ParsedClassType
 {
 	
-	protected transient Expr dep;
+	protected transient DepParameterExpr dep;
 	
 	/** Build a variant of the root type, with the constraint expression. */
-	public X10Type dep(Expr dep) {
+	public X10Type dep(DepParameterExpr dep) {
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
 		n.dep = dep;
 		return n;
 	}
 	
 	/** Get the type's constraint expression. */
-	public Expr dep() {
+	public DepParameterExpr dep() {
 		return dep;
 	}
 	
-	private void writeObject(ObjectOutputStream out) throws IOException {
-		X10NodeFactory nf = (X10NodeFactory) ts.extensionInfo().nodeFactory();
-		out.defaultWriteObject();
-		DomGenerator v = new DomGenerator();
-		X10Dom dom = new X10Dom((X10TypeSystem) ts, nf);
-		dom.gen(v, "AST", dep);
-		out.writeObject(v.get());
+	public List<Expr> propertyExprs() {
+		if (dep == null) return Collections.EMPTY_LIST;
+		return dep.args();
 	}
 	
-	private void readObject(ObjectInputStream in) throws IOException,
-	ClassNotFoundException {
-		if (in instanceof TypeInputStream) {
-			ts = ((TypeInputStream) in).getTypeSystem();
+	public Expr propertyExpr(int i) {
+		List<Expr> l = this.propertyExprs();
+		if (i < l.size()) {
+			return (Expr) l.get(i);
 		}
-		X10NodeFactory nf = (X10NodeFactory) ts.extensionInfo().nodeFactory();
-		
-		in.defaultReadObject();
-		org.w3c.dom.Element e = (org.w3c.dom.Element) in.readObject();
-		X10Dom dom = new X10Dom((X10TypeSystem) ts, nf);
-		NodeLens lens = dom.new NodeLens();
-		Node node = dom.get(lens, e, "AST");
-		this.dep = (Expr) node;
+		return null;
 	}
+	
+	public X10ClassType propertyExprs(List<Expr> l) {
+		DepParameterExpr dep = this.dep;
+		if (dep == null && l.isEmpty()) {
+			return this;
+		}
+		else if (dep == null) {
+			Expr e = l.get(0);
+			
+			TypeSystem ts = e.type().typeSystem();
+			X10NodeFactory nf = (X10NodeFactory) ts.extensionInfo().nodeFactory();
+			
+			Expr true_ = nf.BooleanLit(position(), true);
+			true_ = true_.type(ts.Boolean());
+			
+			dep = nf.DepParameterExpr(position(), l, true_);
+			dep = (DepParameterExpr) dep.type(ts.Boolean());
+		}
+		else {
+			dep = dep.args(l);
+		}
+		return (X10ClassType) this.dep(dep);
+	}
+	
+//	private void writeObject(ObjectOutputStream out) throws IOException {
+//		X10NodeFactory nf = (X10NodeFactory) ts.extensionInfo().nodeFactory();
+//		out.defaultWriteObject();
+//		DomGenerator v = new DomGenerator();
+//		X10Dom dom = new X10Dom((X10TypeSystem) ts, nf);
+//		dom.gen(v, "AST", dep);
+//		out.writeObject(v.get());
+//	}
+//	
+//	private void readObject(ObjectInputStream in) throws IOException,
+//	ClassNotFoundException {
+//		if (in instanceof TypeInputStream) {
+//			ts = ((TypeInputStream) in).getTypeSystem();
+//		}
+//		X10NodeFactory nf = (X10NodeFactory) ts.extensionInfo().nodeFactory();
+//		
+//		in.defaultReadObject();
+//		org.w3c.dom.Element e = (org.w3c.dom.Element) in.readObject();
+//		X10Dom dom = new X10Dom((X10TypeSystem) ts, nf);
+//		NodeLens lens = dom.new NodeLens();
+//		Node node = dom.get(lens, e, "AST");
+//		this.dep = (DepParameterExpr) node;
+//	}
 
-	protected List<X10ClassType> annotations;
+	protected List<X10ClassType> classAnnotations;
 	
-	public List<X10ClassType> annotations() {
-		if (annotations == null) return Collections.EMPTY_LIST;
-		return Collections.<X10ClassType>unmodifiableList(annotations);
+	public List<X10ClassType> classAnnotations() {
+		if (! isRootType()) {
+			return ((X10ParsedClassType) rootType()).classAnnotations();
+		}
+		polyglot.frontend.ExtensionInfo extensionInfo = typeSystem().extensionInfo();
+		if (! classAnnotationsSet()) {
+			X10Scheduler scheduler = (X10Scheduler) extensionInfo.scheduler();
+			Goal g = scheduler.TypeObjectAnnotationsPropagated(this);
+			if (job() == null) {
+				this.classAnnotations = Collections.EMPTY_LIST;
+			}
+			if (job() != null && job() != scheduler.currentJob()) {
+				boolean run = true;
+				for (Iterator i = g.prerequisiteGoals(scheduler).iterator(); i.hasNext(); ) {
+					Goal subgoal = (Goal) i.next();
+					if (! subgoal.hasBeenReached()) {
+						run = false;
+						break;
+					}
+				}
+				if (run) {
+					NodeVisitor v = new PropagateAnnotationsVisitor(job(), typeSystem(), extensionInfo.nodeFactory());
+					v = v.begin();
+					job().ast(job().ast().visit(v));
+				}
+			}
+			if (! classAnnotationsSet()) {
+				throw new MissingDependencyException(g, false);
+			}
+		}
+		return Collections.<X10ClassType>unmodifiableList(classAnnotations);
 	}
-	
-	public void setAnnotations(List<X10ClassType> annotations) {
-		this.annotations = new ArrayList<X10ClassType>(annotations);
+	public boolean classAnnotationsSet() {
+		if (! isRootType())
+			return ((X10ParsedClassType) rootType()).classAnnotationsSet();
+		return classAnnotations != null;
 	}
-	public X10TypeObject annotations(List<X10ClassType> annotations) {
-		X10ReferenceType_c n = (X10ReferenceType_c) copy();
-		n.setAnnotations(annotations);
-		return n;
+	public void setClassAnnotations(List<X10ClassType> annotations) {
+		assert isRootType();
+		assert annotations != null;
+//		System.out.println("setting class annotations for " + this + " to " + annotations);
+		if (annotations.isEmpty())
+			this.classAnnotations = Collections.EMPTY_LIST;
+		else
+			this.classAnnotations = new ArrayList<X10ClassType>(annotations);
 	}
-	public X10ClassType annotationNamed(String name) {
-		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+	public X10ClassType classAnnotationNamed(String name) {
+		for (Iterator<X10ClassType> i = classAnnotations().iterator(); i.hasNext(); ) {
 			X10ClassType ct = i.next();
 			if (ct.fullName().equals(name)) {
 				return ct;
 			}
 		}
 		return null;
+	}
+	
+	List<X10ClassType> annotations;
+	 
+	public List<X10ClassType> annotations() {
+		if (annotations == null)
+			return Collections.EMPTY_LIST;
+//		if (! annotationsSet())
+//			throw new MissingDependencyException(((X10Scheduler) typeSystem().extensionInfo().scheduler()).TypeObjectAnnotationsPropagated(this), false);
+		return Collections.<X10ClassType>unmodifiableList(annotations);
+	}
+	public boolean annotationsSet() { return true || annotations != null; }
+	public void setAnnotations(List<X10ClassType> annotations) {
+		if (annotations == null) annotations = Collections.EMPTY_LIST;
+		this.annotations = new ArrayList<X10ClassType>(annotations);
+	}
+	public X10TypeObject annotations(List<X10ClassType> annotations) {
+		X10TypeObject n = (X10TypeObject) copy();
+		n.setAnnotations(annotations);
+		return n;
+	}
+	public List<X10ClassType> annotationMatching(Type t) {
+		List<X10ClassType> l = new ArrayList<X10ClassType>();
+		for (Iterator<X10ClassType> i = annotations().iterator(); i.hasNext(); ) {
+			X10ClassType ct = i.next();
+			if (ct.isSubtype(t)) {
+				l.add(ct);
+			}
+		}
+		return l;
 	}
 	
 	public X10ParsedClassType_c() { super();}

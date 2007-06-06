@@ -15,9 +15,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.frontend.MissingDependencyException;
 import polyglot.types.LocalInstance_c;
 import polyglot.types.Flags;
 import polyglot.types.Type;
@@ -33,26 +35,38 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
 	protected List<X10ClassType> annotations;
 	
 	public List<X10ClassType> annotations() {
-		if (annotations == null) return Collections.EMPTY_LIST;
+		if (this != orig()) {
+			return ((X10LocalInstance) orig()).annotations();
+		}
+		if (annotations == null)
+			return Collections.EMPTY_LIST;
+//		if (! annotationsSet())
+//			throw new MissingDependencyException(((X10Scheduler) typeSystem().extensionInfo().scheduler()).TypeObjectAnnotationsPropagated(this), false);
 		return Collections.<X10ClassType>unmodifiableList(annotations);
 	}
-	
+	public boolean annotationsSet() {
+		if (this != orig()) {
+			return ((X10LocalInstance) orig()).annotationsSet();
+		}
+		return true || annotations != null; }
 	public void setAnnotations(List<X10ClassType> annotations) {
+		if (annotations == null) annotations = Collections.EMPTY_LIST;
 		this.annotations = new ArrayList<X10ClassType>(annotations);
 	}
 	public X10TypeObject annotations(List<X10ClassType> annotations) {
-		X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		X10TypeObject n = (X10TypeObject) copy();
 		n.setAnnotations(annotations);
 		return n;
 	}
-	public X10ClassType annotationNamed(String name) {
-		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+	public List<X10ClassType> annotationMatching(Type t) {
+		List<X10ClassType> l = new ArrayList<X10ClassType>();
+		for (Iterator<X10ClassType> i = annotations().iterator(); i.hasNext(); ) {
 			X10ClassType ct = i.next();
-			if (ct.fullName().equals(name)) {
-				return ct;
+			if (ct.isSubtype(t)) {
+				l.add(ct);
 			}
 		}
-		return null;
+		return l;
 	}
 	
 	/**

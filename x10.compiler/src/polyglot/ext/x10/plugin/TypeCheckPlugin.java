@@ -32,6 +32,7 @@ public abstract class TypeCheckPlugin implements CompilerPlugin {
     		List<Goal> l = new ArrayList<Goal>();
     		l.add(x10Sched.TypeChecked(job));
     		l.add(x10Sched.ConstantsChecked(job));
+    		l.add(x10Sched.PropagateAnnotations(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}

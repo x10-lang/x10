@@ -22,6 +22,7 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.types.MethodInstance_c;
 import polyglot.types.TypeSystem_c;
+import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.ext.x10.ast.PropertyDecl_c;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Root;
@@ -32,6 +33,7 @@ import polyglot.ext.x10.types.constr.C_Var_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Promise;
+import polyglot.frontend.MissingDependencyException;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -54,26 +56,45 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	protected List<X10ClassType> annotations;
 	
 	public List<X10ClassType> annotations() {
-		if (annotations == null) return Collections.EMPTY_LIST;
+		if (this != orig()) {
+			return ((X10MethodInstance) orig()).annotations();
+		}
+		if (! annotationsSet()) {
+			if (container() instanceof X10ParsedClassType) {
+				X10Scheduler scheduler = (X10Scheduler) typeSystem().extensionInfo().scheduler();
+				X10ParsedClassType ct = (X10ParsedClassType) container();
+				if (ct.job() != null) {
+					throw new MissingDependencyException(scheduler.TypeObjectAnnotationsPropagated(ct), false);
+				}
+			}
+			annotations = Collections.EMPTY_LIST;
+		}
 		return Collections.<X10ClassType>unmodifiableList(annotations);
 	}
-	
+	public boolean annotationsSet() {
+		if (this != orig()) {
+			return ((X10MethodInstance) orig()).annotationsSet();
+		}
+		return annotations != null; }
 	public void setAnnotations(List<X10ClassType> annotations) {
+		assert this == orig();
+		if (annotations == null) annotations = Collections.EMPTY_LIST;
 		this.annotations = new ArrayList<X10ClassType>(annotations);
 	}
 	public X10TypeObject annotations(List<X10ClassType> annotations) {
-		X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		X10TypeObject n = (X10TypeObject) copy();
 		n.setAnnotations(annotations);
 		return n;
 	}
-	public X10ClassType annotationNamed(String name) {
-		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+	public List<X10ClassType> annotationMatching(Type t) {
+		List<X10ClassType> l = new ArrayList<X10ClassType>();
+		for (Iterator<X10ClassType> i = annotations().iterator(); i.hasNext(); ) {
 			X10ClassType ct = i.next();
-			if (ct.fullName().equals(name)) {
-				return ct;
+			if (ct.isSubtype(t)) {
+				l.add(ct);
 			}
 		}
-		return null;
+		return l;
 	}
 	
 	List<Formal> formals;

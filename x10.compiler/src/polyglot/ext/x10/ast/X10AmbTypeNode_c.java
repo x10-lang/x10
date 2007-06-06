@@ -67,11 +67,11 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     }
     
     public Context enterChildScope(Node child, Context c) {
-        if (child == this.dep) {
-            TypeSystem ts = c.typeSystem();
-            if (lookaheadType instanceof X10NamedType)
-            c = ((X10Context) c).pushDepType((X10NamedType) lookaheadType);
-        }
+    	if (child == this.dep) {
+    		TypeSystem ts = c.typeSystem();
+    		if (lookaheadType instanceof X10NamedType)
+    			c = ((X10Context) c).pushDepType((X10NamedType) lookaheadType);
+    	}
         Context cc = super.enterChildScope(child, c);
         return cc;
     }

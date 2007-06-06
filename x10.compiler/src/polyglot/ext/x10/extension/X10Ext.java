@@ -7,6 +7,8 @@
  */
 package polyglot.ext.x10.extension;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Ext;
@@ -14,6 +16,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
+import polyglot.types.Type;
 import polyglot.ext.x10.ast.AnnotationNode;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -47,7 +50,7 @@ public interface X10Ext extends Ext {
      */
     public List<AnnotationNode> annotations();
     public List<X10ClassType> annotationTypes();
-    public X10ClassType annotationNamed(String name);
+    public List<X10ClassType> annotationMatching(Type t);
     
     /**
      * Set the annotations.

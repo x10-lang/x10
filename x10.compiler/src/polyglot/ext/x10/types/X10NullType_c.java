@@ -20,6 +20,7 @@ import java.util.Map;
 
 import polyglot.types.NullType_c;
 import polyglot.ast.Expr;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
@@ -39,26 +40,31 @@ public class X10NullType_c extends NullType_c implements X10NullType {
 	protected List<X10ClassType> annotations;
 	
 	public List<X10ClassType> annotations() {
-		if (annotations == null) return Collections.EMPTY_LIST;
+		if (annotations == null)
+			return Collections.EMPTY_LIST;
+//		if (! annotationsSet())
+//			throw new MissingDependencyException(((X10Scheduler) typeSystem().extensionInfo().scheduler()).TypeObjectAnnotationsPropagated(this), false);
 		return Collections.<X10ClassType>unmodifiableList(annotations);
 	}
-	
+	public boolean annotationsSet() { return true || annotations != null; }
 	public void setAnnotations(List<X10ClassType> annotations) {
+		if (annotations == null) annotations = Collections.EMPTY_LIST;
 		this.annotations = new ArrayList<X10ClassType>(annotations);
 	}
 	public X10TypeObject annotations(List<X10ClassType> annotations) {
-		X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		X10TypeObject n = (X10TypeObject) copy();
 		n.setAnnotations(annotations);
 		return n;
 	}
-	public X10ClassType annotationNamed(String name) {
-		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+	public List<X10ClassType> annotationMatching(Type t) {
+		List<X10ClassType> l = new ArrayList<X10ClassType>();
+		for (Iterator<X10ClassType> i = annotations().iterator(); i.hasNext(); ) {
 			X10ClassType ct = i.next();
-			if (ct.fullName().equals(name)) {
-				return ct;
+			if (ct.isSubtype(t)) {
+				l.add(ct);
 			}
 		}
-		return null;
+		return l;
 	}
 	
 	protected X10NullType_c() {}
@@ -96,17 +102,17 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     	return depClause== null || depClause.consistent();
     }
 	
-	protected transient Expr dep;
+	protected transient DepParameterExpr dep;
 	
 	/** Build a variant of the root type, with the constraint expression. */
-	public X10Type dep(Expr dep) {
+	public X10Type dep(DepParameterExpr dep) {
 		X10NullType_c n = (X10NullType_c) copy();
 		n.dep = dep;
 		return n;
 	}
 	
 	/** Get the type's constraint expression. */
-	public Expr dep() {
+	public DepParameterExpr dep() {
 		return dep;
 	}
     public X10Type makeDepVariant(Constraint d, List<Type> l) { 
