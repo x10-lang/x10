@@ -62,9 +62,9 @@
  * Author: Tong Wen
  */
  
-class RandomAccess_Dist {
+public class RandomAccess_Dist {
 	 
-    static class localTable{
+    public static class localTable{
     	final long[:self.rect && self.zeroBased && self.rank==1] array;
     	final long tableSize;
     	final long mask;
@@ -84,7 +84,7 @@ class RandomAccess_Dist {
     	}
     }
 
-    static double mysecond() {
+    public static double mysecond() {
         return (double) ((double)(System.nanoTime() / 1000) * 1.e-6);
     }
 
@@ -106,7 +106,7 @@ class RandomAccess_Dist {
     //private final  int VERIFY = UPDATE;
     
     /* Utility routine to start random number generator at Nth step */
-    static long HPCC_starts(long n) {
+    public static long HPCC_starts(long n) {
         int i, j;
         long[] m2 = new long[64];
         long temp, ran;
@@ -316,12 +316,12 @@ class RandomAccess_Dist {
 		    	    	placeID=p;
 		    	    else
 		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
-		    	    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 		    	    final long temp=ran; 
 	                    async (UNIQUE[placeID]) Table[placeID].verify(temp);
+	                    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 		    }
 	  }
-        else{
+        else
           finish ateach(point [p] : UNIQUE) {
     		long ran=HPCC_starts (p*NumUpdates);
     		    for (long i=0; i<NumUpdates; i++) {
@@ -329,38 +329,37 @@ class RandomAccess_Dist {
     		    	    if (Embarrassing)
     		    	    	placeID=p;
     		    	    else
-    		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
-    		    	    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
+    		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK); 
     		    	    final long temp=ran; 
     	                    async (UNIQUE[placeID]) Table[placeID].update(temp);
+    	                    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
     		    }
     	 }	
-         //repeat the above operation using a for loop
-         if (VERIFY == UPDATE_AND_VERIFICATION){
-        	 //Verify(logTableSize, embarrassing, Table); 
-        	 System.out.println("Verifying result by repeating the update sequentially...");
-        	 
-        	 finish for(point [p] : UNIQUE) {
-        		 long ran=HPCC_starts (p*NumUpdates);
-        		 for (long i=0; i<NumUpdates; i++) {
+          
+        /* End timed section */
+        cputime += mysecond();
+
+        if (VERIFY == UPDATE_AND_VERIFICATION){
+       	 //Verify(logTableSize, embarrassing, Table); 
+       	 System.out.println("Verifying result by repeating the update sequentially...");
+       	 
+       	 finish for(point [p] : UNIQUE) {
+       		 long ran=HPCC_starts (p*NumUpdates);
+       		 for (long i=0; i<NumUpdates; i++) {
 		    	    final int placeID;
 		    	    if (Embarrassing)
 		    	    	placeID=p;
 		    	    else
 		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
-	                    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 	                    final long temp=ran; 
 	                    //async (UNIQUE[placeID]) Table[placeID].update(temp);
 	                    async (UNIQUE[placeID]){
 	                    	Table[placeID].array[(int)(temp & Table[placeID].mask)] ^= temp;
 	                    }
-        		 }
-        	 }
-         }
+	                    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
+       		 }
+       	 }
         }
-        /* End timed section */
-        cputime += mysecond();
-    
         /* make sure no division by zero */
         GUPs = (cputime > 0.0 ? 1.0 / cputime : -1.0);
         GUPs *= 1e-9*(4 * tableSize*NUMPLACES);
@@ -375,7 +374,8 @@ class RandomAccess_Dist {
         	final long [] SUM = new long [NUMPLACES];
         	finish ateach(point [p] : UNIQUE) {
         		long sum=0;
-        		for (int i=0;i<Table[p].tableSize;i++) sum+=Table[p].array[i];
+        		//for (int i=0;i<Table[p].tableSize;i++) sum+=Table[p].array[i];
+        		for (int i=0;i<tableSize;i++) sum+=Table[p].array[i]; //can't make i be long in X10
         		//System.out.println("local sum at "+p+" is "+sum+" (correct=0)");
         		final long temp = sum;
         		async (UNIQUE[0]) SUM[p]=temp;
@@ -383,7 +383,7 @@ class RandomAccess_Dist {
         	long globalSum=0;
         	for (int i=0; i<NUMPLACES; i++) globalSum+=SUM[i];
         	if (VERIFY == VERIFICATION_P){
-        		double missedUpdateRate = (globalSum-numUpdates)/numUpdates*100;
+        		double missedUpdateRate = ( (double) (globalSum-numUpdates))/numUpdates*100;
         		System.out.println("    The rate of missed updates  "+ missedUpdateRate+ "%");
         	}
         	else {
