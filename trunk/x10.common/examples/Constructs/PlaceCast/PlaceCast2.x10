@@ -21,7 +21,7 @@ public class PlaceCast2 extends x10Test {
 			// remember if here and d[p] disagree
 			// at any activity at any place
 			try {
-				BoxedBoolean@here x = (BoxedBoolean@d[p]) disagree[p];
+				BoxedBoolean!here x = (BoxedBoolean!d[p]) disagree[p];
 				async(this) { atomic { nplaces++; } }
 			} catch (BadPlaceException x)  {
 				System.out.println("Caught bad place exception for " + p);
