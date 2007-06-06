@@ -7,16 +7,28 @@
  */
 package polyglot.ext.x10.ast;
 
+import polyglot.ast.ClassDecl;
+import polyglot.ast.Expr;
+import polyglot.ast.FieldDecl;
+import polyglot.ast.Import;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Node_c;
+import polyglot.ast.PackageNode;
+import polyglot.ast.SourceFile;
+import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.visit.TypeElaborator;
+import polyglot.frontend.goals.SignaturesDisambiguated;
+import polyglot.frontend.goals.SupertypesDisambiguated;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
@@ -67,14 +79,33 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 		((X10Context) c).setAnnotation();
 		return super.enterChildScope(child, c);
 	}
+	
+//	public Node disambiguateOverride(AmbiguityRemover ar) throws SemanticException {
+//		if (ar.job().extensionInfo().scheduler().currentGoal() instanceof SignaturesDisambiguated) {
+//			return this;
+//		}
+//		if (ar.job().extensionInfo().scheduler().currentGoal() instanceof SupertypesDisambiguated) {
+//			return this;
+//		}
+//		return super.disambiguate(ar);
+//	}
+	
+	@Override
+	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+		// Don't elaborate types in annotation nodes.
+		if (tc instanceof TypeElaborator)
+			return this;
+		return super.typeCheckOverride(parent, tc);
+	}
 
 	@Override
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		System.out.println("Type checking " + this);
+//		System.out.println("Type checking " + this);
 		if (! tn.type().isClass() || ! tn.type().toClass().flags().isInterface()) {
 			throw new SemanticException("Annotation must be an interface type.", position());
 		}
-		return super.typeCheck(tc);
+		
+		return this;
 	}
 	
 	@Override

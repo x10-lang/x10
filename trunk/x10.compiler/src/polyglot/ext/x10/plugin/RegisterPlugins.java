@@ -44,18 +44,18 @@ public class RegisterPlugins extends AbstractGoal {
 
 	@Override
 	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
-		return new RegisterPluginsPass(this, (polyglot.ext.x10.ExtensionInfo)  extInfo);
+		return new RegisterPluginsPass(this, (polyglot.ext.x10.ExtensionInfo) extInfo);
 	}
 
 	public static Goal create(X10Scheduler scheduler, Job job) {
 		return scheduler.internGoal(new RegisterPlugins(job));
 	}
 	
-	 public Collection prerequisiteGoals(Scheduler scheduler) {
-		 X10Scheduler x10Sched = (X10Scheduler) scheduler;
-		 List<Goal> l = new ArrayList<Goal>();
-		 l.add(x10Sched.LoadPlugins());
-		 l.addAll(super.prerequisiteGoals(scheduler));
-		 return l;
-	 }
+	public Collection prerequisiteGoals(Scheduler scheduler) {
+		X10Scheduler x10Sched = (X10Scheduler) scheduler;
+		List<Goal> l = new ArrayList<Goal>();
+		l.add(x10Sched.LoadJobPlugins(job));
+		l.addAll(super.prerequisiteGoals(scheduler));
+		return l;
+	}
 }

@@ -16,6 +16,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
+import polyglot.types.Type;
 import polyglot.ast.Ext_c;
 import polyglot.ext.x10.ast.AnnotationNode;
 import polyglot.ext.x10.types.X10ClassType;
@@ -63,15 +64,17 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     	return l;
     }
     
-    public X10ClassType annotationNamed(String name) {
-    	for (Iterator<X10ClassType> i = annotationTypes().iterator(); i.hasNext(); ) {
-    		X10ClassType ct = i.next();
-    		if (ct.fullName().equals(name)) {
-    			return ct;
-    		}
-    	}
-    	return null;
-    }
+    public List<X10ClassType> annotationMatching(Type t) {
+		List<X10ClassType> l = new ArrayList<X10ClassType>();
+		for (Iterator<AnnotationNode> i = annotations().iterator(); i.hasNext(); ) {
+			AnnotationNode an = i.next();
+			X10ClassType ct = an.annotationInterface();
+			if (ct.isSubtype(t)) {
+				l.add(ct);
+			}
+		}
+		return l;
+	}
     
     public X10Ext extAnnotations(List<AnnotationNode> annotations) {
     	X10Ext_c n = (X10Ext_c) copy();

@@ -189,8 +189,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (childtc2.hasErrors()) throw new SemanticException();
          nn = (X10ConstructorDecl) childtc2.leave(parent, old, nn, childtc2);
        
-        nnci.setAnnotations(((X10Ext) nn.ext()).annotationTypes());
-  		
         return nn;
     }
    

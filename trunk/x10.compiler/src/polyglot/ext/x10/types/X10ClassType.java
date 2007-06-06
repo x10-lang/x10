@@ -12,6 +12,8 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
 import polyglot.types.ClassType;
 
@@ -22,5 +24,7 @@ import polyglot.types.ClassType;
  *
  */
 public interface X10ClassType extends ClassType, X10ReferenceType {
-
+	Expr propertyExpr(int i);
+	List<Expr> propertyExprs();
+	X10ClassType propertyExprs(List<Expr> l);
 }

@@ -24,7 +24,10 @@ import polyglot.types.SemanticException;
  */
 public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10NamedType {
 
-	
+	public List<X10ClassType> classAnnotations();
+	public void setClassAnnotations(List<X10ClassType> annotations);
+	public X10ClassType classAnnotationNamed(String name);
+	public boolean classAnnotationsSet();
 	
 	/**
 	 * The root of the superclass hierarchy -- either ts.X10Object() or ts.Object().
@@ -34,8 +37,6 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	 */
 	X10ClassType superClassRoot();
 	X10ParsedClassType makeVariant();
-	
-	
 	
 	/** Returns true iff superClassRoot() equals ts.Object().
 	 * @return

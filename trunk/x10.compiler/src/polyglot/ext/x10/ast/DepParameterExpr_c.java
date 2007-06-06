@@ -21,9 +21,11 @@ import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.Expr_c;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
@@ -85,14 +87,17 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         n.args = args;
         return n;
     }
-    public Context enterScope(Context c) {
-        X10Context xc = (X10Context) c;
-        if (xc.inAnnotation()) {
-       	 xc = (X10Context) xc.pushBlock();
-       	 xc.clearAnnotation();
-        }
-        return super.enterScope(xc);
-    }
+//    public Context enterScope(Context c) {
+//        X10Context xc = (X10Context) c;
+//        if (xc.inAnnotation()) {
+//        	X10NamedType dt = xc.currentDepType();
+//        	xc = (X10Context) xc.pushDepType(null);
+//        	xc = (X10Context) xc.pushCode(c.typeSystem().initializerInstance(position(), xc.currentClass(), Flags.NONE));
+//        	xc = (X10Context) xc.pushDepType(dt);
+//        	xc.clearAnnotation();
+//        }
+//        return super.enterScope(xc);
+//    }
        
     public DepParameterExpr reconstruct( List args, Expr condition ) {
         if (args == this.args && condition == this.condition) return this;
@@ -112,11 +117,22 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         return reconstruct(arguments, condition);
     }
     
-    public boolean isDisambiguated() {
-    	boolean val = (condition == null) || condition.isDisambiguated();
-    	return val;
+//    public boolean isDisambiguated() {
+//    	boolean val = (condition == null) || condition.isDisambiguated();
+//    	return val;
+//    }
+    
+    @Override
+    public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+    	DepParameterExpr_c n = (DepParameterExpr_c) super.disambiguate(ar);
+    	
+    	if (((X10Context) ar.context()).inAnnotation() && condition == null) {
+    		return n.condition(ar.nodeFactory().BooleanLit(position(), true));
+    	}
+    	
+    	return n;
     }
-   
+    
     /** Type check the statement. 
      */
     @Override
@@ -124,13 +140,13 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
       //Report.report(1, "DepParameterExpr: Typechecking " + this + this.getClass() + " " + condition);
         
-      if (condition == null) {
-    	  throw new SemanticError("The condition of a dependent type clause must be non-empty.", 
-    			  position());
-      }
+        if (condition == null) {
+        	throw new SemanticError("The condition of a dependent type clause must be non-empty.", 
+        			position());
+        }
         Type t = condition.type();
         
-        if (! ts.equals(t, ts.Boolean()))
+        if (! t.isBoolean())
         	throw new SemanticError("The type of the depclause, "+ condition 
         			+ ", must be boolean and not " + t + ".", position());
         return type(t);

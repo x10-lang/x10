@@ -2,30 +2,49 @@ package polyglot.ext.x10.plugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import polyglot.ast.ArrayInit;
 import polyglot.ast.Assign;
+import polyglot.ast.Binary;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
+import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureCall;
+import polyglot.ast.Receiver;
+import polyglot.ast.Unary;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.ext.x10.ast.AnnotationNode;
+import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10Instanceof;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.extension.X10Ext;
+import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10FieldInstance;
+import polyglot.ext.x10.types.X10LocalInstance;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeObject;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
+import polyglot.types.ArrayType;
+import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -35,6 +54,7 @@ import polyglot.visit.NodeVisitor;
 public abstract class SimpleTypeAnnotationPlugin implements CompilerPlugin {
 	public SimpleTypeAnnotationPlugin() {
 		super();
+		System.out.println("Registering " + this.getClass().getName());
 	}
 	
 	public static class CheckerGoal extends VisitorGoal {
@@ -53,8 +73,17 @@ public abstract class SimpleTypeAnnotationPlugin implements CompilerPlugin {
 			List<Goal> l = new ArrayList<Goal>();
 			l.add(x10Sched.TypeChecked(job));
 			l.add(x10Sched.ConstantsChecked(job));
+			l.add(x10Sched.PropagateAnnotations(job));
 			l.addAll(super.prerequisiteGoals(scheduler));
 			return l;
+		}
+		
+		public int hashCode() {
+			return super.hashCode() + v.hashCode();
+		}
+		
+		public boolean equals(Object o) {
+			return super.equals(o) && v.equals(((VisitorGoal) o).visitor());
 		}
 	}
 	
@@ -77,74 +106,191 @@ public abstract class SimpleTypeAnnotationPlugin implements CompilerPlugin {
 			l.addAll(super.prerequisiteGoals(scheduler));
 			return l;
 		}
+		
+		public int hashCode() {
+			return super.hashCode() + v.hashCode();
+		}
+		
+		public boolean equals(Object o) {
+			return super.equals(o) && v.equals(((VisitorGoal) o).visitor());
+		}
 	}
 
 	public class CheckVisitor extends ContextVisitor {
 		public CheckVisitor(Job job, TypeSystem ts, NodeFactory nf) {
 			super(job, ts, nf);
 		}
+		
+		@Override
+		public NodeVisitor begin() {
+//			System.out.println("Running " + plugin().getClass().getName());
+			return super.begin();
+		}
 
 		public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+			X10Context context = (X10Context) this.context;
+			X10TypeSystem ts = (X10TypeSystem) this.ts;
+			X10NodeFactory nf = (X10NodeFactory) this.nf;
+			
 			if (n instanceof LocalDecl) {
 				LocalDecl ld = (LocalDecl) n;
+				X10Type type = (X10Type) ld.type().type();
 				if (ld.init() != null) {
-					Expr newInit = checkImplicitCoercion((X10Type) ld.type().type(), ld.init(), (X10Context) context, (X10TypeSystem) ts, (X10NodeFactory) nf);
+					Expr newInit = checkImplicitCoercion(type, ld.init(), context, ts, nf);
 					return ld.init(newInit);
+				}
+				if (ld.init() instanceof ArrayInit && type instanceof ArrayType) {
+					ArrayInit init = (ArrayInit) ld.init();
+					List<Expr> newElements = new ArrayList<Expr>(init.elements().size());
+					for (Iterator i = init.elements().iterator(); i.hasNext(); ) {
+						Expr e = (Expr) i.next();
+						Expr newE = checkImplicitCoercion((X10Type) ((ArrayType) type).base(), e, context, ts, nf);
+						newElements.add(newE);
+					}
+					return ld.init(init.elements(newElements));
 				}
 			}
 			if (n instanceof Assign) {
 				Assign a = (Assign) n;
-				Expr newRight = checkImplicitCoercion((X10Type) a.left().type(), a.right(), (X10Context) context, (X10TypeSystem) ts, (X10NodeFactory) nf);
-				return a.right(newRight);
+				Expr newRight = checkImplicitCoercion((X10Type) a.left().type(), a.right(), context, ts, nf);
+				return annotationCast(a.right(newRight), context, ts, nf);
 			}
-			if (n instanceof Call) {
-				Call c = (Call) n;
-				List newActuals = new ArrayList(c.arguments().size());
-				MethodInstance mi = c.methodInstance();
+			if (n instanceof ProcedureCall) {
+				ProcedureCall c = (ProcedureCall) n;
+				List<Expr> newActuals = new ArrayList<Expr>(c.arguments().size());
+				ProcedureInstance pi = c.procedureInstance();
 				for (int i = 0; i < c.arguments().size(); i++) {
 					Expr e = (Expr) c.arguments().get(i);
-					Type t = (Type) mi.formalTypes().get(i);
-					Expr newE = checkImplicitCoercion((X10Type) t, e, (X10Context) context, (X10TypeSystem) ts, (X10NodeFactory) nf);
+					Type t = (Type) pi.formalTypes().get(i);
+					Expr newE = checkImplicitCoercion((X10Type) t, e, context, ts, nf);
 					newActuals.add(newE);
 				}
-				return c.arguments(newActuals);
+				c = (ProcedureCall) c.arguments(newActuals);
+				if (c instanceof Call) {
+					return annotationCast(checkCall((Call) c, context, ts, nf), context, ts, nf);
+				}
+				if (c instanceof New) {
+					return annotationCast(checkNew((New) c, context, ts, nf), context, ts, nf);
+				}
+				if (c instanceof Expr) {
+					return annotationCast((Expr) c, context, ts, nf);
+				}
+				return c;
+			}
+			if (n instanceof ParExpr) {
+				ParExpr p = (ParExpr) n;
+				return annotationCast(p.type(p.expr().type()), context, ts, nf);
+			}
+			if (n instanceof Field) {
+				Field f = (Field) n;
+				return annotationCast(checkField(f, context, ts, nf), context, ts, nf);
+			}
+			if (n instanceof Local) {
+				Local l = (Local) n;
+				return annotationCast(checkLocal(l, context, ts, nf), context, ts, nf);
 			}
 			if (n instanceof X10Cast) {
 				X10Cast c = (X10Cast) n;
-				Expr e = checkCast((X10Type) c.castType().type(), c.expr(), (X10Context) context, (X10TypeSystem) ts, (X10NodeFactory) nf);
-				return c.expr(e);
+				Expr e = checkCast((X10Type) c.castType().type(), c.expr(), context, ts, nf);
+				return annotationCast(c.expr(e), context, ts, nf);
 			}
-			
+			if (n instanceof Unary) {
+				Unary b = (Unary) n;
+				return annotationCast(b.type(unaryPromote(b, ts, nf)), context, ts, nf);
+			}
+			if (n instanceof Binary) {
+				Binary b = (Binary) n;
+				return annotationCast(b.type(binaryPromote(b, ts, nf)), context, ts, nf);
+			}
+			if (n instanceof Expr) {
+				Expr e = (Expr) n;
+				return annotationCast(e, context, ts, nf);
+			}
 			return n;
+		}
+		
+		public SimpleTypeAnnotationPlugin plugin() {
+			return SimpleTypeAnnotationPlugin.this;
+		}
+		
+		public int hashCode() {
+			return super.hashCode() + plugin().hashCode();
+		}
+		
+		public boolean equals(Object o) {
+			return super.equals(o) && plugin() == ((CheckVisitor) o).plugin();
 		}
 	}
 	
-	public Expr checkCast(X10Type castType, Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
-		if (checkCastCoercion(castType,(X10Type) e.type(), context, ts, nf)) return e;
-		throw new SemanticException("Cannot cast to " + castType + ".", e.position());
+	public Expr checkField(Field f, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		X10FieldInstance fi = (X10FieldInstance) f.fieldInstance();
+		List<X10ClassType> memberAnnotations = ((X10FieldInstance) fi.orig()).annotations();
+		X10Type type = (X10Type) fi.orig().type();
+		List<X10ClassType> typeAnnotations = type.annotations();
+		return propagate(f, type, memberAnnotations, typeAnnotations);
+	}
+	
+	public Expr checkLocal(Local l, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		X10LocalInstance li = (X10LocalInstance) l.localInstance();
+		List<X10ClassType> memberAnnotations = ((X10LocalInstance) li.orig()).annotations();
+		X10Type type = (X10Type) li.orig().type();
+		List<X10ClassType> typeAnnotations = type.annotations();
+		return propagate(l, type, memberAnnotations, typeAnnotations);
+	}
+	
+	public Expr checkCall(Call c, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+		List<X10ClassType> memberAnnotations = ((X10MethodInstance) mi.orig()).annotations();
+		X10Type type = (X10Type) mi.orig().returnType();
+		List<X10ClassType> typeAnnotations = type.annotations();
+		return propagate(c, type, memberAnnotations, typeAnnotations);
+	}
+	public Expr checkNew(New n, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		X10ConstructorInstance ci = (X10ConstructorInstance) n.constructorInstance();
+		List<X10ClassType> memberAnnotations = ((X10ConstructorInstance) ci.orig()).annotations();
+		X10Type type = (X10Type) ci.orig().container();
+		List<X10ClassType> typeAnnotations = type.annotations();
+		return propagate(n, type, memberAnnotations, typeAnnotations);
+	}
+	
+	public Expr propagate(Expr e, X10Type declType, List<X10ClassType> memberAnnotations, List<X10ClassType> typeAnnotations) {
+		X10Type t = (X10Type) e.type();
+		t = (X10Type) t.annotations(typeAnnotations);
+		return e.type(t);
 	}
 
-	public boolean checkCastCoercion(X10Type toType, X10Type fromType, X10Context context, X10TypeSystem ts, X10NodeFactory nf) {
-		return ts.isCastValid(fromType, toType);
+	public X10Type binaryPromote(Binary b, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		return (X10Type) b.type();
+	}
+	
+	public X10Type unaryPromote(Unary u, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		return (X10Type) u.type();
+	}
+	
+	public Expr checkCast(X10Type castType, Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		X10Type etype = (X10Type) e.type();
+		if (ts.isCastValid(etype, castType) && checkCastCoercion(castType, etype, context, ts, nf)) return e;
+		throw new SemanticException("Cannot cast " + e + "(" + etype + ") to " + castType + ".", e.position());
+	}
+
+	public boolean checkCastCoercion(X10Type toType, X10Type fromType, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		return true;
 	}
 	
 	public Expr checkImplicitCoercion(X10Type toType, Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
-		if (checkImplicitCoercion((X10Type) e.type(), toType, context, ts, nf))
+		X10Type etype = (X10Type) e.type();
+		if (ts.isImplicitCastValid(etype, toType) && checkImplicitCoercion(toType, etype, context, ts, nf))
 			return e;
-		if (checkNumericCoercion(toType, e, context, ts, nf))
+		if (e.isConstant() && ts.numericConversionValid(toType, e.constantValue()) && checkNumericCoercion(toType, e, context, ts, nf))
 			return e;
-		throw new SemanticException("Cannot coerce to " + toType + ".", e.position());
+		throw new SemanticException("Cannot coerce " + e + " (" + etype + ") to " + toType + ".", e.position());
 	}
 
-	public boolean checkNumericCoercion(X10Type toType, Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) {
-		return e.type().isLongOrLess() && e.isConstant() && ts.numericConversionValid(toType, (Number) e.constantValue());
+	public boolean checkNumericCoercion(X10Type toType, Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		return true;
 	}
 	
-	public boolean checkImplicitCoercion(X10Type toType, X10Type fromType, X10Context context, X10TypeSystem ts, X10NodeFactory nf) {
-		return ts.isImplicitCastValid(fromType, toType);
-	}
-	
-	public boolean checkSubtype(X10Type toType, X10Type fromType, X10Context context, X10TypeSystem ts, X10NodeFactory nf) {
+	public boolean checkImplicitCoercion(X10Type toType, X10Type fromType, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
 		return true;
 	}
 	
@@ -161,6 +307,18 @@ public abstract class SimpleTypeAnnotationPlugin implements CompilerPlugin {
 				return rewriteInstanceof((X10Instanceof) n, (X10Context) context, (X10TypeSystem) ts, (X10NodeFactory) nf);
 			}
 			return n;
+		}
+		
+		public SimpleTypeAnnotationPlugin plugin() {
+			return SimpleTypeAnnotationPlugin.this;
+		}
+		
+		public int hashCode() {
+			return super.hashCode() + plugin().hashCode();
+		}
+		
+		public boolean equals(Object o) {
+			return super.equals(o) && plugin() == ((CheckVisitor) o).plugin();
 		}
 	}
 	
@@ -190,5 +348,9 @@ public abstract class SimpleTypeAnnotationPlugin implements CompilerPlugin {
 		x10Sched.addDependencyAndEnqueue(x10Sched.X10Boxed(job), cast, true);
 		
 		return cast;
+	}
+
+	protected Expr annotationCast(Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		return e;
 	}
 }

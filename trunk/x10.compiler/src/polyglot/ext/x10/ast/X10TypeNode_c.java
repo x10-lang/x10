@@ -105,8 +105,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         
         boolean inAnnotation = ((X10Context) sc.context()).inAnnotation();
     	
-        // XXX annotations: we don't allow arbitrary expressions yet 
-        if (false && inAnnotation) {
+        if (inAnnotation) {
         	// If in an annotation, we allow arbitrary expressions.
         	baseType.setDepGen(null, null);
         	X10Type newBaseType = baseType.dep(dep);
@@ -156,8 +155,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         
         boolean inAnnotation = ((X10Context) tc.context()).inAnnotation();
     	
-        // XXX annotations: we don't allow arbitrary expressions yet 
-        if (false && inAnnotation) {
+        if (inAnnotation) {
         	// If in an annotation, we allow arbitrary expressions.
 
            //assert argType.isRootType();

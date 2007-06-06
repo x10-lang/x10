@@ -172,7 +172,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
     	if (this.type instanceof X10ParsedClassType) {
     		X10ParsedClassType xpType = (X10ParsedClassType) type;
     		xpType.checkRealClause();
-    		xpType.setAnnotations(((X10Ext) result.ext()).annotationTypes());
     	}
         
     	return result;

@@ -60,9 +60,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		X10FieldInstance myFI = (X10FieldInstance) this.fi;
 		myFI.setDepType(declType());
 		myFI.setSelfClauseIfFinal();
-		if (result.ext() instanceof X10Ext) {
-			myFI.setAnnotations(((X10Ext) result.ext()).annotationTypes());
-		}
 		
 		//
 		// Any occurrence of a non-final static field in X10

@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Lit_c;
@@ -40,6 +41,12 @@ import polyglot.util.Position;
  */
 public interface X10TypeSystem extends TypeSystem {
 
+	/** Instantiate the properties of baseType with the listed expressions. */
+	X10ClassType instantiateType(X10ClassType baseType, List<Expr> args, X10NodeFactory nf);
+	
+	/** Add an annotation to a type object, optionally replacing existing annotations that are subtypes of annoType. */
+	X10TypeObject addAnnotation(X10TypeObject o, X10ClassType annoType, boolean replace);
+		
 	/**
 	 * Return a reference array of <code>base</code> type.
 	 */

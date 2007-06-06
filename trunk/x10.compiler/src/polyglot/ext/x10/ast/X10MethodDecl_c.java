@@ -226,9 +226,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             nn = (MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
             if (childtc2.hasErrors()) throw new SemanticException();
             nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
-             
-            ((X10MethodInstance) nn.methodInstance()).setAnnotations(((X10Ext) nn.ext()).annotationTypes());
- 			
+            
             return nn;
         }
        

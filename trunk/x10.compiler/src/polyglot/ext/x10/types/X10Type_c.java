@@ -13,11 +13,20 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
+import polyglot.types.TypeSystem;
 import polyglot.types.Type_c;
+import polyglot.ast.ClassDecl;
+import polyglot.ast.CodeDecl;
+import polyglot.ast.Expr;
+import polyglot.ast.Node;
+import polyglot.ast.Special;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.Type;
+import polyglot.util.Position;
+import polyglot.visit.NodeVisitor;
 
 /** This class is added for the sake of symmetry, but may not be used very much.
  * Most ..ext.x10.type.X10*Type classes actually subclass from corresponding
@@ -40,6 +49,29 @@ public abstract class X10Type_c extends Type_c implements X10Type {
     public List typeParameters() {return typeParameters;}
     public Constraint depClause() { return depClause();}
     protected X10TypeSystem xts = (X10TypeSystem) ts;
+    
+    private X10Type_c() { super(); }
+    
+    private X10Type_c(X10TypeSystem ts, Position pos) {
+    	super(ts, pos);
+    }
+    
+    // t[e/this]
+    public static X10Type substituteForThis(X10Type t, final Expr e) {
+    	DepParameterExpr dep = t.dep();
+    	DepParameterExpr dep2 = (DepParameterExpr) dep.visit(new NodeVisitor() {
+    		public Node override(Node n) {
+    			if (n instanceof ClassDecl || n instanceof CodeDecl) {
+    				return n;
+    			}
+    			if (n instanceof Special && ((Special) n).kind() == Special.THIS) {
+    				return e;
+    			}
+    			return null;
+    		}
+    	});
+    	return t.dep(dep2);
+    }
     
     public boolean typeEqualsImpl(Type o) {
         return equalsImpl(o);

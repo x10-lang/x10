@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Expr;
+import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Lit_c;
@@ -58,6 +60,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		primitiveTypeNames.add("double");
 	}
 
+	 /**
+     * Returns true iff <type> is a canonical (fully qualified) type.
+     */
+    public boolean isCanonical(Type type) {
+//    	if (type instanceof X10Type) {
+//    		List<X10ClassType> l = ((X10Type) type).annotations();
+//    		for (Iterator<X10ClassType> i = l.iterator(); i.hasNext(); ) {
+//    			X10ClassType t = i.next();
+//    			if (! isCanonical(t))
+//    				return false;
+//    		}
+//    	}
+    	return super.isCanonical(type);
+    }
+    
 	public boolean isPrimitiveTypeName(String name) {
 		return primitiveTypeNames.contains(name);
 	}
@@ -905,7 +922,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 				ConstructorInstance ci = (ConstructorInstance) i.next();
 				if (ci.formalTypes().size() == 1) {
 					Type argType = (Type) ci.formalTypes().get(0);
-					if (equals(argType, t)) {
+					if (typeEquals(argType, t.rootType())) {
 						if (t.depClause() != null) {
 							ci.setContainer((ReferenceType) ((X10NamedType)ci.container()).makeVariant(
 									t.depClause(), null));
@@ -1604,6 +1621,33 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		 return new X10ConstructorInstance_c(this, pos, container, flags,
 				 returnType, argTypes, excTypes);
 	 }
+
+	public X10TypeObject addAnnotation(X10TypeObject o, X10ClassType annoType, boolean replace) {
+		List<X10ClassType> newATs = new ArrayList<X10ClassType>();
+		
+		if (replace) {
+			for (Iterator<X10ClassType> i = o.annotations().iterator(); i.hasNext(); ) {
+				X10ClassType at = i.next();
+				if (! at.isSubtype(annoType.rootType())) {
+					newATs.add(at);
+				}
+			}
+		}
+		else {
+			newATs.addAll(o.annotations());
+		}
+		
+		newATs.add(annoType);
+		
+		return (X10TypeObject) o.annotations(newATs);
+	}
+
+	public X10ClassType instantiateType(X10ClassType baseType, List<Expr> args, X10NodeFactory nf) {
+		TypeSystem ts = baseType.typeSystem();
+		DepParameterExpr dep = (DepParameterExpr) nf.DepParameterExpr(Position.COMPILER_GENERATED,
+				args, nf.BooleanLit(Position.COMPILER_GENERATED, true).type(ts.Boolean())).type(ts.Boolean());
+		return (X10ClassType) baseType.dep(dep);
+	}
 
 
 } // end of X10TypeSystem_c
