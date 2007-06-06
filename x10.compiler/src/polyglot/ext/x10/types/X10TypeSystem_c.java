@@ -922,7 +922,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 				ConstructorInstance ci = (ConstructorInstance) i.next();
 				if (ci.formalTypes().size() == 1) {
 					Type argType = (Type) ci.formalTypes().get(0);
-					if (typeEquals(argType, t.rootType())) {
+					if (typeBaseEquals(argType, t)) {
 						if (t.depClause() != null) {
 							ci.setContainer((ReferenceType) ((X10NamedType)ci.container()).makeVariant(
 									t.depClause(), null));
