@@ -67,7 +67,6 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TypeInputStream;
 import polyglot.visit.NodeVisitor;
-import quicktime.qd3d.transform.RotateTransformData;
 
 /** 6/2006 Modified so that every type is now potentially generic and dependent.
  * @author vj
