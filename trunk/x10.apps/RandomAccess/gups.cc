@@ -89,7 +89,7 @@ u64Int HPCC_starts(s64Int n)
 }
 
 const int AGG_LIMIT = 1024;
-const int MAX_TASKS = 64;
+const int MAX_TASKS = 256;
 
 struct element {
     int dest;

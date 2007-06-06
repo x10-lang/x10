@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.12 2007-05-28 12:48:13 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.13 2007-06-06 19:51:29 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -31,17 +31,24 @@ async2 (async_arg_t arg0, async_arg_t arg1)
   GLOBAL_SPACE.SUM[(int)arg1] = arg0;
 }
 int
-asyncSwitch (async_handler_t h, async_arg_t* args, int niter)
+asyncSwitch (async_handler_t h, void* arg, size_t size)
 {
-  for (int i = 0; i < niter; i++)
+    async_arg_t* args = (async_arg_t*) arg;
+    int niter;
     switch (h) {
     case 0: 
-      async0(*args++);
+      niter = size / sizeof(async_arg_t);
+      for (int i = 0; i < niter; i++)
+        async0(*args++);
       break;
     case 1:
+      niter = size / sizeof(async_arg_t);
+        for (int i = 0; i < niter; i++)
       async1(*args++);
       break;
     case 2:
+      niter = size / (2*sizeof(async_arg_t));
+        for (int i = 0; i < niter; i++)
       async2(*args++, *args++);
       break;
     } 
@@ -106,33 +113,6 @@ RandomAccess_Dist::HPCC_starts(sglong_t n)
   return ran;
 }
 
-void 
-RandomAccess_Dist::Verify (const glong_t LogTableSize, const bool Embarrassing,
-                           localTable* Table)
-{
-  const glong_t tableSize = (1UL << LogTableSize);
-  const glong_t numUpdates = tableSize*4;
-  
-  if (here() == 0) { 
-    for (int i = 0; i <  NUMPLACES; i++) {
-      glong_t ran = HPCC_starts (i * numUpdates);
-      for (glong_t i = 0; i < numUpdates; i++) {
-	int placeID;
-	if (Embarrassing)
-	  placeID = here();
-	else
-	  placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
-	const glong_t temp = ran;
-	ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
-	if (placeID == here()) async0 (temp);
-	else asyncSpawnInlineAgg (placeID, 0, temp);
-      }
-    }
-    asyncFlush (0, 1);
-  }
-  
-  Gfence();
-}
 void  
 RandomAccess_Dist::main (x10::array<String>& args)
 {
@@ -146,18 +126,18 @@ RandomAccess_Dist::main (x10::array<String>& args)
     exit (-1);
   } 
   
+  int VERIFY = UPDATE;
   bool doIO=false; 
-  bool embarrasing = false;
+  bool embarrassing = false;
   int logTableSize = 10;
   
-  int VERIFY = UPDATE;
   for (int q = 0; q < args.length; ++q) {
     if (args[q].equals ("-o")) {
       doIO = true;
     }
     
     if (args[q].equals("-e")) {
-      embarrasing = true;
+      embarrassing = true;
     }
     
     if (args[q].equals("-m")) {
@@ -172,6 +152,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
   }
   
   const glong_t tableSize = (1UL << logTableSize);
+  const glong_t numUpdates = tableSize*4*NUMPLACES;
   GLOBAL_SPACE.Table = new localTable (tableSize);
   Gfence();
   
@@ -189,48 +170,50 @@ RandomAccess_Dist::main (x10::array<String>& args)
     /* Begin time here */
     cputime = -mysecond();
   }
-  
-  //RandomAccessUpdate (logTableSize, embarrasing, GLOBAL_SPACE.Table);
-  
-  const glong_t numUpdates = tableSize*4;
+ 
+  const long LogTableSize = logTableSize; 
+  const bool Embarrassing = embarrassing; 
+  const glong_t NumUpdates = tableSize*4;
   
   if (VERIFY == VERIFICATION_P) { 
-    glong_t ran = HPCC_starts (here()*numUpdates);
-    for (glong_t i = 0; i < numUpdates; i++) {
+    int p = here();
+    glong_t ran = HPCC_starts (p*NumUpdates);
+    for (glong_t i = 0; i < NumUpdates; i++) {
       int placeID;
-      if (embarrasing)
+      if (Embarrassing)
 	placeID = here();
       else
-	placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
+	placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
       
       glong_t temp = ran;
-      ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
       
-      assert (UNIQUE->place(placeID) == placeID);
       if (placeID == here()) async1(temp); 
       else asyncSpawnInlineAgg(placeID, 1, temp);
+      ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     } 
     asyncFlush(1, 1);
+
+    Gfence();
   } else {   
-    glong_t ran = HPCC_starts (here()*numUpdates);
-    for (glong_t i = 0; i < numUpdates; i++) {
+    int p = here();
+    glong_t ran = HPCC_starts (p*NumUpdates);
+    for (glong_t i = 0; i < NumUpdates; i++) {
       int placeID;
-      if (embarrasing)
+      if (Embarrassing)
 	placeID = here();
       else
-	placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
+	placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
       
       glong_t temp = ran;
-      ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
       if (placeID == here()) async0(temp);
       else asyncSpawnInlineAgg (placeID, 0, temp);
+      ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     }   
-    
     asyncFlush (0, 1);
+
+    Gfence();
   }
   
-  
-  Gfence();
   if (here() == 0) {
     /* End time section */
     cputime += mysecond();
@@ -242,23 +225,24 @@ RandomAccess_Dist::main (x10::array<String>& args)
     if (doIO) {
       cout << "CPU time used = " << cputime << " seconds " << endl;
     }
-    cout << GUPs << " Billion (10^9) Updates  per second [GUP/s]" << endl;
+    if (VERIFY == UPDATE) cout << GUPs << " Billion (10^9) Updates  per second [GUP/s]" << endl;
   }
   
   if (VERIFY == UPDATE_AND_VERIFICATION){
+    cout << "Verifying result by repeating the update sequentially " << endl;
     if (here() == 0) { 
       for (int i = 0; i <  NUMPLACES; i++) {
-	glong_t ran = HPCC_starts (i * numUpdates);
-	for (glong_t i = 0; i < numUpdates; i++) {
+	glong_t ran = HPCC_starts (i * NumUpdates);
+	for (glong_t i = 0; i < NumUpdates; i++) {
 	  int placeID;
-	  if (embarrasing)
+	  if (Embarrassing)
 	    placeID = here();
 	  else
-	    placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
+	    placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
 	  const glong_t temp = ran;
-	  ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 	  if (placeID == here()) async0 (temp);
 	  else asyncSpawnInlineAgg (placeID, 0, temp);
+	  ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 	}
       }
       asyncFlush (0, 1);
@@ -268,25 +252,24 @@ RandomAccess_Dist::main (x10::array<String>& args)
   }
 
   if (VERIFY > 0) {
-    const glong_t numUpdates = tableSize*4*NUMPLACES;
-   
     int p = here(); 
     if (p == 0) {
       GLOBAL_SPACE.SUM = new glong_t [NUMPLACES];
     }
-    
+   
     glong_t sum =0;
     for (glong_t i = 0; i < tableSize; i++) 
       sum += GLOBAL_SPACE.Table->array[i];
-   
-    if (p == 0) async2 (sum ,p); 
-    else asyncSpawnInlineAgg (0,2, sum, here());
+  
+    const long temp = sum; 
+    if (p == 0) async2 (temp ,p); 
+    else asyncSpawnInlineAgg (0,2, temp, here());
     
     asyncFlush (2, 2);
     
     Gfence();
    
-    cout << "sum : " << sum << endl;
+  //  cout << "sum : " << sum << endl;
 
     if (here() == 0) {
       glong_t globalSum = 0;
