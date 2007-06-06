@@ -65,21 +65,21 @@
 public class RandomAccess_Dist {
 	 
     public static class localTable{
-    	final long[:self.rect && self.zeroBased && self.rank==1] array;
-    	final long tableSize;
-    	final long mask;
-    	localTable(long size){
+    	public final long[:self.rect && self.zeroBased && self.rank==1] array;
+    	public final long tableSize;
+    	public final long mask;
+    	public localTable(long size){
     		tableSize=size;
     		mask=tableSize-1;
     		array=(long[:self.rect && self.zeroBased && self.rank==1]) new long[[0:(int)mask]];
     	}
 
-    	void update(long ran){
+    	public void update(long ran){
     		array[(int)(ran & mask)] ^= ran;
     	}
     	
     	//for verification defined in Hanhong's C++ code
-    	void verify(long ran){
+    	public void verify(long ran){
     		array[(int)(ran & mask)]++;
     	}
     }
