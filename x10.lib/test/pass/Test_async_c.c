@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_c.c,v 1.1 2007-05-31 11:25:57 ganeshvb Exp $ */
+/* $Id: Test_async_c.c,v 1.2 2007-06-07 14:14:39 ganeshvb Exp $ */
 
 #include <x10/x10lib.h>
 
@@ -16,7 +16,7 @@ void async0 (async_arg_t arg)
   assert (arg == 333);
 }
 
-int asyncSwitch (async_handler_t h, async_arg_t* args, int n)
+int asyncSwitch (async_handler_t h, async_arg_t* args, size_t size)
 {
   switch (h) {
    case 0:
