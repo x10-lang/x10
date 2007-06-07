@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.14 2007-06-07 10:43:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.15 2007-06-07 14:00:57 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -176,8 +176,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
   const glong_t NumUpdates = tableSize*4;
   
   if (VERIFY == VERIFICATION_P) { 
-    int p = here();
-    glong_t ran = HPCC_starts (p*NumUpdates);
+    glong_t ran = HPCC_starts (here()*NumUpdates);
     for (glong_t i = 0; i < NumUpdates; i++) {
       int placeID;
       if (Embarrassing)
@@ -195,8 +194,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
 
     Gfence();
   } else {   
-    int p = here();
-    glong_t ran = HPCC_starts (p*NumUpdates);
+    glong_t ran = HPCC_starts (here()*NumUpdates);
     for (glong_t i = 0; i < NumUpdates; i++) {
       int placeID;
       if (Embarrassing)
@@ -220,7 +218,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
   } 
 
   if (VERIFY == UPDATE_AND_VERIFICATION){
-    cout << "Verifying result by repeating the update sequentially " << endl;
+    if (here() == 0) cout << "Verifying result by repeating the update sequentially " << endl;
     if (here() == 0) { 
       for (int i = 0; i <  NUMPLACES; i++) {
 	glong_t ran = HPCC_starts (i * NumUpdates);
@@ -279,7 +277,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
         globalSum += GLOBAL_SPACE.SUM[i];
       }
       if (VERIFY == VERIFICATION_P) {
-	double missedUpdateRate = (double) (globalSum - numUpdates) / (double) numUpdates*100;
+	double missedUpdateRate = (globalSum - numUpdates) / (double) numUpdates*100;
 	cout << " the rate of missed updates " << missedUpdateRate << " % " << endl;
       }else {
 	cout << " The global sum is " << globalSum << " (correct=0) " << endl;
