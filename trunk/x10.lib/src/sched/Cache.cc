@@ -1,0 +1,168 @@
+/*
+============================================================================
+ Name        : Cache.cpp
+ Author      : Rajkishore Barik
+ Version     :
+ Copyright   : IBM Corporation 2007
+ Description : Exe source file
+============================================================================
+*/
+
+
+using namespace x10lib_cws;
+using namespace std;
+
+Cache::Cache(Worker *w) {owner=w; stack.resize(INITIAL_CAPACITY); } // TODO verify
+Cache::~Cache() {stack.clear();}
+
+void Cache::pushFrame(Frame *x) {
+    	assert(x != NULL);
+    	
+    	if (stack != NULL && tail < stack.size() - 1) {
+    		stack.push_back(x);
+    		++tail;
+    		WRITE_BARRIER();
+    		return;
+    	}
+    	growAndPushFrame(x);
+}
+
+void Cache::pushIntUpdatingInPlace(Pool *pool, int tid, int x) {
+
+    	if (stack != NULL && tail < stack.size() - 1) {
+    		if (stack[tail] != NULL) {
+    			stack[tail]->setInt(x);
+    		} else {
+    			Worker *w = pool->workers[tid];
+    			Frame *f = w->fg->make();
+    			f->setInt(x);
+    			stack[tail] = f;
+    			
+    		}
+    		++tail;
+				WRITE_BARRIER();
+    		return;
+    	}
+    	Worker* w = pool->workers[tid];
+			Frame *f = w->fg->make();
+			f->setInt(x);
+    	growAndPushFrame(f);
+}
+
+/*
+ * Handles resizing and reinitialization cases for pushFrame
+ * @param x the task
+ */
+void Cache::growAndPushFrame(Frame *x) {
+	int oldSize = 0;
+    int newSize = 0;
+    
+    if (!stack.empty()) {
+    	oldSize = stack.size();
+        newSize = oldSize << 1;
+    }
+    
+    if (newSize < INITIAL_CAPACITY)
+        newSize = INITIAL_CAPACITY;
+    if (newSize > MAXIMUM_CAPACITY)
+        throw new Error("Frame stack size exceeded");
+    
+    stack.resize(newSize);
+    stack.push_back(x);
+    ++tail;
+    MEM_BARRIER();
+}
+
+void Cache::resetExceptionPointer(Worker *w) {
+		assert (w==owner);
+    exception = head;
+}
+    
+void Cache::incrementExceptionPointer() {
+    if (exception != EXCEPTION_INFINITY) {
+    	++exception;
+    	MEM_BARRIER();
+    }
+    	
+}
+void Cache::decrementExceptionPointer() {
+    if (exception != EXCEPTION_INFINITY) {
+    	--exception;
+    }
+    	
+}
+void Cache::signalImmediateException() {
+    exception = EXCEPTION_INFINITY;
+    MEM_BARRIER();   
+}
+
+bool Cache::atTopOfStack() const {
+    return head+1 == tail;
+}
+   
+Frame *Cache::childFrame() const {
+    return stack.at(head+1);
+}
+Frame *Cache::topFrame() const {
+    return stack.at(head);
+}
+Frame *Cache::currentFrame() const {
+    	return stack.at(tail-1);
+}
+void Cache::popFrame() {
+	--tail;
+	//WRITE_BARRIER();
+}
+bool Cache::interrupted() const {
+		return exception >= tail;
+}
+bool Cache::popCheck() {
+	int t = tail;
+	int e = exception;
+	lastException = e;
+	return e >= t;
+}
+
+bool Cache::empty() const {
+	return head>=tail;
+}
+bool Cache::headAheadOfTail() const {
+	return head==tail+1;
+}
+bool Cache::headGeqTail() const {
+	return head >= tail;
+}
+void Cache::reset() {
+	tail=0;
+	head=0;
+	exception=0;
+	//WRITE_BARRIER();
+}
+void Cache::incHead() {
+	++head;
+	//WRITE_BARRIER();
+}
+bool Cache::exceptionOutstanding() const {
+	return head <= exception;
+}
+int Cache::head() const { return head;}
+int Cache::tail() const { return tail;}
+int Cache::exception() { return exception;}
+
+bool Cache::dekker(Worker *thief) {
+		assert(thief != owner);
+		if (exception != EXCEPTION_INFINITY) {
+    		++exception;
+				MEM_BARRIER();
+		}
+		if ((head + 1) >= tail) {
+			if (exception != EXCEPTION_INFINITY)
+	    		--exception;
+			return false;
+		}
+		// so there must be at least two elements in the framestack for a theft.
+		/*if ( Worker.reporting) {
+			System.out.println(thief + " has found victim " + owner);
+		}*/
+		return true;
+}
