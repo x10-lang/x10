@@ -1,12 +1,13 @@
+#include <x10/xmacros.h>
 #include <x10/types.h>
 #include <stdarg.h>
 
 using namespace x10lib;
 
-extern async_arg_t argbuf[MAX_HANDLERS][MAX_TASKS][MAX_ARGS*AGG_LIMIT];
-extern ulong counter[MAX_HANDLERS][MAX_TASKS];
-extern int maxCounter[MAX_HANDLERS];
-extern int total [MAX_HANDLERS];
+async_arg_t argbuf[MAX_AGG_HANDLERS][MAX_AGG_TASKS][MAX_ASYNC_ARGS*MAX_AGG_SIZE];
+ulong counter[MAX_AGG_HANDLERS][MAX_AGG_TASKS];
+int maxCounter[MAX_AGG_HANDLERS];
+int total [MAX_AGG_HANDLERS];
 
 template <int N, typename F>
 inline void
@@ -44,12 +45,12 @@ template<int N>
 error_t
 asyncFlush_t (async_handler_t handler)
 {
-    lapi_cntr_t origin_cntr;
+ 	   lapi_cntr_t origin_cntr;
     int tmp;
     for (int j =0; j < MAX_PLACES; j++) {
       if ( j != here() && counter[handler][j] != 0) {
-        LAPI_Setcntr (GetHandle(), &origin_cntr, 0); 
-        LAPI_Amsend (GetHandle(),
+        LRC (LAPI_Setcntr (GetHandle(), &origin_cntr, 0)); 
+        LRC (LAPI_Amsend (GetHandle(),
                      j,
 	             (void*) (5+handler),
                      NULL, 
@@ -58,8 +59,8 @@ asyncFlush_t (async_handler_t handler)
                      counter[handler][j] * N * sizeof(async_arg_t),
                      NULL,
                      &origin_cntr,
-                     NULL);
-         LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp);
+                     NULL));
+         LRC (LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp));
          total[handler] -= counter[handler][j];
          counter[handler][j] =0;
       }
@@ -112,11 +113,11 @@ asyncSpawnInlineAgg_i (place_t target, async_handler_t handler)
  counter[handler][target]++;
  total[handler]++;
 
- if (total[handler] >= AGG_LIMIT)
+ if (total[handler] >= MAX_AGG_SIZE)
   {
     ulong max = 0;
     int task = 0;
-    for (place_t i = 0; i < MAX_TASKS; i++) {
+    for (place_t i = 0; i < MAX_AGG_TASKS; i++) {
       task = counter[handler][i] > max ? i :  task;
       max = counter[handler][i] > max ? counter[handler][i] : max; 
     }
@@ -125,8 +126,8 @@ asyncSpawnInlineAgg_i (place_t target, async_handler_t handler)
  
     lapi_cntr_t origin_cntr;
     int tmp;
-    LAPI_Setcntr (GetHandle(), &origin_cntr, 0); 
-    LAPI_Amsend (GetHandle(),
+    LRC (LAPI_Setcntr (GetHandle(), &origin_cntr, 0)); 
+    LRC (LAPI_Amsend (GetHandle(),
                  task,
                  (void*) (5+handler),  
                  NULL,
@@ -135,8 +136,8 @@ asyncSpawnInlineAgg_i (place_t target, async_handler_t handler)
                  max * N * sizeof(async_arg_t),
                  NULL,
                  &origin_cntr,
-                 NULL);
-    LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp);
+                 NULL));
+    LRC (LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp));
     total[handler] -= max;
     counter[handler][task] = 0;
   } 
@@ -170,3 +171,7 @@ asyncSpawnInlineAgg_t (place_t target, async_handler_t handler, async_arg_t arg0
  argbuf[handler][target][count] = arg0;
  return asyncSpawnInlineAgg_i<1, F> (target, handler);
 }
+
+// Local Variables:
+// mode: C++
+// End:

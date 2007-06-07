@@ -1,31 +1,42 @@
+/*
+ * (c) Copyright IBM Corporation 2007
+ *
+ * This file is part of X10 Runtime System.
+ * Author : Ganesh Bikshandi
+ */
+
+/* $Id: aggregate.cc,v 1.5 2007-06-07 10:47:10 ganeshvb Exp $ */
+
+#include <iostream>
 #include <x10/aggregate.h>
 #include <stdarg.h>
+#include "xmacros.h"
+using namespace std;
 
 using namespace x10lib;
 
-async_arg_t argbuf[MAX_AGG_HANDLERS][MAX_AGG_TASKS][MAX_ASYNC_ARGS*MAX_AGG_SIZE];
-ulong counter[MAX_AGG_HANDLERS][MAX_AGG_TASKS];
+char argbuf[MAX_AGG_HANDLERS][MAX_AGG_TASKS][MAX_ASYNC_ARGS*MAX_AGG_SIZE*sizeof(async_arg_t)];
+size_t counter[MAX_AGG_HANDLERS][MAX_AGG_TASKS];
 int maxCounter[MAX_AGG_HANDLERS];
-int total [MAX_AGG_HANDLERS];
+size_t total [MAX_AGG_HANDLERS];
 
-
+//TODO: call asyncSwitch directly
 inline void
-batchAsyncDispatch (async_arg_t *a, ulong len, async_handler_t handle, int N) { 
-   int niter = len / (N * sizeof(async_arg_t));  
-   asyncSwitch (handle, a, niter);
+batchAsyncDispatch (void *a, ulong len, async_handler_t handle) { 
+   asyncSwitch (handle, a, len);
 }
 
 struct comp 
 {
   ulong len;
-  int N;
+  int N; //TODO: not required 
   int handler; 
   void* buf;
 };
 
 struct header
 {
-  int N;
+  int N; //TODO: not required
   int handler;
 };
 
@@ -33,39 +44,37 @@ void
 asyncSpawnCompHandlerAgg (lapi_handle_t *handle, void* a)
 {
   comp* c = (comp*) a;	
-  batchAsyncDispatch ((async_arg_t*) (c->buf), c->len, c->handler, c->N);
+  batchAsyncDispatch ((void*) (c->buf), c->len, c->handler);
   delete[] c->buf;
   delete c;
 }
 
 error_t
-x10lib::asyncFlush (async_handler_t handler, int N)
+x10lib::asyncFlush (async_handler_t handler)
 {
   lapi_cntr_t cntr;
   int tmp;
   header buf;
   buf.handler = handler;
-  buf.N = N;
+  buf.N = 0;
   for (int j =0; j < MAX_PLACES; j++) {
     if ( j!= here() && counter[handler][j] != 0) {
-      int rc0 = LAPI_Setcntr (GetHandle(), &cntr, 0);
-      int rc1 = LAPI_Amsend (GetHandle(),
+      LRC (LAPI_Setcntr (GetHandle(), &cntr, 0));
+      LRC (LAPI_Amsend (GetHandle(),
 		   j,
                    (void*) 1,
 		   &buf,
 		   sizeof(header),
 		   (void*) argbuf[handler][j],
-		   counter[handler][j] * N * sizeof(async_arg_t),
+		   counter[handler][j],
 		   NULL,
-		   &cntr, //NULL,
-		   NULL);
-      int rc2 = LAPI_Waitcntr (GetHandle(), &cntr, 1, &tmp);
-      if (rc0 || rc1 || rc2)  return X10_ERR_LAPI;
+		   &cntr, 
+		   NULL));
+      LRC (LAPI_Waitcntr (GetHandle(), &cntr, 1, &tmp));
     }
     total[handler] -= counter[handler][j];
     counter[handler][j] =0;
   }
-
   return X10_OK;
 }
 
@@ -78,7 +87,7 @@ asyncSpawnHandlerAgg (lapi_handle_t handle, void* uhdr,
   struct header buf = *((header*) uhdr);
   lapi_return_info_t *ret_info = (lapi_return_info_t *) msg_len;
   if (ret_info->udata_one_pkt_ptr) {
-    batchAsyncDispatch ((async_arg_t*)ret_info->udata_one_pkt_ptr, *msg_len, buf.handler, buf.N);
+    batchAsyncDispatch (ret_info->udata_one_pkt_ptr, *msg_len, buf.handler);
     ret_info->ctl_flags = LAPI_BURY_MSG;
     *comp_h = NULL;
     return NULL;
@@ -104,16 +113,14 @@ asyncRegisterAgg()
 
 
 error_t
-asyncSpawnInlineAgg_i (place_t target, async_handler_t handler, int N)
+asyncSpawnInlineAgg_i (place_t target, async_handler_t handler, size_t size)
 {
+ counter[handler][target] += size;
+ total[handler] += size;
 
- assert (N <= MAX_ASYNC_ARGS);
- counter[handler][target]++;
- total[handler]++;
-
- if (total[handler] >= MAX_AGG_SIZE)
+ if (total[handler] >= MAX_AGG_SIZE*sizeof(async_arg_t))
   {
-    ulong max = 0;
+    size_t max = 0;
     int task = 0;
     for (place_t i = 0; i < MAX_PLACES; i++) {
       if (counter[handler][i] > max) {
@@ -121,30 +128,39 @@ asyncSpawnInlineAgg_i (place_t target, async_handler_t handler, int N)
         task = i;
       }
     }
-  
-      struct header buf;
-      buf.handler = handler;
-      buf.N = N;
-      lapi_cntr_t cntr;
-      int tmp;
-      LAPI_Setcntr (GetHandle(), &cntr, 0);
-      LAPI_Amsend (GetHandle(),
-                   task,
-                   (void*) 1, 
-                   &buf,
-                   sizeof(header),
-                   (void*) argbuf[handler][task],
-                   max * N * sizeof(async_arg_t),
-                   NULL,
-                   &cntr, //NULL,
-                   NULL);
-    LAPI_Waitcntr (GetHandle(), &cntr, 1, &tmp);
+    
+    struct header buf;
+    buf.handler = handler;
+    buf.N = 0;
+    lapi_cntr_t cntr;
+    int tmp;
+    LRC (LAPI_Setcntr (GetHandle(), &cntr, 0));
+    LRC (LAPI_Amsend (GetHandle(),
+		 task,
+		 (void*) 1, 
+		 &buf,
+		 sizeof(header),
+		 (void*) argbuf[handler][task],
+		 max,
+		 NULL,
+		 &cntr, //NULL,
+		 NULL));
+    LRC (LAPI_Waitcntr (GetHandle(), &cntr, 1, &tmp));
     total[handler] -= max;
     counter[handler][task] = 0;
   } 
+ 
+ return X10_OK;
+ 
+}
 
-   return X10_OK;
+error_t
+x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, void* args, size_t size)
+{
 
+  size_t  count = counter [handler][target];
+  memcpy (&(argbuf[handler][target][count]), args, size);
+  return asyncSpawnInlineAgg_i (target, handler, size);
 }
 
 error_t
@@ -156,29 +172,29 @@ x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, int N ...)
  
  lapi_cntr_t origin_cntr;
  
- ulong& count = counter [handler][target];
+ size_t count = counter [handler][target];
  for (int i =0; i < N; i++)
    argbuf[handler][target][N*count+i] = va_arg (list, async_arg_t); 
  
  va_end (list);
-  return asyncSpawnInlineAgg_i (target, handler, N);
+  return asyncSpawnInlineAgg_i (target, handler, N*sizeof(async_arg_t));
 }
 
 error_t
 x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0)
 {
-  ulong& count = counter [handler][target];
-  argbuf[handler][target][count] =  arg0;
-  return asyncSpawnInlineAgg_i (target, handler, 1);
+  size_t count = counter [handler][target];
+  memcpy (&(argbuf[handler][target][count]), &arg0, sizeof(async_arg_t));
+  return asyncSpawnInlineAgg_i (target, handler, 1*sizeof(async_arg_t));
 }
 
 error_t
 x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0, async_arg_t arg1)
 {
-  ulong& count = counter [handler][target];
-  argbuf[handler][target][2*count] =  arg0;
-  argbuf[handler][target][2*count+1] =  arg1;
-  return asyncSpawnInlineAgg_i (target, handler,2);
+  size_t count = counter [handler][target];
+  memcpy (&(argbuf[handler][target][count]), &arg0, sizeof(async_arg_t));
+  memcpy (&(argbuf[handler][target][count+sizeof(async_arg_t)]), &arg1, sizeof(async_arg_t));
+  return asyncSpawnInlineAgg_i (target, handler,2*sizeof(async_arg_t));
 }
 
 error_t
@@ -194,9 +210,9 @@ x10_async_spawn_inline_agg2 (place_t target, async_handler_t handler, async_arg_
 }
 
 error_t
-x10_async_flush (async_handler_t handle, int n)
+x10_async_flush (async_handler_t handle)
 {
-  return x10lib::asyncFlush (handle, n);
+  return x10lib::asyncFlush (handle);
 }
 
 // Local Variables:
