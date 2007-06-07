@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.13 2007-06-06 19:51:29 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.14 2007-06-07 10:43:00 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -191,7 +191,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       else asyncSpawnInlineAgg(placeID, 1, temp);
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     } 
-    asyncFlush(1, 1);
+    asyncFlush(1);
 
     Gfence();
   } else {   
@@ -209,7 +209,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       else asyncSpawnInlineAgg (placeID, 0, temp);
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     }   
-    asyncFlush (0, 1);
+    asyncFlush (0);
 
     Gfence();
   }
@@ -217,17 +217,8 @@ RandomAccess_Dist::main (x10::array<String>& args)
   if (here() == 0) {
     /* End time section */
     cputime += mysecond();
-    
-    /* make sure no division by zero */
-    GUPs = (cputime > 0.0 ? 1.0 / cputime : -1.0);
-    GUPs *= 1e-9*(4*tableSize*NUMPLACES);
-    /* Print timing results */
-    if (doIO) {
-      cout << "CPU time used = " << cputime << " seconds " << endl;
-    }
-    if (VERIFY == UPDATE) cout << GUPs << " Billion (10^9) Updates  per second [GUP/s]" << endl;
-  }
-  
+  } 
+
   if (VERIFY == UPDATE_AND_VERIFICATION){
     cout << "Verifying result by repeating the update sequentially " << endl;
     if (here() == 0) { 
@@ -245,12 +236,23 @@ RandomAccess_Dist::main (x10::array<String>& args)
 	  ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 	}
       }
-      asyncFlush (0, 1);
+      asyncFlush (0);
     }
     
     Gfence();    
   }
-
+  
+  if (here() ==0) {
+    /* make sure no division by zero */
+    GUPs = (cputime > 0.0 ? 1.0 / cputime : -1.0);
+    GUPs *= 1e-9*(4*tableSize*NUMPLACES);
+    /* Print timing results */
+    if (doIO) {
+      cout << "CPU time used = " << cputime << " seconds " << endl;
+    }
+    if (VERIFY == UPDATE) cout << GUPs << " Billion (10^9) Updates  per second [GUP/s]" << endl;
+  }
+  
   if (VERIFY > 0) {
     int p = here(); 
     if (p == 0) {
@@ -265,7 +267,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
     if (p == 0) async2 (temp ,p); 
     else asyncSpawnInlineAgg (0,2, temp, here());
     
-    asyncFlush (2, 2);
+    asyncFlush (2);
     
     Gfence();
    

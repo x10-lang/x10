@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_func.cc,v 1.3 2007-05-28 12:46:20 ganeshvb Exp $ */
+/* $Id: RandomAccess_func.cc,v 1.4 2007-06-07 10:43:00 ganeshvb Exp $ */
 
 #include "RandomAccess_func.h"
 #include "timers.h"
@@ -230,7 +230,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       assert (UNIQUE->place(placeID) == placeID);
       asyncSpawnInlineAgg(placeID, 1, temp);
     } 
-    asyncFlush(1, 1);
+    asyncFlush(1);
   } else {   
     glong_t ran = HPCC_starts (here()*numUpdates);
     for (glong_t i = 0; i < numUpdates; i++) {
