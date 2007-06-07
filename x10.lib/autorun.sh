@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: autorun.sh,v 1.2 2007-06-04 10:51:33 srkodali Exp $
+# $Id: autorun.sh,v 1.3 2007-06-07 06:35:22 srkodali Exp $
 # Script for automating the build and testing process.
 #
 
@@ -55,7 +55,8 @@ mailResults() {
 			echo "\n...done.\n" >> ${LOGFILE}
 			cat ${LOGFILE} | \
 			mail -s "!!! X10Lib AutoRun Results On `date` !!!" \
-				-c "${CC_LIST}" ${ADMIN_ADDR}
+				${ADMIN_ADDR}
+			#	-c "${CC_LIST}" ${ADMIN_ADDR}
 		else
 			echo "cat ${LOGFILE} | \\" >> ${LOGFILE}
 			echo "mail -s \"!!! X10Lib AutoRun Results On `date` !!!\" \\"
