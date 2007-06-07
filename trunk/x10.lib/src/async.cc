@@ -5,12 +5,13 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.cc,v 1.3 2007-05-31 11:25:57 ganeshvb Exp $ */
+/* $Id: async.cc,v 1.4 2007-06-07 10:47:11 ganeshvb Exp $ */
 
 #include <iostream>
 #include <stdarg.h>
 
 #include "async.h"
+#include "xmacros.h"
 
 using namespace x10lib;
 using namespace std;
@@ -29,6 +30,7 @@ asyncSpawnHandler (lapi_handle_t handle, void* uhdr,
   *comp_h = NULL;
   return NULL;
 }
+
 error_t
 asyncRegister()
 {
