@@ -915,14 +915,25 @@ Description:
 	Blocks the calling task until all the outstanding X10Lib operations initiated
 	before the fence are guaranteed to complete regardless of the destination.
 	This is a collective call that enforces order across all tasks and provides
-	barrier synchronization among them.
+	barrier synchronization among them. The call guarantees that only the
+        data movement is complete, but not the operations on remote side. 
 
 Return values:
 
 	X10_OK		Indicates the method/function call completed successfully.
 	X10_ERR_LAPI	Error from the underlying communication system.
 
-
+Note:
+    
+      The current gfence implementation assumes that only one thread executes per
+      place. This precludes both multipile asyncs per place as well as execution
+      in INTERRUPT mode.  Thus, the only mode of operation for LAPI is POLLING mode.
+      Under these conditions, the following invariants hold:
+      1. Only one thread (except shared memory thread) executes.
+      2. Gfence guarantees that all the data sent out before Gfence are acknowledged.
+      3. The async methods are completed inline in the header handler or the inline completion handler.
+      These imply that successful return of Gfence is a guarantee that all the remote operations 
+      completed. 
 
 07) Synchronization
 -------------------

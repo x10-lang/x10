@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg_c.c,v 1.1 2007-05-31 11:25:57 ganeshvb Exp $ */
+/* $Id: Test_async_agg_c.c,v 1.2 2007-06-07 14:14:39 ganeshvb Exp $ */
 
 #include <stdio.h>
 #include <x10/x10lib.h>
@@ -21,11 +21,14 @@ void async0 (async_arg_t arg0)
   K++;
 }
 
-int asyncSwitch (async_handler_t h, async_arg_t* args, int niter) 
+int asyncSwitch (async_handler_t h, void* arg, size_t size) 
 {
-  for (int i = 0; i < niter ;i ++)
+  async_arg_t* args = (async_arg_t*) arg;
+  int niter;
   switch (h) {
   case 0:
+  niter = size / sizeof(async_arg_t);
+  for (int i = 0; i < niter ;i ++)
     async0 (*args++);
   }
 }
@@ -45,7 +48,7 @@ main (int argc, char* argv[])
      for (int64_t i = 0; i < N; i++)
        x10_async_spawn_inline_agg1 (target, 0,  i);
      
-   x10_async_flush (0, 1);
+   x10_async_flush (0);
 
      
   x10_gfence (); 

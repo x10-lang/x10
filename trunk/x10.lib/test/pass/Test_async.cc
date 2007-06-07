@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async.cc,v 1.3 2007-05-28 06:04:23 ganeshvb Exp $ */
+/* $Id: Test_async.cc,v 1.4 2007-06-07 14:14:39 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -23,8 +23,10 @@ void async0 (async_arg_t arg)
   assert (arg == 333);
 }
 
-int asyncSwitch (async_handler_t h, async_arg_t* args, int n)
+int asyncSwitch (async_handler_t h, void* arg, size_t size) 
 {
+
+  async_arg_t* args = (async_arg_t*) arg;
   switch (h) {
    case 0:
      async0 (*args);
