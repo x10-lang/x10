@@ -22,8 +22,8 @@ public class InterfaceTypeInvariant extends x10Test {
      public int put();
     }
     
-    class Tester(int l, int m : m == l ) implements Test{
-      public Tester(int arg) { l = arg; m = arg;}
+    class Tester(int l, int m : m == l ) implements Test {
+      public Tester(int arg) { property(arg,arg); }
       public int put() {
         return 0;
       }
