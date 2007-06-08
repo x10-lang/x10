@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_region.cc,v 1.2 2007-05-31 07:48:30 srkodali Exp $ */
+/* $Id: Test_region.cc,v 1.1 2007-06-08 13:51:42 srkodali Exp $ */
 #include <iostream>
 
 #include <x10/xassert.h>
