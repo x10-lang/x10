@@ -19,6 +19,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.Stmt_c;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -82,9 +83,9 @@ public class Await_c extends Stmt_c implements Await {
 	}
 	
 	  public Node typeCheck(TypeChecker tc) throws SemanticException {
-    	TypeSystem ts = tc.typeSystem();
+    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	
-    	if (! ts.equals(expr_.type(), ts.Boolean()) )
+    	if (! ts.typeBaseEquals(expr_.type(), ts.Boolean()) )
     		throw new SemanticException("The argument to await, " + expr_ +", must be of type boolean.", position());
     	X10Context c = (X10Context) tc.context();
     	if (c.inNonBlockingCode())
