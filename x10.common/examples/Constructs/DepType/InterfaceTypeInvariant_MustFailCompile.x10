@@ -20,7 +20,7 @@ public class InterfaceTypeInvariant_MustFailCompile extends x10Test {
     }
     
     class Tester(int l, int m : m == 2 && l == 3 ) implements Test{
-      public Tester() { l = 3; m = 2;}
+      public Tester() { property(3,2); }
       public int put() {
         return 0;
       }
