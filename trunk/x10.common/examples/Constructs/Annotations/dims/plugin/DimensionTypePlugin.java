@@ -196,12 +196,20 @@ public class DimensionTypePlugin extends SimpleTypeAnnotationPlugin {
 					throw new SemanticException("Cannot compare values with incompatible units: " + lx + " and " + rx + ".");
 			}
 			
-			if (b.operator() == Binary.MUL || b.operator() == Binary.DIV) {
+			if (b.operator() == Binary.MUL) {
 				Exp u = mul(lu, ru, nf);
 				Expr e = u.toExpr(nf, ts);
 				t = setUnitAnnotation(t, e, nf);
 				return t;
 			}
+			
+			if (b.operator() == Binary.DIV) {
+				Exp u = mul(lu, inv(ru, nf), nf);
+				Expr e = u.toExpr(nf, ts);
+				t = setUnitAnnotation(t, e, nf);
+				return t;
+			}
+			
 			if (b.operator() == Binary.ADD || b.operator() == Binary.SUB) {
 				if (! lu.equals(ru))
 					throw new SemanticException("Cannot add or subtract values with incompatible units: " + lx + " and " + rx + ".");
@@ -499,6 +507,12 @@ public class DimensionTypePlugin extends SimpleTypeAnnotationPlugin {
 	}
 	
 	private Exp getUnit(Expr e, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		Exp u = getUnit2(e, ts, nf);
+		System.out.println("[[" + e + "]] = " + u);
+		return u;
+	}
+	
+	private Exp getUnit2(Expr e, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
 		if (e == null) {
 			// No Unit annotation.  Dimensionless!
 			return new Exp(one(nf, ts), zero(nf, ts));
@@ -747,6 +761,20 @@ public class DimensionTypePlugin extends SimpleTypeAnnotationPlugin {
 	}
 
 	protected Expr annotationCast(Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		Expr e2 = annotationCast2(e, context, ts, nf);
+		if (e == e2)
+			return e2;
+		if (e != e2 && ! ts.typeBaseEquals(e.type(), e2.type())) {
+			X10Type t = (X10Type) e.type();
+			t = (X10Type) t.annotations(((X10Type) e2.type()).annotations());
+			t = (X10Type) t.dep(t.dep());
+			e2 = nf.Cast(e.position(), nf.CanonicalTypeNode(t.position(), t), e2);
+			e2 = e2.type(t);
+		}
+		return e2;
+	}
+	
+	protected Expr annotationCast2(Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
 		if (e == null || ! (e.ext() instanceof X10Ext)) {
 			return e;
 		}
@@ -764,11 +792,12 @@ public class DimensionTypePlugin extends SimpleTypeAnnotationPlugin {
 		X10Type t = (X10Type) e.type();
 		t = setUnitAnnotation(t, toX, nf);
 		
-		if (! getUnit(fromX, ts, nf).terms.equals(getUnit(toX, ts, nf).terms)) {
-			throw new SemanticException("Cannot cast from " + fromX + " to incompatible unit " + toX + ".");
-		}
 		
 		if (fromX != null) {
+			if (! getUnit(fromX, ts, nf).terms.equals(getUnit(toX, ts, nf).terms)) {
+				throw new SemanticException("Cannot cast from " + fromX + " to incompatible unit " + toX + ".");
+			}
+			
 			Expr invert = invert(e, fromX, ts, nf);
 			Expr unopt = apply(invert, toX, ts, nf);
 			

@@ -3,13 +3,13 @@ package dims;
 public interface Length extends Measure {
     // SI units
     @DerivedUnit(SI.meter)  double m = _;
-    @DerivedUnit(SI.p  * m) double pm = _;
+    @DerivedUnit(1e-12 * m) double pm = _;
     @DerivedUnit(1e-10 * m) double angstrom = _;
-    @DerivedUnit(SI.n  * m) double nm = _;
-    @DerivedUnit(SI.u  * m) double um = _;
-    @DerivedUnit(SI.m  * m) double mm = _;
-    @DerivedUnit(SI.c  * m) double cm = _;
-    @DerivedUnit(SI.k  * m) double km = _;
+    @DerivedUnit(1e-9  * m) double nm = _;
+    @DerivedUnit(1e-6  * m) double um = _;
+    @DerivedUnit(1e-3  * m) double mm = _;
+    @DerivedUnit(1e-2  * m) double cm = _;
+    @DerivedUnit(1e3   * m) double km = _;
 
     // astronomical units
     @DerivedUnit(3.08568025e13 * km) double parsec = _;

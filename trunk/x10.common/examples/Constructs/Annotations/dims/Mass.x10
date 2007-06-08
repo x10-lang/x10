@@ -3,8 +3,8 @@ package dims;
 public interface Mass extends Measure {
     @DerivedUnit(SI.kilogram) double kg = _;
     @DerivedUnit(1e-3 * kg) double g = _;
-    @DerivedUnit(SI.m * g) double mg = _;
-    @DerivedUnit(SI.u * g) double ug = _;
+    @DerivedUnit(1e-3 * g) double mg = _;
+    @DerivedUnit(1e-6 * g) double ug = _;
     @DerivedUnit(1e+3 * kg) double tonne = _;
 
     @DerivedUnit(kg / 2.2046) double lb = _;
