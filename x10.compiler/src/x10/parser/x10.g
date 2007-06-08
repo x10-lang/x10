@@ -211,7 +211,7 @@ $Import
         -- InterfaceModifier ::= Annotation
         -- ConstantModifier ::= Annotation
         AbstractMethodDeclaration ::= AbstractMethodModifiersopt TypeParametersopt ResultType MethodDeclarator Throwsopt ;
-        // AbstractMethodModifier ::= Annotations
+        -- AbstractMethodModifier ::= Annotations
         ClassInstanceCreationExpression ::=  new TypeArgumentsopt ClassOrInterfaceType TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
                                           | Primary . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
                                           | AmbiguousName . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
@@ -466,7 +466,7 @@ $Headers
          * </code>
          * instead of (Formal) MethodBody. Note that Formal may have
          * exploded vars.
-         * author vj
+         * @author vj
         */
         private Expr makeInitializer(Position pos, TypeNode resultType,
                                      X10Formal f, Block body) {
@@ -498,7 +498,7 @@ $Headers
          * { public <T> apply(Formal) MethodBody }
          * instead of (Formal) MethodBody. Note that Formal may have
          * exploded vars.
-         * author vj
+         * @author vj
         */
         private New XXmakeInitializer( Position pos, TypeNode resultType,
                                      X10Formal f, Block body ) {
@@ -828,6 +828,7 @@ $Rules -- Overridden rules from GJavaParser
         /.$BeginJava
                     // Done by extractFlags
                     // X10Flags.toX10Flags(ClassModifier));
+                    setResult(ClassModifier);
           $EndJava
         ./
                     | safe
@@ -1873,6 +1874,11 @@ $Rules
                     setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
           $EndJava
         ./
+       | ( AnnotatedType ) UnaryExpression
+        /.$BeginJava
+                    setResult(nf.Cast(pos(), AnnotatedType, UnaryExpression));
+          $EndJava
+        ./
        | ( Annotations ) UnaryExpressionNotPlusMinus
         /.$BeginJava
                     Expr e = UnaryExpressionNotPlusMinus;
@@ -2124,6 +2130,7 @@ $Types
     polyglot.ast.Lit ::= Literal
     TypeNode ::= Type
     TypeNode ::= SpecialType
+    TypeNode ::= AnnotatedType
     TypeNode ::= PrimitiveType | NumericType
     TypeNode ::= IntegralType | FloatingPointType
     TypeNode ::= ReferenceType
