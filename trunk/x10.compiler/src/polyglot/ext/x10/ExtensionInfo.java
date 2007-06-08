@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.NodeFactory;
-import polyglot.ext.x10.ast.PropagateAnnotationsVisitor;
-import polyglot.ext.x10.ast.PropagateDependentAnnotationsVisitor;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.plugin.CompilerPlugin;
 import polyglot.ext.x10.plugin.LoadJobPlugins;
@@ -36,6 +34,8 @@ import polyglot.ext.x10.visit.AnnotationChecker;
 import polyglot.ext.x10.visit.AssignPropertyChecker;
 import polyglot.ext.x10.visit.CastRewriter;
 import polyglot.ext.x10.visit.ExprFlattener;
+import polyglot.ext.x10.visit.PropagateAnnotationsVisitor;
+import polyglot.ext.x10.visit.PropagateDependentAnnotationsVisitor;
 import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.ext.x10.visit.TypePropagator;
 import polyglot.ext.x10.visit.X10Boxer;
