@@ -52,22 +52,22 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 		return equals(xts.TRUE()) ? xts.FALSE() : xts.TRUE();
 	}
 	public C_Lit neg() {
-		TypeSystem ts = type().typeSystem();
+		X10TypeSystem ts = (X10TypeSystem) type().typeSystem();
 		Type type = type();
-		if (ts.equals(type, ts.Int())) {
+		if (ts.typeBaseEquals(type, ts.Int())) {
 			return new C_Lit_c(new Integer(- ((Integer) val).intValue()), ts.Int());
 		}
-		if (ts.equals(type, ts.Long())) {
+		if (ts.typeBaseEquals(type, ts.Long())) {
 			return new C_Lit_c(new Long(- ((Long) val).longValue()), ts.Long());
 		}
-		if (ts.equals(type, ts.Short())) {
+		if (ts.typeBaseEquals(type, ts.Short())) {
 			short s = ((Short) val).shortValue();
 			return new C_Lit_c(new Short((short) -s), ts.Short());
 		}
-		if (ts.equals(type, ts.Float())) {
+		if (ts.typeBaseEquals(type, ts.Float())) {
 			return new C_Lit_c(new Float(- ((Float) val).floatValue()), ts.Float());
 		}
-		if (ts.equals(type, ts.Double())) {
+		if (ts.typeBaseEquals(type, ts.Double())) {
 			return new C_Lit_c(new Double(- ((Double) val).doubleValue()), ts.Double());
 		}
 		assert false;
