@@ -9,6 +9,7 @@
  */
 package x10.runtime.cws;
 
+
 /**
  * A Frame holds the PC and dirty live variables in a procedure call
  * that contains an async spawn. 
@@ -21,7 +22,7 @@ package x10.runtime.cws;
  * @author vj 04/18/07
  *
  */
-public class Frame implements Cloneable {
+public class Frame implements Cloneable, Executable {
 	
 	public Frame() {
 		super();
@@ -52,6 +53,7 @@ public class Frame implements Cloneable {
 	 * @param x -- the new value for the distinguished slot in the frame.
 	 */
 	public void setInt(int x) { throw new UnsupportedOperationException();}
+	public void setObject(Object x) { throw new UnsupportedOperationException();}
 	
 	public Frame copy() {
 		try {
@@ -63,4 +65,28 @@ public class Frame implements Cloneable {
 		}
 	}
 
+	/**
+	 * Should be overridden by subclasses. Specifies the work associated
+	 * with this frame for globally quiescent computations.
+	 * @param w
+	 */
+	public void compute(Worker w) throws StealAbort {
+		
+	}
+	/**
+	 * If the job is globally quiescent, closures are not needed.
+	 * In this case the frame will directly specify the work to be done.
+	 */
+	public final Executable execute(Worker w) {
+		Cache c = w.cache;
+		c.pushFrame(this);
+		c.resetExceptionPointer(w);
+		try {
+			compute(w);
+		} catch (StealAbort z) {
+			// do nothing. the exception has done its work
+			// unwinding the call stack.
+		}
+		return null;
+	}
 }

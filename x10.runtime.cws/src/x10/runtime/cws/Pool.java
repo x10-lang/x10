@@ -110,11 +110,10 @@ public class Pool {
      * Set by the worker that retrieves the job from the pool.
      * Unset by the worker that detects quiescence.
      */
-    volatile Closure currentJob;
+    volatile Job currentJob;
 
     ActiveWorkerCount barrier;
     
-    long startTime;
     /**
      * Creates a ForkJoinPool with a pool size equal to the number of
      * processors available on the system.
@@ -125,8 +124,9 @@ public class Pool {
     }
 
     long time() {
-    	return ((System.nanoTime() - startTime)/1000000);
+    	return ((System.nanoTime() - currentJob.startTime)/1000000);
     }
+    
     /**
      * Creates a ForkJoinPool with the indicated number
      * of Worker threads.
@@ -298,14 +298,16 @@ public class Pool {
     }
     
     public  void submit(Job job) {
-    	startTime = System.nanoTime();
+    	job.startTime = System.nanoTime();
         addJob(job);
     }
     public void invoke(Job job) {
     	submit(job);
     	try {
 			job.waitForCompletion();
+			currentJob=null;
 		} catch (InterruptedException z) {}
+		job.completionTime = System.nanoTime();
     }
 
     /**
@@ -414,11 +416,11 @@ public class Pool {
     /**
      * Returns a job to run, or null if none available.
      */
-    final Closure getJob() {
+    final Job getJob() {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-        	Closure task = jobs.poll();
+        	Job task = jobs.poll();
         	if (task == null && activeJobs ==0) {
         		work.await();
         		task=jobs.poll();

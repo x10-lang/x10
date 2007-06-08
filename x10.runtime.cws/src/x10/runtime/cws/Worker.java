@@ -60,6 +60,10 @@ public class Worker extends Thread {
 	public  long stealAttempts;
 	public  long stealCount;
 	public static  boolean reporting = false;
+	public static long activeTime;
+	public static long lastTimeStamp;
+	protected Job job;
+	protected boolean jobRequiresGlobalQuiescence;
     /**
      * Number of scans since last successfully getting a task. Is
      * <= 0 when busy. Biased to start at -1 when getting a task
@@ -148,12 +152,11 @@ public class Worker extends Thread {
 	 * @param thief -- The thread making this invocation.
 	 * @return
 	 */
-	protected Closure steal(Worker thief, boolean retry) {
+	protected Executable steal(Worker thief, boolean retry) {
+		if (jobRequiresGlobalQuiescence)
+			return stealFrame(thief, retry);
 		final Worker victim = this;
 		++stealAttempts;
-		/*if (reporting) {
-			System.out.println(thief + " attempts to steal from " + victim.index);
-		}*/
 		
 		lock(thief);
 		Closure cl=null;
@@ -164,18 +167,15 @@ public class Worker extends Thread {
 			//Closure cl1 = peekBottom(thief);
 			//assert cl1==cl;
 		} catch (Throwable z) {
-			unlock();
 			// wrap in an error.
 			throw new Error(z); 
-		}
-		if (cl == null) {
+		} 
+		
+		if (cl==null) {
 			try {
-				/*if (reporting) {
-					System.out.println(thief + " steal attempt: queue empty on  " + thief.index);
-				}*/
 				return null;
 			} finally {
-				lock.unlock();
+				unlock();
 			}
 		}
 		
@@ -209,7 +209,7 @@ public class Worker extends Thread {
 		if (status == RUNNING) {
 			boolean b = false;
 			try {
-				b=cl.dekker(thief);
+				b=cache.dekker(thief);
 			} catch (Throwable z) {
 				cl.unlock();
 				unlock();
@@ -230,27 +230,19 @@ public class Worker extends Thread {
 					res = extractTop(thief);
 //					 I have work now, so checkout of the barrier.
 					thief.checkOutSteal(res, victim);
-				
 				} finally {
-					lock.unlock();
+					unlock();
 				}
 				assert cl==res;
-				
-				/*if (reporting)
-				System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
 				if (  reporting) {
 					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
 							+ victim + " cache=" + victim.cache.dump());
 				}
-				
 				try {
 					cl.finishPromote(thief, child);
-					
 				} finally {
 					cl.unlock();
 				}
-				
-				
 				return res;
 			} 
 		}
@@ -258,6 +250,34 @@ public class Worker extends Thread {
 		// status==ABORTING, or status==RUNNING and dekker failed.
 		lock.unlock();
 		cl.unlock();
+		return null;
+		
+	}
+
+	protected Executable stealFrame(Worker thief, boolean retry) {
+		final Worker victim = this;
+		++stealAttempts;
+		lock(thief);
+		try {
+			boolean b=cache.dekker(thief);
+			if (b) {
+				Frame frame = cache.topFrame().copy();
+				cache.incHead();
+//				I have work now, so checkout of the barrier.
+				thief.checkOutSteal(frame, victim);
+				
+				if (  reporting) {
+					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]=  " + frame + " from "
+							+ victim + " cache=" + victim.cache.dump());
+				}
+				
+				return frame;
+			}
+		} catch (Throwable z) {
+			throw new Error(z);
+		} finally {
+			unlock();
+		}
 		return null;
 		
 	}
@@ -352,8 +372,6 @@ public class Worker extends Thread {
 		assert cl !=null;
 		assert cl.ownerReadyQueue == null;
 		
-		/*if (reporting)
-			System.out.println(ws + " adds " + cl + " to " + this + " bottom.");*/
 		cl.prevReady = bottom;
 		cl.nextReady = null;
 		cl.ownerReadyQueue = this;
@@ -424,13 +442,8 @@ public class Worker extends Thread {
 	 * @param mainLoop -- when true, try mainpool for work if stealing doesnt work.
 	 * @return -- a task, or null if none is available
 	 */
-	private Closure getTask(boolean mainLoop) {
-		/*if ( reporting) {
-			System.out.println(this + " at  " + pool.time() + " looking for work idleScanCount= " + idleScanCount + 
-					" checkedIn=" + checkedIn + " job=" + currentJob() + ".");
-			System.out.println(this + " " + pool.barrier.numCheckedIn);
-		}*/
-		Closure cl = null;
+	private Executable getTask(boolean mainLoop) {
+		
 		checkIn();
 		if (++idleScanCount < 0)
 			idleScanCount=1;
@@ -455,23 +468,24 @@ public class Worker extends Thread {
 		Worker sleeper = null;
 		Worker thief = this;
 		boolean retry = false; // first pass skips on contention.
+		Executable cl = null;
 		for (;;) {
 			
 			Worker victim = workers[idx];
 			if (victim != null && victim !=thief) {
 				//System.out.println(thief +  " at " + pool.time() + ": tries to steal from " + victim + "...");
-				cl = victim.steal(thief, retry);
+				cl = (jobRequiresGlobalQuiescence) 
+				? victim.stealFrame(thief, retry) 
+						: victim.steal(thief,retry);
 				if (cl == null) {
 					if ((sleeper == null) && // first sleeping worker
 							victim.sleepStatus== SLEEPING)
 						sleeper=victim;
-					
 				} else {
 					idleScanCount = -1;
 					++stealCount;
 					if (sleeper !=null)
 						sleeper.wakeup();
-					
 					return cl;
 				}
 			}
@@ -481,35 +495,43 @@ public class Worker extends Thread {
 					retry = true; 
 				else 
 					break;
-				
 			}
 		}
 		return mainLoop? getTaskFromPool(sleeper) : null;
 	}
-	
+	private void setJob(Job currentJob) {
+		if (currentJob == null)
+			currentJob = pool.currentJob;
+		if (currentJob==null) return;
+		assert currentJob != null;
+		if (this.job != currentJob) {
+			this.job = currentJob;
+			activeTime = 0;
+			jobRequiresGlobalQuiescence = currentJob.requiresGlobalQuiescence();
+		}
+	}
     /**
      * Try to get a task from pool. On failure, possibly sleep.
      * On success, try to wake up some other sleeping worker.
      * @param sleeper a worker noticed to be sleeping while scanning
      */
     private Closure getTaskFromPool(Worker sleeper) {
-        Closure job = pool.getJob();
+    	job=null;
+        Job job = pool.getJob();
         if (job != null) {
             idleScanCount = -1;
             if (sleeper != null)
                 sleeper.wakeup();
             checkOut(job);
+            setJob(job);
             return job;
         }
+        setJob(pool.currentJob);
+       
         if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
             if (sleepStatus == AWAKE &&
                 sleepStatusUpdater.compareAndSet(this, AWAKE, SLEEPING)){
-            	/*if (reporting)
-            		System.out.println(this + " at " + pool.time() + " parking for " 
-            				+ (idleScanCount * SLEEP_NANOS_PER_SCAN) + " nanos.");*/
                 LockSupport.parkNanos(idleScanCount * SLEEP_NANOS_PER_SCAN);
-               /* if (reporting)
-                	System.out.println(this + " at " + pool.time() + " unparking.");*/
                 if (sleepStatus == WOKEN) // reset count on wakeup
                     idleScanCount = 1;
             }
@@ -521,36 +543,23 @@ public class Worker extends Thread {
     boolean checkedIn = true;
     void checkIn() {
     	if (!checkedIn) {
-    		/*if (reporting)
-    			System.out.println(this + " at " + pool.time() + " checks in. Gotta find me some work!");*/
     		checkedIn = true;
     		pool.barrier.checkIn();
     	}
     }
-    void checkOut(Closure cl) {
-    	if (! checkedIn) {
-    		Worker other = pool.getWorkers()[1-index];
-    		/*if (reporting)
-    			System.out.println(this + " at " + pool.time() + " tries to check out. checkedIn == false!! other.checkedIn=" 
-    					+ other.checkedIn);*/
-    		assert false;
-    	}
+    void checkOut(Executable cl) {
     	if (checkedIn) {
-    		/*if (reporting)
-    			System.out.println(this + " at " + pool.time() + " checks out. Work to do! " + cl);*/
     		checkedIn = false;
     		pool.barrier.checkOut();
     	}
     }
-    void checkOutSteal(Closure cl, Worker victim) {
+    void checkOutSteal(Executable cl, Worker victim) {
     	assert victim.lockOwner==this;
     	checkOut(cl);
     }
     private void wakeup() {
         if (sleepStatus == SLEEPING && 
             sleepStatusUpdater.compareAndSet(this, SLEEPING, WOKEN)) {
-        	/*if (reporting)
-        	System.out.println(this + " at " + pool.time() + " is being unparked.");*/
             LockSupport.unpark(this);
         }
     }
@@ -558,26 +567,21 @@ public class Worker extends Thread {
 	public void run() {
 		assert index >= 0;
 		setRandSeed(index*162347);
-		Closure cl = null; //closure.
+		Executable cl = null; //frame or closure.
 		int yields = 0;
 		while (!done) {
 			
-			if (cl == null) {
-//				Try geting work from the local queue.
+			if (cl == null && ! jobRequiresGlobalQuiescence) {
+				// Try geting work from the local queue.
 				lock(this);
 				try {
 					cl = extractBottom(this);
-					/*if (((reporting )) && cl !=null) {
-						System.out.println(this + " extracts " + cl + ".");
-					}*/
 				} finally {
 					unlock();
 				}
 			}
-			if (cl == null) {
-				
+			if (cl == null) 
 				cl = getTask(true);
-			}
 			
 			if (cl !=null) {
 				// Found some work! Execute it.
@@ -587,17 +591,19 @@ public class Worker extends Thread {
 					System.out.println(this + " executes " + cl +".");
 				}
 				try {
-				Closure cl1 = cl.execute(this);
-				if ((reporting && bottom == cl)) {
-					System.out.println(this + " completes " + cl + " returns " + cl1 +".");
-				}
-				cl=cl1;
+					long ts = System.nanoTime();
+					Executable cl1 = cl.execute(this);
+					lastTimeStamp = System.nanoTime();
+					activeTime += lastTimeStamp-ts;
+					
+					if ((reporting && bottom == cl)) {
+						System.out.println(this + " completes " + cl + " returns " + cl1 +".");
+					}
+					cl=cl1;
 				} catch (AssertionError z) {
 					System.out.println(this + " asertion error when executing " + cl + " " + z);
 					throw z;
 				}
-				
-				
 				// vj: This avoids having to implement a wrap around.
 				// Otherwise, head might increase on a steal, but would
 				// never decrease.
@@ -652,14 +658,30 @@ public class Worker extends Thread {
 		if (! cache.interrupted()) 
 			// fast path
 			return null;
-		
 		Closure result = exceptionHandler();
 		if (reporting)
-			System.out.println(this + " at " + pool.time() + " popFrameCheck: discovers a theft and returns " + result
+			System.out.println(this + " at " + pool.time() + " interruptCheck: discovers a theft and returns " + result
 					+ " cache=" + cache.dump());
 		if (result !=null)
 			popFrame();
 		return result;
+	}
+	
+	/**
+	 * Determines if the thread has been interrupted. Resets exception pointer as a side-effect.
+	 * @return -- true if the thread is interrupted, false otherwise.
+	 */
+	public boolean isInterrupted() {
+		if (! cache.interrupted())
+			return false;
+		lock(this);
+		try {
+			cache.resetExceptionPointer(this);
+			return cache.empty();
+		} finally {
+			unlock();
+		}
+		
 	}
 
 	/**
@@ -749,23 +771,30 @@ public class Worker extends Thread {
 		lock(this);
 		try {
 			Closure b = bottom;
-				assert b !=null;
-				b.lock(this);
-				try { 
-					/*b.pollInlets(this);
-					Closure c = bottom;
-					assert (c!=null);
-					if (b != c) {
-						b.unlock();
-						b=c;
-						b.lock(this);
-					}*/
-					boolean result = b.handleException(this);
-					Closure answer = result?b:null;
-					return answer;
-				} finally {
-					b.unlock();
+			assert b !=null;
+			b.lock(this);
+			try { 
+				/*b.pollInlets(this);
+				 Closure c = bottom;
+				 assert (c!=null);
+				 if (b != c) {
+				 b.unlock();
+				 b=c;
+				 b.lock(this);
+				 }*/
+				
+				cache.resetExceptionPointer(this);
+				Status s = b.status;
+				assert s == Status.RUNNING || s == Status.RETURNING;
+				if (cache.empty()) {
+					assert b.joinCount==0;
+					b.status = Status.RETURNING;
+					return b;
 				}
+				return null;
+			} finally {
+				b.unlock();
+			}
 			
 		} finally {
 			unlock();
@@ -775,6 +804,9 @@ public class Worker extends Thread {
 	
 	public void pushIntUpdatingInPlace( int x) {
 		cache.pushIntUpdatingInPlace(x);
+	}
+	public void pushObjectUpdatingInPlace( Object x) {
+		cache.pushObjectUpdatingInPlace(x);
 	}
 	boolean isActive() { 
 		return  (! cache.empty()) || idleScanCount <= 0;

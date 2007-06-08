@@ -61,6 +61,28 @@ package x10.runtime.cws;
     	growAndPushFrame(f);
     	
     }
+ protected void pushObjectUpdatingInPlace(Object x) {
+    	
+    	Frame[] array = stack;
+    	if (array != null && tail < array.length - 1) {
+    		if (array[tail] != null) {
+    			array[tail].setObject(x);
+    		} else {
+    			Worker w = (Worker) Thread.currentThread();
+    			Frame f = w.fg.make();
+    			f.setObject(x);
+    			array[tail] = f;
+    			
+    		}
+    		++tail;
+    		return;
+    	}
+    	Worker w = (Worker) Thread.currentThread();
+		Frame f = w.fg.make();
+		f.setObject(x);
+    	growAndPushFrame(f);
+    	
+    }
 	  /*
      * Handles resizing and reinitialization cases for pushFrame
      * @param x the task
@@ -144,6 +166,13 @@ package x10.runtime.cws;
 	public int tail() { return tail;}
 	public int exception() { return exception;}
 	
+
+	/**
+	 * Do the thief part of Dekker's protocol.  Return true upon success,
+	 * false otherwise.  The protocol fails when the victim already popped
+	 * T so that E=T.
+	 * Must be the case that Thread.currentThread()==thief.
+	 */
 	boolean dekker(Worker thief) {
 		assert thief !=owner;
 		if (exception != EXCEPTION_INFINITY)
@@ -165,7 +194,7 @@ package x10.runtime.cws;
 		exception=head;
 	}
 	/**
-	 * A fast way of determining
+	 * A fast way of determining whether the worker has been interrupted.
 	 * @param w
 	 * @return
 	 */
@@ -178,13 +207,12 @@ package x10.runtime.cws;
 				w.lock(w);
 				// need to lock to ensure that we get the right value for head.
 				// have to set exception so that the interrupt is acknowledged.
-				try {
-					exception=head;
-				} finally {
-					w.unlock();
-				}
+				exception=head;
+				w.unlock();
 			} 
-			return stack[tail];
+			Frame f = stack[tail];
+			stack[tail]=null;
+			return f;
 			
 		} finally {
 			assert (head >=0);
