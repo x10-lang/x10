@@ -37,7 +37,11 @@ public class X10AsyncObject extends AstFunctionClass {
     public IMethod getMethod(Selector selector) {
 	// TODO RMF 1/12/2007 - Hack: if we had enough info at ctor time, we could
 	// properly compare the selector passed in to what we expect...
-	return functionBody;
+	  if (functionBody.getSelector().equals(selector)) {
+		  return functionBody;
+	  } else {
+		  return null;
+	  }
     }
 
     public void setCodeBody(IMethod method) {
