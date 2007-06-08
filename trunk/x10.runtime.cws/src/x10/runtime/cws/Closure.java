@@ -35,7 +35,7 @@ import java.util.ArrayList;
  * @author vj 04/18/07
  *
  */
-public class Closure  {
+public class Closure  implements Executable {
 
 	protected Cache cache;
 	public  Frame frame;
@@ -66,8 +66,7 @@ public class Closure  {
 		SUSPENDED,
 		RETURNING,
 		READY,
-		ABORTING,
-		PASSTHROUGH
+		ABORTING
 	}
 
 	public interface Outlet {
@@ -179,17 +178,7 @@ public class Closure  {
 		cache=null;
 	}
 	
-	/**
-	 * Do the thief part of Dekker's protocol.  Return true upon success,
-	 * false otherwise.  The protocol fails when the victim already popped
-	 * T so that E=T.
-	 * Must be the case that Thread.currentThread()==thief.
-	 */
-	boolean dekker(Worker thief) {
-		assert lockOwner==thief;
-		assert status == Status.RUNNING;
-		return cache.dekker(thief);
-	}
+	
     
     
     boolean handleException(Worker w) {
@@ -348,7 +337,7 @@ public class Closure  {
 	 * after setting things up.
 	 * @param w -- the current thread, must be equal to Thread.currentThread()
 	 */
-	Closure execute(Worker w) {
+	public Executable execute(Worker w) {
 		assert lockOwner != w;
 		
 		lock(w);
@@ -469,6 +458,17 @@ public class Closure  {
 		try {
 			w.extractBottom(w);
 			w.popFrame();
+			return;
+		} finally {
+			w.unlock();
+		}
+	}
+	final protected void setupGQReturnNoArgNoPop() {
+		// Do not trust client code to pass this parameter in.
+		Worker w = (Worker) Thread.currentThread();
+		w.lock(w);
+		try {
+			w.extractBottom(w);
 			return;
 		} finally {
 			w.unlock();

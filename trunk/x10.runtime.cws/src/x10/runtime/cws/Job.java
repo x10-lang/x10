@@ -24,7 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class Job extends Closure implements Future {
 	
-	
+	public long startTime, completionTime;
+	public long executionTime() {
+    	
+    	return completionTime - startTime;
+    }
 	/**
 	 * A globally quiescent job is one that detects termination through
 	 * global quiescence, i.e. when all workers have discovered this job
@@ -66,6 +70,22 @@ public abstract class Job extends Closure implements Future {
 				//System.out.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
 			}
 			setupGQReturn();
+		}
+		
+	}
+	public static class GloballyQuiescentVoidJob extends GloballyQuiescentJob {
+		public GloballyQuiescentVoidJob(Pool pool, Frame f) {
+			super(pool, f);
+		}
+		@Override
+		protected void compute(Worker w, Frame frame) throws StealAbort {
+			frame.compute(w);
+			setupGQReturnNoArg();
+		}
+		@Override
+		public int spawnTask(Worker ws) throws StealAbort {
+			assert false;
+			return 0;
 		}
 	}
 	/**
