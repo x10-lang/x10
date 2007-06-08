@@ -30,7 +30,6 @@ import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.GenParameterExpr;
-import polyglot.ext.x10.ast.PropagateAnnotationsVisitor;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
@@ -44,6 +43,7 @@ import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Failure;
 import polyglot.ext.x10.visit.DomGenerator;
+import polyglot.ext.x10.visit.PropagateAnnotationsVisitor;
 import polyglot.ext.x10.visit.X10Dom;
 import polyglot.ext.x10.visit.X10Dom.NodeLens;
 import polyglot.frontend.MissingDependencyException;
@@ -529,7 +529,7 @@ implements X10ParsedClassType
 	
 	public boolean typeEqualsImpl(Type o) {
 		return equalsImpl(o);
-	}
+		}
 	public int hashCode() {
 		return 
 		(rootType == this ? super.hashCode() : rootType.hashCode() ) 
@@ -804,12 +804,15 @@ implements X10ParsedClassType
 	
 	
 	public boolean equalsImpl(TypeObject toType) {
-		X10Type other = (X10Type) toType;
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		X10Type tb = this.rootType(), ob = other.rootType();
-		boolean result = ((tb==this) ? super.equalsImpl(ob): tb==ob)
+		if (toType instanceof X10Type) {
+			X10Type other = (X10Type) toType;
+			X10TypeSystem xts = (X10TypeSystem) ts;
+			X10Type tb = this.rootType(), ob = other.rootType();
+			boolean result = ((tb==this) ? super.equalsImpl(ob): tb==ob)
 				&& xts.equivClause(this, other);
-		return result;
+			return result;
+		}
+		return false;
 		
 	}
 	protected boolean baseEquals(X10Type toType ) {
@@ -997,10 +1000,10 @@ implements X10ParsedClassType
 		}
 		if (superType != null) 
 			properties.addAll(((X10Type) superType).properties());
-		for (Iterator i = interfaces().iterator(); i.hasNext(); ) {
-			X10Type t = (X10Type) i.next();
-			properties.addAll(t.properties());
-		}
+//		for (Iterator i = interfaces().iterator(); i.hasNext(); ) {
+//			X10Type t = (X10Type) i.next();
+//			properties.addAll(t.properties());
+//		}
 		if (Report.should_report(Report.types, 2))
 			Report.report(2, "Type " + name + " has properties " + properties +".");
 		return properties;

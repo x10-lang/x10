@@ -20,6 +20,7 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.frontend.Job;
 import polyglot.parse.Name;
@@ -68,6 +69,15 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 			X10Type initType = (X10Type) initializer.type();
 			C_Var prop = new C_Field_c(fi.get(i), C_Special.Self);
 			Constraint c = initType.realClause();
+			// Create a constraint (:) with self bound to the initializer.
+			// TODO: should this live elsewhere?
+			if (c==null) {
+				c=new Constraint_c(ts);
+				C_Term t = (C_Term) new TypeTranslator(ts).trans(initializer);
+				if (t instanceof C_Var) {
+					c.setSelfVar((C_Var) t);
+				}
+			}
 			if (c != null) {
 				HashMap<C_Var,C_Var> bindings = c.constraints(null, prop);
 				C_Var selfVar = c.selfVar();
