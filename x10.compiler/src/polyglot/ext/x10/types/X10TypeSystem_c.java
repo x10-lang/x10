@@ -152,18 +152,26 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return result;
 	}
 	
-	private HashMap<X10NamedType, NullableType> nullableMap = 
-		new HashMap<X10NamedType, NullableType>();
+	// XXX: Disable the nullableMap.  The problem is that nullableMap.get(type)
+	// calls type.equals(), which may call type.rootClause(), which might call
+	// type.initRootClause().  initRootClause() for class types expects
+	// the class invariant to be initialized, which won't happen until _after_
+	// the nullable type is created.  This results in the class invariant
+	// getting set to null. 
+//	private HashMap<X10NamedType, NullableType> nullableMap = 
+//		new HashMap<X10NamedType, NullableType>();
+
 	/**
 	 * Return a nullable type based on a given type.
 	 * TODO: rename this to nullableType() -- the name is misleading.
 	 */
 	public NullableType createNullableType(Position pos, X10NamedType type) {
-		NullableType t = (NullableType) nullableMap.get(type);
-		if (t == null) {
-			t = NullableType_c.makeNullable(this, pos, type);
-			nullableMap.put(type, t);
-		}
+//		NullableType t = (NullableType) nullableMap.get(type);
+//		if (t == null) {
+//			t = NullableType_c.makeNullable(this, pos, type);
+//			nullableMap.put(type, t);
+//		}
+		NullableType t = NullableType_c.makeNullable(this, pos, type);
 		return t;
 	}
 	
@@ -1379,6 +1387,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		if (type1 == type2) return true;
 		if (type1 == null || type2 == null) return false;
 		return type1.equalsWithoutClauseImpl(type2);
+	}
+	public PrimitiveType promote(Type t) throws SemanticException {
+		PrimitiveType pt = super.promote(t);
+		if (pt instanceof X10PrimitiveType) {
+			return (X10PrimitiveType) ((X10PrimitiveType) pt).rootType();
+		}
+		return pt;
+	}
+	public PrimitiveType promote(Type t1, Type t2) throws SemanticException {
+		PrimitiveType pt = super.promote(t1, t2);
+		if (pt instanceof X10PrimitiveType) {
+			return (X10PrimitiveType) ((X10PrimitiveType) pt).rootType();
+		}
+		return pt;
 	}
 	public Type leastCommonAncestor(Type type1, Type type2)
 	throws SemanticException
