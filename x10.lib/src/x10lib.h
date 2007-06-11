@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.9 2007-05-31 11:25:57 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.10 2007-06-11 13:38:54 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,6 +15,7 @@
 #include <x10/gas.h>
 #include <x10/async.h>
 #include <x10/aggregate.h>
+#include <x10/finish.h>
 
 /*
 #include <x10/clock.h>

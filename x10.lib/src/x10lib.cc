@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.6 2007-05-31 11:25:57 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.7 2007-06-11 13:38:54 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -31,6 +31,7 @@ namespace x10lib {
 
 extern error_t asyncRegister();
 extern error_t asyncRegisterAgg();
+extern error_t finishInit();
 
 /* Initialization */
 int
@@ -65,6 +66,7 @@ x10lib::Init(func_t *handlers, int n)
   //Set the handlerTable to handlers 
   handlerTable = handlers;
 
+  finishInit();
   asyncRegister();
   asyncRegisterAgg();
 
