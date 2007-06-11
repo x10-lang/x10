@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.15 2007-06-07 14:00:57 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.16 2007-06-11 13:35:02 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -218,8 +218,10 @@ RandomAccess_Dist::main (x10::array<String>& args)
   } 
 
   if (VERIFY == UPDATE_AND_VERIFICATION){
-    if (here() == 0) cout << "Verifying result by repeating the update sequentially " << endl;
-    if (here() == 0) { 
+    if (here() != 0) goto L1;
+    cout << "Verifying result by repeating the update sequentially " << endl;
+    L1:
+    if (here() != 0) goto L2;
       for (int i = 0; i <  NUMPLACES; i++) {
 	glong_t ran = HPCC_starts (i * NumUpdates);
 	for (glong_t i = 0; i < NumUpdates; i++) {
@@ -235,8 +237,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
 	}
       }
       asyncFlush (0);
-    }
-    
+L2:    
     Gfence();    
   }
   
