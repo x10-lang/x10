@@ -81,4 +81,8 @@ public class X10ExtFactory_c extends AbstractExtFactory_c {
 	public Ext extFinishImpl() {
 		return extStmtImpl();
 	}
+
+	public Ext extClosureImpl() {
+		return extExprImpl();
+	}
 }
