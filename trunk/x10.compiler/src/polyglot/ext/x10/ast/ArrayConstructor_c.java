@@ -313,16 +313,6 @@ implements ArrayConstructor {
 		//Report.report(1, "t is now " + t);
 		return t;
 	}
-	
-	public Context enterChildScope(Node child, Context c) {
-        if (child == initializer ) {
-        	
-         
-        }
-        Context result = super.enterChildScope(child, c);
-        
-        return result;
-    }
 
 	/**
 	 * Write the statement to an output file. 
