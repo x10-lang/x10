@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.1 2007-06-11 13:38:53 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.2 2007-06-12 18:11:15 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -28,6 +28,10 @@ lapi_long_t exceptionCntr[MAX_TASKS];
 lapi_long_t continueCntr[MAX_TASKS];
 
 int CONTINUE_STATUS;
+
+int numCommonTasks;
+int localRoot;
+int commonTasks[MAX_TASKS_NODE];
 
 void*
 continueHeaderHandler (lapi_handle_t handle, void* uhdr,
@@ -64,6 +68,19 @@ finishInit ()
   LRC (LAPI_Address_init64 (GetHandle(), (lapi_long_t) &cntr2, continueCntr));
   LRC (LAPI_Setcntr (GetHandle(), &cntr1, 0));
   LRC (LAPI_Setcntr (GetHandle(), &cntr2, 0));
+
+  char* envstr = getenv ("MP_COMMON_TASKS");
+  numCommonTasks = envstr ? atoi(envstr): 0;
+  
+  for (int i = 0; i < numCommonTasks; i++)  {
+    envstr = strchr (envstr, ":") + 1;
+    commonTasks[i] = atoi(envstr);
+  }
+   
+  localRoot = here();
+  for (int i = 0; i < numCommonTasks; i++)
+    localRoot = minId < commonTasks[i] ?  minId : commonTasks[i]; 
+
   return X10_OK;
 } 
                      
