@@ -912,8 +912,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	public Closure Closure(Position pos, List formals, TypeNode returnType, List throwTypes, Block body) {
 		Closure n = new Closure_c(pos, formals, returnType, throwTypes, body);
-		n = (Closure) n.ext(extFactory().extExpr());
-		n = (Closure) n.del(delFactory().delExpr());
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (Closure) n.ext(ext_fac.extClosureImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (Closure) n.del(del_fac.delClosureImpl());
 		return n;
 	}
 
