@@ -134,7 +134,17 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
 		if (Report.should_report(TOPICS, 5))
 			Report.report(5, "enter async scope");
 		X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
-		c = c.pushCode(ts.asyncCodeInstance());
+		c = c.pushCode(ts.asyncCodeInstance(c.inStaticContext()));
+		return c;
+	}
+
+	/**
+	 * The evaluation of place and list of clocks is not in the scope of the async.
+	 */
+	public Context enterChildScope(Node child, Context c) {
+		if (child != this.body) {
+			c = c.pop();
+		}
 		return c;
 	}
 
