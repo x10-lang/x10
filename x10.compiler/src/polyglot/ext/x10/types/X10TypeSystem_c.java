@@ -194,14 +194,24 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	/**
 	 * [IP] TODO: this should be a special CodeInstance instead
 	 */
+	protected CodeInstance asyncStaticCodeInstance_;
 	protected CodeInstance asyncCodeInstance_;
-	public CodeInstance asyncCodeInstance() {
-		if (asyncCodeInstance_ == null)
-			asyncCodeInstance_ =
-				new MethodInstance_c(this, Position.COMPILER_GENERATED,
-						Runtime(), Public(), VOID_, "$dummyAsync$",
-						Collections.EMPTY_LIST, Collections.EMPTY_LIST);
-		return asyncCodeInstance_;
+	public CodeInstance asyncCodeInstance(boolean isStatic) {
+		if (isStatic) {
+			if (asyncStaticCodeInstance_ == null)
+				asyncStaticCodeInstance_ =
+					new MethodInstance_c(this, Position.COMPILER_GENERATED,
+							Runtime(), Public().Static(), VOID_, "$dummyAsync$",
+							Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+			return asyncStaticCodeInstance_;
+		} else {
+			if (asyncCodeInstance_ == null)
+				asyncCodeInstance_ =
+					new MethodInstance_c(this, Position.COMPILER_GENERATED,
+							Runtime(), Public(), VOID_, "$dummyAsync$",
+							Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+			return asyncCodeInstance_;
+		}
 	}
 
 	public ClosureType closure(Position p, Type returnType, List<Type> argTypes, List<Type> throwTypes) {

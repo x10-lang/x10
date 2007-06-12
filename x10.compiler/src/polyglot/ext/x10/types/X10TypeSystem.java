@@ -111,7 +111,7 @@ public interface X10TypeSystem extends TypeSystem {
 	C_Lit THREE();
 	C_Lit NULL();
 	
-	CodeInstance asyncCodeInstance();
+	CodeInstance asyncCodeInstance(boolean isStatic);
 
 	/** Create a closure instance.
 	 * @param pos Position of the closure.
