@@ -7,17 +7,18 @@
  Description : Exe source file
 ============================================================================
 */
+#include "Lock.h"
 
 using namespace x10lib_cws;
 SpinLock::SpinLock() {  spin_lock_var = 0; }
 SpinLock::~SpinLock() {}
 
 
-inline void Lock::spin_lock_init()
+inline void SpinLock::spin_lock_init()
 {
 	spin_lock_var = 0; 
 }
-inline void Lock::spin_lock_wait()
+inline void SpinLock::spin_lock_wait()
 {
 	if (atomic_exchange(&(spin_lock_var),1) == 0) return;
 	WRITE_BARRIER();
@@ -27,7 +28,7 @@ inline void Lock::spin_lock_wait()
 	READ_BARRIER();
 }
 
-inline int Lock::spin_lock_try()
+inline int SpinLock::spin_lock_try()
 {
 	WRITE_BARRIER();
 	if (atomic_exchange(&(spin_lock_var),1) == 0) 
@@ -37,7 +38,7 @@ inline int Lock::spin_lock_try()
 	}
 	return 0;
 }
-inline void Lock::spin_lock_signal()
+inline void SpinLock::spin_lock_signal()
 {
 	WRITE_BARRIER();
 	spin_lock_var = 0;
@@ -56,11 +57,11 @@ inline void PosixLock::lock_wait_posix()
 }
 inline void PosixLock::lock_signal_posix()
 {
-     pthread_mutex_unlock(&posix_lock_var);
+  pthread_mutex_unlock(&posix_lock_var);
 }
 inline int PosixLock::lock_try_posix()
 {
-     return (pthread_mutex_trylock(&posix_lock_var) == 0) ? 1 : 0; 
+  return (pthread_mutex_trylock(&posix_lock_var) == 0) ? 1 : 0; 
 }
 
 

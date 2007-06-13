@@ -1,6 +1,6 @@
 /*
 ============================================================================
- Name        : ActiveWorkerCount.cpp
+ Name        : ActiveWorkerCount.cc
  Author      : Rajkishore Barik
  Version     :
  Copyright   : IBM Corporation 2007
@@ -9,32 +9,40 @@
 */
 
 #include "ActiveWorkerCount.h"
+#include "Sys.h"
+
 using namespace x10lib_cws;
 
 	
 ActiveWorkerCount::ActiveWorkerCount()
 {
 	updater = 0;
-	barrierAction = NULL;
 }
-ActiveWorkerCount::ActiveWorkerCount(void (*b)(Closure *d), Closure *c)
+ActiveWorkerCount::ActiveWorkerCount(Closure *c)
 {
-	barrierAction = b;
+ 	updater = 0;
 	closure = c;
 }
-void ActiveWorkerCount::CheckIn() 
+void ActiveWorkerCount::checkIn() 
 {
 	atomic_add(&updater,-1);
 	if (updater == 0) {
-		(*b)(c);
+		barrierAction(closure);
 	}
 }
-void ActiveWorkerCount::CheckOut() 
+void ActiveWorkerCount::checkOut() 
 {
 	atomic_add(&updater,1);
 }
 int ActiveWorkerCount::getNumberCheckedOut()
 {
 	return updater; 
+}
+void ActiveWorkerCount::barrierAction(Closure *c)
+{
+	if (c != NULL && c->requiresGlobalQuiescence()) 
+			c->completed();
+	c = NULL;
+	MEM_BARRIER(); // let everyone see it -- TODO RAJ
 }
 	

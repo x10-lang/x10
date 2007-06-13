@@ -32,10 +32,10 @@ static __inline__ int atomic_exchange(volatile int *ptr, int x)
 }
 
 
-static __inline__ unsigned int
-compare_exchange(volatile unsigned int *p, unsigned int  old_value, unsigned int new_value)
+static __inline__ int
+compare_exchange(volatile int *p, int  old_value, int new_value)
 {
-         unsigned int prev;
+         int prev;
         __asm__ __volatile__ (
 
         		"1:     lwarx   %0,0,%2\n\
@@ -68,6 +68,7 @@ static __inline__ void atomic_add(volatile int* mem, int val)
 			  : "cr0");
   
 }
+#endif
 
 }
 #endif

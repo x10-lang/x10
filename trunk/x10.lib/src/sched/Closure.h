@@ -9,65 +9,63 @@
 */
 #ifndef x10lib_Closure_h
 #define x10lib_Closure_h
+//#include "Lock.h"
+#include "Worker.h"
+#include <list.h>
+
 namespace x10lib_cws {
 
-class Outlet {
-public:
-		virtual void run() = 0;
-}
+class Frame;
+class Worker;
+class Cache;
+class Closure;
+class Outlet;
 
-enum Status {
-				RUNNING,
-				SUSPENDED,
-				RETURNING,
-				READY,
-				ABORTING,
-				PASSTHROUGH
-}
+
+
+enum { RUNNING, SUSPENDED, RETURNING, READY, ABORTING, PASSTHROUGH };
+
 class Closure {
-		
 	
 private:
-	void decrementExceptionPointer(Worker *ws);
+	/*void decrementExceptionPointer(Worker *ws);
 	void incrementExceptionPointer(Worker *ws);
-	void resetExceptionPointer(Worker *ws);
+	void resetExceptionPointer(Worker *ws);*/
 	void signalImmediateException(Worker *ws);
 	
-	Closure *closureReturn(Worker w);
+	Closure *closureReturn(Worker *w);
 	Closure *acceptChild(Worker *ws, Closure *child);
 	Closure *provablyGoodStealMaybe(Worker *ws, Closure *child); 
 	
 protected:
-	Cache *cache;
-	Closure *parent;
-	int status;
-	Lock *lock;
+	PosixLock *lock_var;
 	Worker *lockOwner;
 	list<Closure *> completeInlets;
 	list<Closure *> incompleteInlets;
-	Worker *ownerReadyQueue;
-	Closure *nextReady, *prevReady;
 	Outlet *outlet;
 	bool done;
 	
-	int status();
-	bool hasChildren();
-	void compute(Worker *w, Frame *frame);
-	void initialize();
+	void compute(Worker *w, Frame *frame) ;
+	void initialize() const ;
 	bool sync(Worker *ws);
-	void setupReturn(worker *w);
-	void setupGQReturnNoArg(Worker *w);
-	void setupGQReturn(Worker *w);
 	
 	
 public:
 	Frame *frame;
+	Cache *cache;
+	Closure *parent;
 	int joinCount;
+	Closure *nextReady, *prevReady;
+	Worker *ownerReadyQueue;
+	int status;
 
+	Closure();
 	Closure(Frame *frame);
 	~Closure();
-	Frame *parentFrame();
-	Closure *parent();
+	bool hasChildren() const ;
+	int getstatus() const ;
+	Frame *parentFrame() const ;
+	Closure *getparent() const ;
 	void lock(Worker *agent);
 	void unlock();
 	void addCompletedInlet(Closure *child);
@@ -84,11 +82,14 @@ public:
 	void executeAsInlet();
 	void setOutlet(Outlet *o);
 	void copyFrame(Worker *w);
-	bool isDone();
-	void completed();
+	bool isDone() const;
+	void completed() ;
 	void setResultInt(int x);
 	void accumulateResultInt(int x);
 	int resultInt();
+	void setupReturn(Worker *w);
+	void setupGQReturnNoArg(Worker *w);
+	void setupGQReturn(Worker *w);
 		
 	void setResultFloat(float x);
 	void accumulateResultFloat(float x);

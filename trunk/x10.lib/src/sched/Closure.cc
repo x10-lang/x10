@@ -8,36 +8,43 @@
 ============================================================================
 */
 
-using namespace x10lib_cws;
+
+#include "Closure.h"
+
+
 using namespace std;
+using namespace x10lib_cws;
 
-int Closure::status() { return status;}
+int Closure::getstatus() const { return status;}
+Frame *Closure::parentFrame() const { return parent->frame; }
+Closure *Closure::getparent() const { return parent; }
 
+Closure::Closure() { }
 
 Closure::Closure(Frame *frame) {
 	done = false;
 	this->frame = frame;
-	lock = new Lock();
+	lock_var = new PosixLock();
 	initialize();
 }
 Closure::~Closure() { 
-	delete lock; 
+	delete lock_var; 
 	completeInlets.clear(); 
 	incompleteInlets.clear();
 	// TODO -- verify these
-	delete frame;
+	//delete frame;
 }
 
-bool Closure::hasChildren() {
+bool Closure::hasChildren() const {
 	return joinCount > 0;
 }
 void Closure::lock(Worker *agent) { 
-	LOCK(lock);
+	LOCK(lock_var);
 	lockOwner = agent;
 }
 void Closure::unlock() { 
 	lockOwner=NULL; // TODO Check
-	UNLOCK(lock);
+	UNLOCK(lock_var);
 }
 void Closure::addCompletedInlet(Closure *child) {
 		/*if (completeInlets == NULL)
@@ -73,8 +80,8 @@ Closure *Closure::promoteChild(Worker *thief, Worker *victim) {
 		Frame *childFrame = cache->childFrame();
 		Closure *child = childFrame->makeClosure();
 		
-		Frame *parentFrame = cache->topFrame();
-		parentFrame->setOutletOn(child);
+		Frame *pFrame = cache->topFrame();
+		pFrame->setOutletOn(child);
 		
 		// Leave the parent link in there.
 		// It will not be used by globally quiescent computations.
@@ -127,6 +134,7 @@ bool Closure::dekker(Worker *thief) {
 		return cache->dekker(thief);
 }
     
+/*
 void Closure::decrementExceptionPointer(Worker *ws) {
     	assert(lockOwner == ws);
     	assert(status == RUNNING);
@@ -145,10 +153,11 @@ void Closure::resetExceptionPointer(Worker *ws) {
     	 cache->resetExceptionPointer();
 }
     
+*/
 bool Closure::handleException(Worker *ws) {
-    	resetExceptionPointer(ws);
+    	cache->resetExceptionPointer(ws);
     	
-    	assert (s == RUNNING || s == RETURNING);
+    	assert (status == RUNNING || status == RETURNING);
     	if (cache->empty()) {
     		assert(joinCount==0);
     		status = RETURNING;
@@ -246,7 +255,7 @@ void Closure::suspend(Worker *ws) {
      * @return parent or NULL
      */
 Closure *Closure::provablyGoodStealMaybe(Worker *ws, Closure *child) {
-    	assert(child.lockOwner==ws);
+    	assert(child->lockOwner==ws);
     	//assert parent != NULL;
     	Closure *result = NULL;
     	
@@ -277,12 +286,12 @@ void Closure::pollInlets(Worker *ws) {
 		if (status==RUNNING && ! cache->atTopOfStack()) {
 			assert(ws->lockOwner == ws);
 		}
-		if (completeInlets != NULL)
+		if (!completeInlets.empty())
 			/* TODO LIST TRAVERSAL -- RAJ*/
 			for (i=completeInlets.begin(); i != completeInlets.end(); ++i) 
 				(*i)->executeAsInlet();
 			
-		completeInlets = NULL;
+		completeInlets.clear();
 }
 
 	
@@ -297,7 +306,7 @@ void Closure::pollInlets(Worker *ws) {
      */
    
 Closure *Closure::returnValue(Worker *ws) {
-    	assert status==RETURNING;
+    	assert(status==RETURNING);
     	
     	return closureReturn(ws);
 }
@@ -321,7 +330,7 @@ Closure *Closure::execute(Worker *w) {
 		    // load the cache from the worker's state.
 		    cache = w->cache;
 		    cache->pushFrame(frame);
-		    cache->resetExceptionPointer();
+		    cache->resetExceptionPointer(w);
 			assert(f != NULL);
 			pollInlets(w);
 			
@@ -367,14 +376,14 @@ void Closure::executeAsInlet() {
 	 * @param w -- The thread invoking the compute, i.e. w == Thread.currentThread()
 	 * @param frame -- frame within which to execute
 	 */
-void Closure::compute(Worker *w, Frame *frame){}
+void Closure::compute(Worker *w, Frame *frame) {abort();}
     
 	/**
 	 * Subclasses should override this as appropriate. 
 	 * But they should alwas first call super.initialize();
 	 *
 	 */
-void Closure::initialize() {
+void Closure::initialize() const {
 		// need to handle abort processing.
 }
 
@@ -433,7 +442,7 @@ void Closure::setupGQReturnNoArg(Worker *w) {
 		
 }
 
-void Closure::setupGQReturn(worker *w) {
+void Closure::setupGQReturn(Worker *w) {
 		// Do not trust client code to pass this parameter in.
 		//Worker *w = (Worker) Thread.currentThread(); // TODO RAJ
 		// do not set done to true. This will be 
@@ -474,9 +483,10 @@ void Closure::setOutlet(Outlet *o) { outlet=o;}
 void Closure::copyFrame(Worker *w) {
 		assert(ownerReadyQueue->lockOwner==w);
 		//frame = frame->copy();
+		// TODO RAJ:: Use Sriram's suggestion to improve code
 		frame = new Frame(frame); // Use copy constructor to copy
 }	
-bool Closure::isDone() { return done;}
+bool Closure::isDone() const { return done;}
 	
 //RuntimeException Closure::getException() { return NULL;} // TODO RAJ
 	

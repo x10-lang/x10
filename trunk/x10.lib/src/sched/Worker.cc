@@ -1,6 +1,6 @@
 /*
 ============================================================================
- Name        : Worker.cpp
+ Name        : Worker.cc
  Author      : Rajkishore Barik
  Version     :
  Copyright   : IBM Corporation 2007
@@ -9,31 +9,42 @@
 */
 
 
+
+#include "Worker.h"
+
 using namespace x10lib_cws;
 using namespace std;
 
+
+bool Worker::reporting = false;
+
+Worker::Worker() {
+}
 // index is the id of the pthread
 Worker::Worker(int idx, Pool *p) {
+	this->checkedIn = true;
 	this->top = NULL;
 	this->bottom = NULL;
 	this->closure = NULL;
 	this->pool = p;
 	this->index = idx;
-	this->lock = new Lock();
+	this->lock_var = new PosixLock();
 	this->cache = new Cache(this);
+	this->stealCount = 0;
+	this->stealAttempts = 0;
 	lockOwner = NULL;
 	
 }
 
-Worker::~Worker() { delete lock; delete cache; }
+Worker::~Worker() { delete lock_var; delete cache; }
 
 void Worker::lock(Worker *ws) {
-	LOCK(lock);
+	LOCK(lock_var);
 	lockOwner=ws;
 }
 void Worker::unlock() {
 	lockOwner=NULL; // TODO Check
-	UNLOCK(lock);
+	UNLOCK(lock_var);
 }
 void Worker::setRandSeed(int seed) {
 	randNext = seed;
@@ -52,7 +63,7 @@ int Worker::rand() {
  * @param thief -- The thread making this invocation.
  * @return
  */
-Closure Worker::steal(Worker *thief, bool retry) {
+Closure *Worker::steal(Worker *thief, bool retry) {
 	
 		Closure *res = NULL;
 		Worker *victim = this;
@@ -77,7 +88,7 @@ Closure Worker::steal(Worker *thief, bool retry) {
 				
 		cl->lock(thief);
 				
-		int status = cl->status();
+		int status = cl->getstatus();
 		
 		assert (status == ABORTING || status == READY || status == RUNNING || status == RETURNING);
 		
@@ -260,7 +271,7 @@ bool Worker::sync() {
 	Closure *t = peekBottom(this);
 	t->lock(this);
 	
-	assert(t->status==RUNNING);
+	assert(t->getstatus()==RUNNING);
 				
 	// In slow sync. Therefore must be the case
 	// that there is no frame on the stack.
@@ -416,7 +427,7 @@ void Worker::checkOut(Closure *cl) {
     		/*if (reporting)
     			System.out.println(this + " at " + pool.time() + " tries to check out. checkedIn == false!! other.checkedIn=" 
     					+ other.checkedIn);*/
-    		assert false; // TODO RAJ
+    		assert(false); // TODO RAJ
     	}
     	if (checkedIn) {
     		/*if (reporting)
@@ -426,7 +437,7 @@ void Worker::checkOut(Closure *cl) {
     	}
 }
 void Worker::checkOutSteal(Closure *cl, Worker *victim) {
-    	assert victim->lockOwner==this;
+    	assert(victim->lockOwner==this);
     	checkOut(cl);
 }
 void Worker::wakeup() {
@@ -461,7 +472,7 @@ void Worker::run() {
 			if (cl !=NULL) {
 				// Found some work! Execute it.
 				idleScanCount=-1;
-				assert cache == NULL || cache.empty();
+				assert(cache == NULL || cache->empty());
 				/*if ( reporting) {
 					System.out.println(this + " executes " + cl +".");
 				}*/
@@ -497,13 +508,13 @@ void Worker::pushFrame(Frame *frame) {
 	 *
 	 */
 void Worker::popFrame() {
-		cache.popFrame();
+		cache->popFrame();
 }
 	/*
 	public String toString() {
 		return "Worker("+index+")";
 	}*/
-Closure *Worker::bottom() {
+Closure *Worker::getbottom() {
 		return bottom;
 }
 	/**
@@ -544,9 +555,11 @@ Closure *Worker::interruptCheck() {
 	 * If the worker has not been mugged, this method does nothing.
 	 * @throws StealAbort
 	 */
-void Worker::abortOnSteal()  {
+void Worker::abortOnSteal()  /*throw StealAbort */
+{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
+			//throw StealAbort();
 			abort();
 		}
 }
@@ -562,10 +575,11 @@ void Worker::abortOnSteal()  {
 	 * 
 	 * @throws StealAbort
 	 */
-void Worker::abortOnSteal(int x) {
+void Worker::abortOnSteal(int x)/* throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultInt(x);
+			//throw StealAbort();
 			abort();
 		}
 }
@@ -575,10 +589,11 @@ void Worker::abortOnSteal(int x) {
 	 * @param x
 	 * @throws StealAbort
 	 */
-void Worker::abortOnSteal(double x) {
+void Worker::abortOnSteal(double x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultDouble(x);
+			//throw StealAbort();
 			abort();
 		}
 }
@@ -587,10 +602,11 @@ void Worker::abortOnSteal(double x) {
 	 * @param x
 	 * @throws StealAbort
 	 */
-void Worker::abortOnSteal(float x) {
+void Worker::abortOnSteal(float x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultFloat(x);
+			//throw StealAbort();
 			abort();
 		}
 }
@@ -599,10 +615,11 @@ void Worker::abortOnSteal(float x) {
 	 * @param x
 	 * @throws StealAbort
 	 */
-void Worker::abortOnSteal(long x) {
+void Worker::abortOnSteal(long x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultLong(x);
+			//throw StealAbort();
 			abort();
 		}
 }
@@ -611,14 +628,16 @@ void Worker::abortOnSteal(long x) {
 	 * @param x
 	 * @throws StealAbort
 	 */
-void worker::abortOnSteal(Object x) {
+/*
+void Worker::abortOnSteal(Object x) throw StealAbort {
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultObject(x);
-			abort();
+			throw StealAbort();
 		}
 	}
-Closure Worker::exceptionHandler() {
+	*/
+Closure *Worker::exceptionHandler() {
 		Closure *res = NULL;
 		lock(this);
 		Closure *b = bottom;
@@ -640,11 +659,11 @@ Closure Worker::exceptionHandler() {
 }
 	
 
-bool Worker::isActive() { 
-        return  cache->notEmpty() || idleScanCount <= 0;
+bool Worker::isActive() const { 
+        return  (!cache->empty()) || idleScanCount <= 0;
 }
-Closure *Worker::currentJob() {
-    	return pool->currentJob;
+Closure *Worker::currentJob() const {
+    	return (Closure *)pool->currentJob;
 }
 void Worker::pushIntUpdatingInPlace(int x) {
 		cache->pushIntUpdatingInPlace(pool, index, x);

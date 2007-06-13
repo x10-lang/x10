@@ -9,16 +9,23 @@
 */
 
 
+#include "Cache.h"
+
 using namespace x10lib_cws;
 using namespace std;
 
-Cache::Cache(Worker *w) {owner=w; stack.resize(INITIAL_CAPACITY); } // TODO verify
+
+Cache::Cache(Worker *w) 
+{
+ owner=w; 
+ stack.resize(INITIAL_CAPACITY);  // TODO verify
+}
 Cache::~Cache() {stack.clear();}
 
 void Cache::pushFrame(Frame *x) {
     	assert(x != NULL);
     	
-    	if (stack != NULL && tail < stack.size() - 1) {
+    	if (/*stack != NULL &&*/ tail < stack.size() - 1) {
     		stack.push_back(x);
     		++tail;
     		WRITE_BARRIER();
@@ -29,7 +36,7 @@ void Cache::pushFrame(Frame *x) {
 
 void Cache::pushIntUpdatingInPlace(Pool *pool, int tid, int x) {
 
-    	if (stack != NULL && tail < stack.size() - 1) {
+    	if (/*stack != NULL &&*/ tail < stack.size() - 1) {
     		if (stack[tail] != NULL) {
     			stack[tail]->setInt(x);
     		} else {
@@ -64,8 +71,9 @@ void Cache::growAndPushFrame(Frame *x) {
     
     if (newSize < INITIAL_CAPACITY)
         newSize = INITIAL_CAPACITY;
-    if (newSize > MAXIMUM_CAPACITY)
-        throw new Error("Frame stack size exceeded");
+    if (newSize > MAXIMUM_CAPACITY) {
+			abort();
+		}
     
     stack.resize(newSize);
     stack.push_back(x);
@@ -116,12 +124,14 @@ void Cache::popFrame() {
 bool Cache::interrupted() const {
 		return exception >= tail;
 }
+/*
 bool Cache::popCheck() {
 	int t = tail;
 	int e = exception;
 	lastException = e;
 	return e >= t;
 }
+*/
 
 bool Cache::empty() const {
 	return head>=tail;
@@ -145,9 +155,9 @@ void Cache::incHead() {
 bool Cache::exceptionOutstanding() const {
 	return head <= exception;
 }
-int Cache::head() const { return head;}
-int Cache::tail() const { return tail;}
-int Cache::exception() { return exception;}
+int Cache::gethead() const { return head;}
+int Cache::gettail() const { return tail;}
+int Cache::getexception() const { return exception;}
 
 bool Cache::dekker(Worker *thief) {
 		assert(thief != owner);

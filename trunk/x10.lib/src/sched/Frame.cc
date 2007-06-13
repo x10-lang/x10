@@ -8,11 +8,15 @@
 ============================================================================
 */
 
-using namespace x10lib_cws;
+#include "Frame.h"
+
 using namespace std;
+using namespace x10lib_cws;
+
+
 
 Frame::Frame() {};
-Frame::Frame(Frame *f) {};
+Frame::Frame(Frame *f) {}; // TODO RAJ copy constructor
 Frame::~Frame() {};
 		/*
 		 * Returns a closure that can contain a pointer to this frame.
