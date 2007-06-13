@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.2 2007-04-27 12:54:54 srkodali Exp $
+# $Id: Makefile,v 1.3 2007-06-13 17:20:48 rajbarik Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -23,9 +23,12 @@ RANLIB = ranlib -X64
 
 SCHED_A = sched.a
 
-SRCS = sched.cc
-OBJS = sched.o
-HEADERS = sched.h
+#SRCS = sched.cc
+#OBJS = sched.o
+#HEADERS = sched.h
+SRCS = ActiveWorkerCount.cc Cache.cc Closure.cc Frame.cc Job.cc Lock.cc Pool.cc StealAbort.cc Worker.cc
+OBJS =  ActiveWorkerCount.o Cache.o Closure.o Frame.o Job.o Lock.o Pool.o StealAbort.o Worker.o
+HEADERS = ActiveWorkerCount.h Cache.h Closure.h Frame.h Job.h Lock.h Pool.h StealAbort.h Worker.h
 
 all: $(SCHED_A)
 

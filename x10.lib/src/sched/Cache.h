@@ -9,18 +9,27 @@
 */
 #ifndef x10lib_Cache_h
 #define x10lib_Cache_h
-#include <pthread.h>
+#include "Worker.h"
+#include "Pool.h"
+#include <limits.h>
+#include <vector>
+
+using namespace std;
 
 namespace x10lib_cws {
+
+class Worker;
+class Frame;
+class Pool;
 	
 const int MAXIMUM_CAPACITY = 1 << 30;
 const int INITIAL_CAPACITY = 1 << 13;
-const int EXCEPTION_INFINITY = MAX_INT;
+const int EXCEPTION_INFINITY = INT_MAX;
 
 	
 class Cache {	
 	private:
-		volatile int head, tail, exception; // need barrier for these
+		volatile int head, tail, exception; 
 		void growAndPushFrame (Frame *);
 		
 	protected:
@@ -28,31 +37,32 @@ class Cache {
 		Worker *owner;
 		vector<Frame *> stack; /* using vector as resizing would be lot easier */
 		
-		void pushFrame (Frame *);
-		void pushIntUpdatingInPlace(int x);
-		void resetExceptionPointer ();
 		void incrementExceptionPointer ();
 		void decrementExceptionPointer ();
-		void signalImmediateException ();
-		bool atTopOfStack () const;
-		Frame *childFrame () const;
-		Frame *topFrame () const;
-		void popFrame ();
-		bool empty () const;
-		void reset ();
-		bool interrupted() const;
 	
 	public:
 		Cache (Worker *w);
 		~Cache ();
 		
+		Frame *childFrame () const;
+		Frame *topFrame () const;
 		bool headAheadOfTail () const;
 		bool headGeqTail () const;
 		bool exceptionOutstanding () const;
 		void incHead ();
-		int head () const;
-		int tail () const;
-		int exception() const;
+		int gethead () const;
+		int gettail () const;
+		int getexception() const;
+		void resetExceptionPointer (Worker *w);
+		void signalImmediateException ();
+		bool empty () const;
+		bool atTopOfStack () const;
+		void pushFrame (Frame *);
+		Frame *currentFrame() const ;
+		void reset ();
+		void popFrame ();
+		bool interrupted() const;
+		void pushIntUpdatingInPlace(Pool *pool, int tid, int x);
 
 		bool dekker(Worker *thief);
 	

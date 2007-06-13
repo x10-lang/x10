@@ -10,11 +10,12 @@
 #ifndef x10lib_Lock_h
 #define x10lib_Lock_h
 #include <pthread.h>
+#include "Sys.h"
 namespace x10lib_cws {
 	
-SpinLock {
+class SpinLock {
 	private:
-		volatile int spin_lock_var = 0; 
+		volatile int spin_lock_var;
 		pthread_mutex_t posix_lock_var;
 	public:
 		SpinLock ();
@@ -26,11 +27,13 @@ SpinLock {
 		
 };
 
-PosixLock {
+class PosixLock {
 public:
+	PosixLock();
+	~PosixLock();
 	pthread_mutex_t posix_lock_var;
 	inline void lock_init_posix();
-	inline void lock_try_posix();
+	inline int lock_try_posix();
 	inline void lock_wait_posix();
 	inline void lock_signal_posix();
 };

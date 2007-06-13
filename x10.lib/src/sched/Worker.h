@@ -10,24 +10,41 @@
 #ifndef x10lib_Worker_h
 #define x10lib_Worker_h
 
+#include "Lock.h"
+#include "Frame.h"
+#include "Worker.h"
+#include "Pool.h"
+#include "Closure.h"
+#include "Cache.h"
+
+
+
 namespace x10lib_cws {
 
 
 #define LOCK(lock)  lock->lock_wait_posix()
 #define UNLOCK(lock)  lock->lock_signal_posix()
 
+
+class Cache;
+class Frame;
+class Pool;
+
+
 class FrameGenerator {
+public:
 		virtual Frame *make() = 0;
-}
+};
+
 const int AWAKE = 0;
 const int SLEEPING = -1;
 const int WOKEN = 1;
 const int SCANS_PER_SLEEP = 1;
 const int SLEEP_NANOS_PER_SCAN = 0;
 
-public class Worker {
+class Worker {
 private:
-	bool checkedIn = true;
+	bool checkedIn;
 	Closure *getTask(bool mainLoop);
 	Closure *getTaskFromPool(Worker *sleeper);
 	void wakeup();
@@ -40,42 +57,56 @@ protected:
 	Closure *closure;
 	Pool *pool;
 	
-	Closure *exceptionHandler();
-	void addBottom(Worker *ws, Closure *cl);
-	Closure peekBottom(Worker *ws);
-	Closure extractBottom(Worker *ws);
-	Closure peekTop(Worker *agent, Worker *subject);
-	Closure extractTop(Worker *ws);
-	Closure steal(Worker *thief, bool retry);
 	int rand();
 	void setRandSeed(int seed);
-	void unlock();
-	void lock(Worker *agent);
 	
 	
 public:
 	Cache *cache;
-	Lock *lock; // dequeue_lock
+	PosixLock *lock_var; // dequeue_lock
 	Worker *lockOwner; // the thread holding the lock.
-	static long stealAttempts = 0; // change them to be visible across objects
-	static long steals = 0; // change them to be visible across objects
-	static bool reporting = false; 
+	FrameGenerator *fg;
+
+	void unlock();
+	void lock(Worker *agent);
+	long stealAttempts; // change them to be visible across objects
+	long stealCount; // change them to be visible across objects
+	static bool reporting; 
+	int idleScanCount;
 	volatile /*atomic */ int sleepStatus;
 
 	/*protected static  Worker[] workers; */
-	Worker(int index);
+	Worker();
+	Worker(int index, Pool *p);
+	~Worker();
 	bool sync();
 	Closure *scanTasks();
 	void run(); // Main execution of the scheduler
 	void pushFrame(Frame *frame);
 	void popFrame();
-	Closure *bottom();
+	Closure *getbottom();
 	Closure *interruptCheck();
+	void abortOnSteal() /*throw StealAbort*/;
+	void abortOnSteal(int x) /*throw StealAbort*/;
+	void abortOnSteal(double x) /*throw StealAbort*/;
+	void abortOnSteal(float x) /*throw StealAbort*/;
+	void abortOnSteal(long x) /*throw StealAbort*/;
+	//void abortOnSteal(Object x) throw StealAbort;
 	void pushIntUpdatingInPlace(int x) ;
 	void setFrameGenerator(FrameGenerator *x);
 	void checkOutSteal(Closure *cl, Worker *victim);
 	void checkIn();
 	void checkOut(Closure *cl);
+	bool isActive() const;
+	Closure *currentJob() const;
+	void addBottom(Worker *ws, Closure *cl);
+	Closure *exceptionHandler();
+	Closure *peekBottom(Worker *ws);
+	Closure *extractBottom(Worker *ws);
+	Closure *peekTop(Worker *agent, Worker *subject);
+	Closure *extractTop(Worker *ws);
+	Closure *steal(Worker *thief, bool retry);
+
 };
 }
 #endif

@@ -7,41 +7,46 @@
  Description : Exe source file
 ============================================================================
 */
+
+#include "Pool.h"
+#include <stdlib.h>
+
 using namespace x10lib_cws;
 using namespace std;
-#include <time.h>
+
 
 Pool::~Pool() {
+	int i;
 	pthread_cond_destroy(&work);
 	pthread_cond_destroy(&termination);
-	delete lock;
+	delete lock_var;
 	delete barrier;
-	free id;
+	//free id; // Uncomment later on
 	for(i=0;i<workers.size();i++)
 					delete workers[i];
 	workers.clear();
 }
 
 
-void Pool::each_thread(int d)
+void Pool::callBackFunc::each_thread(Pool *p,int d)
 {
-	 Worker *ws = new Worker(d, this);
-	 workers[d]=ws;
+	 Worker *ws = new Worker(d, p);
+	 p->workers[d]=ws;
      //barrier->barrier();
      /*if (id == 0)
 	  ws->run(invoke_main);
      else
       ws->run((Closure *) NULL);*/
-     ws->run();
+    ws->run();
 }
 
-void Pool::barrierAction(Closure *c)
-{
-	if (c != NULL && c->requiresGlobalQuiescence()) 
-			c->completed();
-	c = NULL;
-	MEM_BARRIER(); // let everyone see it -- TODO RAJ
+void *Pool::each_thread_wrapper(void *arg) {
+	callBackFunc *cbf = (callBackFunc *) arg;
+	cbf->each_thread(cbf->cl, cbf->id);
 }
+
+
+Pool::Pool() { }
 
 Pool::Pool(int numThreads) {
 	
@@ -51,12 +56,14 @@ Pool::Pool(int numThreads) {
 	
 	if (numThreads <=0) { cout << "Illegal argument"; abort(); }
 	
-	lock = new PosixLock();
+	lock_var = new PosixLock();
 
 	pthread_cond_init (&work, NULL);
 	pthread_cond_init (&termination, NULL);
 
-	barrier = new ActiveWorkerCount(&barrierAction, currentJob);
+	Closure *tmp = (Closure *)currentJob;
+
+	barrier = new ActiveWorkerCount(tmp);
 
 	num_workers = numThreads;
 	runningWorkers = 0;
@@ -68,25 +75,27 @@ Pool::Pool(int numThreads) {
 	workers.resize(INITIAL_WORKER_CAPACITY);
 	
 	  
-	id = malloc(num_workers * sizeof(pthread_t));
+	id = (pthread_t *)malloc(num_workers * sizeof(pthread_t));
 	
 
 	pthread_attr_init(&attr); 
 	pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM); 
 	 
-	lock -> lock_wait_posix();
+	lock_var -> lock_wait_posix();
 	  
 	for (i = 0; i < num_workers; i++)
 	{
+	 		ptToFunc.id = i;
+			ptToFunc.cl = this;
 		  res = pthread_create(id + i, 
 				       &attr,
-				       (void * (*) (void *)) each_thread, 
-				       (void *) i);
+				       Pool::each_thread_wrapper, 
+				       (void *) &ptToFunc);
 		  if (res) {cout << "could not create"; abort(); }
 		  runningWorkers++;
 		       
 	}
-	lock -> lock_signal_posix();
+	lock_var -> lock_signal_posix();
 }
 
 /*
@@ -117,7 +126,7 @@ Pool::shutDown() {
 UncaughtExceptionHandler *Pool::setUncaughtExceptionHandler(UncaughtExceptionHandler *h) {
         UncaughtExceptionHandler *old = NULL;
 				abort(); // TODO RAJ
-        const PosixLock *l = this->lock;
+        const PosixLock *l = this->lock_var;
         l->lock_wait_posix();
         old = ueh;
         ueh = h;
@@ -161,7 +170,7 @@ void Pool::initFrameGenerator(FrameGenerator *fg) {
      */
 void Pool::shutdown() {
         // todo security checks??
-        PosixLock *l = this->lock;
+        PosixLock *l = this->lock_var;
         l->lock_wait_posix();
         
         if (runState < SHUTDOWN) {
@@ -169,6 +178,7 @@ void Pool::shutdown() {
 									 MEM_BARRIER(); // for volatile update -- TODO RAJ
         }
         l->lock_signal_posix();
+				// TODO Would you like to join all the ptrheads
 }
 
     /**
@@ -176,16 +186,17 @@ void Pool::shutdown() {
      * processing of waiting tasks.
      */
 void Pool::shutdownNow() {
-        PosixLock *l = this->lock;
+        PosixLock *l = this->lock_var;
         l->lock_wait_posix();
         //tryTerminate 
         l->lock_signal_posix();
+				// TODO Would you like to join all the ptrheads
 }
 
 // RAJ:: timeout is used as it is without conversion
 bool Pool::awaitTermination(const struct timespec *timeout) {
         
-        PosixLock *l = this->lock;
+        PosixLock *l = this->lock_var;
         l->lock_wait_posix();
         
         for (;;) {
@@ -194,7 +205,7 @@ bool Pool::awaitTermination(const struct timespec *timeout) {
                 if (timeout->tv_nsec <= 0)
                     return false;
                 // nanos = termination.awaitNanos(timeout); // TODO wait for timeout nanos RAJ
-								pthread_cond_timedwait(&termination,this->lock->posix_lock_var,timeout);
+								pthread_cond_timedwait(&termination,&this->lock_var->posix_lock_var,timeout);
 
             }
         l->lock_signal_posix();
@@ -208,9 +219,11 @@ bool Pool::isStopped() const {
  /**
   * Return the workers array; needed for random-steal by Workers.
   */
-vector<Worker *> *Pool::getWorkers() const {
+/*
+vector<Worker *> &Pool::getWorkers() const {
      return &workers;
 }
+*/
  
 void Pool::submit(Job *job) {
     	//startTime = System.nanoTime();
@@ -227,11 +240,11 @@ void Pool::invoke(Job *job) {
      * Enqueue an externally submitted task
      */
 void Pool::addJob(Job *job) {
-        PosixLock *l = this->lock;
+        PosixLock *l = this->lock_var;
         bool ok;
         l->lock_wait_posix();
         
-        if (ok = (runState == RUNNING)) {
+        if (ok = (runState == EXECUTING)) {
                 jobs->add(job);
                 //work.signalAll();
                 pthread_cond_broadcast(&work);
@@ -250,7 +263,7 @@ void Pool::addJob(Job *job) {
      * be useful for monitoring and tuning fork/join programs.
      * @return the number of steals.
      */
-long Pool::getStealCount() {
+long Pool::getStealCount() const {
         long sum = 0;
         for (int i = 0; i < workers.size(); ++i) {
             Worker *t = workers[i];
@@ -266,7 +279,7 @@ long Pool::getStealCount() {
      * be useful for monitoring and tuning fork/join programs.
      * @return the number of steal attempts.
      */
-long Pool::getStealAttempts() {
+long Pool::getStealAttempts() const {
     	long sum = 0;
       for (int i = 0; i < workers.size(); ++i) {
             Worker *t = workers[i];
@@ -279,7 +292,7 @@ long Pool::getStealAttempts() {
      * Termination callback from dying worker.
      */
 void Pool::workerTerminated(Worker *r, int index) {
-        PosixLock *l = this->lock;
+        PosixLock *l = this->lock_var;
         l->lock_wait_posix();
         
         if (runState >= STOP) {
@@ -306,7 +319,7 @@ void Pool::workerTerminated(Worker *r, int index) {
 }
 
 void Pool::jobCompleted() {
-        PosixLock *l = this->lock;
+        PosixLock *l = this->lock_var;
         l->lock_wait_posix();
         
         if (--activeJobs <= 0 && runState == SHUTDOWN && jobs->isEmpty())
@@ -318,14 +331,14 @@ void Pool::jobCompleted() {
 void Pool::tryTerminate() const {
     	// do nothing.
 }
-Closure *Pool::getJob() const {
+Closure *Pool::getJob() {
         
-        lock->lock_wait_posix();
+        lock_var->lock_wait_posix();
         //try {
         	Closure *task = jobs->poll();
         	if (task == NULL && activeJobs == 0) {
         		//work.await(); // TODO RAJ
-        		pthread_cond_wait(&work,&(this->lock->posix_lock_var))
+        		pthread_cond_wait(&work,&(this->lock_var->posix_lock_var));
         		task=jobs->poll();
         	}
         	if (task != NULL) {
@@ -336,7 +349,7 @@ Closure *Pool::getJob() const {
         		pthread_cond_broadcast(&work);
         	}
         //} catch(InterruptedException e) { return NULL; }
-        lock->lock_signal_posix();
+        lock_var->lock_signal_posix();
         return task;
 }
 
@@ -345,11 +358,11 @@ Closure *Pool::getJob() const {
 JobQueue::JobQueue() {
 	elements.resize(INITIAL_JOBQUEUE_CAPACITY);
 }
-JobQuque::~JobQueue() {
+JobQueue::~JobQueue() {
 				elements.clear();
 }
 
-bool JobQueue::isEmpty() {
+bool JobQueue::isEmpty() const {
 	return head == tail;
 }
 
@@ -387,7 +400,7 @@ void JobQueue::doubleCapacity() {
         head = 0;
         tail = n;
 }
-bool JobQueue::isQuiescent() {
+bool JobQueue::isQuiescent(vector<Worker *> &workers) const{
         for (int i = 0; i < workers.size(); ++i) {
             Worker *t = workers[i];
             if (t != NULL && t->isActive())
