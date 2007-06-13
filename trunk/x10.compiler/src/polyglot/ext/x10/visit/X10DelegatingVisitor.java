@@ -229,6 +229,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof ArrayAccess_c) { visit((ArrayAccess_c)n); return; }
 		if (n instanceof AmbExpr_c) { visit((AmbExpr_c)n); return; }
 		if (n instanceof Closure_c) { visit((Closure_c)n); return; }
+		if (n instanceof ClosureCall_c) { visit((ClosureCall_c)n); return; }
 		if (n instanceof Expr_c) { visit((Expr_c)n); return; }
 		if (n instanceof X10ConstructorDecl_c) { visit((X10ConstructorDecl_c)n); return; }
 		if (n instanceof ConstructorDecl_c) { visit((ConstructorDecl_c)n); return; }
@@ -340,6 +341,7 @@ public class X10DelegatingVisitor {
 				public void visit(X10ArrayAccess_c n) { visit((Expr_c)n); }
 				public void visit(X10ArrayAccess1_c n) { visit((Expr_c)n); }
 				public void visit(Closure_c n) { visit((Expr_c)n); }
+				public void visit(ClosureCall_c n) { visit((Expr_c)n); }
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }
 				public void visit(X10FieldDecl_c n) { visit((FieldDecl_c)n); }
 					public void visit(PropertyDecl_c n) { visit((X10FieldDecl_c)n); }
