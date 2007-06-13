@@ -307,4 +307,38 @@ public class Closure_c extends Expr_c implements Closure {
 	buff.append(body);
 	return buff.toString();
     }
+
+	/** Write the statement to an output file. */
+	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+		w.begin(0);
+		w.write("(");
+		w.allowBreak(2, 2, "", 0);
+		w.begin(0);
+		for (Iterator i = formals.iterator(); i.hasNext(); ) {
+			Formal f = (Formal) i.next();
+			print(f, w, tr);
+			if (i.hasNext()) {
+				w.write(",");
+				w.allowBreak(0, " ");
+			}
+		}
+		w.end();
+		w.write(") ");
+
+		if (! throwTypes().isEmpty()) {
+		    w.allowBreak(6);
+		    w.write("throws ");
+		    for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
+		    	TypeNode tn = (TypeNode) i.next();
+		    	print(tn, w, tr);
+		    	
+		    	if (i.hasNext()) {
+		    		w.write(",");
+		    		w.allowBreak(4, " ");
+		    	}
+		    }
+		}
+		w.end();
+	    printSubStmt(body, w, tr);
+	}
 }

@@ -12,6 +12,7 @@ import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
+import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.ProcedureCall;
@@ -26,11 +27,13 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
@@ -178,4 +181,25 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	buff.append(")");
 	return buff.toString();
     }
+
+	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	    w.begin(0);
+	    printSubExpr((Expr) target, w, tr);
+	    w.write("(");
+	    if (arguments.size() > 0) {
+		w.allowBreak(2, 2, "", 0); // miser mode
+		w.begin(0);
+		for(Iterator i = arguments.iterator(); i.hasNext();) {
+		    Expr e = (Expr) i.next();
+		    print(e, w, tr);
+		    if (i.hasNext()) {
+			w.write(",");
+			w.allowBreak(0, " ");
+		    }
+		}
+		w.end();
+	    }
+	    w.write(")");
+	    w.end();
+	}
 }
