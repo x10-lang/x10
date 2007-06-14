@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.7 2007-06-11 13:38:54 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.8 2007-06-14 13:59:53 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -32,6 +32,7 @@ namespace x10lib {
 extern error_t asyncRegister();
 extern error_t asyncRegisterAgg();
 extern error_t finishInit();
+extern void finishTerminate();
 
 /* Initialization */
 int
@@ -82,6 +83,8 @@ x10lib::Finalize()
 #ifdef DEBUG
 	cout << "x10lib::Finalize()" << endl;
 #endif /* DEBUG */
+
+        finishTerminate();
 
         //delete the Global SM Allocator
         delete GlobalSMAlloc;
