@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.11 2007-06-12 18:11:15 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.12 2007-06-14 13:59:53 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,7 +15,7 @@
 #include <x10/gas.h>
 #include <x10/async.h>
 #include <x10/aggregate.h>
-#ifdef _cplusplus
+#ifdef __cplusplus
 #include <x10/finish.h>
 #endif
 

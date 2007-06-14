@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.12 2007-06-11 13:38:52 ganeshvb Exp $
+# $Id: Makefile,v 1.13 2007-06-14 13:59:53 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -34,7 +34,7 @@ LIBTARGET = lib$(LIBNAME).a
 SCHED_A = $(SUBDIR2)/sched.a
 ARRAY_A = $(SUBDIR1)/array.a
 
-SRCS = x10lib.cc gas.cc aggregate.cc async.cc switch.cc finish.cc
+SRCS = x10lib.cc gas.cc aggregate.cc async.cc switch.cc finish.cc 
 OBJS = x10lib.o  gas.o  aggregate.o  async.o switch.o finish.o
 HEADERS = types.h x10lib.h gas.h alloc.h  async.h aggregate.h finish.h
 
@@ -62,7 +62,7 @@ clean:
 	(cd $(SUBDIR2); $(MAKE) $@)
 	$(RM) $(LIBTARGET) $(OBJS) *.log core*
 	
-.cc.o:
+.cc.o: $(SRCS) $(HEADERS)
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
 
