@@ -25,6 +25,7 @@ import polyglot.util.SubtypeSet;
 import polyglot.util.TypedList;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
@@ -260,11 +261,19 @@ public class Closure_c extends Expr_c implements Closure {
         return listEntry(formals(), returnType.entry());
     }
 
+    /**
+     * Visit this term in evaluation order.
+     * [IP] Treat this as a conditional to make sure the following
+     *      statements are always reachable.
+     * FIXME: We should really build our own CFG, push a new context,
+     * and disallow uses of "continue", "break", etc. in closures.
+     */
     @Override
     public List acceptCFG(CFGBuilder v, List succs) {
         v.visitCFGList(formals(), returnType.entry());
-        v.visitCFG(returnType, body().entry());
-        v.visitCFG(body(), this);
+        v.visitCFG(returnType, FlowGraph.EDGE_KEY_TRUE, body.entry(), 
+                   FlowGraph.EDGE_KEY_FALSE, this);
+        v.visitCFG(body, this);
         return succs;
     }
 
