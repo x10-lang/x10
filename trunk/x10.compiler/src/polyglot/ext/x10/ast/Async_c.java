@@ -226,8 +226,8 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
 	 * Visit this term in evaluation order.
 	 * [IP] Treat this as a conditional to make sure the following
 	 *      statements are always reachable.
-	 * We should really build our own CFG, push a new context, and
-	 * disallow uses of "continue", "break", etc. in asyncs.
+	 * FIXME: We should really build our own CFG, push a new context,
+	 * and disallow uses of "continue", "break", etc. in asyncs.
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
 		
