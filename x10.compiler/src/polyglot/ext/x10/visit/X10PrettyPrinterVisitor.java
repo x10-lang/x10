@@ -161,14 +161,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	 * perform array initialization, since the array runtime's Operator.Pointwise
 	 * interface adds a dummy argument to the various apply(...) methods.
 	 */
-	protected Object handleArrayInitClosure(ClosureCall_c n) {
+	protected Object handleArrayInitClosure(Closure_c n) {
 	    if (n == null)
-		return n;
-	    Closure c= (Closure) n.target();
+	    	return n;
 	    X10TypeSystem x10ts = (X10TypeSystem) this.tr.typeSystem();
-	    Type parmType = c.returnType().type().isPrimitive() ? c.returnType().type() : x10ts.parameter1();
+	    Type parmType = n.returnType().type().isPrimitive() ? n.returnType().type() : x10ts.parameter1();
 	    return new Template("array_init_closure", new Object[] {
-		    parmType.toString(), new Join("\n", c.formals()), c.body()
+		    parmType.toString(), new Join("\n", n.formals()), n.body()
 	    })/*.expand()*/;
 	}
 
@@ -456,7 +455,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		//Report.report(1, "GOLDEN: X10PrettyPrintVisitor type is " + type + "runtimeName is " + runtimeName);
 		// End typs-driven dispatch.s
-		Object init = (a.initializer() instanceof ClosureCall) ? handleArrayInitClosure((ClosureCall_c) a.initializer()) : a.initializer();
+		Object init = (a.initializer() instanceof Closure) ? handleArrayInitClosure((Closure_c) a.initializer()) : a.initializer();
 		String tmpl = Configuration.ARRAY_OPTIMIZATIONS ?
 				"array_specialized_init" : "array_new_init";
 		new Template(tmpl,

@@ -1594,10 +1594,7 @@ $Rules
                     List formals = new TypedList(new ArrayList(1), Formal.class, false);
                     formals.add(FormalParameter);
                     Closure closure = nf.Closure(MethodBody.position(), formals, ArrayBaseType, new TypedList(new ArrayList(), Type.class, true), MethodBody);
-                    List args= new TypedList(new ArrayList(), Expr.class, false);
-                    args.add(nf.Point(pos(), null)); // argument to this particular kind of closure is always an x10.lang.point
-                    ClosureCall call= nf.ClosureCall(pos(), closure, args);
-                    setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, call));
+                    setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, closure));
           $EndJava
         ./
 
