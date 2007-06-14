@@ -197,7 +197,7 @@ implements ArrayConstructor {
 					assert (!(initializer instanceof ArrayInit));
 					TypeNode arr_ops = nf.CanonicalTypeNode(position(), ts.ArrayOperations());
 					TypeNode arr_type = nf.array(newBase, position(), 1);
-					Closure init_closure = (Closure) ((ClosureCall) initializer).target();
+					Closure init_closure = (Closure) initializer;
 					List init_closure_formals = init_closure.formals();
 					X10Formal init_closure_formal = (X10Formal) init_closure_formals.get(0);
 
