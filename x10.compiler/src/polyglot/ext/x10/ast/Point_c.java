@@ -68,6 +68,7 @@ public class Point_c extends Expr_c implements Point {
 	 * @see polyglot.ext.x10.ast.Point#rank()
 	 */
 	public int rank() {
+		if (exprs == null) return 0;
 		return exprs.size();
 	}
 
