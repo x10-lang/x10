@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -20,14 +19,12 @@ import polyglot.ast.Block;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
-import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Cast;
 import polyglot.ast.CharLit;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Conditional;
 import polyglot.ast.ConstructorCall;
-import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
@@ -59,7 +56,6 @@ import polyglot.ast.While;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.parse.Name;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -320,6 +316,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (Call) n.ext(extFactory().extExpr());
 		return (Call) n.del(delFactory().delExpr());
 	}
+	
 	public ConstantDistMaker ConstantDistMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
 		TypeSystem ts = this.extensionInfo().typeSystem();
@@ -698,12 +695,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			return AtomicMethodDecl(pos, thisClause, flags, returnType, name, formals,
 					whereClause, throwTypes, body);
 
+		return X10MethodDecl(pos, thisClause, flags, returnType, name, formals, whereClause, throwTypes, body);
+	}
+
+	public MethodDecl X10MethodDecl(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode returnType, Id name, List formals, Expr whereClause, List throwTypes, Block body) {
 		MethodDecl n = new X10MethodDecl_c(pos, thisClause, flags, returnType, name,
 				formals, whereClause, throwTypes, body);
 		n = (MethodDecl)n.ext(extFactory().extMethodDecl());
 		n = (MethodDecl)n.del(delFactory().delMethodDecl());
 		return n;
 	}
+	
 	public MethodDecl AtomicMethodDecl(Position pos, DepParameterExpr thisClause, Flags flags,
 			TypeNode returnType, Id name,
 			List formals, Expr whereClause, List throwTypes, Block body)
@@ -712,6 +714,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		List<Stmt> ss = new TypedList(new LinkedList<Stmt>(), Stmt.class, false);
 		ss.add(Atomic(pos, Here(pos), body));
 		body = Block(pos, ss);
+		return AtomicX10MethodDecl(pos, thisClause, flags, returnType, name, formals, whereClause, throwTypes, body);
+	}
+
+	public MethodDecl AtomicX10MethodDecl(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode returnType, Id name, List formals, Expr whereClause, List throwTypes, Block body) {
 		MethodDecl n = new AtomicMethodDecl_c(pos, thisClause, flags, returnType, name,
 				formals, whereClause, throwTypes, body);
 		n = (MethodDecl)n.ext(extFactory().extMethodDecl());
