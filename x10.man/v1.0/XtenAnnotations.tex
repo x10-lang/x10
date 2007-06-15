@@ -30,9 +30,11 @@ a compiler plugin.
 
 The annotation syntax consists of an ``\texttt{@}'' followed by an interface type.
 \begin{x10}
-  Annotation  ::= @ InterfaceType
-  Annotations ::= Annotations Annotation
-                  | /* empty */
+532   Annotation ::= @ InterfaceType
+533   Annotations ::= Annotation
+534     | Annotations Annotation
+535   Annotationsopt ::=
+536     | Annotations
 \end{x10}
 Annotations can be applied to most syntactic constructs in the language
 including class declarations, constructors, methods, field declarations,
@@ -42,24 +44,23 @@ Multiple occurrences of the same annotation (i.e., multiple
 annotations with the same interface type) on the same entity are permitted.
 
 \begin{x10}
-  Modifier ::= Annotation
-  Statement ::= Annotation Statement
-  Expression ::= ( Annotation ) Expression
-  Type ::= Type Annotation
+537   ClassModifier ::= Annotation
+538   InterfaceModifier ::= Annotation
+539   FieldModifier ::= Annotation
+540   MethodModifier ::= Annotation
+541   VariableModifier ::= Annotation
+542   ConstructorModifier ::= Annotation
+543   AbstractMethodModifier ::= Annotation
+544   ConstantModifier ::= Annotation
+545   Type ::= AnnotatedType
+546   AnnotatedType ::= Type Annotations
+547   Statement ::= AnnotatedStatement
+548   AnnotatedStatement ::= Annotation Statement
+549   Expression ::= AnnotatedExpression
+550   AnnotatedExpression ::= ( Annotations ) Expression
 \end{x10}
 \noindent
-Recall that the X10 \texttt{InterfaceType} syntax is:
-
-\begin{x10}
-  InterfaceType     ::= TypeName DepParametersopt
-                           PlaceTypeSpecifieropt
-  DepParameters     ::= ( DepParameterExpr )
-  DepParameterExpr ::= ArgumentList WhereClauseopt
-  WhereClause       ::= : Constraint
-  Constraint        ::= Expression
-  ArgumentList      ::= Expression
-                       | ArgumentList , Expression
-\end{x10}
+Recall that interface types may have dependent parameters.
 
 \noindent
 The following examples illustrate the syntax:

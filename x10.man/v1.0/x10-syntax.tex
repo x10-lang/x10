@@ -26,8 +26,8 @@ non-terminal may occur non-contiguously. For instance
 10     | long
 11    FloatingPointType ::= float
 12     | double
-13    ClassType ::= TypeName
-14    InterfaceType ::= TypeName
+13    ClassType ::= TypeName DepParametersopt
+14    InterfaceType ::= TypeName DepParametersopt
 15    TypeName ::= identifier
 16     | TypeName . identifier
 17    ClassName ::= TypeName
@@ -142,7 +142,7 @@ non-terminal may occur non-contiguously. For instance
 126   InstanceInitializer ::= Block
 127   StaticInitializer ::= static Block
 128   ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
-129   ConstructorDeclarator ::= SimpleTypeName ( FormalParameterListopt )
+129   ConstructorDeclarator ::= SimpleTypeName DepParametersopt Annotationsopt ( FormalParameterListopt )
 130   SimpleTypeName ::= identifier
 131   ConstructorModifiers ::= ConstructorModifier
 132     | ConstructorModifiers ConstructorModifier
@@ -441,7 +441,7 @@ non-terminal may occur non-contiguously. For instance
 425   DataType ::= PrimitiveType
 426   DataType ::= ClassOrInterfaceType
 427     | ArrayType
-428   PlaceTypeSpecifier ::= AT PlaceType
+428   PlaceTypeSpecifier ::= ! PlaceType
 429   PlaceType ::= placelocal
 430     | activitylocal
 431     | current
@@ -545,6 +545,25 @@ non-terminal may occur non-contiguously. For instance
 529     | DepParameters
 530   Unsafeopt ::=
 531     | unsafe
+532   Annotation ::= @ InterfaceType
+533   Annotations ::= Annotation
+534     | Annotations Annotation
+535   Annotationsopt ::=
+536     | Annotations
+537   ClassModifier ::= Annotation
+538   InterfaceModifier ::= Annotation
+539   FieldModifier ::= Annotation
+540   MethodModifier ::= Annotation
+541   VariableModifier ::= Annotation
+542   ConstructorModifier ::= Annotation
+543   AbstractMethodModifier ::= Annotation
+544   ConstantModifier ::= Annotation
+545   Type ::= AnnotatedType
+546   AnnotatedType ::= Type Annotations
+547   Statement ::= AnnotatedStatement
+548   AnnotatedStatement ::= Annotation Statement
+549   Expression ::= AnnotatedExpression
+550   AnnotatedExpression ::= ( Annotations ) Expression
 \end{verbatim}
 }
 \twocolumn

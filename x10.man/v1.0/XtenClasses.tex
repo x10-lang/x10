@@ -209,7 +209,7 @@ the static placetype of {\tt o} must be {\tt here}.
 
 The programmer can always ensure that this condition is satisfied
 (albeit at the risk of introducing a runtime exception) by replacing
-each field access {\tt o.e} with {\tt ((F@here) o).e}.
+each field access {\tt o.e} with {\tt ((F!here) o).e}.
 
 \item If the body of the method contains any assignments to fields
 (e.g. {\tt o.e Op= t}, or {\tt Op o.e} or {\tt o.e Op}) then the
@@ -217,8 +217,8 @@ static placetype of {\tt o} must be {\tt here}.
 
 The programmer can always ensure that this condition is satisfied by
 replacing {\tt o.e Op= t} by {\tt o1.e Op=t} and preceding it (in the
-same basic block) with the local variable declaration {\tt F@here o1 =
-(F@here) o} (for some new local variable {\tt o1}). Similarly for
+same basic block) with the local variable declaration {\tt F!here o1 =
+(F!here) o} (for some new local variable {\tt o1}). Similarly for
 {\tt Op o.e} and {\tt o.e Op}.
 
 \item Recall that the static placetype of an array access {\tt o[e]}
@@ -233,7 +233,7 @@ o.m(t1,...,tk)} then the method invoked must be local. Additionally,
 the static place type of {\tt o} must be {\tt here}. 
 As above, the programmer can always ensure the second
 condition is satisfied by writing such a method invocation
-as {\tt ((F@here) o).m(t1,...,tk)}.
+as {\tt ((F!here) o).m(t1,...,tk)}.
 \end{itemize}
 
 Note that reads/writes to local variables or method parameters are

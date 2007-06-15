@@ -96,4 +96,10 @@
 \indexentry{instanceof@{\tt instanceof}}{36}
 \indexentry{==}{36}
 \indexentry{!=}{36}
-\indexentry{extern}{36}
+\indexentry{annotations}{36}
+\indexentry{plugins}{37}
+\indexentry{Polyglot}{37}
+\indexentry{CompilerPlugin}{37}
+\indexentry{Goal}{37}
+\indexentry{Node}{37}
+\indexentry{AnnotationNode}{37}

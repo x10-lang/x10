@@ -70,7 +70,7 @@
 \contentsline {section}{\numberline {4.11}Interfaces with properties}{19}
 \contentsline {subsection}{\numberline {4.11.1}instanceof}{19}
 \contentsline {subsection}{\numberline {4.11.2}Class casts}{19}
-\contentsline {subsection}{\numberline {4.11.3}Local variables}{20}
+\contentsline {subsection}{\numberline {4.11.3}Local variables}{19}
 \contentsline {section}{\numberline {4.12}Array types}{20}
 \contentsline {section}{\numberline {4.13}Constraint system}{20}
 \contentsline {subsection}{\numberline {4.13.1}Syntactic abbreviations}{20}
@@ -165,11 +165,8 @@
 \contentsline {subsection}{\numberline {12.4.1}The classcast operator}{35}
 \contentsline {subsection}{\numberline {12.4.2}{\tt instanceof} operator}{36}
 \contentsline {subsection}{\numberline {12.4.3}Stable equality.}{36}
-\contentsline {section}{\numberline {12.5}Linking with native code}{36}
-\contentsline {paragraph}{Example.}{37}
-\contentsline {chapter}{Example}{37}
-\contentsline {chapter}{Changes from v0.32}{38}
-\contentsline {subsection}{\numberline {12.5.1}Limitations}{38}
-\contentsline {subsection}{\numberline {12.5.2}Future work}{38}
-\contentsline {chapter}{References}{38}
-\contentsline {chapter}{Alphabetic index of definitions of concepts,\hfil \penalty 0 \hbox {\hspace *{2em} keywords, and procedures}}{39}
+\contentsline {chapter}{\numberline {13}Annotations and Compiler Plugins}{36}
+\contentsline {section}{\numberline {13.1}Annotation syntax}{36}
+\contentsline {section}{\numberline {13.2}Annotation declarations}{37}
+\contentsline {section}{\numberline {13.3}Compiler plugins}{37}
+\contentsline {chapter}{Bibliography}{37}

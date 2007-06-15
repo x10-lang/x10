@@ -18,16 +18,16 @@ i.e.{} that data items being accessed in an atomic section are local.
 
 \paragraph{The anywhere place type}\label{anywhere}\index{? place type}
 The simplest piece of place information that a programmer can specify
-is no information at all. The type {\tt F@?} expresses this: it is
+is no information at all. The type {\tt F!?} expresses this: it is
 satisfied by an object of datatype {\tt F} located at any place.  This
 type is particularly useful in specifying collections of objects at
-heterogenous places. For intance the type {\tt F@?[.]} is the type of
+heterogenous places. For intance the type {\tt F!?[.]} is the type of
 all distributed arrays whose elements can contain references to
 objects of datatype {\tt F} located at any place. Thus this type specifies
 no static relationship between the places of two different array elements.
 
 A datatype {\tt F} occurring in a place where a type is expected is
-always taken as shorthand for {\tt F@?}. This is compatible with the
+always taken as shorthand for {\tt F!?}. This is compatible with the
 Principle of Least Disclosure: the programmer may quickly get his code
 running without specifying where objects are located. The compiler
 will insert dynamic runtime checks to ensure that locality conditions
@@ -46,7 +46,7 @@ Consider the example:
 \begin{x10}
 public class F \{
   int datum;
-  int m(F@here a, F@here b) \{
+  int m(F!here a, F!here b) \{
     return a.datum + b.datum;
  \}
 \}
@@ -69,7 +69,7 @@ public class F \{
   public F(place P) \{
     this.P = P;
   \}
-  future<int> m(final F@P a, final F@P b) \{
+  future<int> m(final F!P a, final F!P b) \{
     return future(P) {a.datum + b.datum;}
   \}
 \}
@@ -103,7 +103,7 @@ classes, interfaces and methods. This will permit code of the form:
 \begin{x10}
 public class F \{
   int datum;
-  <P instance place> future<int> m(F@P a, F@P b) \{
+  <P instance place> future<int> m(F!P a, F!P b) \{
     return future(P) {a.datum + b.datum;}
   \}
 \}
@@ -115,7 +115,7 @@ can be type-checked by the compiler, without knowing the identity
 of the place {\tt P}.
 
 Similarly in the body of a generic class with a place parameter {\tt
-P} one may construct the type {\tt F@P[.]} to represent the type of
+P} one may construct the type {\tt F!P[.]} to represent the type of
 distributed arrays each of whose elements must contain a reference to
 an object of datatype {\tt F} located at the place {\tt P}.
 
@@ -127,7 +127,7 @@ the right place, a {\tt BadPlaceException} is thrown:
 m(Object obj) \{ // accept an object at any place
      // Cast it to here. This may throw
      // an exception if the object is not local.
-     Object@here h = (Object@here)obj;
+     Object!here h = (Object!here)obj;
      // The object is local, invoke a
      // method on it synchronously.
      h.m1();
@@ -141,7 +141,7 @@ the {\tt instanceof} operator for places.
 m(Object obj) \{
     if (here == obj.location) \{
        // will never throw an exception
-      Object@here h = (Object@here)obj;
+      Object!here h = (Object!here)obj;
       h.m();
    \}
 \}
@@ -158,27 +158,27 @@ specifying the location of the base type of a reference array.
 The value of the array at a particular point is an object in the
 same place as that array component. Example:
 \begin{x10}
-    Object@current[] objects;
+    Object!current[] objects;
 \end{x10}
 
 \Xten{} permits user-definable place constants (= final variables =
 variables that must be assigned before use, and can be assigned only
-once). Place constants may be used in type expressions after the {\cf @}
+once). Place constants may be used in type expressions after the {\cf !}
 sign. For instance, consider the following class definition:
 
 \begin{x10}
  public class Cell \{
-  Object@P value;
+  Object!P value;
 
-  public Cell( Object@P value ) \{  
+  public Cell( Object!P value ) \{  
      this.value = value;
   \}
 
-  public Object@P getValue() \{
+  public Object!P getValue() \{
      return this.value;
   \}
 
-  public void setValue( Object@P value ) \{
+  public void setValue( Object!P value ) \{
      this.value = value;
   \}
  \}
@@ -188,7 +188,7 @@ This class may be used thus:
 
 \begin{x10}
 Cell cell = 
-   new Cell(new Point@Q());
+   new Cell(new Point!Q());
 \end{x10}
 
 
