@@ -13,8 +13,8 @@ import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.visit.NodeVisitor;
 
-public abstract class TypeCheckPlugin implements CompilerPlugin {
-	public TypeCheckPlugin() {
+public abstract class SimpleVisitorPlugin implements CompilerPlugin {
+	public SimpleVisitorPlugin() {
 		super();
 	}
 
