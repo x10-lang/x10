@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: gas.cc,v 1.3 2007-05-31 11:25:57 ganeshvb Exp $ */
+/* $Id: gas.cc,v 1.4 2007-06-15 22:19:38 ipeshansky Exp $ */
 
 #include <iostream> 
 #include "gas.h"
@@ -43,3 +43,12 @@ x10_num_places()
 {
   return x10lib::numPlaces();
 }
+
+place_t x10lib::ID;
+
+int x10lib::MAX_PLACES;
+
+Allocator* x10lib::GlobalSMAlloc;
+
+func_t* x10lib::handlerTable;
+
