@@ -148,7 +148,7 @@ checkUsage() {
 
   checkGNU egrep
   checkGNU xargs
-  if [ `uname -a` != Darwin ]; then
+  if [ "`uname -s`" != Darwin ]; then
     # MacOSX's find and sed are BSD, not GNU.  They're mostly compatible,
     # but be careful!
     checkGNU find
@@ -278,7 +278,6 @@ extractOptions() {
     chkArgs 1 "$@"
     local f="$1"
     RESULT="`sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' "$f"`"
-    echo $RESULT
 }
 
 removeDotSlash() {
