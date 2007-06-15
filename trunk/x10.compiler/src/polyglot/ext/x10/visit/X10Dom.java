@@ -18,6 +18,7 @@ import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.FutureType;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -57,7 +58,6 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.Package;
 import polyglot.types.ParsedClassType;
-import polyglot.types.ParsedTypeObject;
 import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
@@ -1342,18 +1342,54 @@ public class X10Dom {
 			gen(v, "body", n.body());
 		}
 	}
-
+	
 	public class DepParameterExprLens implements AbsLens<DepParameterExpr> {
 		public DepParameterExpr fromXML(DomReader v, Element e) {
 			Position position = get(new PositionLens(), e, "position", v);
 			List l = get(new ListLens<Node>(new NodeLens()), e, "arguments", v);
 			return nf.DepParameterExpr(position, l);
 		}
-
+		
 		public void toXML(DomGenerator v, DepParameterExpr n) {
 			// v = v.tag("DepParameterExpr");
 			gen(v, "position", n.position());
 			gen(v, "arguments", n.args());
+		}
+	}
+	
+	public class DepCastLens implements AbsLens<DepCast> {
+		public DepCast fromXML(DomReader v, Element e) {
+			Position position = get(new PositionLens(), e, "position", v);
+			TypeNode tn = (TypeNode) get(new NodeLens(), e, "castType", v);
+			DepParameterExpr dep = (DepParameterExpr) get(new NodeLens(), e, "dep", v);
+			Expr expr = (Expr) get(new NodeLens(), e, "expr", v);
+			return (DepCast) nf.DepCast(position, tn, dep, expr);
+		}
+		
+		public void toXML(DomGenerator v, DepCast n) {
+			// v = v.tag("DepCast");
+			gen(v, "position", n.position());
+			gen(v, "castType", n.castType());
+			gen(v, "dep", n.dep());
+			gen(v, "expr", n.expr());
+		}
+	}
+
+	public class DepInstanceofLens implements AbsLens<DepInstanceof> {
+		public DepInstanceof fromXML(DomReader v, Element e) {
+			Position position = get(new PositionLens(), e, "position", v);
+			TypeNode tn = (TypeNode) get(new NodeLens(), e, "compareType", v);
+			DepParameterExpr dep = (DepParameterExpr) get(new NodeLens(), e, "dep", v);
+			Expr expr = (Expr) get(new NodeLens(), e, "expr", v);
+			return (DepInstanceof) nf.DepInstanceof(position, tn, dep, expr);
+		}
+
+		public void toXML(DomGenerator v, DepInstanceof n) {
+			// v = v.tag("DepInstance");
+			gen(v, "position", n.position());
+			gen(v, "compareType", n.compareType());
+			gen(v, "dep", n.dep());
+			gen(v, "expr", n.expr());
 		}
 	}
 
@@ -2500,6 +2536,24 @@ public class X10Dom {
 			gen(v, "arguments", n.args());
 		}
 	}
+	
+	public class AssignPropertyBodyLens implements AbsLens<AssignPropertyBody> {
+		public AssignPropertyBody fromXML(DomReader v, Element e) {
+			Position position = get(new PositionLens(), e, "position", v);
+			List statements = get(new ListLens<Node>(new NodeLens()), e, "statements", v);
+			X10ConstructorInstance ci = (X10ConstructorInstance) get(new ConstructorInstanceRefLens(), e, "ci", v);
+			List fi = get(new ListLens<FieldInstance>(new FieldInstanceRefLens()), e, "fi", v);
+			return nf.AssignPropertyBody(position, statements, ci, fi);
+		}
+		
+		public void toXML(DomGenerator v, AssignPropertyBody n) {
+			// v = v.tag("AssignPropertyCall");
+			gen(v, "position", n.position());
+			gen(v, "statements", n.statements());
+			gen(v, "fi", n.fieldInstances());
+			gen(v, "ci", n.constructorInstance());
+		}
+	}
 
 	public class ConditionalLens implements AbsLens<Conditional> {
 		public Conditional fromXML(DomReader v, Element e) {
@@ -3536,6 +3590,7 @@ public class X10Dom {
 			if (tag.equals("Assert")) return new AssertLens().fromXML(v, e);
 			if (tag.equals("Assign")) return new AssignLens().fromXML(v, e);
 			if (tag.equals("AssignPropertyCall")) return new AssignPropertyCallLens().fromXML(v, e);
+			if (tag.equals("AssignPropertyBody")) return new AssignPropertyBodyLens().fromXML(v, e);
 			if (tag.equals("Async")) return new AsyncLens().fromXML(v, e);
 			if (tag.equals("AtEach")) return new AtEachLens().fromXML(v, e);
 			if (tag.equals("Atomic")) return new AtomicLens().fromXML(v, e);
@@ -3561,6 +3616,8 @@ public class X10Dom {
 			if (tag.equals("ConstructorCall")) return new ConstructorCallLens().fromXML(v, e);
 			if (tag.equals("ConstructorDecl")) return new ConstructorDeclLens().fromXML(v, e);
 			if (tag.equals("DepParameterExpr")) return new DepParameterExprLens().fromXML(v, e);
+			if (tag.equals("DepCast")) return new DepCastLens().fromXML(v, e);
+			if (tag.equals("DepInstanceof")) return new DepInstanceofLens().fromXML(v, e);
 			if (tag.equals("Do")) return new DoLens().fromXML(v, e);
 			if (tag.equals("Empty")) return new EmptyLens().fromXML(v, e);
 			if (tag.equals("Eval")) return new EvalLens().fromXML(v, e);
@@ -3624,11 +3681,11 @@ public class X10Dom {
 			if (tag.equals("While")) return new WhileLens().fromXML(v, e);
 			if (tag.equals("X10ArrayAccess")) return new X10ArrayAccessLens().fromXML(v, e);
 			if (tag.equals("X10ArrayAccess1")) return new X10ArrayAccess1Lens().fromXML(v, e);
-			if (tag.equals("X10ArrayAccess1Assign")) return new AssignLens().fromXML(v, e);
+//			if (tag.equals("X10ArrayAccess1Assign")) return new AssignLens().fromXML(v, e);
 			if (tag.equals("X10ArrayAccess1Assign")) return new X10ArrayAccess1AssignLens().fromXML(v, e);
-			if (tag.equals("X10ArrayAccess1Unary")) return new UnaryLens().fromXML(v, e);
+//			if (tag.equals("X10ArrayAccess1Unary")) return new UnaryLens().fromXML(v, e);
 			if (tag.equals("X10ArrayAccess1Unary")) return new X10ArrayAccess1UnaryLens().fromXML(v, e);
-			if (tag.equals("X10ArrayAccessAssign")) return new ArrayAccessAssignLens().fromXML(v, e);
+//			if (tag.equals("X10ArrayAccessAssign")) return new ArrayAccessAssignLens().fromXML(v, e);
 			if (tag.equals("X10ArrayAccessAssign")) return new X10ArrayAccessAssignLens().fromXML(v, e);
 			if (tag.equals("X10ArrayAccessUnary")) return new X10ArrayAccessUnaryLens().fromXML(v, e);
 			if (tag.equals("X10ArrayTypeNode")) return new X10ArrayTypeNodeLens().fromXML(v, e);
@@ -3671,6 +3728,9 @@ public class X10Dom {
 
 		LensFactory(DomGenerator v) { this.v = v; }
 		
+		public void visit(DepInstanceof_c n) { new DepInstanceofLens().toXML(v, n); }
+		public void visit(DepCast_c n) { new DepCastLens().toXML(v, n); }
+
 		public void visit(Node n) { throw new InternalCompilerError("No visit method found for " + n + ": " + n.getClass().getName()); }
 		public void visit(Import_c n) { new ImportLens().toXML(v, n); }
 		public void visit(PackageNode_c n) { new PackageNodeLens().toXML(v, n); }
@@ -3760,6 +3820,7 @@ public class X10Dom {
 		public void visit(StmtSeq_c n) { new StmtSeqLens().toXML(v, n); }
 		public void visit(SwitchBlock_c n) { new SwitchBlockLens().toXML(v, n); }
 		public void visit(Assert_c n) { new AssertLens().toXML(v, n); }
+		public void visit(AssignPropertyBody_c n) { new AssignPropertyBodyLens().toXML(v, n); }
 		public void visit(AssignPropertyCall_c n) { new AssignPropertyCallLens().toXML(v, n); }
 		public void visit(Async_c n) { new AsyncLens().toXML(v, n); }
 		public void visit(Atomic_c n) { new AtomicLens().toXML(v, n); }
