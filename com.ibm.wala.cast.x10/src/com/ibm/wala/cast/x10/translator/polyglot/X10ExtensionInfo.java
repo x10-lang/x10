@@ -24,7 +24,7 @@ public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTransl
 
     public void setSourceLoader(PolyglotSourceLoaderImpl sourceLoader) {
 	fSourceLoader = (X10SourceLoaderImpl) sourceLoader;
-	fMapper= new PolyglotIdentityMapper(fSourceLoader.getReference(), typeSystem());
+	fMapper= new X10PolyglotIdentityMapper(fSourceLoader.getReference(), typeSystem());
     }
 
     public X10SourceLoaderImpl getSourceLoader() {
