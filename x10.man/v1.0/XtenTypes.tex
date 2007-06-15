@@ -1,0 +1,394 @@
+\chapter{Types}
+\label{XtenTypes}\index{types}
+
+{}\Xten{} is a {\em strongly typed} object language: every variable
+and expression has a type that is known at compile-time. Further,
+\Xten{} has a {\em unified} type system: all data items created at
+runtime are {\em objects} (\S~\ref{XtenObjects}. Types limit the
+values that variables can hold, and specify the places at which these
+values lie.
+
+{}\Xten{} supports two kinds of objects, {\em reference objects} and
+{\em value objects}.  Reference objects are instances of {\em
+reference classes} (\S~\ref{ReferenceClasses}). They may contain
+mutable fields and must stay resident in the place in which they were
+created. Value objects are instances of {\em value classes}
+(\S~\ref{ValueClasses}). They are immutable and may be freely copied
+from place to place. Either reference or value objects may be 
+{\em scalar} (instances of a non-array class) or {\em aggregate} (instances
+of arrays).
+
+An \Xten{} type is either a {\em reference type} or a {\em value
+type}.  Each type consists of a {\em data type}, which is a set of
+values, and a {\em place type} which specifies the place at which the
+value resides.  Types are constructed through the application of {\em
+type constructors} (\S~\ref{TypeConstructors}).
+
+Types are used in variable declarations, casts, object creation, array
+creation, class literals and {\cf instanceof} expressions.\footnote{In
+order to allow this version of the language to focus on the core new
+ideas, \XtenCurrVer{} does not have user-definable classloaders,
+though there is no technical reason why they could not have been
+added.}
+
+A variable is a storage location (\S~\ref{XtenVariables}). All
+variables are initialized with a value and cannot be observed without
+a value. 
+
+Variables whose value may not be changed after initialization are
+called {\em final variables} (or sometimes {\em constants}).  The
+programmer indicates that a variable is final by using the annotation
+{\tt final} in the variable declaration.  
+
+%% Final variables play an 
+%% important role in \Xten{}, as we shall discuss below. For this reason,
+%% \Xten{} enforces the lexical restriction that all variables whose name
+%% starts with an upper case letter are implicitly declare final. (It is
+%% not an error to also explicitly declare such variables as
+%% final.)\index{Upper-case Convention}
+
+\section{Type constructors}\index{type constructors}\label{TypeConstructors}
+
+An \Xten{} type is a pair specifying a {\em datatype} and a {\em
+placetype}. Semantically, a datatype specifies a set of values and a
+placetype specifies the set of places at which these values may
+live. Thus taken together, a type specifies both the kind of value
+permitted and its location. 
+
+\begin{x10}
+509   Type ::=  DataType  PlaceTypeSpecifieropt
+510     | nullable  Type
+511     | future <  Type > 
+512   DataType ::=  PrimitiveType
+513   DataType ::=  ClassOrInterfaceType
+514     |  ArrayType
+\end{x10}
+
+For simplicity, this version of \Xten{} does not permit the
+specification of generic classes or interfaces. This is expected to be
+remedied in future versions of the language.
+
+Every class and interface definition in \Xten{} defines a type with
+the same name. Additionally, {}\Xten{} specifies three {\em type
+constructors}: {\tt nullable}, the {\tt future}, and array type
+constructors. We discuss these constructors and place types in detail
+in the secions that follow; here we briefly discss interface and class
+declarations.
+
+\paragraph{Interface declarations.}\label{InterfaceTypes}
+An interface declaration specifies a name, a list of extended
+interfaces, and constants ({\tt public static final} fields) and
+method signatures associated with the interface. Each interface
+declaration introduces a type with the same name as the declaration.
+Semantically, the data type is the set of all objects which are
+instances of (value or reference) classes that implement the
+interface. A class implements an interface if it says it does and if
+it implements all the methods defined in the interface.
+
+
+The {\em interface declaration} (\S~\ref{XtenInterfaces}) takes as
+argument one or more interfaces (the {\em extended} interfaces), one
+or more type parameters and the definition of constants and method
+signatures and the name of the defined interface.  Each such
+declaration introduces a data type.
+
+\begin{x10}
+426   DataType ::= ClassOrInterfaceType
+433   ClassOrInterfaceType ::= TypeName 
+13    ClassType ::= TypeName
+15    TypeName ::= identifier
+16     | TypeName . identifier
+\end{x10}
+
+\paragraph{Reference class declarations.}\label{ReferenceTypes}
+The {\em reference class declaration} (\S~\ref{ReferenceClasses}) takes
+as argument a reference class (the {\em extended class}), one or more
+interfaces (the {\em implemented interfaces}), the definition of
+fields, methods and inner types, and returns a class of the named type
+(\S~\ref{ReferenceClasses}). Each such declaration introduces a data
+type. Semantically, the data type is the set of all objects which are
+instances of (subclasses of) the class.
+
+\paragraph{Value class declarations.}
+The {\em value class declaration} (\S~\ref{ValueClasses}) is
+similar to the reference class declaration except that it must extend
+either a value class or a reference class that has no mutable fields.
+It may be used to construct a value type in the same way as a
+reference class declaration can be used to construct a reference type.
+
+\input{NullableTypeConstructor.tex}
+\input{FutureTypes}
+\input{ArrayTypes}
+\notfouro{\input{PlaceTypes}}
+
+\section{Variables}\label{XtenVariables}\index{variables}
+
+A variable of a reference data type {\tt reference R} where {\tt R} is
+the name of an interface (possibly with type arguments) always holds a
+reference to an instance of a class implementing the interface {\tt R}.
+
+A variable of a reference data type {\tt R} where {\tt R} is the name
+of a reference class (possibly with type arguments) always holds a
+reference to an instance of the class {\tt R} or a class that is a
+subclass of {\tt R}. 
+
+A variable of a reference array data type {\tt R [D]} is always an
+array which has as many variables as the size of the region underlying
+the distribution {\cf D}. These variables are distributed across
+places as specified by {\cf D} and have the type {\tt R}.
+
+A variable of a nullary (reference or value) data type {\tt nullable
+T} always holds either the value (named by) {\tt null} or a value of
+type {\tt T} (these cases are not mutually exclusive).
+
+A variable of a value data type {\tt value R} where {\tt R} is the
+name of an interface (possibly with type arguments) always holds
+either a reference to an instance of a class implementing {\tt R} or
+an instance of a class implementing {\tt R}. No program can
+distinguish between the two cases.
+
+A variable of a value data type {\tt R} where {\tt R} is the name of a
+value class always holds a reference to an instance of {\tt R} (or a
+class that is a subclass of {\tt R}) or an instance of {\tt R} (or a
+class that is a subclass of {\tt R}). No program can distinguish
+between the two cases.
+
+A variable of a value array data type {\tt V value [R]} is always an
+array which has as many variables as the size of the region {\tt R}.
+Each of these variables is immutable and has the type {\tt V}.
+
+\Xten{} supports seven kinds of variables: final {\em class
+variables} (static variables), {\em instance variables} (the instance
+fields of a class), {\em array components}, {\em method parameters},
+{\em constructor parameters}, {\em exception-handler parameters} and
+{\em local variables}.
+
+\subsection{Final variables}\label{FinalVariable}\index{variable!final}\index{final variable}
+A final variable satisfies two conditions: 
+\begin{itemize}
+\item it can be assigned to at most once, 
+\item it must be assigned to before use. 
+\end{itemize}
+
+\Xten{} follows \java{} language rules in this respect \cite[\S
+4.5.4,8.3.1.2,16]{jls2}. Briefly, the compiler must undertake a
+specific analysis to statically guarantee the two properties above.
+
+\todo{Check if this analysis needs to be revisited.}
+
+\subsection{Initial values of variables}
+\label{NullaryConstructor}\index{nullary constructor}
+\cbstart 
+Every variable declared at a type must always contain a value of that type.
+
+Every class variable must be initialized before it is read, through
+the execution of an explicit initializer or a static block. Every
+instance variable must be initialized before it is read, through the
+execution of an explicit initializer or a constructor.  An instance
+variable declared at a nullable type (and not declared to be {\tt
+final}) is assumed to have an initializer which sets the value to {\tt
+null}.
+
+Each method and constructor parameter is initialized to the
+corresponding argument value provided by the invoker of the method. An
+exception-handling parameter is initialized to the object thrown by
+the exception. A local variable must be explicitly given a value by
+initialization or assignment, in a way that the compiler can verify
+using the rules for definite assignment \cite[\S~16]{jls2}.
+
+\cbend
+
+\section{Objects}\label{XtenObjects}\index{Object}
+
+An object is an instance of a scalar class or an array type.  It is
+created by using a class instance creation expression
+(\S~\ref{ClassCreation}) or an array creation
+(\S~\ref{ArrayInitializer}) expression, such as an array
+initializer. An object that is an instance of a reference (value) type
+is called a {\em reference} ({\em value}) {\em object}.
+
+All value and reference classes subclass from {\tt x10.lang.Object}.
+This class has one {\tt const} field {\tt location} of type {\tt
+x10.lang.place}. \index{place.location} Thus all objects in \Xten{}
+are located (have a place). However, \Xten{} permits value objects to
+be freely copied from place to place because they contain no mutable
+state.  It is permissible for a read of the {\tt location} field of
+such a value to always return {\tt here} (\S~\ref{Here});
+therefore no space needs to be allocated in the object representation
+for such a field.
+
+In \XtenCurrVer{} a reference object stays resident at the place at
+which it was created for its entire lifetime.
+
+{}\Xten{} has no operation to dispose of a reference.  Instead the
+collection of all objects across all places is globally garbage
+collected.
+
+{}\Xten{} objects do not have any synchronization information (e.g.{}
+a lock) associated with them. Thus the methods on {\tt
+java.lang.Object} for waiting/synchronizing/notification etc are not
+available in \Xten. Instead the programmer should use atomic blocks
+(\S~\ref{AtomicBlocks}) for mutual exclusion and clocks
+(\S~\ref{XtenClocks}) for sequencing multiple parallel operations.
+
+A reference object may have many references, stored in fields of
+objects or components of arrays. A change to an object made through
+one reference is visible through another reference. \Xten{} mandates
+that all accesses to mutable objects shared between multiple
+activities must occur in an atomic section (\S\ref{AtomicBlocks}).
+
+\cbstart 
+Note that the creation of a remote async activity
+(\S~\ref{AsyncActivity}) {\cf A} at {\cf P} may cause the automatic creation of
+references to remote objects at {\cf P}. (A reference to a remote
+object is called a {\em remote object reference}, to a local object a
+{\em local object reference}.)  For instance {\cf A} may be created
+with a reference to an object at {\cf P} held in a variable referenced
+by the statement in {\cf A}.  Similarly the return of a value by a
+{\cf future} may cause the automatic creation of a remote object
+reference, incurring some communication cost.  An {}\Xten{}
+implementation should try to ensure that the creation of a second or
+subsequent reference to the same remote object at a given place does
+not incur any (additional) communication cost.
+
+\cbend 
+
+A reference to an object may carry with it the values of final fields
+of the object. The implementation should try to ensure that the cost
+of communicating the values of final fields of an object from the
+place where it is hosted to any other place is not incurred more than
+once for each target place.
+
+{}\Xten{} does not have an operation (such as Pascal's ``dereference''
+operation) which returns an object given a reference to the
+object. Rather, most operations on object references are transparently
+performed on the bound object, as indicated below. The operations on
+objects and object references include:
+\begin{itemize}
+
+{}\item Field access (\S~\ref{FieldAccess}). An activity holding a
+reference to a reference object may perform this operation only if the
+object is local.  An activity holding a reference to a value object
+may perform this operation regardless of the location of the object
+(since value objects can be copied freely from place to place).  The
+implementation should try to ensure that the cost of copying the field
+from the place where the object was created to the referencing place
+will be incurred at most once per referencing place, according to the
+rule for final fields discussed above.
+
+\item Method invocation (\S~\ref{MethodInvocation}).  An activity
+holding a reference to a reference object may perform this operation
+only if the object is local.  An activity holding a reference to a
+value object may perform this operation regardless of the location of
+the object (since value objects can be copied freely). The \Xten{}
+implementation must attempt to ensure that the cost of copying enough
+relevant state of the value object to enable this method invocation to
+succeed is incurred at most once for each value object per place.
+
+{}\item Casting (\S~\ref{ClassCast}).  An activity can perform this
+operation on local or remote objects, and should not incur
+communication costs (to bring over type information) more than once
+per place.
+
+{}\item {\cf instanceof} operator (\S~\ref{instanceOf}).  An activity
+can perform this operation on local or remote objects, and should not
+incur communication costs (to bring over type information) more than
+once per place.
+
+\item The stable equality operator {\cf ==} and {\cf !=}
+(\S~\ref{StableEquality}). An activity can perform these operations on
+local or remote objects, and should not incur communication costs
+(to bring over relevant information) more than once per place.
+
+% \item The ternary conditional operator {\cf ?:}
+\end{itemize}
+
+\section{Built-in types}
+\cbstart 
+
+The package {\tt x10.lang} provides a number of built-in class and
+interface declarations that can be used to construct types.
+
+\subsection{The class {\tt Object}}\label{Object}\index{Object}
+The class {\cf x10.lang.Object} is a superclass of all other classes.
+A variable of this type can hold a reference to an instance of any
+scalar or array type.
+
+\begin{x10}
+package x10.lang;
+public class Object \{
+  public String toString() \{...\}
+  public boolean equals(Object o) \{...\}
+  public int hashCode() \{...\}
+\}
+\end{x10}
+
+The method {\tt equals} and {\tt hashCode} are useful in hashtables,
+and are defined as in \java. The default implementation of {\tt equals}
+is stable equality, \S~\ref{StableEquality}. This method may be overridden
+in a (value or reference) subclass.
+
+\subsection{The class {\tt String}}
+\Xten{} supports strings as in \java{}. A string object is immutable,
+and has a concatenation operator ({\tt +})  available on it.
+
+\subsection{Arithmetic classes}
+Several value types are provided that encapsulate
+abstractions (such as fixed point and floating point arithmetic)
+commonly implemented in hardware by modern computers:
+
+\begin{x10}
+boolean byte short char 
+int long 
+double float 
+\end{x10}
+
+\XtenCurrVer{} defines these data types in the same way as the 
+\java{} language. Specifically, a program may contain literals
+that stand for specific instances of these classes. The syntax
+for literals is the same as for \java{} (\S~ref{Literals}).
+
+\futureext{
+\Xten{} may provide mechansims in the future to permit the programmer
+to specify how a specific value class is to be mapped to special
+hardware operations (e.g.{} along the lines of
+\cite{kava}). Similarly, mechanisms may be provided to permit the user
+to specify new syntax for literals.
+}
+\subsection{Places, distributions, regions, clocks}
+\Xten{} defines several other classes in the {\cf x10.lang}
+package. Please consult the API documentation for more details.
+
+\subsection{Java utility classes}
+\XtenCurrVer{} programmers may import and use \java{} packages such as
+{\tt java.util}, e.g.{} {\tt java.util.Set}, {\tt
+java.lang.System}. \Xten{} programs should not invoke methods
+that use the {\tt wait/notify/notifyAll} methods on such objects,
+since this may interfere with \Xten{} synchronization. The
+implementation does not make imported \java{} classes
+automatically extend {\tt x10.lang.Object}. 
+
+\futureext{
+The above represents an {\em ad hoc} integration of \java{} libraries
+into \Xten{}. It has the unfortunate consequence that not every run-time
+value in an \Xten{} program execution is an instance of a subclass of
+{\tt x10.lang.Object}. }
+
+In the future a more principled and robust scheme will be worked
+out. Such a scheme will need to attend to the integration of the
+\java{} and \Xten{} type systems, and develop a notion of place for 
+\java{} objects.
+
+\cbend
+\section{Conversions and Promotions}\label{XtenConversions}\label{XtenPromotions}\index{conversions}\index{promotions}
+
+{}\XtenCurrVer{} supports \java's conversions and promotions
+(identity, widening, narrowing, value set, assignment, method
+invocation, string, casting conversions and numeric promotions)
+appropriately modified to support \Xten's built-in numeric classes
+rather than \java's primitive numeric types.
+
+This decision may be revisited in future version of the language in
+favor of a streamlined proposal for allowing user-defined
+specification of conversions and promotions for value types, as part
+of the syntax for user-defined operators.
