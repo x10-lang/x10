@@ -93,11 +93,13 @@ public class X10IRTests extends IRTests {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null, true);
     }
-    
+
+    /*    
     public void testHashTable() {
     	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
     			new GraphAssertions(), null, true);
     }
+    */
 
 //    public void testArrayCtor1() {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
