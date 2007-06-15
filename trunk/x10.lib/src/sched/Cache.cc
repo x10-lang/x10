@@ -10,6 +10,11 @@
 
 
 #include "Cache.h"
+#include "Worker.h"
+#include "Pool.h"
+#include "Sys.h"
+#include "Frame.h"
+#include <assert.h>
 
 using namespace x10lib_cws;
 using namespace std;
@@ -19,6 +24,7 @@ Cache::Cache(Worker *w)
 {
  owner=w; 
  stack.resize(INITIAL_CAPACITY);  // TODO verify
+ head = tail = exception = 0;
 }
 Cache::~Cache() {stack.clear();}
 
@@ -128,7 +134,7 @@ bool Cache::interrupted() const {
 bool Cache::popCheck() {
 	int t = tail;
 	int e = exception;
-	lastException = e;
+// 	lastException = e;
 	return e >= t;
 }
 */

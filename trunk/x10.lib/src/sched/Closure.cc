@@ -10,7 +10,13 @@
 
 
 #include "Closure.h"
-
+#include "Worker.h"
+#include "Lock.h"
+#include "Cache.h"
+#include "Job.h"
+#include "Frame.h"
+#include "Sys.h"
+#include <assert.h>
 
 using namespace std;
 using namespace x10lib_cws;
@@ -19,12 +25,26 @@ int Closure::getstatus() const { return status;}
 Frame *Closure::parentFrame() const { return parent->frame; }
 Closure *Closure::getparent() const { return parent; }
 
-Closure::Closure() { }
+// Closure::Closure() { }
 
 Closure::Closure(Frame *frame) {
 	done = false;
 	this->frame = frame;
 	lock_var = new PosixLock();
+
+	//public members to be init
+	cache = NULL;
+	parent = NULL;
+	joinCount = 0;
+	nextReady = prevReady = NULL;
+	ownerReadyQueue = NULL;
+	status = -1; //It is to be set to a valid value by someone; Not me!
+
+	//protected members to be init
+	lockOwner = NULL;
+	outlet = NULL;
+	done = false;
+
 	initialize();
 }
 Closure::~Closure() { 
@@ -383,7 +403,7 @@ void Closure::compute(Worker *w, Frame *frame) {abort();}
 	 * But they should alwas first call super.initialize();
 	 *
 	 */
-void Closure::initialize() const {
+void Closure::initialize() {
 		// need to handle abort processing.
 }
 
@@ -482,9 +502,9 @@ void Closure::setOutlet(Outlet *o) { outlet=o;}
 	 */
 void Closure::copyFrame(Worker *w) {
 		assert(ownerReadyQueue->lockOwner==w);
-		//frame = frame->copy();
+		frame = frame->copy();
 		// TODO RAJ:: Use Sriram's suggestion to improve code
-		frame = new Frame(frame); // Use copy constructor to copy
+		//frame = new Frame(*frame); // Use copy constructor to copy
 }	
 bool Closure::isDone() const { return done;}
 	
@@ -506,20 +526,20 @@ void Closure::completed() {
 	// when there is no reason to subclass it.
 void Closure::setResultInt(int x) { abort(); }
 void Closure::accumulateResultInt(int x) { abort();}
-int Closure::resultInt() { abort();}
+int Closure::resultInt() { abort(); return 0;}
 	
 void Closure::setResultFloat(float x) {abort();}
 void accumulateResultFloat(float x) { abort();}
-float Closure::resultFloat() { abort();}
+float Closure::resultFloat() { abort(); return 0.0;}
 	
 void Closure::setResultLong(long x) {abort();}
 void Closure::accumulateResultLong(long x) { abort();}
-long Closure::resultLong() { abort();}
+long Closure::resultLong() { abort(); return 0l;}
 	
 void Closure::setResultDouble(double x) {abort();}
 void Closure::accumulateResultDouble(double x) { abort();}
-double Closure::resultDouble() { abort();}
+double Closure::resultDouble() { abort(); return 0.0;}
 	
 void Closure::setResultObject(void *x) {abort();}
-void *Closure::resultObject() { abort();}
-bool Closure::requiresGlobalQuiescence() { abort(); }
+void *Closure::resultObject() { abort(); return NULL; }
+bool Closure::requiresGlobalQuiescence() { abort(); return false; }

@@ -10,11 +10,12 @@
 #ifndef x10lib_Closure_h
 #define x10lib_Closure_h
 //#include "Lock.h"
-#include "Worker.h"
-#include <list.h>
+//#include "Worker.h"
+#include <list>
 
 namespace x10lib_cws {
 
+class PosixLock;
 class Frame;
 class Worker;
 class Cache;
@@ -40,13 +41,13 @@ private:
 protected:
 	PosixLock *lock_var;
 	Worker *lockOwner;
-	list<Closure *> completeInlets;
-	list<Closure *> incompleteInlets;
+	std::list<Closure *> completeInlets;
+	std::list<Closure *> incompleteInlets;
 	Outlet *outlet;
 	bool done;
 	
-	void compute(Worker *w, Frame *frame) ;
-	void initialize() const ;
+	virtual void compute(Worker *w, Frame *frame) ;
+	void initialize();
 	bool sync(Worker *ws);
 	
 	
@@ -59,9 +60,9 @@ public:
 	Worker *ownerReadyQueue;
 	int status;
 
-	Closure();
+/* 	Closure(); */
 	Closure(Frame *frame);
-	~Closure();
+	virtual ~Closure();
 	bool hasChildren() const ;
 	int getstatus() const ;
 	Frame *parentFrame() const ;

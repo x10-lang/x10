@@ -10,23 +10,22 @@
 #ifndef x10lib_Frame_h
 #define x10lib_Frame_h
 
-#include "Closure.h"
-
 
 namespace x10lib_cws {
 
-class Frame;
 class Closure;
 
 class Frame {
+ protected:
+  Frame(const Frame &f);
 public:
 	Frame();
-	Frame(Frame *f);
-	~Frame();
+	virtual ~Frame();
 
-	Closure *makeClosure();
+	virtual Closure *makeClosure();
 	void setOutletOn(Closure *c);
 	void setInt(int x);
+	virtual Frame *copy();
 };
 
 }

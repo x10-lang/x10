@@ -7,9 +7,14 @@
  Description : Exe source file
 ============================================================================
 */
+
 #include "Lock.h"
+#include "Sys.h"
 
 using namespace x10lib_cws;
+
+/*-------------SpinLock----------------------*/
+
 SpinLock::SpinLock() {  spin_lock_var = 0; }
 SpinLock::~SpinLock() {}
 
@@ -43,6 +48,8 @@ inline void SpinLock::spin_lock_signal()
 	WRITE_BARRIER();
 	spin_lock_var = 0;
 }
+
+/*--------------PosixLock--------------------------*/
 
 PosixLock::PosixLock() {  pthread_mutex_init(&posix_lock_var, NULL);}
 PosixLock::~PosixLock() { pthread_mutex_destroy(&posix_lock_var);}

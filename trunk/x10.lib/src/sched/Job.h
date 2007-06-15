@@ -9,22 +9,18 @@
 */
 #ifndef x10lib_Job_h
 #define x10lib_Job_h
-#include "Frame.h"
-#include "Lock.h"
-#include "Closure.h"
-#include "Worker.h"
-#include "Pool.h"
-#include <pthread.h>
 
+#include "Frame.h"
+#include "Closure.h"
 
 namespace x10lib_cws {
 
 class Outlet;
-class Closure;
+//class Closure;
 class Worker;
 class Pool;
 class JobFrame;
-class Frame;
+//class Frame;
 class ResultOutlet;
 class GFrame;
 class Job;
@@ -35,14 +31,15 @@ public :
 	volatile int PC;
 	int x;
 	JobFrame();
-	~JobFrame();
-	Closure *makeClosure();
+	virtual ~JobFrame();
+	virtual Closure *makeClosure();
 	void setOutletOn(Closure *c);
 };
 
 class Outlet {
-public:
-		virtual void run() {};
+ public:
+  virtual void run() {}
+  virtual ~Outlet() {}
 };
 
 class ResultOutlet : public Outlet {
@@ -50,15 +47,17 @@ public:
 	Closure *closure;
 	JobFrame *jframe;
 	void run();
-	ResultOutlet();
-	ResultOutlet(Closure *c, JobFrame *f);
+/* 	ResultOutlet(); */
+	ResultOutlet(Closure *c=NULL, JobFrame *f=NULL);
 };
+
 class GFrame : public JobFrame {
 public:
 	volatile int PC;
 	void setOutletOn(Closure *c);
-	Closure *makeClosure();
+	virtual Closure *makeClosure();
 	GFrame();
+	virtual ~GFrame() {}
 };
 
 class Job : public Closure {
@@ -75,19 +74,21 @@ public:
 	bool cancel(bool b) const;
 	pthread_cond_t cond_done;
 
-	Job();
-	Job(Pool *pool);
-	Job(Frame *f, Pool *pool);
-	~Job();
-	int spawnTask(Worker *ws) ;
+/* 	Job(); */
+/* 	Job(Pool *pool); */
+/* 	Job(Frame *f, Pool *pool); */
+	Job(Pool *pool, Frame *f = new JobFrame());
+	virtual ~Job();
+	virtual int spawnTask(Worker *ws) ;
 };
 
 class GloballyQuiescentJob : public Job {
 public:
-	GloballyQuiescentJob(Pool *pool);
-	GloballyQuiescentJob(Pool *pool, Frame *f);
+/* 	GloballyQuiescentJob(Pool *pool); */
+	GloballyQuiescentJob(Pool *pool, Frame *f = new GFrame());
 	bool requiresGlobalQuiescence() const;
-	void compute(Worker *w, Frame *frame) ;
+	virtual void compute(Worker *w, Frame *frame) ;
+	virtual ~GloballyQuiescentJob(){}
 };
 
 

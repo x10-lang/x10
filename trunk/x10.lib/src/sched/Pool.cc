@@ -9,6 +9,8 @@
 */
 
 #include "Pool.h"
+#include "ActiveWorkerCount.h"
+#include "Job.h"
 #include <stdlib.h>
 
 using namespace x10lib_cws;
@@ -46,7 +48,7 @@ void *Pool::each_thread_wrapper(void *arg) {
 }
 
 
-Pool::Pool() { }
+// Pool::Pool() { }
 
 Pool::Pool(int numThreads) {
 	
@@ -63,15 +65,22 @@ Pool::Pool(int numThreads) {
 
 	Closure *tmp = (Closure *)currentJob;
 
+	/*TODO sriram. This is incorrect creation of the barrier
+	  actroin. We need to create a sub-class of runnable that will
+	  take the address of the closure (or the current job) as an
+	  argument. Look at the Java code.*/
 	barrier = new ActiveWorkerCount(tmp);
 
 	num_workers = numThreads;
 	runningWorkers = 0;
+	runState = 0;
 	activeJobs = 0;
 	activeOnJobAtomic = 0;
 	jobs =  new JobQueue();
 	joinCount = 0;
-	
+
+	/*TODO sriram The Java code has a different creation count and
+	  invokes start on each worker. Check this later*/	
 	workers.resize(INITIAL_WORKER_CAPACITY);
 	
 	  
@@ -357,9 +366,10 @@ Closure *Pool::getJob() {
 
 JobQueue::JobQueue() {
 	elements.resize(INITIAL_JOBQUEUE_CAPACITY);
+	head = tail = 0;
 }
 JobQueue::~JobQueue() {
-				elements.clear();
+  elements.clear();
 }
 
 bool JobQueue::isEmpty() const {

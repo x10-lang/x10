@@ -11,7 +11,7 @@
 #ifndef x10lib_ActiveWorkerCount_h
 #define x10lib_ActiveWorkerCount_h
 
-#include "Closure.h"
+#include <cstdlib>
 
 namespace x10lib_cws {
 
@@ -25,8 +25,8 @@ class ActiveWorkerCount {
 		Closure *closure;
 	protected:
 	public:
-		ActiveWorkerCount();
-		ActiveWorkerCount(Closure *c);
+/* 		ActiveWorkerCount(); */
+		ActiveWorkerCount(Closure *c=NULL);
 		void checkIn();
 		void checkOut();
 		int getNumberCheckedOut();

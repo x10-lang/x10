@@ -11,24 +11,21 @@
 
 
 #include "Job.h"
+#include "Frame.h"
+#include "Lock.h"
+#include "Closure.h"
+#include "Worker.h"
+#include "Pool.h"
+#include "Sys.h"
+#include <pthread.h>
+#include <assert.h>
 
 using namespace std;
 using namespace x10lib_cws;
 
+/*-----------------JobFrame----------------------*/
 
-ResultOutlet::ResultOutlet():Outlet() { }
-ResultOutlet::ResultOutlet(Closure *c, JobFrame *f) {
-	closure = c;
-	jframe = f;
-}
-void ResultOutlet::run() {
-	jframe->x = closure->resultInt();
-}
-
-
-
-	
-JobFrame::JobFrame():Frame() {}
+JobFrame::JobFrame():Frame(), PC(0), x(0) {}
 JobFrame::~JobFrame() {}
 Closure *JobFrame::makeClosure() {
 	assert(false);
@@ -39,53 +36,32 @@ void JobFrame::setOutletOn(Closure *c) {
 }
 		
 
+/*------------------ResultOutlet-------------------*/
+
+// ResultOutlet::ResultOutlet(): Outlet() { }
+ResultOutlet::ResultOutlet(Closure *c, JobFrame *f) 
+  : Outlet() {
+  closure = c;
+  jframe = f;
+}
+void ResultOutlet::run() {
+	jframe->x = closure->resultInt();
+}
 
 
+
+/*----------------------GFrame------------------*/	
 
 void GFrame::setOutletOn(Closure *c) {}
 Closure *GFrame::makeClosure() { return NULL;}
-GFrame::GFrame():JobFrame() { }
+GFrame::GFrame():JobFrame(), PC(0) { }
 
+/*---------------------Job---------------------------*/
 
+// Job::Job() {}
+// Job::Job(Pool *pool) : Job::Job(new JobFrame(), pool) {}
 
-bool GloballyQuiescentJob::requiresGlobalQuiescence() const { return true;}	
-GloballyQuiescentJob::GloballyQuiescentJob(Pool *pool) {
-	GloballyQuiescentJob::GloballyQuiescentJob(pool, new GFrame()); 
-}
-GloballyQuiescentJob::GloballyQuiescentJob(Pool *pool, Frame *f) {
-			Job::Job(f,pool);
-			parent = NULL;
-			joinCount=0;
-			status = READY;
-}
-void GloballyQuiescentJob::compute(Worker *w, Frame *frame) {
-			GFrame *f = (GFrame *) frame;
-			int PC = f->PC;
-			f->PC=LABEL_1;
-			MEM_BARRIER(); // TODO Raj
-			if (PC==0) {
-				// spawning
-				int x = spawnTask(w);
-				w->abortOnSteal(x);
-				f->x=x;
-				// Accumulate into result.
-				int old = resultInt();
-				accumulateResultInt(f->x);
-				//if (Worker.reporting)
-				//System.out.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
-			}
-			setupGQReturn(w);
-}
-
-
-
-
-
-Job::Job() {}
-Job::Job(Pool *pool) {
-	Job::Job(new JobFrame(), pool);
-}
-Job::Job(Frame *f, Pool *pool) : Closure(f) {
+Job::Job(Pool *pool, Frame *f) : Closure(f) {
 		this->pool=pool;
 		parent = NULL;
 		joinCount=0;
@@ -117,7 +93,7 @@ void Job::compute(Worker *w, Frame *frame) {
 		}
 		return;
 }
-int Job::spawnTask(Worker *ws) { abort(); } // TODO RAJ child must provide an imple for this
+int Job::spawnTask(Worker *ws) { abort(); return 0; } // TODO RAJ child must provide an imple for this
 void Job::completed() {
 	Closure::completed();
 	/*	if ( Worker.reporting)
@@ -136,4 +112,38 @@ void Job::waitForCompletion() {
 bool Job::isCancelled() const { return false;}
     
 bool Job::cancel(bool b) const { return false;}
+
+
+
+/*--------------------GloballyQuiescentJob-------------------*/
+
+bool GloballyQuiescentJob::requiresGlobalQuiescence() const { return true;}	
+// GloballyQuiescentJob::GloballyQuiescentJob(Pool *pool) 
+//   : GloballyQuiescentJob(pool, new GFrame()) {}
+
+GloballyQuiescentJob::GloballyQuiescentJob(Pool *pool, Frame *f) 
+  : Job(pool, f) {
+  parent = NULL;
+  joinCount=0;
+  status = READY;
+}
+
+void GloballyQuiescentJob::compute(Worker *w, Frame *frame) {
+			GFrame *f = (GFrame *) frame;
+			int PC = f->PC;
+			f->PC=LABEL_1;
+			MEM_BARRIER(); // TODO Raj
+			if (PC==0) {
+				// spawning
+				int x = spawnTask(w);
+				w->abortOnSteal(x);
+				f->x=x;
+				// Accumulate into result.
+				int old = resultInt();
+				accumulateResultInt(f->x);
+				//if (Worker.reporting)
+				//System.out.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
+			}
+			setupGQReturn(w);
+}
 

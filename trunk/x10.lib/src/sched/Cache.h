@@ -9,8 +9,6 @@
 */
 #ifndef x10lib_Cache_h
 #define x10lib_Cache_h
-#include "Worker.h"
-#include "Pool.h"
 #include <limits.h>
 #include <vector>
 
@@ -33,7 +31,7 @@ class Cache {
 		void growAndPushFrame (Frame *);
 		
 	protected:
-		unsigned int lastException; 
+/* 		unsigned int lastException;  */
 		Worker *owner;
 		vector<Frame *> stack; /* using vector as resizing would be lot easier */
 		
