@@ -55,6 +55,13 @@ public class Promise_c implements Promise, Serializable {
 		var = c;
 		
 	}
+	
+	public Promise_c(C_Var var, Promise value, Map<String,Promise> fields) {
+		this.var = var;
+		this.value = value;
+		this.fields = new HashMap<String,Promise>(fields);
+	}
+	
 	/*
 	 *  (non-Javadoc)
 	 * @see polyglot.ext.x10.types.constr.Promise#term()

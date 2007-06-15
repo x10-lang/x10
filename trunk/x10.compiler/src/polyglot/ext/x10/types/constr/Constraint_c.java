@@ -62,8 +62,14 @@ public class Constraint_c implements Constraint, Cloneable {
 	protected boolean placeIsHere; // true if loc could be here.
 	protected C_Term_c placeTerm;        // if non null, place could be here or some placeTerm.
 	
+	
 	// For representation of T(:self == o), selfBinding is o.
 	protected C_Var selfVar;
+	
+	public int eqvCount() { return eqvCount; }
+	public boolean placeIsHere() { return placeIsHere; }
+	public boolean placePossiblyNull() { return placePossiblyNull; }
+	public C_Term placeTerm() { return placeTerm; }
 	
 	boolean consistent = true;
 	boolean valid = true;
@@ -74,6 +80,18 @@ public class Constraint_c implements Constraint, Cloneable {
 		super();
 		typeSystem= xts;
 	}
+	public Constraint_c(X10TypeSystem ts, int eqvCount, boolean consistent, boolean placeIsHere, C_Term placeTerm, boolean placePossiblyNull, Map<C_Var, Promise> roots, boolean valid, C_Var selfVar) {
+		this(ts);
+		this.eqvCount = eqvCount;
+		this.consistent = consistent;
+		this.placeIsHere = placeIsHere;
+		this.placeTerm = (C_Term_c) placeTerm;
+		this.placePossiblyNull = placePossiblyNull;
+		this.roots = new HashMap<C_Var,Promise>(roots);
+		this.valid = valid;
+		this.selfVar = selfVar;
+	}
+	
 	/** Copy this constraint logically -- that is create a new constraint which contains
 	 * the same equalities (as any) as the current one.
 	 * */

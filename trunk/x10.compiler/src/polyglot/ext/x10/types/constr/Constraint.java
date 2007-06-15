@@ -260,4 +260,9 @@ public interface Constraint extends Serializable {
 	 * saturate it, and transfer these constraints into the current constraint.
 	 */
 	void saturate();
+	
+	int eqvCount();
+	boolean placeIsHere();
+	boolean placePossiblyNull();
+	C_Term placeTerm();
 }

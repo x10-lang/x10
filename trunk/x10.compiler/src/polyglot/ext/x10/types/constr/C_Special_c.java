@@ -25,11 +25,16 @@ public class C_Special_c extends C_Var_c implements C_Special {
 		qualifier = tn==null? null : tn.type();
 	}
 	
-
 	public C_Special_c(X10Special.Kind k, Type t) {
 		super(t);
 		kind= C_Special.C_Kind.trans(k);
 		qualifier=null;
+	}
+	
+	public C_Special_c(Type t, Type qualifier, C_Kind kind) {
+		super(t, kind == THIS, kind == SUPER);
+		this.qualifier = qualifier;
+		this.kind = kind;
 	}
 	
 	public C_Var rootVar() {

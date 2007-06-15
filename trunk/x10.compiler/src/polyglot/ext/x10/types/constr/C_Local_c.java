@@ -60,7 +60,7 @@ public class C_Local_c extends C_Var_c implements C_Local {
 		return val;
 	}
 	
-//	 	public boolean isSelfVar() { return isSelfVar;}
+ 	public boolean isSelfVar() { return isSelfVar;}
 	public String name() { return li.name();}
 	public String toString() { return  name();}
 	public boolean prefixes(C_Term t) {
