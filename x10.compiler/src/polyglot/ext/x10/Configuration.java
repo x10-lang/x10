@@ -51,6 +51,9 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	public static String PLUGIN_COMPILER = "";
 	private static final String PLUGIN_COMPILER_desc = "Javac-like compiler to use to compile plugins";
 
+	public static String XML_PROCESSOR = "";
+	private static final String XML_PROCESSOR_desc = "External program to transform ASTs externalized as XML";
+
 	/**
 	 * Parses one argument from the command line.  This allows the user
 	 * to specify options also on the command line (in addition to the
