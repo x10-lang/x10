@@ -202,7 +202,7 @@ public class LU_Overlap1 extends x10Test{
 		
 	}
 	public static void main(String[] a) {
-		new LU_Overlap1.execute();
+		new LU_Overlap1().execute();
 	}
 	
 }
