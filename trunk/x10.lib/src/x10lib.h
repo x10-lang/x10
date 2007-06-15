@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.12 2007-06-14 13:59:53 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.13 2007-06-15 02:06:58 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -25,7 +25,9 @@
 #include <x10/activity.h>
 */
 /* #include <x10/array.h> */ /* sample inclusion */
+#ifdef X10_SCHED
 #include <x10/sched.h> /* sample inclusion */
+#endif
 
 #define MakeGasRef(task, addr) \
 	(((unsigned)task & 0xffffU) << 48 + ((unsigned long long)addr & 0xffffffffffffULL))
