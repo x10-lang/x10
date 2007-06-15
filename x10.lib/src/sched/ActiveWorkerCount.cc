@@ -9,15 +9,18 @@
 */
 
 #include "ActiveWorkerCount.h"
+#include "Closure.h"
 #include "Sys.h"
+#include <assert.h>
 
+using namespace std;
 using namespace x10lib_cws;
 
 	
-ActiveWorkerCount::ActiveWorkerCount()
-{
-	updater = 0;
-}
+// ActiveWorkerCount::ActiveWorkerCount()
+// {
+// 	updater = 0;
+// }
 ActiveWorkerCount::ActiveWorkerCount(Closure *c)
 {
  	updater = 0;
@@ -25,14 +28,22 @@ ActiveWorkerCount::ActiveWorkerCount(Closure *c)
 }
 void ActiveWorkerCount::checkIn() 
 {
+#if 0
 	atomic_add(&updater,-1);
+#else
+	assert(0);
+#endif
 	if (updater == 0) {
 		barrierAction(closure);
 	}
 }
 void ActiveWorkerCount::checkOut() 
 {
+#if 0
 	atomic_add(&updater,1);
+#else
+	assert(0);
+#endif
 }
 int ActiveWorkerCount::getNumberCheckedOut()
 {

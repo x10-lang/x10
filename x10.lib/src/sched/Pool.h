@@ -9,12 +9,10 @@
 */
 #ifndef x10lib_Pool_h
 #define x10lib_Pool_h
-#include "ActiveWorkerCount.h"
-#include "Job.h"
 #include <pthread.h>
 #include <stdlib.h>
 #include <time.h>
-#include <vector.h>
+#include <vector>
 
 namespace x10lib_cws {
 	
@@ -23,7 +21,7 @@ class FrameGenerator;
 class Job;
 class Worker;
 class ActiveWorkerCount;
-
+class PosixLock;
 
 
 const int INITIAL_JOBQUEUE_CAPACITY = 64;
@@ -45,7 +43,7 @@ private:
 	
 public:
 	pthread_t *id;
-	vector<Worker *> workers;
+	std::vector<Worker *> workers;
 	unsigned int num_workers;
 	int /*atomic */ joinCount;
   volatile Closure *currentJob;
@@ -63,7 +61,12 @@ public:
 
     
     
-	Pool();
+	/* @sriramk: Disabling the default constructor. This should
+	   get the #threads from elsewhere and call Pool(int). But we
+	   need to figure out interaction with the environment.  Until
+	   then, we will ignore this.
+	 */
+/* 	Pool(); */
 	Pool(int numThreads);
 	~Pool();
 	void barrierAction(Closure *c);
@@ -95,19 +98,19 @@ public:
  * Basically a stripped-down variant of ArrayDeque
  */
 class JobQueue {
-	private:
-		
-		vector<Job *> elements;
-    	int head;
-    	int tail;
-	public:
-		JobQueue() ;
-		~JobQueue();
-		bool isEmpty() const;
-		void doubleCapacity();
-		Job *poll();
-		void add(Job *e);
-		bool isQuiescent(vector<Worker *> &workers) const;
+ private:
+  
+  std::vector<Job *> elements;
+  int head;
+  int tail;
+ public:
+  JobQueue() ;
+  ~JobQueue();
+  bool isEmpty() const;
+  void doubleCapacity();
+  Job *poll();
+  void add(Job *e);
+  bool isQuiescent(std::vector<Worker *> &workers) const;
 };
 
 }

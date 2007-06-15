@@ -10,14 +10,6 @@
 #ifndef x10lib_Worker_h
 #define x10lib_Worker_h
 
-#include "Lock.h"
-#include "Frame.h"
-#include "Worker.h"
-#include "Pool.h"
-#include "Closure.h"
-#include "Cache.h"
-
-
 
 namespace x10lib_cws {
 
@@ -29,7 +21,8 @@ namespace x10lib_cws {
 class Cache;
 class Frame;
 class Pool;
-
+class Closure;
+class PosixLock;
 
 class FrameGenerator {
 public:

@@ -11,6 +11,13 @@
 
 
 #include "Worker.h"
+#include "Lock.h"
+#include "Frame.h"
+#include "Worker.h"
+#include "Pool.h"
+#include "Closure.h"
+#include "Cache.h"
+
 
 using namespace x10lib_cws;
 using namespace std;
