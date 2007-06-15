@@ -45,6 +45,13 @@ public class LoadPlugins extends AbstractGoal {
 		}
 
 		public boolean run() {
+			// Handle some hard-coded plugins
+			String xmlProcessor = Configuration.XML_PROCESSOR;
+			
+			if (xmlProcessor != null && ! xmlProcessor.equals("")) {
+				loadPlugin(extInfo, "polyglot.ext.x10.plugin.ExternalizerPlugin");
+			}
+			
 			String compilerPlugins = Configuration.PLUGINS;
 			
 			if (compilerPlugins != null && ! compilerPlugins.equals("")) {
