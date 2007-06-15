@@ -69,17 +69,31 @@ public class ExternalizerPlugin implements CompilerPlugin {
     				ErrorQueue eq = job.compiler().errorQueue();
     				String xmlFile = job.source().path() + ".xml";
 
-    				try {
-    					XMLWriter w = new XMLWriter(xmlFile);
-    					w.writeElement(e);
-    					w.close();
-    				}
-    				catch (IOException ex) {
-    					eq.enqueue(ErrorInfo.IO_ERROR, ex.getMessage());
-    					return false;
+    				String xmlProcessor = Configuration.XML_PROCESSOR;
+    				boolean exportXML = Configuration.EXTERNALIZE_ASTS;
+    				boolean importXML = false;
+    				
+    				if (xmlProcessor != null && ! xmlProcessor.equals("")) {
+    					exportXML = true;
+    					importXML = true;
     				}
     				
-    				String xmlProcessor = Configuration.XML_PROCESSOR;
+    				if (Report.should_report("xml", 1)) {
+    					exportXML = true;
+    					importXML = true;
+    				}
+    				
+    				if (exportXML) {
+    					try {
+    						XMLWriter w = new XMLWriter(xmlFile);
+    						w.writeElement(e);
+    						w.close();
+    					}
+    					catch (IOException ex) {
+    						eq.enqueue(ErrorInfo.IO_ERROR, ex.getMessage());
+    						return false;
+    					}
+    				}
     				
     				if (xmlProcessor != null && ! xmlProcessor.equals("")) {
     					Runtime runtime = Runtime.getRuntime();
@@ -91,17 +105,16 @@ public class ExternalizerPlugin implements CompilerPlugin {
     						cmd[j++] = st.nextToken();
     					}
     					cmd[j++] = xmlFile;
-    					
+
     					if (Report.should_report(Report.verbose, 1)) {
     						StringBuffer cmdStr = new StringBuffer();
     						for (int i = 0; i < cmd.length; i++)
     							cmdStr.append(cmd[i]+" ");
     						Report.report(1, "Executing XML processor " + cmdStr);
     					}
-
+    					
     					try {
     						Process proc = runtime.exec(cmd);
-    						
     						InputStreamReader err = new InputStreamReader(proc.getErrorStream());
     						
     						try {
@@ -134,18 +147,20 @@ public class ExternalizerPlugin implements CompilerPlugin {
     					}
     				}
     				
-    				try {
-    					XMLReader r = new XMLReader(xmlFile);
-    					e = r.readElement();
-    					r.close();
+    				if (importXML) {
+    					try {
+    						XMLReader r = new XMLReader(xmlFile);
+    						e = r.readElement();
+    						r.close();
+    					}
+    					catch (IOException ex) {
+    						eq.enqueue(ErrorInfo.IO_ERROR, ex.getMessage());
+    						return false;
+    					}
+    					
+    					DomReader ungen = new DomReader(ts, nf);
+    					ungen.fromXML(dom, e);
     				}
-    				catch (IOException ex) {
-    					eq.enqueue(ErrorInfo.IO_ERROR, ex.getMessage());
-    					return false;
-    				}
-    				
-    				DomReader ungen = new DomReader(ts, nf);
-    				ungen.fromXML(dom, e);
     				
     				return true;
     			}
