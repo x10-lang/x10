@@ -31,7 +31,7 @@ import polyglot.visit.TypeChecker;
  *
  * @author vj Dec 9, 2004
  */
-public class ForLoop_c extends X10Loop_c implements Loop {
+public class ForLoop_c extends X10Loop_c implements Loop, ForLoop {
 
 	/**
 	 * @param pos
