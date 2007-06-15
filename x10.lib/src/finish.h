@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.h,v 1.2 2007-06-14 13:59:53 ganeshvb Exp $ */
+/* $Id: finish.h,v 1.3 2007-06-15 02:06:47 ipeshansky Exp $ */
 
 
 #ifndef __FINISH_H__
@@ -33,6 +33,8 @@ namespace x10lib {
          for (int i = 0; i < total_; i++)
            exceptions_[i]->testMessage();
        }
+       int size() const { return total_; }
+       Exception **const exceptions() const { return exceptions_; }
       ~MultiException () {
         for (int i = 0; i < total_; i++)
           delete exceptions_[i];
