@@ -1,27 +1,17 @@
 package polyglot.ext.x10.plugin;
 
 
-import java.beans.XMLEncoder;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.visit.DomCreator;
 import polyglot.ext.x10.visit.DomGenerator;
 import polyglot.ext.x10.visit.DomReader;
 import polyglot.ext.x10.visit.X10Dom;
@@ -29,11 +19,9 @@ import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Job;
 import polyglot.frontend.Pass;
 import polyglot.frontend.Scheduler;
-import polyglot.frontend.Source;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.frontend.goals.Goal;
 import polyglot.main.Report;
-import polyglot.types.reflect.Field;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.QuotedStringTokenizer;
