@@ -43,6 +43,10 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 		this.fi = fi;
 		
 	}
+	
+	public X10ConstructorInstance constructorInstance() { return ci; }
+	public List<FieldInstance> fieldInstances() { return fi; }
+
 	@Override
 	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
 		return this;

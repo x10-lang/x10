@@ -130,7 +130,7 @@ implements AssignPropertyCall, Return {
 			// a = (Stmt) a.visit(tc); Do not typecheck the statement a.
 			s.add(a);
 		}
-		Node n = new AssignPropertyBody_c(pos,s, thisConstructor, definedProperties).del().typeCheck(tc);
+		Node n = ((X10NodeFactory) nf).AssignPropertyBody(pos,s, thisConstructor, definedProperties).del().typeCheck(tc);
 		
 		
 		return n;
