@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: gas.h,v 1.4 2007-05-31 11:25:57 ganeshvb Exp $ */
+/* $Id: gas.h,v 1.5 2007-06-15 02:06:52 ipeshansky Exp $ */
 
 #ifndef __X10_GAS_H__
 #define __X10_GAS_H__
@@ -15,10 +15,9 @@
 #ifdef __cplusplus
 namespace x10lib {
   
-
-  place_t ID;
+  extern place_t ID;
   
-  int MAX_PLACES;
+  extern int MAX_PLACES;
   
   bool gas_islocal(gas_ref_t* ref);
 
@@ -32,9 +31,9 @@ namespace x10lib {
   extern lapi_handle_t GetHandle();
 
   class Allocator;
-  Allocator* GlobalSMAlloc;
+  extern Allocator* GlobalSMAlloc;
 
-  func_t* handlerTable;
+  extern func_t* handlerTable;
 }
 #endif
 
