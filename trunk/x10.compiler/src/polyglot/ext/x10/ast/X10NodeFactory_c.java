@@ -54,8 +54,10 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
 import polyglot.ext.x10.ExtensionInfo;
+import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -89,6 +91,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return new X10Disamb_c();
 	}
 
+	
 	public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, Id name) {
 		AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name);
 		n = (AmbTypeNode)n.ext(extFactory().extAmbTypeNode());
@@ -900,6 +903,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		AssignPropertyCall  n = new AssignPropertyCall_c(pos, args);
 		n = (AssignPropertyCall) n.ext(extFactory().extExpr());
 		n= (AssignPropertyCall) n.del(delFactory().delExpr());
+		return n;
+	}
+	public AssignPropertyBody AssignPropertyBody(Position pos, List statements, 
+			X10ConstructorInstance ci, List fi) {
+		AssignPropertyBody  n = new AssignPropertyBody_c(pos, statements, ci, fi);
+		n = (AssignPropertyBody) n.ext(extFactory().extStmt());
+		n= (AssignPropertyBody) n.del(delFactory().delStmt());
 		return n;
 	}
 	public Conditional Conditional(Position pos, Expr cond, Expr consequent, Expr alternative) {

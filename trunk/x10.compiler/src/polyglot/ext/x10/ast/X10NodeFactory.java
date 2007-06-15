@@ -26,6 +26,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Flags;
 import polyglot.types.Type;
@@ -144,5 +145,7 @@ public interface X10NodeFactory extends NodeFactory {
 
     AnnotationNode AnnotationNode(Position pos, TypeNode tn);
     
-    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep);   
+    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep);
+
+	AssignPropertyBody AssignPropertyBody(Position position, List statements, X10ConstructorInstance ci, List fi);   
 }
