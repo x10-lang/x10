@@ -97,6 +97,12 @@ public interface X10NodeFactory extends NodeFactory {
     MethodDecl MethodDecl(Position pos, DepParameterExpr thisClause,
             Flags flags, TypeNode returnType, Id name,
             List formals, Expr where, List throwTypes, Block body);
+    MethodDecl X10MethodDecl(Position pos, DepParameterExpr thisClause,
+    		Flags flags, TypeNode returnType, Id name,
+    		List formals, Expr where, List throwTypes, Block body);
+    MethodDecl AtomicX10MethodDecl(Position pos, DepParameterExpr thisClause,
+    		Flags flags, TypeNode returnType, Id name,
+    		List formals, Expr where, List throwTypes, Block body);
     FieldDecl FieldDecl(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode type, Id name, Expr init);
 	X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base,
 									  boolean isValueType,
