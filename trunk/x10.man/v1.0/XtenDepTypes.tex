@@ -142,7 +142,7 @@ ClassType              ::=
   TypeName DepParametersopt PlaceTypeSpecifieropt
 InterfaceType          ::= 
   TypeName DepParametersopt PlaceTypeSpecifieropt
-PlaceTypeSpecifier     ::=  @ PlaceTypeopt
+PlaceTypeSpecifier     ::=  ! PlaceTypeopt
 PlaceType              ::= current | Expression
 
 DepParameters    ::= ( DepParameterExpr ) 
@@ -1078,9 +1078,9 @@ Type Value [ DepParameterExpr ]
    => ValueArray<Type>( DepParameterExpr )
 \end{x10}
 
-For {\cf R} is a reference type, the type {\cf R(:c)@current[]} is interpreted as the
+For {\cf R} is a reference type, the type {\cf R(:c)!current[]} is interpreted as the
 type of all arrays which are such that the value at a point {\cf p} in its
-region has the type {\cf R(:c)@self.dist[p]}. (Recall that in \Xten{} a
+region has the type {\cf R(:c)!self.dist[p]}. (Recall that in \Xten{} a
 distribution is itself a value array that maps a point to a place.)
 
 \begin{example}
@@ -1161,7 +1161,7 @@ distributions. We envision this as a major step towards removing most
 \section{Place types}\label{DepType:PlaceType}\index{placetype}
 
 \begin{x10}
-PlaceTypeSpecifier ::= @ PlaceType
+PlaceTypeSpecifier ::= ! PlaceType
 PlaceType ::=  any | current | Expression  
 \end{x10}
 
@@ -1177,21 +1177,21 @@ syntactic support is provided for deptypes involving places.
 
 We now consider the expansions of deptypes with place information.
 
-Unless a deptype {\cf T} (whose base is a reference type) has an {\cf @} suffix,
+Unless a deptype {\cf T} (whose base is a reference type) has an {\cf !} suffix,
 the constraint for {\cf T} is implicitly assumed to contain the clause
 {\cf self.loc==here}.
 \begin{x10}
 C( : c) => C(: self.loc==here \&\& c )  
 \end{x10}
-\noindent The expansions for a deptype with an ``{\cf @}'' suffix are:
+\noindent The expansions for a deptype with an ``{\cf !}'' suffix are:
 \begin{x10}
-C( : c)@  => C(: c )  // no self.loc clause.
-C( : c)@p => C(: self.loc==p \&\& c ) 
+C( : c)!  => C(: c )  // no self.loc clause.
+C( : c)!p => C(: self.loc==p \&\& c ) 
 \end{x10}
 
 
 \begin{quotation}
-  {\cf Static Semantics Rule:} It is a compile time error for the {\tt @}-annotation to
+  {\cf Static Semantics Rule:} It is a compile time error for the {\tt !}-annotation to
   be used for deptypes whose base type does not extend {\tt x10.lang.Ref}.  
 \end{quotation}
 
@@ -1257,10 +1257,10 @@ method, the compiler generates code to perform the method invocation
 synchronously:
 
 \begin{x10}
-  final T@ t = e;
-  final P1@ t1 = e1;
+  final T! t = e;
+  final P1! t1 = e1;
   ...
-  final Pn@ tn = en;
+  final Pn! tn = en;
   finish async (t){ 
     t.m(t1,..., tn);
   }  
@@ -1274,10 +1274,10 @@ following code:
 \begin{x10}
   new Runnable() {
   public E run() {
-    final T@ t = e;
-    final P1@ t1 = e1;
+    final T! t = e;
+    final P1! t1 = e1;
     ...
-    final Pn@ tn = en;
+    final Pn! tn = en;
   
     return future(t){t.m(t1,...tn)}.force();
   }}.run()
