@@ -56,6 +56,7 @@ import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
+import polyglot.types.NullType;
 import polyglot.types.Package;
 import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
@@ -994,13 +995,15 @@ public class X10Dom {
 	public class FutureNodeLens implements AbsLens<FutureNode> {
 		public FutureNode fromXML(DomReader v, Element e) {
 			Position position = get(new PositionLens(), e, "position", v);
-			TypeNode tn = get(new CanonicalTypeNodeLens(), e, "type", v);
-			return nf.FutureNode(position, tn);
+			TypeNode tn = (TypeNode) get(new NodeLens(), e, "base", v);
+			Type t = get(new TypeRefLens(), e, "type", v);
+			return (FutureNode) nf.FutureNode(position, tn).type(t);
 		}
 		
 		public void toXML(DomGenerator v, FutureNode n) {
 //			v = v.tag("FutureNode");
 			gen(v, "position", n.position());
+			gen(v, "base", n.base());
 			gen(v, "type", n.type());
 		}
 	}
@@ -1008,13 +1011,15 @@ public class X10Dom {
 	public class NullableNodeLens implements AbsLens<NullableNode> {
 		public NullableNode fromXML(DomReader v, Element e) {
 			Position position = get(new PositionLens(), e, "position", v);
-			TypeNode tn = get(new CanonicalTypeNodeLens(), e, "type", v);
-			return nf.Nullable(position, tn);
+			TypeNode tn = (TypeNode) get(new NodeLens(), e, "base", v);
+			Type t = get(new TypeRefLens(), e, "type", v);
+			return (NullableNode) nf.Nullable(position, tn).type(t);
 		}
 		
 		public void toXML(DomGenerator v, NullableNode n) {
 //			v = v.tag("NullableNode");
 			gen(v, "position", n.position());
+			gen(v, "base", n.base());
 			gen(v, "type", n.type());
 		}
 	}
@@ -2136,6 +2141,9 @@ public class X10Dom {
 				List<Type> argTypes = get(new ListLens<Type>(new TypeRefLens()), e, "args", v);
 				return ts.closure(Position.COMPILER_GENERATED, returnType, argTypes, throwsTypes);
 			}
+			if (tag.equals("null")) {
+				return ts.Null();
+			}
 			if (tag.equals("class")) {
 				String name = get(new StringLens(), e, "key", v);
 				
@@ -2237,6 +2245,9 @@ public class X10Dom {
 				gen(v, "return", ((ClosureType) t).throwTypes());
 				gen(v, "throws", ((ClosureType) t).returnType());
 				gen(v, "args", ((ClosureType) t).argumentTypes());
+			}
+			else if (t instanceof NullType) {
+				v = v.tag("null");
 			}
 			else {
 				assert false;
