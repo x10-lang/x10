@@ -25,7 +25,7 @@ Pool::~Pool() {
 	delete barrier;
 	//free id; // Uncomment later on
 	for(i=0;i<workers.size();i++)
-					delete workers[i];
+		delete workers[i];
 	workers.clear();
 }
 
@@ -90,10 +90,16 @@ Pool::Pool(int numThreads) {
 	jobs =  new JobQueue();
 	joinCount = 0;
 
-	/*TODO sriram The Java code has a different creation count and
-	  invokes start on each worker. Check this later*/	
-	workers.resize(INITIAL_WORKER_CAPACITY);
-	
+	workers.resize(poolSize);
+    for (int i = 0; i < poolSize; ++i) {
+    	Worker r = new Worker(this, i);
+        workers[i] = r;       
+    }
+            
+    for (int i = 0; i < poolSize; ++i) {
+    	workers[i]->start();
+        ++runningWorkers;
+    }
 	  
 	id = (pthread_t *)malloc(num_workers * sizeof(pthread_t));
 	
