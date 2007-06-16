@@ -63,7 +63,7 @@ void Closure::lock(Worker *agent) {
 	lockOwner = agent;
 }
 void Closure::unlock() { 
-	lockOwner=NULL; // TODO Check
+	lockOwner=NULL;
 	UNLOCK(lock_var);
 }
 void Closure::addCompletedInlet(Closure *child) {
@@ -507,8 +507,6 @@ void Closure::setOutlet(Outlet *o) { outlet=o;}
 void Closure::copyFrame(Worker *w) {
 		assert(ownerReadyQueue->lockOwner==w);
 		frame = frame->copy();
-		// TODO RAJ:: Use Sriram's suggestion to improve code
-		//frame = new Frame(*frame); // Use copy constructor to copy
 }	
 bool Closure::isDone() const { return done;}
 	

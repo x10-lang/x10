@@ -71,7 +71,7 @@ public:
 	volatile /*atomic */ int sleepStatus;
 
 	/*protected static  Worker[] workers; */
-	Worker();
+//	Worker();
 	Worker(int index, Pool *p);
 	bool sync();
 	Closure *scanTasks();
