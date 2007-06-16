@@ -612,25 +612,7 @@ public class X10Dom {
 			if (kind != ClassType.ANONYMOUS) {
 				name = get(new StringLens(), e, "name", v);
 			}
-			if (name != null) {
-				Resolver r = ts.systemResolver();
-				if (pkg != null) {
-					r = ts.packageContextResolver(pkg);
-				}
-				try {
-					Named n = r.find(name);
-					if (n instanceof X10ClassType) {
-						return (X10ClassType) n;
-					}
-					throw new InternalCompilerError("Not a class " + name);
-				}
-				catch (SemanticException ex) {
-					// not found
-//					throw new InternalCompilerError(ex);
-				}
-			}
-			
-			X10ParsedClassType ct = (X10ParsedClassType) ts.createClassType();
+	
 			ClassType outer = null;
 			if (kind != ClassType.TOP_LEVEL) {
 				outer = (ClassType) get(new TypeRefLens(), e, "outer", v);
@@ -649,7 +631,17 @@ public class X10Dom {
 				else if (kind == ClassType.MEMBER && outer != null) {
 					fullName = outer.fullName() + "." + name;
 				}
-				
+			}
+			
+			if (fullName != null) {
+				Named n = ts.systemResolver().check(fullName);
+				if (n instanceof X10ClassType) {
+					return (X10ClassType) n;
+				}
+			}
+			
+			X10ParsedClassType ct = (X10ParsedClassType) ts.createClassType();
+			if (name != null) {
 				ct.name(name);
 			}
 			
@@ -670,8 +662,7 @@ public class X10Dom {
 			List<MethodInstance> methods = get(new ListLens<MethodInstance>(new MethodInstanceLens()), e, "methods", v);
 			List<ConstructorInstance> constructors = get(new ListLens<ConstructorInstance>(new ConstructorInstanceLens()), e, "constructors", v);
 			List<X10ClassType> memberClasses = get(new ListLens<X10ClassType>(new ClassTypeLens()), e, "memberClasses", v);
-//			XXX
-//			Constraint realClause = get(new ConstraintLens(), e, "realClause");
+			Constraint realClause = get(new ConstraintLens(), e, "realClause", v);
 			ct.outer(outer);
 			ct.setFlags(flags);
 			ct.package_(pkg);
@@ -681,8 +672,7 @@ public class X10Dom {
 			ct.setMethods(methods);
 			ct.setConstructors(constructors);
 			ct.setMemberClasses(memberClasses);
-			// XXX
-//			ct.setRealClause(realClause);
+			ct.setRealClause(realClause);
 			return ct;
 		}
 
@@ -1538,8 +1528,17 @@ public class X10Dom {
 		public X10ArrayAccess1Unary fromXML(DomReader v, Element e) {
 			Position position = get(new PositionLens(), e, "position", v);
 			Unary.Operator operator = get(new UnaryOpLens(), e, "operator", v);
-			X10ArrayAccess1 expression = (X10ArrayAccess1) get(new NodeLens(), e, "expression", v);
-			return ((X10NodeFactory_c) nf).X10ArrayAccess1Unary(position, operator, expression);
+			Expr n = (Expr) get(new NodeLens(), e, "expression", v);
+			if (n instanceof X10ArrayAccess1) {
+				return ((X10NodeFactory_c) nf).X10ArrayAccess1Unary(position, operator, (X10ArrayAccess1) n);
+			}
+			else if (n instanceof ArrayAccess) {
+				return ((X10NodeFactory_c) nf).X10ArrayAccess1Unary(position, operator, (ArrayAccess) n);
+			}
+			else {
+				assert false;
+				return null;
+			}
 		}
 
 		public void toXML(DomGenerator v, X10ArrayAccess1Unary n) {
@@ -1680,7 +1679,7 @@ public class X10Dom {
 	public class CastLens implements AbsLens<Cast> {
 		public Cast fromXML(DomReader v, Element e) {
 			Position position = get(new PositionLens(), e, "position", v);
-			TypeNode type = (TypeNode) get(new NodeLens(), e, "type", v);
+			TypeNode type = (TypeNode) get(new NodeLens(), e, "castType", v);
 			Expr expression = (Expr) get(new NodeLens(), e, "expression", v);
 			return nf.Cast(position, type, expression);
 		}
@@ -1688,7 +1687,7 @@ public class X10Dom {
 		public void toXML(DomGenerator v, Cast n) {
 			// v = v.tag("Cast");
 			gen(v, "position", n.position());
-			gen(v, "type", n.castType());
+			gen(v, "castType", n.castType());
 			gen(v, "expression", n.expr());
 		}
 	}
@@ -1859,8 +1858,8 @@ public class X10Dom {
 		}
 	}
 	
-	public class TypeObjectLens implements AbsLens<TypeObject> {
-		public TypeObject fromXML(DomReader v, Element e) {
+	public class TypeObjectLens implements AbsLens<Object> {
+		public Object fromXML(DomReader v, Element e) {
 			String tag = e.getTagName();
 			if (tag.equals("MethodInstance")) {
 				return new MethodInstanceLens().fromXML(v, e);
@@ -1877,10 +1876,13 @@ public class X10Dom {
 			if (tag.equals("ClassType")) {
 				return new ClassTypeLens().fromXML(v, e);
 			}
+			if (tag.equals("Promise")) {
+				return new PromiseLens().fromXML(v, e);
+			}
 			throw new InternalCompilerError("No lens found for " + tag);
 		}
 		
-		public void toXML(DomGenerator v, TypeObject n) {
+		public void toXML(DomGenerator v, Object n) {
 			assert false;
 		}
 	}
@@ -1894,7 +1896,7 @@ public class X10Dom {
 			Integer eqvCount = get(new IntLens(), e, "eqvCount", v);
 			C_Var selfVar = get(new CVarLens(), e, "selfVar", v);
 			C_Term_c placeTerm = (C_Term_c) get(new CTermLens(), e, "placeTerm", v);
-			Map<C_Var,Promise> roots = (Map<C_Var,Promise>) get(new MapLens<C_Var,Promise>(new CVarLens(), new PromiseLens()), e, "roots", v);
+			Map<C_Var,Promise> roots = (Map<C_Var,Promise>) get(new MapLens<C_Var,Promise>(new CVarLens(), new PromiseRefLens()), e, "roots", v);
 			Constraint_c n = new Constraint_c(ts, eqvCount, consistent, placeIsHere, placeTerm, placePossiblyNull, roots, valid, selfVar);
 			return n;
 		}
@@ -1915,14 +1917,10 @@ public class X10Dom {
 	public class PromiseLens implements AbsLens<Promise> {
 		public Promise fromXML(DomReader v, Element e) {
 			String tag = e.getTagName();
-			if (tag.equals("C_Here")) return new CHereLens().fromXML(v, e);
-			if (tag.equals("C_Type")) return new CTypeLens().fromXML(v, e);
-			if (tag.equals("C_Lit")) return new CLitLens().fromXML(v, e);
 			if (tag.equals("Promise")) {
-				// unimplemented
 				C_Var var = get(new CVarLens(), e, "var", v);
-				Promise value = get(new PromiseLens(), e, "value", v);
-				Map<String,Promise> fields = get(new MapLens<String,Promise>(new StringLens(), new PromiseLens()), e, "var", v);
+				Promise value = get(new PromiseRefLens(), e, "value", v);
+				Map<String,Promise> fields = get(new MapLens<String,Promise>(new StringLens(), new PromiseRefLens()), e, "var", v);
 				return new Promise_c(var, value, fields);
 			}
 			assert false;
@@ -1934,6 +1932,30 @@ public class X10Dom {
 			gen(v, "var", n.term());
 			gen(v, "value", n.value());
 			gen(v, "fields", n.fields());
+		}
+	}
+	
+	public class PromiseRefLens implements AbsLens<Promise> {
+		public Promise fromXML(DomReader v, Element e) {
+			String tag = e.getTagName();
+			if (tag.equals("C_Here")) return new CHereLens().fromXML(v, e);
+			if (tag.equals("C_Type")) return new CTypeLens().fromXML(v, e);
+			if (tag.equals("C_Lit")) return new CLitLens().fromXML(v, e);
+			if (tag.equals("Promise")) {
+				String name = get(new StringLens(), e, "key", v);
+				Promise t = (Promise) v.typeMap.get(name).force(X10Dom.this);
+				if (t != null) {
+					return t;
+				}
+				return null;
+			}
+			assert false;
+			return null;
+		}
+		
+		public void toXML(DomGenerator v, Promise n) {
+			v = v.tag("PromiseRef");
+			addType(v, n, new PromiseLens());
 		}
 	}
 	
@@ -2003,7 +2025,6 @@ public class X10Dom {
 			gen(v, "this", n.kind() == C_Special.THIS);
 			gen(v, "super", n.kind() == C_Special.SUPER);
 			gen(v, "self", n.kind() == C_Special.SELF);
-			assert false;
 		}
 	}
 	
@@ -3403,6 +3424,9 @@ public class X10Dom {
 		else if (o instanceof List) {
 			new ListLens<Object>(new ObjectLens()).toXML(v, (List) o);
 		}
+		else if (o instanceof Map) {
+			new MapLens<Object,Object>(new ObjectLens(), new ObjectLens()).toXML(v, (Map) o);
+		}
 		else if (o instanceof Position) {
 			new PositionLens().toXML(v, (Position) o);
 		}
@@ -3499,14 +3523,38 @@ public class X10Dom {
 		else if (o instanceof Constraint) {
 			new ConstraintLens().toXML(v, (Constraint) o);
 		}
-		else if (o instanceof C_Term) {
-			new CTermLens().toXML(v, (C_Term) o);
+		else if (o instanceof C_BinaryTerm) {
+			new CBinaryLens().toXML(v, (C_BinaryTerm) o);
+		}
+		else if (o instanceof C_UnaryTerm) {
+			new CUnaryLens().toXML(v, (C_UnaryTerm) o);
+		}
+		else if (o instanceof C_Here_c) {
+			new CHereLens().toXML(v, (C_Here_c) o);
+		}
+		else if (o instanceof C_Lit) {
+			new CLitLens().toXML(v, (C_Lit) o);
+		}
+		else if (o instanceof C_Special) {
+			new CSpecialLens().toXML(v, (C_Special) o);
+		}
+		else if (o instanceof C_EQV) {
+			new CEQVLens().toXML(v, (C_EQV) o);
+		}
+		else if (o instanceof C_Local) {
+			new CLocalLens().toXML(v, (C_Local) o);
+		}
+		else if (o instanceof C_Field) {
+			new CFieldLens().toXML(v, (C_Field) o);
 		}
 		else if (o instanceof C_Var) {
 			new CVarLens().toXML(v, (C_Var) o);
 		}
+		else if (o instanceof C_Type) {
+			new CTypeLens().toXML(v, (C_Type) o);
+		}
 		else if (o instanceof Promise) {
-			new PromiseLens().toXML(v, (Promise) o);
+			new PromiseRefLens().toXML(v, (Promise) o);
 		}
 		else if (o == null) {
 			return;
@@ -3516,7 +3564,7 @@ public class X10Dom {
 		}
 	}
 	
-	public <T extends TypeObject> void addType(DomGenerator v, T t, AbsLens<T> lens) {
+	public <T> void addType(DomGenerator v, T t, AbsLens<T> lens) {
 		IdentityKey tkey = new IdentityKey(t);
 		String key = v.typesMap.get(tkey);
 		
@@ -3535,7 +3583,7 @@ public class X10Dom {
 		toXML(v, key);
 	}
 	
-	public String keyString(TypeObject t) {
+	public String keyString(Object t) {
 		String key = StringUtil.getShortNameComponent(t.getClass().getName());
 		if (t instanceof Named) {
 			key = ((Named) t).fullName().replace('.', '$');
@@ -3567,12 +3615,7 @@ public class X10Dom {
 			f.visitAppropriate(n);
 			if (n instanceof Expr) {
 				Type t = ((Expr) n).type();
-				if (t != null) {
-					gen(v, "type", t);
-				}
-				else {
-					gen(v, "type", t);
-				}
+				gen(v, "type", t);
 			}
 		}
 
