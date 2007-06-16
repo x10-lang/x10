@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.AmbTypeNode;
+import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
@@ -597,6 +598,15 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		X10ArrayAccessUnary n = new X10ArrayAccessUnary_c(pos, op, expr);
 		n = (X10ArrayAccessUnary) n.ext(extFactory().extArrayAccess());
 		return (X10ArrayAccessUnary) n.del(delFactory().delArrayAccess());
+	}
+
+	public X10ArrayAccess1Unary X10ArrayAccess1Unary(Position pos,
+			Unary.Operator op,
+			ArrayAccess expr)
+	{
+		X10ArrayAccess1Unary n = new X10ArrayAccess1Unary_c(pos, op, expr);
+		n = (X10ArrayAccess1Unary) n.ext(extFactory().extArrayAccess());
+		return (X10ArrayAccess1Unary) n.del(delFactory().delArrayAccess());
 	}
 
 	public X10ArrayAccess1Unary X10ArrayAccess1Unary(Position pos,

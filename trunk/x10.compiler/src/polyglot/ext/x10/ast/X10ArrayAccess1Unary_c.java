@@ -46,7 +46,7 @@ public class X10ArrayAccess1Unary_c extends Unary_c
 	 * @param op
 	 * @param expr
 	 */
-	public X10ArrayAccess1Unary_c(Position pos, Operator op, X10ArrayAccess1 expr) {
+	public X10ArrayAccess1Unary_c(Position pos, Operator op, Expr expr) {
 		super(pos, op, expr);
 	}
 

@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import polyglot.ast.Node;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.visit.X10Dom.AbsLens;
 import polyglot.ext.x10.visit.X10Dom.NodeLens;
 import polyglot.types.TypeObject;
 
@@ -36,17 +37,21 @@ public class DomReader {
 	}
 	
 	class LazyTypeObject {
-		TypeObject o;
+		Object o;
 		Element e;
+		AbsLens lens;
 		
-		LazyTypeObject(Element e) {
+		LazyTypeObject(Element e) { }
+		
+		LazyTypeObject(Element e, AbsLens lens) {
 			this.e = e;
+			this.lens = lens;
 		}
 		
-		TypeObject force(X10Dom dom) {
+		Object force(X10Dom dom) {
 			if (o != null)
 				return o;
-			return dom.get(dom.new TypeObjectLens(), e, "value", DomReader.this);
+			return dom.get(lens, e, "value", DomReader.this);
 		}
 	}
 	
@@ -58,9 +63,8 @@ public class DomReader {
 			}
 			Element x = (Element) child;
 			Element name = dom.getChild(x, "key");
-//			Element obj = dom.getChild(x, "value");
 			String key = dom.new StringLens().fromXML(this, name);
-			typeMap.put(key, new LazyTypeObject(x));
+			typeMap.put(key, new LazyTypeObject(x, dom.new TypeObjectLens()));
 		}
 	}
 
