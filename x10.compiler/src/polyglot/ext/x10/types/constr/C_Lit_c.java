@@ -106,6 +106,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public boolean bind(Promise target) throws Failure {
 		if (target.term().equals(this))
 			return true;
+		if (target.term() instanceof C_Lit) {
+			throw new Failure("Cannot bind literal " + this + " to " + target);
+		}
 		if (target.term() instanceof C_Var) {
 			return target.bind(this);
 		}
