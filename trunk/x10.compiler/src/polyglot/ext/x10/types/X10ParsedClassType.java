@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 
@@ -97,4 +98,5 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	 * @throws SemanticException
 	 */
 	void checkRealClause() throws SemanticException;
+	public void setRealClause(Constraint realClause);
 }

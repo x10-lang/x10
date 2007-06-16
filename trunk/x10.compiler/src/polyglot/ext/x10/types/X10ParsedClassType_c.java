@@ -1245,6 +1245,11 @@ implements X10ParsedClassType
 		}
 		return  Collections.unmodifiableList(fields);
 	}
+
+	public void setRealClause(Constraint realClause) {
+		this.realClause = realClause;
+		this.realClauseSet = true;
+	}
 	
 	
 }
