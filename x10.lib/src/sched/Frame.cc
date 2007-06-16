@@ -28,7 +28,7 @@ Frame::~Frame() {}
 		 * instance from the position specified by this frame.
 		 * Should be overridden by subclasses.
 		 */
-Closure *Frame::makeClosure() { return NULL; }
+Closure *Frame::makeClosure() { abort(); return NULL; }
 
 /**
  * Set the Outlet object on c so that it can supply
@@ -36,7 +36,7 @@ Closure *Frame::makeClosure() { return NULL; }
  * Should be overridden by subclasses.
  * @param c -- The closure whose outlet must be set.
  */
-void Frame::setOutletOn(Closure *c) { }
+void Frame::setOutletOn(Closure *c) { abort(); }
 
 	/**
 	 * To be implemented in subclasses to support in place update of frames

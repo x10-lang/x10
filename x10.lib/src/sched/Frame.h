@@ -23,8 +23,8 @@ public:
 	virtual ~Frame();
 
 	virtual Closure *makeClosure();
-	void setOutletOn(Closure *c);
-	void setInt(int x);
+	virtual void setOutletOn(Closure *c);
+	virtual void setInt(int x);
 	virtual Frame *copy();
 };
 

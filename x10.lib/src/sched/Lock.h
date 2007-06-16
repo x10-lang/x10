@@ -17,9 +17,9 @@ class SpinLock {
 	private:
 		volatile int spin_lock_var;
 /* 		pthread_mutex_t posix_lock_var; */
+		~SpinLock (); //cannot inherit. for now
 	public:
 		SpinLock ();
-		~SpinLock ();
 		void spin_lock_init();
 		void spin_lock_wait();
 		int spin_lock_try();
@@ -28,9 +28,11 @@ class SpinLock {
 };
 
 class PosixLock {
+private:
+	~PosixLock(); //cannot inherit.
+
 public:
 	PosixLock();
-	~PosixLock();
 	pthread_mutex_t posix_lock_var;
 	void lock_init_posix();
 	int lock_try_posix();

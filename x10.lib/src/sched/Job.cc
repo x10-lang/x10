@@ -32,7 +32,8 @@ Closure *JobFrame::makeClosure() {
 	return NULL;
 }
 void JobFrame::setOutletOn(Closure *c) {
-			c->setOutlet(new ResultOutlet());
+#warning "Object created here. Should deallocate somewhere!"
+	c->setOutlet(new ResultOutlet());
 }
 		
 
@@ -52,8 +53,8 @@ void ResultOutlet::run() {
 
 /*----------------------GFrame------------------*/	
 
-void GFrame::setOutletOn(Closure *c) {}
-Closure *GFrame::makeClosure() { return NULL;}
+void GFrame::setOutletOn(Closure *c) { abort(); }
+Closure *GFrame::makeClosure() { abort(); return NULL;}
 GFrame::GFrame():JobFrame(), PC(0) { }
 
 /*---------------------Job---------------------------*/

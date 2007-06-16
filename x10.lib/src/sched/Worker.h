@@ -42,6 +42,8 @@ private:
 	Closure *getTaskFromPool(Worker *sleeper);
 	void wakeup();
 
+	~Worker(); //cannot inherit this class
+
 protected:
 	Closure *top, *bottom;
 	int randNext;
@@ -49,6 +51,8 @@ protected:
 	bool done;
 	Closure *closure;
 	Pool *pool;
+	PosixLock *lock_var; // dequeue_lock
+	Worker *lockOwner; // the thread holding the lock.
 	
 	int rand();
 	void setRandSeed(int seed);
@@ -56,8 +60,6 @@ protected:
 	
 public:
 	Cache *cache;
-	PosixLock *lock_var; // dequeue_lock
-	Worker *lockOwner; // the thread holding the lock.
 	FrameGenerator *fg;
 
 	void unlock();
@@ -71,7 +73,6 @@ public:
 	/*protected static  Worker[] workers; */
 	Worker();
 	Worker(int index, Pool *p);
-	~Worker();
 	bool sync();
 	Closure *scanTasks();
 	void run(); // Main execution of the scheduler
