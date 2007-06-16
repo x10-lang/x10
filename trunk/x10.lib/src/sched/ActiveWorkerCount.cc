@@ -11,6 +11,7 @@
 #include "ActiveWorkerCount.h"
 #include "Closure.h"
 #include "Sys.h"
+#include "Runnable.h"
 #include <assert.h>
 
 using namespace std;
@@ -21,11 +22,16 @@ using namespace x10lib_cws;
 // {
 // 	updater = 0;
 // }
-ActiveWorkerCount::ActiveWorkerCount(Closure *c)
-{
+/*We assume we are being passed a new object that we control. 
+ * So we delete b in the desctructor.*/
+ActiveWorkerCount::ActiveWorkerCount(Runnable *b)
+ : this->barrierAction(c) {
  	updater = 0;
-	closure = c;
 }
+ActiveWorkerCount::~ActiveWorkerCount() {
+	delete barrierAction;	
+}
+
 void ActiveWorkerCount::checkIn() 
 {
 #if 0
@@ -34,7 +40,8 @@ void ActiveWorkerCount::checkIn()
 	assert(0);
 #endif
 	if (updater == 0) {
-		barrierAction(closure);
+		if(barrierAction)
+			barrierAction.run();
 	}
 }
 void ActiveWorkerCount::checkOut() 
@@ -49,11 +56,13 @@ int ActiveWorkerCount::getNumberCheckedOut()
 {
 	return updater; 
 }
-void ActiveWorkerCount::barrierAction(Closure *c)
+
+/*
+void ActiveWorkerCount::barrierAction(Closure &*c)
 {
 	if (c != NULL && c->requiresGlobalQuiescence()) 
-			c->completed();
+		c->completed();
 	c = NULL;
 	MEM_BARRIER(); // let everyone see it -- TODO RAJ
 }
-	
+*/	

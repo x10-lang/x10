@@ -31,6 +31,9 @@ enum {EXECUTING=0,SHUTDOWN=1,STOP=2,TERMINATED=3};
 
 class Pool {
 private:
+	//anonymous inner class
+	friend class anon_ActiveWorkerCount;
+private:
 	PosixLock *lock_var;
 	pthread_cond_t work;
 	pthread_cond_t termination;
@@ -40,6 +43,8 @@ private:
 	JobQueue *jobs;
 	//volatile UncaughtExceptionHandler *ueh;
 	void addJob(Job *job);
+	
+	~Pool(); //cannot inherit this class
 	
 public:
 	pthread_t *id;
@@ -68,7 +73,6 @@ public:
 	 */
 /* 	Pool(); */
 	Pool(int numThreads);
-	~Pool();
 	void barrierAction(Closure *c);
 	//UncaughtExceptionHandler *setUncaughtExceptionHandler(UncaughtExceptionHandler *h);
 	int getPoolSize() const;

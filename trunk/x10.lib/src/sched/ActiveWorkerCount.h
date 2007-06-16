@@ -16,20 +16,23 @@
 namespace x10lib_cws {
 
 class Closure;
-
+class Runnable;
 
 class ActiveWorkerCount {
 	private:
 		volatile int updater;
-		void barrierAction(Closure *cl);
-		Closure *closure;
+//		void barrierAction(Closure &*cl);
+//		Closure &*closure;
+		Runnable *barrierAction;
+ 		~ActiveWorkerCount(); //cannot inherit
+
 	protected:
 	public:
 /* 		ActiveWorkerCount(); */
-		ActiveWorkerCount(Closure *c=NULL);
-		void checkIn();
-		void checkOut();
-		int getNumberCheckedOut();
+		ActiveWorkerCount(Runnable *barrierAction=NULL);
+		virtual void checkIn();
+		virtual void checkOut();
+		virtual int getNumberCheckedOut();
 };
 
 }

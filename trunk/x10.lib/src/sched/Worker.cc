@@ -13,7 +13,6 @@
 #include "Worker.h"
 #include "Lock.h"
 #include "Frame.h"
-#include "Worker.h"
 #include "Pool.h"
 #include "Closure.h"
 #include "Cache.h"
@@ -25,21 +24,29 @@ using namespace std;
 
 bool Worker::reporting = false;
 
-Worker::Worker() {
-}
+//Worker::Worker() {
+//}
+
 // index is the id of the pthread
 Worker::Worker(int idx, Pool *p) {
 	this->checkedIn = true;
 	this->top = NULL;
 	this->bottom = NULL;
+	this->randNext = 0;
+	this->index = idx;
+	this->done = false;
 	this->closure = NULL;
 	this->pool = p;
-	this->index = idx;
 	this->lock_var = new PosixLock();
+	this->lockOwner = NULL;
+
 	this->cache = new Cache(this);
+	this->fg = NULL;
 	this->stealCount = 0;
 	this->stealAttempts = 0;
-	lockOwner = NULL;
+	this->reporting = false;
+	this->idleScanCount = 0;
+	this->sleepStatus = 0;
 	
 }
 
@@ -57,7 +64,7 @@ void Worker::setRandSeed(int seed) {
 	randNext = seed;
 }
 int Worker::rand() {
-	randNext = randNext*1103515245  + 12345;
+	randNext = randNext*1103515245l  + 12345;
 	int result = randNext >> 16;
 	if (result < 0) result = -result;
 	return result;
@@ -112,6 +119,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 				}*/
 				cl->unlock();
 				unlock();
+				return res;
 				break;
 		
 		case RUNNING: 
@@ -119,13 +127,14 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 			if (cl->dekker(thief)) {
 				Closure *child = NULL;
 				Closure *res = NULL;
-			
+
+				cl->copyFrame(thief);			
 				//I have work now, so checkout of the barrier.
 				child = cl->promoteChild(thief, victim);
 				res = extractTop(thief);
 					/*if (reporting)
 					System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
-				thief->checkOut(res);
+				thief->checkOut(res); //?????????????sriram TODO: checkoutsteal?
 				assert(cl==res);
 			
 				unlock();
@@ -133,9 +142,11 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 				cl->finishPromote(thief, child);
 				
 				cl->unlock();
+				return res;
 			} else { 
 				cl->unlock(); 
 				unlock(); 
+				return null;
 			}
 				/*if (reporting) {
 					
@@ -145,9 +156,12 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 			break;
 		case SUSPENDED:
 			abort();
+			break;
 		case RETURNING:
+		case ABORTING:
 			cl->unlock(); 
-			unlock(); 
+			unlock();
+			break; 
 		default:
 			abort();
 			
@@ -156,8 +170,9 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 		// status==ABORTING, or status==RUNNING and dekker failed.
 		//unlock();
 		//cl->unlock();
-		return res;
-		
+		//return res;
+		//SHOULD NOT REACH HERE
+		abort();
 }
 
 

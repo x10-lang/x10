@@ -50,6 +50,23 @@ void *Pool::each_thread_wrapper(void *arg) {
 
 // Pool::Pool() { }
 
+/*Anonymous innner class argument to ActiveWorkerCount from Java code*/
+class anon_Runnable : public virtual Runnable {
+private:
+	Pool *p;
+	~anon_Runnable(){} //cannot inherit
+public:
+	anon_Runnable(Pool *p) {
+		this->p = p;
+	}
+	virtual void run() {
+        if (p->currentJob != null && p->currentJob->requiresGlobalQuiescence()) {
+			p->currentJob->completed();
+        }
+        p->currentJob = null;
+	}
+};
+
 Pool::Pool(int numThreads) {
 	
 	long i;
@@ -63,13 +80,7 @@ Pool::Pool(int numThreads) {
 	pthread_cond_init (&work, NULL);
 	pthread_cond_init (&termination, NULL);
 
-	Closure *tmp = (Closure *)currentJob;
-
-	/*TODO sriram. This is incorrect creation of the barrier
-	  actroin. We need to create a sub-class of runnable that will
-	  take the address of the closure (or the current job) as an
-	  argument. Look at the Java code.*/
-	barrier = new ActiveWorkerCount(tmp);
+	barrier = new ActiveWorkerCount(new anon_Runnable(this));
 
 	num_workers = numThreads;
 	runningWorkers = 0;

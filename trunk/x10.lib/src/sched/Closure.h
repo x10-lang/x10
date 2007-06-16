@@ -84,29 +84,32 @@ public:
 	void setOutlet(Outlet *o);
 	void copyFrame(Worker *w);
 	bool isDone() const;
-	void completed() ;
-	void setResultInt(int x);
-	void accumulateResultInt(int x);
-	int resultInt();
-	void setupReturn(Worker *w);
-	void setupGQReturnNoArg(Worker *w);
-	void setupGQReturn(Worker *w);
+
+	virtual void completed() ;
+
+	virtual void setResultInt(int x);
+	virtual void accumulateResultInt(int x);
+	virtual int resultInt();
+	
+	virtual void setupReturn(Worker *w);
+	virtual void setupGQReturnNoArg(Worker *w);
+	virtual void setupGQReturn(Worker *w);
 		
-	void setResultFloat(float x);
-	void accumulateResultFloat(float x);
-	float resultFloat();
+	virtual void setResultFloat(float x);
+	virtual void accumulateResultFloat(float x);
+	virtual float resultFloat();
 		
-	void setResultLong(long x);
-	void accumulateResultLong(long x);
-	long resultLong();
+	virtual void setResultLong(long x);
+	virtual void accumulateResultLong(long x);
+	virtual long resultLong();
 		
-	void setResultDouble(double x);
-	void accumulateResultDouble(double x);
-	double resultDouble();
+	virtual void setResultDouble(double x);
+	virtual void accumulateResultDouble(double x);
+	virtual double resultDouble();
 		
-	void setResultObject(void *x);
-	void *resultObject();
-	bool requiresGlobalQuiescence();
+	virtual void setResultObject(void *x);
+	virtual void *resultObject();
+	virtual bool requiresGlobalQuiescence();
 	
 };
 }

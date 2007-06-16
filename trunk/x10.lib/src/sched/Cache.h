@@ -29,6 +29,8 @@ class Cache {
 	private:
 		volatile int head, tail, exception; 
 		void growAndPushFrame (Frame *);
+
+		~Cache (); //cannot inherit
 		
 	protected:
 /* 		unsigned int lastException;  */
@@ -40,7 +42,6 @@ class Cache {
 	
 	public:
 		Cache (Worker *w);
-		~Cache ();
 		
 		Frame *childFrame () const;
 		Frame *topFrame () const;

@@ -33,7 +33,7 @@ public :
 	JobFrame();
 	virtual ~JobFrame();
 	virtual Closure *makeClosure();
-	void setOutletOn(Closure *c);
+	virtual void setOutletOn(Closure *c);
 };
 
 class Outlet {
@@ -43,10 +43,12 @@ class Outlet {
 };
 
 class ResultOutlet : public Outlet {
+private:
+	~ResultOutlet() {} //cannot inherit
 public:
 	Closure *closure;
 	JobFrame *jframe;
-	void run();
+	virtual void run();
 /* 	ResultOutlet(); */
 	ResultOutlet(Closure *c=NULL, JobFrame *f=NULL);
 };
@@ -54,7 +56,7 @@ public:
 class GFrame : public JobFrame {
 public:
 	volatile int PC;
-	void setOutletOn(Closure *c);
+	virtual void setOutletOn(Closure *c);
 	virtual Closure *makeClosure();
 	GFrame();
 	virtual ~GFrame() {}
@@ -63,15 +65,15 @@ public:
 class Job : public Closure {
 	
 protected:
-	void compute(Worker *w, Frame *frame) ;
+	virtual void compute(Worker *w, Frame *frame) ;
 	
 public:
 	Pool *pool;
 	
-	void completed();
-	void waitForCompletion();
-	bool isCancelled() const ;
-	bool cancel(bool b) const;
+	virtual void completed();
+	virtual void waitForCompletion();
+	virtual bool isCancelled() const ;
+	virtual bool cancel(bool b) const;
 	pthread_cond_t cond_done;
 
 /* 	Job(); */
@@ -86,7 +88,7 @@ class GloballyQuiescentJob : public Job {
 public:
 /* 	GloballyQuiescentJob(Pool *pool); */
 	GloballyQuiescentJob(Pool *pool, Frame *f = new GFrame());
-	bool requiresGlobalQuiescence() const;
+	virtual bool requiresGlobalQuiescence() const;
 	virtual void compute(Worker *w, Frame *frame) ;
 	virtual ~GloballyQuiescentJob(){}
 };
