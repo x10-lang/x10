@@ -5,12 +5,13 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_func.cc,v 1.4 2007-06-07 10:43:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_func.cc,v 1.5 2007-06-16 16:20:49 ganeshvb Exp $ */
 
 #include "RandomAccess_func.h"
 #include "timers.h"
 
-struct Async0 {
+
+struct Async0{
 inline void operator () (async_arg_t arg0)
 {
   glong_t ran = arg0;
@@ -230,7 +231,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       assert (UNIQUE->place(placeID) == placeID);
       asyncSpawnInlineAgg(placeID, 1, temp);
     } 
-    asyncFlush(1);
+    asyncFlush(1, sizeof(async_arg_t));
   } else {   
     glong_t ran = HPCC_starts (here()*numUpdates);
     for (glong_t i = 0; i < numUpdates; i++) {

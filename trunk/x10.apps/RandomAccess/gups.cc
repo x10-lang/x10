@@ -171,14 +171,15 @@ void add_to_bucket(int dest, u64Int ran)
         push(e);
         nElements -= maxBucketSize;
 
+        
         while (head[maxBucketSize] == NULL) {
             searchCount++;
             maxBucketSize--;
         }
 
-      /*
+       /* 
        maxBucketSize = 0;
-       for (int i = 0; i < MAX_TASKS; i++) {
+       for (int i = 0; i < num_tasks; i++) {
             searchCount++;
          if (bucket[i].count > maxBucketSize)
              maxBucketSize = bucket[i].count;
