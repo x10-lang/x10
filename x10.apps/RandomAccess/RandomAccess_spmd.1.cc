@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.1.cc,v 1.1 2007-06-07 10:46:33 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.1.cc,v 1.2 2007-06-16 16:20:49 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -56,27 +56,23 @@ __async__2 (__async__2__args args)
 }
 
 int
-asyncSwitch (async_handler_t h, void* arg, size_t size)
+asyncSwitch (async_handler_t h, void* arg, size_t size, int niter)
 {
     char* args = (char*) arg;
-    int niter;
     switch (h) {
     case 0: 
-      niter = size / sizeof(__async__0__args);
       for (int i = 0; i < niter; i++) {
         __async__0(*((__async__0__args*)args));
         args += sizeof(__async__0__args);
        }
       break;
     case 1:
-      niter = size / sizeof(__async__1__args);
       for (int i = 0; i < niter; i++) {
         __async__1(*((__async__1__args*)args));
         args += sizeof(__async__1__args);
       }
       break;
     case 2:
-      niter = size / sizeof(__async__2__args);
       for (int i = 0; i < niter; i++) {
         __async__2(*((__async__2__args*)args));
         args += sizeof(__async__2__args);
@@ -222,7 +218,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       if (placeID == here()) __async__1(a);
       else asyncSpawnInlineAgg(placeID, 1, &a, sizeof(a));
     } 
-    asyncFlush(1);
+    asyncFlush(1, sizeof(__async__1__args));
   } else {   
     glong_t ran = HPCC_starts (here()*numUpdates);
     for (glong_t i = 0; i < numUpdates; i++) {
@@ -239,7 +235,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
     }   
     
-    asyncFlush (0);
+    asyncFlush (0, sizeof(__async__0__args));
   }
   
   
@@ -275,7 +271,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
 	  else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
 	}
       }
-      asyncFlush (0);
+      asyncFlush (0, sizeof(__async__0__args));
     }
     
     Gfence();    
@@ -295,9 +291,9 @@ RandomAccess_Dist::main (x10::array<String>& args)
   
     __async__2__args a (sum, p); 
     if (p == 0) __async__2 (a);
-    else asyncSpawnInlineAgg (0,2, &a, sizeof(a));
+    else asyncSpawnInlineAgg (0, 2, &a, sizeof(a));
     
-    asyncFlush (2);
+    asyncFlush (2, sizeof(__async__2__args));
     
     Gfence();
    

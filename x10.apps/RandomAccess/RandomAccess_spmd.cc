@@ -5,11 +5,10 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.16 2007-06-11 13:35:02 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.17 2007-06-16 16:20:49 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
-
 
 void
 inline async0 (async_arg_t arg0)
@@ -26,28 +25,25 @@ inline async1 (async_arg_t arg0)
 }
 
 void
-async2 (async_arg_t arg0, async_arg_t arg1)
+inline async2 (async_arg_t arg0, async_arg_t arg1)
 {
   GLOBAL_SPACE.SUM[(int)arg1] = arg0;
 }
+
 int
-asyncSwitch (async_handler_t h, void* arg, size_t size)
+asyncSwitch (async_handler_t h, void* arg, size_t size, int niter)
 {
     async_arg_t* args = (async_arg_t*) arg;
-    int niter;
     switch (h) {
     case 0: 
-      niter = size / sizeof(async_arg_t);
       for (int i = 0; i < niter; i++)
         async0(*args++);
       break;
     case 1:
-      niter = size / sizeof(async_arg_t);
         for (int i = 0; i < niter; i++)
       async1(*args++);
       break;
     case 2:
-      niter = size / (2*sizeof(async_arg_t));
         for (int i = 0; i < niter; i++)
       async2(*args++, *args++);
       break;
@@ -190,7 +186,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       else asyncSpawnInlineAgg(placeID, 1, temp);
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     } 
-    asyncFlush(1);
+    asyncFlush(1, sizeof(async_arg_t));
 
     Gfence();
   } else {   
@@ -204,10 +200,10 @@ RandomAccess_Dist::main (x10::array<String>& args)
       
       glong_t temp = ran;
       if (placeID == here()) async0(temp);
-      else asyncSpawnInlineAgg (placeID, 0, temp);
+      else asyncSpawnInlineAgg (placeID, 0,temp);
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     }   
-    asyncFlush (0);
+    asyncFlush (0, sizeof(async_arg_t));
 
     Gfence();
   }
@@ -236,7 +232,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
 	  ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 	}
       }
-      asyncFlush (0);
+      asyncFlush (0, sizeof(async_arg_t));
 L2:    
     Gfence();    
   }
@@ -263,10 +259,10 @@ L2:
       sum += GLOBAL_SPACE.Table->array[i];
   
     const long temp = sum; 
-    if (p == 0) async2 (temp ,p); 
-    else asyncSpawnInlineAgg (0,2, temp, here());
+    if (0 == here()) async2 (temp, p); 
+    else asyncSpawnInlineAgg (0, 2, temp, p);
     
-    asyncFlush (2);
+    asyncFlush (2, 2*sizeof(async_arg_t));
     
     Gfence();
    
@@ -287,21 +283,15 @@ L2:
   }
 }
 
-
 //DUMMY initialization
 Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
 int RandomAccess_Dist::NUMPLACES = numPlaces();
 int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
 
-func_t handlers[] = {(void_func_t) async0,
-                     (void_func_t) async1,
-                     (void_func_t) async2};
-
 extern "C" {
   int ::main (int ac, char* av[])
   {
-
-    Init (handlers, 3); 
+    Init (NULL, 0); 
 
     x10::array<String>* args = x10::convert_args (ac, av);
     
