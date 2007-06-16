@@ -21,7 +21,7 @@
 
 namespace x10lib_cws {
 
-	class StealAbort {
+	class StealAbort : public virtual Exception {
 	};
 }
 

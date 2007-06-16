@@ -360,9 +360,13 @@ Closure *Closure::execute(Worker *w) {
 			w->addBottom(w, this);
 			w->unlock();
 			
-			
-			compute(w, f); // Might throw error -- RAJ check -- vj has this
-			
+			try {
+				compute(w, f); 
+			}
+			catch(StealAbort *saEx) {
+				//Nothing much to do. It just unwound the stack as we wanted
+				delete saEx; 
+			}
 			res = NULL;
 			break;
 		
