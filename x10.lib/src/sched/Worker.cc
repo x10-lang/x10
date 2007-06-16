@@ -581,8 +581,8 @@ void Worker::abortOnSteal()  /*throw StealAbort */
 {
 		Closure *c = interruptCheck();
 		if (c != NULL) {
-			//throw StealAbort();
-			abort();
+			throw new StealAbort();
+//			abort();
 		}
 }
 	
@@ -601,8 +601,8 @@ void Worker::abortOnSteal(int x)/* throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultInt(x);
-			//throw StealAbort();
-			abort();
+			throw new StealAbort();
+//			abort();
 		}
 }
 	
@@ -615,8 +615,8 @@ void Worker::abortOnSteal(double x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultDouble(x);
-			//throw StealAbort();
-			abort();
+			throw new StealAbort();
+//			abort();
 		}
 }
 	/**
@@ -628,8 +628,8 @@ void Worker::abortOnSteal(float x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultFloat(x);
-			//throw StealAbort();
-			abort();
+			throw new StealAbort();
+//			abort();
 		}
 }
 	/**
@@ -641,8 +641,8 @@ void Worker::abortOnSteal(long x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultLong(x);
-			//throw StealAbort();
-			abort();
+			throw new StealAbort();
+//			abort();
 		}
 }
 	/**
