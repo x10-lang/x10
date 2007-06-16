@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.cc,v 1.4 2007-06-07 10:47:11 ganeshvb Exp $ */
+/* $Id: async.cc,v 1.5 2007-06-16 16:20:36 ganeshvb Exp $ */
 
 #include <iostream>
 #include <stdarg.h>
@@ -25,8 +25,7 @@ asyncSpawnHandler (lapi_handle_t handle, void* uhdr,
 		   void** user_info)
 {
   lapi_return_info_t* tmp = (lapi_return_info_t*) msg_len;
-  asyncSwitch (*((int*)uhdr), (async_arg_t*) tmp->udata_one_pkt_ptr, 1);
-
+  asyncSwitch (*((async_handler_t*)uhdr), (async_arg_t*) tmp->udata_one_pkt_ptr, *msg_len, 1);
   *comp_h = NULL;
   return NULL;
 }
@@ -44,7 +43,6 @@ asyncRegister()
  * target = target processor
  * ... = one or more handler arguments 
  */
-
 error_t
 x10lib::asyncSpawnInline (place_t target, async_handler_t handler, int N...) 
 { 
@@ -61,13 +59,13 @@ x10lib::asyncSpawnInline (place_t target, async_handler_t handler, int N...)
  
   int tmp;
 
-  int buf = handler;
+  async_handler_t buf = handler;
   LAPI_Setcntr (GetHandle(), &origin_cntr, 0);
   LAPI_Amsend (GetHandle(),
  		target,
 	 	(void*) 2, 
 		 &buf,
-		 sizeof(int),
+		 sizeof(buf),
 		 args, 
 		 N * sizeof(async_arg_t), 
 		 NULL,

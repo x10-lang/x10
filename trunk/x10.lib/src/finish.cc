@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.3 2007-06-14 13:59:53 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.4 2007-06-16 16:20:36 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -140,9 +140,10 @@ void
 finishTerminate()
 {
   delete ftree;
-}                    
+}
+                   
 error_t
-x10lib::finishBegin (int* cs)
+finishStart_ (int* cs)
 {
   int tmp;
   
@@ -183,7 +184,7 @@ x10lib::finishBegin (int* cs)
 }
 
 error_t
-x10lib::finishEnd (Exception* e)
+finishEnd_ (Exception* e)
 {
   void* ex_buf = (void*) e;
   int esize = e ? e->size() : 0;
@@ -236,6 +237,22 @@ x10lib::finishEnd (Exception* e)
     }
   }
   return X10_OK;
+}
+
+int
+x10lib::finishStart (int cs)
+{
+  error_t err = finishStart_ (&cs); 
+  if (err != X10_OK) {
+    throw "finishStart Error";
+  } 
+  return cs;
+}
+
+error_t
+x10lib::finishEnd (Exception* e)
+{
+  return finishEnd_ (e);
 }
 
 #ifdef OLD 

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.h,v 1.6 2007-06-07 10:47:11 ganeshvb Exp $ */
+/* $Id: aggregate.h,v 1.7 2007-06-16 16:20:36 ganeshvb Exp $ */
 
 #ifndef __AGGREGATE_H__
 #define __AGGREGATE_H__
@@ -26,7 +26,7 @@ namespace x10lib{
 
   error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0, async_arg_t arg1);
 
-  error_t asyncFlush (async_handler_t handler);
+  error_t asyncFlush (async_handler_t handler, size_t size);
 
   //TODO: change varargs to async_arg_t* 
   error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, int N,...);
