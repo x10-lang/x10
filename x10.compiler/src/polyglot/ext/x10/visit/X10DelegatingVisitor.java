@@ -197,6 +197,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof X10BooleanLit_c) { visit((X10BooleanLit_c)n); return; }
 		if (n instanceof BooleanLit_c) { visit((BooleanLit_c)n); return; }
 		if (n instanceof Lit_c) { visit((Lit_c)n); return; }
+		if (n instanceof DepInstanceof_c) { visit((DepInstanceof_c)n); return; }
 		if (n instanceof X10Instanceof_c) { visit((X10Instanceof_c)n); return; }
 		if (n instanceof Instanceof_c) { visit((Instanceof_c)n); return; }
 		if (n instanceof Here_c) { visit((Here_c)n); return; }
@@ -207,6 +208,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof DepParameterExpr_c) { visit((DepParameterExpr_c)n); return; }
 		if (n instanceof X10Conditional_c) { visit((X10Conditional_c)n); return; }
 		if (n instanceof Conditional_c) { visit((Conditional_c)n); return; }
+		if (n instanceof DepCast_c) { visit((DepCast_c)n); return; }
 		if (n instanceof X10Cast_c) { visit((X10Cast_c)n); return; }
 		if (n instanceof Cast_c) { visit((Cast_c)n); return; }
 		if (n instanceof RegionMaker_c) { visit((RegionMaker_c)n); return; }
@@ -296,6 +298,7 @@ public class X10DelegatingVisitor {
 						public void visit(RegionMaker_c n) { visit((X10Call_c)n); }
 				public void visit(Cast_c n) { visit((Expr_c)n); }
 					public void visit(X10Cast_c n) { visit((Cast_c)n); }
+					    public void visit(DepCast_c n) { visit((X10Cast_c)n); }
 				public void visit(Conditional_c n) { visit((Expr_c)n); }
 					public void visit(X10Conditional_c n) { visit((Conditional_c)n); }
 				public void visit(DepParameterExpr_c n) { visit((Expr_c)n); }
@@ -306,6 +309,7 @@ public class X10DelegatingVisitor {
 				public void visit(Here_c n) { visit((Expr_c)n); }
 				public void visit(Instanceof_c n) { visit((Expr_c)n); }
 					public void visit(X10Instanceof_c n) { visit((Instanceof_c)n); }
+				    	public void visit(DepInstanceof_c n) { visit((X10Instanceof_c)n); }
 				public void visit(Lit_c n) { visit((Expr_c)n); }
 					public void visit(BooleanLit_c n) { visit((Lit_c)n); }
 						public void visit(X10BooleanLit_c n) { visit((BooleanLit_c)n); }
