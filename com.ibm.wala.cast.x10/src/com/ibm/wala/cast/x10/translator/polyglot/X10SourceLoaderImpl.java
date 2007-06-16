@@ -23,6 +23,7 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
+
     public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,
 	    IClassHierarchy cha, WarningSet warnings, IRTranslatorExtension extInfo) throws IOException {
 	super(loaderRef, parent, exclusions, cha, warnings, extInfo);

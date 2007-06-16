@@ -15,12 +15,14 @@ import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
+import com.ibm.wala.cast.tree.impl.*;
 import com.ibm.wala.eclipse.util.*;
 import com.ibm.wala.types.ClassLoaderReference;
 
 public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTranslatorExtension {
     protected X10SourceLoaderImpl fSourceLoader;
     protected PolyglotIdentityMapper fMapper;
+    protected CAstRewriterFactory<?> rewriterFactory;
 
     public void setSourceLoader(PolyglotSourceLoaderImpl sourceLoader) {
 	fSourceLoader = (X10SourceLoaderImpl) sourceLoader;
@@ -47,5 +49,13 @@ public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTransl
 
     public PolyglotIdentityMapper getIdentityMapper() {
         return fMapper;
+    }
+
+    public void setCAstRewriterFactory(CAstRewriterFactory<?> factory) {
+      rewriterFactory = factory;
+    }
+    
+    public CAstRewriterFactory<?> getCAstRewriterFactory() {
+      return rewriterFactory;
     }
 }
