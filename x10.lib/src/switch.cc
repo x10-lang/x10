@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: switch.cc,v 1.3 2007-06-07 10:47:11 ganeshvb Exp $ */
+/* $Id: switch.cc,v 1.4 2007-06-16 16:20:36 ganeshvb Exp $ */
 
 #include "types.h"
 #include <iostream>
@@ -14,7 +14,7 @@ using namespace std;
 
 extern "C"
 int 
-asyncSwitch (async_handler_t h, void* args, size_t size)
+asyncSwitch (async_handler_t h, void* args, size_t size, int niter)
 {
    cout << "asyncSwitch should be overriddern \n";
    exit(-1);

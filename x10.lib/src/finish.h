@@ -5,8 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.h,v 1.3 2007-06-15 02:06:47 ipeshansky Exp $ */
-
+/* $Id: finish.h,v 1.4 2007-06-16 16:20:36 ganeshvb Exp $ */
 
 #ifndef __FINISH_H__
 #define __FINISH_H__
@@ -21,7 +20,7 @@ namespace x10lib {
     public:
       Exception () {}
       virtual size_t size() = 0;
-      virtual void testMessage() = 0;
+      virtual void print() = 0;
   };
 
   class MultiException {
@@ -31,10 +30,12 @@ namespace x10lib {
 
        void print () {
          for (int i = 0; i < total_; i++)
-           exceptions_[i]->testMessage();
+           exceptions_[i]->print();
        }
+
        int size() const { return total_; }
        Exception **const exceptions() const { return exceptions_; }
+
       ~MultiException () {
         for (int i = 0; i < total_; i++)
           delete exceptions_[i];
@@ -47,7 +48,7 @@ namespace x10lib {
 
   error_t finishEnd (Exception* a);
  
-  error_t finishBegin (int* cs);
+  int finishStart (int cs);
 };
 
 
