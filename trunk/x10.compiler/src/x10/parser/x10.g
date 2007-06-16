@@ -1464,23 +1464,28 @@ $Rules
          DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
          List b = (List) ConstructorDeclarator[3];
          Expr e = (Expr) ConstructorDeclarator[4];
+         List n = (List) ConstructorDeclarator[5];
          
            X10TypeNode resultType = (X10TypeNode) a.toType();        
            if (c != null) 
          resultType = resultType.dep(c);
+         if (resultType.ext() instanceof X10Ext && n != null) {
+             resultType = (X10TypeNode) ((X10Ext) resultType.ext()).annotations(n);
+         }
          ConstructorDecl cd = (nf.ConstructorDecl(pos(), extractFlags(ConstructorModifiersopt), nf.Id(a.pos, a.toString()), resultType, b, e, Throwsopt, ConstructorBody));
          cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ConstructorModifiersopt));
          setResult(cd);
          $EndJava
        ./
        
-    ConstructorDeclarator ::=  SimpleTypeName DepParametersopt ( FormalParameterListopt WhereClauseopt )
+    ConstructorDeclarator ::=  SimpleTypeName DepParametersopt Annotationsopt ( FormalParameterListopt WhereClauseopt )
        /.$BeginJava
-                 Object[] a = new Object[5];
+                 Object[] a = new Object[6];
                  a[1] = SimpleTypeName;
                  a[2] = DepParametersopt;
                  a[3] = FormalParameterListopt;
                  a[4] = WhereClauseopt;
+                 a[5] = Annotationsopt;
                  setResult(a);
          $EndJava
        ./
