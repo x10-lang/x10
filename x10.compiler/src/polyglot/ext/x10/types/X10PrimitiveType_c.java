@@ -292,13 +292,12 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		String clause = "";
 		if (depClause != null) {
 			clause = depClause.toString();
-			clause = clause.substring(1, clause.length()-1);
 		}
 		
 		return  
 		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString())
 		+ (isParametric() ?  typeParameters.toString() : "") 
-		+ (depClause == null ? "" : "(:" +  clause + ")");
+		+ (depClause == null ? "" : clause);
 		
 	}
 	public String typeName() { 
