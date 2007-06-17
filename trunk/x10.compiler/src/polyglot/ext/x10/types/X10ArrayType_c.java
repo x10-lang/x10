@@ -158,8 +158,8 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 		
 		if ( ! base.equalsImpl(other.base)) return false;
 		
-		if (depClause == null && other.depClause != null) return false;
-		if (depClause != null && ! depClause.equals(other.depClause)) return false;
+		if (depClause == null && other.depClause != null && ! other.depClause.valid()) return false;
+		if (depClause != null && other.depClause == null && ! depClause.valid()) return false;
 		
 		if (typeParameters == null) return other.typeParameters == null;
 		if (typeParameters.isEmpty()) return other.typeParameters == null || other.typeParameters.isEmpty();
