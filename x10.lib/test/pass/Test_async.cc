@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async.cc,v 1.6 2007-06-17 17:54:08 ganeshvb Exp $ */
+/* $Id: Test_async.cc,v 1.7 2007-06-17 20:14:15 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -23,7 +23,7 @@ void async0 (async_arg_t arg)
   assert (arg == 333);
 }
 
-int asyncSwitch (async_handler_t h, void* arg, size_t size) 
+int asyncSwitch (async_handler_t h, void* arg, size_t size, int niter) 
 {
 
   async_arg_t* args = (async_arg_t*) arg;
@@ -39,9 +39,10 @@ main (int argc, char* argv[])
 
   x10lib::Init(NULL, 0);
 
+  async_arg_t a = 333;
   if (here() == 0)
     for (place_t target = 0; target < numPlaces(); target++)
-       asyncSpawnInline (target, 0, 1, 333);
+       asyncSpawnInline (target, 0, 1, a);
 
   x10lib::Gfence (); 
 
