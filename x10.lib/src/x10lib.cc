@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.8 2007-06-14 13:59:53 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.9 2007-06-17 19:36:22 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -11,6 +11,10 @@
 #include <iostream>
 #include <x10/x10lib.h>
 #include <x10/alloc.h>
+
+#ifdef STANDALONE
+#include "standalone.h"
+#endif
 
 #define LRC(statement) \
 do { \
@@ -34,11 +38,17 @@ extern error_t asyncRegisterAgg();
 extern error_t finishInit();
 extern void finishTerminate();
 
+
 /* Initialization */
 int
 x10lib::Init(func_t *handlers, int n)
-{
+{  
   memset((void *)&info, 0, sizeof(lapi_info_t));
+
+#ifdef STANDALONE
+  initStandAlone (&info);
+#endif
+
   LRC(LAPI_Init(&hndl, &info));
 #ifdef DEBUG
   cout << "x10lib::Init()" << endl;

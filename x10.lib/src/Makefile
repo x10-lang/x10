@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.13 2007-06-14 13:59:53 ganeshvb Exp $
+# $Id: Makefile,v 1.14 2007-06-17 19:36:22 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -17,12 +17,12 @@ LIBDIR = ../lib
 CXX = mpCC_r -q64 -qarch=pwr5
 DEFS = -DWARN #-DDEBUG
 CXXFLAGS = -qtune=pwr5 -O3 -qhot
-INCLUDES = -I. -I../include
+INCLUDES = -I. -I../include 
 LINKFLAGS =
 RM = rm -f
 AR = ar
-ARFLAGS = -r -X64
-RANLIB = ranlib -X64
+ARFLAGS = -r 
+RANLIB = ranlib 
 CP = cp
 MKDIR = mkdir
 
@@ -36,13 +36,13 @@ ARRAY_A = $(SUBDIR1)/array.a
 
 SRCS = x10lib.cc gas.cc aggregate.cc async.cc switch.cc finish.cc 
 OBJS = x10lib.o  gas.o  aggregate.o  async.o switch.o finish.o
-HEADERS = types.h x10lib.h gas.h alloc.h  async.h aggregate.h finish.h
+HEADERS = types.h x10lib.h gas.h alloc.h  async.h aggregate.h finish.h standalone.h
 
 all: $(LIBTARGET)
 
-$(LIBTARGET): $(OBJS) $(SCHED_A)
+$(LIBTARGET): $(OBJS) #$(SCHED_A)
 	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SCHED_A)
+	$(AR) $(ARFLAGS) $@ $(OBJS) #$(SCHED_A)
 	$(RANLIB) $@
 
 $(SCHED_A):

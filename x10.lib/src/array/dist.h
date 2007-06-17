@@ -6,6 +6,9 @@
 
 namespace x10lib{
 
+  template<int RANK>
+  class UniqueDist;
+
   /**
    * Distribution class (ABSTRACT)
    *
@@ -45,7 +48,7 @@ namespace x10lib{
     }
  
     Dist (const Dist<RANK>& other) :
-      region_ (other.region_),
+      region_ (other.region_)
     {
       places_ = new place_t [region->card()];
       memcpy (places_, other.places, sizeof(place_t) * region->card());
@@ -113,7 +116,7 @@ namespace x10lib{
   public:
 
     UniqueDist () :
-      Dist(new RectangularRegion<RANK>(Point<RANK>(numPlaces()-1)))
+      Dist<RANK>(new RectangularRegion<RANK>(Point<RANK>(numPlaces()-1)))
       {
       } 
  

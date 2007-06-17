@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.7 2007-06-16 16:20:36 ganeshvb Exp $
+ * $Id: types.h,v 1.8 2007-06-17 19:36:22 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,6 +10,8 @@
 
 #include <sys/types.h>
 
+typedef u_int32_t uint32_t;
+typedef u_int64_t uint64_t;
 typedef uint32_t place_t;
 typedef uint64_t gas_ref_t;
 typedef int64_t async_arg_t;
