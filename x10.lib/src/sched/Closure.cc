@@ -16,6 +16,7 @@
 #include "Job.h"
 #include "Frame.h"
 #include "Sys.h"
+#include "StealAbort.h"
 #include <assert.h>
 
 using namespace std;
@@ -47,6 +48,7 @@ Closure::Closure(Frame *frame) {
 
 	initialize();
 }
+
 Closure::~Closure() { 
 	delete lock_var; 
 	completeInlets.clear(); 
@@ -518,7 +520,7 @@ bool Closure::isDone() const { return done;}
 	 * by the scheduler.
 	 *
 	 */
-void Closure::completed() {
+void Closure::completed() volatile {
 		done = true;
 }
 	
@@ -544,4 +546,4 @@ double Closure::resultDouble() { abort(); return 0.0;}
 	
 void Closure::setResultObject(void *x) {abort();}
 void *Closure::resultObject() { abort(); return NULL; }
-bool Closure::requiresGlobalQuiescence() { abort(); return false; }
+bool Closure::requiresGlobalQuiescence() volatile { abort(); return false; }

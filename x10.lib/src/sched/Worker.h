@@ -42,7 +42,6 @@ private:
 	Closure *getTaskFromPool(Worker *sleeper);
 	void wakeup();
 
-	~Worker(); //cannot inherit this class
 
 protected:
 	Closure *top, *bottom;
@@ -52,7 +51,6 @@ protected:
 	Closure *closure;
 	Pool *pool;
 	PosixLock *lock_var; // dequeue_lock
-	Worker *lockOwner; // the thread holding the lock.
 	
 	int rand();
 	void setRandSeed(int seed);
@@ -61,6 +59,11 @@ protected:
 public:
 	Cache *cache;
 	FrameGenerator *fg;
+
+	Worker *lockOwner; /* the thread holding the lock. Unlike
+			      Java, there is no package access. So
+			      moving from protected to public*/ 
+	
 
 	void unlock();
 	void lock(Worker *agent);
@@ -73,6 +76,8 @@ public:
 	/*protected static  Worker[] workers; */
 //	Worker();
 	Worker(int index, Pool *p);
+	~Worker();
+
 	bool sync();
 	Closure *scanTasks();
 	void run(); // Main execution of the scheduler

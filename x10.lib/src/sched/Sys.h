@@ -10,6 +10,8 @@
 #ifndef x10lib_Sys_h
 #define x10lib_Sys_h
 
+#include <assert.h>
+
 namespace x10lib_cws {
 #ifndef __POWERPC__ 
 #define __POWERPC__
@@ -36,6 +38,7 @@ static __inline__ int
 compare_exchange(volatile int *p, int  old_value, int new_value)
 {
          int prev;
+#if 0
         __asm__ __volatile__ (
 
         		"1:     lwarx   %0,0,%2\n\
@@ -48,6 +51,11 @@ compare_exchange(volatile int *p, int  old_value, int new_value)
         		: "=&r" (prev), "=m" (*p)
         		: "r" (p), "r" (old_value), "r" (new_value), "m" (*p)
         		: "cc", "memory");
+#else
+#warning "Fix compare_exchange before running. Commented now"
+	assert(0);
+	return 0;
+#endif
  
          return prev;
 }
@@ -55,6 +63,7 @@ compare_exchange(volatile int *p, int  old_value, int new_value)
 static __inline__ void atomic_add(volatile int* mem, int val)
 {
     int tmp;
+#if 0
     __asm__ __volatile__ (
 			  "/* Inline atomic add */\n"
 			  "0:\t"
@@ -67,6 +76,10 @@ static __inline__ void atomic_add(volatile int* mem, int val)
 			  : "r" (mem), "Ir"(val), "m" (*mem)
 			  : "cr0");
   
+#else
+#warning "Fix atomic_add before running. Commented now"
+    assert(0);
+#endif
 }
 #endif
 

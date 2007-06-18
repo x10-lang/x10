@@ -19,6 +19,8 @@
 #ifndef x10lib_StealAbort_h
 #define x10lib_StealAbort_h
 
+#include "Exception.h"
+
 namespace x10lib_cws {
 
 	class StealAbort : public virtual Exception {

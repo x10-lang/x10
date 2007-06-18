@@ -24,12 +24,13 @@ class ActiveWorkerCount {
 //		void barrierAction(Closure &*cl);
 //		Closure &*closure;
 		Runnable *barrierAction;
- 		~ActiveWorkerCount(); //cannot inherit
 
 	protected:
 	public:
 /* 		ActiveWorkerCount(); */
 		ActiveWorkerCount(Runnable *barrierAction=NULL);
+ 		~ActiveWorkerCount();
+
 		virtual void checkIn();
 		virtual void checkOut();
 		virtual int getNumberCheckedOut();

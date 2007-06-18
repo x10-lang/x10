@@ -25,7 +25,7 @@ using namespace x10lib_cws;
 /*We assume we are being passed a new object that we control. 
  * So we delete b in the desctructor.*/
 ActiveWorkerCount::ActiveWorkerCount(Runnable *b)
- : this->barrierAction(c) {
+ : barrierAction(b) {
  	updater = 0;
 }
 ActiveWorkerCount::~ActiveWorkerCount() {
@@ -34,23 +34,16 @@ ActiveWorkerCount::~ActiveWorkerCount() {
 
 void ActiveWorkerCount::checkIn() 
 {
-#if 0
 	atomic_add(&updater,-1);
-#else
-	assert(0);
-#endif
+
 	if (updater == 0) {
 		if(barrierAction)
-			barrierAction.run();
+			barrierAction->run();
 	}
 }
 void ActiveWorkerCount::checkOut() 
 {
-#if 0
 	atomic_add(&updater,1);
-#else
-	assert(0);
-#endif
 }
 int ActiveWorkerCount::getNumberCheckedOut()
 {

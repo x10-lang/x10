@@ -10,8 +10,13 @@
 
 #include "Pool.h"
 #include "ActiveWorkerCount.h"
+#include "Runnable.h"
 #include "Job.h"
+#include "Lock.h"
+#include "Worker.h"
+#include "Sys.h"
 #include <stdlib.h>
+#include <iostream>
 
 using namespace x10lib_cws;
 using namespace std;
@@ -27,6 +32,7 @@ Pool::~Pool() {
 	for(i=0;i<workers.size();i++)
 		delete workers[i];
 	workers.clear();
+	delete id;
 }
 
 
@@ -45,6 +51,7 @@ void Pool::callBackFunc::each_thread(Pool *p,int d)
 void *Pool::each_thread_wrapper(void *arg) {
 	callBackFunc *cbf = (callBackFunc *) arg;
 	cbf->each_thread(cbf->cl, cbf->id);
+	return NULL;
 }
 
 
@@ -53,18 +60,19 @@ void *Pool::each_thread_wrapper(void *arg) {
 /*Anonymous innner class argument to ActiveWorkerCount from Java code*/
 class anon_Runnable : public virtual Runnable {
 private:
-	Pool *p;
-	~anon_Runnable(){} //cannot inherit
+  Pool *p;
+  ~anon_Runnable(){} //cannot inherit
 public:
-	anon_Runnable(Pool *p) {
-		this->p = p;
-	}
-	virtual void run() {
-        if (p->currentJob != null && p->currentJob->requiresGlobalQuiescence()) {
-			p->currentJob->completed();
-        }
-        p->currentJob = null;
-	}
+  anon_Runnable(Pool *p) {
+    this->p = p;
+  }
+  virtual void run() {
+    if (p->currentJob != NULL && 
+	p->currentJob->requiresGlobalQuiescence()) {
+      p->currentJob->completed();
+    }
+    p->currentJob = NULL;
+  }
 };
 
 Pool::Pool(int numThreads) {
@@ -90,16 +98,7 @@ Pool::Pool(int numThreads) {
 	jobs =  new JobQueue();
 	joinCount = 0;
 
-	workers.resize(poolSize);
-    for (int i = 0; i < poolSize; ++i) {
-    	Worker r = new Worker(this, i);
-        workers[i] = r;       
-    }
-            
-    for (int i = 0; i < poolSize; ++i) {
-    	workers[i]->start();
-        ++runningWorkers;
-    }
+	workers.resize(numThreads);
 	  
 	id = (pthread_t *)malloc(num_workers * sizeof(pthread_t));
 	
@@ -111,15 +110,15 @@ Pool::Pool(int numThreads) {
 	  
 	for (i = 0; i < num_workers; i++)
 	{
-	 		ptToFunc.id = i;
-			ptToFunc.cl = this;
-		  res = pthread_create(id + i, 
-				       &attr,
-				       Pool::each_thread_wrapper, 
-				       (void *) &ptToFunc);
-		  if (res) {cout << "could not create"; abort(); }
-		  runningWorkers++;
-		       
+	  ptToFunc.id = i;
+	  ptToFunc.cl = this;
+	  res = pthread_create(id + i, 
+			       &attr,
+			       Pool::each_thread_wrapper, 
+			       (void *) &ptToFunc);
+	  if (res) {cout << "could not create"; abort(); }
+	  runningWorkers++;
+	  
 	}
 	lock_var -> lock_signal_posix();
 }

@@ -7,7 +7,7 @@ namespace x10lib_cws {
 
 class Exception {
 protected:
-	virtual std::string toString() {}
+	virtual std::string toString() { return std::string();}
 	virtual ~Exception() {}
 };
 
