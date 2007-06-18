@@ -44,13 +44,13 @@ class Outlet {
 
 class ResultOutlet : public Outlet {
 private:
-	~ResultOutlet() {} //cannot inherit
 public:
 	Closure *closure;
 	JobFrame *jframe;
 	virtual void run();
 /* 	ResultOutlet(); */
 	ResultOutlet(Closure *c=NULL, JobFrame *f=NULL);
+	~ResultOutlet() {}
 };
 
 class GFrame : public JobFrame {

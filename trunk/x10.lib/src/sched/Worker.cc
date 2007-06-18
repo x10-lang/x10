@@ -16,7 +16,11 @@
 #include "Pool.h"
 #include "Closure.h"
 #include "Cache.h"
-
+#include "ActiveWorkerCount.h"
+#include "StealAbort.h"
+#include "Sys.h"
+#include <assert.h>
+#include <cstdlib>
 
 using namespace x10lib_cws;
 using namespace std;
@@ -146,7 +150,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 			} else { 
 				cl->unlock(); 
 				unlock(); 
-				return null;
+				return NULL;
 			}
 				/*if (reporting) {
 					
@@ -173,6 +177,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 		//return res;
 		//SHOULD NOT REACH HERE
 		abort();
+		return NULL;
 }
 
 

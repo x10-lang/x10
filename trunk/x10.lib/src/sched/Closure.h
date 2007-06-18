@@ -85,7 +85,7 @@ public:
 	void copyFrame(Worker *w);
 	bool isDone() const;
 
-	virtual void completed() ;
+	virtual void completed() volatile;
 
 	virtual void setResultInt(int x);
 	virtual void accumulateResultInt(int x);
@@ -109,7 +109,7 @@ public:
 		
 	virtual void setResultObject(void *x);
 	virtual void *resultObject();
-	virtual bool requiresGlobalQuiescence();
+	virtual bool requiresGlobalQuiescence() volatile;
 	
 };
 }

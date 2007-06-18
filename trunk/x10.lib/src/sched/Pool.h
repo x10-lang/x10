@@ -22,7 +22,7 @@ class Job;
 class Worker;
 class ActiveWorkerCount;
 class PosixLock;
-
+class Closure;
 
 const int INITIAL_JOBQUEUE_CAPACITY = 64;
 const int INITIAL_WORKER_CAPACITY = 64;
@@ -44,16 +44,15 @@ private:
 	//volatile UncaughtExceptionHandler *ueh;
 	void addJob(Job *job);
 	
-	~Pool(); //cannot inherit this class
 	
 public:
 	pthread_t *id;
 	std::vector<Worker *> workers;
 	unsigned int num_workers;
 	int /*atomic */ joinCount;
-  volatile Closure *currentJob;
-  ActiveWorkerCount *barrier;
-  int /*atomic*/ activeOnJobAtomic;
+	volatile Closure *currentJob;
+	ActiveWorkerCount *barrier;
+	int /*atomic*/ activeOnJobAtomic;
 
 	typedef struct {
 		Pool *cl;
@@ -73,6 +72,8 @@ public:
 	 */
 /* 	Pool(); */
 	Pool(int numThreads);
+	~Pool();
+
 	void barrierAction(Closure *c);
 	//UncaughtExceptionHandler *setUncaughtExceptionHandler(UncaughtExceptionHandler *h);
 	int getPoolSize() const;
