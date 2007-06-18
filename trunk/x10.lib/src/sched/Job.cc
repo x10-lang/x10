@@ -114,6 +114,12 @@ bool Job::isCancelled() const { return false;}
     
 bool Job::cancel(bool b) const { return false;}
 
+int Job::getInt() {
+#warning "Need to check sched_yield() and locks, etc."
+  while(!isDone()) 
+    sched_yield();
+  return resultInt();
+}
 
 
 /*--------------------GloballyQuiescentJob-------------------*/

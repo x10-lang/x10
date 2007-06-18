@@ -44,7 +44,7 @@ protected:
 	std::list<Closure *> completeInlets;
 	std::list<Closure *> incompleteInlets;
 	Outlet *outlet;
-	bool done;
+	volatile bool done;
 	
 	virtual void compute(Worker *w, Frame *frame) ;
 	void initialize();
@@ -83,7 +83,7 @@ public:
 	void executeAsInlet();
 	void setOutlet(Outlet *o);
 	void copyFrame(Worker *w);
-	bool isDone() const;
+	bool isDone() volatile;
 
 	virtual void completed() volatile;
 
