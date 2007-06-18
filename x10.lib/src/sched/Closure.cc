@@ -510,7 +510,8 @@ void Closure::copyFrame(Worker *w) {
 		assert(ownerReadyQueue->lockOwner==w);
 		frame = frame->copy();
 }	
-bool Closure::isDone() const { return done;}
+
+bool Closure::isDone() volatile { return done;}
 	
 //RuntimeException Closure::getException() { return NULL;} // TODO RAJ
 	
@@ -533,7 +534,7 @@ void Closure::accumulateResultInt(int x) { abort();}
 int Closure::resultInt() { abort(); return 0;}
 	
 void Closure::setResultFloat(float x) {abort();}
-void accumulateResultFloat(float x) { abort();}
+void Closure::accumulateResultFloat(float x) { abort();}
 float Closure::resultFloat() { abort(); return 0.0;}
 	
 void Closure::setResultLong(long x) {abort();}

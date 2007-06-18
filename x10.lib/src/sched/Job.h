@@ -82,6 +82,8 @@ public:
 	Job(Pool *pool, Frame *f = new JobFrame());
 	virtual ~Job();
 	virtual int spawnTask(Worker *ws) ;
+ 
+	int getInt();	
 };
 
 class GloballyQuiescentJob : public Job {

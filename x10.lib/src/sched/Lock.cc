@@ -54,19 +54,22 @@ inline void SpinLock::spin_lock_signal()
 PosixLock::PosixLock() {  pthread_mutex_init(&posix_lock_var, NULL);}
 PosixLock::~PosixLock() { pthread_mutex_destroy(&posix_lock_var);}
 
-inline void PosixLock::lock_init_posix()
+void PosixLock::lock_init_posix()
 {
 	pthread_mutex_init(&posix_lock_var, NULL); 
 }
-inline void PosixLock::lock_wait_posix()
+
+void PosixLock::lock_wait_posix()
 {
 	pthread_mutex_lock(&posix_lock_var);
 }
-inline void PosixLock::lock_signal_posix()
+
+void PosixLock::lock_signal_posix()
 {
   pthread_mutex_unlock(&posix_lock_var);
 }
-inline int PosixLock::lock_try_posix()
+
+int PosixLock::lock_try_posix()
 {
   return (pthread_mutex_trylock(&posix_lock_var) == 0) ? 1 : 0; 
 }
