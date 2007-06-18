@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: autorun.sh,v 1.5 2007-06-08 14:03:30 srkodali Exp $
+# $Id: autorun.sh,v 1.6 2007-06-18 07:20:36 srkodali Exp $
 # Script for automating the build and testing process.
 #
 
@@ -116,6 +116,10 @@ buildLib 2>&1 >> ${LOGFILE}
 status=$?
 if [ $status -ne 0 ]
 then
+	echo "\n############################################################" >> ${LOGFILE}
+	echo "#  Changes to Source Code since Last Build (24 Hours Ago)" >> ${LOGFILE}
+	echo "############################################################\n" >> ${LOGFILE}
+	cvs diff -D "24 hours ago" >> ${LOGFILE}
 	MESG="Failed Configure & Build"
 	outResults 1 "${MESG}"
 else
