@@ -892,7 +892,6 @@ Return values:
 	X10_OK		Indicates the method/function call completed successfully.
 	X10_ERR_LAPI	Error from the underlying communication system.
 
-
 Gfence
 ------
 
@@ -934,6 +933,83 @@ Note:
       3. The async methods are completed inline in the header handler or the inline completion handler.
       These imply that successful return of Gfence is a guarantee that all the remote operations 
       completed. 
+
+Finish
+------
+
+FinishBegin
+------------
+
+Purpose: Block the calling process until it receives the continue signal from process 0.
+
+Library: libx10.a
+
+C++ syntax:
+#include <x10/x10lib.h>
+int x10lib::finishStart (int cs)
+
+C syntax:
+ This is a C++ only feature.
+
+Description:
+
+  Blocks the calling process until it receives the 
+  continue signal from the parent process (process 0).
+  The call returns the received continue signal back to
+  the calling process.
+
+Parameters:
+
+  INPUT
+  cs    The continue signal. The parent process will send the next jump point
+        to the child processes. The child processese should wait to receive them.
+  
+Return values:
+
+       0 or -1          Indicates the calling process should
+                     simply wait for the CS from task 0.
+
+       > 0           Indicates the calling processs should jump
+                     to the corresponding jump point in the program 
+                     after the call returns. 
+                    
+FinishEnd
+==========
+
+Purpose:  Block the root process (process 0) until all the processes
+          have reached this call. Also, collect the exception from the processes.
+
+C++ syntax:
+#include <x10/x10lib.h>
+error_t x10lib::finishEnd (ex)
+  Exception* ex;    
+
+C syntax:
+ This is a C++ only feature.
+
+Description:
+
+  Blocks the parent process (process 0) until it receives the exception signal
+  and exception value from the children. 
+
+Parameters:
+  INPUT
+  ex         The exception thrown by the processes. 
+  
+Return values:
+
+  X10_OK		Indicates the method/function call completed successfully.
+  X10_ERR_LAPI		Error from the underlying communication system.
+
+Exceptions:
+  
+  Throws MutltiException in process 0
+     
+Note:
+   The following sequence is equivalent to a Gfence:
+   finishEnd();
+   process 0 code with no async spawns;
+   finishBegin();
 
 07) Synchronization
 -------------------
