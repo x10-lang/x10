@@ -18,6 +18,7 @@
 #include "Sys.h"
 #include "StealAbort.h"
 #include <assert.h>
+#include <iostream>
 
 using namespace std;
 using namespace x10lib_cws;
@@ -377,8 +378,9 @@ Closure *Closure::execute(Worker *w) {
 			res = returnValue(w);
 			break;
 		default:
-			abort(); // TODO RAJ
-			//throw new Error(w + "executes " + status + " " + this + ": error!");
+		  throw "Invalid state for closure in Closure::execute()";
+		  abort(); // TODO RAJ
+		  //throw new Error(w + "executes " + status + " " + this + ": error!");
 		}
 		return res;
 }
@@ -402,7 +404,7 @@ void Closure::executeAsInlet() {
 	 * @param w -- The thread invoking the compute, i.e. w == Thread.currentThread()
 	 * @param frame -- frame within which to execute
 	 */
-void Closure::compute(Worker *w, Frame *frame) {abort();}
+void Closure::compute(Worker *w, Frame *frame) {assert(0); abort();}
     
 	/**
 	 * Subclasses should override this as appropriate. 
@@ -529,22 +531,22 @@ void Closure::completed() volatile {
 	// closures. No pair may be overridden if the closure does not have an associated
 	// return value. These methods are not abstract so that Closure can be used directly
 	// when there is no reason to subclass it.
-void Closure::setResultInt(int x) { abort(); }
-void Closure::accumulateResultInt(int x) { abort();}
-int Closure::resultInt() { abort(); return 0;}
+void Closure::setResultInt(int x) { assert(0); abort(); }
+void Closure::accumulateResultInt(int x) { assert(0); abort();}
+int Closure::resultInt() { assert(0); abort(); return 0;}
 	
-void Closure::setResultFloat(float x) {abort();}
-void Closure::accumulateResultFloat(float x) { abort();}
-float Closure::resultFloat() { abort(); return 0.0;}
+void Closure::setResultFloat(float x) {assert(0); abort();}
+void Closure::accumulateResultFloat(float x) { assert(0); abort();}
+float Closure::resultFloat() { assert(0); abort(); return 0.0;}
 	
-void Closure::setResultLong(long x) {abort();}
-void Closure::accumulateResultLong(long x) { abort();}
-long Closure::resultLong() { abort(); return 0l;}
+void Closure::setResultLong(long x) {assert(0); abort();}
+void Closure::accumulateResultLong(long x) { assert(0); abort();}
+long Closure::resultLong() { assert(0); abort(); return 0l;}
 	
-void Closure::setResultDouble(double x) {abort();}
-void Closure::accumulateResultDouble(double x) { abort();}
-double Closure::resultDouble() { abort(); return 0.0;}
+void Closure::setResultDouble(double x) {assert(0); abort();}
+void Closure::accumulateResultDouble(double x) { assert(0); abort();}
+double Closure::resultDouble() { assert(0); abort(); return 0.0;}
 	
-void Closure::setResultObject(void *x) {abort();}
-void *Closure::resultObject() { abort(); return NULL; }
-bool Closure::requiresGlobalQuiescence() volatile { abort(); return false; }
+void Closure::setResultObject(void *x) {assert(0); abort();}
+void *Closure::resultObject() { assert(0); abort(); return NULL; }
+bool Closure::requiresGlobalQuiescence() volatile { return false; }

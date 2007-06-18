@@ -218,20 +218,22 @@ int main(int argc, char *argv[]) {
     Worker::reporting = true;
 
   Pool *g = new Pool(procs);
-  int points[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40, 45};
+  int points[] = { 0, 1, 2, 3, 5, 10, 15, 20, 25, 30};
     
   for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
     int n = points[i];
     Job *job = new anon_Job1(g, n);
       
 //     long s = System.nanoTime();
+
     g->submit(job);
     int result = job->getInt();
+
+    cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<FibC::realfib(points[i])<<endl;
       
 //     long t = System.nanoTime();
 //     System.out.println(points[i] + " " + (t-s)/1000000 
 // 		       + " " + result + " " + (result==realfib(n)?"ok" : "fail") );
-    delete job;
   }
   g->shutdown();
   delete g;

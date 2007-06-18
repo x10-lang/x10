@@ -53,8 +53,8 @@ void ResultOutlet::run() {
 
 /*----------------------GFrame------------------*/	
 
-void GFrame::setOutletOn(Closure *c) { abort(); }
-Closure *GFrame::makeClosure() { abort(); return NULL;}
+void GFrame::setOutletOn(Closure *c) { assert(0); abort(); }
+Closure *GFrame::makeClosure() { assert(0); abort(); return NULL;}
 GFrame::GFrame():JobFrame(), PC(0) { }
 
 /*---------------------Job---------------------------*/
@@ -94,7 +94,7 @@ void Job::compute(Worker *w, Frame *frame) {
 		}
 		return;
 }
-int Job::spawnTask(Worker *ws) { abort(); return 0; } // TODO RAJ child must provide an imple for this
+int Job::spawnTask(Worker *ws) { assert(0); abort(); return 0; } // TODO RAJ child must provide an imple for this
 void Job::completed() {
 	Closure::completed();
 	/*	if ( Worker.reporting)

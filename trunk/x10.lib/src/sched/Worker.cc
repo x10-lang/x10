@@ -159,15 +159,17 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 				}*/
 			break;
 		case SUSPENDED:
-			abort();
-			break;
+		  assert(0); 
+		  abort();
+		  break;
 		case RETURNING:
 		case ABORTING:
 			cl->unlock(); 
 			unlock();
 			break; 
 		default:
-			abort();
+		  assert(0); 
+		  abort();
 			
 		}
 		// this path taken when status == RETURNING, 
@@ -176,6 +178,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 		//cl->unlock();
 		//return res;
 		//SHOULD NOT REACH HERE
+		assert(0); 
 		abort();
 		return NULL;
 }
@@ -421,8 +424,8 @@ Closure *Worker::getTaskFromPool(Worker *sleeper) {
         }
         if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
             if (sleepStatus == AWAKE) {
-								compare_exchange(&sleepStatus, AWAKE, SLEEPING);
-								sched_yield(); // TODO RAJ -- wanna give it to someone else
+	      compare_exchange((int *)&sleepStatus, AWAKE, SLEEPING);
+	      sched_yield(); // TODO RAJ -- wanna give it to someone else
                 
             	/*if (reporting)
             		System.out.println(this + " at " + pool.time() + " parking for " 
@@ -469,7 +472,7 @@ void Worker::checkOutSteal(Closure *cl, Worker *victim) {
 }
 void Worker::wakeup() {
         if (sleepStatus == SLEEPING) { 
-					compare_exchange(&sleepStatus, SLEEPING, WOKEN);
+	  compare_exchange((int *)&sleepStatus, SLEEPING, WOKEN);
         	/*if (reporting)
         	System.out.println(this + " at " + pool.time() + " is being unparked.");*/
           //LockSupport->unpark(this);  // TODO RAJ

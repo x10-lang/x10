@@ -16,6 +16,8 @@
 #include "Frame.h"
 #include <assert.h>
 
+#include <iostream>
+
 using namespace x10lib_cws;
 using namespace std;
 
@@ -78,8 +80,9 @@ void Cache::growAndPushFrame(Frame *x) {
     if (newSize < INITIAL_CAPACITY)
         newSize = INITIAL_CAPACITY;
     if (newSize > MAXIMUM_CAPACITY) {
-			abort();
-		}
+      assert(0);
+      abort();
+    }
     
     stack.resize(newSize);
     stack.push_back(x);
