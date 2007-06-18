@@ -3,14 +3,14 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: core_test.sh,v 1.1 2007-06-08 13:51:42 srkodali Exp $
+# $Id: core_test.sh,v 1.2 2007-06-18 10:33:48 ganeshvb Exp $
 # Script for testing the X10Lib's core functionality.
 #
 
 coreTest() {
 	RC=0
 	for i in Test_async Test_async_agg Test_async_c \
-			Test_async_agg_c
+			Test_async_agg_c Test_async_agg_func
 	do
 		let "TOTAL_TESTS = TOTAL_TESTS + 1"
 		CMD=${SRC_TEST}/${i}

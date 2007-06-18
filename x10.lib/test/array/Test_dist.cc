@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_dist.cc,v 1.1 2007-06-08 13:51:42 srkodali Exp $ */
+/* $Id: Test_dist.cc,v 1.2 2007-06-18 10:33:50 ganeshvb Exp $ */
 
 #include <iostream>
 
