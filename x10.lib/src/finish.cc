@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.4 2007-06-16 16:20:36 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.5 2007-06-18 11:29:55 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -244,108 +244,17 @@ x10lib::finishStart (int cs)
 {
   error_t err = finishStart_ (&cs); 
   if (err != X10_OK) {
-    throw "finishStart Error";
+    throw err;
   } 
   return cs;
 }
 
-error_t
+void
 x10lib::finishEnd (Exception* e)
 {
-  return finishEnd_ (e);
+  error_t err = finishEnd_ (e);
+  if (err != X10_OK) {
+    throw err;
+  } 
 }
 
-#ifdef OLD 
-error_t
-x10lib::finishEnd (Exception* e)
-{
-  lapi_cntr_t originCntr;
-  int tmp;
-  place_t p = here();
- 
-  if (here() != 0) {
-   LRC (LAPI_Fence(GetHandle()));
-    if (e != NULL) {
-      numExceptions++;
-      LRC (LAPI_Setcntr (GetHandle(), &originCntr, 0));
-      LRC (LAPI_Amsend (GetHandle(),
-                 0,
-                 (void*) 3, /*LAPI handler for exceptions */
-                 &numExceptions, 
-                 sizeof(int),
-                 e,
-                 e->size(),
-                 (lapi_cntr_t*) exceptionCntr[0],
-                 &originCntr,
-                 NULL));
-     LRC (LAPI_Waitcntr (GetHandle(), &originCntr, 1, &tmp));
-    } else {
-     LRC (LAPI_Put (GetHandle(), 0, 0, NULL, NULL, (lapi_cntr_t*) exceptionCntr[0], NULL, NULL)); 
-    }
-
-  } else { 
-    LAPI_Fence (GetHandle());
-    if (e != NULL)  {
-      memcpy (buffer+bufSize, e, e->size()); 
-      bufSize += e->size();
-      numExceptions++;
-    }
-   
-    int tmp; 
-
-   LRC (LAPI_Waitcntr (GetHandle(), &cntr1, numPlaces() - 1, &tmp)); 
-
-   //cout << numExceptions << endl;
-   if (numExceptions > 0) {
-     Exception** e = new Exception*[numExceptions];
-     int ex_size = bufSize / numExceptions;
-   //  cout <<"buf " << bufSize << " " << ex_size << endl;
-     for (int  i = 0; i < numExceptions; i++) {
-       e[i] = (Exception*) (buffer+i*ex_size);
-     }
-     throw MultiException(e, numExceptions);
-   }
- }
-
-  return X10_OK;
-}
-
-error_t
-x10lib::finishBegin (int* cs)
-{
-  int tmp;
-  if (here() != 0) {
-    LRC (LAPI_Waitcntr (GetHandle(), 
-                  &cntr2,
-                  1, 
-                  &tmp));
-    *cs = CONTINUE_STATUS;
-  } else {
-    lapi_cntr_t originCntr;
-    *cs = numExceptions > 0 ? -1 : *cs;
-     numExceptions = 0;
-     bufSize = 0;
-    for (int i = 0 ; i < numPlaces(); i++) {
-
-     if (i == here()) continue;
-
-      LRC (LAPI_Setcntr (GetHandle(), &originCntr, 0));
-      LRC (LAPI_Amsend (GetHandle(), 
-                 i, 
-                 (void*) 4,
-                 *cs == 0 ? NULL : cs,
-                 *cs == 0 ? 0 : sizeof(int),
-                 NULL,
-                 0,
-                 (lapi_cntr_t*) continueCntr[i],
-                 &originCntr,
-                 NULL));
-     LRC (LAPI_Waitcntr (GetHandle(), &originCntr, 1, &tmp));
-   }
-     LRC (LAPI_Fence(GetHandle()));
-  }
-
-  CONTINUE_STATUS = 0;
-  return X10_OK;
-}
-#endif 
