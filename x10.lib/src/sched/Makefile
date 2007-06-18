@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.4 2007-06-18 19:09:41 sriramk Exp $
+# $Id: Makefile,v 1.5 2007-06-18 21:12:42 sriramk Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -63,5 +63,6 @@ install:
 
 
 %.x:	%.cc $(SCHED_A)
-	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) $? -o $@
+	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) $^ -o $@
+
 

@@ -10,7 +10,18 @@
 #ifndef x10lib_Sys_h
 #define x10lib_Sys_h
 
+/*I am hacking this file to include XLC PowerPC intrinsics on
+ * rlsecomp1. I am not sure how this would work on other machines, and
+ * if there exists any difference even within the powerpc
+ * processors. Those would be worries for some other time.
+ * @author Sriram.K
+ */
+
 #include <assert.h>
+
+#ifdef __xlC__
+#include <sys/atomic_op.h>
+#endif
 
 namespace x10lib_cws {
 #ifndef __POWERPC__ 
@@ -19,7 +30,7 @@ namespace x10lib_cws {
 #define MEM_BARRIER()  __asm__ __volatile__ ("sync" : : : "memory")
 #define READ_BARRIER()  __asm__ __volatile__ ("lwsync" : : : "memory")
 #define WRITE_BARRIER()  __asm__ __volatile__ ("lwsync" : : : "memory")
- 
+
 static __inline__ int atomic_exchange(volatile int *ptr, int x)
 {
 		int result;
@@ -35,10 +46,10 @@ static __inline__ int atomic_exchange(volatile int *ptr, int x)
 
 
 static __inline__ int
-compare_exchange(volatile int *p, int  old_value, int new_value)
+compare_exchange(int *p, int  old_value, int new_value)
 {
-         int prev;
 #if 0
+         int prev;
         __asm__ __volatile__ (
 
         		"1:     lwarx   %0,0,%2\n\
@@ -51,13 +62,19 @@ compare_exchange(volatile int *p, int  old_value, int new_value)
         		: "=&r" (prev), "=m" (*p)
         		: "r" (p), "r" (old_value), "r" (new_value), "m" (*p)
         		: "cc", "memory");
+	return prev;
+
+#elif defined(__xlC__)
+	int *old = &old_value;	
+	return compare_and_swap(p, old, new_value);
+
 #else
-#warning "Fix compare_exchange before running. Commented now"
-	assert(0);
-	return 0;
+#error "Fix compare_exchange before running. Commented now"
+/* 	assert(0); */
+/* 	return 0; */
 #endif
  
-         return prev;
+
 }
 
 static __inline__ void atomic_add(volatile int* mem, int val)
@@ -76,9 +93,12 @@ static __inline__ void atomic_add(volatile int* mem, int val)
 			  : "r" (mem), "Ir"(val), "m" (*mem)
 			  : "cr0");
   
+#elif defined(__xlC__)
+
+    fetch_and_add((int *)mem, val); //ignore return value
 #else
-#warning "Fix atomic_add before running. Commented now"
-    assert(0);
+#error "Fix atomic_add before running. Commented now"
+/*     assert(0); */
 #endif
 }
 #endif
