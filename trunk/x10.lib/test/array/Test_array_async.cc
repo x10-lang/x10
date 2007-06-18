@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_array_async.cc,v 1.1 2007-06-08 13:51:42 srkodali Exp $ */
+/* $Id: Test_array_async.cc,v 1.2 2007-06-18 10:33:50 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -29,7 +29,7 @@ void async0 (async_arg_t arg0, async_arg_t arg1)
     asyncSpawnInline ((here() + 1) % numPlaces(), 1, 1, here());
 }
 
-int asyncSwitch (async_handler_t h, void* arg, size_t size)
+int asyncSwitch (async_handler_t h, void* arg, int niter)
 {
   async_arg_t * args =(async_arg_t*) arg;
   switch (h) {

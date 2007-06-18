@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_c.c,v 1.1 2007-06-08 13:51:42 srkodali Exp $ */
+/* $Id: Test_async_c.c,v 1.2 2007-06-18 10:33:48 ganeshvb Exp $ */
 
 #include <x10/x10lib.h>
 
@@ -16,11 +16,12 @@ void async0 (async_arg_t arg)
   assert (arg == 333);
 }
 
-int asyncSwitch (async_handler_t h, async_arg_t* args, size_t size)
+int asyncSwitch (async_handler_t h, void* args, int niter)
 {
   switch (h) {
    case 0:
-     async0 (*args);
+     async0 (*((async_arg_t*) args));
+     break;
   }
 }
 
@@ -36,7 +37,7 @@ main (int argc, char* argv[])
 
   x10_gfence (); 
 
-  printf ("Test_async PASSED\n");
+  printf ("Test_async_c PASSED\n");
 
   x10_finalize();
 

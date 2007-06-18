@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.5 2007-06-17 20:14:15 ganeshvb Exp $
+# $Id: Makefile,v 1.6 2007-06-18 10:33:48 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -37,7 +37,11 @@ TARGET4 = Test_async_agg_c
 SRCS4 = $(TARGET4).c
 OBJS4 = $(TARGET4).o
 
-TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4)
+TARGET5 = Test_async_agg_func
+SRCS5 = $(TARGET5).cc
+OBJS5 = $(TARGET5).o
+
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5)
 
 all: $(TARGETS)
 	(cd array; $(MAKE) $@)
@@ -61,11 +65,11 @@ $(TARGET2).o: $(TARGET2).cc
 
 $(TARGET3): $(OBJS3)
 	$(RM) $@
-	$(CXX) $(LINKFLAGS) $(OBJS2) -o $@ $(LIBDIRS) $(LIBS)
+	$(CXX) $(LINKFLAGS) $(OBJS3) -o $@ $(LIBDIRS) $(LIBS)
 
 $(TARGET3).o: $(TARGET3).c
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -qsourcetype=c++ -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES)  -c $< -o $@
 
 $(TARGET4): $(OBJS4)
 	$(RM) $@
@@ -73,7 +77,15 @@ $(TARGET4): $(OBJS4)
 
 $(TARGET4).o: $(TARGET4).c
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -qsourcetype=c++ -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES)  -c $< -o $@
+
+$(TARGET5): $(OBJS5)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS5) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET5).o: $(TARGET5).cc
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 
 install:
 	@echo "Done \"install\" in \"test\" subdir."
@@ -81,7 +93,7 @@ install:
 clean:
 	(cd array; $(MAKE) $@)
 	(cd sched; $(MAKE) $@)
-	$(RM) $(TARGETS) $(OBJS1) $(OBJS2) $(OBJS3) $(OBJS4)
+	$(RM) $(TARGETS) $(OBJS1) $(OBJS2) $(OBJS3) $(OBJS4) $(OBJS5)
 
 .cc.o:
 	$(RM) $@
@@ -101,4 +113,4 @@ clean:
 
 .c.o:
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -qsourcetype=c++ $(DEFS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
