@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.cc,v 1.5 2007-06-16 16:20:36 ganeshvb Exp $ */
+/* $Id: async.cc,v 1.6 2007-06-18 11:29:55 ganeshvb Exp $ */
 
 #include <iostream>
 #include <stdarg.h>
@@ -25,7 +25,7 @@ asyncSpawnHandler (lapi_handle_t handle, void* uhdr,
 		   void** user_info)
 {
   lapi_return_info_t* tmp = (lapi_return_info_t*) msg_len;
-  asyncSwitch (*((async_handler_t*)uhdr), (async_arg_t*) tmp->udata_one_pkt_ptr, *msg_len, 1);
+  asyncSwitch (*((async_handler_t*)uhdr), (async_arg_t*) tmp->udata_one_pkt_ptr, 1);
   *comp_h = NULL;
   return NULL;
 }

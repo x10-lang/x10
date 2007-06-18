@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.h,v 1.4 2007-06-16 16:20:36 ganeshvb Exp $ */
+/* $Id: finish.h,v 1.5 2007-06-18 11:29:55 ganeshvb Exp $ */
 
 #ifndef __FINISH_H__
 #define __FINISH_H__
@@ -46,7 +46,7 @@ namespace x10lib {
       Exception** exceptions_; 
   };
 
-  error_t finishEnd (Exception* a);
+  void finishEnd (Exception* a);
  
   int finishStart (int cs);
 };

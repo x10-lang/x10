@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.h,v 1.7 2007-06-16 16:20:36 ganeshvb Exp $ */
+/* $Id: aggregate.h,v 1.8 2007-06-18 11:29:55 ganeshvb Exp $ */
 
 #ifndef __AGGREGATE_H__
 #define __AGGREGATE_H__
@@ -44,7 +44,7 @@ extern "C"
 
   error_t x10_async_spawn_inline_agg2 (place_t target, async_handler_t handler, async_arg_t arg0, async_arg_t arg1);
 
-  error_t x10_async_flush (async_handler_t handler);
+  error_t x10_async_flush (async_handler_t handler, size_t size);
 
 #ifdef __cplusplus
 }

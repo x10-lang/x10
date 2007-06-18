@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.h,v 1.9 2007-06-16 16:20:36 ganeshvb Exp $ */
+/* $Id: async.h,v 1.10 2007-06-18 11:29:55 ganeshvb Exp $ */
 
 #ifndef __ASYNC_NEW_H__
 #define __ASYNC_NEW_H__
@@ -17,7 +17,7 @@
 
 #ifdef __cplusplus
 #include <iostream>
-extern "C" int asyncSwitch (async_handler_t, void*, size_t size, int niter);
+extern "C" int asyncSwitch (async_handler_t, void*, int niter);
 
 namespace x10lib{
   const int MAX_ASYNC_ARGS = 6;
