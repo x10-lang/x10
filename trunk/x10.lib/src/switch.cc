@@ -1,21 +1,27 @@
-/*
- * (c) Copyright IBM Corporation 2007
- *
- * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
- */
+#include "switch.h"
 
-/* $Id: switch.cc,v 1.5 2007-06-18 11:29:55 ganeshvb Exp $ */
-
-#include "types.h"
-#include <iostream>
-
+using namespace x10lib;
 using namespace std;
 
-extern "C"
-int 
-asyncSwitch (async_handler_t h, void* args,int niter)
+
+void
+x10lib::initSwitch (switch_t* switch)
 {
-   cout << "asyncSwitch should be overriddern \n";
-   exit(-1);
+  LRC (LAPI_Setcntr (GetHandle(), switch, 0));
+}
+
+error_t
+x10lib::nextOnSwitch (switch_t* switch)
+{
+  int tmp;   
+  LRC (LAPI_Waitcntr (GetHandle(), switch, 0, &tmp));
+  return X10_OK;
+}
+
+error_t
+x10lib::modifySwitch (switch_t* switch, int val)
+{
+  int tmp; 
+  LAPI_Getcntr (GetHandle(), switch, &tmp);
+  LAP_Setcntr (GetHandle(), switch, tmp + val); 
 }
