@@ -30,9 +30,16 @@ Closure *Closure::getparent() const { return parent; }
 // Closure::Closure() { }
 
 Closure::Closure(Frame *frame) {
+	/*In place to check the defalut parameter memory allocation does not 
+	 * 	return NULL. We need to fix this if there is ever a need to create 
+	 * a Closure with a NULL frame.
+	 */
+	assert(frame != NULL);
+
 	done = false;
 	this->frame = frame;
 	lock_var = new PosixLock();
+	assert(lock_var != NULL);
 
 	//public members to be init
 	cache = NULL;
@@ -378,7 +385,7 @@ Closure *Closure::execute(Worker *w) {
 			res = returnValue(w);
 			break;
 		default:
-		  throw "Invalid state for closure in Closure::execute()";
+			assert(0);
 		  abort(); // TODO RAJ
 		  //throw new Error(w + "executes " + status + " " + this + ": error!");
 		}
