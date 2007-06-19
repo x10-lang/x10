@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.8 2007-06-17 19:36:22 ganeshvb Exp $
+ * $Id: types.h,v 1.9 2007-06-19 02:53:35 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,9 +9,10 @@
 #define __X10_TYPES_H
 
 #include <sys/types.h>
+#include <stdint.h>
 
-typedef u_int32_t uint32_t;
-typedef u_int64_t uint64_t;
+//typedef u_int32_t uint32_t; // FIXME [IP] Removed due to conflict
+//typedef u_int64_t uint64_t; // FIXME [IP] Removed due to conflict
 typedef uint32_t place_t;
 typedef uint64_t gas_ref_t;
 typedef int64_t async_arg_t;
