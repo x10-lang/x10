@@ -59,6 +59,7 @@ void Pool::callBackFunc::each_thread(Pool *p,int d)
 void *Pool::each_thread_wrapper(void *arg) {
 	callBackFunc *cbf = (callBackFunc *) arg;
 	cbf->each_thread(cbf->cl, cbf->id);
+	delete cbf;
 	return NULL;
 }
 
@@ -116,21 +117,24 @@ Pool::Pool(int numThreads) {
 
 	  
 	id = (pthread_t *)malloc(num_workers * sizeof(pthread_t));
-	
+	assert(id != NULL);
 
 	pthread_attr_init(&attr); 
 	pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM); 
 	 
 	lock_var -> lock_wait_posix();
+
+	callBackFunc *ptToFunc;
 	  
 	for (i = 0; i < num_workers; i++)
 	{
-	  ptToFunc.id = i;
-	  ptToFunc.cl = this;
+	  ptToFunc = new callBackFunc(this, i);
+// 	  ptToFunc.id = i;
+// 	  ptToFunc.cl = this;
 	  res = pthread_create(id + i, 
 			       &attr,
 			       Pool::each_thread_wrapper, 
-			       (void *) &ptToFunc);
+			       (void *) ptToFunc);
 	  if (res) {cout << "could not create"; abort(); }
 	  runningWorkers++;
 	  

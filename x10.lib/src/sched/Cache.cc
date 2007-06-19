@@ -130,8 +130,10 @@ void Cache::popFrame() {
 	--tail;
 	//WRITE_BARRIER();
 }
+
 bool Cache::interrupted() const {
-		return exception >= tail;
+  MEM_BARRIER();
+  return exception >= tail;
 }
 /*
 bool Cache::popCheck() {
@@ -169,19 +171,20 @@ int Cache::gettail() const { return tail;}
 int Cache::getexception() const { return exception;}
 
 bool Cache::dekker(Worker *thief) {
-		assert(thief != owner);
-		if (exception != EXCEPTION_INFINITY) {
-    		++exception;
-				MEM_BARRIER();
-		}
-		if ((head + 1) >= tail) {
-			if (exception != EXCEPTION_INFINITY)
-	    		--exception;
-			return false;
-		}
-		// so there must be at least two elements in the framestack for a theft.
-		/*if ( Worker.reporting) {
-			System.out.println(thief + " has found victim " + owner);
-		}*/
-		return true;
+  assert(thief != owner);
+  if (exception != EXCEPTION_INFINITY) {
+    ++exception;
+    MEM_BARRIER();
+  }
+  if ((head + 1) >= tail) {
+    if (exception != EXCEPTION_INFINITY)
+      --exception;
+    return false;
+  }
+  // so there must be at least two elements in the framestack for a theft.
+  /*if ( Worker.reporting) {
+    System.out.println(thief + " has found victim " + owner);
+    }*/
+  return true;
 }
+

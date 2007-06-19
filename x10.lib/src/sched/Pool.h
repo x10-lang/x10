@@ -54,13 +54,14 @@ public:
 	ActiveWorkerCount *barrier;
 	int /*atomic*/ activeOnJobAtomic;
 
-	typedef struct {
-		Pool *cl;
-		int id;
-		void each_thread(Pool *p,int a);
-	} callBackFunc;
+	class callBackFunc {
+	public:
+	  Pool *cl;
+	  int id;
+	  void each_thread(Pool *p,int a);
+	  callBackFunc(Pool *_cl, int _id) : cl(_cl), id(_id){}
+	};
 
-	callBackFunc ptToFunc;
 	static void *each_thread_wrapper (void *);
 
     

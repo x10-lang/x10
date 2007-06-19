@@ -21,6 +21,7 @@
 #include "Sys.h"
 #include <assert.h>
 #include <cstdlib>
+#include <iostream>
 
 using namespace x10lib_cws;
 using namespace std;
@@ -34,6 +35,8 @@ bool Worker::reporting = false;
 // index is the id of the pthread
 Worker::Worker(int idx, Pool *p) {
 	this->checkedIn = true;
+	this->exception = false;
+
 	this->top = NULL;
 	this->bottom = NULL;
 	this->randNext = 0;
@@ -53,7 +56,7 @@ Worker::Worker(int idx, Pool *p) {
 	this->reporting = false;
 	this->idleScanCount = 0;
 	this->sleepStatus = 0;
-	
+
 }
 
 Worker::~Worker() { delete lock_var; delete cache; }
@@ -85,104 +88,109 @@ int Worker::rand() {
  */
 Closure *Worker::steal(Worker *thief, bool retry) {
 	
-		Closure *res = NULL;
-		Worker *victim = this;
-		++stealAttempts;
-		/*if (reporting) {
-			System.out.println(thief + " attempts to steal from " + victim.index);
-		}*/
+  Closure *res = NULL;
+  Worker *victim = this;
+  ++stealAttempts;
+  /*if (reporting) {
+    System.out.println(thief + " attempts to steal from " + victim.index);
+    }*/
 		
-		lock(thief);
+  lock(thief);
 		
-		Closure *cl=NULL;
-		cl = peekTop(thief, victim);
-		if (cl == NULL) {
-			//lock->lock_signal_posix(); // should it be unlock call directly -- TODO
-			unlock();
-			return NULL;
-		}
-			// vj: I believe the victim's ready deque should have only one
-			// closure in it.
-		Closure *cl1 = peekBottom(thief);
-		assert(cl1==cl);
+  Closure *cl=NULL;
+  cl = peekTop(thief, victim);
+  if (cl == NULL) {
+    //lock->lock_signal_posix(); // should it be unlock call directly -- TODO
+    unlock();
+    return NULL;
+  }
+  // vj: I believe the victim's ready deque should have only one
+  // closure in it.
+  Closure *cl1 = peekBottom(thief);
+  assert(cl1==cl);
 				
-		cl->lock(thief);
+  cl->lock(thief);
 				
-		int status = cl->getstatus();
-		
-		assert (status == ABORTING || status == READY || status == RUNNING || status == RETURNING);
-		
-		switch (status) {
-		
-		case READY:
-			
-				res = extractTop(thief);
-				assert (res == cl);
-				thief->checkOut(res);
-				/*if (reporting) {
-					System.out.println(thief + " steals ready " + cl + " from "
-							+ victim);
-				}*/
-				cl->unlock();
-				unlock();
-				return res;
-				break;
-		
-		case RUNNING: 
-			
-			if (cl->dekker(thief)) {
-				Closure *child = NULL;
-				Closure *res = NULL;
+  int status = cl->getstatus();
 
-				cl->copyFrame(thief);			
-				//I have work now, so checkout of the barrier.
-				child = cl->promoteChild(thief, victim);
-				res = extractTop(thief);
-					/*if (reporting)
-					System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
-				thief->checkOut(res); //?????????????sriram TODO: checkoutsteal?
-				assert(cl==res);
+  cerr<<thief->index<<"::Worker::steal. Status="<<status<<endl;
+		
+  assert (status == ABORTING || status == READY || status == RUNNING || status == RETURNING);
+		
+  switch (status) {
+		
+  case READY:
 			
-				unlock();
+    res = extractTop(thief);
+    assert (res == cl);
+    thief->checkOut(res);
+    /*if (reporting) {
+      System.out.println(thief + " steals ready " + cl + " from "
+      + victim);
+      }*/
+    cl->unlock();
+    unlock();
+    return res;
+    break;
+		
+  case RUNNING: 
 			
-				cl->finishPromote(thief, child);
+    if (cl->dekker(thief)) {
+      cerr<<index<<"::Got a closure to steal"<<endl;
+
+      Closure *child = NULL;
+      Closure *res = NULL;
+
+      cl->copyFrame(thief);			
+      //I have work now, so checkout of the barrier.
+      child = cl->promoteChild(thief, victim);
+      res = extractTop(thief);
+      cerr<<thief->index<<"::Stealing: victim top="<<res<<" bottom="<<bottom<<endl;
+      /*if (reporting)
+	System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
+      thief->checkOut(res); //?????????????sriram TODO: checkoutsteal?
+      assert(cl==res);
+			
+      unlock();
+			
+      cl->finishPromote(thief, child);
 				
-				cl->unlock();
-				return res;
-			} else { 
-				cl->unlock(); 
-				unlock(); 
-				return NULL;
-			}
-				/*if (reporting) {
-					
-					System.out.println(thief + " steals running " + cl + " from "
-							+ victim);
-				}*/
-			break;
-		case SUSPENDED:
-		  assert(0); 
-		  abort();
-		  break;
-		case RETURNING:
-		case ABORTING:
-			cl->unlock(); 
-			unlock();
-			break; 
-		default:
-		  assert(0); 
-		  abort();
+      cl->unlock();
+      return res;
+    } else { 
+      cerr<<thief->index<<"::Stealing: dekker failed"<<endl;
+      cl->unlock(); 
+      unlock(); 
+      return NULL;
+    }
+    /*if (reporting) {
+      System.out.println(thief + " steals running " + cl + " from "
+      + victim);
+      }*/
+    break;
+  case SUSPENDED:
+    assert(0); 
+    abort();
+    break;
+  case RETURNING:
+  case ABORTING:
+    cl->unlock(); 
+    unlock();
+    break; 
+  default:
+    assert(0); 
+    abort();
 			
-		}
-		// this path taken when status == RETURNING, 
-		// status==ABORTING, or status==RUNNING and dekker failed.
-		//unlock();
-		//cl->unlock();
-		//return res;
-		//SHOULD NOT REACH HERE
-		assert(0); 
-		abort();
-		return NULL;
+  }
+  // this path taken when status == RETURNING, 
+  // status==ABORTING, or status==RUNNING and dekker failed.
+  //unlock();
+  //cl->unlock();
+  //return res;
+  //SHOULD NOT REACH HERE
+  assert(0); 
+  abort();
+  return NULL;
 }
 
 
@@ -347,66 +355,66 @@ bool Worker::sync() {
  * @return -- a task, or NULL if none is available
  */
 Closure *Worker::getTask(bool mainLoop) {
-	/*if ( reporting) {
-			System.out.println(this + " at  " + pool.time() + " looking for work idleScanCount= " + idleScanCount + 
-					" checkedIn=" + checkedIn + " job=" + currentJob() + ".");
-			System.out.println(this + " " + pool.barrier.numCheckedIn);
-		}*/
-		Closure *cl = NULL;
-		checkIn();
-		if (++idleScanCount < 0)
-			idleScanCount=1;
+  /*if ( reporting) {
+    System.out.println(this + " at  " + pool.time() + " looking for work idleScanCount= " + idleScanCount + 
+    " checkedIn=" + checkedIn + " job=" + currentJob() + ".");
+    System.out.println(this + " " + pool.barrier.numCheckedIn);
+    }*/
+  Closure *cl = NULL;
+  checkIn();
+  if (++idleScanCount < 0)
+    idleScanCount=1;
 		
-		/* From DL:
-         * Scan through workers array twice starting at random
-         * index. The first pass skips over those for which
-         * stealTask reports contention. The second retries steals
-         * even under contention.
-         *
-         * While traversing, the first failed attempted steal for
-         * which the attempted victim is sleeping is recorded. If
-         * a task is found in some other queue, and that queue
-         * appears to have more tasks, that sleeper is woken up.
-         * This propagates wakeups across workers when new work
-         * becomes available to a set of otherwise idle threads.
-         */
-		//vector<Worker *> workers = pool->workers;
-		int n = pool->num_workers;
-		int idx = rand() % n;
-		int origin = idx;
-		Worker *sleeper = NULL;
-		Worker *thief = this;
-		bool retry = false; // first pass skips on contention.
-		for (;;) {
+  /* From DL:
+   * Scan through workers array twice starting at random
+   * index. The first pass skips over those for which
+   * stealTask reports contention. The second retries steals
+   * even under contention.
+   *
+   * While traversing, the first failed attempted steal for
+   * which the attempted victim is sleeping is recorded. If
+   * a task is found in some other queue, and that queue
+   * appears to have more tasks, that sleeper is woken up.
+   * This propagates wakeups across workers when new work
+   * becomes available to a set of otherwise idle threads.
+   */
+  //vector<Worker *> workers = pool->workers;
+  int n = pool->num_workers;
+  int idx = rand() % n;
+  int origin = idx;
+  Worker *sleeper = NULL;
+  Worker *thief = this;
+  bool retry = false; // first pass skips on contention.
+  for (;;) {
 			
-			Worker *victim = (pool->workers).at(idx);
-			if (victim != NULL && victim != thief) {
-				//System.out.println(thief +  " at " + pool.time() + ": tries to steal from " + victim + "...");
-				cl = victim->steal(thief, retry);
-				if (cl == NULL) {
-					if ((sleeper == NULL) && // first sleeping worker
-							victim->sleepStatus== SLEEPING)
-						sleeper=victim;
+    Worker *victim = (pool->workers).at(idx);
+    if (victim != NULL && victim != thief) {
+      //System.out.println(thief +  " at " + pool.time() + ": tries to steal from " + victim + "...");
+      cl = victim->steal(thief, retry);
+      if (cl == NULL) {
+	if ((sleeper == NULL) && // first sleeping worker
+	    victim->sleepStatus== SLEEPING)
+	  sleeper=victim;
 					
-				} else {
-					idleScanCount = -1;
-					++stealCount;
-					if (sleeper != NULL)
-						sleeper->wakeup();
+      } else {
+	idleScanCount = -1;
+	++stealCount;
+	if (sleeper != NULL)
+	  sleeper->wakeup();
 					
-					return cl;
-				}
-			}
-			if (++idx >= n) idx = 0;
-			if (idx==origin) {
-				if (! retry) 
-					retry = true; 
-				else 
-					break;
+	return cl;
+      }
+    }
+    if (++idx >= n) idx = 0;
+    if (idx==origin) {
+      if (! retry) 
+	retry = true; 
+      else 
+	break;
 				
-			}
-		}
-		return mainLoop? this->getTaskFromPool(sleeper) : NULL;
+    }
+  }
+  return mainLoop? this->getTaskFromPool(sleeper) : NULL;
 }
 
 
@@ -483,51 +491,51 @@ void Worker::wakeup() {
 
 	
 void Worker::run() {
-		assert(index >= 0);
-		setRandSeed(index*162347);
-		Closure *cl = NULL; //closure.
-		int yields = 0;
-		while (!done) {
+  assert(index >= 0);
+  setRandSeed(index*162347);
+  Closure *cl = NULL; //closure.
+  int yields = 0;
+  while (!done) {
 			
-			if (cl == NULL) {
-//				Try geting work from the local queue.
-				lock(this);
-				cl = extractBottom(this);
-					/*if (((reporting )) && cl !=NULL) {
-						System.out.println(this + " extracts " + cl + ".");
-					}*/
-				unlock();
-			}
-			if (cl == NULL) 	
-				cl = getTask(true);
+    if (cl == NULL) {
+      //Try geting work from the local queue.
+      lock(this);
+      cl = extractBottom(this);
+      if (((reporting )) && cl !=NULL) {
+	cerr<<index<<":: extract local closure"<<endl;
+      }
+      unlock();
+    }
+    if (cl == NULL) 	
+      cl = getTask(true);
 			
-			if (cl !=NULL) {
-				// Found some work! Execute it.
-				idleScanCount=-1;
-				assert(cache == NULL || cache->empty());
-				/*if ( reporting) {
-					System.out.println(this + " executes " + cl +".");
-				}*/
-				Closure *cl1 = cl->execute(this);
-				/*if ((reporting && bottom == cl)) {
-					System.out.println(this + " completes " + cl + " returns " + cl1 +".");
-				}*/
-				cl=cl1;
+    if (cl !=NULL) {
+      // Found some work! Execute it.
+      idleScanCount=-1;
+      assert(cache == NULL || cache->empty());
+      /*if ( reporting) {
+	System.out.println(this + " executes " + cl +".");
+	}*/
+      Closure *cl1 = cl->execute(this);
+      /*if ((reporting && bottom == cl)) {
+	System.out.println(this + " completes " + cl + " returns " + cl1 +".");
+	}*/
+      cl=cl1;
 				
 				
-				// vj: This avoids having to implement a wrap around.
-				// Otherwise, head might increase on a steal, but would
-				// never decrease.
-				cache->reset();
-			} else if(pool->isShutdown()) {
-			  /* If pool says shutdown, shutdown. Global
-			   * termination is someone else's problem*/ 
-			  pthread_exit(0);
-			} else {
-				yields++;
-				sched_yield(); // TODO RAJ
-			}
-		}
+      // vj: This avoids having to implement a wrap around.
+      // Otherwise, head might increase on a steal, but would
+      // never decrease.
+      cache->reset();
+    } else if(pool->isShutdown()) {
+      /* If pool says shutdown, shutdown. Global
+       * termination is someone else's problem*/ 
+      return;
+    } else {
+      yields++;
+      sched_yield(); // TODO RAJ
+    }
+  }
 }
 	/**
 	 * Push a frame onto the stack of the current
@@ -589,17 +597,16 @@ Closure *Worker::interruptCheck() {
 	 * to the scheduler, which catches and discards this exception.
 	 * <p>
 	 * If the worker has not been mugged, this method does nothing.
-	 * @throws StealAbort
+	 * @return true if abort. false otherwise
 	 */
-void Worker::abortOnSteal()  /*throw StealAbort */
+bool Worker::abortOnSteal()  /*throw StealAbort */
 {
-		Closure *c = interruptCheck();
-		if (c != NULL) {
-			StealAbort *sa = new StealAbort();
-			assert(sa != NULL);
-			throw sa;
-//			abort();
-		}
+  Closure *c = interruptCheck();
+  if (c != NULL || hasThrownException()) {
+    throwException();
+    return true;
+  }
+  return false;
 }
 	
 	/**
@@ -613,15 +620,14 @@ void Worker::abortOnSteal()  /*throw StealAbort */
 	 * 
 	 * @throws StealAbort
 	 */
-void Worker::abortOnSteal(int x)/* throw StealAbort*/{
-		Closure *c = interruptCheck();
-		if (c != NULL) {
-			c->setResultInt(x);
-			StealAbort *sa = new StealAbort();
-			assert(sa != NULL);
-			throw sa;
-//			abort();
-		}
+bool Worker::abortOnSteal(int x)/* throw StealAbort*/{
+  Closure *c = interruptCheck();
+  if (c != NULL || hasThrownException()) {
+    c->setResultInt(x);
+    throwException();
+    return true;
+  }
+  return false;
 }
 	
 	/**
@@ -629,45 +635,43 @@ void Worker::abortOnSteal(int x)/* throw StealAbort*/{
 	 * @param x
 	 * @throws StealAbort
 	 */
-void Worker::abortOnSteal(double x) /*throw StealAbort*/{
-		Closure *c = interruptCheck();
-		if (c != NULL) {
-			c->setResultDouble(x);
-			StealAbort *sa = new StealAbort();
-			assert(sa != NULL);
-			throw sa;
-//			abort();
-		}
+bool Worker::abortOnSteal(double x) /*throw StealAbort*/{
+  Closure *c = interruptCheck();
+  if (c != NULL || hasThrownException()) {
+    c->setResultDouble(x);
+    throwException();
+    return true;
+  }
+  return false;
+}
+
+	/**
+	 * @see abortOnSteal(int x)
+	 * @param x
+	 * @throws StealAbort
+	 */
+bool Worker::abortOnSteal(float x) /*throw StealAbort*/{
+  Closure *c = interruptCheck();
+  if (c != NULL || hasThrownException()) {
+    c->setResultFloat(x);
+    throwException();
+    return true;
+  }
+  return false;
 }
 	/**
 	 * @see abortOnSteal(int x)
 	 * @param x
 	 * @throws StealAbort
 	 */
-void Worker::abortOnSteal(float x) /*throw StealAbort*/{
-		Closure *c = interruptCheck();
-		if (c != NULL) {
-			c->setResultFloat(x);
-			StealAbort *sa = new StealAbort();
-			assert(sa != NULL);
-			throw sa;
-//			abort();
-		}
-}
-	/**
-	 * @see abortOnSteal(int x)
-	 * @param x
-	 * @throws StealAbort
-	 */
-void Worker::abortOnSteal(long x) /*throw StealAbort*/{
-		Closure *c = interruptCheck();
-		if (c != NULL) {
-			c->setResultLong(x);
-			StealAbort *sa = new StealAbort();
-			assert(sa != NULL);
-			throw sa;
-//			abort();
-		}
+bool Worker::abortOnSteal(long x) /*throw StealAbort*/{
+  Closure *c = interruptCheck();
+  if (c != NULL || hasThrownException()) {
+    c->setResultLong(x);
+    throwException();
+    return true;
+  }
+  return false;
 }
 	/**
 	 * @see abortOnSteal(int x)
@@ -676,13 +680,15 @@ void Worker::abortOnSteal(long x) /*throw StealAbort*/{
 	 */
 /*
 void Worker::abortOnSteal(Object x) throw StealAbort {
-		Closure *c = interruptCheck();
-		if (c != NULL) {
-			c->setResultObject(x);
-			throw StealAbort();
-		}
-	}
-	*/
+Closure *c = interruptCheck();
+if (c != NULL || hasThrownException()) {
+c->setResultObject(x);
+throwException();
+return true;
+    }
+    }
+*/
+
 Closure *Worker::exceptionHandler() {
 		Closure *res = NULL;
 		lock(this);

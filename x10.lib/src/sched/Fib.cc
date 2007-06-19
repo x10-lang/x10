@@ -107,7 +107,10 @@ public:
     // If frame has been stolen, then this thread wont do fib(n-2).
     // it should just return, and subsequent work will be done
     // by others. 
-    w->abortOnSteal(x);
+    if(w->abortOnSteal(x)) {
+      delete frame;
+      return -1;
+    }
 
     // Now we are back in the current frame, it has not been stolen. 
     // Execute the local code to the next spawn. 
@@ -118,7 +121,10 @@ public:
     frame->PC = LABEL_2;
 
     const int y = fib(w, n-2);
-    w->abortOnSteal(y);
+    if(w->abortOnSteal(y)) {
+      delete frame;
+      return -1;
+    }
 
     // Now there is nothing more to spawn -- so no need for the frame.
     // i.e. since the worker has made it so far, it is going to
@@ -137,6 +143,7 @@ public:
 
   FibC(Frame *frame) : Closure(frame) {}
 
+  /*The frame given to compute would have been copied to create a Closure. It will be deleted when the Closure is destroyed. */
   void compute(Worker *w, Frame *frame)  {
     // get the frame.
     // f must be a FibFrame.
@@ -176,7 +183,7 @@ public:
     default:
       assert(0);
     }
-    cerr<<"FibC::compute returning. result="<<result<<endl;
+//     cerr<<"FibC::compute returning. result="<<result<<endl;
     return;
   }
   
@@ -230,13 +237,13 @@ int main(int argc, char *argv[]) {
     Worker::reporting = true;
 
   Pool *g = new Pool(procs);
-	assert(g != NULL);
+  assert(g != NULL);
   int points[] = { 1, 5, 10, 15, 20, 25, 30, 35};
     
   for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
     int n = points[i];
     Job *job = new anon_Job1(g, n);
-	assert(job != NULL);
+    assert(job != NULL);
       
 //     long s = System.nanoTime();
 
