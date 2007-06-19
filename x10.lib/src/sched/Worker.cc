@@ -519,6 +519,10 @@ void Worker::run() {
 				// Otherwise, head might increase on a steal, but would
 				// never decrease.
 				cache->reset();
+			} else if(pool->isShutdown()) {
+			  /* If pool says shutdown, shutdown. Global
+			   * termination is someone else's problem*/ 
+			  pthread_exit(0);
 			} else {
 				yields++;
 				sched_yield(); // TODO RAJ

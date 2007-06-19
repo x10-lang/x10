@@ -25,15 +25,21 @@ using namespace std;
 
 Pool::~Pool() {
 	int i;
+
+	for(i=0; i<workers.size(); i++) {
+	  if(workers[i] != NULL) {
+	    pthread_join(id[i], (void **)NULL);
+	  }
+	}
+	free(id);
+
+ 	for(i=0;i<workers.size();i++)
+ 	  delete workers[i];
+	workers.clear();
 	pthread_cond_destroy(&work);
 	pthread_cond_destroy(&termination);
 	delete lock_var;
 	delete barrier;
-	//free id; // Uncomment later on
-	for(i=0;i<workers.size();i++)
-		delete workers[i];
-	workers.clear();
-	delete id;
 }
 
 
@@ -104,6 +110,10 @@ Pool::Pool(int numThreads) {
 	joinCount = 0;
 
 	workers.resize(numThreads);
+	for(i=0; i<workers.size(); i++) {
+	  workers[i] = NULL;
+	}
+
 	  
 	id = (pthread_t *)malloc(num_workers * sizeof(pthread_t));
 	
@@ -202,13 +212,13 @@ void Pool::shutdown() {
         // todo security checks??
         PosixLock *l = this->lock_var;
         l->lock_wait_posix();
-        
+
         if (runState < SHUTDOWN) {
-                   runState = SHUTDOWN;
-									 MEM_BARRIER(); // for volatile update -- TODO RAJ
+	  runState = SHUTDOWN;
+	  MEM_BARRIER(); // for volatile update -- TODO RAJ
         }
         l->lock_signal_posix();
-				// TODO Would you like to join all the ptrheads
+	// TODO Would you like to join all the ptrheads
 }
 
     /**
