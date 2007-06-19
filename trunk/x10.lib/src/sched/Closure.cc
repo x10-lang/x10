@@ -350,7 +350,7 @@ Closure *Closure::returnValue(Worker *ws) {
 Closure *Closure::execute(Worker *w) {
 		Closure *res = NULL;
 		assert(lockOwner != w);
-		
+
 		lock(w);
 		
 		Frame *f = frame;
@@ -371,7 +371,7 @@ Closure *Closure::execute(Worker *w) {
 			w->unlock();
 			
 			try {
-				compute(w, f); 
+			  compute(w, f); 
 			}
 			catch(StealAbort *saEx) {
 				//Nothing much to do. It just unwound the stack as we wanted
@@ -381,11 +381,11 @@ Closure *Closure::execute(Worker *w) {
 			break;
 		
 		case RETURNING:
-			unlock();
-			res = returnValue(w);
-			break;
+		  unlock();
+		  res = returnValue(w);
+		  break;
 		default:
-			assert(0);
+		  assert(0);
 		  abort(); // TODO RAJ
 		  //throw new Error(w + "executes " + status + " " + this + ": error!");
 		}

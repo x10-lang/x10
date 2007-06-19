@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.5 2007-06-18 21:12:42 sriramk Exp $
+# $Id: Makefile,v 1.6 2007-06-19 16:12:04 sriramk Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -13,7 +13,7 @@ MAKE = make
 #CXX = mpCC_r -q64 -qarch=pwr5
 CXX = xlC
 DEFS = -DDEBUG
-#CXXFLAGS = -qtune=pwr5 -O3 -qhot
+CXXFLAGS = -g #-qtune=pwr5 -O3 -qhot
 
 INCLUDES = -I../../include
 LINKFLAGS = -r #-b64

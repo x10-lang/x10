@@ -127,7 +127,8 @@ public:
     
     // pop the task -- it is guaranteed to be garbage.
     w->popFrame();
-    
+
+    delete frame;
     // the sync is a no-op.
     // return the computed value.
     int result = x+y;
@@ -140,6 +141,9 @@ public:
     // get the frame.
     // f must be a FibFrame.
     FibFrame * f = (FibFrame *) frame;
+
+    cerr<<"FibC::compute. n="<<f->n<<endl;
+
     int x,y;
     const int n = f->n;
     switch (f->PC) {
@@ -168,7 +172,11 @@ public:
     case LABEL_3:
       result=f->x+f->y;
       setupReturn(w);
+      break;
+    default:
+      assert(0);
     }
+    cerr<<"FibC::compute returning. result="<<result<<endl;
     return;
   }
   
@@ -223,7 +231,7 @@ int main(int argc, char *argv[]) {
 
   Pool *g = new Pool(procs);
 	assert(g != NULL);
-  int points[] = { 0, 1, 2, 3, 5, 10, 15, 20, 25, 30};
+  int points[] = { 1, 5, 10, 15, 20, 25, 30, 35};
     
   for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
     int n = points[i];
@@ -241,6 +249,7 @@ int main(int argc, char *argv[]) {
 //     System.out.println(points[i] + " " + (t-s)/1000000 
 // 		       + " " + result + " " + (result==realfib(n)?"ok" : "fail") );
   }
+
   g->shutdown();
   delete g;
 }
