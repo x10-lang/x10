@@ -65,6 +65,7 @@ public:
       o = new anon_Outlet1(this, c);
     else
       o = new anon_Outlet2(this, c);
+	assert(o != NULL);
     c->setOutlet(o);
   }
 
@@ -94,6 +95,7 @@ public:
   static int fib(Worker *w, int n) {
     if(n<2) return n;
     FibFrame *frame = new FibFrame(n);
+	assert(frame != NULL);
     frame->PC = LABEL_1;
     w->pushFrame(frame);
 
@@ -189,7 +191,9 @@ void anon_Outlet2::run() {
 }
 
 Closure *FibFrame::makeClosure() {
-  return new FibC(this);
+	Closure *c = new FibC(this);
+	assert(c != NULL);
+	return c;
 }
 
 
@@ -218,11 +222,13 @@ int main(int argc, char *argv[]) {
     Worker::reporting = true;
 
   Pool *g = new Pool(procs);
+	assert(g != NULL);
   int points[] = { 0, 1, 2, 3, 5, 10, 15, 20, 25, 30};
     
   for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
     int n = points[i];
     Job *job = new anon_Job1(g, n);
+	assert(job != NULL);
       
 //     long s = System.nanoTime();
 

@@ -46,5 +46,9 @@ void Frame::setOutletOn(Closure *c) { assert(0); abort(); }
 	 */
 void Frame::setInt(int x) { assert(0); abort();}
 
-Frame *Frame::copy() { return new Frame(*this); }
+Frame *Frame::copy() { 
+	Frame * f = new Frame(*this); 
+	assert(f !=  NULL);
+	return f;	
+}
 

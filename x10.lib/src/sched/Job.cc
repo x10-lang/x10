@@ -33,7 +33,9 @@ Closure *JobFrame::makeClosure() {
 }
 void JobFrame::setOutletOn(Closure *c) {
 #warning "Object created here. Should deallocate somewhere!"
-	c->setOutlet(new ResultOutlet());
+	ResultOutlet *t = new ResultOutlet();
+	assert(t != NULL);
+	c->setOutlet(t);
 }
 		
 

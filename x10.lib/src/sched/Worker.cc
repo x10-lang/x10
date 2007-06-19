@@ -42,9 +42,11 @@ Worker::Worker(int idx, Pool *p) {
 	this->closure = NULL;
 	this->pool = p;
 	this->lock_var = new PosixLock();
+	assert(this->lock_var != NULL);
 	this->lockOwner = NULL;
 
 	this->cache = new Cache(this);
+	assert(this->cache != NULL);
 	this->fg = NULL;
 	this->stealCount = 0;
 	this->stealAttempts = 0;
@@ -589,7 +591,9 @@ void Worker::abortOnSteal()  /*throw StealAbort */
 {
 		Closure *c = interruptCheck();
 		if (c != NULL) {
-			throw new StealAbort();
+			StealAbort *sa = new StealAbort();
+			assert(sa != NULL);
+			throw sa;
 //			abort();
 		}
 }
@@ -609,7 +613,9 @@ void Worker::abortOnSteal(int x)/* throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultInt(x);
-			throw new StealAbort();
+			StealAbort *sa = new StealAbort();
+			assert(sa != NULL);
+			throw sa;
 //			abort();
 		}
 }
@@ -623,7 +629,9 @@ void Worker::abortOnSteal(double x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultDouble(x);
-			throw new StealAbort();
+			StealAbort *sa = new StealAbort();
+			assert(sa != NULL);
+			throw sa;
 //			abort();
 		}
 }
@@ -636,7 +644,9 @@ void Worker::abortOnSteal(float x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultFloat(x);
-			throw new StealAbort();
+			StealAbort *sa = new StealAbort();
+			assert(sa != NULL);
+			throw sa;
 //			abort();
 		}
 }
@@ -649,7 +659,9 @@ void Worker::abortOnSteal(long x) /*throw StealAbort*/{
 		Closure *c = interruptCheck();
 		if (c != NULL) {
 			c->setResultLong(x);
-			throw new StealAbort();
+			StealAbort *sa = new StealAbort();
+			assert(sa != NULL);
+			throw sa;
 //			abort();
 		}
 }

@@ -21,9 +21,9 @@
 using namespace x10lib_cws;
 using namespace std;
 
-
 Cache::Cache(Worker *w) 
 {
+	assert(w != NULL); //always tied to a valid worker
  owner=w; 
  stack.resize(INITIAL_CAPACITY);  // TODO verify
  head = tail = exception = 0;

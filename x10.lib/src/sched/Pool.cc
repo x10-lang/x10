@@ -16,6 +16,7 @@
 #include "Worker.h"
 #include "Sys.h"
 #include <stdlib.h>
+#include <assert.h>
 #include <iostream>
 
 using namespace x10lib_cws;
@@ -39,6 +40,7 @@ Pool::~Pool() {
 void Pool::callBackFunc::each_thread(Pool *p,int d)
 {
 	 Worker *ws = new Worker(d, p);
+	assert(ws != NULL);
 	 p->workers[d]=ws;
      //barrier->barrier();
      /*if (id == 0)
@@ -84,11 +86,13 @@ Pool::Pool(int numThreads) {
 	if (numThreads <=0) { cout << "Illegal argument"; abort(); }
 	
 	lock_var = new PosixLock();
+	assert(lock_var != NULL);
 
 	pthread_cond_init (&work, NULL);
 	pthread_cond_init (&termination, NULL);
 
 	barrier = new ActiveWorkerCount(new anon_Runnable(this));
+	assert(barrier!= NULL);
 
 	num_workers = numThreads;
 	runningWorkers = 0;
@@ -96,6 +100,7 @@ Pool::Pool(int numThreads) {
 	activeJobs = 0;
 	activeOnJobAtomic = 0;
 	jobs =  new JobQueue();
+	assert(jobs != NULL);
 	joinCount = 0;
 
 	workers.resize(numThreads);
@@ -333,6 +338,7 @@ void Pool::workerTerminated(Worker *r, int index) {
         	abort();
         	/*// TODO Confirm from Vijay
             Worker *replacement = new Worker(this, index);
+			assert(replacement != NULL);
             if (ueh != NULL)
                     replacement.setUncaughtExceptionHandler(ueh);
                 workers[index] = replacement;
