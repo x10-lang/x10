@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.17 2007-06-18 11:29:55 ganeshvb Exp $
+# $Id: Makefile,v 1.18 2007-06-19 17:14:38 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -16,8 +16,8 @@ SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 LIBDIR = ../lib
 CXX = mpCC_r -q64 -qarch=pwr5
 DEFS = -DWARN #-DDEBUG
-CXXFLAGS = -qtune=pwr5 -O3 -qhot
-INCLUDES = -I. -I../include  
+CXXFLAGS = -qtune=pwr5 -O3 -qhot 
+INCLUDES = -I. -I../include 
 LINKFLAGS =
 RM = rm -f
 AR = ar
@@ -34,8 +34,8 @@ LIBTARGET = lib$(LIBNAME).a
 SCHED_A = $(SUBDIR2)/sched.a
 ARRAY_A = $(SUBDIR1)/array.a
 
-SRCS = x10lib.cc gas.cc aggregate.cc async.cc switch.cc finish.cc 
-OBJS = x10lib.o  gas.o  aggregate.o  async.o switch.o finish.o
+SRCS = x10lib.cc gas.cc aggregate.cc async.cc asyncSwitch.cc finish.cc 
+OBJS = x10lib.o  gas.o  aggregate.o  async.o asyncSwitch.o finish.o
 HEADERS = types.h x10lib.h gas.h alloc.h  async.h aggregate.h finish.h standalone.h
 
 all: $(LIBTARGET)
