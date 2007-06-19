@@ -42,6 +42,11 @@ private:
 	Closure *getTaskFromPool(Worker *sleeper);
 	void wakeup();
 
+	/*Managing exceptions. A simple mechanism to handle StealAbort
+	 * and stack unwinding for now*/
+	bool exception;
+	bool hasThrownException() const { return exception; }
+	void throwException() { exception = true; }
 
 protected:
 	Closure *top, *bottom;
@@ -65,6 +70,8 @@ public:
 			      moving from protected to public*/ 
 	
 
+	void catchAllException() { exception = false; }
+
 	void unlock();
 	void lock(Worker *agent);
 	long stealAttempts; // change them to be visible across objects
@@ -85,11 +92,11 @@ public:
 	void popFrame();
 	Closure *getbottom();
 	Closure *interruptCheck();
-	void abortOnSteal() /*throw StealAbort*/;
-	void abortOnSteal(int x) /*throw StealAbort*/;
-	void abortOnSteal(double x) /*throw StealAbort*/;
-	void abortOnSteal(float x) /*throw StealAbort*/;
-	void abortOnSteal(long x) /*throw StealAbort*/;
+	bool abortOnSteal() /*throw StealAbort*/;
+	bool abortOnSteal(int x) /*throw StealAbort*/;
+	bool abortOnSteal(double x) /*throw StealAbort*/;
+	bool abortOnSteal(float x) /*throw StealAbort*/;
+	bool abortOnSteal(long x) /*throw StealAbort*/;
 	//void abortOnSteal(Object x) throw StealAbort;
 	void pushIntUpdatingInPlace(int x) ;
 	void setFrameGenerator(FrameGenerator *x);

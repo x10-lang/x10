@@ -72,7 +72,7 @@ Job::Job(Pool *pool, Frame *f) : Closure(f) {
 		pthread_cond_init (&cond_done, NULL);
 }
 Job::~Job() {
-		pthread_cond_destroy(&cond_done);
+  pthread_cond_destroy(&cond_done);
 }
 void Job::compute(Worker *w, Frame *frame) {
 		int x;

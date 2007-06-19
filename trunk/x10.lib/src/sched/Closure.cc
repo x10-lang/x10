@@ -62,7 +62,7 @@ Closure::~Closure() {
 	completeInlets.clear(); 
 	incompleteInlets.clear();
 	// TODO -- verify these
-	//delete frame;
+	delete frame;
 }
 
 bool Closure::hasChildren() const {
@@ -108,9 +108,11 @@ Closure *Closure::promoteChild(Worker *thief, Worker *victim) {
 		assert(cache->exceptionOutstanding());
 
 		Frame *childFrame = cache->childFrame();
+		assert(childFrame!=NULL);
 		Closure *child = childFrame->makeClosure();
 		
 		Frame *pFrame = cache->topFrame();
+		assert(pFrame != NULL);
 		pFrame->setOutletOn(child);
 		
 		// Leave the parent link in there.
@@ -370,13 +372,11 @@ Closure *Closure::execute(Worker *w) {
 			w->addBottom(w, this);
 			w->unlock();
 			
-			try {
-			  compute(w, f); 
-			}
-			catch(StealAbort *saEx) {
-				//Nothing much to do. It just unwound the stack as we wanted
-				delete saEx; 
-			}
+			compute(w, f); 
+			//Nothing much to do on exception. It just
+			//unwound the stack as we wanted. 
+ 			w->catchAllException();
+
 			res = NULL;
 			break;
 		
