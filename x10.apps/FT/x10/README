@@ -1,0 +1,53 @@
+
+  This is the X10 port of the C/MPI implementation of NAS FT Benchmark in the Berkeley UPC NAS FT suite. 
+In our implementation, the allocation of the distributed working arrays, the synchronization, and the 
+communication are implemented at the X10 level, whereas the other functionalities are still implemented
+using the original c codes, such as the random number generator, the index transforms and the interface
+with fftw3. 
+
+  We use the encapsulation approach to implement the distributed array and try to use the same format of 
+the original C arrays. One difference is that the pointer to each 1D double array in the C implementation 
+is aligned with the cache line size at the application level, however, this functionality has to be 
+performed by the X10 compiler. Another difference is that the X10 local arrays are indexed by the logical global 
+index. In contrast, the logical index of each local 1D C double array starts with zero. 
+
+  MPI two-sided communication is replaced with X10's one-sided communication through array copying. The global 
+barrier is matched with X10's clock (next statement). An interface is introduced for calling C functions from 
+X10 (Java). For general information about writing hybrid X10 and C codes, please refer to the X10 wiki page 
+at 
+	http://orquesta.watson.ibm.com/mediawiki/index.php/How_to_get_Hybrid_X10_Running.
+
+  Data structures allocated by C code are in the same memory space as JVM, that is, they are "global" to
+each X10 place. Thread safety has to be enforced when accessing these data structures from X10. There are 
+two versions of fft_fftw3: one allocates a separate copy of fftw3 plans for each place, while the other use 
+a single copy of fftw3 place for all the places (the format of ffts performed at each place are the same.). 
+To use the first version, set  MAKE_FFTW_THREADSAFE to be 1. Thread safety is realized by using the pthreads 
+library.
+ 
+  To compile and run the code, for example, please follow the following steps:
+   1) x10c Ft.x10 (Add appropriate x10c options if needed)
+   2) make 
+   3) x10  -J-mx2000m -J-ms2000m -libpath . -NUMBER_OF_LOCAL_PLACES=4 -INIT_THREADS_PER_PLACE=1 
+  	-PRELOAD_CLASSES=true Ft -w
+
+  Please note that to run the code in cygwin environment, you need first to uncomment the first System.load
+statement, and then change the name of dll from "ft" to "Ft".
+
+  The output looks like
+
+  	NPB CLASS W 128x128x32 6 iterations
+  	IBM X10 NAS FT: class W (NPB CLASS W 128x128x32 6 iterations)
+  	Iter = 1 checksum_real = 567.3612178943621 checksum_imag = 529.3246849175001
+ 	Iter = 2 checksum_real = 563.1436885271294 checksum_imag = 528.214998662905
+  	Iter = 3 checksum_real = 559.4024089970093 checksum_imag = 527.0996558037011
+  	Iter = 4 checksum_real = 556.0698047020239 checksum_imag = 526.0027904925023
+  	Iter = 5 checksum_real = 553.089899124982 checksum_imag = 524.9400845632628
+  	Iter = 6 checksum_real = 550.4159734538397 checksum_imag = 523.9212247086305
+  	The wall clock time is 633.3439149856567
+  	Result verification successful
+ 
+  Related files: Ft.x10 Ft.c Ft.h fft_fftw3 c_randdp Makefile
+  Author: Tong Wen @ IBM Research
+  Date:   June 2007
+  Modification:
+ 	
