@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.6 2007-06-18 10:33:48 ganeshvb Exp $
+# $Id: Makefile,v 1.7 2007-06-20 11:37:15 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -13,11 +13,11 @@ MAKE = make
 CXX = mpCC_r -q64 -qarch=pwr5
 CXXFLAGS = -qtune=pwr5 -O3 -qhot
 CC = mpcc_r -q64 -qarch=pwr5
-CCFLAGS = -qtune=pwr5 -O3 -qhot
+CCFLAGS = -qtune=pwr5 -O3 -qhot 
 DEFS = #-DDEBUG
-INCLUDES = -I. -I../include -I ~/root/lapi/include
-LINKFLAGS =
-LIBDIRS = -L../lib
+INCLUDES = -I. -I../include 
+LINKFLAGS = 
+LIBDIRS = -L../lib 
 LIBS = -lx10
 RM = rm -f
 
@@ -40,6 +40,14 @@ OBJS4 = $(TARGET4).o
 TARGET5 = Test_async_agg_func
 SRCS5 = $(TARGET5).cc
 OBJS5 = $(TARGET5).o
+
+TARGET6 = Test_switch
+SRCS6 = $(TARGET5).cc
+OBJS6 = $(TARGET5).o
+
+TARGET7 = Test_switch_c
+SRCS7 = $(TARGET5).c
+OBJS7 = $(TARGET5).o
 
 TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5)
 
@@ -87,6 +95,13 @@ $(TARGET5).o: $(TARGET5).cc
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 
+$(TARGET6).o: $(TARGET6).cc
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
+$(TARGET7).o: $(TARGET7).c
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 install:
 	@echo "Done \"install\" in \"test\" subdir."
 

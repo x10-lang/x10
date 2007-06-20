@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: handlers.h,v 1.3 2007-06-18 11:29:55 ganeshvb Exp $ */
+/* $Id: handlers.h,v 1.4 2007-06-20 11:37:15 ganeshvb Exp $ */
 
 #ifndef __HANDLERS_H__
 #define __HANDLERS_H__
@@ -52,7 +52,7 @@ arrayConstructionGlobalSM (lapi_handle_t hndl, void* uhdr, uint* uhdr_len,
   DIST<RANK>* d = new DIST<RANK> (&(a->region), places);
   uint64_t local_size = a->region.card() / numPlaces();
 
-  makeArrayLocal<T, RANK, REGION, DIST> (d->region(), d);
+//  makeArrayLocal<T, RANK, REGION, DIST> (d->region(), d);
 
   delete a;
   delete d;

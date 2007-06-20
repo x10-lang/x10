@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.cc,v 1.7 2007-06-18 11:29:55 ganeshvb Exp $ */
+/* $Id: aggregate.cc,v 1.8 2007-06-20 11:37:15 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/aggregate.h>
@@ -154,6 +154,7 @@ x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, void* args
   memcpy (&(argbuf[handler][target][count*size]), args, size);
   return asyncSpawnInlineAgg_i (target, handler, size);
 }
+
 
 error_t
 x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, int N ...)
