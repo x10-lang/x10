@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.9 2007-06-19 02:53:35 ipeshansky Exp $
+ * $Id: types.h,v 1.10 2007-06-20 11:37:15 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,6 +10,7 @@
 
 #include <sys/types.h>
 #include <stdint.h>
+#include <lapi.h>
 
 //typedef u_int32_t uint32_t; // FIXME [IP] Removed due to conflict
 //typedef u_int64_t uint64_t; // FIXME [IP] Removed due to conflict
@@ -24,6 +25,7 @@ typedef  struct
 } func_t; 
 typedef uint32_t x10_place_t;
 typedef uint64_t x10_gas_ref_t;
+typedef lapi_cntr_t switch_t;
 #include <lapi.h>
 typedef lapi_query_t x10_query_t;
 /* class Switch;

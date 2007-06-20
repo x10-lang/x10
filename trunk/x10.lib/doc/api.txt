@@ -1011,6 +1011,117 @@ Note:
    process 0 code with no async spawns;
    finishBegin();
 
+06) B. Switch
+-------------
+
+Purpose : To provide a completion detection mechanism for non-blocking remote
+operations.
+
+Init
+-----
+
+Purpose: To initialize the switch with a given value.
+
+
+Library: libx10.a
+
+C++ Syntax:
+
+#include <x10/x10lib.h>
+error_t switchInit (s, val)
+	switch_t* s;
+   	int val;
+
+C Syntax:
+
+#include <x10/x10lib.h>
+error_t x10_switch_init (s, val)
+   	switch_t* s;
+   	int val;
+
+Description: 
+
+		This method intializes the switch with a given value. The switch
+        	should be allocated using new or free before invoking this method.
+
+Parameters:
+		INPUT
+		s   	specifies the switch 
+        	val	specifies the initial value of the switch
+
+Return values:
+
+		X10_OK		Indicates the method/function call completed successfully.
+		X10_ERR_LAPI	Error from the underlying communication system.
+
+Add value
+---------
+Purpose: 	To add (or subtract) the value of a switch by a given value.
+
+Library: libx10.a
+
+C++ Syntax:
+
+#include <x10/x10lib.h>
+error_t switchAddVal (s, val)
+   	switch_t* s;
+   	int val;
+
+C Syntax:
+
+#include <x10/x10lib.h>
+error_t x10_switch_add_val (s, val)
+	switch_t *s;
+   	int val;
+
+Description: 	
+		The method increments or decrements the value of the switch by
+		the given value. To decrement use a negative value for val.
+
+Parameters:
+		INPUT
+		s 	specifies the switch
+		val 	specifies the value
+
+Return values:
+
+		X10_OK		Indicates the method/function call completed successfully.
+		X10_ERR_LAPI	Error from the underlying communication system.
+
+
+Next
+----
+Purpose: 	To block the calling process until the switch saturates (i.e
+		reaches zero)   
+
+Library: 	libx10.a
+
+C++ Syntax:
+
+#include <x10/x10lib.h>
+error_t switchNext (s)
+	switch_t *s;
+
+C Syntax:
+
+#include <x10/x10lib.h>
+error_t x10_switch_next (s)
+	switch_t* s;
+
+Description:
+		Use this method to block the calling process until the switch
+ 		value reaches zero. The saturation of the switch indicates
+		that all the remote activities spawned with this switch have
+		terminated.
+Parameters:
+		INPUT
+		s	Specifies the switch on which the process should block
+ 
+Return values:
+
+		X10_OK		Indicates the method/function call completed successfully.
+		X10_ERR_LAPI	Error from the underlying communication system.
+
 07) Synchronization
 -------------------
 

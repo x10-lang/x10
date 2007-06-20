@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.13 2007-06-15 02:06:58 ipeshansky Exp $
+ * $Id: x10lib.h,v 1.14 2007-06-20 11:37:15 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,14 +10,15 @@
 #ifndef __X10_X10LIB_H
 #define __X10_X10LIB_H
 
-#include <x10/types.h>
-#include <x10/err.h>
-#include <x10/gas.h>
 #include <x10/async.h>
 #include <x10/aggregate.h>
+#include <x10/err.h>
 #ifdef __cplusplus
 #include <x10/finish.h>
 #endif
+#include <x10/gas.h>
+#include <x10/switch.h>
+#include <x10/types.h>
 
 /*
 #include <x10/clock.h>
