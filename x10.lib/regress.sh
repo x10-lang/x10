@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: regress.sh,v 1.1 2007-06-08 13:51:42 srkodali Exp $
+# $Id: regress.sh,v 1.2 2007-06-20 13:56:33 srkodali Exp $
 # Script for starting the test harness.
 #
 
@@ -13,7 +13,7 @@ ARRAY_TEST=${SRC_TEST}/array/array_test.sh
 SCHED_TEST=${SRC_TEST}/sched/sched_test.sh
 HOSTFILE=${SRC_TOP}/hostfiles/host_v80.list
 TMP=/tmp
-RESFILE=${TMP}/results.dat
+RESFILE=${TMP}/results.$$.dat
 FAILED_CORE_TESTS=0
 FAILED_ARRAY_TESTS=0
 FAILED_SCHED_TESTS=0
@@ -56,6 +56,7 @@ regress() {
 	fi
 	echo "\n...done.\n"
 
+	rm -f ${RESFILE}
 	if [ $FAILED_TESTS -ne 0 ]
 	then
 		return 1
