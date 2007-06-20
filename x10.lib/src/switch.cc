@@ -10,7 +10,7 @@ using namespace x10lib;
 error_t
 x10lib::switchInit (switch_t* s, int val)
 {
-  LRC (LAPI_Setcntr (GetHandle(), s, val));
+  LAPI_Setcntr (GetHandle(), s, val);
   return X10_OK;
 }
 

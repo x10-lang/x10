@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.10 2007-06-20 11:37:15 ganeshvb Exp $
+ * $Id: types.h,v 1.11 2007-06-20 14:09:33 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -26,7 +26,6 @@ typedef  struct
 typedef uint32_t x10_place_t;
 typedef uint64_t x10_gas_ref_t;
 typedef lapi_cntr_t switch_t;
-#include <lapi.h>
 typedef lapi_query_t x10_query_t;
 /* class Switch;
 typedef Switch& x10_switch_t; */

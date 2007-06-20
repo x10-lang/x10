@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.7 2007-06-20 11:37:15 ganeshvb Exp $
+# $Id: Makefile,v 1.8 2007-06-20 14:09:33 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -42,14 +42,14 @@ SRCS5 = $(TARGET5).cc
 OBJS5 = $(TARGET5).o
 
 TARGET6 = Test_switch
-SRCS6 = $(TARGET5).cc
-OBJS6 = $(TARGET5).o
+SRCS6 = $(TARGET6).cc
+OBJS6 = $(TARGET6).o
 
 TARGET7 = Test_switch_c
-SRCS7 = $(TARGET5).c
-OBJS7 = $(TARGET5).o
+SRCS7 = $(TARGET7).c
+OBJS7 = $(TARGET7).o
 
-TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5)
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7)
 
 all: $(TARGETS)
 	(cd array; $(MAKE) $@)
@@ -95,9 +95,17 @@ $(TARGET5).o: $(TARGET5).cc
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 
+$(TARGET6): $(OBJS6)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS6) -o $@ $(LIBDIRS) $(LIBS)
+
 $(TARGET6).o: $(TARGET6).cc
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
+$(TARGET7): $(OBJS7)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS7) -o $@ $(LIBDIRS) $(LIBS)
 
 $(TARGET7).o: $(TARGET7).c
 	$(RM) $@
@@ -108,7 +116,7 @@ install:
 clean:
 	(cd array; $(MAKE) $@)
 	(cd sched; $(MAKE) $@)
-	$(RM) $(TARGETS) $(OBJS1) $(OBJS2) $(OBJS3) $(OBJS4) $(OBJS5)
+	$(RM) $(TARGETS) $(OBJS1) $(OBJS2) $(OBJS3) $(OBJS4) $(OBJS5) $(OBJS6) $(OBJS7)
 
 .cc.o:
 	$(RM) $@

@@ -49,7 +49,7 @@ int main (int argc, char** argv)
   Gfence();
   assert (cntr == 1);    
 
-  cout << "Test_switch PASSED " << endl;
+  cout << "Test_switch PASSED" << endl;
   
   Finalize();
   return 0;
