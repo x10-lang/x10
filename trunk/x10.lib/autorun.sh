@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: autorun.sh,v 1.7 2007-06-20 14:09:33 ganeshvb Exp $
+# $Id: autorun.sh,v 1.8 2007-06-20 14:14:26 ganeshvb Exp $
 # Script for automating the build and testing process.
 #
 
@@ -105,7 +105,7 @@ outResults() {
 		echo "#  Conclusion: FAILED" >> ${LOGFILE}
 	fi
 	echo "############################################################\n" >> ${LOGFILE}
-#	mailResults "${mesg}"
+	mailResults "${mesg}"
 	exit $exit_code
 }
 
@@ -150,7 +150,7 @@ echo "\n...done.\n" >> ${LOGFILE}
 # make distribution
 echo "\n> Making Library Distribution...\n" >> ${LOGFILE}
 . ${MKDIST}
-#mkDist 2>&1 >> ${LOGFILE}
+mkDist 2>&1 >> ${LOGFILE}
 status=$?
 if [ $status -ne 0 ]
 then
