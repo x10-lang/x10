@@ -51,7 +51,6 @@ private:
 protected:
 	Closure *top, *bottom;
 	int randNext;
-	unsigned int index;
 	bool done;
 	Closure *closure;
 	Pool *pool;
@@ -64,6 +63,8 @@ protected:
 public:
 	Cache *cache;
 	FrameGenerator *fg;
+
+	unsigned int index; //TODO. move ot protected later
 
 	Worker *lockOwner; /* the thread holding the lock. Unlike
 			      Java, there is no package access. So
@@ -85,7 +86,7 @@ public:
 	Worker(int index, Pool *p);
 	~Worker();
 
-	bool sync();
+	bool sync(Closure *c);
 	Closure *scanTasks();
 	void run(); // Main execution of the scheduler
 	void pushFrame(Frame *frame);

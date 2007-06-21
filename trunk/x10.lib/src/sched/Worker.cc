@@ -113,7 +113,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 				
   int status = cl->getstatus();
 
-  cerr<<thief->index<<"::Worker::steal. Status="<<status<<endl;
+//   cerr<<thief->index<<"::Worker::steal. Status="<<status<<endl;
 		
   assert (status == ABORTING || status == READY || status == RUNNING || status == RETURNING);
 		
@@ -136,16 +136,17 @@ Closure *Worker::steal(Worker *thief, bool retry) {
   case RUNNING: 
 			
     if (cl->dekker(thief)) {
-      cerr<<index<<"::Got a closure to steal"<<endl;
-
+//       cerr<<index<<"::Got a closure to steal"<<endl;
       Closure *child = NULL;
       Closure *res = NULL;
 
       cl->copyFrame(thief);			
       //I have work now, so checkout of the barrier.
       child = cl->promoteChild(thief, victim);
+      assert(child != NULL);
       res = extractTop(thief);
-      cerr<<thief->index<<"::Stealing: victim top="<<res<<" bottom="<<bottom<<endl;
+      assert(res != NULL);
+//       cerr<<thief->index<<"::Stealing: victim top="<<res<<" bottom="<<bottom<<endl;
       /*if (reporting)
 	System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
       thief->checkOut(res); //?????????????sriram TODO: checkoutsteal?
@@ -154,11 +155,11 @@ Closure *Worker::steal(Worker *thief, bool retry) {
       unlock();
 			
       cl->finishPromote(thief, child);
-				
+
       cl->unlock();
       return res;
     } else { 
-      cerr<<thief->index<<"::Stealing: dekker failed"<<endl;
+//       cerr<<thief->index<<"::Stealing: dekker failed"<<endl;
       cl->unlock(); 
       unlock(); 
       return NULL;
@@ -176,6 +177,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
   case ABORTING:
     cl->unlock(); 
     unlock();
+    return NULL;
     break; 
   default:
     assert(0); 
@@ -304,13 +306,21 @@ void Worker::addBottom(Worker *ws, Closure *cl) {
  * Thread.currentThread() == this.
  * @return true if the closure has to be suspended, false o.w.
  */
-bool Worker::sync() {
+bool Worker::sync(Closure *c) {
 	bool res = false;
+	//	if(index==0) cerr<<index<<"::slow sync(). H="<<cache->gethead()<<"T="<<cache->gettail()<<"E="<<cache->getexception()<<endl;
 	lock(this);
- 
+
+	assert(cache->gethead() == 0);
+	assert(cache->gettail() == 1);
+	assert(cache->getexception() == 0);
+
+	assert(top == bottom);
+
 	Closure *t = peekBottom(this);
 	t->lock(this);
 	
+	assert(t == c);
 	assert(t->getstatus()==RUNNING);
 				
 	// In slow sync. Therefore must be the case
@@ -516,6 +526,7 @@ void Worker::run() {
       /*if ( reporting) {
 	System.out.println(this + " executes " + cl +".");
 	}*/
+      cache->reset();
       Closure *cl1 = cl->execute(this);
       /*if ((reporting && bottom == cl)) {
 	System.out.println(this + " completes " + cl + " returns " + cl1 +".");
@@ -528,7 +539,7 @@ void Worker::run() {
       // never decrease.
       cache->reset();
     } else if(pool->isShutdown()) {
-      /* If pool says shutdown, shutdown. Global
+      /* sriramk: If pool says shutdown, shutdown. Global
        * termination is someone else's problem*/ 
       return;
     } else {
@@ -586,8 +597,12 @@ Closure *Worker::interruptCheck() {
 		/*if (true && reporting)
 			System.out.println(this + " at " + pool.time() + " popFrameCheck: discovers a theft and returns " + result
 					+ " cache=" + cache.dump());*/
+#if 0
 		if (result !=NULL)
 			popFrame();
+#else
+#warning "Sriram: Commented some code. Check it!!!"
+#endif
 		return result;
 }
 	/**

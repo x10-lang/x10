@@ -40,6 +40,7 @@ Pool::~Pool() {
 	pthread_cond_destroy(&termination);
 	delete lock_var;
 	delete barrier;
+	delete jobs;
 }
 
 
@@ -336,6 +337,11 @@ long Pool::getStealAttempts() const {
      * Termination callback from dying worker.
      */
 void Pool::workerTerminated(Worker *r, int index) {
+  /*sriramk: Not thought through the semantics in C++. The new in this
+    function does not have a corresponding delete either. So
+    aborting. */
+  assert(0); 
+
         PosixLock *l = this->lock_var;
         l->lock_wait_posix();
         
@@ -350,7 +356,7 @@ void Pool::workerTerminated(Worker *r, int index) {
         else if (index >= 0 && index < workers.size() &&
                      workers[index] == r) {
         	abort();
-        	/*// TODO Confirm from Vijay
+        	/* // TODO Confirm from Vijay
             Worker *replacement = new Worker(this, index);
 			assert(replacement != NULL);
             if (ueh != NULL)

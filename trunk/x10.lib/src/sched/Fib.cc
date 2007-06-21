@@ -8,6 +8,7 @@
 #include <string>
 
 #include "Closure.h"
+#include "Cache.h"
 #include "Frame.h"
 #include "Worker.h"
 #include "Job.h"
@@ -70,6 +71,13 @@ public:
   }
 
   Closure *makeClosure();
+  FibFrame *copy() {
+    return new FibFrame(*this);
+  }
+
+private:
+  FibFrame(const FibFrame& f) 
+    : Frame(f), n(f.n), x(f.x), y(f.y), PC(f.PC) {}
 };
 
 class FibC : public Closure {
@@ -108,7 +116,8 @@ public:
     // it should just return, and subsequent work will be done
     // by others. 
     if(w->abortOnSteal(x)) {
-      delete frame;
+      //      cerr<<w->index<<"::Aborting on steal"<<endl;
+//      delete frame;
       return -1;
     }
 
@@ -122,7 +131,8 @@ public:
 
     const int y = fib(w, n-2);
     if(w->abortOnSteal(y)) {
-      delete frame;
+      //      cerr<<w->index<<"::Aborting on steal"<<endl;
+//       delete frame;
       return -1;
     }
 
@@ -134,7 +144,7 @@ public:
     // pop the task -- it is guaranteed to be garbage.
     w->popFrame();
 
-    delete frame;
+//     delete frame;
     // the sync is a no-op.
     // return the computed value.
     int result = x+y;
@@ -149,7 +159,11 @@ public:
     // f must be a FibFrame.
     FibFrame * f = (FibFrame *) frame;
 
-    cerr<<"FibC::compute. n="<<f->n<<endl;
+    //    cerr<<"FibC::compute. n="<<f->n<<"PC="<<f->PC<<endl;
+
+    assert(w->cache->gethead()==0);
+    assert(w->cache->gettail()==1);
+    assert(w->cache->getexception()==0);
 
     int x,y;
     const int n = f->n;
@@ -162,14 +176,26 @@ public:
       }
       f->PC=LABEL_1;
       x = fib(w, n-1);
-      w->abortOnSteal(x);
+      if(w->abortOnSteal(x)) {
+	return;
+      }
       f->x=x;
+
+      assert(w->cache->gethead()==0);
+      assert(w->cache->gettail()==1);
+      assert(w->cache->getexception()==0);
 	
     case LABEL_1: 
       f->PC=LABEL_2;
       y=fib(w,n-2);
-      w->abortOnSteal(y);
+      if(w->abortOnSteal(y)) {
+	return;
+      }
       f->y=y;
+
+      assert(w->cache->gethead()==0);
+      assert(w->cache->gettail()==1);
+      assert(w->cache->getexception()==0);
 	
     case LABEL_2: 
       f->PC=LABEL_3;
@@ -221,6 +247,9 @@ public:
   void setResultInt(int x) { result = x;}
   int resultInt() { return result;}
   int spawnTask(Worker *ws) { return FibC::fib(ws, n);}
+
+protected:
+  
 };
 
 int main(int argc, char *argv[]) {

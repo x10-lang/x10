@@ -19,6 +19,7 @@
 #include "Sys.h"
 #include <pthread.h>
 #include <assert.h>
+#include <iostream>
 
 using namespace std;
 using namespace x10lib_cws;
@@ -28,16 +29,17 @@ using namespace x10lib_cws;
 JobFrame::JobFrame():Frame(), PC(0), x(0) {}
 JobFrame::~JobFrame() {}
 Closure *JobFrame::makeClosure() {
-	assert(false);
+	assert(0);
 	return NULL;
 }
 void JobFrame::setOutletOn(Closure *c) {
 #warning "Object created here. Should deallocate somewhere!"
-	ResultOutlet *t = new ResultOutlet();
+	ResultOutlet *t = new ResultOutlet(c, this);
 	assert(t != NULL);
 	c->setOutlet(t);
 }
 		
+JobFrame *JobFrame::copy() { return new JobFrame(*this); }
 
 /*------------------ResultOutlet-------------------*/
 
@@ -48,7 +50,8 @@ ResultOutlet::ResultOutlet(Closure *c, JobFrame *f)
   jframe = f;
 }
 void ResultOutlet::run() {
-	jframe->x = closure->resultInt();
+  //  cerr<<"ResultOutlet::run. closure="<<closure<<endl;
+  jframe->x = closure->resultInt();
 }
 
 
@@ -58,6 +61,7 @@ void ResultOutlet::run() {
 void GFrame::setOutletOn(Closure *c) { assert(0); abort(); }
 Closure *GFrame::makeClosure() { assert(0); abort(); return NULL;}
 GFrame::GFrame():JobFrame(), PC(0) { }
+GFrame *GFrame::copy() { return new GFrame(*this); }
 
 /*---------------------Job---------------------------*/
 
@@ -83,7 +87,8 @@ void Job::compute(Worker *w, Frame *frame) {
 			MEM_BARRIER(); // TODO RAJ
 			// spawning
 			x = spawnTask(w);
-			w->abortOnSteal(x);
+			if(w->abortOnSteal(x)) 
+			  return ;
 			f->x=x;
 		case LABEL_1: 
 			f->PC=LABEL_2;
@@ -145,7 +150,8 @@ void GloballyQuiescentJob::compute(Worker *w, Frame *frame) {
 			if (PC==0) {
 				// spawning
 				int x = spawnTask(w);
-				w->abortOnSteal(x);
+				if(w->abortOnSteal(x))
+				  return ;
 				f->x=x;
 				// Accumulate into result.
 				int old = resultInt();

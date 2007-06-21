@@ -32,9 +32,12 @@ Cache::~Cache() {stack.clear();}
 
 void Cache::pushFrame(Frame *x) {
     	assert(x != NULL);
+
+	// 	if(owner->index==0)cerr<<owner->index<<"::pushFrame entered.  H="<<head<<"T="<<tail<<" E="<<exception<<endl;
     	
     	if (/*stack != NULL &&*/ tail < stack.size() - 1) {
-    		stack.push_back(x);
+	  stack[tail] = x;
+//     		stack.push_back(x);
     		++tail;
     		WRITE_BARRIER();
     		return;
@@ -84,8 +87,12 @@ void Cache::growAndPushFrame(Frame *x) {
       abort();
     }
     
+    owner->lock(owner);
     stack.resize(newSize);
-    stack.push_back(x);
+    owner->unlock();
+
+//     stack.push_back(x);
+    stack[tail] = x;
     ++tail;
     MEM_BARRIER();
 }
@@ -105,6 +112,7 @@ void Cache::incrementExceptionPointer() {
 void Cache::decrementExceptionPointer() {
     if (exception != EXCEPTION_INFINITY) {
     	--exception;
+	MEM_BARRIER();
     }
     	
 }
@@ -118,6 +126,8 @@ bool Cache::atTopOfStack() const {
 }
    
 Frame *Cache::childFrame() const {
+//   cerr<<owner->index<<"::Cache::childFrame. H="<<head<<" T="<<tail<<" E="<<exception<<endl;
+  assert(stack.at(head+1) != NULL);
     return stack.at(head+1);
 }
 Frame *Cache::topFrame() const {
@@ -127,8 +137,9 @@ Frame *Cache::currentFrame() const {
     	return stack.at(tail-1);
 }
 void Cache::popFrame() {
-	--tail;
-	//WRITE_BARRIER();
+  //  if(owner->index==0)cerr<<owner->index<<"::popFrame entered.  H="<<head<<"T="<<tail<<" E="<<exception<<endl;
+  --tail;
+  WRITE_BARRIER();
 }
 
 bool Cache::interrupted() const {
@@ -154,14 +165,14 @@ bool Cache::headGeqTail() const {
 	return head >= tail;
 }
 void Cache::reset() {
-	tail=0;
-	head=0;
-	exception=0;
-	//WRITE_BARRIER();
+  tail=0;
+  head=0;
+  exception=0;
+  WRITE_BARRIER();
 }
 void Cache::incHead() {
 	++head;
-	//WRITE_BARRIER();
+	WRITE_BARRIER();
 }
 bool Cache::exceptionOutstanding() const {
 	return head <= exception;
@@ -174,17 +185,19 @@ bool Cache::dekker(Worker *thief) {
   assert(thief != owner);
   if (exception != EXCEPTION_INFINITY) {
     ++exception;
-    MEM_BARRIER();
   }
+  MEM_BARRIER();
   if ((head + 1) >= tail) {
     if (exception != EXCEPTION_INFINITY)
       --exception;
+    MEM_BARRIER();
     return false;
   }
   // so there must be at least two elements in the framestack for a theft.
   /*if ( Worker.reporting) {
     System.out.println(thief + " has found victim " + owner);
     }*/
+//   cerr<<"Found victim. head="<<head<<" tail="<<tail<<endl;
   return true;
 }
 
