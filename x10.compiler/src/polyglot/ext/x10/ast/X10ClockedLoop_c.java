@@ -31,7 +31,7 @@ import polyglot.visit.TypeChecker;
  * Captures the commonality of foreach and ateach loops in X10.
  * @author Igor Peshansky
  */
-public class X10ClockedLoop_c extends X10Loop_c implements Clocked {
+public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 
 	protected List clocks;
 
