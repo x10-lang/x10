@@ -1,15 +1,8 @@
+====The port of the Berkeley UPC implementation (a hybrid of X10 and C)====
 
-  This is the X10 port of the C/MPI implementation of NAS FT Benchmark in the Berkeley UPC NAS FT suite. 
-In our implementation, the allocation of the distributed working arrays, the synchronization, and the 
-communication are implemented at the X10 level, whereas the other functionalities are still implemented
-using the original c codes, such as the random number generator, the index transforms and the interface
-with fftw3. 
+  This is the X10 port of the C/MPI implementation of NAS FT Benchmark in the Berkeley UPC FT suite. In our implementation, the allocation of the distributed working arrays, the synchronization, and the communication are implemented at the X10 level, whereas the other functionalities are still implemented using the original c codes, such as the random number generator, the index transforms and the interface with fftw3. 
 
-  We use the encapsulation approach to implement the distributed array and try to use the same format of 
-the original C arrays. One difference is that the pointer to each 1D double array in the C implementation 
-is aligned with the cache line size at the application level, however, this functionality has to be 
-performed by the X10 compiler. Another difference is that the X10 local arrays are indexed by the logical global 
-index. In contrast, the logical index of each local 1D C double array starts with zero. 
+  We use the encapsulation approach to implement the distributed arrays and try to adopt the same format of the original C arrays (padding and pointer shifting to avoid cache thrashing). Note that the pointer to each 1D complex array in the C implementation is aligned with the cache line size at the application level, however, this functionality has to be performed by the X10 compiler which does not support it at this moment. One difference between the X10 local (double) arrays and the C local (complex) arrays is that the first are indexed by  logical global index, whereas the second are indexed by local index starting from zero. When a C array index is transformed to the corresponding X10 array index, it has to be multiplied by two and added by the starting index of this X10 array.
 
   MPI two-sided communication is replaced with X10's one-sided communication through array copying. The global 
 barrier is matched with X10's clock (next statement). An interface is introduced for calling C functions from 
@@ -17,21 +10,15 @@ X10 (Java). For general information about writing hybrid X10 and C codes, please
 at 
 	http://orquesta.watson.ibm.com/mediawiki/index.php/How_to_get_Hybrid_X10_Running.
 
-  Data structures allocated by C code are in the same memory space as JVM, that is, they are "global" to
-each X10 place. Thread safety has to be enforced when accessing these data structures from X10. There are 
-two versions of fft_fftw3: one allocates a separate copy of fftw3 plans for each place, while the other use 
-a single copy of fftw3 place for all the places (the format of ffts performed at each place are the same.). 
-To use the first version, set  MAKE_FFTW_THREADSAFE to be 1. Thread safety is realized by using the pthreads 
-library.
+  Data structures allocated by C code are in the same memory space as JVM, that is, they are "global" to each X10 place in the current implementation of X10. Thread safety has to be enforced when accessing these data structures from X10. There are two versions of fft_fftw3: one allocates a separate copy of fftw3 plans for each place, while the other use a single copy of fftw3 plans for all the places (the format of ffts performed at each place is the same.). To use the first version, set  MAKE_FFTW_THREADSAFE to be 1 in "fft_fftw3.c". Thread safety is realized by using the pthreads library.
  
-  To compile and run the code, for example, please follow the following steps:
+To compile and run the code, for example, please follow the following steps:
    1) x10c Ft.x10 (Add appropriate x10c options if needed)
    2) make 
    3) x10  -J-mx2000m -J-ms2000m -libpath . -NUMBER_OF_LOCAL_PLACES=4 -INIT_THREADS_PER_PLACE=1 
   	-PRELOAD_CLASSES=true Ft -w
 
-  Please note that to run the code in cygwin environment, you need first to uncomment the first System.load
-statement, and then change the name of dll from "ft" to "Ft".
+Please note that to run the code in cygwin environment, you need first to uncomment the first System.load statment in "Ft.x10", and then change the name of the second dll from "ft" to "Ft". Lastly, you need to set MAKE_FFTW_THREADSAFE to be 0.
 
   The output looks like
 

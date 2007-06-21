@@ -101,7 +101,7 @@ extern void  Ft_initializeC(signed int numPlace, signed int nx, signed int ny, s
   //MYTHREAD = placeID;
   NX = nx; NY = ny; NZ = nz;
   OFFSET = offset; CPAD_COLS = cpad_cols;
-  //printf("setting %d %d %d %d %d %d\n", THREADS, OFFSET, CPAD_COLS, NX, NY, NZ);
+  
   dims[0][0] = NX;
   dims[0][1] = NY+CPAD_COLS;
   dims[0][2] = NZ;
@@ -157,8 +157,7 @@ void computeInitialConditions (ComplexPtr_t cp, int PID)
     c 
     c-------------------------------------------------------------------*/
   init_seed (start);
-  
-  //printf("  B -- MYTHREAD = %d THREADS = %d OFFSET = %d \n", MYTHREAD, THREADS, OFFSET); 
+   
   pid = MYTHREAD * NZ/THREADS;	   /* First plane for this thread */
 
   /*
@@ -200,9 +199,6 @@ void computeInitialConditions (ComplexPtr_t cp, int PID)
 }
 
 extern void Ft_computeInitialConditions (double* Array_x10PoInTeR, int* Array_x10DeScRiPtOr, signed int PID){
-  /*int MYTHREAD = MYTHREAD;
-  printf("  A--- MYTHREAD = %d THREADS = %d \n", MYTHREAD++, THREADS); 
-  printf("  a--- MYTHREAD = %d THREADS = %d \n", --MYTHREAD, THREADS);*/
   computeInitialConditions((ComplexPtr_t) (Array_x10PoInTeR+OFFSET), PID);
 }
 
@@ -257,7 +253,7 @@ extern void Ft_init_exp (double* Array_x10PoInTeR, int* Array_x10DeScRiPtOr, dou
 void parabolic2(ComplexPtr_t out, ComplexPtr_t in, 
 	        double *ex, int t, double alpha)
 {
-  //printf("Current orientation is %d \n", current_orientation);
+  
   int i,j,k,ii,ii2,jj,kk;
   int dim2 = CDIM(2);
   int dim1 = CDIM(1); /* Padded dimension */
@@ -295,10 +291,6 @@ extern void Ft_parabolic2 (double* out_x10PoInTeR, int* out_x10DeScRiPtOr,
 extern void Ft_FFTInit ( signed int comm, double* local2d_x10PoInTeR, int* local2d_x10DeScRiPtOr, 
 		    double* local1d_x10PoInTeR, int* local1d_x10DeScRiPtOr, signed int PID){
   FFTInit( THREADS, dims, comm, (ComplexPtr_t) (local2d_x10PoInTeR+OFFSET), (ComplexPtr_t)local1d_x10PoInTeR, PID);
-  /*int N =dims[0][1]*dims[0][0]*dims[0][2];
-    printf("size =%d \n", N);
-    fftw_plan temp = fftw_plan_many_dft(1,&dims[0][0],1,(fftw_complex *)(local2d_x10PoInTeR),&size,dims[0][1],1,(fftw_complex *)(local2d_x10PoInTeR),&size,dims[0][1],1,1,FFTW_MEASURE);
-  */
 }
 
 extern void Ft_FFTWTest(void){
@@ -317,7 +309,6 @@ extern void Ft_FT_1DFFT (signed int ft_comm, double* in_x10PoInTeR, int* in_x10D
 			 double* out_x10PoInTeR, int* out_x10DeScRiPtOr,
 			 signed int offset, signed int dir, signed int orientation, signed int PID ){
   if (ft_comm == FT_COMM_SLABS){
-    //printf("This is FT_1DFFT Slab: PID = %d \n", PID);
     if (offset > 0) 
       FFT1DLocalTranspose((ComplexPtr_t) (in_x10PoInTeR), (ComplexPtr_t) (out_x10PoInTeR+OFFSET), dir, orientation, PID);
     else

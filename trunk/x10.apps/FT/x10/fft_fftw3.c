@@ -117,30 +117,6 @@ fftw_plans_t make_fftw_plan_set(int total_upc_threads, int dims[3][3], int comm,
   ret->plans_1dfin2[2][1] = PLAN1DFIN2(dims[2][1],dims[2][2],FIN2_STRIDE(2),
 					   local1d,local2d,FFTW_FORWARD);
 
-  /* We currently don't do this */
-#if 0
-#define PLAN1DBLOCK(n,dir)	\
-	fftw_plan_many_dft(1,&n,FFTBLOCK,FPTR(ftblock),NULL,1,MAXDIM,\
-			   FPTR(ftblock+FFTBLOCKPAD*MAXDIM),NULL,1,MAXDIM,dir,FT_FFTW_FLAGS)
-#define PLAN1DBLOCK2(x,y,dir)	\
-	fftw_plan_dft_1d(x,FPTR(&ftblock[0][0][0]),FPTR(&ftblock[1][0][0]),dir,FT_FFTW_FLAGS)
-  
-  ftblock = (ComplexPtr_t) malloc_align(&orig, 2*FFTBLOCKPAD*MAXDIM*SIZEOF_COMPLEX);
-  
-  plans_1dblock[0][0] = PLAN1DBLOCK(dims[0][0],FFTW_BACKWARD);
-  plans_1dblock[1][0] = PLAN1DBLOCK(dims[1][0],FFTW_BACKWARD);
-  plans_1dblock[2][0] = PLAN1DBLOCK(dims[2][0],FFTW_BACKWARD);
-  plans_1dblock[0][1] = PLAN1DBLOCK(dims[0][0],FFTW_FORWARD);
-  plans_1dblock[1][1] = PLAN1DBLOCK(dims[1][0],FFTW_FORWARD);
-  plans_1dblock[2][1] = PLAN1DBLOCK(dims[2][0],FFTW_FORWARD);
-  
-  plans_1dblock2[0][0] = PLAN1DBLOCK(dims[0][2],FFTW_BACKWARD);
-  plans_1dblock2[1][0] = PLAN1DBLOCK(dims[1][2],FFTW_BACKWARD);
-  plans_1dblock2[2][0] = PLAN1DBLOCK(dims[2][2],FFTW_BACKWARD);
-  plans_1dblock2[0][1] = PLAN1DBLOCK(dims[0][2],FFTW_FORWARD);
-  plans_1dblock2[1][1] = PLAN1DBLOCK(dims[1][2],FFTW_FORWARD);
-  plans_1dblock2[2][1] = PLAN1DBLOCK(dims[2][2],FFTW_FORWARD);
-#endif
   return ret;
 }
 
@@ -148,8 +124,6 @@ fftw_plans_t make_fftw_plan_set(int total_upc_threads, int dims[3][3], int comm,
 void
 FFTInit(int threads, int dims[3][3], int comm, ComplexPtr_t local2d, ComplexPtr_t local1d, int PID)
 {
-    
-  //printf("FFTInit %d %d %d %d %d\n", threads, comm, dims[0][0], dims[0][1], dims[0][2]);
     int	i,j;
     void *orig;
     
