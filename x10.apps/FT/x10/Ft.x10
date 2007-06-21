@@ -1,10 +1,14 @@
 /*****************************************************************************
  * This is the X10 port of the C/MPI implementation of NAS FT Benchmark in the 
- * Berkeley UPC suite.
+ * Berkeley UPC FT suite.
  *  
  * The allocation of the distributed working arrays, the synchronization,
  * and the communication are implemented at the x10 level, whereas the other 
  * functionalities are still implemented using the original c codes.
+ * 
+ * Pleae note that 1D double arrays are used in x10 while 1D complex arrays are 
+ * used in C. So, the index for the C part of this implementation is in terms of 
+ * complex numbers in contrast to doubles for the X10 part.
  * 
  * For details, please refer to the README file.
  * 
@@ -12,7 +16,7 @@
  *  1) x10c Ft.x10 (Add appropriate x10c options if needed)
  *  2) make 
  *  3) x10  -J-mx2000m -J-ms2000m -libpath . -NUMBER_OF_LOCAL_PLACES=4 -INIT_THREADS_PER_PLACE=1 
- * 	-PRELOAD_CLASSES=true Ft -w
+ * 	-PRELOAD_CLASSES=true Ft -w [-p]
  *
  * The output looks like
  * 	NPB CLASS W 128x128x32 6 iterations
@@ -46,7 +50,7 @@ public class Ft {
 	private final static int FFT_FWD = 1;
 	private final static int FFT_BWD = 0;
 	
-	public final static int FT_COMM = FT_COMM_SLABS;
+	public final  int FT_COMM;
 
 	public static value DoubleArray{
 		double[:self.rect && self.rank==1] m_array;
@@ -116,10 +120,7 @@ public class Ft {
 	private final static int BB = 4;
 	private final static int CC = 5;
 	private final static int DD = 6;
-	/*    
-	private final static double A = (5.0*5.0*5.0*5.0*5.0*5.0*5.0*5.0*5.0*5.0*5.0*5.0*5.0);
-	private final static double SEED = 314159265.0;
-	*/
+	
 	private final String class_id_str;
 	private final char class_id_char;
 	private final int CLASS, NX, NY, NZ, MAXDIM, MAX_ITER, TOTALSIZE, MAX_PADDED_SIZE; 
@@ -130,8 +131,8 @@ public class Ft {
 	
 
 	static {
-		//System.load("c:/FFTW/fftw-3.1.2-dll/libfftw3-3.dll"); //for cygwin environment
-        	System.loadLibrary("ft");
+		//System.load("c:/FFTW/fftw-3.1.2-dll/libfftw3-3.dll"); //only for cygwin environment; comment it out for AIX
+        	System.loadLibrary("ft"); //for cygwin change it to Ft from ft (AIX)
     	}
 
 	public static double mysecond() {
@@ -171,8 +172,9 @@ public class Ft {
 		return orientation;
 	}
 
-	public Ft( int type){
+	public Ft( int type, int comm){
 		CLASS = type;
+		FT_COMM = comm;
 		switch ( CLASS ){
 			case SS:
 				NX = 64; NY = 64; NZ = 64; MAXDIM = 64; MAX_ITER = 6;
@@ -209,7 +211,7 @@ public class Ft {
 				class_id_str = "Test mode: 2x4x4 1 iterations";
 				class_id_char = 'T';
 		}
-		System.out.println(class_id_str);
+		System.out.println(class_id_str+" FT_COMM = "+FT_COMM);
 		
 		TOTALSIZE = NX*NY*NZ; 
 		MAX_PADDED_SIZE = Math.max(2*NX*(NY+CPAD_COLS)*NZ, Math.max(2*NY*(NZ+CPAD_COLS)*NX, 2*NZ*(NX+CPAD_COLS)*NY));
@@ -221,16 +223,6 @@ public class Ft {
 		checksum_imag = (double [:self.rect && self.rank==1]) new double [[1:MAX_ITER]];// (point p) {return 0;};
 		
 		//FFTWTest(); //the name of dll has to begin with lower case!!!
-		/* test code
-		final DistDoubleArray DDA = new DistDoubleArray(MAX_PADDED_SIZE, OFFSET);
-		finish ateach (point [PID]: ALLPLACES){
-			initializeC(NUMPLACES, PID, NX, NY, NZ, OFFSET, CPAD_COLS);
-			DoubleArray da = DDA.getArray(PID);
-			//initialize (da.m_array, DDA.m_localSize, OFFSET, PID);
-			computeInitialConditions(da.m_array, PID);
-		}
-		printArray(DDA);
-		*/
 	}
 
 	public void solve(){
@@ -244,11 +236,12 @@ public class Ft {
 		/* passing constants to C, which are stored as external variables */		
 		initializeC(NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
 		
-		double cputime = -mysecond();		
+		double cputime1 = -mysecond();		
 
 		finish async{
 		    clock clk=clock.factory.clock();
 		    ateach (point [PID]: ALLPLACES) clocked(clk){
+			double cputime2; 
 			int current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
 			next;
 			final DoubleArray local_ex = ex.getArray(PID);
@@ -265,17 +258,18 @@ public class Ft {
 			computeInitialConditions(localPlanes2d.m_array, PID);
 			//next;
 
-			FFT2DComm_Slab(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID);
+			FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID);
 			next;
 			FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_FWD, current_orientation, PID);
 			next;
 
-			if (PID == 0) System.out.println("IBM X10 NAS FT: class "+class_id_char+" ("+class_id_str+")");
+			if (PID == 0) System.out.println("Start timing of IBM X10 NAS FT: class "+class_id_char+" ("+class_id_str+")");
+			cputime2 = -mysecond();
 			current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
 			next;
 			computeInitialConditions(localPlanes2d.m_array, PID);
 			init_exp(local_ex.m_array, 1.0e-6, PID);
-			FFT2DComm_Slab(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID);
+			FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID);
 			next;
 			FT_1DFFT(FT_COMM, localPlanes1d.m_array, local_V.m_array, 0, FFT_FWD, current_orientation, PID);
 			next;
@@ -288,7 +282,7 @@ public class Ft {
 				current_orientation = set_view(saved_orientation, PID);
 				next;
 				parabolic2(localPlanes2d.m_array, local_V.m_array, local_ex.m_array, iter, 1.0e-6);
-				FFT2DComm_Slab(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID);
+				FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID);
 				next;
 				FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_BWD, current_orientation, PID);
 				current_orientation = switch_view(current_orientation, PID);
@@ -300,16 +294,20 @@ public class Ft {
 					checksum_real[iter]+" checksum_imag = "+checksum_imag[iter]);
 				}
 			}
+			cputime2 += mysecond(); 
+			if (PID == 0) System.out.println("The wall clock time for the timed section is "+cputime2+" secs");
 		    }
 		}
 
-		cputime += mysecond(); System.out.println("The wall clock time is "+cputime);
+		cputime1 += mysecond(); 
+		System.out.println("The overall wall clock time is "+cputime1+" secs");
 		if (class_id_char !='T') checksum_verify(NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);
 		//System.out.println("Content of Planes2d:"); printArray(Planes2d);
 		//System.out.println("Content of ex:"); printArray(ex);		
  		//System.out.println("Content of Planes1d:"); printArray(Planes1d);
 	}
 	
+
 	public void FFT2DComm_Slab(final DoubleArray local2d, final DistDoubleArray dist1d, final int dir, final int orientation, final int placeID){
 		final int dim0, dim1, dim2;
 		final int plane_size, CHUNK_SZ, numrows;
@@ -359,6 +357,58 @@ public class Ft {
 		
 	}
 
+	public void FFT2DComm_Pencil(final DoubleArray local2d, final DistDoubleArray dist1d, final int dir, final int orientation, final int placeID){
+		final int dim0, dim1, dim2;
+		final int plane_size, CHUNK_SZ, numrows;
+		
+		dim0 = dims[orientation*3];
+		dim1 = dims[orientation*3+1];
+		dim2 = dims[orientation*3+2];
+		
+		plane_size = dim0*dim1;
+		CHUNK_SZ = (dim0/NUMPLACES)*dim1;
+		numrows = dim0/NUMPLACES;
+		int p, t, i, offset1, offset2;
+
+		final double[:self.rect && self.rank==1] local2darray = local2d.m_array;
+
+		finish for (p = 0; p < dim2/NUMPLACES; p++){
+			offset1 = plane_size*p;
+			FFT2DLocalCols(local2darray, offset1, dir, orientation, placeID);
+			for (i = 0; i < numrows; i++) 
+			    for (t = 0; t <NUMPLACES; t++){
+				//final int destID = (placeID + t) % NUMPLACES; //the MPI order
+				final int destID = t;
+				offset2 = offset1 + destID*CHUNK_SZ + i*dim1;
+				FFT2DLocalRow(local2darray, offset2, dir, orientation, placeID);
+
+				int srcStart = local2d.m_start + offset2*2;
+				int destStart = (dist1d.getArray(destID)).m_start + 
+						2*(placeID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
+				final place destPlace = ALLPLACES[destID];
+				final double[:self.rect && self.rank==1] local1darray = 
+						(dist1d.getArray(destID)).m_array; 
+				
+				for (int j = 0; j < 2*dim1; j++){
+					final double srcVal = local2darray[srcStart + j];
+					final int destIdx = destStart + j;	
+					async (destPlace) {
+						local1darray[destIdx] = srcVal;
+					}	
+				}
+				
+			}
+
+		}
+		
+	}
+	
+	public void FFT2DComm(final DoubleArray local2d, final DistDoubleArray dist1d, final int dir, final int orientation, final int placeID){
+		if (FT_COMM == FT_COMM_SLABS)
+			FFT2DComm_Slab(local2d, dist1d, dir, orientation, placeID);
+		else
+			FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID);
+	}
 
 	private void checksum(final DoubleArray C, final int PID, final int itr){
 		int j, q, r, s, idx;
@@ -420,7 +470,8 @@ public class Ft {
 		 * others  => Debug cube
 		 */
     		
-		int CLASS = 0;    
+		int CLASS = 0; 
+		int COMM = FT_COMM_SLABS;  
         	for (int q = 0; q < args.length; ++q) {		
             		if (args[q].equals("-s") || args[q].equals("-S")) {
                 		CLASS = 1;
@@ -441,9 +492,12 @@ public class Ft {
 			if (args[q].equals("-d") || args[q].equals("-D")) {
                 		CLASS = 6;
             		}
+			if (args[q].equals("-p") || args[q].equals("-P")) {
+                		COMM = FT_COMM_PENCILS;
+            		}
            	}
 
-		Ft FtSolver = new Ft(CLASS);
+		Ft FtSolver = new Ft(CLASS, COMM);
 		FtSolver.solve();
 	}	
 
