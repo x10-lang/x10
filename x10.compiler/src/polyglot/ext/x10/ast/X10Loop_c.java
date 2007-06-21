@@ -17,6 +17,8 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.Loop;
+import polyglot.ast.Loop_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
@@ -53,7 +55,7 @@ import polyglot.visit.TypeChecker;
  *
  * @author vj Dec 9, 2004
  */
-public abstract class X10Loop_c extends Stmt_c implements X10Loop {
+public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	protected Formal formal;
 	protected Expr domain;
 	protected Stmt body;
@@ -188,5 +190,11 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
 		n.locals = locals;
 		return n;
 	}
+
+	public Term continueTarget() {
+		return formal.entry();
+	}
+
+	public Expr cond() { return null; }
 }
 
