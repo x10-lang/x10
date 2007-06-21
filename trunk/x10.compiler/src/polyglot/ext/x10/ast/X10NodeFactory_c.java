@@ -122,14 +122,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+	private Block asBlock(Stmt statement) {
+		if (statement == null || statement instanceof Block)
+			return (Block)statement;
+		List l = new ArrayList();
+		l.add(statement);
+		return Block(statement.position(), l);
+	}
+
 	// Wrap the body of the async in a Block so as to ease further code transforamtions.
 	public Async Async(Position pos, Expr place, List clocks, Stmt body) {
-		if (body != null) {
-			List l= new ArrayList();
-			l.add(body);
-			body = Block(body.position(), l);
-		}
-		Async a = new Async_c(pos, place, clocks, body);
+		Async a = new Async_c(pos, place, clocks, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		a = (Async) a.ext(ext_fac.extAsyncImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
@@ -139,12 +142,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	// Wrap the body of an atomic in a block to facilitate code transformation.
 	public Atomic Atomic(Position pos, Expr place, Stmt body) {
-		if (body != null) {
-			List l = new ArrayList();
-			l.add(body);
-			body = Block(body.position(), l);
-		}
-		Atomic a = new Atomic_c(pos, place, body);
+		Atomic a = new Atomic_c(pos, place, asBlock(body));
 		a = (Atomic) a.ext(extFactory().extExpr());
 		return (Atomic) a.del(delFactory().delExpr());
 	}
@@ -164,12 +162,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	// Wrap the body of a When in a conditional to facilitate code transformations
 	public When When(Position pos, Expr expr, Stmt statement) {
-		if (statement != null) {
-			List l = new ArrayList();
-			l.add(statement);
-			statement = Block(statement.position(), l);
-		}
-		When w = new When_c(pos, expr, statement);
+		When w = new When_c(pos, expr, asBlock(statement));
 		w = (When) w.ext(extFactory().extStmt());
 		return (When) w.del(delFactory().delStmt());
 	}
@@ -345,12 +338,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public AtEach AtEach(Position pos, Formal formal, Expr domain,
 						 List clocks, Stmt body)
 	{
-		if (body != null) {
-			List l = new ArrayList();
-			l.add(body);
-			body = Block(body.position(), l);
-		}
-		AtEach n = new AtEach_c(pos, formal, domain, clocks, body);
+		AtEach n = new AtEach_c(pos, formal, domain, clocks, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (AtEach) n.ext(ext_fac.extAtEachImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
@@ -359,12 +347,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	public For For(Position pos, List inits, Expr cond, List iters, Stmt body) {
-		if (body != null) {
-			List l = new ArrayList();
-			l.add(body);
-			body = Block(body.position(), l);
-		}
-		For n = new For_c(pos, inits, cond, iters, body);
+		For n = new For_c(pos, inits, cond, iters, asBlock(body));
 		n = (For)n.ext(extFactory().extFor());
 		n = (For)n.del(delFactory().delFor());
 		return n;
@@ -373,12 +356,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 //	 Wrap the body in a block to facilitate code transformations
 	public X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body)
 	{
-		if (body != null) {
-			List l = new ArrayList();
-			l.add(body);
-			body = Block(body.position(), l);
-		}
-		X10Loop n = new ForLoop_c(pos, formal, domain, body);
+		X10Loop n = new ForLoop_c(pos, formal, domain, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (X10Loop) n.ext(ext_fac.extForLoopImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
@@ -390,12 +368,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public ForEach ForEach(Position pos, Formal formal, Expr domain,
 						   List clocks, Stmt body)
 	{
-		if (body != null) {
-			List l = new ArrayList();
-			l.add(body);
-			body = Block(body.position(), l);
-		}
-		ForEach n = new ForEach_c(pos, formal, domain, clocks, body);
+		ForEach n = new ForEach_c(pos, formal, domain, clocks, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (ForEach) n.ext(ext_fac.extForEachImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
@@ -405,12 +378,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	// Wrap the body in a block to facilitate code transformations
 	public Finish Finish(Position pos, Stmt body) {
-		if (body != null) {
-			List l = new ArrayList();
-			l.add(body);
-			body = Block(body.position(), l);
-		}
-		Finish n = new Finish_c(pos, body);
+		Finish n = new Finish_c(pos, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (Finish) n.ext(ext_fac.extFinishImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
@@ -840,19 +808,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	// Place the consequent and the alternative in blocks to ease
 	// further rewrites of the AST.
 	public If If(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
-		if (consequent != null) {
-			List l = new ArrayList();
-			l.add(consequent);
-			consequent = Block(consequent.position(), l);
-		}
-
-		if (alternative != null) {
-			List l2 = new ArrayList();
-			l2.add(alternative);
-			alternative = Block(alternative.position(), l2);
-		}
-
-		If n = new X10If_c(pos, cond, consequent, alternative);
+		If n = new X10If_c(pos, cond, asBlock(consequent), asBlock(alternative));
 		n = (If)n.ext(extFactory().extIf());
 		n = (If)n.del(delFactory().delIf());
 		return n;
