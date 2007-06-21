@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.5 2007-06-18 11:29:55 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.6 2007-06-21 14:24:26 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -17,6 +17,7 @@ using namespace x10lib;
 
 const int MAX_TASKS=256;
 const int MAX_TASKS_NODE = 16;
+const int MAX_NODES = 16;
 const int EX_BUFFER_SIZE = 1024;
 int bufSize = 0;
 char buffer[MAX_TASKS * EX_BUFFER_SIZE];
@@ -26,6 +27,8 @@ lapi_cntr_t cntr1;
 lapi_cntr_t cntr2;
 lapi_long_t exceptionCntr[MAX_TASKS];
 lapi_long_t continueCntr[MAX_TASKS];
+//void* exceptionCntr[MAX_TASKS];
+//void* continueCntr[MAX_TASKS];
 
 int CONTINUE_STATUS;
 
@@ -34,11 +37,11 @@ struct ptree_t
 {
   int numPeers;
   int numChild;
-  int* children;
+  int children[MAX_TASKS_NODE+MAX_NODES];
   int parent;
 };
 
-ptree_t* ftree;
+ptree_t* ftree=NULL;
 
 /* count the number of children for process 0*/
 void*
@@ -91,6 +94,8 @@ finishInit ()
   LRC (LAPI_Addr_set (GetHandle(), (void*) numChildHeaderHandler, 5));
   LRC (LAPI_Address_init64 (GetHandle(), (lapi_long_t) &cntr1, exceptionCntr));
   LRC (LAPI_Address_init64 (GetHandle(), (lapi_long_t) &cntr2, continueCntr));
+  //LRC (LAPI_Address_init (GetHandle(),  &cntr1, exceptionCntr));
+  //LRC (LAPI_Address_init (GetHandle(),  &cntr2, continueCntr));
   LRC (LAPI_Setcntr (GetHandle(), &cntr1, 0));
   LRC (LAPI_Setcntr (GetHandle(), &cntr2, 0));
 
@@ -103,7 +108,7 @@ finishInit ()
 
   //choose the one with the minimum rank as the parent of this group
   ftree->parent = here();
-  ftree->children = new int[ftree->numPeers];
+
   for (int i = 0; i < ftree->numPeers; i++)  {
     envstr = strchr (envstr, ':') + 1;
     ftree->children[i] = atoi(envstr);

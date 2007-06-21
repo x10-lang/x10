@@ -59,7 +59,7 @@ void initStandAlone (lapi_info_t* info) {
   int           rc;            /* Return code from func. calls */
   lapi_handle_t lapi_handle;   /* LAPI handle */
   lapi_info_t   lapi_info;     /* Info to pass to LAPI_Init */
-  lapi_extend_t extend_info;   /* Structure to hold IP addresses and ports */
+  lapi_extend_t* extend_info;   /* Structure to hold IP addresses and ports */
   int           task_id;       /* Our LAPI Task id */
   int           num_tasks;     /* number of tasks in job */
   int           i, j;          /* Loop counters */
@@ -72,12 +72,12 @@ void initStandAlone (lapi_info_t* info) {
   
   /* Clear the struct (values in future fields will cause error). */
   bzero(&lapi_info, sizeof(lapi_info_t));
-  bzero(&extend_info, sizeof(lapi_extend_t));
-  
+  extend_info = new lapi_extend_t;
+ 
   /* Assign the address of the lapi_extend_t to pass to LAPI */
-  lapi_info.add_info = (lapi_extend_t *)&extend_info;
+  lapi_info.add_info = extend_info;
   
-  udp_info = (lapi_udp_t *) malloc(num_tasks*sizeof(lapi_udp_t));
+  udp_info = new lapi_udp_t[num_tasks];
   if ( (rc = setup_addr_list(udp_info, num_tasks)) != 0 ) {
     fprintf(stderr,"Error during setup_addr_list\n");
     exit(rc);

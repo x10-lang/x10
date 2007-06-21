@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.h,v 1.5 2007-06-18 11:29:55 ganeshvb Exp $ */
+/* $Id: finish.h,v 1.6 2007-06-21 14:24:26 ganeshvb Exp $ */
 
 #ifndef __FINISH_H__
 #define __FINISH_H__
@@ -37,8 +37,10 @@ namespace x10lib {
        Exception **const exceptions() const { return exceptions_; }
 
       ~MultiException () {
-        for (int i = 0; i < total_; i++)
-          delete exceptions_[i];
+        //x10lib takes care of garbage collection/managing
+        // each of the exceptions_ objects. So just
+        //delete the exceptions_ array only.
+
         delete [] exceptions_; 
        } 
     private:
