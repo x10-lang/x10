@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.cc,v 1.8 2007-06-20 11:37:15 ganeshvb Exp $ */
+/* $Id: aggregate.cc,v 1.9 2007-06-21 14:24:26 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/aggregate.h>
@@ -80,7 +80,7 @@ asyncSpawnHandlerAgg (lapi_handle_t handle, void* uhdr,
 {
   struct header buf = *((header*) uhdr);
   lapi_return_info_t *ret_info = (lapi_return_info_t *) msg_len;
-  if (ret_info->udata_one_pkt_ptr) {
+  if (ret_info->udata_one_pkt_ptr || (*msg_len) == 0) {
     asyncSwitch(buf.handler, ret_info->udata_one_pkt_ptr, buf.niter);
     ret_info->ctl_flags = LAPI_BURY_MSG;
     *comp_h = NULL;

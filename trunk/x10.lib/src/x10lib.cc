@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.9 2007-06-17 19:36:22 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.10 2007-06-21 14:24:26 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -93,7 +93,10 @@ x10lib::Finalize()
 #ifdef DEBUG
 	cout << "x10lib::Finalize()" << endl;
 #endif /* DEBUG */
-
+#ifdef STANDALONE
+        delete [] info.add_info->add_udp_addrs;
+        delete info.add_info;
+#endif
         finishTerminate();
 
         //delete the Global SM Allocator
