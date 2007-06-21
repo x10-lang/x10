@@ -205,24 +205,20 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 	/** Write the expression to an output file. */
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		assert false;
-        X10Type at = ( X10Type) array.type();
-       
+        X10Type at = (X10Type) array.type();
         if (at.isParametric()) {
             Type result = (Type) at.typeParameters().get(0);
             w.write("((");
             print(new X10CanonicalTypeNode_c(Position.COMPILER_GENERATED,result), w, tr);
             w.write(")");
-            printSubExpr(array, w, tr);
-            w.write (".get(");
-            printBlock(index, w, tr);
-            w.write ("))");
-            return;
         }
         printSubExpr(array, w, tr);
-        w.write (".get(");
+        w.write(".get(");
         printBlock(index, w, tr);
         w.write (")");
-            
+        if (at.isParametric()) {
+        	w.write(")");
+        }
 	}
 
 	public Term entry() {
