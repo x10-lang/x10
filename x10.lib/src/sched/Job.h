@@ -34,6 +34,10 @@ public :
 	virtual ~JobFrame();
 	virtual Closure *makeClosure();
 	virtual void setOutletOn(Closure *c);
+	virtual JobFrame *copy();
+ protected:
+	JobFrame(const JobFrame& jf) 
+	  : Frame(jf), PC(jf.PC), x(jf.x) {}
 };
 
 class Outlet {
@@ -60,6 +64,10 @@ public:
 	virtual Closure *makeClosure();
 	GFrame();
 	virtual ~GFrame() {}
+	virtual GFrame *copy();
+ protected:
+	GFrame(const GFrame& gf)
+	  : JobFrame(gf), PC(gf.PC) {}
 };
 
 class Job : public Closure {

@@ -25,7 +25,7 @@ public:
 	virtual Closure *makeClosure();
 	virtual void setOutletOn(Closure *c);
 	virtual void setInt(int x);
-	virtual Frame *copy();
+	virtual Frame *copy() = 0; //should be implemented by sub-classes
 };
 
 }

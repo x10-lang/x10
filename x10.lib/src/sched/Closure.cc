@@ -62,7 +62,9 @@ Closure::~Closure() {
 	completeInlets.clear(); 
 	incompleteInlets.clear();
 	// TODO -- verify these
-	delete frame;
+	//delete frame; /*TODO: verify this*/
+	delete outlet; /*Every outlet is attached to a Closure, and it
+			 destroyed by that Closure. */
 }
 
 bool Closure::hasChildren() const {
@@ -77,18 +79,18 @@ void Closure::unlock() {
 	UNLOCK(lock_var);
 }
 void Closure::addCompletedInlet(Closure *child) {
-		/*if (completeInlets == NULL)
-			completeInlets = new list<Closure>();*/
-		completeInlets.push_back(child);
+  /*if (completeInlets == NULL)
+    completeInlets = new list<Closure>();*/
+  completeInlets.push_back(child);
 }
 	
 void Closure::removeChild(Closure *child) {
-		//if (incompleteInlets != NULL) 
-		 incompleteInlets.remove(child);
-		// for (Inlet i : incompleteInlets) {
-		//	if (i.target == child) return i;
-		//}
-		//return NULL;
+  //if (incompleteInlets != NULL) 
+  incompleteInlets.remove(child);
+  // for (Inlet i : incompleteInlets) {
+  //	if (i.target == child) return i;
+  //}
+  //return NULL;
 }
 	
 	/**
@@ -356,11 +358,14 @@ Closure *Closure::execute(Worker *w) {
 		lock(w);
 		
 		Frame *f = frame;
+		assert(f != NULL);
 		switch (status) {
 		case READY:	
 			status = RUNNING;
 		    // load the cache from the worker's state.
 		    cache = w->cache;
+		    assert(cache!=NULL);
+		    cache->reset();
 		    cache->pushFrame(frame);
 		    cache->resetExceptionPointer(w);
 			assert(f != NULL);
@@ -428,7 +433,7 @@ void Closure::initialize() {
      *                 all children have returned
      */
 bool Closure::sync(Worker *ws) {
-		return ws->sync();
+		return ws->sync(this);
 }
 	
 	
