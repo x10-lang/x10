@@ -10,6 +10,7 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -51,7 +52,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	}
 
 	public String toString() {
-		return "ateach (" + formal + ":" + domain + ")" + body;
+		return "ateach (" + formal + ":" + domain + ")" + (clocks != null ? " clocked(" + clocks + ")" : "") + body;
 	}
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
@@ -60,6 +61,14 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 		w.write(" : ");
 		printBlock(domain, w, tr);
 		w.write(") ");
+		if (clocks != null) {
+			w.write("clocked(");
+			for (Iterator c = clocks.iterator(); c.hasNext(); ) {
+				print((Expr)c.next(), w, tr);
+				if (c.hasNext()) w.write(", ");
+			}
+			w.write(")");
+		}
 		printSubStmt(body, w, tr);
 	}
 }
