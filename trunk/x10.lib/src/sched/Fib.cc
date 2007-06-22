@@ -158,13 +158,7 @@ public:
     // get the frame.
     // f must be a FibFrame.
     FibFrame * f = (FibFrame *) frame;
-
     //    cerr<<"FibC::compute. n="<<f->n<<"PC="<<f->PC<<endl;
-
-    assert(w->cache->gethead()==0);
-    assert(w->cache->gettail()==1);
-    assert(w->cache->getexception()==0);
-
     int x,y;
     const int n = f->n;
     switch (f->PC) {
@@ -181,10 +175,6 @@ public:
       }
       f->x=x;
 
-      assert(w->cache->gethead()==0);
-      assert(w->cache->gettail()==1);
-      assert(w->cache->getexception()==0);
-	
     case LABEL_1: 
       f->PC=LABEL_2;
       y=fib(w,n-2);
@@ -193,10 +183,6 @@ public:
       }
       f->y=y;
 
-      assert(w->cache->gethead()==0);
-      assert(w->cache->gettail()==1);
-      assert(w->cache->getexception()==0);
-	
     case LABEL_2: 
       f->PC=LABEL_3;
       if (sync(w)) {
@@ -209,7 +195,6 @@ public:
     default:
       assert(0);
     }
-//     cerr<<"FibC::compute returning. result="<<result<<endl;
     return;
   }
   

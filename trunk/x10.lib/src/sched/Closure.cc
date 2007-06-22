@@ -270,7 +270,7 @@ void Closure::suspend(Worker *ws) {
     	assert(status == RUNNING);
     	
     	status = SUSPENDED;
-    	
+
     	// throw away the bottommost closure on the worker.
     	// the only references left to this closure are from
     	// its children.
