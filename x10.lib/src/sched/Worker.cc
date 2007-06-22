@@ -616,8 +616,9 @@ Closure *Worker::interruptCheck() {
 	 */
 bool Worker::abortOnSteal()  /*throw StealAbort */
 {
+  if(hasThrownException()) return true;
   Closure *c = interruptCheck();
-  if (c != NULL || hasThrownException()) {
+  if (c != NULL) {
     throwException();
     return true;
   }
@@ -636,8 +637,9 @@ bool Worker::abortOnSteal()  /*throw StealAbort */
 	 * @throws StealAbort
 	 */
 bool Worker::abortOnSteal(int x)/* throw StealAbort*/{
+  if(hasThrownException()) return true;
   Closure *c = interruptCheck();
-  if (c != NULL || hasThrownException()) {
+  if (c != NULL) {
     c->setResultInt(x);
     throwException();
     return true;
@@ -651,8 +653,9 @@ bool Worker::abortOnSteal(int x)/* throw StealAbort*/{
 	 * @throws StealAbort
 	 */
 bool Worker::abortOnSteal(double x) /*throw StealAbort*/{
+  if(hasThrownException()) return true;
   Closure *c = interruptCheck();
-  if (c != NULL || hasThrownException()) {
+  if (c != NULL) {
     c->setResultDouble(x);
     throwException();
     return true;
@@ -666,8 +669,9 @@ bool Worker::abortOnSteal(double x) /*throw StealAbort*/{
 	 * @throws StealAbort
 	 */
 bool Worker::abortOnSteal(float x) /*throw StealAbort*/{
+  if(hasThrownException()) return true;
   Closure *c = interruptCheck();
-  if (c != NULL || hasThrownException()) {
+  if (c != NULL) {
     c->setResultFloat(x);
     throwException();
     return true;
@@ -680,8 +684,9 @@ bool Worker::abortOnSteal(float x) /*throw StealAbort*/{
 	 * @throws StealAbort
 	 */
 bool Worker::abortOnSteal(long x) /*throw StealAbort*/{
+  if(hasThrownException()) return true;
   Closure *c = interruptCheck();
-  if (c != NULL || hasThrownException()) {
+  if (c != NULL) {
     c->setResultLong(x);
     throwException();
     return true;
