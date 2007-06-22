@@ -5,50 +5,80 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.17 2007-06-16 16:20:49 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.18 2007-06-22 12:11:32 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
+struct __async__0__args
+{
+  __async__0__args (glong_t _captVar1) : captVar1 (_captVar1) {}
+  glong_t captVar1;
+};
+
+struct __async__1__args
+{
+  __async__1__args (glong_t _captVar1) : captVar1 (_captVar1) {}
+  glong_t captVar1;
+};
+
+struct __async__2__args
+{
+  __async__2__args (glong_t _captVar1, glong_t _captVar2)
+    : captVar1 (_captVar1),
+      captVar2 (_captVar2)
+  {}
+
+  glong_t captVar1;
+  glong_t captVar2;
+};
+
 
 void
-inline async0 (async_arg_t arg0)
+inline __async__0 (__async__0__args args)
 {
-  glong_t ran = arg0;
+  glong_t ran = args.captVar1;
   GLOBAL_SPACE.Table->update (ran);
 }
 
 void
-inline async1 (async_arg_t arg0)
+inline __async__1 (__async__1__args args)
 {
-  glong_t ran = arg0;
+  glong_t ran = args.captVar1;
   GLOBAL_SPACE.Table->verify (ran);
 }
 
 void
-inline async2 (async_arg_t arg0, async_arg_t arg1)
+__async__2 (__async__2__args args)
 {
-  GLOBAL_SPACE.SUM[(int)arg1] = arg0;
+  GLOBAL_SPACE.SUM[(int)(args.captVar2)] = args.captVar1;
 }
 
 int
 asyncSwitch (async_handler_t h, void* arg, size_t size, int niter)
 {
-    async_arg_t* args = (async_arg_t*) arg;
-    switch (h) {
-    case 0: 
-      for (int i = 0; i < niter; i++)
-        async0(*args++);
-      break;
-    case 1:
-        for (int i = 0; i < niter; i++)
-      async1(*args++);
-      break;
-    case 2:
-        for (int i = 0; i < niter; i++)
-      async2(*args++, *args++);
-      break;
-    } 
+  char* args = (char*) arg;
+  switch (h) {
+  case 0:
+    for (int i = 0; i < niter; i++) {
+      __async__0(*((__async__0__args*)args));
+      args += sizeof(__async__0__args);
+    }
+    break;
+  case 1:
+    for (int i = 0; i < niter; i++) {
+      __async__1(*((__async__1__args*)args));
+      args += sizeof(__async__1__args);
+    }
+    break;
+  case 2:
+    for (int i = 0; i < niter; i++) {
+      __async__2(*((__async__2__args*)args));
+      args += sizeof(__async__2__args);
+    }
+    break;
+  }
 }
+
 
 inline void 
 RandomAccess_Dist::localTable::update (glong_t ran) 
@@ -181,12 +211,13 @@ RandomAccess_Dist::main (x10::array<String>& args)
 	placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
       
       glong_t temp = ran;
-      
-      if (placeID == here()) async1(temp); 
-      else asyncSpawnInlineAgg(placeID, 1, temp);
+
+      __async__1__args a(temp);
+      if (placeID == here()) __async__1 (a); 
+      else asyncSpawnInlineAgg(placeID, 1, &a, sizeof(a));
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     } 
-    asyncFlush(1, sizeof(async_arg_t));
+    asyncFlush (1, sizeof(__async__1__args));
 
     Gfence();
   } else {   
@@ -199,11 +230,12 @@ RandomAccess_Dist::main (x10::array<String>& args)
 	placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
       
       glong_t temp = ran;
-      if (placeID == here()) async0(temp);
-      else asyncSpawnInlineAgg (placeID, 0,temp);
+      __async__0__args a(temp);
+      if (placeID == here()) __async__0(a);
+      else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     }   
-    asyncFlush (0, sizeof(async_arg_t));
+    asyncFlush (0, sizeof(__async__0__args));
 
     Gfence();
   }
@@ -227,12 +259,13 @@ RandomAccess_Dist::main (x10::array<String>& args)
 	  else
 	    placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
 	  const glong_t temp = ran;
-	  if (placeID == here()) async0 (temp);
-	  else asyncSpawnInlineAgg (placeID, 0, temp);
+	  __async__0__args a(temp);
+	  if (placeID == here()) __async__0 (a);
+	  else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
 	  ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 	}
       }
-      asyncFlush (0, sizeof(async_arg_t));
+      asyncFlush (0, sizeof(__async__0__args));
 L2:    
     Gfence();    
   }
@@ -259,10 +292,11 @@ L2:
       sum += GLOBAL_SPACE.Table->array[i];
   
     const long temp = sum; 
-    if (0 == here()) async2 (temp, p); 
-    else asyncSpawnInlineAgg (0, 2, temp, p);
+    __async__2__args a(temp, p);
+    if (0 == here()) __async__2 (a); 
+    else asyncSpawnInlineAgg (0, 2, &a, sizeof(a));
     
-    asyncFlush (2, 2*sizeof(async_arg_t));
+    asyncFlush (2, sizeof(__async__2__args));
     
     Gfence();
    
