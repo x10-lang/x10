@@ -80,7 +80,9 @@ public abstract class Job extends Closure implements Future {
 		@Override
 		protected void compute(Worker w, Frame frame) throws StealAbort {
 			frame.compute(w);
-			setupGQReturnNoArg();
+			// The completion of the job might leave behind work (frames).
+			// Do not pop the framestack.
+			setupGQReturnNoArgNoPop();
 		}
 		@Override
 		public int spawnTask(Worker ws) throws StealAbort {
@@ -128,15 +130,15 @@ public abstract class Job extends Closure implements Future {
 						public void run() {
 							int v = c.resultInt();
 							x = v;
-						/*	if (Worker.reporting)
+							if (Worker.reporting)
 								System.out.println(Thread.currentThread() + " transfers "
-										+ v + " to " + this +".x from " + c);*/
+										+ v + " to " + JobFrame.this +".x");
 						}
 						public String toString() { return "OutletInto x from " + c;}
 						});
 		}
 		public String toString() {
-			return "JobFrame(#" + hashCode() + " " + x + ", PC=" + PC+")";
+			return "JobFrame(#" + hashCode() + ",x=" + x + ", PC=" + PC+")";
 		}
 	}
 	final Pool pool;

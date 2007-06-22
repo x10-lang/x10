@@ -33,6 +33,7 @@ package x10.runtime.cws;
     	assert x !=null;
     	Frame[] array = stack;
     	if (array != null && tail < array.length - 1) {
+    		
     		array[tail]=x;
     		++tail;
     		return;
@@ -151,9 +152,18 @@ package x10.runtime.cws;
 	}
 	
 	public void reset() {
+		int t = tail;
+		int h = head;
 		tail=0; // order is imp.
 		head=0;
 		exception=0;
+		
+		/*while (t >= 0) {
+			stack[t]=null;
+			t--;
+		}*/
+		
+		
 		
 	}
 	public void incHead() {
@@ -210,6 +220,7 @@ package x10.runtime.cws;
 				exception=head;
 				w.unlock();
 			} 
+			
 			Frame f = stack[tail];
 			stack[tail]=null;
 			return f;

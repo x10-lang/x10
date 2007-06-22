@@ -1,0 +1,88 @@
+Thu Jun 14 18:53:19 2007
+
+Globally Clocked Computations
+
+Consider a breadth-first search of a (possibly cyclic) graph. Starting
+with a vertex v0, it is desired to label all vertices v with the
+length of the smallest path from v0 to v. Further it is desired that
+each vertex with label l (for l > 0) has its parent field set to a
+vertex with label l-1. Thus at the end of the computation a spanning
+tree will have been constructed, with the label of each vertex
+corresponding to the depth of the vertex in the tree.
+
+The algorithm proceeds in phases. In phase 0, v0 is labeled with level
+0.  In phase k (k>0), all outgoing edges from each vertex v labeled in
+phase k-1 are examined in parallel. If an edge leads to a vertex w
+that has not yet been labeled, w is labeled with level k, and w.parent
+is set to v. Once this has been done phase k terminates. If any vertex
+was labeled in this phase, a new phase is initiated, otherwise the
+algorithm terminates.
+
+This computation can be realized in X10 by using a single clock to
+keep track of phases.
+
+
+public void compute(final int l, final clock c)  {
+  assert level >=0;
+  if (reporting)
+  System.out.println(Thread.currentThread() + " visits " + this);
+    
+  for (int k=0; k < degree; k++) {
+    final V v = neighbors[k];
+    if (v.level == -1 && UPDATER.compareAndSet(v,-1,l)) {
+      v.parent=this;
+      if (reporting)
+        System.out.println(Thread.currentThread() + " marks " + v + " at ply " + l) ;
+      async clocked(c) { 
+        next; // wait for the next phase.
+        v.compute(l+1,c);
+      }
+    }
+  }   
+}
+  
+public void compute() {
+  level = 0;
+  parent=this;
+  finish async {
+    clock c = new clock();
+    compute(1,c);
+  }
+}
+
+To realize this computation with CWS, we need to introduce two deques
+per worker, a red and black deque. In any phase, tasks may be pushed
+into both queues. (The equivalent of) an async S is pushed into the
+current deque (as usual). However an async clocked(c) { next; S} is
+pushed into the other queue. Once global quiescence is detected,
+computation moves to the next phase of the clock instead of
+terminating. Each time the clock moves the red and black deques are
+swapped by each worker. Computation terminates when after a transition
+each worker detects that its current deque is empty.  
+
+The relevant code with CWS is:
+
+public class V  extends Frame {
+    public final int index;
+    public int level=-1;
+    public int degree;
+    public V parent;
+    public V [] neighbors;
+    public V(int i){index=i;}
+    
+    public void compute(Worker w)  throws StealAbort {
+      assert level >=0;
+      if (reporting)
+        System.out.println(Thread.currentThread() + " visits " + this);
+            
+      for (int k=0; k < degree; k++) {
+        final V v = neighbors[k];
+        if (v.level == -1 && UPDATER.compareAndSet(v,-1,level+1)) {
+          v.parent=this;
+          w.pushFrameNext(v);
+          if (reporting)
+            System.out.println(w + " marks " + v + " at ply " + (level+1)) ;
+        }
+      }   
+    }
+}           

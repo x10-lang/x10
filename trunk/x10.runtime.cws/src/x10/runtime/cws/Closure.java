@@ -78,7 +78,7 @@ public class Closure  implements Executable {
 	protected Closure(Frame frame) {
 		super();
 		this.frame = frame;
-		lock = new ReentrantLock();
+		this.lock = new ReentrantLock();
 		initialize();
 	}
 	
@@ -134,9 +134,8 @@ public class Closure  implements Executable {
 		assert cache.exceptionOutstanding();
 
 		Frame childFrame = cache.childFrame();
-		Closure child = childFrame.makeClosure();
-		
 		Frame parentFrame = cache.topFrame();
+		Closure child = childFrame.makeClosure();
 		parentFrame.setOutletOn(child);
 		
 		// Leave the parent link in there.
@@ -178,9 +177,6 @@ public class Closure  implements Executable {
 		cache=null;
 	}
 	
-	
-    
-    
     boolean handleException(Worker w) {
     	cache.resetExceptionPointer(w);
     	Status s = status;
@@ -305,7 +301,7 @@ public class Closure  implements Executable {
 	 */
 	void pollInlets(Worker w) {
 		assert lockOwner==w;
-		
+		//System.out.println(w + " polling " + this);
 		if (status==Status.RUNNING && ! cache.atTopOfStack()) {
 			assert w.lockOwner == w;
 		}
@@ -314,6 +310,7 @@ public class Closure  implements Executable {
 				i.executeAsInlet();
 			}
 		completeInlets = null;
+		//System.out.println(w + " .. done polling, yielding " + this);
 	}
 	
 	 /**
