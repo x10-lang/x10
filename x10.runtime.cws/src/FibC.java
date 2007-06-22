@@ -24,7 +24,7 @@ public class FibC  extends Closure {
   static final int ENTRY=0, LABEL_1=1, LABEL_2=2,LABEL_3=3;
 
   public String toString() { 
-      return "FibC(#"+hashCode()  +",status="+status + "," + frame + "result=" + result + ")";
+      return "FibC(#"+hashCode()  +",status="+status + "," + frame + ",result=" + result + ")";
     }
   public static int realfib(int n) {
     if (n < 2) return n;
@@ -49,13 +49,21 @@ public class FibC  extends Closure {
         c.setOutlet((PC==LABEL_1) ?
             new Outlet() {
               public void run() {
+            	  
                 x = c.resultInt();
+                final int xcheck = realfib(n-1);
+                if (x != xcheck)
+                	System.out.println(Thread.currentThread() 
+                			+ " fails when joining x=fib(" + (n-1) + ") yielding " + x + "(correct="+ xcheck+")");
               }
               public String toString() { return "OutletInto x from " + c;}
               } 
         : new Outlet() {
           public void run() {
             y = c.resultInt();
+            final int ycheck = realfib(n-2);
+            if (y != ycheck)
+            	System.out.println(Thread.currentThread() + " fails when joining y=fib(" + (n-2) + ") yielding " + y + "(correct="+ ycheck+")");
           }
           public String toString() { return "OutletInto y from " + c;}
           });
@@ -78,6 +86,9 @@ public class FibC  extends Closure {
     // this thread will definitely execute fib(n-1), and
     // hence set the value in the frame.
     final int x = fib(w, n-1);
+    final int xcheck = realfib(n-1);
+    if (x != xcheck)
+    	System.out.println(w + " fails when evaluating x=fib(" + (n-1) + ") yielding " + x + "(correct="+ xcheck+")");
     
     // Now need to figure out who is doing fib(n-2).
     // If frame has been stolen, then this thread wont do fib(n-2).
@@ -95,6 +106,9 @@ public class FibC  extends Closure {
     frame.PC=LABEL_2;
   
     final int y=fib(w, n-2);
+    final int ycheck = realfib(n-2);
+    if (y != ycheck)
+    	System.out.println(w + " fails when evaluating y=fib(" + (n-2) + ") yielding " + y + "(correct="+ ycheck+")");
     w.abortOnSteal(y);
   
     // Now there is nothing more to spawn -- so no need for the frame.
@@ -126,12 +140,18 @@ public class FibC  extends Closure {
     	}
     	f.PC=LABEL_1;
     	final int x = fib(w, n-1);
+    	 final int xcheck = realfib(n-1);
+    	 if (x != xcheck)
+    	    	System.out.println(w + " fails when evaluating x=fib(" + (n-1) + ") yielding " + x + "(correct="+ xcheck+")");
     	w.abortOnSteal(x);
     	f.x=x;
     	
     case LABEL_1: 
     	f.PC=LABEL_2;
     	final int y=fib(w,n-2);
+    	  final int ycheck = realfib(n-2);
+    	    if (y != ycheck)
+    	    	System.out.println(w + " fails when evaluating y=fib(" + (n-2) + ") yielding " + y + "(correct="+ ycheck+")");
     	w.abortOnSteal(y);
     	f.y=y;
     	
@@ -142,6 +162,9 @@ public class FibC  extends Closure {
     	}
     case LABEL_3:
     	result=f.x+f.y;
+    	  final int resultCheck = realfib(n);
+    	    if (result != resultCheck)
+    	    	System.out.println(w + " fails when evaluating slow fib(" + (n) + ") yielding " + result + "(correct="+ resultCheck+")");
     	setupReturn();
     }
     return;
@@ -170,7 +193,7 @@ public class FibC  extends Closure {
     	  public int resultInt() { return result;}
     	  public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n);}
     	  public String toString() {
-    		  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ")"+ frame+")";
+    		  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ",frame="+ frame+")";
     	  }};
     	  
     	  long s = System.nanoTime();

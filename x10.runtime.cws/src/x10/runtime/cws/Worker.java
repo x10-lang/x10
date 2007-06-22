@@ -14,14 +14,13 @@ import static x10.runtime.cws.Closure.Status.READY;
 import static x10.runtime.cws.Closure.Status.RETURNING;
 import static x10.runtime.cws.Closure.Status.RUNNING;
 
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
+
 import x10.runtime.cws.Closure.Status;
-import x10.runtime.cws.Job.GloballyQuiescentJob;
 
 /**
  * The worker for Cilk-style work stealing. Instances of this worker
@@ -199,11 +198,12 @@ public class Worker extends Thread {
 					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
 							+ victim + " cache=" + victim.cache.dump());
 				}
-				res.copyFrame(thief);
+				if (jobRequiresGlobalQuiescence)
+				  res.copyFrame(thief);
 				return res;
 			} finally {
 				cl.unlock();
-				lock.unlock();
+				unlock();
 			}
 		}
 		if (status == RUNNING) {
@@ -224,7 +224,8 @@ public class Worker extends Thread {
 					// theft -- has resumed processing. The protocol requires that the 
 					// victim first grab its own lock. So there is no race condition on 
 					// the frame.
-					cl.copyFrame(thief);
+					if (jobRequiresGlobalQuiescence)
+					  cl.copyFrame(thief);
 					child = cl.promoteChild(thief, victim);
 					
 					res = extractTop(thief);
@@ -248,7 +249,7 @@ public class Worker extends Thread {
 		}
 		// this path taken when status == RETURNING, 
 		// status==ABORTING, or status==RUNNING and dekker failed.
-		lock.unlock();
+		unlock();
 		cl.unlock();
 		return null;
 		
@@ -261,7 +262,12 @@ public class Worker extends Thread {
 		try {
 			boolean b=cache.dekker(thief);
 			if (b) {
-				Frame frame = cache.topFrame().copy();
+				Frame frame = cache.topFrame();
+				if (frame == null) {
+					System.out.println(thief + " error!! topFrame() is null for " + cache.dump());
+				}
+				assert frame !=null;
+				frame = frame.copy();
 				cache.incHead();
 //				I have work now, so checkout of the barrier.
 				thief.checkOutSteal(frame, victim);
@@ -274,6 +280,7 @@ public class Worker extends Thread {
 				return frame;
 			}
 		} catch (Throwable z) {
+			z.printStackTrace();
 			throw new Error(z);
 		} finally {
 			unlock();
@@ -508,6 +515,10 @@ public class Worker extends Thread {
 			this.job = currentJob;
 			activeTime = 0;
 			jobRequiresGlobalQuiescence = currentJob.requiresGlobalQuiescence();
+			if (reporting)
+				System.out.println(this + ": job " + currentJob 
+						+ (jobRequiresGlobalQuiescence? " requires " : " does not require ")
+						+ " global quiescence.");
 		}
 	}
     /**
@@ -570,17 +581,40 @@ public class Worker extends Thread {
 		Executable cl = null; //frame or closure.
 		int yields = 0;
 		while (!done) {
-			
-			if (cl == null && ! jobRequiresGlobalQuiescence) {
-				// Try geting work from the local queue.
-				lock(this);
-				try {
-					cl = extractBottom(this);
-				} finally {
-					unlock();
+			if (cl == null ) {
+				// Addition for GlobalQuiescence. Keep popping
+				// tasks off the deque and executing them until
+				// the deque becomes empty.
+				if (jobRequiresGlobalQuiescence) {
+					Cache cache = this.cache;
+					for(;;) {
+						Frame f = cache.popAndReturnFrame(this);
+						if (f == null) {
+							assert cache.empty();
+							break;
+						}
+						try {
+							f.compute(this);
+						} catch (StealAbort z) {
+						 // do nothing. the exception has done its work
+						 // unwinding the Java call stack.
+						}
+					}
+				} else {
+					// Try geting work from the local queue.
+					// The work extracted will be a closure.
+					// cl may be null. When non-null
+					// cl is typically RETURNING.
+					lock(this);
+					try {
+						cl = extractBottom(this); 
+					} finally {
+						unlock();
+					}
 				}
 			}
 			if (cl == null) 
+				// Steal, or get it from the job.
 				cl = getTask(true);
 			
 			if (cl !=null) {
@@ -597,7 +631,9 @@ public class Worker extends Thread {
 					activeTime += lastTimeStamp-ts;
 					
 					if ((reporting && bottom == cl)) {
-						System.out.println(this + " completes " + cl + " returns " + cl1 +".");
+						System.out.println(this + " completes " + cl + " returns " + cl1
+								+ cache.dump() 
+								+".");
 					}
 					cl=cl1;
 				} catch (AssertionError z) {
@@ -607,9 +643,13 @@ public class Worker extends Thread {
 				// vj: This avoids having to implement a wrap around.
 				// Otherwise, head might increase on a steal, but would
 				// never decrease.
-				assert cache.empty();
-				cache.reset();
+				//
+				if ( ! jobRequiresGlobalQuiescence) {
+					assert cache.empty();
+					cache.reset();
+				}
 			} else {
+				// TODO: Check if this yields are needed.
 				yields++;
 				Thread.yield();
 			}
@@ -660,7 +700,8 @@ public class Worker extends Thread {
 			return null;
 		Closure result = exceptionHandler();
 		if (reporting)
-			System.out.println(this + " at " + pool.time() + " interruptCheck: discovers a theft and returns " + result
+			System.out.println(this + " at " + pool.time() 
+					+ " interruptCheck: discovers a theft and returns " + result
 					+ " cache=" + cache.dump());
 		if (result !=null)
 			popFrame();
@@ -670,10 +711,13 @@ public class Worker extends Thread {
 	/**
 	 * Determines if the thread has been interrupted. Resets exception pointer as a side-effect.
 	 * @return -- true if the thread is interrupted, false otherwise.
-	 */
+	 * @see -- Worker.steal
+	
 	public boolean isInterrupted() {
 		if (! cache.interrupted())
 			return false;
+		// Exceptional case. An interruption may have happened.
+		// Whether or not it did depends on the result of Dekker.
 		lock(this);
 		try {
 			cache.resetExceptionPointer(this);
@@ -683,6 +727,7 @@ public class Worker extends Thread {
 		}
 		
 	}
+ */
 
 	/**
 	 * Method to be called by user code after every method invocation that may have

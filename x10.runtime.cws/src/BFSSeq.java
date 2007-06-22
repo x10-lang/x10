@@ -1,50 +1,88 @@
+
+
+
+
 /**
  * (c) IBM Corporation 2007
- * Author: Guojing Cong
- * Tong Wen
- * Vijay Saraswat
+ * Author: Vijay Saraswat
  * 
- * Iterative version of main loop. Uses the frame directly to represent tasks. 
- * Edges are represented as references to vertices, not their indices.
- * Manual tail-recursion optimization is not implemented.
+ * 
+ * A purely sequential breadth-first search, with no parallellism associated overhead. 
+ * Intended to be used as the basis for speedup numbers.
  */
 
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-
-import x10.runtime.cws.Frame;
-import x10.runtime.cws.Pool;
-import x10.runtime.cws.StealAbort;
-import x10.runtime.cws.Worker;
-import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
+import java.util.Set;
+import java.util.TreeSet;
 
 
-public class SpanF {
+public class BFSSeq {
 	
-	public class V  extends Frame {
-		final int index;
-		V parent;
-		int degree;
-		V [] neighbors;
-		volatile int color;
-		V(int i){index=i;}
+	public class V  implements Comparable {
+		public final int index;
+		public int level=-1;
+		public int degree;
+		public V parent;
+		public V [] neighbors;
+		public V(int i){index=i;}
 		
-		@Override
-		public void compute(Worker w) throws StealAbort {
-			V node = this;
-			for (int k=0; k < node.degree; k++) {
-				final V v = node.neighbors[k];
-				if (v.color==0 && UPDATER.compareAndSet(v,0,1)) {
-					v.parent=node;
-					// async lastV.compute();
-					w.pushFrame(v); 
+		public void compute(int l, Set<V> a)  {
+			assert level >=0;
+			if (reporting)
+				System.out.println(Thread.currentThread() + " visits " + this);
+						
+			for (int k=0; k < degree; k++) {
+				final V v = neighbors[k];
+				if (v.level < 0) {
+					v.level = l;
+					v.parent=this;
+					a.add(v);
+					if (reporting)
+						System.out.println(Thread.currentThread() + " marks " + v + " at ply " + l) ;
 				}
+			}	
+		}
+		
+		public int compareTo(Object o) {
+			assert o instanceof V;
+			V other = (V) o;
+			return index  - other.index;
+		}
+		public void computeBFS() {
+			Set<V> nodes = new TreeSet<V>();
+			level = 1;
+			parent=this;
+			
+			nodes.add(this);
+			int l=1;
+			
+			while (! nodes.isEmpty()) {
+				Set<V> next = new TreeSet<V>();
+				for( V node : nodes) node.compute(l,next);
+				nodes=next;
+				l++;
+				if (reporting)
+					System.out.println(Thread.currentThread() + " moves to level " + level);
+			}
+		}
+		public boolean verify(V root) {
+			boolean result = false;
+			try { if (level < 0) return result;
+			V p = parent;
+			for (int i=0; i < level; i++) {
+				if (p==null) return result;
+				p=p.parent;
+			}
+			return result = (p==root);
+			} finally {
+				if (reporting && ! result)
+					System.out.println(Thread.currentThread() + " finds bad guy " + this);
 			}
 		}
 		@Override
 		public String toString() {
 			String s="[" + (neighbors.length==0? "]" : "" + neighbors[0].index);
 			for (int i=1; i < neighbors.length; i++) s += ","+neighbors[i].index;
-			return "v(" + index + ", color=" + color + ",parent=" + parent.index + ",degree="+degree+ ",n=" + s+"])";
+			return "v(" + index + ",level=" + level + ",degree="+degree+ ",n=" + s+"])";
 		}
 	}
 	
@@ -58,8 +96,6 @@ public class SpanF {
 	V[] G;
 	E[] El;
 	E[] El1;
-	final static AtomicIntegerFieldUpdater<V> UPDATER 
-	= AtomicIntegerFieldUpdater.newUpdater(V.class, "color");
 	
 	//AtomicIntegerArray visitCount ;
 	int ncomps=0;
@@ -69,13 +105,18 @@ public class SpanF {
 	
 	int randSeed = 17673573; 
 	int rand32() { return randSeed = 1664525 * randSeed + 1013904223;}
-	public SpanF (int n, int m){
+	public BFSSeq (int n, int m){
 		N=n;
 		M=m;
+	
+		
 		/*constructing edges*/
 		El = new E [M];
 		G = new V[N];
-		for(int i=0;i<N;i++) G[i]=new V(i);
+		for(int i=0;i<N;i++) {
+			G[i]=new V(i);
+		}
+		
 		for (int i=0; i <M; i++) El[i] = new E(Math.abs(rand32())%N, Math.abs(rand32())%N);
 		
 		int[] D = new int [N];
@@ -121,33 +162,37 @@ public class SpanF {
 		int top=-1;
 		ncomps=0;
 		for(int i=0;i<N ;i++) {
-			if (G[i].color==1) continue;
+			if (G[i].level==1) continue;
 			connected_comps[ncomps++]=i;
 			stack[++top]=i;
-			G[i].color=1;
+			G[i].level=1;
 			while(top!=-1) {
 				int v = stack[top];
 				top--;
 				
 				for(int j=0;j<D[v];j++) {
 					final int mm = NB[v][j];
-					if(G[mm].color==0){
+					if(G[mm].level==0){
 						top++;
 						stack[top]=mm;
-						G[mm].color=1;
+						G[mm].level=1;
 					}
 				}
 			}
 		}
 		
-		//System.out.println("ncomps="+ncomps);
+		if (reporting && graphOnly) System.out.println("ncomps="+ncomps);
 		El1 = new E [m+ncomps-1]; 
+		
+		
 		int j=0;
 		//    Remove duplicated edges
 		for(int i=0;i<M;i++) if(El[i].v1!=-1) El1[j++]=El[i]; 
 		
-		//if(j!=m) System.out.println("Remove duplicates failed");
-		//else System.out.println("Remove duplicates succeeded,j=m="+j);
+		if (reporting && graphOnly) 
+			if(j!=m) 
+				System.out.println("Remove duplicates failed");
+			else System.out.println("Remove duplicates succeeded,j=m="+j);
 		
 		/*add edges between neighboring connected comps*/
 		for(int i=0;i<ncomps-1;i++) {
@@ -156,67 +201,64 @@ public class SpanF {
 			El1[i+m]=new E (connected_comps[i], connected_comps[i+1]);
 		}
 		
+		//visited = new boolean[N];
+		
 		for(int i=0;i<N;i++) {
 			G[i].degree=D[i];
-			G[i].parent = G[i];
-			G[i].color=0;
+			G[i].level=-1;
 			G[i].neighbors=new V [D[i]];
 			for(j=0;j<D[i];j++) {
 				G[i].neighbors[j]=G[NB[i][j]];
 				
 			}
-			if (graphOnly)
+			if (reporting || graphOnly)
 				System.out.println("G[" + i + "]=" + G[i]);
 		}     
 	}
 	
+	
 	boolean verifyTraverse(V root) {
-		V[] X = new V [N];
-		for (int i=0;i<N;i++) {
-			if (G[i].parent==G[i] && G[i] !=root) 
-				System.out.println("Questionable guy " + i + " index=" + G[i]);
+		int i=0;
+		boolean result = false;
+		try {
+			for (;i<N && G[i].verify(root);i++) ;
+			return result = (i==N);
+		}finally {
+			if (reporting && ! result)
+				System.out.println(Thread.currentThread() + " fails at " + G[i]);
 		}
-		for(int i=0;i<N;i++) X[i]=G[i].parent;
-		V temp;
-		for(int i=0;i<N;i++) {
-			while(X[i]!=(temp=X[X[i].index])) X[i]=temp;
-			if (X[i] != root) return false;
-		}
-		return true;
 	}
-	static SpanF graph;
+	static BFSSeq graph;
 	static boolean reporting = false;
 	static final long NPS = (1000L * 1000 * 1000);
 	static boolean graphOnly =false;
 	public static void main(String[] args) {
-		int procs;
 		int num=-1;
 		int D=4;
 		try {
-			procs = Integer.parseInt(args[0]);
-			System.out.println("Number of procs=" + procs);
-			if (args.length > 1) {
-				num = Integer.parseInt(args[1]);
+			
+			if (args.length > 0) {
+				num = Integer.parseInt(args[0]);
 				System.out.println("N=" + num);
 			}
-			if (args.length > 2) {
-				D = Integer.parseInt(args[2]);
+			if (args.length > 1) {
+				D = Integer.parseInt(args[1]);
 				System.out.println("D=" + D);
+			}
+			if (args.length > 2) {
+				boolean b = Boolean.parseBoolean(args[2]);
+				reporting=b;
 			}
 			if (args.length > 3) {
 				boolean b = Boolean.parseBoolean(args[3]);
-				reporting=b;
-			}
-			if (args.length > 4) {
-				boolean b = Boolean.parseBoolean(args[4]);
 				graphOnly=b;
 			}
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java SpanF <threads> [<N> [<Degree> [[false|true] [false|true]]]]");
+			System.out.println("Usage: java BFSSeq  [<N> [<Degree> [[false|true] [false|true]]]]");
 			return;
 		}
-		Pool g = new Pool(procs);
+		
 		if (num >= 0) {
 			Ns = new int[] {num};
 		}
@@ -226,15 +268,13 @@ public class SpanF {
 			// ensure the sole reference to the previous graph is nulled before gc.
 			graph = null;
 			System.gc();
-			graph = new SpanF(N,M);
+			graph = new BFSSeq(N,M);
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
 			for (int k=0; k < 9; ++k) {
-				graph.G[1].color=1;
-				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, graph.G[1]);
 				long s = System.nanoTime();
-				g.invoke(job);
+				graph.G[1].computeBFS();
 				long t = System.nanoTime() - s;
 				double secs = ((double) t)/NPS;
 				System.out.printf("N=%d t=%5.3f", N, secs);
@@ -247,11 +287,13 @@ public class SpanF {
 			System.out.printf("Completed iterations for N=%d", N);
 			System.out.println();
 		}   
-		g.shutdown(); 
+		
 	}
 	void clearColor() {
 		for (int i = 0; i < N; ++i) {
-			graph.G[i].color=0;
+			V v= graph.G[i];
+			v.level=-1;
+			v.parent=null;
 		}
 	}
 }
