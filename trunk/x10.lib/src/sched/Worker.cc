@@ -140,7 +140,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
       Closure *child = NULL;
       Closure *res = NULL;
 
-      cl->copyFrame(thief);			
+      //      cl->copyFrame(thief);			
       //I have work now, so checkout of the barrier.
       child = cl->promoteChild(thief, victim);
       assert(child != NULL);
@@ -149,7 +149,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 //       cerr<<thief->index<<"::Stealing: victim top="<<res<<" bottom="<<bottom<<endl;
       /*if (reporting)
 	System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
-      thief->checkOut(res); //?????????????sriram TODO: checkoutsteal?
+      thief->checkOutSteal(res, victim); //?????????????sriram TODO: checkoutsteal?
       assert(cl==res);
 			
       unlock();
