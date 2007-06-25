@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.7 2007-05-31 11:25:57 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.8 2007-06-25 20:06:56 ganeshvb Exp $ */
 
 #include "array.h"
 #include <x10/alloc.h>
@@ -14,6 +14,7 @@
 #include "x10/xassert.h"
 
 using namespace x10lib;
+typedef void (*void_func_t)();
 
 //================= Local Arrays ====================================
 template <typename T, int RANK>
@@ -32,10 +33,10 @@ makeArrayLocal (const Region<RANK>* region, const Dist<RANK>* dist)
 {  
   assert (GlobalSMAlloc);
 
-  uint64_t local_size = region->card() / numPlaces();
+  uint64_t local_size = region->card() / __x10_num_places;
 
-  void * addrTable[numPlaces()];
-  for (place_t p = 0; p < numPlaces(); p++)
+  void * addrTable[__x10_num_places];
+  for (x10_place_t p = 0; p < __x10_num_places; p++)
       addrTable[p] = GlobalSMAlloc->addrTable (p);
   void* arraySpace = x10lib::GlobalSMAlloc->chunk (sizeof(Array<T, RANK>));
 
@@ -59,11 +60,11 @@ makeArrayRemote (const Region<RANK>* region, const Dist<RANK>* dist)
  lapi_cntr_t completion_cntr;
  int tmp;
 
- LAPI_Setcntr (GetHandle(), &completion_cntr, 0);
+ LAPI_Setcntr (__x10_hndl, &completion_cntr, 0);
 
- for (place_t target = 0; target < numPlaces(); target++)
-   if (target != here())
-     LAPI_Amsend (GetHandle(), 
+ for (x10_place_t target = 0; target < __x10_num_places; target++)
+   if (target != __x10_my_place)
+     LAPI_Amsend (__x10_hndl, 
                target,
                construction_handler, 
                NULL,
@@ -73,7 +74,7 @@ makeArrayRemote (const Region<RANK>* region, const Dist<RANK>* dist)
                NULL,
                NULL,
                &completion_cntr);
-  LAPI_Waitcntr (GetHandle(), &completion_cntr, numPlaces() - 1, &tmp); 
+  LAPI_Waitcntr (__x10_hndl, &completion_cntr, __x10_num_places - 1, &tmp); 
 
   delete buf;
 
@@ -101,7 +102,7 @@ Array <T, RANK> :: putElementAt (const Point<RANK>& p, const T& val)
 
   assert (r->contains(p));
 
-  assert (this->dist_->place(index) == here());
+  assert (this->dist_->place(index) == __x10_my_place);
  
   int n = r->ord(p);
   
@@ -130,12 +131,12 @@ Array<T, RANK> :: putElementAtRemote (const Point<RANK>& p, const T& val)
 
   uint64_t n = r->ord (p);
 
-  if (target == here()) {
+  if (target == __x10_my_place) {
     putLocalElementAt (n, val);
   } else {
     assert (n >=0 && n < this->region_->totalCard());
-    assert (target >=0 && target < numPlaces());
-    assert (target != here());
+    assert (target >=0 && target < __x10_num_places);
+    assert (target != __x10_my_place);
 
     uint64_t offset = (char*) this->raw() - GlobalSMAlloc->addr() + n; 
     char* buf =  new char [sizeof(uint64_t) + sizeof(T)];
@@ -146,9 +147,9 @@ Array<T, RANK> :: putElementAtRemote (const Point<RANK>& p, const T& val)
 
     int tmp;
 
-    LAPI_Setcntr (GetHandle(), &origin_cntr, 0);
+    LAPI_Setcntr (__x10_hndl, &origin_cntr, 0);
 
-    LAPI_Amsend (GetHandle(), 
+    LAPI_Amsend (__x10_hndl, 
                target,
                arrayElementUpdate<T>,
                buf,
@@ -159,7 +160,7 @@ Array<T, RANK> :: putElementAtRemote (const Point<RANK>& p, const T& val)
                &origin_cntr, 
                NULL);
 
-    LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp);
+    LAPI_Waitcntr (__x10_hndl, &origin_cntr, 1, &tmp);
 
     delete [] buf;
 
@@ -177,7 +178,7 @@ Array <T, RANK> :: getElementAt (const Point<RANK>& p) const
 
   assert (r->contains(p));
 
-  assert (this->dist_->place(index) == here());
+  assert (this->dist_->place(index) == __x10_my_place);
 
   uint64_t n = r->ord(p);
   
