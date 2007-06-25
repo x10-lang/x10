@@ -1,42 +1,33 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.12 2007-06-25 14:08:25 ganeshvb Exp $
+ * $Id: types.h,v 1.13 2007-06-25 15:47:47 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
+
+/** X10Lib's Primitive Types. **/
 
 #ifndef __X10_TYPES_H
 #define __X10_TYPES_H
 
-#include <lapi.h>
 #include <sys/types.h>
-#include <stdint.h>
 
-//typedef u_int32_t uint32_t; // FIXME [IP] Removed due to conflict
-//typedef u_int64_t uint64_t; // FIXME [IP] Removed due to conflict
-typedef uint32_t place_t;
-typedef uint64_t gas_ref_t;
-typedef int64_t async_arg_t;
-typedef int32_t async_handler_t;
-typedef void (*void_func_t) ();
-typedef  struct
-{
-  void (* fptr)();
-} func_t; 
-typedef uint32_t x10_place_t;
-typedef uint64_t x10_gas_ref_t;
-typedef lapi_cntr_t switch_t;
-typedef lapi_query_t x10_query_t;
-/* class Switch;
-typedef Switch& x10_switch_t; */
-typedef void *x10_switch_t;
-typedef int32_t x10_async_arg_t;
-typedef uint8_t x10_async_handler_t;
-/*
-class Clock;
-typedef Clock& x10_clock_t; */
-/* class Iov;
-typedef Iov& x10_giov_ref_t; */
-typedef void *x10_giov_ref_t;
+/* async handler */
+typedef long x10_async_arg_t;
+typedef int x10_async_handler_t;
+typedef int x10_place_t;
+
+
+/* completion handler */
+typedef void (x10_compl_hndlr_t) (void *uinfo);
+
+/* send completion handler */
+/* data structure for return info */
+typedef struct {
+	unsigned int src;
+	unsigned int reason;
+} x10_sh_info_t;
+
+typedef void (x10_scompl_hndlr_t) (void *cparam, x10_sh_info_t *xinfo);
 
 #endif /* __X10_TYPES_H */

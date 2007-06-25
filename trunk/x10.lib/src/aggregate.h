@@ -1,58 +1,65 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: aggregate.h,v 1.9 2007-06-25 15:47:47 srkodali Exp $
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.h,v 1.8 2007-06-18 11:29:55 ganeshvb Exp $ */
-
-#ifndef __AGGREGATE_H__
-#define __AGGREGATE_H__
+#ifndef __X10_AGGREGATE_H
+#define __X10_AGGREGATE_H
 
 #include <x10/err.h>
 #include <x10/types.h>
 #include <x10/async.h>
 
+#define X10_MAX_AGG_HANDLERS 10
+#define X10_MAX_AGG_TASKS 256
+#define X10_MAX_AGG_SIZE 1024
+
+/* C++ Lang Interface */
 #ifdef __cplusplus
-#include <iostream>
-namespace x10lib{
- 
-  const int MAX_AGG_HANDLERS = 10;
-  const int MAX_AGG_TASKS = 256;
-  const int MAX_AGG_SIZE = 1024;
+namespace x10lib {
 
-  error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0);
+  x10_err_t aysncSpawnInlineAgg(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					x10_async_arg_t arg0);
 
-  error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0, async_arg_t arg1);
+  x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					x10_async_arg_t arg0, x10_async_arg_t arg1);
 
-  error_t asyncFlush (async_handler_t handler, size_t size);
+  x10_err_t asyncFlush(x10_async_handler_t hndlr, size_t size);
 
   //TODO: change varargs to async_arg_t* 
-  error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, int N,...);
+  x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					int n,...);
 
-  error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, void* args, size_t size);
+  x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					void *args, size_t size);
 
-}
+} /* closing brace for namespace x10lib */
 #endif
 
+/* C Lang Interface */
 #ifdef __cplusplus
 extern "C" 
 {
 #endif
-  error_t x10_async_spawn_inline_agg1 (place_t target, async_handler_t handler, async_arg_t arg0);
 
-  error_t x10_async_spawn_inline_agg2 (place_t target, async_handler_t handler, async_arg_t arg0, async_arg_t arg1);
+x10_err_t x10_async_spawn_inline_agg1(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					x10_async_arg_t arg0);
 
-  error_t x10_async_flush (async_handler_t handler, size_t size);
+x10_err_t x10_async_spawn_inline_agg2(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					x10_async_arg_t arg0, x10_async_arg_t arg1);
+
+x10_err_t x10_async_flush(x10_async_handler_t hndlr);
 
 #ifdef __cplusplus
 }
-
-// Local Variables:
-// mode: C++
-// End:
 #endif
 
-#endif
-
+#endif /* __X10_AGGREGATE_H */
