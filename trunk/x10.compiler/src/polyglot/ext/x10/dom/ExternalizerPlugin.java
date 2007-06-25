@@ -30,7 +30,6 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.NodeVisitor;
-import quicktime.std.qtcomponents.XMLParser;
 
 /**
  * This plugin exports the AST as an XML file, forks an external tool to process
