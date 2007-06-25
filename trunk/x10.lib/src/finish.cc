@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.7 2007-06-25 12:06:29 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.8 2007-06-25 14:08:25 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -162,6 +162,7 @@ finishStart_ (int* cs)
                   &tmp));
     *cs = CONTINUE_STATUS;
   }
+
  
   if (ftree->numChild) {
     lapi_cntr_t originCntr;
@@ -247,14 +248,12 @@ finishEnd_ (Exception* e)
 int
 x10lib::finishStart (int cs)
 {
-  X10_DEBUG (1, "Entering Finish Start\n");
 
   error_t err = finishStart_ (&cs); 
   if (err != X10_OK) {
     throw err;
   }
  
-  X10_DEBUG (1, "Exiting Finish Start\n");
   return cs;
 }
 
