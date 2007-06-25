@@ -4,7 +4,7 @@
 MPI_CC  = /usr/bin/mpCC
 CC      = xlc
 
-FFT_HOME = $(HOME)/mwgs-FT/fftw3
+FFT_HOME = /u/srkodali/fftw3
 FFT_INC  = $(FFT_HOME)/include
 FFT_LIB  = $(FFT_HOME)/lib
 
