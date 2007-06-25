@@ -1,46 +1,48 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: async.h,v 1.12 2007-06-25 15:47:47 srkodali Exp $
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.h,v 1.11 2007-06-25 14:08:25 ganeshvb Exp $ */
+#ifndef __X10_ASYNC_H
+#define __X10_ASYNC_H
 
-#ifndef __ASYNC_NEW_H__
-#define __ASYNC_NEW_H__
-
-#include <x10/xassert.h>
-#include <x10/err.h>
 #include <x10/types.h>
-#include <x10/gas.h>
+#include <x10/err.h>
+
+/* C++ Lang Interface */
+#define X10_MAX_ASYNC_ARGS 6
+#define X10_MAX_ASYNC_ARGS_SIZE \
+		X10_MAX_ASYNC_ARGS * sizeof(x10_async_arg_t)
 
 #ifdef __cplusplus
-#include <iostream>
-extern "C" void asyncSwitch (async_handler_t, void*, int niter);
+namespace x10lib {
 
-namespace x10lib{
-  const int MAX_ASYNC_ARGS = 6;
-  const int MAX_ARGS_SIZE = MAX_ASYNC_ARGS * sizeof(async_arg_t);
-  error_t asyncSpawnInline (place_t target, async_handler_t handler, int N, ...);
+extern "C" int asyncSwitch(x10_async_handler_t, void *,
+				size_t size, int niter);
+
+x10_err_t asyncSpawnInline(x10_place_t tgt,
+				x10_async_handler_t hndlr, int n, ...);
+
+} /* closing brace for namespace x10lib */
+#endif
+
+/* C Lang Interface */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int x10_async_switch(x10_async_handler_t hndlr,
+			x10_async_arg_t *args, int n);
+
+x10_err_t x10_async_spawn_inline(x10_place_t tgt,
+			x10_async_handler_t hndlr, int n, ...);
+
+x10_err_t x10_async_register(void);
+
+#ifdef __cplusplus
 }
 #endif
 
-#ifdef __cplusplus
-extern "C" 
-{
-#endif
-  error_t x10_async_spawn_inline (place_t target, async_handler_t handler, int N, ...);
-  error_t asnyncRegister(); 
-#ifdef __cplusplus
-}
-
-// Local Variables:
-// mode: C++
-// End:
-
-#endif
-
-#endif
-
-
+#endif /* __X10_ASYNC_H */

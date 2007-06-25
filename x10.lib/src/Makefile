@@ -1,28 +1,28 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.26 2007-06-25 14:08:25 ganeshvb Exp $
+# $Id: Makefile,v 1.27 2007-06-25 15:47:47 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Makefile for X10Lib src subdir.
 
-.SUFFIXES: .cc .cpp .cxx .C .o .h
+.SUFFIXES: .cc .cpp .cxx .C .c .o .h
 
 MAKE = make
 SUBDIR1 = array
 SUBDIR2 = sched
 SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 LIBDIR = ../lib
-CXX = mpCC_r 
-DEFS = -DNDEBUG -DX10_DLEVEL=0 -DX10_WLEVEL=0 #-DWARN -DDEBUG
-CXXFLAGS = -O3 -qinline -q64 -qarch=pwr5  -qtune=pwr5 -qhot 
+CXX = mpCC_r -q64 -qarch=pwr5
+DEFS = #-DDEBUG
+CXXFLAGS = -qtune=pwr5 -O3 -qhot
 INCLUDES = -I. -I../include 
 LINKFLAGS =
 RM = rm -f
 AR = ar
-ARFLAGS = -r   -X64
-RANLIB = ranlib  -X64
+ARFLAGS = -r -X 64
+RANLIB = ranlib -X 64
 CP = cp
 MKDIR = mkdir
 
@@ -34,16 +34,30 @@ LIBTARGET = lib$(LIBNAME).a
 SCHED_A = $(SUBDIR2)/sched.a
 ARRAY_A = $(SUBDIR1)/array.a
 
-SRCS = aggregate.cc async.cc asyncSwitch.cc finish.cc gas.cc switch.cc x10lib.cc
-OBJS = aggregate.o  async.o asyncSwitch.o finish.o gas.o switch.o x10lib.o
-HEADERS = async.h aggregate.h finish.h gas.h standalone.h switch.h types.h x10lib.h
+#SRCS = x10lib.cc gas.cc aggregate.cc async.cc switch.cc finish.cc 
+#OBJS = x10lib.o  gas.o  aggregate.o  async.o switch.o finish.o
+#HEADERS = types.h x10lib.h gas.h alloc.h  async.h aggregate.h finish.h standalone.h
+
+SRCS = aggregate.cc async.cc env.cc err.cc finish.cc gas.cc lock.cc \
+		order.cc progress.cc \
+		register.cc rmc.cc switch.cc x10lib.cc 
+OBJS = aggregate.o async.o env.o err.o finish.o gas.o lock.o \
+		order.o progress.o \
+		register.o rmc.o switch.o x10lib.o
+HEADERS = env.h err.h gas.h lock.h order.h progress.h \
+		register.h rmc.h switch.h types.h x10lib.h xassert.h \
+		xmacros.h aggregate.h async.h finish.h
 
 all: $(LIBTARGET)
 
-$(LIBTARGET): $(OBJS) #$(SCHED_A)
+#$(LIBTARGET): $(OBJS) $(SCHED_A)
+$(LIBTARGET): $(OBJS)
 	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $(OBJS) #$(SCHED_A)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
+
+myput: myput.o
+	$(CXX) $(LINKFLAGS) myput.o -o $@ -L. -lx10
 
 $(SCHED_A):
 	(cd $(SUBDIR2); $(MAKE) all)
@@ -61,7 +75,7 @@ clean:
 	(cd $(SUBDIR1); $(MAKE) $@)
 	(cd $(SUBDIR2); $(MAKE) $@)
 	$(RM) $(LIBTARGET) $(OBJS) *.log core*
-
+	
 .cc.o: $(SRCS) $(HEADERS)
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
@@ -77,3 +91,7 @@ clean:
 .C.o:
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.c.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -qsourcetype=c++ $(DEFS) $(INCLUDES) -c $< -o $@
