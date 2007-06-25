@@ -16,8 +16,6 @@ void* headerHandler (lapi_handle_t* hndl, void* uhdr, int* ulen,
 
 int main (int argc, char** argv)
 {
-  Init(NULL, 0);
-
   cntr = 0;
   LAPI_Addr_set (GetHandle(), (void*) headerHandler, 10);
   if (here() == 0) {
@@ -51,6 +49,5 @@ int main (int argc, char** argv)
 
   cout << "Test_switch PASSED" << endl;
   
-  Finalize();
   return 0;
 }
