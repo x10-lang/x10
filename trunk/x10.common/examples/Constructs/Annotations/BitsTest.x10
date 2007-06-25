@@ -1,4 +1,4 @@
-//OPTIONS: -PLUGINS=bits.BitsTypePlugin
+//OPTIONS: -PLUGINS=bits.plugin.BitsTypePlugin
 
 import harness.x10Test;
 import x10.lang.*;
@@ -9,13 +9,11 @@ public class BitsTest extends harness.x10Test {
     int @Bits(17) b;
     
     public boolean run() {
-    	a = 7; // error
-    	b = 65536; // ok
-    	a = (@Bits(1)) 1; // ok
-    	b = 0; // ok
-        a = 7 & 1; // ok 
-        b = 65536 & 1; // ok
-        return a == 1 && b == 0;
+    	b = 65536;
+    	b = 0;
+        a = 7 & 1;
+        b = 0x01234567 & 0x1ffff;
+        return a == 1 && b == 0x14567;
     }
 
     public static void main(String[] args) {
