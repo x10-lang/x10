@@ -1,54 +1,92 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: gas.cc,v 1.5 2007-06-25 16:07:36 srkodali Exp $
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: gas.cc,v 1.4 2007-06-15 22:19:38 ipeshansky Exp $ */
+/* Implementation file for Global address space. */
 
-#include <iostream> 
-#include "gas.h"
+#include <x10/xassert.h>
+#include <x10/gas.h>
+#include <lapi.h>
 
-using namespace std;
-using namespace x10lib;
+namespace x10lib {
 
-place_t 
-x10lib::here ()
+/* Construct GAS reference for the specified place and
+ * virtual address.
+ */
+x10_gas_ref_t MakeGASRef(int place, void *addr)
 {
-  //int task; 
-  //LAPI_Qenv (GetHandle(), TASK_ID, &task); 
-  return ID;
+	x10_gas_ref_t ref;
+	extern int __x10_num_places;
+	extern int __x10_my_place;
+	extern int __x10_inited;
+
+	/* sanity check; is place valid? */
+	if (!__x10_inited || place < 0 || place > (__x10_num_places - 1)) {
+		ref.place = -1;
+		ref.addr = (unsigned long)NULL;
+	} else {
+		/* local reference */
+		if (place == __x10_my_place) {
+			ref.place = place;
+			ref.addr = (unsigned long)addr;
+		/* global reference */
+		} else {
+			extern lapi_handle_t __x10_hndl;
+
+			lapi_long_t *add_tab = new lapi_long_t [__x10_num_places];
+			assert(add_tab != NULL);
+
+			/* exchange virtual addresses */
+			(void)LAPI_Address_init64(__x10_hndl, (lapi_long_t)addr, add_tab);
+			(void)LAPI_Gfence(__x10_hndl);
+			ref.place = place;
+			ref.addr = (unsigned long)add_tab[place];
+			delete [] add_tab;
+		}
+	}
+	return ref;
 }
 
-int 
-x10lib::numPlaces()
-{ 
-  //int numTasks;
-  //LAPI_Qenv (GetHandle(), NUM_TASKS, &numTasks); 
-  //cout << x10lib::MAX_PLACES << " " << numTasks << endl;
-  return  MAX_PLACES;
+/* Return the place id for the specified GAS reference. */
+int GAS2Place(x10_gas_ref_t ref)
+{
+	return (ref.place);
 }
 
+/* Return the associated virtual address for the specified
+ * GAS reference.
+ */
+void *GAS2Addr(x10_gas_ref_t ref)
+{
+	return ((void *)ref.addr);
+}
+
+} /* closing brace for namespace x10lib */
+
+/* Construct GAS reference for the specified place and
+ * virtual address.
+ */
 extern "C"
-place_t
-x10_here()
+x10_gas_ref_t x10_make_gas_ref(int place, void *addr)
 {
-  return  x10lib::here();
+	return x10lib::MakeGASRef(place, addr);
 }
 
+/* Return the place id for the specified GAS reference. */
 extern "C"
-int
-x10_num_places()
+int x10_gas2place(x10_gas_ref_t ref)
 {
-  return x10lib::numPlaces();
+	return x10lib::GAS2Place(ref);
 }
 
-place_t x10lib::ID;
-
-int x10lib::MAX_PLACES;
-
-Allocator* x10lib::GlobalSMAlloc;
-
-func_t* x10lib::handlerTable;
-
+/* Return the associated virtual address for the specified
+ * GAS reference.
+ */
+extern "C"
+void *x10_gas2addr(x10_gas_ref_t ref)
+{
+	return x10lib::GAS2Addr(ref);
+}
