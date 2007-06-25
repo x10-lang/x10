@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.6 2007-06-19 16:12:04 sriramk Exp $
+# $Id: Makefile,v 1.7 2007-06-25 18:31:21 sriramk Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -9,10 +9,16 @@
 
 .SUFFIXES: .cc .cxx .cpp .C .o .h
 
+#Define MEM_DEBUG=1 to print memory debug information. As of now, this
+#prints #constructor and #destructor invocations for dynamically
+#allocated objects.   
+
+#DEFS = -DMEM_DEBUG=1
+
 MAKE = make
 #CXX = mpCC_r -q64 -qarch=pwr5
 CXX = xlC
-DEFS = -DDEBUG
+DEFS += -DDEBUG
 CXXFLAGS = -g #-qtune=pwr5 -O3 -qhot
 
 INCLUDES = -I../../include

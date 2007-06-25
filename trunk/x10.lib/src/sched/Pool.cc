@@ -77,11 +77,15 @@ public:
     this->p = p;
   }
   virtual void run() {
+#if 0
     if (p->currentJob != NULL && 
 	p->currentJob->requiresGlobalQuiescence()) {
       p->currentJob->completed();
     }
     p->currentJob = NULL;
+#else
+#warning "Sriram: Commented some code. Check it! GQ will not work"
+#endif
   }
 };
 

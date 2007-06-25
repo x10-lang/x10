@@ -42,24 +42,24 @@ class Cache {
 		Cache (Worker *w);
 		~Cache (); 
 				
-		Frame *childFrame () const;
-		Frame *topFrame () const;
-		bool headAheadOfTail () const;
-		bool headGeqTail () const;
-		bool exceptionOutstanding () const;
+		Frame *childFrame () ;
+		Frame *topFrame () ;
+		bool headAheadOfTail () ;
+		bool headGeqTail () ;
+		bool exceptionOutstanding () ;
 		void incHead ();
-		int gethead () const;
-		int gettail () const;
-		int getexception() const;
+		int gethead () ;
+		int gettail () ;
+		int getexception() ;
 		void resetExceptionPointer (Worker *w);
 		void signalImmediateException ();
-		bool empty () const;
-		bool atTopOfStack () const;
+		bool empty () ;
+		bool atTopOfStack () ;
 		void pushFrame (Frame *);
-		Frame *currentFrame() const ;
+		Frame *currentFrame()  ;
 		void reset ();
 		void popFrame ();
-		bool interrupted() const;
+		bool interrupted() ;
 		void pushIntUpdatingInPlace(Pool *pool, int tid, int x);
 
 		bool dekker(Worker *thief);

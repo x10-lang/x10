@@ -23,6 +23,11 @@
 using namespace std;
 using namespace x10lib_cws;
 
+#if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+volatile int Closure::nCons = 0;
+volatile int Closure::nDestruct = 0;
+#endif
+
 int Closure::getstatus() const { return status;}
 Frame *Closure::parentFrame() const { return parent->frame; }
 Closure *Closure::getparent() const { return parent; }
@@ -55,14 +60,17 @@ Closure::Closure(Frame *frame) {
 	done = false;
 
 	initialize();
+
+	incCons();
 }
 
 Closure::~Closure() { 
+  incDestruct();
 	delete lock_var; 
 	completeInlets.clear(); 
 	incompleteInlets.clear();
 	// TODO -- verify these
-	//delete frame; /*TODO: verify this*/
+	delete frame; /*TODO: verify this*/
 	delete outlet; /*Every outlet is attached to a Closure, and it
 			 destroyed by that Closure. */
 }
@@ -253,8 +261,12 @@ Closure *Closure::acceptChild(Worker *ws, Closure *child) {
     	addCompletedInlet(child);
     	res = provablyGoodStealMaybe(ws, child);
     	child->unlock();
+	if(res)
+	  delete child;
     	unlock();
-    	// TODO RAJ: Please free up child now -- its no longer needed
+	/*sriramk -- The child cannot be deleted yet. It can be
+	 * deleted only after it has been executed as inlet in
+	 * sync(). */
     	return res;
     	// The child should be garbage at this point.
 }
@@ -295,7 +307,7 @@ Closure *Closure::provablyGoodStealMaybe(Worker *ws, Closure *child) {
     	
     	if (joinCount==0 && status == SUSPENDED) {
     		result = this;
-    		pollInlets(ws);
+    		pollInlets(ws, child);
     		ownerReadyQueue = NULL;
     		status=READY;
     		cache=NULL;
@@ -312,20 +324,31 @@ Closure *Closure::provablyGoodStealMaybe(Worker *ws, Closure *child) {
 	 * TODO: Figure out why pollInlets are being run incrementally
 	 * and not just once, after joinCount==0. Perhaps because
 	 * this method is supposed to perform abort processing.
+	 * This methods always invoked because some child completed
+	 * and is try to see if the parent can be stolen. This is done
+	 * with the child being locked. All inlet closures, other than
+	 * this child, can be delete here. The child causing this
+	 * invocation is probably locked in the enclosing call sequence
+	 * and should be deleted elsewhere. 
+	 * We make sure random pollInlets still works, by giving a
+	 * default NULL parameter to causingChild (see declaration). 
 	 */
-void Closure::pollInlets(Worker *ws) {
-		list<Closure *>::iterator i;
-		assert(lockOwner==ws);
-		
-		if (status==RUNNING && ! cache->atTopOfStack()) {
-			assert(ws->lockOwner == ws);
-		}
-		if (!completeInlets.empty())
-			/* TODO LIST TRAVERSAL -- RAJ*/
-			for (i=completeInlets.begin(); i != completeInlets.end(); ++i) 
-				(*i)->executeAsInlet();
-			
-		completeInlets.clear();
+void Closure::pollInlets(Worker *ws, Closure *causingChild) {
+  list<Closure *>::iterator i;
+  assert(lockOwner==ws);
+  
+  if (status==RUNNING && ! cache->atTopOfStack()) {
+    assert(ws->lockOwner == ws);
+  }
+  if (!completeInlets.empty())
+    /* TODO LIST TRAVERSAL -- RAJ*/
+    for (i=completeInlets.begin(); i != completeInlets.end(); ++i) {
+      (*i)->executeAsInlet();
+      if((*i) != causingChild)
+	delete (*i);
+    }
+  
+  completeInlets.clear();
 }
 
 	
@@ -403,9 +426,9 @@ Closure *Closure::execute(Worker *w) {
 	 * to deposit its result.
 	 */
 void Closure::executeAsInlet() {
-		if (outlet != NULL) {
-			outlet->run();
-		}
+  if (outlet != NULL) {
+    outlet->run();
+  }
 }
 //	=============== The methods intended to be called by client code =======
 //	=============== that subclasses Closure.========

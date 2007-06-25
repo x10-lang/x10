@@ -34,12 +34,12 @@ ActiveWorkerCount::~ActiveWorkerCount() {
 
 void ActiveWorkerCount::checkIn() 
 {
-	atomic_add(&updater,-1);
-
-	if (updater == 0) {
-		if(barrierAction)
-			barrierAction->run();
-	}
+  atomic_add(&updater,-1);
+  
+  if (updater == 0) {
+    if(barrierAction)
+      barrierAction->run();
+  }
 }
 void ActiveWorkerCount::checkOut() 
 {

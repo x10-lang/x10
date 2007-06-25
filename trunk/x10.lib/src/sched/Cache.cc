@@ -38,6 +38,7 @@ void Cache::pushFrame(Frame *x) {
     	if (/*stack != NULL &&*/ tail < stack.size() - 1) {
 	  stack[tail] = x;
 //     		stack.push_back(x);
+	  MEM_BARRIER();
     		++tail;
     		WRITE_BARRIER();
     		return;
@@ -93,6 +94,7 @@ void Cache::growAndPushFrame(Frame *x) {
 
 //     stack.push_back(x);
     stack[tail] = x;
+    MEM_BARRIER();
     ++tail;
     MEM_BARRIER();
 }
@@ -100,9 +102,11 @@ void Cache::growAndPushFrame(Frame *x) {
 void Cache::resetExceptionPointer(Worker *w) {
 		assert (w==owner);
     exception = head;
+    MEM_BARRIER();
 }
     
 void Cache::incrementExceptionPointer() {
+  MEM_BARRIER();
     if (exception != EXCEPTION_INFINITY) {
     	++exception;
     	MEM_BARRIER();
@@ -117,23 +121,24 @@ void Cache::decrementExceptionPointer() {
     	
 }
 void Cache::signalImmediateException() {
+  assert(0);
     exception = EXCEPTION_INFINITY;
     MEM_BARRIER();   
 }
 
-bool Cache::atTopOfStack() const {
+bool Cache::atTopOfStack() {
     return head+1 == tail;
 }
    
-Frame *Cache::childFrame() const {
+Frame *Cache::childFrame() {
 //   cerr<<owner->index<<"::Cache::childFrame. H="<<head<<" T="<<tail<<" E="<<exception<<endl;
   assert(stack.at(head+1) != NULL);
-    return stack.at(head+1);
+  return stack.at(head+1);
 }
-Frame *Cache::topFrame() const {
+Frame *Cache::topFrame() {
     return stack.at(head);
 }
-Frame *Cache::currentFrame() const {
+Frame *Cache::currentFrame() {
     	return stack.at(tail-1);
 }
 void Cache::popFrame() {
@@ -142,7 +147,7 @@ void Cache::popFrame() {
   WRITE_BARRIER();
 }
 
-bool Cache::interrupted() const {
+bool Cache::interrupted() {
   MEM_BARRIER();
   return exception >= tail;
 }
@@ -155,13 +160,13 @@ bool Cache::popCheck() {
 }
 */
 
-bool Cache::empty() const {
+bool Cache::empty() {
 	return head>=tail;
 }
-bool Cache::headAheadOfTail() const {
+bool Cache::headAheadOfTail() {
 	return head==tail+1;
 }
-bool Cache::headGeqTail() const {
+bool Cache::headGeqTail() {
 	return head >= tail;
 }
 void Cache::reset() {
@@ -172,23 +177,24 @@ void Cache::reset() {
 }
 void Cache::incHead() {
 	++head;
-	WRITE_BARRIER();
+	MEM_BARRIER();
 }
-bool Cache::exceptionOutstanding() const {
+bool Cache::exceptionOutstanding() {
 	return head <= exception;
 }
-int Cache::gethead() const { return head;}
-int Cache::gettail() const { return tail;}
-int Cache::getexception() const { return exception;}
+int Cache::gethead() { return head;}
+int Cache::gettail() { return tail;}
+int Cache::getexception() { return exception;}
 
 bool Cache::dekker(Worker *thief) {
   assert(thief != owner);
-  if (exception != EXCEPTION_INFINITY) {
+  // if (exception != EXCEPTION_INFINITY)
+    {
     ++exception;
   }
   MEM_BARRIER();
   if ((head + 1) >= tail) {
-    if (exception != EXCEPTION_INFINITY)
+//     if (exception != EXCEPTION_INFINITY)
       --exception;
     MEM_BARRIER();
     return false;
