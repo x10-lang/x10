@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.24 2007-06-25 12:06:29 ganeshvb Exp $
+# $Id: Makefile,v 1.25 2007-06-25 12:09:35 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -14,10 +14,10 @@ SUBDIR1 = array
 SUBDIR2 = sched
 SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 LIBDIR = ../lib
-CXX = mpCC_r -q64 -qarch=pwr5 -DX10_DLEVEL=1  -DX10_WLEVEL=1
-DEFS = -DWARN #-DDEBUG
-CXXFLAGS = -g -w -DSTANDALONE 
-INCLUDES = -I. -I../include -I/home/bikshand/libs/lapi/include 
+CXX = mpCC_r -q64 -qarch=pwr5 
+DEFS = #-DWARN -DDEBUG
+CXXFLAGS = -g -w -O3 -qtune=pwr5 -qhot -qinline
+INCLUDES = -I. -I../include 
 LINKFLAGS =
 RM = rm -f
 AR = ar
