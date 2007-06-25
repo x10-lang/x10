@@ -1,3 +1,11 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2007
+ *
+ *  This file is part of X10 Compiler.
+ *
+ */
+
 package polyglot.ext.x10.dom;
 
 
