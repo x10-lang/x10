@@ -54,7 +54,7 @@ public class LoadPlugins extends AbstractGoal {
 			}
 			
 			if (exportXML) {
-				loadPlugin(extInfo, "polyglot.ext.x10.plugin.ExternalizerPlugin");
+				loadPlugin(extInfo, "polyglot.ext.x10.dom.ExternalizerPlugin");
 			}
 			
 			String compilerPlugins = Configuration.PLUGINS;

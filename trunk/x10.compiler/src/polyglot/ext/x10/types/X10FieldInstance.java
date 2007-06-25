@@ -25,6 +25,7 @@ public interface X10FieldInstance extends FieldInstance, X10TypeObject {
 	public static final String MAGIC_CI_PROPERTY_NAME = "classInvariant$";
 	/** Is this field a property? */
 	
+	boolean isPropertyInitialized();
 	boolean isProperty();
 	void setProperty();
 	

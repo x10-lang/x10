@@ -12,36 +12,24 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Block;
-import polyglot.ast.ConstructorDecl;
-import polyglot.ast.Expr;
 import polyglot.ast.ConstructorDecl_c;
+import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.main.Report;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Flags;
-import polyglot.types.LocalInstance;
-import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
-import polyglot.util.TypedList;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 /**
  * An X10ConstructorDecl differs from a ConstructorDecl in that it has a returnType.
@@ -69,6 +57,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     }
     public TypeNode returnType() {
     	return returnType;
+    }
+    public Expr argWhereClause() {
+    	return argWhereClause;
     }
     /** Reconstruct the constructor. */
     public X10ConstructorDecl reconstruct(TypeNode returnType) {

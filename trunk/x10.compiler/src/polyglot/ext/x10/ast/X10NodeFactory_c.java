@@ -46,8 +46,11 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NodeFactory_c;
+import polyglot.ast.PackageNode;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
+import polyglot.ast.SourceFile;
+import polyglot.ast.SourceFile_c;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
@@ -92,6 +95,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return new X10Disamb_c();
 	}
 
+	public X10MLSourceFile X10MLSourceFile(Position position, PackageNode packageName, List imports, List decls) {
+		 X10MLSourceFile n = new X10MLSourceFile_c(position, packageName, CollectionUtil.nonNullList(imports), CollectionUtil.nonNullList(decls));
+		 n = (X10MLSourceFile)n.ext(extFactory().extSourceFile());
+		 n = (X10MLSourceFile)n.del(delFactory().delSourceFile());
+		 return n;
+	}
 	
 	public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, Id name) {
 		AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name);
@@ -243,10 +252,27 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			tci = tci.dep(DepParameterExpr(cipos, ci));
 			tci = Nullable(cipos, tci);
 		}
+		return TypeDecl(isValue, pos, flags, name, properties, superClass, interfaces, body, tci);
+	}
+
+	public TypeDecl TypeDecl(boolean isValue, Position pos, Flags flags, Id name, List<PropertyDecl> properties, TypeNode superClass, List interfaces, ClassBody body, X10TypeNode tci) {
 		TypeDecl n = (TypeDecl) X10ClassDecl_c.make(pos, flags, name, properties, tci, superClass, interfaces,
 				body, this, isValue);
 		n = (TypeDecl)n.ext(extFactory().extClassDecl());
 		n = (TypeDecl)n.del(delFactory().delClassDecl());
+		return n;
+	}
+	public X10ClassDecl X10ClassDecl(Position pos, Flags flags, Id name, TypeNode superClass, List interfaces, ClassBody body, X10TypeNode tci) {
+		X10ClassDecl n = new X10ClassDecl_c(pos, flags, name, tci, superClass, 
+    		        interfaces, body);
+		n = (X10ClassDecl)n.ext(extFactory().extClassDecl());
+		n = (X10ClassDecl)n.del(delFactory().delClassDecl());
+		return n;
+	}
+	public ValueClassDecl ValueClassDecl(Position pos, Flags flags, Id name, TypeNode superClass, List interfaces, ClassBody body, X10TypeNode tci) {
+		ValueClassDecl n = new ValueClassDecl_c(pos, flags, name, tci, superClass, interfaces, body);
+		n = (ValueClassDecl)n.ext(extFactory().extClassDecl());
+		n = (ValueClassDecl)n.del(delFactory().delClassDecl());
 		return n;
 	}
 

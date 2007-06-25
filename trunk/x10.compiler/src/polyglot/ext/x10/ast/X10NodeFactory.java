@@ -22,7 +22,9 @@ import polyglot.ast.Id;
 import polyglot.ast.Instanceof;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.PackageNode;
 import polyglot.ast.Receiver;
+import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
@@ -147,5 +149,7 @@ public interface X10NodeFactory extends NodeFactory {
     
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep);
 
-	AssignPropertyBody AssignPropertyBody(Position position, List statements, X10ConstructorInstance ci, List fi);   
+	AssignPropertyBody AssignPropertyBody(Position position, List statements, X10ConstructorInstance ci, List fi);
+
+	X10MLSourceFile X10MLSourceFile(Position position, PackageNode packageName, List imports, List decls);   
 }

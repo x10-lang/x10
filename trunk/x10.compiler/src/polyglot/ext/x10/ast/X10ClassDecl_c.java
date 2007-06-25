@@ -84,19 +84,25 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
         	body = addCI(tci,body,nf);
   
         TypeDecl result = valueClass ? 
-        		new ValueClassDecl_c(pos, flags, name, properties, tci, superClass, 
-                        interfaces, body, nf) :
-        		new X10ClassDecl_c(pos, flags, name, properties,   tci, superClass, 
-                interfaces, body);
-        return result;
+				new ValueClassDecl_c(pos, flags, name, tci, superClass, 
+		                interfaces, body, nf) :
+				new X10ClassDecl_c(pos, flags, name, tci, superClass, 
+		        interfaces, body);
+		return result;
     }
+	
     protected TypeNode classInvariant;
     protected X10ClassDecl_c(Position pos, Flags flags, Id name,
-            List<PropertyDecl> properties, TypeNode tci,
+            TypeNode tci,
             TypeNode superClass, List interfaces, ClassBody body) {
         super(pos, flags, name, superClass, interfaces, body);
         this.classInvariant = tci;
     }
+    
+    public TypeNode classInvariant() {
+    	return classInvariant;
+    }
+    
     /**
      * Add a class invariant field to the body of this class.
      * @param tn
