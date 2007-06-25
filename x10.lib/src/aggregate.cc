@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.11 2007-06-25 15:47:47 srkodali Exp $
+ * $Id: aggregate.cc,v 1.12 2007-06-25 19:05:00 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -40,7 +40,7 @@ asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
 {
 	x10_agg_cmpl_t *c = (x10_agg_cmpl_t *)a;
 	asyncSwitch(c->handler, (void *)(c->buf), c->len, c->niter);
-	delete[] c->buf;
+	delete[] ((char*) c->buf);
 	delete c;
 }
 
