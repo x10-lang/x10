@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.5 2007-05-28 12:46:21 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.h,v 1.6 2007-06-25 08:38:00 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -24,8 +24,11 @@ using namespace java::lang;
 
 /* This gives the opportunity to use either int64_t or uint64_t */
 
-typedef int64_t glong_t;
-typedef int64_t sglong_t;
+//typedef int64_t glong_t;
+//typedef int64_t sglong_t;
+
+typedef int32_t glong_t;
+typedef int32_t sglong_t;
 
 class RandomAccess_Dist {
 
@@ -70,7 +73,7 @@ private:
   //static void RandomAccessUpdate (const glong_t LogTableSize, const bool Embarrasing, localTable* Table); 
   
   public:
-  static void main (x10::array<String>& args);
+  static void main (x10::array<x10::ref<x10::lang::String> >& args);
 
 };
 
