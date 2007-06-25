@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.3 2007-05-31 07:48:30 srkodali Exp $
+# $Id: Makefile,v 1.4 2007-06-25 16:41:32 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for sample programs.
@@ -30,7 +30,11 @@ TARGET2 = hello_c
 SRCS2 = $(TARGET2).c
 OBJS2 = $(TARGET2).o
 
-TARGETS = $(TARGET1) $(TARGET2)
+TARGET3 = addr_c
+SRCS3 = $(TARGET3).c
+OBJS3 = $(TARGET3).o
+
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3)
 
 all: $(TARGETS)
 
@@ -42,11 +46,15 @@ $(TARGET2): $(OBJS2)
 	$(RM) $@
 	$(CXX) $(LINKFLAGS) $(OBJS2)  -o $@ $(LIBDIRS) $(LIBS)
 
+$(TARGET3): $(OBJS3)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS3)  -o $@ $(LIBDIRS) $(LIBS)
+
 install:
 	@echo "Nothing to \"install\" in \"examples\" subdir."
 
 clean:
-	$(RM) $(TARGETS) $(OBJS1) $(OBJS2)
+	$(RM) $(TARGETS) *.o
 
 .cc.o:
 	$(RM) $@
