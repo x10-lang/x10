@@ -133,6 +133,10 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     public void setProperty() {
     	isPropertyInitialized = isProperty = true;
     }
+    
+    public boolean isPropertyInitialized() {
+    	return isPropertyInitialized;
+    }
     public boolean isProperty() {
     	
     	if (isPropertyInitialized) return isProperty;

@@ -39,8 +39,9 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
-	protected X10NodeFactory nf;
-   
+	MethodDecl getter;
+	MethodDecl abstractGetter;
+	
     public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
             Id name, X10NodeFactory nf) {
         this(pos, flags, type, name, null, nf);
@@ -48,7 +49,6 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
             Id name, Expr init, X10NodeFactory nf) {
         super(pos, flags, type, name, init);
-        this.nf = nf;
     }
    /**
     * Return body, augmented with properties and their getters. Used for classes. May be called during
@@ -66,7 +66,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     		for (int i=0; i < n; i++) {
     		
     			PropertyDecl  p =  properties.get(i);
-    			MethodDecl getter = p.getter();
+    			MethodDecl getter = ((PropertyDecl_c) p).getter(nf);
     			body = body.addMember(getter);
     			body = body.addMember(p);
     		}
@@ -88,7 +88,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         	int n = properties.size();
     		for (int i=0; i < n; i++) {
                 PropertyDecl  p = properties.get(i);
-                body = body.addMember(p.abstractGetter());
+                body = body.addMember(((PropertyDecl_c) p).abstractGetter(nf));
                 body = body.addMember(p);
             }
             body = body.addMember(makePropertyNamesField(properties, nf));
@@ -127,7 +127,15 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
        return f;
    }
    
+   /**
+    * Return the synthetic getter metod for this property.
+    * @return -- the getter method for this property.
+    */
     public MethodDecl getter() {
+	    return getter;
+    }
+   
+    protected MethodDecl getter(X10NodeFactory nf) {
         X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
         Position pos = Position.COMPILER_GENERATED;
         Flags flags = Flags.PUBLIC.Final();
@@ -138,10 +146,11 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         
         Stmt s = nf.Return(pos, e);
         Block body = nf.Block(pos, s);
-        MethodDecl result = nf.MethodDecl(pos, flags, type, name, formals, throwTypes, body);
+        getter = nf.MethodDecl(pos, flags, type, name, formals, throwTypes, body);
 
-        return result;
+        return getter;
     }
+    
     /**
      * For Interfaces with properties, an abstract method signature for each property 
      * is generated in the interface body.
@@ -149,8 +158,19 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * <RAJ> 
      */
     public MethodDecl abstractGetter() {
-      return nf.MethodDecl(Position.COMPILER_GENERATED, Flags.PUBLIC.Abstract(), type, name, 
+    	return abstractGetter;
+    }
+
+    /**
+     * For Interfaces with properties, an abstract method signature for each property 
+     * is generated in the interface body.
+     * Any class implementing the interface has to have the same property 
+     * <RAJ> 
+     */
+    protected MethodDecl abstractGetter(X10NodeFactory nf) {
+      abstractGetter = nf.MethodDecl(Position.COMPILER_GENERATED, Flags.PUBLIC.Abstract(), type, name, 
                               Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
+      return abstractGetter;
     }
     
     public Node buildTypes(TypeBuilder tb) throws SemanticException {

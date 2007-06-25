@@ -1,4 +1,4 @@
-package polyglot.ext.x10.visit;
+package polyglot.ext.x10.dom;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -43,7 +43,7 @@ public class DomGenerator implements Copy {
 			factory.setNamespaceAware(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			DOMImplementation domImpl = builder.getDOMImplementation();
-			scratchPad = domImpl.createDocument(null, "ast", null);
+			scratchPad = domImpl.createDocument(null, "x10ml", null);
 		}
 		catch (FactoryConfigurationError e) {
 			throw new InternalCompilerError("Could not configure factory.", e);
@@ -59,10 +59,10 @@ public class DomGenerator implements Copy {
 	}
 	
 	public Element gen(X10Dom dom, Node n) {
-		root = createElement(null, "root");
+		root = createElement(null, "X10Source");
 		parent = root;
-		types = createElement(root, "types");
-		dom.gen(this, "ast", n);
+		types = createElement(root, "TypeSystem");
+		dom.gen(this, "AbstractSyntaxTree", n);
 		return root;
 	}
 	
@@ -188,7 +188,7 @@ public class DomGenerator implements Copy {
 		return v;
 	}
 	
-	public <T> DomGenerator gen(String tag, T n, X10Dom.AbsLens<T> lens) {
+	public <T> DomGenerator gen(String tag, T n, X10Dom.Lens<T> lens) {
 		DomGenerator v = tag(tag);
 		lens.toXML(v, n);
 		return this;

@@ -8,8 +8,8 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.ConstructorDecl;
+import polyglot.ast.Expr;
 import polyglot.ast.TypeNode;
-import polyglot.types.Type;
 
 public interface X10ConstructorDecl extends ConstructorDecl {
 	/**
@@ -20,5 +20,8 @@ public interface X10ConstructorDecl extends ConstructorDecl {
 	
 	
 	X10ConstructorDecl reconstruct(TypeNode t);
+
+
+	Expr argWhereClause();
 	
 }

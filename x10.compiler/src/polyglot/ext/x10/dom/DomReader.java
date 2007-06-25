@@ -1,7 +1,7 @@
 /**
  * 
  */
-package polyglot.ext.x10.visit;
+package polyglot.ext.x10.dom;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,27 +10,35 @@ import org.w3c.dom.Element;
 
 import polyglot.ast.Node;
 import polyglot.ext.x10.ast.X10NodeFactory;
+import polyglot.ext.x10.dom.X10Dom.Lens;
+import polyglot.ext.x10.dom.X10Dom.NodeLens;
+import polyglot.ext.x10.dom.X10Dom.TypeObjectLens;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.visit.X10Dom.AbsLens;
-import polyglot.ext.x10.visit.X10Dom.NodeLens;
+import polyglot.frontend.Source;
 import polyglot.types.TypeObject;
 
 public class DomReader {
 	X10TypeSystem ts;
 	X10NodeFactory nf;
+	Source source;
 	Map<String,LazyTypeObject> typeMap;
 	
-	public DomReader(X10TypeSystem ts, X10NodeFactory nf) {
+	public DomReader(X10TypeSystem ts, X10NodeFactory nf, Source source) {
 		super();
 		this.ts = ts;
 		this.nf = nf;
+		this.source = source;
+	}
+	
+	public Source source() {
+		return source;
 	}
 	
 	public Node fromXML(X10Dom dom, Element e) {
 		Map<String,TypeObject> typeMap;
-		Element types = dom.getChild(e, "types");
+		Element types = dom.getChild(e, "TypeSystem");
 		buildTypeMap(dom, types);
-		Element ast = dom.getChild(e, "ast");
+		Element ast = dom.getChild(e, "AbstractSyntaxTree");
 		ast = dom.getFirstElement(ast);
 		Node n = dom.new NodeLens().fromXML(this, ast);
 		return n;
@@ -39,19 +47,20 @@ public class DomReader {
 	class LazyTypeObject {
 		Object o;
 		Element e;
-		AbsLens lens;
+		TypeObjectLens lens;
 		
 		LazyTypeObject(Element e) { }
 		
-		LazyTypeObject(Element e, AbsLens lens) {
+		LazyTypeObject(Element e, TypeObjectLens lens) {
 			this.e = e;
 			this.lens = lens;
+			lens.lto = this;
 		}
 		
 		Object force(X10Dom dom) {
 			if (o != null)
 				return o;
-			return dom.get(lens, e, "value", DomReader.this);
+			return o = dom.get(lens, e, "value", DomReader.this);
 		}
 	}
 	

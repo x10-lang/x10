@@ -81,20 +81,26 @@ public class ValueClassDecl_c extends ClassDecl_c implements ValueClassDecl {
 	 * @param body
 	 */
 	public ValueClassDecl_c(Position pos, Flags flags, Id name,
-            List properties,  TypeNode ci, TypeNode superClass, List interfaces, ClassBody body,
+            TypeNode ci, TypeNode superClass, List interfaces, ClassBody body,
             X10NodeFactory nf) {
             
-		super(pos, flags, name, superClass, interfaces, body);
-		TypedList l =  (TypedList) super.interfaces();
-		List elist = TypedList.copy(l,  l.getAllowedType(), false);
+		this(pos, flags, name, ci, superClass, addValueToInterfaces(interfaces, nf), body);
+	}
+	
+	static List addValueToInterfaces(List interfaces, X10NodeFactory nf) {
+		List elist = TypedList.copy(interfaces, TypeNode.class, false);
 		X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
 		ClassType value = ts.value();
 		CanonicalTypeNode ctn = nf.CanonicalTypeNode(Position.COMPILER_GENERATED, value);
 		elist.add(0, ctn); 
-		this.interfaces = elist;
-		//classInvariant = ci;
+		return elist;
 	}
 
+	public ValueClassDecl_c(Position pos, Flags flags, Id name,
+            TypeNode ci, TypeNode superClass, List interfaces, ClassBody body) {
+            
+		super(pos, flags, name, superClass, interfaces, body);
+	}
       
         public Node typeCheck(TypeChecker tc) throws SemanticException {
         	ValueClassDecl_c result = (ValueClassDecl_c) super.typeCheck(tc);

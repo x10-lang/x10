@@ -18,16 +18,15 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.NodeFactory;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
+import polyglot.ext.x10.dom.DomParser;
 import polyglot.ext.x10.plugin.CompilerPlugin;
 import polyglot.ext.x10.plugin.LoadJobPlugins;
 import polyglot.ext.x10.plugin.LoadPlugins;
 import polyglot.ext.x10.plugin.RegisterPlugins;
 import polyglot.ext.x10.query.QueryEngine;
-import polyglot.ext.x10.types.X10FieldInstance_c;
 import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeObject;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.AnnotationChecker;
@@ -41,6 +40,7 @@ import polyglot.ext.x10.visit.TypePropagator;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
+import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.AbstractPass;
@@ -57,23 +57,19 @@ import polyglot.frontend.SchedulerException;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.frontend.goals.ClassTypeGoal;
 import polyglot.frontend.goals.CodeGenerated;
-import polyglot.frontend.goals.FieldConstantsChecked;
 import polyglot.frontend.goals.Goal;
+import polyglot.frontend.goals.MembersAdded;
 import polyglot.frontend.goals.SignaturesResolved;
+import polyglot.frontend.goals.SupertypesResolved;
 import polyglot.frontend.goals.VisitorGoal;
-import polyglot.frontend.passes.CheckFieldConstantsPass;
+import polyglot.frontend.passes.AddMembersPass;
+import polyglot.frontend.passes.DisambiguateSignaturesPass;
+import polyglot.frontend.passes.ResolveSuperTypesPass;
 import polyglot.main.Options;
 import polyglot.main.Report;
-import polyglot.types.ConstructorInstance;
-import polyglot.types.Declaration;
-import polyglot.types.FieldInstance;
-import polyglot.types.MemberInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.ParsedClassType;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
-import polyglot.util.InternalCompilerError;
-import polyglot.util.StringUtil;
 import polyglot.visit.ConstantChecker;
 import polyglot.visit.TypeChecker;
 import x10.parser.X10Lexer;
@@ -90,8 +86,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
     
     protected Map plugins;
+
+	public static final String XML_FILE_EXTENSION = "x10ml";
+	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
   
-    
     public static String clock = "clock";
 
     static {
@@ -101,9 +99,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     public polyglot.main.Version version() {
     	return new Version();
     }
-    public String defaultFileExtension() {
-        return "x10";
+    public String[] fileExtensions() {
+    	return new String[] { "x10", XML_FILE_EXTENSION };
     }
+//    public String defaultFileExtension() {
+//        return "x10";
+//    }
 
     public String compilerName() {
         return "x10c";
@@ -120,7 +121,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     //
     
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-        try {
+        if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
+        	return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
+        }
+
+    	try {
             //
             // X10Lexer may be invoked using one of two constructors.
             // One constructor takes as argument a string representing
@@ -168,9 +173,32 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     protected Scheduler createScheduler() {
         return new X10Scheduler(this);
     }
-
-   public static class X10Scheduler extends JLScheduler {
-	   X10Scheduler(ExtensionInfo extInfo) {
+    
+    protected static class EmptyGoal extends AbstractGoal {
+    	Goal dep;
+		protected EmptyGoal(Job job, Goal dep) {
+			super(job);
+			this.dep = dep;
+		}
+		protected EmptyGoal(Job job) {
+			super(job);
+		}
+		public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
+			return new EmptyPass(this);
+		}
+		@Override
+		public Collection prerequisiteGoals(Scheduler scheduler) {
+			Collection l = super.prerequisiteGoals(scheduler);
+			if (dep == null)
+				return l;
+			List l2 = new ArrayList(l.size()+1);
+			l2.add(dep);
+			l2.addAll(l);
+			return l2;
+		}
+    }
+    public static class X10Scheduler extends JLScheduler {
+       X10Scheduler(ExtensionInfo extInfo) {
 		   super(extInfo);
 	   }
 	   public Goal LoadPlugins() {
@@ -185,9 +213,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	   public Goal CodeGenerated(final Job job) {
 		   return X10CodeGenerated.create(this, job);
 	   }
+	   public Goal MembersAdded(ParsedClassType ct) {
+		   return X10MembersAdded.create(this, ct);
+	   }
+	   public Goal SupertypesResolved(ParsedClassType ct) {
+		   return X10SupertypesResolved.create(this, ct);
+	   }
 	   public Goal SignaturesResolved(ParsedClassType ct) {
-		   Goal g = X10SignaturesResolved.create(this, ct);
-		   return g;
+		   return X10SignaturesResolved.create(this, ct);
 	   }
 	   public Goal PropagateDeclarationAnnotations(Job job) {
 		   return PropagateDeclarationAnnotations.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
@@ -225,10 +258,24 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	   public Goal TypePropagated(final Job job) {
 		   return TypePropagated.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
 	   }
+	   public Goal TypesInitialized(Job job) {
+		   if (job.source().path().endsWith(XML_FILE_DOT_EXTENSION)) {
+//			   return new EmptyGoal(job, Parsed(job));
+			   return Parsed(job);
+		   }
+		   return super.TypesInitialized(job);
+	   }
 	   public Goal TypeChecked(final Job job) {
-		   return X10TypeChecked.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
+		   if (job.source().path().endsWith(XML_FILE_DOT_EXTENSION))
+			   return X10MLTypeChecked.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
+		   else
+			   return X10TypeChecked.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
 	   }
 	   public Goal ConstantsChecked(final Job job) {
+		   if (job.source().path().endsWith(XML_FILE_DOT_EXTENSION)) {
+//			   return new EmptyGoal(job, TypeChecked(job));
+			   return TypeChecked(job);
+		   }
 		   return X10ConstantsChecked.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
 	   }
 	   public Goal PropertyAssignmentsChecked(final Job job) {
@@ -297,22 +344,55 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	   protected X10SignaturesResolved(ParsedClassType ct) {
 		   super(ct);
 	   }
-    	 public Collection prerequisiteGoals(Scheduler scheduler) {
-    		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
-    	        List<Goal> l = new ArrayList<Goal>();
-    	        
-    	     // l.add(x10Sched.TypeElaborated(job));
-    	        l.addAll(super.prerequisiteGoals(scheduler));
-    	        return l;
-    	    }
-    	 public Collection corequisiteGoals(Scheduler scheduler) {
-    		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
-    	        List<Goal> l = new ArrayList<Goal>();
-    	        l.add(x10Sched.TypeElaborated(job));
-    	        l.addAll(super.corequisiteGoals(scheduler));
-    	        return l;
-    	    }
-    }
+	   public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
+		   if (job() != null && job().source().path().endsWith(XML_FILE_DOT_EXTENSION))
+			   return new DisambiguateSignaturesPass(extInfo.scheduler(), this);
+		   return super.createPass(extInfo);
+	   }
+	   public Collection prerequisiteGoals(Scheduler scheduler) {
+		   X10Scheduler x10Sched= (X10Scheduler) scheduler;
+		   List<Goal> l = new ArrayList<Goal>();
+		   l.addAll(super.prerequisiteGoals(scheduler));
+		   return l;
+	   }
+	   public Collection corequisiteGoals(Scheduler scheduler) {
+		   X10Scheduler x10Sched= (X10Scheduler) scheduler;
+		   List<Goal> l = new ArrayList<Goal>();
+		   if (job != null && ! job.source().path().endsWith(XML_FILE_DOT_EXTENSION))
+			   l.add(x10Sched.TypeElaborated(job));
+		   l.addAll(super.corequisiteGoals(scheduler));
+		   return l;
+	   }
+   }
+   static class X10MembersAdded extends MembersAdded {
+	   public static Goal create(Scheduler scheduler, ParsedClassType ct) {
+		   return scheduler.internGoal(new X10MembersAdded(ct));
+	   }
+	   protected X10MembersAdded(ParsedClassType ct) {
+		   super(ct);
+	   }
+	   @Override
+	   public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
+		   if (job() != null && job().source().path().endsWith(XML_FILE_DOT_EXTENSION))
+			   return new AddMembersPass(extInfo.scheduler(), this);
+		   else
+			   return super.createPass(extInfo);
+	   }
+   }
+   static class X10SupertypesResolved extends SupertypesResolved {
+	   public static Goal create(Scheduler scheduler, ParsedClassType ct) {
+		   return scheduler.internGoal(new X10SupertypesResolved(ct));
+	   }
+	   protected X10SupertypesResolved(ParsedClassType ct) {
+		   super(ct);
+	   }
+	   @Override
+	   public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
+		   if (job() != null && job().source().path().endsWith(XML_FILE_DOT_EXTENSION))
+			   return new ResolveSuperTypesPass(extInfo.scheduler(), this);
+		   return super.createPass(extInfo);
+	   }
+   }
     static class X10CodeGenerated extends CodeGenerated {
     	public static Goal create(Scheduler scheduler, Job job) {
     		return scheduler.internGoal(new X10CodeGenerated(job));
@@ -468,6 +548,29 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	}
     	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
     		return super.createPass(extInfo);
+    	}
+    }
+    static class X10MLTypeChecked extends VisitorGoal {
+    	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
+    		return scheduler.internGoal(new X10MLTypeChecked(job, ts, nf));
+    	}
+    	protected X10MLTypeChecked(Job job, TypeSystem ts, NodeFactory nf) {
+    		super(job, new X10MLVerifier(job, ts, nf));
+    	}
+    	
+    	public Collection prerequisiteGoals(Scheduler scheduler) {
+    		X10Scheduler x10Sched = (X10Scheduler) scheduler;
+    		List<Goal> l = new ArrayList<Goal>();
+    		l.add(x10Sched.Parsed(job));
+    		l.add(x10Sched.ImportTableInitialized(job));
+    		l.addAll(super.prerequisiteGoals(scheduler));
+    		return l;
+    	}
+    	
+    	public Collection corequisiteGoals(Scheduler scheduler) {
+    		List<Goal> l = new ArrayList<Goal>();
+    		l.addAll(super.corequisiteGoals(scheduler));
+    		return l;
     	}
     }
     static class X10TypeChecked extends VisitorGoal {
