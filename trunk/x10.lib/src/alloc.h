@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: alloc.h,v 1.2 2007-05-28 06:38:20 ganeshvb Exp $ */
+/* $Id: alloc.h,v 1.3 2007-06-25 19:05:01 ganeshvb Exp $ */
 
 #ifndef __ALLOC_H__
 #define __ALLOC_H__
@@ -19,6 +19,8 @@
 using namespace std;
 
 namespace x10lib{
+  extern lapi_handle_t __x10_hndl;
+
   class Allocator
   {  
   public:
@@ -26,10 +28,10 @@ namespace x10lib{
     Allocator(size_t size)  :
       offset_(0),
       size_(size)
-    {
+    { 
       pointer_ = new char[size];
-      addrTable_ = new void*[numPlaces()];
-      LAPI_Address_init (GetHandle(), pointer_, addrTable_);
+      addrTable_ = new void*[__x10_num_places];
+      LAPI_Address_init (__x10_hndl, pointer_, addrTable_);
     }
 
     char* addr () const 

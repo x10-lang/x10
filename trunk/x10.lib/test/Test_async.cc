@@ -5,31 +5,30 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async.cc,v 1.3 2007-06-18 10:33:48 ganeshvb Exp $ */
+/* $Id: Test_async.cc,v 1.4 2007-06-25 19:05:01 ganeshvb Exp $ */
 
 #include <iostream>
 
 #include <x10/x10lib.h>
 #include <x10/array.h>
 
-func_t handlers[128];
-
 using namespace std;
 using namespace x10lib;
 
 
-void async0 (async_arg_t arg)
+void async0 (x10_async_arg_t arg)
 {
   assert (arg == 333);
 }
 
-int asyncSwitch (async_handler_t h, void* arg, int niter) 
+void asyncSwitch (x10_async_handler_t h, void* arg, int niter) 
 {
-
-  async_arg_t* args = (async_arg_t*) arg;
+  cout << __x10_my_place << " " << niter << endl;
+  x10_async_arg_t* args = (x10_async_arg_t*) arg;
   switch (h) {
    case 0:
      async0 (*args);
+     break;
   }
 }
 
@@ -39,12 +38,14 @@ main (int argc, char* argv[])
 
   x10lib::Init(NULL, 0);
 
-  async_arg_t a = 333;
-  if (here() == 0)
-    for (place_t target = 0; target < numPlaces(); target++)
+  x10_async_arg_t a = 333;
+  if (__x10_my_place== 0)
+    for (x10_place_t target = 0; target < __x10_num_places; target++)
        asyncSpawnInline (target, 0, 1, a);
 
-  x10lib::Gfence (); 
+  cout << "here " << endl;
+
+  x10lib::SyncGlobal (); 
 
   cout << "Test_async PASSED" << endl;
 

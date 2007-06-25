@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.h,v 1.12 2007-06-25 15:47:47 srkodali Exp $
+ * $Id: async.h,v 1.13 2007-06-25 19:05:01 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -19,7 +19,7 @@
 #ifdef __cplusplus
 namespace x10lib {
 
-extern "C" int asyncSwitch(x10_async_handler_t, void *,
+extern "C" void asyncSwitch(x10_async_handler_t, void *,
 				size_t size, int niter);
 
 x10_err_t asyncSpawnInline(x10_place_t tgt,

@@ -35,23 +35,23 @@ namespace x10lib{
     Dist (const Region<RANK>* region) :
       region_ (region)
     {
-      places_ = new place_t [region->card()];
-      for (place_t i = 0; i < numPlaces(); i++)
+      places_ = new x10_place_t [region->card()];
+      for (x10_place_t i = 0; i < x10lib::x10lib::__x10_num_places; i++)
         places_[i] = i;
     }
   
-    Dist (const Region<RANK>* region, place_t* places) :
+    Dist (const Region<RANK>* region, x10_place_t* places) :
       region_ (region)
     {
-      places_ = new place_t [region->card()];
-      memcpy (places_, places, sizeof(place_t) * region->card());
+      places_ = new x10_place_t [region->card()];
+      memcpy (places_, places, sizeof(x10_place_t) * region->card());
     }
  
     Dist (const Dist<RANK>& other) :
       region_ (other.region_)
     {
-      places_ = new place_t [region->card()];
-      memcpy (places_, other.places, sizeof(place_t) * region->card());
+      places_ = new x10_place_t [region->card()];
+      memcpy (places_, other.places, sizeof(x10_place_t) * region->card());
     }
 
     virtual Dist<RANK>* clone() const = 0;
@@ -61,7 +61,7 @@ namespace x10lib{
       delete [] places_;
     }
     
-    virtual const place_t place (const Point<RANK>& p) const = 0;
+    virtual const x10_place_t place (const Point<RANK>& p) const = 0;
 
     const Region<RANK>* region () const{
 
@@ -77,7 +77,7 @@ namespace x10lib{
   protected:
     
     const Region<RANK>* region_;
-    place_t* places_;
+    x10_place_t* places_;
   
   };
 
@@ -88,8 +88,8 @@ namespace x10lib{
   {
   public:
  
-    ConstDist (const Region<RANK>* region, const place_t p) :
-      Dist<RANK> (region, new place_t (p)) {}
+    ConstDist (const Region<RANK>* region, const x10_place_t p) :
+      Dist<RANK> (region, new x10_place_t (p)) {}
 
     ConstDist (const ConstDist<RANK>& other) :
       Dist<RANK> (other.region_, other.places_) 
@@ -101,7 +101,7 @@ namespace x10lib{
     {
       return new ConstDist<RANK> (*this);
     }
-    const place_t place (const Point<RANK>& p) const
+    const x10_place_t place (const Point<RANK>& p) const
     { 
       return this->places_[0];
     }
@@ -116,11 +116,11 @@ namespace x10lib{
   public:
 
     UniqueDist () :
-      Dist<RANK>(new RectangularRegion<RANK>(Point<RANK>(numPlaces()-1)))
+      Dist<RANK>(new RectangularRegion<RANK>(Point<RANK>(x10lib::__x10_num_places-1)))
       {
       } 
  
-    UniqueDist (const Region<RANK>* region, place_t* places) :
+    UniqueDist (const Region<RANK>* region, x10_place_t* places) :
       Dist<RANK> (region, places)
     {
        
@@ -137,7 +137,7 @@ namespace x10lib{
       return new UniqueDist<RANK> (*this);
     }
   
-    const place_t place (const Point<RANK>& p) const 
+    const x10_place_t place (const Point<RANK>& p) const 
     {
       return this->places_[this->region_->ord (p)];
     }
