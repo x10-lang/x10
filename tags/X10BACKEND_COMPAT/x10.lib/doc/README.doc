@@ -1,0 +1,17 @@
+
+
+                    X10Lib : The X10 Runtime System
+
+                              Version 0.1
+
+
+                              R E A D M E
+                              -----------
+
+
+This is the Readme file for X10 Runtime System Documentation.
+
+* coding_standards.txt
+
+  This document contains the guidelines that a programmer should adhere to
+  while contributing code to the X10 Runtime System.
