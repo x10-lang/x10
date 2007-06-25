@@ -1,10 +1,10 @@
 package bits.plugin;
 
+import java.util.List;
+
 import polyglot.ast.Binary;
 import polyglot.ast.Expr;
 import polyglot.ast.IntLit;
-import polyglot.ast.Node;
-import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10Instanceof;
 import polyglot.ext.x10.ast.X10NodeFactory;
@@ -13,57 +13,53 @@ import polyglot.ext.x10.plugin.SimpleTypeAnnotationPlugin;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeObject;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Lit;
-import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Position;
 
 public class BitsTypePlugin extends SimpleTypeAnnotationPlugin {
 
 	public BitsTypePlugin() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public Expr checkImplicitCoercion(X10Type toType, Expr e, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
-		X10Type lhsType = toType;
-		Expr rhs = e;
-		Position pos = e.position();
+	public Expr checkImplicitCoercion(X10Type toType, Expr fromExpr, X10Context context, X10TypeSystem ts, X10NodeFactory nf) throws SemanticException {
+		Position pos = fromExpr.position();
 		
-		if (rhs == null) {
-			return e;
+		if (fromExpr == null) {
+			return fromExpr;
 		}
 
-		if (! lhsType.isLongOrLess()) {
-			return e;
+		if (! toType.isLongOrLess()) {
+			return fromExpr;
 		}
 		
-		int maxBits = bitsInType(lhsType);
+		int maxBits = bitsInType(toType);
 		
-		X10ClassType at = toType.annotationNamed("Bits");
+		X10ClassType bitsType = (X10ClassType) ts.systemResolver().find("bits.Bits");
+		List<X10ClassType> toATs = toType.annotationMatching(bitsType);
 
-		if (at == null) {
-			return e;
+		if (toATs.isEmpty()) {
+			return fromExpr;
 		}
+
+		X10ClassType toAT = toATs.get(0);
 		
-		int bits = getBitsFromAnnotation(at, maxBits);
+		int bits = getBitsFromAnnotation(toAT, maxBits);
 		
-		X10ClassType rhsAT = ((X10Ext) rhs.ext()).annotationNamed("Bits");
+		List<X10ClassType> fromATs = ((X10Type) fromExpr.type()).annotationMatching(bitsType);
 		
-		if (rhsAT != null) {
+		if (! fromATs.isEmpty()) {
 			// OK!
-			int rbits = getBitsFromAnnotation(rhsAT, 64);
+			int rbits = getBitsFromAnnotation(fromATs.get(0), 64);
 			if (rbits > bits) {
 				throw new SemanticException("Cannot assign to Bits(" + bits + ") variable; unknown width.", pos);
 			}
 		}			
-		else if (rhs.isConstant()) {
-			if (rhs.type().isLongOrLess()) {
-				long x = ((Number) rhs.constantValue()).longValue();
+		else if (fromExpr.isConstant()) {
+			if (fromExpr.type().isLongOrLess()) {
+				long x = ((Number) fromExpr.constantValue()).longValue();
 				long mask = (0xffffffffffffffffL << bits);
 				if ((x & mask) != 0L) {
 					throw new SemanticException("Cannot assign to Bits(" + bits + ") variable; too wide.", pos);
@@ -74,7 +70,7 @@ public class BitsTypePlugin extends SimpleTypeAnnotationPlugin {
 			}
 		}
 		
-		return e;
+		return fromExpr;
 	}
 
 	@Override
@@ -120,10 +116,14 @@ public class BitsTypePlugin extends SimpleTypeAnnotationPlugin {
 			maxBits = 8;
 		}
 		
-		X10ClassType at = toType.annotationNamed("Bits");
-		
-		if (at == null)
+		X10ClassType bitsType = (X10ClassType) toType.typeSystem().systemResolver().find("bits.Bits");
+		List<X10ClassType> toATs = toType.annotationMatching(bitsType);
+
+		if (toATs.isEmpty()) {
 			return maxBits;
+		}
+
+		X10ClassType at = toATs.get(0);
 		
 		int bits = getBitsFromAnnotation(at, maxBits);
 		
@@ -165,25 +165,21 @@ public class BitsTypePlugin extends SimpleTypeAnnotationPlugin {
 	}
 
 	protected int getBitsFromAnnotation(X10ClassType at, int maxBits) throws SemanticException {
-		DepParameterExpr dep = at.dep();
-		if (dep.args().size() == 1) {
-			Expr lhsBits = (Expr) dep.args().get(0);
-			if (lhsBits instanceof IntLit) {
-				IntLit lhsLit = (IntLit) lhsBits;
-				Object val = lhsLit.constantValue();
-				if (val instanceof Number) {
-					int bits = ((Number) val).intValue();
-					
-					if (bits < 1 || bits > maxBits) {
-						throw new SemanticException("bits property must be between 1 and " + maxBits + ".");
-					}
-					
-					return bits;
+		Expr lhsBits = at.propertyExpr(0);
+		if (lhsBits.isConstant()) {
+			Object val = lhsBits.constantValue();
+			if (val instanceof Integer || val instanceof Long) {
+				long bits = ((Number) val).longValue();
+				
+				if (bits < 1l || bits > maxBits) {
+					throw new SemanticException("Bits property must be between 1 and " + maxBits + ".");
 				}
+				
+				return (int) bits;
 			}
 		}
 		
-		throw new SemanticException("bits property must be an integer literal.");
+		throw new SemanticException("Bits property must be an integer constant.");
 	}
 	
 }
