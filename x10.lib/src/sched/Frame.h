@@ -18,15 +18,15 @@ class Closure;
 
 class Frame {
  protected:
-  Frame(const Frame &f);
+  Frame(const Frame &f) { incCons; }
 public:
-	Frame();
-	virtual ~Frame();
-
-	virtual Closure *makeClosure();
-	virtual void setOutletOn(Closure *c);
-	virtual void setInt(int x);
-	virtual Frame *copy() = 0; //should be implemented by sub-classes
+  Frame() { incCons(); }
+  virtual ~Frame() { incDestruct(); }
+  
+  virtual Closure *makeClosure();
+  virtual void setOutletOn(Closure *c);
+  virtual void setInt(int x);
+  virtual Frame *copy() = 0; //should be implemented by sub-classes
 
  public:
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)

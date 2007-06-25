@@ -26,8 +26,6 @@ using namespace x10lib_cws;
 
 /*-----------------JobFrame----------------------*/
 
-JobFrame::JobFrame():Frame(), PC(LABEL_0), x(0) {}
-JobFrame::~JobFrame() { }
 Closure *JobFrame::makeClosure() {
 	assert(0);
 	return NULL;

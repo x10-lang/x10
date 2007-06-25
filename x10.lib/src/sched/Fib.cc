@@ -269,21 +269,22 @@ int main(int argc, char *argv[]) {
 
   Pool *g = new Pool(procs);
   assert(g != NULL);
-  int points[] = { 25};
+  int points[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40};
     
   for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
     int n = points[i];
     Job *job = new anon_Job1(g, n);
     assert(job != NULL);
       
-//     long s = System.nanoTime();
-
+    long long s = nanoTime();
     g->submit(job);
     int result = job->getInt();
+    long long t = nanoTime();
 
-    cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<FibC::realfib(points[i])<<endl;
+    cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<
+      FibC::realfib(points[i])<<"\t Time="<<(t-s)/1000000<<"ms"<<endl;
 
-        delete job;
+    delete job;
       
 //     long t = System.nanoTime();
 //     System.out.println(points[i] + " " + (t-s)/1000000 
