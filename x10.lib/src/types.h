@@ -1,16 +1,16 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.11 2007-06-20 14:09:33 ganeshvb Exp $
+ * $Id: types.h,v 1.12 2007-06-25 14:08:25 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_TYPES_H
 #define __X10_TYPES_H
 
+#include <lapi.h>
 #include <sys/types.h>
 #include <stdint.h>
-#include <lapi.h>
 
 //typedef u_int32_t uint32_t; // FIXME [IP] Removed due to conflict
 //typedef u_int64_t uint64_t; // FIXME [IP] Removed due to conflict
