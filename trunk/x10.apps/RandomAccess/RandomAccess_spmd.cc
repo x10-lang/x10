@@ -7,7 +7,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.19 2007-06-25 08:38:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.20 2007-06-25 16:31:38 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -56,11 +56,10 @@ inline __async__1 (__async__1__args args)
 void
 __async__2 (__async__2__args args)
 {
-  cout << "Hello " << x10lib::here() << " " << args.captVar2 << " " << args.captVar1 << endl;
   GLOBAL_SPACE.SUM[(int)(args.captVar2)] = args.captVar1;
 }
 
-int
+void
 asyncSwitch (async_handler_t h, void* arg, int niter)
 {
   char* args = (char*) arg;
@@ -208,9 +207,9 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
   const bool Embarrassing = embarrassing; 
   const glong_t NumUpdates = tableSize*4;
 
-  
+  bool cond0;   
   if (x10lib::here() != 0) goto SKIP_c0; 
-  bool cond0 = VERIFY == VERIFICATION_P; 
+  cond0 = VERIFY == VERIFICATION_P; 
   CS = cond0 ? 1:2;
   if (!cond0) goto SKIP_c1;
  SKIP_c0: 
@@ -280,8 +279,9 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
     
   cputime += mysecond();
 
+  bool cond2;
   if(x10lib::here() != 0) goto SKIP_c2;
-  bool cond2 = VERIFY == UPDATE_AND_VERIFICATION;
+  cond2 = VERIFY == UPDATE_AND_VERIFICATION;
   CS = cond2 ? 3 : 4;
   
   if (!cond2) goto SKIP_TO_END_OF_c3;
@@ -392,13 +392,13 @@ int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
 extern "C" {
   int main (int ac, char* av[])
   {
-
+    Init (NULL, 0);
     x10::array<x10::ref<x10::lang::String> >* args = x10::convert_args (ac, av);
     
     RandomAccess_Dist::main (*args);
 
     x10::free_args (args);
-    
+    Finalize(); 
     return x10::exitCode;
   }
 }

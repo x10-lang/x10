@@ -475,10 +475,10 @@ FFT2DComm (ComplexPtr_t local2d, ComplexPtr_t local1d, int dir)
 	timer_profile (T_FFT1DROWS, FT_TIME_END);
 
 	timer_profile (T_EXCH, FT_TIME_BEGIN);
-	RC (LAPI_Put(handle, thread, dim1*SIZEOF_COMPLEX,
-		     global_addr[thread] + 
-		     (TID*dim2/THREADS*dim1 + p*dim1 + i*dim1*dim2)*
-		     SIZEOF_COMPLEX,
+	RC (LAPI_Put(handle, 
+                     thread, 
+                     dim1*SIZEOF_COMPLEX,
+		     global_addr[thread] + (TID*dim2/THREADS*dim1 + p*dim1 + i*dim1*dim2)* SIZEOF_COMPLEX,
 		     Pxy, NULL, NULL, NULL));
 	timer_profile (T_EXCH, FT_TIME_END);
       }

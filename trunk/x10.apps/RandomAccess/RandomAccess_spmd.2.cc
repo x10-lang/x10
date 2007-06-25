@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.2.cc,v 1.1 2007-06-25 08:38:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.2.cc,v 1.2 2007-06-25 16:31:38 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -54,7 +54,7 @@ __async__2 (__async__2__args args)
   GLOBAL_SPACE.SUM[(int)(args.captVar2)] = args.captVar1;
 }
 
-int
+void
 asyncSwitch (async_handler_t h, void* arg, int niter)
 {
   char* args = (char*) arg;
@@ -326,8 +326,7 @@ int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
 extern "C" {
   int main (int ac, char* av[])
   {
-    Init (NULL, 0); 
-
+    Init(NULL, 0);
     x10::array<x10::ref<x10::lang::String> >* args = x10::convert_args (ac, av);
     
     RandomAccess_Dist::main (*args);
@@ -335,7 +334,7 @@ extern "C" {
     x10::free_args (args);
     
     Finalize();
-    
-    return x10::exitCode;
+
+    return x10::exitCode;    
   }
 }
