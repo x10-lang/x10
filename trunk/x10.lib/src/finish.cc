@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.9 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: finish.cc,v 1.10 2007-06-25 16:13:33 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,6 +9,8 @@
 #include <x10/xassert.h>
 #include <x10/xmacros.h>
 #include <x10/finish.h>
+#include <string.h>
+#include <stdlib.h>
 #include <lapi.h>
 
 using namespace x10lib;
