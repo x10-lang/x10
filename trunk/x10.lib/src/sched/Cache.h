@@ -33,7 +33,7 @@ class Cache {
 	protected:
 /* 		unsigned int lastException;  */
 		Worker *owner;
-		vector<Frame *> stack; /* using vector as resizing would be lot easier */
+		vector<Frame *> *stack; /* using vector as resizing would be lot easier */
 		
 		void incrementExceptionPointer ();
 		void decrementExceptionPointer ();

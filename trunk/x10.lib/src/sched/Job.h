@@ -32,8 +32,9 @@ class JobFrame : public Frame {
 public :
 	volatile int PC;
 	int x;
-	JobFrame();
-	virtual ~JobFrame();
+
+	JobFrame(): PC(LABEL_0), x(0) {}
+	virtual ~JobFrame() {}
 	virtual Closure *makeClosure();
 	virtual void setOutletOn(Closure *c);
 	virtual JobFrame *copy();

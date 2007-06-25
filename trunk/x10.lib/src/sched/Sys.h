@@ -18,6 +18,7 @@
  */
 
 #include <assert.h>
+#include <time.h>
 
 #ifdef __xlC__
 #include <sys/atomic_op.h>
@@ -102,6 +103,17 @@ static __inline__ void atomic_add(volatile int* mem, int val)
 #endif
 }
 #endif
+
+/*Simple portable timers for now. Could add accurate system-specific
+  timers later*/
+
+inline long long nanoTime() {
+  struct timespec ts;
+  // clock_gettime is POSIX!
+  ::clock_gettime(CLOCK_REALTIME, &ts);
+  return (long long)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
+}
+
 
 }
 #endif

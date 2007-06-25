@@ -16,6 +16,7 @@
 #include "Frame.h"
 #include <assert.h>
 
+#include <cstdlib>
 #include <iostream>
 
 using namespace x10lib_cws;
@@ -23,49 +24,50 @@ using namespace std;
 
 Cache::Cache(Worker *w) 
 {
-	assert(w != NULL); //always tied to a valid worker
+  assert(w != NULL); //always tied to a valid worker
  owner=w; 
- stack.resize(INITIAL_CAPACITY);  // TODO verify
+ // stack.resize(INITIAL_CAPACITY);  // TODO verify
+ stack = new vector<Frame *>(INITIAL_CAPACITY);
+ assert(stack != NULL);
  head = tail = exception = 0;
 }
-Cache::~Cache() {stack.clear();}
+
+Cache::~Cache() { delete stack;}
 
 void Cache::pushFrame(Frame *x) {
-    	assert(x != NULL);
+  assert(x != NULL);
+  assert(stack != NULL);
 
-	// 	if(owner->index==0)cerr<<owner->index<<"::pushFrame entered.  H="<<head<<"T="<<tail<<" E="<<exception<<endl;
-    	
-    	if (/*stack != NULL &&*/ tail < stack.size() - 1) {
-	  stack[tail] = x;
-//     		stack.push_back(x);
-	  MEM_BARRIER();
-    		++tail;
-    		WRITE_BARRIER();
-    		return;
-    	}
-    	growAndPushFrame(x);
+  if (tail < stack->size() - 1) {
+    stack->at(tail) = x;
+    MEM_BARRIER();
+    ++tail;
+    //WRITE_BARRIER();
+    return;
+  }
+  growAndPushFrame(x);
 }
 
 void Cache::pushIntUpdatingInPlace(Pool *pool, int tid, int x) {
 
-    	if (/*stack != NULL &&*/ tail < stack.size() - 1) {
-    		if (stack[tail] != NULL) {
-    			stack[tail]->setInt(x);
-    		} else {
-    			Worker *w = pool->workers[tid];
-    			Frame *f = w->fg->make();
-    			f->setInt(x);
-    			stack[tail] = f;
-    			
-    		}
-    		++tail;
-				WRITE_BARRIER();
-    		return;
-    	}
-    	Worker* w = pool->workers[tid];
-			Frame *f = w->fg->make();
-			f->setInt(x);
-    	growAndPushFrame(f);
+  if (/*stack != NULL &&*/ tail < stack->size() - 1) {
+    if (stack->at(tail) != NULL) {
+      (*stack)[tail]->setInt(x);
+    } else {
+      Worker *w = pool->workers[tid];
+      Frame *f = w->fg->make();
+      f->setInt(x);
+      stack->at(tail) = f;
+      
+    }
+    ++tail;
+    WRITE_BARRIER();
+    return;
+  }
+  Worker* w = pool->workers[tid];
+  Frame *f = w->fg->make();
+  f->setInt(x);
+  growAndPushFrame(f);
 }
 
 /*
@@ -76,8 +78,8 @@ void Cache::growAndPushFrame(Frame *x) {
 	int oldSize = 0;
     int newSize = 0;
     
-    if (!stack.empty()) {
-    	oldSize = stack.size();
+    if (!stack->empty()) {
+    	oldSize = stack->size();
         newSize = oldSize << 1;
     }
     
@@ -88,25 +90,33 @@ void Cache::growAndPushFrame(Frame *x) {
       abort();
     }
     
-    owner->lock(owner);
-    stack.resize(newSize);
+    vector<Frame *> *newStack = new vector<Frame*>(newSize);
+    assert(stack->size() == tail);
+    for(int i=0; i<stack->size(); i++) {
+      newStack->at(i) = stack->at(i);
+    }
+
+
+    //    owner->lock(owner);
+    stack->resize(newSize);
+    delete stack;
+    stack = newStack;
     owner->unlock();
 
-//     stack.push_back(x);
-    stack[tail] = x;
+    stack->at(tail) = x;
     MEM_BARRIER();
     ++tail;
-    MEM_BARRIER();
+    //    MEM_BARRIER();
 }
 
 void Cache::resetExceptionPointer(Worker *w) {
-		assert (w==owner);
-    exception = head;
-    MEM_BARRIER();
+  assert (w==owner);
+  exception = head;
+  //    MEM_BARRIER();
 }
     
 void Cache::incrementExceptionPointer() {
-  MEM_BARRIER();
+  //  MEM_BARRIER();
     if (exception != EXCEPTION_INFINITY) {
     	++exception;
     	MEM_BARRIER();
@@ -131,24 +141,22 @@ bool Cache::atTopOfStack() {
 }
    
 Frame *Cache::childFrame() {
-//   cerr<<owner->index<<"::Cache::childFrame. H="<<head<<" T="<<tail<<" E="<<exception<<endl;
-  assert(stack.at(head+1) != NULL);
-  return stack.at(head+1);
+  assert(stack->at(head+1) != NULL);
+  return stack->at(head+1);
 }
 Frame *Cache::topFrame() {
-    return stack.at(head);
+    return stack->at(head);
 }
 Frame *Cache::currentFrame() {
-    	return stack.at(tail-1);
+    	return stack->at(tail-1);
 }
 void Cache::popFrame() {
-  //  if(owner->index==0)cerr<<owner->index<<"::popFrame entered.  H="<<head<<"T="<<tail<<" E="<<exception<<endl;
   --tail;
   WRITE_BARRIER();
 }
 
 bool Cache::interrupted() {
-  MEM_BARRIER();
+  //  MEM_BARRIER();
   return exception >= tail;
 }
 /*
@@ -173,11 +181,11 @@ void Cache::reset() {
   tail=0;
   head=0;
   exception=0;
-  WRITE_BARRIER();
+  //  WRITE_BARRIER();
 }
 void Cache::incHead() {
 	++head;
-	MEM_BARRIER();
+	//	MEM_BARRIER();
 }
 bool Cache::exceptionOutstanding() {
 	return head <= exception;

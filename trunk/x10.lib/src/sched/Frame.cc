@@ -22,12 +22,6 @@ volatile int Frame::nDestruct=0;
 #endif
 
 
-Frame::Frame() { incCons(); }
-
-Frame::Frame(const Frame &f) { incCons();  }
-
-Frame::~Frame() { incDestruct(); }
-
 		/*
 		 * Returns a closure that can contain a pointer to this frame.
 		 * e.g. a FibFrame will return a FibClosure. The executeInlet
