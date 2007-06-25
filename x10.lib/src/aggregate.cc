@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.12 2007-06-25 19:05:00 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.13 2007-06-25 20:06:56 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -39,7 +39,7 @@ void
 asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
 {
 	x10_agg_cmpl_t *c = (x10_agg_cmpl_t *)a;
-	asyncSwitch(c->handler, (void *)(c->buf), c->len, c->niter);
+	asyncSwitch(c->handler, (void *)(c->buf), c->niter);
 	delete[] ((char*) c->buf);
 	delete c;
 }
@@ -81,7 +81,7 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 					(lapi_return_info_t *)msg_len;
 	if (ret_info->udata_one_pkt_ptr) {
 		asyncSwitch(buf.handler, ret_info->udata_one_pkt_ptr,
-					*msg_len, buf.niter);
+					buf.niter);
 		ret_info->ctl_flags = LAPI_BURY_MSG;
 		*comp_h = NULL;
 		return NULL;

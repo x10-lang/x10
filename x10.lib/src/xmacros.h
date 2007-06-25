@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xmacros.h,v 1.4 2007-06-25 15:47:47 srkodali Exp $
+ * $Id: xmacros.h,v 1.5 2007-06-25 20:06:56 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -13,7 +13,6 @@
  */
 #define LRC(statement) \
 do { \
-	extern int __x10_errno; \
 	int rc = statement; \
 	if (rc != LAPI_SUCCESS) { \
 		__x10_errno = rc; \
@@ -22,3 +21,4 @@ do { \
 } while (0)
 
 #endif /* __X10_XMACROS_H */
+//dd	extern int __x10_errno; 

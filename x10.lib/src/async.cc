@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.cc,v 1.7 2007-06-25 15:47:47 srkodali Exp $
+ * $Id: async.cc,v 1.8 2007-06-25 20:06:56 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -24,7 +24,7 @@ asyncSpawnHandler(lapi_handle_t hndl, void *uhdr,
 
 	asyncSwitch(*((x10_async_handler_t *)uhdr),
 			(x10_async_arg_t *)tmp->udata_one_pkt_ptr,
-			*msg_len, 1);
+			1);
 	*comp_h = NULL;
 	return NULL;
 }

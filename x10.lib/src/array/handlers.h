@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: handlers.h,v 1.4 2007-06-20 11:37:15 ganeshvb Exp $ */
+/* $Id: handlers.h,v 1.5 2007-06-25 20:06:56 ganeshvb Exp $ */
 
 #ifndef __HANDLERS_H__
 #define __HANDLERS_H__
@@ -45,12 +45,12 @@ arrayConstructionGlobalSM (lapi_handle_t hndl, void* uhdr, uint* uhdr_len,
   metaDataDescr<RANK, REGION, DIST>* a = new metaDataDescr<RANK, REGION, DIST>;
   memcpy (a, base_addr, sizeof(metaDataDescr<RANK, REGION, DIST>));
 
-  place_t places[numPlaces()];
-  for (int i = 0; i < numPlaces(); i++)
+  x10_place_t places[__x10_num_places];
+  for (int i = 0; i < __x10_num_places; i++)
     places[i] = i;
 
   DIST<RANK>* d = new DIST<RANK> (&(a->region), places);
-  uint64_t local_size = a->region.card() / numPlaces();
+  uint64_t local_size = a->region.card() / __x10_num_places;
 
 //  makeArrayLocal<T, RANK, REGION, DIST> (d->region(), d);
 

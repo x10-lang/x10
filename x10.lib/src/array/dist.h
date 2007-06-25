@@ -36,7 +36,7 @@ namespace x10lib{
       region_ (region)
     {
       places_ = new x10_place_t [region->card()];
-      for (x10_place_t i = 0; i < x10lib::x10lib::__x10_num_places; i++)
+      for (x10_place_t i = 0; i < x10lib::__x10_num_places; i++)
         places_[i] = i;
     }
   

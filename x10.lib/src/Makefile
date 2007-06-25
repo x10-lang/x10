@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.28 2007-06-25 19:05:00 ganeshvb Exp $
+# $Id: Makefile,v 1.29 2007-06-25 20:06:56 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -17,12 +17,12 @@ LIBDIR = ../lib
 CXX = mpCC_r -q64 -qarch=pwr5
 DEFS = #-DDEBUG
 CXXFLAGS = -qtune=pwr5 -O3 -qhot
-INCLUDES = -I. -I../include 
+INCLUDES = -I. -I../include  -I ~/libs/lapi/include
 LINKFLAGS =
 RM = rm -f
 AR = ar
-ARFLAGS = -r -X64
-RANLIB = ranlib -X64
+ARFLAGS = -r 
+RANLIB = ranlib 
 CP = cp
 MKDIR = mkdir
 

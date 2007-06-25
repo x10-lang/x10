@@ -5,15 +5,18 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.h,v 1.6 2007-05-09 12:40:30 ganeshvb Exp $ */
+/* $Id: array.h,v 1.7 2007-06-25 20:06:56 ganeshvb Exp $ */
 
 #ifndef __X10_ARRAY_H__
 #define __X10_ARRAY_H__
 
 #include "dist.h"
+#include <x10/alloc.h>
 
 namespace x10lib{
-
+  
+  Allocator* GlobalSMAlloc = NULL;
+ 
   typedef enum {ROW_MAJOR, COLUMN_MAJOR, TILE_MAJOR} order_t; 
     
   /** 
