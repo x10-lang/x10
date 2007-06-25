@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.cc,v 1.9 2007-06-21 14:24:26 ganeshvb Exp $ */
+/* $Id: aggregate.cc,v 1.10 2007-06-25 12:06:29 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/aggregate.h>
@@ -39,7 +39,7 @@ asyncSpawnCompHandlerAgg (lapi_handle_t *handle, void* a)
 {
   comp* c = (comp*) a;	
   asyncSwitch (c->handler, (void*) (c->buf), c->niter);
-  delete[] c->buf;
+  delete [] ((char*) c->buf);
   delete c;
 }
 

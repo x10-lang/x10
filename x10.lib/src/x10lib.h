@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.15 2007-06-25 08:39:50 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.16 2007-06-25 12:06:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -252,13 +252,14 @@ extern "C" {
 
 
 #ifdef __cplusplus
-class __init__ {
+#ifdef STATICINIT
+class __lapi__init__ {
   
   static int count;
   
  public:
   
-  __init__() {
+  __lapi__init__() {
     
     if (count++ == 0) {
       
@@ -269,7 +270,7 @@ class __init__ {
     }    
   }
   
-  ~__init__() {
+  ~__lapi__init__() {
     
     if (--count == 0) {      
       x10lib::Finalize();
@@ -279,8 +280,9 @@ class __init__ {
   }  
 };
 
-int __init__::count = 0;
-static __init__ __init__counter;
+int __lapi__init__::count = 0;
+static __lapi__init__ __lapi__init__counter;
+#endif
 #endif
 
 #endif /* __X10_X10LIB_H */

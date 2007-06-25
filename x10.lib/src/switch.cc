@@ -17,8 +17,10 @@ x10lib::switchInit (switch_t* s, int val)
 error_t
 x10lib::switchNext (switch_t* s)
 {
+  X10_DEBUG (1, "Entering Switch Next\n");
   int tmp;   
   LRC (LAPI_Waitcntr (GetHandle(), s, 0, &tmp));
+  X10_DEBUG (1, "Exiting Swith Next\n");
   return X10_OK;
 }
 
