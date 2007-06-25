@@ -26,8 +26,8 @@ using namespace x10lib_cws;
 
 /*-----------------JobFrame----------------------*/
 
-JobFrame::JobFrame():Frame(), PC(0), x(0) {}
-JobFrame::~JobFrame() {}
+JobFrame::JobFrame():Frame(), PC(LABEL_0), x(0) {}
+JobFrame::~JobFrame() { }
 Closure *JobFrame::makeClosure() {
 	assert(0);
 	return NULL;
@@ -40,6 +40,13 @@ void JobFrame::setOutletOn(Closure *c) {
 }
 		
 JobFrame *JobFrame::copy() { return new JobFrame(*this); }
+
+/*-------------------Outlet------------------------*/
+
+#if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+volatile int Outlet::nCons=0;
+volatile int Outlet::nDestruct=0;
+#endif
 
 /*------------------ResultOutlet-------------------*/
 
@@ -87,8 +94,9 @@ void Job::compute(Worker *w, Frame *frame) {
 			MEM_BARRIER(); // TODO RAJ
 			// spawning
 			x = spawnTask(w);
-			if(w->abortOnSteal(x)) 
+			if(w->abortOnSteal(x)) {
 			  return ;
+			}
 			f->x=x;
 		case LABEL_1: 
 			f->PC=LABEL_2;

@@ -140,6 +140,8 @@ Closure *Worker::steal(Worker *thief, bool retry) {
       Closure *child = NULL;
       Closure *res = NULL;
 
+      //      cerr<<index<<"::Stealing frame "<<cl->frame<<endl;
+
       //      cl->copyFrame(thief);			
       //I have work now, so checkout of the barrier.
       child = cl->promoteChild(thief, victim);

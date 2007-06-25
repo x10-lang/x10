@@ -11,6 +11,7 @@
 #define x10lib_Closure_h
 //#include "Lock.h"
 //#include "Worker.h"
+#include "Sys.h"
 #include <list>
 
 namespace x10lib_cws {
@@ -27,7 +28,6 @@ class Outlet;
 enum { RUNNING, SUSPENDED, RETURNING, READY, ABORTING, PASSTHROUGH };
 
 class Closure {
-	
 private:
 	/*void decrementExceptionPointer(Worker *ws);
 	void incrementExceptionPointer(Worker *ws);
@@ -77,7 +77,7 @@ public:
 	bool dekker(Worker *thief);
 	bool handleException(Worker *ws);
 	void suspend(Worker *ws);
-	void pollInlets(Worker *ws);
+	void pollInlets(Worker *ws, Closure *causingChild=NULL);
 	Closure *returnValue(Worker *ws);
 	Closure *execute(Worker *w);
 	void executeAsInlet();
@@ -110,6 +110,21 @@ public:
 	virtual void setResultObject(void *x);
 	virtual void *resultObject();
 	virtual bool requiresGlobalQuiescence() volatile;
+
+ public:
+#if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+  static volatile int nCons, nDestruct;
+#endif
+  inline static void incCons() {
+# if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+    atomic_add(&nCons, 1);
+# endif
+  }
+  inline static void incDestruct() {
+# if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+    atomic_add(&nDestruct, 1);
+# endif
+  }
 	
 };
 }

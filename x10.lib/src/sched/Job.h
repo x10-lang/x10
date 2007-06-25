@@ -12,6 +12,8 @@
 
 #include "Frame.h"
 #include "Closure.h"
+#include "Sys.h"
+#include <assert.h>
 
 namespace x10lib_cws {
 
@@ -42,8 +44,25 @@ public :
 
 class Outlet {
  public:
-  virtual void run() {}
-  virtual ~Outlet() {}
+  Outlet() { incCons(); }
+
+  virtual void run() { assert(0); }
+  virtual ~Outlet() { incDestruct(); }
+
+ public:
+#if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+  static volatile int nCons, nDestruct;
+#endif
+  inline void incCons() {
+# if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+    atomic_add(&nCons, 1);
+# endif
+  }
+  inline void incDestruct() {
+# if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+    atomic_add(&nDestruct, 1);
+# endif
+  }
 };
 
 class ResultOutlet : public Outlet {

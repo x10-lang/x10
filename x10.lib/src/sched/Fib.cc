@@ -13,6 +13,7 @@
 #include "Worker.h"
 #include "Job.h"
 #include "Pool.h"
+#include "Sys.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -34,7 +35,7 @@ public:
   void run();
 };
 
-class anon_Outlet2 : public virtual Outlet {
+class anon_Outlet2 : public Outlet {
 private:
   FibFrame *f;
   Closure *c;
@@ -58,29 +59,32 @@ public: //instead of Java package access
 public:
   volatile int PC;
 
-  FibFrame(int _n) : n(_n), x(0), y(0) {}
-  void setOutletOn(Closure *c) {
+  FibFrame(int _n) : n(_n), x(0), y(0) { }
+  virtual void setOutletOn(Closure *c) {
     assert(PC==LABEL_1 || PC==LABEL_2);
     Outlet *o;
     if(PC==LABEL_1) 
       o = new anon_Outlet1(this, c);
-    else
+    else if(PC==LABEL_2)
       o = new anon_Outlet2(this, c);
-	assert(o != NULL);
+    else
+      assert(0);
+    assert(o != NULL);
     c->setOutlet(o);
   }
 
-  Closure *makeClosure();
-  FibFrame *copy() {
+  virtual Closure *makeClosure();
+  virtual FibFrame *copy() {
     return new FibFrame(*this);
   }
 
+  virtual ~FibFrame() { }
 private:
   FibFrame(const FibFrame& f) 
-    : Frame(f), n(f.n), x(f.x), y(f.y), PC(f.PC) {}
+    : Frame(f), n(f.n), x(f.x), y(f.y), PC(f.PC) { }
 };
 
-class FibC : public Closure {
+class FibC : public virtual Closure {
 private:
   friend class FibFrame;
   friend class anon_Outlet1;
@@ -140,11 +144,23 @@ public:
     // i.e. since the worker has made it so far, it is going to
     // complete 
     // execution of this procedure.
+
+    assert(w->cache->currentFrame() == frame);
     
     // pop the task -- it is guaranteed to be garbage.
     w->popFrame();
 
-//     delete frame;
+    //    if(w->index==1)cerr<<w->index<<":: Deleting frame "<<frame<<endl;
+
+    
+    if(!w->cache->interrupted()) {
+      delete frame;
+      /*sriramk: If it were interrupted, this frame's parent might
+	have been stolen and this frame made into a Closure. Hence
+	this frame should not be deleted (modulo any copyFrame()
+	considerations. Need to check the GQ code to see how that
+	works). */
+    }
     // the sync is a no-op.
     // return the computed value.
     int result = x+y;
@@ -154,7 +170,7 @@ public:
   FibC(Frame *frame) : Closure(frame) {}
 
   /*The frame given to compute would have been copied to create a Closure. It will be deleted when the Closure is destroyed. */
-  void compute(Worker *w, Frame *frame)  {
+  virtual void compute(Worker *w, Frame *frame)  {
     // get the frame.
     // f must be a FibFrame.
     FibFrame * f = (FibFrame *) frame;
@@ -202,8 +218,8 @@ protected:
   int result;
   
 public:
-  int resultInt() { return result;}
-  void setResultInt(int x) { result=x;}
+  virtual int resultInt() { return result;}
+  virtual void setResultInt(int x) { result=x;}
 };
 
 /*----Some delayed definitions to pacify the C++ compiler---*/
@@ -229,10 +245,11 @@ private:
   const int n;
 public:
   anon_Job1(Pool *g, int _n) : Job(g), n(_n) {}
-  void setResultInt(int x) { result = x;}
-  int resultInt() { return result;}
-  int spawnTask(Worker *ws) { return FibC::fib(ws, n);}
+  virtual void setResultInt(int x) { result = x;}
+  virtual int resultInt() { return result;}
+  virtual int spawnTask(Worker *ws) { return FibC::fib(ws, n);}
 
+  virtual ~anon_Job1() {}
 protected:
   
 };
@@ -252,7 +269,7 @@ int main(int argc, char *argv[]) {
 
   Pool *g = new Pool(procs);
   assert(g != NULL);
-  int points[] = { 1, 5, 10, 15, 20, 25, 30, 35};
+  int points[] = { 25};
     
   for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
     int n = points[i];
@@ -265,6 +282,8 @@ int main(int argc, char *argv[]) {
     int result = job->getInt();
 
     cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<FibC::realfib(points[i])<<endl;
+
+        delete job;
       
 //     long t = System.nanoTime();
 //     System.out.println(points[i] + " " + (t-s)/1000000 
@@ -273,5 +292,11 @@ int main(int argc, char *argv[]) {
 
   g->shutdown();
   delete g;
+
+#if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+  cerr<<"Frame. nCons = "<<Frame::nCons<<" nDestruct="<<Frame::nDestruct<<endl;
+  cerr<<"Closure. nCons = "<<Closure::nCons<<" nDestruct="<<Closure::nDestruct<<endl;
+  cerr<<"Outlet. nCons ="<<Outlet::nCons<<" nDestruct="<<Outlet::nDestruct<<endl;
+#endif
 }
 

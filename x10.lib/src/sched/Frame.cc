@@ -10,15 +10,23 @@
 
 #include "Frame.h"
 #include "Closure.h"
+#include "Sys.h"
 #include <assert.h>
 
 using namespace std;
 using namespace x10lib_cws;
 
+#if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+volatile int Frame::nCons=0;
+volatile int Frame::nDestruct=0;
+#endif
 
-Frame::Frame() {}
-Frame::Frame(const Frame &f) {}
-Frame::~Frame() {}
+
+Frame::Frame() { incCons(); }
+
+Frame::Frame(const Frame &f) { incCons();  }
+
+Frame::~Frame() { incDestruct(); }
 
 		/*
 		 * Returns a closure that can contain a pointer to this frame.
