@@ -1,5 +1,6 @@
 package polyglot.ext.x10.dom;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,7 +29,12 @@ public class XMLWriter {
 
 	public XMLWriter(String name) throws IOException {
 		super();
-		w = new FileOutputStream(name);
+		File f = new File(name);
+		File dir = f.getParentFile();
+		if (! dir.exists()) {
+			dir.mkdirs();
+		}
+		w = new FileOutputStream(f);
 	}
 
 	public void writeElement(Element n) throws IOException {
