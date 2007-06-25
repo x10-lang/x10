@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.14 2007-06-20 11:37:15 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.15 2007-06-25 08:39:50 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,6 +9,8 @@
 
 #ifndef __X10_X10LIB_H
 #define __X10_X10LIB_H
+
+#include <iostream>
 
 #include <x10/async.h>
 #include <x10/aggregate.h>
@@ -247,4 +249,38 @@ extern "C" {
 #ifdef __cplusplus
 } /* closing brance for extern "C" */
 #endif
+
+
+#ifdef __cplusplus
+class __init__ {
+  
+  static int count;
+  
+ public:
+  
+  __init__() {
+    
+    if (count++ == 0) {
+      
+      x10lib::Init(NULL, 0);
+      
+      std::cerr << "Initialized" << std::endl;
+      
+    }    
+  }
+  
+  ~__init__() {
+    
+    if (--count == 0) {      
+      x10lib::Finalize();
+      
+      std::cerr << "Finalized" << std::endl;      
+    }    
+  }  
+};
+
+int __init__::count = 0;
+static __init__ __init__counter;
+#endif
+
 #endif /* __X10_X10LIB_H */
