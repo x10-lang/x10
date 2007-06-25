@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.11 2007-06-25 16:31:38 ganeshvb Exp $
+# $Id: Makefile,v 1.12 2007-06-25 19:37:46 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for RandomAccess Benchmarks (C++ Version).
@@ -17,9 +17,9 @@ CC = mpcc_r
 DEFS =  -DNDEBUG #-DSTATICINIT #-DWARN 
 CXXFLAGS = -O3 -qinline -q64 -qarch=pwr5 -w -qtune=pwr5 -qhot 
 CCFLAGS = -q64 -qarch=pwr5 -qtune=pwr5 -O3 -qhot
-INCLUDES = -I. -I/u/gbikshan/Work4/x10.lib/include -I/u/gbikshan/Work4/x10.backend/x10lang
+INCLUDES = -I. -I/u/gbikshan/tmp/x10.lib/include -I/u/gbikshan/tmp/x10.backend/x10lang
 LIBDIRS = 
-LIBS = -L/u/gbikshan/Work4/x10.lib/lib -l$(LIBNAME) -L/u/gbikshan/Work4/x10.backend/x10lang -lx10lang
+LIBS = -L/u/gbikshan/tmp/x10.lib/lib -l$(LIBNAME) -L/u/gbikshan/tmp/x10.backend/x10lang -lx10lang
 LINKFLAGS =
 RM = rm -f
 RMDIR = rm -r -f 
