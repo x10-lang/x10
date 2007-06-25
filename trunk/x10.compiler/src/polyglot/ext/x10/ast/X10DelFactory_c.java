@@ -42,7 +42,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 			if (jl() instanceof Node) {
 				Node n = (Node) jl();
 				X10Ext ext = (X10Ext) n.ext();
-				if (ext.comment() != null)
+				if (ext != null && ext.comment() != null)
 					w.write(ext.comment());
 			}
 			new X10PrettyPrinterVisitor(w,tr).visitAppropriate(jl());
