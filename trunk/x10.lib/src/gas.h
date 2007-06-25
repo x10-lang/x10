@@ -1,52 +1,71 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: gas.h,v 1.6 2007-06-25 16:07:36 srkodali Exp $
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: gas.h,v 1.5 2007-06-15 02:06:52 ipeshansky Exp $ */
+/** Global address space interface. **/
 
-#ifndef __X10_GAS_H__
-#define __X10_GAS_H__
+#ifndef __X10_GAS_H
+#define __X10_GAS_H
 
-#include "types.h"
+/* On 64-bit machine 32 + 64 = 96 bytes size */
+/* Type to address locations across places uniquely. */
+/*
+ * !!! WARNING !!!
+ * The internal implementation might be changed.
+ * Rely only on the provided function macros to construct and
+ * interpret the address.
+ *
+ */
+struct __x10_gas_ref_t {
+	int place; /* place id where this addr is hold */
+	unsigned long addr; /* cast addr to (void *) */
+};
 
+typedef struct __x10_gas_ref_t x10_gas_ref_t;
+
+/* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {
-  
-  extern place_t ID;
-  
-  extern int MAX_PLACES;
-  
-  bool gas_islocal(gas_ref_t* ref);
 
-  /**
-   * Return the node id for the current node.
-   */
-  place_t here();
+	/* Construct GAS reference for the specified place
+	 * and virtual address.
+	 */
+	x10_gas_ref_t MakeGASRef(int place, void *addr);
 
-  int numPlaces();
+	/* Return the place id for the specified GAS reference. */
+	int GAS2Place(x10_gas_ref_t ref);
 
-  extern lapi_handle_t GetHandle();
+	/* Return the associated virtual address for the specified
+	 * GAS reference.
+	 */
+	void *GAS2Addr(x10_gas_ref_t ref);
 
-  class Allocator;
-  extern Allocator* GlobalSMAlloc;
-
-  extern func_t* handlerTable;
-}
+} /* closing brace for namespace x10lib */
 #endif
+
+/* C Lang Interface */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Construct GAS reference for the specified place
+ * and virtual address.
+ */
+x10_gas_ref_t x10_make_gas_ref(int place, void *addr);
+
+/* Return the place id for the specified GAS reference. */
+int x10_gas2place(x10_gas_ref_t ref);
+
+/* Return the associated virtual address for the specified
+ * GAS reference.
+ */
+void *x10_gas2addr(x10_gas_ref_t ref);
 
 #ifdef __cplusplus
-extern "C" 
-{
-#endif
-  place_t x10_here();
-
-  int x10_num_places();
-
-#ifdef __cplusplus
-}
+} /* closing brace for extern "C" */
 #endif
 
-#endif /*X10GAS_H_*/
+#endif /* __X10_GAS_H */

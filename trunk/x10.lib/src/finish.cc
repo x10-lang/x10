@@ -1,23 +1,20 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: finish.cc,v 1.9 2007-06-25 16:07:36 srkodali Exp $
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.8 2007-06-25 14:08:25 ganeshvb Exp $ */
-
-#include <iostream>
+#include <x10/err.h>
 #include <x10/xassert.h>
 #include <x10/xmacros.h>
 #include <x10/finish.h>
+#include <lapi.h>
 
-using namespace std;
-using namespace x10lib; 
+using namespace x10lib;
 
 const int MAX_TASKS=256;
 const int MAX_TASKS_NODE = 16;
-const int MAX_NODES = 16;
 const int EX_BUFFER_SIZE = 1024;
 int bufSize = 0;
 char buffer[MAX_TASKS * EX_BUFFER_SIZE];
@@ -27,8 +24,6 @@ lapi_cntr_t cntr1;
 lapi_cntr_t cntr2;
 lapi_long_t exceptionCntr[MAX_TASKS];
 lapi_long_t continueCntr[MAX_TASKS];
-//void* exceptionCntr[MAX_TASKS];
-//void* continueCntr[MAX_TASKS];
 
 int CONTINUE_STATUS;
 
@@ -37,11 +32,11 @@ struct ptree_t
 {
   int numPeers;
   int numChild;
-  int children[MAX_TASKS_NODE+MAX_NODES];
+  int* children;
   int parent;
 };
 
-ptree_t* ftree=NULL;
+ptree_t* ftree;
 
 /* count the number of children for process 0*/
 void*
@@ -86,18 +81,19 @@ exceptionHeaderHandler (lapi_handle_t handle, void* uhdr,
   return NULL;
 }
 
-error_t            
+x10_err_t
 finishInit ()
 {
-  LRC (LAPI_Addr_set (GetHandle(), (void*) exceptionHeaderHandler, 3));
-  LRC (LAPI_Addr_set (GetHandle(), (void*) continueHeaderHandler, 4));
-  LRC (LAPI_Addr_set (GetHandle(), (void*) numChildHeaderHandler, 5));
-  LRC (LAPI_Address_init64 (GetHandle(), (lapi_long_t) &cntr1, exceptionCntr));
-  LRC (LAPI_Address_init64 (GetHandle(), (lapi_long_t) &cntr2, continueCntr));
-  //LRC (LAPI_Address_init (GetHandle(),  &cntr1, exceptionCntr));
-  //LRC (LAPI_Address_init (GetHandle(),  &cntr2, continueCntr));
-  LRC (LAPI_Setcntr (GetHandle(), &cntr1, 0));
-  LRC (LAPI_Setcntr (GetHandle(), &cntr2, 0));
+  extern lapi_handle_t __x10_hndl;
+  extern int __x10_my_place;
+
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) exceptionHeaderHandler, 3));
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) continueHeaderHandler, 4));
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) numChildHeaderHandler, 5));
+  LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr1, exceptionCntr));
+  LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr2, continueCntr));
+  LRC (LAPI_Setcntr (__x10_hndl, &cntr1, 0));
+  LRC (LAPI_Setcntr (__x10_hndl, &cntr2, 0));
 
   //allocate the fence tree structure
   ftree = new ptree_t;
@@ -107,8 +103,8 @@ finishInit ()
   ftree->numPeers = envstr ? atoi(envstr): 0;
 
   //choose the one with the minimum rank as the parent of this group
-  ftree->parent = here();
-
+  ftree->parent = __x10_my_place;
+  ftree->children = new int[ftree->numPeers];
   for (int i = 0; i < ftree->numPeers; i++)  {
     envstr = strchr (envstr, ':') + 1;
     ftree->children[i] = atoi(envstr);
@@ -116,28 +112,28 @@ finishInit ()
   }
    
   ftree->numChild = 0; //leaves have no children
-  if (ftree->parent == here() && here() !=0) { //non-Task0 parent
-    place_t p = here();
+  if (ftree->parent == __x10_my_place && __x10_my_place !=0) { //non-Task0 parent
+    x10_place_t p = __x10_my_place;
     ftree->numChild = ftree->numPeers;
     //send an active message to 0 to let it know that
     // I am a remote parent
-    LAPI_Amsend (GetHandle(),
+    LAPI_Amsend (__x10_hndl,
                  0,
                  (void*) 5,
                  &p,
-                 sizeof(place_t),
+                 sizeof(x10_place_t),
                  NULL,
                  0,
                  NULL,
                  NULL,
                  NULL);
     ftree->parent = 0; //make 0 as my parent
-  } else if(here() == 0) { //Task0 parent
+  } else if(__x10_my_place == 0) { //Task0 parent
     //number of children of Task0 = #peers + #remote parents 
     ftree->numChild += ftree->numPeers ;
   }
   
-  LAPI_Gfence(GetHandle());
+  LAPI_Gfence(__x10_hndl);
   return X10_OK;
 } 
 
@@ -147,22 +143,23 @@ finishTerminate()
   delete ftree;
 }
                    
-error_t
+x10_err_t
 finishStart_ (int* cs)
 {
+  extern lapi_handle_t __x10_hndl;
+  extern int __x10_my_place;
   int tmp;
   
-  if (ftree->parent != here()) {
+  if (ftree->parent != __x10_my_place) {
     numExceptions = 0;
 
     if (*cs > 0) return X10_OK;
-    LRC (LAPI_Waitcntr (GetHandle(), 
+    LRC (LAPI_Waitcntr (__x10_hndl, 
                   &cntr2,
                   1, 
                   &tmp));
     *cs = CONTINUE_STATUS;
   }
-
  
   if (ftree->numChild) {
     lapi_cntr_t originCntr;
@@ -170,8 +167,8 @@ finishStart_ (int* cs)
      bufSize = 0;
     for (int i = 0 ; i < ftree->numChild; i++) {
 
-      LRC (LAPI_Setcntr (GetHandle(), &originCntr, 0));
-      LRC (LAPI_Amsend (GetHandle(), 
+      LRC (LAPI_Setcntr (__x10_hndl, &originCntr, 0));
+      LRC (LAPI_Amsend (__x10_hndl, 
                  ftree->children[i], 
                  (void*) 4,
                  cs,
@@ -181,21 +178,24 @@ finishStart_ (int* cs)
                  (lapi_cntr_t*) continueCntr[i],
                  &originCntr,
                  NULL));
-     LRC (LAPI_Waitcntr (GetHandle(), &originCntr, 1, &tmp));
+     LRC (LAPI_Waitcntr (__x10_hndl, &originCntr, 1, &tmp));
    }
-     LRC (LAPI_Fence(GetHandle()));
+     LRC (LAPI_Fence(__x10_hndl));
   }
   CONTINUE_STATUS = 0;
   return X10_OK;
 }
 
-error_t
+x10_err_t
 finishEnd_ (Exception* e)
 {
+  extern lapi_handle_t __x10_hndl;
+  extern int __x10_my_place;
+
   void* ex_buf = (void*) e;
   int esize = e ? e->size() : 0;
 
-  LAPI_Fence (GetHandle());
+  LAPI_Fence (__x10_hndl);
   if (ftree->numChild) {
     if (e != NULL)  {
       memcpy (buffer+bufSize, e, e->size()); 
@@ -203,10 +203,10 @@ finishEnd_ (Exception* e)
       numExceptions++;
     }
     int tmp;
-    LRC (LAPI_Waitcntr (GetHandle(), &cntr1, ftree->numChild, &tmp));
+    LRC (LAPI_Waitcntr (__x10_hndl, &cntr1, ftree->numChild, &tmp));
     
     if (numExceptions) {
-      if (here() == 0) {
+      if (__x10_my_place == 0) {
         Exception** e = new Exception*[numExceptions];
         int ex_size = bufSize / numExceptions;
         for (int  i = 0; i < numExceptions; i++) {
@@ -220,14 +220,14 @@ finishEnd_ (Exception* e)
     } 
   }
 
-  if (ftree->parent != here()) {
+  if (ftree->parent != __x10_my_place) {
     if (e != NULL) {
       if (ftree->numChild == 0)
         numExceptions++;
       lapi_cntr_t originCntr;
       int tmp;
-      LRC (LAPI_Setcntr (GetHandle(), &originCntr, 0));
-      LRC (LAPI_Amsend (GetHandle(),
+      LRC (LAPI_Setcntr (__x10_hndl, &originCntr, 0));
+      LRC (LAPI_Amsend (__x10_hndl,
 			ftree->parent,
 			(void*) 3, /*LAPI handler for exceptions */
 			&numExceptions,
@@ -237,9 +237,9 @@ finishEnd_ (Exception* e)
 			(lapi_cntr_t*) exceptionCntr[0],
 			&originCntr,
 			NULL));
-      LRC (LAPI_Waitcntr (GetHandle(), &originCntr, 1, &tmp));
+      LRC (LAPI_Waitcntr (__x10_hndl, &originCntr, 1, &tmp));
     } else {
-      LRC (LAPI_Put (GetHandle(), ftree->parent, 0, NULL, NULL, (lapi_cntr_t*) exceptionCntr[0], NULL, NULL)); 
+      LRC (LAPI_Put (__x10_hndl, ftree->parent, 0, NULL, NULL, (lapi_cntr_t*) exceptionCntr[0], NULL, NULL)); 
     }
   }
   return X10_OK;
@@ -248,21 +248,16 @@ finishEnd_ (Exception* e)
 int
 x10lib::finishStart (int cs)
 {
-
-  error_t err = finishStart_ (&cs); 
+  extern lapi_handle_t __x10_hndl;
+  x10_err_t err = finishStart_ (&cs); 
   if (err != X10_OK) {
-    throw err;
-  }
- 
+    throw "finishStart Error";
+  } 
   return cs;
 }
 
-void
+x10_err_t
 x10lib::finishEnd (Exception* e)
 {
-  error_t err = finishEnd_ (e);
-  if (err != X10_OK) {
-    throw err;
-  } 
+  return finishEnd_ (e);
 }
-
