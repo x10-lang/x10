@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: xassert.h,v 1.4 2007-06-08 07:19:04 srkodali Exp $ */
+/* $Id: xassert.h,v 1.5 2007-06-26 16:05:57 ganeshvb Exp $ */
 
 #ifndef __X10_ASSERT_H__
 #define __X10_ASSERT_H__
@@ -26,7 +26,7 @@ using namespace std;
  do { \
  	if ((cond) == 0) \
     	cout << "assert " << stringize(cond) << " failed: " \
-			<< x10lib::here () << " " << __FILE__  << ", line " \
+			<< x10lib::__x10_my_place << " " << __FILE__  << ", line " \
       		<< __LINE__ << "\a" << endl; \
  } while(0) 
 #else

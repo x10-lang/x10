@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_dist.cc,v 1.2 2007-06-18 10:33:50 ganeshvb Exp $ */
+/* $Id: Test_dist.cc,v 1.3 2007-06-26 16:05:58 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -23,7 +23,7 @@ testUniqueDist()
 {
   Region<2> * r = new RectangularRegion<2> (Point<2>(N, M));
 
-  place_t places [4] = {0, 1, 2, 3};
+  x10_place_t places [4] = {0, 1, 2, 3};
 
   UniqueDist<2> u (r, places);
 
@@ -63,7 +63,7 @@ testTiledUniqueDist()
 
   Region<2>* r  = new TiledRegion<2>(Point<2>(N, M), bases);
   
-  place_t places [4] = {0, 1, 2, 3};
+  x10_place_t places [4] = {0, 1, 2, 3};
 
   UniqueDist<2> u (r, places);
   

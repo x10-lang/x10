@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: alloc.h,v 1.3 2007-06-25 19:05:01 ganeshvb Exp $ */
+/* $Id: alloc.h,v 1.4 2007-06-26 16:05:57 ganeshvb Exp $ */
 
 #ifndef __ALLOC_H__
 #define __ALLOC_H__
@@ -15,12 +15,14 @@
 
 #include  <x10/xassert.h>
 #include  <x10/gas.h> 
+#include  <lapi.h>
 
 using namespace std;
 
 namespace x10lib{
   extern lapi_handle_t __x10_hndl;
-
+  extern int __x10_num_places;
+  extern int __x10_my_place;
   class Allocator
   {  
   public:

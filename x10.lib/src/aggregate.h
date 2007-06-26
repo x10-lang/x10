@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.10 2007-06-25 19:05:00 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.11 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -20,7 +20,7 @@
 #ifdef __cplusplus
 namespace x10lib {
 
-  x10_err_t aysncSpawnInlineAgg(x10_place_t tgt,
+  x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
 					x10_async_handler_t hndlr,
 					x10_async_arg_t arg0);
 
@@ -32,7 +32,7 @@ namespace x10lib {
 
   x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
 					x10_async_handler_t hndlr,
-					int n,...);
+				int n,...);
 
   x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
 					x10_async_handler_t hndlr,
@@ -55,7 +55,7 @@ x10_err_t x10_async_spawn_inline_agg2(x10_place_t tgt,
 					x10_async_handler_t hndlr,
 					x10_async_arg_t arg0, x10_async_arg_t arg1);
 
-x10_err_t x10_async_flush(x10_async_handler_t hndlr);
+x10_err_t x10_async_flush(x10_async_handler_t hndlr, size_t size);
 
 #ifdef __cplusplus
 }

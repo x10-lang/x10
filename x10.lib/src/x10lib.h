@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.19 2007-06-26 07:44:39 srkodali Exp $
+ * $Id: x10lib.h,v 1.20 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -24,7 +24,10 @@
 #include <x10/order.h>
 #include <x10/async.h>
 #include <x10/aggregate.h>
+#ifdef __cplusplus
 #include <x10/finish.h>
+#include <x10/array.h>
+#endif
 #include <x10/utility.h>
 #include <lapi.h>
 

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: point.h,v 1.5 2007-05-31 11:25:57 ganeshvb Exp $ */
+/* $Id: point.h,v 1.6 2007-06-26 16:05:57 ganeshvb Exp $ */
 
 #ifndef __X10_POINT_H__
 #define __X10_POINT_H__
@@ -17,6 +17,9 @@
 using namespace std;
 
 namespace x10lib{
+
+  extern int __x10_my_place;
+  extern int __x10_num_places;
   
   template<int RANK>
   class Point {

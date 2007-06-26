@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: switch.h,v 1.4 2007-06-26 10:15:52 srkodali Exp $
+ * $Id: switch.h,v 1.5 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -52,6 +52,9 @@ void FreeSwitch(x10_switch_t sw);
 /* C Lang Interface */
 #ifdef __cplusplus
 extern "C" {
+#else
+struct Switch;
+typedef struct Switch* x10_switch_t;
 #endif
 
 /* Allocate switch object and return reference to it. */
@@ -65,6 +68,9 @@ void x10_decrement_switch(x10_switch_t sw);
 
 /* Perform wait on switch. */
 void x10_next_on_switch(x10_switch_t sw);
+
+/* return the underlying counter */
+lapi_cntr_t* x10_switch_get_handle (x10_switch_t sw);
 
 #ifdef __cplusplus
 } /* closing brace for extern "C" */

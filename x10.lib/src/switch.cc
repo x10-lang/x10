@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: switch.cc,v 1.11 2007-06-26 10:15:52 srkodali Exp $
+ * $Id: switch.cc,v 1.12 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -96,4 +96,10 @@ extern "C"
 void x10_next_on_switch(x10_switch_t sw)
 {
 	return sw->next();
+}
+
+/* return the underlying lapi_cntr_t */
+lapi_cntr_t* x10_switch_get_handle (x10_switch_t sw)
+{
+        return sw->get_handle();
 }

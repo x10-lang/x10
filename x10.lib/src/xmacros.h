@@ -1,12 +1,13 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xmacros.h,v 1.5 2007-06-25 20:06:56 ganeshvb Exp $
+ * $Id: xmacros.h,v 1.6 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_XMACROS_H
 #define __X10_XMACROS_H
+
 
 /* macro for executing the specified LAPI statement and 
  * returning any error associated with it
@@ -21,4 +22,3 @@ do { \
 } while (0)
 
 #endif /* __X10_XMACROS_H */
-//dd	extern int __x10_errno; 

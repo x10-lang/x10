@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_array.cc,v 1.2 2007-06-18 10:33:49 ganeshvb Exp $ */
+/* $Id: Test_array.cc,v 1.3 2007-06-26 16:05:58 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -21,7 +21,7 @@ main (int argc, char* argv[])
 
   Region<1>* r = new RectangularRegion<1>(Point<1>(99));
 
-  place_t p [4] = {0, 1, 2, 3};
+  x10_place_t p [4] = {0, 1, 2, 3};
 
   Region<1>* base = new RectangularRegion<1>(Point<1>(99));
   Region<1>* grid = new RectangularRegion<1>(Point<1>(3));
