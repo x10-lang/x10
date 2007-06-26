@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.29 2007-06-25 20:06:56 ganeshvb Exp $
+# $Id: Makefile,v 1.30 2007-06-26 07:38:08 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -21,8 +21,8 @@ INCLUDES = -I. -I../include  -I ~/libs/lapi/include
 LINKFLAGS =
 RM = rm -f
 AR = ar
-ARFLAGS = -r 
-RANLIB = ranlib 
+ARFLAGS = -r -X 64
+RANLIB = ranlib -X 64
 CP = cp
 MKDIR = mkdir
 
@@ -40,13 +40,15 @@ ARRAY_A = $(SUBDIR1)/array.a
 
 SRCS = aggregate.cc async.cc env.cc err.cc finish.cc gas.cc lock.cc \
 		order.cc progress.cc \
-		register.cc rmc.cc switch.cc x10lib.cc asyncSwitch.cc
+		register.cc rmc.cc switch.cc x10lib.cc asyncSwitch.cc \
+		utility.cc
 OBJS = aggregate.o async.o env.o err.o finish.o gas.o lock.o \
 		order.o progress.o \
-		register.o rmc.o switch.o x10lib.o asyncSwitch.o
+		register.o rmc.o switch.o x10lib.o asyncSwitch.o \
+		utility.o
 HEADERS = env.h err.h gas.h lock.h order.h progress.h \
 		register.h rmc.h switch.h types.h x10lib.h xassert.h \
-		xmacros.h aggregate.h async.h finish.h
+		xmacros.h aggregate.h async.h finish.h utility.h
 
 all: $(LIBTARGET)
 
