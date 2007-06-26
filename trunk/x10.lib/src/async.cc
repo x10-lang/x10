@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.cc,v 1.8 2007-06-25 20:06:56 ganeshvb Exp $
+ * $Id: async.cc,v 1.9 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,9 +9,8 @@
 #include <x10/async.h>
 #include <x10/xmacros.h>
 #include <stdarg.h>
-#include <lapi.h>
 
-namespace x10lib {
+using namespace x10lib;
 
 x10_async_arg_t __x10_async_args[X10_MAX_ASYNC_ARGS];
 
@@ -32,13 +31,13 @@ asyncSpawnHandler(lapi_handle_t hndl, void *uhdr,
 x10_err_t
 asyncRegister()
 {
-	extern lapi_handle_t __x10_hndl;
 
 	LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandler, 2));
 	return X10_OK;
 }
 
 
+namespace x10lib {
 x10_err_t
 asyncSpawnInline(x10_place_t tgt, x10_async_handler_t hndlr,
 			int n, ...)

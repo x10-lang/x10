@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async.cc,v 1.4 2007-06-25 19:05:01 ganeshvb Exp $ */
+/* $Id: Test_async.cc,v 1.5 2007-06-26 16:05:58 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -23,7 +23,6 @@ void async0 (x10_async_arg_t arg)
 
 void asyncSwitch (x10_async_handler_t h, void* arg, int niter) 
 {
-  cout << __x10_my_place << " " << niter << endl;
   x10_async_arg_t* args = (x10_async_arg_t*) arg;
   switch (h) {
    case 0:
@@ -43,7 +42,6 @@ main (int argc, char* argv[])
     for (x10_place_t target = 0; target < __x10_num_places; target++)
        asyncSpawnInline (target, 0, 1, a);
 
-  cout << "here " << endl;
 
   x10lib::SyncGlobal (); 
 

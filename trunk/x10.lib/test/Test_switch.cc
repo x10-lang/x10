@@ -16,18 +16,18 @@ void* headerHandler (lapi_handle_t* hndl, void* uhdr, int* ulen,
 
 int main (int argc, char** argv)
 {
+  Init (NULL, 0);
   cntr = 0;
   LAPI_Addr_set (GetHandle(), (void*) headerHandler, 10);
   if (here() == 0) {
-    switch_t* s = new switch_t;
-    switchInit (s, 0);
+    x10_switch_t s  = AllocSwitch(); 
     for (int i = 0; i < numPlaces(); i++) {
       if (i == here())
 	  {
 	    cntr++;
 	    continue;
 	  }
-      switchAddVal (s, -1);
+      s->decrement(); 
       LAPI_Amsend (GetHandle(),
 		   i,
 		   (void*) 10,
@@ -37,17 +37,18 @@ int main (int argc, char** argv)
 		   0,
 		   NULL,
 		   NULL,
-		   s);
+		   s->get_handle());
     }
 
-    switchNext (s);
-    delete s;
+    s->next();
+    FreeSwitch (s);
   }
   
-  Gfence();
+  SyncGlobal();
   assert (cntr == 1);    
 
   cout << "Test_switch PASSED" << endl;
-  
+ 
+  Finalize(); 
   return 0;
 }

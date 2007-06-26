@@ -1,22 +1,24 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.10 2007-06-25 16:13:33 srkodali Exp $
  * This file is part of X10 Runtime System.
+ * Author : Ganesh Bikshandi
  */
 
-#include <x10/err.h>
+/* $Id: finish.cc,v 1.11 2007-06-26 16:05:57 ganeshvb Exp $ */
+
+#include <iostream>
 #include <x10/xassert.h>
 #include <x10/xmacros.h>
 #include <x10/finish.h>
-#include <string.h>
-#include <stdlib.h>
 #include <lapi.h>
 
-using namespace x10lib;
+using namespace std;
+using namespace x10lib; 
 
 const int MAX_TASKS=256;
 const int MAX_TASKS_NODE = 16;
+const int MAX_NODES = 16;
 const int EX_BUFFER_SIZE = 1024;
 int bufSize = 0;
 char buffer[MAX_TASKS * EX_BUFFER_SIZE];
@@ -26,6 +28,8 @@ lapi_cntr_t cntr1;
 lapi_cntr_t cntr2;
 lapi_long_t exceptionCntr[MAX_TASKS];
 lapi_long_t continueCntr[MAX_TASKS];
+//void* exceptionCntr[MAX_TASKS];
+//void* continueCntr[MAX_TASKS];
 
 int CONTINUE_STATUS;
 
@@ -34,11 +38,11 @@ struct ptree_t
 {
   int numPeers;
   int numChild;
-  int* children;
+  int children[MAX_TASKS_NODE+MAX_NODES];
   int parent;
 };
 
-ptree_t* ftree;
+ptree_t* ftree=NULL;
 
 /* count the number of children for process 0*/
 void*
@@ -83,17 +87,16 @@ exceptionHeaderHandler (lapi_handle_t handle, void* uhdr,
   return NULL;
 }
 
-x10_err_t
+x10_err_t            
 finishInit ()
 {
-  extern lapi_handle_t __x10_hndl;
-  extern int __x10_my_place;
-
   LRC (LAPI_Addr_set (__x10_hndl, (void*) exceptionHeaderHandler, 3));
   LRC (LAPI_Addr_set (__x10_hndl, (void*) continueHeaderHandler, 4));
   LRC (LAPI_Addr_set (__x10_hndl, (void*) numChildHeaderHandler, 5));
   LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr1, exceptionCntr));
   LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr2, continueCntr));
+  //LRC (LAPI_Address_init (__x10_hndl,  &cntr1, exceptionCntr));
+  //LRC (LAPI_Address_init (__x10_hndl,  &cntr2, continueCntr));
   LRC (LAPI_Setcntr (__x10_hndl, &cntr1, 0));
   LRC (LAPI_Setcntr (__x10_hndl, &cntr2, 0));
 
@@ -106,7 +109,7 @@ finishInit ()
 
   //choose the one with the minimum rank as the parent of this group
   ftree->parent = __x10_my_place;
-  ftree->children = new int[ftree->numPeers];
+
   for (int i = 0; i < ftree->numPeers; i++)  {
     envstr = strchr (envstr, ':') + 1;
     ftree->children[i] = atoi(envstr);
@@ -148,8 +151,6 @@ finishTerminate()
 x10_err_t
 finishStart_ (int* cs)
 {
-  extern lapi_handle_t __x10_hndl;
-  extern int __x10_my_place;
   int tmp;
   
   if (ftree->parent != __x10_my_place) {
@@ -162,6 +163,7 @@ finishStart_ (int* cs)
                   &tmp));
     *cs = CONTINUE_STATUS;
   }
+
  
   if (ftree->numChild) {
     lapi_cntr_t originCntr;
@@ -191,9 +193,6 @@ finishStart_ (int* cs)
 x10_err_t
 finishEnd_ (Exception* e)
 {
-  extern lapi_handle_t __x10_hndl;
-  extern int __x10_my_place;
-
   void* ex_buf = (void*) e;
   int esize = e ? e->size() : 0;
 
@@ -250,16 +249,21 @@ finishEnd_ (Exception* e)
 int
 x10lib::finishStart (int cs)
 {
-  extern lapi_handle_t __x10_hndl;
+
   x10_err_t err = finishStart_ (&cs); 
   if (err != X10_OK) {
-    throw "finishStart Error";
-  } 
+    throw err;
+  }
+ 
   return cs;
 }
 
-x10_err_t
+void
 x10lib::finishEnd (Exception* e)
 {
-  return finishEnd_ (e);
+  x10_err_t err = finishEnd_ (e);
+  if (err != X10_OK) {
+    throw err;
+  } 
 }
+

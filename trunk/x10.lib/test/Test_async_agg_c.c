@@ -5,25 +5,25 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg_c.c,v 1.2 2007-06-18 10:33:48 ganeshvb Exp $ */
+/* $Id: Test_async_agg_c.c,v 1.3 2007-06-26 16:05:58 ganeshvb Exp $ */
 
 #include <stdio.h>
 #include <x10/x10lib.h>
 
 int m = 5;
 
-async_arg_t I = 0;
-async_arg_t K = 0;
+x10_async_arg_t I = 0;
+x10_async_arg_t K = 0;
 
-void async0 (async_arg_t arg0)
+void async0 (x10_async_arg_t arg0)
 {
   I += arg0 *  m;
   K++;
 }
 
-int asyncSwitch (async_handler_t h, void* arg, int niter)
+int asyncSwitch (x10_async_handler_t h, void* arg, int niter)
 {
-  async_arg_t* args = (async_arg_t*) arg;
+  x10_async_arg_t* args = (x10_async_arg_t*) arg;
   switch (h) {
   case 0:
   for (int i = 0; i < niter ;i ++)
@@ -42,14 +42,14 @@ main (int argc, char* argv[])
 
   x10_init(NULL,0);
 
-   for (place_t target = 0; target < x10_num_places(); target++)
+   for (x10_place_t target = 0; target < x10_num_places(); target++)
      for (int64_t i = 0; i < N; i++)
        x10_async_spawn_inline_agg1 (target, 0,  i);
      
-   x10_async_flush (0, sizeof(async_arg_t));
+   x10_async_flush (0, sizeof(x10_async_arg_t));
 
      
-  x10_gfence (); 
+  x10_sync_global (); 
   assert (I == x10_num_places() * N * (N-1) / 2 * m);
   assert (K == x10_num_places() * N) ;
 

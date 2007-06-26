@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.13 2007-06-25 20:06:56 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.14 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,7 +11,9 @@
 #include <x10/xmacros.h>
 #include <stdarg.h>
 #include <string.h>
-#include <lapi.h>
+#include <iostream>
+
+using namespace x10lib;
 
 char __x10_agg_arg_buf[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS][X10_MAX_AGG_SIZE*X10_MAX_ASYNC_ARGS_SIZE];
 
@@ -33,8 +35,6 @@ typedef struct {
   int niter;
 } x10_agg_hdr_t;
 
-namespace x10lib {
-
 void
 asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
 {
@@ -44,32 +44,6 @@ asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
 	delete c;
 }
 
-x10_err_t asyncFlush(x10_async_handler_t hndlr, size_t size)
-{
-	lapi_cntr_t cntr;
-	int tmp;
-	x10_agg_hdr_t buf;
-	buf.handler = hndlr;
-	extern int __x10_num_places;
-	extern int __x10_my_place;
-	extern lapi_handle_t __x10_hndl;
-
-	for (int j = 0; j < __x10_num_places; j++) {
-		if (j != __x10_my_place && __x10_agg_counter[hndlr][j] != 0) {
-			buf.niter = __x10_agg_counter[hndlr][j];
-			LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-			LRC(LAPI_Amsend(__x10_hndl, j, (void *)1, &buf,
-						sizeof(x10_agg_hdr_t),
-						(void *)__x10_agg_arg_buf[hndlr][j],
-						size * __x10_agg_counter[hndlr][j],
-						NULL, &cntr, NULL));
-			LRC(LAPI_Waitcntr(__x10_hndl, &cntr, 1, &tmp));
-		}
-		__x10_agg_total[hndlr] -= __x10_agg_counter[hndlr][j];
-		__x10_agg_counter[hndlr][j] = 0;
-	}
-	return X10_OK;
-}
 
 void *
 asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
@@ -79,7 +53,7 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 	x10_agg_hdr_t buf = *((x10_agg_hdr_t *)uhdr);
 	lapi_return_info_t *ret_info =
 					(lapi_return_info_t *)msg_len;
-	if (ret_info->udata_one_pkt_ptr) {
+	if (ret_info->udata_one_pkt_ptr || (*msg_len) == 0) {
 		asyncSwitch(buf.handler, ret_info->udata_one_pkt_ptr,
 					buf.niter);
 		ret_info->ctl_flags = LAPI_BURY_MSG;
@@ -100,17 +74,15 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 
 x10_err_t asyncRegisterAgg()
 {
-	extern lapi_handle_t __x10_hndl;
 
 	LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 1));
 	return X10_OK;
 }
 
+
 x10_err_t asyncSpawnInlineAgg_i(x10_place_t tgt,
 				x10_async_handler_t hndlr, size_t size)
 {
-	extern int __x10_num_places;
-	extern lapi_handle_t __x10_hndl;
 
 	__x10_agg_counter[hndlr][tgt]++;
 	__x10_agg_total[hndlr]++;
@@ -147,6 +119,31 @@ x10_err_t asyncSpawnInlineAgg_i(x10_place_t tgt,
 	return X10_OK;
 }
 
+namespace x10lib {
+
+x10_err_t asyncFlush(x10_async_handler_t hndlr, size_t size)
+{
+	lapi_cntr_t cntr;
+	int tmp;
+	x10_agg_hdr_t buf;
+	buf.handler = hndlr;
+
+	for (int j = 0; j < __x10_num_places; j++) {
+		if (j != __x10_my_place && __x10_agg_counter[hndlr][j] != 0) {
+			buf.niter = __x10_agg_counter[hndlr][j];
+			LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
+			LRC(LAPI_Amsend(__x10_hndl, j, (void *)1, &buf,
+						sizeof(x10_agg_hdr_t),
+						(void *)__x10_agg_arg_buf[hndlr][j],
+						size * __x10_agg_counter[hndlr][j],
+						NULL, &cntr, NULL));
+			LRC(LAPI_Waitcntr(__x10_hndl, &cntr, 1, &tmp));
+		}
+		__x10_agg_total[hndlr] -= __x10_agg_counter[hndlr][j];
+		__x10_agg_counter[hndlr][j] = 0;
+	}
+	return X10_OK;
+}
 x10_err_t
 asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 			void *args, size_t size)
@@ -187,7 +184,7 @@ asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 }
 
 x10_err_t
-aysncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
+asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 		x10_async_arg_t arg0, x10_async_arg_t arg1)
 {
 	size_t size = 2 * sizeof(x10_async_arg_t);

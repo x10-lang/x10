@@ -1,23 +1,22 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array.cc,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+ * $Id: array.cc,v 1.2 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
-/** Sample Implementation file for X10Lib arrays **/
+/** helper functions (internal) for array classe */
 
-#include <x10/x10lib.h>
 #include <iostream>
-
+#include <x10/alloc.h>
 using namespace std;
 
-int
-array_sample()
+namespace x10lib{
+  extern Allocator* GlobalSMAlloc;
+}
+
+void 
+arrayInit ()
 {
-	/* Code for array_sample */
-#ifdef DEBUG
-	cout << "array_sample()" << endl;
-#endif
-	return X10_OK;
+  x10lib::GlobalSMAlloc = new x10lib::Allocator (1UL<<10);
 }

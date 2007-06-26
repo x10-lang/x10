@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.8 2007-06-20 14:09:33 ganeshvb Exp $
+# $Id: Makefile,v 1.9 2007-06-26 16:05:58 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -61,7 +61,7 @@ $(TARGET1): $(OBJS1)
 
 $(TARGET1).o: $(TARGET1).cc
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 	
 $(TARGET2): $(OBJS2)
 	$(RM) $@
@@ -69,7 +69,7 @@ $(TARGET2): $(OBJS2)
 
 $(TARGET2).o: $(TARGET2).cc
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 
 $(TARGET3): $(OBJS3)
 	$(RM) $@
@@ -77,7 +77,7 @@ $(TARGET3): $(OBJS3)
 
 $(TARGET3).o: $(TARGET3).c
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES)  -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES)  -c $< -o $@
 
 $(TARGET4): $(OBJS4)
 	$(RM) $@
@@ -85,7 +85,7 @@ $(TARGET4): $(OBJS4)
 
 $(TARGET4).o: $(TARGET4).c
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES)  -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES)  -c $< -o $@
 
 $(TARGET5): $(OBJS5)
 	$(RM) $@
@@ -93,7 +93,7 @@ $(TARGET5): $(OBJS5)
 
 $(TARGET5).o: $(TARGET5).cc
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 
 $(TARGET6): $(OBJS6)
 	$(RM) $@
@@ -101,7 +101,7 @@ $(TARGET6): $(OBJS6)
 
 $(TARGET6).o: $(TARGET6).cc
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 
 $(TARGET7): $(OBJS7)
 	$(RM) $@
@@ -109,7 +109,7 @@ $(TARGET7): $(OBJS7)
 
 $(TARGET7).o: $(TARGET7).c
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -w $(DEFS) -DVARARGS=1 -DFUNCTOR=1 -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 install:
 	@echo "Done \"install\" in \"test\" subdir."
 

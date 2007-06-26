@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.5 2007-06-25 17:03:20 srkodali Exp $
+# $Id: Makefile,v 1.6 2007-06-26 16:05:57 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for sample programs.
@@ -82,4 +82,4 @@ clean:
 
 .c.o:
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) -qsourcetype=c++ $(DEFS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS)  $(DEFS) $(INCLUDES) -c $< -o $@

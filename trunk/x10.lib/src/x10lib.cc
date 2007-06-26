@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.12 2007-06-26 07:38:08 srkodali Exp $
+ * $Id: x10lib.cc,v 1.13 2007-06-26 16:05:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -10,6 +10,12 @@
 #include <x10/x10lib.h>
 #include <stdlib.h>
 #include <memory.h>
+
+extern x10_err_t asyncRegister();
+extern x10_err_t asyncRegisterAgg();
+extern x10_err_t finishInit();
+extern void finishTerminate();
+extern void arrayInit();
 
 namespace x10lib {
 
@@ -24,6 +30,9 @@ int __x10_num_places;
 int __x10_my_place;
 int __x10_addr_hndl;
 int __x10_addrtbl_sz;
+
+
+
 
 /* Initialization */
 x10_err_t Init(x10_async_handler_t *hndlrs, int n)
@@ -70,6 +79,14 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	__x10_tf.Util_type = LAPI_GET_THREAD_FUNC;
 	(void)LAPI_Util(__x10_hndl, (lapi_util_t *)&__x10_tf);
 
+
+        finishInit();
+        asyncRegister();
+        asyncRegisterAgg();
+        arrayInit();
+ 
+        LAPI_Gfence (__x10_hndl);
+ 
 	/* set X10Lib's initialization variable */
 	__x10_inited = 1;
 	return X10_OK;
@@ -78,6 +95,8 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 /* Termination */
 x10_err_t Finalize(void)
 {
+       finishTerminate();
+    
 	/* termination should be preceded by initialization */
 	if (!__x10_inited)
 		return X10_ERR_INIT;

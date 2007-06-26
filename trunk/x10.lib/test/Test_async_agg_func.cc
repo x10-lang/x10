@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg_func.cc,v 1.1 2007-06-18 10:33:48 ganeshvb Exp $ */
+/* $Id: Test_async_agg_func.cc,v 1.2 2007-06-26 16:05:58 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -17,19 +17,19 @@ using namespace x10lib;
 
 int m = 5;
 
-async_arg_t I = 0;
-async_arg_t K = 0;
+x10_async_arg_t I = 0;
+x10_async_arg_t K = 0;
 
 struct Async0 
 {
-  void operator () (async_arg_t arg0)
+  void operator () (x10_async_arg_t arg0)
   {
     I += arg0 * m;
     K++;
   }
 };
 
-int asyncSwitch (async_handler_t h, async_arg_t* args)
+void asyncSwitch (x10_async_handler_t h, x10_async_arg_t* args)
 {
 }
 
@@ -42,13 +42,13 @@ main (int argc, char* argv[])
 
   asyncRegister_t<1, Async0> (0);
 
-   for (place_t target = 0; target < numPlaces(); target++)
+   for (x10_place_t target = 0; target < numPlaces(); target++)
      for (uint64_t i = 0; i < N; i++)
        asyncSpawnInlineAgg_t<Async0> (target, 0, i);
      
    asyncFlush_t<1> (0);
      
-  x10lib::Gfence (); 
+  x10lib::SyncGlobal (); 
 //  cout << here() << " I " << I << " " << K << endl;
   assert (I == numPlaces() * N * (N-1) / 2 * m);
   assert (K == numPlaces() * N) ;

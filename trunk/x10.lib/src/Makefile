@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.30 2007-06-26 07:38:08 srkodali Exp $
+# $Id: Makefile,v 1.31 2007-06-26 16:05:57 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -14,15 +14,15 @@ SUBDIR1 = array
 SUBDIR2 = sched
 SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 LIBDIR = ../lib
-CXX = mpCC_r -q64 -qarch=pwr5
+CXX = mpCC_r 
 DEFS = #-DDEBUG
-CXXFLAGS = -qtune=pwr5 -O3 -qhot
-INCLUDES = -I. -I../include  -I ~/libs/lapi/include
+CXXFLAGS = -qtune=pwr5 -O3 -q64 -qarch=pwr5 -qhot
+INCLUDES = -I. -I../include  
 LINKFLAGS =
 RM = rm -f
 AR = ar
-ARFLAGS = -r -X 64
-RANLIB = ranlib -X 64
+ARFLAGS = -r -X64
+RANLIB = ranlib -X64
 CP = cp
 MKDIR = mkdir
 
@@ -50,12 +50,12 @@ HEADERS = env.h err.h gas.h lock.h order.h progress.h \
 		register.h rmc.h switch.h types.h x10lib.h xassert.h \
 		xmacros.h aggregate.h async.h finish.h utility.h
 
-all: $(LIBTARGET)
+all: $(LIBTARGET) 
 
 #$(LIBTARGET): $(OBJS) $(SCHED_A)
-$(LIBTARGET): $(OBJS)
+$(LIBTARGET): $(OBJS) $(ARRAY_A)
 	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(ARRAY_A)
 	$(RANLIB) $@
 
 myput: myput.o
