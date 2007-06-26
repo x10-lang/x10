@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rmc.cc,v 1.1 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: rmc.cc,v 1.2 2007-06-26 10:15:51 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -57,26 +57,11 @@ x10_err_t __get(x10_gas_ref_t src, void *dest, int n,
 			if (sw == NULL)
 				return X10_ERR_PARAM_INVALID;
 			
-			/* retrieve and init the provided handle
-			 * before waiting on it according to the type
-			 */
+			/* retrieve and init the provided handle */
 			lcp = sw->get_handle();
-			sw->reset();
+			sw->decrement();
 
-			switch(sw->get_type()) {
-				/*
-				case X10_SEND_WAIT:
-					LRC(LAPI_Get(__x10_hndl, place, n, addr, dest,
-						lcp, NULL));
-					break;
-				*/
-				case X10_RECV_WAIT:
-				case X10_BOTH_WAIT:
-				default:
-					LRC(LAPI_Get(__x10_hndl, place, n, addr, dest,
-						NULL, lcp));
-					break;
-			}
+			LRC(LAPI_Get(__x10_hndl, place, n, addr, dest, NULL, lcp));
 			break;
 		case RMC_BLOCK:
 			/* blocking operation */
@@ -157,34 +142,11 @@ x10_err_t __put(void *src, x10_gas_ref_t dest, int n,
 			if (sw == NULL)
 				return X10_ERR_PARAM_INVALID;
 				
-			/* retrieve and initialize the provided handle
-			 * before waiting on it according to the type
-			 */
+			/* retrieve and initialize the provided handle */
 			lcp = sw->get_handle();
-			sw->reset();
+			sw->decrement();
 
-			switch(sw->get_type()) {
-				case X10_SEND_WAIT:
-					LRC(LAPI_Put(__x10_hndl, place, n, addr, src,
-							NULL, lcp, NULL));
-					break;
-				/*
-				case X10_RECV_WAIT:
-					x10_gas_ref_t ref;
-					x10_switch_t rsw;
-
-					ref = x10_make_gas_ref(place, (void *)sw);
-					rsw = (x10_switch_t)x10_gas2addr(ref);
-					LRC(LAPI_Put(__x10_hndl, place, n, addr, src,
-							rsw->get_handle(), NULL, NULL));
-					break;
-				*/
-				case X10_BOTH_WAIT:
-				default:
-					LRC(LAPI_Put(__x10_hndl, place, n, addr, src,
-							NULL, NULL, lcp));
-				break;
-			}
+			LRC(LAPI_Put(__x10_hndl, place, n, addr, src, NULL, NULL, lcp));
 			break;
 		case RMC_BLOCK:
 			/* blocking operation */
