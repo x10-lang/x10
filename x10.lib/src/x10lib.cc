@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.11 2007-06-25 15:47:47 srkodali Exp $
+ * $Id: x10lib.cc,v 1.12 2007-06-26 07:38:08 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -50,6 +50,16 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	/* LAPI initialization */
 	(void)memset((void *)&info, 0, sizeof(lapi_info_t));
 	LRC(LAPI_Init(&__x10_hndl, &info));
+
+	/* set mode of operation (polling or interrupt)
+	 * default: polling mode
+	 */
+	envp = getenv("X10_INTERRUPT_SET");
+	if (envp && (strcmp(envp, "yes") == 0))
+		(void)LAPI_Senv(__x10_hndl, INTERRUPT_SET, 1);
+	else
+		(void)LAPI_Senv(__x10_hndl, INTERRUPT_SET, 0);
+	
 
 	/* global data initialization */
 	(void)LAPI_Qenv(__x10_hndl, TASK_ID, &__x10_my_place);
