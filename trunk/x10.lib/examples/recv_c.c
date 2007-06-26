@@ -1,6 +1,6 @@
 /*
  * (c) Copyright IBM Corporation 2007
- * $Id: recv_c.c,v 1.1 2007-06-25 17:03:20 srkodali Exp $
+ * $Id: recv_c.c,v 1.2 2007-06-26 10:16:41 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -73,7 +73,7 @@ main(int argc, char *argv[])
 	/* allocate memory for remote addrs */
 	data_buffer_list = (x10_gas_ref_t *)malloc(num_places *
 							sizeof(x10_gas_ref_t));
-	tgt_switch = x10_alloc_switch(X10_BOTH_WAIT);
+	tgt_switch = x10_alloc_switch();
 
 	/* for each place, get the remote addr and store it */
 	for (i = 0; i < num_places; i++) {
@@ -121,7 +121,7 @@ main(int argc, char *argv[])
 				tgt_switch));
 
 		/* wait on completion of the data transfer */
-		x10_wait_on_switch(tgt_switch);
+		x10_next_on_switch(tgt_switch);
 
 		/* to sync with buddy */
 		x10_sync_global();
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
 		x10_sync_global();
 
 		/* wait for data to arrive from src */
-		/* x10_wait_on_switch(tgt_switch); */
+		/* x10_next_on_switch(tgt_switch); */
 
 		/* display received data */
 		printf("place %d ==>\n", my_place);
