@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.18 2007-06-25 15:47:47 srkodali Exp $
+ * $Id: x10lib.h,v 1.19 2007-06-26 07:44:39 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -25,6 +25,7 @@
 #include <x10/async.h>
 #include <x10/aggregate.h>
 #include <x10/finish.h>
+#include <x10/utility.h>
 #include <lapi.h>
 
 /* Maximum message size allowed. */
