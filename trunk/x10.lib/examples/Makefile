@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.6 2007-06-26 16:05:57 ganeshvb Exp $
+# $Id: Makefile,v 1.7 2007-06-27 14:48:33 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for sample programs.
@@ -38,7 +38,24 @@ TARGET4 = recv_c
 SRCS4 = $(TARGET4).c
 OBJS4 = $(TARGET4).o
 
-TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4)
+TARGET5 = addr_cc
+SRCS5 = $(TARGET5).cc
+OBJS5 = $(TARGET5).o
+
+TARGET6 = recv_cc
+SRCS6 = $(TARGET6).cc
+OBJS6 = $(TARGET6).o
+
+TARGET7 = acc_ret_c
+SRCS7 = $(TARGET7).c
+OBJS7 = $(TARGET7).o
+
+TARGET8 = acc_ret_cc
+SRCS8 = $(TARGET8).cc
+OBJS8 = $(TARGET8).o
+
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) \
+			$(TARGET6) $(TARGET7) $(TARGET8)
 
 all: $(TARGETS)
 
@@ -57,6 +74,22 @@ $(TARGET3): $(OBJS3)
 $(TARGET4): $(OBJS4)
 	$(RM) $@
 	$(CXX) $(LINKFLAGS) $(OBJS4)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET5): $(OBJS5)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS5)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET6): $(OBJS6)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS6)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET7): $(OBJS7)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS7)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET8): $(OBJS8)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS8)  -o $@ $(LIBDIRS) $(LIBS)
 
 install:
 	@echo "Nothing to \"install\" in \"examples\" subdir."

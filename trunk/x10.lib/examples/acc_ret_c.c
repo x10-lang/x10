@@ -1,6 +1,6 @@
 /*
  * (c) Copyright IBM Corporation 2007
- * $Id: recv_c.c,v 1.3 2007-06-27 14:48:33 srkodali Exp $
+ * $Id: acc_ret_c.c,v 1.1 2007-06-27 14:48:33 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,6 +10,8 @@
  ** pairs (0,1), (2,3), etc.
  ** For each pair, an array of ints is transferred
  ** from src to tgt with a x10_put call.
+ ** The ints are then manipulated and sent back to the src
+ ** with another x10_put call.
  ** The various data buffers are printed along the way to
  ** show progress.
  **/
@@ -90,12 +92,12 @@ main(int argc, char *argv[])
 
 		/* initialize data buffer */
 		for (i = 0; i < ARRAYLEN; i++) {
-			data_buffer[i] = i * i;
+			data_buffer[i] = i;
 		}
 
 		printf("place %d ==>\n", my_place);
 		for (i = 0; i < ARRAYLEN; i++) {
-			printf("\tsrc data_buffer[%d]: %d\n",
+			printf("\torig data_buffer[%d]: %d\n",
 					i, data_buffer[i]);
 		}
 
@@ -126,19 +128,42 @@ main(int argc, char *argv[])
 		/* to sync with buddy */
 		x10_sync_global();
 
+		/* wait for data to arrive from partner */
+		x10_sync_global();
+
+		/* display the received data */
+		printf("place %d ==>\n", my_place);
+		for (i = 0; i < ARRAYLEN; i++) {
+			printf("\tfinal data_buffer[%d]: %d\n",
+					i, data_buffer[i]);
+		}
+
 	} else { /* receiver */
+		int tmp_buf[ARRAYLEN]; /* for intermediate values */
+
+		buddy = my_place - 1;
+
+		for (j = 0; j < ARRAYLEN; j++) {
+			tmp_buf[j] = ARRAYLEN - (2 * j);
+		}
+
 		/* match src's sync */
 		x10_sync_global();
 
 		/* wait for data to arrive from src */
 		x10_sync_global(); /* fix for the moment */
 
-		/* display received data */
-		printf("place %d ==>\n", my_place);
+		/* store different set of values in array */
 		for (i = 0; i < ARRAYLEN; i++) {
-			printf("\tdest data_buffer[%d]: %d\n",
-					i, data_buffer[i]);
+			data_buffer[i] += tmp_buf[i];
 		}
+
+		/* Send new data values back to our buddy. */
+		XRC(x10_put(&(data_buffer[0]),
+				data_buffer_list[buddy], ARRAYLEN * sizeof(int)));
+
+		/* sync with partner */
+		x10_sync_global();
 	}
 
 	/* all places will execute this before term */

@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: run_rlsecomp1.sh,v 1.2 2007-04-27 12:54:54 srkodali Exp $
+# $Id: run_rlsecomp1.sh,v 1.3 2007-06-27 14:48:33 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -17,7 +17,37 @@ echo "poe ./hello_cc -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list"
 poe ./hello_cc -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list
 echo "\n.....done"
 
-echo "Running Example 2 (hello.c).....\n"
+echo "\nRunning Example 2 (hello.c).....\n"
 echo "poe ./hello_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list"
 poe ./hello_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list
+echo "\n.....done"
+
+echo "\nRunning Example 3 (addr_c.c).....\n"
+echo "poe ./addr_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list"
+poe ./addr_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list
+echo "\n.....done"
+
+echo "\nRunning Example 4 (recv_c.c).....\n"
+echo "poe ./recv_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list"
+poe ./recv_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list
+echo "\n.....done"
+
+echo "\nRunning Example 5 (addr_cc.cc).....\n"
+echo "poe ./addr_cc -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list"
+poe ./addr_cc -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list
+echo "\n.....done"
+
+echo "\nRunning Example 6 (recv_cc.cc).....\n"
+echo "poe ./recv_cc -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list"
+poe ./recv_cc -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list
+echo "\n.....done"
+
+echo "\nRunning Example 7 (acc_ret_c.c).....\n"
+echo "poe ./acc_ret_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list"
+poe ./acc_ret_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list
+echo "\n.....done"
+
+echo "\nRunning Example 8 (acc_ret_cc.cc).....\n"
+echo "poe ./acc_ret_cc -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list"
+poe ./acc_ret_c -procs 2 -hostfile ../hostfiles/host_rlsecomp1.list
 echo "\n.....done"
