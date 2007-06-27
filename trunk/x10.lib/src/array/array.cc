@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array.cc,v 1.2 2007-06-26 16:05:57 ganeshvb Exp $
+ * $Id: array.cc,v 1.3 2007-06-27 07:17:20 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,7 +12,7 @@
 using namespace std;
 
 namespace x10lib{
-  extern Allocator* GlobalSMAlloc;
+  Allocator* GlobalSMAlloc = NULL;
 }
 
 void 

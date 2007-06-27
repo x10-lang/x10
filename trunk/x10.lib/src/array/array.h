@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.h,v 1.7 2007-06-25 20:06:56 ganeshvb Exp $ */
+/* $Id: array.h,v 1.8 2007-06-27 07:17:20 ganeshvb Exp $ */
 
 #ifndef __X10_ARRAY_H__
 #define __X10_ARRAY_H__
@@ -15,7 +15,7 @@
 
 namespace x10lib{
   
-  Allocator* GlobalSMAlloc = NULL;
+  extern Allocator* GlobalSMAlloc;
  
   typedef enum {ROW_MAJOR, COLUMN_MAJOR, TILE_MAJOR} order_t; 
     
@@ -188,6 +188,10 @@ namespace x10lib{
 
   template <typename T, int RANK>
     Array<T, RANK>& update (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
+
+template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
+Array<T, RANK>*
+makeArrayLocal (const Region<RANK>* region, const Dist<RANK>* dist);
 
 }
 

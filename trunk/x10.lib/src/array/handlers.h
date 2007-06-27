@@ -5,13 +5,15 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: handlers.h,v 1.6 2007-06-26 16:05:57 ganeshvb Exp $ */
+/* $Id: handlers.h,v 1.7 2007-06-27 07:17:20 ganeshvb Exp $ */
 
 #ifndef __HANDLERS_H__
 #define __HANDLERS_H__
 
 #include <lapi.h>
 #include <x10/types.h>
+
+namespace x10lib {
 
 template <int RANK, template <int N> class REGION, template <int N> class DIST>
 struct metaDataDescr
@@ -59,6 +61,7 @@ arrayConstructionGlobalSM (lapi_handle_t hndl, void* uhdr, uint* uhdr_len,
 
   *comp_h = NULL;
   return NULL;
+}
 }
 
 #endif

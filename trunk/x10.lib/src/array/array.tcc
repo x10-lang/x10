@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.8 2007-06-25 20:06:56 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.9 2007-06-27 07:17:20 ganeshvb Exp $ */
 
 #include "array.h"
 #include <x10/alloc.h>
@@ -13,7 +13,7 @@
 #include "x10/gas.h"
 #include "x10/xassert.h"
 
-using namespace x10lib;
+namespace x10lib {
 typedef void (*void_func_t)();
 
 //================= Local Arrays ====================================
@@ -269,6 +269,7 @@ template <typename T, int RANK>
 Array<T, RANK>& update (const Array<T, RANK>& a1, const Array<T, RANK>& a2)
 {
   assert (false);
+}
 }
 
 // Local Variables:

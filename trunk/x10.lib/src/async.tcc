@@ -5,14 +5,14 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.tcc,v 1.3 2007-05-17 09:48:52 ganeshvb Exp $ */
+/* $Id: async.tcc,v 1.4 2007-06-27 07:17:19 ganeshvb Exp $ */
 
 #include <iostream>
 #include <stdarg.h>
 
 #include "async.h"
 
-using namespace x10lib;
+namespace x10lib {
 using namespace std;
 
 async_arg_t args[MAX_ARGS];
@@ -85,7 +85,7 @@ x10lib::asyncSpawnInline (place_t target, ...)
 
   return X10_OK;
 }
-
+}
 
 // Local Variables:
 // mode: C++
