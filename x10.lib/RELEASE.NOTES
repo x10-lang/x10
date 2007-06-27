@@ -1,0 +1,47 @@
+Wed Jun 27 11:56:48 2007 Release 0.5
+
+This the first external release of x10lib. X10lib is a C/C++ API
+intended to be used to develop high-performance applications on top of
+clusters, using the X10 programming model. X10lib supports a notion of
+multiple places (nodes), a global address space across places,
+asynchronous execution (asyncs), ordering (finish, clocks and
+switches, fences), atomic execution, and global multi-dimensional
+arrays.
+
+This release supports basic functionality. (Subsequent releases with
+additional functionality are planned.) it supports multiple places,
+global address space, a limited form of async (including one-sided
+operations such as blocking and nonblocking remote puts/gets), local
+and global fences, a global finish, and switches. Please consult
+doc/api.txt for more details
+
+This release is intended to run only on Power5/AIX systems, and uses
+IBM's LAPI (Low-level Application Programmer Interface) as the
+communication layer. x10lib can be run in standalone mode (on a single
+node), or on a network of Power5 Symmetric Multiprocessors (SMPs).
+LAPI may be used in Internet Protocol (IP) mode and in User-space (US)
+mode.  (US mode must be used on top of a Federation switch.)
+
+x10lib has been tested with AIX PThreads version 5.3.0.4, with POE
+(Parallel Operating Environment) 4.2.2.4, RSCT (Reliable Scalable
+Cluster Technology) 2.4.2.6, Load Leveler 3.3.2.4. The IBM XL C/C++
+compiler v 8.0.0.0 was used to build the system.
+
+(Note: For development purposes we also use x10lib in standalone mode
+on Linux systems. Please see README.STANDALONE for more details.)
+
+x10lib is built for 64-bit systems. If you need a 32-bit system,
+please contact us.
+
+Please use x10-lib-users@lists.sourceforge.net for questions about the
+usage of X10lib and bugreports. (We are setting up a bug-tracking
+system.) Please use x10-lib-developers@lists.sourceforge.net to
+communicate with X10lib developers.
+
+--X10lib team
+
+Rajkishore Barik
+Ganesh Bikshandi
+Sreedhar Kodali
+Sriram Krishnamoorthy
+Vijay Saraswat
