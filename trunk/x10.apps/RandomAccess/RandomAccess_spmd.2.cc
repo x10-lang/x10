@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.2.cc,v 1.2 2007-06-25 16:31:38 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.2.cc,v 1.3 2007-06-27 08:25:11 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -55,7 +55,7 @@ __async__2 (__async__2__args args)
 }
 
 void
-asyncSwitch (async_handler_t h, void* arg, int niter)
+asyncSwitch (x10_async_handler_t h, void* arg, int niter)
 {
   char* args = (char*) arg;
   switch (h) {
