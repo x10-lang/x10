@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: switch.h,v 1.5 2007-06-26 16:05:57 ganeshvb Exp $
+ * $Id: switch.h,v 1.6 2007-06-27 12:25:12 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -18,6 +18,7 @@ typedef enum {
 	X10_SEND_WAIT, /* Wait on send completion */
 	X10_RECV_WAIT, /* Wait on receive completion */
 } x10_wait_type_t;
+
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
