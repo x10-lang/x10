@@ -2,7 +2,7 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.1
+                              Version 0.5
 
 
                               R E A D M E
@@ -13,5 +13,4 @@ This is the Readme file for X10 Runtime System Source.  Primarily this deals wit
 Messaging Layer and Integration Issues.  For specific issues, look into respective
 subdirs.
 
-
-* Currently, only stub versions of the basic message semantics are included.
+!!! Needs updation. !!!

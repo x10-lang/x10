@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: mkdist.sh,v 1.3 2007-06-04 10:51:33 srkodali Exp $
+# $Id: mkdist.sh,v 1.4 2007-06-27 18:08:19 srkodali Exp $
 # Script for making distribution.
 #
 
@@ -20,7 +20,7 @@ CAT=`which cat`
 
 # version
 MAJOR_VERSION=0
-MINOR_VERSION=1
+MINOR_VERSION=5
 
 # tmp dir
 TMP=`${PWD}`/tmp
