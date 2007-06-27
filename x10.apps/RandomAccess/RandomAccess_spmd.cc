@@ -7,7 +7,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.21 2007-06-25 19:37:48 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.22 2007-06-27 08:25:11 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -279,9 +279,11 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
     
   cputime += mysecond();
 
-  bool cond2;
+  //cout <<"Hello " << VERIFY << endl;
+  bool cond2=false;
   if(__x10_my_place != 0) goto SKIP_c2;
   cond2 = VERIFY == UPDATE_AND_VERIFICATION;
+  //cout << "Here " << cond2 << endl;
   CS = cond2 ? 3 : 4;
   
   if (!cond2) goto SKIP_TO_END_OF_c3;
@@ -392,13 +394,14 @@ int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
 extern "C" {
   int main (int ac, char* av[])
   {
-    Init (NULL, 0);
+ //   Init (NULL, 0);
     x10::array<x10::ref<x10::lang::String> >* args = x10::convert_args (ac, av);
     
     RandomAccess_Dist::main (*args);
 
     x10::free_args (args);
-    Finalize(); 
-    return x10::exitCode;
+//    Finalize(); 
+    return 0;
+ //   return x10::exitCode;
   }
 }
