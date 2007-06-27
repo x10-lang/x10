@@ -3,7 +3,7 @@ Wed Jun 27 13:00:55 2007
 Release 1.5
 
 This release of the Experimental Concurrent Programming Language (X10)
-supports the following additional features (over Release 1.0):
+supports the following additional features (since Release 1.0):
 
 * User-level annotations. X10 now supports a comprehensive
   user-specified annotation system. Programmers may define new kinds of
