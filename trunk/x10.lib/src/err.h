@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: err.h,v 1.5 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: err.h,v 1.6 2007-06-27 17:23:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -24,7 +24,7 @@ typedef enum {
 	X10_ERR_PARAM_INVALID, /* Parameter is invalid */
 	X10_ERR_ADDR_HNDL_RANGE, /* Address handle is out of range */
 	X10_ERR_HNDLR_NULL, /* Handler is NULL */
-	X10_ERR_LAPI, /* Underlying LAPI operation failed */
+	X10_ERR_COM, /* Underlying messaging operation failed */
 	X10_ERR_CODE_UNKNOWN, /* Out of range error code */
 	X10_ERR_CODE_MAX /* Maximum error code */
 } x10_err_t;
