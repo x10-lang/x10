@@ -41,12 +41,6 @@
     <target name="init">
         <tstamp/>
         <mkdir dir="${build}"/>
-        <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
-            <isset property="env.LOCAL_POLYGLOT_JAR"/>
-        </condition>
-        <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
-            <isset property="env.LOCAL_LPG_JAR"/>
-        </condition>
     </target>
     <target name="cleanall" depends="clean">
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
@@ -73,44 +67,13 @@
         <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="build" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
-    <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
-        <!-- TODO: move this into x10.common -->
-        <mkdir dir="${lib}"/>
-        <property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
-        <property name="lpg.jar.url" value="${lpg.url}/lpg2.jar"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
-        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
-        <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
-    </target>
-    <target name="lpg-local-jar" depends="init" if="local.lpg.jar">
-        <!-- TODO: move this into x10.common -->
-        <mkdir dir="${lib}"/>
-        <copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
-        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
-        <fail message="Unable to find ${lpg.jar}" unless="lpg.jar.present"/>
-    </target>
-    <target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
-        <!-- TODO: move this into x10.common -->
-        <mkdir dir="${lib}"/>
-        <property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/plugins"/>
-        <!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_2.0.1.jar"/>-->
-        <!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_nightly.jar"/>-->
-        <property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_latest.jar"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
-        <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <fail message="Unable to get ${polyglot.jar}" unless="polyglot.jar.present"/>
-    </target>
-    <target name="polyglot-local-jar" depends="init" if="local.polyglot.jar">
-        <!-- TODO: move this into x10.common -->
-        <mkdir dir="${lib}"/>
-        <copy file="${local.polyglot.jar}" tofile="${lib}/${polyglot.jar}"/>
-        <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <fail message="Unable to find ${polyglot.jar}" unless="polyglot.jar.present"/>
-    </target>
     <target name="runtime-jar" depends="init">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
-    <target name="build" depends="init,lpg-jar,polyglot-jar,runtime-jar">
+    <target name="prereq-jars" depends="init,runtime-jar">
+        <ant antfile="${x10.common.location}/build.xml" target="dist" inheritAll="false" dir="${x10.common.location}"/>
+    </target>
+    <target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <!-- <javac destdir="${build}" source="1.4" target="1.4" debug="on"> -->
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
