@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: err.cc,v 1.1 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: err.cc,v 1.2 2007-06-27 17:23:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -16,6 +16,8 @@ const char *__x10_err_msg[] = {
 	"The X10Lib is not initalized.",
 	/* X10_ERR_RET_PTR_NULL */
 	"The specified return value pointer is NULL.",
+	/* X10_ERR_RET_VAL */
+	"The specified return value pointer is not valid.",
 	/* X10_ERR_QUERY_TYPE */
 	"The specified query type is invalid.",
 	/* X10_ERR_SET_VAL */
@@ -56,7 +58,7 @@ x10_err_t ErrMsg(x10_err_t err_code, char *buf, int len)
 	if (err_code < 0 || err_code >= X10_ERR_CODE_MAX)
 		return X10_ERR_CODE_UNKNOWN;
 
-	if (err_code == X10_ERR_LAPI)
+	if (err_code == X10_ERR_COM)
 		(void)LAPI_Msg_string(__x10_errno, buf);
 
 	nbytes = (len < X10_MAX_ERR_STRING) ? (len - 1) :
