@@ -1,3 +1,0 @@
-// SYNOPSIS: #0: exprToCheck #1 either ! or empty
-
-#1 RuntimeCastChecker.isObjectNotNull(#0) 

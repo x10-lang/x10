@@ -1,3 +1,0 @@
-**/X10Tests.java
-**/AnalysisTests.java
-

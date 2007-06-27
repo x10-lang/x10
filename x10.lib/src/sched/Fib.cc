@@ -268,24 +268,23 @@ int main(int argc, char *argv[]) {
   if (argc > 2) 
     Worker::reporting = true;
 
+  Pool *g = new Pool(procs);
+  assert(g != NULL);
 //   int points[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40};
     
 //   for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
   for (int n = 5; n <= 25; n+=5) {
-    Pool *g = new Pool(procs);
-    assert(g != NULL);
-
 //     int n = points[i];
      //    anon_Job1 job(g, n);
 //     assert(job != NULL);
       
-    anon_Job1 *job = new anon_Job1(g, n);
     long long s = nanoTime();
     for(int j=0; j<nReps; j++) {
-      assert(job != NULL);
-      g->submit(job);
-      result = job->getInt();
-      //delete job;
+      anon_Job1 job(g, n);
+      //     assert(job != NULL);
+      g->submit(&job);
+      result = job.getInt();
+      //      delete job;
     }
     long long t = nanoTime();
 
@@ -300,12 +299,10 @@ int main(int argc, char *argv[]) {
 //     long t = System.nanoTime();
 //     System.out.println(points[i] + " " + (t-s)/1000000 
 // 		       + " " + result + " " + (result==realfib(n)?"ok" : "fail") );
-
-    g->shutdown();
-    delete g;
-    delete job;
   }
 
+  g->shutdown();
+  delete g;
 
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
   cerr<<"Frame. nCons = "<<Frame::nCons<<" nDestruct="<<Frame::nDestruct<<endl;
