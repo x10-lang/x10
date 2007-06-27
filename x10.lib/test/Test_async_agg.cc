@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.3 2007-06-26 16:05:58 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.4 2007-06-27 17:07:00 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -71,7 +71,7 @@ struct args {
 int 
 main (int argc, char* argv[])
 {
-  int N = 2048;
+  int N = 2053;
 
   x10lib::Init(NULL,0);
 
@@ -82,9 +82,9 @@ main (int argc, char* argv[])
        asyncSpawnInlineAgg (target, 1, &arg, 0);
        asyncSpawnInlineAgg (target, 2, i, m);
     } 
-   asyncFlush (0, 0);
+   asyncFlush (0, sizeof(x10_async_arg_t));
    asyncFlush (1, 0);
-   asyncFlush (2, 0);
+   asyncFlush (2, 2*sizeof(x10_async_arg_t));
 
      
   x10lib::SyncGlobal(); 
