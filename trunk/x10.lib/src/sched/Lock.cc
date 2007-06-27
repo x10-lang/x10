@@ -19,21 +19,33 @@ SpinLock::SpinLock() {  spin_lock_var = 0; }
 SpinLock::~SpinLock() {}
 
 
-inline void SpinLock::spin_lock_init()
+void SpinLock::spin_lock_init()
 {
 	spin_lock_var = 0; 
 }
-inline void SpinLock::spin_lock_wait()
+
+void SpinLock::spin_lock_wait()
 {
-	if (atomic_exchange(&(spin_lock_var),1) == 0) return;
-	WRITE_BARRIER();
-	do {
-		  while (spin_lock_var != 0);
-	} while (atomic_exchange(&(spin_lock_var),1) != 0);
-	READ_BARRIER();
+  int res=1;
+  if(compare_exchange((int *)&spin_lock_var, 0, 1)==1) return;
+  WRITE_BARRIER();
+  do {
+    while(spin_lock_var != 0);
+    res = compare_exchange((int *)&spin_lock_var, 0, 1);
+  } while(res == 0);
+  MEM_BARRIER();
+
+  /*
+  if (atomic_exchange(&(spin_lock_var),1) == 0) return;
+  WRITE_BARRIER();
+  do {
+    while (spin_lock_var != 0);
+  } while (atomic_exchange(&(spin_lock_var),1) != 0);
+  READ_BARRIER();
+  */
 }
 
-inline int SpinLock::spin_lock_try()
+int SpinLock::spin_lock_try()
 {
 	WRITE_BARRIER();
 	if (atomic_exchange(&(spin_lock_var),1) == 0) 
@@ -43,7 +55,7 @@ inline int SpinLock::spin_lock_try()
 	}
 	return 0;
 }
-inline void SpinLock::spin_lock_signal()
+void SpinLock::spin_lock_signal()
 {
 	WRITE_BARRIER();
 	spin_lock_var = 0;

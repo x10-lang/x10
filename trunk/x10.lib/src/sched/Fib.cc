@@ -255,36 +255,46 @@ protected:
 };
 
 int main(int argc, char *argv[]) {
-  int procs;
+  int result;
 
-  if(argc < 2) {
-    printf("Usage: %s <threads>\n", argv[0]);
+  if(argc < 3) {
+    printf("Usage: %s <threads> <nReps> \n", argv[0]);
     exit(0);
   }
 
-  procs = atoi(argv[1]);
+  const int procs = atoi(argv[1]);
+  const int nReps = atoi(argv[2]);
   cout<<"Number of procs=" << procs <<endl;
   if (argc > 2) 
     Worker::reporting = true;
 
   Pool *g = new Pool(procs);
   assert(g != NULL);
-  int points[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40};
+//   int points[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40};
     
-  for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
-    int n = points[i];
-    Job *job = new anon_Job1(g, n);
-    assert(job != NULL);
+//   for (int i = 0; i < sizeof(points)/sizeof(int); i++) {
+  for (int n = 5; n <= 25; n+=5) {
+//     int n = points[i];
+     //    anon_Job1 job(g, n);
+//     assert(job != NULL);
       
     long long s = nanoTime();
-    g->submit(job);
-    int result = job->getInt();
+    for(int j=0; j<nReps; j++) {
+      anon_Job1 job(g, n);
+      //     assert(job != NULL);
+      g->submit(&job);
+      result = job.getInt();
+      //      delete job;
+    }
     long long t = nanoTime();
 
-    cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<
-      FibC::realfib(points[i])<<"\t Time="<<(t-s)/1000000<<"ms"<<endl;
+//     cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<
+//       FibC::realfib(points[i])<<"\t Time="<<(t-s)/1000000<<"ms"<<endl;
+    cout<<"Fib("<<n<<")\t="<<result<<"\t"<<
+      FibC::realfib(n)<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;
 
-    delete job;
+
+
       
 //     long t = System.nanoTime();
 //     System.out.println(points[i] + " " + (t-s)/1000000 

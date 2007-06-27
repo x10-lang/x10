@@ -584,4 +584,5 @@ double Closure::resultDouble() { assert(0); abort(); return 0.0;}
 	
 void Closure::setResultObject(void *x) {assert(0); abort();}
 void *Closure::resultObject() { assert(0); abort(); return NULL; }
-bool Closure::requiresGlobalQuiescence() volatile { return false; }
+bool Closure::requiresGlobalQuiescence() const { return false; }
+
