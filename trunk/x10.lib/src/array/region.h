@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: region.h,v 1.2 2007-05-09 12:40:30 ganeshvb Exp $ */
+/* $Id: region.h,v 1.3 2007-06-27 07:40:48 ganeshvb Exp $ */
 
 #ifndef __X10_REGION_H__
 #define __X10_REGION_H__
@@ -221,7 +221,6 @@ namespace x10lib {
        return new TiledRegion<RANK>(*this);
     }
 
-    /** Return the underlying array of regions.
     
     /** Return the underlying array of regions.
      */

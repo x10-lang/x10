@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_array.cc,v 1.3 2007-06-26 16:05:58 ganeshvb Exp $ */
+/* $Id: Test_array.cc,v 1.4 2007-06-27 07:40:48 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -13,6 +13,7 @@
 #include <x10/array.h>
 
 using namespace std;
+using namespace x10lib;
 
 int 
 main (int argc, char* argv[])
