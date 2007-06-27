@@ -5,12 +5,12 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: region.tcc,v 1.2 2007-05-09 12:40:30 ganeshvb Exp $ */
+/* $Id: region.tcc,v 1.3 2007-06-27 07:17:20 ganeshvb Exp $ */
 
 #include "region.h"
 #include <iostream>
 
-using namespace x10lib;
+namespace x10lib {
 using namespace std;
 
 template <int RANK>
@@ -131,6 +131,7 @@ const Point<RANK> TiledRegion<RANK> :: indexOf (const Point<RANK>& p) const
     result[i] = p.value (i) / bsize[i];
   
   return Point<RANK> (result);
+}
 }
 
 // Local Variables:
