@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.14 2007-06-26 16:05:57 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.15 2007-06-27 12:22:55 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,13 +15,13 @@
 
 using namespace x10lib;
 
-char __x10_agg_arg_buf[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS][X10_MAX_AGG_SIZE*X10_MAX_ASYNC_ARGS_SIZE];
+static char __x10_agg_arg_buf[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS][X10_MAX_AGG_SIZE*X10_MAX_ASYNC_ARGS_SIZE];
 
-int __x10_agg_counter[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS];
+static int __x10_agg_counter[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS];
 
-int __x10_agg_max_counter[X10_MAX_AGG_HANDLERS];
+static int __x10_agg_max_counter[X10_MAX_AGG_HANDLERS];
 
-int __x10_agg_total[X10_MAX_AGG_HANDLERS];
+static int __x10_agg_total[X10_MAX_AGG_HANDLERS];
 
 typedef struct {
   x10_async_handler_t handler; 
@@ -35,7 +35,7 @@ typedef struct {
   int niter;
 } x10_agg_hdr_t;
 
-void
+static void
 asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
 {
 	x10_agg_cmpl_t *c = (x10_agg_cmpl_t *)a;
@@ -45,7 +45,7 @@ asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
 }
 
 
-void *
+static void *
 asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 			uint *uhdr_len, ulong *msg_len,
 			compl_hndlr_t **comp_h, void **user_info)
@@ -80,7 +80,7 @@ x10_err_t asyncRegisterAgg()
 }
 
 
-x10_err_t asyncSpawnInlineAgg_i(x10_place_t tgt,
+static x10_err_t asyncSpawnInlineAgg_i(x10_place_t tgt,
 				x10_async_handler_t hndlr, size_t size)
 {
 
