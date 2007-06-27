@@ -301,9 +301,9 @@ the string is win32_x86. For AIX on PowerPC it is aix_ppc.
 The naming convention is &lt;OperatingSystem&gt;"_"&lt;Hardware&gt;,
 consistent
 with Eclipses ${system:OS} and ${system:ARCH} variables. </li>
-                                <li> run the build.xml ant script in
-the root directory of the x10 installation. This should create the
-files bin/x10, bin/x10c and etc/standard.cfg. </li>
+                                <li> run bin/setupX10 in
+the root directory of the x10 installation. This should install
+the required JAR files</li>
                                 <li> add the bin directory of the x10
 installation to your system's search path</li>
                               </ul>
