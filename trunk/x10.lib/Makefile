@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.3 2007-06-01 14:24:50 srkodali Exp $
+# $Id: Makefile,v 1.4 2007-06-27 17:19:56 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -24,7 +24,8 @@ samples:
 	(cd examples; $(MAKE) all)
 
 bench:
-	(cd benchmarks; $(MAKE) all)
+	@echo "@@Benchmarks building is disabled in the current release.@@"
+#(cd benchmarks; $(MAKE) all)
 
 test::
 	(cd test; $(MAKE) all)

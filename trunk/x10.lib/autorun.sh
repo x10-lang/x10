@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: autorun.sh,v 1.8 2007-06-20 14:14:26 ganeshvb Exp $
+# $Id: autorun.sh,v 1.9 2007-06-27 17:19:56 srkodali Exp $
 # Script for automating the build and testing process.
 #
 
@@ -17,65 +17,26 @@ BUILD=${SRC_TOP}/build.sh
 MKDIST=${SRC_TOP}/mkdist.sh
 REGRESS=${SRC_TOP}/regress.sh
 
-# mailing list file and related vars
-MAILING_LIST=${SRC_TOP}/misc/mailing.list
-ADMIN_ADDR=""
-CC_LIST=""
-
-# get mailing address of the administrator
-getAdminAddr() {
-	ADMIN_ADDR=`sed -n '1,1p' ${MAILING_LIST}`
-	return 0
-}
-
-# get mailing copy list
-getCcList() {
-	CC_LIST=""
-	sed -n '2,$p' ${MAILING_LIST} | \
-	while read entry
-	do
-		CC_LIST="$CC_LIST $entry"
-	done
-	CC_LIST="${CC_LIST#" "}"
-	return 0
-}
+# mailing list
+MAILING_LIST=x10-lib-developers@lists.sourceforge.net
 
 # mail results
 mailResults() {
-	RC=1
-	getAdminAddr
-	getCcList
-
 	if [ $# -eq 1 ]
 	then
 		subject="!!! X10Lib AutoRun Results On `date` : $1 !!!"
 	else
 		subject="!!! X10Lib AutoRun Results On `date` !!!"
 	fi
-	if [ -n ${ADMIN_ADDR} ]
-	then
-		echo "\n> Mailing Results...\n" >> ${LOGFILE}
-		if [ -n "${CC_LIST}" ]
-		then
-			echo "cat ${LOGFILE} | \\" >> ${LOGFILE}
-			echo "mail -s \"${subject}\" \\" >> ${LOGFILE}
-			echo "-c \"${CC_LIST}\" ${ADMIN_ADDR}" >> ${LOGFILE}
-			echo "\n...done.\n" >> ${LOGFILE}
-			cat ${LOGFILE} | \
-			mail -s "${subject}" \
-				-c "${CC_LIST}" ${ADMIN_ADDR}
-		else
-			echo "cat ${LOGFILE} | \\" >> ${LOGFILE}
-			echo "mail -s \"${subject}\" \\"
-			echo "${ADMIN_ADDR}" >> ${LOGFILE}
-			echo "\n...done.\n" >> ${LOGFILE}
-			cat ${LOGFILE} | \
-			mail -s "${subject}" \
-				${ADMIN_ADDR}
-		fi
-		RC=0
-	fi
-	return ${RC}
+
+	echo "\n> Mailing Results...\n" >> ${LOGFILE}
+	echo "cat ${LOGFILE} | \\" >> ${LOGFILE}
+	echo "mail -s \"${subject}\" \\" >> ${LOGFILE}
+	echo "${MAILING_LIST}" >> ${LOGFILE}
+	echo "\n...done.\n" >> ${LOGFILE}
+	cat ${LOGFILE} | \
+		mail -s "${subject}" ${MAILING_LIST}
+	return 0
 }
 
 # start the autorun process by prepending header
