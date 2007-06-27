@@ -33,6 +33,10 @@ on Linux systems. Please see README.STANDALONE for more details.)
 x10lib is built for 64-bit systems. If you need a 32-bit system,
 please contact us.
 
+Sample programs using x10lib are also provided. Please see examples/README.examples.
+Additionally, an implementation of the Random Access benchmark using X10lib has
+been developed. Please see x10.apps/RandomAccess/RandomAccess_spmd.cc.
+
 Please use x10-lib-users@lists.sourceforge.net for questions about the
 usage of X10lib and bugreports. (We are setting up a bug-tracking
 system.) Please use x10-lib-developers@lists.sourceforge.net to
