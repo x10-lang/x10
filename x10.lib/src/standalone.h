@@ -14,7 +14,7 @@
 
 /* Setup the initial environment, reading command line args and */
 /* number of tasks from env var */
-int do_setup(int* num_tasks)
+static int do_setup(int* num_tasks)
 {
     char *mp_procs = NULL;   /* for MP_PROCS */
 
@@ -36,7 +36,7 @@ int do_setup(int* num_tasks)
 }
    
 
-int setup_addr_list(lapi_udp_t *addr_list, int num_tasks)
+static int setup_addr_list(lapi_udp_t *addr_list, int num_tasks)
 {
     int i;               /* loop counter */
 

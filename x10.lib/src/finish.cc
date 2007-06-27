@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.11 2007-06-26 16:05:57 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.12 2007-06-27 12:22:55 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -16,36 +16,39 @@
 using namespace std;
 using namespace x10lib; 
 
-const int MAX_TASKS=256;
-const int MAX_TASKS_NODE = 16;
-const int MAX_NODES = 16;
-const int EX_BUFFER_SIZE = 1024;
-int bufSize = 0;
-char buffer[MAX_TASKS * EX_BUFFER_SIZE];
-int numExceptions;
- 
-lapi_cntr_t cntr1;
-lapi_cntr_t cntr2;
-lapi_long_t exceptionCntr[MAX_TASKS];
-lapi_long_t continueCntr[MAX_TASKS];
-//void* exceptionCntr[MAX_TASKS];
-//void* continueCntr[MAX_TASKS];
+//duplicate (already one in async.h)
+#define X10_MAX_TASKS 256
 
-int CONTINUE_STATUS;
+#define X10_MAX_TASKS_NODE  16
+
+#define X10_MAX_NODES 16
+
+#define X10_EX_BUFFER_SIZE  1024
+
+static int bufSize = 0;
+static char buffer[X10_MAX_TASKS * X10_EX_BUFFER_SIZE];
+static int numExceptions;
+ 
+static lapi_cntr_t cntr1;
+static lapi_cntr_t cntr2;
+static lapi_long_t exceptionCntr[X10_MAX_TASKS];
+static lapi_long_t continueCntr[X10_MAX_TASKS];
+
+static int CONTINUE_STATUS;
 
 /* process tree structure*/
 struct ptree_t
 {
   int numPeers;
   int numChild;
-  int children[MAX_TASKS_NODE+MAX_NODES];
+  int children[X10_MAX_TASKS_NODE+X10_MAX_NODES];
   int parent;
 };
 
 ptree_t* ftree=NULL;
 
 /* count the number of children for process 0*/
-void*
+static void*
 numChildHeaderHandler (lapi_handle_t handle, void* uhdr,
                               uint* hdr_len, ulong* msg_len,
                               compl_hndlr_t** comp_h, void** uinfo)
@@ -58,7 +61,7 @@ numChildHeaderHandler (lapi_handle_t handle, void* uhdr,
   return NULL;
 }
 
-void*
+static void*
 continueHeaderHandler (lapi_handle_t handle, void* uhdr,
                               uint* hdr_len, ulong* msg_len,
                               compl_hndlr_t** comp_h, void** uinfo)
@@ -71,7 +74,7 @@ continueHeaderHandler (lapi_handle_t handle, void* uhdr,
 }
 
 
-void* 
+static void* 
 exceptionHeaderHandler (lapi_handle_t handle, void* uhdr,
                               uint* hdr_len, ulong* msg_len,
                               compl_hndlr_t** comp_h, void** uinfo)
@@ -95,8 +98,6 @@ finishInit ()
   LRC (LAPI_Addr_set (__x10_hndl, (void*) numChildHeaderHandler, 5));
   LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr1, exceptionCntr));
   LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr2, continueCntr));
-  //LRC (LAPI_Address_init (__x10_hndl,  &cntr1, exceptionCntr));
-  //LRC (LAPI_Address_init (__x10_hndl,  &cntr2, continueCntr));
   LRC (LAPI_Setcntr (__x10_hndl, &cntr1, 0));
   LRC (LAPI_Setcntr (__x10_hndl, &cntr2, 0));
 
@@ -148,7 +149,7 @@ finishTerminate()
   delete ftree;
 }
                    
-x10_err_t
+static x10_err_t
 finishStart_ (int* cs)
 {
   int tmp;
@@ -190,7 +191,7 @@ finishStart_ (int* cs)
   return X10_OK;
 }
 
-x10_err_t
+static x10_err_t
 finishEnd_ (Exception* e)
 {
   void* ex_buf = (void*) e;

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.cc,v 1.9 2007-06-26 16:05:57 ganeshvb Exp $
+ * $Id: async.cc,v 1.10 2007-06-27 12:22:55 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,9 +12,9 @@
 
 using namespace x10lib;
 
-x10_async_arg_t __x10_async_args[X10_MAX_ASYNC_ARGS];
+static x10_async_arg_t __x10_async_args[X10_MAX_ASYNC_ARGS];
 
-void *
+static void *
 asyncSpawnHandler(lapi_handle_t hndl, void *uhdr,
 		uint *uhdr_len, ulong* msg_len,
 		compl_hndlr_t **comp_h, void **user_info)
