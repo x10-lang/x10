@@ -2,15 +2,15 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.1
+                              Version 0.5
 
 
                           C H A N G E  L O G
                           ------------------
 
+!!! Will be updated shortly. !!!
 
 This is the ChangeLog file for X10 Runtime System.
-
 
 * (04/27/2007) RandomAccess (GUPS) C/C++ successfully linked against the library.
 
