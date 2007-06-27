@@ -68,7 +68,7 @@ Description:
 Return values:
 
 	X10_OK			Indicates the method/function call completed successfully.
-	X10_ERR_LAPI	Unable to create the LAPI context for communication.
+	X10_ERR_COM 	Unable to create the context for communication.
 
 
 Note: Currently async handler registration is done through other methods.
@@ -94,7 +94,7 @@ Description:
 
 	This method/function must be called after all the X10Lib calls are made.
 	It is an error when any X10Lib calls are made after this routine is called.
-	Internally, it terminates and cleans up the LAPI context used for communication.
+	Internally, it terminates and cleans up the context used for communication.
 
 Return values:
 
@@ -183,7 +183,7 @@ Return values:
 	X10_ERR_REM_ADDR_NULL	Specified remote address is NULL.
 	X10_ERR_LOC_ADDR_NULL	Specified local address is NULL.
 	X10_ERR_DATA_LEN		Specified length is outside the range.
-	X10_ERR_LAPI			Error from the underlying communication system.
+	X10_ERR_COM 			Error from the underlying communication system.
 
 
 Note: RDMA support is not currently available.
@@ -245,7 +245,7 @@ Return values:
 	X10_ERR_REM_ADDR_NULL	Specified remote address is NULL.
 	X10_ERR_LOC_ADDR_NULL	Specified local address is NULL.
 	X10_ERR_DATA_LEN		Specified length is outside the range.
-	X10_ERR_LAPI			Error from the underlying communication system.
+	X10_ERR_COM 			Error from the underlying communication system.
 	X10_ERR_PARAM_INVALID	Specified parameter is not valid.
 
 
@@ -300,7 +300,7 @@ Return values:
 	X10_ERR_REM_ADDR_NULL	Specified remote address is NULL.
 	X10_ERR_LOC_ADDR_NULL	Specified local address is NULL.
 	X10_ERR_DATA_LEN		Specified length is outside the range.
-	X10_ERR_LAPI			Error from the underlying communication system.
+	X10_ERR_COM 			Error from the underlying communication system.
 
 
 Note: RDMA support is not currently available.
@@ -362,7 +362,7 @@ Return values:
 	X10_ERR_REM_ADDR_NULL	Specified remote address is NULL.
 	X10_ERR_LOC_ADDR_NULL	Specified local address is NULL.
 	X10_ERR_DATA_LEN		Specified length is outside the range.
-	X10_ERR_LAPI			Error from the underlying communication system.
+	X10_ERR_COM 			Error from the underlying communication system.
 	X10_ERR_PARAM_INVALID	Specified parameter is not valid.
 
 
@@ -460,13 +460,13 @@ Return values:
 	X10_ERR_REM_ADDR_NULL	Specified remote address is NULL.
 	X10_ERR_LOC_ADDR_NULL	Specified local address is NULL.
 	X10_ERR_DATA_LEN		Specified length is outside the range.
-	X10_ERR_LAPI			Error from the underlying communication system.
+	X10_ERR_COM 			Error from the underlying communication system.
 
 
 Note: RDMA support is not currently available.
 
 
-/// NON-BLOCING PUT XXXXX ///
+/// NON-BLOCKING PUT XXXXX ///
 
 Purpose: Non-blocking transfer of a value stored in the register of the local node to
 		 a remote node.
@@ -520,7 +520,7 @@ Return values:
 	X10_ERR_REM_ADDR_NULL	Specified remote address is NULL.
 	X10_ERR_LOC_ADDR_NULL	Specified local address is NULL.
 	X10_ERR_DATA_LEN		Specified length is outside the range.
-	X10_ERR_LAPI			Error from the underlying communication system.
+	X10_ERR_COM 			Error from the underlying communication system.
 	X10_ERR_PARAM_INVALID	Specified parameter is not valid.
 
 
@@ -776,7 +776,7 @@ Return values:
 
 
 ================
-06) REGISTRATION
+07) REGISTRATION
 ================
 
 /// HANDLER ADDRESS REGISTRATION ///
@@ -856,7 +856,7 @@ Return Values:
 
 
 =====================
-07) GLOBAL ADDRESSING
+08) GLOBAL ADDRESSING
 =====================
 
 
@@ -969,7 +969,7 @@ Return values:
 
 
 ===============
-08) ENVIRONMENT
+09) ENVIRONMENT
 ===============
 
 
@@ -1198,7 +1198,7 @@ Return Values:
 The current x10 gfence implementation assumes that only one thread executes per
 place.  This precludes both multiple asyncs per place as well as execution
 in INTERRUPT mode.  Thus, the only mode of operation for the underlying
-communication system (LAPI) is POLLING mode.
+communication system is POLLING mode.
 
 Under these conditions, the following invariants hold:
 
@@ -1278,7 +1278,7 @@ Parameters:
 Return values:
 
 	X10_OK			Indicates the method/function call completed successfully.
-	X10_ERR_LAPI	Error from the underlying communication system.
+	X10_ERR_COM 	Error from the underlying communication system.
 
 Exceptions:
   
@@ -1296,7 +1296,7 @@ Note:
 
 
 ============
-12) SWITCHES
+13) SWITCHES
 ============
 
 
@@ -1432,7 +1432,7 @@ Return values:
 
 
 ==========
-13) ASYNCS
+14) ASYNCS
 ==========
 
 Purpose: Execute an user specified method on the remote task.
@@ -1496,7 +1496,7 @@ Description:
 Return values:
 
 	X10_OK			Indicates the method/function call completed successfully.
-	X10_ERR_LAPI	Error from the underlying communication system.
+	X10_ERR_COM 	Error from the underlying communication system.
 
     
 ===============
@@ -1544,7 +1544,7 @@ Description:
 Return values:
 
 	X10_OK			Indicates the method/function call completed successfully.
-	X10_ERR_LAPI	Error from the underlying communication system.
+	X10_ERR_COM 	Error from the underlying communication system.
 
 
 /// ASYNC FLUSH ///
@@ -1577,4 +1577,4 @@ Description:
 Return values:
 
 	X10_OK		    Indicates the method/function call completed successfully.
-	X10_ERR_LAPI	Error from the underlying communication system.
+	X10_ERR_COM 	Error from the underlying communication system.
