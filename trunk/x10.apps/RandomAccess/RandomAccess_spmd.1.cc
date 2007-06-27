@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.1.cc,v 1.2 2007-06-16 16:20:49 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.1.cc,v 1.3 2007-06-27 19:19:05 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -55,8 +55,8 @@ __async__2 (__async__2__args args)
   GLOBAL_SPACE.SUM[(int)(args.captVar2)] = args.captVar1;
 }
 
-int
-asyncSwitch (async_handler_t h, void* arg, size_t size, int niter)
+void
+asyncSwitch (x10_async_handler_t h, void* arg, int niter)
 {
     char* args = (char*) arg;
     switch (h) {
@@ -140,51 +140,53 @@ RandomAccess_Dist::HPCC_starts(sglong_t n)
   return ran;
 }
 
-void  
-RandomAccess_Dist::main (x10::array<String>& args)
+void
+RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
 {
 
   RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
   RandomAccess_Dist::NUMPLACES = numPlaces();
   RandomAccess_Dist::PLACEIDMASK = numPlaces()-1;
-    
+
   if ((NUMPLACES & (NUMPLACES-1)) > 0) {
     cout << "the number of places must be a power of 2!";
     exit (-1);
-  } 
-  
-  bool doIO=false; 
-  bool embarrasing = false;
-  int logTableSize = 10;
-  
+  }
+
   int VERIFY = UPDATE;
+  bool doIO=false;
+  bool embarrassing = false;
+  int logTableSize = 10;
+
   for (int q = 0; q < args.length; ++q) {
-    if (args[q].equals ("-o")) {
+    if ((*args[q]).equals (x10::ref<x10::lang::String>(x10::lang::String("-o")))) {
       doIO = true;
     }
-    
-    if (args[q].equals("-e")) {
-      embarrasing = true;
+
+    if ((*args[q]).equals (x10::ref<x10::lang::String>(x10::lang::String("-e")))) {
+      embarrassing = true;
     }
-    
-    if (args[q].equals("-m")) {
+
+    if ((*args[q]).equals (x10::ref<x10::lang::String>(x10::lang::String("-m")))) {
       ++q;
       logTableSize = java::lang::Integer::parseInt(args[q]);
     }
 
-    if (args[q].equals("-v")) {
+    if ((*args[q]).equals (x10::ref<x10::lang::String>(x10::lang::String("-v")))) {
       ++q;
       VERIFY = java::lang::Integer::parseInt(args[q])%3;
     }
   }
-  
   const glong_t tableSize = (1UL << logTableSize);
+  const glong_t numUpdates = tableSize*4*NUMPLACES;
   GLOBAL_SPACE.Table = new localTable (tableSize);
-  Gfence();
+
+
+  SyncGlobal();
   
   double GUPs;
   double cputime;    /* CPU time to update table */
-  if (here() == 0) {
+  if (__x10_my_place == 0) {
     
     /* Print parameters for run */
     if (doIO) {
@@ -197,16 +199,16 @@ RandomAccess_Dist::main (x10::array<String>& args)
     cputime = -mysecond();
   }
   
-  //RandomAccessUpdate (logTableSize, embarrasing, GLOBAL_SPACE.Table);
+  //RandomAccessUpdate (logTableSize, embarrassing, GLOBAL_SPACE.Table);
   
-  const glong_t numUpdates = tableSize*4;
+  const glong_t NumUpdates = tableSize*4;
   
   if (VERIFY == VERIFICATION_P) { 
-    glong_t ran = HPCC_starts (here()*numUpdates);
-    for (glong_t i = 0; i < numUpdates; i++) {
+    glong_t ran = HPCC_starts (__x10_my_place*NumUpdates);
+    for (glong_t i = 0; i < NumUpdates; i++) {
       int placeID;
-      if (embarrasing)
-	placeID = here();
+      if (embarrassing)
+	placeID = __x10_my_place;
       else
 	placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
       
@@ -215,23 +217,23 @@ RandomAccess_Dist::main (x10::array<String>& args)
       
       assert (UNIQUE->place(placeID) == placeID);
       __async__1__args a(temp);
-      if (placeID == here()) __async__1(a);
+      if (placeID == __x10_my_place) __async__1(a);
       else asyncSpawnInlineAgg(placeID, 1, &a, sizeof(a));
     } 
     asyncFlush(1, sizeof(__async__1__args));
   } else {   
-    glong_t ran = HPCC_starts (here()*numUpdates);
-    for (glong_t i = 0; i < numUpdates; i++) {
+    glong_t ran = HPCC_starts (__x10_my_place*NumUpdates);
+    for (glong_t i = 0; i < NumUpdates; i++) {
       int placeID;
-      if (embarrasing)
-	placeID = here();
+      if (embarrassing)
+	placeID = __x10_my_place;
       else
 	placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
       
       glong_t temp = ran;
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
       __async__0__args a(temp);
-      if (placeID == here()) __async__0(a);
+      if (placeID == __x10_my_place) __async__0(a);
       else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
     }   
     
@@ -239,8 +241,8 @@ RandomAccess_Dist::main (x10::array<String>& args)
   }
   
   
-  Gfence();
-  if (here() == 0) {
+  SyncGlobal();
+  if (__x10_my_place == 0) {
     /* End time section */
     cputime += mysecond();
     
@@ -255,32 +257,32 @@ RandomAccess_Dist::main (x10::array<String>& args)
   }
   
   if (VERIFY == UPDATE_AND_VERIFICATION){
-    if (here() == 0) { 
+    if (__x10_my_place == 0) { 
       for (int i = 0; i <  NUMPLACES; i++) {
-	glong_t ran = HPCC_starts (i * numUpdates);
-	for (glong_t i = 0; i < numUpdates; i++) {
+	glong_t ran = HPCC_starts (i * NumUpdates);
+	for (glong_t i = 0; i < NumUpdates; i++) {
 	  int placeID;
-	  if (embarrasing)
-	    placeID = here();
+	  if (embarrassing)
+	    placeID = __x10_my_place;
 	  else
 	    placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
 	  const glong_t temp = ran;
 	  ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
           __async__0__args a (temp);
-	  if (placeID == here()) __async__0 (a);
+	  if (placeID == __x10_my_place) __async__0 (a);
 	  else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
 	}
       }
       asyncFlush (0, sizeof(__async__0__args));
     }
     
-    Gfence();    
+    SyncGlobal();    
   }
 
   if (VERIFY > 0) {
-    const glong_t numUpdates = tableSize*4*NUMPLACES;
+    const glong_t NumUpdates = tableSize*4*NUMPLACES;
    
-    int p = here(); 
+    int p = __x10_my_place; 
     if (p == 0) {
       GLOBAL_SPACE.SUM = new glong_t [NUMPLACES];
     }
@@ -295,11 +297,11 @@ RandomAccess_Dist::main (x10::array<String>& args)
     
     asyncFlush (2, sizeof(__async__2__args));
     
-    Gfence();
+    SyncGlobal();
    
     cout << "sum : " << sum << endl;
 
-    if (here() == 0) {
+    if (__x10_my_place == 0) {
       glong_t globalSum = 0;
       for (int i = 0;i < NUMPLACES; i++) {
         globalSum += GLOBAL_SPACE.SUM[i];
@@ -320,24 +322,20 @@ Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
 int RandomAccess_Dist::NUMPLACES = numPlaces();
 int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
 
-func_t handlers[] = {(void_func_t) __async__0,
-                     (void_func_t) __async__1,
-                     (void_func_t) __async__2};
 
 extern "C" {
-  int ::main (int ac, char* av[])
+  int main (int ac, char* av[])
   {
+    //Init(NULL, 0);
+    x10::array<x10::ref<x10::lang::String> >* args = x10::convert_args (ac, av);
 
-    Init (handlers, 3); 
-
-    x10::array<String>* args = x10::convert_args (ac, av);
-    
     RandomAccess_Dist::main (*args);
 
     x10::free_args (args);
-    
-    Finalize();
-    
+
+    //Finalize();
+
     return x10::exitCode;
   }
 }
+
