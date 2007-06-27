@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.15 2007-06-27 12:22:55 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.16 2007-06-27 17:06:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,17 +9,16 @@
 
 #include <x10/aggregate.h>
 #include <x10/xmacros.h>
+#include <x10/xassert.h>
 #include <stdarg.h>
 #include <string.h>
 #include <iostream>
 
 using namespace x10lib;
 
-static char __x10_agg_arg_buf[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS][X10_MAX_AGG_SIZE*X10_MAX_ASYNC_ARGS_SIZE];
+static char __x10_agg_arg_buf[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS][X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t)];
 
 static int __x10_agg_counter[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS];
-
-static int __x10_agg_max_counter[X10_MAX_AGG_HANDLERS];
 
 static int __x10_agg_total[X10_MAX_AGG_HANDLERS];
 
@@ -72,7 +71,8 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 	}
 }
 
-x10_err_t asyncRegisterAgg()
+x10_err_t 
+asyncRegisterAgg()
 {
 
 	LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 1));
@@ -80,16 +80,17 @@ x10_err_t asyncRegisterAgg()
 }
 
 
-static x10_err_t asyncSpawnInlineAgg_i(x10_place_t tgt,
+static x10_err_t 
+asyncSpawnInlineAgg_i(x10_place_t tgt,
 				x10_async_handler_t hndlr, size_t size)
 {
 
 	__x10_agg_counter[hndlr][tgt]++;
 	__x10_agg_total[hndlr]++;
 
-	if (__x10_agg_total[hndlr] * size >=
+	if ((__x10_agg_total[hndlr]+1) * size >=
 				X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t) ||
-			__x10_agg_total[hndlr] >= X10_MAX_AGG_SIZE) {
+			(__x10_agg_total[hndlr]+1) >= X10_MAX_AGG_SIZE) {
 		int max = 0;
 		int task = 0;
 
@@ -129,7 +130,7 @@ x10_err_t asyncFlush(x10_async_handler_t hndlr, size_t size)
 	buf.handler = hndlr;
 
 	for (int j = 0; j < __x10_num_places; j++) {
-		if (j != __x10_my_place && __x10_agg_counter[hndlr][j] != 0) {
+		if (__x10_agg_counter[hndlr][j] != 0) {
 			buf.niter = __x10_agg_counter[hndlr][j];
 			LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
 			LRC(LAPI_Amsend(__x10_hndl, j, (void *)1, &buf,
@@ -148,6 +149,7 @@ x10_err_t
 asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 			void *args, size_t size)
 {
+        assert (size <= X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t));
 	int count = __x10_agg_counter[hndlr][tgt];
 	memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size]), args, size);
 	return asyncSpawnInlineAgg_i(tgt, hndlr, size);
@@ -162,6 +164,7 @@ asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 	lapi_cntr_t origin_cntr;
 
 	size_t size = sizeof(x10_async_arg_t);
+        assert (n * size <= X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t));
 	size_t count = __x10_agg_counter[hndlr][tgt];
 	for (int i = 0; i < n; i++) {
 		__x10_agg_arg_buf[hndlr][tgt][count * size +

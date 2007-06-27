@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.12 2007-06-27 12:22:55 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.13 2007-06-27 17:06:57 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -17,11 +17,11 @@ using namespace std;
 using namespace x10lib; 
 
 //duplicate (already one in async.h)
-#define X10_MAX_TASKS 256
+#define X10_MAX_TASKS 1024
 
 #define X10_MAX_TASKS_NODE  16
 
-#define X10_MAX_NODES 16
+#define X10_MAX_NODES 64
 
 #define X10_EX_BUFFER_SIZE  1024
 
