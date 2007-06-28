@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.13 2007-06-26 16:05:57 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.14 2007-06-28 16:42:58 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -16,6 +16,10 @@ extern x10_err_t asyncRegisterAgg();
 extern x10_err_t finishInit();
 extern void finishTerminate();
 extern void arrayInit();
+
+#ifdef STANDALONE
+extern void initStandAlone (lapi_info_t*);
+#endif
 
 namespace x10lib {
 
@@ -58,6 +62,11 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 
 	/* LAPI initialization */
 	(void)memset((void *)&info, 0, sizeof(lapi_info_t));
+
+#ifdef STANDALONE
+        initStandAlone (&info);
+#endif
+
 	LRC(LAPI_Init(&__x10_hndl, &info));
 
 	/* set mode of operation (polling or interrupt)
@@ -89,6 +98,12 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
  
 	/* set X10Lib's initialization variable */
 	__x10_inited = 1;
+
+#ifdef STANDALONE
+       delete [] info.add_info->add_udp_addrs;
+       delete info.add_info;
+#endif
+
 	return X10_OK;
 }
 
