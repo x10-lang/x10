@@ -5,81 +5,61 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.1.cc,v 1.3 2007-06-27 19:19:05 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.v02.cc,v 1.1 2007-06-28 09:55:00 ganeshvb Exp $ */
+
+/* Main Version 
+        - minus finshStart/End (i.e. uses Gfence)
+        - minus struct args (i.e. uses plain arguments for asyncs)
+*/
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
 
-struct __async__0__args
-{
-  __async__0__args (glong_t _captVar1) : captVar1 (_captVar1) {}
-  glong_t captVar1;
-};
-
-struct __async__1__args
-{
-  __async__1__args (glong_t _captVar1) : captVar1 (_captVar1) {}
-  glong_t captVar1;
-};
-
-struct __async__2__args
-{
-  __async__2__args (glong_t _captVar1, glong_t _captVar2) 
-     : captVar1 (_captVar1),
-      captVar2 (_captVar2)
-     {}
-
-  glong_t captVar1;
-  glong_t captVar2;
-};
-
-
 
 void
-inline __async__0 (__async__0__args args)
+inline __async__0 (x10_async_arg_t ran)
 {
-  glong_t ran = args.captVar1;
   GLOBAL_SPACE.Table->update (ran);
 }
 
 void
-inline __async__1 (__async__1__args args)
+inline __async__1 (x10_async_arg_t ran)
 {
-  glong_t ran = args.captVar1;
   GLOBAL_SPACE.Table->verify (ran);
 }
 
 void
-__async__2 (__async__2__args args)
+inline __async__2 (x10_async_arg_t captVar1, x10_async_arg_t captVar2)
 {
-  GLOBAL_SPACE.SUM[(int)(args.captVar2)] = args.captVar1;
+  GLOBAL_SPACE.SUM[(int)(captVar2)] = captVar1;
 }
 
 void
-asyncSwitch (x10_async_handler_t h, void* arg, int niter)
+asyncSwitch (x10_async_handler_t h, void* buf, int niter)
 {
-    char* args = (char*) arg;
-    switch (h) {
-    case 0: 
-      for (int i = 0; i < niter; i++) {
-        __async__0(*((__async__0__args*)args));
-        args += sizeof(__async__0__args);
-       }
-      break;
-    case 1:
-      for (int i = 0; i < niter; i++) {
-        __async__1(*((__async__1__args*)args));
-        args += sizeof(__async__1__args);
-      }
-      break;
-    case 2:
-      for (int i = 0; i < niter; i++) {
-        __async__2(*((__async__2__args*)args));
-        args += sizeof(__async__2__args);
-      }
-      break;
-    } 
+  char* args = (char*) buf;
+  switch (h) {
+  case 0:
+    for (int i = 0; i < niter; i++) {
+      __async__0(*((x10_async_arg_t*)args));
+      args += sizeof(x10_async_arg_t);
+    }
+    break;
+  case 1:
+    for (int i = 0; i < niter; i++) {
+      __async__1(*((x10_async_arg_t*)args));
+      args += sizeof(x10_async_arg_t);
+    }
+    break;
+  case 2:
+    for (int i = 0; i < niter; i++) {
+      __async__2(*((x10_async_arg_t*)args), *((x10_async_arg_t*) (args+sizeof(x10_async_arg_t))));
+      args += 2*sizeof(x10_async_arg_t);
+    }
+    break;
+  }
 }
+
 
 inline void 
 RandomAccess_Dist::localTable::update (glong_t ran) 
@@ -140,33 +120,28 @@ RandomAccess_Dist::HPCC_starts(sglong_t n)
   return ran;
 }
 
-void
+void  
 RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
 {
-
-  RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
-  RandomAccess_Dist::NUMPLACES = numPlaces();
-  RandomAccess_Dist::PLACEIDMASK = numPlaces()-1;
-
   if ((NUMPLACES & (NUMPLACES-1)) > 0) {
     cout << "the number of places must be a power of 2!";
     exit (-1);
-  }
-
+  } 
+  
   int VERIFY = UPDATE;
-  bool doIO=false;
+  bool doIO=false; 
   bool embarrassing = false;
   int logTableSize = 10;
-
+  
   for (int q = 0; q < args.length; ++q) {
     if ((*args[q]).equals (x10::ref<x10::lang::String>(x10::lang::String("-o")))) {
       doIO = true;
     }
-
+    
     if ((*args[q]).equals (x10::ref<x10::lang::String>(x10::lang::String("-e")))) {
       embarrassing = true;
     }
-
+    
     if ((*args[q]).equals (x10::ref<x10::lang::String>(x10::lang::String("-m")))) {
       ++q;
       logTableSize = java::lang::Integer::parseInt(args[q]);
@@ -177,16 +152,16 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
       VERIFY = java::lang::Integer::parseInt(args[q])%3;
     }
   }
+  
   const glong_t tableSize = (1UL << logTableSize);
   const glong_t numUpdates = tableSize*4*NUMPLACES;
   GLOBAL_SPACE.Table = new localTable (tableSize);
 
-
-  SyncGlobal();
-  
+  SyncGlobal(); 
+ 
   double GUPs;
   double cputime;    /* CPU time to update table */
-  if (__x10_my_place == 0) {
+  if (x10lib::__x10_my_place == 0) {
     
     /* Print parameters for run */
     if (doIO) {
@@ -195,57 +170,83 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
       cout << "Number of total updates = " << 4 * tableSize * NUMPLACES << endl; 
     }
     
-    /* Begin time here */
+    /* Begin time x10lib::here */
     cputime = -mysecond();
   }
-  
-  //RandomAccessUpdate (logTableSize, embarrassing, GLOBAL_SPACE.Table);
-  
+ 
+  const long LogTableSize = logTableSize; 
+  const bool Embarrassing = embarrassing; 
   const glong_t NumUpdates = tableSize*4;
-  
+   
   if (VERIFY == VERIFICATION_P) { 
-    glong_t ran = HPCC_starts (__x10_my_place*NumUpdates);
+    glong_t ran = HPCC_starts (x10lib::__x10_my_place*NumUpdates);
     for (glong_t i = 0; i < NumUpdates; i++) {
       int placeID;
-      if (embarrassing)
-	placeID = __x10_my_place;
+      if (Embarrassing)
+	placeID = x10lib::__x10_my_place;
       else
-	placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
+	placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
       
       glong_t temp = ran;
-      ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
       
-      assert (UNIQUE->place(placeID) == placeID);
-      __async__1__args a(temp);
-      if (placeID == __x10_my_place) __async__1(a);
-      else asyncSpawnInlineAgg(placeID, 1, &a, sizeof(a));
+      if (placeID == x10lib::__x10_my_place) __async__1 (temp); 
+      else asyncSpawnInlineAgg(placeID, 1, temp);
+      ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     } 
-    asyncFlush(1, sizeof(__async__1__args));
+    asyncFlush (1, sizeof(x10_async_arg_t));
+   
+    SyncGlobal();
   } else {   
-    glong_t ran = HPCC_starts (__x10_my_place*NumUpdates);
+    glong_t ran = HPCC_starts (x10lib::__x10_my_place*NumUpdates);
     for (glong_t i = 0; i < NumUpdates; i++) {
       int placeID;
-      if (embarrassing)
-	placeID = __x10_my_place;
+      if (Embarrassing)
+	placeID = x10lib::__x10_my_place;
       else
-	placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
+	placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
       
       glong_t temp = ran;
+
+      if (placeID == x10lib::__x10_my_place) __async__0(temp);
+      else asyncSpawnInlineAgg (placeID, 0, temp);
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
-      __async__0__args a(temp);
-      if (placeID == __x10_my_place) __async__0(a);
-      else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
     }   
-    
-    asyncFlush (0, sizeof(__async__0__args));
+    asyncFlush (0, sizeof(x10_async_arg_t));
+
+    SyncGlobal();
   }
-  
-  
-  SyncGlobal();
-  if (__x10_my_place == 0) {
+
+  if (x10lib::__x10_my_place == 0) {
     /* End time section */
     cputime += mysecond();
-    
+  } 
+
+  if (VERIFY == UPDATE_AND_VERIFICATION){
+    if (x10lib::__x10_my_place != 0) goto L1;
+    cout << "Verifying result by repeating the update sequentially " << endl;
+  L1:
+    if (x10lib::__x10_my_place != 0) goto L2;
+    for (int i = 0; i <  NUMPLACES; i++) {
+      glong_t ran = HPCC_starts (i * NumUpdates);
+      for (glong_t i = 0; i < NumUpdates; i++) {
+	int placeID;
+	if (Embarrassing)
+	  placeID = x10lib::__x10_my_place;
+	else
+	  placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
+	const glong_t temp = ran;
+
+	if (placeID == x10lib::__x10_my_place) __async__0 (temp);
+	else asyncSpawnInlineAgg (placeID, 0, temp);
+	ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
+      }
+    }
+    asyncFlush (0, sizeof(x10_async_arg_t));
+  L2:
+    SyncGlobal();
+  }
+ 
+  if (x10lib::__x10_my_place ==0) {
     /* make sure no division by zero */
     GUPs = (cputime > 0.0 ? 1.0 / cputime : -1.0);
     GUPs *= 1e-9*(4*tableSize*NUMPLACES);
@@ -253,89 +254,61 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
     if (doIO) {
       cout << "CPU time used = " << cputime << " seconds " << endl;
     }
-    cout << GUPs << " Billion (10^9) Updates  per second [GUP/s]" << endl;
+    if (VERIFY == UPDATE) cout << GUPs << " Billion (10^9) Updates  per second [GUP/s]" << endl;
   }
   
-  if (VERIFY == UPDATE_AND_VERIFICATION){
-    if (__x10_my_place == 0) { 
-      for (int i = 0; i <  NUMPLACES; i++) {
-	glong_t ran = HPCC_starts (i * NumUpdates);
-	for (glong_t i = 0; i < NumUpdates; i++) {
-	  int placeID;
-	  if (embarrassing)
-	    placeID = __x10_my_place;
-	  else
-	    placeID = (int) ((ran>>logTableSize) & PLACEIDMASK);
-	  const glong_t temp = ran;
-	  ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
-          __async__0__args a (temp);
-	  if (placeID == __x10_my_place) __async__0 (a);
-	  else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
-	}
-      }
-      asyncFlush (0, sizeof(__async__0__args));
-    }
-    
-    SyncGlobal();    
-  }
-
   if (VERIFY > 0) {
-    const glong_t NumUpdates = tableSize*4*NUMPLACES;
-   
-    int p = __x10_my_place; 
+    int p = x10lib::__x10_my_place; 
     if (p == 0) {
       GLOBAL_SPACE.SUM = new glong_t [NUMPLACES];
     }
-    
+
+    SyncGlobal(); 
     glong_t sum =0;
     for (glong_t i = 0; i < tableSize; i++) 
       sum += GLOBAL_SPACE.Table->array[i];
-  
-    __async__2__args a (sum, p); 
-    if (p == 0) __async__2 (a);
-    else asyncSpawnInlineAgg (0, 2, &a, sizeof(a));
+   
+    const long temp = sum; 
+
+    if (0 == x10lib::__x10_my_place) __async__2 (temp, p); 
+    else asyncSpawnInlineAgg (0, 2, temp, (x10_async_arg_t) p);
     
-    asyncFlush (2, sizeof(__async__2__args));
+    asyncFlush (2, 2*sizeof(x10_async_arg_t));
     
     SyncGlobal();
-   
-    cout << "sum : " << sum << endl;
 
-    if (__x10_my_place == 0) {
+    if (x10lib::__x10_my_place == 0) {
       glong_t globalSum = 0;
       for (int i = 0;i < NUMPLACES; i++) {
         globalSum += GLOBAL_SPACE.SUM[i];
       }
       if (VERIFY == VERIFICATION_P) {
-	double missedUpdateRate = (double) (globalSum - numUpdates) / (double) numUpdates*100;
+	double missedUpdateRate = (globalSum - numUpdates) / (double) numUpdates*100;
 	cout << " the rate of missed updates " << missedUpdateRate << " % " << endl;
       }else {
 	cout << " The global sum is " << globalSum << " (correct=0) " << endl;
       }
     }
   }
+  
 }
 
 
-//DUMMY initialization
 Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
-int RandomAccess_Dist::NUMPLACES = numPlaces();
-int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
 
+int RandomAccess_Dist::NUMPLACES = numPlaces();
+
+int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
 
 extern "C" {
   int main (int ac, char* av[])
   {
-    //Init(NULL, 0);
     x10::array<x10::ref<x10::lang::String> >* args = x10::convert_args (ac, av);
-
+    
     RandomAccess_Dist::main (*args);
-
+    
     x10::free_args (args);
-
-    //Finalize();
-
-    return x10::exitCode;
+        
+    return x10::exitCode;    
   }
 }
-

@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.15 2007-06-28 09:55:00 ganeshvb Exp $
+# $Id: Makefile,v 1.1 2007-06-28 09:55:00 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for RandomAccess Benchmarks (C++ Version).
@@ -15,20 +15,22 @@ LIBTARGET = lib$(LIBNAME).
 CXX = mpCC_r 
 CC = mpcc_r 
 DEFS =  -DNDEBUG #-DSTATICINIT #-DWARN 
-CXXFLAGS = -q64  -O3 -qinline -qarch=pwr5  -qtune=pwr5 -qhot
+CXXFLAGS = -g #-q64  -O3 -qinline -qarch=pwr5  -qtune=pwr5 -qhot
 CCFLAGS = -q64 -qarch=pwr5 -qtune=pwr5 -O3 -qhot
-INCLUDES = -I. -I/home/bikshand/x10/x10.lib/include -I/home/bikshand/x10/x10.backend/x10lang 
+INCLUDES = -I. -I../ -I/home/bikshand/x10/x10.lib/include -I/home/bikshand/x10/x10.backend/x10lang 
 LIBDIRS = 
 LIBS = -L/home/bikshand/x10/x10.lib/lib -l$(LIBNAME) -L/home/bikshand/x10/x10.backend/x10lang -lx10lang 
 LINKFLAGS =
 RM = rm -f
 RMDIR = rm -r -f 
 
-TARGET = RandomAccess_spmd.exe \
-         gups.exe 
+TARGET = RandomAccess_spmd.v01.exe \
+         RandomAccess_spmd.v02.exe \
+         RandomAccess_spmd.v03.exe
 
-SRCS = RandomAccess_spmd.cc \
-        gups.cc 
+SRCS = RandomAccess_spmd.v01.cc \
+       RandomAccess_spmd.v02.cc\
+       RandomAccess_spmd.v03.cc
 
 INCLS = RandomAccess_spmd.h 
 
