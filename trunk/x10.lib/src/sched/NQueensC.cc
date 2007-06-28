@@ -61,13 +61,18 @@ public:
   ARR *sofar;
   
   NFrame(const ARR *a) { sofar = a; }
-  Closure *makeClosure();
-  NFrame *copy() {
+  virtual Closure *makeClosure();
+  virtual NFrame *copy() {
 	  return new NFrame(*this);
+  }
+  virtual ~NFrame() {}
+  virtual void setOutletOn(Closure *c) {
+	  Outlet *o = new anon_Outlet1(this,c);
+	  c->setOutletOn(o);
   }
 }
 
-class NQueensC : public Closure {
+class NQueensC : public virtual Closure {
 	
 private:
   friend class NFrame;
@@ -105,12 +110,12 @@ public:
 		  if (!attacked) { 
 			  ARR next(row+1);
 			  for (int k = 0; k < row; ++k) 
-				  next[k] = a[k];
-			  next[row] = q;
+				  next.push_back(a[k]);
+			  next.push_back(q);
 	  				
 			  int y = nQueens(w, &next);
 			  
-			  w->abortOnSteal(y);
+			  if (w->abortOnSteal(y)) return -1;
 			  sum +=y;
 			  frame->sum +=y;
 		  }
@@ -118,6 +123,9 @@ public:
 		  frame->q=q+1; // TODO RAJ Barrier needed as q is volatile
 	  }
 	  w->popFrame();
+	  if(!w->cache->interrupted()) {
+	        delete frame;
+	  }
 	  return sum;
 	  
   }
@@ -148,11 +156,11 @@ public:
 	  				
 	  				ARR next(row+1);
 	  				for (int k = 0; k < row; ++k) 
-	  					next[k] = a[k];
-	  				next[row] = q;
+	  					next.push_back(a[k]);
+	  				next.push_back(q);
 	  					  				
 	  				int y = nQueens(w, &next);
-	  				w->abortOnSteal(y);
+	  				if (w->abortOnSteal(y)) return;
 	  				sum += y;
 	  				// this cannot be f.sum=y. f.sum may have been updated by other
 	  				// joiners in the meantime.
