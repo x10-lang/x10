@@ -1,3 +1,10 @@
+INSTALL:
+========
+
+1. Copy make.def.template to make.def
+2. Change the values in make.def to suit your environment
+3. Type "make".
+
 root directory:
 ==============
 There are 3 versions of RandomAccess in this directory:
