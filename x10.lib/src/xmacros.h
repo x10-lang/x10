@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xmacros.h,v 1.8 2007-06-28 16:42:58 ganeshvb Exp $
+ * $Id: xmacros.h,v 1.9 2007-06-28 17:06:52 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -21,13 +21,9 @@ do { \
 	} \
 } while (0)
 
-namespace Tracing{
-  static int dlevel_ = X10_DLEVEL;
-}; 
-
 /* debugging */
 #if (X10_DLEVEL >= 0)
-#define X10_DEBUG(L,X)    { if (L <= Tracing::dlevel_) { std::cout << "DEBG[" << L << ", " << here() << "]  " << X << std::endl << std::flush; } }
+#define X10_DEBUG(L,X)    { if (L <= X10_DLEVEL) { std::cout << "DEBG[" << L << ", " << here() << "]  " << X << std::endl << std::flush; } }
 #else
 #define X10_DEBUG(L,X)    { ; }
 #endif /* X10_DLEVEL */
