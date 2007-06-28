@@ -5,13 +5,22 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.23 2007-06-27 19:19:06 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.24 2007-06-28 06:06:37 ganeshvb Exp $ */
+
+/* Main Version */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
 
 
 static int CS;
+
+Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
+
+int RandomAccess_Dist::NUMPLACES = numPlaces();
+
+int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
+
 struct __async__0__args
 {
   __async__0__args (glong_t _captVar1) : captVar1 (_captVar1) {}
@@ -30,8 +39,9 @@ struct __async__2__args
     : captVar1 (_captVar1),
       captVar2 (_captVar2)
   {}
-
+  
   glong_t captVar1;
+
   int captVar2;
 };
 
@@ -51,7 +61,7 @@ inline __async__1 (__async__1__args args)
 }
 
 void
-__async__2 (__async__2__args args)
+inline __async__2 (__async__2__args args)
 {
   GLOBAL_SPACE.SUM[(int)(args.captVar2)] = args.captVar1;
 }
@@ -146,9 +156,9 @@ void
 RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
 {
 
-  RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
-  RandomAccess_Dist::NUMPLACES = numPlaces();
-  RandomAccess_Dist::PLACEIDMASK = numPlaces()-1;
+  //RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
+  //RandomAccess_Dist::NUMPLACES = numPlaces();
+  //RandomAccess_Dist::PLACEIDMASK = numPlaces()-1;
     
   if ((NUMPLACES & (NUMPLACES-1)) > 0) {
     cout << "the number of places must be a power of 2!";
@@ -202,7 +212,6 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
   const long LogTableSize = logTableSize; 
   const bool Embarrassing = embarrassing; 
   const glong_t NumUpdates = tableSize*4;
- 
    
   if (VERIFY == VERIFICATION_P) { 
     CS = finishStart (CS);
@@ -215,7 +224,7 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
 	placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
       
       glong_t temp = ran;
-
+      
       __async__1__args a(temp);
       if (placeID == x10lib::__x10_my_place) __async__1 (a); 
       else asyncSpawnInlineAgg(placeID, 1, &a, sizeof(a));
@@ -252,27 +261,27 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
   if (VERIFY == UPDATE_AND_VERIFICATION){
     if (x10lib::__x10_my_place != 0) goto L1;
     cout << "Verifying result by repeating the update sequentially " << endl;
-    L1:
+  L1:
     CS = finishStart (CS);
     if (x10lib::__x10_my_place != 0) goto L2;
-      for (int i = 0; i <  NUMPLACES; i++) {
-	glong_t ran = HPCC_starts (i * NumUpdates);
-	for (glong_t i = 0; i < NumUpdates; i++) {
-	  int placeID;
-	  if (Embarrassing)
-	    placeID = x10lib::__x10_my_place;
-	  else
-	    placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
-	  const glong_t temp = ran;
-	  __async__0__args a(temp);
-	  if (placeID == x10lib::__x10_my_place) __async__0 (a);
-	  else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
-	  ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
-	}
+    for (int i = 0; i <  NUMPLACES; i++) {
+      glong_t ran = HPCC_starts (i * NumUpdates);
+      for (glong_t i = 0; i < NumUpdates; i++) {
+	int placeID;
+	if (Embarrassing)
+	  placeID = x10lib::__x10_my_place;
+	else
+	  placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
+	const glong_t temp = ran;
+	__async__0__args a(temp);
+	if (placeID == x10lib::__x10_my_place) __async__0 (a);
+	else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
+	ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
       }
-      asyncFlush (0, sizeof(__async__0__args));
-L2:
-     finishEnd (NULL);    
+    }
+    asyncFlush (0, sizeof(__async__0__args));
+  L2:
+    finishEnd (NULL);    
   }
   
   if (x10lib::__x10_my_place ==0) {
@@ -306,8 +315,9 @@ L2:
     
     finishEnd (NULL);
  
-  //  cout << "sum : " << sum << endl;
-
+    CS = -1; 
+    CS = finishStart (CS);
+    
     if (x10lib::__x10_my_place == 0) {
       glong_t globalSum = 0;
       for (int i = 0;i < NUMPLACES; i++) {
@@ -322,27 +332,19 @@ L2:
     }
   }
   
-  CS = -1; 
-  CS = finishStart (CS);
 }
 
-//DUMMY initialization
-Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
-int RandomAccess_Dist::NUMPLACES = numPlaces();
-int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
+
 
 extern "C" {
   int main (int ac, char* av[])
   {
-    //Init(NULL, 0);
     x10::array<x10::ref<x10::lang::String> >* args = x10::convert_args (ac, av);
     
     RandomAccess_Dist::main (*args);
-
-    x10::free_args (args);
     
-    //Finalize();
-
+    x10::free_args (args);
+        
     return x10::exitCode;    
   }
 }
