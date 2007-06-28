@@ -2,23 +2,28 @@ root directory:
 ==============
 There are 3 versions of RandomAccess in this directory:
 
-RandomAccess_Dist.x10 -- x10 version  (Author: Tong Wen)
-RandomAccess_spmd.cc/h -- C++ + x10lib version (Author: Ganesh Bikshandi)
-gups.cc              -- C++ only version (Author: Hanhong Xue)
+RandomAccess_Dist.x10  - x10 version  (Author: Tong Wen)
+RandomAccess_spmd.cc/h - C++ + x10lib version (Author: Ganesh Bikshandi)
+gups.cc                - C++ only version (Author: Hanhong Xue)
 
-other files:
-============
+The other files in the root directory are:
 
 Makefile - Makes only RandomAccess_spmd.exe and gups.exe
 timer.h - Contains a timing utility
-run.sh - a script to run the RandomAccess_spmd.exe and gups.exe using POE.
+run.sh - a script to run the RandomAccess_spmd.exe, its variants (see below) and gups.exe using POE.
 
 @versions sub-directory:
 =======================
 
-These contain various version of the RandomAccess_spmd.cc. The version are numbered as v01, v02 etc in the 
-.cc source files. The description of them are provided in the .cc file itself. Please see README in @versions
-for more information. 
+This contains various versions of the RandomAccess_spmd.cc. The version are numbered as v01, v02 etc in the 
+.cc source files (RandomAccess_spmd.v01.cc, .v02.cc & .v03.cc).  Each of these versions is obtained from the 
+ROOT version (../RandomAccess_spmd.cc) thru following sequence of changes:
+
+    o .v01 - Replaced finishStart/End with Gfence from ROOT version
+    o .v02 - Replaced struct args with plain args in .v01.
+    o .v03 - Replaced one async invocation (the one in the main update loop) by functor version in .v02.
+
+To build them goto @versions and then type MAKE.
 
 deprecated sub-directory:
 ========================
