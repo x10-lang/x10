@@ -5,17 +5,13 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.7 2007-06-25 16:31:38 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.h,v 1.8 2007-06-28 06:06:37 ganeshvb Exp $ */
 
+/* Main version */
 #include <iostream>
 
-#include <x10/x10lib.h>
-#include <x10/array.h>
-
-#include <x10/async.h>
-
 #include "x10lang.h"
-//#include "x10lang.cc"
+#include <x10/x10lib.h>
 
 using namespace std;
 using namespace x10lib;
@@ -27,12 +23,10 @@ using namespace java::lang;
 typedef int64_t glong_t;
 typedef int64_t sglong_t;
 
-//typedef int32_t glong_t;
-//typedef int32_t sglong_t;
-
 class RandomAccess_Dist {
-
+  
 public:  
+  
   class localTable {
     
   public:
@@ -72,7 +66,7 @@ private:
   
   //static void RandomAccessUpdate (const glong_t LogTableSize, const bool Embarrasing, localTable* Table); 
   
-  public:
+public:
   static void main (x10::array<x10::ref<x10::lang::String> >& args);
 
 };
@@ -83,7 +77,8 @@ struct
   glong_t* SUM;
 }GLOBAL_SPACE;
 
-extern "C" {
+extern "C" 
+{
   extern int main (int ac, char** av);
 }
 
