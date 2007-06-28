@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: regress.sh,v 1.2 2007-06-20 13:56:33 srkodali Exp $
+# $Id: regress.sh,v 1.3 2007-06-28 17:24:22 srkodali Exp $
 # Script for starting the test harness.
 #
 
@@ -21,6 +21,7 @@ KSH=`which ksh`
 DIFF=`which diff`
 
 regress() {
+	export MP_MSG_API=lapi
 	echo "\n>> Testing X10Lib's Core Functionality...\n"
 	echo "Using ${HOSTFILE}...\n"
 	export MP_HOSTFILE=${HOSTFILE}
