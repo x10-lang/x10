@@ -1,0 +1,11 @@
+root directory:
+==============
+Contains the following files:
+
+* RandomAccess_spmd.v01.cc, .v02.cc & .v03.cc. Read the comments in the file for their description.
+* Makefile - Makes all the above version
+* run.sh - runs all the above version using POE  
+
+* RandomAccess_spmd_goto.cc - With gotos instead of IF evaulation in all the process. This is not
+  use for experimental runs and hence not part of Makefile and run scripts.
+

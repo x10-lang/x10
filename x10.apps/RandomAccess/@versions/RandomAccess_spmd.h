@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.9 2007-06-28 09:55:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.h,v 1.1 2007-06-28 09:55:00 ganeshvb Exp $ */
 
 /* Main version */
 #include <iostream>

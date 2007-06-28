@@ -1,0 +1,26 @@
+root directory:
+==============
+There are 3 versions of RandomAccess in this directory:
+
+RandomAccess_Dist.x10 -- x10 version  (Author: Tong Wen)
+RandomAccess_spmd.cc/h -- C++ + x10lib version (Author: Ganesh Bikshandi)
+gups.cc              -- C++ only version (Author: Hanhong Xue)
+
+other files:
+============
+
+Makefile - Makes only RandomAccess_spmd.exe and gups.exe
+timer.h - Contains a timing utility
+run.sh - a script to run the RandomAccess_spmd.exe and gups.exe using POE.
+
+@versions sub-directory:
+=======================
+
+These contain various version of the RandomAccess_spmd.cc. The version are numbered as v01, v02 etc in the 
+.cc source files. The description of them are provided in the .cc file itself. Please see README in @versions
+for more information. 
+
+deprecated sub-directory:
+========================
+
+Contains the deprecated versions of RandomAccess_spmd.cc. Being preseved for experimental reference purposes.
