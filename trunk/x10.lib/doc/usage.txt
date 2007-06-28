@@ -49,6 +49,10 @@ For initialization, use the following routine:
 			x10_async_handler_t *handlers;
 			int n;
 
+Note: Currently async handler registration is done through other
+	  methods.  As such, always pass NULL for arg 'handlers'
+	  and 0 for 'n'.
+
 Likewise, when a programmer completes calling X10Lib, he should
 terminate its context by doing Finalization.  This step deallocates
 all data structures that are allocated during initialization and
