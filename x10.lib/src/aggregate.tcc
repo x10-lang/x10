@@ -2,7 +2,7 @@
 #include <x10/types.h>
 #include <stdarg.h>
 
-using namespace x10lib;
+typedef void* (*func_t) (lapi_handle_t,  void*, uint*, ulong*, compl_hndlr_t**, void**);
 
 x10_async_arg_t argbuf[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS][X10_MAX_ASYNC_ARGS*X10_MAX_AGG_SIZE];
 ulong counter[X10_MAX_AGG_HANDLERS][X10_MAX_AGG_TASKS];
@@ -37,7 +37,7 @@ asyncSpawnCompHandlerAgg (lapi_handle_t *handle, void* a)
 {
   comp* c = (comp*) a; 
   batchAsyncDispatch<N, F> ((x10_async_arg_t*) (c->buf), c->len);
-  delete [] c->buf;
+  delete [] ((char*) c->buf);
   delete c;
 }
 
@@ -45,10 +45,10 @@ template<int N>
 x10_err_t
 asyncFlush_t (x10_async_handler_t handler)
 {
- 	   lapi_cntr_t origin_cntr;
+    lapi_cntr_t origin_cntr;
     int tmp;
-    for (int j =0; j < __x10_num_places; j++) {
-      if ( j != here() && counter[handler][j] != 0) {
+    for (int j =0; j < x10lib::__x10_num_places; j++) {
+      if (j != x10lib::here() && counter[handler][j] != 0) {
         LRC (LAPI_Setcntr (GetHandle(), &origin_cntr, 0)); 
         LRC (LAPI_Amsend (GetHandle(),
                      j,
@@ -98,7 +98,9 @@ template <int N, typename F>
 x10_err_t
 asyncRegister_t (x10_async_handler_t handle)
 {
-  LAPI_Addr_set (GetHandle(), (void*) asyncSpawnHandlerAgg<N, F>, 5+handle);
+
+  func_t tmp = (func_t) asyncSpawnHandlerAgg<N,F>; 
+  LAPI_Addr_set (GetHandle(), (void*) tmp, 5+handle);
 
   return X10_OK;
 }
