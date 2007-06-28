@@ -35,6 +35,8 @@ class NQueensC;
 
 typedef vector<int> ARR;
 
+static int boardSize;
+
 
 class anon_Outlet1 : public virtual Outlet {
 private:
@@ -60,7 +62,8 @@ public:
   int sum;
   ARR *sofar;
   
-  NFrame(const ARR *a) { sofar = a; }
+  
+  NFrame(ARR *a) { sofar = a; }
   virtual Closure *makeClosure();
   virtual NFrame *copy() {
 	  return new NFrame(*this);
@@ -68,9 +71,10 @@ public:
   virtual ~NFrame() {}
   virtual void setOutletOn(Closure *c) {
 	  Outlet *o = new anon_Outlet1(this,c);
-	  c->setOutletOn(o);
+	  assert (o!= NULL);
+	  c->setOutlet(o);
   }
-}
+};
 
 class NQueensC : public virtual Closure {
 	
@@ -83,10 +87,10 @@ private:
 
 public:
 	
-  static int boardSize;
+  
 	
   // fast path execution
-  static int nQueens(Worker *w, const ARR *a) {
+  static int nQueens(Worker *w, ARR *a) {
 	  int row = a->size();
 	  if (row >= boardSize) {
 	  			return 1;
@@ -104,13 +108,13 @@ public:
 	  while (q < boardSize) {
 		  bool attacked = false;
 		  for (int i = 0; i < row && ! attacked; i++) {
-			  int p = a[i];
+			  int p = a->at(i);
 			  attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  	  }
 		  if (!attacked) { 
 			  ARR next(row+1);
 			  for (int k = 0; k < row; ++k) 
-				  next.push_back(a[k]);
+				  next.push_back(a->at(k));
 			  next.push_back(q);
 	  				
 			  int y = nQueens(w, &next);
@@ -129,34 +133,38 @@ public:
 	  return sum;
 	  
   }
+  
+  NQueensC(Frame *frame) : Closure(frame) {}
   // Slow path
-  void compute(Worker *w, Frame *frame)  {
-	  NFrame *f = (NFrame) frame;
+  virtual void compute(Worker *w, Frame *frame)  {
+	  NFrame *f = (NFrame *) frame;
 	  ARR *a = f->sofar;
 	  int row = a->size();
+	  int sum=0;
+	  int q;
 	  		
 	  switch (f->PC) {
 	  	case LABEL_0:
 	  		if (row >= boardSize) {
 	  			result =1;
-	  			setupReturn();
+	  			setupReturn(w);
 	  			return;
 	  		}
 	  	case LABEL_1: 
-	  		int q=f->q;
-	  		int sum=0;
+	  		q=f->q;
+	  		sum=0;
 	  		while (q < boardSize) {
 	  			f->q =q+1;
 	  			bool attacked = false;
 	  			for (int i = 0; i < row && ! attacked; i++) {
-	  				int p = a[i];
+	  				int p = a->at(i);
 	  				attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  			}
 	  			if (!attacked) {
 	  				
 	  				ARR next(row+1);
 	  				for (int k = 0; k < row; ++k) 
-	  					next.push_back(a[k]);
+	  					next.push_back(a->at(k));
 	  				next.push_back(q);
 	  					  				
 	  				int y = nQueens(w, &next);
@@ -169,11 +177,13 @@ public:
 	  			q++;
 	  		}
 	  		f->PC=LABEL_2;
-	  		if (w->sync())
+	  		if (sync(w))
 	  				return;
 	  	case LABEL_2:
 	  		result=f->sum;
-	  		setupReturn();
+	  		setupReturn(w);
+	  	default: 
+	  		assert(0);
 	  }
 	  return;
   }
@@ -181,15 +191,15 @@ protected:
   int result;
   
 public:
-  int resultInt() { return result;}
-  void setResultInt(int x) { result=x;}
+  virtual int resultInt() { return result;}
+  virtual void setResultInt(int x) { result=x;}
   
-}
+};
 
 
 
 void anon_Outlet1::run() {
-	NFrame *fr = (NFrame) c->parentFrame(); // should not f do instead of fr? TODO RAJ
+	NFrame *fr = (NFrame *) c->parentFrame(); // should not f do instead of fr? TODO RAJ
 	int value = c->resultInt();
 	fr->sum += value;
 }
@@ -205,9 +215,10 @@ private:
   int result;
 public:
   anon_Job1(Pool *g) : Job(g) {}
-  void setResultInt(int x) { result = x;}
-  int resultInt() { return result;}
-  int spawnTask(Worker *ws) { ARR a; return NQueensC::nQueens(ws, &a); }
+  virtual void setResultInt(int x) { result = x;}
+  virtual int resultInt() { return result;}
+  virtual int spawnTask(Worker *ws) { ARR a; return NQueensC::nQueens(ws, &a); }
+  virtual ~anon_Job1() {}
 
 protected:
   
@@ -215,6 +226,7 @@ protected:
 
 int main(int argc, char *argv[]) {
   int procs;
+  
 
   if(argc < 2) {
     printf("Usage: %s <threads>\n", argv[0]);
@@ -234,13 +246,13 @@ int main(int argc, char *argv[]) {
   int expectedSolutions[] = {0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,73712, 365596, 2279184, 14772512};
     
   for (int i = 0; i < 16; i++) {
-    NQueensC::boardSize = i;
+    boardSize = i;
     Job *job = new anon_Job1(g);
     assert(job != NULL);
           g->submit(job);
     int result = job->getInt();
 
-    cout<<"NQueens("<<i<<")\t="<<result<<"\t"<<expectedSolutions[i])<<endl;
+    cout<<"NQueens("<<i<<")\t="<<result<<"\t"<<expectedSolutions[i]<<endl;
   }
 
   g->shutdown();
