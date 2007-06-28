@@ -182,6 +182,7 @@ public:
 	  	case LABEL_2:
 	  		result=f->sum;
 	  		setupReturn(w);
+	  		break;
 	  	default: 
 	  		assert(0);
 	  }
