@@ -58,7 +58,8 @@ terminate its context by doing Finalization.  This step deallocates
 all data structures that are allocated during initialization and
 runtime. Once this call is made, an X10 programmer is not allowed
 to issue further calls to X10Lib.  However, he can do the same
-by initializing the library once again.
+by initializing the library once again (this facility will be
+made available in the subsequent releases).
 
 For finalization, use the following routine:
 
@@ -67,10 +68,9 @@ For finalization, use the following routine:
 
 When ever an X10Lib call returns the error code other than
 X10_OK, the corresponding error message can be obtained by
-calling error messaging routine with a buffer of adequate
-size for returing it.  Regarding errors resulting from the
-underlying communication system, the error messages from
-that layer will be returned instead.
+calling error messaging routine with a buffer of length
+X10_MAX_ERR_STRING for returning it.  This constant is
+defined in the main include file <x10/x10lib.h>.
 
 For error processing, use the following routine:
 
@@ -81,9 +81,11 @@ For error processing, use the following routine:
 			int len;
 
 If an error is encountered during X10Lib call processing and
-the program logic decides that further execution is impossible,
-then it can call Cleanup method to safely shutdown the created
-library context.
+the X10 program which made that call decides that further execution
+is impossible, then it must call Cleanup method to
+orderly shutdown the runtime context.
+[In future, Finalize() and Cleanup() methods will be merged
+into one.]
 
 For cleanup, use the following routine:
 
@@ -174,9 +176,12 @@ line:
 			-I. -I${X10LIB_INCLUDE} hello.cc \
 	 		-L${X10LIB_LIBPATH} -lx10 -o hello
 [C]
-	mpcc_r -q64 -qarch=pwr5 -qtune=pwr5 -O3 -qhot \
+	mpCC_r -q64 -qarch=pwr5 -qtune=pwr5 -O3 -qhot \
 			-I. -I${X10LIB_INCLUDE} hello.c \
 			-L${X10LIB_LIBPATH} -lx10 -o hello
+Note:
+	As the entire library functionality is realized in C++ language with
+C wrappers, it's always safe to compile even C-style code using C++ compiler.
 
 or use the 'x10libCC/x10libcc' script that is provided along with
 the distribution:
