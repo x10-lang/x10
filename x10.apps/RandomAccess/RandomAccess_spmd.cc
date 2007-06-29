@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.25 2007-06-28 09:55:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.26 2007-06-29 15:54:17 ganeshvb Exp $ */
 
 /* Main Version */
 
@@ -183,7 +183,7 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
   const glong_t tableSize = (1UL << logTableSize);
   const glong_t numUpdates = tableSize*4*NUMPLACES;
   GLOBAL_SPACE.Table = new localTable (tableSize);
- 
+  finishEnd (NULL); 
  
   double GUPs;
   double cputime;    /* CPU time to update table */
@@ -241,6 +241,7 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
     }   
     asyncFlush (0, sizeof(__async__0__args));
 
+    //SyncGlobal ();
     finishEnd (NULL);
   }
 
