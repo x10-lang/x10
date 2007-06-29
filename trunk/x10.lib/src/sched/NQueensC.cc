@@ -35,6 +35,8 @@ class NQueensC;
 
 typedef vector<int> ARR;
 
+
+
 static int boardSize;
 
 
@@ -92,6 +94,7 @@ public:
   // fast path execution
   static int nQueens(Worker *w, ARR *a) {
 	  int row = a->size();
+	  //cout << "\n row=" << row << " boardSize=" << boardSize << endl;
 	  if (row >= boardSize) {
 	  			return 1;
 	  }
@@ -112,10 +115,14 @@ public:
 			  attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  	  }
 		  if (!attacked) { 
-			  ARR next(row+1);
+			  ARR next(0);
+			  
+			  //cout << "sizeof(next)=" << next.size() << endl;
 			  for (int k = 0; k < row; ++k) 
 				  next.push_back(a->at(k));
 			  next.push_back(q);
+			  
+			  //cout << "sizeof(next)=" << next.size() << endl; 
 	  				
 			  int y = nQueens(w, &next);
 			  
@@ -162,7 +169,7 @@ public:
 	  			}
 	  			if (!attacked) {
 	  				
-	  				ARR next(row+1);
+	  				ARR next(0);
 	  				for (int k = 0; k < row; ++k) 
 	  					next.push_back(a->at(k));
 	  				next.push_back(q);
@@ -218,7 +225,7 @@ public:
   anon_Job1(Pool *g) : Job(g) {}
   virtual void setResultInt(int x) { result = x;}
   virtual int resultInt() { return result;}
-  virtual int spawnTask(Worker *ws) { ARR a; return NQueensC::nQueens(ws, &a); }
+  virtual int spawnTask(Worker *ws) { ARR *a = new vector<int>(0); return NQueensC::nQueens(ws, a); /* TODO delete a; */}
   virtual ~anon_Job1() {}
 
 protected:
@@ -226,36 +233,43 @@ protected:
 };
 
 int main(int argc, char *argv[]) {
-  int procs;
-  
+  int result;
 
-  if(argc < 2) {
-    printf("Usage: %s <threads>\n", argv[0]);
-    exit(0);
+  if(argc < 3) {
+	    printf("Usage: %s <threads> <nRepetitions> \n", argv[0]);
+	    exit(0);
   }
 
-  procs = atoi(argv[1]);
+  const int procs = atoi(argv[1]);
+  const int nReps = atoi(argv[2]);
   cout<<"Number of procs=" << procs <<endl;
   if (argc > 2) 
-    Worker::reporting = true;
-
+	    Worker::reporting = true;
+  
+  const int expectedSolutions[] = {0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,73712, 365596, 2279184, 14772512};
   Pool *g = new Pool(procs);
   assert(g != NULL);
-  
-  
-  
-  int expectedSolutions[] = {0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,73712, 365596, 2279184, 14772512};
+
     
-  for (int i = 0; i < 16; i++) {
+  for (int i = 1; i < 10; i++) {
+	Pool *g = new Pool(procs);
+	assert(g != NULL);
     boardSize = i;
     Job *job = new anon_Job1(g);
-    assert(job != NULL);
-          g->submit(job);
-    int result = job->getInt();
-
-    cout<<"NQueens("<<i<<")\t="<<result<<"\t"<<expectedSolutions[i]<<endl;
+    
+    long long s = nanoTime();
+    
+    for(int j=0; j<nReps; j++) {
+    	assert(job != NULL);
+        g->submit(job);
+        result = job->getInt();
+    }
+    long long t = nanoTime();
+    cout<<"NQueens("<<i<<")\t="<<result<<"\t"<<
+    expectedSolutions[i]<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;
+    g->shutdown();
+    delete g;
   }
 
-  g->shutdown();
-  delete g;
+  
 }
