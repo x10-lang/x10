@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.9 2007-06-28 09:55:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.h,v 1.10 2007-06-29 15:54:17 ganeshvb Exp $ */
 
 /* Main version */
 #include <iostream>
@@ -20,8 +20,8 @@ using namespace java::lang;
 
 /* This gives the opportunity to use either int64_t or uint64_t */
 
-typedef long glong_t;
-typedef long sglong_t;
+typedef long long glong_t;
+typedef long long sglong_t;
 
 //typedef int32_t glong_t;
 //typedef int32_t sglong_t;
