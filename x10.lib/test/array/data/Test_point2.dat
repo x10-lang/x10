@@ -1,4 +1,0 @@
-assert x == 0 failed: 0 ../../include/x10/point.h, line 75
-assert x <= 1 failed: 0 ../../include/x10/point.h, line 113
-assert x < RANK failed: 0 ../../include/x10/point.h, line 46
-Test_point PASSED
