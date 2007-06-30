@@ -1,0 +1,585 @@
+Starting: /u/x10/x10.common/bin/testScript0 -t 600 -shiftLog -m x10-dev@cs.purdue.edu
+Machine name: rios2.watson.ibm.com
+Operating system: AIX
+Current directory: /u/x10/x10.common/examples
+System load:   5:05am  up 39 days,  22:22,  33 users,  load average:  0.40, 0.30, 0.17
+
+X10 tests started on 2006-01-15 05:05:27
+256 tests out of 278 met expectations. 22 (including 4 implementation limitations) did not meet expectations.
+
+The dates after each error message below show the earliest test run since which the same error message kept occurring continuously.
+
+Constructs.Distribution Restrict did not meet expectation: expected=Success actual=FailCompile (2006-01-13 05:07:12).
+Constructs.Array JavaArrayInitializer_MustFailCompile did not meet expectation: expected=FailCompile actual=FailRun (2006-01-07 05:07:27).
+Constructs.Array MultiDimensionalJavaArray did not meet expectation: expected=Success actual=FailCompile (2006-01-06 05:07:10).
+Constructs.Nullable NullableOverriding did not meet expectation: expected=Success actual=FailCompile (2006-01-04 14:45:24).
+Constructs.Atomic AtomicContainingWhen_MustFailRun did not meet expectation: expected=FailRun actual=FailTimeout (2005-11-04 09:48:09).
+Constructs.Array UserArrayBounds1D did not meet expectation: expected=Success actual=FailRun (2005-11-02 05:06:48).
+Misc Unreachable3_MustFailTimeout did not meet expectation: expected=FailTimeout actual=FailCompile (2005-08-23 05:09:23).
+Misc CompilerNullPointerException did not meet expectation: expected=Success actual=FailCompile (2005-08-23 05:09:23).
+Misc NonX10Constructs2_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2005-08-19 13:08:17).
+Constructs.Value ValueClass5_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2005-08-19 13:08:17).
+Constructs.Value ValueClass2_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2005-08-19 13:08:17).
+Constructs.Nullable NullableArray4 did not meet expectation: expected=Success actual=FailCompile (2005-08-17 05:08:20).
+LIMITATION: Constructs.Array ArrayTypeCheck_MustFailCompile did not meet expectation: expected=FailCompile actual=FailRun (2005-07-01 18:49:04).
+LIMITATION: Constructs.Atomic AtomicShared_MustFailCompile did not meet expectation: expected=FailCompile actual=FailRun (2005-06-09 05:05:28).
+Constructs.Nullable NullableInt did not meet expectation: expected=Success actual=FailCompile (2005-06-05 05:04:25).
+Constructs.RemoteMethodCall Arrow did not meet expectation: expected=Success actual=FailCompile (2005-05-28 05:04:06).
+Misc BreakInForTest did not meet expectation: expected=Success actual=FailCompile (2005-05-27 09:28:30).
+LIMITATION: Constructs.StorageClass StorageClassesTest did not meet expectation: expected=Success actual=FailCompile (2005-05-18 05:03:35).
+LIMITATION: Constructs.Init InitNonNullable_MustFailCompile did not meet expectation: expected=FailCompile actual=FailRun (2005-05-18 05:03:35).
+Constructs.Clock ClockPascal2 did not meet expectation: expected=Success actual=FailCompile (2005-05-18 05:03:35).
+Misc Unreachable2 did not meet expectation: expected=Success actual=FailCompile (2005-05-13 04:58:00).
+Constructs.Nullable NullableArray2 did not meet expectation: expected=Success actual=FailCompile (2005-05-13 04:58:00).
+
+
+****** Constructs.Distribution Restrict ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Distribution' '-d' './Constructs/Distribution' './Constructs/Distribution/./Restrict.x10'
+./Constructs/Distribution/./Restrict.x10:12: The type of the variable
+    initializer "x10.lang.dist" does not match that of the declaration
+    "x10.lang.region".
+1 error.
+
+real	0m6.376s
+user	0m5.320s
+sys	0m0.730s
+
+****** Constructs.Distribution Restrict failed: compile
+
+****** Constructs.Array JavaArrayInitializer_MustFailCompile ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./JavaArrayInitializer_MustFailCompile.x10'
+
+real	0m15.247s
+user	0m13.160s
+sys	0m1.270s
+++++++ Compilation succeeded.
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'JavaArrayInitializer_MustFailCompile'
+1
+2
+java.lang.Error
+	at JavaArrayInitializer_MustFailCompile.chk(JavaArrayInitializer_MustFailCompile.java:97)
+	at JavaArrayInitializer_MustFailCompile.run(JavaArrayInitializer_MustFailCompile.java:79)
+	at JavaArrayInitializer_MustFailCompile$3.run(JavaArrayInitializer_MustFailCompile.java:138)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at x10.runtime.PoolRunner.run(Unknown Source)
+++++++ Test failed.
+
+real	0m1.887s
+user	0m1.350s
+sys	0m0.230s
+
+****** Constructs.Array JavaArrayInitializer_MustFailCompile failed: run
+
+****** Constructs.Array MultiDimensionalJavaArray ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./MultiDimensionalJavaArray.x10'
+./Constructs/Array/./MultiDimensionalJavaArray.x10:15: Cannot assign double[]
+    to double[][].
+1 error.
+
+real	0m6.754s
+user	0m5.490s
+sys	0m0.630s
+
+****** Constructs.Array MultiDimensionalJavaArray failed: compile
+
+****** Constructs.Nullable NullableOverriding ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableOverriding.x10'
+x10c: ./Constructs/Nullable/NullableOverriding.java:32: m(NullableOverriding)
+    is already defined in NullableOverriding    
+     public static int m(NullableOverriding o) {    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m13.195s
+user	0m11.590s
+sys	0m1.190s
+
+****** Constructs.Nullable NullableOverriding failed: compile
+
+****** Constructs.Atomic AtomicContainingWhen_MustFailRun ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Atomic' '-d' './Constructs/Atomic' './Constructs/Atomic/./AtomicContainingWhen_MustFailRun.x10'
+
+real	0m20.192s
+user	0m18.410s
+sys	0m1.320s
+++++++ Compilation succeeded.
+++++++ Got killed by signal 9
+++++++ Time limit was 600 seconds
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Atomic:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'AtomicContainingWhen_MustFailRun'
+in f1:#1
+in f1:#2
+in f0:#1
+in f0:#2
+in f2:#1
+in f2:#2
+
+****** Constructs.Atomic AtomicContainingWhen_MustFailRun failed: timeout
+
+****** Constructs.Array UserArrayBounds1D ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./UserArrayBounds1D.x10'
+
+real	0m19.188s
+user	0m17.250s
+sys	0m1.360s
+++++++ Compilation succeeded.
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'UserArrayBounds1D'
+java.lang.Error
+	at UserArrayBounds1D.chk(UserArrayBounds1D.java:141)
+	at UserArrayBounds1D.run(UserArrayBounds1D.java:57)
+	at UserArrayBounds1D$3.run(UserArrayBounds1D.java:210)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at x10.runtime.PoolRunner.run(Unknown Source)
+++++++ Test failed.
+
+real	0m1.878s
+user	0m1.320s
+sys	0m0.200s
+
+****** Constructs.Array UserArrayBounds1D failed: run
+
+****** Misc Unreachable3_MustFailTimeout ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./Unreachable3_MustFailTimeout.x10'
+./Misc/./Unreachable3_MustFailTimeout.x10:16: Unreachable statement.
+1 error.
+
+real	0m7.349s
+user	0m4.920s
+sys	0m0.830s
+
+****** Misc Unreachable3_MustFailTimeout failed: compile
+
+****** Misc CompilerNullPointerException ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./CompilerNullPointerException.x10'
+x10c: ./Misc/CompilerNullPointerException.java:23: cannot resolve symbol    
+     symbol : method equals (java.lang.Object,java.lang.Object)    
+     location: class x10.compilergenerated.BoxedNumber    
+     ((!x10.compilergenerated.BoxedNumber.equals(obj,    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m13.280s
+user	0m11.650s
+sys	0m1.100s
+
+****** Misc CompilerNullPointerException failed: compile
+
+****** Misc NonX10Constructs2_MustFailCompile ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./NonX10Constructs2_MustFailCompile.x10'
+
+real	0m15.249s
+user	0m11.500s
+sys	0m1.270s
+++++++ Compilation succeeded.
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Misc:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'NonX10Constructs2_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.638s
+user	0m0.990s
+sys	0m0.190s
+
+****** Misc NonX10Constructs2_MustFailCompile succeeded.
+
+****** Constructs.Value ValueClass5_MustFailCompile ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Value' '-d' './Constructs/Value' './Constructs/Value/./ValueClass5_MustFailCompile.x10'
+
+real	0m13.526s
+user	0m11.840s
+sys	0m1.240s
+++++++ Compilation succeeded.
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Value:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'ValueClass5_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.441s
+user	0m1.030s
+sys	0m0.170s
+
+****** Constructs.Value ValueClass5_MustFailCompile succeeded.
+
+****** Constructs.Value ValueClass2_MustFailCompile ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Value' '-d' './Constructs/Value' './Constructs/Value/./ValueClass2_MustFailCompile.x10'
+
+real	0m17.462s
+user	0m15.670s
+sys	0m1.370s
+++++++ Compilation succeeded.
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Value:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'ValueClass2_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m1.921s
+user	0m1.450s
+sys	0m0.190s
+
+****** Constructs.Value ValueClass2_MustFailCompile succeeded.
+
+****** Constructs.Nullable NullableArray4 ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableArray4.x10'
+./Constructs/Nullable/./NullableArray4.x10:30: The type of the variable
+    initializer "x10.lang.GenericReferenceArray" does not match that of the
+    declaration "x10.lang.GenericReferenceArray".
+./Constructs/Nullable/./NullableArray4.x10:31: The type of the variable
+    initializer "x10.lang.GenericReferenceArray" does not match that of the
+    declaration "x10.lang.GenericReferenceArray".
+./Constructs/Nullable/./NullableArray4.x10:32: Cannot assign
+    x10.lang.GenericReferenceArray to x10.lang.GenericReferenceArray.
+./Constructs/Nullable/./NullableArray4.x10:33: Cannot assign
+    x10.lang.GenericReferenceArray to x10.lang.GenericReferenceArray.
+./Constructs/Nullable/./NullableArray4.x10:35: The type of the variable
+    initializer "x10.lang.GenericReferenceArray" does not match that of the
+    declaration "nullable<x10.lang.GenericReferenceArray>".
+./Constructs/Nullable/./NullableArray4.x10:38: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:42: The type of the variable
+    initializer "x10.lang.GenericReferenceArray" does not match that of the
+    declaration "nullable<x10.lang.GenericReferenceArray>".
+./Constructs/Nullable/./NullableArray4.x10:43: Cannot assign
+    x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:45: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:47: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:48: Cannot assign
+    x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:50: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:53: Cannot assign
+    x10.lang.GenericReferenceArray to x10.lang.GenericReferenceArray.
+./Constructs/Nullable/./NullableArray4.x10:62: Cannot assign
+    x10.lang.GenericReferenceArray to x10.lang.GenericReferenceArray.
+./Constructs/Nullable/./NullableArray4.x10:71: Cannot assign
+    x10.lang.GenericReferenceArray to x10.lang.GenericReferenceArray.
+./Constructs/Nullable/./NullableArray4.x10:74: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    x10.lang.GenericReferenceArray cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:80: Cannot assign
+    x10.lang.GenericReferenceArray to x10.lang.GenericReferenceArray.
+./Constructs/Nullable/./NullableArray4.x10:83: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    x10.lang.GenericReferenceArray cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:89: Cannot assign
+    x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:98: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:107: Cannot assign
+    x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:116: Cannot assign
+    x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:119: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    nullable<x10.lang.GenericReferenceArray> cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:125: Cannot assign
+    x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:134: Cannot assign
+    x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:137: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    nullable<x10.lang.GenericReferenceArray> cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:143: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:152: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:155: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    nullable<x10.lang.GenericReferenceArray> cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:161: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:170: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:173: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    nullable<x10.lang.GenericReferenceArray> cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:179: Cannot assign
+    x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:182: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    nullable<x10.lang.GenericReferenceArray> cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:191: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    nullable<x10.lang.GenericReferenceArray> cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:197: Cannot assign
+    nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+./Constructs/Nullable/./NullableArray4.x10:200: Method
+    set(x10.compilergenerated.Parameter1, x10.lang.point) in
+    nullable<x10.lang.GenericReferenceArray> cannot be called with arguments
+    (type(null), int).
+./Constructs/Nullable/./NullableArray4.x10:214: Cannot assign
+    java.lang.String[] to nullable<java.lang.String[]>.
+./Constructs/Nullable/./NullableArray4.x10:216: Cannot assign
+    java.lang.String[] to nullable<nullable<java.lang.String>[]>.
+./Constructs/Nullable/./NullableArray4.x10:218: Cannot assign
+    nullable<java.lang.String>[] to nullable<nullable<java.lang.String>[]>.
+40 errors.
+
+real	0m10.575s
+user	0m10.170s
+sys	0m0.600s
+
+****** Constructs.Nullable NullableArray4 failed: compile
+
+****** Constructs.Array ArrayTypeCheck_MustFailCompile ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayTypeCheck_MustFailCompile.x10'
+
+real	0m18.359s
+user	0m16.120s
+sys	0m1.410s
+++++++ Compilation succeeded.
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'ArrayTypeCheck_MustFailCompile'
+1
+2
+3
+4
+5
+java.lang.AssertionError
+	at x10.array.point_c$factory.point(Unknown Source)
+	at x10.lang.dist.get(Unknown Source)
+	at x10.lang.dist.get(Unknown Source)
+	at x10.array.sharedmemory.IntArray_c.get(Unknown Source)
+	at x10.array.sharedmemory.IntArray_c.get(Unknown Source)
+	at ArrayTypeCheck_MustFailCompile.run(ArrayTypeCheck_MustFailCompile.java:108)
+	at ArrayTypeCheck_MustFailCompile$3.run(ArrayTypeCheck_MustFailCompile.java:152)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at x10.runtime.PoolRunner.run(Unknown Source)
+++++++ Test failed.
+
+real	0m1.873s
+user	0m1.380s
+sys	0m0.160s
+
+****** Constructs.Array ArrayTypeCheck_MustFailCompile failed: run
+
+****** Constructs.Atomic AtomicShared_MustFailCompile ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Atomic' '-d' './Constructs/Atomic' './Constructs/Atomic/./AtomicShared_MustFailCompile.x10'
+
+real	0m18.902s
+user	0m17.020s
+sys	0m1.310s
+++++++ Compilation succeeded.
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Atomic:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'AtomicShared_MustFailCompile'
+BadPlaceException(dist. array, var location=place(id=1) access at place=place(id=0))
+	at x10.lang.Runtime.hereCheckPlace(Unknown Source)
+	at x10.array.sharedmemory.IntArray_c.get(Unknown Source)
+	at x10.array.sharedmemory.IntArray_c.get(Unknown Source)
+	at x10.lang.IntReferenceArray.addSet(Unknown Source)
+	at AtomicShared_MustFailCompile$10.run(AtomicShared_MustFailCompile.java:166)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at x10.runtime.PoolRunner.run(Unknown Source)
+++++++ Test failed.
+
+real	0m1.881s
+user	0m1.350s
+sys	0m0.200s
+
+****** Constructs.Atomic AtomicShared_MustFailCompile failed: run
+
+****** Constructs.Nullable NullableInt ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableInt.x10'
+./Constructs/Nullable/./NullableInt.x10:8: The type constructor nullable
+    cannot be applied to a <null> type
+1 error.
+
+real	0m5.227s
+user	0m4.190s
+sys	0m0.680s
+
+****** Constructs.Nullable NullableInt failed: compile
+
+****** Constructs.RemoteMethodCall Arrow ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/RemoteMethodCall' '-d' './Constructs/RemoteMethodCall' './Constructs/RemoteMethodCall/./Arrow.x10'
+./Constructs/RemoteMethodCall/./Arrow.x10:17:
+    ./Constructs/RemoteMethodCall/./Arrow.x10:17:10:17:11:
+    "AssignmentOperator" is invalid
+./Constructs/RemoteMethodCall/./Arrow.x10:18:
+    ./Constructs/RemoteMethodCall/./Arrow.x10:18:6:18:7: "AssignmentOperator"
+    is invalid
+x10c: Unable to parse Arrow.x10.
+3 errors.
+
+real	0m5.683s
+user	0m5.230s
+sys	0m0.530s
+
+****** Constructs.RemoteMethodCall Arrow failed: compile
+
+****** Misc BreakInForTest ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./BreakInForTest.x10'
+./Misc/./BreakInForTest.x10:25: Target of branch statement not found.
+1 error.
+
+real	0m6.835s
+user	0m5.560s
+sys	0m0.810s
+
+****** Misc BreakInForTest failed: compile
+
+****** Constructs.StorageClass StorageClassesTest ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/StorageClass' '-d' './Constructs/StorageClass' './Constructs/StorageClass/./StorageClassesTest.x10'
+./Constructs/StorageClass/./StorageClassesTest.x10:26:
+    ./Constructs/StorageClass/./StorageClassesTest.x10:26:13:26:13: unexpected
+    token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:26:
+    ./Constructs/StorageClass/./StorageClassesTest.x10:26:27:26:27: "{"
+    expected after this token
+./Constructs/StorageClass/./StorageClassesTest.x10:33:
+    ./Constructs/StorageClass/./StorageClassesTest.x10:33:22:33:22:
+    "identifier" is invalid
+./Constructs/StorageClass/./StorageClassesTest.x10:40:
+    ./Constructs/StorageClass/./StorageClassesTest.x10:40:13:40:13: unexpected
+    token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:40:
+    ./Constructs/StorageClass/./StorageClassesTest.x10:40:23:40:23:
+    "identifier" is invalid
+./Constructs/StorageClass/./StorageClassesTest.x10:26-40:
+    ./Constructs/StorageClass/./StorageClassesTest.x10:26:9:40:26: misplaced
+    construct(s)
+x10c: Unable to parse StorageClassesTest.x10.
+7 errors.
+
+real	0m5.614s
+user	0m5.850s
+sys	0m0.580s
+
+****** Constructs.StorageClass StorageClassesTest failed: compile
+
+****** Constructs.Init InitNonNullable_MustFailCompile ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Init' '-d' './Constructs/Init' './Constructs/Init/./InitNonNullable_MustFailCompile.x10'
+
+real	0m18.930s
+user	0m17.330s
+sys	0m1.250s
+++++++ Compilation succeeded.
+
+"/usr/java/bin/java" -Djava.library.path="/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Init:.:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes"  x10.lang.Runtime  'InitNonNullable_MustFailCompile'
+java.lang.NullPointerException
+	at InitNonNullable_MustFailCompile.run(InitNonNullable_MustFailCompile.java:182)
+	at InitNonNullable_MustFailCompile$2.run(InitNonNullable_MustFailCompile.java:331)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at x10.runtime.PoolRunner.run(Unknown Source)
+++++++ Test failed.
+
+real	0m1.675s
+user	0m1.210s
+sys	0m0.140s
+
+****** Constructs.Init InitNonNullable_MustFailCompile failed: run
+
+****** Constructs.Clock ClockPascal2 ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Clock' '-d' './Constructs/Clock' './Constructs/Clock/./ClockPascal2.x10'
+./Constructs/Clock/./ClockPascal2.x10:79: Could not find field or local
+    variable "i".
+1 error.
+
+real	0m9.979s
+user	0m8.640s
+sys	0m0.690s
+
+****** Constructs.Clock ClockPascal2 failed: compile
+
+****** Misc Unreachable2 ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./Unreachable2.x10'
+./Misc/./Unreachable2.x10:19-21: Unreachable statement.
+1 error.
+
+real	0m7.778s
+user	0m5.590s
+sys	0m0.970s
+
+****** Misc Unreachable2 failed: compile
+
+****** Constructs.Nullable NullableArray2 ******
+
+
+"/usr/java/bin/java" -Xmx128m "-Dx10.configuration=/.../watson.ibm.com/fs/users/X/x10/x10.common/etc/standard.cfg"  -classpath "/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.compiler/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../x10.runtime/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../polyglot2/bin:/.../watson.ibm.com/fs/users/X/x10/x10.common/classes:/.../watson.ibm.com/fs/users/X/x10/x10.common/../lpg/lib/lpg.jar:/.../watson.ibm.com/fs/users/X/x10/x10.common/lib/x10.jar" polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableArray2.x10'
+./Constructs/Nullable/./NullableArray2.x10:18: The type constructor nullable
+    cannot be applied to a <null> type
+./Constructs/Nullable/./NullableArray2.x10:21: The type constructor nullable
+    cannot be applied to a <null> type
+./Constructs/Nullable/./NullableArray2.x10:24: The type constructor nullable
+    cannot be applied to a <null> type
+./Constructs/Nullable/./NullableArray2.x10:27: The type constructor nullable
+    cannot be applied to a <null> type
+./Constructs/Nullable/./NullableArray2.x10:37: The type constructor nullable
+    cannot be applied to a <null> type
+5 errors.
+
+real	0m8.793s
+user	0m7.580s
+sys	0m0.850s
+
+****** Constructs.Nullable NullableArray2 failed: compile
