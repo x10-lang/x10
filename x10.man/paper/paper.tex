@@ -39,14 +39,24 @@
 \newcommand\FXten{{\sf FX10}}
 
 \begin{document}
-\title{Formalizing Dependent Types for \Xten}
-\authorinfo{Vijay Saraswat \and Nathaniel Nystrom \and \dots}
+\title{Constrained Types for Object-Oriented Languages}
+\authorinfo{Vijay Saraswat \and Nathaniel Nystrom}
    {IBM T.~J. Watson Research Center \\
     P.O. Box 704 \\
     Yorktown Heights, NY 10598}
    {\{vsaraswa,nystrom\}@us.ibm.com}
+%\authorinfo{Nathaniel Nystrom}
+%   {IBM T.~J. Watson Research Center \\
+%    P.O. Box 704 \\
+%    Yorktown Heights, NY 10598}
+%   {nystrom@us.ibm.com}
+%\authorinfo{Radha Jagadeesan}
+%   {Depaul University}
+%   {rjagadeesan@cs.depaul.edu}
+%\authorinfo{Jens Palsberg}
+%   {University of California--Los Angeles}
+%   {palsberg@cs.ucla.edu}
 
-\date{\today}
 \maketitle
 
 % \conferenceinfo{POPL'08}{XXX}
@@ -65,6 +75,86 @@ a place-based type-system for scalars and arrays.
 \end{abstract}
 
 \section{Introduction}
+
+% motivation
+% overview
+
+\section{Criteria}
+
+% design criteria
+
+\section{Examples}
+
+\section{Language overview}
+
+Constrained types are types.
+
+Every type should be const.
+
+\section{Related work}
+
+\begin{itemize}
+\item Pottier
+\item HM(X)
+\item Pfenning and Xi (POPL99)
+\item Ada dependent types
+\item Scala, gbeta, J\&
+\item Where clauses for F-bounded polymorphism (Theta and PolyJ)
+\item Hybrid type checking (Flanagan, POPL06)
+\item Soft typing with conditional types (Aiken, POPL94)
+\item Cayenne (Augustsson, ICFP98)
+\item Cardelli, type checking dependent types and subtypes
+\item Findler, Felleisen, Constraints for higher-order functions (ICFP02)
+\item Jif (final access paths in security labels)
+\item FX90
+\item ESCJava \cite{esc-java}, Spec\#
+\item JSR 308, Javari
+\item Freeman, Pfenning, Refinement types for ML (PLDI91)
+\item Holt, Cordy, the Turing programming language
+\item Mandelbaum, Walker, Harper, effective thy of type refinements
+\item Ou, Tan, Mandelbaum, Walker, Dynamic typing with dependent types
+\item Dependently typed data structurse (Xi)
+\item Dead code elimination through dependent types (Xi)
+\end{itemize}
+
+\section{Language design}
+
+Constraint system (generic presentation).
+Design is constraint-system agnostic.
+
+Principal clause
+
+\section{Examples}
+
+Specific constraint systems used when developing specific
+examples.
+
+Nullable types (T(:self != null))
+Array/region/distribution types (examples from X10)
+Place types (examples from X10)
+Clock types
+Capablities (from Radha and Vijay's paper on neighborhoods)
+Ownership types
+
+Dependent types are of use in annotations
+
+\section{Implementation}
+
+\section{Future work}
+
+Type inference
+
+Extensions
+
+\section{Conclusions}
+
+\section{Acknowledgments}
+
+\bibliographystyle{plain}
+\bibliography{master}
+\balance
+\appendix
+\onecolumn
 
 \section{Basic \FXten}
 {\em 
@@ -524,7 +614,7 @@ Under the assumptions of well-formed programs, this relation is acyclic.
 
 \subsubsection{Static semantics rules}
 First we cover the rules for literals:
-\infax[\rname{\sc\tt (T-Lit)}]
+\infax[\rname{T-Lit}]
 {
   \begin{array}{l}
     \vdash "null": "nullable"~T \\
@@ -534,7 +624,7 @@ First we cover the rules for literals:
   \end{array}
 }
 
-\infrule[\rname{\sc\tt (T-Nullable)}]
+\infrule[\rname{T-Nullable}]
         {\Gamma \vdash e:T}
         {\Gamma \vdash e: nullable\ T} 
 
@@ -542,7 +632,7 @@ First we cover the rules for literals:
 establishing {\tt x:T}; these are covered by the underlying constraint system.
 
 \infrule
-[\rname{\sc\tt (T-New)}]
+[\rname{T-New}]
 {
   \begin{array}{l}
    \tt class\ C( \bar{\tt f}:\bar{\tt X},\, var\ \bar{\tt g}:\bar{\tt Y})\; extends\ D \ldots \\
@@ -557,7 +647,7 @@ establishing {\tt x:T}; these are covered by the underlying constraint system.
  }
 
 \infrule
-[\rname{\sc\tt (T-Invoke)}]
+[\rname{T-Invoke}]
 {
   \begin{array}{l}
    \tt \Gamma \vdash x,\bar{y}:X,\bar{Y} \\
@@ -571,7 +661,7 @@ establishing {\tt x:T}; these are covered by the underlying constraint system.
 {\tt \Gamma \vdash x.m(\bar{y}):T\theta}
 
 \infrule
-[\rname{\sc\tt (T-Local)}]
+[\rname{T-Local}]
   {
   \begin{array}{l}
     \tt \Gamma \vdash X\star \\
@@ -582,18 +672,18 @@ establishing {\tt x:T}; these are covered by the underlying constraint system.
 {\tt \Gamma \vdash \{val\ x:X=d;e\}:\exists (x:X)\,Z}
 
 \infrule[
-\rname{\sc\tt (T-UCast)}]
+\rname{T-UCast}]
 {\tt \Gamma \vdash Y\star \andalso \Gamma \vdash e:X \wedge X\leq Y} 
 {\tt \Gamma \vdash (Y) e: Y}
 
 \infrule[
-\rname{\sc\tt (T-GCast)}]
+\rname{T-GCast}]
 {\tt \Gamma \vdash Y\star \andalso
 \Gamma \vdash e:X \andalso \Gamma \not\vdash X\leq Y} 
 {\tt \Gamma \vdash (Y) e: Y}
 
 \infrule[
-\rname{\sc\tt (T-Typecase)}]
+\rname{T-Typecase}]
 {
   \begin{array}{lll}
    \tt \Gamma \vdash ce:boolean &  \tt \Gamma, ce \vdash r:T &  \tt \Gamma, !ce \vdash s:T
@@ -601,7 +691,7 @@ establishing {\tt x:T}; these are covered by the underlying constraint system.
 {\tt \Gamma \vdash (ce \Implies r:s) :T}
 
 \infrule[
-\rname{\sc\tt (T-Method)}]
+\rname{T-Method}]
 {
   \begin{array}{l}
   \tt M \in \mbox{methods}(C) \\
@@ -614,7 +704,7 @@ establishing {\tt x:T}; these are covered by the underlying constraint system.
 {\tt M\ OK\ in\ C}
 
 \infrule[
-\rname{\sc\tt (T-Class)}]
+\rname{T-Class}]
 {
   \begin{array}{l}
 %\tt \bar{\tt f}:\bar{\tt X},\,\tt\bar{\tt g}:\bar{\tt Y}\ \mbox{\em satisfiable}\\
@@ -628,7 +718,7 @@ establishing {\tt x:T}; these are covered by the underlying constraint system.
 Finally we cover the rules for field assignment and sequencing. These are standard.
 
 \infrule[
-\rname{\sc\tt (T-Field-w)}]
+\rname{T-Field-w}]
 {
   \begin{array}{lll}
   \tt  \Gamma \vdash var\; x.g\;\&\;x.g:U &  \tt \Gamma \vdash e:V & \tt \Gamma \vdash V \leq U
@@ -636,7 +726,7 @@ Finally we cover the rules for field assignment and sequencing. These are standa
 {\tt \Gamma \vdash x.g=e:U}
 
 \infrule[
-\rname{\sc\tt (T-Seq)}]
+\rname{T-Seq}]
 {
   \begin{array}{ll}
    \tt \Gamma \vdash d:S   & 
@@ -719,20 +809,20 @@ We shall see that values are {\em terminal} in the dynamic semantics
 \newcommand\starderives{\stepsmany}
 
     \infrule[
-    \rname{\tt\sc (R-Field)}]
+    \rname{R-Field}]
     {\tt fields(C)=\bar{\tt f}:\bar{\tt X}}
     {\tt (new\ C(\bar{\tt v})).f_i \derives v_i}
 
     \infrule[
-    \rname{\tt\sc (R-Invoke)}]
+    \rname{R-Invoke}]
     {\tt mbody(m,C)=(\bar{\tt x}, e)}
     {\tt (new\ C(\bar{\tt v})).m(\bar{\tt w}) \derives e[\bar{\tt w}/\bar{\tt x},\,new\ C(\bar{\tt v})/this]}
 
     \infrule[
-  \rname{\tt\sc (R-Cast-Null)}]{}{\tt (nullable\ T)\; null \derives null}
+  \rname{R-Cast-Null}]{}{\tt (nullable\ T)\; null \derives null}
 
     \infrule[
-  \rname{\tt\sc (R-Cast)}]
+  \rname{R-Cast}]
   {
       \tt C \leq D \andalso \tt c[new\ C(\bar{\tt v})/self]\starderives true      
   }
@@ -743,12 +833,12 @@ We shall see that values are {\em terminal} in the dynamic semantics
   \end{array}} 
 
   \infrule[
-  \rname{\tt\sc (R-Local)}]
+  \rname{R-Local}]
   {}
   {\tt \{val\ x:T=v;\; e\} \derives e[v/x]}
 
   \infrule[
-  \rname{\tt\sc (R-Typecase)}]
+  \rname{R-Typecase}]
   {}
   {
     \begin{array}{l}
@@ -757,7 +847,7 @@ We shall see that values are {\em terminal} in the dynamic semantics
   \end{array}}
 
   \infrule[
-  \rname{\tt\sc (R-Primitive)}]
+  \rname{R-Primitive}]
     {}
     {\begin{array}{l}
 	\tt v\ op\ w \derives z \andalso \mbox{({\tt z} is result of {\tt v op w})} \\
@@ -767,7 +857,7 @@ We shall see that values are {\em terminal} in the dynamic semantics
 Finally, we have the context rules:
 
 \infrule[
-\rname{\tt\sc (R-Context)}]
+\rname{R-Context}]
 {\tt r \derives r'}
 {
   \begin{array}{l}
@@ -798,7 +888,7 @@ $e \derives e'$.
 
 Say that $\Gamma \vdash_s e$ (read: ``{\tt e}'' is safely well-typed in $\Gamma$) if
 for some $T$, $\Gamma \vdash_e e:T$ and the derivation does not use rule
-{\tt \sc (T-GCAST)}. (Invocations of the cast operation ``checked'' by such a rule can fail
+\rname{T-GCast}. (Invocations of the cast operation ``checked'' by such a rule can fail
 dynamically.) 
 
 \begin{theorem}[Safety] If $\Gamma \vdash_s  e$ and $e \vdash e'$ then
@@ -826,11 +916,6 @@ $\Gamma \vdash_s e'$. If $\tt \Gamma \vdash_s e$ and $\tt e$ is stuck then $\tt 
 
 %\section{\FXten{} with distributions}
 
-\bibliographystyle{plain}
-\bibliography{master}
-\balance
-\appendix
-\onecolumn
 \section{An extended example}
 {\footnotesize
 \begin{verbatim}
