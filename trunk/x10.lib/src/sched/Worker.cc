@@ -19,6 +19,7 @@
 #include "ActiveWorkerCount.h"
 #include "StealAbort.h"
 #include "Sys.h"
+#include "Job.h"
 #include <assert.h>
 #include <cstdlib>
 #include <iostream>
@@ -272,7 +273,9 @@ Closure *Worker::peekBottom(Worker *ws) {
 		assert (top==NULL);
 		return cl;
 	}
-	cl->ownerReadyQueue = this;
+	assert(cl->ownerReadyQueue != NULL);
+	assert(cl->ownerReadyQueue == this);
+	//cl->ownerReadyQueue = this;
 	return cl;
 }
 /**
@@ -447,7 +450,7 @@ Closure *Worker::getTaskFromPool(Worker *sleeper) {
         if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
             if (sleepStatus == AWAKE) {
 	      compare_exchange((int *)&sleepStatus, AWAKE, SLEEPING);
-	      sched_yield(); // TODO RAJ -- wanna give it to someone else
+	      //sched_yield(); // TODO RAJ -- wanna give it to someone else
                 
             	/*if (reporting)
             		System.out.println(this + " at " + pool.time() + " parking for " 
@@ -546,7 +549,7 @@ void Worker::run() {
       return;
     } else {
       yields++;
-      sched_yield(); // TODO RAJ
+//       sched_yield(); // TODO RAJ
     }
   }
 }

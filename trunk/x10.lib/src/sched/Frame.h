@@ -17,16 +17,6 @@ namespace x10lib_cws {
 class Closure;
 
 class Frame {
- protected:
-  Frame(const Frame &f) { incCons; }
-public:
-  Frame() { incCons(); }
-  virtual ~Frame() { incDestruct(); }
-  
-  virtual Closure *makeClosure();
-  virtual void setOutletOn(Closure *c);
-  virtual void setInt(int x);
-  virtual Frame *copy() = 0; //should be implemented by sub-classes
 
  public:
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
@@ -42,6 +32,26 @@ public:
     atomic_add(&nDestruct, 1);
 # endif
   }
+
+ protected:
+  Frame(const Frame &f) { incCons(); }
+public:
+  Frame() { 
+#if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+    incCons(); 
+#endif
+}
+  virtual inline ~Frame() { 
+#if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+    incDestruct(); 
+#endif
+  }
+  
+  virtual Closure *makeClosure();
+  virtual void setOutletOn(Closure *c);
+  virtual void setInt(int x);
+  virtual Frame *copy() = 0; //should be implemented by sub-classes
+
 };
 
 }

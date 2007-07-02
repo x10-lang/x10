@@ -73,7 +73,7 @@ GFrame *GFrame::copy() { return new GFrame(*this); }
 // Job::Job() {}
 // Job::Job(Pool *pool) : Job::Job(new JobFrame(), pool) {}
 
-Job::Job(Pool *pool, Frame *f) : Closure(f) {
+Job::Job(Pool *pool, Frame *f) : Closure(f), jobDone(false) {
 		this->pool=pool;
 		parent = NULL;
 		joinCount=0;
@@ -129,11 +129,18 @@ bool Job::cancel(bool b) const { return false;}
 
 int Job::getInt() {
 #warning "Need to check sched_yield() and locks, etc."
-  while(!isDone()) 
+//   while(!isDone()) 
+//     sched_yield();
+  while(!isJobDone()) 
     sched_yield();
   return resultInt();
 }
 
+void Job::jobCompleted() {
+  jobDone = true;
+}
+
+bool Job::isJobDone() volatile { return jobDone; }
 
 /*--------------------GloballyQuiescentJob-------------------*/
 

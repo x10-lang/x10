@@ -12,6 +12,9 @@
 #include <limits.h>
 #include <vector>
 
+#include "Sys.h"
+#include <assert.h>
+
 using namespace std;
 
 namespace x10lib_cws {
@@ -33,8 +36,10 @@ class Cache {
 	protected:
 /* 		unsigned int lastException;  */
 		Worker *owner;
-		vector<Frame *> *stack; /* using vector as resizing would be lot easier */
-		
+		//		vector<Frame *> *stack; /* using vector as resizing would be lot easier */
+		Frame** stack; /*Trying a stack. vector was a bit slower*/
+		int stack_size;
+
 		void incrementExceptionPointer ();
 		void decrementExceptionPointer ();
 	
@@ -55,11 +60,22 @@ class Cache {
 		void signalImmediateException ();
 		bool empty () ;
 		bool atTopOfStack () ;
-		void pushFrame (Frame *);
+		inline void pushFrame (Frame *x) {
+		  assert(x != NULL);
+		  assert(stack != NULL);
+
+		  if (tail < stack_size - 1) {
+		    stack[tail] = x;
+		    MEM_BARRIER();
+		    ++tail;
+		    return;
+		  }
+		  growAndPushFrame(x);
+		}
 		Frame *currentFrame()  ;
 		void reset ();
-		void popFrame ();
-		bool interrupted() ;
+		inline void popFrame () { --tail; MEM_BARRIER(); }
+		bool interrupted() volatile { return exception>=tail; }
 		void pushIntUpdatingInPlace(Pool *pool, int tid, int x);
 
 		bool dekker(Worker *thief);

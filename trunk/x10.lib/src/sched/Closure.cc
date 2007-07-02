@@ -70,7 +70,7 @@ Closure::~Closure() {
 	completeInlets.clear(); 
 	incompleteInlets.clear();
 	// TODO -- verify these
-	delete frame; /*TODO: verify this*/
+	//delete frame; /*TODO: verify this*/
 	delete outlet; /*Every outlet is attached to a Closure, and it
 			 destroyed by that Closure. */
 }
@@ -261,8 +261,10 @@ Closure *Closure::acceptChild(Worker *ws, Closure *child) {
     	addCompletedInlet(child);
     	res = provablyGoodStealMaybe(ws, child);
     	child->unlock();
-	if(res)
+	if(res) {
+	  //cerr<<ws->index<<":: deleting child="<<child<<endl;
 	  delete child;
+	}
     	unlock();
 	/*sriramk -- The child cannot be deleted yet. It can be
 	 * deleted only after it has been executed as inlet in
@@ -290,7 +292,8 @@ void Closure::suspend(Worker *ws) {
     	assert(cl==this);
     	
 //    	Setting ownedReadyQueue to NULL even though Cilk does not do it.
-    	cl->ownerReadyQueue=NULL;
+	assert(cl->ownerReadyQueue == NULL);
+//    	cl->ownerReadyQueue=NULL;
 }
     
     /**
@@ -308,7 +311,8 @@ Closure *Closure::provablyGoodStealMaybe(Worker *ws, Closure *child) {
     	if (joinCount==0 && status == SUSPENDED) {
     		result = this;
     		pollInlets(ws, child);
-    		ownerReadyQueue = NULL;
+		assert(ownerReadyQueue == NULL);
+		  //ownerReadyQueue = NULL;
     		status=READY;
     		cache=NULL;
     		/*if (Worker.reporting) {
@@ -411,6 +415,11 @@ Closure *Closure::execute(Worker *w) {
 		case RETURNING:
 		  unlock();
 		  res = returnValue(w);
+		  if(isDone() && parent==NULL) {
+		    assert(res == NULL);
+		    Job *job = dynamic_cast<Job *>(this);
+		    job->jobCompleted();
+		  }
 		  break;
 		default:
 		  assert(0);

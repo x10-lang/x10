@@ -40,7 +40,7 @@ namespace x10lib_cws {
 
 static __inline__ int atomic_exchange(volatile int *ptr, int x)
 {
-  int result;
+  int result=0;
   
 #if 0
   __asm__ __volatile__ (
