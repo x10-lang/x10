@@ -58,7 +58,9 @@ void Pool::callBackFunc::each_thread(Pool *p,int d)
 }
 
 void *Pool::each_thread_wrapper(void *arg) {
+  assert(arg != NULL);
 	callBackFunc *cbf = (callBackFunc *) arg;
+	assert(cbf!=NULL);
 	cbf->each_thread(cbf->cl, cbf->id);
 	delete cbf;
 	return NULL;
@@ -134,6 +136,7 @@ Pool::Pool(int numThreads) {
 	for (i = 0; i < num_workers; i++)
 	{
 	  ptToFunc = new callBackFunc(this, i);
+	  assert(ptToFunc != NULL);
 // 	  ptToFunc.id = i;
 // 	  ptToFunc.cl = this;
 	  res = pthread_create(id + i, 

@@ -94,6 +94,7 @@ class Job : public Closure {
 	
 protected:
 	virtual void compute(Worker *w, Frame *frame) ;
+	volatile bool jobDone;
 	
 public:
 	Pool *pool;
@@ -112,6 +113,8 @@ public:
 	virtual int spawnTask(Worker *ws) ;
  
 	int getInt();	
+	void jobCompleted();
+	bool isJobDone() volatile;
 };
 
 class GloballyQuiescentJob : public Job {
