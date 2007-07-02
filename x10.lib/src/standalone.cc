@@ -9,7 +9,7 @@
 ** Following #defines are for use with the -list option only. They
 ** are ignored with the -hndlr option.
 */ 
-#define IP_STRING "9.124.33.192"   /* change to addr for even tasks */
+#define IP_STRING "125.99.234.161"   /* change to addr for even tasks */
 #define BASE_PORT      62555           /* change this to the base port number */ 
 
 /* Setup the initial environment, reading command line args and */
@@ -45,10 +45,10 @@ static int setup_addr_list(lapi_udp_t *addr_list, int num_tasks)
     for( i = 0; i < num_tasks; i++ ) {
       addr_list[i].ip_addr = inet_addr(IP_STRING); 
       addr_list[i].port_no = (unsigned) (BASE_PORT+i);            
-      printf( "Assigning addr_list[%d].ip_addr:%lu\n",
-	      i, addr_list[i].ip_addr);
-      printf( "Assigning addr_list[%d].port_no:%u\n",
-	      i, addr_list[i].port_no);
+      //printf("Assigning addr_list[%d].ip_addr:%lu\n",
+//	      i, addr_list[i].ip_addr);
+  //   printf( "Assigning addr_list[%d].port_no:%u\n",
+//	      i, addr_list[i].port_no);
     }
     return LAPI_SUCCESS;
 }
