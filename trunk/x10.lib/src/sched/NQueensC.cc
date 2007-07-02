@@ -94,10 +94,13 @@ public:
   // fast path execution
   static int nQueens(Worker *w, ARR *a) {
 	  int row = a->size();
+	  
+	  cout << "Fast path with row=" << row << endl;
 	  //cout << "\n row=" << row << " boardSize=" << boardSize << endl;
 	  if (row >= boardSize) {
 	  			return 1;
 	  }
+	  
 	  
 	  NFrame *frame = new NFrame(a);
 	  frame->q=1; // TODO  RAJ Barrier needed as q is volatile
@@ -130,7 +133,9 @@ public:
 			  sum +=y;
 			  frame->sum +=y;
 		  }
+		  MEM_BARRIER();
 		  q++; 
+		  
 		  frame->q=q+1; // TODO RAJ Barrier needed as q is volatile
 	  }
 	  w->popFrame();
@@ -144,11 +149,14 @@ public:
   NQueensC(Frame *frame) : Closure(frame) {}
   // Slow path
   virtual void compute(Worker *w, Frame *frame)  {
+	  
 	  NFrame *f = (NFrame *) frame;
 	  ARR *a = f->sofar;
 	  int row = a->size();
 	  int sum=0;
 	  int q;
+	  
+	  cout << "Slow path with row=" << row << endl;
 	  		
 	  switch (f->PC) {
 	  	case LABEL_0:
@@ -251,7 +259,7 @@ int main(int argc, char *argv[]) {
   assert(g != NULL);
 
     
-  for (int i = 1; i < 10; i++) {
+  for (int i = 5; i < 6; i++) {
 	Pool *g = new Pool(procs);
 	assert(g != NULL);
     boardSize = i;
