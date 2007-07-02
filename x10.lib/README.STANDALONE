@@ -39,6 +39,6 @@ To run:
 =======
 
   1)  Invoked the "poe.sh" script in the x10lib/directory. The syntax is:
-        ./poe.sh "executable_name executable args" #procs.
+        ./poe.sh "executable_name executable args" -procs #procs.
   
 

@@ -5,5 +5,5 @@ export MP_EUILIB=ip
 export MP_PROCS=$3
 export MP_CHILD=$2
 
-gdb $1
+$1
 
