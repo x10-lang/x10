@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: install.bin.sh,v 1.1 2007-06-29 16:26:09 srkodali Exp $
+# $Id: install.bin.sh,v 1.2 2007-07-02 10:33:20 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -11,7 +11,7 @@
 
 # set install prefix
 PREFIX=${PREFIX}
-if [ -z ${PREFIX} ]
+if [ -z "${PREFIX}" ]
 then
 	PREFIX=${HOME}
 fi
@@ -52,7 +52,8 @@ EX_MAKE="Makefile"
 # other files to install
 TOPLFILES="RELEASE.NOTES INSTALL epl-v10.html"
 DOCFILES="api.txt usage.txt x10lib-design.pdf"
-EXFILES="README.examples *.c *.cc *.sh"
+EXFILES="README.examples *.c *.cc"
+EXSCRIPTS="*.sh"
 HOSTFILES="*.list"
 LIBFILE=libx10.a
 INCFILES="*.h *.tcc"
@@ -107,6 +108,12 @@ do \
 			2>&1| tee -a ${LOGFILE} ; \
 	install -f ${DEST_EX} -G ${GID} -M ${DATAMODE} -o -O ${UID} ${file} ; \
 done; \
+for file in ${EXSCRIPTS}; \
+do \
+	echo "install -f ${DEST_EX} -G ${GID} -M ${BINMODE} -o -O ${UID} ${file}" \
+			2>&1| tee -a ${LOGFILE} ; \
+	install -f ${DEST_EX} -G ${GID} -M ${BINMODE} -o -O ${UID} ${file} ; \
+done; \
 )
 echo "\n.....done\n" 2>&1| tee -a ${LOGFILE}
 
@@ -148,9 +155,9 @@ echo "\n.....done\n" 2>&1| tee -a ${LOGFILE}
 (cd ${SRC_BIN}; \
 for script in ${FRONT_ENDS}; \
 do \
-	echo "sed -e 's;@X10LIB_HOME@;'${X10LIB_HOME}';' ${script} > __${script}" \
+	echo "sed -e 's;@@X10LIB_HOME@@;'${X10LIB_HOME}';' ${script} > __${script}" \
 		2>&1| tee -a ${LOGFILE} ; \
-	sed -e 's;@X10LIB_HOME@;'${X10LIB_HOME}';' ${script} > __${script} ; \
+	sed -e 's;@@X10LIB_HOME@@;'${X10LIB_HOME}';' ${script} > __${script} ; \
 	echo "install -f ${DEST_BIN} -G ${GID} -M ${BINMODE} -O ${UID} __${script}" \
 		2>&1| tee -a ${LOGFILE} ; \
 	install -f ${DEST_BIN} -G ${GID} -M ${BINMODE} -O ${UID} __${script} ; \
@@ -163,9 +170,9 @@ done; \
 
 # customize examples Makefile before installation
 (cd ${SRC_EX};
-echo "sed -e 's;@X10LIB_HOME@;'${X10LIB_HOME}';' ${EX_MAKE} > __${EX_MAKE}" \
+echo "sed -e 's;@@X10LIB_HOME@@;'${X10LIB_HOME}';' ${EX_MAKE} > __${EX_MAKE}" \
 	2>&1| tee -a ${LOGFILE} ; \
-sed -e 's;@X10LIB_HOME@;'${X10LIB_HOME}';' ${EX_MAKE} > __${EX_MAKE} ; \
+sed -e 's;@@X10LIB_HOME@@;'${X10LIB_HOME}';' ${EX_MAKE} > __${EX_MAKE} ; \
 echo "install -f ${DEST_EX} -G ${GID} -M ${DATAMODE} -O ${UID} __${EX_MAKE}" \
 	2>&1| tee -a ${LOGFILE} ; \
 install -f ${DEST_EX} -G ${GID} -M ${DATAMODE} -O ${UID} __${EX_MAKE} ; \
