@@ -266,7 +266,7 @@ int main(int argc, char *argv[]) {
   assert(g != NULL);
 
     
-  for (int i = 1; i < 13; i++) {
+  for (int i = 1; i < 16; i++) {
 	Pool *g = new Pool(procs);
 	assert(g != NULL);
     boardSize = i;

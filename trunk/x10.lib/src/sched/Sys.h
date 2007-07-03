@@ -42,7 +42,7 @@ static __inline__ int atomic_exchange(volatile int *ptr, int x)
 {
   int result=0;
   
-#if 0
+#if 1
   __asm__ __volatile__ (
 			"lwarx %0,0,%1\n stwcx. %2,0,%1\n .long 0x40a2fff8 \n isync\n" :
 			"=&r"(result) : 
@@ -115,6 +115,17 @@ static __inline__ void atomic_add(volatile int* mem, int val)
 }
 #endif
 
+
+static __inline__ void atomic_fetch(volatile int* mem)
+{
+	
+#if defined (__xlC__)
+	fetch_and_nop((int *)mem);
+#elif
+#error "Fix atomic_add before running. Commented now"
+	assert(0);
+#endif
+}
 /*Simple portable timers for now. Could add accurate system-specific
   timers later*/
 
