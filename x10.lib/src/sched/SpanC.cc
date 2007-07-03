@@ -20,13 +20,22 @@
 using namespace std;
 using namespace x10lib_cws;
 
+class SpanC;
+class TFrame;
+class Traverser;
 
 
+
+static SpanC *graph;
+static int[] Ns = {10*1000,50*1000, 100*1000,
+		500*1000, 1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000};
+
+typedef vector<int> ARR;
 class V {
 public:
 	int parent;
 	int degree;
-	int[] neighbors;
+	ARR  *neighbors;
 	V(){}
 };
 
@@ -37,14 +46,17 @@ public:
 	E(int u1, int u2){ v1=u1;v2=u2;in_tree=false;}
 };
 
-typedef vector<V *> V_ARR;
-typedef vector<E *> E_ARR;
-typedef vector<int> I_ARR;
+typedef vector<V *> V_ARR; // Array of vertices
+typedef vector<E *> E_ARR; // Array of edges
+typedef vector<int> A_ARR; // Atomic Integer Array -- make sure write and reads are visible to all
+typedef vector<vector<int> *>  TD_ARR;
 
 class TFrame : public Frame {
+private:
+	friend class SpanC;
 public:
 	int u; // vertex
-	volatile int k;
+	volatile int k; // TODO Raj -- may need MEM_BARRIER
 		
 	TFrame(int u1) {
 		u=u1;
@@ -57,30 +69,34 @@ public:
 		assert (retc != NULL);
 		return retc;
 	}
-}
+};
 
 class Traverser : public Closure {
+private:
+  friend class TFrame;
+  friend class SpanC;
 public: 
 		SpanC *graph;
 		V_ARR *G;
-		I_ARR c; // Atomic Integer Array TODO RAJ
+		A_ARR *c; // Atomic Integer Array TODO RAJ
+		
 		Traverser(SpanC *g, TFrame *t) : Closure(t) { 
 			graph=g;
 			G=graph->G;
 			c=graph->color;
 		}
 		
-		void compute(Worker *w, Frame *frame) throw StealAbort {
+		void compute(Worker *w, Frame *frame) /*throw StealAbort*/ {
 			TFrame *f = (TFrame *) frame;
 			int u = f->u;
 			int k = f->k;
-			while (k < G[u].degree) {
-				int v=G[u].neighbors[k];
+			while (k < (G->at(u))->degree) {
+				int v=(G->at(u))->neighbors->at(k);
 				bool result = compare_exchange (&c[v],0,1);
 				if (result) {
-					G[v].parent=u;
+					(G->at(v))->parent=u;
 					traverse(w,v);
-					w->abortOnSteal();
+					if (w->abortOnSteal()) return;
 				}
 				++k;
 				f->k=k;
@@ -93,14 +109,13 @@ public:
 class SpanC {
 public:
 	int m;
-	V_ARR G;
-	E_ARR El;
-	E_ARR El1;
-	I_ARR color; // Atomic Integer Array
+	V_ARR *G;
+	E_ARR *El;
+	E_ARR *El1;
+	A_ARR *color; // Atomic Integer Array
 	int ncomps=0;
 	
-	static int[] Ns = {10*1000,50*1000, 100*1000,
-		500*1000, 1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000};
+	
 	int N, M;
 	
 	SpanC (int n, int m){
@@ -108,7 +123,7 @@ public:
 		M=m;
 		
 		/*constructing edges*/
-		El = new E [M];
+		El = new vector<E *>(0);
 		double[] seeds = {
 				0.21699440277541715, 0.9099040926714322, 0.5586793832519766,
 				0.15656203486110076, 0.3716929310972751, 0.6327328452004045,
@@ -119,145 +134,166 @@ public:
 		int r0 = 0;
 		int r1 = 1;
 		for(int i=0;i<M;i++){
-			El[i]=new 
-			E ((int) (seeds[r0]*(N+i))%N, (int) (seeds[r1]*(N+i))%N);
+			
+			E *e = new E ((int) (seeds[r0]*(N+i))%N, (int) (seeds[r1]*(N+i))%N);
+			El->push_back(e);
 			r0 = r1;
 			if (++r1 >= 10) r1 = 0;
 			
 		}
 		
-		int[] D = new int [N];
+		//int[] D = new int [N];
+		ARR *D = new vector<int>(0);
+		for(int i=0;i<N;i++) D->push_back(0);
 		/* D[i] is the degree of vertex i (duplicate edges are counted).*/
 		for(int i=0;i<M;i++){
-			D[El[i].v1]++;
-			D[El[i].v2]++;
+			((*D)[El->at(i)->v1])++;
+			((*D)[El->at(i)->v2])++;
 		}
 		
-		int[][] NB = new int[N][];/*NB[i][j] stores the jth neighbor of vertex i*/
+		// vector of vector of integers
+		
+		TD_ARR *NB = new vector<vector<int> *>(0);
+		
+		//int[][] NB = new int[N][];/*NB[i][j] stores the jth neighbor of vertex i*/
 		// leave room for making connected graph by +2
-		for(int i=0;i<N;i++) NB[i]=new int [D[i]+2]; 
+		
+		for(int i=0;i<N;i++) {
+			
+			ARR *a_r = new vector<int>(0);
+			for (int j=0; j < D->at(i)+2; j++)
+				a_r->push_back(0);
+			NB->push_back(a_r); 
+		}
 		
 		/*Now D[i] is the index for storing the neighbors of vertex i
 		 into NB[i] NB[i][D[i]] is the current neighbor*/
-		for(int i=0;i<N;i++) D[i]=0;
+		for(int i=0;i<N;i++) (*D)[i]=0;
 		
 		m=0;
 		for(int i=0;i<M;i++) {
-			boolean r=false;;  
+			bool r=false;;  
 			/* filtering out repeated edges*/
-			for(int j=0;j<D[El[i].v1] && !r ;j++){ 
-				if(El[i].v2==NB[El[i].v1][j]) r=true;
+			for(int j=0;j<(*D)[El->at(i)->v1] && !r ;j++){ 
+				if(El->at(i)->v2==NB->at(El->at(i)->v1)->at(j)) r=true;
 			}
 			if(r){
-				El[i].v1=El[i].v2=-1; /*mark as repeat*/
+				El->at(i)->v1=El->at(i)->v2=-1; /*mark as repeat*/
 			} else {
 				m++;
-				NB[El[i].v1][D[El[i].v1]]=El[i].v2;
-				NB[El[i].v2][D[El[i].v2]]=El[i].v1;
-				D[El[i].v1]++;
-				D[El[i].v2]++;
+				NB->at(El->at(i)->v1)->at(D->at(El->at(i)->v1))=El->at(i)->v2;
+				NB->at(El->at(i)->v2)->at(D->at(El->at(i)->v2))=El->at(i)->v1;
+				((*D)[El->at(i)->v1])++;
+				((*D)[El->at(i)->v2])++;
 			}
 		}  
 		
 		/* now make the graph connected*/
 		/* first we find all the connected comps*/
 		
-		color = new AtomicIntegerArray(N);
-		int[] stack = new int [N]; 
-		int[] connected_comps  = new int [N]; 
+		//color = new AtomicIntegerArray(N);
+		color = new vector<int>(N);
+		ARR *stack = new vector<int>(N); 
+		ARR *connected_comps  = new vector<int>(N); 
 		
 		int top=-1;
 		ncomps=0;
 		
 		for(int i=0;i<N ;i++) {
-			if (color.get(i) ==1) continue;
-			connected_comps[ncomps++]=i;
-			stack[++top]=i;
-			color.set(i,1);
+			if (atomic_fetch(&((*color)[i])) == 1) continue;
+			(*connected_comps)[ncomps++]=i;
+			(*stack)[++top]=i;
+			atomic_exchange(&((*color)[i]),1);
 			while(top!=-1) {
-				int v = stack[top];
+				int v = (*stack)[top];
 				top--;
 				
-				for(int j=0;j<D[v];j++) {
-					final int mm = NB[v][j];
-					if(color.get(mm)==0){
+				for(int j=0;j<(*D)[v];j++) {
+					int mm = NB->at(v)->(j);
+					if(atomic_fetch(&((*color)[mm]))==0){
 						top++;
-						stack[top]=mm;
-						color.set(mm,1);
+						(*stack)[top]=mm;
+						atomic_exchange(&((*color)[mm]),1);
 					}
 				}
 			}
 		}
 		
 		//System.out.println("ncomps="+ncomps);
-		El1 = new E [m+ncomps-1]; 
+		El1 = new vector<E *> (m+ncomps-1); 
 		
-		for(int i=0;i<N;i++) color.set(i,0);
+		for(int i=0;i<N;i++) atomic_exchange(&((*color)[i]),0);
 		
 		int j=0;
 		//    Remove duplicated edges
-		for(int i=0;i<M;i++) if(El[i].v1!=-1) El1[j++]=El[i]; 
+		for(int i=0;i<M;i++) if(El->at(i)->v1!=-1) (*El1)[j++]=El->at(i); 
 		
 		//if(j!=m) System.out.println("Remove duplicates failed");
 		//else System.out.println("Remove duplicates succeeded,j=m="+j);
 		
 		/*add edges between neighboring connected comps*/
 		for(int i=0;i<ncomps-1;i++) {
-			NB[connected_comps[i]][D[connected_comps[i]]++]=connected_comps[i+1];
-			NB[connected_comps[i+1]][D[connected_comps[i+1]]++]=connected_comps[i];
-			El1[i+m]=new E (connected_comps[i], connected_comps[i+1]);
+			(*(NB->at(connected_comps->at(i))))[((*D)[connected_comps->at(i)])++] = connected_comps->at(i+1);
+			(*(NB->at(connected_comps->at(i+1))))[((*D)[connected_comps->at(i+1)])++] = connected_comps->at(i);
+			(*El1)[i+m]=new E (connected_comps->at(i), connected_comps->at(i+1));
 		}
 		
-		G = new V[N];
+		G = new vector<V *>(0);
 		for(int i=0;i<N;i++) {
-			G[i]=new V();
-			G[i].degree=D[i];
-			G[i].parent=i;
-			G[i].neighbors=new int [D[i]];
+		
+			V *v = new V();
+			v->degree=D->at(i);
+			v->parent=i;
+			v->neighbors=new vector<int>(0);
+			
 			for(j=0;j<D[i];j++)
-				G[i].neighbors[j]=NB[i][j];
+				v->neighbors->push_back(NB->at(i)->at(j));
+			
+			G->push_back(v);
+			
 			//System.out.println("G["+i+"]=" + G[i]);
 		}     
 		
 	}
 	
 	
-	public static final int LABEL_0 = 0;
-	static void traverse(final Worker w,  final int u) throws StealAbort {
-		TFrame frame = new TFrame(u);
-		frame.k=1;
-		final V[] G = graph.G;
-		final AtomicIntegerArray c = graph.color;
-		w.pushFrame(frame);
+	static const int LABEL_0 = 0;
+	static void traverse(Worker *w, int u) /*throws StealAbort*/ {
+		TFrame *frame = new TFrame(u);
+		frame->k=1;
+		V *G = graph->G;
+		ARR *c = graph->color; // atomic int array
+		w->pushFrame(frame);
 		int k=0;
-		while (k < G[u].degree) {
-			int v=G[u].neighbors[k];
-			boolean result = c.compareAndSet(v,0,1);
+		while (k < G->at(u)->degree) {
+			int v=G->at(u)->neighbors->at(k);
+			bool result = compare_exchange(&(*c)[v],0,1);
 			if (result) {
-				G[v].parent=u;
+				G->at(v)->parent=u;
 				traverse(w,v);
-				w.abortOnSteal();
+				if (w->abortOnSteal()) return;
 			}
 			++k;
-			frame.k=k;
+			frame->k=k;
 		}
-		w.popFrame();
+		w->popFrame();
 		return;
 	}
 	
-	boolean verifyTraverse(int root) {
-		int[] X = new int [N];
-		for(int i=0;i<N;i++) X[i]=G[i].parent;
-		for(int i=0;i<N;i++) while(X[i]!=X[X[i]]) X[i]=X[X[i]];
+	bool verifyTraverse(int root) {
+		ARR *X = new vector<int> (N);
+		for(int i=0;i<N;i++) (*X)[i]=G->at(i)->parent;
+		for(int i=0;i<N;i++) while(X->at(i)!=X->at(X->at(i))) (*X)[i]=X->at(X->at(i));
 		for(int i=0;i<N;i++) {
 			
-			if(X[i]!=X[0])  
+			if(X->at(i)!=X->at(0))  
 				return false;
 		}
 		return true;
 	}
-	static SpanC graph;
-	static final long NPS = (1000L * 1000 * 1000);
+	
+	static const long NPS = (1000L * 1000 * 1000);
+};
 
 
 
@@ -280,46 +316,77 @@ public:
 	volatile int PC;
 					
 protected:
-	void compute(Worker *w, Frame *frame) throw StealAbort {
-		GFrame f = (GFrame) frame;
-		int PC = f.PC;
-		f.PC=LABEL_1;
+	void compute(Worker *w, Frame *frame) /*throw StealAbort*/ {
+		GFrame *f = (GFrame *) frame;
+		int PC = f->PC;
+		f->PC=LABEL_1;
 		if (PC==0) {
-			atomic_exchange(&graph->color[1],1)
-			//graph->color.set(1,1); // TODO 
+			atomic_exchange(&((*(graph->color))[i]),1); 
 			traverse(w, 1);
-			w->abortOnSteal();
+			if (w->abortOnSteal()) return;
 		}
 		setupGQReturnNoArg();
 	}
 					
 public:
-	int spawnTask(Worker ws) throw StealAbort { 
+	int spawnTask(Worker *ws) /*throw StealAbort*/ { 
 		return 0;
 	}
 };
 
 
 int main(int argc, char *argv[]) {
-  int procs;
+  int result;
 
-  if(argc < 2) {
-    printf("Usage: %s <threads>\n", argv[0]);
-    exit(0);
+  if(argc < 3) {
+	printf("Usage: %s <threads> <nRepetitions> \n", argv[0]);
+	exit(0);
   }
 
-  procs = atoi(argv[1]);
+  const int procs = atoi(argv[1]);
+  const int nReps = atoi(argv[2]);
   cout<<"Number of procs=" << procs <<endl;
   if (argc > 2) 
-    Worker::reporting = true;
-
+	Worker::reporting = true;
+	  
+	  
   Pool *g = new Pool(procs);
   assert(g != NULL);
   
+  for (int i=0; i < 8; i++) {
+  			
+    int N = Ns[i], M = 3*N/5;
+  	graph = new SpanC(N,M);
+  	Pool *g = new Pool(procs);
+  	assert(g != NULL);
+  			
+    System.out.printf("N:%8d ", N);
+    for (int k=0; k < 9; ++k) {
+    	
+    	GloballyQuiescentJob *job = new anon_GloballyQuiescentJob(g);
+    	assert(job != NULL);
+    	    
+    	long long s = nanoTime();
+    	    
+    	for(int j=0; j<nReps; j++) {
+      	  g->submit(job);
+    	  //try {
+    	  job.waitForCompletion();
+    	  //} catch (InterruptedException z) {}
+    	}
+    	long long t = nanoTime();
+    	cout<<"SpanT("<<i<<")\t"<<"verify="<<graph->verifyTraverse(1)<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;
+    	graph->clearColor();
+    	
+    }
+    g->shutdown();
+    delete g;
+  }
+
   
   
-  int expectedSolutions[] = {0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,73712, 365596, 2279184, 14772512};
-    
+  
+  
   for (int i = 0; i < 16; i++) {
     NQueensC::boardSize = i;
     Job *job = new anon_Job1(g);
