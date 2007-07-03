@@ -22,7 +22,7 @@ echo "Syntax: ./run.sh"
 `rm tmp.out`;
 for n in `seq 0 $1`
 do
-./run_internal.sh 16 $((2**$n)) >> tmp.out
+./run_internal.sh 26 $((2**$n)) >> tmp.out
 done
 
 ./post.pl tmp.out
