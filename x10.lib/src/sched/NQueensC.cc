@@ -93,11 +93,13 @@ public:
 	
   // fast path execution
   static int nQueens(Worker *w, ARR *a) {
+	  
 	  int row = a->size();
 	  
-	  cout << "Fast path with row=" << row << endl;
+	  //cout << endl << "Fast path with row=" << row << endl;
 	  //cout << "\n row=" << row << " boardSize=" << boardSize << endl;
 	  if (row >= boardSize) {
+		  //cout << endl << "row >= boardsize -- returning" << endl;
 	  			return 1;
 	  }
 	  
@@ -106,6 +108,7 @@ public:
 	  frame->q=1; // TODO  RAJ Barrier needed as q is volatile
 	  frame->sum=0;
 	  frame->PC=LABEL_1; // TODO RAJ Barrier needed as PC is volatile
+	  //MEM_BARRIER();
 	  w->pushFrame(frame);
 	  int sum=0;
 	  int q=0;
@@ -118,26 +121,29 @@ public:
 			  attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  	  }
 		  if (!attacked) { 
-			  ARR next(0);
+			  ARR *next = new vector<int> (0);
 			  
 			  //cout << "sizeof(next)=" << next.size() << endl;
 			  for (int k = 0; k < row; ++k) 
-				  next.push_back(a->at(k));
-			  next.push_back(q);
+				  next->push_back(a->at(k));
+			  next->push_back(q);
 			  
 			  //cout << "sizeof(next)=" << next.size() << endl; 
 	  				
-			  int y = nQueens(w, &next);
+			  int y = nQueens(w, next);
 			  
 			  if (w->abortOnSteal(y)) return -1;
 			  sum +=y;
 			  frame->sum +=y;
+			  //MEM_BARRIER();
 		  }
-		  MEM_BARRIER();
+		  //MEM_BARRIER();
 		  q++; 
 		  
 		  frame->q=q+1; // TODO RAJ Barrier needed as q is volatile
+		  //MEM_BARRIER();
 	  }
+	  //MEM_BARRIER();
 	  w->popFrame();
 	  if(!w->cache->interrupted()) {
 	        delete frame;
@@ -156,7 +162,7 @@ public:
 	  int sum=0;
 	  int q;
 	  
-	  cout << "Slow path with row=" << row << endl;
+	  //cout << endl << "Slow path with row=" << row << endl;
 	  		
 	  switch (f->PC) {
 	  	case LABEL_0:
@@ -177,17 +183,18 @@ public:
 	  			}
 	  			if (!attacked) {
 	  				
-	  				ARR next(0);
+	  				ARR *next = new vector<int>(0);
 	  				for (int k = 0; k < row; ++k) 
-	  					next.push_back(a->at(k));
-	  				next.push_back(q);
+	  					next->push_back(a->at(k));
+	  				next->push_back(q);
 	  					  				
-	  				int y = nQueens(w, &next);
+	  				int y = nQueens(w, next);
 	  				if (w->abortOnSteal(y)) return;
 	  				sum += y;
 	  				// this cannot be f.sum=y. f.sum may have been updated by other
 	  				// joiners in the meantime.
-	  				f->sum +=y;	
+	  				f->sum +=y;
+	  				//MEM_BARRIER();
 	  			}
 	  			q++;
 	  		}
@@ -259,16 +266,17 @@ int main(int argc, char *argv[]) {
   assert(g != NULL);
 
     
-  for (int i = 5; i < 6; i++) {
+  for (int i = 1; i < 13; i++) {
 	Pool *g = new Pool(procs);
 	assert(g != NULL);
     boardSize = i;
     Job *job = new anon_Job1(g);
+    assert(job != NULL);
     
     long long s = nanoTime();
     
     for(int j=0; j<nReps; j++) {
-    	assert(job != NULL);
+    	
         g->submit(job);
         result = job->getInt();
     }
