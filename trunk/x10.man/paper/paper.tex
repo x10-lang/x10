@@ -93,20 +93,126 @@ Every type should be const.
 
 \section{Related work}
 
+Constraint-based type systems:
+
+Mitchell 84
+John C Mitchell, Coercion and type inference, POPL 1984, 174--185.
+
+Fuh and Mishra 88
+You-Chin Fuh and Prateek Mishra, Type inference with subtypes.
+ESOP, LNCS 300, 94--114, March 1988
+
+Curtis 90
+@phdthesis Pavel Curtis, Constrained Quantification in Polymorphic type
+analysis.  Cornell Feb 1990
+
+Aiken and Wimmers 93
+Alexander Aiken and Edward L. Wimmers, Type inclusion constraints and type
+inference.  FPCA, 31--41, June 1993, Copenhagen
+
+Jones 94
+Mark P. Jones, Qualified Types: Theory and Practice, Cambridge Univ Press, 1994
+
+Smith 94
+Geoffry S. Smith, Principal type schemes for functional programs with
+overloading and subtyping.  Science of Computer programmgin 23(2-3): 197--226.
+Dec 1994. 
+
+Palsberg 95
+Efficient inference of object typs.  Information and computation,
+123(2): 198--209, 1995
+
+Trifonov and Smith 96
+Valery Trifonov and Scott Smith, Subtyping constrained types, SAS 1996,
+349--365, LNCS 1145.
+
+F\"ahndrich 99
+@phdthesis Manuel F\"ahndrich, Bane: A library for scalable constraint-based
+program analysis, Berkeley 1999.
+
+Pottier 01b
+Pottier, Simplifying subtyping constraints, a theory, Information and Computation, 170(2) 153--183, Nov 2001
+
+pottier01a
+Pottier, A semi-syntactic soundness proof for HM(X), RR 4150 INRIA, March 2001
+
+% Pottier
+
+Pottier~\cite{pottier96simplifying}
+presents a constraint-based type system for an ML-like language with 
+subtyping.
+
+@inproceedings{ pottier96simplifying,
+    author = "Fran\c{c}ois Pottier",
+    title = "Simplifying subtyping constraints",
+    booktitle = "Proceedings of the {ACM} {SIGPLAN} International Conference on Functional Programming ({ICFP} '96)",
+    volume = "31(6)",
+    pages = "122--133",
+    year = "1996",
+    url = "citeseer.ist.psu.edu/pottier96simplifying.html" }
+
+% HM(X)
+
+@inproceedings{ sulzmann97type,
+    author = "Martin Sulzmann and Martin Odersky and Martin Wehr",
+    title = "Type Inference with Constrained Types",
+    booktitle = "Fourth International Workshop on Foundations of Object-Oriented Programming ({FOOL} 4)",
+    year = "1997",
+    url = "citeseer.ist.psu.edu/article/sulzmann97type.html" }
+
+HM(X)~\cite{sulzmann97type,pottier01a} is a constraint-based framework
+for Hindley--Milner style type systems.
+The framework is parameterized on the specific constraint system
+X; instantiating X yields extensions of the HM type system.
+
+See also Pottier and R{\'e}my, "The Essence of ML Type Inference",
+Ch. 10 in in ATTAPL.
+
+
+
 \begin{itemize}
 \item Pottier
 \item HM(X)
 \item Pfenning and Xi (POPL99)
 \item Ada dependent types
-\item Scala, gbeta, J\&
+
+Ada has constrained array definitions.  A constraint 
+\cite{ada-ref-man}.  Not clear if their dependent.  Are there other dependent
+types?
+
+\item singleton kinds (Chris Stone)
+
+\item Nested types, vObj, Scala, gbeta, J\&
+
+Nested types: witness types, p
+vObj, Scala: p.type.
+J\&: p.class
+gbeta: p.C
+
 \item Where clauses for F-bounded polymorphism (Theta and PolyJ)
+
+Bounded quantification: Cardelli and Wegner.  Bound T with T'
+F-bounds: Canning, Cook, Hill, Olthoff, Mitchell.  Bound T with F(T).
+
+Not dependent types.
+
 \item Hybrid type checking (Flanagan, POPL06)
+
+Refinement types, statically checked if possible.
+Dynamic checks inserted at casts.
+
 \item Soft typing with conditional types (Aiken, POPL94)
+
+Aiken, Wimmers, and T.K. Lakshman.
+
 \item Cayenne (Augustsson, ICFP98)
 \item Cardelli, type checking dependent types and subtypes
-\item Findler, Felleisen, Constraints for higher-order functions (ICFP02)
+
+\item Esterel
+
+\item Findler, Felleisen, Contracts for higher-order functions (ICFP02)
 \item Jif (final access paths in security labels)
-\item FX90
+\item FX-90
 \item ESCJava \cite{esc-java}, Spec\#
 \item JSR 308, Javari
 \item Freeman, Pfenning, Refinement types for ML (PLDI91)
