@@ -1,8 +1,8 @@
 #!/usr/bin/perl
+#Script for post-processing of the results
     
-    use POSIX qw (ceil floor);
-
-    open(INPUT, "$ARGV[0]") or die( "Error: cannot open file $SCRATCH" );
+use POSIX qw (ceil floor);
+open(INPUT, "$ARGV[0]") or die( "Error: cannot open file $SCRATCH" );
 
 @bench0 = ('0', '0', '0', '0', '0');
 @bench1 = ('0', '0', '0', '0', '0');
@@ -53,23 +53,23 @@ while( $aline = <INPUT> ){
 
   $n = $#bench0;
   print "==========GUPS=========== \n";
-  printf ("X10LIB\tX10C\tHPCC\n");
+  printf ("PROCS\tX10LIB\tX10C\tHPCC\n");
   for ($i= 0; $i <= $n; $i++) {
     $gups[0][$i] = $gups[0][$i] / $total[0][$i];
     $gups[1][$i] = $gups[1][$i] / $total[1][$i];
     $gups[2][$i] = $gups[2][$i] / $total[2][$i]; 
 
-    printf ( "%0.5f\t%0.5f\t%0.5f\n", $gups[0][$i], $gups[1][$i], $gups[2][$i]);
+    printf ( "%d\t%0.5f\t%0.5f\t%0.5f\n", 2**$i, $gups[0][$i], $gups[1][$i], $gups[2][$i]);
   }
 
   print "==========TIME(Seconds)=========== \n";
-  printf ("X10LIB\tX10C\tHPCC\n");
+  printf ("PROCS\tX10LIB\tX10C\tHPCC\n");
   for ($i= 0; $i <= $n; $i++) {
     $time[0][$i] = $time[0][$i] / $total[0][$i];
     $time[1][$i] = $time[1][$i] / $total[1][$i];
     $time[2][$i] = $time[2][$i] / $total[2][$i]; 
 
-    printf ( "%5.2f\t%5.2f\t%5.2f\n", $time[0][$i], $time[1][$i], $time[2][$i]);
+    printf ( "%d\t%5.2f\t%5.2f\t%5.2f\n", 2**$i, $time[0][$i], $time[1][$i], $time[2][$i]);
   } 
 
 
