@@ -54,7 +54,7 @@ while( $aline = <INPUT> ){
   $n = $#bench0;
   print "==========GUPS=========== \n";
   printf ("X10LIB\tX10C\tHPCC\n");
-  for ($i= 0; $i < $n; $i++) {
+  for ($i= 0; $i <= $n; $i++) {
     $gups[0][$i] = $gups[0][$i] / $total[0][$i];
     $gups[1][$i] = $gups[1][$i] / $total[1][$i];
     $gups[2][$i] = $gups[2][$i] / $total[2][$i]; 
@@ -64,7 +64,7 @@ while( $aline = <INPUT> ){
 
   print "==========TIME(Seconds)=========== \n";
   printf ("X10LIB\tX10C\tHPCC\n");
-  for ($i= 0; $i < $n; $i++) {
+  for ($i= 0; $i <= $n; $i++) {
     $time[0][$i] = $time[0][$i] / $total[0][$i];
     $time[1][$i] = $time[1][$i] / $total[1][$i];
     $time[2][$i] = $time[2][$i] / $total[2][$i]; 
