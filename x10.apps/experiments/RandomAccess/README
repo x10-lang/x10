@@ -1,0 +1,27 @@
+To Install:
+===========
+
+1. untar hpcc-opt.tar.
+
+2. copy make.def.template to make.def
+
+3. Change the Include and Library path to suit your environment
+
+4. Change the compiler flags, if required (default -O3 -q64 -qarch=pwr5 -qtune=pwr5 is recommended)
+
+5. type "make".
+
+To run:
+=======
+
+1. Edit host.list and enter the nodes in round-robin fashion.  You can use the utility host.pl for this.
+   The syntax is : ./host.pl <start_node_number> <en_node_number>. E.g. ./host.pl 20 30. By default
+   this enters the nodes of v20 in the given range. For non-contiguous range of nodes you should
+   create the file manually.
+
+2. invoke ./run.sh <log_max_nprocs>
+   e.g. ./run.sh 4 will run for procs 1, 2, 4, 8 ,16.
+
+
+
+Table Size is ste to some default value. Please edit run.sh and change it, if required.
