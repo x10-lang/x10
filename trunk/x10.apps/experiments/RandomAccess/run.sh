@@ -15,7 +15,7 @@ export MP_SHARED_MEMORY=yes
 export MP_SINGLE_THREAD=yes
 export MP_WAIT_MODE=poll
 
-make
+make;
 
 echo "Syntax: ./run.sh" 
 
