@@ -22,5 +22,4 @@ To run:
    e.g. ./run.sh 4 will run for procs 1, 2, 4, 8 ,16.
 
 
-
 Table Size is set to some default value. Please edit run.sh and change it, if required.

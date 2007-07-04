@@ -1,0 +1,2 @@
+Redirect the output from run.sh to a file in this directory. THe file naming convention is:
+    result.cluster_name.#nodes. Eg. result.v20.4
