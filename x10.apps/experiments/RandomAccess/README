@@ -15,11 +15,12 @@ To run:
 =======
 
 1. Edit host.list and enter the nodes in round-robin fashion.  You can use the utility host.pl for this.
-   The syntax is : ./host.pl <cluster_name_suffix> <start_node_number> <en_node_number>. E.g. ./host.pl v80n0 1 2.
-  For non-contiguous range of nodes you should create the file manually.
+   The syntax is : ./host.pl <cluster_name_suffix> <start_node_number> <end_node_number>. E.g. ./host.pl v80n0 1 2.
+   For non-contiguous range of nodes, you should create the file manually.
 
-2. invoke ./run.sh <log_max_nprocs>
-   e.g. ./run.sh 4 will run for procs 1, 2, 4, 8 ,16.
+2. Invoke ./run.sh <log_max_nprocs>
+     e.g. ./run.sh 4 will run for procs 1, 2, 4, 8 ,16.
 
 
-Table Size is set to some default value. Please edit run.sh and change it, if required.
+Table Size is set to some default value. Please edit run.sh and change it, if required. For RandomAccess_Dist the
+table size is hard coded in RandomAccess_Dist.cc
