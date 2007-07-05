@@ -375,8 +375,7 @@ public:
 
 
 int main(int argc, char *argv[]) {
-  int result;
-
+  
   if(argc < 3) {
 	printf("Usage: %s <threads> <nRepetitions> \n", argv[0]);
 	exit(0);
@@ -388,7 +387,7 @@ int main(int argc, char *argv[]) {
   if (argc > 2) 
 	Worker::reporting = true;
 	  
-	  
+  	  
   Pool *g = new Pool(procs);
   assert(g != NULL);
   

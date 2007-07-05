@@ -32,7 +32,7 @@ int Closure::getstatus() const { return status;}
 Frame *Closure::parentFrame() const { return parent->frame; }
 Closure *Closure::getparent() const { return parent; }
 
-Closure::Closure() { }
+//Closure::Closure() { }
 
 Closure::Closure(Frame *frame) {
 	/*In place to check the defalut parameter memory allocation does not 
