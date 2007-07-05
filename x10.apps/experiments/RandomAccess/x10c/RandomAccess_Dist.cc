@@ -19,10 +19,10 @@ RandomAccess_Dist::localTable::localTable(x10_long size) : x10::lang::Object() {
     ;
     
 //#line 74 "x10.backend/examples/RandomAccess_Dist.x10"
-    array = (x10::ref<x10::x10array<x10_long> >) (x10::x10newArray<x10_long>((x10::ref<_region<1> >)(new (x10::alloc<_region<1> >()) _region<1>(
-                                                                                                       0,
-                                                                                                       (x10_int)
-                                                                                                         mask))->toDistribution()))
+    array = (x10::ref<x10::x10array<x10_long> >) (x10::x10newArray<x10_long>(((x10::ref<_region<1> >)(new (x10::alloc<_region<1> >()) _region<1>(
+                                                                                                        0,
+                                                                                                        (x10_int)
+                                                                                                          mask)))->toDistribution()))
     ;
 }
 //#line 78 "x10.backend/examples/RandomAccess_Dist.x10"
