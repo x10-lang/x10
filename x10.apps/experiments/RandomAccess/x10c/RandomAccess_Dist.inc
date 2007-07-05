@@ -1,10 +1,10 @@
 array_init_closure_and_args_struct(1, x10::ref<RandomAccess_Dist::localTable>,
 array_init_unpacked_body((x10::ref<point> p), {
     
-//#line 316 "C:\VP\X10\SourceForge\x10.backend\examples\RandomAccess_Dist.x10"
-    return x10::ref<RandomAccess_Dist::localTable>(new (x10::alloc<RandomAccess_Dist::localTable>())
-                                                   RandomAccess_Dist::localTable(
-                                                     tableSize));
+//#line 316 "x10.backend/examples/RandomAccess_Dist.x10"
+    return (x10::ref<RandomAccess_Dist::localTable>)(new (x10::alloc<RandomAccess_Dist::localTable>())
+                                                     RandomAccess_Dist::localTable(
+                                                       tableSize));
     
 }, x10_long tableSize = ((__init__1_args*) args)->tableSize;
 ), (void* args, x10::ref<point> p),
@@ -18,7 +18,7 @@ struct __init__1_args : public x10::closure_args {
 struct async__0_args;
 async_closure(0, {
     
-//#line 369 "C:\VP\X10\SourceForge\x10.backend\examples\RandomAccess_Dist.x10"
+//#line 369 "x10.backend/examples/RandomAccess_Dist.x10"
     (GLOBAL_STATE.Table->array->_data[(x10_int) (temp & GLOBAL_STATE.Table->
                                                           mask)])++;
 }, (x10_long temp));
@@ -31,7 +31,7 @@ struct async__0_args : public x10::closure_args {
 struct async__1_args;
 async_closure(1, {
     
-//#line 389 "C:\VP\X10\SourceForge\x10.backend\examples\RandomAccess_Dist.x10"
+//#line 389 "x10.backend/examples/RandomAccess_Dist.x10"
     GLOBAL_STATE.Table->array->_data[(x10_int) (temp & GLOBAL_STATE.Table->
                                                          mask)] ^=
       temp
@@ -46,7 +46,7 @@ struct async__1_args : public x10::closure_args {
 struct async__2_args;
 async_closure(2, {
     
-//#line 415 "C:\VP\X10\SourceForge\x10.backend\examples\RandomAccess_Dist.x10"
+//#line 415 "x10.backend/examples/RandomAccess_Dist.x10"
     GLOBAL_STATE.Table->array->_data[(x10_int) (temp & GLOBAL_STATE.Table->
                                                          mask)] ^=
       temp
@@ -61,7 +61,7 @@ struct async__2_args : public x10::closure_args {
 struct async__3_args;
 async_closure(3, {
     
-//#line 444 "C:\VP\X10\SourceForge\x10.backend\examples\RandomAccess_Dist.x10"
+//#line 444 "x10.backend/examples/RandomAccess_Dist.x10"
     GLOBAL_STATE.SUM->_data[p] = temp;
 }, (x10_int p, x10_long temp));
 struct async__3_args : public x10::closure_args {
