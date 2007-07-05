@@ -60,7 +60,7 @@ public:
 	Worker *ownerReadyQueue;
 	int status;
 
-/* 	Closure(); */
+ 	Closure(); 
 	Closure(Frame *frame);
 	virtual ~Closure();
 	bool hasChildren() const ;

@@ -67,8 +67,6 @@ typedef vector<vector<int> *>  TD_ARR;
 
 class TFrame : public Frame {
 private:
-	friend class SpanC;
-	friend class Traverser;
 	TFrame(const TFrame& f) 
 	      : Frame(f), u(f.u), k(f.k) {} // Barrier needed as k is volatile TODO RAJ
 public:
@@ -81,11 +79,8 @@ public:
 	virtual void setOutletOn(Closure *c) {
 		// nothing to do
 	}
-	virtual Closure *makeClosure() {
-		Closure *retc=new Traverser(graph,this);
-		assert (retc != NULL);
-		return retc;
-	}
+	virtual Closure *makeClosure();
+	
 	virtual TFrame *copy() {
 		  return new TFrame(*this);
 	}
@@ -94,11 +89,6 @@ public:
 
 
 class SpanC {
-private:
-	friend class V;
-	friend class E;
-	friend class TFrame;
-	friend class Traverser;
 public:
 	
 	int m;
@@ -315,19 +305,18 @@ public:
 	}
 };
 
+
 class Traverser : public virtual Closure {
-private:
-  friend class TFrame;
-  friend class SpanC;
+
 public: 
-		SpanC *graph;
+		SpanC *grph;
 		V_ARR *G;
 		A_ARR *c; // Atomic Integer Array TODO RAJ
 		
 		Traverser(SpanC *g, Frame *t) : Closure(t) { 
-			graph=g;
-			G=graph->G;
-			c=graph->color;
+			grph=g;
+			G=grph->G;
+			c=grph->color;
 		}
 		
 		virtual void compute(Worker *w, Frame *frame) /*throw StealAbort*/ {
@@ -348,7 +337,16 @@ public:
 			setupGQReturnNoArg(w);
 			return;
 		}
+		virtual ~Traverser() {} 
 };
+
+Closure *TFrame::makeClosure() {
+	Closure *retc=new Traverser(graph,this);
+	assert (retc != NULL);
+	return retc;
+}
+
+
 
 
 class anon_GloballyQuiescentJob : public  GloballyQuiescentJob {
