@@ -116,11 +116,12 @@ static __inline__ void atomic_add(volatile int* mem, int val)
 #endif
 
 
-static __inline__ void atomic_fetch(volatile int* mem)
+static __inline__ int atomic_fetch(volatile int* mem)
 {
 	
 #if defined (__xlC__)
-	fetch_and_nop((int *)mem);
+	//return fetch_and_nop((int *)mem);
+	return *mem;
 #elif
 #error "Fix atomic_add before running. Commented now"
 	assert(0);
