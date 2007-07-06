@@ -33,7 +33,9 @@ class NQueensC;
 
 
 
-//typedef vector<int> ARR;
+typedef vector<int> ARR;
+
+
 
 static int boardSize;
 
@@ -60,13 +62,10 @@ public:
   volatile int PC;
   volatile int q;
   int sum;
-  //ARR *sofar; 
-  int *sofar;
-  int sofar_size;
+  ARR *sofar;
   
   
-  //NFrame(ARR *a) { sofar = a; }
-  NFrame(int *a, int a_size) { sofar = a; sofar_size = a_size; }
+  NFrame(ARR *a) { sofar = a; }
   virtual Closure *makeClosure();
   virtual NFrame *copy() {
 	  return new NFrame(*this);
@@ -93,21 +92,19 @@ public:
   
 	
   // fast path execution
-  //static int nQueens(Worker *w, ARR *a) {	
-  static int nQueens(Worker *w, int *a, int a_size) {
+  static int nQueens(Worker *w, ARR *a) {
 	  
-	  int row = a_size;
-	  //int row = a->size();
+	  int row = a->size();
 	  
 	  //cout << endl << "Fast path with row=" << row << endl;
 	  //cout << "\n row=" << row << " boardSize=" << boardSize << endl;
 	  if (row >= boardSize) {
 		  //cout << endl << "row >= boardsize -- returning" << endl;
-	  	return 1;
+	  			return 1;
 	  }
 	  
 	  
-	  NFrame *frame = new NFrame(a, a_size);
+	  NFrame *frame = new NFrame(a);
 	  frame->q=1; // TODO  RAJ Barrier needed as q is volatile
 	  frame->sum=0;
 	  frame->PC=LABEL_1; // TODO RAJ Barrier needed as PC is volatile
@@ -120,22 +117,20 @@ public:
 	  while (q < boardSize) {
 		  bool attacked = false;
 		  for (int i = 0; i < row && ! attacked; i++) {
-			  int p = a[i];
+			  int p = a->at(i);
 			  attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  	  }
 		  if (!attacked) { 
-			  //ARR *next = new vector<int> (0);
-			  int *next = new int[row+1];
+			  ARR *next = new vector<int> (0);
 			  
 			  //cout << "sizeof(next)=" << next.size() << endl;
-			  for (int k = 0; k < row; ++k)
-				  next[k]=a[k]; // next->push_back(a->at(k));
-			  next[row]=q; // next->push_back(q);
+			  for (int k = 0; k < row; ++k) 
+				  next->push_back(a->at(k));
+			  next->push_back(q);
 			  
 			  //cout << "sizeof(next)=" << next.size() << endl; 
 	  				
-			  int y = nQueens(w, next, row+1);
-			  //int y =  nQueens(w, next);
+			  int y = nQueens(w, next);
 			  
 			  if (w->abortOnSteal(y)) return -1;
 			  sum +=y;
@@ -162,9 +157,8 @@ public:
   virtual void compute(Worker *w, Frame *frame)  {
 	  
 	  NFrame *f = (NFrame *) frame;
-	  int *a = f->sofar;
-	  int row = f->sofar_size;
-	  //int row = a->size();
+	  ARR *a = f->sofar;
+	  int row = a->size();
 	  int sum=0;
 	  int q;
 	  
@@ -184,24 +178,17 @@ public:
 	  			f->q =q+1;
 	  			bool attacked = false;
 	  			for (int i = 0; i < row && ! attacked; i++) {
-	  				int p = a[i];
+	  				int p = a->at(i);
 	  				attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  			}
 	  			if (!attacked) {
 	  				
-	  				//ARR *next = new vector<int> (0);
-	  				int *next = new int[row+1];
-	  							  
-	  				//cout << "sizeof(next)=" << next.size() << endl;
-	  				for (int k = 0; k < row; ++k)
-	  				  next[k]=a[k]; // next->push_back(a->at(k));
-	  				next[row]=q; // next->push_back(q);
-	  							  			  
-	  				//cout << "sizeof(next)=" << next.size() << endl; 
-	  					  				  				
-	  				int y = nQueens(w, next, row+1);
-	  				//int y = nQueens(w, next);
-	  				
+	  				ARR *next = new vector<int>(0);
+	  				for (int k = 0; k < row; ++k) 
+	  					next->push_back(a->at(k));
+	  				next->push_back(q);
+	  					  				
+	  				int y = nQueens(w, next);
 	  				if (w->abortOnSteal(y)) return;
 	  				sum += y;
 	  				// this cannot be f.sum=y. f.sum may have been updated by other
@@ -253,11 +240,7 @@ public:
   anon_Job1(Pool *g) : Job(g) {}
   virtual void setResultInt(int x) { result = x;}
   virtual int resultInt() { return result;}
-  virtual int spawnTask(Worker *ws) { 
-	  int *a = new int[0]; 
-	  return NQueensC::nQueens(ws, a, 0); 
-	  /* TODO delete a; */
-  }
+  virtual int spawnTask(Worker *ws) { ARR *a = new vector<int>(0); return NQueensC::nQueens(ws, a); /* TODO delete a; */}
   virtual ~anon_Job1() {}
 
 protected:
