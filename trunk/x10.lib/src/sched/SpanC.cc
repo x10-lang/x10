@@ -405,9 +405,10 @@ int main(int argc, char *argv[]) {
     	assert(job != NULL);
     	    
     	long long s = nanoTime();
-    	    
+    	cout << "Submitting the job" << endl;    
     	for(int j=0; j<nReps; j++) {
       	  g->submit(job);
+      	  cout << "Waiting for the completion of the job" << endl;
     	  //try {
     	  job->waitForCompletion();
     	  //} catch (InterruptedException z) {}
