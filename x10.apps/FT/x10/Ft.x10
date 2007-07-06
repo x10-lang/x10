@@ -432,7 +432,7 @@ public class Ft {
 		}
 		final double res_real = ((sum_real/NX)/NY)/NZ;
 		final double res_imag = ((sum_imag/NX)/NY)/NZ;
-		finish async(ALLPLACES[0]) atomic{
+		finish async(ALLPLACES[0]) atomic{ //Should atomic be removed?   
 			checksum_real[itr]+=res_real;checksum_imag[itr]+=res_imag; 
 		}		
 	} 
