@@ -9,7 +9,6 @@ import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
-import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
 
@@ -23,7 +22,7 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
     }
 
     @Override
-    protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions, WarningSet warnings, IRTranslatorExtension extInfo) {
-	return new X10ClassLoaderFactory(exclusions, warnings, extInfo);
+    protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions, IRTranslatorExtension extInfo) {
+	return new X10ClassLoaderFactory(exclusions, extInfo);
     }
 }

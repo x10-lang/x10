@@ -8,28 +8,25 @@ import com.ibm.wala.ipa.callgraph.impl.DelegatingContextSelector;
 import com.ibm.wala.ipa.callgraph.propagation.SSAContextInterpreter;
 import com.ibm.wala.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
-import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10ZeroXCFABuilder extends X10CFABuilder {
 
     /**
      * @param cha
-     * @param warnings
      * @param entrypoints
      * @param bypass
      * @param contextProvider
      */
     public X10ZeroXCFABuilder(IClassHierarchy cha, 
-  			   WarningSet warnings,
   			   AnalysisOptions options,
   			   ContextSelector appContextSelector,
   			   SSAContextInterpreter appContextInterpreter, 
   			   ReflectionSpecification reflect, 
   			   int instancePolicy) {
-      super(cha, warnings, options);
+      super(cha, options);
 
       SSAContextInterpreter contextInterpreter = 
-	      makeDefaultContextInterpreters(appContextInterpreter, options, cha, reflect, warnings);
+	      makeDefaultContextInterpreters(appContextInterpreter, options, cha, reflect);
       setContextInterpreter(contextInterpreter);
 
       ContextSelector def = new DefaultContextSelector(cha, options.getMethodTargetSelector());
@@ -42,7 +39,7 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
 
       setInstanceKeys(
         new X10ScopeMappingInstanceKeys(cha, this, 
-          new ZeroXInstanceKeys(options, cha, contextInterpreter, warnings, instancePolicy)));
+          new ZeroXInstanceKeys(options, cha, contextInterpreter, instancePolicy)));
     }
 
     /*
