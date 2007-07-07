@@ -16,17 +16,16 @@ import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.ClassLoaderReference;
-import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10ClassLoaderFactory extends PolyglotClassLoaderFactory {
 
-    public X10ClassLoaderFactory(SetOfClasses exclusions, WarningSet warnings, IRTranslatorExtension extInfo) {
-	super(exclusions, warnings, extInfo);
+    public X10ClassLoaderFactory(SetOfClasses exclusions, IRTranslatorExtension extInfo) {
+	super(exclusions, extInfo);
     }
 
     protected IClassLoader makeNewClassLoader(ClassLoaderReference classLoaderReference, IClassHierarchy cha, IClassLoader parent, AnalysisScope scope) throws IOException {
  	if (classLoaderReference.equals(EclipseProjectPath.SOURCE_REF)) {
-	    ClassLoaderImpl cl = new X10SourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha, getWarnings(), fExtInfo);
+	    ClassLoaderImpl cl = new X10SourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha, fExtInfo);
 	    cl.init( scope.getModules( classLoaderReference ));
 	    return cl;
 	} else {

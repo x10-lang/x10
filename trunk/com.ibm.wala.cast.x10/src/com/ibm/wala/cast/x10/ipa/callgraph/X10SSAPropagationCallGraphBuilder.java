@@ -21,12 +21,11 @@ import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.ssa.SSACFG.BasicBlock;
 import com.ibm.wala.util.graph.*;
-import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCallGraphBuilder {
 
-    protected X10SSAPropagationCallGraphBuilder(IClassHierarchy cha, WarningSet warnings, AnalysisOptions options, PointerKeyFactory pointerKeyFactory) {
-	super(cha, warnings, options, pointerKeyFactory);
+    protected X10SSAPropagationCallGraphBuilder(IClassHierarchy cha, AnalysisOptions options, PointerKeyFactory pointerKeyFactory) {
+	super(cha, options, pointerKeyFactory);
     }
 
     protected TypeInference makeTypeInference(IR ir, IClassHierarchy cha) {

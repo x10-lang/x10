@@ -8,7 +8,6 @@ import com.ibm.wala.eclipse.util.EclipseProjectSourceAnalysisEngine;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
-import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysisEngine {
 
@@ -23,7 +22,7 @@ public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysis
     }
 
     @Override
-    protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions, WarningSet warnings, IRTranslatorExtension extInfo) {
-	return new X10ClassLoaderFactory(exclusions, warnings, extInfo);
+    protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions, IRTranslatorExtension extInfo) {
+	return new X10ClassLoaderFactory(exclusions, extInfo);
     }
 }
