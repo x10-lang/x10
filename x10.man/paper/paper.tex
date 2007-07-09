@@ -1,11 +1,11 @@
-\documentclass[nocopyrightspace,preprint,10pt]{sigplanconf}
+\documentclass[nocopyrightspace,preprint,9pt]{sigplanconf}
 
 \usepackage{times-lite}
 \usepackage{mathptm}
 \usepackage{txtt}
 \usepackage{stmaryrd}
 \usepackage{code}
-\usepackage{ttquot}
+%\usepackage{ttquot}
 \usepackage{bcprules}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -27,16 +27,17 @@
 % \input{../../../../vj/res/vijay-macros}
 \newcommand\alt{\bnf}
 
-\newcommand\csharp{{\sf C\#}}
 \newcommand\Implies{\Rightarrow}
 
 \newtheorem{example}{Example}[section]
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 
-\newcommand\Xten{{\sf X10}}
-\newcommand\java{{\sf Java}}
-\newcommand\FXten{{\sf FX10}}
+\newcommand\Xten{{X10}}
+\newcommand\java{{Java}}
+\newcommand\Java{{\java}}
+\newcommand\csharp{{C$\sharp$}}
+\newcommand\FXten{{FX10}}
 
 \begin{document}
 \title{Constrained Types for Object-Oriented Languages}
@@ -64,15 +65,8 @@
 % \copyrightdata{[to be supplied]}
 
 \begin{abstract}
-
-We formalize the basic ideas of dependent-types for Java like
-languages (introduced in \cite{DependentTypes}), in the context of
-\FXten, a Featherweight version of \Xten{} \cite{X10}.  For now, we
-focus on a sequential language; distribution and concurrency
-constructs {\em \`a la} \Xten{} are to be added later. This note should
-be taken as a companion to \cite{X10-concur} which formalizes the
-dynamic semantics for \FXten. It is intended to provide the basis for
-a place-based type-system for scalars and arrays.
+We formalize the basic ideas of dependent-types for Java-like
+languages, in the context of \FXten, a Featherweight version of \Xten{}.
 \end{abstract}
 
 \section{Introduction}
@@ -80,12 +74,12 @@ a place-based type-system for scalars and arrays.
 % motivation
 % overview
 
-\Xten{} is a new modern statically typed object-oriented (OO) language
+\Xten{} is a modern statically typed object-oriented (OO) language
 designed for high productivity in the high performance computing (HPC)
-domain. \Xten{}, like most OO languages is designed around the notion
+domain~\cite{X10}. \Xten{}, like most OO languages is designed around the notion
 of objects, as instances of {\em classes}. However, \Xten{} places
-equal emphasis on {\em arrays}, a central data-structure in High
-Performance Computing. In particular, \Xten{} supports dense,
+equal emphasis on {\em arrays}, a central data-structure in high
+performance computing. In particular, \Xten{} supports dense,
 distributed multi-dimensional arrays of value and reference types,
 built over index sets known as {\em regions}, and mappings from index
 sets to places, known as {\em distributions}.  \Xten{} supports a rich
@@ -93,16 +87,18 @@ algebra of operations over regions, distributions and arrays.
 
 In designing a static type system for \Xten{} a central problem
 arises. It becomes necessary to permit types, such as {\tt region(2)},
-the type of all {\tt 2}-dimensional regions, {\tt int[5]}, the type of
+the type of all two-dimensional regions, {\tt int[5]}, the type of
 all arrays of {\tt int} of length {\tt 5}, and {\tt int[region(2)]},
-the type of all {\tt int} arrays over two dimensional regions. The underlying
+the type of all {\tt int} arrays over two dimensional regions.
+The underlying
 general idea is that of {\em dependent types}: types
 parametrized by {\em values} \cite{xi99dependent}.
 %, just as generic
 %types are types paramterized by other types \cite{genericjava}.
 
 In this paper we develop a general syntactic and semantic framework
-for user-defined dependent types in the context of modern class-based
+for {\em constrained types}, user-defined dependent types
+in the context of modern class-based
 OO languages such as \java{}, \csharp{} and \Xten{}. Our central
 insight is that a rich, user-extensible type system can be developed
 on top of predicates over the {\em immutable} state of objects. Such
@@ -110,26 +106,30 @@ types statically capture many common invariants naturally arising in
 code. Given a single dependently typed class or interface {\tt C}, a
 user may construct a potentially infinite family of types {\tt C(:e)}
 where {\tt e} is a predicate on the immutable state.
+\eat{
 The design also
-supports the definition of dependent methods.  XXX remove
-%Dependent types interact
-%naturally with generic types.
+supports the definition of dependent methods.
+}
+\eat{
+Dependent types interact
+naturally with generic types.
+}
 
-As in staged languages~\cite{???}, the design distinguishes between
-compile-time evaluation and run-time evaluation. Dependent types are
+As in staged languages~\cite{nielson-multistage,ts97-multistage},
+the design distinguishes between
+compile-time and run-time evaluation. Constrained types are
 checked (mostly) at compile-time.
 The compiler uses a
 constraint solver to perform universal reasoning (``for all possible
 values of method parameters'') for dependent type-checking.  There is
-no run-time constraint-solving; however,
+no run-time constraint-solving.  However,
 run-time casts to dependent types are
-permitted.
-These casts involve arithmetic, not
+permitted; these casts involve arithmetic, not
 algebra---the values of all parameters are known.
 
-We outline the design for a compiler which can use an extensible
+We outline the design for a compiler that can use an extensible
 constraint-solver for type-checking.
-The design is implemented in the \Xten{} compiler.
+This design is implemented in the \Xten{} compiler.
 No extension of an
 underlying virtual machine is necessary, except as may be useful in
 improving efficiency (for example, eliminating array bounds checks).
@@ -137,12 +137,12 @@ The compiler translates source
 programs into target programs without dependent types
 but with {\tt assume} and {\tt assert} statements.
 A general
-constraint-propagator that depends only on the operational semantics
+constraint propagator that depends only on the operational semantics
 of the language and is parametric on the underlying constraint solver
 may be run on the program in order to eliminate branches and {\tt
 asserts} forced by the assumptions. If all {\tt assert}s cannot be
-eliminated at compile-time, some residual constraint-checking (not
-solving) may need to be performed at runtime.
+eliminated at compile-time, some residual constraint-checking
+({\em not} solving) may need to be performed at runtime.
 %
 XXX contrast with hybrid type checking
 
@@ -152,15 +152,15 @@ XXX contrast with hybrid type checking
 
 \section{Language overview}
 
-Our basic idea about the introduction of dependent types in
-class-based statically typed OO languages is as follows. Broadly, we
+Our basic approach to introducing dependent types into
+class-based statically typed OO languages is to
 follow the spirit of generic types, but use values instead of
 types.
 
 \subsection{Constrained types}
 
-We permit the definition of a class {\tt C} to specify a {\em
-parameter list}, a list of typed parameters, or {\em properties},
+We permit the definition of a class {\tt C} to specify
+a list of typed parameters, or {\em properties},
 {\tt (T1 x1, \ldots, Tk xk)} similar in syntactic structure to
 a method argument list. Each
 property in this list is treated as a {\tt public final} instance
@@ -176,44 +176,42 @@ associated with the class.
 Thus, for instance, we may specify a class {\tt List} with an
 {\tt int length} property as follows:
 \begin{code}
-    class List(int length : length >= 0) \{
-        ...
-    \}
+  class List(int length: length >= 0) \{...\}
 \end{code}
 
-Given such a class definition for a class {\tt C},
+Given such a definition for a class {\tt C},
 types can be constructed by {\em constraining} the properties of
 {\tt C}.
-If the class {\tt C} has no properties, the only type that can be
-constructed is the type {\tt C}.  On very general
-principles one can argue that {\em any} boolean expression on the
-properties should specify a type: the type of all instances of the
+In principle, {\em any} boolean expression over the
+properties specifies a type: the type of all instances of the
 class which satisfy the boolean expression. Thus,
-{\tt List(:length == 3)} should be a permissible type, as should
-{\tt List(:length <= 41)} or even
-{\tt List(:length >= f())}.
+{\tt List(:length == 3)} is a permissible type, as are
+{\tt List(:length <= 41)} and even
+{\tt List(:length * f() >= g())}.
+If {\tt C} has no properties, the only type that can be
+constructed is the type {\tt C}.
 
-Accordingly we define a {\em parametric type} to be of the form
-{\tt C(:e)}, the name of
-a class or interface {\tt C} followed by a where clause {\tt e}, a boolean expression
-on the properties of that class. We call {\tt C}
-the {\em base class} (XXX root class) and {\tt e} the {\em condition}
-of the parametric type. The denotation
-(semantic interpretation) of such a type is the set of all instances
-of subtypes of the base class whose parameters satisfy the where
-clause. Clearly, for the denotation of a parametric type $t$ to be
-non-empty the condition of $t$ must be consistent with the where clause
-(if any) of the base class of $t$.  The compiler is required to
+Accordingly, a {\em parametric type} is of the form {\tt C(:e)}, the name of
+a class or interface {\tt C}, called the {\em base class}, followed by a
+where clause {\tt e}, called the {\em condition}, a boolean expression
+on the properties of the base class. 
+The denotation, or
+semantic interpretation, of such a type is the set of all instances
+of subclasses of the base class whose properties satisfy the
+condition.
+Clearly, for the denotation of a parametric type $t$ to be
+non-empty the condition of $t$ must be consistent with the class
+invariant, if any, of the base class of $t$.  The compiler is required to
 ensure that the type of any variable declaration is non-empty.
 
 For brevity, we write {\tt C} as a type as well; it
 corresponds to the (vacuously) parametric type {\tt C(:true)}.
 We also permit the syntax {\tt C(t1,\ldots, tk)} for
 the type {\tt C (:x1 == t1 \&\& \ldots \&\& xk == tk)} (assuming that
-the parameter list for {\tt C} specifies the {\tt k} parameters {\tt
+the property list for {\tt C} specifies the {\tt k} properties {\tt
 x1,\ldots, xk}, and each term {\tt ti} is of the correct
 type). Thus, using the definition above, {\tt List(n)} is the type of
-all lists whose length is {\tt n}.
+all lists of length {\tt n}.
 
 Parametric types naturally come equipped with a {\em subtyping
 structure}: type $t_1$ is a subtype of $t_2$ if the denotation of
@@ -226,32 +224,65 @@ In particular, for all conditions {\tt e},
 {\tt C(:e)} is empty exactly
 when {\tt e} conjoined with {\tt C}'s class invariant is inconsistent.
 
-\subsection{Preconditions}
+Two parametric types {\tt C1(:e1)} and {\tt C2(:e2)} are considered equivalent
+if {\tt C1} and {\tt C2} are the same base type and {\tt e1} and
+{\tt e2} are equivalent when considered as logical expressions.
 
-Constructors and methods may specify preconditions
+\subsection{Method and constructor preconditions}
+
+Methods and constructors may specify preconditions
 on their parameters as where clauses.
 For an invocation of a method (or
 constructor) to be type-correct, the
 associated where clause must be statically known to be satisfied. The
-return type of a method may contain expressions involving the
-parameters of arguments to the method. However, we will require
+return type of a method may also contain expressions involving the
+arguments to the method. However, we will require
 that any argument used in this way must be declared {\tt final},
 ensuring it is not mutated by the method body.
 For instance:
+\begin{verbatim}
+  List(arg.length-1)
+    tail(final List arg : arg.length > 0) {...}
+\end{verbatim}
+\noindent will be a valid method declaration. It says that
+{\tt tail} must be passed a non-empty list, and it returns a list
+whose length is one less than its argument.
 
-\begin{tightcode}
-    List(:length+arg.length) append(final List arg) \{ ... \}
-\end{tightcode}
+\subsubsection{Constructors for dependent classes}
 
-\noindent will be a valid method declaration. It says that {\tt
-append} method invoked on a list with length {\tt length} and with an
-argument {\tt arg} will return a list whose length is {\tt
-length+arg.length}.
+Like a method definition,
+a constructor may
+specify preconditions on its arguments
+and a postcondition on the value produced by the constructor.
+
+Postconditions may be specified in a constructor declaration between
+the name of the class and the argument list of the constructor using a
+where clause. The where clause can reference only the properties of
+the class.
+
+For instance, the
+nullary constructor for {\tt List} ensures that the property
+{\tt length} has the value {\tt 0}:
+{\footnotesize
+\begin{verbatim}
+    /** Returns the empty list. */
+    public List (:length==0)() {
+      property(0);
+    }
+\end{verbatim}}
+The {\tt property} statement is used to set all the properties
+of the new object simultaneously.  Capturing this assignment in
+a single statement simplifies checking that the constructor
+postcondition and class invariant are established.  In a class
+has properties, every path through the constructor must contain
+exactly one {\tt property} statement.
+
+%% Cannot throw an exception.
 
 \eat{
 \subsection{Dependent methods}
 
-XXX huh?  What's the different btwn these and final formals.  --njn
+XXX huh?  What's the different btwn these and final formals.  --n
 
 We will permit {\em dependent methods} (similar to generic methods): a
 method may specify a list of parameters in the same way that a class
@@ -290,42 +321,55 @@ facilitates compile-time type-checking, as discussed below.
 
 %% Figure out the real condition. Not sure this is important.
 
-\subsection{Discussion}
+\subsection{Constraints}
 
-A few points are worth emphasizing.  By insisting that the condition
-of a parametric type reference only parameters of the base type, we
-ensure that whether an object belongs to a parametric type or not does
-not depend on the mutable state of the object, since parameters are
-{\tt final} instance fields of the object. That is, the status of the
-predication ``this object belongs to this parametric type'' does not
-change over the lifetime of the object. Second, by insisting that each
-parameter be a {\em field} of the object, we are enforcing the
-reasonable property that whether an object is of a given type can be
+In this framework, types may be constrained by any boolean
+expression over the properties.  For practical reasons,
+restrictions need to be imposed to ensure constraint checking is
+decidable.
+
+The condition of a parametric type must be a pure
+function only of the properties of the base class.
+Because properties are
+{\tt final} instance fields of the object,
+this requirement
+ensures that whether or not an object belongs to a parametric type does
+not depend on the {\em mutable} state of the object.
+That is, the status of the
+predicate ``this object belongs to this type'' does not
+change over the lifetime of the object.  Second, by insisting that each
+property be a {\em field} of the object, the question of
+whether an object is of a given type can be
 determined merely by examining the state of the object and evaluating
-a boolean expression. Of course an implementation is free to not {\em
+a boolean expression. Of course, an implementation is free to not {\em
 explicitly} allocate memory in the object for such fields. For
-instance it may use some scheme of colored pointers to implicitly
-encode the values of these fields. Recall further that \Xten{}
+instance, it may use some scheme of colored pointers to implicitly
+encode the values of these fields~\cite{???}.
+\eat{
+Recall further that \Xten{}
 requires the immutable state of an object (the ``value kernel'') to be
 transmitted with the reference to an object; thus a remote place may
 evaluate casts of objects to parametric types using only information
 available with the reference to the object.
+}
 
 Further, by requiring that the programmer distinguish certain {\tt
-final} fields of a class as parameters, we ensure that the programmer
+final} fields of a class as properties, we ensure that the programmer
 consciously controls {\em which} {\tt final} fields should be available for
-constructing parametric types. (A field that is ``accidentally'' {\tt
+constructing parametric types. A field that is ``accidentally'' {\tt
 final} may not be used in the construction of a parametric type. It must be
-declared as a parameter.)
+declared as a property.
 
 \java{}-like languages permit constructors to throw exceptions. This
 is necessary to deal with the situation in which the arguments to a
 constructor for a class {\tt C} are such that no object can be
 constructed which satisfies the invariants for {\tt C}. Dependent
 types make it possible to perform some of these checks at
-compile-time. The where clause for a class explicitly captures
-conditions on the parameters of the class that must be satisfied by
-any instance of the class. Thus the \Xten{} compiler's static check for
+compile-time. The class invariant of a class explicitly captures
+conditions on the properties of the class that must be satisfied by
+any instance of the class.  Constructor preconditions capture
+conditions on the constructor arguments.
+The compiler's static check for
 non-emptiness of the type of any variable captures these invariant
 violations at compile-time.
 
@@ -340,133 +384,111 @@ considerable information about the structure of the datatypes and the
 operations on them can be expressed through the type system.
 }
 
-\section{Dependent types}
 
-XXX lots of redundancy WRT previous section
 
-A dependent type is a type that takes values as arguments; such a
-value is called a {\em parameter}. Thus a dependent type is just like
-a generic type except that the arguments to the type are values, not
-types. Syntactically, these values are enclosed in parentheses, rather
-than in angle brackets. For instance:
+\subsection{Extending dependent classes}
 
+A class may extend a parametric class.
+
+{\em MetaNote: This should be standard. A class definition may extend
+a dependent super class, e.g. class Foo(int i) extends Fum(i*i) \{
+\ldots \}. The expressions in the actual parameter list for the super
+class may involve only the parameters of the class being defined. The
+intuition is that these parameters are analogous to explicit arguments
+that must be passed in every super-constructor invocation.}
+
+\subsection{An example}
+
+\begin{figure*}
 {\footnotesize
 \begin{verbatim}
-  List(10)<Cell> // The type of all lists of Cells of length 10.
-\end{verbatim}}
+public value class List(int length : length >= 0) {
+  Object head = null;
+  List(length-1) tail = null;
 
-The primary mechanism for the introduction of dependent types in
-\Xten{} is the {\em dependent class declaration}.
+  /** Returns the empty list. */
+  public List(:length==0)() {
+      property(0);
+  }
 
-%% Figure out dependent interface definitions as well.
-
-\subsection{Dependent class definitions}
-
-Dependent classes are specified by providing a parameter list (similar
-in structure to a method definition) right after the name of the
-class. This list is said to define the {\em explicit parameters} of
-the class.  Each parameter introduces a {\tt final} instance field of
-the same name and type in the class; hence parameter names must be
-distinct from field names. The list of parameters may be followed by a
-``{\tt :}'' (read as ``where'') and a boolean expression involving the
-explicit parameters (called the {\em where clause}). An instance of a
-class can only be created for actual values for the explicit parameter
-which can statically be known to satisfy the where clause.
-
-\begin{example}[List]\label{List}
-Consider the class {\tt List}:
-{\footnotesize
-\begin{verbatim}
-  public value class List( nat n ) <Node> {
-    nullable Node node = null;
-    nullable List(n-1)<Node> rest = null;
-
-    /** Returns the empty list. Defined only when the parameter n
-        has the value 0. Invocation: new List(0)<Node>().
-     */
-    public List(0) () {
-        n = 0;
-    }
-
-    /** Returns a list of length 1 containing the given node.
-        Invocation: new List<Node>( node ).
-     */
-    public List(1) (Node node) {
-      this(node, new List<Node>());
-    }
-    public List(rest.n+1){Node node, final List(m)<Node> rest) {
-        this.n = rest.n+1;
-        this.node = node;
-        this.rest = rest;
-    }
-    public List(n+arg.n)<Node> append(final List<Node> arg) {
-      return
-          (n == 0) ? arg : new List<Node>(node, rest.append(arg));
-    }
-    public List(n)<Node> rev() {
-      return rev(new List(0)<Node>());
-    }
-    public List(n+arg.n)<Node> rev( final List<Node> arg) {
-      return
-        (n == 0)
-        ? arg
-        : rest.rev(new List(1+arg.m)<Node>( node, arg));
-    }
-    /** Return a list of compile-time unknown length, obtained by filtering
-        this with f. */
-    public List<Node> filter(fun<Node, boolean> f) {
-         if (n==0) return this;
-         if (f(node)) {
-           List<Node> l = rest.filter(f);
-           return new List(l+1)<Node>(node, l);
-         } else {
-           return rest.filter(f);
-         }
-    }
-    /** Return a list of m numbers from o..m-1. */
-    public static List(m)<nat> gen(nat m) {
-         return gen(0,m);
-    }
-    /** Return a list of (m-i) elements, from i to m-1. */
-    public static List(m-i)<nat> gen(nat i, nat m: i <= m) {
-      return (i == m)
-             ? new List(m-i)<nat>()
-             : new List(m-i)<nat>(i, gen(i+1,m));
+  /** Returns a singleton list. */
+  public List(:length==1)(Object head) {
+    this(head, new List());
+  }
+  /** Returns the cons of head and tail. */
+  public List(:length==tail.length+1)(Object head, final List tail) {
+    property(tail.length+1);
+    this.head = head;
+    this.tail = tail;
+  }
+  public List(length+arg.length) append(final List arg) {
+    return (length == 0)
+          ? arg
+          : new List(head, tail.append(arg));
+  }
+  public List(length) rev() {
+    return rev(new List());
+  }
+  public List(length+acc.length) rev(final List acc) {
+    return (length == 0)
+          ? acc
+          : tail.rev(new List(head, acc));
+  }
+  /** Return a list of compile-time unknown length, obtained by filtering
+      this with f. */
+  public List(:self.length <= this.length) filter(Predicate f) {
+    if (length==0) return this;
+    if (f.isTrue(head)) {
+      List<Object> l = tail.filter(f);
+      return new List(l+1)(head, l);
+    } else {
+      return tail.filter(f);
     }
   }
+}
 \end{verbatim}}
 %% Aha a design choice here!!
 %% Have parameter(..) or not.
+\caption{List example}
+\label{fig:list-example}
+\end{figure*}
 
-Intuitively, this definition states that a {\tt List} has a {\tt nat}
-parameter {\tt n} (intended to represent the length of the list).  The
-class has two fields intended to hold the data item in the head of the
-list and the rest of the list.
+Figure~\ref{fig:list-example} shows a {\tt List} class.
+Intuitively, this definition states that a {\tt List} has a {\tt int}
+property {\tt length}, which must be non-negative.  The
+class has two fields that hold the head and tail of the list.
 
-The name of the first constructor ({\tt List(0)}) signifies that it
-returns a list of length {\tt 0}.  The compiler would verify that the
-body of the constructor sets {\tt n} to {\tt 0}.  The name of the
-second constructor signifies that it returns a list of length {\tt
+The first constructor {\tt List()} has a postcondition that
+signifies that it returns a list of length 0.
+The constructor body contains a {\tt property} statement
+that initializes the {\tt length} property to {\tt 0}.
+The compiler verifies that
+the constructor postcondition and the class invariant
+are implied by the {\tt property} statement
+and any {\tt super} calls in the constructor body imply
+
+The 
+second constructor returns a singleton list of length {\tt
 1}. The third constructor returns a list of length {\tt m+1}, where
-{\tt m} is the length of the second argument. (We will see later that
-if an argument appears in the return type then the argument must be
+{\tt m} is the length of the second argument. 
+If an argument appears in the return type then the argument must be
 declared {\tt final}. Thus the argument will point to the same object
-throughout the evaluation of the constructor body.)
+throughout the evaluation of the constructor body.
 
 Functions that append one list to another or that reverse a list can
 be defined quite naturally. In both cases the size of the list
 returned is known statically (as a function of the size of the list
 and the argument to the method).  The example also illustrates a
-method {\tt filter} which returns a list whose size cannot be known
-statically (it depends on properties of the argument function {\tt f}
-which are not captured statically).
+method {\tt filter} which returns a list whose length cannot be known
+statically since it depends on the argument predicate {\tt f};
+the list length can be bounded, however.
 
 \eat{
 XXX
 Finally, the example illustrates a dependent method. This example is
 discussed more below.
 }
-\end{example}
+
 
 \eat{
 \subsubsection{Implicit parameters}
@@ -492,8 +514,8 @@ boolean} parameter {\tt isEven} which records whether the length of
 the list is even.
 {\footnotesize
 \begin{verbatim}
-  public value class List(int n : n >= 0) <Node> {
-    parameter boolean isEven = (n % 2 == 0);
+  public value class List(int length : length >= 0) {
+    parameter boolean isEven = (length % 2 == 0);
     ...
   }
 \end{verbatim}}
@@ -504,58 +526,6 @@ body of the class at which they are visible. Parameters have the
 status of final instance fields, hence they are not visible in static
 fields, initializers or methods, or when they are overridden.
 }
-
-\subsubsection{Constructors for dependent classes}
-
-Like a method definition,
-a constructor may
-specify preconditions on its arguments
-and a postcondition on the value produced by the constructor.
-
-Postconditions may be specified in a constructor declaration between
-the name of the class and the argument list of the constructor using a
-where clause. The where clause can reference only the parameters of
-the class.
-
-For instance, a
-nullary constructor for {\tt List} is only defined when the property
-{\tt n} has the value {\tt 0}.
-
-%% Cannot throw an exception.
-
-Consider the definition of the nullary constructor for instance:
-{\footnotesize
-\begin{verbatim}
-    /** Returns the empty list. Defined only when the parameter n
-        has the value 0. Invocation: new List(0)<Node>(). */
-    public List (:n==0) () {}
-\end{verbatim}}
-
-Any attempt to invoke this constructor with a parameter that cannot be
-determined at compile-time to equal {\tt 0} will cause a compiler
-error.
-
-\subsection{Creating instances of a dependent class}
-
-An instance of a dependent class is created using a {\tt new} operation
-and passing an actual list of parameters (of the right type) after the
-class name and before the generic type parameters (if any).  For instance:
-{\footnotesize
-\begin{verbatim}
-  new List(0)<Node>();
-  new String(10) ("abcdefghij");
-\end{verbatim}}
-
-\subsubsection{Extending dependent classes}
-
-A class may extend a parametric class.
-
-{\em MetaNote: This should be standard. A class definition may extend
-a dependent super class, e.g. class Foo(int i) extends Fum(i*i) \{
-\ldots \}. The expressions in the actual parameter list for the super
-class may involve only the parameters of the class being defined. The
-intuition is that these parameters are analogous to explicit arguments
-that must be passed in every super-constructor invocation.}
 
 
 \eat{
@@ -620,6 +590,7 @@ Such a method may be invoked as:
 }
 
 \subsection{Dependent interfaces}
+
 \java{} does not allow interfaces to specify instance fields. Rather all
 fields in an interface are final static fields (constants).
 
@@ -627,45 +598,38 @@ X10 supports rich user-definable extensions to the type system by
 allowing the user of a type to construct new parametric types: new
 types that are predicates on the immutable state of the base type.
 For interfaces to support this extension, they must support
-user-definable final instance fields, so that parametric types can be
+user-definable properties, so that parametric types can be
 built over interfaces.
 
-The syntactic extension is easy, though unfortunately not backwards
-compatible with Java. We allow fields in interfaces without requiring
-them to be static. (This is not backwards compatible because Java
-takes a field in an interface to be automatically final and
-static. X10 requires that static fields be marked "static". All fields
-are implicitly final. )  Instance fields in an interface are also
-called parameters of the interface.
-
-As with classes, an interface definition may specify parameters either
-through fields in the body of the interface or through a parameter
+As with classes, an interface definition may specify properties
+in a 
 list after the name of the interface. Similarly, an interface
-definition may specify a where clause in its parameter list. Methods
-in the body of an interface may have parameter lists and where clauses
+definition may specify a where clause in its property list. Methods
+in the body of an interface may have where clauses
 as well.
 
-All classes implementing an interface must have a parameter (a public
-final instance field declared as a parameter) with the same name and
+All classes implementing an interface must have a property
+with the same name and
 type (either declared in the class or inherited from the superclass)
-for each parameter in the interface. Note that if a class implements
-multiple interfaces, and more than one of them specify a parameter
+for each property in the interface. If a class implements
+multiple interfaces and more than one of them specify a property
 with the same name, then they must all agree on the type of the
-parameter. The class must have a single parameter with the given name
+property. The class must have a single property with the given name
 and type.
 
-The general form of an implements clause is now
-
+The general form of a class declaration is now:
 \begin{verbatim}
-  ClassMods class Name Superopt Interfacesopt ClassBody
+  class C(T1 x1, ..., Tk xk)
+        extends B(:e)
+        implements I1(:e1), ..., In(:en) {...}
 \end{verbatim}
-
-where Interface may be a parametric interface {\tt I(:e)}. For such a
-declaration to typecheck, it must be the case that the class invariant
+\noindent
+For such a
+declaration to type-check, it must be that the class invariant
 implies {\tt inv(I) \&\& e}, where {\tt inv(I)} is the invariant associated with
-interface {\tt I}.  (A parameteric class or interface {\tt I} is taken as
-shorthand for {\tt I(:true)}.) Further, to every method specified in the
-interface must correspond a method in the class with the same
+interface {\tt I}.  Again, a parameteric class or interface {\tt I} is taken as
+shorthand for {\tt I(:true)}.  Further, every method specified in the
+interface must have a corresponding method in the class with the same
 signature whose precondition, if any, is implied by the precondition
 of the method in the interface.
 
@@ -708,44 +672,8 @@ method for each class implementing the interface. Thus the cost of an
 invokevirtual would be paid for each interface field access.
 }
 
-\subsection{Types defined by dependent classes and interfaces}
-
-A dependent class definition introduces many types.
-
-Let {\tt C} be a class declared with explicit parameters {\tt
-x1,\ldots, xk} of type {\tt T1,\ldots, Tk}.  A parametric type is an
-expression of the form {\tt C (:e)} where {\tt e} is a boolean
-expression in the parameters of the class. We permit the syntactic
-abbreviation {\tt C(t1,\ldots, tk)}, for values {\tt t1,\ldots, tk} of
-type {\tt T1,\ldots, Tk} respectively for the type {\tt C(:x1=t1 \&\&
-x2=t2\ldots \&\& xk=tk)}.  If {\tt C} is a generic class with type
-parameters {\tt <T1,\ldots, Tm>}, then any type expression based on
-{\tt C} must also specify the generic type parameters.
-
-An object is an instance of a parametric type if its an instance of
-the base type, and the values of its parameters satisfy the boolean
-condition.
-
-{}\begin{example} The expression {\tt List(3)<Node>} is a type -- the
-type of all lists of {\tt Node} whose {\tt n} field contains the value
-{\tt 3}. By design of the {\tt List} class, such a list has length
-{\tt n}.
-
-The expression {\tt List (: isEven) <Node>} is a type -- the type of all
-lists of {\tt Node} of even length.
-\end{example}
-
-\subsubsection{Equivalence of types and casts}
-Two parametric types {\tt C(:e)} and {\tt D(:b)} are considered equivalent
-if {\tt C} and {\tt D} are equivalent and {\tt e} and
-{\tt b} are equivalent (considered as logical expressions).
-
-A type {\tt C(:e)} is a subtype of {\tt D(:b)} if {\tt C} is a subtype
-of {\tt D} and {\tt e} implies {\tt b}.
 
 %%% Come back to this.
-
---------------------------
 
 \section{Related work}
 
@@ -838,8 +766,9 @@ Refinement types.  Types can be arbitrary predicates:
         equivalent to the X10 type:
         Int(:self >= 0)
 
-Subtyping is undecidable.  Type-checker can report "yes", "no",
-or "don't know".  If the latter, dynamic checks inserted where
+Subtyping is undecidable.  Type-checker can report ``yes'',
+``no'',
+or ``don't know''.  If the latter, dynamic checks inserted where
 subsumption occurs.
 
 Also Hybrid Types, Invariants and Refinements for Imperative
@@ -1035,9 +964,10 @@ For {\tt e} a boolean expression the statement:
    assume e;
 \end{verbatim}}
 asserts that {\tt e} will be true whenever control reaches that point
-in the code. This assertion is categorical -- it does not depend on
+in the code. This assertion is categorical---it does not depend on
 any property of the code other than what is expressed through the type
-system and hence checked statically. Thus it is a mere comment -- it
+system and hence checked statically. Thus it is a mere
+comment---it
 does not translate into any runtime code.  A programmer may not add
 {\tt assume} statements; only the compiler may add such statements
 e.g., when translating an enhanced type system into a base type
@@ -1185,11 +1115,11 @@ statement by introducing enough new {\tt final} local variables. For
 instance the method:
 {\footnotesize
   \begin{verbatim}
-    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
+    public  List(n+arg.n) rev(final List arg) {
       return
         (n == 0)
         ? arg
-        : rest.rev(new List(1+arg.n)<Node>( node, arg));
+        : rest.rev(new List(1+arg.n)(node, arg));
     }
   \end{verbatim}
 }
@@ -1198,13 +1128,13 @@ instance the method:
 
 {\footnotesize
   \begin{verbatim}
-    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
+    public  List(n+arg.n) rev( final List arg) {
       if (n==0) {
          return arg;
       } else {
-        final List(1+arg.n)<Node> arg2 = new List(1+arg.n)<Node>(node, arg);
-        final List(n-1)<Node> restval = rest;              // Read from a mutable field of parametric type
-        final List(restval.n+arg2.n)<Node> result = restval.rev( arg2 );
+        final List(1+arg.n) arg2 = new List(1+arg.n)(node, arg);
+        final List(n-1) restval = rest;              // Read from a mutable field of parametric type
+        final List(restval.n+arg2.n) result = restval.rev( arg2 );
         return result;
     }
   \end{verbatim}}
@@ -1440,7 +1370,12 @@ Below I discuss the problem of specifying the operations on places, regions,
 distributions and arrays in \Xten. I specify the signatures of these
 classes, making extensive use of dependent types.
 
-\section{Acknowledgments}
+\section*{Acknowledgments}
+
+Radha, Jens.
+Igor Peshansky,
+Lex Spoon,
+Vincent Cave.
 
 \bibliographystyle{plain}
 \bibliography{master}
@@ -1794,7 +1729,7 @@ Language extensions to be made to get a fuller subset of \Xten:
 \begin{itemize}
   \item Add multiple constructors.
   \item Permit arbitrary code in constructors.
-  \item Add static state -- or at least distinguish between objects and traits.
+  \item Add static state---or at least distinguish between objects and traits.
   \item Permit fields to be overridden?
   \item Add functions.
   \item Add exceptions.
@@ -2273,7 +2208,7 @@ value TreeMaker {
  * indices for places.
  *
  * Note that place(i), for i <= MAX_PLACES, can now be used as a non-empty type.
- * Thus it is possible to run an async at another place, without using arays ---
+ * Thus it is possible to run an async at another place, without using arays---
  * just use async(place(i)) {...} for an appropriate i.
 
  * @author Christoph von Praun
@@ -2883,7 +2818,7 @@ public final value class array ( distribution dist )<B@P> {
 
 \section{Type-checking dependent classes}
 
-Each programming language -- such as \Xten{} -- will specify the base
+Each programming language---such as \Xten{}---will specify the base
 underlying classes (and the operations on them) which can occur as
 types in parameter lists. For instance, in the code for {\tt List}
 above, the only type that appears in parameter lists is {\tt int}, and
