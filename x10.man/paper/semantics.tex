@@ -1,0 +1,256 @@
+\documentclass[nocopyrightspace,preprint,10pt]{sigplanconf}
+
+\usepackage{times-lite}
+\usepackage{mathptm}
+\usepackage{txtt}
+\usepackage{stmaryrd}
+\usepackage{code}
+\usepackage{ttquot}
+\usepackage{bcprules}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{afterpage}
+\usepackage{balance}
+\usepackage{defs}
+\usepackage{pldefs}
+\usepackage{utils}
+\usepackage[pdftex]{graphicx}
+\usepackage{ifpdf}
+
+\ifpdf
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\fi
+
+
+% \input{../../../../vj/res/pagesizes}
+% \input{../../../../vj/res/vijay-macros}
+\newcommand\alt{\bnf}
+
+\newcommand{\starderives}{\derives^*}
+\newcommand\csharp{{\sf C\#}}
+\newcommand\Implies{\Rightarrow}
+\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
+\def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{#1)}}}
+\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{#1)}}}
+\def\derives{\longrightarrow}
+\newtheorem{example}{Example}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\def\subtype{\sqsubseteq}
+\newcommand\Xten{{\sf X10}}
+\newcommand\java{{\sf Java}}
+\newcommand\FXten{{\sf FX10}}
+
+\begin{document}
+
+\def\super{\mbox{\tt super}}
+\def\class{\mbox{\tt class}}
+\def\extends{\mbox{\tt extends}}
+\def\return{\mbox{\tt return}}
+\def\new{\mbox{\tt new}}
+\def\this{\mbox{\tt this}}
+\def\self{\mbox{\tt self}}
+\title{Constrained Types for Object-Oriented Languages}
+\authorinfo{Vijay Saraswat}
+   {IBM T.~J. Watson Research Center \\
+    P.O. Box 704 \\
+    Yorktown Heights, NY 10598}
+   {vsaraswa@us.ibm.com}
+\authorinfo{Nathaniel Nystrom}
+   {IBM T.~J. Watson Research Center \\
+    P.O. Box 704 \\
+    Yorktown Heights, NY 10598}
+   {nystrom@us.ibm.com}
+\authorinfo{Radha Jagadeesan}
+   {Depaul University}
+   {rjagadeesan@cs.depaul.edu}
+\authorinfo{Jens Palsberg}
+   {University of California--Los Angeles}
+   {palsberg@cs.ucla.edu}
+\authorinfo{Christian Grothoff}
+   {University of Denver}
+   {christian@grothoff.org}
+
+\maketitle
+
+
+\onecolumn
+\begin{table}
+
+\paragraph{Syntax.} 
+The syntax for the language is specified as follows. We assume a fixed
+constraint system, $\cal C$, with inference relation $\vdash_{\cal
+C}$. However, we require all constraint systems to support conjunction
+and existential quantification.
+
+\begin{tabular}{rrcl}
+&&&\\
+(Class) & L &{::=}& $\class \ T\  \extends\ T\ \{\bar{T} \bar{f};\ K\ \bar{M}\}$ \\
+(Ctor) & K &{::=}& $T(\bar{T} \bar{x})\{\super(\bar{x});\bar{f}=\bar{x}\}$\\
+(Method)& M &{::=}& $T\ m(\bar{T}\ \bar{x})\{\return\ e;\}$\\
+(Expr)& e &{::=}& $x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
+(C Terms) & t&{::=}& x\alt \self \alt t.f\\
+(Constraint) & c,d&{::=}&$a\alt t=t\alt c,c\alt T\,x;c$\\
+(Type)& S,T,U&{::=}& $C(:d)$\\
+&&&\\
+\end{tabular}
+
+\paragraph{Subtyping Judgements.}
+We let $\Gamma$ stand for multisets of type assertions, of the form
+$T\,x$, and constraints. We define $\sigma(\Gamma)$ to be the set of
+constraints obtained from $\Gamma$ by replacing each type assertion
+${\tt C(:d)\ x}$ with ${\tt d}[{\tt x}/\self]$. 
+
+$$
+\begin{array}{ll}
+\Gamma\vdash {\tt T} \subtype {\tt T}
+&
+\from{\class\ {\tt C(:c)}\, \extends\, {\tt D(:d)}\{\ldots\}}
+\infer{\vdash {\tt C(:c) \subtype D(:d)}}
+\\ & \\
+\from{\Gamma \vdash {\tt C \subtype D} \ \ \ \sigma(\Gamma),{\tt c} \vdash_{\cal C} {\tt d}}
+\infer{\Gamma \vdash {\tt C(:c) \subtype D(:d)}}
+&
+\from{\Gamma \vdash {\tt S \subtype T} \ \ \ \Gamma \vdash {\tt T \subtype U}}
+\infer{\Gamma \vdash {\tt S \subtype U}}
+\end{array}
+$$
+
+\paragraph{Type Judgements.}
+
+$$
+\begin{array}{ll}
+\axname{T-VAR}
+\axiom{\Gamma, {\tt T}\ {\tt x} \vdash {\tt T}\ {\tt x}}
+&  
+\rname{CONSTR}
+\from{\Gamma \vdash {\tt C(:c)\ x} \ \ \ \sigma(\Gamma) \vdash_{\cal C}{\tt d[x/\self]}}
+\infer{\Gamma \vdash {\tt C(:c,d)\ x}} 
+\\ \quad \\
+\rname{T-Field}
+\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0)= \bar{\tt U}(:\bar{\tt d}) \bar{\tt f}}
+\infer{\Gamma \vdash {\tt U}_i(:{\tt T}_0\ \this;\this.{\tt f}=\self,{\tt d}_i)\, {\tt e.f}_i} \\
+& \\
+\rname{T-UCast}
+\from{\Gamma \vdash {\tt S\ e}\ \ \Gamma \vdash {\tt S} \subtype {\tt T}}
+\infer{\Gamma \vdash {\tt T\ (T) e}} & 
+\rname{T-DCast}
+\from{\Gamma \vdash {\tt S\ e}\ \ \Gamma \vdash {\tt T} \subtype {\tt S}}
+\infer{\Gamma \vdash {\tt T\ (T) e}} \\
+& \\
+\rname{T-SCast}
+\from{\Gamma \vdash {\tt S\ e}\ \ \Gamma \not\vdash {\tt T \subtype S} \ \ 
+\Gamma \not\vdash {\tt S \subtype T} \ \ }
+\infer{\Gamma \vdash {\tt T\ (T) e}} \\
+& \\
+\rname{T-INVK}
+\from{\begin{array}{l}
+\Gamma \vdash {\tt T}_{0:n} {\tt e}_{0:n} \\
+{\tt T}_0 \rhd {\tt S(:d) m(Z}_{1:n}\, {\tt z}_{1:n}) \\
+\Gamma, {\tt T}_0\ \this, {\tt T}_{1:i-1}\ {\tt z}_{1:i-1} \vdash {\tt T}_i \subtype {\tt Z}_i\ \ (i\in 1:n)
+\end{array}}
+\infer{\Gamma \vdash {\tt S(:T}_0\ \this;{\tt T}_{1:n}\ {\tt z}_{1:n};{\tt d})\ {\tt e}_0.{\tt m(e}_{1:n}{\tt)}} &
+\rname{T-NEW}
+\from{
+  \begin{array}{l}
+    \Gamma \vdash {\tt T}_{1:n}\ {\tt e}_{1:n} \\
+    {\tt C} \rhd {\tt C(:d)(Z}_{1:n}\ {\tt f}_{1:n}{\tt )} \\
+    \Gamma, {\tt T}_{1:(i-1)}\ {\tt f}_{1:(i-1)} \vdash {\tt T}_i \subtype {\tt Z}_i \ \ (i\in 1:n)\\
+    \Gamma,  {\tt T}_{1:n}\ {\tt f}_{1:n} \vdash {\tt d}\\
+  \end{array}
+}
+\infer{\Gamma \vdash {\tt C(:T}_{1:n}\ {\tt f}_{1:n}{\tt ;\self.f}_{1:n}={\tt f}_{1:n}{\tt ,d)}\ \new\ {\tt C(e}_{1:n}{\tt )}} \\
+\end{array}
+$$
+\paragraph{Method and Class Typing.}
+$$
+\begin{array}{ll}
+\from{
+  \begin{array}{l}
+    \bar{T}\ \bar{x}, C\ \this \vdash S\ e   \\
+    \bar{T}\ \bar{x}, C\ \this \vdash S \subtype T   \\
+  \end{array}}
+\infer{T\,m(\bar{T}\,\bar{x})\{\return\ e;\}\ \mbox{OK in}\ C} &
+\from{
+  \begin{array}{l}
+    K=C(\bar{S}\,\bar{g},\bar{T}\,\bar{f})\{\super(\bar{g});\this.\bar{f}=\bar{f};\}\\
+    D \rhd \bar{S}\ \bar{g}\ \\ 
+    \bar{M}\ \mbox{OK in}\ C\\
+  \end{array}}
+\infer{\class\ C\ \extends\ D\ \{\bar{T}\bar{f};K\,\bar{M}\}\ \mbox{OK}} 
+\end{array}
+$$
+
+\caption{Constrained FJ}\label{FJ-Table}
+\end{table}
+
+\begin{table}
+\paragraph{Computation:}
+
+$$
+\begin{array}{c}
+\rname{{\sc R-FIELD}}
+\from{fields(C)=\bar{C}\ \bar{f}}
+\infer{(\new\ {\tt C}(\bar{\tt e})).{\tt f}_i \derives {\tt e}_i} \\ \quad\\
+\rname{{\sc R-INVK}}
+\from{mbody({\tt m},{\tt C})=\bar{x}. \bar{e}_0}
+\infer{(\new\ {\tt C}(\bar{\tt e})).{\tt m}(\bar{\tt d}) \derives 
+[\bar{d}/\bar{x},\new\ C(\bar{e})/\this]{\tt e}_0} \\ \quad\\
+\rname{{\sc R-CAST}}
+\from{\vdash C \subtype D[\new\ C(\bar{\tt d})/\self]}
+\infer{{\tt (D)(\new\ C(\bar{\tt d}))} \derives \new\ C(\bar{\tt d})}
+\end{array}
+$$
+\paragraph{Congruence:}
+$$
+\begin{array}{c}
+\rname{{\sc RC-FIELD}}
+\from{{\tt e}_0 \derives {{\tt e}_0}'}
+\infer{{\tt e}_0.{\tt f} \derives {{\tt e}_0}'.{\tt f}} \\ \quad\\
+\rname{{\sc RC-INVK-RECV}}
+\from{{\tt e}_0 \derives {{\tt e}_0}'}
+\infer{{\tt e}.{\tt m}(\bar{\tt e}) \derives {{\tt e}_0}'.{\tt m}(\bar{\tt e})} \\ \quad\\
+\rname{{\sc RC-INVK-ARG}}
+\from{{\tt e}_i \derives {{\tt e}_i}'}
+\infer{{\tt e}.{\tt m}(\ldots,{\tt e}_i,\ldots) \derives {{\tt e}_0}.{\tt m}(\ldots,{\tt e}_i',\ldots)}\\ \quad\\
+\rname{{\sc RC-NEW-ARG}}
+\from{{\tt e}_i \derives {{\tt e}_i}'}
+\infer{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)} \\ \quad\\
+\rname{{\sc RC-CAST}}
+\from{{\tt e}_0 \derives {{\tt e}_0}'}
+\infer{{\tt (C) e}_0 \derives {{\tt (C) e}_0}'}
+\end{array}
+$$
+
+\caption{Reduction rules for Constrained FJ}\label{CFJ-red-rules}
+\end{table}
+
+\begin{theorem}[Subject Reduction] 
+
+If $\Gamma \vdash T\ e$ and $e \derives e'$ then for some type $S$,
+$\Gamma \vdash S\ e'$ and $\Gamma \vdash S \subtype T$.
+
+\end{theorem}
+
+Let the normal form of expressions be given by {\em values},
+i.e. expressions 
+
+\begin{tabular}{rrcl}
+&&&\\
+(Values) & {\tt v} &{::=}& $\new\ {\tt C(\bar{\tt v})}$
+\end{tabular}
+
+
+\begin{theorem}[Type Soundness] 
+
+If $\vdash T\ e$ and $e \starderives e' \not\derives$ then $e'$ is
+either (1)~a value {\tt } with $\vdash {\tt S\ v}$ and $\vdash {\tt S
+\subtype T}$, for some type {\tt S}, or, (2)~ an expression containing
+a subexpression ${\tt (T)\new\ C(\bar{\tt v})}$ where 
+$\not\vdash \tt C\subtype T[\new\ C(\bar{\tt v})/\self]$.
+
+\end{theorem}
+
+
+\end{document}
