@@ -266,7 +266,7 @@ nullary constructor for {\tt List} ensures that the property
 {\footnotesize
 \begin{verbatim}
     /** Returns the empty list. */
-    public List (:length==0)() {
+    public List(:length==0)() {
       property(0);
     }
 \end{verbatim}}
@@ -408,7 +408,7 @@ public value class List(int length : length >= 0) {
 
   /** Returns the empty list. */
   public List(:length==0)() {
-      property(0);
+    property(0);
   }
 
   /** Returns a singleton list. */
@@ -839,14 +839,30 @@ The binary method problem \cite{bruce}.
 Bruce and Cardelli and Castagna and Leavens and Pierce,
 On Binary Methods, TAPOS 1(3): 221--242, Fall 1995.
 
-\begin{code}
-class IntSet \{
+\begin{verbatim}
+interface Set {
+    Set(:self.class == this.class)
+        union(Set(:self.class == this.class) s);
+    boolean superSetOf(Set(:self.class == this.class) s);
+}
+
+class IntSet implements Set {
     long bits;
-    IntSet(:self.class == this.class)
-        union(IntSet(:self.class == this.class) s);
-    boolean superSetOf(IntSet(:self.class == this.class) s);
-\}
-\end{code}
+
+    Set(:self.class == this.class)
+        union(Set(:self.class == this.class) s) {
+
+        Set(:self.class == this.class) r = new IntSet();
+        // need to be able to conclud that r : IntSet
+        r.bits = this.bits | s.bits;
+        return r;
+    }
+
+    boolean superSetOf(Set(:self.class == this.class) s) {
+        return (s.bits & ~bits) == 0;
+    }
+}
+\end{verbatim}
 
 \subsection{Cayenne examples}
 
@@ -858,39 +874,56 @@ class IntSet \{
 
 Red/black tree invariant.
 
-\begin{code}
-class Tree \{
-    final static Color BLACK;
-    final static Color RED;
-
-    Object value;
-    int blackHeight;
-
-    Color color;
-    Tree left;
-    Tree right;
-
-    Tree(Color c, Tree l, Tree r) \{
-        color = c;
-        left = l;
-        right = r;
-    \}
-
-    Tree(:color == BLACK && blackHeight == 0 && left == null && right == null) empty();
-
-    Tree(:color == BLACK && blackHeight == l.blackHeight+1 && left == l && right == r)
-        black(Tree l, Tree(:self.blackHeight == l.blackHeight) r, Object value);
-
-    Tree(:color == RED && blackHeight == l.blackHeight && left == l && right == r)
-        black(Tree l, Tree(:self.blackHeight == l.blackHeight) r, Object value);
-\}
-\end{code}
-
 Invariant:
 1. all leaves black
 2. for each node n, there are the same number of black nodes on
 every path from n to a leaf (the black height)
 3. the immediate children of every red node are black
+
+\begin{verbatim}
+class Tree(boolean isBlack, int blackHeight, Tree left, Tree right
+  : ( left == null && right == null ||   // leaf or interior
+      left != null && right != null
+    )
+    &&
+    ( left == null || left.value < right.value )   // ordered
+    &&
+    ( left != null || isBlack )   // leaves are black
+    &&
+    ( left != null || blackHeight == 0 ) // leaves have height 0
+    &&
+    ( left == null || blackHeight == left.blackHeight + 1 )
+    &&
+    ( right == null || blackHeight == right.blackHeight + 1 )
+    &&
+    ( isBlack || ( left.isBlack && right.isBlack ) )
+  )
+{
+    int value;
+
+    // empty
+    Tree(: isBlack && blackHeight == 0 && left == null && right == null)
+        () {
+        property(isBlack, 0, null, null);
+    }
+
+    // black
+    Tree(: isBlack && blackHeight == l.blackHeight+1 && left == l && right == r)
+        (Tree l, Tree r, int v : l.blackHeight == r.blackHeight) {
+        property(true, l.blackHeight+1, l, r);
+        this.value = v;
+    }
+       
+    // red: use a dummy argument to overload
+    Tree(: !isBlack && blackHeight == l.blackHeight && left == l && right == r)
+        (Tree l, Tree r, int v, Object _ : l.blackHeight == r.blackHeight) {
+        property(false, l.blackHeight, l, r);
+        this.value = v;
+    }
+
+    // need to show add, remove preserve the invariant
+}
+\end{verbatim}
 
 Bounds checks.
 
