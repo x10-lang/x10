@@ -1,0 +1,84 @@
+
+I. Introduction and overview (3 pages)
+
+Design of X10, concurrency, high productivity, high performance,
+practical language.
+
+Dependent types arise naturally. arrays, regions, distributions, place
+types.
+
+Indeed you can look around and recognize many OO type systems proposed
+in the last decade or so as specific kinds of applied dependent type
+systems.
+
+Our goal is to develop a general framework for dependent types for
+statically typed OO languages ("Java-like languages"). 
+
+Criteria:
+
+-- easy to use for practicing programmers
+
+-- must be flexible, it must permit the development of concrete,
+   specific type systems tailored to the application area at hand
+   (pluggable types), therefore must be parametric in the kinds of
+   expressions used in the type system.
+
+-- the implementation must be modular, the rules for type-checking
+   must be specified once in a way that is independent of the
+   particular vocabulary of operations used in the dependent type
+   system.
+
+-- must work smoothly with nominal type systems found in Java-like
+   languages, must permit separate compilation.
+
+-- must permit mostly static type-checking. 
+
+Overview of our design
+
+Claims of this paper
+
+Related work
+
+II. Language design and rules (CFJ) (3.5 pages)
+CFJ with field assignments.
+
+Discussion of language design issues
+
+-- how should method resolution be done in the presence of constrained
+   types?
+
+-- conditional fields.
+-- recursive definitions of predicates in the constraint language
+   through the use of CLP.
+
+III. Applied constrained calculii. (3 pages)
+
+For each example below, formal static and dynamic semantics rules for
+new constructs extension over the core CFJ. Subject-reduction and
+type-soundness theorems. Proofs to be found in fuller version of
+paper.
+
+(a) arrays, region, distributions -- type safe implies no arrayoutofbounds
+exceptions, only ClassCastExceptions (when dynamic checks fail).
+
+Use Satish's conditional constraints example.
+-- emphasize what is new over DML. 
+
+(b) places, concurrency -- place types.
+
+(c) ownership types, alias control.
+
+IV. Implementation (0.5 page)
+
+Specify what has been implemented and how. What is interesting about
+the implementation.
+
+V. Conclusion and future work. (0.5 page)
+
+state-dependent constrained types.
+
+use of dependent types for optimization. 
+
+type-inference.
+
+Bibliography (1.5 page)
