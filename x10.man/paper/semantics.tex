@@ -51,6 +51,8 @@
 \def\new{\mbox{\tt new}}
 \def\this{\mbox{\tt this}}
 \def\self{\mbox{\tt self}}
+\def\true{\mbox{\tt true}}
+\def\inv{\mbox{\em inv}}
 \title{Constrained Types for Object-Oriented Languages}
 \authorinfo{Vijay Saraswat}
    {IBM T.~J. Watson Research Center \\
@@ -79,10 +81,18 @@
 \begin{table}
 
 \paragraph{Syntax.} 
-The syntax for the language is specified as follows. We assume a fixed
-constraint system, $\cal C$, with inference relation $\vdash_{\cal
-C}$. However, we require all constraint systems to support conjunction
-and existential quantification.
+The syntax for the language is specified as follows. 
+
+We assume a fixed constraint system, $\cal C$, with inference relation
+$\vdash_{\cal C}$. All constraint systems are required to support the
+trivial constraint \true, conjunction, existential quantification and
+equality on constraint terms. Constraint terms include (final)
+variables, the special variable {\tt self} (which may occur only in
+constraints {\tt c} which occur in a constrained type {\tt C(:c)}),
+and field selections {\tt t.f}. Finally, we assume that constraints
+are closed under variable substitution. We denote the application of
+the substitution $[\bar{t}/\bar{x}]$ to a constraint $c$ by
+$c[\bar{t}/\bar{x}]$.
 
 \begin{tabular}{rrcl}
 &&&\\
@@ -91,7 +101,7 @@ and existential quantification.
 (Method)& M &{::=}& $T\ m(\bar{T}\ \bar{x})\{\return\ e;\}$\\
 (Expr)& e &{::=}& $x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
 (C Terms) & t&{::=}& x\alt \self \alt t.f\\
-(Constraint) & c,d&{::=}&$a\alt t=t\alt c,c\alt T\,x;c$\\
+(Constraint) & c,d&{::=}&$\true\alt a\alt t=t\alt c,c\alt T\,x;c$\\
 (Type)& S,T,U&{::=}& $C(:d)$\\
 &&&\\
 \end{tabular}
@@ -106,8 +116,8 @@ $$
 \begin{array}{ll}
 \Gamma\vdash {\tt T} \subtype {\tt T}
 &
-\from{\class\ {\tt C(:c)}\, \extends\, {\tt D(:d)}\{\ldots\}}
-\infer{\vdash {\tt C(:c) \subtype D(:d)}}
+\from{\class\ {\tt C(:c)}\ \extends\ {\tt D(:d)}\{\ldots\}}
+\infer{\vdash {\tt C \subtype D}}
 \\ & \\
 \from{\Gamma \vdash {\tt C \subtype D} \ \ \ \sigma(\Gamma),{\tt c} \vdash_{\cal C} {\tt d}}
 \infer{\Gamma \vdash {\tt C(:c) \subtype D(:d)}}
@@ -119,66 +129,61 @@ $$
 
 \paragraph{Type Judgements.}
 
+Let {\tt C} be a class declared as {\tt class C(:c) extends
+D(:d)\{$\bar{\tt T}\ \bar{\tt f}$;{\tt K};$\bar{\tt M}$\}}. We let
+$\inv({\tt C})$ stand for the conjunction {\tt c,d} and (recursively)
+$\inv({\tt D})$. We bottom out with $\inv({\tt Object})=\true$. We use
+$ctor(C)$ to name the constructor {\tt K}.
+
 $$
 \begin{array}{ll}
-\axname{T-VAR}
-\axiom{\Gamma, {\tt T}\ {\tt x} \vdash {\tt T}\ {\tt x}}
-&  
-\rname{CONSTR}
+\axname{T-Var}
+\axiom{\Gamma, {\tt T}\ {\tt x} \vdash {\tt T}\ {\tt x}} \\ & \\
+\rname{T-Inv}
+\from{\Gamma \vdash {\tt C(:c)\ x} \ \ \ \ {\tt d}=inv (C)}
+\infer{\Gamma \vdash {\tt C(:c,d[\self/\this])\ x}}  &  
+\rname{T-Constr}
 \from{\Gamma \vdash {\tt C(:c)\ x} \ \ \ \sigma(\Gamma) \vdash_{\cal C}{\tt d[x/\self]}}
 \infer{\Gamma \vdash {\tt C(:c,d)\ x}} 
 \\ \quad \\
 \rname{T-Field}
 \from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0)= \bar{\tt U}(:\bar{\tt d}) \bar{\tt f}}
-\infer{\Gamma \vdash {\tt U}_i(:{\tt T}_0\ \this;\this.{\tt f}=\self,{\tt d}_i)\, {\tt e.f}_i} \\
+\infer{\Gamma \vdash {\tt U}_i(:{\tt T}_0\ \this;\this.{\tt f}=\self,{\tt d}_i)\, {\tt e.f}_i} 
+& 
+\axname{T-Cast}
+\axiom{\Gamma \vdash {\tt T\ (T) e}} \\
 & \\
-\rname{T-UCast}
-\from{\Gamma \vdash {\tt S\ e}\ \ \Gamma \vdash {\tt S} \subtype {\tt T}}
-\infer{\Gamma \vdash {\tt T\ (T) e}} & 
-\rname{T-DCast}
-\from{\Gamma \vdash {\tt S\ e}\ \ \Gamma \vdash {\tt T} \subtype {\tt S}}
-\infer{\Gamma \vdash {\tt T\ (T) e}} \\
-& \\
-\rname{T-SCast}
-\from{\Gamma \vdash {\tt S\ e}\ \ \Gamma \not\vdash {\tt T \subtype S} \ \ 
-\Gamma \not\vdash {\tt S \subtype T} \ \ }
-\infer{\Gamma \vdash {\tt T\ (T) e}} \\
-& \\
-\rname{T-INVK}
+\rname{T-Invk}
 \from{\begin{array}{l}
-\Gamma \vdash {\tt T}_{0:n} {\tt e}_{0:n} \\
-{\tt T}_0 \rhd {\tt S(:d) m(Z}_{1:n}\, {\tt z}_{1:n}) \\
-\Gamma, {\tt T}_0\ \this, {\tt T}_{1:i-1}\ {\tt z}_{1:i-1} \vdash {\tt T}_i \subtype {\tt Z}_i\ \ (i\in 1:n)
+\Gamma \vdash {\tt T \ e}_0, \bar{\tt T}\ \bar{\tt e} \\
+mtype({\tt T}_0,m)= \tt c \Rightarrow \bar{\tt Z}\ \bar{\tt z} \rightarrow {\tt S(:d)} \\
+\Gamma, {\tt T}_0\ \tt \this, \bar{\tt T} \ \bar{\tt z} \vdash c, \bar{\tt T} \subtype \bar{\tt Z} 
 \end{array}}
-\infer{\Gamma \vdash {\tt S(:T}_0\ \this;{\tt T}_{1:n}\ {\tt z}_{1:n};{\tt d})\ {\tt e}_0.{\tt m(e}_{1:n}{\tt)}} &
-\rname{T-NEW}
+\infer{\Gamma \vdash {\tt S(:T}_0\ {\tt \this;\bar{\tt T}\ \bar{\tt z}; d)}\ {\tt e}_0.{\tt m(\bar{\tt e})}}&
+\rname{T-New}
 \from{
   \begin{array}{l}
-    \Gamma \vdash {\tt T}_{1:n}\ {\tt e}_{1:n} \\
-    {\tt C} \rhd {\tt C(:d)(Z}_{1:n}\ {\tt f}_{1:n}{\tt )} \\
-    \Gamma, {\tt T}_{1:(i-1)}\ {\tt f}_{1:(i-1)} \vdash {\tt T}_i \subtype {\tt Z}_i \ \ (i\in 1:n)\\
-    \Gamma,  {\tt T}_{1:n}\ {\tt f}_{1:n} \vdash {\tt d}\\
+    \Gamma \vdash \bar{\tt T}\ \bar{\tt e} \\
+    ctor({\tt C})= \tt C(:d)(\bar{Z}\ \bar{\tt f}{\tt :c)} \\
+    \Gamma, \bar{\tt T}\ \bar{\tt f} \vdash {\tt c},\bar{\tt T} \subtype \bar{\tt Z}
   \end{array}
 }
-\infer{\Gamma \vdash {\tt C(:T}_{1:n}\ {\tt f}_{1:n}{\tt ;\self.f}_{1:n}={\tt f}_{1:n}{\tt ,d)}\ \new\ {\tt C(e}_{1:n}{\tt )}} \\
+\infer{\Gamma \vdash {\tt C(:\bar{T}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f}{\tt ,d)}\ \new\ {\tt C(\bar{\tt e})}}} \\
 \end{array}
 $$
 \paragraph{Method and Class Typing.}
 $$
 \begin{array}{ll}
+\from{ \bar{T}\ \bar{x}, C\ \this, c \vdash S\ e, S \subtype T }   
+\infer{\tt T\ m(\bar{\tt T}\,\bar{\tt x} : c)\{\return\ e;\}\ \mbox{OK in}\ C} &
 \from{
   \begin{array}{l}
-    \bar{T}\ \bar{x}, C\ \this \vdash S\ e   \\
-    \bar{T}\ \bar{x}, C\ \this \vdash S \subtype T   \\
-  \end{array}}
-\infer{T\,m(\bar{T}\,\bar{x})\{\return\ e;\}\ \mbox{OK in}\ C} &
-\from{
-  \begin{array}{l}
-    K=C(\bar{S}\,\bar{g},\bar{T}\,\bar{f})\{\super(\bar{g});\this.\bar{f}=\bar{f};\}\\
-    D \rhd \bar{S}\ \bar{g}\ \\ 
+    K=C(\bar{S}\ \bar{g},\bar{T}\ \bar{f} : c')\{\super(\bar{g});\this.\bar{f}=\bar{f};\}\\
+    fields(D)=\bar{S}\ \bar{g}\ \\ 
+    \bar{S}\ \bar{g}, \bar{T}\ \bar{f}, \this.\bar{g}=\bar{g}, \this.\bar{f}=\bar{f}, c' \vdash c,d \\
     \bar{M}\ \mbox{OK in}\ C\\
   \end{array}}
-\infer{\class\ C\ \extends\ D\ \{\bar{T}\bar{f};K\,\bar{M}\}\ \mbox{OK}} 
+\infer{\class\ C(:c)\ \extends\ D(:d)\ \{\bar{T}\bar{f};K\,\bar{M}\}\ \mbox{OK}} 
 \end{array}
 $$
 
