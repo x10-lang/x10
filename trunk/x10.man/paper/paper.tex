@@ -1208,8 +1208,12 @@ in straightforward manner by evaluating the constraint with
 \begin{code}
   $\Lb$e instanceof C(:c)$\Rb$ = 
     new Object() \{
-      boolean check(Object self) \{
-        return self instanceof C \&\& $\Lb$c$\Rb$;
+      boolean check(Object o) \{
+        if (o instanceof C) \{
+          C self = (C) o;
+          return $\Lb$c$\Rb$;
+        \}
+        return false;
       \}
     \}.check($\Lb$e$\Rb$)
 \end{code}
