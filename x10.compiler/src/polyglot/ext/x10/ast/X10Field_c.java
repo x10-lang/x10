@@ -227,6 +227,6 @@ public class X10Field_c extends Field_c {
 	public boolean equals(Object o) {
 		if (!(o instanceof Field_c)) return false;
 		Field_c other = (Field_c) o;
-		return target.equals(other.target()) && name.equals(other.name());
+		return target.equals(other.target()) && name().equals(other.name());
 	}
 }
