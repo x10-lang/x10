@@ -1,48 +1,9 @@
-\documentclass[nocopyrightspace,preprint,10pt]{sigplanconf}
-
-\usepackage{times-lite}
-\usepackage{mathptm}
-\usepackage{txtt}
-\usepackage{stmaryrd}
-\usepackage{code}
-\usepackage{ttquot}
-\usepackage{bcprules}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{afterpage}
-\usepackage{balance}
-\usepackage{defs}
-\usepackage{pldefs}
-\usepackage{utils}
-\usepackage[pdftex]{graphicx}
-\usepackage{ifpdf}
-
-\ifpdf
-\setlength{\pdfpagewidth}{8.5in}
-\setlength{\pdfpageheight}{11in}
-\fi
-
-
-% \input{../../../../vj/res/pagesizes}
-% \input{../../../../vj/res/vijay-macros}
-\newcommand\alt{\bnf}
-
 \newcommand{\starderives}{\derives^*}
-\newcommand\csharp{{\sf C\#}}
-\newcommand\Implies{\Rightarrow}
 \def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
 \def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{#1)}}}
 \def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{#1)}}}
 \def\derives{\longrightarrow}
-\newtheorem{example}{Example}[section]
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{lemma}[theorem]{Lemma}
 \def\subtype{\sqsubseteq}
-\newcommand\Xten{{\sf X10}}
-\newcommand\java{{\sf Java}}
-\newcommand\FXten{{\sf FX10}}
-
-\begin{document}
 
 \def\super{\mbox{\tt super}}
 \def\class{\mbox{\tt class}}
@@ -53,32 +14,8 @@
 \def\self{\mbox{\tt self}}
 \def\true{\mbox{\tt true}}
 \def\inv{\mbox{\em inv}}
-\title{Constrained Types for Object-Oriented Languages}
-\authorinfo{Vijay Saraswat}
-   {IBM T.~J. Watson Research Center \\
-    P.O. Box 704 \\
-    Yorktown Heights, NY 10598}
-   {vsaraswa@us.ibm.com}
-\authorinfo{Nathaniel Nystrom}
-   {IBM T.~J. Watson Research Center \\
-    P.O. Box 704 \\
-    Yorktown Heights, NY 10598}
-   {nystrom@us.ibm.com}
-\authorinfo{Radha Jagadeesan}
-   {Depaul University}
-   {rjagadeesan@cs.depaul.edu}
-\authorinfo{Jens Palsberg}
-   {University of California--Los Angeles}
-   {palsberg@cs.ucla.edu}
-\authorinfo{Christian Grothoff}
-   {University of Denver}
-   {christian@grothoff.org}
 
-\maketitle
-
-
-\onecolumn
-\begin{table}
+\begin{figure*}
 
 \paragraph{Syntax.} 
 The syntax for the language is specified as follows. 
@@ -188,9 +125,9 @@ $$
 $$
 
 \caption{Constrained FJ}\label{FJ-Table}
-\end{table}
+\end{figure*}
 
-\begin{table}
+\begin{figure*}
 \paragraph{Computation:}
 
 $$
@@ -229,11 +166,11 @@ $$
 $$
 
 \caption{Reduction rules for Constrained FJ}\label{CFJ-red-rules}
-\end{table}
+\end{figure*}
 
 \begin{theorem}[Subject Reduction] 
 
-If $\Gamma \vdash T\ e$ and $e \derives e'$ then for some type $S$,
+If $\Gamma \vdash T\ e$ and $e \derives e'$, then for some type $S$,
 $\Gamma \vdash S\ e'$ and $\Gamma \vdash S \subtype T$.
 
 \end{theorem}
@@ -249,7 +186,7 @@ i.e. expressions
 
 \begin{theorem}[Type Soundness] 
 
-If $\vdash T\ e$ and $e \starderives e' \not\derives$ then $e'$ is
+If $\vdash T\ e$ and $e \starderives e'$, then $e'$ is
 either (1)~a value {\tt } with $\vdash {\tt S\ v}$ and $\vdash {\tt S
 \subtype T}$, for some type {\tt S}, or, (2)~ an expression containing
 a subexpression ${\tt (T)\new\ C(\bar{\tt v})}$ where 
@@ -257,5 +194,3 @@ $\not\vdash \tt C\subtype T[\new\ C(\bar{\tt v})/\self]$.
 
 \end{theorem}
 
-
-\end{document}
