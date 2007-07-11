@@ -39,23 +39,26 @@ class Map(Owned ko, Owned vo) extends Owned {
     nodes.add(n);
   }
 
-  Owned(:self.o == this.vo) get(final Owned(:self.o == this.ko) key) {
-      Iter(:self.o == this.o && self.o == this.vo) i = nodes.iterator();
-      while (i.hasNext()) {
-          Node(:self.o == this && key.o == this.ko && value.o == this.vo) mn =
-        	  (Node(:self.o == this && key.o == this.ko && value.o == this.vo)) i.next();
+  nullable< Owned(:self.o == this.vo) > get(final Owned(:self.o == this.ko) key) {
+      final Iter(:self.o == this && self.vo == this) i = nodes.iterator();
+      // while (i.hasNext()) {
+          // Node(:self.o == this && self.map == this) mn =
+        	  // (Node(:self.o == this && self.map == this)) i.next();
+          
+          // Owned(:self.o == this.ko) k = mn.key;
+          // Owned(:self.o == this.vo) v = mn.value;
 
-          if (mn.key.equals(key)) {
-              return mn.value;
-          }
-      }
+          // if (k.equals(key)) {
+              // return v;
+          // }
+      // }
       return null;
   }
 }
 
 class Node(Map map) extends Owned {
-	Owned(:self.o == this.map.ko) key;
-	Owned(:self.o == this.map.vo) value;
+	final Owned(:self.o == this.map.ko) key;
+	final Owned(:self.o == this.map.vo) value;
 
 	  public Node(:self.o == self.map && self.map == m)
 	      (final Map m, final Owned(:self.o == m.ko) key, final Owned(:self.o == m.vo) value) {
@@ -66,22 +69,6 @@ class Node(Map map) extends Owned {
 	  }
 }
 
-/*
-class Node(java.lang.Object ko, java.lang.Object vo) extends Owned {
-  Owned(:self.o == this.ko) key;
-  Owned(:self.o == this.vo) value;
-
-  public Node(:self.o == m && self.ko == key.o && self.vo == value.o)
-      (final Map m, final Owned(:self.o == m.ko) key, final Owned(:self.o == m.vo) value) {
-    super(m);
-    property(m.ko, m.vo);
-    this.key = key;
-    this.value = value;
-  }
-}
-*/
-
-
 class Vec(java.lang.Object vo) extends Owned {
   Vec(:self.o == o && self.vo == vo)(final Owned o, final Owned vo) {
     super(o);
@@ -89,10 +76,11 @@ class Vec(java.lang.Object vo) extends Owned {
   }
 
   void add(final Owned(:self.o == this.vo) x) { }
+  Iter(:self.o == this.o && self.vo == this.vo) iterator() { return new Iter(o, vo); }
 }
 
 
-class Iter(Owned vo) extends Owned {
+class Iter(java.lang.Object vo) extends Owned {
   Iter(:self.o == o && self.vo == vo)(final Owned o, final Owned vo) {
     super(o);
     property(vo);
