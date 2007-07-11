@@ -1,0 +1,153 @@
+%III. Applied constrained calculii. (3 pages)
+%
+%For each example below, formal static and dynamic semantics rules for
+%new constructs extension over the core CFJ. Subject-reduction and
+%type-soundness theorems. Proofs to be found in fuller version of
+%paper.
+%
+%(a) arrays, region, distributions -- type safe implies no arrayoutofbounds
+%exceptions, only ClassCastExceptions (when dynamic checks fail).
+%
+%Use Satish's conditional constraints example.
+%-- emphasize what is new over DML. 
+%
+%(b) places, concurrency -- place types.
+%
+%(c) ownership types, alias control.
+%
+
+Specific constraint systems used when developing specific
+examples.
+
+\subsection{Binary methods}
+
+The binary method problem \cite{bruce}.
+
+Bruce and Cardelli and Castagna and Leavens and Pierce,
+On Binary Methods, TAPOS 1(3): 221--242, Fall 1995.
+
+\begin{verbatim}
+interface Set {
+    Set(:self.class == this.class)
+        union(Set(:self.class == this.class) s);
+    boolean superSetOf(Set(:self.class == this.class) s);
+}
+
+class IntSet implements Set {
+    long bits;
+
+    Set(:self.class == this.class)
+        union(Set(:self.class == this.class) s) {
+
+        Set(:self.class == this.class) r = new IntSet();
+        // need to be able to conclud that r : IntSet
+        r.bits = this.bits | s.bits;
+        return r;
+    }
+
+    boolean superSetOf(Set(:self.class == this.class) s) {
+        return (s.bits & ~bits) == 0;
+    }
+}
+\end{verbatim}
+
+\subsection{Cayenne examples}
+
+
+
+
+
+\subsection{DML examples}
+
+Red/black tree invariant.
+
+Invariant:
+1. all leaves black
+2. for each node n, there are the same number of black nodes on
+every path from n to a leaf (the black height)
+3. the immediate children of every red node are black
+
+\begin{verbatim}
+class Tree(boolean isBlack, int blackHeight, Tree left, Tree right
+  : ( left == null && right == null ||   // leaf or interior
+      left != null && right != null
+    )
+    &&
+    ( left == null || left.value < right.value )   // ordered
+    &&
+    ( left != null || isBlack )   // leaves are black
+    &&
+    ( left != null || blackHeight == 0 ) // leaves have height 0
+    &&
+    ( left == null || blackHeight == left.blackHeight + 1 )
+    &&
+    ( right == null || blackHeight == right.blackHeight + 1 )
+    &&
+    ( isBlack || ( left.isBlack && right.isBlack ) )
+  )
+{
+    int value;
+
+    // empty
+    Tree(: isBlack && blackHeight == 0 && left == null && right == null)
+        () {
+        property(isBlack, 0, null, null);
+    }
+
+    // black
+    Tree(: isBlack && blackHeight == l.blackHeight+1 && left == l && right == r)
+        (Tree l, Tree r, int v : l.blackHeight == r.blackHeight) {
+        property(true, l.blackHeight+1, l, r);
+        this.value = v;
+    }
+       
+    // red: use a dummy argument to overload
+    Tree(: !isBlack && blackHeight == l.blackHeight && left == l && right == r)
+        (Tree l, Tree r, int v, Object _ : l.blackHeight == r.blackHeight) {
+        property(false, l.blackHeight, l, r);
+        this.value = v;
+    }
+
+    // need to show add, remove preserve the invariant
+}
+\end{verbatim}
+
+Bounds checks.
+
+\begin{code}
+class Array \{
+    T[] a;
+    T get(int(:0 <= self \&\& self < a.length) i) \{ return a[i]; \}
+    void set(int(:0 <= self \&\& self < a.length) i, T v) \{ a[i] = v; \}
+\}
+\end{code}
+
+\subsection{Nullable types}
+
+Nullable types (T(:self != null))
+
+\subsection{Arrays}
+
+Array/region/distribution types (examples from X10)
+
+\cite{gps06-arrays}
+
+\subsection{Places}
+
+Place types (examples from X10)
+
+\subsection{Clocks}
+
+Clock types
+
+\subsection{Capabilities}
+
+Capablities (from Radha and Vijay's paper on neighborhoods)
+
+\subsection{Ownership types}
+
+Ownership types~\cite{ownership-types}
+
+\subsection{Discussion}
+
+Dependent types are of use in annotations~\cite{ns07-x10anno}.
