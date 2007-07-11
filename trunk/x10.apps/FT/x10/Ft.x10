@@ -82,7 +82,7 @@ public class Ft {
 
 	// Distributed arrays of complex numbers, one array per place
 	public static value DistDoubleArray{
-		dist(:rank==1) ALLPLACES= (dist(:rank==1))dist.factory.unique(); 
+		dist(:rank==1) UNIQUE= (dist(:rank==1))dist.factory.unique(); 
 		int N_PLACES=place.MAX_PLACES; //must be even
 		
 		DoubleArray value [:self.rank==1] m_array; 
@@ -97,13 +97,13 @@ public class Ft {
 		DistDoubleArray(final int size, final int offset){
 			assert size >= N_PLACES;
 			m_size = size;
-			m_array = new DoubleArray value [ALLPLACES];
+			m_array = new DoubleArray value [UNIQUE];
 			m_localSize = size/N_PLACES; 
 			/* It is assumed that the array size in the first dimension can be divided evenly by N_PLACES.
 			 * Otherwise, a little bit more sophisticated load balancing algorithm should be employed.
 			 * And the index here is global.
 			 */
-			finish ateach(point [i]: ALLPLACES){ 
+			finish ateach(point [i]: UNIQUE){ 
 				int a=i*m_localSize, b=(i+1)*m_localSize-1;
 				m_array[i]=new DoubleArray(a, b, offset);
 			}
@@ -112,7 +112,7 @@ public class Ft {
 	}
 
    	private final static int NUMPLACES=place.MAX_PLACES;
-	private final static dist(:rank==1) ALLPLACES= (dist(:rank==1))dist.factory.unique(); 
+	private final static dist(:rank==1) UNIQUE= (dist(:rank==1))dist.factory.unique(); 
 
 	private final static int SS = 1;
 	private final static int WW = 2;
@@ -240,7 +240,7 @@ public class Ft {
 
 		finish async{
 		    clock clk=clock.factory.clock();
-		    ateach (point [PID]: ALLPLACES) clocked(clk){
+		    ateach (point [PID]: UNIQUE) clocked(clk){
 			double cputime2; 
 			int current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
 			next;
@@ -337,7 +337,7 @@ public class Ft {
 				int srcStart = local2d.m_start + offset2*2;
 				int destStart = (dist1d.getArray(destID)).m_start + 
 						2*(placeID*dim2/NUMPLACES+p)*CHUNK_SZ;
-				final place destPlace = ALLPLACES[destID];
+				final place destPlace = UNIQUE[destID];
 				final double[:self.rect && self.rank==1] local1darray = 
 						(dist1d.getArray(destID)).m_array; 
 				
@@ -385,7 +385,7 @@ public class Ft {
 				int srcStart = local2d.m_start + offset2*2;
 				int destStart = (dist1d.getArray(destID)).m_start + 
 						2*(placeID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
-				final place destPlace = ALLPLACES[destID];
+				final place destPlace = UNIQUE[destID];
 				final double[:self.rect && self.rank==1] local1darray = 
 						(dist1d.getArray(destID)).m_array; 
 				
@@ -432,14 +432,14 @@ public class Ft {
 		}
 		final double res_real = ((sum_real/NX)/NY)/NZ;
 		final double res_imag = ((sum_imag/NX)/NY)/NZ;
-		finish async(ALLPLACES[0]) atomic{ //Should atomic be removed?   
+		finish async(UNIQUE[0]) atomic{ //Should atomic be removed?   
 			checksum_real[itr]+=res_real;checksum_imag[itr]+=res_imag; 
 		}		
 	} 
 
 	
 	public void printArray(final DistDoubleArray DDA){
-		finish ateach (point [PID]: ALLPLACES){
+		finish ateach (point [PID]: UNIQUE){
 			DoubleArray da = DDA.getArray(PID);
 			System.out.println("At place "+PID);
 			for (point [i]: da.m_domain)
@@ -497,7 +497,7 @@ public class Ft {
             		}
            	}
 
-		Ft FtSolver = new Ft(CLASS, COMM);
+		final Ft FtSolver = new Ft(CLASS, COMM);
 		FtSolver.solve();
 	}	
 
