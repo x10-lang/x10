@@ -74,8 +74,21 @@ languages, in the context of \FXten, a Featherweight version of \Xten{}.
 
 \section{Introduction}
 
-% motivation
-% overview
+%
+%I. Introduction and overview (3 pages)
+
+%Design of X10, concurrency, high productivity, high performance,
+%practical language.
+%
+%Dependent types arise naturally. arrays, regions, distributions, place
+%types.
+%
+%Indeed you can look around and recognize many OO type systems proposed
+%in the last decade or so as specific kinds of applied dependent type
+%systems.
+%
+%Our goal is to develop a general framework for dependent types for
+%statically typed OO languages ("Java-like languages"). 
 
 \Xten{} is a modern statically typed object-oriented (OO) language
 designed for high productivity in the high performance computing (HPC)
@@ -96,6 +109,9 @@ the type of all {\tt int} arrays over two dimensional regions.
 The underlying
 general idea is that of {\em dependent types}: types
 parametrized by {\em values} \cite{xi99dependent}.
+
+XXX emph pluggable nature of the constraint system.
+
 %, just as generic
 %types are types paramterized by other types \cite{genericjava}.
 
@@ -107,16 +123,70 @@ insight is that a rich, user-extensible type system can be developed
 on top of predicates over the {\em immutable} state of objects. Such
 types statically capture many common invariants naturally arising in
 code. Given a single dependently typed class or interface {\tt C}, a
-user may construct a potentially infinite family of types {\tt C(:e)}
-where {\tt e} is a predicate on the immutable state.
-\eat{
-The design also
-supports the definition of dependent methods.
-}
-\eat{
-Dependent types interact
-naturally with generic types.
-}
+user may construct a potentially infinite family of types {\tt C(:c)}
+where {\tt c} is a predicate on the immutable state.
+
+%Criteria:
+%
+%-- easy to use for practicing programmers
+%
+%-- must be flexible, it must permit the development of concrete,
+%   specific type systems tailored to the application area at hand
+%   (pluggable types), therefore must be parametric in the kinds of
+%   expressions used in the type system.
+%
+%-- the implementation must be modular, the rules for type-checking
+%   must be specified once in a way that is independent of the
+%   particular vocabulary of operations used in the dependent type
+%   system.
+%
+%-- must work smoothly with nominal type systems found in Java-like
+%   languages, must permit separate compilation.
+%
+%-- must permit mostly static type-checking. 
+
+In designing this framework, we had the following criteria:
+\begin{itemize}
+\item 
+{\bf Ease of use.}
+The framework must be 
+easy to use for practicing programmers.
+
+\item
+{\bf Flexibility.}
+The framework
+must permit the development of concrete,
+specific type systems tailored to the application area at
+hand, enabling a kind of pluggable type system~\cite{bracha04-pluggable}.
+Hence, the framework must be parametric in the kinds of
+expressions used in the type system.
+
+\item
+{\bf Modularity.}
+The rules for type-checking
+must be specified once in a way that is independent of the
+particular vocabulary of operations used in the dependent type
+system.
+
+\item
+{\bf Integration with OO languages.}
+The framework must
+work smoothly with nominal type systems found in Java-like
+languages, and must permit separate compilation.
+
+\item
+{\bf Static checking.}
+The framework must permit mostly static type-checking. 
+\end{itemize}
+
+
+XXX Overview of our design.
+
+XXX Claims of this paper.
+
+%
+%Related work
+%
 
 As in staged languages~\cite{nielson-multistage,ts97-multistage},
 the design distinguishes between
@@ -147,20 +217,30 @@ asserts} forced by the assumptions. If all {\tt assert}s cannot be
 eliminated at compile-time, some residual constraint-checking
 ({\em not} solving) may need to be performed at runtime.
 %
-XXX contrast with hybrid type checking
+XXX contrast with hybrid type checking.
 
-\section{Criteria}
+\paragraph{Rest of this paper.}
 
-% design criteria
+The next section reviews related work.
+Section~\ref{sec:lang} fleshes out the syntactic and semantic details of the
+proposal.
+Formal semantics
+and a soundness theorem
+are presented in Section~\ref{sec:semantics}.
+Section~\ref{sec:examples} works through a number of
+examples using a variety of constraint systems.
+Sections~\ref{sec:future}
+and \ref{sec:conclusions} conclude the paper with a discussion of
+future work.
 
-\section{Language overview}
+\section{Constrained types}
+
+XXX move first part up into intro.  Move details into Section~\ref{sec:lang}
 
 Our basic approach to introducing dependent types into
 class-based statically typed OO languages is to
 follow the spirit of generic types, but use values instead of
 types.
-
-\subsection{Constrained types}
 
 We permit the definition of a class {\tt C} to specify
 a list of typed parameters, or {\em properties},
@@ -282,46 +362,6 @@ exactly one {\tt property} statement.
 
 %% Cannot throw an exception.
 
-\eat{
-\subsection{Dependent methods}
-
-XXX huh?  What's the different btwn these and final formals.  --n
-
-We will permit {\em dependent methods} (similar to generic methods): a
-method may specify a list of parameters in the same way that a class
-may. The parameters may be used to construct dependent types for the
-arguments and return value of the method.
-}
-
-\eat{
-\paragraph{Dependent, generic types.}
-We will permit a type to be simultaneously a dependent and a generic type.
-For instance, we will permit the type:
-{\footnotesize
-\begin{verbatim}
-  List(3)<Point>
-\end{verbatim}}
-\noindent This is the type of all lists with {\tt 3} elements, each of
-which is a {\tt Point}.
-}
-
-\eat{
-\paragraph{Static parameters.}
-We will permit {\em static parameters}. A static parameter is a {\tt
-parameter constant} field of a class, i.e., a static final field
-explicitly marked as a parameter. Some fields may be marked as {\tt
-config} fields: {\tt config} fields are implicitly {\tt parameter
-constant} and their values are assigned from the invocation
-environment for the program (e.g., command line or a configuration
-file).
-
-All expressions appearing in parametric types must reference only
-constants or instance or static parameters visible at that type or
-variables declared {\tt final}. Further, they must only involve
-methods that have been specially marked as parametric. This
-facilitates compile-time type-checking, as discussed below.
-}
-
 %% Figure out the real condition. Not sure this is important.
 
 \subsection{Constraints}
@@ -348,13 +388,6 @@ a boolean expression. Of course, an implementation is free to not {\em
 explicitly} allocate memory in the object for such fields. For
 instance, it may use some scheme of colored pointers to implicitly
 encode the values of these fields~\cite{???}.
-\eat{
-Recall further that \Xten{}
-requires the immutable state of an object (the ``value kernel'') to be
-transmitted with the reference to an object; thus a remote place may
-evaluate casts of objects to parametric types using only information
-available with the reference to the object.
-}
 
 Further, by requiring that the programmer distinguish certain {\tt
 final} fields of a class as properties, we ensure that the programmer
@@ -376,16 +409,6 @@ The compiler's static check for
 non-emptiness of the type of any variable captures these invariant
 violations at compile-time.
 
-\eat{
-\paragraph{Rest of this paper}
-In the next section I flesh out the syntactic details of the current
-proposal and consider a small example, {\tt List(n)}. After that I
-present the code for {\tt place}, {\tt region}, {\tt point}, {\tt
-distribution} and {\tt arrays} in \Xten. Most of the methods are {\tt
-extern} methods (defined natively); however their signature shows how
-considerable information about the structure of the datatypes and the
-operations on them can be expressed through the type system.
-}
 
 
 
@@ -636,49 +659,12 @@ interface must have a corresponding method in the class with the same
 signature whose precondition, if any, is implied by the precondition
 of the method in the interface.
 
-\eat{
-\paragraph{Implementation notes.}
-
-Efficiently implementing dependent interfaces requires two new opcodes
-in the VM: getinterface and putinterface, in analogy with
-getfield/putfield and getstatic/putstatic. The opcode is just like
-getstatic/putstatic. getinterface takes two indexbytes, that are used
-to construct an index into the constant pool of the current class. The
-constant pool entry must be a CONSTANT_InterfaceFieldref:
-
-{\footnotesize
-\begin{verbatim}
-CONSTANT_InterfaceFieldref_info {
-    		 u1 tag;
-    		 u2 interface_index;
-    		 u2 name_and_type_index;
-   }
-\end{verbatim}}
-
-This field must be final. This item is resolved, determining both its
-field width and field offset. The value at that offset into the
-classref is fetched and pushed onto the stack, after popping the
-object reference on top of the stack. Similarly for putinterface.
-
-Execution of this instruction may result in an additional indirection
-as compared with the execution of getfield/putfield. This is because
-the offset in the block of memory representing the field depends on
-the interface and the class of the object at hand. This is similar to
-the indirection involved in the implementation of interface method
-calls, invokevirtual, and similar techniques may be used to reduce the
-overhead.
-
-Until such changes are made, the X10 compiler may transform all
-interface field acesses into the invocation of an appropriate getter
-interface method. The X10 compiler can automatically construct such a
-method for each class implementing the interface. Thus the cost of an
-invokevirtual would be paid for each interface field access.
-}
 
 
 %%% Come back to this.
 
 \section{Related work}
+\label{sec:related}
 
 Constraint-based type systems:
 
@@ -823,152 +809,29 @@ Dynamic checks when passing values into dependent part.
 \item Dead code elimination through dependent types (Xi)
 \end{itemize}
 
-\section{Language design}
+\section{Constrained FJ}
+\label{sec:lang}
+
+%II. Language design and rules (CFJ) (3.5 pages)
+
+CFJ with field assignments.
+
+Discussion of language design issues
+
+-- how should method resolution be done in the presence of constrained
+   types?
+
+-- conditional fields.
+-- recursive definitions of predicates in the constraint language
+   through the use of CLP.
 
 Constraint system (generic presentation).
 Design is constraint-system agnostic.
 
 Principal clause
 
-\section{Examples}
-
-Specific constraint systems used when developing specific
-examples.
-
-\subsection{Binary methods}
-
-The binary method problem \cite{bruce}.
-
-Bruce and Cardelli and Castagna and Leavens and Pierce,
-On Binary Methods, TAPOS 1(3): 221--242, Fall 1995.
-
-\begin{verbatim}
-interface Set {
-    Set(:self.class == this.class)
-        union(Set(:self.class == this.class) s);
-    boolean superSetOf(Set(:self.class == this.class) s);
-}
-
-class IntSet implements Set {
-    long bits;
-
-    Set(:self.class == this.class)
-        union(Set(:self.class == this.class) s) {
-
-        Set(:self.class == this.class) r = new IntSet();
-        // need to be able to conclud that r : IntSet
-        r.bits = this.bits | s.bits;
-        return r;
-    }
-
-    boolean superSetOf(Set(:self.class == this.class) s) {
-        return (s.bits & ~bits) == 0;
-    }
-}
-\end{verbatim}
-
-\subsection{Cayenne examples}
-
-
-
-
-
-\subsection{DML examples}
-
-Red/black tree invariant.
-
-Invariant:
-1. all leaves black
-2. for each node n, there are the same number of black nodes on
-every path from n to a leaf (the black height)
-3. the immediate children of every red node are black
-
-\begin{verbatim}
-class Tree(boolean isBlack, int blackHeight, Tree left, Tree right
-  : ( left == null && right == null ||   // leaf or interior
-      left != null && right != null
-    )
-    &&
-    ( left == null || left.value < right.value )   // ordered
-    &&
-    ( left != null || isBlack )   // leaves are black
-    &&
-    ( left != null || blackHeight == 0 ) // leaves have height 0
-    &&
-    ( left == null || blackHeight == left.blackHeight + 1 )
-    &&
-    ( right == null || blackHeight == right.blackHeight + 1 )
-    &&
-    ( isBlack || ( left.isBlack && right.isBlack ) )
-  )
-{
-    int value;
-
-    // empty
-    Tree(: isBlack && blackHeight == 0 && left == null && right == null)
-        () {
-        property(isBlack, 0, null, null);
-    }
-
-    // black
-    Tree(: isBlack && blackHeight == l.blackHeight+1 && left == l && right == r)
-        (Tree l, Tree r, int v : l.blackHeight == r.blackHeight) {
-        property(true, l.blackHeight+1, l, r);
-        this.value = v;
-    }
-       
-    // red: use a dummy argument to overload
-    Tree(: !isBlack && blackHeight == l.blackHeight && left == l && right == r)
-        (Tree l, Tree r, int v, Object _ : l.blackHeight == r.blackHeight) {
-        property(false, l.blackHeight, l, r);
-        this.value = v;
-    }
-
-    // need to show add, remove preserve the invariant
-}
-\end{verbatim}
-
-Bounds checks.
-
-\begin{code}
-class Array \{
-    T[] a;
-    T get(int(:0 <= self \&\& self < a.length) i) \{ return a[i]; \}
-    void set(int(:0 <= self \&\& self < a.length) i, T v) \{ a[i] = v; \}
-\}
-\end{code}
-
-\subsection{Nullable types}
-
-Nullable types (T(:self != null))
-
-\subsection{Arrays}
-
-Array/region/distribution types (examples from X10)
-
-\cite{gps06-arrays}
-
-\subsection{Places}
-
-Place types (examples from X10)
-
-\subsection{Clocks}
-
-Clock types
-
-\subsection{Capabilities}
-
-Capablities (from Radha and Vijay's paper on neighborhoods)
-
-\subsection{Ownership types}
-
-Ownership types~\cite{ownership-types}
-
-\subsection{Discussion}
-
-Dependent types are of use in annotations~\cite{ns07-x10anno}.
-
 \section{Semantics}
+\label{sec:semantics}
 
 \newcommand{\starderives}{\derives^*}
 \def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
@@ -1150,7 +1013,6 @@ i.e. expressions
 (Values) & {\tt v} &{::=}& $\new\ {\tt C(\bar{\tt v})}$
 \end{tabular}
 
-
 \begin{theorem}[Type Soundness] 
 
 If $\vdash T\ e$ and $e \starderives e' \not\derives$ then $e'$ is
@@ -1162,7 +1024,170 @@ $\not\vdash \tt C\subtype T[\new\ C(\bar{\tt v})/\self]$.
 \end{theorem}
 
 
+\section{Examples}
+\label{sec:examples}
+
+%III. Applied constrained calculii. (3 pages)
+%
+%For each example below, formal static and dynamic semantics rules for
+%new constructs extension over the core CFJ. Subject-reduction and
+%type-soundness theorems. Proofs to be found in fuller version of
+%paper.
+%
+%(a) arrays, region, distributions -- type safe implies no arrayoutofbounds
+%exceptions, only ClassCastExceptions (when dynamic checks fail).
+%
+%Use Satish's conditional constraints example.
+%-- emphasize what is new over DML. 
+%
+%(b) places, concurrency -- place types.
+%
+%(c) ownership types, alias control.
+%
+
+Specific constraint systems used when developing specific
+examples.
+
+\subsection{Binary methods}
+
+The binary method problem \cite{bruce}.
+
+Bruce and Cardelli and Castagna and Leavens and Pierce,
+On Binary Methods, TAPOS 1(3): 221--242, Fall 1995.
+
+\begin{verbatim}
+interface Set {
+    Set(:self.class == this.class)
+        union(Set(:self.class == this.class) s);
+    boolean superSetOf(Set(:self.class == this.class) s);
+}
+
+class IntSet implements Set {
+    long bits;
+
+    Set(:self.class == this.class)
+        union(Set(:self.class == this.class) s) {
+
+        Set(:self.class == this.class) r = new IntSet();
+        // need to be able to conclud that r : IntSet
+        r.bits = this.bits | s.bits;
+        return r;
+    }
+
+    boolean superSetOf(Set(:self.class == this.class) s) {
+        return (s.bits & ~bits) == 0;
+    }
+}
+\end{verbatim}
+
+\subsection{Cayenne examples}
+
+
+
+
+
+\subsection{DML examples}
+
+Red/black tree invariant.
+
+Invariant:
+1. all leaves black
+2. for each node n, there are the same number of black nodes on
+every path from n to a leaf (the black height)
+3. the immediate children of every red node are black
+
+\begin{verbatim}
+class Tree(boolean isBlack, int blackHeight, Tree left, Tree right
+  : ( left == null && right == null ||   // leaf or interior
+      left != null && right != null
+    )
+    &&
+    ( left == null || left.value < right.value )   // ordered
+    &&
+    ( left != null || isBlack )   // leaves are black
+    &&
+    ( left != null || blackHeight == 0 ) // leaves have height 0
+    &&
+    ( left == null || blackHeight == left.blackHeight + 1 )
+    &&
+    ( right == null || blackHeight == right.blackHeight + 1 )
+    &&
+    ( isBlack || ( left.isBlack && right.isBlack ) )
+  )
+{
+    int value;
+
+    // empty
+    Tree(: isBlack && blackHeight == 0 && left == null && right == null)
+        () {
+        property(isBlack, 0, null, null);
+    }
+
+    // black
+    Tree(: isBlack && blackHeight == l.blackHeight+1 && left == l && right == r)
+        (Tree l, Tree r, int v : l.blackHeight == r.blackHeight) {
+        property(true, l.blackHeight+1, l, r);
+        this.value = v;
+    }
+       
+    // red: use a dummy argument to overload
+    Tree(: !isBlack && blackHeight == l.blackHeight && left == l && right == r)
+        (Tree l, Tree r, int v, Object _ : l.blackHeight == r.blackHeight) {
+        property(false, l.blackHeight, l, r);
+        this.value = v;
+    }
+
+    // need to show add, remove preserve the invariant
+}
+\end{verbatim}
+
+Bounds checks.
+
+\begin{code}
+class Array \{
+    T[] a;
+    T get(int(:0 <= self \&\& self < a.length) i) \{ return a[i]; \}
+    void set(int(:0 <= self \&\& self < a.length) i, T v) \{ a[i] = v; \}
+\}
+\end{code}
+
+\subsection{Nullable types}
+
+Nullable types (T(:self != null))
+
+\subsection{Arrays}
+
+Array/region/distribution types (examples from X10)
+
+\cite{gps06-arrays}
+
+\subsection{Places}
+
+Place types (examples from X10)
+
+\subsection{Clocks}
+
+Clock types
+
+\subsection{Capabilities}
+
+Capablities (from Radha and Vijay's paper on neighborhoods)
+
+\subsection{Ownership types}
+
+Ownership types~\cite{ownership-types}
+
+\subsection{Discussion}
+
+Dependent types are of use in annotations~\cite{ns07-x10anno}.
+
 \section{Implementation}
+\label{sec:implementation}
+
+%IV. Implementation (0.5 page)
+%
+%Specify what has been implemented and how. What is interesting about
+%the implementation.
 
 The dependent type system is implemented in the X10
 compiler~\cite{X10}, which is implemented as an extension of
@@ -1229,414 +1254,33 @@ in straightforward manner by evaluating the constraint with
     \}.cast((C) $\Lb$e$\Rb$)
 \end{code}
 
-\eat{
-One may understand dependent classes and parametric types via a
-simple, compositional source-to-source translation into a language
-without these features, but with {\tt assert} and {\tt assume}
-statements (as in modern \java{} like languages). A program simplifier
-may flow {\tt assume} assertions around the program, treating them as
-constraints. It may simplify or eliminate {\tt assert} statements
-using logical reasoning over constraints.  If all {\tt assert}
-statements are eliminated by the simplifier, then the program is said
-to be {\em statically correct}. Otherwise some residual checks are
-left for runtime and may generate runtime errors.
 
-Thus compile-time type-checking is seen as a way of performing some
-runtime calculations early and ensuring that certain exceptions are
-not thrown at runtime.
-
-\subsection{The target language}
-The target language for the translation is \Xten{} without dependent
-or parametric types, but with {\tt assert} and {\tt assume}
-statements, which we now define.
-
-For {\tt e} a boolean expression the statement:
-{\footnotesize
-\begin{verbatim}
-   assume e;
-\end{verbatim}}
-asserts that {\tt e} will be true whenever control reaches that point
-in the code. This assertion is categorical---it does not depend on
-any property of the code other than what is expressed through the type
-system and hence checked statically. Thus it is a mere
-comment---it
-does not translate into any runtime code.  A programmer may not add
-{\tt assume} statements; only the compiler may add such statements
-e.g., when translating an enhanced type system into a base type
-system.
-
-On the contrary the statement:
-{\footnotesize
-\begin{verbatim}
-   assert e : s;
-\end{verbatim}}
-(where {\tt e} is a boolean expression and {\tt s} a string) is an
-assertion that says {\tt e} {\em should} be true at runtime whenever
-control reaches that point. In case it is not, a runtime error should be thrown
-with the given string as argument. Thus it translates into the code:
-{\footnotesize
-\begin{verbatim}
-   if (! e) throw new RuntimeError( s );
-\end{verbatim}}
-
-We permit the user to add arbitrary {\tt assert} statements to the
-program.
-
-\paragraph{State invariant predications.}
-Certain kinds of predications play a special role in {\tt assert} and
-{\tt assume} statements. They permit a very direct correspondence
-between program execution and constraint-solving and are central to
-the idea that a uniform constraint-propagator may eliminate {\tt assert}
-statements based on the logical content of {\tt assume} statements.
-
-We say that a predication ({\tt boolean} valued expression) is {\em
-state invariant} if its value is independent of any mutations to any
-variable (or object referenced by a variable) involved in the
-expression. Specifically, any variable occurring in the predication
-must be a {\tt final} variable, any field accesses must be to {\tt
-final} fields, and any method occuring in the predication must be {\em
-state invariant} (see below).  For instance, the predication {\tt
-list.n+1==3} for a {\tt final} variable {\tt list} of type {\tt List}
-is state-invariant; it depends only on the {\tt final} field {\tt n}
-of the {\tt final} variable {\tt list}, the constant {\tt 3} and the
-operation {\tt +} which is (intuitively) state invariant.
-
-We permit user-defined methods to occur in state invariant
-predications as long as they satisfy certain properties.  Let $m$ be a
-method on a class $C$, with $k$ arguments.  We say that it is {\em
-state invariant} is it satisfies the property that the set of tuples
-of objects on which it succeeds is closed under equivalence of
-objects.  Two objects (of the same class) are said to be equivalent if
-their immutable state is identical. Thus a state invariant method
-satisfies the property that if on being invoked with arguments
-$a_1,\ldots, a_k$ it returns an object $a$, then on being invoked with
-$a_1', \ldots, a_k'$ where each $a_i$ is equivalent to $a_i$ it will
-return a value $a'$ which is equivalent to $a$.
-
-Further such a method $m$ must be associated with a {\em logical
-invariant}, a constraint (in the underlying constraint language) of
-arity $k+1$, which is a finite representation of the (infinite) {\em
-extension} of the method. The extension of a method $m$ which takes
-$k$ arguments is the set of all tuples $\langle t_1,\ldots, t_k,
-t\rangle$ which satisfy the property that when $m$ is invoked on
-$t_1,\ldots, t_k$ it returns $t$.
-
-Thus the constraint is a symbolic representation of the method and can
-be used for compile-time symbolic reasoning about the method.  At
-runtime we can use the code of $m$ to evaluate a call to $m$, since
-all the values of the method arguments are known. At compile-time,
-the actual values to a method call are not known. Instead we must
-reason about the execution of the body of a method assuming simply
-that the arguments are some arbitrary but unknown values (i.e.,
-assuming that they are {\em logical variables}). Thus we must use
-the logical invariant associated with the method.
-
-For instance each operation on {\tt nat} (e.g., ``{\tt +}'',''{\tt *}'',
-``{\tt \%}'' is state invariant and may be associated with a logical
-invariant. For instance the  ``{\tt +}'' operation may be associated
-with the constraint {\tt x+y=z} in an arithmetic constraint solver.
-
-\paragraph{Simplification of programs with state-invariant {\tt assume} and {\tt asserts}.}
-
-As we shall see below, the translation of a program with dependent and
-parametric types introduces only those {\tt assert} and {\tt assume}
-statements whose predications are state invariant. (This is easy to
-see, dependent classes are designed to express only those properties
-of objects which are state invariant.)
-
-State-invariant {\tt assume} and {\tt asserts} are quite easy to
-reason with, since the value of the expressions occurring in these
-assertions does not change with program execution. Thus the compiler
-may transform {\tt assume e} to a {\em tell} of the constraint $c_e$
-obtained by simply translating $e$ (treating each program variable as
-a logical variable, and replacing each method call in $e$ with the
-corresponding logical invariant). An assert statement $s$ of the form
-{\tt assert e} can be eliminated if the conjunction of tell
-constraints on each path leading into it entails $c_e$, the constraint
-obtained from $e$. (If a path is guarded by a conditional, then the
-condition may be assumed on the positive path, and the negation on the
-negative path.) The ask and tell constraint languages of
-\cite{my-thesis-book} may be used fruitfully in this context.
-}
-
-\eat{
-\subsection{The translation}
-
-The basic idea behind the translation is simple. Each dependent class
-is translated into a single class of the same name (without dependent
-types). The explicit parameters of the dependent class are translated
-into {\tt public final} (instance) fields of the target class.
-
-Each constructor of the target class takes a {\tt final} additional
-argument for each explicit parameter, and initializes the correspoding
-field to that value. Each constructor {\tt assume}s the constructor's
-where clause (if any) at the beginning of the constructor, and {\tt
-assert}s the class's where condition at the end of the
-constructor. Within the body of each constructor a call to a
-constructor for the superclass is treated like a method call: an {\tt
-assert} is added for the precondition of the super constructor, and
-for the arguments of the call to the superconstructor. After the call,
-an {\tt assume} is added for the super-class's where clause applied to
-{\tt this}.
-
-A dependent method of the source class with $k$ parameters is
-translated into a method in the target class of the same name with $k$
-additional {\tt final} arguments.\footnote{For simplicity of
-presentation we are assuming that the class does not already have a
-method with the same name and $k$ extra arguments.} The body of the
-target method {\tt assume}s the arguments satisfy the source method's
-where clause.  It may also {\tt assume} the class's where clause on
-{\tt this} at the begining of the method.  After that it executes the
-translated body of the source method.
-
-Now we consider the translation of parametric types in the body of
-methods.  For simplicity let us assume that the body of the method is
-translated into a ``single assignment'' form with nested method calls
-``flattened''. Every argument to a method invocation at a parametric
-type is a {\tt final} local variable.  If a method has a parametric
-return type then every {\tt return} statement is of the form {\tt
-return v} where {\tt v} is a {\tt final} local variable.  Similarly
-the value read from every mutable variable of parametric type (e.g.,
-local variable, field) is read into a {\tt final} variable of the same
-type (i.e., reads of mutable variables of parametric type occur only
-on the RHS of an assignment to a {\tt final} local variable). The
-value written into every mutable variable of parametric type is read
-from a {\tt final} variable of the same type.
-
-Every statement in \Xten{} can be transformed into an equivalent such
-statement by introducing enough new {\tt final} local variables. For
-instance the method:
-{\footnotesize
-  \begin{verbatim}
-    public  List(n+arg.n) rev(final List arg) {
-      return
-        (n == 0)
-        ? arg
-        : rest.rev(new List(1+arg.n)(node, arg));
-    }
-  \end{verbatim}
-}
-
-\noindent is translated to:
-}
-
-\eat{
-{\footnotesize
-  \begin{verbatim}
-    public  List(n+arg.n) rev( final List arg) {
-      if (n==0) {
-         return arg;
-      } else {
-        final List(1+arg.n) arg2 = new List(1+arg.n)(node, arg);
-        final List(n-1) restval = rest;              // Read from a mutable field of parametric type
-        final List(restval.n+arg2.n) result = restval.rev( arg2 );
-        return result;
-      }
-    }
-  \end{verbatim}}
-
-Let {\tt v} be a local variable or field declared at a parametric type
-{\tt C(:b)}. The translation will declare {\tt v} at type {\tt C}.
-Every write to {\tt v} must be of the form {\tt v=r} where {\tt r} is
-a final variable, per the reasoning above. The write must be preceded
-by the statement {\tt assert r.b : "DependentTypeError";} where {\tt
-r.b} stands for the clause {\tt b} with each parameter {\tt p} in {\tt
-b} replaced by {\tt r.p}. Every read of {\tt v} must be of the form
-{\tt r=v} where {\tt r} is a {\tt final} variable; such a read is
-succeeded by the statement {\tt assume r.e}.
-
-Formal arguments to methods of a parametric type are treated similarly.
-
-Similarly a parametric type occurring as the return type of a method
-is replaced in the translation by the base type. Each expression {\tt
-return e;} in the body of the method is translated as a write of {\tt e}
-to a local variable declared at the parametric type.
-
-Every method invocation is considered as a write to the formal
-arguments of the method, and hence preceded by {\tt assert}s if the
-type of a formal argument is parametric. It is also preceded by an
-{\tt assert} of the method precondition, if any.  Every method
-invocation is succeded by an {\tt assume} of the return type of the
-method applied to the return value.
-
-For instance the code above is translated to:
-{\footnotesize
-  \begin{verbatim}
-    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
-      if (n==0) {
-         assert n+arg.n == arg.n : "DependentTypeError"; // For the return value.
-         return arg;
-      } else {
-        assert 1+arg.n-1=arg.n : "DependentTypeError"; // For the argument to the constructor
-        final List<Node> arg2 = new List<Node>(1+arg.n,node, arg));
-        assume arg2.n==1+arg.n;                      // From the constructor invocation
-        final List<Node> restval = rest;             // Read from a mutable field of parametric type
-        assume restval.n == n-1;                     // From the field read.
-        final List<Node> result = restval.rev( arg2 );
-        assume result.n=restval.n+arg2.n
-        assert n+arg.n == result.n                   // For the return value
-        return result;
-      }
-    }
-  \end{verbatim}}
-
-\paragraph{Simplifcation}
-The statement in the body of the method now generates the following
-constraint operations. Here we assume that {\tt arg} and {\tt n}
-{\tt restval}, {\tt result}, {\tt arg2} are free {\tt nat} variables.
-
-There is a single path to the first ask, guarded by {\tt n=0}. Thus the constraint problem
-to be solved is:
-{\footnotesize
-  \begin{verbatim}
-      n=0,  (n+arg.n = arg.n => Remove1)
-\end{verbatim}}
-\noindent The underlying constraint system can solve the problem:
-{\footnotesize
-  \begin{verbatim}
-      n=0 |-  (n+arg.n = arg.n)
-\end{verbatim}}
-\noindent thereby establishing {\tt Remove1}. Hence the first {\tt assert} can be removed.
-
-\noindent There is a single path to the second and third asks, guarded by {\tt
-n!=0}. The constraint problem generated is:
-{\footnotesize
-  \begin{verbatim}
-      (n!= 0),  (1+arg.n-1 =arg.n) => Remove2
-      1+arg.n-1 = arg.n,
-      arg2.n =1+arg.n,
-      restval.n = n-1,
-      result.n = restval.n+arg2.n,
-      (n+arg.n = result.n) => Remove3
-\end{verbatim}}
-\noindent  The underlying constraint solver can establish
-{\footnotesize
-  \begin{verbatim}
-      |- 1+arg.n-1=arg.n
-\end{verbatim}}
-without using any constraint at all (this is vacuously true). Hence
-{\tt Remove2} is established. It can also establish:
-{\footnotesize
-  \begin{verbatim}
-      arg2.n =1+arg.n, restval.n = n-1, result.n = restval.n+arg2.n |- n+arg.n=result.n
-\end{verbatim}}
-\noindent through simple substitution. Hence {\tt Remove3} is established.
-
-For the {\tt List} program, all asserts can be removed. The resulting
-program is given in Table~\ref{assume-table1}-\ref{assume-table2}.
-
-\begin{figure*}
-{\footnotesize
-\begin{verbatim}
-  public value class List <Node> {
-    public final nat n;   // is a parameter
-    nullable Node node = null;
-    nullable List<Node> rest = null;  // All assignments must check n = this.n-1.
-
-    public List ( final nat n ) {
-      assume n==0;
-      this.n = n;
-    }
-    public List ( final nat n, Node node ) {
-      assume n==1;                         // From the constructor precondition.
-      this(n, node, new List<Node>(0));
-    }
-
-    public List ( final nat n, Node node, List<Node> rest ) {
-      assume n>=1;                               // From the constructor precondition
-      assume rest.n==n-1;
-      this.n = n;
-      this.node = node;
-      this.rest = rest;
-    }
-
-    public  List<Node> append( final List<Node> arg ) {
-      if (n == 0) {
-          return arg;
-      } else {
-          final List<Node> restval = rest;
-          assume restval.n == n-1;
-          final List<Node> argval = restval.append(arg);
-          assume argval.n == restval.n+arg.n;
-          final List<Node> result = new List<Node>(n+arg.n, node, argval);
-          assume result.n == n+arg.n;
-          return result;
-      }
-    }
-  }
-\end{verbatim}}
-\caption{Translation of {\tt List} (contd in Table~\ref{assume-table2}).}\label{assume-table1}
-\end{figure*}
-
-\begin{figure*}
-{\footnotesize
-\begin{verbatim}
-    public  List<Node> rev() {
-      final List<Node> arg = new List<Node>(0);
-      assume arg.n = 0;                           // From the constructor call.
-      final List<Node> result = rev( arg );
-      assume result.n == n+arg.n;                  // From the method signature
-      return result;
-    }
-
-    public  List<Node> rev( final List<Node> arg) {
-      if (n==0) {
-         return arg;
-      } else {
-        final List<Node> arg2 = new List<Node>(1+arg.n,node, arg));
-        assume arg2.n==1+arg.n;                      // From the constructor invocation
-        final List<Node> restval = rest;             // Read from a mutable field of parametric type
-        assume restval.n == n-1;                     // From the field read.
-        final List<Node> result = restval.rev( arg2 );
-        assume result.n=restval.n+arg2.n
-        return result;
-      }
-    }
-
-    public List<Node> filter(fun<Node, boolean> f) {
-         if (n==0) return this;
-         if (f(node)) {
-           final List<Node> l = rest.filter(f);
-           return new List<Node>(l.n+1,node, l);
-         } else {
-           return rest.filter(f);
-         }
-    }
-
-
-    public static  List<nat> gen( final nat m ) {
-         final List<nat> result = gen(0,m);
-         assume result.n=m-0 : "DependentTypeError";  // From the method signature
-         return result;
-    }
-
-    public static List<nat> gen(final nat i, final nat m) {
-      assume i <= m;                                   // Method precondition.
-      if (i==m) {
-        final List result = new List<nat>(m-i);
-        assume result.n == m-i;                        // From the constructor call.
-        return result;
-      } else {
-        final List<nat> arg = gen(i+1,m);
-        assume arg.n = m-(i+1);                        // From the method call.
-        final List result = new List<nat>(m-i, i, arg);
-        assume result.n = m-i;                         // From the constructor invocation.
-        return result;
-    }
-  }
-\end{verbatim}}
-\caption{Translation of {\tt List} (contd.}\label{assume-table2}
-\end{figure*}
-  }
 
 
 \section{Future work}
+\label{sec:future}
+
+%V. Conclusion and future work. (0.5 page)
+%
+%state-dependent constrained types.
+%
+%use of dependent types for optimization. 
+%
+%type-inference.
+%
+%Bibliography (1.5 page)
+
+State-dependent constrained types
+
+Use of dependent types for optimization
+
+Constraints on control-flow
 
 Type inference
 
-Extensions
-
 \section{Conclusions}
+\label{sec:conclusions}
+
 We have presented a simple design for dependent types in \java-like
 languages. The design considerably enriches the space of (mostly)
 statically checkable types expressible in the language. This is
@@ -1671,13 +1315,9 @@ Vincent Cave.
 
 \bibliographystyle{plain}
 \bibliography{master}
+\balance
 \appendix
 \onecolumn
-
-\section{More extended examples}
-Below I discuss the problem of specifying the operations on places, regions,
-distributions and arrays in \Xten. I specify the signatures of these
-classes, making extensive use of dependent types.
 
 \section{An extended example}
 {\footnotesize
