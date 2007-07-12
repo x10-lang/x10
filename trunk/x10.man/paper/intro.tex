@@ -172,21 +172,21 @@ all lists of length {\tt n}.
 \begin{figure*}
 {\footnotesize
 \begin{verbatim}
-public value class List(int length : length >= 0) {
+public value class List(int(:self >= 0) length) {
   Object head = null;
   List(length-1) tail = null;
 
   /** Returns the empty list. */
-  public List(:length==0)() {
+  public List(0)() {
     property(0);
   }
 
   /** Returns a singleton list. */
-  public List(:length==1)(Object head) {
+  public List(1)(Object head) {
     this(head, new List());
   }
   /** Returns the cons of head and tail. */
-  public List(:length==tail.length+1)(Object head, final List tail) {
+  public List(tail.length+1)(Object head, final List tail) {
     property(tail.length+1);
     this.head = head;
     this.tail = tail;
