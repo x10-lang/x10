@@ -64,7 +64,7 @@ public final class Ft {
 			m_offset = offset;
 			m_domain = [0 : size-1];
 			m_start = 0; m_end = size-1;
-			//Arrays should be aligned with the cache line size.
+			//Arrays should be aligned with the cache line size (128 for FT).
 			m_array = (double[:self.rect && self.rank==1]) new double[[-offset : size-1]];
 		}
 
