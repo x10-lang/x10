@@ -34,6 +34,12 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
 	loadedClasses.put(asyncType.getName(), asyncType);
     }
 
+    public void defineClosure(CAstEntity fn, TypeReference closureRef, CAstSourcePositionMap.Position fileName) {
+	X10ClosureObject closureType= new X10ClosureObject(closureRef, TypeReference.JavaLangObject, this, fileName, cha);
+	fTypeMap.put(fn, closureType);
+	loadedClasses.put(closureType.getName(), closureType);
+    }
+
     /**
      * Ideally we'd want to create some sort of IMethod to represent the async from
      * within X10Cast2IRTranslatingVisitor, but sadly that doesn't have a defineFunction()
