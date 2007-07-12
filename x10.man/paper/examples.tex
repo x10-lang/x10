@@ -59,7 +59,6 @@ Constraints naturally permit the expression of existential types:
 \subsection{Binary methods}
 
 The binary method problem \cite{bruce-binary}.
-
 {\footnotesize
 \begin{verbatim}
 interface Set {
@@ -96,54 +95,22 @@ class Node(Object key, AVLList l, AVLList r
     extends AVLList(max(l.height,r.height)+1){..}
 \end{verbatim}}
 
-
-% Already have AVL trees.
-\eat{
 \subsection{Red--black trees}
-
-Invariant:
-1. all leaves black
-2. for each node n, there are the same number of black nodes on
-every path from n to a leaf (the black height)
-3. the immediate children of every red node are black
-
+Red/black trees may be modeled similarly. Such trees have the
+invariant that (a) all leaves are black, (b) each non-leaf node has
+the same number of black nodes on every path to a leaf (the black
+height), (c) the immediate children of every red node are black.
+{\footnotesize
 \begin{verbatim}
-class Tree(boolean isBlack, int blackHeight, Tree left, Tree right
-  : ( left == null && right == null || left != null && right != null )
- && ( left == null || left.value < right.value )
- && ( left != null || isBlack )
- && ( left != null || blackHeight == 0 )
- && ( ! isBlack || left == null || blackHeight == left.blackHeight + 1 )
- && ( ! isBlack || right == null || blackHeight == right.blackHeight + 1 )
- && ( isBlack || ( left.isBlack && right.isBlack ) )
-  )
-{
-  int value;
-
-  // empty
-  Tree(: isBlack && blackHeight == 0 && left == null && right == null)
-      () {
-    property(isBlack, 0, null, null);
-  }
-
-  // black
-  Tree(: isBlack && blackHeight == l.blackHeight+1 && left == l && right == r)
-      (Tree l, Tree r, int v : l.blackHeight == r.blackHeight) {
-    property(true, l.blackHeight+1, l, r);
-    this.value = v;
-  }
-      
-  // red: use a dummy argument to overload
-  Tree(: !isBlack && blackHeight == l.blackHeight && left == l && right == r)
-      (Tree l, Tree r, int v, Object _ : l.blackHeight == r.blackHeight) {
-    property(false, l.blackHeight, l, r);
-    this.value = v;
-  }
-
-  // need to show add, remove preserve the invariant
-}
-\end{verbatim}
-}
+class Tree(int blackHeight) {...}
+class Leaf extends Tree(0) { int value; ...}
+class Node(boolean isBlack, 
+    Tree(:this.isBlack || isBlack) l, 
+    Tree(:this.isBlack || isBlack, 
+          blackHeight=l.blackHeight) r 
+) extends Tree(l.blackHeight+1) { 
+   int value; ...}
+\end{verbatim}}
 
 \subsection{Bounds checks}
 
@@ -161,6 +128,7 @@ Nullable types (T(:self != null))
 
 
 \subsection{A distributed binary tree}
+
 
 \begin{figure*}
 \input{tree}
@@ -182,11 +150,13 @@ Nullable types (T(:self != null))
 
 \subsection{Point}
 
+
 % \begin{figure}
 % \input{point}
 % \end{figure}
 
 \subsection{Distribution}
+
 
 % \begin{figure}
 % \input{dist}
@@ -199,9 +169,9 @@ Nullable types (T(:self != null))
 Finally we can now define arrays. An array is built over a
 distribution and a base type.
 
-% \begin{figure}
-% \input{array}
-% \end{figure}
+%\begin{figure}
+%\input{array}
+%\end{figure}
 
 \subsection{Clocks}
 
