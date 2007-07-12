@@ -14,6 +14,10 @@ import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByIndexInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByPointInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByIndexInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByPointInstruction;
 import com.ibm.wala.ipa.callgraph.*;
 import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph;
 import com.ibm.wala.ipa.callgraph.propagation.*;
@@ -82,6 +86,22 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	public void visitHere(SSAHereInstruction instruction) {
 	    Assertions.UNREACHABLE("Query of interestingness of value number for Here???");
 	}
+
+	public void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction) {
+	    // TODO Auto-generated method stub
+	}
+
+	public void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction) {
+	    // TODO Auto-generated method stub
+	}
+
+	public void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction) {
+	    // TODO Auto-generated method stub
+	}
+
+	public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
+	    // TODO Auto-generated method stub
+	}
     }
 
     protected InterestingVisitor makeInterestingVisitor(int vn) {
@@ -123,6 +143,22 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 
 	public void visitHere(SSAHereInstruction instruction) {
 	    // TODO model data flow for here
+	}
+
+	public void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction) {
+	    // TODO Auto-generated method stub
+	}
+
+	public void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction) {
+	    // TODO Auto-generated method stub
+	}
+
+	public void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction) {
+	    // TODO Auto-generated method stub
+	}
+
+	public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
+	    // TODO Auto-generated method stub
 	}
     }
 
@@ -172,6 +208,22 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 
       public void visitHere(SSAHereInstruction instruction) {
 
+      }
+
+      public void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction) {
+	  // TODO Auto-generated method stub
+      }
+
+      public void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction) {
+	  // TODO Auto-generated method stub
+      }
+
+      public void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction) {
+	  // TODO Auto-generated method stub
+      }
+
+      public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
+	  // TODO Auto-generated method stub
       }
     }
 
