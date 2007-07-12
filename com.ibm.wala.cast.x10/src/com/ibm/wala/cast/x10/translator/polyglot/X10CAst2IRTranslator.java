@@ -12,10 +12,12 @@ import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByIndexInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByIndexInstruction;
 import com.ibm.domo.ast.x10.visit.X10CAstVisitor;
+import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
 import com.ibm.wala.cast.ir.translator.AstTranslator.DefaultContext;
 import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
-import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.wala.cast.tree.CAstEntity;
@@ -31,7 +33,7 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.Atom;
 import com.ibm.wala.util.debug.Trace;
 
-public class X10CAst2IRTranslator extends X10CAstVisitor {
+public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandler {
     public X10CAst2IRTranslator(CAstEntity sourceFileEntity, X10SourceLoaderImpl loader) {
 	this(new JavaCAst2IRTranslator(sourceFileEntity, loader));
     }
@@ -41,10 +43,10 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     private X10CAst2IRTranslator(JavaCAst2IRTranslator translator) {
 	super(translator);
 	this.translator = translator;
+	this.translator.setArrayOpHandler(this);
     }
 
     protected boolean visitFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
-	// No need to do anything here; all taken care of in leaveFunctionExpr().
 	CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
 
 	declareAsync(fn, (WalkContext) c);
@@ -86,8 +88,8 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     public MethodReference asyncEntityToMethodReference(CAstEntity asyncEntity) {
 	CAstType.Method bodyType= (CAstType.Method) asyncEntity.getType();
 	CAstType retType= bodyType.getReturnType();
-	CAstType owningType= bodyType.getDeclaringType();
-	JavaSourceLoaderImpl fLoader = translator.loader();
+//	CAstType owningType= bodyType.getDeclaringType();
+//	JavaSourceLoaderImpl fLoader = translator.loader();
 
 	Atom asyncName= Atom.findOrCreateUnicodeAtom(asyncEntity.getName());
 	Descriptor asyncDesc= Descriptor.findOrCreate(null, TypeName.string2TypeName(retType.getName()));
@@ -128,6 +130,20 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 	    translator.setValue(n, retValue);
 	}
     }
+
+    private TypeReference closureTypeReference(CAstEntity fn) {
+	return TypeReference.findOrCreate(translator.loader().getReference(), "LC" + fn.getName());
+    }
+
+    protected boolean visitClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
+	translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
+	((X10SourceLoaderImpl) translator.loader()).defineClosure(n, closureTypeReference(n), n.getPosition());
+	return false;
+    }
+    protected void leaveClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
+	translator.closeFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
+    }
+
     protected boolean visitAtomicEnter(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveAtomicEnter(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
@@ -206,5 +222,28 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     public JavaCAst2IRTranslator getCAst2IRTranslator() {
     	return translator;
     }
-}
 
+    public void doArrayRead(WalkContext context, int result, int arrayValue, CAstNode arrayRefNode, int[] dimValues) {
+	TypeReference arrayTypeRef= (TypeReference) arrayRefNode.getChild(1).getValue();
+	// TODO figure out whether the index is a point or an array of ints and act accordingly
+//	context.cfg().addInstruction(SSAInstructionFactory.ArrayLoadInstruction(result, arrayValue, dimValues[0], arrayTypeRef));
+	context.cfg().addInstruction(
+		new X10ArrayLoadByIndexInstruction(result, arrayValue, dimValues, arrayTypeRef));
+    }
+
+    public void doArrayWrite(WalkContext context, int arrayValue, CAstNode arrayRefNode, int[] dimValues, int rval) {
+	TypeReference arrayTypeRef =
+	    arrayRefNode.getKind() == CAstNode.ARRAY_LITERAL ?
+		    ((TypeReference) arrayRefNode.getChild(0).getChild(0).getValue()).getArrayElementType() :
+		    (TypeReference) arrayRefNode.getChild(1).getValue();
+
+//	context.cfg().addInstruction(
+//		SSAInstructionFactory.ArrayStoreInstruction(
+//			arrayValue,
+//			dimValues[0], 
+//			rval, 
+//			arrayTypeRef));
+	context.cfg().addInstruction(
+		new X10ArrayStoreByIndexInstruction(arrayValue, dimValues, rval, arrayTypeRef));
+    }
+}
