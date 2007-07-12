@@ -1,27 +1,79 @@
-inteface Label {
-    Label H = new Label();
-    Label L = new Label();
+class Label {
+    final static Label H = new Label();
+    final static Label L = new Label();
 
-    boolean lt(Label x, Label y);
-    Label join(Label x, Label y);
+    private Label() { }
+
+    Label join(Label l) {
+        if (this == H || l == H)
+            return H;
+        return L;
+    }
+
+    boolean leq(Label l) {
+        if (this == H)
+            return l == H;
+        return true;
+    }
 }
 
-class LT(Label x, Label y) { }
+// the "program counter"
+class Runnable(Label pc) {
+    Runnable(:pc == l)(Label l) {
+        property(l);
+    }
 
-class Labeled(Label lbl) { }
-
-class LabeledInt(Label lbl, int v) extends Labeled(lbl) {
-    Labeled(Label lbl, int v) { super(lbl); prop(v); }
+    void run() { }
 }
 
-class JifEx {
-    LabeledInt(:self.lbl == H) sec;
-    LabeledInt(:self.lbl == L) pub;
+class Labeled(Label label) {
+    private int x;
 
-    void leak() {
-        pub.v = 0
-        if (sec.v == 1)
-            // need pub.v >= join(pc,label(1)) = sec.v
-            pub.v = 1
+    private static Label pc
+
+    Labeled(:label = l)(final Label l, int v) {
+        property(l);
+        x = v;
+    }
+
+    void cmp(Labeled i, Labeled j, Runnable curr,
+             Runnable(:curr.pc.join(i.label).join(j.label).leq(pc)) T,
+             Runnable(:curr.pc.join(i.label).join(j.label).leq(pc)) F) {
+        if (i < j) 
+            T.run();
+        else
+            F.run();
+    }
+
+    void assign(Runnable curr, Labeled i : curr.pc.join(i.label).leq(label)) {
+        this.x = i.x;
+    }
+
+    int get(Runnable curr : curr.pc.leq(label)) {
+        return x;
+    }
+}
+
+class Leak extends Runnable(:pc == H) {
+    Labeled(:self.label == H) sec;
+    Labeled(:self.label == L) pub;
+
+    Leak(:pc == H)() {
+        super(H);
+    }
+
+    void run() {
+        pc = L;
+
+        pub.assign(this, pub); // legal
+        sec.assign(this, pub); // legal
+        sec.assign(this, sec); // legal
+        pub.assign(this, sec); // illegal
+
+        Labeled one = new Labeled(L, 1);
+
+        if (sec.eq(this, one)) {
+            pub.assign(this, one); // illegal
+        }
     }
 }
