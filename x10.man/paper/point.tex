@@ -1,0 +1,50 @@
+\begin{tightcode}
+\quad\num{1}package x10.lang;
+\quad\num{2}
+\quad\num{3}public final class point( region region ) \{
+\quad\num{4}    parameter int dimension = region.dimension;
+\quad\num{5}    \emph{// an array of the given size.}
+\quad\num{6}    int[dimension] val;
+\quad\num{7}
+\quad\num{8}    /** Create a point with the given values in each dimension.
+\quad\num{9}     */
+\quad\num{10}    public point( int[dimension] val ) \{
+\quad\num{11}        this.val = val;
+\quad\num{12}    \}
+\quad\num{13}
+\quad\num{14}    /** Return the value of this point on the i'th dimension.
+\quad\num{15}     */
+\quad\num{16}    public int valAt( int i) throws IndexOutOfBoundException \{
+\quad\num{17}        if (i < 1 || i > dimension) throw new IndexOutOfBoundException();
+\quad\num{18}        return val[i];
+\quad\num{19}    \}
+\quad\num{20}
+\quad\num{21}    /** Return the next point in the given region on this given
+\quad\num{22}     * dimension, if any.
+\quad\num{23}     */
+\quad\num{24}    public void inc( int i )
+\quad\num{25}        throws IndexOutOfBoundException, MalformedRegionException \{
+\quad\num{26}        int val = valAt(i);
+\quad\num{27}        val[i] = region.dimension(i).next( val );
+\quad\num{28}    \}
+\quad\num{29}
+\quad\num{30}    /** Return true iff the point is on the upper boundary of the i'th
+\quad\num{31}     * dimension.
+\quad\num{32}     */
+\quad\num{33}    public boolean onUpperBoundary(int i)
+\quad\num{34}        throws IndexOutOfBoundException \{
+\quad\num{35}        int val = valAt(i);
+\quad\num{36}        return val == region.dimension(i).high();
+\quad\num{37}    \}
+\quad\num{38}
+\quad\num{39}    /** Return true iff the point is on the lower boundary of the i'th
+\quad\num{40}     * dimension.
+\quad\num{41}     */
+\quad\num{42}    public boolean onLowerBoundary(int i)
+\quad\num{43}        throws IndexOutOfBoundException \{
+\quad\num{44}        int val = valAt(i);
+\quad\num{45}        return val == region.dimension(i).low();
+\quad\num{46}    \}
+\quad\num{47}\}
+\quad\num{48}
+\end{tightcode}
