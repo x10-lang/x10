@@ -97,6 +97,8 @@ class Node(Object key, AVLList l, AVLList r
 \end{verbatim}}
 
 
+% Already have AVL trees.
+\eat{
 \subsection{Red--black trees}
 
 Invariant:
@@ -141,6 +143,7 @@ class Tree(boolean isBlack, int blackHeight, Tree left, Tree right
   // need to show add, remove preserve the invariant
 }
 \end{verbatim}
+}
 
 \subsection{Bounds checks}
 
@@ -159,33 +162,35 @@ Nullable types (T(:self != null))
 
 \subsection{A distributed binary tree}
 
-\begin{figure}
+\begin{figure*}
 \input{tree}
-\end{figure}
+\caption{A distributed binary tree}
+\label{fig:dist-tree}
+\end{figure*}
 
 \subsection{Places}
 
-\begin{figure}
-\input{place}
-\end{figure}
+% \begin{figure}
+% \input{place}
+% \end{figure}
 
 \subsection{$k$-dimensional regions}
 
-\begin{figure}
-\input{region}
-\end{figure}
+% \begin{figure}
+% \input{region}
+% \end{figure}
 
 \subsection{Point}
 
-\begin{figure}
-\input{point}
-\end{figure}
+% \begin{figure}
+% \input{point}
+% \end{figure}
 
 \subsection{Distribution}
 
-\begin{figure}
-\input{dist}
-\end{figure}
+% \begin{figure}
+% \input{dist}
+% \end{figure}
 
 \subsection{Arrays}
 
@@ -194,9 +199,9 @@ Nullable types (T(:self != null))
 Finally we can now define arrays. An array is built over a
 distribution and a base type.
 
-\begin{figure}
-\input{array}
-\end{figure}
+% \begin{figure}
+% \input{array}
+% \end{figure}
 
 \subsection{Clocks}
 
@@ -208,7 +213,18 @@ Capablities (from Radha and Vijay's paper on neighborhoods)
 
 \subsection{Ownership types}
 
-Ownership types~\cite{ownership-types}
+Figure~\ref{fig:ownership} demonstrates how ownership
+types~\cite{ownership-types} can be encoded in CFJ.
+The example is from XXX~\cite{???} and shows the code for a
+simple map implemented using a list of key--value pairs.
+
+Cyclic: this.nodes.o == this
+
+\begin{figure*}
+\input{Ownership}
+\caption{Ownership types}
+\label{fig:ownership}
+\end{figure*}
 
 \subsection{Discussion}
 
