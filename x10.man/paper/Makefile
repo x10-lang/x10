@@ -10,7 +10,8 @@ TARGETS = paper.pdf
 # TARGETS could be $(DOC).dvi instead, if there are no figures
 
 TEXS = paper.tex \
-       $(JXTEXS) $(STY)
+	conclusion.tex examples.tex future.tex impl.tex intro.tex lang.tex longex.tex paper.tex related.tex semantics.tex \
+       $(X10TEXS) $(STY)
 STY = defs.sty utils.sty
 #
 # Add any included TeX files to TEXS
@@ -29,10 +30,10 @@ FIGS =
 #
 # List of postscript figures to be included
 
-JX_FILES = 
-JXTEXS = $(JX_FILES:.jx=.tex)
+X10_FILES = Jif.x10 Ownership.x10 array.x10 dist.x10 place.x10 point.x10 region.x10 tree.x10
+X10TEXS = $(X10_FILES:.x10=.tex)
 
-.SUFFIXES: .jx
+.SUFFIXES: .x10
 
 default: $(TARGETS)
 
@@ -63,9 +64,9 @@ SEP=: # unix including linux, cygwin
 LATEX = TEXINPUTS=$(TEXDIR)${SEP} latex
 PDFLATEX = TEXINPUTS=$(TEXDIR)${SEP} pdflatex
 
-.jx.tex:
-	perl process-jx $< > $@
-$(JX_FILES:.jx=.tex): process-jx
+.x10.tex:
+	perl process-x10 -l $< > $@
+$(X10_FILES:.x10=.tex): process-x10
 
 DIRT += $(JXTEXS)
 

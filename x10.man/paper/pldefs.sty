@@ -1,6 +1,8 @@
 % typeset a number in tiny italic exactly 15pts wide
-\newcommand\num[1]{\newbox\bx\setbox\bx=\hbox{\it\footnotesize{#1}}%
-\newdimen\nw \dimen\nw=15pt
+\newdimen\nw
+\newbox\bx
+\newcommand\num[1]{\setbox\bx=\hbox{\it\footnotesize{#1}}%
+\dimen\nw=15pt
 \advance\dimen\nw by -\wd\bx
 \unhbox\bx\hskip\dimen\nw}
 
