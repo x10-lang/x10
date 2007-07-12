@@ -114,13 +114,18 @@ class Node(boolean isBlack,
 
 \subsection{Bounds checks}
 
+{\footnotesize
 \begin{verbatim}
 class Array {
-    T[] a;
-    T get(int(:0 <= self && self < a.length) i) { return a[i]; }
-    void set(int(:0 <= self && self < a.length) i, T v) { a[i] = v; }
+ Object[] a;
+ Object get(int(:0 <= self && self < a.length) i) { 
+   return a[i]; 
+ }
+ void set(int(:0 <= self && self < a.length) i, T v) {
+    a[i] = v; 
+ }
 }
-\end{verbatim}
+\end{verbatim}}
 
 \subsection{Nullable types}
 
@@ -128,13 +133,17 @@ Nullable types (T(:self != null))
 
 
 \subsection{A distributed binary tree}
+This example is due to Satish Chandra. We wish to specify a balanced
+distributed tree with the property that its right child is always at
+the same place as its parent, and once the left child is at the same
+place then the entire subtree is at that place:
 
-
-\begin{figure*}
-\input{tree}
-\caption{A distributed binary tree}
-\label{fig:dist-tree}
-\end{figure*}
+{\footnotesize
+\begin{verbatim}
+class Tree(boolean localLeft,
+  Tree(: this.localLeft => (loc=here,self.localLeft)) left, 
+  Tree(: loc=here) right) extends Object { ...}
+\end{verbatim}}
 
 \subsection{Places}
 
