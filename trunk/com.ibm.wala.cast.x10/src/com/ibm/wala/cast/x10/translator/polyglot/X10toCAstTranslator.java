@@ -3,6 +3,7 @@
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,8 +11,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.ast.ArrayInit;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
@@ -21,9 +24,10 @@ import polyglot.ext.x10.ast.AtEach;
 import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.Await;
 import polyglot.ext.x10.ast.Clocked;
+import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Finish;
 import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.ForLoop_c;
+import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.ast.Here;
@@ -35,8 +39,10 @@ import polyglot.ext.x10.ast.Region;
 import polyglot.ext.x10.ast.When;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10ArrayAccess;
+import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Loop;
+import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.FutureType;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
@@ -54,9 +60,17 @@ import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstNodeTypeMap;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
 import com.ibm.wala.cast.tree.CAstType;
+import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.tree.impl.CAstSymbolImpl;
+import com.ibm.wala.classLoader.CallSiteReference;
+import com.ibm.wala.shrikeBT.IInvokeInstruction;
 import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.types.Descriptor;
+import com.ibm.wala.types.MethodReference;
+import com.ibm.wala.types.Selector;
+import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.Atom;
 import com.ibm.wala.util.IteratorPlusOne;
 import com.ibm.wala.util.debug.Assertions;
 
@@ -74,11 +88,19 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     }
 
     protected CAstEntity walkAsyncEntity(final Node rootNode, final Node bodyNode, final WalkContext context) {
-	Map/*<CAstNode,CAstEntity>*/ childEntities= new HashMap();
+	Map<CAstNode,CAstEntity> childEntities= new HashMap<CAstNode,CAstEntity>();
 	final CodeBodyContext asyncContext= new CodeBodyContext(context, childEntities);
 	final CAstNode bodyAST= walkNodes(bodyNode, asyncContext);
 
 	return new AsyncEntity(childEntities, rootNode, asyncContext, bodyAST);
+    }
+
+    protected CAstEntity walkClosureEntity(final Closure rootNode, final Node bodyNode, final WalkContext context) {
+	Map<CAstNode,CAstEntity> childEntities= new HashMap<CAstNode,CAstEntity>();
+	final CodeBodyContext closureContext= new CodeBodyContext(context, childEntities);
+	final CAstNode bodyAST= walkNodes(bodyNode, closureContext);
+
+	return new ClosureBodyEntity(childEntities, rootNode, closureContext, bodyAST, context.getEnclosingType());
     }
 
     private final class AsyncBodyType implements CAstType.Method {
@@ -133,7 +155,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	private final AsyncBodyType fBodyType;
 
-	private AsyncEntity(Map/*<CAstNode,CAstEntity>*/ entities, Node node, CodeBodyContext context, CAstNode bodyast) {
+	private AsyncEntity(Map<CAstNode,CAstEntity> entities, Node node, CodeBodyContext context, CAstNode bodyast) {
 	    super(entities);
 	    fPosition= makePosition(node.position());
 	    fContext= context;
@@ -228,13 +250,12 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, WalkContext context) {
-	    return walkRegionIterator(loop, bodyNode, walkNodes(loop.domain(), context), context);
+	    return walkRegionIterator(loop.formal(), bodyNode, walkNodes(loop.domain(), context), context);
 	}
 
-	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, CAstNode domainNode, WalkContext context) {
-//	    Expr regionExpr= loop.domain();
-	    X10Formal formal= (X10Formal)loop.formal();
-	    LocalInstance[] vars = formal.localInstances();
+	private CAstNode walkRegionIterator(Formal formal, final CAstNode bodyNode, CAstNode domainNode, WalkContext context) {
+	    X10Formal x10Formal= (X10Formal) formal;
+	    LocalInstance[] vars = x10Formal.localInstances();
 	    CAstNode[] varDecls = new CAstNode[vars.length + 1];
 	    for (int i = 0; i < vars.length; i++)
 		varDecls[i] = fFactory.makeNode(CAstNode.DECL_STMT,
@@ -281,7 +302,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 			fFactory.makeNode(CAstNode.DECL_STMT, 
 			  fFactory.makeConstant(new CAstSymbolImpl("dist temp", true)),
 			  dist),
-			walkRegionIterator(a, bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), context)));
+			walkRegionIterator(a.formal(), bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), context)));
 	}
 
 	public CAstNode visit(Future f, WalkContext context) {
@@ -419,21 +440,118 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		    makeNode(wc, X10CastNode.ATOMIC_EXIT, n.position().startOf()));
 	}
 
-	public CAstNode visit(X10ArrayAccess aa, WalkContext context) {
-	    // TODO Auto-generated method stub
-	    return null;
+	public CAstNode visit(X10ArrayAccess aa, WalkContext wc) {
+	    TypeReference eltTypeRef = fIdentityMapper.getTypeRef(aa.type());
+	    CAstNode[] children= new CAstNode[aa.index().size()+2];
+
+	    int idx= 0;
+	    children[idx++]= walkNodes(aa.array(), wc);
+	    children[idx++]= fFactory.makeConstant(eltTypeRef);
+	    for(Iterator iter= aa.index().iterator(); iter.hasNext(); ) {
+		Expr index= (Expr) iter.next();
+		children[idx++]= walkNodes(index, wc);
+	    }
+	    return makeNode(wc, fFactory, aa, CAstNode.ARRAY_REF, children);
 	}
 
-	public CAstNode visit(ArrayConstructor ac, WalkContext context) {
+	public CAstNode visit(X10ArrayAccess1 aa, WalkContext wc) {
+	    Expr index= aa.index();
+	    TypeReference eltTypeRef = fIdentityMapper.getTypeRef(aa.type());
+	    CAstNode[] children= new CAstNode[3];
+
+	    int idx= 0;
+	    children[idx++]= walkNodes(aa.array(), wc);
+	    children[idx++]= fFactory.makeConstant(eltTypeRef);
+	    children[idx++]= walkNodes(index, wc);
+
+	    return makeNode(wc, fFactory, aa, CAstNode.ARRAY_REF, children);
+	}
+
+	public CAstNode visit(ArrayConstructor ac, WalkContext wc) {
 	    Expr dist= ac.distribution();
 	    Expr init= ac.initializer();
+	    Type arrayType= ac.type();
+	    // TODO Filter arrayType so that e.g. x10.lang.IntReferenceArray becomes int[] so
+	    // that WALA doesn't complain that an array type doesn't seem to be an array type.
+	    TypeReference arrayTypeRef= fIdentityMapper.getTypeRef(arrayType);
+	    Type baseType= ac.arrayBaseType().type();
+	    TypeReference baseTypeRef= fIdentityMapper.getTypeRef(baseType);
 
-	    // Turn this construct into an array allocation followed by a region
-	    // iteration whose body calls the initializer and assigns the result
-	    // to the corresponding array slot.
-	    fFactory.makeNode(CAstNode.BLOCK_EXPR,
-		    fFactory.makeNode(CAstNode.ASSIGN, fFactory.makeConstant(null)));
-	    return walkRegionIterator(null, walkNodes(init, context), walkNodes(dist, context), context);
+	    if (init instanceof Closure) {
+		Closure closure= (Closure) init;
+		Formal formal1= (Formal) closure.formals().get(0); // The closure for an array ctor init always has a single argument
+		// Turn this construct into an array allocation followed by a region
+		// iteration whose body calls the initializer and assigns the result
+		// to the corresponding array slot.
+		//
+		// BLOCK_EXPR [
+		//     ASSIGN [ arrayTmp, NEW [ type, dist.region ] ],
+		//     for(point p: dist.region) {
+		//         ASSIGN [ ARRAY_REF [ arrayTmp, p ], CALL [ closure, p ] ]
+		//     }
+		//     tmp
+		// ]
+		//
+		CAstNode closureNode= walkNodes(closure, wc);
+		String arrayTempName= "array temp";
+		CAstSymbolImpl arrayTemp= new CAstSymbolImpl(arrayTempName, true, false, true);
+		CAstNode arrayNewNode= 
+			makeNode(wc, ac, CAstNode.DECL_STMT,
+				fFactory.makeConstant(arrayTemp),
+				makeNode(wc, ac, CAstNode.NEW,
+					fFactory.makeConstant(arrayTypeRef),
+					walkNodes(dist, wc)));
+		int dummyPC = 0; // Just wrap the kind of call; the "rear end" won't care about anything else...
+		MethodReference closureRef= createMethodRefForClosure(closure);
+		CallSiteReference closureCallSiteRef= CallSiteReference.make(dummyPC, closureRef, IInvokeInstruction.Dispatch.VIRTUAL);
+		CAstNode arrayElemInit= makeNode(wc, closure, CAstNode.BLOCK_EXPR,
+			makeNode(wc, formal1, CAstNode.ASSIGN,
+				makeNode(wc, closure, CAstNode.ARRAY_REF,
+					makeNode(wc, closure, CAstNode.VAR, fFactory.makeConstant(arrayTempName)),
+					fFactory.makeConstant(baseTypeRef),
+					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name()))),
+				makeNode(wc, closure, CAstNode.CALL,
+					closureNode,
+					fFactory.makeConstant(closureCallSiteRef),
+					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name())))));
+
+		CAstNode loopBody= walkRegionIterator(formal1, arrayElemInit, walkNodes(dist, wc), wc);
+
+		return makeNode(wc, closure, CAstNode.BLOCK_EXPR, // NEED CAstNode.LOCAL_SCOPE or make "array temp" names unique
+			arrayNewNode,
+			loopBody,
+			makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(arrayTempName)));
+	    } else if (init instanceof ArrayInit) {
+		ArrayInit arrayInit= (ArrayInit) init;
+		// ARRAY_NEW [ type, dist.region, walkNodes(init, wc) ]
+		CAstNode[] eltNodes= new CAstNode[arrayInit.elements().size()+1];
+		int idx= 0;
+		eltNodes[idx++]= makeNode(wc, ac, CAstNode.NEW,
+			fFactory.makeConstant(baseTypeRef),
+			walkNodes(dist, wc));
+		for(Iterator iter= arrayInit.elements().iterator(); iter.hasNext();) {
+		    Expr elem= (Expr) iter.next();
+		    eltNodes[idx++]= walkNodes(elem, wc);
+		}
+		return makeNode(wc, init, CAstNode.ARRAY_LITERAL, eltNodes);
+	    } else {
+		Assertions.UNREACHABLE("ArrayConstructor has non-closure, non-ArrayInit initializer of type " + init.getClass());
+		return null;
+	    }
+	}
+
+	private MethodReference createMethodRefForClosure(Closure closure) {
+	    List formals= closure.formals();
+	    TypeName[] argTypes= new TypeName[formals.size()];
+	    for(int i= 0; i < argTypes.length; i++) {
+		Formal f= (Formal) formals.get(i);
+		argTypes[i]= TypeName.findOrCreate(f.type().name());
+	    }
+	    TypeName retType= TypeName.findOrCreate(closure.returnType().name());
+	    MethodReference closureRef= MethodReference.findOrCreate(
+		    TypeReference.findOrCreate(fClassLoaderRef, "Lclosure" + closure.type().position().toString()),
+		    new Selector(Atom.findOrCreateAsciiAtom("invoke"), Descriptor.findOrCreate(argTypes, retType)));
+	    return closureRef;
 	}
 
 	public CAstNode visit(GenParameterExpr gpe, WalkContext context) {
@@ -441,8 +559,148 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return null;
 	}
 
-	public CAstNode visit(ForLoop_c f, WalkContext context) {
+	public CAstNode visit(ForLoop f, WalkContext context) {
 	    return walkRegionIterator(f, walkNodes(f.body(), context), context);
+	}
+
+	public CAstNode visit(Closure closure, WalkContext wc) {
+	    CAstEntity bodyEntity= walkClosureEntity(closure, closure.body(), wc);
+	    CAstNode closureNode= fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
+
+	    wc.addScopedEntity(closureNode, bodyEntity);
+	    return closureNode;
+	}
+    }
+
+    private final class ClosureBodyEntity extends CodeBodyEntity {
+	private final CodeBodyContext fContext;
+
+	private final CAstNode fBodyAst;
+
+	private final CAstSourcePositionMap.Position fPosition;
+
+	private final ClosureBodyType fBodyType;
+
+	private final CAstType fEnclosingType;
+
+	public ClosureBodyEntity(Map<CAstNode,CAstEntity> entities, Closure node, CodeBodyContext context, CAstNode bodyAst, Type enclosingType) {
+	    super(entities);
+	    fContext= context;
+	    fBodyAst= bodyAst;
+	    fPosition= makePosition(node.position());
+	    fEnclosingType= getTypeDict().getCAstTypeFor(enclosingType);
+	    fBodyType= new ClosureBodyType((ClosureType) node.type(), fEnclosingType);
+	}
+	public CAstNode getAST() {
+	    return fBodyAst;
+	}
+
+	public int getArgumentCount() {
+	    return fBodyType.getArgumentCount();
+	}
+
+	public CAstNode[] getArgumentDefaults() {
+	    return new CAstNode[0];
+	}
+
+	public String[] getArgumentNames() {
+	    return new String[] { "p" }; // TODO where to get the arg names?
+	}
+
+	public CAstControlFlowMap getControlFlow() {
+	    return fContext.cfg();
+	}
+
+	public int getKind() {
+	    return X10CAstEntity.CLOSURE_BODY;
+	}
+
+	public String getName() {
+	    return "";
+	}
+
+	public CAstNodeTypeMap getNodeTypeMap() {
+	    return fContext.getNodeTypeMap();
+	}
+
+	public Position getPosition() {
+	    return fPosition;
+	}
+
+	public Collection getQualifiers() {
+	    return Collections.EMPTY_LIST;
+	}
+
+	public CAstSourcePositionMap getSourceMap() {
+	    return fContext.pos();
+	}
+
+	public CAstType getType() {
+	    return fBodyType;
+	}
+    }
+
+    private final class ClosureBodyType implements CAstType.Method {
+	private final ClosureType closureType;
+
+	private List<CAstType> argTypes;
+
+	private List<CAstType> excTypes;
+
+	private CAstType returnType;
+
+	private CAstType enclosingType;
+
+	public ClosureBodyType(ClosureType cType, CAstType enclosingType) {
+	    closureType= cType;
+	    this.enclosingType= enclosingType;
+	}
+
+	public int getArgumentCount() {
+	    return closureType.argumentTypes().size();
+	}
+
+	private List<CAstType> mapTypes(List<Type> types) {
+	    List<CAstType> castTypes= new ArrayList<CAstType>();
+	    for(Iterator iter= types.iterator(); iter.hasNext(); ) {
+		Type type= (Type) iter.next();
+		CAstType castType= getTypeDict().getCAstTypeFor(type);
+		castTypes.add(castType);
+	    }
+	    return castTypes;
+	}
+
+	public List getArgumentTypes() {
+	    if (argTypes == null) {
+		argTypes= mapTypes(closureType.argumentTypes());
+	    }
+	    return argTypes;
+	}
+
+	public Collection getExceptionTypes() {
+	    if (excTypes == null) {
+		excTypes= mapTypes(closureType.throwTypes());
+	    }
+	    return excTypes;
+	}
+
+	public CAstType getReturnType() {
+	    if (returnType == null) {
+		returnType= getTypeDict().getCAstTypeFor(closureType.returnType());
+	    }
+	    return returnType;
+	}
+
+	public String getName() {
+	    return ""; // Closures have no names
+	}
+
+	public Collection getSupertypes() {
+	    return Collections.EMPTY_LIST;
+	}
+
+	public CAstType getDeclaringType() {
+	    return enclosingType;
 	}
     }
 
