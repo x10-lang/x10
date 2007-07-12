@@ -1,3 +1,4 @@
+
 \newcommand{\starderives}{\derives^*}
 \def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
 \def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{#1)}}}
@@ -33,13 +34,12 @@ $c[\bar{t}/\bar{x}]$.
 
 \begin{tabular}{rrcl}
 &&&\\
-(Class) & L &{::=}& $\class \ T\  \extends\ T\ \{\bar{T} \bar{f};\ K\ \bar{M}\}$ \\
-(Ctor) & K &{::=}& $T(\bar{T} \bar{x})\{\super(\bar{x});\bar{f}=\bar{x}\}$\\
-(Method)& M &{::=}& $T\ m(\bar{T}\ \bar{x})\{\return\ e;\}$\\
-(Expr)& e &{::=}& $x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
-(C Terms) & t&{::=}& x\alt \self \alt t.f\\
-(Constraint) & c,d&{::=}&$\true\alt a\alt t=t\alt c,c\alt T\,x;c$\\
-(Type)& S,T,U&{::=}& $C(:d)$\\
+(Class) & L &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
+(Method)& M &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
+(Expr)& e &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
+(C Terms) & t&{::=}& \tt x\alt \self \alt \this \alt t.f\\
+(Constraint) & c,d&{::=}&$\tt \true\alt a\alt t=t\alt c,c\alt T\,x;c$\\
+(Type)& S,T,U&{::=}& $\tt C(:d)$\\
 &&&\\
 \end{tabular}
 
@@ -53,7 +53,7 @@ $$
 \begin{array}{ll}
 \Gamma\vdash {\tt T} \subtype {\tt T}
 &
-\from{\class\ {\tt C(:c)}\ \extends\ {\tt D(:d)}\{\ldots\}}
+\from{\class\ {\tt C(\ldots)}\ \extends\ {\tt D(\ldots)}\{\ldots\}}
 \infer{\vdash {\tt C \subtype D}}
 \\ & \\
 \from{\Gamma \vdash {\tt C \subtype D} \ \ \ \sigma(\Gamma),{\tt c} \vdash_{\cal C} {\tt d}}
@@ -66,12 +66,9 @@ $$
 
 \paragraph{Type Judgements.}
 
-Let {\tt C} be a class declared as {\tt class C(:c) extends
-D(:d)\{$\bar{\tt T}\ \bar{\tt f}$;{\tt K};$\bar{\tt M}$\}}. We let
+Let {\tt C} be a class declared as ${\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ extends\ D(:d)\{\bar{\tt M}\}}$. We let
 $\inv({\tt C})$ stand for the conjunction {\tt c,d} and (recursively)
-$\inv({\tt D})$. We bottom out with $\inv({\tt Object})=\true$. We use
-$ctor(C)$ to name the constructor {\tt K}.
-
+$\inv({\tt D})$. We bottom out with $\inv({\tt Object})=\true$. 
 $$
 \begin{array}{ll}
 \axname{T-Var}
@@ -80,47 +77,43 @@ $$
 \from{\Gamma \vdash {\tt C(:c)\ x} \ \ \ \ {\tt d}=inv (C)}
 \infer{\Gamma \vdash {\tt C(:c,d[\self/\this])\ x}}  &  
 \rname{T-Constr}
-\from{\Gamma \vdash {\tt C(:c)\ x} \ \ \ \sigma(\Gamma) \vdash_{\cal C}{\tt d[x/\self]}}
-\infer{\Gamma \vdash {\tt C(:c,d)\ x}} 
+\from{\Gamma \vdash {\tt C(:c)\ x} \ \ \ \sigma(\Gamma), {\tt c}[{\tt x}/\self] \vdash_{\cal C}{\tt d[x/\self]}}
+\infer{\Gamma \vdash {\tt C(:d)\ x}} 
 \\ \quad \\
 \rname{T-Field}
-\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0)= \bar{\tt U}(:\bar{\tt d}) \bar{\tt f}}
-\infer{\Gamma \vdash {\tt U}_i(:{\tt T}_0\ \this;\this.{\tt f}=\self,{\tt d}_i)\, {\tt e.f}_i} 
+\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0)= \bar{\tt U}(:\bar{\tt d}) \bar{\tt f} \ \ \ \mbox{({\tt o} fresh for $\Gamma,{\tt d}_i$)}}
+\infer{\Gamma \vdash {\tt U}_i(:{\tt T}_0\ {\tt o;o.f}=\self,{\tt d}_i)\, {\tt e.f}_i} 
 & 
 \axname{T-Cast}
 \axiom{\Gamma \vdash {\tt T\ (T) e}} \\
 & \\
 \rname{T-Invk}
 \from{\begin{array}{l}
-\Gamma \vdash {\tt T \ e}_0, \bar{\tt T}\ \bar{\tt e} \\
-mtype({\tt T}_0,m)= \tt c \Rightarrow \bar{\tt Z}\ \bar{\tt z} \rightarrow {\tt S(:d)} \\
-\Gamma, {\tt T}_0\ \tt \this, \bar{\tt T} \ \bar{\tt z} \vdash c, \bar{\tt T} \subtype \bar{\tt Z} 
+\Gamma \vdash {\tt T}_0 \ {\tt e}_0, \bar{\tt T}\ \bar{\tt e} \ \ \ \ 
+mtype({\tt T}_0,m)= \tt \bar{\tt Z}\ \bar{\tt z},c \rightarrow {\tt S(:d)} \\
+\Gamma, {\tt T}_0\ \tt o, \bar{\tt T} \ \bar{\tt z} \vdash c[o/\this], \bar{\tt T} \subtype \bar{\tt Z}[o/\this] \ \ \mbox {({\tt o} fresh for $\Gamma,
+{\tt c},{\tt d}$)}
 \end{array}}
-\infer{\Gamma \vdash {\tt S(:T}_0\ {\tt \this;\bar{\tt T}\ \bar{\tt z}; d)}\ {\tt e}_0.{\tt m(\bar{\tt e})}}&
+\infer{\Gamma \vdash {\tt S(:T}_0\ {\tt o;\bar{\tt T}\ \bar{\tt z}; d[o/\this])}\ {\tt e}_0.{\tt m(\bar{\tt e})}}&
 \rname{T-New}
 \from{
   \begin{array}{l}
-    \Gamma \vdash \bar{\tt T}\ \bar{\tt e} \\
-    ctor({\tt C})= \tt C(:d)(\bar{Z}\ \bar{\tt f}{\tt :c)} \\
-    \Gamma, \bar{\tt T}\ \bar{\tt f} \vdash {\tt c},\bar{\tt T} \subtype \bar{\tt Z}
+    \Gamma \vdash \bar{\tt T}\ \bar{\tt e} \ \ \  
+    fields(C)=\bar{\tt Z}\ \bar{f} \ \ \ {\tt c}=\inv(C) \\
+    \Gamma, \bar{\tt T}\ \bar{\tt f} 
+      \vdash {\tt c}[\bar{\tt f}/\this.\bar{\tt f}],\bar{\tt T} \subtype \bar{\tt Z}[\bar{\tt f}/\this.\bar{\tt f}]
   \end{array}
 }
-\infer{\Gamma \vdash {\tt C(:\bar{T}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f}{\tt ,d)}\ \new\ {\tt C(\bar{\tt e})}}} \\
+\infer{\Gamma \vdash {\tt C(:\bar{T}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f})\ \new\ {\tt C(\bar{\tt e})}}} \\
 \end{array}
 $$
 \paragraph{Method and Class Typing.}
 $$
 \begin{array}{ll}
-\from{ \bar{T}\ \bar{x}, C\ \this, c \vdash S\ e, S \subtype T }   
+\from{ \bar{\tt T}\ \bar{\tt x}, {\tt C}\ \this, {\tt c} \vdash {\tt S}\ {\tt e}, {\tt S} \subtype {\tt T} }   
 \infer{\tt T\ m(\bar{\tt T}\,\bar{\tt x} : c)\{\return\ e;\}\ \mbox{OK in}\ C} &
-\from{
-  \begin{array}{l}
-    K=C(\bar{S}\ \bar{g},\bar{T}\ \bar{f} : c')\{\super(\bar{g});\this.\bar{f}=\bar{f};\}\\
-    fields(D)=\bar{S}\ \bar{g}\ \\ 
-    \bar{S}\ \bar{g}, \bar{T}\ \bar{f}, \this.\bar{g}=\bar{g}, \this.\bar{f}=\bar{f}, c' \vdash c,d \\
-    \bar{M}\ \mbox{OK in}\ C\\
-  \end{array}}
-\infer{\class\ C(:c)\ \extends\ D(:d)\ \{\bar{T}\bar{f};K\,\bar{M}\}\ \mbox{OK}} 
+\from{\bar{M}\ \mbox{OK in}\ C}
+\infer{\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ \extends\ D(:d)\ \{\bar{M}\}\ \mbox{OK}} 
 \end{array}
 $$
 
