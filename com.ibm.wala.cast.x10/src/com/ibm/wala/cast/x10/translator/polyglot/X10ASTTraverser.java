@@ -7,13 +7,16 @@ import polyglot.ast.Node;
 import polyglot.ext.x10.ast.ArrayConstructor;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtEach;
+import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Finish;
 import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.ForLoop_c;
+import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.X10ArrayAccess;
+import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10Formal;
 
 import com.ibm.wala.cast.java.translator.polyglot.ASTTraverser;
@@ -32,8 +35,8 @@ public class X10ASTTraverser extends ASTTraverser {
 	    return xtv.visit((Future) n, wc);
 	else if (n instanceof Finish)
 	    return xtv.visit((Finish) n, wc);
-	else if (n instanceof ForLoop_c)
-	    return xtv.visit((ForLoop_c) n, wc);
+	else if (n instanceof ForLoop)
+	    return xtv.visit((ForLoop) n, wc);
 	else if (n instanceof ForEach)
 	    return xtv.visit((ForEach) n, wc);
 	else if (n instanceof AtEach)
@@ -46,6 +49,12 @@ public class X10ASTTraverser extends ASTTraverser {
 	    return xtv.visit((ArrayConstructor) n, wc);
 	else if (n instanceof X10Formal)
 	    return xtv.visit((X10Formal) n, wc);
+	else if (n instanceof Closure)
+	    return xtv.visit((Closure) n, wc);
+	else if (n instanceof X10ArrayAccess)
+	    return xtv.visit((X10ArrayAccess) n, wc);
+	else if (n instanceof X10ArrayAccess1)
+	    return xtv.visit((X10ArrayAccess1) n, wc);
 	else
 	    return ASTTraverser.visit(n, xtv, wc);
     }
