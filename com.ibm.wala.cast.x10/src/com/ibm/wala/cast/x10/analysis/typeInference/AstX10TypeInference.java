@@ -11,6 +11,10 @@ import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByIndexInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByPointInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByIndexInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByPointInstruction;
 import com.ibm.domo.ast.x10.types.X10TypeReference;
 import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
 import com.ibm.wala.classLoader.IClass;
@@ -31,7 +35,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	}
 
 	public void visitFinish(SSAFinishInstruction instruction) {
-	    Assertions.UNREACHABLE("Type operator requested for X10 atomic instruction");
+	    Assertions.UNREACHABLE("Type operator requested for X10 finish instruction");
 	}
 
 	public void visitForce(SSAForceInstruction instruction) {
@@ -79,6 +83,28 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    IClass klass= cha.lookupClass(type);
 
 	    result= new DeclaredTypeOperator(new ConeType(klass));
+	}
+
+	public void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction) {
+	    TypeReference type = instruction.getDeclaredType();
+	    IClass klass= cha.lookupClass(type);
+
+	    result = new DeclaredTypeOperator(new ConeType(klass));
+	}
+
+	public void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction) {
+	    TypeReference type = instruction.getDeclaredType();
+	    IClass klass= cha.lookupClass(type);
+
+	    result = new DeclaredTypeOperator(new ConeType(klass));
+	}
+
+	public void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction) {
+	    result = null; // ??? is this correct ???
+	}
+
+	public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
+	    result = null; // ??? is this correct ???
 	}
     }
 

@@ -19,4 +19,12 @@ public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
     void visitRegionIterNext(SSARegionIterNextInstruction instruction);
 
     void visitHere(SSAHereInstruction instruction);
+
+    void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction);
+
+    void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction);
+
+    void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction);
+
+    void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction);
 }
