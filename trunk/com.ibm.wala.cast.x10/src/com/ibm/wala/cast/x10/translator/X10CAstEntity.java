@@ -12,4 +12,5 @@ public interface X10CAstEntity extends CAstEntity {
      * an 'async') or an expression (in the case of a 'future').
      */
     public static final int ASYNC_BODY = SUB_LANGUAGE_BASE;
+    public static final int CLOSURE_BODY= ASYNC_BODY+1;
 }
