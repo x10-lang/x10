@@ -53,6 +53,17 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 		visitor.leaveAsyncBodyEntity(n, context, codeContext, visitor);
 		break;
 	    }
+	    case X10CAstEntity.CLOSURE_BODY: {
+		Context codeContext = visitor.makeCodeContext(context, n);
+		visitor.visitClosureBodyEntity(n, context, codeContext, visitor);
+		// visit the AST if any
+		if (n.getAST() != null)
+		    visitor.visit(n.getAST(), codeContext, visitor);
+		// process any remaining scoped children
+		visitor.visitScopedEntities(n, n.getScopedEntities(null), codeContext, visitor);
+		visitor.leaveClosureBodyEntity(n, context, codeContext, visitor);
+		break;
+	    }
 	    default:
 		return super.doVisitEntity(n, context, visitor);
 	}
@@ -74,6 +85,22 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
      * @param codeContext a visitor-specific context for this script
      */
     protected void leaveAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) { visitor.leaveEntity(n, context, visitor); }
+
+    /**
+     * Visit an AsyncBody entity.
+     * @param n the entity to process
+     * @param context a visitor-specific context
+     * @param codeContext a visitor-specific context for this script
+     * @return true if no further processing is needed
+     */
+    protected boolean visitClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) { return visitor.visitEntity(n, context, visitor); }
+    /**
+     * Leave an AsyncBody entity.
+     * @param n the entity to process
+     * @param context a visitor-specific context
+     * @param codeContext a visitor-specific context for this script
+     */
+    protected void leaveClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) { visitor.leaveEntity(n, context, visitor); }
 
     /**
      * Node processing hook; sub-classes are expected to override if they
