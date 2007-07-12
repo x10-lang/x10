@@ -19,6 +19,43 @@
 Specific constraint systems used when developing specific
 examples.
 
+In the following we will use the shorthand $\tt C(\bar{t}:c)$ for the
+type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
+{\tt C} is $\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ldots$.  Also,
+we abbreviate $\tt C(\bar{t}:\true)$ as $\tt C(\bar{t})$.  Finally, we
+will also have need to use the shorthand ${\tt C}_1(\bar{t}_:{\tt
+c}_1)\& \ldots {\tt C}_k(\bar{\tt t}_k:{\tt c}_k)$ for the type
+${\tt C}_1(:\bar{\tt f}_1=\bar{\tt t}_1, \ldots, \bar{\tt
+f}_k=\bar{\tt t}_k,{\tt c}_1,\ldots,{\tt c}_k$ 
+provided that the ${\tt C}_i$ form a subtype chain
+and the declared fields of ${\tt C}_i$ are ${\tt f}_i$.
+
+Constraints naturally allow for partial specification
+(e.g. inequalities) or incomplete specification (no constraint on a
+variable) with the same simple syntax. In the example below,
+the type of {\tt a} does not place any constraint on the second
+dimension of {\tt a}, but this dimension can be used in other
+types (e.g.{} the return type).
+
+{\footnotesize
+\begin{verbatim}
+class Matrix(int m, int n) {
+  Matrix(m,a.n) mul(Matrix(:m=this.n) a) {...}
+  ...
+}
+\end{verbatim}}
+
+Constraints naturally permit the expression of existential types:
+
+{\footnotesize
+\begin{verbatim}
+ class List(int length) { 
+ List(:self.length < length) filter(Comparator k) { ...} 
+ ...
+ }
+\end{verbatim}}
+
+
 \subsection{Binary methods}
 
 The binary method problem \cite{bruce}.
@@ -26,38 +63,45 @@ The binary method problem \cite{bruce}.
 Bruce and Cardelli and Castagna and Leavens and Pierce,
 On Binary Methods, TAPOS 1(3): 221--242, Fall 1995.
 
+{\footnotesize
 \begin{verbatim}
 interface Set {
-    Set(:self.class == this.class)
-        union(Set(:self.class == this.class) s);
-    boolean superSetOf(Set(:self.class == this.class) s);
+    Set(:class == this.class)
+        union(Set(:class == this.class) s);
+    boolean superSetOf(Set(:class == this.class) s);
 }
 
 class IntSet implements Set {
     long bits;
 
-    Set(:self.class == this.class)
-        union(Set(:self.class == this.class) s) {
+    Set(:class == this.class)
+        union(Set(:class == this.class) s) {
 
-        Set(:self.class == this.class) r = new IntSet();
+        Set(:class == this.class) r = new IntSet();
         // need to be able to conclud that r : IntSet
         r.bits = this.bits | s.bits;
         return r;
     }
-
     boolean superSetOf(Set(:self.class == this.class) s) {
         return (s.bits & ~bits) == 0;
     }
 }
-\end{verbatim}
+\end{verbatim}}
 
 \subsection{Cayenne examples}
 
 
-
-
-
 \subsection{DML examples}
+
+{\footnotesize
+\begin{verbatim}
+class AVLList(int(:self >= 0) height) {...}
+class Leaf(Object key) extends AVLList(0) {...}
+class Node(Object key, AVLList l, AVLList r
+           : int d=l.height-r.height; -1 <= d, d <= 1) 
+    extends AVLList(max(l.height,r.height)+1){..}
+\end{verbatim}}
+
 
 Red/black tree invariant.
 
