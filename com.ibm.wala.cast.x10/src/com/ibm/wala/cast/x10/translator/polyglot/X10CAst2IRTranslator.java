@@ -14,6 +14,7 @@ import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
 import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByIndexInstruction;
 import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByIndexInstruction;
+import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.visit.X10CAstVisitor;
 import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
 import com.ibm.wala.cast.ir.translator.AstTranslator.DefaultContext;
@@ -31,6 +32,7 @@ import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.Atom;
+import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.debug.Trace;
 
 public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandler {
@@ -49,19 +51,31 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     protected boolean visitFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
 	CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
 
-	declareAsync(fn, (WalkContext) c);
+	if (fn.getKind() == X10CAstEntity.ASYNC_BODY)
+	    declareAsync(fn, (WalkContext) c);
+	else if (fn.getKind() == X10CAstEntity.CLOSURE_BODY)
+	    declareClosure(fn, (WalkContext) c);
 	return false;
     }
 
     protected void leaveFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
-        int result= processAsyncExpr(n, c);
+	int result;
+	CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
+
+	if (fn.getKind() == X10CAstEntity.ASYNC_BODY)
+	    result= processAsyncExpr(n, c);
+	else if (fn.getKind() == X10CAstEntity.CLOSURE_BODY)
+	    result= processClosureExpr(n, c);
+	else {
+	    Assertions.UNREACHABLE("FUNCTION_EXPR neither async nor closure in leaveFunctionExpr().");
+	    return;
+	}
         translator.setValue(n, result);
     }
 
     private int processAsyncExpr(CAstNode n, Context c) {
 	WalkContext context= (WalkContext) c;
 	CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
-//	declareAsync(fn, context);
 	int result= context.currentScope().allocateTempValue();
 	int ex= context.currentScope().allocateTempValue();
 	doMaterializeAsync(context, result, ex, fn);
@@ -79,6 +93,28 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 	TypeReference asyncRef= asyncTypeReference(fn);
 
 	((X10SourceLoaderImpl) translator.loader()).defineAsync(fn, asyncRef, fn.getPosition());
+    }
+
+    private int processClosureExpr(CAstNode n, Context c) {
+	WalkContext context= (WalkContext) c;
+	CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
+	int result= context.currentScope().allocateTempValue();
+	int ex= context.currentScope().allocateTempValue();
+	doMaterializeClosure(context, result, ex, fn);
+	return result;
+    }
+
+    private void doMaterializeClosure(WalkContext context, int result, int ex, CAstEntity fn) {
+	TypeReference closureRef= closureTypeReference(fn);
+
+	context.cfg().addInstruction(SSAInstructionFactory.NewInstruction(result,
+		NewSiteReference.make(context.cfg().getCurrentInstruction(), closureRef)));
+    }
+
+    private void declareClosure(CAstEntity fn, WalkContext context) {
+	TypeReference asyncRef= closureTypeReference(fn);
+
+	((X10SourceLoaderImpl) translator.loader()).defineClosure(fn, asyncRef, fn.getPosition());
     }
 
     private TypeReference asyncTypeReference(CAstEntity fn) {
