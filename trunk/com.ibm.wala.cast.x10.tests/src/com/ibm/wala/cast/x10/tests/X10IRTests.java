@@ -101,6 +101,13 @@ public class X10IRTests extends IRTests {
     }
     */
 
+    /*
+     public void testAsyncInvoke() {
+     	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+     		new GraphAssertions(), null, true);
+     }
+     */
+    
 //    public void testArrayCtor1() {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 //		new GraphAssertions(), null, true);
