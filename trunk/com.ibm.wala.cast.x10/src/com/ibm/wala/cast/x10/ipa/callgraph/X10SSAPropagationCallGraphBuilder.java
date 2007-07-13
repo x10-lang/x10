@@ -104,7 +104,8 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	}
     }
 
-    protected InterestingVisitor makeInterestingVisitor(int vn) {
+    @Override
+    protected InterestingVisitor makeInterestingVisitor(CGNode node, int vn) {
 	return new AstX10InterestingVisitor(vn);
     }
 
