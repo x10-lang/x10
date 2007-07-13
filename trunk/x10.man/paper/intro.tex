@@ -168,48 +168,30 @@ type). Thus, using the definition above, {\tt List(n)} is the type of
 all lists of length {\tt n}.
 
 \subsection{An example}
-
 \begin{figure*}
 {\footnotesize
 \begin{verbatim}
-public value class List(int(:self >= 0) length) {
+class List(int(:self >= 0) length) {
   Object head = null;
   List(length-1) tail = null;
-
-  /** Returns the empty list. */
-  public List(0)() {
-    property(0);
-  }
-
-  /** Returns a singleton list. */
-  public List(1)(Object head) {
-    this(head, new List());
-  }
-  /** Returns the cons of head and tail. */
-  public List(tail.length+1)(Object head, final List tail) {
+  List(0)() { property(0); }
+  List(1)(Object head) { this(head, new List());}
+  List(tail.length+1)(Object head, List tail) {
     property(tail.length+1);
     this.head = head;
     this.tail = tail;
   }
-  public List(length+arg.length) append(final List arg) {
-    return (length == 0)
-          ? arg
-          : new List(head, tail.append(arg));
+  List(length+arg.length) append(List arg) {
+    return (length == 0) ? arg : new List(head, tail.append(arg));
   }
-  public List(length) rev() {
-    return rev(new List());
+  List(length) rev() { return rev(new List()); }
+  List(length+acc.length) rev(final List acc) {
+    return (length == 0) ? acc : tail.rev(new List(head, acc));
   }
-  public List(length+acc.length) rev(final List acc) {
-    return (length == 0)
-          ? acc
-          : tail.rev(new List(head, acc));
-  }
-  /** Return a list of compile-time unknown length, obtained by filtering
-      this with f. */
-  public List(:self.length <= this.length) filter(Predicate f) {
+  List(:self.length <= this.length) filter(Predicate f) {
     if (length==0) return this;
     if (f.isTrue(head)) {
-      List<Object> l = tail.filter(f);
+      List l = tail.filter(f);
       return new List(l+1)(head, l);
     } else {
       return tail.filter(f);
