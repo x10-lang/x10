@@ -51,6 +51,8 @@ import polyglot.types.Type;
 
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
+import com.ibm.wala.cast.ir.translator.AstTranslator;
+import com.ibm.wala.cast.ir.translator.AstTranslator.InternalCAstSymbol;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
@@ -59,6 +61,7 @@ import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstNodeTypeMap;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
+import com.ibm.wala.cast.tree.CAstSymbol;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.tree.impl.CAstSymbolImpl;
@@ -494,7 +497,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		//
 		CAstNode closureNode= walkNodes(closure, wc);
 		String arrayTempName= "array temp";
-		CAstSymbolImpl arrayTemp= new CAstSymbolImpl(arrayTempName, true, false, true);
+		CAstSymbol arrayTemp= new AstTranslator.InternalCAstSymbol(arrayTempName, true);
 		CAstNode arrayNewNode= 
 			makeNode(wc, ac, CAstNode.DECL_STMT,
 				fFactory.makeConstant(arrayTemp),
@@ -540,16 +543,20 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    }
 	}
 
+	private String castNameForType(Type type) {
+	    return getTypeDict().getCAstTypeFor(type).getName();
+	}
+
 	private MethodReference createMethodRefForClosure(Closure closure) {
 	    List formals= closure.formals();
 	    TypeName[] argTypes= new TypeName[formals.size()];
 	    for(int i= 0; i < argTypes.length; i++) {
 		Formal f= (Formal) formals.get(i);
-		argTypes[i]= TypeName.findOrCreate(f.type().name());
+		argTypes[i]= TypeName.findOrCreate(castNameForType(f.type().type()));
 	    }
-	    TypeName retType= TypeName.findOrCreate(closure.returnType().name());
+	    TypeName retType= TypeName.findOrCreate(castNameForType(closure.returnType().type()));
 	    MethodReference closureRef= MethodReference.findOrCreate(
-		    TypeReference.findOrCreate(fClassLoaderRef, "Lclosure" + closure.type().position().toString()),
+		    TypeReference.findOrCreate(fClassLoaderRef, "Lclosure" + new PolyglotSourcePosition(closure.position())),
 		    new Selector(Atom.findOrCreateAsciiAtom("invoke"), Descriptor.findOrCreate(argTypes, retType)));
 	    return closureRef;
 	}
@@ -616,7 +623,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public String getName() {
-	    return "";
+	    return "invoke";
 	}
 
 	public CAstNodeTypeMap getNodeTypeMap() {
