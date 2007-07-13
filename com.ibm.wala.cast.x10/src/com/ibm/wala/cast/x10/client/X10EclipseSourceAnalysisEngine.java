@@ -7,6 +7,7 @@ import com.ibm.domo.ast.x10.translator.polyglot.X10IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
+import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
 import com.ibm.wala.eclipse.util.EclipseProjectSourceAnalysisEngine;
 
 public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysisEngine {
@@ -27,5 +28,10 @@ public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysis
     @Override
     protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions, IRTranslatorExtension extInfo) {
 	return new X10ClassLoaderFactory(exclusions, extInfo);
+    }
+
+    @Override
+    public PointerAnalysis getPointerAnalysis() {
+        return super.getPointerAnalysis();
     }
 }
