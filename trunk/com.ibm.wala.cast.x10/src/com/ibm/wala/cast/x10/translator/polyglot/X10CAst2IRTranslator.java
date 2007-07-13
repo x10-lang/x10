@@ -168,7 +168,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     }
 
     private TypeReference closureTypeReference(CAstEntity fn) {
-	return TypeReference.findOrCreate(translator.loader().getReference(), "LC" + fn.getName());
+	return TypeReference.findOrCreate(translator.loader().getReference(), "Lclosure" + fn.getPosition());
     }
 
     protected boolean visitClosureBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
