@@ -39,8 +39,7 @@ public class X10ArrayStoreByIndexInstruction extends X10ArrayReferenceByIndexIns
 
     @Override
     public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	// TODO Auto-generated method stub
-	return null;
+	return "x10arrayStoreByIndex " + getValueString(symbolTable, d, getArrayRef()) + "[" + getIndexString(symbolTable, d) + "] = " + getValueString(symbolTable, d, value);
     }
 
     @Override
