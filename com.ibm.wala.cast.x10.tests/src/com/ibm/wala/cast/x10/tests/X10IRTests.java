@@ -94,6 +94,10 @@ public class X10IRTests extends IRTests {
 		new GraphAssertions(), null, true);
     }
 
+    public void testArrayAccess1() {
+	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+		new GraphAssertions(), null, true);
+    }
     /*    
     public void testHashTable() {
     	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
@@ -101,15 +105,15 @@ public class X10IRTests extends IRTests {
     }
     */
 
+    public void testArrayCtor1() {
+	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+		new GraphAssertions(), null, true);
+    }
+
     /*
      public void testAsyncInvoke() {
      	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
      		new GraphAssertions(), null, true);
      }
      */
-    
-//    public void testArrayCtor1() {
-//	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-//		new GraphAssertions(), null, true);
-//    }
 }
