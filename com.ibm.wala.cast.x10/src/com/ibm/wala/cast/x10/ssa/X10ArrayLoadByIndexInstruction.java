@@ -40,13 +40,7 @@ public class X10ArrayLoadByIndexInstruction extends X10ArrayReferenceByIndexInst
 
     @Override
     public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	StringBuffer indexBuff= new StringBuffer();
-	int[] indices= getIndices();
-	for(int i= 0; i < indices.length; i++) {
-	    if (i > 0) indexBuff.append(',');
-	    indexBuff.append(getValueString(symbolTable, d, indices[i]));
-	}
-	return getValueString(symbolTable, d, result) + " = x10arrayload " + getValueString(symbolTable, d, getArrayRef()) + "[" + indexBuff + "]";
+	return getValueString(symbolTable, d, result) + " = x10arrayLoadByIndex " + getValueString(symbolTable, d, getArrayRef()) + "[" + getIndexString(symbolTable, d) + "]";
     }
 
     @Override

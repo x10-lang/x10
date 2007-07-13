@@ -36,7 +36,7 @@ public class X10ArrayStoreByPointInstruction extends X10ArrayReferenceByPointIns
 
     @Override
     public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	return "x10 array store by point";
+	return "x10arrayStoreByPoint " + getValueString(symbolTable, d, getArrayRef()) + "[" + getValueString(symbolTable, d, getPointIndex()) + "] = " + getValueString(symbolTable, d, value);
     }
 
     @Override

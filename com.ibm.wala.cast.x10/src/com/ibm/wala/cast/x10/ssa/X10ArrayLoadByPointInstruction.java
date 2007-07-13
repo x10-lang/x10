@@ -36,8 +36,7 @@ public class X10ArrayLoadByPointInstruction extends X10ArrayReferenceByPointInst
 
     @Override
     public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	// TODO Auto-generated method stub
-	return null;
+	return getValueString(symbolTable, d, result) + " = x10arrayLoadByPoint " + getValueString(symbolTable, d, getArrayRef()) + "[" + getValueString(symbolTable, d, getPointIndex()) + "]";
     }
 
     @Override
