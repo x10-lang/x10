@@ -25,7 +25,7 @@
 (Class) & L &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
 (Method)& M &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
 (Expr)& e &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
-(C Terms) & t&{::=}& \tt x\alt \self \alt \this \alt t.f\\
+(C Terms) & t&{::=}& \tt x\alt \self \alt \this \alt t.f \alt \new\ {\tt C($\bar{\tt t}$}\\
 (Constraint) & c,d&{::=}&$\tt \true\alt a\alt t=t\alt c,c\alt T\,x;c$\\
 (Type)& S,T,U&{::=}& $\tt C(:d)$\\
 &&&\\
@@ -39,16 +39,16 @@ ${\tt C(:d)\ x}$ with ${\tt d}[{\tt x}/\self]$.
 
 $$
 \begin{array}{ll}
-\Gamma\vdash {\tt T} \subtype {\tt T}
+ {\tt C} \subtype {\tt C}
 &
 \from{\class\ {\tt C(\ldots)}\ \extends\ {\tt D(\ldots)}\{\ldots\}}
-\infer{\vdash {\tt C \subtype D}}
+\infer{{\tt C} \subtype {\tt D}}
 \\ & \\
-\from{\Gamma \vdash {\tt C \subtype D} \ \ \ \sigma(\Gamma),{\tt c} \vdash_{\cal C} {\tt d}}
+\from{{\tt C} \subtype {\tt D} \ \ \ {\tt D} \subtype {\tt E}}
+\infer{{\tt C} \subtype {\tt E}} &
+\from{{\tt C} \subtype {\tt D} \ \ \ \Gamma, {\tt C(:c)}\ {\tt x} \vdash 
+{\tt D(:d)}\ {\tt x}\ \ \ \mbox{({\tt x} new)}}
 \infer{\Gamma \vdash {\tt C(:c) \subtype D(:d)}}
-&
-\from{\Gamma \vdash {\tt S \subtype T} \ \ \ \Gamma \vdash {\tt T \subtype U}}
-\infer{\Gamma \vdash {\tt S \subtype U}}
 \end{array}
 $$
 
@@ -66,29 +66,25 @@ we define $fields({\tt T},\theta)$ to be $\bar{S}\theta\ \bar{f}$.
 
 $$
 \begin{array}{ll}
-\axname{T-Var}
-\axiom{\Gamma, {\tt T}\ {\tt x} \vdash {\tt T}\ {\tt x}} \\ & \\
-\rname{T-Constr}
-\from{\Gamma \vdash {\tt S\ x} \ \ \ \Gamma, {\tt S\ x} \vdash_{\cal C} {\tt T\ e}}
-\infer{\Gamma \vdash {\tt T\ e}} &
-\rname{T-Inv}
-\from{\Gamma, {\tt c}, {\tt S\ x} \vdash {\tt T\ e} \ \ \ \ {\tt c}=\inv(T, [{\tt x}/\this])}
-\infer{\Gamma, {\tt S\ x} \vdash {\tt T\ e}}    
+\rname{T-Var}
+\from{\sigma(\Gamma, {\tt C(:c)}\ {\tt x}) \vdash_{\cal C} {\tt d}[{\tt x}/\self]}
+\infer{\Gamma, {\tt C(:c)\ x} \vdash {\tt C(:d)}\ {\tt x}} &
 \\ \quad \\
 \rname{T-Field}
-\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0,[{\tt o}/\this])= \bar{\tt U}(:\bar{\tt d}) \bar{\tt f} \ \ \ \mbox{({\tt o} fresh for $\Gamma,{\tt d}_i$)}}
-\infer{\Gamma \vdash {\tt U}_i(:{\tt T}_0\ {\tt o;o.f}_i=\self,{\tt d}_i)\, {\tt e.f}_i} 
+\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f} \ \ \ \mbox{(${\tt z}_0$ fresh)}} 
+\infer{\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}=\self;{\tt U}_i)\ {\tt e.f}_i} 
 & 
-\axname{T-Cast}
-\axiom{\Gamma \vdash {\tt T\ (T) e}} \\
+\rname{T-Cast}
+\from{\Gamma \vdash {\tt S}\ {\tt e}}
+\infer{\Gamma \vdash {\tt T}\ {\tt (T) e}} \\
 & \\
 \rname{T-Invk}
 \from{\begin{array}{l}
 \Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  \ \ \ 
-mtype({\tt T}_0,{\tt m},[{\tt z}_0/\this])= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt S(:d)} \\
-\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash c, {\tt T}_{1:n} \subtype {\tt Z}_{1:n}\ \ \mbox {(${\tt z}_0$ fresh for $\Gamma, {\tt c},{\tt d}$)}
+mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt S} \\
+\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash {\tt c}, {\tt T}_{1:n} \subtype {\tt Z}_{1:n}\ \ \ \mbox {(${\tt z}_{0:n}$ fresh)}
 \end{array}}
-\infer{\Gamma \vdash {\tt S(:T}_{0:n}\ {\tt z}_{0:n}; d)\ {\tt e}_0.{\tt m({\tt e}_{1:n})}}&
+\infer{\Gamma \vdash ({\tt T}_{0:n}\ {\tt z}_{0:n}; S)\ {\tt e}_0.{\tt m({\tt e}_{1:n})}}&
 \rname{T-New}
 \from{
   \begin{array}{l}
@@ -175,6 +171,11 @@ $\theta=[\bar{t}/\bar{x}]$ to a constraint $c$ by
 $c[\bar{t}/\bar{x}]$. Application of substitutions is extended to
 types by: ${\tt C(:c)\theta}={\tt C(:c\theta)}$.
 
+All constraint systems are required to satisfy:
+$$\new\ {\tt C(\bar{\tt t})}.{\tt f}_i={\tt t}_i  $$
+provided that $fields({\tt C})=\bar{\tt T}\ \bar{\tt f}$ (for some 
+sequence of types $\bar{\tt T}$).
+
 A type assertion {\tt C(:c) x} constrains the variable {\tt x} to
 contain references to only those objects {\tt o} that are instances of
 (subclasses of) {\tt C} and for which the constraint {\tt c} is true
@@ -210,15 +211,16 @@ x}$ and
 \paragraph{Type judgements.}
 Typing judgements are of the form $\Gamma \vdash {\tt T}\ {\tt e}$
 where $\Gamma$ is a multiset of type assertions ${\tt T}\ {\tt x}$ and
-constraints ${\tt c}$. The constraint entailment relation
-$\vdash_{\cal C}$ is lifted to type assertions through the definition:
-$\Gamma \vdash_{\cal C} {\tt D(:d)}\ {\tt x}$ provided that $\{ {\tt
-c}[{\tt x}/\self] \alt {\tt C(:c)}\ x \in \Gamma\} \cup
-\{{\tt c} \alt  {\tt c} \in \Gamma\} \vdash_{\cal C} {\tt d}[{\tt x}/\self]
-$ and $\Gamma \vdash {\tt D}\ {\tt x}$. Intuitively, $\Gamma \vdash
-\tt D(:d)\ {\tt x}$ if $\Gamma$ constrains {\tt x} to be of type {\tt
-D} and there is enough information in the constraints in $\Gamma$ to
-entail {\tt d} for {\tt x}.
+constraints ${\tt c}$. 
+%The constraint entailment relation
+%$\vdash_{\cal C}$ is lifted to type assertions through the definition:
+%$\Gamma \vdash_{\cal C} {\tt D(:d)}\ {\tt x}$ provided that $\{ {\tt
+%c}[{\tt x}/\self] \alt {\tt C(:c)}\ x \in \Gamma\} \cup
+%\{{\tt c} \alt  {\tt c} \in \Gamma\} \vdash_{\cal C} {\tt d}[{\tt x}/\self]
+%$ and $\Gamma \vdash {\tt D}\ {\tt x}$. Intuitively, $\Gamma \vdash
+%\tt D(:d)\ {\tt x}$ if $\Gamma$ constrains {\tt x} to be of type {\tt
+%D} and there is enough information in the constraints in $\Gamma$ to
+%entail {\tt d} for {\tt x}.
 
 %$\sigma(\Gamma)$ is the set of constraints on the variables whose type
 %assertions are specified by $\Gamma$, generated by replacing each type
@@ -228,11 +230,21 @@ entail {\tt d} for {\tt x}.
 %information about {\tt x} and other variables specified in $\Gamma$.
 \def\TConstr{\mbox{\sc T-Constr}}
 \def\TInv{\mbox{\sc T-Inv}}
+\def\TVar{\mbox{\sc T-Var}}
 \def\TField{\mbox{\sc T-Field}}
 \def\TInvk{\mbox{\sc T-Invk}}
 \def\TNew{\mbox{\sc T-New}}
-\TConstr{} is a form of cut which permits information obtained through
-constraint entailment to enrich the type of an expression.
+\def\TCast{\mbox{\sc T-Cast}}
+\def\TUCast{\mbox{\sc T-UCast}}
+\def\TDCast{\mbox{\sc T-DCast}}
+\def\TSCast{\mbox{\sc T-SCast}}
+%\TConstr{} is a form of cut which permits information obtained through
+%constraint entailment to enrich the type of an expression.
+
+\TVar{} extends the identity rule ($\Gamma, x:C \vdash x:C$) of {\sf FJ} to take into account the constraint entailment relation.
+
+\TCast{} encapsulates the three inference rules of {\sf FJ} -- 
+\TUCast{}, \TDCast{} and\TSCast{} for upwards cast, downwards cast, and ``stupid'' cast respectively. 
 
 \TInv{} is a form of contraction that permits the class invariant {\tt
 c} of a class {\tt C} to enrich the type of any variable of type {\tt
@@ -306,3 +318,20 @@ $\not\vdash \tt C\subtype T[\new\ C(\bar{\tt v})/\self]$.
 
 \end{theorem}
 
+\begin{lemma}[Substitution Lemma]
+Assume $\Gamma \vdash \bar{\tt A}\ \bar{\tt d}$, $\Gamma \vdash \bar{\tt A}\subtype \bar{\tt B}$, and $\Gamma, \bar{\tt B}\ \bar{\tt x} \vdash {\tt T}\ {\tt e}$. Then for some type ${\tt S}$ s.t. $\Gamma \vdash {\tt S} \subtype \bar{\tt A}\ \bar{\tt x};{\tt T}$ it is the case that $\Gamma \vdash {\tt S}\ {\tt e}[\bar{\tt d}/\bar{\tt x}]$.
+\end{lemma}
+
+% Unchanged from FJ
+\begin{lemma}[Weakening]
+If $\Gamma \vdash {\tt T}\ {\tt e}$, then $\Gamma, {\tt S}\ {\tt x}\vdash {\tt T}\ {\tt e}$.
+\end{lemma}
+
+% Unchanged from FJ
+\begin{lemma}[Body type]
+If $mtype({\tt m}, {\tt T}_0)=\bar{\tt T}\ \bar{\tt x} : {\tt c}
+\rightarrow {\tt S}$, and $mbody({\tt m}, {\tt T}_0)=\bar{\tt x}.{\tt
+e}$, then for some ${\tt U}_0$ with ${\tt T}_0 \subtype {\tt U}_0$,
+there exists ${\tt V}\subtype {\tt S}$ such that
+$\bar{\tt T}\ \bar{\tt x},{\tt U}_0\ \this \vdash {\tt V}\ {\tt e}$
+\end{lemma}
