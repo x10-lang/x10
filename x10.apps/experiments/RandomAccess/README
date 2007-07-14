@@ -3,13 +3,12 @@ To Install:
 
 1. untar hpcc-opt.tar.
 
-2. copy make.def.template to make.def
+2. Copy make.def.template to make.def
 
-3. Change the Include and Library path to suit your environment
+3. Edit make.def and change the Include and Library path to suit your environment
+   Change the compiler flags, if required (default -O3 -q64 -qarch=pwr5 -qtune=pwr5 is recommended)
 
-4. Change the compiler flags, if required (default -O3 -q64 -qarch=pwr5 -qtune=pwr5 is recommended)
-
-5. type "make".
+4. type "make".
 
 To run:
 =======
