@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.1 2007-07-03 11:26:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.2 2007-07-14 09:16:48 ganeshvb Exp $ */
 
 /* Main Version 
         minus finshStart/End (ie. uses Gfence)*/
@@ -43,14 +43,18 @@ void
 inline __async__0 (__async__0__args args)
 {
   glong_t ran = args.captVar1;
-  GLOBAL_SPACE.Table->update (ran);
+  //GLOBAL_SPACE.Table->update (ran);
+  glong_t off = ran & GLOBAL_SPACE.Table->mask;
+  GLOBAL_SPACE.Table->array[off]  ^= ran;
 }
 
 void
 inline __async__1 (__async__1__args args)
 {
   glong_t ran = args.captVar1;
-  GLOBAL_SPACE.Table->verify (ran);
+  //GLOBAL_SPACE.Table->verify (ran);
+  glong_t off = ran & GLOBAL_SPACE.Table->mask;
+  GLOBAL_SPACE.Table->array[off]++; 
 }
 
 void

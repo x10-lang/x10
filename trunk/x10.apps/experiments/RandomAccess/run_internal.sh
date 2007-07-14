@@ -2,11 +2,11 @@
 
 echo "===============RandomAccess -- Table Size = $1 NPROCS = $2==================" 
 
-echo "***************************EXPT1******************************" 
-poe "x10lib/RandomAccess_spmd   -o  -m $1" -procs $2 
+#echo "***************************EXPT1******************************" 
+#poe "x10lib/RandomAccess_spmd   -o  -m $1" -procs $2 
 
-echo "***************************EXPT2********************************" 
-poe "x10c/RandomAccess_Dist -o  -m $1"  -procs $2  
+#echo "***************************EXPT2********************************" 
+#poe "x10c/RandomAccess_Dist -o  -m $1"  -procs $2  
 
 echo "***************************EXPT3********************************" 
 cd hpcc-opt;

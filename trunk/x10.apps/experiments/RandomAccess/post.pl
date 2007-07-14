@@ -7,7 +7,11 @@ open(INPUT, "$ARGV[0]") or die( "Error: cannot open file $SCRATCH" );
 @bench0 = ('0');
 @bench1 = ('0');
 @bench2 = ('0');
+@bench3 = ('0');
+@bench4 = ('0');
+@bench5 = ('0');
 my @time = (\@bench0, \@bench1, \@bench2);
+my @variance = (\@bench3, \@bench4, \@bench5);
 my @total = ([], [], []);
 $procs = 0;
 $skip=1;
@@ -42,7 +46,6 @@ while( $aline = <INPUT> ){
 
   if ($aline =~ /CPU time used\ *=\ *(\d*.\d*) seconds/) {
     $time[$i][$procs] = $time[$i][$procs] + $1;
-    print "$1  $time[$i][$procs]";
   }
 
   if ($aline =~/\ *(\d*.\d*) Billion/) {
@@ -72,6 +75,47 @@ while( $aline = <INPUT> ){
     printf ( "%d\t%5.2f\t%5.2f\t%5.2f\n", 2**$i, $time[0][$i], $time[1][$i], $time[2][$i]);
   } 
 
+close(INPUT);
+
+open(INPUT, "$ARGV[0]") or die( "Error: cannot open file $SCRATCH" );
+$nprocs = 0;
+while( $aline = <INPUT> ){
+ if ($aline =~ /Verification/) {
+    next; 
+  }
+
+ if ($aline =~ /Updates\/PE/) {
+    next; 
+  }
+
+ if ($aline =~ /NPROCS\ *=\ *(\d*)/ ){
+   $procs = log2($1);
+   $nprocs++;
+   $i = 0;
+ }
+
+  if ($aline =~ /EXPT1/) {
+    $i = 0;
+  } 
+
+  if ($aline =~ /EXPT2/) {
+    $i = 1;
+  } 
+
+  if ($aline =~ /EXPT3/) {
+    $i = 2;
+  } 
+
+  if ($aline =~/\ *(\d*.\d*) Billion/) {
+    $variance[$i][$procs] = $variance[$i][$procs] + ($gups[$i][$procs] - $1) ** 2;
+  }
+
+}
+  printf("=======VARIANCE:GUPS=======\n");
+  printf ("PROCS\tEXPT1\tEXPT2\tEXPT3\n");
+  for ($i= 0; $i <= $n; $i++) {
+    printf ( "%d\t%0.5f\t%0.5f\t%0.5f\n", 2**$i, $variance[0][$i] / ($n+1), $variance[1][$i] / ($n+1), $variance[2][$i] / ($n+1));
+  }
 
 close(INPUT);
 
