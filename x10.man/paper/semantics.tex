@@ -46,8 +46,11 @@ $$
 \\ & \\
 \from{{\tt C} \subtype {\tt D} \ \ \ {\tt D} \subtype {\tt E}}
 \infer{{\tt C} \subtype {\tt E}} &
-\from{{\tt C} \subtype {\tt D} \ \ \ \Gamma, {\tt C(:c)}\ {\tt x} \vdash 
-{\tt D(:d)}\ {\tt x}\ \ \ \mbox{({\tt x} new)}}
+\from{
+\begin{array}{ll}
+{\tt C} \subtype {\tt D} &
+\sigma(\Gamma, {\tt C(:c)}\ {\tt x}) \vdash_{\cal C} {\tt d}[{\tt x}/\self] \ \ \mbox{({\tt x} new)}
+\end{array}}
 \infer{\Gamma \vdash {\tt C(:c) \subtype D(:d)}}
 \end{array}
 $$
@@ -79,19 +82,22 @@ $$
 \infer{\Gamma \vdash {\tt T}\ {\tt (T) e}} \\
 & \\
 \rname{T-Invk}
-\from{\begin{array}{l}
-\Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  \ \ \ 
+\from{\begin{array}{ll}
+\Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  &
 mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt S} \\
-\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash {\tt c}, {\tt T}_{1:n} \subtype {\tt Z}_{1:n}\ \ \ \mbox {(${\tt z}_{0:n}$ fresh)}
+\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt Z}_{1:n}&
+\sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C} {\tt c} \ \ \ 
+\mbox {(${\tt z}_{0:n}$ fresh)}
 \end{array}}
 \infer{\Gamma \vdash ({\tt T}_{0:n}\ {\tt z}_{0:n}; S)\ {\tt e}_0.{\tt m({\tt e}_{1:n})}}&
 \rname{T-New}
 \from{
-  \begin{array}{l}
-    \Gamma \vdash \bar{\tt T}\ \bar{\tt e} \\
-  \theta=[\bar{\tt f}/\this.\bar{\tt f}] \ \ \ 
-    fields(C,\theta)=\bar{\tt Z}\ \bar{\tt f} \ \ \ {\tt c}=\inv({\tt C},\theta) \\
-    \Gamma, \bar{\tt T}\ \bar{\tt f} \vdash {\tt c},\bar{\tt T} \subtype \bar{\tt Z}
+  \begin{array}{ll}
+    \Gamma \vdash \bar{\tt T}\ \bar{\tt e} \ \ \
+  \theta=[\bar{\tt f}/\this.\bar{\tt f}] & 
+    fields(C,\theta)=\bar{\tt Z}\ \bar{\tt f} \\
+    \Gamma, \bar{\tt T}\ \bar{\tt f} \vdash \bar{\tt T} \subtype \bar{\tt Z} &
+    \sigma(\Gamma, \bar{\tt T}\ \bar{\tt f}) \vdash_{\cal C} \inv({\tt C},\theta) 
   \end{array}
 }
 \infer{\Gamma \vdash {\tt C(:\bar{T}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f})\ \new\ {\tt C(\bar{\tt e})}}} \\
