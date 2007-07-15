@@ -37,13 +37,13 @@ method signatures.  Subclasses implementing these interfaces
 thus provide the required properties by implementing the
 generated interfaces.
 
-For the most part, constraints are simply erased from the
-generated code.
+Usually, constraints are simply erased from the generated code.
 However, dependent types may be used in casts
 and {\tt instanceof} expressions.  These are translated to Java
 in straightforward manner by evaluating the constraint with
 {\tt self} bound to the expression being tested.
-
+For examples, casts are translated as:
+\eat{
 \begin{code}
   $\Lb$e instanceof C(:c)$\Rb$ = 
     new Object() \{
@@ -56,7 +56,7 @@ in straightforward manner by evaluating the constraint with
       \}
     \}.check($\Lb$e$\Rb$)
 \end{code}
-
+}
 \begin{code}
   $\Lb$(C(:c) e$\Rb$ = 
     new Object() \{
@@ -67,5 +67,6 @@ in straightforward manner by evaluating the constraint with
       \}
     \}.cast((C) $\Lb$e$\Rb$)
 \end{code}
+
 
 
