@@ -1,21 +1,4 @@
 
-\newcommand{\starderives}{\derives^*}
-\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
-\def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{#1)}}}
-\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{#1)}}}
-\def\derives{\longrightarrow}
-\def\subtype{\sqsubseteq}
-
-\def\super{\mbox{\tt super}}
-\def\class{\mbox{\tt class}}
-\def\extends{\mbox{\tt extends}}
-\def\return{\mbox{\tt return}}
-\def\new{\mbox{\tt new}}
-\def\this{\mbox{\tt this}}
-\def\self{\mbox{\tt self}}
-\def\true{\mbox{\tt true}}
-\def\inv{\mbox{\em inv}}
-
 \begin{figure*}
 
 \paragraph{Syntax.} The rules for CFJ are:
@@ -280,7 +263,7 @@ subtypes of the formal types, and the method constraint is
 satisfied. This permits us to record the constraint {\tt d} on the
 return type, with the formal variables $\bar{\tt z}$ existentially
 quantified.\footnote{Recall that the $\bar{\tt z}$ may occur in {\tt
-d} but most not occur in a type in the calling environment; hence they
+d} but must not occur in a type in the calling environment; hence they
 must be existentially quantified in the resulting constraint.}
 
 In \TNew, similarly, we establish that the static types of the actual
