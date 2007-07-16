@@ -64,6 +64,11 @@ public class X10IRTests extends IRTests {
 		new GraphAssertions(), null, false);
     }
 
+    public void testAsyncInvoke() {
+	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+     		new GraphAssertions(), null, true);
+    }
+
     public void testFuture1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null, true);
@@ -84,12 +89,14 @@ public class X10IRTests extends IRTests {
 		new GraphAssertions(), null, false);
     }
 
-//    public void testAtEach1() {
-//	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-//		new GraphAssertions(), null, true);
-//    }
 
     public void testWhen1() {
+	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+		new GraphAssertions(), null, true);
+    }
+
+    /*
+    public void testAtEach1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null, true);
     }
@@ -98,22 +105,16 @@ public class X10IRTests extends IRTests {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null, true);
     }
-    /*    
-    public void testHashTable() {
-    	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-    			new GraphAssertions(), null, true);
-    }
-    */
 
     public void testArrayCtor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null, true);
     }
 
-    /*
-     public void testAsyncInvoke() {
-     	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-     		new GraphAssertions(), null, true);
-     }
-     */
+    public void testHashTable() {
+    	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+    			new GraphAssertions(), null, true);
+    }
+    */
+
 }
