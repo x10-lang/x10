@@ -166,7 +166,7 @@ year = {2005}
 @inproceedings{ crf-jmm,
   author = {G. Delzanno and A. Podelski}
   ,title = {Model checking in {CLP}}
-  ,booktitle = {Proceedings of the 5th International Conference on Tools and Algorithms for Construction and Analysis of Systems, TACAS '99, Volume 579 of LNCS}
+  ,booktitle = {Proceedings of the 5th International Conference on Tools and Algorithms for Construction and Analysis of Systems, TACAS '99}
    ,year = {1999}
    ,series={LNCS}
   ,volume={579}
@@ -542,14 +542,14 @@ note = {To appear in Electronic Notes in Theoretical Computer Science}
  ,url={ftp://ftp-sop.inria.fr/meije/esterel/examples/game.pdf}
 }
 
-@misc{ esc-java,
-  author = "C. Flanagan and K. Leino and M. Lillibridge and C. Nelson and J. Saxe and
-    R. Stata",
+@inproceedings{esc-java,
+  author = "Cormac Flanagan and K.~Rustan~M. Leino and Mark Lillibridge and Greg Nelson and James~B. Saxe and Raymie Stata",
   title = "Extended static checking for {J}ava",
-  text = "C. Flanagan, K. R. M. Leino, M. Lillibridge, C. Nelson, J. Saxe, and R.
-    Stata. Extended static checking for Java. In Proc. PLDI, 2002.",
-  year = "2002",
-  url = "citeseer.nj.nec.com/flanagan02extended.html" }
+  booktitle = "Proceedings of {ACM} {SIGPLAN} Conference on Programming Language Design and Implementation ({PLDI})",
+  location = "Berlin, Germany",
+  month = jun,
+  year = 2002
+}
 
 @incollection{ smolka95:oz-programming:inc,
 	author={Gert Smolka},
@@ -868,8 +868,7 @@ note = {To appear in Electronic Notes in Theoretical Computer Science}
 @InProceedings{liskov-popl2003,
   author =       "C.~Boyapati and B.~Liskov and L.~Shrira",
   title =        "Ownership types for object encapsulation",
-  booktitle =    "{POPL} '03. Proceedings of the 30th {ACM}
-                 {SIGPLAN}-{SIGACT} on Principles of programming
+  booktitle =    "{POPL} '03. Proceedings of the 30th {ACM} {SIGPLAN}-{SIGACT} on Principles of programming
                  languages",
   publisher =    "ACM Press",
   address =      "New York, NY, USA",
@@ -1904,7 +1903,9 @@ pages={145-188}
    year=      "2002",
    month=     "July",
    booktitle= "Proceedings of the Eighteenth International Conference on Logic Programming, ICLP'02",
-   series="Springer, LNCS 2401"
+   publisher="Springer",
+   series = "LNCS",
+   volume = 2401
 }
 
 
@@ -2359,8 +2360,6 @@ Pisa, August 1996"
     author = "Fran\c{c}ois Pottier",
     title = "Simplifying subtyping constraints",
     booktitle = "Proceedings of the {ACM} {SIGPLAN} International Conference on Functional Programming ({ICFP} '96)",
-    volume = 31,
-    number = 6,
     pages = "122--133",
     year = 1996
 }
@@ -2478,16 +2477,16 @@ year = 1993
 }
     
 @inproceedings{ncm03,
-	Address = {Warsaw, Poland},
-	Author = {Nathaniel Nystrom and Michael R. Clarkson and Andrew C. Myers},
-	Booktitle = {Compiler Construction, 12th International Conference, CC 2003},
-	Editor = {G{\"o}rel Hedin},
+	location = "Warsaw, Poland",
+	Author = "Nathaniel Nystrom and Michael R. Clarkson and Andrew C. Myers",
+	Booktitle = "Compiler Construction, 12th International Conference, CC 2003",
+	Editor = "G{\"o}rel Hedin",
 	Month = apr,
 	Number = 2622,
-	Pages = {138--152},
-	Publisher = SV,
-	Series = lncs,
-	Title = {Polyglot: An Extensible Compiler Framework for {J}ava},
+	Pages = "138--152",
+	Publisher = "Springer-Verlag",
+	Series = {LNCS},
+	Title = "Polyglot: An Extensible Compiler Framework for {J}ava",
 	Year = 2003}
 
 
@@ -2519,12 +2518,22 @@ year = 1993
   year = 2004
 }
 
-
 @book{attapl,
   title = "Advanced Topics in Types and Programming Languages",
   editor = "Benjamin C. Pierce",
   publisher = "{MIT} Press",
   year = 2004
+}
+
+@inproceedings{reynolds85,
+  author = "John C. Reynolds",
+  title = "Three approaches to type structure",
+  booktitle = "Proceedings of {TAPSOFT}/{CAAP} 1985",
+  pages = "97--138",
+  publisher = "Springer-Verlag",
+  series = "LNCS",
+  volume = 185,
+  year = 1985
 }
 
 @inproceedings{mitchell84,
@@ -2579,7 +2588,7 @@ year = 1993
   author = "Chris Andreae and James Noble and Shane Markstrum and Todd Millstein",
   title = "A Framework for implementing pluggable type systems",
   year = 2006,
-  booktitle = oopsla06,
+  booktitle = "Proceedings of the 2006 ACM Conference on Object Oriented Programming Systems, Languages, and Applications (OOPSLA)",
   city = "Portland, Oregon, USA",
   month = oct
 }
@@ -2596,7 +2605,7 @@ year = 1993
 @inproceedings{chin05-qualifiers,
   author = "Brian Chin and Shane Markstrum and Todd Millstein",
   title = "Semantic type qualifiers",
-  booktitle = pldi05,
+  booktitle = "Proceedings of the {ACM} {SIGPLAN} Conference on Programming Language Design and Implementation ({PLDI})",
   year = 2005,
   pages = "85--95",
   location = "Chicago, Illinois, USA"
@@ -2605,7 +2614,7 @@ year = 1993
 @inproceedings{manson05-memory-model,
   title = "The {Java} Memory Model",
   author = "Jeremy Manson and William Pugh and Sarita V. Adve",
-  booktitle = popl05,
+  booktitle = "Proceedings of the 32nd {ACM} {SIGPLAN}-{SIGACT} on Principles of Programming Languages ({POPL})",
   year = 2005,
   month = jan,
   location = "Long Beach, CA, USA"
@@ -2647,12 +2656,12 @@ year = 1993
 @InProceedings{bsg95,
   author =       "Kim B. Bruce and Angela Schuett and Robert van Gent",
   title =        "Poly{TOIL}: A type-safe polymorphic object-oriented language",
-  series =       lncs,
-  number =       952,
+  series = "LNCS",
+  volume =       952,
   pages =        "27--51",
   booktitle =    "{E}uropean {C}onference on {O}bject-{O}riented
                  {P}rogramming ({ECOOP})",
-  publisher =    SV,
+  publisher =    "Springer-Verlag",
   year =         1995
 }
 
@@ -2660,9 +2669,9 @@ year = 1993
   author = "Martin Odersky and Vincent Cremet and Christine R{\"o}ckl and Matthias Zenger",
   title = "A Nominal Theory of Objects with Dependent Types",
   booktitle = "Proceedings of 17th {E}uropean Conference on Object-Oriented Programming ({ECOOP} 2003)",
-  series = lncs,
-  number = 2743,
-  publisher = SV,
+  series = "LNCS",
+  volume = 2743,
+  publisher = "Springer-Verlag",
   city = "Darmstadt, Germany",
   pages = "201--224",
   month = jul,
@@ -2673,16 +2682,16 @@ year = 1993
   author = "Kim B. Bruce and Adrian Fiech and Leaf Petersen",
   title = "Subtyping is not a good ``Match'' for object-oriented languages",
   booktitle = "Proceedings of 11th European Conference on Object-Oriented Programming (ECOOP'97)",
-  series = lncs,
-  number = 1241,
-  publisher = SV,
+  series = "LNCS",
+  volume = 1241,
+  publisher = "Springer-Verlag",
   address = "Jyv{\"a}skyl{\"a}, Finland",
   pages = "104--127",
   month = jun,
   year = 1997
 }
 
-@inproceedings{scala-overview,
+@techreport{scala-overview,
   title = "An Overview of the {S}cala Programming Language",
   author = "Martin Odersky and Philippe Altherr and Vincent Cremet and Burak Emir and Sebastian Maneth and St{\'e}phane Micheloud and Nikolay Mihaylov and Michel Schinz and Erik Stenman and Matthias Zenger",
   institution = "{\'E}cole Polytechnique F{\'e}d{\'e}rale de Lausanne",
@@ -2694,7 +2703,7 @@ year = 1993
 @inproceedings{scala-oopsla05,
   title = "Scalable Component Abstractions",
   author = "Martin Odersky and Matthias Zenger",
-  booktitle = OOPSLA05,
+  booktitle = {OOPSLA05},
   pages = "41--57",
   address = "San Diego, CA, USA",
   month = oct,
@@ -2743,9 +2752,9 @@ year = 1993
 
 @inbook{sor,
   author = "W.~H. Press and B.~P. Flannery and S.~A. Teukolsky and W.~T. Vetterling",
-  title = "Successive overrelaxation ({SOR})",
-  booktitle = "Numerical Recipes in {FORTRAN}: The Art of Scientific Computing",
-  pages = "866-869",
+  note = "Successive overrelaxation ({SOR})",
+  title = "Numerical Recipes in {FORTRAN}: The Art of Scientific Computing",
+  pages = "866--869",
   publisher = "Cambridge University Press",
   year = 1992
 }
@@ -2775,7 +2784,7 @@ year = 1993
  year = 1995,
  pages = "1--15",
  series = "LNCS",
- number = 933,
+ volume = 933,
  publisher = "Springer-Verlag",
  address = "London, UK"
 }
@@ -2793,8 +2802,7 @@ year = 1993
 @inproceedings{conditional-types,
   author = "Alexander Aiken and Edward L. Wimmers and T.~K. Lakshman",
   title = "Soft Typing with Conditional Types",
-  booktitle = "Proceedings of the 21st Annual {ACM} {SIGPLAN}--{SIGACT}
-Symposium on Principles of Programming Languages ({POPL})",
+  booktitle = "Proceedings of the 21st Annual {ACM} {SIGPLAN}--{SIGACT} Symposium on Principles of Programming Languages ({POPL})",
   pages = "163--173",
   month = jan,
   year = 1994
@@ -2804,7 +2812,7 @@ Symposium on Principles of Programming Languages ({POPL})",
   author = "Luca Cardelli",
   title = "Typechecking dependent types and subtypes",
   series = {LNCS},
-  number = 306,
+  volume = 306,
   booktitle = "Foundations of logic and functional programming",
   location = "Trento, Italy",
   pages = "45--57",
@@ -2853,3 +2861,52 @@ Symposium on Principles of Programming Languages ({POPL})",
   publisher = "Bibliopolis-Napoli",
   year = 1984
 }
+
+@inproceedings{generic-ownership,
+  author = "Alex Potanin and James Noble and Dave Clarke and Robert Biddle",
+  title = "Generic Ownership for Generic {Java}",
+    booktitle = "Proceedings of the 2006 ACM Conference on Object Oriented Programming Systems, Languages, and Applications (OOPSLA)",
+    address = "Portland, OR",
+    month = oct,
+    year = 2006,
+    pages = "311--324"
+}
+
+@inproceedings{oz01,
+  author = "Martin Odersky and Christoph Zenger",
+  title = "Nested Types",
+  booktitle = "8th Workshop on Foundations of Object-Oriented Languages ({FOOL})",
+  year = 2001
+}
+
+@inproceedings{specsharp,
+  author = "Mark Barnett and K.~Rustan~M. Leino and Wolfram Schulte",
+  title = "The {Spec}$\sharp$ Programming System: An Overview",
+  booktitle = "Construction and Analysis of Safe, Secure and Interoperable Smart Devices, International Workshop, {CASSIS} 2004",
+  series = {LNCS},
+  volume = 2263,
+  publisher = "Springer-Verlag",
+  year = 2004
+}
+
+@article{bounded-polymorphism,
+  author = "Luca Cardelli and Peter Wegner",
+  title = "On understanding tpes, data abstraction, and polymorphism",
+  journal = "{ACM} Computing Surveys",
+  pages = "471--523",
+  volume = 14,
+  number = 4,
+  month = dec,
+  year = 1985
+}
+
+@inproceedings{sized-types,
+  author = "John Hughes and Lars Pareto and Amr Sabry",
+  title = "Proving the correctness of reactive systems using sized types",
+  booktitle = "Proceedings of the 23rd {ACM} {SIGPLAN}--{SIGACT} Symposium on Principles of Programming Languages ({POPL})",
+  pages = "410--423",
+  location = "St. Petersburg Beach, FL",
+  year = 1996
+  }
+
+
