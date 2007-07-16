@@ -8,38 +8,41 @@ compiler~\cite{X10}, which is implemented as an extension of
 Java using the Polyglot compiler framework~\cite{ncm03}.
 
 Polyglot implements a source-to-source base Java compiler 
-that is extended to translate X10 to Java.  For purposes of this
-paper, we ignore the additional statement and expression types
-introduced in X10 and treat the language as simply Java
+that is extended to translate X10 to Java.  In describing the
+implementation, we ignore the additional statement and expression types
+introduced in X10 and treat the language simply as Java
 extended with constrained types.
 
-Type-checking is implemented as two passes.  The first pass
-performs type-checking using the base compiler implementation
-augmented with additional code for new statement and expression
-types introduced in X10. In this pass, expressions used in
-dependent types are type-checked using the non-dependent type
-system, however, no constraint solving is performed.
-The second pass generates and solves constraints via an
+Constraints in X10 are conjunctions of equalities over immutable
+side-effect-free expressions.  Expressions used in constrained
+types are type-checked as normal non-dependent X10 expressions;
+no constraint solving is performed.
+A second compiler pass generates and solves constraints via an
 ask--tell interface~\cite{my-thesis-book}.
 If constraints cannot be solved, an error is reported.
 
-After constraint checking, the X10 code is translated to Java.
+After constraint-checking, the X10 code is translated to Java.
 The basic idea behind the translation is simple. Each dependent class
 is translated into a single class of the same name without dependent
-types). The explicit properties of the dependent class are translated
+types. The explicit properties of the dependent class are translated
 into {\tt public final} (instance) fields of the target class.
 A {\tt property} statement in a constructor is translated to a
 sequence of assignments to initialize the property fields.
 
-For each property, there is also a getter method in the class.
+For each property, a getter method is also generated in the
+target Java class.
 Properties declared in interfaces are translated into getter
 method signatures.  Subclasses implementing these interfaces
 thus provide the required properties by implementing the
 generated interfaces.
 
-Usually, constraints are simply erased from the generated code.
+Usually, constrained types are simply translated to
+non-constrained types by erasure; constraints are checked
+statically and need no run-time representation.
 However, dependent types may be used in casts
-and {\tt instanceof} expressions.  These are translated to Java
+and {\tt instanceof} expressions.  Because the constraint syntax
+in X10 is a subset of the X10 expression syntax, run-time tests
+of constrained types are translated to Java
 in straightforward manner by evaluating the constraint with
 {\tt self} bound to the expression being tested.
 For examples, casts are translated as:
@@ -67,6 +70,8 @@ For examples, casts are translated as:
       \}
     \}.cast((C) $\Lb$e$\Rb$)
 \end{code}
+\noindent Using a wrapper anonymous class ensures the expression
+{\tt e} is evaluated only once.
 
 
 
