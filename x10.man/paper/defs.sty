@@ -78,9 +78,11 @@
 \renewcommand\bar[1]{\overline{#1}}
 
 \newcommand{\starderives}{\derives^*}
+
+\newcommand\rn[1]{\textsc{#1}}
 \def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
 \def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{#1)}}}
-\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{#1)}}}
+\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{\rn{#1}})}}
 \def\derives{\longrightarrow}
 \def\subtype{\sqsubseteq}
 
