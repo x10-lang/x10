@@ -1,0 +1,290 @@
+
+%
+%I. Introduction and overview (3 pages)
+
+%Design of X10, concurrency, high productivity, high performance,
+%practical language.
+%
+%Dependent types arise naturally. arrays, regions, distributions, place
+%types.
+%
+%Indeed you can look around and recognize many OO type systems proposed
+%in the last decade or so as specific kinds of applied dependent type
+%systems.
+%
+%Our goal is to develop a general framework for dependent types for
+%statically typed OO languages ("Java-like languages"). 
+
+\Xten{} is a modern statically typed object-oriented (OO) language
+designed for high productivity in the high performance computing (HPC)
+domain~\cite{X10}. \Xten{}, like most OO languages is designed around the notion
+of objects, as instances of {\em classes}. However, \Xten{} places
+equal emphasis on {\em arrays}, a central data-structure in high
+performance computing. In particular, \Xten{} supports dense,
+distributed multi-dimensional arrays of value and reference types,
+built over index sets known as {\em regions}, and mappings from index
+sets to places, known as {\em distributions}.  \Xten{} supports a rich
+algebra of operations over regions, distributions and arrays.
+
+In designing a static type system for \Xten{} a central problem
+arises. It becomes necessary to permit types, such as {\tt region(2)},
+the type of all two-dimensional regions, {\tt int[5]}, the type of
+all arrays of {\tt int} of length {\tt 5}, and {\tt int[region(2)]},
+the type of all {\tt int} arrays over two dimensional regions.
+The underlying
+general idea is that of {\em dependent types}: types
+parametrized by {\em values} \cite{dependent-types,xi99dependent}.
+
+XXX emph pluggable nature of the constraint system.
+
+%, just as generic
+%types are types paramterized by other types \cite{genericjava}.
+
+In this paper we develop a general syntactic and semantic framework
+for {\em constrained types}, user-defined dependent types
+in the context of modern class-based
+OO languages such as \java{}, \csharp{} and \Xten{}. Our central
+insight is that a rich, user-extensible type system can be developed
+on top of predicates over the {\em immutable} state of objects. Such
+types statically capture many common invariants naturally arising in
+code. Given a single dependently typed class or interface {\tt C}, a
+user may construct a potentially infinite family of types {\tt C(:c)}
+where {\tt c} is a predicate on the immutable state.
+
+%Criteria:
+%
+%-- easy to use for practicing programmers
+%
+%-- must be flexible, it must permit the development of concrete,
+%   specific type systems tailored to the application area at hand
+%   (pluggable types), therefore must be parametric in the kinds of
+%   expressions used in the type system.
+%
+%-- the implementation must be modular, the rules for type-checking
+%   must be specified once in a way that is independent of the
+%   particular vocabulary of operations used in the dependent type
+%   system.
+%
+%-- must work smoothly with nominal type systems found in Java-like
+%   languages, must permit separate compilation.
+%
+%-- must permit mostly static type-checking. 
+
+In designing this framework, we had the following criteria:
+\begin{itemize}
+\item 
+{\bf Ease of use.}
+The framework must be 
+easy to use for practicing programmers.
+
+\item
+{\bf Flexibility.}
+The framework
+must permit the development of concrete,
+specific type systems tailored to the application area at
+hand, enabling a kind of pluggable type system~\cite{bracha04-pluggable}.
+Hence, the framework must be parametric in the kinds of
+expressions used in the type system.
+
+\item
+{\bf Modularity.}
+The rules for type-checking
+must be specified once in a way that is independent of the
+particular vocabulary of operations used in the dependent type
+system.
+
+\item
+{\bf Integration with OO languages.}
+The framework must
+work smoothly with nominal type systems found in Java-like
+languages, and must permit separate compilation.
+
+\item
+{\bf Static checking.}
+The framework must permit mostly static type-checking. 
+\end{itemize}
+
+\subsection{Overview}
+
+XXX Overview of our design.
+
+Our basic approach to introducing dependent types into
+class-based statically typed OO languages is to
+follow the spirit of generic types, but use values instead of
+types.
+
+We permit the definition of a class {\tt C} to specify
+a list of typed parameters, or {\em properties},
+{\tt (T1 x1, \ldots, Tk xk)} similar in syntactic structure to
+a method argument list. Each
+property in this list is treated as a {\tt public final} instance
+field of the class.
+We also permit the
+specification of a {\em class invariant}, a
+{\em where clause}~\cite{where-clauses}
+in the class definition. A where
+clause is a boolean expression on the parameters separated from the
+parameter list with a ``{\tt :}''.  The compiler ensures that all
+instances of the class created at runtime satisfy the where clause
+associated with the class.
+Thus, for instance, we may specify a class {\tt List} with an
+{\tt int length} property as follows:
+\begin{code}
+  class List(int length: length >= 0) \{...\}
+\end{code}
+
+Given such a definition for a class {\tt C},
+types can be constructed by {\em constraining} the properties of
+{\tt C}.
+In principle, {\em any} boolean expression over the
+properties specifies a type: the type of all instances of the
+class which satisfy the boolean expression. Thus,
+{\tt List(:length == 3)} is a permissible type, as are
+{\tt List(:length <= 41)} and even
+{\tt List(:length * f() >= g())}.
+If {\tt C} has no properties, the only type that can be
+constructed is the type {\tt C}.
+
+Accordingly, a {\em constrained type} is of the form {\tt C(:e)}, the name of
+a class or interface {\tt C}, called the {\em base class}, followed by a
+where clause {\tt e}, called the {\em condition}, a boolean expression
+on the properties of the base class. 
+The denotation, or
+semantic interpretation, of such a type is the set of all instances
+of subclasses of the base class whose properties satisfy the
+condition.
+Clearly, for the denotation of a constrained type $t$ to be
+non-empty the condition of $t$ must be consistent with the class
+invariant, if any, of the base class of $t$.  The compiler is required to
+ensure that the type of any variable declaration is non-empty.
+
+For brevity, we write {\tt C} as a type as well; it
+corresponds to the (vacuously) constrained type {\tt C(:true)}.
+We also permit the syntax {\tt C(t1,\ldots, tk)} for
+the type {\tt C (:x1 == t1 \&\& \ldots \&\& xk == tk)} (assuming that
+the property list for {\tt C} specifies the {\tt k} properties {\tt
+x1,\ldots, xk}, and each term {\tt ti} is of the correct
+type). Thus, using the definition above, {\tt List(n)} is the type of
+all lists of length {\tt n}.
+
+\subsection{An example}
+\begin{figure*}
+{\footnotesize
+\begin{verbatim}
+class List(int(:self >= 0) length) {
+  Object head = null;
+  List(length-1) tail = null;
+  List(0)() { property(0); }
+  List(1)(Object head) { this(head, new List());}
+  List(tail.length+1)(Object head, List tail) {
+    property(tail.length+1);
+    this.head = head;
+    this.tail = tail;
+  }
+  List(length+arg.length) append(List arg) {
+    return (length == 0) ? arg : new List(head, tail.append(arg));
+  }
+  List(length) rev() { return rev(new List()); }
+  List(length+acc.length) rev(final List acc) {
+    return (length == 0) ? acc : tail.rev(new List(head, acc));
+  }
+  List(:self.length <= this.length) filter(Predicate f) {
+    if (length==0) return this;
+    if (f.isTrue(head)) {
+      List l = tail.filter(f);
+      return new List(l+1)(head, l);
+    } else {
+      return tail.filter(f);
+    }
+  }
+}
+\end{verbatim}}
+%% Aha a design choice here!!
+%% Have parameter(..) or not.
+\caption{List example}
+\label{fig:list-example}
+\end{figure*}
+
+Figure~\ref{fig:list-example} shows a {\tt List} class.
+Intuitively, this definition states that a {\tt List} has a {\tt int}
+property {\tt length}, which must be non-negative.  The
+class has two fields that hold the head and tail of the list.
+
+The first constructor {\tt List()} has a postcondition that
+signifies that it returns a list of length 0.
+The constructor body contains a {\tt property} statement
+that initializes the {\tt length} property to {\tt 0}.
+The compiler verifies that
+the constructor postcondition and the class invariant
+are implied by the {\tt property} statement
+and any {\tt super} calls in the constructor body imply
+
+The 
+second constructor returns a singleton list of length {\tt
+1}. The third constructor returns a list of length {\tt m+1}, where
+{\tt m} is the length of the second argument. 
+If an argument appears in the return type then the argument must be
+declared {\tt final}. Thus the argument will point to the same object
+throughout the evaluation of the constructor body.
+
+Functions that append one list to another or that reverse a list can
+be defined quite naturally. In both cases the size of the list
+returned is known statically (as a function of the size of the list
+and the argument to the method).  The example also illustrates a
+method {\tt filter} which returns a list whose length cannot be known
+statically since it depends on the argument predicate {\tt f};
+the list length can be bounded, however.
+
+\subsection{Claims}
+
+XXX Claims of this paper.
+
+%
+%Related work
+%
+
+As in staged languages~\cite{nielson-multistage,ts97-multistage},
+the design distinguishes between
+compile-time and run-time evaluation. Constrained types are
+checked (mostly) at compile-time.
+The compiler uses a
+constraint solver to perform universal reasoning (``for all possible
+values of method parameters'') for dependent type-checking.  There is
+no run-time constraint-solving.  However,
+run-time casts to dependent types are
+permitted; these casts involve arithmetic, not
+algebra---the values of all parameters are known.
+
+We outline the design for a compiler that can use an extensible
+constraint-solver for type-checking.
+This design is implemented in the \Xten{} compiler.
+No extension of an
+underlying virtual machine is necessary, except as may be useful in
+improving efficiency (for example, eliminating array bounds checks).
+The compiler translates source
+programs into target programs without dependent types
+but with {\tt assume} and {\tt assert} statements.
+A general
+constraint propagator that depends only on the operational semantics
+of the language and is constrained on the underlying constraint solver
+may be run on the program in order to eliminate branches and {\tt
+asserts} forced by the assumptions. If all {\tt assert}s cannot be
+eliminated at compile-time, some residual constraint-checking
+({\em not} solving) may need to be performed at runtime.
+%
+XXX contrast with hybrid type checking.
+
+\paragraph{Rest of this paper.}
+
+Section~\ref{sec:lang} fleshes out the syntactic and semantic details of the
+proposal.
+Formal semantics
+and a soundness theorem
+are presented in Section~\ref{sec:semantics}.
+Section~\ref{sec:examples} works through a number of
+examples using a variety of constraint systems.
+Section~\ref{sec:related} reviews related work.
+Last, Sections~\ref{sec:future}
+and \ref{sec:conclusions} conclude the paper with a discussion of
+future work.
+
