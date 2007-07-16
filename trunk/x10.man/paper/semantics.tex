@@ -1,21 +1,5 @@
 
 
-\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
-\def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{#1)}}}
-\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{#1)}}}
-\def\derives{\longrightarrow}
-\def\subtype{\sqsubseteq}
-
-\def\super{\mbox{\tt super}}
-\def\class{\mbox{\tt class}}
-\def\extends{\mbox{\tt extends}}
-\def\return{\mbox{\tt return}}
-\def\new{\mbox{\tt new}}
-\def\this{\mbox{\tt this}}
-\def\self{\mbox{\tt self}}
-\def\true{\mbox{\tt true}}
-\def\inv{\mbox{\em inv}}
-
 \begin{figure*}
 \begin{tabular}{rrcl}
 &&&\\
@@ -66,7 +50,7 @@ as the conjunction ${\tt c\theta,d\theta}$ and (recursively)
 $\inv({\tt D},\theta)$.  We bottom out with $\inv({\tt
 Object},\theta)=\true$. If the sequence of inherited and defined
 fields of the class underlying a type {\tt T} are $\bar{S}\ \bar{f}$,
-we define $fields({\tt T},\theta)$ to be $\bar{S}\theta\ \bar{f}$.
+we define $\mathit{fields}({\tt T},\theta)$ to be $\bar{S}\theta\ \bar{f}$.
 
 $$
 \begin{array}{ll}
@@ -75,7 +59,7 @@ $$
 \infer{\Gamma, {\tt C(:c)\ x} \vdash {\tt C(:d)}\ {\tt x}} &
 \\ \quad \\
 \rname{T-Field}%
-\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f}_i \ \ \ \mbox{(${\tt z}_0$ fresh)}} 
+\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ \mathit{fields}({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f}_i \ \ \ \mbox{(${\tt z}_0$ fresh)}} 
 \infer{\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}_i=\self;{\tt U}_i)\ {\tt e.f}_i} 
 & 
 \rname{T-Cast}%
@@ -85,7 +69,7 @@ $$
 \rname{T-Invk}%
 \from{\begin{array}{ll}
 \Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  &
-mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt S} \\
+\mathit{mtype}({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt S} \\
 \Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt Z}_{1:n}&
 \sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C} {\tt c} \ \ \ 
 \mbox {(${\tt z}_{0:n}$ fresh)}
@@ -96,7 +80,7 @@ mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarr
   \begin{array}{ll}
     \Gamma \vdash \bar{\tt T}\ \bar{\tt e} \ \ \
   \theta=[\bar{\tt f}/\this.\bar{\tt f}] & 
-    fields(C,\theta)=\bar{\tt Z}\ \bar{\tt f} \\
+    \mathit{fields}(C,\theta)=\bar{\tt Z}\ \bar{\tt f} \\
     \Gamma, \bar{\tt T}\ \bar{\tt f} \vdash \bar{\tt T} \subtype \bar{\tt Z} &
     \sigma(\Gamma, \bar{\tt T}\ \bar{\tt f}) \vdash_{\cal C} \inv({\tt C},\theta) 
   \end{array}
@@ -122,14 +106,14 @@ $$
 
 $$
 \begin{array}{ccc}
-\rname{{\sc R-FIELD}}%
-\from{fields(C)=\bar{C}\ \bar{f}}
+\rname{{\sc R-Field}}%
+\from{\mathit{fields}(C)=\bar{C}\ \bar{f}}
 \infer{(\new\ {\tt C}(\bar{\tt e})).{\tt f}_i \derives {\tt e}_i} &
-\rname{{\sc R-INVK}}%
-\from{mbody({\tt m},{\tt C})=\bar{x}. {\tt e}_0}
+\rname{{\sc R-Invk}}%
+\from{\mathit{mbody}({\tt m},{\tt C})=\bar{x}. {\tt e}_0}
 \infer{(\new\ {\tt C}(\bar{\tt e})).{\tt m}(\bar{\tt d}) \derives 
 [\bar{d}/\bar{x},\new\ C(\bar{e})/\this]{\tt e}_0} &
-\rname{{\sc R-CAST}}%
+\rname{{\sc R-Cast}}%
 \from{\epsilon \vdash C \subtype T[\new\ C(\bar{\tt d})/\self]}
 \infer{{\tt (T)(\new\ C(\bar{\tt d}))} \derives \new\ C(\bar{\tt d})}
 \end{array}
@@ -138,22 +122,22 @@ $$
 $$
 \begin{array}{l}
 \begin{array}{ccc}
-\rname{{\sc RC-FIELD}}%
+\rname{{\sc RC-Field}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
 \infer{{\tt e}_0.{\tt f} \derives {{\tt e}_0}'.{\tt f}} &
-\rname{{\sc RC-INVK-RECV}}%
+\rname{{\sc RC-Invk-Recv}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
 \infer{{\tt e}_0.{\tt m}(\bar{\tt e}) \derives {{\tt e}_0}'.{\tt m}(\bar{\tt e})} &
-\rname{{\sc RC-INVK-ARG}}%
+\rname{{\sc RC-Invk-Arg}}%
 \from{{\tt e}_i \derives {{\tt e}_i}'}
 \infer{{\tt e}_0.{\tt m}(\ldots,{\tt e}_i,\ldots) \derives {{\tt e}_0}.{\tt m}(\ldots,{\tt e}_i',\ldots)} 
 \end{array}
 \\ \quad \\
 \begin{array}{cc}
-\rname{{\sc RC-NEW-ARG}}%
+\rname{{\sc RC-New-Arg}}%
 \from{{\tt e}_i \derives {{\tt e}_i}'}
 \infer{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)} &
-\rname{{\sc RC-CAST}}%
+\rname{{\sc RC-Cast}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
 \infer{{\tt (C) e}_0 \derives {{\tt (C) e}_0}'}
 \end{array}
@@ -185,7 +169,7 @@ types by: ${\tt C(:c)\theta}={\tt C(:c\theta)}$.
 
 All constraint systems are required to satisfy:
 $$\new\ {\tt C(\bar{\tt t})}.{\tt f}_i={\tt t}_i  $$
-provided that $fields({\tt C})=\bar{\tt T}\ \bar{\tt f}$ (for some 
+provided that $\mathit{fields}({\tt C})=\bar{\tt T}\ \bar{\tt f}$ (for some 
 sequence of types $\bar{\tt T}$).
 
 A type assertion {\tt C(:c) x} constrains the variable {\tt x} to
@@ -194,8 +178,9 @@ contain references to only those objects {\tt o} that are instances of
 provided that occurrences of {\tt self} in {\tt c} are replaced by
 {\tt o}. Thus in the constraint {\tt c} of a constrained type {\tt
 C(:c)}, {\tt self} may be used to reference the object whose type is
-being specified. Note that {\tt self} is distinct from {\tt this} --
-{\tt this} is permitted to occur in the clause of a type {\tt T} only
+being specified. Note that {\tt self} is distinct from
+{\tt this}---{\tt this} is permitted to occur in the clause of a type
+{\tt T} only
 if {\tt T} occurs in an instance field declaration or instance method
 declaration of a class; as usual, \this{} is considered bound to the
 instance of the class to which the field or method declaration
@@ -255,15 +240,16 @@ constraints ${\tt c}$.
 
 \TVar{} extends the identity rule ($\Gamma, x:C \vdash x:C$) of {\sf FJ} to take into account the constraint entailment relation.
 
-\TCast{} encapsulates the three inference rules of {\sf FJ} -- 
-\TUCast{}, \TDCast{} and\TSCast{} for upwards cast, downwards cast, and ``stupid'' cast respectively. 
+\TCast{} encapsulates the three inference rules of {\sf FJ}:
+\TUCast{}, \TDCast{} and\TSCast{} for upwards cast, downwards
+cast, and ``stupid'' cast respectively. 
 
 \TInv{} is a form of contraction that permits the class invariant {\tt
 c} of a class {\tt C} to enrich the type of any variable of type {\tt
 C}.
 
 In \TField, we postulate the existence of a receiver object {\tt o} of
-the given static type (${\tt T}_0$). $fields({\tt T}_0,o)$ is
+the given static type (${\tt T}_0$). $\mathit{fields}({\tt T}_0,{\tt o})$ is
 the set of typed fields for ${\tt T}_0$ with all occurrences of 
 \this{} replaced  by {\tt o}. We record in the resulting
 constraint that ${\tt o.f}_i=\self$.\footnote{A new name {\tt o} is
@@ -276,11 +262,11 @@ ${\tt f}_i$.
 
 Similarly, in \TInvk{} we postulate the existence of a receiver object
 {\tt o} of the given static type. For any type $T$, object {\tt o} of
-type $T$ and method name {\tt m}, let $mtype({\tt T},{\tt m},{\tt o})$
+type $T$ and method name {\tt m}, let $\mathit{mtype}({\tt T},{\tt m},{\tt o})$
 be a copy of the signature of the method with \this{} replaced by {\tt
 o}. We establish (under the assumption that the formals ($\bar{\tt
-z}$) have the static type of the actuals
-)\footnote{This is stronger than assuming $\bar{\tt Z}$.}
+z}$) have the static type of the actuals)\footnote{This
+is stronger than assuming $\bar{\tt Z}$.}
 that actual types are
 subtypes of the formal types, and the method constraint is
 satisfied. This permits us to record the constraint {\tt d} on the
@@ -349,9 +335,10 @@ If $\Gamma \vdash {\tt T}\ {\tt e}$, then $\Gamma, {\tt S}\ {\tt x}\vdash {\tt T
 
 % Unchanged from FJ
 \begin{lemma}[Body type]
-If $mtype({\tt T}_0,{\tt m})=\bar{\tt T}\ \bar{\tt x} : {\tt c}
-\rightarrow {\tt S}$, and $mbody({\tt m}, {\tt T}_0)=\bar{\tt x}.{\tt
+If $\mathit{mtype}({\tt T}_0,{\tt m})=\bar{\tt T}\ \bar{\tt x} : {\tt c}
+\rightarrow {\tt S}$, and $\mathit{mbody}({\tt m}, {\tt T}_0)=\bar{\tt x}.{\tt
 e}$, then for some ${\tt U}_0$ with ${\tt T}_0 \subtype {\tt U}_0$,
 there exists ${\tt V}\subtype {\tt S}$ such that
 $\bar{\tt T}\ \bar{\tt x},{\tt U}_0\ \this \vdash {\tt V}\ {\tt e}$
 \end{lemma}
+
