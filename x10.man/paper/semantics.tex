@@ -5,16 +5,17 @@
 
 \begin{tabular}{rrcl}
 &&&\\
-(Class) & L &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
-(Method)& M &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
-(Expr)& e &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
-(C Terms) & t&{::=}& \tt x\alt \self \alt \this \alt t.f \alt \new\ {\tt C($\bar{\tt t}$}\\
-(Constraint) & c,d&{::=}&$\tt \true\alt a\alt t=t\alt c,c\alt T\,x;c$\\
-(Type)& S,T,U&{::=}& $\tt C(:d)$\\
+(Class) & {\tt L} &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
+(Method)& {\tt M} &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
+(Expr)& {\tt e} &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
+(C Terms) & {\tt t} &{::=}& \tt x\alt \self \alt \this \alt t.f
+\alt \new\ {\tt C($\bar{\tt t}$)}\\
+(Constraint) & {\tt c},{\tt d} &{::=}&$\tt \true\alt a\alt t=t\alt c,c\alt T\,x;c$\\
+(Type)& {\tt S},{\tt T},{\tt U} &{::=}& $\tt C(:d)$\\
 &&&\\
 \end{tabular}
 
-\paragraph{Subtyping Judgements.}
+\paragraph{Subtyping Judgments.}
 We let $\Gamma$ stand for multisets of type assertions, of the form
 $T\,x$, and constraints. We define $\sigma(\Gamma)$ to be the set of
 constraints obtained from $\Gamma$ by replacing each type assertion
@@ -38,7 +39,7 @@ $$
 \end{array}
 $$
 
-\paragraph{Type Judgements.}
+\paragraph{Type Judgments.}
 
 Let {\tt C} be a class declared as ${\tt \class\ C(\bar{\tt T}\
 \bar{\tt f}:c)\ extends\ D(:d)\{\bar{\tt M}\}}$. Let
@@ -52,19 +53,19 @@ we define $fields({\tt T},\theta)$ to be $\bar{S}\theta\ \bar{f}$.
 
 $$
 \begin{array}{ll}
-\rname{T-Var}
+\rname{T-Var}%
 \from{\sigma(\Gamma, {\tt C(:c)}\ {\tt x}) \vdash_{\cal C} {\tt d}[{\tt x}/\self]}
 \infer{\Gamma, {\tt C(:c)\ x} \vdash {\tt C(:d)}\ {\tt x}} &
 \\ \quad \\
-\rname{T-Field}
+\rname{T-Field}%
 \from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f} \ \ \ \mbox{(${\tt z}_0$ fresh)}} 
 \infer{\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}=\self;{\tt U}_i)\ {\tt e.f}_i} 
 & 
-\rname{T-Cast}
+\rname{T-Cast}%
 \from{\Gamma \vdash {\tt S}\ {\tt e}}
 \infer{\Gamma \vdash {\tt T}\ {\tt (T) e}} \\
 & \\
-\rname{T-Invk}
+\rname{T-Invk}%
 \from{\begin{array}{ll}
 \Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  &
 mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt S} \\
@@ -73,7 +74,7 @@ mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarr
 \mbox {(${\tt z}_{0:n}$ fresh)}
 \end{array}}
 \infer{\Gamma \vdash ({\tt T}_{0:n}\ {\tt z}_{0:n}; S)\ {\tt e}_0.{\tt m({\tt e}_{1:n})}}&
-\rname{T-New}
+\rname{T-New}%
 \from{
   \begin{array}{ll}
     \Gamma \vdash \bar{\tt T}\ \bar{\tt e} \ \ \
@@ -104,14 +105,14 @@ $$
 
 $$
 \begin{array}{c}
-\rname{{\sc R-FIELD}}
+\rname{{\sc R-Field}}%
 \from{fields(C)=\bar{C}\ \bar{f}}
 \infer{(\new\ {\tt C}(\bar{\tt e})).{\tt f}_i \derives {\tt e}_i} \\ \quad\\
-\rname{{\sc R-INVK}}
+\rname{{\sc R-Invk}}%
 \from{mbody({\tt m},{\tt C})=\bar{x}. \bar{e}_0}
 \infer{(\new\ {\tt C}(\bar{\tt e})).{\tt m}(\bar{\tt d}) \derives 
 [\bar{d}/\bar{x},\new\ C(\bar{e})/\this]{\tt e}_0} \\ \quad\\
-\rname{{\sc R-CAST}}
+\rname{{\sc R-Cast}}%
 \from{\vdash C \subtype D[\new\ C(\bar{\tt d})/\self]}
 \infer{{\tt (D)(\new\ C(\bar{\tt d}))} \derives \new\ C(\bar{\tt d})}
 \end{array}
@@ -119,19 +120,19 @@ $$
 \paragraph{Congruence:}
 $$
 \begin{array}{c}
-\rname{{\sc RC-FIELD}}
+\rname{{\sc RC-Field}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
 \infer{{\tt e}_0.{\tt f} \derives {{\tt e}_0}'.{\tt f}} \\ \quad\\
-\rname{{\sc RC-INVK-RECV}}
+\rname{{\sc RC-Invk-Recv}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
 \infer{{\tt e}.{\tt m}(\bar{\tt e}) \derives {{\tt e}_0}'.{\tt m}(\bar{\tt e})} \\ \quad\\
-\rname{{\sc RC-INVK-ARG}}
+\rname{{\sc RC-Invk-Arg}}%
 \from{{\tt e}_i \derives {{\tt e}_i}'}
 \infer{{\tt e}.{\tt m}(\ldots,{\tt e}_i,\ldots) \derives {{\tt e}_0}.{\tt m}(\ldots,{\tt e}_i',\ldots)}\\ \quad\\
-\rname{{\sc RC-NEW-ARG}}
+\rname{{\sc RC-New-Arg}}%
 \from{{\tt e}_i \derives {{\tt e}_i}'}
 \infer{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)} \\ \quad\\
-\rname{{\sc RC-CAST}}
+\rname{{\sc RC-Cast}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
 \infer{{\tt (C) e}_0 \derives {{\tt (C) e}_0}'}
 \end{array}
@@ -197,8 +198,8 @@ x}$ and
 \this{} that must hold for a method invocation to be legal. Note that
 \self{} does not make sense in {\tt c} (no type is being defined), and must not occur in {\tt c}.
 
-\paragraph{Type judgements.}
-Typing judgements are of the form $\Gamma \vdash {\tt T}\ {\tt e}$
+\paragraph{Type judgments.}
+Typing judgments are of the form $\Gamma \vdash {\tt T}\ {\tt e}$
 where $\Gamma$ is a multiset of type assertions ${\tt T}\ {\tt x}$ and
 constraints ${\tt c}$. 
 %The constraint entailment relation
