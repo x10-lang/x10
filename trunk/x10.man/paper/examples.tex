@@ -47,10 +47,10 @@ types (e.g., the return type).
 Constraints also naturally permit the expression of existential types:
 {\footnotesize
 \begin{verbatim}
-  class List(int length) { 
-    List(:self.length <= length) filter(Comparator k) {...} 
-    ...
-  }
+ class List(int length) { 
+ List(:self.length < length) filter(Comparator k) { ...} 
+ ...
+ }
 \end{verbatim}}
 \noindent
 Here, the length of the list returned by the "filter" method is 
@@ -248,6 +248,7 @@ A constraint system that supports disequalities can be used to
 enforce a non-null invariant on reference types.
 A non-null type {\tt T} can be written simply as {\tt T(:self != null)}.
 
+
 \subsection{A distributed binary tree}
 This example is due to Satish Chandra. We wish to specify a balanced
 distributed tree with the property that its right child is always at
@@ -260,6 +261,24 @@ class Tree(boolean localLeft,
   Tree(: this.localLeft => (loc=here,self.localLeft)) left, 
   Tree(: loc=here) right) extends Object { ...}
 \end{verbatim}}
+
+\subsection{Clocked types}
+Clocks are barriers adapted to a context where activities may be
+dynamically created, and designed so that all clock operations are
+determinate.
+
+For each arity $n$, we introduce a {\em Gentzen predicate} ${\tt
+clock(\bar{t})}$. A $k$-ary Gentzen predicate $a$ satisfies the
+property that $a(t_1,\ldots, t_k) \vdash a(s_1,\ldots,s_n)$ iff $k=n$
+and $t_i=s_i$ for $i\leq k$.
+
+A programmer may
+
+$$
+\from{\Gamma, {\tt clocked(\bar{\tt v})} \vdash {\tt T}\ {\tt e}}
+\infer{\Gamma \vdash {\tt T}\ {\tt async}\ {\tt clocked}(\bar{\tt v}) {\tt e}}
+$$
+A programmer can require that a method may be invoked only if the 
 
 \subsection{Places}
 
