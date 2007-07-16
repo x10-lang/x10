@@ -18,30 +18,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
-import polyglot.ext.x10.ast.ArrayConstructor;
-import polyglot.ext.x10.ast.Async;
-import polyglot.ext.x10.ast.AtEach;
-import polyglot.ext.x10.ast.Atomic;
-import polyglot.ext.x10.ast.Await;
-import polyglot.ext.x10.ast.Clocked;
-import polyglot.ext.x10.ast.Closure;
-import polyglot.ext.x10.ast.Finish;
-import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.ForLoop;
-import polyglot.ext.x10.ast.Future;
-import polyglot.ext.x10.ast.GenParameterExpr;
-import polyglot.ext.x10.ast.Here;
-import polyglot.ext.x10.ast.Next;
-import polyglot.ext.x10.ast.PlaceCast;
-import polyglot.ext.x10.ast.Point;
-import polyglot.ext.x10.ast.Range;
-import polyglot.ext.x10.ast.Region;
-import polyglot.ext.x10.ast.When;
-import polyglot.ext.x10.ast.When_c;
-import polyglot.ext.x10.ast.X10ArrayAccess;
-import polyglot.ext.x10.ast.X10ArrayAccess1;
-import polyglot.ext.x10.ast.X10Formal;
-import polyglot.ext.x10.ast.X10Loop;
+import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.FutureType;
 import polyglot.types.LocalInstance;
@@ -52,7 +29,6 @@ import polyglot.types.Type;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.wala.cast.ir.translator.AstTranslator;
-import com.ibm.wala.cast.ir.translator.AstTranslator.InternalCAstSymbol;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
@@ -497,13 +473,19 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		//
 		CAstNode closureNode= walkNodes(closure, wc);
 		String arrayTempName= "array temp";
+		String distTempName= "dist temp";
 		CAstSymbol arrayTemp= new AstTranslator.InternalCAstSymbol(arrayTempName, true);
+		CAstSymbol distTemp= new AstTranslator.InternalCAstSymbol(distTempName, true);
+		CAstNode distDeclNode=
+			makeNode(wc, dist, CAstNode.DECL_STMT,
+					fFactory.makeConstant(distTemp),
+					walkNodes(dist, wc));
 		CAstNode arrayNewNode= 
 			makeNode(wc, ac, CAstNode.DECL_STMT,
 				fFactory.makeConstant(arrayTemp),
 				makeNode(wc, ac, CAstNode.NEW,
 					fFactory.makeConstant(arrayTypeRef),
-					walkNodes(dist, wc)));
+					makeNode(wc, fFactory, dist, CAstNode.VAR, fFactory.makeConstant(distTempName))));
 		int dummyPC = 0; // Just wrap the kind of call; the "rear end" won't care about anything else...
 		MethodReference closureRef= createMethodRefForClosure(closure);
 		CallSiteReference closureCallSiteRef= CallSiteReference.make(dummyPC, closureRef, IInvokeInstruction.Dispatch.VIRTUAL);
@@ -518,9 +500,12 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 					fFactory.makeConstant(closureCallSiteRef),
 					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name())))));
 
-		CAstNode loopBody= walkRegionIterator(formal1, arrayElemInit, walkNodes(dist, wc), wc);
+		CAstNode loopBody=
+			walkRegionIterator(formal1, arrayElemInit,
+					makeNode(wc, fFactory, dist, CAstNode.VAR, fFactory.makeConstant(distTempName)), wc);
 
 		return makeNode(wc, closure, CAstNode.BLOCK_EXPR, // NEED CAstNode.LOCAL_SCOPE or make "array temp" names unique
+			distDeclNode,
 			arrayNewNode,
 			loopBody,
 			makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(arrayTempName)));
@@ -532,7 +517,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		eltNodes[idx++]= makeNode(wc, ac, CAstNode.NEW,
 			fFactory.makeConstant(baseTypeRef),
 			walkNodes(dist, wc));
-		for(Iterator iter= arrayInit.elements().iterator(); iter.hasNext();) {
+		for(Iterator iter= arrayInit.elements().iterator(); iter.hasNext(); ) {
 		    Expr elem= (Expr) iter.next();
 		    eltNodes[idx++]= walkNodes(elem, wc);
 		}
