@@ -1,21 +1,36 @@
 
+
+\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
+\def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{#1)}}}
+\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{#1)}}}
+\def\derives{\longrightarrow}
+\def\subtype{\sqsubseteq}
+
+\def\super{\mbox{\tt super}}
+\def\class{\mbox{\tt class}}
+\def\extends{\mbox{\tt extends}}
+\def\return{\mbox{\tt return}}
+\def\new{\mbox{\tt new}}
+\def\this{\mbox{\tt this}}
+\def\self{\mbox{\tt self}}
+\def\true{\mbox{\tt true}}
+\def\inv{\mbox{\em inv}}
+
 \begin{figure*}
-
-\paragraph{Syntax.} The rules for CFJ are:
-
 \begin{tabular}{rrcl}
 &&&\\
-(Class) & {\tt L} &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
-(Method)& {\tt M} &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
-(Expr)& {\tt e} &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
-(C Terms) & {\tt t} &{::=}& \tt x\alt \self \alt \this \alt t.f
-\alt \new\ {\tt C($\bar{\tt t}$)}\\
-(Constraint) & {\tt c},{\tt d} &{::=}&$\tt \true\alt a\alt t=t\alt c,c\alt T\,x;c$\\
-(Type)& {\tt S},{\tt T},{\tt U} &{::=}& $\tt C(:d)$\\
+(Class) & L &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
+(Method)& M &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
+(Expr)& e &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$\\\quad\\
+(C Terms) & t&{::=}& \tt x\alt \self \alt \this \alt t.f \alt \new\ {\tt C($\bar{\tt t})$}\\
+(Constraint) & c,d&{::=}&$\tt \true\alt a\alt t=t\alt c,c\alt T\,x;c$\\
+(Type)& S,T,U&{::=}& $\tt C(:d)$\\
 &&&\\
 \end{tabular}
+\caption{Syntax for {\sf CFJ}}\label{CFJ-syntax}
+\end{figure*}
 
-\paragraph{Subtyping Judgments.}
+\begin{figure*}
 We let $\Gamma$ stand for multisets of type assertions, of the form
 $T\,x$, and constraints. We define $\sigma(\Gamma)$ to be the set of
 constraints obtained from $\Gamma$ by replacing each type assertion
@@ -38,8 +53,10 @@ $$
 \infer{\Gamma \vdash {\tt C(:c) \subtype D(:d)}}
 \end{array}
 $$
+\caption{\CFJ{} subtyping judgement}\label{CFJ-subtyping}
+\end{figure*}
 
-\paragraph{Type Judgments.}
+\begin{figure*}
 
 Let {\tt C} be a class declared as ${\tt \class\ C(\bar{\tt T}\
 \bar{\tt f}:c)\ extends\ D(:d)\{\bar{\tt M}\}}$. Let
@@ -58,8 +75,8 @@ $$
 \infer{\Gamma, {\tt C(:c)\ x} \vdash {\tt C(:d)}\ {\tt x}} &
 \\ \quad \\
 \rname{T-Field}%
-\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f} \ \ \ \mbox{(${\tt z}_0$ fresh)}} 
-\infer{\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}=\self;{\tt U}_i)\ {\tt e.f}_i} 
+\from{\Gamma \vdash {\tt T}_0\ {\tt e} \ \ \ fields({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f}_i \ \ \ \mbox{(${\tt z}_0$ fresh)}} 
+\infer{\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}_i=\self;{\tt U}_i)\ {\tt e.f}_i} 
 & 
 \rname{T-Cast}%
 \from{\Gamma \vdash {\tt S}\ {\tt e}}
@@ -97,44 +114,49 @@ $$
 \end{array}
 $$
 
-\caption{Constrained FJ}\label{FJ-Table}
+\caption{{\sf CFJ} type judgement}\label{CFJ-type}
 \end{figure*}
 
 \begin{figure*}
 \paragraph{Computation:}
 
 $$
-\begin{array}{c}
-\rname{{\sc R-Field}}%
+\begin{array}{ccc}
+\rname{{\sc R-FIELD}}%
 \from{fields(C)=\bar{C}\ \bar{f}}
-\infer{(\new\ {\tt C}(\bar{\tt e})).{\tt f}_i \derives {\tt e}_i} \\ \quad\\
-\rname{{\sc R-Invk}}%
-\from{mbody({\tt m},{\tt C})=\bar{x}. \bar{e}_0}
+\infer{(\new\ {\tt C}(\bar{\tt e})).{\tt f}_i \derives {\tt e}_i} &
+\rname{{\sc R-INVK}}%
+\from{mbody({\tt m},{\tt C})=\bar{x}. {\tt e}_0}
 \infer{(\new\ {\tt C}(\bar{\tt e})).{\tt m}(\bar{\tt d}) \derives 
-[\bar{d}/\bar{x},\new\ C(\bar{e})/\this]{\tt e}_0} \\ \quad\\
-\rname{{\sc R-Cast}}%
-\from{\vdash C \subtype D[\new\ C(\bar{\tt d})/\self]}
-\infer{{\tt (D)(\new\ C(\bar{\tt d}))} \derives \new\ C(\bar{\tt d})}
+[\bar{d}/\bar{x},\new\ C(\bar{e})/\this]{\tt e}_0} &
+\rname{{\sc R-CAST}}%
+\from{\epsilon \vdash C \subtype T[\new\ C(\bar{\tt d})/\self]}
+\infer{{\tt (T)(\new\ C(\bar{\tt d}))} \derives \new\ C(\bar{\tt d})}
 \end{array}
 $$
 \paragraph{Congruence:}
 $$
-\begin{array}{c}
-\rname{{\sc RC-Field}}%
+\begin{array}{l}
+\begin{array}{ccc}
+\rname{{\sc RC-FIELD}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
-\infer{{\tt e}_0.{\tt f} \derives {{\tt e}_0}'.{\tt f}} \\ \quad\\
-\rname{{\sc RC-Invk-Recv}}%
+\infer{{\tt e}_0.{\tt f} \derives {{\tt e}_0}'.{\tt f}} &
+\rname{{\sc RC-INVK-RECV}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
-\infer{{\tt e}.{\tt m}(\bar{\tt e}) \derives {{\tt e}_0}'.{\tt m}(\bar{\tt e})} \\ \quad\\
-\rname{{\sc RC-Invk-Arg}}%
+\infer{{\tt e}_0.{\tt m}(\bar{\tt e}) \derives {{\tt e}_0}'.{\tt m}(\bar{\tt e})} &
+\rname{{\sc RC-INVK-ARG}}%
 \from{{\tt e}_i \derives {{\tt e}_i}'}
-\infer{{\tt e}.{\tt m}(\ldots,{\tt e}_i,\ldots) \derives {{\tt e}_0}.{\tt m}(\ldots,{\tt e}_i',\ldots)}\\ \quad\\
-\rname{{\sc RC-New-Arg}}%
+\infer{{\tt e}_0.{\tt m}(\ldots,{\tt e}_i,\ldots) \derives {{\tt e}_0}.{\tt m}(\ldots,{\tt e}_i',\ldots)} 
+\end{array}
+\\ \quad \\
+\begin{array}{cc}
+\rname{{\sc RC-NEW-ARG}}%
 \from{{\tt e}_i \derives {{\tt e}_i}'}
-\infer{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)} \\ \quad\\
-\rname{{\sc RC-Cast}}%
+\infer{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)} &
+\rname{{\sc RC-CAST}}%
 \from{{\tt e}_0 \derives {{\tt e}_0}'}
 \infer{{\tt (C) e}_0 \derives {{\tt (C) e}_0}'}
+\end{array}
 \end{array}
 $$
 
@@ -297,13 +319,21 @@ i.e. expressions
 (Values) & {\tt v} &{::=}& $\new\ {\tt C(\bar{\tt v})}$
 \end{tabular}
 
+\begin{theorem}[Progress] If $\vdash {\tt T\ e}$, then one of the following conditions holds:
+\begin{enumerate}
+\item {\tt e} is a value {\tt v}, 
+\item {\tt e} contains a subexpression ${\tt (T)\new\ C(\bar{\tt v})}$ where
+$\not\vdash {\tt C} \subtype {\tt T}[{\tt \new C(\bar{\tt v})}/\self]$,
+\item there exists ${\tt e}'$ s.t. ${\tt e} \derives {\tt e}'$.
+\end{enumerate}
+\end{theorem}
 
 \begin{theorem}[Type Soundness] 
 
-If $\vdash T\ e$ and $e \starderives e'$, then $e'$ is
-either (1)~a value {\tt } with $\vdash {\tt S\ v}$ and $\vdash {\tt S
+If $\vdash {\tt T\ e}$ and ${\tt e} \starderives {\tt e}'$, then ${\tt e}'$ is
+either (1)~a value {\tt v} with $\vdash {\tt S\ v}$ and $\vdash {\tt S
 \subtype T}$, for some type {\tt S}, or, (2)~ an expression containing
-a subexpression ${\tt (T)\new\ C(\bar{\tt v})}$ where 
+a subexpression ${\tt (T)\new\ {\tt C(\bar{\tt v})}}$ where 
 $\not\vdash \tt C\subtype T[\new\ C(\bar{\tt v})/\self]$.
 
 \end{theorem}
@@ -319,7 +349,7 @@ If $\Gamma \vdash {\tt T}\ {\tt e}$, then $\Gamma, {\tt S}\ {\tt x}\vdash {\tt T
 
 % Unchanged from FJ
 \begin{lemma}[Body type]
-If $mtype({\tt m}, {\tt T}_0)=\bar{\tt T}\ \bar{\tt x} : {\tt c}
+If $mtype({\tt T}_0,{\tt m})=\bar{\tt T}\ \bar{\tt x} : {\tt c}
 \rightarrow {\tt S}$, and $mbody({\tt m}, {\tt T}_0)=\bar{\tt x}.{\tt
 e}$, then for some ${\tt U}_0$ with ${\tt T}_0 \subtype {\tt U}_0$,
 there exists ${\tt V}\subtype {\tt S}$ such that

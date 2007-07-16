@@ -32,13 +32,14 @@
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 
-\newcommand\Xten{{X10}}
+\newcommand\Xten{{\sf X10}}
+\newcommand\DML{{ DML}}
+\newcommand\FJ{{FJ}}
+\newcommand\CFJ{{CFJ}}
 \newcommand\java{{Java}}
 \newcommand\Java{{\java}}
 \newcommand\csharp{{C$\sharp$}}
 \newcommand\FXten{{FX10}}
-\newcommand\FJ{{FJ}}
-\newcommand\CFJ{{CFJ}}
 
 \begin{document}
 \title{Constrained Types for Object-Oriented Languages}
@@ -66,73 +67,67 @@ Green Hall, Room 214, Denver CO, 80208 USA}}{}
 % \copyrightdata{[to be supplied]}
 
 \begin{abstract}
-\Xten{} is a modern object-oriented language designed for
-productivity and performance in concurrent and distributed
-systems, such as (heterogenous) multicores and clusters. In this
-context, (value-)dependent types arise naturally: objects may be
-located at one of many places, arrays may be multidimensional,
-activities may be associated with one or more clocks, variables
-may be marked as shared or private following an ownership
-discipline, etc.  A framework for mostly statically checked
-dependent types offers significant opportunities for detecting
-design errors statically, documenting design decisions,
-eliminating costly runtime checks (e.g., array bounds, null
-checks), and improving the quality of code.
 
-We present a simple, general framework for adding
-constraint-based dependent types to nominally typed OO languages
-such as Java, \Xten{} and Scala. The framework is parametric on
-an underlying constraint system {\cal C}. In this system,
-classes and interfaces are associated with {\em properties},
-i.e., final instance fields. A type {\tt C(:c)} names a class or
-interface {\tt C} and a {\em constraint clause} {\tt c} on
-properties of {\tt C} and final variables in scope at the type.
-Constraint clauses may also be associated with classes
-(representing class invariants) and with parameter-lists for
-methods and constructors (representing preconditions).
+\Xten{} is a modern object-oriented language designed for productivity
+and performance in concurrent and distributed systems, such as
+(heterogenous) multicores and clusters. In this context, dependent
+types arise naturally: objects may be located at one of many places,
+arrays may be multidimensional, activities may be associated with one
+or more clocks, variables may be marked as shared or private following
+an ownership discipline, etc.  A framework for dependent types offers
+significant opportunities for detecting design errors statically,
+documenting design decisions, eliminating costly runtime checks
+(e.g.{} for array bounds, null values), and improving the quality of
+generated code.
 
-We present many examples to illustrate that common OO idioms can
-be accurately captured by constrained types, e.g., place types,
-ownership types, array types, clocked types. We have implemented
-a version the type system (for a simple equality-based
-constraint system) in \Xten{} 1.0 (available at {\tt
-x10.sf.net}). We present a simple \FJ{} extension, {\tt
-Constrained FJ} and establish fundamental properties such as
-type soundess. We compare this approach with relevant work in
-dependent types, specifically, DML, and outline many areas of
-future work.
+We present a simple, general framework for adding constraint-based
+dependent types to nominally typed OO languages such as Java, \Xten{}
+and Scala. The framework is parametric on an underlying constraint
+system {\cal C}. Classes and interfaces are associated with {\em
+properties}(= final instance fields). A type {\tt C(:c)} names a class
+or interface {\tt C} and a {\em constraint} {\tt c} on
+properties of {\tt C} and in-scope final variables.  Constraints
+may also be associated with class definitions (representing
+class invariants) and with method and constructor definitions
+(representing preconditions). Dynamic casting is permitted.
+
+We present many examples to illustrate that many common OO idioms and
+OO type systems proposed recently can be naturally captured by
+constrained types: specifically we discuss types for places, aliases,
+ownership, arrays and clocks. We have implemented the type system (for
+a simple equality-based constraint system) in \Xten{} 1.0 (available
+at {\tt x10.sf.net}). We present a simple \FJ{} extension, {\tt
+Constrained FJ}, and establish fundamental properties such as type
+soundess. We compare this approach with relevant work in dependent
+types, specifically, DML, and outline many areas of future work.
+
+In conclusion, we believe that constrained types offer a natural,
+simple, clean, and expressive extension to OO programming.
 \end{abstract}
 
-\section{Introduction}
-\label{sec:intro}
+\section{Introduction}\label{sec:intro}
 \input{intro}
 
-\section{Constrained Java}
-\label{sec:lang}
+\subsection{Related work}\label{sec:related}
+\input{related}
+
+\section{Constrained FJ}\label{sec:lang}
+%II. Language design and rules (CFJ) (3.5 pages)
+
 \input{lang}
 
-\section{Constrained FJ}
+\subsection{Semantics}
 \label{sec:semantics}
 \input{semantics}
 
-\section{Examples}
-\label{sec:examples}
+\section{Applied constrained calculii}\label{sec:examples}
 \input{examples}
 
-\section{Implementation}
-\label{sec:implementation}
+\section{Implementation}\label{sec:implementation}
 \input{impl}
 
-\section{Related work}
-\label{sec:related}
-\input{related}
-
-\section{Future work}
-\label{sec:future}
+\section{Conclusion and Future work}\label{sec:future}\label{sec:conclusions}
 \input{future}
-
-\section{Conclusions}
-\label{sec:conclusions}
 \input{conclusion}
 
 \section*{Acknowledgments}
