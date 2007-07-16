@@ -15,8 +15,8 @@ We also permit the
 specification of a {\em class invariant}, a
 {\em where clause}~\cite{where-clauses}
 in the class definition. A where
-clause is a boolean expression on the parameters separated from the
-parameter list with a ``{\tt :}''.  The compiler ensures that all
+clause is a boolean expression on the properties separated from the
+property list with a ``{\tt :}''.  The compiler ensures that all
 instances of the class created at runtime satisfy the where clause
 associated with the class.
 Thus, for instance, we may specify a class {\tt List} with an
@@ -59,7 +59,7 @@ x1,\ldots, xk}, and each term {\tt ti} is of the correct
 type). Thus, using the definition above, {\tt List(n)} is the type of
 all lists of length {\tt n}.
 
-Parametric types naturally come equipped with a {\em subtyping
+Constrained types naturally come equipped with a {\em subtyping
 structure}: type $t_1$ is a subtype of $t_2$ if the denotation of
 $t_1$ is a subset of $t_2$. This definition satisfies
 Liskov's Substitution Principle~\cite{liskov-behaviors}),
@@ -111,15 +111,12 @@ nullary constructor for {\tt List} ensures that the property
 {\tt length} has the value {\tt 0}:
 {\footnotesize
 \begin{verbatim}
-    /** Returns the empty list. */
-    public List(:length==0)() {
-      property(0);
-    }
+    public List(0)() { property(0); }
 \end{verbatim}}
 The {\tt property} statement is used to set all the properties
 of the new object simultaneously.  Capturing this assignment in
 a single statement simplifies checking that the constructor
-postcondition and class invariant are established.  In a class
+postcondition and class invariant are established.  If a class
 has properties, every path through the constructor must contain
 exactly one {\tt property} statement.
 
@@ -182,7 +179,7 @@ A class may extend a constrained class.
 {\em MetaNote: This should be standard. A class definition may extend
 a dependent super class, e.g. class Foo(int i) extends Fum(i*i) \{
 \ldots \}. The expressions in the actual parameter list for the super
-class may involve only the parameters of the class being defined. The
+class may involve only the properties of the class being defined. The
 intuition is that these parameters are analogous to explicit arguments
 that must be passed in every super-constructor invocation.}
 
@@ -224,7 +221,7 @@ The general form of a class declaration is now:
 For such a
 declaration to type-check, it must be that the class invariant
 implies {\tt inv(I) \&\& e}, where {\tt inv(I)} is the invariant associated with
-interface {\tt I}.  Again, a parameteric class or interface {\tt I} is taken as
+interface {\tt I}.  Again, a constrained class or interface {\tt I} is taken as
 shorthand for {\tt I(:true)}.  Further, every method specified in the
 interface must have a corresponding method in the class with the same
 signature whose precondition, if any, is implied by the precondition

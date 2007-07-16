@@ -30,7 +30,7 @@ FIGS =
 #
 # List of postscript figures to be included
 
-X10_FILES = Jif.x10 Ownership.x10 array.x10 dist.x10 place.x10 point.x10 region.x10 tree.x10
+X10_FILES = Jif.x10 Ownership.x10 array.x10 dist.x10 place.x10 point.x10 region.x10 tree.x10 sor.x10 LO.x10
 X10TEXS = $(X10_FILES:.x10=.tex)
 
 .SUFFIXES: .x10
