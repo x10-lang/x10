@@ -124,9 +124,15 @@ types}.  For a final access path {\tt p}, {\tt p.type}
 in Scala is the singleton type containing the object {\tt p}.
 In J\& {\tt p.class} is a type containing all objects
 whose run-time class is the same as {\tt p}'s.
-These types can be encoded in CFJ similarly to self types using
+Scala's {\tt p.type} can be encoded in CFJ using an equality
+constraint {\tt C(:self == p)}, where {\tt C} is a supertype of
+{\tt p}'s static type.
+\eat{
+These types can be encoded in CFJ by introducing a
+{\tt type} property.
 \rn{T-constr}, as
 described in Section~\ref{sec:examples}.
+}
 
 % Where clauses for F-bounded polymorphism~\cite{where-clauses}
 % Bounded quantification: Cardelli and Wegner.  Bound T with T'
