@@ -20,7 +20,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sigplanconf}[2005/07/14 v1.2 ACM SIGPLAN Proceedings]
+\ProvidesClass{sigplanconf}[2007/03/13 v1.5 ACM SIGPLAN Proceedings]
 
 % The following few pages contain LaTeX programming extensions adapted
 % from the ZzTeX macro package.
@@ -196,9 +196,10 @@
 \@setflag \@explicitsize = \@false
 \@setflag \@mathtime = \@false
 \@setflag \@ninepoint = \@true
+\newcount{\@numheaddepth} \@numheaddepth = 3
 \@setflag \@onecolumn = \@false
 \@setflag \@preprint = \@false
-\newcount{\@numheaddepth} \@numheaddepth = 3
+\@setflag \@reprint = \@false
 \@setflag \@times = \@false
 
 % Note that all the dangerous article class options are trapped.
@@ -250,6 +251,8 @@
 
 \DeclareOption{preprint}{\@setflag \@preprint = \@true}
 
+\DeclareOption{reprint}{\@setflag \@reprint = \@true}
+
 \DeclareOption{times}{\@setflag \@times = \@true}
 
 \DeclareOption{titlepage}{\@unsupportedoption{titlepage}}
@@ -275,6 +278,13 @@
 
 \def \@unsupportedoption #1{%
   \ClassError{proc}{The standard '#1' option is not supported.}}
+
+% This can be used with the 'reprint' option to get the final folios.
+
+\def \setpagenumber #1{%
+  \setcounter{page}{#1}}
+
+\AtEndDocument{\label{sigplanconf@finalpage}}
 
 %                       Utilities
 %                       ---------
@@ -522,21 +532,31 @@
   \@float{copyrightbox}[b]%
   \vbox to 1in{%
     \vfill
-    \if \@preprint
-      [copyright notice will appear here]\par
-    \else
-      \@toappear
-    \fi}%
+    \parbox[b]{20pc}{%
+      \scriptsize
+      \if \@preprint
+        [Copyright notice will appear here
+         once 'preprint' option is removed.]\par
+      \else
+        \@toappear
+      \fi
+      \if \@reprint
+        \noindent Reprinted from \@conferencename,
+        \@proceedings,
+        \@conferenceinfo,
+        pp.~\number\thepage--\pageref{sigplanconf@finalpage}.\par
+      \fi}}%
   \end@float}
 
 \long\def \toappear #1{%
-  \def \@toappear {\parbox[b]{20pc}{\scriptsize #1}}}
+  \def \@toappear {#1}}
 
 \toappear{%
   \noindent \@permission \par
   \vspace{2pt}
   \noindent \textsl{\@conferencename}\quad \@conferenceinfo \par
-  Copyright \copyright\ \@copyrightyear\ ACM \@copyrightdata\dots \$5.00.}
+  \noindent Copyright \copyright\ \@copyrightyear\ ACM \@copyrightdata
+    \dots \$5.00\par}
 
 \newcommand{\permission}[1]{%
   \gdef \@permission {#1}}
@@ -557,7 +577,8 @@
     Copyright \@copyrightyear\ Association for Computing Machinery.
     ACM acknowledges that
     this contribution was authored or co-authored by an affiliate of the
-    National Research Council of Canada (NRC).  As such, the Crown in Right of
+    National Research Council of Canada (NRC).
+    As such, the Crown in Right of
     Canada retains an equal interest in the copyright, however granting
     nonexclusive, royalty-free right to publish or reproduce this article,
     or to allow others to do so, provided that clear attribution
@@ -567,7 +588,8 @@
   \permission{%
     Copyright \@copyrightyear\ Association for
     Computing Machinery. ACM acknowledges that
-    this contribution was authored or co-authored by a contractor or affiliate
+    this contribution was authored or co-authored
+    by a contractor or affiliate
     of the U.S. Government. As such, the Government retains a nonexclusive,
     royalty-free right to publish or reproduce this article,
     or to allow others to do so, for Government purposes only.}}
@@ -733,6 +755,7 @@
 \def \@conferenceinfo {}
 \def \@copyrightyear {}
 \def \@copyrightdata {[to be supplied]}
+\def \@proceedings {[Unknown Proceedings]}
 
 
 \newcommand{\conferenceinfo}[2]{%
@@ -748,6 +771,9 @@
   \gdef \@copyrightdata {#1}}
 
 \let \crdata = \copyrightdata
+
+\newcommand{\proceedings}[1]{%
+  \gdef \@proceedings {#1}}
 
 %                       Lists
 %                       -----
@@ -850,13 +876,22 @@
   \let \@oddhead = \@empty
   \let \@oddfoot = \@evenfoot}
 
+\else\if \@reprint
+
+\def \ps@plain {%
+  \let \@mkboth = \@gobbletwo
+  \let \@evenhead = \@empty
+  \def \@evenfoot {\scriptsize \hfil \thepage \hfil}%
+  \let \@oddhead = \@empty
+  \let \@oddfoot = \@evenfoot}
+
 \else
 
 \let \ps@plain = \ps@empty
 \let \ps@headings = \ps@empty
 \let \ps@myheadings = \ps@empty
 
-\fi
+\fi\fi
 
 \def \@formatyear {%
   \number\year/\number\month/\number\day}
@@ -937,9 +972,9 @@
     \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
                   \@titleauthors{vii}{viii}{ix}\or
     \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
-                  \@titleauthors{vii}{viii}{ix}\@titleauthors{x}{}{}%
+                  \@titleauthors{vii}{viii}{ix}\@titleauthors{x}{}{}\or
     \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
-                  \@titleauthors{vii}{viii}{ix}\@titleauthors{x}{xi}{}%
+                  \@titleauthors{vii}{viii}{ix}\@titleauthors{x}{xi}{}\or
     \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
                   \@titleauthors{vii}{viii}{ix}\@titleauthors{x}{xi}{xii}%
   \else
@@ -949,7 +984,7 @@
   \end{center}}
 
 \def \@settitlebanner {%
-  \if \@notp{\@emptydefp{\@titlebanner}}%
+  \if \@andp{\@preprint}{\@notp{\@emptydefp{\@titlebanner}}}%
     \vbox to 0pt{%
       \vskip -32pt
       \noindent \textbf{\@titlebanner}\par
@@ -1100,7 +1135,7 @@
 %                               Change default to Times text.
 
 %  2004.12.14   PCA     0.8     Remove use of mathptm.sty; it cannot
-%                               coexist with latexym or amssymb.
+%                               coexist with latexsym or amssymb.
 
 %  2005.01.20   PCA     0.9     Rename class file to sigplanconf.cls.
 
@@ -1119,7 +1154,7 @@
 
 %  2005.05.06   PCA     1.0     Eliminate 'onecolumn' option.
 %                               Change footer to small italic and eliminate
-%                               left portion of no \preprintfooter.
+%                               left portion if no \preprintfooter.
 %                               Eliminate copyright notice if preprint.
 %                               Clean up and shrink copyright box.
 
@@ -1127,6 +1162,14 @@
 
 %  2005.06.29   PCA     1.1     Publish final first edition of guide.
 
-%  2005.07.11   PCA     1.2     Add \subparagraph.
+%  2005.07.14   PCA     1.2     Add \subparagraph.
 %                               Use block paragraphs in lists, and adjust
 %                               spacing between items and paragraphs.
+
+%  2006.06.22   PCA     1.3     Add 'reprint' option and associated
+%                               commands.
+
+%  2006.08.24   PCA     1.4     Fix bug in \maketitle case command.
+
+%  2007.03.13   PCA     1.5     The title banner only display with the
+%                               'preprint' option.
