@@ -19,29 +19,6 @@ clauses in methods and constructors, and dependent type casts.
 
 
 \begin{figure*}
-\paragraph{Constraint system.}
-Constraints are assumed to be drawn from a fixed constraint system,
-$\cal C$ \cite{CCCC}, with inference relation $\vdash_{\cal C}$. All
-constraint systems are required to support the trivial constraint
-\true, conjunction, existential quantification and equality on
-constraint terms. Constraint terms include (final) variables, the
-special variable {\tt self} (which may occur only in constraints {\tt
-c} which occur in a constrained type {\tt C(:c)}), and field
-selections {\tt t.f}. Finally, we assume that constraints are closed
-under variable substitution. We denote the application of the
-substitution $\theta=[\bar{{\tt t}}/\bar{{\tt x}}]$ to a constraint ${\tt c}$ by
-${\tt c}[\bar{{\tt t}}/\bar{{\tt x}}]$. 
-
-\begin{tabular}{rrcl}
-&&&\\
-(C Term) & {\tt t} &{::=}& {\tt  x}\alt \self \alt \this \alt {\tt t.f} \alt \new\ {\tt C($\bar{\tt t}) \alt {\tt g}(\bar{\tt t})$}\\
-(Constraint) & {\tt c},{\tt d} &{::=}&$\true\alt {\tt p}(\bar{\tt t})\alt {\tt t=t}\alt {\tt c,c}\alt{\tt  T\,x;c}$\\
-&&&\\
-\end{tabular}
-
-All constraint systems are required to satisfy: $\new\ {\tt C(\bar{\tt
-t})}.{\tt f}_i={\tt t}_i $ provided that $\fields({\tt C})=\bar{\tt
-T}\ \bar{\tt f}$ (for some sequence of types $\bar{\tt T}$).
 
 \paragraph{Syntax for \CFJ.}
 The definitions are based on those in Featherweight Java~\cite{FJ}. 
@@ -224,6 +201,37 @@ $$
 $$
 \caption{The system Constrained \FJ}\label{CFJ-red-rules}
 \end{figure*}
+
+\paragraph{Constraint system.}
+Constraints are assumed to be drawn from a fixed constraint system,
+$\cal C$, with inference relation $\vdash_{\cal C}$ \cite{CCCC}.
+All
+constraint systems are required to support the trivial constraint
+\true, conjunction, existential quantification and equality on
+constraint terms. Constraint terms include (final) variables, the
+special variable {\tt self} (which may occur only in constraints {\tt
+c} which occur in a constrained type {\tt C(:c)}), and field
+selections {\tt t.f}. 
+
+We summarize here properties of constraint systems described in
+\cite{CCCC} that are needed for the proofs: constraint systems may be
+thought of as presented via an intuitionistic Gentzen proof system
+supporting Identity, affine and exchange on the left, existential
+quantification and conjunction on the left and right, and closure
+under substitution of terms. We denote the application of the
+substitution $\theta=[\bar{{\tt t}}/\bar{{\tt x}}]$ to a constraint ${\tt c}$ by
+${\tt c}[\bar{{\tt t}}/\bar{{\tt x}}]$. 
+
+\begin{tabular}{rrcl}
+&&&\\
+(C Term) & {\tt t} &{::=}& {\tt  x}\alt \self \alt \this \alt {\tt t.f} \alt \new\ {\tt C($\bar{\tt t}) \alt {\tt g}(\bar{\tt t})$}\\
+(Constraint) & {\tt c},{\tt d} &{::=}&$\true\alt {\tt p}(\bar{\tt t})\alt {\tt t=t}\alt {\tt c,c}\alt{\tt  T\,x;c}$\\
+&&&\\
+\end{tabular}
+
+All constraint systems are required to satisfy: $\new\ {\tt C(\bar{\tt
+t})}.{\tt f}_i={\tt t}_i $ provided that $\fields({\tt C})=\bar{\tt
+T}\ \bar{\tt f}$ (for some sequence of types $\bar{\tt T}$).
 
 \paragraph{Syntax.}
 The syntax for the language is specified in Figure~\ref{CFJ-red-rules}.
