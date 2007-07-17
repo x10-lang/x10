@@ -32,8 +32,7 @@ class which satisfy the boolean expression. Thus,
 {\tt List(:length == 3)} is a permissible type, as are
 {\tt List(:length <= 41)} and even
 {\tt List(:length * f() >= g())}.
-If {\tt C} has no properties, the only type that can be
-constructed is the type {\tt C}.
+
 
 Accordingly, a {\em constrained type} is of the form {\tt C(:e)}, the name of
 a class or interface {\tt C}, called the {\em base class}, followed by a
@@ -51,11 +50,12 @@ ensure that the type of any variable declaration is non-empty.
 For brevity, we write {\tt C} as a type as well; it
 corresponds to the (vacuously) constrained type {\tt C(:true)}.
 We also permit the syntax {\tt C(t1,\ldots, tk)} for
-the type {\tt C (:x1 == t1 \&\& \ldots \&\& xk == tk)} (assuming that
+the type {\tt C (:x1 = t1, \ldots, xk = tk)} (assuming that
 the property list for {\tt C} specifies the {\tt k} properties {\tt
 x1,\ldots, xk}, and each term {\tt ti} is of the correct
-type). Thus, using the definition above, {\tt List(n)} is the type of
-all lists of length {\tt n}.
+type). 
+%Thus, using the definition above, {\tt List(n)} is the type of
+%all lists of length {\tt n}.
 
 Constrained types naturally come equipped with a {\em subtyping
 structure}: type $t_1$ is a subtype of $t_2$ if the denotation of
@@ -68,17 +68,23 @@ In particular, for all conditions {\tt e},
 {\tt C(:e)} is empty exactly
 when {\tt e} conjoined with {\tt C}'s class invariant is inconsistent.
 
-Two constrained types {\tt C1(:e1)} and {\tt C2(:e2)} are considered equivalent
-if {\tt C1} and {\tt C2} are the same base type and {\tt e1} and
-{\tt e2} are equivalent when considered as logical expressions.
+Two constrained types {\tt C1(:e1)} and {\tt C2(:e2)} are considered
+equivalent if {\tt C1} and {\tt C2} are the same base type and {\tt
+e1} and {\tt e2} are equivalent when considered as logical
+expressions. Thus {\tt C(:x*x=4)} and {\tt C(:x=2 || x=-2)} are
+equivalent types.
 
 \subsection{Method and constructor preconditions}
 
-Methods and constructors may specify preconditions
-on their parameters as where clauses.
-For an invocation of a method (or
-constructor) to be type-correct, the
-associated where clause must be statically known to be satisfied. The
+Methods and constructors may specify preconditions on their parameters
+as where clauses.  For an invocation of a method (or constructor) to
+be type-correct, the associated where clause must be statically known
+to be satisfied. Note that the where clause may contain constraints on
+the properties of {\tt this}. Thus the where clause may be used to
+specify that a method is {\em conditionally} available on some objects
+of the class and not others.
+
+The
 return type of a method may also contain expressions involving the
 arguments to the method. However, we will require
 that any argument used in this way must be declared {\tt final},
@@ -172,14 +178,19 @@ violations at compile-time.
 
 \subsection{Extending dependent classes}
 
-A class may extend a constrained class.
+A class may extend a constrained class, e.g. ${\tt \class C(\ldots)\
+\extends D(:d)\ldots}$. This documents the programmer's intention that
+every call to {\tt super} in a constructor for {\tt C} must ensure
+that the invariant {\tt d} is established on the state of the class
+{\tt D}. The expressions in the actual parameter list for the super
+class may involve only the properties of the class being defind.
 
-{\em MetaNote: This should be standard. A class definition may extend
-a dependent super class, e.g. class Foo(int i) extends Fum(i*i) \{
-\ldots \}. The expressions in the actual parameter list for the super
-class may involve only the properties of the class being defined. The
-intuition is that these parameters are analogous to explicit arguments
-that must be passed in every super-constructor invocation.}
+%{\em MetaNote: This should be standard. A class definition may extend
+%a dependent super class, e.g. class Foo(int i) extends Fum(i*i) \{
+%\ldots \}. The expressions in the actual parameter list for the super
+%class may involve only the properties of the class being defined. The
+%intuition is that these parameters are analogous to explicit arguments
+%that must be passed in every super-constructor invocation.}
 
 \subsection{Dependent interfaces}
 
@@ -226,21 +237,4 @@ signature whose precondition, if any, is implied by the precondition
 of the method in the interface.
 
 
-\subsection{XXX more stuff}
-
-CFJ with field assignments.
-
-Discussion of language design issues
-
--- how should method resolution be done in the presence of constrained
-   types?
-
--- conditional fields.
--- recursive definitions of predicates in the constraint language
-   through the use of CLP.
-
-Constraint system (generic presentation).
-Design is constraint-system agnostic.
-
-Principal clause
 

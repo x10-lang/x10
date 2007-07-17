@@ -15,7 +15,7 @@
 %
 %(c) ownership types, alias control.
 %
-
+\def\clocked{{\tt clocked}}
 The following section presents examples using several different
 constraint systems.
 
@@ -336,18 +336,36 @@ dynamically created, and are designed so that all clock operations are
 determinate.
 
 For each arity $n$, we introduce a {\em Gentzen predicate} ${\tt
-clock(\bar{t})}$. A $k$-ary Gentzen predicate $a$ satisfies the
+clocked(\bar{t})}$. A $k$-ary Gentzen predicate $a$ satisfies the
 property that $a(t_1,\ldots, t_k) \vdash a(s_1,\ldots,s_n)$ iff $k=n$
 and $t_i=s_i$ for $i\leq k$.
 
-A programmer may
-
+Such a {\tt clocked} atom is added to the context by an {\tt clocked async}:
 $$
 \from{\Gamma, {\tt clocked(\bar{\tt v})} \vdash {\tt T}\ {\tt e}}
 \infer{\Gamma \vdash {\tt T}\ {\tt async}\ {\tt clocked}(\bar{\tt v}) {\tt e}}
 $$
-A programmer can require that a method may be invoked only if the 
 
+A programmer can require that a method may be invoked only if the
+invoking activity is registered on the clocks $\bar{\tt k}$ by adding
+a {\tt clocked} clause. The rule for method elaboration and method invocation then change:
+$$
+\begin{array}{ll}
+\from{ \bar{\tt T}\ \bar{\tt x}, {\tt C}\ \this, {\tt c},\clocked(\bar{\tt k}) \vdash {\tt S}\ {\tt e}, {\tt S} \subtype {\tt T} }   
+\infer{\tt T\ m(\bar{\tt T}\,\bar{\tt x} : c) \clocked(\bar{\tt k})\{\return\ e;\}\ \mbox{OK in}\ C} 
+& 
+\rname{T-Invk}%
+\from{\begin{array}{ll}
+\Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  &
+\mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c,clocked(\bar{\tt k}) \rightarrow {\tt S} \\
+\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt Z}_{1:n}&
+\sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C} {\tt c} \ \ \ 
+\mbox {(${\tt z}_{0:n}$ fresh)} \\
+\Gamma \vdash \clocked(\bar{\tt k})\\
+\end{array}}
+\infer{\Gamma \vdash ({\tt T}_{0:n}\ {\tt z}_{0:n}; S)\ {\tt e}_0.{\tt m({\tt e}_{1:n})}}
+\end{array}
+$$
 
 \eat{
 \subsection{Capabilities}
