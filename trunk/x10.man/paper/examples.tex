@@ -23,15 +23,16 @@ In the following we will use the shorthand $\tt C(\bar{t}:c)$ for the
 type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
 {\tt C} is $\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ldots$.  Also,
 we abbreviate $\tt C(\bar{t}:\true)$ as $\tt C(\bar{t})$.  Finally, we
-will also have need to use the shorthand ${\tt C}_1(\bar{t}_:{\tt
-c}_1)\& \ldots {\tt C}_k(\bar{\tt t}_k:{\tt c}_k)$ for the type
-${\tt C}_1(:\bar{\tt f}_1=\bar{\tt t}_1, \ldots, \bar{\tt
-f}_k=\bar{\tt t}_k,{\tt c}_1,\ldots,{\tt c}_k$ 
+will also have need to use the shorthand
+${\tt C}_1(\bar{t}_:{\tt c}_1)\& \ldots {\tt C}_k(\bar{\tt t}_k:{\tt c}_k)$
+for the type
+${\tt C}_1(:\bar{\tt f}_1=\bar{\tt t}_1, \ldots,
+            \bar{\tt f}_k=\bar{\tt t}_k,{\tt c}_1,\ldots,{\tt c}_k)$ 
 provided that the ${\tt C}_i$ form a subtype chain
 and the declared fields of ${\tt C}_i$ are ${\tt f}_i$.
 
 Constraints naturally allow for partial specification
-(e.g. inequalities) or incomplete specification (no constraint on a
+(e.g., inequalities) or incomplete specification (no constraint on a
 variable) with the same simple syntax. In the example below,
 the type of {\tt a} does not place any constraint on the second
 dimension of {\tt a}, but this dimension can be used in other
@@ -47,17 +48,150 @@ types (e.g., the return type).
 Constraints also naturally permit the expression of existential types:
 {\footnotesize
 \begin{verbatim}
- class List(int length) { 
- List(:self.length < length) filter(Comparator k) { ...} 
- ...
- }
+  class List(int length) { 
+    List(:length <= this.length) filter(Comparator k) {...} 
+    ...
+  }
 \end{verbatim}}
 \noindent
-Here, the length of the list returned by the "filter" method is 
+Here, the length of the list returned by the {\tt filter} method is 
 unknown, but is bound by the length of the original list.
 
-\subsection{X10}
+\subsection{AVL trees and red--black trees}
 
+AVL trees and red-black trees can be modeled so that the
+data structure invariant is enforced statically.
+
+{\footnotesize
+\begin{verbatim}
+class AVLTree(int(:self >= 0) height) {...}
+class Leaf(Object key) extends AVLTree(0) {...}
+class Node(Object key, AVLTree l, AVLTree r
+         : int d=l.height-r.height; -1 <= d, d <= 1) 
+    extends AVLTree(max(l.height,r.height)+1) {...}
+\end{verbatim}}
+
+Red--black trees may be modeled similarly. Such trees have the
+invariant that (a) all leaves are black, (b) each non-leaf node has
+the same number of black nodes on every path to a leaf (the black
+height), (c) the immediate children of every red node are black.
+{\footnotesize
+\begin{verbatim}
+class RBTree(int blackHeight) {...}
+class Leaf extends RBTree(0) { int value; ... }
+class Node(boolean isBlack, 
+           RBTree(:this.isBlack || isBlack) l, 
+           RBTree(:this.isBlack || isBlack,
+                 blackHeight=l.blackHeight) r)
+    extends RBTree(l.blackHeight+1) { int value; ... }
+\end{verbatim}}
+
+\subsection{Nullable types}
+
+A constraint system that supports disequalities can be used to
+enforce a non-null invariant on reference types.
+A non-null type {\tt C} can be written simply as {\tt C(:self != null)}.
+
+\subsection{Array bounds}
+
+Xi and Pfenning proposed using dependent types for eliminating
+array bounds checks~\cite{xi98array}.
+In CFJ, an array of type {\tt T[]} indexed by (signed) integers
+can be modeled as a class with the following
+signature:\footnote{For this example, we assume generics and
+interfaces are supported.}
+\begin{verbatim}
+interface Array<T>(int(:self >= 0) length) {
+  T get(int(:0 <= self, self < this.length) i);
+  void set(int(:0 <= self, self < this.length) i, T v);
+}
+\end{verbatim}
+
+Bounds can be checked using a constraint system based on
+Presburger arithmetic~\cite{omega}:
+
+\begin{tabular}{rcl}
+{\tt a} &::=& {\tt b <= b} \\
+{\tt b} &::=& {\tt t} \bnf {\tt n} \bnf {\tt n*b} \bnf {\tt b+b}
+\end{tabular}
+
+\eat{
+Some code that iterates over an array (sugaring {\tt get} and {\tt set}):
+\begin{verbatim}
+double dot(double[] x, double[] y
+         : x.length = y.length) {
+  double r = 0.; 
+  for (int(:self >= 0, self < x.length)
+       i = 0; i < x.length; i++) {
+    r += x[i] * y[i];
+  }
+  return r;
+}
+\end{verbatim}
+}
+
+\eat{
+Another one:
+\begin{verbatim}
+double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length = y.length) {
+    double[](:length = x.length) result = new double[x.length];
+    for (int(:self >= 0, self < x.length) i = 0; i < x.length; i++) {
+        result[i] = a * x[i] + y[i];
+    }
+    return result;
+}
+\end{verbatim}
+}
+
+\subsection{Region-based arrays}
+
+\Xten{} takes another approach to ensuring array bounds violations
+do no occur.
+Following ZPL~\cite{ZPL}, arrays in \Xten{}
+are defined over sets of $n$-dimensional {\em index points}
+called {\em regions}~\cite{gps06-arrays}.
+For instance, the region {\tt [0:200,1:100]} specifies a
+collection of two-dimensional points {\tt (i,j)} with {\tt i}
+ranging from {\tt 0} to {\tt 200} and {\tt j} ranging from
+{\tt 1} to {\tt 100}.
+
+Constrained types ensure array bounds
+violations do not occur:
+an array access type-checks if the index point can be statically
+determined to be in the region over which the array is defined.
+
+Region constraints are subset constraints between regions and
+have the following syntax:
+
+\begin{tabular}{rrcl}
+  (atom)   &{\tt a} &::=& ${\tt r} \subseteq {\tt r}$ \\
+  (region) &{\tt r} &::=& {\tt t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf  \\
+           &        &   & {\tt r|r} \bnf {\tt r{\&}r} \bnf {\tt r-r} \bnf {\tt r+p} \\
+  (point)  &{\tt p} &::=& ${\tt t} \bnf [{\tt b}_1,\ldots,{\tt b}_k]$ \\
+(integer)&{\tt b},{\tt d} &::=& ${\tt t} \bnf {\tt n}$ \\
+\end{tabular}
+
+\noindent
+Regions used in constraints are either constraint terms {\tt t},
+region constants, unions ({\tt |}), intersections ({\tt \&}),
+or differences ({\tt -}), or regions where each point is
+offset by another point {\tt p}.
+
+\begin{figure}
+\footnotesize
+\input{sor}
+\caption{Successive over-relaxation with regions}
+\label{fig:sor}
+\end{figure}
+
+For example, the code in Figure~\ref{fig:sor} performs a successive
+over-relaxation~\cite{sor} of an $n \times n$ matrix {\tt G}.
+The type-checker establishes that the {\tt region}
+property of the point {\tt ij} (line 17) is
+{\tt inner \& [i,i:d1min,d1max]}, and that this
+region is a subset of {\tt outer}, the region of the array {\tt G}.
+
+\eat{
 \subsection{Self types and binary methods}
 
 Self types~\cite{bsg95,bfp-ecoop97-match} can be implemented
@@ -65,7 +199,7 @@ using a {\tt klass} property on objects.  The {\tt klass}
 property represents the run-time class of the object.
 Self types can be used to solve the binary method problem \cite{bruce-binary}.
 
-In the example below, the {\tt Set} interface has a "union" method
+In the example below, the {\tt Set} interface has a {\tt union} method
 whose argument must be of the same class as {\tt this}.
 \noindent This enables the {\tt IntSet} class's {\tt union}
 method to access the {\tt bits} field of its argument {\tt s}.
@@ -110,81 +244,6 @@ when {\tt this} is known to be an {\tt IntSet}:
 {\tt IntSet}~{\tt this}, {\tt Set}({\tt this.klass})~{\tt s}
         \vdash {\tt IntSet}({\tt this.klass})~{\tt s}}
 \]}
-
-\subsection{AVL trees and red--black trees}
-
-AVL trees can be modeled so that the data structure invariant is
-enforced statically.
-
-{\footnotesize
-\begin{verbatim}
-class AVLList(int(:self >= 0) height) {...}
-class Leaf(Object key) extends AVLList(0) {...}
-class Node(Object key, AVLList l, AVLList r
-         : int d=l.height-r.height; -1 <= d, d <= 1) 
-    extends AVLList(max(l.height,r.height)+1) { ... }
-\end{verbatim}}
-
-Red/black trees may be modeled similarly. Such trees have the
-invariant that (a) all leaves are black, (b) each non-leaf node has
-the same number of black nodes on every path to a leaf (the black
-height), (c) the immediate children of every red node are black.
-{\footnotesize
-\begin{verbatim}
-class Tree(int blackHeight) {...}
-class Leaf extends Tree(0) { int value; ...}
-class Node(boolean isBlack, 
-           Tree(:this.isBlack || isBlack) l, 
-           Tree(:this.isBlack || isBlack,
-                 blackHeight=l.blackHeight) r)
-    extends Tree(l.blackHeight+1) { int value; ... }
-\end{verbatim}}
-
-\subsection{Bounds checks}
-
-Xi and Pfenning proposed using dependent types for eliminating
-array bounds checks~\cite{xi98array}.
-
-In CFJ, an array of type {\tt T[]} indexed by (signed) integers
-can be modeled as a class with the following
-signature:\footnote{For this example, we assume the language supports generics.}
-\begin{verbatim}
-class Array<T>(int(:self >= 0) length) {
-  T get(int(:0 <= self, self < this.length) i);
-  void set(int(:0 <= self, self < this.length) i, T v);
-}
-\end{verbatim}
-
-Constraint system based on Presburger arithmetic:
-\begin{verbatim}
-a ::= b < b | b = b
-b ::= t | n | b*b | b+b
-\end{verbatim}
-
-Some code that iterates over an array (sugaring {\tt get} and {\tt set}):
-\begin{verbatim}
-double dot(double[] x, double[] y
-         : x.length = y.length) {
-  double r = 0.; 
-  for (int(:self >= 0, self < x.length)
-       i = 0; i < x.length; i++) {
-    r += x[i] * y[i];
-  }
-  return r;
-}
-\end{verbatim}
-
-\eat{
-Another one:
-\begin{verbatim}
-double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length = y.length) {
-    double[](:length = x.length) result = new double[x.length];
-    for (int(:self >= 0, self < x.length) i = 0; i < x.length; i++) {
-        result[i] = a * x[i] + y[i];
-    }
-    return result;
-}
-\end{verbatim}
 }
 
 
@@ -242,14 +301,9 @@ void quicksort(T[] array, int left, int right : left <= right) {
 \end{verbatim}
 }
 
-\subsection{Nullable types}
 
-A constraint system that supports disequalities can be used to
-enforce a non-null invariant on reference types.
-A non-null type {\tt T} can be written simply as {\tt T(:self != null)}.
+\subsection{Place types}
 
-
-\subsection{A distributed binary tree}
 This example is due to Satish Chandra. We wish to specify a balanced
 distributed tree with the property that its right child is always at
 the same place as its parent, and once the left child is at the same
@@ -258,13 +312,14 @@ place then the entire subtree is at that place:
 {\footnotesize
 \begin{verbatim}
 class Tree(boolean localLeft,
-  Tree(: this.localLeft => (loc=here,self.localLeft)) left, 
-  Tree(: loc=here) right) extends Object { ...}
+  Tree(:this.localLeft => (loc=here,self.localLeft)) left, 
+  Tree(:loc=here) right) extends Object {...}
 \end{verbatim}}
 
 \subsection{Clocked types}
-Clocks are barriers adapted to a context where activities may be
-dynamically created, and designed so that all clock operations are
+
+Clocks are barriers that are adapted to a context where activities may be
+dynamically created, and are designed so that all clock operations are
 determinate.
 
 For each arity $n$, we introduce a {\em Gentzen predicate} ${\tt
@@ -280,103 +335,130 @@ $$
 $$
 A programmer can require that a method may be invoked only if the 
 
-\subsection{Places}
-
-% \begin{figure}
-% \input{place}
-% \end{figure}
-
-\subsection{$k$-dimensional regions}
-
-% \begin{figure}
-% \input{region}
-% \end{figure}
-
-\subsection{Point}
-
-
-% \begin{figure}
-% \input{point}
-% \end{figure}
-
-\subsection{Distribution}
-
-
-% \begin{figure}
-% \input{dist}
-% \end{figure}
-
-\subsection{Arrays}
-
-Following ZPL~\cite{ZPL}, arrays in X10
-are defined over sets of $n$-dimensional {\em index points}
-called {\em regions}~\cite{gps06-arrays}.
-For instance, the region {\tt [0:200,1:100]} specifies a
-collection of two-dimensional points {\tt (i,j)} with {\tt i}
-ranging from {\tt 0} to {\tt 200} and {\tt j} ranging from
-{\tt 1} to {\tt 100}.
-
-Constrained types ensure array bounds
-violations do not occur.
-An array access type-checks if the index point can be statically
-determined to be in the region over which the array is defined.
-
-Region constraints have the following syntax:
-
-\begin{tabular}{rrcl}
-  (atom)   &{\tt a} &::=& ${\tt r} \subseteq {\tt r}$ \\
-  (region) &{\tt r} &::=& ${\tt t} \bnf [{\tt b}_1:{\tt
-  d}_1,\ldots,{\tt b}_k:{\tt d}_k] \bnf {}$  \\
-           &        && ${\tt r} | {\tt r} \bnf {\tt r} \mbox{\tt \&} {\tt r} \bnf {\tt r} - {\tt r} \bnf {\tt r} + {\tt p}$ \\
-  (point)  &{\tt p} &::=& ${\tt t} \bnf [{\tt b}_1,\ldots,{\tt b}_k]$ \\
-(integer)&{\tt b},{\tt d} &::=& ${\tt t} \bnf {\tt n}$ \\
-\end{tabular}
-
-Constraints include subset constraints between regions.
-Regions used in constraints are either constraint terms,
-region constants, union ({\tt |}), intersection ({\tt \&}), and
-set difference ($-$), or regions where each point is
-shifted by a point ({\tt p}).
 
 \eat{
-Arrays have the following properties:
-distribution rank region rect rail onePlace zeroBased
-
-Regions:
-rank rect zeroBased
-
-Distributions:
-rank region rect onePlace zeroBased
-
-Points:
-rank
-}
-
-\begin{figure*}
-\input{sor}
-\caption{Successive over-relaxation with regions}
-\label{fig:sor}
-\end{figure*}
-
-For example, the code in Figure~\ref{fig:sor} performs a successive
-over-relaxation~\cite{sor} of an $n \times n$ matrix {\tt G}.
-The type-checker establishes that the {\tt region}
-property of the point {\tt ij} (line 16) is
-{\tt inner \& [i,i:d1min,d1max]}, and that this
-region is a subset of {\tt outer}, the region of the array {\tt G}.
-
-%\begin{figure}
-%\input{array}
-%\end{figure}
-
-\subsection{Clocks}
-
-Clock types
-
 \subsection{Capabilities}
 
 Capablities (from Radha and Vijay's paper on neighborhoods)
+}
 
+\subsection{Activity-local objects}
+
+Parallelism in \Xten{} is supported through lightweight asynchronous {\em
+activities}, created by {\tt async} statements.
+It is often useful to restrict objects so that they are {\em local} to a
+particular activity.
+A local object may be accessed only by
+the activity that created it or by an ancestor of that activity.
+% it may be written only by the activity that created
+% it or by a descendant of that activity.
+Local objects are declared and created by qualifying their type
+with {\tt local}:
+\begin{verbatim}
+  local C o = new local C();
+\end{verbatim}
+For example
+
+To encode local objects in CFJ, we add an {\tt activity} property to objects:
+\begin{verbatim}
+  class Object(Activity activity) { ... }
+\end{verbatim}
+\noindent
+where {\tt Activity} has a possibly null {\tt parent} property:
+\begin{verbatim}
+  class Activity(Activity parent) { ... }
+\end{verbatim}
+\noindent
+
+To track the current activity ({\tt z}), we augment typing judgments
+as follows:
+\[
+  {\tt z};~\Gamma \vdash {\tt T}\ {\tt e}
+\]
+\noindent where ${\tt Activity}({{\tt z}'})~{\tt z} \in \Gamma$.
+When the current activity is {\tt z},
+we encode the type {\tt local C} as ${\tt C}({\tt z})$.
+
+Spawning a new activity with an {\tt async} statement
+introduces a fresh activity ${\tt z}'$:
+\[
+\from{
+{\tt z}';~\Gamma,~{\tt Activity}({\tt z})~{\tt z'} \vdash {\tt T}\ {\tt e}\ \ \ 
+\mbox{(${\tt z}'$ fresh)}
+}
+\infer{
+{\tt z};~\Gamma \vdash {\tt T}\ ({\tt async}\ {\tt e})
+}
+\]
+The rule \rn{T-Field} is strengthened to require that reads 
+only be performed on objects whose {\tt activity} property is a
+descendant of the current activity.
+%\rname{T-Field-Local}%
+\[
+\from{
+\begin{array}{ll}
+{\tt z};~\Gamma \vdash {\tt T}_0\ {\tt e} \\
+\mathit{fields}({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f}_i &
+\mbox{(${\tt z}_0$ fresh)} \\
+{\tt z};~\Gamma \vdash {\tt T}_0 \subtype {\tt C}(:{\tt activity} = {\tt z}') &
+\Gamma \vdash {\tt z}~\mathsf{spawns}~{\tt z}'
+\end{array}
+}
+\infer{{\tt z};~\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}_i=\self;{\tt U}_i)\ {\tt e.f}_i}
+\]
+
+%\Gamma \vdash {\tt z}_0.{\tt activity} = {\tt z}' &
+
+\noindent
+where the $\mathsf{spawns}$ relation is defined as follows:
+\[
+\Gamma \vdash {\tt z}~\mathsf{spawns}~{\tt z}
+\]
+\[
+\from{
+\Gamma \vdash {\tt z_1}~\mathsf{spawns}~{\tt z_2} \ \ \ 
+\Gamma \vdash {\tt z_2}~\mathsf{spawns}~{\tt z_3}}
+\infer{\Gamma \vdash {\tt z_1}~\mathsf{spawns}~{\tt z_3}}
+\]
+\[
+\from{\Gamma \vdash {\tt z_2}.{\tt parent} = {\tt z_1}}
+\infer{\Gamma \vdash {\tt z_1}~\mathsf{spawns}~{\tt z_2}}
+\]
+
+\eat{
+local objects owned by activity that created it.
+
+locals cannot be read by contained asyncs.
+
+locals can be written by contained asyncs.
+
+locals created by an activity are inherited by the parent when
+the activity terminates.
+
+\begin{verbatim}
+C(:thread = current) x = ...;
+finish foreach (...) {
+  C(:thread = current) y = x; // no!
+  x = y;
+}
+\end{verbatim}
+
+// can read if thread prop is current, or an ancestor of current
+// can write if thread prop is current or a child of current
+
+e : C(:thread = x)
+current owns x
+fields(...) = Ti fi
+-----------------------
+e.fi : Ti
+
+extensions:
+
+1. add thread to context
+2. strengthen T-field rule
+}
+
+\eat{
 \subsection{Ownership types}
 
 \begin{figure}
@@ -400,19 +482,62 @@ To enforce the ``owners as dominators'' property, the owner of
 the values {\tt valOwner} must be contained within the owner
 of the list itself; that is, {\tt valOwner} must be {\tt owner}
 or {\tt valOwner}'s owner must be contained in {\tt owner}.
-This is captured by the constraint {\tt owner contains valOwner}.
+This is captured by the constraint {\tt owner owns valOwner}.
 
 The {\tt expose} method incorrectly leaks the
 list's {\tt tail} pointer.
 The constraint system catches this XXX.
+Variables must be {\tt T(:owner=o, this owns o) x;}?
 
+Additional rules need to be imposed to enforce the ``owners as
+dominators'' property.
+
+If a class subclasses {\tt Owned}, its owner parameters must
+be transitivly owned themselves by the {\tt owner} property.
+
+Second, permit this to be visible only within the current
+object.
+
+\begin{verbatim}
+e0 : T0
+_e : _S
+mtype(T0, m) = (_x:_T) -> T'
+_S <: _T[this(e0)/this]
+--------------
+e0.m(_e) : T'[this(e0)/this]
+\end{verbatim}
+
+Need to prevent fields owned by {\tt this} escaping.
+When type-checking code in class {\tt C}, need to add {\tt C}
+to assumptions.
+
+When checking calls and field accesses, only allow substitution
+for {\tt this} when {\tt this} is the receiver.
+
+\[
+\rname{T-Field-Owner}%
+\from{
+\begin{array}{lll}
+\Gamma \vdash {\tt T}_0\ {\tt e} &
+\mathit{fields}({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f}_i &
+\mbox{(${\tt z}_0$ fresh)} \\
+\Gamma \vdash {\tt T}_0 \subtype {\tt C}(: {\tt owner} = {\tt this}) &
+XXX
+\end{array}
+}
+\infer{\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}_i=\self;{\tt U}_i)\ {\tt e.f}_i}
+\]
+}
+
+\eat{
 \subsection{Discussion}
 
 \paragraph{Control-flow.}
-Tricky to encode.  Need something like "pc" label~\cite{jif}.
+Tricky to encode.  Need something like {\tt pc} label~\cite{jif}.
 
 \paragraph{Type state.}
 Type state depends on the mutable state of the 
 objects.  Cannot do in this framework.
 
 Dependent types are of use in annotations~\cite{ns07-x10anno}.
+}
