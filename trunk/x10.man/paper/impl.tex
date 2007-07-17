@@ -3,25 +3,25 @@
 %Specify what has been implemented and how. What is interesting about
 %the implementation.
 
-The dependent type system is implemented in the X10
+The dependent type system is implemented in the \Xten{}
 compiler~\cite{X10}, which is implemented as an extension of
 Java using the Polyglot compiler framework~\cite{ncm03}.
 
 Polyglot implements a source-to-source base Java compiler 
-that is extended to translate X10 to Java.  In describing the
+that is extended to translate \Xten{} to Java.  In describing the
 implementation, we ignore the additional statement and expression types
-introduced in X10 and treat the language simply as Java
+introduced in \Xten{} and treat the language simply as Java
 extended with constrained types.
 
-Constraints in X10 are conjunctions of equalities over immutable
+Constraints in \Xten{} are conjunctions of equalities over immutable
 side-effect-free expressions.  Expressions used in constrained
-types are type-checked as normal non-dependent X10 expressions;
+types are type-checked as normal non-dependent \Xten{} expressions;
 no constraint solving is performed.
 A second compiler pass generates and solves constraints via an
 ask--tell interface~\cite{my-thesis-book}.
 If constraints cannot be solved, an error is reported.
 
-After constraint-checking, the X10 code is translated to Java.
+After constraint-checking, the \Xten{} code is translated to Java.
 The basic idea behind the translation is simple. Each dependent class
 is translated into a single class of the same name without dependent
 types. The explicit properties of the dependent class are translated
@@ -41,7 +41,7 @@ non-constrained types by erasure; constraints are checked
 statically and need no run-time representation.
 However, dependent types may be used in casts
 and {\tt instanceof} expressions.  Because the constraint syntax
-in X10 is a subset of the X10 expression syntax, run-time tests
+in \Xten{} is a subset of the \Xten{} expression syntax, run-time tests
 of constrained types are translated to Java
 in straightforward manner by evaluating the constraint with
 {\tt self} bound to the expression being tested.
@@ -64,14 +64,10 @@ For examples, casts are translated as:
   $\Lb$(C(:c) e$\Rb$ = 
     new Object() \{
       C cast(C self) \{
-        if ($\Lb$c$\Rb$)
-          return self;
-        throw new ClassCastException();
-      \}
+        if ($\Lb$c$\Rb$) return self;
+        throw new ClassCastException(); \}
     \}.cast((C) $\Lb$e$\Rb$)
 \end{code}
-\noindent Using a wrapper anonymous class ensures the expression
-{\tt e} is evaluated only once.
-
-
+\noindent Wrapping the evaluation of {\tt c} in an anonymous class
+ensures the expression {\tt e} is evaluated only once.
 
