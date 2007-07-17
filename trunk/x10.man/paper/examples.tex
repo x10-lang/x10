@@ -21,10 +21,10 @@ constraint systems.
 
 In the following we will use the shorthand $\tt C(\bar{t}:c)$ for the
 type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
-{\tt C} is $\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ldots$.  Also,
+{\tt C} is $\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ldots$  Also,
 we abbreviate $\tt C(\bar{t}:\true)$ as $\tt C(\bar{t})$.  Finally, we
 will also have need to use the shorthand
-${\tt C}_1(\bar{t}_:{\tt c}_1)\& \ldots {\tt C}_k(\bar{\tt t}_k:{\tt c}_k)$
+${\tt C}_1(\bar{t}_1:{\tt c}_1)\& \ldots {\tt C}_k(\bar{\tt t}_k:{\tt c}_k)$
 for the type
 ${\tt C}_1(:\bar{\tt f}_1=\bar{\tt t}_1, \ldots,
             \bar{\tt f}_k=\bar{\tt t}_k,{\tt c}_1,\ldots,{\tt c}_k)$ 
@@ -108,11 +108,13 @@ interface Array<T>(int(:self >= 0) length) {
 \end{verbatim}
 
 Bounds can be checked using a constraint system based on
-Presburger arithmetic~\cite{omega}:
+Presburger arithmetic~\cite{omega}.  Constraint terms include
+integer constrants, scalar multiplication, and addition.
+Constraints include inequalities:
 
 \begin{tabular}{rcl}
-{\tt a} &::=& {\tt b <= b} \\
-{\tt b} &::=& {\tt t} \bnf {\tt n} \bnf {\tt n*b} \bnf {\tt b+b}
+{\tt c} &::=& {\tt t <= t} \bnf \dots \\
+{\tt t} &::=& {\tt n} \bnf {\tt n*t} \bnf {\tt t+t} \bnf \dots
 \end{tabular}
 
 \eat{
@@ -160,15 +162,14 @@ violations do not occur:
 an array access type-checks if the index point can be statically
 determined to be in the region over which the array is defined.
 
-Region constraints are subset constraints between regions and
-have the following syntax:
+Region constraints are subset constraints and have the following syntax:
 
 \begin{tabular}{rrcl}
-  (atom)   &{\tt a} &::=& ${\tt r} \subseteq {\tt r}$ \\
-  (region) &{\tt r} &::=& {\tt t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf  \\
+  (Constraint)   &{\tt c} &::=& ${\tt r} \subseteq {\tt r}$ \bnf \dots \\
+  (Region) &{\tt r} &::=& {\tt t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf  \\
            &        &   & {\tt r|r} \bnf {\tt r{\&}r} \bnf {\tt r-r} \bnf {\tt r+p} \\
-  (point)  &{\tt p} &::=& ${\tt t} \bnf [{\tt b}_1,\ldots,{\tt b}_k]$ \\
-(integer)&{\tt b},{\tt d} &::=& ${\tt t} \bnf {\tt n}$ \\
+  (Point)  &{\tt p} &::=& ${\tt t} \bnf [{\tt b}_1,\ldots,{\tt b}_k]$ \\
+(Integer)&{\tt b},{\tt d} &::=& ${\tt t} \bnf {\tt n}$ \\
 \end{tabular}
 
 \noindent
