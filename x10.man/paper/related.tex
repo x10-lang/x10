@@ -70,7 +70,7 @@ annotate types with the sizes of recursive data structures.
 Sizes are linear functions of size variables.
 Size inference is performed using a constraint solver for
 Presburger arithmetic~\cite{omega}.
-% contraints on types, support primitive recursion only
+% constraints on types, support primitive recursion only
 
 % Indexed types~\cite{indexed-types}
 
@@ -179,7 +179,7 @@ types
 }
 
 
-Cayenne~\cite{cayenne} is a Haskell-like langauge with fully dependent types.
+Cayenne~\cite{cayenne} is a Haskell-like language with fully dependent types.
 There is no distinction between static and dynamic types.
 Type-checking is undecidable.
 There is no notion of datatype refinement as in DML.
@@ -210,7 +210,7 @@ ESC/Java~\cite{esc-java}
 allow programmers to write object invariants and pre- and
 post-conditions that are enforced statically
 by the compiler using an automated theorem prover.
-Static checking is undecidable and, in the presense of loops,
+Static checking is undecidable and, in the presence of loops,
 is unsound (but still useful) unless the programmer supplies loop invariants.
 ESC/Java can enforce invariants on mutable state.
 
@@ -248,7 +248,7 @@ to Java.
 \subsubsection{\DML}
 Our work is most closely related to \DML{}, \cite{xi99dependent}, an
 extension of ML with dependent types. \DML{} is also built
-parameterically on a constraint solver. Types are refinement types;
+parametrically on a constraint solver. Types are refinement types;
 they do not affect the operational semantics and erasing the
 constraints yields a legal ML program.
 
@@ -300,7 +300,7 @@ occur in types. In contrast, constrained types permit program
 variables at any type to occur in constrained types. As with \DML,
 only operations specified by the constraint system are permitted in
 types. However, these operations always include field selection and
-equality on object references.  (As we have seen permitting arbitary
+equality on object references.  (As we have seen permitting arbitrary
 type/property graphs may lead to undecidability.) Note that \DML{}
 style constraints are easily encoded in constrained types.
 
