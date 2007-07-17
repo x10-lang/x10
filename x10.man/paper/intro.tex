@@ -112,7 +112,7 @@ properties}. A property is a {\tt public} final instance field of the
 class that cannot be overridden by subclassing. Like any other field,
 a property is typed, and its type need not necessarily be
 primitive. Thus properties capture the immutable public state of
-object -- initialized when the object is created -- that can be
+object---initialized when the object is created---that can be
 classified by constrained types. Syntactically, properties are
 specified in a parameter list right after the name of the class in a
 class definition. The class body may contain specifications of other
@@ -127,10 +127,10 @@ C} and final variables in scope at the type. ({\tt C} is called the
 clause.)  Constraints specify (possibly) partial information about the
 variables of interest. 
 
-Such a type represents a refinement of {\tt C} -- the set of all
+Such a type represents a refinement of {\tt C}---the set of all
 instances of {\tt C} whose immutable state satisfies the condition
 {\tt c}.  The constraint is specified in terms of an underlying
-constraint system~\cite{CCCC} -- a pre-defined logical vocabulary of
+constraint system~\cite{CCCC}---a pre-defined logical vocabulary of
 functions and predicates with algorithms for consistency and
 entailment.  It may use the special variable {\tt self} to stand for
 the object whose type is being defined. Thus {\tt int(:self >= 0)} is
@@ -308,7 +308,7 @@ types. There is no need to introduce separate, universally and
 existentially quantified ``index'' variables.
 
 During type-checking, final variables are turned into symbolic
-variables -- some fixed but unknown value -- of the same type.
+variables---some fixed but unknown value---of the same type.
 Computation is performed in a constraint-based fashion on such
 variables.
 
@@ -320,7 +320,7 @@ queries to the constraint solver. The only computation engine running
 is the constraint-solver, which operates on its own vocabulary of
 predicates and functions. Program variables (such as local variables)
 that occur in types are dealt with symbolically. They are replaced
-with logical variables -- some fixed, but unknown value -- of the same
+with logical variables---some fixed, but unknown value---of the same
 type. The constraint-solver knows how to process pieces of partial
 information about these logical variables in order to determine
 whether some constraint is entailed. At runtime, the same program
@@ -332,7 +332,7 @@ analysis).
 
 Because OO languages permit arbitrary mutual recursion between classes
 -- class {\tt A} and {\tt B} may have fields of type {\tt B} and {\tt
-A} respectively -- the type/property graph may have loops. The nodes
+A} respectively---the type/property graph may have loops. The nodes
 in this graph are base types (class and interface names). There is an
 edge from node {\tt A} to node {\tt B} if {\tt A} has a property whose
 base type is {\tt B}.
@@ -377,13 +377,13 @@ generated during type-checking.
 
 \paragraph{Existential Types.}
 The use of constraints makes existential types very natural.  Consider
-the return type of {\tt filter} above -- it specifies that the list
+the return type of {\tt filter} above---it specifies that the list
 returned is of some unknown length. The only thing known about it is
 that its size is bounded by {\tt n}. Thus constrained types naturally
 subsume existential dependent types. Indeed, every base type {\tt C}
 is an ``existential'' constrained type since it does not specify any
 constraint on its properties. Thus code written with constrained types
-can interact seamlessly with legacy library code -- using just base
+can interact seamlessly with legacy library code---using just base
 types wherever appropriate.
 
 \paragraph{Parametric Consistency.}
