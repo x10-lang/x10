@@ -17,12 +17,17 @@
 %
 \def\clocked{{\tt clocked}}
 The following section presents examples using several different
-constraint systems.
+constraint systems.  Many of these constraint systems are more
+expressive than the constraint system implemented in the current
+\Xten{} compiler and have not (yet) been implemented.
 
 In the following we will use the shorthand $\tt C(\bar{t}:c)$ for the
 type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
 {\tt C} is $\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ldots$  Also,
 we abbreviate $\tt C(\bar{t}:\true)$ as $\tt C(\bar{t})$.
+Finally, we use the shorthand $\tt T\;x=t;~c$ for the constraint
+$\tt T\;x;~x=t;~c$.
+
 \eat{
 Finally, we
 will also have need to use the shorthand
@@ -85,7 +90,7 @@ class Leaf extends RBTree(0) { int value; ... }
 class Node(boolean isBlack, 
            RBTree(:this.isBlack || isBlack) l, 
            RBTree(:this.isBlack || isBlack,
-                 blackHeight=l.blackHeight) r)
+                   blackHeight=l.blackHeight) r)
     extends RBTree(l.blackHeight+1) { int value; ... }
 \end{verbatim}}
 
@@ -103,8 +108,8 @@ Xi and Pfenning proposed using dependent types for eliminating
 array bounds checks~\cite{xi98array}.
 In CFJ, an array of type {\tt T[]} indexed by (signed) integers
 can be modeled as a class with the following
-signature:\footnote{For this example, we assume generics and
-interfaces are supported.}
+signature:\footnote{For this example, we assume generics
+are supported.}
 {\footnotesize
 \begin{verbatim}
 interface Array<T>(int(:self >= 0) length) {
@@ -115,12 +120,12 @@ interface Array<T>(int(:self >= 0) length) {
 
 Bounds can be checked using a constraint system based on
 Presburger arithmetic~\cite{omega}.  Constraint terms include
-integer constrants, scalar multiplication, and addition.
-Constraints include inequalities:
+integer constrants, scalar multiplication, and addition;
+constraints include inequalities:
 
-\begin{tabular}{rcl}
-{\tt c} &::=& {\tt t <= t} \bnf \dots \\
-{\tt t} &::=& {\tt n} \bnf {\tt n*t} \bnf {\tt t+t} \bnf \dots
+\begin{tabular}{rrcl}
+(C Term) & {\tt t} &::=& {\tt n} \bnf {\tt n*t} \bnf {\tt t+t} \bnf \dots \\
+(Constraint) & {\tt c} &::=& {\tt t <= t} \bnf \dots
 \end{tabular}
 
 \eat{
@@ -172,6 +177,15 @@ violations do not occur:
 an array access type-checks if the index point can be statically
 determined to be in the region over which the array is defined.
 
+\eat{
+\[
+\from{\Gamma \vdash {\tt T[.]}(: {\tt c})\ {\tt a} \ \ \
+      \Gamma \vdash {\tt point}(: {\tt d})\ {\tt i} \ \ \ 
+      \sigma(\Gamma, {\tt T[.]}\ {\tt a}) \vdash_{\cal C} {\tt z}.{\tt region} = {\tt y}.{\tt region}}
+\infer{\Gamma \vdash {\tt T}\ {\tt a[i]}}
+\]
+}
+
 Region constraints are subset constraints and have the following syntax:
 
 \begin{tabular}{rrcl}
@@ -199,7 +213,7 @@ For example, the code in Figure~\ref{fig:sor} performs a successive
 over-relaxation~\cite{sor} of an $n \times n$ matrix {\tt G}.
 The type-checker establishes that the {\tt region}
 property of the point {\tt ij} (line 17) is
-{\tt inner \& [i,i:d1min,d1max]}, and that this
+{\tt inner \& [i:i,d1min:d1max]}, and that this
 region is a subset of {\tt outer}, the region of the array {\tt G}.
 
 \eat{
@@ -389,7 +403,6 @@ with {\tt local}:
 \begin{verbatim}
   local C o = new local C();
 \end{verbatim}}
-For example
 
 To encode local objects in CFJ, we add an {\tt activity} property to objects:
 {\footnotesize
