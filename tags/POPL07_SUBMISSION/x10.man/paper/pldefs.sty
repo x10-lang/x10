@@ -1,0 +1,98 @@
+% typeset a number in tiny italic exactly 15pts wide
+\newdimen\nw
+\newbox\bx
+\newcommand\num[1]{\setbox\bx=\hbox{\it\footnotesize{#1}}%
+\dimen\nw=15pt
+\advance\dimen\nw by -\wd\bx
+\unhbox\bx\hskip\dimen\nw}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Programming language macros
+
+\newcommand{\bnf}{\ensuremath{\ \ | \ \ }}
+\newcommand\sqleq{\ensuremath\sqsubseteq}
+
+%\newcommand{\cd}[1]{\mbox{\upshape\ttfamily\frenchspacing #1}}
+
+%%% MACROS for typesetting configurations
+\newcommand{\stepsto}{\Downarrow} % large-step
+\newcommand{\stepsone}{\longrightarrow} % small-step
+\newcommand\sub[1]{\ensuremath{_{\mbox{\scriptsize #1}}}}
+\newcommand\fn{\ensuremath\lambda}
+
+%%% function arrows
+\newcommand{\fnarrow}{\rightarrow}
+
+%%% Some things useful for denotational-style semantics
+%\newcommand\Lb{\left\llbracket}
+%\newcommand\Rb{\right\rrbracket}
+\newcommand\Lb{\llbracket}
+\newcommand\Rb{\rrbracket}
+\newcommand\SB[1]{\Lb#1\Rb} % put double brackets around the argument
+\newenvironment{SBE}{\left\Lb\begin{array}{c}}%
+{\end{array}\right\Rb}
+    % put big double brackets around the argument
+\newcommand\Tr[2]{\ensuremath{{\cal #1}\SB{#2}}}
+\newcommand\ini[1]{\nm{in}_{\mbox{\scriptsize{#1}}}}
+\newcommand\inj[2]{\nm{in}_{\mbox{\scriptsize\nm{#1}$\leftarrow$\nm{#2}}}}
+%\newcommand\nm[1]{\mbox{\sl #1}}
+    % use \nm{name} for specially-named mathematical values
+    % use "name" instead for term-level operators
+\newcommand\Set[1]{\mbox{\bf #1}}
+    % use \Set{name} for sets like Expr, Var, Aexp
+    % use \mathbb{name} for sets like Z, U, B
+\newcommand\lm[3]{\lambda#1\in#2\,.\,#3}
+\newcommand\fnm[1]{\fbox{\sl #1}\,}
+%\newcommand\join{\ensuremath\bigsqcup}
+\newcommand\dq[1]{\mbox{``}#1\mbox{''}}
+\newcommand\sidecond[1]{\qquad\mbox{(#1)}}
+\newcommand\lift[1]{\ensuremath{\lfloor #1 \rfloor}}
+%\newcommand{\rname}[1]{\mbox{\textsc{#1}}}
+
+\newcommand\defines{\triangleq}
+%\newcommand\defines{=}
+\newcommand\eqdef{\defines}
+
+\newcommand\emptylist{\mathsf{nil}}
+%\newcommand\emptylist{[\,]}
+\newcommand\many[1]{\overline{#1}}
+%\newcommand\append{\mathbin{@}}
+\newcommand\append{\,,\,}
+\newcommand\cons{,}
+\newcommand\singleton[1]{[#1]}
+
+%%% macros for types
+\newcommand\lam[2]{\lambda#1.\,#2}
+\newcommand\Lam[2]{\Lambda#1.\,#2}
+\newcommand\arrow{\ensuremath\rightarrow}
+\newcommand{\ty}{\ensuremath{\!:\!}}
+\newcommand{\proves}{\ensuremath{\vdash}}
+\newcommand\subst[3]{#1[#3\mapsto#2]}
+%\newcommand\subst[3]{#1\{#2/#3\}}
+
+%\newenvironment{code}{
+%\medskip
+%\begingroup
+%\leftskip\@totalleftmargin\rightskip\z@%
+%\parindent\z@\parfillskip\@flushglue\parskip\z@%
+%\sf%
+%\@tempswafalse \def\par{\@@par\if@tempswa~\!\!\fi\@tempswatrue}%
+%\obeylines\obeyspaces%
+%}{\endgroup\medskip}
+
+% blank line in code environment
+\newcommand\cdblank\quad{}
+
+\def\dom{\mathop{\operator@font dom}}
+\newcommand\ds{{\tt\$}}
+\newcommand\hole{[\cdot]}
+
+% such that
+\newcommand\st{\mathbin{|}}
+
+% _
+\newcommand\noname{\ensuremath{\_\!\_}}
+
+\newcommand\xstepsone[1]{\xrightarrow{#1}}
+\newcommand\xstepsmany[1]{\xrightarrow{#1}{\!\!}^*\;}
+\newcommand\stepsmany{\rightarrow^*}

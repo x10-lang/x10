@@ -1,0 +1,35 @@
+\Xten{} is a modern object-oriented language designed for productivity
+and performance in concurrent and distributed systems, such as
+(heterogeneous) multicores and clusters. In this context, dependent
+types arise naturally: objects may be located at one of many places,
+arrays may be multidimensional, activities may be associated with one
+or more clocks, variables may be marked as shared or private following
+an ownership discipline, etc.  A framework for dependent types offers
+significant opportunities for detecting design errors statically,
+documenting design decisions, eliminating costly runtime checks
+(e.g., for array bounds, null values), and improving the quality of
+generated code.
+
+We present a simple, general framework for adding constraint-based
+dependent types to nominally typed OO languages such as Java, \Xten{}
+and Scala. The framework is parametric on an underlying constraint
+system {\cal C}. Classes and interfaces are associated with {\em
+properties} (= final instance fields). A type {\tt C(:c)} names a class
+or interface {\tt C} and a {\em constraint} {\tt c} on the
+properties of {\tt C} and in-scope final variables.  Constraints
+may also be associated with class definitions (representing
+class invariants) and with method and constructor definitions
+(representing preconditions). Dynamic casting is permitted.
+
+We present many examples to illustrate that many common OO idioms and
+OO type systems proposed recently can be naturally captured by
+constrained types: specifically we discuss types for places, aliases,
+ownership, arrays and clocks. We have implemented the type system (for
+a simple equality-based constraint system) in \Xten{} 1.0 (available
+at {\tt x10.sf.net}). We present a simple \FJ{} extension,
+Constrained FJ, and establish fundamental properties such as type
+soundness. We compare this approach with relevant work in dependent
+types, specifically, DML, and outline many areas of future work.
+
+In conclusion, we believe that constrained types offer a natural,
+simple, clean, and expressive extension to OO programming.
