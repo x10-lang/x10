@@ -35,8 +35,8 @@ The definitions are based on those in Featherweight Java~\cite{FJ}.
 &&&\\
 \end{tabular}
 
-Above, ``,'' binds tighter than ``;''. We use the syntax {\tt {\tt T\
-x}; c} for the constraint obtained by existentially quantifying the
+Above, ``,'' binds tighter than ``;''. We use the syntax {\tt
+{\tt T\;x};\;c} for the constraint obtained by existentially quantifying the
 variable {\tt x} of type {\tt T} in {\tt c}. {\tt p} ranges over
 the collection of predicates supplied by the underlying constraint
 system, and {\tt g} over the collection of functions.
@@ -48,7 +48,7 @@ type {\tt T} equal to {\tt C(:c)}, we will write {\tt S\ x; T} for
 Application of substitutions is extended to
 types by: ${\tt C(:c)\theta}={\tt C(:c\theta)}$.
 
-\paragraph{\CFJ{} subtyping judgment}\label{CFJ-subtyping}
+\paragraph{\CFJ{} subtyping judgment.}\label{CFJ-subtyping}
 We add a single rule to the rules of \FJ:
 $$
 \begin{array}{llll}
@@ -72,7 +72,7 @@ $$
 fresh'' in a rule we mean it is not free in the consequent of the
 rule.)
 
-\paragraph{\CFJ{} typing judgment}\label{CFJ-typing}
+\paragraph{\CFJ{} typing judgment.}\label{CFJ-typing}
 We let $\Gamma$ stand for multisets of type assertions, of the form
 ${\tt T\ x}$,\footnote{We use the non-standard notation ${\tt T\ x}$
 rather than the more familiar ${\tt x} : {\tt T}$ since {\tt :} is
@@ -152,7 +152,7 @@ $$
 \end{array}
 \end{array}
 $$
-\paragraph{Method and Class Typing.}
+\paragraph{Method and class typing.}
 $$
 \begin{array}{ll}
 \from{ \bar{\tt T}\ \bar{\tt x}, {\tt C}\ \this, {\tt c} \vdash {\tt S}\ {\tt e}, {\tt S} \subtype {\tt T} }   
@@ -162,7 +162,7 @@ $$
 \end{array}
 $$
 
-\paragraph{Computation:}
+\paragraph{Computation.}
 $$
 \begin{array}{ccc}
 \rname{{\sc R-Field}}%
@@ -177,7 +177,7 @@ $$
 \infer{{\tt (T)(\new\ C(\bar{\tt d}))} \derives \new\ C(\bar{\tt d})}
 \end{array}
 $$
-\paragraph{Congruence:}
+\paragraph{Congruence.}
 $$
 \begin{array}{l}
 \begin{array}{ccc}
