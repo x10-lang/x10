@@ -1,13 +1,13 @@
 class Owned(Owned owner) { }
 
 class List(Owned valOwner
-         : owner contains valOwner)
+         : owner owns valOwner)
     extends Owned {
   Owned(valOwner) head;
   List(this, valOwner) tail;
 
-  List(:owner=o, valOwner=v, o contains v)
-      (Owned o, Owned v: o contains v) {
+  List(:owner=o, valOwner=v, o owns v)
+      (Owned o, Owned v: o owns v) {
     super(o);
     property(v);
   }
