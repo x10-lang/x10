@@ -1,6 +1,6 @@
 In this section we formalize a small fragment of \Xten{} to illustrate
 the basic concepts behind constrained type-checking. In fact a very
-tiny language is chosen -- a small extension of \FJ{} with constrained
+tiny language is chosen---a small extension of \FJ{} with constrained
 types. 
 
 The language is functional in that assignment is not
@@ -31,12 +31,6 @@ The definitions are based on those in Featherweight Java~\cite{FJ}.
 (Type)& {\tt S},{\tt T},{\tt U},{\tt Z}&{::=}& $\tt C(:d)$\\
 &&&\\
 \end{tabular}
-
-Above, ``,'' binds tighter than ``;''. We use the syntax {\tt
-{\tt T\;x};\;c} for the constraint obtained by existentially quantifying the
-variable {\tt x} of type {\tt T} in {\tt c}. {\tt p} ranges over
-the collection of predicates supplied by the underlying constraint
-system, and {\tt g} over the collection of functions.
 
 The {\em base type} of a type {\tt C(:c)} (read as {\em {\tt C} with
 {\tt c}}) is {\tt C}.  We use the following shorthand for types: For a
@@ -216,8 +210,8 @@ selections {\tt t.f}.
 We summarize here properties of constraint systems described in
 \cite{CCCC} that are needed for the proofs: constraint systems may be
 thought of as presented via an intuitionistic Gentzen proof system
-supporting Identity, affine and exchange on the left, existential
-quantification and conjunction on the left and right, and closure
+supporting identity; affine and exchange on the left; existential
+quantification and conjunction on the left and right; and closure
 under substitution of terms. We denote the application of the
 substitution $\theta=[\bar{{\tt t}}/\bar{{\tt x}}]$ to a constraint ${\tt c}$ by
 ${\tt c}[\bar{{\tt t}}/\bar{{\tt x}}]$. 
@@ -234,6 +228,13 @@ ${\tt c}[\bar{{\tt t}}/\bar{{\tt x}}]$.
 All constraint systems are required to satisfy: $\new\ {\tt C(\bar{\tt
 t})}.{\tt f}_i={\tt t}_i $ provided that $\fields({\tt C})=\bar{\tt
 T}\ \bar{\tt f}$ (for some sequence of types $\bar{\tt T}$).
+
+Above, ``,'' binds tighter than ``;''. We use the syntax {\tt
+{\tt T\;x};\;c} for the constraint obtained by existentially quantifying the
+variable {\tt x} of type {\tt T} in {\tt c}. {\tt p} ranges over
+the collection of predicates supplied by the underlying constraint
+system, and {\tt g} over the collection of functions.
+
 
 \paragraph{Syntax.}
 The syntax for the language is specified in Figure~\ref{CFJ-red-rules}.
@@ -262,7 +263,7 @@ fields $\bar{\tt f}$ (of type $\bar{\tt T}$), a {\em declared class
 invariant} {\tt c}, a {\em super-class invariant} {\tt d} and a
 collection of methods $\bar{\tt M}$. The constraints {\tt c} and {\tt
 d} are true for all instances of the class {\tt C} (this is verified
-in the rule for type-checking constructors, T-New).  In these
+in the rule for type-checking constructors, \rn{T-New}).  In these
 constraints, {\tt this} may be used to reference the current object;
 \self{} does not have any meaning and must not be used.
 

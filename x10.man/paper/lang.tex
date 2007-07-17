@@ -19,9 +19,10 @@ instances of the class created at runtime satisfy the where clause
 associated with the class.
 Thus, for instance, we may specify a class {\tt List} with an
 {\tt int length} property as follows:
+{\footnotesize
 \begin{code}
   class List(int length: length >= 0) \{...\}
-\end{code}
+\end{code}}
 
 Given such a definition for a class {\tt C},
 types can be constructed by {\em constraining} the properties of
@@ -98,7 +99,45 @@ For instance:
 {\tt tail} must be passed a non-empty list, and it returns a list
 whose length is one less than its argument.
 
-\subsubsection{Constructors for dependent classes}
+\subsubsection{Method overriding}
+The definitions of method overloading, overriding, hiding, shadowing
+and obscuring in \Xten{} are the same as in \Java, modulo the following
+considerations motivated by dependent types.
+
+The definition of a method declaration {\tt m1} ``having the same
+signature as'' a method declaration {\tt m2} involves identity of
+types. Two \Xten{} types are defined to be identical iff they are
+equivalent.  Two methods are said to have {\em the same signature} if
+(a) they have the same number of formal parameters, (b) for each
+parameter their types are equivalent, and (c) the constraints
+associated with their parameter list (if any) are equivalent.  It is a
+compile-time error for there to be two methods with the same name and
+same signature in a class (either defined in that class or in a
+superclass).
+
+A class {\tt C} inherits from its direct superclass and
+superinterfaces all their methods visible according to the access
+restriction modifiers public/private/protected/(package) of the
+superclass/superinterfaces that are not hidden or overridden. A method
+{\tt M1} in a class {\tt C} overrides a method {\tt M2} in a
+superclass {\tt D} if {\tt M1} and {\tt M2} have the same signature.
+Methods are overriden on a signature-by-signature basis.
+
+Dynamic method lookup does not take dependent type information into
+account, only the class hierarchy. This design decision ensures that
+serious errors such as method invocation errors are captured at
+compile-time. (Such errors can arise because multiple incomparable
+methods with the same name and acceptable argument lists might be
+available at the dynamic dependent type of the subject. Examples are
+not difficult to construct.)
+
+The current \Xten{} compiler produces \Java{} code. It further
+implements the restriction that no two methods for the same class can
+have the same signature after their constraints are erased. This
+simplifies implementation -- no name mangling is needed to preserve
+the dependent type distinction in the generated \Java{} code. However, this does cut down on the usefulness of constrained clauses for method dispatch.
+
+\subsection{Constructors for dependent classes}
 
 Like a method definition,
 a constructor may
@@ -178,8 +217,8 @@ violations at compile-time.
 
 \subsection{Extending dependent classes}
 
-A class may extend a constrained class, e.g. ${\tt \class C(\ldots)\
-\extends D(:d)\ldots}$. This documents the programmer's intention that
+A class may extend a constrained class, e.g.{} ${\tt \class C(\ldots)\ 
+\extends\ D(:d)\ldots}$. This documents the programmer's intention that
 every call to {\tt super} in a constructor for {\tt C} must ensure
 that the invariant {\tt d} is established on the state of the class
 {\tt D}. The expressions in the actual parameter list for the super
@@ -223,18 +262,19 @@ and type.
 The general form of a class declaration is now:
 \begin{verbatim}
   class C(T1 x1, ..., Tk xk)
-        extends B(:e)
-        implements I1(:e1), ..., In(:en) {...}
+        extends B(:c)
+        implements I1(:c1), ..., In(:cn) {...}
 \end{verbatim}
 \noindent
-For such a
-declaration to type-check, it must be that the class invariant
-implies {\tt inv(I) \&\& e}, where {\tt inv(I)} is the invariant associated with
-interface {\tt I}.  Again, a constrained class or interface {\tt I} is taken as
-shorthand for {\tt I(:true)}.  Further, every method specified in the
-interface must have a corresponding method in the class with the same
-signature whose precondition, if any, is implied by the precondition
-of the method in the interface.
+
+For such a declaration to type-check, it must be that the class
+invariant implies {\tt \inv(I), c}, where {\tt \inv(I)} is the
+invariant associated with interface {\tt I}.  Again, a constrained
+class or interface {\tt I} is taken as shorthand for {\tt I(:true)}.
+Further, every method specified in the interface must have a
+corresponding method in the class with the same signature whose
+precondition, if any, is implied by the precondition of the method in
+the interface.
 
 
 
