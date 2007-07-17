@@ -29,7 +29,7 @@ types can be constructed by {\em constraining} the properties of
 {\tt C}.
 In principle, {\em any} boolean expression over the
 properties specifies a type: the type of all instances of the
-class which satisfy the boolean expression. Thus,
+class satisfying the boolean expression. Thus,
 {\tt List(:length == 3)} is a permissible type, as are
 {\tt List(:length <= 41)} and even
 {\tt List(:length * f() >= g())}.
@@ -121,7 +121,7 @@ restriction modifiers public/private/protected/(package) of the
 superclass/superinterfaces that are not hidden or overridden. A method
 {\tt M1} in a class {\tt C} overrides a method {\tt M2} in a
 superclass {\tt D} if {\tt M1} and {\tt M2} have the same signature.
-Methods are overriden on a signature-by-signature basis.
+Methods are overridden on a signature-by-signature basis.
 
 Dynamic method lookup does not take dependent type information into
 account, only the class hierarchy. This design decision ensures that
@@ -202,7 +202,7 @@ declared as a property.
 \java{}-like languages permit constructors to throw exceptions. This
 is necessary to deal with the situation in which the arguments to a
 constructor for a class {\tt C} are such that no object can be
-constructed which satisfies the invariants for {\tt C}. Dependent
+constructed that satisfies the invariants for {\tt C}. Dependent
 types make it possible to perform some of these checks at
 compile-time. The class invariant of a class explicitly captures
 conditions on the properties of the class that must be satisfied by
