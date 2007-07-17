@@ -41,15 +41,15 @@ int[region(2)]}, the type of all {\tt int} arrays over two dimensional
 regions, and {\tt Obj!}, the type of all {\tt Obj} located on the
 current node. For concurrent computations, one needs the ability to
 statically check that a method is being invoked by an activity that is
-registered with a given clock (i.e.{} dynamic barrier) \cite{X10}.
+registered with a given clock (i.e., dynamic barrier)~\cite{X10}.
 
 Thus one needs a practical and usable framework for {\em dependent
 types} for concurrent, imperative, object-oriented
 languages. Dependent types are types parametrized by {\em values}
 \cite{dependent-types}  and have a rich and distinguished history in
-logic and functional programming languages (see e.g.{}
+logic and functional programming languages (see e.g.,
 \cite{xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter}, 
-e.g.{} in the development of logical frameworks
+e.g., in the development of logical frameworks
 \cite{calc-constructions}.  In the current setting, several questions
 must be answered: How are dependent types defined? What vocabulary of
 functions and predicates can be used in forming dependent types? Is
@@ -130,7 +130,7 @@ variables of interest.
 Such a type represents a refinement of {\tt C} -- the set of all
 instances of {\tt C} whose immutable state satisfies the condition
 {\tt c}.  The constraint is specified in terms of an underlying
-constraint system \cite{CCCC} -- a pre-defined logical vocabulary of
+constraint system~\cite{CCCC} -- a pre-defined logical vocabulary of
 functions and predicates with algorithms for consistency and
 entailment.  It may use the special variable {\tt self} to stand for
 the object whose type is being defined. Thus {\tt int(:self >= 0)} is
@@ -216,7 +216,7 @@ class Matrix(int I, int J) {
 \end{example}
 \paragraph{Method overloading.}
 Several design alternatives are possible for integrating method
-overloading, overriding, shadowing and obscuring \cite{Java3} with
+overloading, overriding, shadowing and obscuring~\cite{Java3} with
 dependent types. We discuss in more detail in
 Section~\ref{method-sec}. In summary, our current implementation
 erases dependent type information when compiling to Java. Therefore it
@@ -448,10 +448,10 @@ constraint system being used. We are planning on extending the current
 implementation to support multiple user-defined constraint systems,
 thereby supporting pluggable types. Dependent where clauses are also
 the basis for a general user-definable annotation framework we have
-implemented separately \cite{ns07-x10anno}. 
+implemented separately~\cite{ns07-x10anno}. 
 
 We claim the design is clean and modular. We present a simple core
-language \CFJ, extending \FJ{} \cite{FJ} with constrained types on top
+language \CFJ, extending \FJ{}~\cite{FJ} with constrained types on top
 of an arbitrary constraint system. We present rules for type-checking
 \CFJ{} programs that are parameteric in the constraint system. 
 We establish subject reduction and progress theorems. 
