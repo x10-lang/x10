@@ -88,19 +88,27 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	}
 
 	public void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction) {
-	    // TODO Auto-generated method stub
+	    if (!instruction.typeIsPrimitive() && instruction.getArrayRef() == vn) {
+		bingo= true;
+	    }
 	}
 
 	public void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction) {
-	    // TODO Auto-generated method stub
+	    if (!instruction.typeIsPrimitive() && instruction.getArrayRef() == vn) {
+		bingo= true;
+	    }
 	}
 
 	public void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction) {
-	    // TODO Auto-generated method stub
+	    if (!instruction.typeIsPrimitive() && (instruction.getArrayRef() == vn || instruction.getStoreValue() == vn)) {
+		bingo= true;
+	    }
 	}
 
 	public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
-	    // TODO Auto-generated method stub
+	    if (!instruction.typeIsPrimitive() && (instruction.getArrayRef() == vn || instruction.getStoreValue() == vn)) {
+		bingo= true;
+	    }
 	}
     }
 
@@ -110,10 +118,8 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
     }
 
     protected static class AstX10ConstraintVisitor extends AstJavaConstraintVisitor implements AstX10InstructionVisitor {
-
-	public AstX10ConstraintVisitor(
-		       AstSSAPropagationCallGraphBuilder builder,
-		       ExplicitCallGraph.ExplicitNode node) 
+	public AstX10ConstraintVisitor(AstSSAPropagationCallGraphBuilder builder,
+					ExplicitCallGraph.ExplicitNode node) 
 	{
 	   super(builder, node);
 	}
@@ -147,19 +153,35 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	}
 
 	public void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction) {
-	    // TODO Auto-generated method stub
+	    // skip arrays of primitive type
+	    if (instruction.typeIsPrimitive()) {
+		return;
+	    }
+	    doVisitArrayLoad(instruction.getDef(), instruction.getArrayRef());
 	}
 
 	public void visitArrayLoadByPoint(X10ArrayLoadByPointInstruction instruction) {
-	    // TODO Auto-generated method stub
+	    // skip arrays of primitive type
+	    if (instruction.typeIsPrimitive()) {
+		return;
+	    }
+	    doVisitArrayLoad(instruction.getDef(), instruction.getArrayRef());
 	}
 
 	public void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction) {
-	    // TODO Auto-generated method stub
+	    // skip arrays of primitive type
+	    if (instruction.typeIsPrimitive()) {
+		return;
+	    }
+	    doVisitArrayStore(instruction.getArrayRef(), instruction.getStoreValue());
 	}
 
 	public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
-	    // TODO Auto-generated method stub
+	    // skip arrays of primitive type
+	    if (instruction.typeIsPrimitive()) {
+		return;
+	    }
+	    doVisitArrayStore(instruction.getArrayRef(), instruction.getStoreValue());
 	}
     }
 
