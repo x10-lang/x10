@@ -22,13 +22,13 @@ year = {2006},
 url = {research.ibm.com/x10}
 }
 @techreport{ DependentTypes,
-author = {V.~Saraswat},
+author = {Vijay Saraswat},
 title = {Adding Dependent Types to {X}10},
 institution = {IBM T.J. Watson Research Center},
 year = {2004}
 }
 @inproceedings{ X10-concur,
-author = {V.~Saraswat and R.~Jagadeesan},
+author = {Vijay Saraswat and Radha Jagadeesan},
 title = {Concurrent Clustered Programming},
 booktitle="Proceedings of CONCUR",
 year = {2005}
@@ -1664,7 +1664,7 @@ YEAR = {June 2002}
 
 @book{my-thesis-book
 ,title={Concurrent Constraint Programming}
-,author={V.~Saraswat}
+,author={Vijay Saraswat}
 ,publisher="MIT Press"
 ,series={Doctoral Dissertation Award and Logic Programming}
 ,year=1993
@@ -1795,8 +1795,8 @@ note={To appear}
 }
 
 @InProceedings{cccc,
-  author =       "V.~Saraswat",
-  title =        "The Category of Constraint {S}ystems is Cartesian Closed",
+  author =       "Vijay Saraswat",
+  title =        "The Category of Constraint Systems is {C}artesian Closed",
   booktitle =    "{LICS} '92",
   year =         "1992",
   pages = "341--345"
@@ -2510,12 +2510,17 @@ year = 1993
         Year = 1999}
 
 @inbook{pottier-remy-attapl,
+  crossref = "attapl",
   author = "Fran\c{c}ois Pottier and Didier R{\'e}my",
-  chapter = "10, The Essence of {ML} Type Inference",
-  title = "Advanced Topics in Types and Programming Languages",
-  editor = "Benjamin C. Pierce",
-  publisher = "{MIT} Press",
-  year = 2004
+  chapter = 10,
+  title = "The Essence of {ML} Type Inference"
+}
+
+@inbook{aspinall-attapl,
+  crossref = "attapl",
+  author = "David Aspinall and Martin Hofmann",
+  chapter = 2,
+  title = "Dependent Types"
 }
 
 @book{attapl,
@@ -2849,7 +2854,7 @@ year = 1993
   year = 2004
 }
 
-@article{dependent-types,
+@book{dependent-types,
   author = "Per Martin-L{\"o}f",
   title = "A Theory of Types",
   year = 1971
