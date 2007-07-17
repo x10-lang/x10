@@ -439,6 +439,11 @@ type-checking.  There is no run-time constraint-solving.  However,
 run-time casts to dependent types are permitted; these casts involve
 arithmetic, not algebra---the values of all parameters are known.
 
+The design supports separate compilation: a class needs to be
+recompiled only when it is modified or when the method
+and field signatures or invariants of classes on which it
+depends are modified.
+
 We claim that the design is natural and easy to use and useful. Many
 example programs have been written using dependent types and are
 available at {\tt x10.sf.net}.
