@@ -1,3 +1,23 @@
+In this section we formalize a small fragment of \Xten{} to illustrate
+the basic concepts behind constrained type-checking. In fact a very
+tiny language is chosen -- a small extension of \FJ{} with constrained
+types. 
+
+The language is functional in that assignment is not
+admitted. However, it is not difficult to introduce the notion of
+mutable fields, and assignment to such fields. Since constrained types
+may onl refer to immutable state, the validity of these types is not
+compromised by the introduction of state.
+
+Further, we do not formalize overloading of methods. Rather, with
+\FJ{}, we simply require that the input program be such that the class
+name {\tt C} and method name {\tt m} uniquely select the associated
+method on the class. 
+
+We do model properties, constrained clauses, class invariants, where
+clauses in methods and constructors, and dependent type casts.
+
+
 \begin{figure*}
 \paragraph{Constraint system.}
 Constraints are assumed to be drawn from a fixed constraint system,
