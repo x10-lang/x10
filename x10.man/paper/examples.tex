@@ -334,14 +334,21 @@ void quicksort(T[] array, int left, int right : left <= right) {
 This example is due to Satish Chandra. We wish to specify a balanced
 distributed tree with the property that its right child is always at
 the same place as its parent, and once the left child is at the same
-place then the entire subtree is at that place:
+place then the entire subtree is at that place. (Recall that in
+\Xten{} every reference class has a field {\tt loc} of type {\tt place} which specifies the location at which this object is located.)
 
+The desired property may be specified thus:
 {\footnotesize
 \begin{verbatim}
-class Tree(boolean localLeft,
-  Tree(:this.localLeft => (loc=here,self.localLeft)) left, 
-  Tree(:loc=here) right) extends Object {...}
+class Tree(boolean localLeft) extends Object {
+  Tree(:this.localLeft => (loc=here,self.localLeft)) left; 
+  Tree(:loc=here) right);
+  ...
+}
 \end{verbatim}}
+\noindent Note that the consequent of the condition for {\tt left} 
+sets {\tt self.localLeft}. This ensures, recursively, that the entire
+left subtree will be located at the same place.
 
 \subsection{Clocked types}
 
