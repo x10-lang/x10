@@ -9,13 +9,13 @@ special variable {\tt self} (which may occur only in constraints {\tt
 c} which occur in a constrained type {\tt C(:c)}), and field
 selections {\tt t.f}. Finally, we assume that constraints are closed
 under variable substitution. We denote the application of the
-substitution $\theta=[\bar{t}/\bar{x}]$ to a constraint $c$ by
-$c[\bar{t}/\bar{x}]$. 
+substitution $\theta=[\bar{{\tt t}}/\bar{{\tt x}}]$ to a constraint ${\tt c}$ by
+${\tt c}[\bar{{\tt t}}/\bar{{\tt x}}]$. 
 
 \begin{tabular}{rrcl}
 &&&\\
-(C Terms) & t&{::=}& {\tt  x}\alt \self \alt \this \alt {\tt t.f} \alt \new\ {\tt C($\bar{\tt t}) \alt {\tt g}(\bar{\tt t})$}\\
-(Constraint) & c,d&{::=}&$\true\alt {\tt p}(\bar{\tt t})\alt {\tt t=t}\alt {\tt c,c}\alt{\tt  T\,x;c}$\\
+(C Terms) & {\tt t} &{::=}& {\tt  x}\alt \self \alt \this \alt {\tt t.f} \alt \new\ {\tt C($\bar{\tt t}) \alt {\tt g}(\bar{\tt t})$}\\
+(Constraint) & {\tt c},{\tt d} &{::=}&$\true\alt {\tt p}(\bar{\tt t})\alt {\tt t=t}\alt {\tt c,c}\alt{\tt  T\,x;c}$\\
 &&&\\
 \end{tabular}
 
@@ -24,14 +24,14 @@ t})}.{\tt f}_i={\tt t}_i $ provided that $\fields({\tt C})=\bar{\tt
 T}\ \bar{\tt f}$ (for some sequence of types $\bar{\tt T}$).
 
 \paragraph{Syntax for \CFJ.}
-The definitions are based on those in \cite{FJ}. 
+The definitions are based on those in Featherweight Java~\cite{FJ}. 
 
 \begin{tabular}{rrcl}
 &&&\\
-(Class) & L &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
-(Method)& M &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
-(Expr)& e &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$ \\
-(Type)& S,T,U&{::=}& $\tt C(:d)$\\
+(Class) & {\tt L} &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
+(Method)& {\tt M} &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
+(Expr)& {\tt e} &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)e$ \\
+(Type)& {\tt S},{\tt T},{\tt U},{\tt Z}&{::=}& $\tt C(:d)$\\
 &&&\\
 \end{tabular}
 
@@ -48,7 +48,7 @@ type {\tt T} equal to {\tt C(:c)}, we will write {\tt S\ x; T} for
 Application of substitutions is extended to
 types by: ${\tt C(:c)\theta}={\tt C(:c\theta)}$.
 
-\paragraph{\CFJ{} subtyping judgement}\label{CFJ-subtyping}
+\paragraph{\CFJ{} subtyping judgment}\label{CFJ-subtyping}
 We add a single rule to the rules of \FJ:
 $$
 \begin{array}{llll}
@@ -72,11 +72,11 @@ $$
 fresh'' in a rule we mean it is not free in the consequent of the
 rule.)
 
-\paragraph{\CFJ{} typing judgement}\label{CFJ-typing}
+\paragraph{\CFJ{} typing judgment}\label{CFJ-typing}
 We let $\Gamma$ stand for multisets of type assertions, of the form
 ${\tt T\ x}$,\footnote{We use the non-standard notation ${\tt T\ x}$
 rather than the more familiar ${\tt x} : {\tt T}$ since {\tt :} is
-used in the syntax of a type.}  and constraints. Typing judgements are
+used in the syntax of a type.}  and constraints. Typing judgments are
 of the form $\Gamma\vdash {\tt S\ t}$ When $\Gamma$ is empty, it is
 omitted. 
 
@@ -93,12 +93,12 @@ The definition of {\mtype({\tt C},{\tt m})} (the signature of a method
 named {\tt m} in class {\tt C}), {\mbody({\tt C},{\tt m})}, (the body
 associated with method {\tt m} in type {\tt C}) and \fields(C) (the
 sequence of fields and their types inherited or defined at {\tt C}) is
-essentially as specified in \cite{FJ}, with the difference that the
+essentially as specified in FJ~\cite{FJ} with the difference that the
 method of a signature is taken to be of the form $\bar{\tt S}\ \bar{\tt
 x}: {\tt c} \rightarrow {\tt T}$.  The variables {\tt x} are permitted
 to occur in the types $\bar{\tt S},{\tt T}$, and are considered bound,
 and subject to alpha-renaming.  The definitions of \mtype, \mbody,
-\fields are extended to apply to constrained types by ignoring the
+\fields{} are extended to apply to constrained types by ignoring the
 constraint.  For a substitution $\theta$ we define $\mtype({\tt
 T},{\tt m},\theta)$ as the signature obtained by applying $\theta$ to
 $\mtype({\tt T},{\tt m})$, renaming bound variables as necessary.
@@ -218,8 +218,9 @@ contain references to only those objects {\tt o} that are instances of
 provided that occurrences of {\tt self} in {\tt c} are replaced by
 {\tt o}. Thus in the constraint {\tt c} of a constrained type {\tt
 C(:c)}, {\tt self} may be used to reference the object whose type is
-being specified. Note that {\tt self} is distinct from {\tt this} --
-{\tt this} is permitted to occur in the clause of a type {\tt T} only
+being specified. Note that {\tt self} is distinct from
+{\tt this}---{\tt this} is permitted to occur in the clause of
+a type {\tt T} only
 if {\tt T} occurs in an instance field declaration or instance method
 declaration of a class; as usual, \this{} is considered bound to the
 instance of the class to which the field or method declaration
@@ -280,14 +281,13 @@ constraints ${\tt c}$.
 \TVar{} extends the identity rule ($\Gamma, x:C \vdash x:C$) of {\sf FJ} to take into account the constraint entailment relation.
 
 \TCast{} encapsulates the three inference rules of {\sf FJ}:
-\TUCast{}, \TDCast{} and\TSCast{} for upwards cast, downwards cast, and ``stupid'' cast respectively. 
+\TUCast{}, \TDCast{} and \TSCast{} for upwards cast, downwards cast, and ``stupid'' cast respectively. 
 
-\TInv{} is a form of contraction that permits the class invariant {\tt
-c} of a class {\tt C} to enrich the type of any variable of type {\tt
-C}.
+%\TInv{} is a form of contraction that permits the class invariant {\tt c}
+%of a class {\tt C} to enrich the type of any variable of type {\tt C}.
 
 In \TField, we postulate the existence of a receiver object {\tt o} of
-the given static type (${\tt T}_0$). $fields({\tt T}_0,o)$ is
+the given static type (${\tt T}_0$). $\fields({\tt T}_0,{\tt o})$ is
 the set of typed fields for ${\tt T}_0$ with all occurrences of 
 \this{} replaced  by {\tt o}. We record in the resulting
 constraint that ${\tt o.f}_i=\self$.\footnote{A new name {\tt o} is
@@ -334,6 +334,7 @@ $\Gamma \vdash S\ e'$ and $\Gamma \vdash S \subtype T$.
 
 Let the normal form of expressions be given by {\em values},
 i.e.{} expressions:
+
 \begin{tabular}{rrcl}
 &&&\\
 (Values) & {\tt v} &{::=}& $\new\ {\tt C(\bar{\tt v})}$
@@ -375,3 +376,31 @@ e}$, then for some ${\tt U}_0$ with ${\tt T}_0 \subtype {\tt U}_0$,
 there exists ${\tt V}\subtype {\tt S}$ such that
 $\bar{\tt T}\ \bar{\tt x},{\tt U}_0\ \this \vdash {\tt V}\ {\tt e}$
 \end{lemma}
+
+
+\subsection{Erasure}
+
+Constrained types in CFJ are a form of {\em refinement
+type}~\cite{refinement-types}.  If constraints are erased from a
+well-typed program,
+the resulting program will behave identically to the unerased
+program except that the unerased program might be unable to take
+a step on a cast.
+
+Let $\Lb {\tt e} \Rb$ be the erasure of ${\tt e}$ defined as follows:
+\begin{align*}
+\Lb {\tt x} \Rb &= {\tt x} \\
+\Lb {\tt e}.{\tt f} \Rb &= \Lb {\tt e} \Rb.{\tt f} \\
+\Lb {\tt e}.{\tt m}(\bar{\tt e}) \Rb &= \Lb {\tt e} \Rb.{\tt m}(\bar{\Lb {\tt e} \Rb}) \\
+\Lb {\tt new}~{\tt C}(\bar{\tt e}) \Rb &= {\tt new}~{\tt C}(\bar{\Lb {\tt e} \Rb}) \\
+\Lb ({\tt C}(:{\tt c}))~{\tt e} \Rb &= (\tt C(: {\tt true}))~\bar{\Lb {\tt e} \Rb}
+\end{align*}
+
+\begin{theorem}[Erasure]
+
+If $\vdash {\tt C}(:{\tt c})\ {\tt e}$ and ${\tt e} \starderives {\tt v}$,
+then $\vdash {\tt C}(:{\tt true})\ \Lb {\tt e} \Rb$ and $\Lb
+{\tt e} \Rb \starderives \Lb {\tt v} \Rb$.
+
+\end{theorem}
+
