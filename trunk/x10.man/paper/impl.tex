@@ -3,26 +3,23 @@
 %Specify what has been implemented and how. What is interesting about
 %the implementation.
 
-The dependent type system is implemented in the \Xten{}
-compiler~\cite{X10}, which is implemented as an extension of
-Java using the Polyglot compiler framework~\cite{ncm03}.
-
-Polyglot implements a source-to-source base Java compiler 
-that is extended to translate \Xten{} to Java.  In describing the
-implementation, we ignore the additional statement and expression types
-introduced in \Xten{} and treat the language simply as Java
-extended with constrained types.
-
+Constrained types are implemented in the \Xten{}
+language.
 Constraints in \Xten{} are conjunctions of equalities over immutable
-side-effect-free expressions.  Expressions used in constrained
+side-effect-free expressions.
+
+
+The \Xten{} compiler is implemented as an extension of
+Java using the Polyglot compiler framework~\cite{ncm03}.
+Expressions used in constrained
 types are type-checked as normal non-dependent \Xten{} expressions;
 no constraint solving is performed.
-A second compiler pass generates and solves constraints via an
+A separate compiler pass generates and solves constraints via an
 ask--tell interface~\cite{my-thesis-book}.
 If constraints cannot be solved, an error is reported.
 
-After constraint-checking, the \Xten{} code is translated to Java.
-The basic idea behind the translation is simple. Each dependent class
+After constraint-checking, the \Xten{} code is translated to
+Java in a straightforward manner.  Each dependent class
 is translated into a single class of the same name without dependent
 types. The explicit properties of the dependent class are translated
 into {\tt public final} (instance) fields of the target class.
@@ -43,7 +40,7 @@ However, dependent types may be used in casts
 and {\tt instanceof} expressions.  Because the constraint syntax
 in \Xten{} is a subset of the \Xten{} expression syntax, run-time tests
 of constrained types are translated to Java
-in straightforward manner by evaluating the constraint with
+by evaluating the constraint with
 {\tt self} bound to the expression being tested.
 For examples, casts are translated as:
 \eat{
