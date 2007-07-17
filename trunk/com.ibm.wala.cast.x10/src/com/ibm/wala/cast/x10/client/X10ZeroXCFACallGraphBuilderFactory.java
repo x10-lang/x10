@@ -10,10 +10,10 @@ import com.ibm.wala.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 
 public class X10ZeroXCFACallGraphBuilderFactory implements CallGraphBuilderFactory {
-
+    // TODO Add policy argument to ctor so client can control precision of pointer analysis
     public CallGraphBuilder make(AnalysisOptions options, IClassHierarchy cha, AnalysisScope scope, boolean keepPointsTo) {
         Util.addDefaultSelectors(options, cha);
         Util.addDefaultBypassLogic(options, scope, Util.class.getClassLoader(), cha);
-        return new X10ZeroXCFABuilder(cha, options, null, null, options.getReflectionSpec(), ZeroXInstanceKeys.NONE);
+        return new X10ZeroXCFABuilder(cha, options, null, null, options.getReflectionSpec(), ZeroXInstanceKeys.ALLOCATIONS);
     }
 }
