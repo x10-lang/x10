@@ -22,7 +22,9 @@ constraint systems.
 In the following we will use the shorthand $\tt C(\bar{t}:c)$ for the
 type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
 {\tt C} is $\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ldots$  Also,
-we abbreviate $\tt C(\bar{t}:\true)$ as $\tt C(\bar{t})$.  Finally, we
+we abbreviate $\tt C(\bar{t}:\true)$ as $\tt C(\bar{t})$.
+\eat{
+Finally, we
 will also have need to use the shorthand
 ${\tt C}_1(\bar{t}_1:{\tt c}_1)\& \ldots {\tt C}_k(\bar{\tt t}_k:{\tt c}_k)$
 for the type
@@ -56,6 +58,7 @@ Constraints also naturally permit the expression of existential types:
 \noindent
 Here, the length of the list returned by the {\tt filter} method is 
 unknown, but is bound by the length of the original list.
+}
 
 \subsection{AVL trees and red--black trees}
 
@@ -86,11 +89,13 @@ class Node(boolean isBlack,
     extends RBTree(l.blackHeight+1) { int value; ... }
 \end{verbatim}}
 
+\eat{
 \subsection{Nullable types}
 
 A constraint system that supports disequalities can be used to
 enforce a non-null invariant on reference types.
 A non-null type {\tt C} can be written simply as {\tt C(:self != null)}.
+}
 
 \subsection{Array bounds}
 
@@ -100,12 +105,13 @@ In CFJ, an array of type {\tt T[]} indexed by (signed) integers
 can be modeled as a class with the following
 signature:\footnote{For this example, we assume generics and
 interfaces are supported.}
+{\footnotesize
 \begin{verbatim}
 interface Array<T>(int(:self >= 0) length) {
   T get(int(:0 <= self, self < this.length) i);
   void set(int(:0 <= self, self < this.length) i, T v);
 }
-\end{verbatim}
+\end{verbatim}}
 
 Bounds can be checked using a constraint system based on
 Presburger arithmetic~\cite{omega}.  Constraint terms include
@@ -119,6 +125,7 @@ Constraints include inequalities:
 
 \eat{
 Some code that iterates over an array (sugaring {\tt get} and {\tt set}):
+{\footnotesize
 \begin{verbatim}
 double dot(double[] x, double[] y
          : x.length = y.length) {
@@ -131,9 +138,11 @@ double dot(double[] x, double[] y
 }
 \end{verbatim}
 }
+}
 
 \eat{
 Another one:
+{\footnotesize
 \begin{verbatim}
 double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length = y.length) {
     double[](:length = x.length) result = new double[x.length];
@@ -143,6 +152,7 @@ double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length =
     return result;
 }
 \end{verbatim}
+}
 }
 
 \subsection{Region-based arrays}
@@ -260,6 +270,7 @@ index types.
 
 \subsection{Quicksort}
 
+{\footnotesize
 \begin{verbatim}
 int(:left <= self & self <= right)
 partition(T[] array, int left, int right, int pivotIndex : left <= pivotIndex & pivotIndex <= right) {
@@ -300,6 +311,7 @@ void quicksort(T[] array, int left, int right : left <= right) {
     }
 }
 \end{verbatim}
+}
 }
 
 
@@ -355,20 +367,23 @@ the activity that created it or by an ancestor of that activity.
 % it or by a descendant of that activity.
 Local objects are declared and created by qualifying their type
 with {\tt local}:
+{\footnotesize
 \begin{verbatim}
   local C o = new local C();
-\end{verbatim}
+\end{verbatim}}
 For example
 
 To encode local objects in CFJ, we add an {\tt activity} property to objects:
+{\footnotesize
 \begin{verbatim}
   class Object(Activity activity) { ... }
-\end{verbatim}
+\end{verbatim}}
 \noindent
 where {\tt Activity} has a possibly null {\tt parent} property:
+{\footnotesize
 \begin{verbatim}
   class Activity(Activity parent) { ... }
-\end{verbatim}
+\end{verbatim}}
 \noindent
 
 To track the current activity ({\tt z}), we augment typing judgments
@@ -436,13 +451,14 @@ locals can be written by contained asyncs.
 locals created by an activity are inherited by the parent when
 the activity terminates.
 
+{\footnotesize
 \begin{verbatim}
 C(:thread = current) x = ...;
 finish foreach (...) {
   C(:thread = current) y = x; // no!
   x = y;
 }
-\end{verbatim}
+\end{verbatim}}
 
 // can read if thread prop is current, or an ancestor of current
 // can write if thread prop is current or a child of current
@@ -499,6 +515,7 @@ be transitivly owned themselves by the {\tt owner} property.
 Second, permit this to be visible only within the current
 object.
 
+{\footnotesize
 \begin{verbatim}
 e0 : T0
 _e : _S
@@ -506,7 +523,7 @@ mtype(T0, m) = (_x:_T) -> T'
 _S <: _T[this(e0)/this]
 --------------
 e0.m(_e) : T'[this(e0)/this]
-\end{verbatim}
+\end{verbatim}}
 
 Need to prevent fields owned by {\tt this} escaping.
 When type-checking code in class {\tt C}, need to add {\tt C}
