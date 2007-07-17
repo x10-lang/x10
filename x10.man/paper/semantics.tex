@@ -382,8 +382,9 @@ $\not\vdash {\tt C} \subtype {\tt T}[{\tt \new\ C(\bar{\tt v})}/\self]$,
 
 \begin{theorem}[Type Soundness] 
 
-If $\vdash {\tt T\ e}$ and ${\tt e} \starderives {\tt e}'$, then ${\tt e}'$ is
-either (1)~a value {\tt v} with $\vdash {\tt S\ v}$ and $\vdash {\tt S
+If $\vdash {\tt T\ e}$ and ${\tt e} \starderives {\tt e}'$, with ${\tt
+e}'$ in normal form, then ${\tt e}'$ is either (1)~a value {\tt v}
+with $\vdash {\tt S\ v}$ and $\vdash {\tt S
 \subtype T}$, for some type {\tt S}, or, (2)~ an expression containing
 a subexpression ${\tt (T)\new\ {\tt C(\bar{\tt v})}}$ where 
 $\not\vdash \tt C\subtype T[\new\ C(\bar{\tt v})/\self]$.
