@@ -224,8 +224,10 @@ ${\tt c}[\bar{{\tt t}}/\bar{{\tt x}}]$.
 
 \begin{tabular}{rrcl}
 &&&\\
-(C Term) & {\tt t} &{::=}& {\tt  x}\alt \self \alt \this \alt {\tt t.f} \alt \new\ {\tt C($\bar{\tt t}) \alt {\tt g}(\bar{\tt t})$}\\
-(Constraint) & {\tt c},{\tt d} &{::=}&$\true\alt {\tt p}(\bar{\tt t})\alt {\tt t=t}\alt {\tt c,c}\alt{\tt  T\,x;c}$\\
+(C Term) & {\tt t} &{::=}& {\tt  x}\alt \self \alt \this \alt {\tt t.f} \\
+&&& \alt \new\ {\tt C($\bar{\tt t}) \alt {\tt g}(\bar{\tt t})$}\\
+(Constraint) & {\tt c},{\tt d} &{::=}&$\true\alt {\tt p}(\bar{\tt t})$\\
+&&& $\alt {\tt t=t}\alt {\tt c,c}\alt{\tt  T\,x;c}$\\
 &&&\\
 \end{tabular}
 
