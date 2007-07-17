@@ -74,14 +74,8 @@ Presburger arithmetic~\cite{omega}.
 
 % Indexed types~\cite{indexed-types}
 
-Xi and Pfenning~\cite{xi99dependent} describe an extension of ML
-with dependent types, DML($C$), in which types are indexed by
-constraints from a domain $C$ that is a parameter to the type
-system.  Types in DML are refinement types; they do no affect
-the operational semantics and erasing the
-constraints yields an ML program.
-CFJ permits casts and run-time tests of constraints.
-Like CFJ, DML supports existenial dependent types.
+Our work is most closely related to DML, the extension of ML with dependent types. We discuss this in detail in the next section.
+
 % Index objects must be pure.
 % Singleton types int(n).
 % ML$^{\Pi}_0$:
@@ -248,3 +242,64 @@ to Java.
 % Statically type the dependent parts.
 % Dynamic checks when passing values into dependent part.
 
+\subsubsection{\DML}
+Our work is most closely related to \DML{}, \cite{xi99dependent}, an
+extension of ML with dependent types. \DML{} is also built
+parameterically on a constraint solver. Types are refinement types;
+they do not affect th eoperational semantics and erasing the
+constraints yields a legal ML program.
+
+At a conceptual level the intuitions behind the development of \DML{}
+and constrained types are similar. Both are intended for practical
+programming by mainstream programmers, both introduce a strict
+separation between compile-time and run-time processing, are
+parametric on a constraint solver, and deal with mutually recursive
+data-structures, mutable state, and higher-order functions (encoded as
+objects in the case of constrained types). Both support existential
+types.
+
+The most obvious distinction between the two lies in the target
+domain: \DML{} is designed for functional programming, specifically
+ML, whereas constrained types are designed for imperative, concurrent
+OO languages. Hence technically our development of constrained types
+takes the route of an extension to \FJ. But there are several other
+crucial differences as well.
+
+First, \DML{} achieves its separation by not permitting program
+variables to be used in types. Instead, a parallel set of (universally
+or existentially quantified) ``index'' variables have to be
+introduced. For instance the typing of the {\tt app} operation on
+lists is provided by:
+
+{\footnotesize
+\begin{verbatim}
+fun('a)
+  append(nil, ys) = ys
+ | append(cons(x, xs), ys) = cons(x, append(xs,ys))
+where append <| {m:nat}{n:nat} 
+               'a list(m) * 'a list(n) -> 'a list(m+n)  
+\end{verbatim}}
+\noindent in contrast with the direct embedded expression with constrained types:
+{\footnotesize
+\begin{verbatim}
+class List(int(:self >= 0) n) {
+   Object item;
+   List(n-1) tail;
+   List(n+a.n) append(List a) { 
+     return n==0 ? a : new List(item, tail.append(a));}
+   ...
+}
+\end{verbatim}}
+
+Second, \DML{} permits only variables of basic index sorts known to
+the constraint solver {e.g.{} {\tt bool}, {\tt int}, {\tt nat}) to
+occur in types. In contrast, constrained types permit program
+variables at any type to occur in constrained types. As with \DML,
+only operations specified by the constraint system are permitted in
+types. However, these operations always include field selection and
+equality on object references.  (As we have seen permitting arbitary
+type/property graphs may lead to undecidability.) Note that \DML{}
+style constraints are easily encoded in constrained types.
+
+Third, \DML{} does not permit any runtime checking of constraints
+(dynamic casts).
