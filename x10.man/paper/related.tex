@@ -285,8 +285,8 @@ where append <| {m:nat}{n:nat}
 class List(int(:self >= 0) n) {
    Object item;
    List(n-1) tail;
-   List(n+a.n) append(List a) { 
-     return n==0 ? a : new List(item, tail.append(a));}
+   List(n+a.n) app(final List a) { 
+     return n==0 ? a : new List(item, tail.app(a));}
    ...
 }
 \end{verbatim}}
