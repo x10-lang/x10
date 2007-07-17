@@ -190,7 +190,7 @@ There is no distinction between static and dynamic types.
 Type-checking is undecidable.
 There is no notion of datatype refinement as in DML.
 
-Epigram~\cite{epigram}
+Epigram~\cite{epigram,epigram-matters}
 is a dependently typed functional programming language.
 
 \eat{
@@ -209,12 +209,37 @@ enforced at run-time.
 % types are labeled with security policies enforced by the
 % compiler.
 
-ESCJava~\cite{esc-java}
-and Spec$\sharp$~\cite{specsharp}
-allow programmers to write invariants to be enforced statically
-by the compiler.
+ESC/Java~\cite{esc-java}
+allow programmers to write object invariants and pre- and
+post-conditions that are enforced statically
+by the compiler using an automated theorem prover.
+Static checking is undecidable and, in the presense of loops,
+is unsound (but still useful) unless the programmer supplies loop invariants.
+ESC/Java can enforce invariants on mutable state.
 
-JSR 308, Javari
+% and Spec$\sharp$~\cite{specsharp}
+
+Pluggable and optional type systems were proposed by
+Bracha~\cite{bracha04-pluggable} and provide another means of
+specifying refinement types.
+Type annotations, implemented in compiler plugins, serve only to
+reject programs statically that might otherwise have dynamic
+type errors.
+CQual~\cite{foster-popl02} extends C with user-defined type
+qualifiers.  These
+qualifiers may be flow-sensitive and may be inferred. 
+CQual supports only a fixed set of typing rules
+for all qualifiers.
+In contrast, the {\em semantic type qualifiers} of
+Chin, Markstrum, and Millstein~\cite{chin05-qualifiers}
+allow programmers to define typing rules for qualifiers
+in a meta language that allows type-checking rules to be
+specified declaratively.
+JavaCOP~\cite{javacop-oopsla06} is a pluggable type system
+framework for Java.  Annotations are defined in a meta language
+that allows type-checking rules to be specified declaratively.
+JSR 308~\cite{jsr308} is a proposal for adding user-defined type qualifiers
+to Java.
 
 % Holt, Cordy, the Turing programming language
 
