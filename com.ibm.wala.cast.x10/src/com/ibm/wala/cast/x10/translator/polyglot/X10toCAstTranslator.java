@@ -526,13 +526,17 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		CAstNode[] eltNodes= new CAstNode[arrayInit.elements().size()+1];
 		int idx= 0;
 		eltNodes[idx++]= makeNode(wc, ac, CAstNode.NEW,
-			fFactory.makeConstant(baseTypeRef),
+			fFactory.makeConstant(arrayTypeRef),
 			walkNodes(dist, wc));
 		for(Iterator iter= arrayInit.elements().iterator(); iter.hasNext(); ) {
 		    Expr elem= (Expr) iter.next();
 		    eltNodes[idx++]= walkNodes(elem, wc);
 		}
 		return makeNode(wc, init, CAstNode.ARRAY_LITERAL, eltNodes);
+	    } else if (init == null) {
+		return makeNode(wc, ac, CAstNode.NEW,
+			fFactory.makeConstant(arrayTypeRef),
+			walkNodes(dist, wc));
 	    } else {
 		Assertions.UNREACHABLE("ArrayConstructor has non-closure, non-ArrayInit initializer of type " + init.getClass());
 		return null;
@@ -572,6 +576,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	    wc.addScopedEntity(closureNode, bodyEntity);
 	    return closureNode;
+	}
+
+	public CAstNode visit(ParExpr pe, WalkContext wc) {
+	    return walkNodes(pe.expr(), wc);
 	}
     }
 
