@@ -37,8 +37,8 @@ external -d externalWebsite x10.web/html/externalWebsite
 
 # Aliases
 
-x10 -d . &x10.common &x10.compiler &lpg &x10.runtime
-sources -d . &x10.common &x10.compiler &lpg &x10.runtime
+x10 -d . &x10.common &x10.compiler &x10.runtime
+sources -d . &x10.common &x10.compiler &x10.runtime
 
 website -d . &x10.web
 
