@@ -24,6 +24,7 @@ public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(GenParameterExpr gpe, WalkContext context);
     CAstNode visit(Here h, WalkContext context);
     CAstNode visit(Next n, WalkContext context);
+    CAstNode visit(ParExpr expr, WalkContext wc);
     CAstNode visit(PlaceCast pc, WalkContext context);
     CAstNode visit(Point p, WalkContext context);
     CAstNode visit(Region r, WalkContext context);
