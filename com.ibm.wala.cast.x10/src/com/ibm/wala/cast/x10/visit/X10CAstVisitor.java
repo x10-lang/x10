@@ -181,6 +181,15 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 		visitor.visitNext(n, context, visitor);
 		break;
 	    }
+	    case X10CastNode.ARRAY_REF_BY_POINT: {
+		if (visitor.visitArrayRef(n, context, visitor))
+		    break;
+		visitor.visit(n.getChild(0), context, visitor); // the array expr
+		// n.getChild(1) is a TypeReference for the array element type...
+		visitor.visit(n.getChild(2), context, visitor); // the index expr
+		visitor.leaveArrayRef(n, context, visitor);
+		break;
+	    }
 	    default:
 		return super.doVisit(n, context, visitor);
 	}
