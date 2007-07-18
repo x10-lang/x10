@@ -155,6 +155,7 @@ public interface X10CastNode extends CAstNode {
      * Children:
      * <ol>
      * <li>CAstNode.EXPR representing the receiver (the future being forced)
+     * </ol>
      */
     public static final int FORCE= SUB_LANGUAGE_BASE + 16;
 
@@ -163,6 +164,7 @@ public interface X10CastNode extends CAstNode {
      * Children:
      * <ol>
      * <li>CAstNode.EXPR representing the receiver (the region being iterated over)
+     * </ol>
      */
     public static final int REGION_ITER_INIT= SUB_LANGUAGE_BASE + 17;
 
@@ -172,6 +174,7 @@ public interface X10CastNode extends CAstNode {
      * Children:
      * <ol>
      * <li>CAstNode.EXPR representing the receiver (the region iterator)
+     * </ol>
      */
     public static final int REGION_ITER_HASNEXT= SUB_LANGUAGE_BASE + 18;
 
@@ -181,6 +184,7 @@ public interface X10CastNode extends CAstNode {
      * Children:
      * <ol>
      * <li>CAstNode.EXPR representing the receiver (the region iterator)
+     * </ol>
      */
     public static final int REGION_ITER_NEXT= SUB_LANGUAGE_BASE + 19;
 
@@ -190,6 +194,7 @@ public interface X10CastNode extends CAstNode {
      * Children:
      * <ol>
      * <li>CAstNode.EXPR representing the receiver array
+     * </ol>
      */
     public static final int ARRAY_DISTRIBUTION= SUB_LANGUAGE_BASE + 20;
 
@@ -198,8 +203,21 @@ public interface X10CastNode extends CAstNode {
      * resides in a given distribution.<br>
      * Children:
      * <ol>
-     * <li>CAstNode.EXPR representing the array
-     * <li>CAstNode.EXPR representing the point
+     *   <li>CAstNode.EXPR representing the array
+     *   <li>CAstNode.EXPR representing the point
+     * </ol>
      */
     public static final int PLACE_OF_POINT= SUB_LANGUAGE_BASE + 21;
+
+    /**
+     * Kind constant for a CAstNode representing an array reference where the index is given as an
+     * instance of x10.lang.point. This has exactly the same structure as an ARRAY_REF.<br>
+     * Children:
+     * <ol>
+     *   <li>CAstNode.EXPR representing the array
+     *   <li>CAstValue representing the type of the result
+     *   <li>CAstNode.EXPR representing the point index
+     * </ol>
+     */
+    public static final int ARRAY_REF_BY_POINT= SUB_LANGUAGE_BASE + 22;
 }
