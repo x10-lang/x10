@@ -6,6 +6,7 @@ import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.ssa.ValueDecorator;
 import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.debug.Assertions;
 
 public class X10ArrayLoadByPointInstruction extends X10ArrayReferenceByPointInstruction {
     private final int result;
@@ -17,6 +18,27 @@ public class X10ArrayLoadByPointInstruction extends X10ArrayReferenceByPointInst
 
     public int getResult() {
 	return result;
+    }
+
+    @Override
+    public boolean hasDef() {
+      return true;
+    }
+
+    @Override
+    public int getDef() {
+      return result;
+    }
+
+    @Override
+    public int getDef(int i) {
+      Assertions._assert(i == 0);
+      return result;
+    }
+
+    @Override
+    public int getNumberOfDefs() {
+      return 1;
     }
 
     @Override
