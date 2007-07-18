@@ -13,8 +13,11 @@ import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
 import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByIndexInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByPointInstruction;
 import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByIndexInstruction;
+import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByPointInstruction;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
+import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.domo.ast.x10.visit.X10CAstVisitor;
 import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
 import com.ibm.wala.cast.ir.translator.AstTranslator.DefaultContext;
@@ -25,6 +28,7 @@ import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.visit.CAstVisitor;
+import com.ibm.wala.cast.tree.visit.CAstVisitor.Context;
 import com.ibm.wala.classLoader.NewSiteReference;
 import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.types.Descriptor;
@@ -259,11 +263,23 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     	return translator;
     }
 
+    /**
+     * Returns true if the given array reference operation indexes using an x10.lang.point,
+     * rather than an array of ints (as in ordinary Java)
+     */
+    private boolean isRefByPoint(CAstNode arrayRefNode) {
+	return arrayRefNode.getChildCount() > 3 || // if there are multiple indices, it's not by point
+		arrayRefNode.getKind() == X10CastNode.ARRAY_REF_BY_POINT;
+    }
+
     public void doArrayRead(WalkContext context, int result, int arrayValue, CAstNode arrayRefNode, int[] dimValues) {
 	TypeReference arrayTypeRef= (TypeReference) arrayRefNode.getChild(1).getValue();
-	// TODO figure out whether the index is a point or an array of ints and act accordingly
-//	context.cfg().addInstruction(SSAInstructionFactory.ArrayLoadInstruction(result, arrayValue, dimValues[0], arrayTypeRef));
-	context.cfg().addInstruction(
+
+	if (isRefByPoint(arrayRefNode))
+	    context.cfg().addInstruction(
+		new X10ArrayLoadByPointInstruction(result, arrayValue, dimValues[0], arrayTypeRef));
+	else
+	    context.cfg().addInstruction(
 		new X10ArrayLoadByIndexInstruction(result, arrayValue, dimValues, arrayTypeRef));
     }
 
@@ -273,13 +289,21 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 		    ((TypeReference) arrayRefNode.getChild(0).getChild(0).getValue()).getArrayElementType() :
 		    (TypeReference) arrayRefNode.getChild(1).getValue();
 
-//	context.cfg().addInstruction(
-//		SSAInstructionFactory.ArrayStoreInstruction(
-//			arrayValue,
-//			dimValues[0], 
-//			rval, 
-//			arrayTypeRef));
-	context.cfg().addInstruction(
+	if (isRefByPoint(arrayRefNode))
+	    context.cfg().addInstruction(
+		new X10ArrayStoreByPointInstruction(arrayValue, dimValues[0], rval, arrayTypeRef));
+	else
+	    context.cfg().addInstruction(
 		new X10ArrayStoreByIndexInstruction(arrayValue, dimValues, rval, arrayTypeRef));
+    }
+
+    @Override
+    protected boolean doVisitAssignNodes(CAstNode n, Context context, CAstNode v, CAstNode a, CAstVisitor visitor) {
+	int NT = a.getKind();
+	boolean assign = NT == CAstNode.ASSIGN;
+	boolean preOp = NT == CAstNode.ASSIGN_PRE_OP;
+	if (n.getKind() == X10CastNode.ARRAY_REF_BY_POINT)
+	    return doVisitArrayRefNode(n, v, a, assign, preOp, context, visitor);
+	return false;
     }
 }
