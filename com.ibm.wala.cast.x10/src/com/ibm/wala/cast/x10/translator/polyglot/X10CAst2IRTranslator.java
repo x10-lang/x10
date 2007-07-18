@@ -302,8 +302,11 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 	int NT = a.getKind();
 	boolean assign = NT == CAstNode.ASSIGN;
 	boolean preOp = NT == CAstNode.ASSIGN_PRE_OP;
-	if (n.getKind() == X10CastNode.ARRAY_REF_BY_POINT)
-	    return doVisitArrayRefNode(n, v, a, assign, preOp, context, visitor);
-	return false;
+	if (n.getKind() == X10CastNode.ARRAY_REF_BY_POINT) {
+	  doVisitArrayRefNode(n, v, a, assign, preOp, context, visitor);
+	  return true;
+	} else {
+	  return false;
+	}
     }
 }
