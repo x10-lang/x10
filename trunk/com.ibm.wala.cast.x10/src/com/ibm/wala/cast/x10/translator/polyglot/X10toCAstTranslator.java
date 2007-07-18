@@ -21,6 +21,7 @@ import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.FutureType;
+import polyglot.types.ClassType;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
@@ -419,6 +420,12 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		    makeNode(wc, X10CastNode.ATOMIC_EXIT, n.position().startOf()));
 	}
 
+	private boolean isIndexedByPoint(List<Expr> indices) {
+	    if (indices.size() > 1) return false;
+	    Expr index= indices.get(0);
+	    return index.type().isClass() && ((ClassType) index.type()).fullName().equals("x10.lang.point");
+	}
+
 	public CAstNode visit(X10ArrayAccess aa, WalkContext wc) {
 	    TypeReference eltTypeRef = fIdentityMapper.getTypeRef(aa.type());
 	    CAstNode[] children= new CAstNode[aa.index().size()+2];
@@ -430,7 +437,11 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		Expr index= (Expr) iter.next();
 		children[idx++]= walkNodes(index, wc);
 	    }
-	    return makeNode(wc, fFactory, aa, CAstNode.ARRAY_REF, children);
+	    return makeNode(wc, fFactory, aa, isIndexedByPoint(aa.index()) ? X10CastNode.ARRAY_REF_BY_POINT : CAstNode.ARRAY_REF, children);
+	}
+
+	private boolean isIndexedByPoint(Expr index) {
+	    return index.type().isClass() && ((ClassType) index.type()).fullName().equals("x10.lang.point");
 	}
 
 	public CAstNode visit(X10ArrayAccess1 aa, WalkContext wc) {
@@ -443,7 +454,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    children[idx++]= fFactory.makeConstant(eltTypeRef);
 	    children[idx++]= walkNodes(index, wc);
 
-	    return makeNode(wc, fFactory, aa, CAstNode.ARRAY_REF, children);
+	    return makeNode(wc, fFactory, aa, isIndexedByPoint(index) ? X10CastNode.ARRAY_REF_BY_POINT : CAstNode.ARRAY_REF, children);
 	}
 
 	public CAstNode visit(ArrayConstructor ac, WalkContext wc) {
@@ -491,7 +502,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		CallSiteReference closureCallSiteRef= CallSiteReference.make(dummyPC, closureRef, IInvokeInstruction.Dispatch.VIRTUAL);
 		CAstNode arrayElemInit= makeNode(wc, closure, CAstNode.BLOCK_EXPR,
 			makeNode(wc, formal1, CAstNode.ASSIGN,
-				makeNode(wc, closure, CAstNode.ARRAY_REF,
+				makeNode(wc, closure, X10CastNode.ARRAY_REF_BY_POINT,
 					makeNode(wc, closure, CAstNode.VAR, fFactory.makeConstant(arrayTempName)),
 					fFactory.makeConstant(baseTypeRef),
 					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name()))),
