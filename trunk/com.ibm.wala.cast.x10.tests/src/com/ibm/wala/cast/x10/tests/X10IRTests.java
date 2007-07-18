@@ -8,24 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ibm.domo.ast.x10.client.X10SourceAnalysisEngine;
-import com.ibm.domo.ast.x10.translator.X10CAstPrinter;
-import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
-import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.test.IRTests;
-import com.ibm.wala.eclipse.util.*;
+import com.ibm.wala.eclipse.util.EclipseProjectPath;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.Util;
 import com.ibm.wala.ipa.cha.ClassHierarchy;
 
 public class X10IRTests extends IRTests {
-    protected static List/*<String>*/ x10RTJar;
+    protected static List<String> x10RTJar;
 
     protected static String x10LibPath= "." + File.separator + "lib";
 
     static {
-	x10RTJar= new ArrayList();
+	x10RTJar= new ArrayList<String>();
 	x10RTJar.addAll(rtJar);
 	x10RTJar.add(x10LibPath + File.separator + "x10-runtime.jar");
 
@@ -103,10 +100,26 @@ public class X10IRTests extends IRTests {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null, true);
     }
+
+    public void testArrayAccess2D() {
+	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+		new GraphAssertions(), null, true);
+    }
+
+    public void testArrayAccess3D() {
+	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+		new GraphAssertions(), null, true);
+    }
+
     public void testArrayCtor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null, true);
     }
+
+//    public void testArrayUpdate2D() {
+//	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+//		new GraphAssertions(), null, true);
+//    }
 
     /*    
     public void testHashTable() {
