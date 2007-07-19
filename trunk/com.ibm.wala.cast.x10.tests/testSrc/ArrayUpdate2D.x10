@@ -8,20 +8,20 @@ public class ArrayUpdate2D {
 	System.out.println("Before update:");
 	print(a, N);
 	int[.] iters= new int[[1:5]] (point p) { return p[0]; };
-	for(point p: iters.region) {
+	for(point p[i]: iters.region) {
 	    update(a, N);
-	    System.out.println("After update #" + p[0] + ":");
+	    System.out.println("After update #" + i + ":");
 	    print(a, N);
 	}
     }
     public void print(int[.] a, int N) {
-	for(point i: [0:N]) {
-	    if (i[0] == 0)
+	for(point p[i]: [0:N]) {
+	    if (i == 0)
 		System.out.print("a[] = ");
 	    else
 		System.out.print("      ");
-	    for(point j: [0:N]) {
-		System.out.print(a[i[0],j[0]] + " ");
+	    for(point p1[j]: [0:N]) {
+		System.out.print(a[i,j] + " ");
 	    }
 	    System.out.println();
 	}
@@ -60,11 +60,11 @@ public class ArrayUpdate2D {
 	final int[.] kernel= createKernel();
 	int[.] res= copyOf(a);
 	int result= 0;
-        for(point p: interior) {
+        for(point p[pi,pj]: interior) {
             int sum= 0;
-            for(point k: kernel) {
-        	point ap= [p[0]+k[0]-1, p[1]+k[1]-1];
-        	sum += a[ap] * kernel[k];
+            for(point pk[ki,kj]: kernel) {
+        	point ap= [pi+ki-1, pj+kj-1];
+        	sum += a[ap] * kernel[pk];
             }
             res[p]= sum;
         }
