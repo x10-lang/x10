@@ -199,100 +199,100 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	public CAstNode visit(Async a, WalkContext context) {
 	    CAstEntity bodyEntity= walkAsyncEntity(a, a.body(), context);
 
-	    CAstNode asyncNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
+	    CAstNode asyncNode= makeNode(context, a, X10CastNode.ASYNC_INVOKE,
 		    walkNodes(a.place(), context),
 		    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-		    fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
+		    makeNode(context, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
 
 	    context.addScopedEntity(asyncNode, bodyEntity);
 	    return asyncNode;
 	}
 
 	public CAstNode visit(Finish f, WalkContext context) {
-	    return fFactory.makeNode(CAstNode.UNWIND, 
-		    fFactory.makeNode(CAstNode.BLOCK_STMT, 
-			    fFactory.makeNode(X10CastNode.FINISH_ENTER),
+	    return makeNode(context, f, CAstNode.UNWIND,
+		    makeNode(context, f, CAstNode.BLOCK_STMT, 
+			    makeNode(context, X10CastNode.FINISH_ENTER, f.body().position().startOf()),
 			    walkNodes(f.body(), context)),
-		    fFactory.makeNode(X10CastNode.FINISH_EXIT));
+		    makeNode(context, X10CastNode.FINISH_EXIT, f.body().position().endOf()));
 	}
 
-	
 	public CAstNode visit(ForEach f, WalkContext context) {
 	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), context);
 
-	    final CAstNode bodyNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
-					    fFactory.makeNode(X10CastNode.HERE),
+	    final CAstNode bodyNode= makeNode(context, f, X10CastNode.ASYNC_INVOKE,
+					    makeNode(context, f.domain(), X10CastNode.HERE),
 					    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-					    fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
+					    makeNode(context, f.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
 
 	    context.addScopedEntity(bodyNode, bodyEntity);
 	    return walkRegionIterator(f, bodyNode, context);
 	}
 
 	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, WalkContext context) {
-	    return walkRegionIterator(loop.formal(), bodyNode, walkNodes(loop.domain(), context), context);
+	    return walkRegionIterator(loop.formal(), bodyNode, walkNodes(loop.domain(), context), loop.position(), context);
 	}
 
-	private CAstNode walkRegionIterator(Formal formal, final CAstNode bodyNode, CAstNode domainNode, WalkContext context) {
+	private CAstNode walkRegionIterator(Formal formal, final CAstNode bodyNode, CAstNode domainNode, polyglot.util.Position bodyPos, WalkContext wc) {
 	    X10Formal x10Formal= (X10Formal) formal;
 	    LocalInstance[] vars = x10Formal.localInstances();
-	    CAstNode[] varDecls = new CAstNode[vars.length + 1];
+	    CAstNode[] bodyStmts = new CAstNode[vars.length + 1]; // var decls + bodyNode
+
 	    for (int i = 0; i < vars.length; i++)
-		varDecls[i] = fFactory.makeNode(CAstNode.DECL_STMT,
+		bodyStmts[i]= makeNode(wc, vars[i].position(), CAstNode.DECL_STMT,
 		  fFactory.makeConstant(new CAstSymbolImpl(vars[i].name(), vars[i].flags().isFinal())),
-		  fFactory.makeNode(CAstNode.ARRAY_REF, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant(formal.name())),
+		  makeNode(wc, vars[i].position(), CAstNode.ARRAY_REF, makeNode(wc, vars[i].position(), CAstNode.VAR, fFactory.makeConstant(formal.name())),
 		    fFactory.makeConstant(TypeReference.Int),
 		    fFactory.makeConstant(i)));
-	    varDecls[vars.length] = bodyNode;
+	    bodyStmts[vars.length] = bodyNode;
 
-	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
-		fFactory.makeNode(CAstNode.BLOCK_STMT,
-		    fFactory.makeNode(CAstNode.DECL_STMT, fFactory.makeConstant(new CAstSymbolImpl("iter tmp", false)),
-		      fFactory.makeNode(X10CastNode.REGION_ITER_INIT, domainNode)),
-		    fFactory.makeNode(CAstNode.LOOP,
-			fFactory.makeNode(X10CastNode.REGION_ITER_HASNEXT,
-			    fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp"))),
-			fFactory.makeNode(CAstNode.BLOCK_STMT,
-			    fFactory.makeNode(CAstNode.DECL_STMT, walkNodes(formal, context),
-				fFactory.makeNode(X10CastNode.REGION_ITER_NEXT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
-			    varDecls))));
+	    return makeNode(wc, bodyPos, CAstNode.LOCAL_SCOPE,
+		makeNode(wc, bodyPos, CAstNode.BLOCK_STMT,
+		    makeNode(wc, formal, CAstNode.DECL_STMT, fFactory.makeConstant(new CAstSymbolImpl("iter tmp", false)),
+			    makeNode(wc, formal, X10CastNode.REGION_ITER_INIT, domainNode)),
+		    makeNode(wc, bodyPos, CAstNode.LOOP,
+			makeNode(wc, formal, X10CastNode.REGION_ITER_HASNEXT,
+				makeNode(wc, formal, CAstNode.VAR, fFactory.makeConstant("iter tmp"))),
+			makeNode(wc, bodyPos, CAstNode.BLOCK_STMT,
+			    makeNode(wc, formal, CAstNode.DECL_STMT, walkNodes(formal, wc),
+				makeNode(wc, formal, X10CastNode.REGION_ITER_NEXT, makeNode(wc, formal, CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
+			    bodyStmts))));
 	}
 
-	public CAstNode visit(AtEach a, WalkContext context) {
-	    CAstEntity bodyEntity= walkAsyncEntity(a, a.body(), context);
+	public CAstNode visit(AtEach a, WalkContext wc) {
+	    CAstEntity bodyEntity= walkAsyncEntity(a, a.body(), wc);
 
 	    Expr domain= a.domain();
 	    Type type= domain.type();
 	    CAstNode dist;
 
 	    if (type.isArray())
-		dist= fFactory.makeNode(X10CastNode.ARRAY_DISTRIBUTION, walkNodes(domain, context));
+		dist= makeNode(wc, domain, X10CastNode.ARRAY_DISTRIBUTION, walkNodes(domain, wc));
 	    else
-		dist= walkNodes(domain, context);
+		dist= walkNodes(domain, wc);
 
 	    final CAstNode bodyNode=
-		fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
-			fFactory.makeNode(X10CastNode.PLACE_OF_POINT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), walkNodes(a.formal(), context)),
+		makeNode(wc, a, X10CastNode.ASYNC_INVOKE,
+			makeNode(wc, a.domain(), X10CastNode.PLACE_OF_POINT, makeNode(wc, a.domain(), CAstNode.VAR, fFactory.makeConstant("dist temp")), walkNodes(a.formal(), wc)),
 			    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-			fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
+			makeNode(wc, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
 
-	    context.addScopedEntity(bodyNode, bodyEntity);
-	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
-		fFactory.makeNode(CAstNode.BLOCK_STMT,
-			fFactory.makeNode(CAstNode.DECL_STMT, 
+	    wc.addScopedEntity(bodyNode, bodyEntity);
+	    return makeNode(wc, a, CAstNode.LOCAL_SCOPE,
+		makeNode(wc, a, CAstNode.BLOCK_STMT,
+			makeNode(wc, a.domain(), CAstNode.DECL_STMT, 
 			  fFactory.makeConstant(new CAstSymbolImpl("dist temp", true)),
 			  dist),
-			walkRegionIterator(a.formal(), bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), context)));
+			walkRegionIterator(a.formal(), bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), a.body().position(), wc)));
 	}
 
-	public CAstNode visit(Future f, WalkContext context) {
-	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), context);
-	    CAstNode bodyNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
-		    walkNodes(f.place(), context),
+	public CAstNode visit(Future f, WalkContext wc) {
+	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), wc);
+	    CAstNode bodyNode= makeNode(wc, f, X10CastNode.ASYNC_INVOKE,
+		    walkNodes(f.place(), wc),
 		    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-		    fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
+		    makeNode(wc, f.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
 
-	    context.addScopedEntity(bodyNode, bodyEntity);
+	    wc.addScopedEntity(bodyNode, bodyEntity);
 	    return bodyNode;
 	}
 
@@ -304,7 +304,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		FutureType type= (FutureType) methodOwner;
 		TypeReference typeRef= TypeReference.findOrCreate(fClassLoaderRef, fIdentityMapper.typeToTypeID(type.base()));
 
-		return fFactory.makeNode(X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
+		return makeNode(wc, c, X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
 	    } else
 		return super.visit(c, wc);
 	}
@@ -326,11 +326,11 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(Here h, WalkContext context) {
-	    return fFactory.makeNode(X10CastNode.HERE);
+	    return makeNode(context, h, X10CastNode.HERE);
 	}
 
 	public CAstNode visit(Next n, WalkContext context) {
-	    return fFactory.makeNode(X10CastNode.NEXT);
+	    return makeNode(context, n, X10CastNode.NEXT);
 	}
 
 	public CAstNode visit(PlaceCast pc, WalkContext context) {
@@ -338,7 +338,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return null;
 	}
 
-	public CAstNode visit(When w, WalkContext context) {
+	public CAstNode visit(When w, WalkContext wc) {
 	    When_c when= (When_c) w;
 //          List/*<When.Branch>*/ branches= when.branches();
 	    List/*<Expr>*/ exprs= when.exprs();
@@ -351,11 +351,11 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    CAstNode[] whenClauses= new CAstNode[exprs.size()+1];
 
 	    
-	    CAstNode whenExit= fFactory.makeNode(CAstNode.LABEL_STMT,
+	    CAstNode whenExit= makeNode(wc, w.position().endOf(), CAstNode.LABEL_STMT,
 		    fFactory.makeConstant("when exit"),
-		    fFactory.makeNode(CAstNode.EMPTY));
+		    makeNode(wc, CAstNode.EMPTY, w.position().endOf()));
 
-	    context.cfg().map(whenExit, whenExit);
+	    wc.cfg().map(whenExit, whenExit);
 
 	    int idx= 0;
             Iterator stmtIter= new IteratorPlusOne(stmts.iterator(), when.stmt());
@@ -364,20 +364,20 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
                 Expr expr= (Expr) exprIter.next();
                 Stmt stmt= (Stmt) stmtIter.next();
 
-		CAstNode whenBreak= fFactory.makeNode(CAstNode.GOTO);
+		CAstNode whenBreak= makeNode(wc, expr, CAstNode.GOTO);
 
-		whenClauses[idx]= fFactory.makeNode(CAstNode.IF_STMT,
-			walkNodes(expr, context),
-			fFactory.makeNode(CAstNode.BLOCK_STMT,
-				walkNodes(stmt, context),
+		whenClauses[idx]= makeNode(wc, expr, CAstNode.IF_STMT,
+			walkNodes(expr, wc),
+			makeNode(wc, stmt, CAstNode.BLOCK_STMT,
+				walkNodes(stmt, wc),
 				whenBreak));
-		context.cfg().map(whenBreak, whenBreak);
-		context.cfg().add(whenBreak, whenExit, null);
+		wc.cfg().map(whenBreak, whenBreak);
+		wc.cfg().add(whenBreak, whenExit, null);
 	    }
-	    return fFactory.makeNode(CAstNode.BLOCK_STMT,
-		    fFactory.makeNode(CAstNode.LOOP,
+	    return makeNode(wc, w, CAstNode.BLOCK_STMT,
+		    makeNode(wc, w, CAstNode.LOOP,
 			    fFactory.makeConstant(true),
-			    wrapBodyInAtomic(fFactory.makeNode(CAstNode.BLOCK_STMT, whenClauses), w, context)),
+			    wrapBodyInAtomic(makeNode(wc, w, CAstNode.BLOCK_STMT, whenClauses), w, wc)),
 	            whenExit);
 
 	    // Alternative, quasi-declarative representation:
@@ -513,7 +513,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 		CAstNode loopBody=
 			walkRegionIterator(formal1, arrayElemInit,
-					makeNode(wc, fFactory, dist, CAstNode.VAR, fFactory.makeConstant(distTempName)), wc);
+					makeNode(wc, dist, CAstNode.VAR, fFactory.makeConstant(distTempName)), closure.position(), wc);
 
 		return makeNode(wc, closure, CAstNode.BLOCK_EXPR, // NEED CAstNode.LOCAL_SCOPE or make "array temp" names unique
 			distDeclNode,
@@ -572,7 +572,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	public CAstNode visit(Closure closure, WalkContext wc) {
 	    CAstEntity bodyEntity= walkClosureEntity(closure, closure.body(), wc);
-	    CAstNode closureNode= fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
+	    CAstNode closureNode= makeNode(wc, closure.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
 
 	    wc.addScopedEntity(closureNode, bodyEntity);
 	    return closureNode;
