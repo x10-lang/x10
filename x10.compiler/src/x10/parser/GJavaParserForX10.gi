@@ -592,8 +592,8 @@ $Rules
                          | VariableDeclaratorId = VariableInitializer
         /.$BeginJava
                     VariableDeclaratorId.init = VariableInitializer;
-                    VariableDeclaratorId.position(pos());
-                    // setResult(VariableDeclaratorId); 
+                    VariableDeclaratorId.position(pos(((JPGPosition) VariableDeclaratorId.pos), ((JPGPosition) VariableInitializer.position())));
+                    // setResult(VariableDeclaratorId);
           $EndJava
         ./
     
