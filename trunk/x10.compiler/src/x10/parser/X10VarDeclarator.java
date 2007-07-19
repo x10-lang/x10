@@ -30,7 +30,6 @@ import x10.parser.X10Parser.JPGPosition;
  */
 public class X10VarDeclarator extends VarDeclarator {
 	private final List<Formal> vars;
-    private JPGPosition position;
 	public Flags flags;
 
 	public X10VarDeclarator(JPGPosition pos, Id name) {
@@ -45,7 +44,6 @@ public class X10VarDeclarator extends VarDeclarator {
 
 	public X10VarDeclarator(JPGPosition pos, Id name, List/*<Name>*/ paramList) {
 		super(pos, name);
-        this.position = pos;
 		if (paramList != null) {
 			this.vars = new ArrayList<Formal>(paramList.size());
 			for (int i = 0; i < paramList.size(); i++) {
@@ -67,11 +65,11 @@ public class X10VarDeclarator extends VarDeclarator {
 	}
 
     public Position position() {
-        return position;
+        return pos;
     }
     
-    public void position(JPGPosition pos) {
-        this.position = pos;
+    public void position(Position pos) {
+        this.pos = pos;
     }
     
 	public boolean hasExplodedVars() {

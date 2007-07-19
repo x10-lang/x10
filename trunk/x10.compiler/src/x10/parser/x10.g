@@ -404,6 +404,10 @@ $Headers
           return (JPGPosition) n.pos;
         }
 
+        public JPGPosition pos(JPGPosition start, JPGPosition end) {
+            return new JPGPosition(start.path(), start.file(), start.leftIToken, end.rightIToken);
+        }
+
         private void checkTypeName(polyglot.lex.Identifier identifier) {
             String filename = file(),
                    idname = identifier.getIdentifier();
