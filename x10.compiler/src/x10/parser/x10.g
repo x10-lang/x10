@@ -899,7 +899,7 @@ $Rules -- Overridden rules from GJavaParser
                System.err.println("Fix me - encountered method returning void but with non-zero rank?");
              }
 
-           MethodDecl md = nf.MethodDecl(pos(getRhsFirstTokenIndex($ThisClauseopt), getRhsLastTokenIndex($MethodDeclarator)),
+           MethodDecl md = nf.MethodDecl(pos(getRhsFirstTokenIndex($ThisClauseopt), getRhsLastTokenIndex($MethodBody)),
               ThisClauseopt,
               extractFlags(MethodModifiersopt),
               nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e != null ? e.intValue() : 1),

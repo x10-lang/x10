@@ -4693,7 +4693,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
            System.err.println("Fix me - encountered method returning void but with non-zero rank?");
          }
 
-       MethodDecl md = nf.MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(4)),
+       MethodDecl md = nf.MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(6)),
           ThisClauseopt,
           extractFlags(MethodModifiersopt),
           nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(3)), e != null ? e.intValue() : 1),
