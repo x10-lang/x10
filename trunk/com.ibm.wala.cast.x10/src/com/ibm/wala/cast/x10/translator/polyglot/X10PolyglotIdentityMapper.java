@@ -23,10 +23,10 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
 	typeTranslationMap.put("x10.lang.CharReferenceArray", "[C");
 	typeTranslationMap.put("x10.lang.DoubleReferenceArray", "[D");
 	typeTranslationMap.put("x10.lang.FloatReferenceArray", "[F");
+	typeTranslationMap.put("x10.lang.GenericReferenceArray", "[L");
 	typeTranslationMap.put("x10.lang.IntReferenceArray", "[I");
 	typeTranslationMap.put("x10.lang.LongReferenceArray", "[J");
 	typeTranslationMap.put("x10.lang.ShortReferenceArray", "[S");
-	typeTranslationMap.put("x10.lang.ReferenceArray", "[");
     }
 
     public String typeToTypeID(Type type) {
@@ -38,5 +38,4 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
 	    return super.typeToTypeID(type);
 	}
     }
-
 }
