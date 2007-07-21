@@ -28,8 +28,8 @@ import com.ibm.wala.util.graph.*;
 
 public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCallGraphBuilder {
 
-    protected X10SSAPropagationCallGraphBuilder(IClassHierarchy cha, AnalysisOptions options, PointerKeyFactory pointerKeyFactory) {
-	super(cha, options, pointerKeyFactory);
+    protected X10SSAPropagationCallGraphBuilder(IClassHierarchy cha, AnalysisOptions options, AnalysisCache cache, PointerKeyFactory pointerKeyFactory) {
+	super(cha, options, cache, pointerKeyFactory);
     }
 
     protected TypeInference makeTypeInference(IR ir, IClassHierarchy cha) {
