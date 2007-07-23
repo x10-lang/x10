@@ -17,7 +17,6 @@ namespace x10lib_cws {
 class Closure;
 
 class Frame {
-
  public:
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
   static volatile int nCons, nDestruct;
@@ -34,7 +33,7 @@ class Frame {
   }
 
  protected:
-  Frame(const Frame &f) { incCons(); }
+  Frame(const Frame &f)  { incCons(); }
 public:
   Frame() { 
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)

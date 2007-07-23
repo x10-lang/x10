@@ -42,6 +42,9 @@ private:
 	Closure *getTaskFromPool(Worker *sleeper);
 	void wakeup();
 
+
+ public:
+
 	/*Managing exceptions. A simple mechanism to handle StealAbort
 	 * and stack unwinding for now*/
 	bool exception;

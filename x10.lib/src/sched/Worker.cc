@@ -143,7 +143,7 @@ Closure *Worker::steal(Worker *thief, bool retry) {
 
       //      cerr<<index<<"::Stealing frame "<<cl->frame<<endl;
 
-      //      cl->copyFrame(thief);			
+      //cl->copyFrame(thief);			
       //I have work now, so checkout of the barrier.
       child = cl->promoteChild(thief, victim);
       assert(child != NULL);
@@ -267,7 +267,7 @@ Closure *Worker::extractBottom(Worker *ws) {
  * @return
  */
 Closure *Worker::peekBottom(Worker *ws) {
-	assert(lockOwner==ws);
+  	assert(lockOwner==ws);
 	Closure *cl = bottom;
 	if (cl==NULL) {
 		assert (top==NULL);
@@ -642,9 +642,10 @@ bool Worker::abortOnSteal()  /*throw StealAbort */
 	 * @throws StealAbort
 	 */
 bool Worker::abortOnSteal(int x)/* throw StealAbort*/{
-  if(hasThrownException()) return true;
+  if(hasThrownException())    return true;
   Closure *c = interruptCheck();
   if (c != NULL) {
+    //cerr<<index<<":: Setting result int "<<x<<"Throwing an exception"<<endl;
     c->setResultInt(x);
     throwException();
     return true;

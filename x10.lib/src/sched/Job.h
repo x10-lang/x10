@@ -113,7 +113,7 @@ public:
 	virtual int spawnTask(Worker *ws) ;
  
 	int getInt();	
-	void jobCompleted();
+	virtual void jobCompleted();
 	bool isJobDone() volatile;
 };
 

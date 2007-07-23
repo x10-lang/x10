@@ -8,7 +8,6 @@
 ============================================================================
 */
 
-
 #include "Closure.h"
 #include "Worker.h"
 #include "Lock.h"
@@ -66,11 +65,13 @@ Closure::Closure(Frame *frame) {
 
 Closure::~Closure() { 
   incDestruct();
+  assert(lockOwner==NULL);
+  assert(joinCount==0);
 	delete lock_var; 
 	completeInlets.clear(); 
 	incompleteInlets.clear();
-	// TODO -- verify these
-	//delete frame; /*TODO: verify this*/
+	//NOTE: Do not delete frame here -- leave choice to derived classes
+	//delete frame; 
 	delete outlet; /*Every outlet is attached to a Closure, and it
 			 destroyed by that Closure. */
 }
@@ -89,6 +90,7 @@ void Closure::unlock() {
 void Closure::addCompletedInlet(Closure *child) {
   /*if (completeInlets == NULL)
     completeInlets = new list<Closure>();*/
+  assert(lockOwner != NULL);
   completeInlets.push_back(child);
 }
 	
@@ -117,12 +119,15 @@ Closure *Closure::promoteChild(Worker *thief, Worker *victim) {
 		assert(nextReady==NULL);
 		assert(cache->exceptionOutstanding());
 
+// 		Frame *pFrame = cache->topFrame();
+// 		assert(pFrame != NULL);
+		Frame *pFrame = this->frame;
+
 		Frame *childFrame = cache->childFrame();
 		assert(childFrame!=NULL);
 		Closure *child = childFrame->makeClosure();
+		cache->childFrame() = child->frame;
 		
-		Frame *pFrame = cache->topFrame();
-		assert(pFrame != NULL);
 		pFrame->setOutletOn(child);
 		
 		// Leave the parent link in there.
@@ -157,7 +162,7 @@ void Closure::finishPromote(Worker *thief, Closure *child) {
 		// unless aborts are being propagated.
 		//if (incompleteInlets == NULL)
 		//	incompleteInlets = new ArrayList<Closure>();
-		//incompleteInlets.add(child);
+		//incompleteInlets.push_back(child);
 		
 		/* Set the parent's cache to NULL and its status to READY */
 		status=READY;
@@ -262,15 +267,14 @@ Closure *Closure::acceptChild(Worker *ws, Closure *child) {
     	res = provablyGoodStealMaybe(ws, child);
     	child->unlock();
 	if(res) {
-	  //cerr<<ws->index<<":: deleting child="<<child<<endl;
-	  delete child;
+	  /*The child can be deleted once we have unwound the stack
+	    and we have no more reference to this object.*/
+	  assert(child->parent == res);
+	  assert(res->joinCount==0);
+	  assert(res->completeInlets.size() == 0);
 	}
     	unlock();
-	/*sriramk -- The child cannot be deleted yet. It can be
-	 * deleted only after it has been executed as inlet in
-	 * sync(). */
     	return res;
-    	// The child should be garbage at this point.
 }
     
     /**
@@ -339,19 +343,27 @@ Closure *Closure::provablyGoodStealMaybe(Worker *ws, Closure *child) {
 	 */
 void Closure::pollInlets(Worker *ws, Closure *causingChild) {
   list<Closure *>::iterator i;
+  int flag;
   assert(lockOwner==ws);
+  
   
   if (status==RUNNING && ! cache->atTopOfStack()) {
     assert(ws->lockOwner == ws);
   }
   if (!completeInlets.empty())
+    flag=0;
     /* TODO LIST TRAVERSAL -- RAJ*/
     for (i=completeInlets.begin(); i != completeInlets.end(); ++i) {
+      assert((*i)->parent == this);
+      assert((*i)->status == RETURNING);
+      assert((*i)->ownerReadyQueue == NULL);
       (*i)->executeAsInlet();
+      if((*i) == causingChild)
+	flag+=1;
       if((*i) != causingChild)
 	delete (*i);
     }
-  
+    assert(causingChild==NULL || (!completeInlets.empty()  && flag==1));
   completeInlets.clear();
 }
 
@@ -414,11 +426,21 @@ Closure *Closure::execute(Worker *w) {
 		
 		case RETURNING:
 		  unlock();
+		  assert(!requiresGlobalQuiescence()); //SRIRAM: for now
 		  res = returnValue(w);
-		  if(isDone() && parent==NULL) {
-		    assert(res == NULL);
+		  
+		  if(res) {
+		    assert(parent == res);
+		    delete this;
+		    break;
+		  }
+		  assert(isDone());
+		  if(parent==NULL) {
 		    Job *job = dynamic_cast<Job *>(this);
+		    assert(job != NULL);
 		    job->jobCompleted();
+		    /*deleted by user -- creator of jobs*/
+		    break;
 		  }
 		  break;
 		default:
@@ -435,6 +457,8 @@ Closure *Closure::execute(Worker *w) {
 	 * to deposit its result.
 	 */
 void Closure::executeAsInlet() {
+  assert(status == RETURNING);
+  assert(ownerReadyQueue == NULL);
   if (outlet != NULL) {
     outlet->run();
   }
