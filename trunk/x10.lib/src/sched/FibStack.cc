@@ -40,7 +40,7 @@ private:
   FibFrame *f;
   Closure *c;
 public:
-  anon_Outlet2(FibFrame *f, Closure *c) {
+  anon_Outlet2(FibFrame *f, Closure *c) {  
     this->f = f;
     this->c = c;
   }
@@ -56,10 +56,11 @@ private:
 public: //instead of Java package access
   const int n;
   int x,y;
+  Closure *ownerClosure;
 public:
   volatile int PC;
 
-  FibFrame(int _n) : n(_n), x(0), y(0) { }
+  FibFrame(int _n, Closure* cl) : n(_n), x(-3), y(-4), ownerClosure(cl) { }
   virtual void setOutletOn(Closure *c) {
     assert(PC==LABEL_1 || PC==LABEL_2);
     Outlet *o;
@@ -75,12 +76,13 @@ public:
 
   virtual Closure *makeClosure();
   virtual FibFrame *copy() {
-    return new FibFrame(*this);
+    FibFrame *f = new FibFrame(*this);
+    return f;
   }
 
 private:
   FibFrame(const FibFrame& f) 
-    : Frame(f), n(f.n), x(f.x), y(f.y), PC(f.PC) { }
+    : Frame(f), n(f.n), x(f.x), y(f.y), PC(f.PC), ownerClosure(f.ownerClosure) { }
 };
 
 class FibC : public virtual Closure {
@@ -103,25 +105,37 @@ public:
   }
 
   //fast mode
-  static int fib(Worker *w, int n) {
+  static int fib(Worker *w, int n, Closure *cl) {
     if(n<2) return n;
-    FibFrame *frame = new FibFrame(n);
+    //FibFrame *frame = new FibFrame(n, cl);
+    FibFrame sFrame(n, cl);
+    FibFrame *frame = &sFrame;
 	assert(frame != NULL);
     frame->PC = LABEL_1;
     w->pushFrame(frame);
 
     // this thread will definitely execute fib(n-1), and
     // hence set the value in the frame.
-    const int x = fib(w, n-1);
+    const int x = fib(w, n-1, cl);
 
     // Now need to figure out who is doing fib(n-2).
     // If frame has been stolen, then this thread wont do fib(n-2).
     // it should just return, and subsequent work will be done
     // by others. 
     if(w->abortOnSteal(x)) {
-      //      cerr<<w->index<<"::Aborting on steal"<<endl;
-//      delete frame;
+      //cerr<<w->index<<"::Aborting on steal. x="<<x<<endl;
+      //delete frame;
       return -1;
+    }
+
+    if(w->cache->parentInterrupted()) {
+      w->lock(w);
+      FibC *ocl = dynamic_cast<FibC*>(frame->ownerClosure);
+      if(ocl) 
+	frame = dynamic_cast<FibFrame *>(ocl->frame);
+      w->unlock();
+      
+      assert(frame != NULL);
     }
 
     // Now we are back in the current frame, it has not been stolen. 
@@ -132,10 +146,10 @@ public:
     frame->x = x;
     frame->PC = LABEL_2;
 
-    const int y = fib(w, n-2);
+    const int y = fib(w, n-2, cl);
     if(w->abortOnSteal(y)) {
-      //      cerr<<w->index<<"::Aborting on steal"<<endl;
-//       delete frame;
+      //cerr<<w->index<<"::Aborting on steal. x="<<x<<" y="<<y<<endl;
+      //delete frame;
       return -1;
     }
 
@@ -144,30 +158,31 @@ public:
     // complete 
     // execution of this procedure.
 
-    assert(w->cache->currentFrame() == frame);
+    //    assert(w->cache->currentFrame() == frame);
     
     // pop the task -- it is guaranteed to be garbage.
     w->popFrame();
 
     //    if(w->index==1)cerr<<w->index<<":: Deleting frame "<<frame<<endl;
 
-    
-    if(!w->cache->interrupted()) {
-      delete frame;
-      /*sriramk: If it were interrupted, this frame's parent might
-	have been stolen and this frame made into a Closure. Hence
-	this frame should not be deleted (modulo any copyFrame()
-	considerations. Need to check the GQ code to see how that
-	works). */
+
+    if(w->cache->interrupted()) {
+      w->lock(w);
+      //wait for promotion of child, before the stacked frame is deleted
+      w->unlock();
     }
+
     // the sync is a no-op.
     // return the computed value.
     int result = x+y;
     return result;
   }
 
-  FibC(Frame *frame) : Closure(frame) {}
-  ~FibC() { delete frame; }
+  FibC(FibFrame *frame) : Closure(frame) { 
+    frame->ownerClosure = this; 
+  }
+  ~FibC() {    delete frame;   }
+
 
   /*The frame given to compute would have been copied to create a Closure. It will be deleted when the Closure is destroyed. */
   virtual void compute(Worker *w, Frame *frame)  {
@@ -185,7 +200,7 @@ public:
 	return;
       }
       f->PC=LABEL_1;
-      x = fib(w, n-1);
+      x = fib(w, n-1, this);
       if(w->abortOnSteal(x)) {
 	return;
       }
@@ -193,7 +208,7 @@ public:
 
     case LABEL_1: 
       f->PC=LABEL_2;
-      y=fib(w,n-2);
+      y=fib(w,n-2, this);
       if(w->abortOnSteal(y)) {
 	return;
       }
@@ -205,6 +220,7 @@ public:
 	return;
       }
     case LABEL_3:
+      //cerr<<w->index<<"::n="<<n<<". x="<<f->x<<". y="<<f->y<<endl;
       result=f->x+f->y;
       setupReturn(w);
       break;
@@ -225,16 +241,21 @@ public:
 /*----Some delayed definitions to pacify the C++ compiler---*/
 
 void anon_Outlet1::run() {
+  assert(f->valid == true);
   f->x = c->resultInt();
 }
 
 void anon_Outlet2::run() {
+  assert(f->valid == true);
   f->y = c->resultInt();
 }
 
 Closure *FibFrame::makeClosure() {
-	Closure *c = new FibC(this);
+  assert(valid == true);
+  	valid = false;
+	FibC *c = new FibC(copy());
 	assert(c != NULL);
+	ownerClosure = c;
 	return c;
 }
 
@@ -247,7 +268,11 @@ public:
   anon_Job1(Pool *g, int _n) : Job(g), n(_n) {}
   virtual void setResultInt(int x) { result = x;}
   virtual int resultInt() { return result;}
-  virtual int spawnTask(Worker *ws) { return FibC::fib(ws, n);}
+  virtual int spawnTask(Worker *ws) { return FibC::fib(ws, n, this);}
+
+  void jobCompleted() { 
+    //cerr<<"Job::result="<<result<<endl; 
+    Job::jobCompleted(); }
 
   virtual ~anon_Job1() {}
 protected:
@@ -274,7 +299,7 @@ int main(int argc, char *argv[]) {
   Pool *g = new Pool(procs);
   assert(g != NULL);
 
-  for (int n = 25; n <= 25; n+=5) {
+  for (int n = 10; n <= 30; n+=5) {
     long long s = nanoTime();
     for(int j=0; j<nReps; j++) {
       anon_Job1 job(g, n);

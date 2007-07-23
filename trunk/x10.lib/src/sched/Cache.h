@@ -47,8 +47,9 @@ class Cache {
 		Cache (Worker *w);
 		~Cache (); 
 				
-		Frame *childFrame () ;
+		Frame *&childFrame () ;
 		Frame *topFrame () ;
+		void setTopFrame(Frame *);
 		bool headAheadOfTail () ;
 		bool headGeqTail () ;
 		bool exceptionOutstanding () ;
@@ -74,8 +75,15 @@ class Cache {
 		}
 		Frame *currentFrame()  ;
 		void reset ();
-		inline void popFrame () { --tail; MEM_BARRIER(); }
-		bool interrupted() volatile { return exception>=tail; }
+		inline void popFrame () { 
+		  --tail; 
+		  MEM_BARRIER(); 
+		}
+		bool interrupted() volatile { 
+		  MEM_BARRIER();
+		  return exception>=tail; 
+		}
+		bool parentInterrupted() volatile { return exception+1>=tail;}
 		void pushIntUpdatingInPlace(Pool *pool, int tid, int x);
 
 		bool dekker(Worker *thief);

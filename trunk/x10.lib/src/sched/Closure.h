@@ -43,19 +43,20 @@ protected:
 	Worker *lockOwner;
 	std::list<Closure *> completeInlets;
 	std::list<Closure *> incompleteInlets;
-	Outlet *outlet;
 	volatile bool done;
 	
 	virtual void compute(Worker *w, Frame *frame) ;
 	void initialize();
 	bool sync(Worker *ws);
 	
+ public: //for now
+	Outlet *outlet;
 	
 public:
 	Frame *frame;
 	Cache *cache;
 	Closure *parent;
-	int joinCount;
+	volatile int joinCount;
 	Closure *nextReady, *prevReady;
 	Worker *ownerReadyQueue;
 	int status;

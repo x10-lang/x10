@@ -126,7 +126,7 @@ void Cache::growAndPushFrame(Frame *x) {
   stack[tail] = x;
   MEM_BARRIER();
   ++tail;
-  //    MEM_BARRIER();
+  MEM_BARRIER();
 }
 
 void Cache::resetExceptionPointer(Worker *w) {
@@ -160,7 +160,7 @@ bool Cache::atTopOfStack() {
     return head+1 == tail;
 }
    
-Frame *Cache::childFrame() {
+Frame *&Cache::childFrame() {
 //   assert(stack->at(head+1) != NULL);
 //   return stack->at(head+1);
   assert(stack[head+1] != NULL);
@@ -170,6 +170,10 @@ Frame *Cache::topFrame() {
 //     return stack->at(head);
     return stack[head];
 }
+void Cache::setTopFrame(Frame *frame) {
+    stack[head] = frame;
+}
+
 Frame *Cache::currentFrame() {
 //     	return stack->at(tail-1);
     	return stack[tail-1];
@@ -180,7 +184,7 @@ Frame *Cache::currentFrame() {
 // }
 
 // bool Cache::interrupted() {
-//   //  MEM_BARRIER();
+//   MEM_BARRIER();
 //   return exception >= tail;
 // }
 /*
@@ -209,7 +213,7 @@ void Cache::reset() {
 }
 void Cache::incHead() {
 	++head;
-	//	MEM_BARRIER();
+	//MEM_BARRIER();
 }
 bool Cache::exceptionOutstanding() {
 	return head <= exception;
