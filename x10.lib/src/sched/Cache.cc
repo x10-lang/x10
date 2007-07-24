@@ -126,7 +126,7 @@ void Cache::growAndPushFrame(Frame *x) {
   stack[tail] = x;
   MEM_BARRIER();
   ++tail;
-  MEM_BARRIER();
+  //MEM_BARRIER();
 }
 
 void Cache::resetExceptionPointer(Worker *w) {
@@ -146,7 +146,7 @@ void Cache::incrementExceptionPointer() {
 void Cache::decrementExceptionPointer() {
     if (exception != EXCEPTION_INFINITY) {
     	--exception;
-	MEM_BARRIER();
+	//MEM_BARRIER();
     }
     	
 }
@@ -222,24 +222,5 @@ int Cache::gethead() { return head;}
 int Cache::gettail() { return tail;}
 int Cache::getexception() { return exception;}
 
-bool Cache::dekker(Worker *thief) {
-  assert(thief != owner);
-  // if (exception != EXCEPTION_INFINITY)
-    {
-    ++exception;
-  }
-  MEM_BARRIER();
-  if ((head + 1) >= tail) {
-//     if (exception != EXCEPTION_INFINITY)
-      --exception;
-    MEM_BARRIER();
-    return false;
-  }
-  // so there must be at least two elements in the framestack for a theft.
-  /*if ( Worker.reporting) {
-    System.out.println(thief + " has found victim " + owner);
-    }*/
-//   cerr<<"Found victim. head="<<head<<" tail="<<tail<<endl;
-  return true;
-}
+
 
