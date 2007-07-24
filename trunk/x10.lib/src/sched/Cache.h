@@ -67,7 +67,8 @@ class Cache {
 
 		  if (tail < stack_size - 1) {
 		    stack[tail] = x;
-		    MEM_BARRIER();
+		    //MEM_BARRIER();
+		    WRITE_BARRIER();
 		    ++tail;
 		    return;
 		  }
@@ -76,17 +77,37 @@ class Cache {
 		Frame *currentFrame()  ;
 		void reset ();
 		inline void popFrame () { 
-		  --tail; 
-		  MEM_BARRIER(); 
+		  --tail;
+		  READ_BARRIER();
+		  //MEM_BARRIER(); 
 		}
 		bool interrupted() volatile { 
-		  MEM_BARRIER();
+		  //MEM_BARRIER(); // TODO SRIRAM -- You have added this.. I am removing it.. Please check
 		  return exception>=tail; 
 		}
 		bool parentInterrupted() volatile { return exception+1>=tail;}
 		void pushIntUpdatingInPlace(Pool *pool, int tid, int x);
 
-		bool dekker(Worker *thief);
+		inline bool dekker(Worker *thief) {
+			assert(thief != owner);
+			  // if (exception != EXCEPTION_INFINITY)
+			    //{
+			    ++exception;
+			  //}
+			  MEM_BARRIER();
+			  if ((head + 1) >= tail) {
+			//     if (exception != EXCEPTION_INFINITY)
+			      --exception;
+			    //MEM_BARRIER();
+			    return false;
+			  }
+			  // so there must be at least two elements in the framestack for a theft.
+			  /*if ( Worker.reporting) {
+			    System.out.println(thief + " has found victim " + owner);
+			    }*/
+			//   cerr<<"Found victim. head="<<head<<" tail="<<tail<<endl;
+			  return true;
+		}
 	
 };
 }
