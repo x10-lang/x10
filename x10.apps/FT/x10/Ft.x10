@@ -37,7 +37,7 @@
  */
 
 //public final class Ft {
- public value Ft {
+ public final value Ft {
 	 
 	private final static int OFFSET = 3;
 	private final static int CPAD_COLS = 0;
@@ -487,8 +487,7 @@
 			}
 		}
 
-		//final Ft FtSolver = new Ft(CLASS, COMM);
-		Ft FtSolver = new Ft(CLASS, COMM);
+		final Ft FtSolver = new Ft(CLASS, COMM);
 		FtSolver.solve();
 	}
 
