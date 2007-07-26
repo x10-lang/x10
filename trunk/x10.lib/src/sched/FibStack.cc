@@ -57,10 +57,11 @@ public: //instead of Java package access
   const int n;
   int x,y;
   Closure *ownerClosure;
+  //bool valid;
 public:
   volatile int PC;
 
-  FibFrame(int _n, Closure* cl) : n(_n), x(-3), y(-4), ownerClosure(cl) { }
+  FibFrame(int _n, Closure* cl) : n(_n), x(-3), y(-4), ownerClosure(cl){ }
   virtual void setOutletOn(Closure *c) {
     assert(PC==LABEL_1 || PC==LABEL_2);
     Outlet *o;
@@ -77,6 +78,8 @@ public:
   virtual Closure *makeClosure();
   virtual FibFrame *copy() {
     FibFrame *f = new FibFrame(*this);
+    assert(f != NULL);
+	//FibFrame f(*this);
     return f;
   }
 
@@ -241,20 +244,22 @@ public:
 /*----Some delayed definitions to pacify the C++ compiler---*/
 
 void anon_Outlet1::run() {
-  assert(f->valid == true);
+  //assert(f->valid == true);
   f->x = c->resultInt();
 }
 
 void anon_Outlet2::run() {
-  assert(f->valid == true);
+  //assert(f->valid == true);
   f->y = c->resultInt();
 }
 
 Closure *FibFrame::makeClosure() {
-  assert(valid == true);
-  	valid = false;
+  //assert(valid == true);
+  	//valid = false;
+	//cout << "S" << endl;
 	FibC *c = new FibC(copy());
 	assert(c != NULL);
+	//cout << "E" << endl;
 	ownerClosure = c;
 	return c;
 }
@@ -299,19 +304,27 @@ int main(int argc, char *argv[]) {
   Pool *g = new Pool(procs);
   assert(g != NULL);
 
-  for (int n = 10; n <= 30; n+=5) {
+  long sc = 0, sa = 0;
+  for (int n = 5; n <= 45; n+=5) {
     long long s = nanoTime();
     for(int j=0; j<nReps; j++) {
       anon_Job1 job(g, n);
       g->submit(&job);
+      //cout << "I" <<endl;
       result = job.getInt();
    }
     long long t = nanoTime();
 
 //     cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<
 //       FibC::realfib(points[i])<<"\t Time="<<(t-s)/1000000<<"ms"<<endl;
+    /*cout<<"Fib("<<n<<")\t="<<result<<"\t"<<
+      FibC::realfib(n)<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;*/
+    
     cout<<"Fib("<<n<<")\t="<<result<<"\t"<<
-      FibC::realfib(n)<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;
+          FibC::realfib(n)<<"\t Time="<<(t-s)/1000000/nReps<<"ms"<< " steals="<< ((g->getStealCount()-sc)/nReps)
+          << " stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+        sc=g->getStealCount();
+        sa=g->getStealAttempts();
 
 
 

@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.14 2007-07-23 05:46:47 sriramk Exp $
+# $Id: Makefile,v 1.15 2007-07-26 12:05:47 rajbarik Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -75,6 +75,9 @@ install:
 Fib.x: Fib.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) Fib.cc $(SCHED_A) -o Fib.x
 
+FibStack.x: FibStack.cc $(SCHED_A)
+	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) FibStack.cc $(SCHED_A) -o FibStack.x
+	
 NQueensC.x: NQueensC.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) NQueensC.cc $(SCHED_A) -o NQueensC.x
 

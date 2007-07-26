@@ -33,7 +33,11 @@ class Frame {
   }
 
  protected:
-  Frame(const Frame &f)  { incCons(); }
+  Frame(const Frame &f)  {
+# if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
+	  incCons(); 
+#endif
+  }
 public:
   Frame() { 
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)

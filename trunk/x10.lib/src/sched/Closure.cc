@@ -72,7 +72,8 @@ Closure::~Closure() {
 	incompleteInlets.clear();
 	//NOTE: Do not delete frame here -- leave choice to derived classes
 	//delete frame; 
-	delete outlet; /*Every outlet is attached to a Closure, and it
+	delete outlet; 
+	/*Every outlet is attached to a Closure, and it
 			 destroyed by that Closure. */
 }
 
@@ -122,10 +123,11 @@ Closure *Closure::promoteChild(Worker *thief, Worker *victim) {
 // 		Frame *pFrame = cache->topFrame();
 // 		assert(pFrame != NULL);
 		Frame *pFrame = this->frame;
-
-		Frame *childFrame = cache->childFrame();
+		//cout << "S" << endl;
+		Frame *childFrame = /*dynamic_cast<Frame *>*/(cache->childFrame());
 		assert(childFrame!=NULL);
-		Closure *child = childFrame->makeClosure();
+		Closure *child = /*dynamic_cast<Closure *>*/(childFrame->makeClosure());
+		//cout << "E" << endl;
 		cache->childFrame() = child->frame;
 		
 		pFrame->setOutletOn(child);
