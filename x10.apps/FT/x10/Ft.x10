@@ -36,8 +36,9 @@
  * Modification:
  */
 
-public final class Ft {
-
+//public final class Ft {
+ public value Ft {
+	 
 	private final static int OFFSET = 3;
 	private final static int CPAD_COLS = 0;
 	private final static int PLANES_ORIENTED_X_Y_Z = 0; /*assumes original data layout (each plane is
@@ -486,7 +487,8 @@ public final class Ft {
 			}
 		}
 
-		final Ft FtSolver = new Ft(CLASS, COMM);
+		//final Ft FtSolver = new Ft(CLASS, COMM);
+		Ft FtSolver = new Ft(CLASS, COMM);
 		FtSolver.solve();
 	}
 
