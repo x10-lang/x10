@@ -61,7 +61,7 @@ Worker::Worker(int idx, Pool *p) {
 
 }
 
-Worker::~Worker() { delete lock_var; delete cache; }
+Worker::~Worker() { delete lock_var; /*delete cache;*/ }
 
 void Worker::lock(Worker *ws) {
 	LOCK(lock_var);
