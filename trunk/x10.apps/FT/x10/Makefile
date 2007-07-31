@@ -29,7 +29,7 @@ endif
 endif
 
 all:	$(LIBPFX)ft.$(LIBEXT) \
-	$(LIBPFX)test.$(LIBEXT)
+#	$(LIBPFX)test.$(LIBEXT)
 #	$(LIBPFX)ftTest.$(LIBEXT)
 	
 ifeq ($(shell gcc --version),)	# Test for systems without GCC
@@ -107,8 +107,8 @@ $(LIBPFX)ft.$(LIBEXT):	 c_randdp.o fft_fftw3.o Ft.o  \
 #$(LIBPFX)ftTest.$(LIBEXT):	xsupport1d.o \
 #	ftTest_x10stub.c
 
-$(LIBPFX)test.$(LIBEXT):	Test.o \
-	Test_x10stub.c
+#$(LIBPFX)test.$(LIBEXT):	Test.o \
+#	Test_x10stub.c
 
 .PHONY:	checkjava
 checkjava:
