@@ -126,6 +126,7 @@ public:
 		  if (!attacked) { 
 			  //ARR *next = new vector<int> (0);
 			  int *next = new int[row+1];
+			  assert(next != NULL);
 			  
 			  //cout << "sizeof(next)=" << next.size() << endl;
 			  for (int k = 0; k < row; ++k)
@@ -151,7 +152,7 @@ public:
 	  //MEM_BARRIER();
 	  w->popFrame();
 	  if(!w->cache->interrupted()) {
-	        delete frame;
+	    delete frame;
 	  }
 	  return sum;
 	  
@@ -235,7 +236,8 @@ public:
 
 
 void anon_Outlet1::run() {
-	NFrame *fr = (NFrame *) c->parentFrame(); // should not f do instead of fr? TODO RAJ
+	NFrame *fr = dynamic_cast<NFrame *>(c->parentFrame()); // should not f do instead of fr? TODO RAJ
+	assert(fr != NULL);
 	int value = c->resultInt();
 	fr->sum += value;
 }
@@ -283,7 +285,7 @@ int main(int argc, char *argv[]) {
   assert(g != NULL);
 
     
-  for (int i = 1; i < 16; i++) {
+  for (int i = 7; i < 12; i++) {
 	Pool *g = new Pool(procs);
 	assert(g != NULL);
     boardSize = i;

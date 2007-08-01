@@ -17,6 +17,8 @@
 
 using namespace std;
 
+#define MEM_BAR  1
+
 namespace x10lib_cws {
 
 class Worker;
@@ -78,8 +80,8 @@ class Cache {
 		void reset ();
 		inline void popFrame () { 
 		  --tail;
-		  READ_BARRIER();
-		  //MEM_BARRIER(); 
+		  //READ_BARRIER();
+		  MEM_BARRIER(); 
 		}
 		bool interrupted() volatile { 
 		  //MEM_BARRIER(); // TODO SRIRAM -- You have added this.. I am removing it.. Please check
