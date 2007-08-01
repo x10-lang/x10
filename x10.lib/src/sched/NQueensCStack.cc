@@ -179,9 +179,9 @@ public:
 	        //delete frame;
 	  }*/
 	  if(w->cache->interrupted()) {
-	        //w->lock(w);
-	        //wait for promotion of child, before the stacked frame is deleted
-	        //w->unlock();
+	        w->lock(w);
+	        //wait for promotion of child, before the stacked frame is deleted/popped
+	        w->unlock();
 	   }
 	  return sum;
 	  
@@ -325,8 +325,9 @@ int main(int argc, char *argv[]) {
 
    
   long sc = 0, sa = 0;
-  for (int i = 1; i < 16; i++) {
+  for (int i = 1; i < 12; i++) {
 	boardSize = i;
+	MEM_BARRIER(); //Sriram: How do we guarantee all threads can see the new boardsize?
     long long s = nanoTime();
     
     for(int j=0; j<nReps; j++) {

@@ -305,7 +305,7 @@ int main(int argc, char *argv[]) {
   assert(g != NULL);
 
   long sc = 0, sa = 0;
-  for (int n = 5; n <= 45; n+=5) {
+  for (int n = 5; n <= 35; n+=5) {
     long long s = nanoTime();
     for(int j=0; j<nReps; j++) {
       anon_Job1 job(g, n);

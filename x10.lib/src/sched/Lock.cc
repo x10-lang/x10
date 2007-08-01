@@ -74,16 +74,21 @@ void PosixLock::lock_init_posix()
 void PosixLock::lock_wait_posix()
 {
 	pthread_mutex_lock(&posix_lock_var);
+	MEM_BARRIER();
 }
 
 void PosixLock::lock_signal_posix()
 {
+  MEM_BARRIER();
   pthread_mutex_unlock(&posix_lock_var);
 }
 
 int PosixLock::lock_try_posix()
 {
-  return (pthread_mutex_trylock(&posix_lock_var) == 0) ? 1 : 0; 
+  int rval;
+  rval = (pthread_mutex_trylock(&posix_lock_var) == 0) ? 1 : 0; 
+  MEM_BARRIER();
+  return rval;
 }
 
 
