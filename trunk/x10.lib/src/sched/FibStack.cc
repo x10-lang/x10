@@ -320,9 +320,11 @@ int main(int argc, char *argv[]) {
     /*cout<<"Fib("<<n<<")\t="<<result<<"\t"<<
       FibC::realfib(n)<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;*/
     
-    cout<<"Fib("<<n<<")\t="<<result<<"\t"<<
-          FibC::realfib(n)<<"\t Time="<<(t-s)/1000000/nReps<<"ms"<< " steals="<< ((g->getStealCount()-sc)/nReps)
-          << " stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+    cout<<"C++CWS Fib("<<n<<")" << "\t" <<(t-s)/1000000/nReps<<" ms" << "\t"
+    	<< ((result == FibC::realfib(n)) ? "ok" : "fail" )
+    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
+        << "\t" << "stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+    
         sc=g->getStealCount();
         sa=g->getStealAttempts();
 
