@@ -243,6 +243,7 @@ public:
 	  			q++;
 	  		}
 	  		f->PC=LABEL_2;
+	  		//MEM_BARRIER();
 	  		if (sync(w))
 	  				return;
 	  	case LABEL_2:
@@ -266,13 +267,15 @@ public:
 
 
 void anon_Outlet1::run() {
-	//NFrame *fr = (NFrame *) c->parentFrame(); // should not f do instead of fr? TODO RAJ
+	NFrame *fr = (NFrame *) c->parentFrame(); // should not f do instead of fr? TODO RAJ
 	int value = c->resultInt();
-	f->sum += value;
+	fr->sum += value;
 }
 
 Closure *NFrame::makeClosure() {
-	NQueensC *c = new NQueensC(copy());
+	NFrame *f=copy();
+	//MEM_BARRIER();
+	NQueensC *c = new NQueensC(f);
 	assert(c != NULL);
 	ownerClosure = c;
 	return c;
