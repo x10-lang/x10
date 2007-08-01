@@ -56,7 +56,13 @@ private:
   
   // assigning sofar with f.sofar may not be appropriate for stack allocation
   NFrame(const NFrame& f) 
-      : Frame(f), sum(f.sum), sofar(f.sofar), PC(f.PC), q(f.q), ownerClosure(f.ownerClosure) {} // Barrier needed as q and PC are volatile TODO RAJ
+      : Frame(f), sum(f.sum), PC(f.PC), q(f.q), ownerClosure(f.ownerClosure) {
+	  /*sofar=new int[f.sofar_size]; 
+	  for (int k = 0; k < f.sofar_size; ++k)
+	   sofar[k]=f.sofar[k];*/
+	  sofar = f.sofar;
+	  sofar_size = f.sofar_size;
+  } // Barrier needed as q and PC are volatile TODO RAJ
   
 public:
   volatile int PC;
@@ -69,12 +75,19 @@ public:
   
   
   //NFrame(ARR *a) { sofar = a; }
-  NFrame(int *a, int a_size, Closure* cl) { sofar = a; sofar_size = a_size; ownerClosure=cl;}
+  NFrame(int *a, int a_size, Closure* cl) { 
+	  /*sofar=new int[a_size]; 
+	  for (int k = 0; k < a_size; ++k)
+		  sofar[k]=a[k];*/
+	  sofar = a;
+	  sofar_size = a_size; 
+	  ownerClosure=cl;
+  }
   virtual Closure *makeClosure();
   virtual NFrame *copy() {
 	  return new NFrame(*this);
   }
-  virtual ~NFrame() {}
+  virtual ~NFrame() { /*delete sofar;*/}
   virtual void setOutletOn(Closure *c) {
 	  Outlet *o = new anon_Outlet1(this,c);
 	  assert (o!= NULL);
@@ -175,7 +188,7 @@ public:
   }
   
   NQueensC(NFrame *frame) : Closure(frame) { frame->ownerClosure = this; }
-  ~NQueensC() {    delete frame;   }
+  ~NQueensC() {    /*delete frame;*/  }
   // Slow path
   virtual void compute(Worker *w, Frame *frame)  {
 	  
@@ -253,9 +266,9 @@ public:
 
 
 void anon_Outlet1::run() {
-	NFrame *fr = (NFrame *) c->parentFrame(); // should not f do instead of fr? TODO RAJ
+	//NFrame *fr = (NFrame *) c->parentFrame(); // should not f do instead of fr? TODO RAJ
 	int value = c->resultInt();
-	fr->sum += value;
+	f->sum += value;
 }
 
 Closure *NFrame::makeClosure() {
@@ -319,8 +332,10 @@ int main(int argc, char *argv[]) {
         result = job.getInt();
     }
     long long t = nanoTime();
-    cout<<"NQueens("<<i<<")\t="<<result<<"\t"<< expectedSolutions[i]<<"\t Time="<<(t-s)/1000000/nReps
-    			<<"ms " << " steals="<< ((g->getStealCount()-sc)/nReps) << " stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+    cout<<"C++CWS NQueens("<<i<<")" << "\t" <<(t-s)/1000000/nReps
+    			<<" ms" << "\t" << (result == expectedSolutions[i] ? "ok" : "fail") 
+    			<< "\t" << "steals="<< ((g->getStealCount()-sc)/nReps) 
+    			<< "\t"  << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
     
     sc=g->getStealCount();
     sa=g->getStealAttempts();
