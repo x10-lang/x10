@@ -5,14 +5,14 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.2 2007-07-14 09:16:48 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.3 2007-08-02 13:02:18 srkodali Exp $ */
 
 /* Main Version 
         minus finshStart/End (ie. uses Gfence)*/
 
 #include "RandomAccess_spmd.h"
-#include "timers.h"
 
+extern double nanoTime();
 
 struct __async__0__args
 {

@@ -1,35 +1,27 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1 2007-07-03 11:26:00 ganeshvb Exp $
-# This file is part of X10 Runtime System.
+# $Id: Makefile,v 1.2 2007-08-02 13:01:03 srkodali Exp $
+# This file is part of X10 Applications.
 #
-# Makefile for RandomAccess Benchmarks (C++ Version).
+# Makefile for RandomAccess Benchmark (Generated Code).
 #
 
-.SUFFIXES: .cc .cpp .cxx .C .c .h .o .exe
+include ../config/make.defs
+include ../config/make.rules
 
-include ../make.def
-
-RM = rm -f
-RMDIR = rm -r -f 
+CXXFLAGS += -g -qrtti=all
 
 TARGET = RandomAccess_Dist 
-
 SRCS = RandomAccess_Dist.cc 
-
-INCLS = RandomAccess_Dist.h 
+OBJS = RandomAccess_Dist.o
+HEADERS = RandomAccess_Dist.h 
 
 all: $(TARGET)
 
-install:
-	@echo "Nothing to \"install\" in this subdir."
+$(TARGET): $(OBJS)
+	$(RM) $@
+	$(CXX) $(CXXFLGAS) $(LINKFLAGS) $(OBJS) -o $@ $(LIBDIRS) $(LIBS)
 
 clean:
-	$(RM) $(TARGET) $(OBJS) *.log *.out
-	$(RMDIR) core*
-
-$(TARGET): $(INCLS) $(SRCS) 
-	$(RM) $(TARGET)
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES)  $(SRCS) -o $(TARGET) $(LIBDIRS) $(LIBS)
-
+	$(RM) $(TARGET) $(OBJS)

@@ -279,7 +279,7 @@ if (__here__ != 0) goto SKIP_s1;
     
 //#line 307 "x10.backend/examples/RandomAccess_Dist.x10"
     SKIP_s6: ;
-    GLOBAL_STATE.logTableSize = 26;
+    GLOBAL_STATE.logTableSize = 29;
     const x10_int logTableSize = GLOBAL_STATE.logTableSize;
     if (__here__ != 0) goto SKIP_s7;
     
