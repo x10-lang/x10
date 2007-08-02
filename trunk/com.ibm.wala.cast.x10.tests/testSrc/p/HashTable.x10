@@ -14,6 +14,10 @@ public value HashTable {
     //   buckets[p] = null;
     //}
   }
+  
+  public static void main(String[] args) {
+    	new HashTable().put(new K(), new V());
+  }
 
   public void put(K key, V value) {
     int hash = key.hashCode()% 1000; // need R.max etc.
