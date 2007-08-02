@@ -6,6 +6,8 @@ import x10.runtime.cws.Closure.Outlet;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.Worker;
 import x10.runtime.cws.StealAbort;
+import java.lang.annotation.*;
+
 
 
 /**
@@ -20,6 +22,7 @@ import x10.runtime.cws.StealAbort;
  * @author vj
  *
  */
+
 public class FibC  extends Closure {
   static final int ENTRY=0, LABEL_1=1, LABEL_2=2,LABEL_3=3;
 
@@ -34,7 +37,10 @@ public class FibC  extends Closure {
     }
     return x;
   }
-  static class FibFrame extends Frame {
+  
+  
+ @AllocateOnStack
+ static class FibFrame extends Frame {
 //	 The label at which computation must be continued by the associated
 		// closure.
 		public volatile int PC;
@@ -172,22 +178,24 @@ public class FibC  extends Closure {
   
 
   public static void main(String[] args) throws Exception {
-    int procs;
+    int procs, nReps;
     try {
       procs = Integer.parseInt(args[0]);
-      System.out.println("Number of procs=" + procs);
-      if (args.length > 1) Worker.reporting = true;
+      nReps = Integer.parseInt(args[1]);
+      System.out.println("Number of procs=" + procs + " nReps" + nReps);
+      if (args.length > 2) Worker.reporting = true;
     } catch (Exception e) {
-      System.out.println("Usage: Fib <threads>");
+      System.out.println("Usage: Fib <threads> <numRepeatations>");
       return;
     }
-    final Pool g = new Pool(procs);
-    final int[] points = new int[] {  1,5, 10, 15, 20, 25, 30, 35, 40, 45
-    };
     
+    final Pool g = new Pool(procs);
+    final int[] points = new int[] { 1,5, 10, 15, 20, 25, 30, 35, 40, 45};
+    
+    long sc = 0, sa = 0;
     for (int i = 0; i < points.length; i++) {
       final int n = points[i];
-      Job job = new Job(g) { 
+      /*Job job = new Job(g) { 
     	  int result;
     	  public void setResultInt(int x) { result = x;}
     	  public int resultInt() { return result;}
@@ -196,13 +204,34 @@ public class FibC  extends Closure {
     		  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ",frame="+ frame+")";
     	  }};
     	  
-    	  long s = System.nanoTime();
     	  g.submit(job);
-    	  int result = job.getInt();
+		  int result = job.getInt();*/
+      	  int result=0;
+		  
+    	  long s = System.nanoTime();
+    	  
+    	  
+    	  for (int j = 0; j < nReps; j++) {
+    		  Job job = new Job(g) { 
+    	    	  int result;
+    	    	  public void setResultInt(int x) { result = x;}
+    	    	  public int resultInt() { return result;}
+    	    	  public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n);}
+    	    	  public String toString() {
+    	    		  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ",frame="+ frame+")";
+    	    	  }};
+    		  g.submit(job);
+    		  result = job.getInt();
+    	  }
     	  
     	  long t = System.nanoTime();
-    	  System.out.println(points[i] + " " + (t-s)/1000000 
-    			  + " " + result + " " + (result==realfib(n)?"ok" : "fail") );
+    	  System.out.println("VJCWS Fib(" + n +")"+"\t"+(t-s)/1000000/nReps  + " ms" +"\t" + 
+    			  (result==realfib(n)?"ok" : "fail")
+    			  + "\t" +"steals=" +((g.getStealCount()-sc)/nReps)
+    			  + "\t"+"stealAttempts=" +((g.getStealAttempts()-sa)/nReps));
+    	  //System.out.println(points[i] + " " + (t-s)/1000000/nReps  + "ms  " + result + " " + (result==realfib(n)?"ok" : "fail") );
+    	  sc=g.getStealCount();
+    	  sa=g.getStealAttempts();
     }
     g.shutdown();
   }
