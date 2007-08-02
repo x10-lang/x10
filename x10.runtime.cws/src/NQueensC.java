@@ -12,19 +12,21 @@ public class NQueensC extends Closure {
 		73712, 365596, 2279184, 14772512};
 	
 	public static void main(String[] args) throws Exception {
-		int procs;
+		int procs, nReps;
 		try {
 			procs = Integer.parseInt(args[0]);
-			System.out.println("Number of procs=" + procs);
+			nReps = Integer.parseInt(args[1]);
+			System.out.println("Number of procs=" + procs +" nReps="+nReps);
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java NQueensC <threads> ");
+			System.out.println("Usage: java NQueensC <threads> <numRepeatation>");
 			return;
 		}
 		Pool g = new Pool(procs);
+		long sc = 0, sa = 0;
 		for (int i = 1; i < 16; i++) {
 			boardSize = i;
-			Job job = new Job(g) {
+			/*Job job = new Job(g) {
 				int result;
 				public void setResultInt(int x) { result=x;}
 				public int resultInt() { return result;}
@@ -34,16 +36,44 @@ public class NQueensC extends Closure {
 				}
 				public String toString() { return "Job(NQ,#" + hashCode()+")";}
 			};
-			System.gc();
-			long s = System.nanoTime();
+						
 			g.submit(job);
-			int result = job.getInt();
+			int result = job.getInt();*/
+			int result = 0;
+			
+			long s = System.nanoTime();
+			for (int j=0; j<nReps; j++) {				
+				//System.gc();
+				Job job = new Job(g) {
+					int result;
+					public void setResultInt(int x) { result=x;}
+					public int resultInt() { return result;}
+					@Override
+					public int spawnTask(Worker ws) throws StealAbort { 
+						return nQueens(ws, new int[]{});
+					}
+					public String toString() { return "Job(NQ,#" + hashCode()+")";}
+				};
+				
+				g.submit(job);
+				result = job.getInt();
+				
+			}
 			long t = System.nanoTime();
-			System.out.println("Result:" + i + 
+			
+			System.out.println("VJCWS Queens(" + i +")"+"\t"+(t-s)/1000000/nReps  + " ms" + "\t" + 
+					(result==expectedSolutions[i]?"ok" : "fail")
+					+ "\t" + "steals=" +((g.getStealCount()-sc)/nReps)
+	    			+ "\t" + "stealAttempts=" +((g.getStealAttempts()-sa)/nReps));
+	    	  
+	    	  sc=g.getStealCount();
+	    	  sa=g.getStealAttempts();
+			/*System.out.println("Result:" + i + 
 					" " + result + (result==expectedSolutions[i]?" ok" : " fail") 
-					+ " Time=" +  (t-s)/1000000  + " ms"
+					+ " Time=" +  (t-s)/1000000/nReps  + "ms "
 					+  " Steals=" + g.getStealCount() 
-					);
+					);*/
+			
 		}
 		g.shutdown();    
 	}
@@ -54,6 +84,7 @@ public class NQueensC extends Closure {
 	NQueensC(NFrame f) { 
 		super(f);
 	}
+	@AllocateOnStack
 	public static class NFrame extends Frame {
 //		 The label at which computation must be continued by the associated
 		// closure.
