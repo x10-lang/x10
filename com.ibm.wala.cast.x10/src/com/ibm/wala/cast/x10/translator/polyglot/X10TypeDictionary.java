@@ -7,8 +7,10 @@ import java.util.Collection;
 import java.util.List;
 
 import polyglot.ext.x10.types.FutureType;
+import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
@@ -30,7 +32,9 @@ public class X10TypeDictionary extends PolyglotTypeDictionary {
 		Assertions.UNREACHABLE("Couldn't find x10.lang.Future?");
 		return null;
 	    }
+	} else if (astType instanceof NullableType) {
+	        return getCAstTypeFor(((NullableType) astType).base());
 	}
-        return super.getCAstTypeFor(astType);
+    return super.getCAstTypeFor(astType);
     }
 }
