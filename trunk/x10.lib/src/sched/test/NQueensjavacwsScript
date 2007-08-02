@@ -17,7 +17,7 @@ fi
 
 eachrun()
 {
-java -Xjit:count=0,x10Features,x10SkipChecks $1 $2 1 $3  > TMP 2>&1 
+java -mx2000M -Xjit:count=0,x10Features,x10SkipChecks $1 $2 1 $3  > TMP 2>&1 
 a=` cat TMP | grep "^VJCWS" | awk '{print $3}'`
 a1=` cat TMP | grep "^VJCWS" | awk '{print $4}'`
 r1=`convert $a $a1`

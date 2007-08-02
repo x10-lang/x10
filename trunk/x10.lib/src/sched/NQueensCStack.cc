@@ -306,14 +306,16 @@ protected:
 int main(int argc, char *argv[]) {
   int result;
 
-  if(argc < 3) {
-	    printf("Usage: %s <threads> <nRepetitions> \n", argv[0]);
+  if(argc < 4) {
+	    printf("Usage: %s <threads> <nRepetitions> <input-number>\n", argv[0]);
 	    exit(0);
   }
 
   const int procs = atoi(argv[1]);
   const int nReps = atoi(argv[2]);
-  cout<<"Number of procs=" << procs <<endl;
+  const int n = atoi(argv[3]);
+  
+  //cout<<"Number of procs=" << procs <<endl;
   if (argc > 2) 
 	    Worker::reporting = true;
   
@@ -325,7 +327,8 @@ int main(int argc, char *argv[]) {
 
    
   long sc = 0, sa = 0;
-  for (int i = 1; i < 12; i++) {
+  //for (int i = 11; i < 16; i++) {
+  	int i  = n;
 	boardSize = i;
 	MEM_BARRIER(); //Sriram: How do we guarantee all threads can see the new boardsize?
     long long s = nanoTime();
@@ -343,7 +346,7 @@ int main(int argc, char *argv[]) {
     
     sc=g->getStealCount();
     sa=g->getStealAttempts();
-  }
+  //}
   
   g->shutdown();
   delete g; 
