@@ -287,14 +287,15 @@ protected:
 int main(int argc, char *argv[]) {
   int result;
 
-  if(argc < 3) {
-    printf("Usage: %s <threads> <nReps> \n", argv[0]);
+  if(argc < 4) {
+    printf("Usage: %s <threads> <nReps> <input-number>\n", argv[0]);
     exit(0);
   }
 
   const int procs = atoi(argv[1]);
   const int nReps = atoi(argv[2]);
-  cout<<"Number of procs=" << procs <<" nReps="<<nReps<<endl;
+  const int ni = atoi(argv[3]);
+  //cout<<"Number of procs=" << procs <<" nReps="<<nReps<<endl;
   if (argc > 2) 
     Worker::reporting = true;
 
@@ -305,7 +306,8 @@ int main(int argc, char *argv[]) {
   assert(g != NULL);
 
   long sc = 0, sa = 0;
-  for (int n = 5; n <= 35; n+=5) {
+  //for (int n = 30; n <= 45; n+=5) {
+  	int n = ni;
     long long s = nanoTime();
     for(int j=0; j<nReps; j++) {
       anon_Job1 job(g, n);
@@ -334,7 +336,7 @@ int main(int argc, char *argv[]) {
 //     long t = System.nanoTime();
 //     System.out.println(points[i] + " " + (t-s)/1000000 
 // 		       + " " + result + " " + (result==realfib(n)?"ok" : "fail") );
-  }
+  //}
   g->shutdown();
   delete g;
   
