@@ -120,11 +120,15 @@ public class X10IRTests extends IRTests {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 //		new GraphAssertions(), null, true);
 //    }
-
-    /*    
-    public void testHashTable() {
+    
+    public void testPlaces() {
     	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-    			new GraphAssertions(), null, true);
+    			new GraphAssertions(), null, false);
     }
-    */
+       
+    public void testHashTable() {
+    	runTest(singlePkgTestSrc("p"), x10RTJar, simplePkgTestEntryPoint("p"),
+    			new GraphAssertions(), null, false);
+    }
+    
 }
