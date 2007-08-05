@@ -1,7 +1,7 @@
 /**
  * A C++ version of the recursive Fibonacci implemented in Java (in
  * x10 cws).  
- * @author Sriram
+ * @author Sriram Krishnamoorthy
  */
 
 #include <iostream>

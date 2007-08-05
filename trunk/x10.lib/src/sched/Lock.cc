@@ -13,6 +13,17 @@
 
 using namespace x10lib_cws;
 
+#define FENCE
+#ifdef FENCE
+#else
+#  undef READ_BARRIER
+#  undef WRITE_BARRIER
+#  undef MEM_BARRIER
+#  define READ_BARRIER()
+#  define WRITE_BARRIER()
+#  define MEM_BARRIER() 
+#endif
+
 /*-------------SpinLock----------------------*/
 
 SpinLock::SpinLock() {  spin_lock_var = 0; }
