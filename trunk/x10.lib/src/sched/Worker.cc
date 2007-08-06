@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <sys/sched.h>
+#include <unistd.h>
 
 using namespace x10lib_cws;
 using namespace std;
@@ -452,6 +453,7 @@ Closure *Worker::getTaskFromPool(Worker *sleeper) {
             if (sleepStatus == AWAKE) {
 	      compare_exchange((int *)&sleepStatus, AWAKE, SLEEPING);
 	      sched_yield(); // TODO RAJ -- wanna give it to someone else
+	      usleep(idleScanCount * 0.001);
                 
             	/*if (reporting)
             		System.out.println(this + " at " + pool.time() + " parking for " 
