@@ -63,8 +63,8 @@ void ResultOutlet::run() {
 
 /*----------------------GFrame------------------*/	
 
-void GFrame::setOutletOn(Closure *c) { assert(0); abort(); }
-Closure *GFrame::makeClosure() { assert(0); abort(); return NULL;}
+void GFrame::setOutletOn(Closure *c) { /*assert(0); abort(); */}
+Closure *GFrame::makeClosure() { /*assert(0); abort(); */return NULL;}
 GFrame::GFrame():JobFrame(), PC(0) { }
 GFrame *GFrame::copy() { return new GFrame(*this); }
 
