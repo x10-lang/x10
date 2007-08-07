@@ -395,6 +395,7 @@ int main(int argc, char *argv[]) {
   			
     int N = Ns[i], M = 3*N/5;
   	graph = new SpanC(N,M);
+  	MEM_BARRIER();
   	Pool *g = new Pool(procs);
   	assert(g != NULL);
   			
@@ -405,13 +406,12 @@ int main(int argc, char *argv[]) {
     	assert(job != NULL);
     	    
     	long long s = nanoTime();
-    	cout << "Submitting the job" << endl;    
+    	    
     	for(int j=0; j<nReps; j++) {
       	  g->submit(job);
-      	  cout << "Waiting for the completion of the job" << endl;
-    	  //try {
+      	  
     	  job->waitForCompletion();
-    	  //} catch (InterruptedException z) {}
+    	  
     	}
     	long long t = nanoTime();
     	cout<<"SpanT("<<i<<")\t"<<"verify="<<graph->verifyTraverse(1)<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;

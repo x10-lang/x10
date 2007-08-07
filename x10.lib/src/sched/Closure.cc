@@ -123,11 +123,11 @@ Closure *Closure::promoteChild(Worker *thief, Worker *victim) {
 // 		Frame *pFrame = cache->topFrame();
 // 		assert(pFrame != NULL);
 		Frame *pFrame = this->frame;
-		//cout << "S" << endl;
+		
 		Frame *childFrame = /*dynamic_cast<Frame *>*/(cache->childFrame());
 		assert(childFrame!=NULL);
 		Closure *child = /*dynamic_cast<Closure *>*/(childFrame->makeClosure());
-		//cout << "E" << endl;
+		
 		cache->childFrame() = child->frame;
 		
 		pFrame->setOutletOn(child);
@@ -623,7 +623,7 @@ void *Closure::resultObject() { assert(0); abort(); return NULL; }
 bool Closure::requiresGlobalQuiescence() /*volatile*/ {  
 	if (dynamic_cast<Closure *>(this)) return false;
 	else if (dynamic_cast<Job *>(this)) return false;
-	// if its a GloballyQuiescentjob
+	// if its a GloballyQuiescentjob -- TODO later on -- make it more appropriate
 	else return true;
 }
 
