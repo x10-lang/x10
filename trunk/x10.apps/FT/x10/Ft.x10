@@ -36,6 +36,8 @@
  * Modification:
  * 	On Aug 1, 2007: local x10 array uses local indexes instead of global ones;
  *			finish in FFT2DComm is removed and asyn is clocked.
+ *      On Aug 7, 2007: remove the "if (PID == 0)" check in switch_view and set_view,
+ *                      which is special to the Java implementation of X10.
  */
 
 public final value Ft {
@@ -165,12 +167,14 @@ public final value Ft {
 	
 	private  int switch_view(int orientation, int PID){
 		int next_orientation = (orientation + 1)%3;
-		if (PID == 0) set_orientation(next_orientation);
+		//if (PID == 0) set_orientation(next_orientation);
+		set_orientation(next_orientation);
 		return next_orientation;
 	}
 
 	private  int set_view(int orientation, int PID){
-		if (PID == 0) set_orientation(orientation);
+		//if (PID == 0) set_orientation(orientation);
+		set_orientation(next_orientation);
 		return orientation;
 	}
 
