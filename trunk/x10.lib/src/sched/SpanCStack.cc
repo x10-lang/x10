@@ -249,12 +249,10 @@ public:
 			v->degree=READ_1D_VEC(D,i);
 			v->parent=i;
 			v->neighbors=new vector<int>(0);
-			cout << endl << "Node details: degree=" << v->degree << " parent=" << v->parent << " " ;
 			
-			for(int j=0;j<READ_1D_VEC(D,i);j++) {
-				cout << "," << READ_2D_VEC(NB,i,j);
+			for(int j=0;j<READ_1D_VEC(D,i);j++) 
 				v->neighbors->push_back(READ_2D_VEC(NB,i,j));
-			}
+			
 			
 			G->push_back(v);
 			
@@ -324,7 +322,7 @@ public:
 			G=grph->G;
 			c=grph->color;
 		}
-		
+		//virtual bool requiresGlobalQuiescence() /*const*/ { cout << "calling Traverser::requires"<< endl;return true; }
 		virtual void compute(Worker *w, Frame *frame) /*throw StealAbort*/ {
 			TFrame *f = dynamic_cast<TFrame *>(frame);
 			int u = f->u;
@@ -358,6 +356,7 @@ Closure *TFrame::makeClosure() {
 class anon_GloballyQuiescentJob : public  GloballyQuiescentJob {
 public:
 	volatile int PC;
+	//virtual bool requiresGlobalQuiescence() /*const*/ { return true; }
 					
 protected:
 	void compute(Worker *w, Frame *frame) /*throw StealAbort*/ {
