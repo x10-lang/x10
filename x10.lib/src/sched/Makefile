@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.17 2007-08-07 05:31:20 rajbarik Exp $
+# $Id: Makefile,v 1.18 2007-08-07 08:54:29 rajbarik Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -84,9 +84,15 @@ NQueensC.x: NQueensC.cc $(SCHED_A)
 NQueensCStack.x: NQueensCStack.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) NQueensCStack.cc $(SCHED_A) -o NQueensCStack.x
 
+NQueensCStack_a.x: NQueensCStack_a.cc $(SCHED_A)
+	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) NQueensCStack_a.cc $(SCHED_A) -o NQueensCStack_a.x
+
 SpanC.x: SpanC.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) SpanC.cc $(SCHED_A) -o SpanC.x
 	
 SpanCStack.x: SpanCStack.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) SpanCStack.cc $(SCHED_A) -o SpanCStack.x
+	
+SpanCArray.x: SpanCArray.cc $(SCHED_A)
+	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) SpanCArray.cc $(SCHED_A) -o SpanCArray.x
 
