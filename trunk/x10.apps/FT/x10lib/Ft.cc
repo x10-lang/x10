@@ -54,7 +54,8 @@ void __async__0 (__async__0__args args);
 
 place PLACE (x10lib::here());
 
-int CS = 0;
+static int CS = 0;
+
 
 class Ft {  
 private: const static int OFFSET = 3;
@@ -164,10 +165,8 @@ public : class DistDoubleArray
       CS = finishStart (CS);
       int a = PLACE.HERE * m_localSize;
       int b =  (PLACE.HERE+1) * m_localSize - 1;     
-      
-      
-      m_array->getLocalElementAt (PLACE.HERE) = *(new DoubleArray (m_localSize, offset));
-      
+            
+      m_array->getLocalElementAt (PLACE.HERE) = *(new DoubleArray (m_localSize, offset));      
             
       finishEnd (NULL);
 
@@ -380,6 +379,7 @@ public :  void solve(){
    */
   
   computeInitialConditions(localPlanes2d.m_array->raw(), PID);
+
   clockNext (clk, 1);
 
   FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID);
@@ -502,6 +502,7 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
 	//double* local1darray = (double*) (((char*) (dist1d.getArray(destID).m_array)) + sizeof(Array<double, 1>)) ; 
 	asyncArrayCopy (local2d.m_array, srcStart + OFFSET, dist1d.getArray(destID).m_array, destStart, destID, 2 * dim1, NULL);
 
+	//memcpy (dist1d.getArray(0).m_array->raw() + destStart, local2d.m_array->raw() + srcStart + OFFSET, 2 * dim1 * sizeof(double));
       }
     
   }
@@ -558,7 +559,7 @@ private : void checksum(const DoubleArray C, const int PID, const int itr) {
   asyncSpawnInlineAgg (0, 0, &args0 , sizeof(__async__0__args));
   
   asyncFlush (0, sizeof(__async__0__args));
-
+  
   finishEnd (NULL);
 } 
    
