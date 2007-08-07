@@ -1,11 +1,11 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.16 2007-06-27 17:06:57 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.17 2007-08-07 06:21:52 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
-/** Implementation file for inline aggregation. **/
+/** Implementation file for inline asyncs aggregation. **/
 
 #include <x10/aggregate.h>
 #include <x10/xmacros.h>
@@ -37,10 +37,12 @@ typedef struct {
 static void
 asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
 {
+        X10_DEBUG (1,  "Entry");
 	x10_agg_cmpl_t *c = (x10_agg_cmpl_t *)a;
 	asyncSwitch(c->handler, (void *)(c->buf), c->niter);
 	delete[] ((char*) c->buf);
 	delete c;
+        X10_DEBUG (1,  "Exit");
 }
 
 
@@ -49,6 +51,7 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 			uint *uhdr_len, ulong *msg_len,
 			compl_hndlr_t **comp_h, void **user_info)
 {
+        X10_DEBUG (1,  "Entry");
 	x10_agg_hdr_t buf = *((x10_agg_hdr_t *)uhdr);
 	lapi_return_info_t *ret_info =
 					(lapi_return_info_t *)msg_len;
@@ -57,6 +60,7 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 					buf.niter);
 		ret_info->ctl_flags = LAPI_BURY_MSG;
 		*comp_h = NULL;
+                X10_DEBUG (1,  "Exit");
 		return NULL;
 	} else {
 		x10_agg_cmpl_t *c = new x10_agg_cmpl_t;
@@ -67,15 +71,20 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 		*comp_h = asyncSpawnCompHandlerAgg;
 		ret_info->ret_flags = LAPI_LOCAL_STATE;
 		*user_info = (void *)c;
+                 X10_DEBUG (1,  "Exit");
 		return c->buf;
 	}
+
+	X10_DEBUG (1,  "Exit");
+        return NULL;
 }
 
 x10_err_t 
 asyncRegisterAgg()
 {
-
+        X10_DEBUG (1,  "Entry");
 	LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 1));
+	X10_DEBUG (1,  "Exit");
 	return X10_OK;
 }
 
@@ -84,6 +93,7 @@ static x10_err_t
 asyncSpawnInlineAgg_i(x10_place_t tgt,
 				x10_async_handler_t hndlr, size_t size)
 {
+        X10_DEBUG (1,  "Entry");
 
 	__x10_agg_counter[hndlr][tgt]++;
 	__x10_agg_total[hndlr]++;
@@ -117,6 +127,8 @@ asyncSpawnInlineAgg_i(x10_place_t tgt,
 		__x10_agg_total[hndlr] -= max;
 		__x10_agg_counter[hndlr][task] = 0;
 	}
+
+        X10_DEBUG (1,  "Exit");
 	return X10_OK;
 }
 
@@ -124,6 +136,7 @@ namespace x10lib {
 
 x10_err_t asyncFlush(x10_async_handler_t hndlr, size_t size)
 {
+        X10_DEBUG (1,  "Entry");
 	lapi_cntr_t cntr;
 	int tmp;
 	x10_agg_hdr_t buf;
@@ -143,22 +156,27 @@ x10_err_t asyncFlush(x10_async_handler_t hndlr, size_t size)
 		__x10_agg_total[hndlr] -= __x10_agg_counter[hndlr][j];
 		__x10_agg_counter[hndlr][j] = 0;
 	}
+        X10_DEBUG (1,  "Exit");
 	return X10_OK;
 }
 x10_err_t
 asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 			void *args, size_t size)
 {
+        X10_DEBUG (1,  "Entry");
         assert (size <= X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t));
 	int count = __x10_agg_counter[hndlr][tgt];
 	memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size]), args, size);
-	return asyncSpawnInlineAgg_i(tgt, hndlr, size);
+	x10_err_t err = asyncSpawnInlineAgg_i(tgt, hndlr, size);
+        X10_DEBUG (1,  "Exit");
+	return err;
 }
 
 x10_err_t
 asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 			int n, ...)
 {
+        X10_DEBUG (1,  "Entry");
 	va_list list;
 	va_start(list, n);
 	lapi_cntr_t origin_cntr;
@@ -172,24 +190,30 @@ asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 			va_arg(list, x10_async_arg_t);
 	}
 	va_end(list);
-	return asyncSpawnInlineAgg_i(tgt, hndlr, size);
+	x10_err_t err = asyncSpawnInlineAgg_i(tgt, hndlr, size);
+        X10_DEBUG (1,  "Exit");
+        return err;
 }
 
 x10_err_t
 asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 		x10_async_arg_t arg0)
 {
+        X10_DEBUG (1,  "Entry");
 	size_t size = sizeof(x10_async_arg_t);
 	size_t count = __x10_agg_counter[hndlr][tgt];
 	memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size]),
 			&arg0, sizeof(x10_async_arg_t));
-	return asyncSpawnInlineAgg_i(tgt, hndlr, size);
+	x10_err_t err = asyncSpawnInlineAgg_i(tgt, hndlr, size);
+        X10_DEBUG (1,  "Exit");
+        return err;
 }
 
 x10_err_t
 asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 		x10_async_arg_t arg0, x10_async_arg_t arg1)
 {
+        X10_DEBUG (1,  "Entry");
 	size_t size = 2 * sizeof(x10_async_arg_t);
 	int count = __x10_agg_counter[hndlr][tgt];
 
@@ -198,7 +222,9 @@ asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 	memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size +
 			sizeof(x10_async_arg_t)]),
 			&arg1, sizeof(x10_async_arg_t));
-	return asyncSpawnInlineAgg_i(tgt, hndlr, size);
+	x10_err_t err = asyncSpawnInlineAgg_i(tgt, hndlr, size);
+        X10_DEBUG (1,  "Exit");
+        return err;
 }
 
 } /* closing brace for namespace x10lib */
@@ -208,7 +234,10 @@ x10_err_t
 x10_async_spawn_inline_agg1(x10_place_t tgt,
 			x10_async_handler_t hndlr, x10_async_arg_t arg0)
 {
-	return x10lib::asyncSpawnInlineAgg(tgt, hndlr, arg0);
+        X10_DEBUG (1,  "Entry");
+	x10_err_t err = x10lib::asyncSpawnInlineAgg(tgt, hndlr, arg0);
+        X10_DEBUG (1,  "Exit");
+        return err;
 }
 
 x10_err_t
@@ -216,11 +245,17 @@ x10_async_spawn_inline_agg2(x10_place_t tgt,
 			x10_async_handler_t hndlr,
 			x10_async_arg_t arg0, x10_async_arg_t arg1)
 {
-	return x10lib::asyncSpawnInlineAgg(tgt, hndlr, arg0, arg1);
+        X10_DEBUG (1,  "Entry");
+	x10_err_t err = x10lib::asyncSpawnInlineAgg(tgt, hndlr, arg0, arg1);
+        X10_DEBUG (1,  "Exit");
+        return err;
 }
 
 x10_err_t
 x10_async_flush(x10_async_handler_t hndl, size_t size)
 {
-	return x10lib::asyncFlush(hndl, size);
+        X10_DEBUG (1,  "Entry");
+	x10_err_t err = x10lib::asyncFlush(hndl, size);
+        X10_DEBUG (1,  "Exit");
+        return err;
 }

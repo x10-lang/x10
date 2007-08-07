@@ -1,13 +1,14 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xmacros.h,v 1.9 2007-06-28 17:06:52 ganeshvb Exp $
+ * $Id: xmacros.h,v 1.10 2007-08-07 06:21:52 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_XMACROS_H
 #define __X10_XMACROS_H
 
+#include <iostream>
 
 /* macro for executing the specified LAPI statement and 
  * returning any error associated with it
@@ -22,8 +23,9 @@ do { \
 } while (0)
 
 /* debugging */
+/* Originally developed by Christoph von Praun */
 #if (X10_DLEVEL >= 0)
-#define X10_DEBUG(L,X)    { if (L <= X10_DLEVEL) { std::cout << "DEBG[" << L << ", " << here() << "]  " << X << std::endl << std::flush; } }
+#define X10_DEBUG(L,X)    { if (L <= X10_DLEVEL) { std::cout << "DEBG[" << L << ", " << __func__ << ", " << __x10_my_place << "]  " << X << std::endl << std::flush; } }
 #else
 #define X10_DEBUG(L,X)    { ; }
 #endif /* X10_DLEVEL */

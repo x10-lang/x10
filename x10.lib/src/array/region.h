@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: region.h,v 1.3 2007-06-27 07:40:48 ganeshvb Exp $ */
+/* $Id: region.h,v 1.4 2007-08-07 06:21:53 ganeshvb Exp $ */
 
 #ifndef __X10_REGION_H__
 #define __X10_REGION_H__
@@ -49,6 +49,10 @@ namespace x10lib {
     virtual bool isEqual(const Region<RANK>& x) const = 0;
     virtual bool isConvex() const = 0;
     virtual bool isDisjoint(const Region<RANK>& r) const = 0;
+    
+    virtual Point<RANK> origin() const = 0;
+    virtual Point<RANK> diagonal() const = 0;
+    virtual Point<RANK> stride() const = 0;
 
   };
   
@@ -159,6 +163,23 @@ namespace x10lib {
       return card_;
     }    
   
+    Point<RANK> origin() const 
+    {
+      return origin_;
+    }
+
+ 
+    Point<RANK> diagonal() const 
+    {
+      return diagonal_;
+    }
+
+ 
+    Point<RANK> stride() const 
+    {
+      return stride_;
+    }
+
   protected :
   
     Point<RANK> origin_;

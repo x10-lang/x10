@@ -5,13 +5,15 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.h,v 1.8 2007-06-27 07:17:20 ganeshvb Exp $ */
+/* $Id: array.h,v 1.9 2007-08-07 06:21:52 ganeshvb Exp $ */
 
 #ifndef __X10_ARRAY_H__
 #define __X10_ARRAY_H__
 
 #include "dist.h"
 #include <x10/alloc.h>
+
+#include "lapi.h"
 
 namespace x10lib{
   
@@ -31,28 +33,33 @@ namespace x10lib{
   public:   
     Array (const Region<RANK>* region, const Dist<RANK>* dist, int localSize, T* data, void** bases) :
       region_ (region->clone()),
-      dist_ (dist->clone()),
+      dist_ (dist ? dist->clone() : NULL),
       localSize_ (localSize),
       data_ (data)
     {
       assert (data_);
-      bases_ = new void* [region_->card()];
-      for (int i = 0; i < region_->card(); i++)
-         bases_[i] = bases[i];
-      //memset (data_, 0, sizeof (T) * region_->card()); 
-    }  
+      
+      bases_ = new void* [__x10_num_places];
+      for (int i = 0; i < __x10_num_places; i++)
+	bases_[i] = bases[i];
+      //memset (data_, 0, sizeof (T) * region_->card());     
+    }
     
+    //operator T* () const {
+    //return data_;
+    //}
+
     Array<T, RANK>* clone();
     
     const Dist<RANK>* dist() const
     {
       return dist_;
     }
- 
+    
     const uint64_t localSize() const {
       return localSize_;
     }  
- 
+    
     const Region<RANK>* region() const
     {
       return region_; 
@@ -60,25 +67,27 @@ namespace x10lib{
 
     /** A pointer to the local chunk of memory used to store the elements of the array.
      */
-    const T* raw() const
+    T* raw() const
     {
+      //return (T*) ((char*) this + sizeof(Array<T, RANK>));
       return data_;
     }
     
+   
     void putElementAt (const Point<RANK>& P, const T& val);
     void putElementAtRemote (const Point<RANK>& P, const T& val);
     
     void putLocalElementAt (const uint64_t n, const T& val);
     
     T& getElementAt (const Point<RANK>& P) const;
-    
+    T getRemoteElementAt (Point<RANK> p) const; 
     T& getLocalElementAt (const uint64_t n) const;
   
     /** Return the array obtained from this by restricting its region to
      * this.region intersected with subRegion.
      */
     Array<T, RANK>& view(const Region<RANK>& subRegion) const;
-  
+    
     /** regionMap must be a region transformation, i.e. a tiled region
      * whose base region and index region are identical. 
      * Return the array obtained from this by restricting its region to
@@ -98,32 +107,40 @@ namespace x10lib{
       delete region;
       delete dist;
     }
-
+    
+    /*
     void* operator new (size_t size, void* space)
     {
       return space;
     }
-
+    
+    void* operator new (size_t size)
+    {
+      return (new char[size]);
+      } */
+    
     void* base (int i)
     {
-  
-       return bases_[i];
+      assert (bases_);
+      assert (i >=0 && i < __x10_num_places);
+      return bases_[i];
     }
-  
+    
   protected:
-  
+    
     const Region<RANK> * region_;
-  
+    
     const Dist<RANK>* dist_;	
-
+    
     uint64_t localSize_;
-
+    
     T* data_;
 
     //Add memMapping; 
     //for now Region == memMapping;
 
   public:
+    
 
     void** bases_; 
   }; 
@@ -189,9 +206,11 @@ namespace x10lib{
   template <typename T, int RANK>
     Array<T, RANK>& update (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
 
-template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
-Array<T, RANK>*
-makeArrayLocal (const Region<RANK>* region, const Dist<RANK>* dist);
+  template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
+  Array<T, RANK>*
+  makeLocalArray (const Region<RANK>* region, const Dist<RANK>* dist);
+  
+
 
 }
 
