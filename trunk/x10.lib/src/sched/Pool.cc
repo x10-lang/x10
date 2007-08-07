@@ -79,15 +79,15 @@ public:
     this->p = p;
   }
   virtual void run() {
-#if 0
+/*#if 1*/ // RAJ -- uncommented for GQ code
     if (p->currentJob != NULL && 
 	p->currentJob->requiresGlobalQuiescence()) {
-      p->currentJob->completed();
+       p->currentJob->completed();
     }
     p->currentJob = NULL;
-#else
+/*#else
 #warning "Sriram: Commented some code. Check it! GQ will not work"
-#endif
+#endif*/
   }
 };
 

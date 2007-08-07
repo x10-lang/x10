@@ -529,6 +529,7 @@ void Worker::run() {
 			
     if (cl !=NULL) {
       // Found some work! Execute it.
+    	//cout << "Found work" << endl;
       idleScanCount=-1;
       assert(cache == NULL || cache->empty());
       /*if ( reporting) {
@@ -547,6 +548,7 @@ void Worker::run() {
       // never decrease.
       cache->reset();
     } else if(pool->isShutdown()) {
+    	
       /* sriramk: If pool says shutdown, shutdown. Global
        * termination is someone else's problem*/ 
       return;
@@ -605,12 +607,12 @@ Closure *Worker::interruptCheck() {
 		/*if (true && reporting)
 			System.out.println(this + " at " + pool.time() + " popFrameCheck: discovers a theft and returns " + result
 					+ " cache=" + cache.dump());*/
-#if 0
+/*#if 0*/ // RAJ -- I have uncommented this section of the code -- please verify
 		if (result !=NULL)
 			popFrame();
-#else
+/*#else
 #warning "Sriram: Commented some code. Check it!!!"
-#endif
+#endif*/
 		return result;
 }
 	/**

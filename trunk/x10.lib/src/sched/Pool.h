@@ -50,7 +50,7 @@ public:
 	std::vector<Worker *> workers;
 	unsigned int num_workers;
 	int /*atomic */ joinCount;
-	volatile Closure *currentJob;
+	/*volatile*/ Closure *currentJob;
 	ActiveWorkerCount *barrier;
 	int /*atomic*/ activeOnJobAtomic;
 
