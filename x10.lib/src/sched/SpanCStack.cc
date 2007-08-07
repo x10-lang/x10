@@ -37,7 +37,7 @@ class E;
 
 
 static SpanC *graph;
-static int Ns[] = {/*added by raj*/100,10*1000,50*1000, 100*1000, 500*1000, 1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000};
+static int Ns[] = {/*added by raj*/1000,10*1000,50*1000, 100*1000, 500*1000, 1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000};
 static const long NPS = (1000L * 1000 * 1000);
 
 typedef vector<int> ARR;
