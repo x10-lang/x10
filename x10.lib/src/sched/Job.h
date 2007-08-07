@@ -121,7 +121,7 @@ class GloballyQuiescentJob : public Job {
 public:
 /* 	GloballyQuiescentJob(Pool *pool); */
 	GloballyQuiescentJob(Pool *pool, Frame *f = new GFrame());
-	virtual bool requiresGlobalQuiescence() const;
+	virtual bool requiresGlobalQuiescence() /*const*/;
 	virtual void compute(Worker *w, Frame *frame) ;
 	virtual ~GloballyQuiescentJob(){}
 };

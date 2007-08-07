@@ -109,18 +109,13 @@ void Job::compute(Worker *w, Frame *frame) {
 }
 int Job::spawnTask(Worker *ws) { assert(0); abort(); return 0; } // TODO RAJ child must provide an imple for this
 void Job::completed() {
+	
 	Closure::completed();
-	/*	if ( Worker.reporting)
-			System.out.println(Thread.currentThread() + " completed. result=" + resultInt());*/
-		/*
-		synchronized(this) {
-			notifyAll();
-		}*/
-		pthread_cond_broadcast(&cond_done);
-		pool->jobCompleted();
+	pthread_cond_broadcast(&cond_done);
+	pool->jobCompleted();
 }
 void Job::waitForCompletion() {
-		while (!isDone()) pthread_cond_wait(&cond_done,NULL);
+		while (!isDone()) { pthread_cond_wait(&cond_done,NULL); }
 }
     
 bool Job::isCancelled() const { return false;}
@@ -128,7 +123,7 @@ bool Job::isCancelled() const { return false;}
 bool Job::cancel(bool b) const { return false;}
 
 int Job::getInt() {
-#warning "Need to check sched_yield() and locks, etc."
+//#warning "Need to check sched_yield() and locks, etc."
 //   while(!isDone()) 
 //     sched_yield();
   while(!isJobDone()) 
@@ -144,7 +139,7 @@ bool Job::isJobDone() volatile { return jobDone; }
 
 /*--------------------GloballyQuiescentJob-------------------*/
 
-bool GloballyQuiescentJob::requiresGlobalQuiescence() const { return true;}	
+bool GloballyQuiescentJob::requiresGlobalQuiescence() /*const*/ { return true;}	
 // GloballyQuiescentJob::GloballyQuiescentJob(Pool *pool) 
 //   : GloballyQuiescentJob(pool, new GFrame()) {}
 

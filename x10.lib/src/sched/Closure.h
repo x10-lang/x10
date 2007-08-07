@@ -110,7 +110,7 @@ public:
 		
 	virtual void setResultObject(void *x);
 	virtual void *resultObject();
-	virtual bool requiresGlobalQuiescence() const;
+	virtual bool requiresGlobalQuiescence() /*volatile*/;
 
  public:
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)

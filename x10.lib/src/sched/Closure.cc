@@ -401,7 +401,7 @@ Closure *Closure::execute(Worker *w) {
 		Frame *f = frame;
 		assert(f != NULL);
 		switch (status) {
-		case READY:	
+		case READY:
 			status = RUNNING;
 		    // load the cache from the worker's state.
 		    cache = w->cache;
@@ -428,7 +428,7 @@ Closure *Closure::execute(Worker *w) {
 		
 		case RETURNING:
 		  unlock();
-		  assert(!requiresGlobalQuiescence()); //SRIRAM: for now
+		  //assert(!requiresGlobalQuiescence()); //SRIRAM: for now -- commented by RAJ
 		  res = returnValue(w);
 		  
 		  if(res) {
@@ -437,7 +437,8 @@ Closure *Closure::execute(Worker *w) {
 		    break;
 		  }
 		  assert(isDone());
-		  if(parent==NULL) {
+		  
+		  if(parent==NULL && !requiresGlobalQuiescence()) {
 		    Job *job = dynamic_cast<Job *>(this);
 		    assert(job != NULL);
 		    job->jobCompleted();
@@ -593,7 +594,7 @@ bool Closure::isDone() volatile { return done;}
 	 * by the scheduler.
 	 *
 	 */
-void Closure::completed() volatile {
+void Closure::completed() volatile{
 		done = true;
 }
 	
@@ -619,5 +620,10 @@ double Closure::resultDouble() { assert(0); abort(); return 0.0;}
 	
 void Closure::setResultObject(void *x) {assert(0); abort();}
 void *Closure::resultObject() { assert(0); abort(); return NULL; }
-bool Closure::requiresGlobalQuiescence() const { return false; }
+bool Closure::requiresGlobalQuiescence() /*volatile*/ {  
+	if (dynamic_cast<Closure *>(this)) return false;
+	else if (dynamic_cast<Job *>(this)) return false;
+	// if its a GloballyQuiescentjob
+	else return true;
+}
 
