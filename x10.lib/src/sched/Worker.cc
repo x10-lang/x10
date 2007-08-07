@@ -529,7 +529,6 @@ void Worker::run() {
 			
     if (cl !=NULL) {
       // Found some work! Execute it.
-    	//cout << "Found work" << endl;
       idleScanCount=-1;
       assert(cache == NULL || cache->empty());
       /*if ( reporting) {
