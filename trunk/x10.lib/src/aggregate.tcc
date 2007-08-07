@@ -92,7 +92,7 @@ asyncRegister_t (x10_async_handler_t handle)
 {
 
   func_t tmp = (func_t) asyncSpawnHandlerAgg<N,F>; 
-  LAPI_Addr_set (GetHandle(), (void*) tmp, 5+handle);
+  LAPI_Addr_set (GetHandle(), (void*) tmp, 6+handle);
 
   return X10_OK;
 }

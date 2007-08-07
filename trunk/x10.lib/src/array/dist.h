@@ -4,7 +4,7 @@
 #include "types.h"
 #include "region.h"
 
-namespace x10lib{
+namespace x10lib {
 
   template<int RANK>
   class UniqueDist;
@@ -16,16 +16,15 @@ namespace x10lib{
   template <int RANK>
   class Dist
   {
-
   public:
-
-     static Dist<RANK>* makeUnique () {
-
-       return new UniqueDist<1>();
-     }
-  
+    
+    static const Dist<RANK>* makeUnique () {
+      
+      return new UniqueDist<1>();
+    }
+    
   public:
- 
+    
     Dist () {} 
     /** The index region for places and region should be the same. For each point in this
      * region, region(p) is mapped to places(p). Note: An array of places corresponds to

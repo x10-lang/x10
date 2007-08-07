@@ -12,4 +12,8 @@
 These are the list of things to be done.
 
 
-  * Initiate base structure for regression testing & testing automation.
+  * Remove the static arrays and make them dynamic
+
+  * Arbitrary size exceptions; exception objects de-serialization
+ 
+  * Clocks. 
