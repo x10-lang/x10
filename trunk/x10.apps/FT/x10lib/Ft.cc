@@ -54,7 +54,7 @@ void __async__0 (__async__0__args args);
 
 place PLACE (x10lib::here());
 
-int CS;
+int CS = 0;
 
 class Ft {  
 private: const static int OFFSET = 3;
@@ -268,7 +268,6 @@ public :  Ft( int type, int comm) :
     class_id_char = 'T';
   }
    
-  cout << class_id_str << " FT_COMM = " << FT_COMM;
    
   TOTALSIZE = NX*NY*NZ; 
   MAX_PADDED_SIZE = max(2*NX*(NY+CPAD_COLS)*NZ, max(2*NY*(NZ+CPAD_COLS)*NX, 2*NZ*(NX+CPAD_COLS)*NY));
@@ -550,9 +549,13 @@ private : void checksum(const DoubleArray C, const int PID, const int itr) {
   const double res_real = ((sum_real/NX)/NY)/NZ;
   const double res_imag = ((sum_imag/NX)/NY)/NZ;
 
-  finishStart(CS);
+  
+  GLOBAL_SPACE.FtSolver->checksum_real[itr-1] = 0.0;
+  GLOBAL_SPACE.FtSolver->checksum_imag[itr-1] = 0.0;
 
-  asyncSpawnInlineAgg (0, 0, &__async__0__args (itr, res_real, res_imag), sizeof(__async__0__args));
+  CS = finishStart(CS);
+  __async__0__args args0(itr, res_real, res_imag);
+  asyncSpawnInlineAgg (0, 0, &args0 , sizeof(__async__0__args));
   
   asyncFlush (0, sizeof(__async__0__args));
 
