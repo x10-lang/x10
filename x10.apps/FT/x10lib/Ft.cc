@@ -358,7 +358,7 @@ public :  void solve(){
   double cputime2; 
   int current_orientation = set_view (PLANES_ORIENTED_X_Y_Z, PID);
    
-  clockNext (clk, 1);
+  //clockNext (clk, 1);
      
   const DoubleArray local_ex =   ex.getArray(PID);
   
@@ -407,7 +407,7 @@ public :  void solve(){
 
   FT_1DFFT (FT_COMM, localPlanes1d.m_array->raw(), local_V.m_array->raw(), 0, FFT_FWD, current_orientation, PID);
 
-  clockNext (clk, 1);
+  //clockNext (clk, 1);
    
   current_orientation = switch_view(current_orientation, PID);
 
@@ -419,7 +419,7 @@ public :  void solve(){
 
     current_orientation = set_view(saved_orientation, PID);
 
-    clockNext (clk, 1);
+    //clockNext (clk, 1);
 
     parabolic2(localPlanes2d.m_array->raw(), local_V.m_array->raw(), local_ex.m_array->raw(), iter, 1.0e-6);
 
@@ -430,6 +430,9 @@ public :  void solve(){
     FT_1DFFT(FT_COMM, localPlanes1d.m_array->raw(), localPlanes2d.m_array->raw(), 1, FFT_BWD, current_orientation, PID);
 
     current_orientation = switch_view(current_orientation, PID);
+
+    checksum_real[iter-1] = 0.0;
+    checksum_imag[iter-1] = 0.0;
 
     clockNext (clk, 1);
 
@@ -450,10 +453,16 @@ public :  void solve(){
   finishEnd (NULL);
    
   cputime1 += mysecond();
-   
-  if (PID == 0) cout << "The overall wall clock time is " << cputime1 << "secs " << endl;
+  
+  double mflops = (1.0e-6*((double)NX*NY*NZ) *
+              (14.8157 + 7.19641*log((double)NX*NY*NZ)
+               + (5.23518 + 7.21113*log((double)NX*NY*NZ))*MAX_ITER)) /  cputime2;
+
+  if (PID == 0) cout << "The overall wall clock time is " << cputime1 << "secs " << "mflops : " << mflops << endl;
   
   if (PID==0 ) if (class_id_char != 'T') checksum_verify (NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);   
+
+
 }
  
 public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray dist1d, const int dir, const int orientation, const int placeID){
@@ -529,7 +538,7 @@ private : void checksum(const DoubleArray C, const int PID, const int itr) {
   const double* temp = C.m_array->raw() + OFFSET; 
 
   int total=0;
-  CS = finishStart (CS);
+//  CS = finishStart (CS);
   for (j=1; j <= 1024; ++j){
     q = j % NX;
     r = (3*j) % NY;
@@ -545,22 +554,20 @@ private : void checksum(const DoubleArray C, const int PID, const int itr) {
     }
   }
 
-  finishEnd (NULL);
+ // finishEnd (NULL);
 
   const double res_real = ((sum_real/NX)/NY)/NZ;
   const double res_imag = ((sum_imag/NX)/NY)/NZ;
 
   
-  GLOBAL_SPACE.FtSolver->checksum_real[itr-1] = 0.0;
-  GLOBAL_SPACE.FtSolver->checksum_imag[itr-1] = 0.0;
 
-  CS = finishStart(CS);
+  //CS = finishStart(CS);
   __async__0__args args0(itr, res_real, res_imag);
   asyncSpawnInlineAgg (0, 0, &args0 , sizeof(__async__0__args));
   
   asyncFlush (0, sizeof(__async__0__args));
   
-  finishEnd (NULL);
+  //finishEnd (NULL);
 } 
    
    
