@@ -78,6 +78,8 @@ int main(int argc, char *argv[]) {
   Pool *g = new Pool(nprocs);
   assert(g != NULL);
 
+  int sc = g->getStealCount();
+  int sa = g->getStealAttempts();
   long long s=nanoTime();
   {
     anon_Job1 job(g, M, nb);
@@ -90,7 +92,9 @@ int main(int argc, char *argv[]) {
       <<" N="<<gMatrixSize
       <<" B="<<gBlockSize
       <<" time="<<(t-s)/1000000<<"ms"
-      <<endl;
+      <<" steals="<< (g->getStealCount()-sc)
+      <<" stealAttempts=" << (g->getStealAttempts()-sa)
+      << endl;
 
   //print_matrix(M, nb);
   //fflush(stdin);
@@ -106,3 +110,4 @@ int main(int argc, char *argv[]) {
   g->shutdown();
   delete g;
 }
+
