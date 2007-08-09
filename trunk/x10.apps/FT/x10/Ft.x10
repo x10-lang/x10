@@ -100,14 +100,17 @@ public final value Ft {
         DistDoubleArray(final int size, final int offset){
             assert size >= N_PLACES;
             m_size = size;
-            m_array = new DoubleArray value [UNIQUE];
-            m_localSize = size/N_PLACES; 
+            m_localSize = size/N_PLACES;
+            dist(:rank==1) R = [0:N_PLACES-1]-> here; //otherwise you need to put a cast clause for the next statment
+            m_array = new DoubleArray value [R]; /*(point [i]) {
+            	return new DoubleArray(m_localSize, offset);}; */
+            
             /* It is assumed that the array size in the first dimension can be divided evenly by N_PLACES.
              * Otherwise, a little bit more sophisticated load balancing algorithm should be employed.
              * And the index here is global.
-             */
+             m_array = new DoubleArray value [UNIQUE]; //version 1.9 shouldn't pass compilation here.*/
             finish ateach(point [i]: UNIQUE){ 
-                int a=i*m_localSize, b=(i+1)*m_localSize-1;
+                //int a=i*m_localSize, b=(i+1)*m_localSize-1;
                 //m_array[i]=new DoubleArray(a, b, offset);
                 m_array[i]=new DoubleArray(m_localSize, offset);
             }
@@ -174,7 +177,7 @@ public final value Ft {
 
     private  int set_view(int orientation, int PID){
         //if (PID == 0) set_orientation(orientation);
-        set_orientation(next_orientation);
+        set_orientation(orientation);
         return orientation;
     }
 
@@ -239,15 +242,18 @@ public final value Ft {
         final DistDoubleArray ex = new DistDoubleArray(TOTALSIZE, 0);
         
         
-        /* passing constants to C, which are stored as external variables */      
-        initializeC(NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
+        
         
         double cputime1 = -mysecond();      
 
         finish async{
           final clock clk=clock.factory.clock();
           ateach (point [PID]: UNIQUE) clocked(clk){
-            double cputime2; 
+        	  
+        	  /* passing constants to C, which are stored as external variables */
+        	  initializeC(NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
+        	  next;
+        	  double cputime2; 
             int current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
             next;
             final DoubleArray local_ex = ex.getArray(PID);
@@ -286,7 +292,7 @@ public final value Ft {
             
             for (int iter = 1; iter <= MAX_ITER; iter ++){
                 current_orientation = set_view(saved_orientation, PID);
-                next;
+                //next; //redundant
                 parabolic2(localPlanes2d.m_array, local_V.m_array, local_ex.m_array, iter, 1.0e-6);
                 FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk);
                 next;
