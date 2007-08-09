@@ -101,7 +101,7 @@ public final value Ft {
 			m_localSize = size/N_PLACES;
 			dist(:rank==1) R = [0:N_PLACES-1]-> here; //otherwise you need to put a cast clause for the next statment
 			m_array = new DoubleArray value [R]; /*(point [i]) {
-												   return new DoubleArray(m_localSize, offset);}; */
+								return new DoubleArray(m_localSize, offset);}; */
 
 			/* It is assumed that the array size in the first dimension can be divided evenly by N_PLACES.
 			 * Otherwise, a little bit more sophisticated load balancing algorithm should be employed.
@@ -244,16 +244,17 @@ public final value Ft {
 			ateach (point [PID]: UNIQUE) clocked(clk) {
 				/* passing constants to C, which are stored as external variables */
 				initializeC(NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
-				next;
+				//next;
 				double cputime2;
 				int current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
-				next;
+				//next;
 				final DoubleArray local_ex = ex.getArray(PID);
 				final DoubleArray localPlanes2d = Planes2d.getArray(PID);
 				final DoubleArray localPlanes1d = Planes1d.getArray(PID);
 				final DoubleArray local_V = V.getArray(PID);
 
 				FFTInit(FT_COMM, localPlanes2d.m_array, localPlanes1d.m_array, PID);
+				next;
 				init_exp(local_ex.m_array, 1.0e-6, PID);
 				/*
 				 * Run the entire problem once to make sure all the data is touched. This
@@ -261,7 +262,6 @@ public final value Ft {
 				 */
 				computeInitialConditions(localPlanes2d.m_array, PID);
 				//next;
-
 				FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
 				next;
 				FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_FWD, current_orientation, PID);
@@ -270,7 +270,7 @@ public final value Ft {
 				if (PID == 0) System.out.println("Start timing of IBM X10 NAS FT: class "+class_id_char+" ("+class_id_str+")");
 				cputime2 = -mysecond();
 				current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
-				next;
+				//next;
 				computeInitialConditions(localPlanes2d.m_array, PID);
 				init_exp(local_ex.m_array, 1.0e-6, PID);
 				FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
@@ -279,7 +279,7 @@ public final value Ft {
 				next;
 
 				current_orientation = switch_view(current_orientation, PID);
-				next;
+				//next;
 				int saved_orientation = current_orientation;
 
 				for (int iter = 1; iter <= MAX_ITER; iter ++) {
