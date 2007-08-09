@@ -38,6 +38,7 @@
  *            finish in FFT2DComm is removed and asyn is clocked.
  *    On Aug 7, 2007: remove the "if (PID == 0)" check in switch_view and set_view,
  *            which is special to the Java implementation of X10.
+ *    On Aug 9, 2007: clean up "next"
  */
 
 public final value Ft {
@@ -254,7 +255,7 @@ public final value Ft {
 				final DoubleArray local_V = V.getArray(PID);
 
 				FFTInit(FT_COMM, localPlanes2d.m_array, localPlanes1d.m_array, PID);
-				next;
+				next; //for the case MAKE_FFTW_THREADSAFE = 0
 				init_exp(local_ex.m_array, 1.0e-6, PID);
 				/*
 				 * Run the entire problem once to make sure all the data is touched. This
