@@ -122,7 +122,7 @@ public:
     m_start = 0;
     m_end = size-1;
 
-    m_array = makeArraySPMD<double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
+    m_array = makeArrayLocal <double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
   }
 
   DoubleArray (int start, int end, int offset) 
@@ -134,7 +134,7 @@ public:
     m_end = end;
 
 
-    m_array = makeArraySPMD<double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
+    m_array = makeArrayLocal <double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
   }     
 };
 
@@ -160,7 +160,7 @@ public : class DistDoubleArray
       m_size = size;
       m_localSize = size / N_PLACES;	
       
-      m_array = makeArraySPMD <DoubleArray, 1, RectangularRegion, UniqueDist> (ALLPLACES->region(), ALLPLACES);
+      m_array = makeArrayLocal <DoubleArray, 1, RectangularRegion, UniqueDist> (ALLPLACES->region(), ALLPLACES);
       
       CS = finishStart (CS);
       int a = PLACE.HERE * m_localSize;
@@ -170,14 +170,17 @@ public : class DistDoubleArray
             
       finishEnd (NULL);
 
+      
+      //This will go away.
       CS = finishStart(CS);
       //caching
       for (int i  = 0; i < N_PLACES; i++) {
 	if ( i == PLACE.HERE) continue;
 	m_array->getLocalElementAt (i) = m_array->getRemoteElementAt (Point<1>(i));
-      }
-             
+      }             
       finishEnd (NULL);
+
+
     }
 };
   
