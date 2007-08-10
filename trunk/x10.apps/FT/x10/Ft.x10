@@ -39,6 +39,7 @@
  *    On Aug 7, 2007: remove the "if (PID == 0)" check in switch_view and set_view,
  *            which is special to the Java implementation of X10.
  *    On Aug 9, 2007: clean up "next"
+ *    On Aug 10, 2007: remove finish and make async clocked in checksum().
  */
 
 public final value Ft {
@@ -217,7 +218,7 @@ public final value Ft {
 				class_id_str = "Test mode: 2x4x4 1 iterations";
 				class_id_char = 'T';
 		}
-		System.out.println(class_id_str+" FT_COMM = "+FT_COMM);
+		//System.out.println(class_id_str+" FT_COMM = "+FT_COMM); 
 
 		TOTALSIZE = NX*NY*NZ;
 		MAX_PADDED_SIZE = Math.max(2*NX*(NY+CPAD_COLS)*NZ, Math.max(2*NY*(NZ+CPAD_COLS)*NX, 2*NZ*(NX+CPAD_COLS)*NY));
@@ -245,54 +246,48 @@ public final value Ft {
 			ateach (point [PID]: UNIQUE) clocked(clk) {
 				/* passing constants to C, which are stored as external variables */
 				initializeC(NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
-				//next;
 				double cputime2;
 				int current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
-				//next;
+
 				final DoubleArray local_ex = ex.getArray(PID);
 				final DoubleArray localPlanes2d = Planes2d.getArray(PID);
 				final DoubleArray localPlanes1d = Planes1d.getArray(PID);
 				final DoubleArray local_V = V.getArray(PID);
 
 				FFTInit(FT_COMM, localPlanes2d.m_array, localPlanes1d.m_array, PID);
-				next; //for the case MAKE_FFTW_THREADSAFE = 0
+				//next; //next needed here when MAKE_FFTW_THREADSAFE = 0
 				init_exp(local_ex.m_array, 1.0e-6, PID);
 				/*
 				 * Run the entire problem once to make sure all the data is touched. This
 				 * reduces variable startup costs, which is important for short benchmarks
 				 */
 				computeInitialConditions(localPlanes2d.m_array, PID);
-				//next;
 				FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
 				next;
 				FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_FWD, current_orientation, PID);
-				next;
+				next;  
 
-				if (PID == 0) System.out.println("Start timing of IBM X10 NAS FT: class "+class_id_char+" ("+class_id_str+")");
+				if (PID == 0) System.out.println("Start timing of IBM X10 NAS FT: class "+class_id_char+" ("+class_id_str+", FT_COMM = "+FT_COMM+")");
 				cputime2 = -mysecond();
 				current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
-				//next;
 				computeInitialConditions(localPlanes2d.m_array, PID);
 				init_exp(local_ex.m_array, 1.0e-6, PID);
 				FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
 				next;
 				FT_1DFFT(FT_COMM, localPlanes1d.m_array, local_V.m_array, 0, FFT_FWD, current_orientation, PID);
-				next;
+				//next; //redundant
 
 				current_orientation = switch_view(current_orientation, PID);
-				//next;
 				int saved_orientation = current_orientation;
 
 				for (int iter = 1; iter <= MAX_ITER; iter ++) {
 					current_orientation = set_view(saved_orientation, PID);
-					//next; //redundant
 					parabolic2(localPlanes2d.m_array, local_V.m_array, local_ex.m_array, iter, 1.0e-6);
 					FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk);
 					next;
 					FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_BWD, current_orientation, PID);
 					current_orientation = switch_view(current_orientation, PID);
-					next;
-					checksum(localPlanes2d, PID, iter);
+					checksum(localPlanes2d, PID, iter, clk);
 					next;
 					if (PID == 0) {
 						System.out.println(" Iter = "+iter+" checksum_real = "+
@@ -414,7 +409,7 @@ public final value Ft {
 			FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID, clk);
 	}
 
-	private void checksum(final DoubleArray C, final int PID, final int itr) {
+	private void checksum(final DoubleArray C, final int PID, final int itr, final clock clk) {
 		int j, q, r, s, idx;
 		double sum_real = 0;
 		double sum_imag = 0;
@@ -437,7 +432,7 @@ public final value Ft {
 		}
 		final double res_real = ((sum_real/NX)/NY)/NZ;
 		final double res_imag = ((sum_imag/NX)/NY)/NZ;
-		finish async(UNIQUE[0]) atomic { //Should atomic be removed?
+		async(UNIQUE[0]) clocked(clk) atomic { //On Aug 10, 2007remove finish and make async clocked
 			checksum_real[itr]+=res_real;
 			checksum_imag[itr]+=res_imag;
 		}
