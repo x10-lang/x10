@@ -158,8 +158,11 @@ public : class DistDoubleArray
     DistDoubleArray (const int size, const int offset) 
     {	
       m_size = size;
+
+      //      cout << N_PLACES << endl;
       m_localSize = size / N_PLACES;	
-      
+
+
       m_array = makeArrayLocal <DoubleArray, 1, RectangularRegion, UniqueDist> (ALLPLACES->region(), ALLPLACES);
       
       CS = finishStart (CS);
@@ -371,25 +374,25 @@ public :  void solve(){
 
   const DoubleArray local_V = V.getArray(PID);
    
-  FFTInit(FT_COMM, localPlanes2d.m_array->raw(), localPlanes1d.m_array->raw(), PID);
+  FFTInit(FT_COMM, BASE_PTR(localPlanes2d.m_array), BASE_PTR(localPlanes1d.m_array), PID);
 
-
-  init_exp(local_ex.m_array->raw(), 1.0e-6, PID);
+  clockNext (clk, 1);
+  init_exp(BASE_PTR(local_ex.m_array), 1.0e-6, PID);
 
   /*
    * Run the entire problem once to make sure all the data is touched. This
    * reduces variable startup costs, which is important for short benchmarks
    */
   
-  computeInitialConditions(localPlanes2d.m_array->raw(), PID);
+  computeInitialConditions(BASE_PTR(localPlanes2d.m_array), PID);
+  
+  //clockNext (clk, 1);
+
+  FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
 
   clockNext (clk, 1);
 
-  FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID);
-
-  clockNext (clk, 1);
-
-  FT_1DFFT(FT_COMM, localPlanes1d.m_array->raw(), localPlanes2d.m_array->raw(), 1, FFT_FWD, current_orientation, PID);
+  FT_1DFFT(FT_COMM, BASE_PTR(localPlanes1d.m_array), BASE_PTR(localPlanes2d.m_array), 1, FFT_FWD, current_orientation, PID);
 
   clockNext (clk, 1);
    
@@ -398,23 +401,23 @@ public :  void solve(){
 
   current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
 
-  clockNext (clk, 1);
+  //  clockNext (clk, 1);
 
-  computeInitialConditions(localPlanes2d.m_array->raw(), PID);
+  computeInitialConditions(BASE_PTR(localPlanes2d.m_array), PID);
 
-  init_exp(local_ex.m_array->raw(), 1.0e-6, PID);
+  init_exp(BASE_PTR(local_ex.m_array), 1.0e-6, PID);
 
-  FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID);
+  FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
   
   clockNext (clk, 1);
 
-  FT_1DFFT (FT_COMM, localPlanes1d.m_array->raw(), local_V.m_array->raw(), 0, FFT_FWD, current_orientation, PID);
+  FT_1DFFT (FT_COMM, BASE_PTR(localPlanes1d.m_array), BASE_PTR(local_V.m_array), 0, FFT_FWD, current_orientation, PID);
 
-  //clockNext (clk, 1);
+  clockNext (clk, 1);
    
   current_orientation = switch_view(current_orientation, PID);
 
-  clockNext (clk, 1);
+  //clockNext (clk, 1);
 
   int saved_orientation = current_orientation;
    
@@ -424,13 +427,13 @@ public :  void solve(){
 
     //clockNext (clk, 1);
 
-    parabolic2(localPlanes2d.m_array->raw(), local_V.m_array->raw(), local_ex.m_array->raw(), iter, 1.0e-6);
+    parabolic2(BASE_PTR(localPlanes2d.m_array), BASE_PTR(local_V.m_array), BASE_PTR(local_ex.m_array), iter, 1.0e-6);
 
-    FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID);
+    FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk);
 
     clockNext (clk, 1);
 
-    FT_1DFFT(FT_COMM, localPlanes1d.m_array->raw(), localPlanes2d.m_array->raw(), 1, FFT_BWD, current_orientation, PID);
+    FT_1DFFT(FT_COMM, BASE_PTR(localPlanes1d.m_array), BASE_PTR(localPlanes2d.m_array), 1, FFT_BWD, current_orientation, PID);
 
     current_orientation = switch_view(current_orientation, PID);
 
@@ -451,8 +454,7 @@ public :  void solve(){
    
   cputime2 += mysecond(); 
   if (PID == 0) cout << " The wall clock time for the timed section is " << cputime2 << " secs" << endl;
-   
-   
+      
   finishEnd (NULL);
    
   cputime1 += mysecond();
@@ -468,7 +470,7 @@ public :  void solve(){
 
 }
  
-public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray dist1d, const int dir, const int orientation, const int placeID){
+public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray dist1d, const int dir, const int orientation, const int placeID, Clock* c){
    
   int dim0, dim1, dim2;
   int plane_size, CHUNK_SZ, numrows;
@@ -484,14 +486,14 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
   numrows = dim0/NUMPLACES;
   int p, t, i, offset1, offset2;
      
-  double* local2darray = local2d.m_array->raw();
+  Array<double, 1> * local2darray = local2d.m_array;
      
   //  x10_switch_t swch = AllocSwitch();
 
   for (p = 0; p < dim2/NUMPLACES; p++){
     offset1 = plane_size*p;
     
-    FFT2DLocalCols (local2darray, offset1, dir, orientation, placeID);
+    FFT2DLocalCols (BASE_PTR(local2darray), offset1, dir, orientation, placeID);
     
     for (i = 0; i < numrows; i++) 
       
@@ -499,11 +501,9 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
 	
 	int destID = t;
 	
-	//int destID = (placeID + t) % NUMPLACES;
-
-	offset2 = offset1 + destID*CHUNK_SZ + i*dim1;
+	offset2 = offset1 + destID * CHUNK_SZ + i*dim1;
 	
-	FFT2DLocalRow(local2darray, offset2, dir, orientation, placeID);
+	FFT2DLocalRow(BASE_PTR(local2darray), offset2, dir, orientation, placeID);
 	
 	int srcStart = offset2*2;
 	
@@ -511,10 +511,10 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
 	
 	const x10_place_t destPlace =  ALLPLACES->place (destID);
 	
-	//double* local1darray = (double*) (((char*) (dist1d.getArray(destID).m_array)) + sizeof(Array<double, 1>)) ; 
-	asyncArrayCopy (local2d.m_array, srcStart + OFFSET, dist1d.getArray(destID).m_array, destStart, destID, 2 * dim1, NULL);
+	Array<double, 1> * local1darray = dist1d.getArray(destID).m_array; 
 
-	//memcpy (dist1d.getArray(0).m_array->raw() + destStart, local2d.m_array->raw() + srcStart + OFFSET, 2 * dim1 * sizeof(double));
+	//	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, NULL);
+	asyncArrayCopy (local2darray, Point<1> (srcStart), local1darray, Point<1> (destStart), destID, 2 * dim1, c);
       }
     
   }
@@ -524,12 +524,12 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
 }
 
 	
-public :  void FFT2DComm(const DoubleArray local2d, const DistDoubleArray dist1d, const int dir, const int orientation, const int placeID)
+public :  void FFT2DComm(const DoubleArray local2d, const DistDoubleArray dist1d, const int dir, const int orientation, const int placeID, Clock* clk)
   {
     if (FT_COMM == FT_COMM_SLABS)
-      FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID);
+      FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID, clk);
     else
-      FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID);
+      FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID, clk);
   }
 
 private : void checksum(const DoubleArray C, const int PID, const int itr) {
@@ -538,7 +538,7 @@ private : void checksum(const DoubleArray C, const int PID, const int itr) {
   double sum_imag = 0;
      
   int proc;
-  const double* temp = C.m_array->raw() + OFFSET; 
+  const double* temp = BASE_PTR(C.m_array) + OFFSET; 
 
   int total=0;
 //  CS = finishStart (CS);
@@ -582,9 +582,9 @@ public :  void printArray(const DistDoubleArray DDA){
      
   for (int i = da.m_domain->origin().value(0); i < da.m_domain->diagonal().value(0); i++) {
     if (i%2 == 0) 
-      cout << " [" << (i/2) << "]= (" <<  da.m_array->raw()[i] << endl;
+      cout << " [" << (i/2) << "]= (" <<  BASE_PTR(da.m_array)[i] << endl;
     else
-      cout << ", " <<  da.m_array->raw()[i] << ")" << endl;
+      cout << ", " <<  BASE_PTR(da.m_array)[i] << ")" << endl;
   }	
 }
    
