@@ -60,7 +60,9 @@ private:
       : Frame(f), sum(f.sum), PC(f.PC), q(f.q), ownerClosure(f.ownerClosure) {
 	  
 	  sofar_size = f.sofar_size;
-	  int *sofar = (int *)alloca((sofar_size) * sizeof(int));
+	  //int *sofar = (int *)alloca((sofar_size) * sizeof(int));
+	  sofar = new int[sofar_size];
+	  assert(sofar!=NULL);
 	  memcpy(sofar, f.sofar, sofar_size * sizeof(int));
   } 
   
@@ -133,8 +135,10 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
 	  	  }
 		  if (!attacked) { 
 			  int *next = (int *)alloca((row + 1) * sizeof(int));
+			  assert(next!=NULL);
 			  memcpy(next, a, row * sizeof(int));
 			  next[row] = q;
+			  
 			  int y = nQueens(w, next, row+1, cl);
 			  if (w->abortOnSteal(y)) return -1;
 			  if(w->cache->parentInterrupted()) {
@@ -147,9 +151,11 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
 			  }
 			  sum +=y;
 			  frame->sum +=y;
+			  
 		  }
 		  q++;
 		  frame->q=q+1; 
+		  
 	  }
 	  w->popFrame();
 	  
@@ -182,13 +188,15 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
 	  			f->q =q+1;
 	  			bool attacked = false;
 	  			for (int i = 0; i < row && ! attacked; i++) {
+	  				//MEM_BARRIER();
 	  				int p = a[i];
 	  				attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  			}
 	  			if (!attacked) {
 	  				int *next = (int *)alloca((row + 1) * sizeof(int));
+	  				assert (next != NULL);
 	  				memcpy(next, a, row * sizeof(int));
-	  				next[row] = q;	  				  				
+	  				next[row] = q;
 	  				int y = nQueens(w, next, row+1, this);	
 	  				if (w->abortOnSteal(y)) return;
 	  				sum += y;
@@ -197,7 +205,6 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
 	  			q++;
 	  		}
 	  		f->PC=LABEL_2;
-	  		
 	  		if (sync(w))
 	  				return;
 	  	case LABEL_2:
@@ -221,6 +228,7 @@ public:
 
 
 void anon_Outlet1::run() {
+	//MEM_BARRIER();
 	NFrame *fr = (NFrame *) c->parentFrame(); 
 	int value = c->resultInt();
 	f->sum += value;
@@ -244,6 +252,7 @@ public:
   virtual int resultInt() { return result;}
   virtual int spawnTask(Worker *ws) { 
 	  int *a = (int *)alloca(boardSize * sizeof(int));
+	  assert(a!=NULL);
 	  return NQueensC::nQueens(ws, a, 0, this); 
 	  
   }
