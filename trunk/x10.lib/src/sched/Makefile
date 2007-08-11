@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.18 2007-08-07 08:54:29 rajbarik Exp $
+# $Id: Makefile,v 1.19 2007-08-11 17:06:09 rajbarik Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -81,11 +81,11 @@ FibStack.x: FibStack.cc $(SCHED_A)
 NQueensC.x: NQueensC.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) NQueensC.cc $(SCHED_A) -o NQueensC.x
 	
-NQueensCStack.x: NQueensCStack.cc $(SCHED_A)
-	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) NQueensCStack.cc $(SCHED_A) -o NQueensCStack.x
+N.x: NQueensCStack.cc $(SCHED_A)
+	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) NQueensCStack.cc $(SCHED_A) -o N.x
 
-NQueensCStack_a.x: NQueensCStack_a.cc $(SCHED_A)
-	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) NQueensCStack_a.cc $(SCHED_A) -o NQueensCStack_a.x
+Na.x: NQueensCStack_a.cc $(SCHED_A)
+	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) NQueensCStack_a.cc $(SCHED_A) -o Na.x
 
 SpanC.x: SpanC.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) SpanC.cc $(SCHED_A) -o SpanC.x
