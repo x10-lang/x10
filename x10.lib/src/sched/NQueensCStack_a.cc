@@ -60,8 +60,8 @@ private:
       : Frame(f), sum(f.sum), PC(f.PC), q(f.q), ownerClosure(f.ownerClosure) {
 	  
 	  sofar_size = f.sofar_size;
-	  //int *sofar = (int *)alloca((sofar_size) * sizeof(int));
-	  sofar = new int[sofar_size];
+	  int *sofar = (int *)malloc((sofar_size) * sizeof(int));
+	  //sofar = new int[sofar_size];
 	  assert(sofar!=NULL);
 	  memcpy(sofar, f.sofar, sofar_size * sizeof(int));
   } 
@@ -166,7 +166,6 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
   ~NQueensC() {    /*delete frame;*/  }
   // Slow path
   virtual void compute(Worker *w, Frame *frame)  {
-	  
 	  NFrame *f = (NFrame *) frame;
 	  int *a = f->sofar;
 	  int row = f->sofar_size;
@@ -188,7 +187,6 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
 	  			f->q =q+1;
 	  			bool attacked = false;
 	  			for (int i = 0; i < row && ! attacked; i++) {
-	  				//MEM_BARRIER();
 	  				int p = a[i];
 	  				attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  			}
@@ -228,7 +226,6 @@ public:
 
 
 void anon_Outlet1::run() {
-	//MEM_BARRIER();
 	NFrame *fr = (NFrame *) c->parentFrame(); 
 	int value = c->resultInt();
 	f->sum += value;
