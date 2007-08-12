@@ -57,11 +57,10 @@ private:
   
   
   NFrame(const NFrame& f) 
-      : Frame(f), sum(f.sum), PC(f.PC), q(f.q), ownerClosure(f.ownerClosure) {
-	  
-	  sofar_size = f.sofar_size;
-	  int *sofar = (int *)malloc((sofar_size) * sizeof(int));
-	  //sofar = new int[sofar_size];
+      : Frame(f), sum(f.sum), PC(f.PC), q(f.q), ownerClosure(f.ownerClosure), sofar_size(f.sofar_size) {
+      //int *sofar = (int *)malloc((sofar_size) * sizeof(int));
+	  //cout << "SOFAR_SIZE=" << sofar_size;
+	  sofar = new int[sofar_size];
 	  assert(sofar!=NULL);
 	  memcpy(sofar, f.sofar, sofar_size * sizeof(int));
   } 
@@ -75,10 +74,7 @@ public:
   int sofar_size;
   Closure *ownerClosure;
   
-  
-  
   NFrame(int *a, int a_size, Closure* cl) { 
-	  
 	  sofar_size = a_size;
 	  sofar = a; 
 	  ownerClosure=cl;
@@ -100,36 +96,28 @@ class NQueensC : public virtual Closure {
 private:
   friend class NFrame;
   friend class anon_Outlet1;
-  
-private:
-  static const int ENTRY=0, LABEL_1=1, LABEL_2=2, LABEL_3=3;
-
+  static const int ENTRY=0, LABEL_1=1, LABEL_2=2;
 public:
-	
-  
-	
+
 // fast path execution
 static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
-	  
 	  int row = a_size;
-	  
 	  if (row >= boardSize) {
 		  return 1;
 	  }
-	  
 	  NFrame nFrame(a,a_size, cl);
 	  NFrame *frame = &nFrame;
 	  frame->q=1; 
 	  frame->sum=0;
 	  frame->PC=LABEL_1; 
 	  w->pushFrame(frame);
+	  
 	  int sum=0;
 	  int q=0;
 	  
-	  
 	  while (q < boardSize) {
 		  bool attacked = false;
-		  for (int i = 0; i < row && ! attacked; i++) {
+		  for (int i = 0; i < row && !attacked; i++) {
 			  int p = a[i];
 			  attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 	  	  }
@@ -150,15 +138,12 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
 			        assert(frame != NULL);
 			  }
 			  sum +=y;
-			  frame->sum +=y;
-			  
+			  frame->sum +=y;			  
 		  }
 		  q++;
 		  frame->q=q+1; 
-		  
 	  }
 	  w->popFrame();
-	  
 	  return sum;
   }
   
@@ -197,6 +182,14 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
 	  				next[row] = q;
 	  				int y = nQueens(w, next, row+1, this);	
 	  				if (w->abortOnSteal(y)) return;
+	  				if(w->cache->parentInterrupted()) {
+	  					w->lock(w);
+	  					NQueensC *ocl = dynamic_cast<NQueensC*>(f->ownerClosure);
+	  					if(ocl) 
+	  						f = dynamic_cast<NFrame *>(ocl->frame);
+	  					w->unlock();
+	  					assert(f != NULL);
+	  				}
 	  				sum += y;
 	  				f->sum +=y;
 	  			}
@@ -223,18 +216,14 @@ public:
   
 };
 
-
-
 void anon_Outlet1::run() {
 	NFrame *fr = (NFrame *) c->parentFrame(); 
 	int value = c->resultInt();
-	f->sum += value;
+	fr->sum += value;
 }
 
 Closure *NFrame::makeClosure() {
-	NFrame *f=copy();
-	
-	NQueensC *c = new NQueensC(f);
+	NQueensC *c = new NQueensC(copy());
 	assert(c != NULL);
 	ownerClosure = c;
 	return c;
@@ -254,13 +243,9 @@ public:
 	  
   }
   void jobCompleted() { 
-       
-      Job::jobCompleted(); 
+	  Job::jobCompleted(); 
   }
   virtual ~anon_Job1() {}
-
-protected:
-  
 };
 
 int main(int argc, char *argv[]) {
