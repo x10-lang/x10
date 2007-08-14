@@ -277,8 +277,8 @@ int main(int argc, char *argv[]) {
   const int procs = atoi(argv[1]);
   const int nReps = atoi(argv[2]);
   cout<<"Number of procs=" << procs <<endl;
-  if (argc > 2) 
-	    Worker::reporting = true;
+//   if (argc > 2) 
+//     Worker::reporting = true;
   
   const int expectedSolutions[] = {0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,73712, 365596, 2279184, 14772512};
   Pool *g = new Pool(procs);
@@ -286,8 +286,8 @@ int main(int argc, char *argv[]) {
 
     
   for (int i = 7; i < 12; i++) {
-	Pool *g = new Pool(procs);
-	assert(g != NULL);
+// 	Pool *g = new Pool(procs);
+// 	assert(g != NULL);
     boardSize = i;
     Job *job = new anon_Job1(g);
     assert(job != NULL);
@@ -295,16 +295,13 @@ int main(int argc, char *argv[]) {
     long long s = nanoTime();
     
     for(int j=0; j<nReps; j++) {
-    	
         g->submit(job);
         result = job->getInt();
     }
     long long t = nanoTime();
     cout<<"NQueens("<<i<<")\t="<<result<<"\t"<<
     expectedSolutions[i]<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;
-    g->shutdown();
-    delete g;
   }
-
-  
+  g->shutdown();
+  delete g;
 }
