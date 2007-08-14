@@ -1,0 +1,31 @@
+Fine-grained concurrency is a premier technique for the productive exploitation
+of shared memory concurrency as realized in symmetric multi-processors and
+multicore architectures. In this approach programmers focus on expressing the
+natural parallelism of the application in as fine-grained
+a manner as reasonable, leaving it  up to compilation and runtime mechanisms to
+schedule such activities efficiently.
+
+Cilk work-stealing is a premier mechanism for implementing fully strict,
+series-parallel  task graphs. We present several techniques that improve the
+performance of work-stealing and extend its range of applicability.
+These techniques have been implemented in the X10 runtime, both
+as a Java 5 library and as part of X10lib, a C++-based runtime and can be used
+directly by programs written in Java and C++ (respectively). (A front-end for
+X10 is currently under development.) We show that stack-allocation of frames
+leads to significant improvement in performance. We show that for several
+applications (e.g. depth-first graph search, n-queens) the implicit join
+required  by Cilk in every procedure frame can be relaxed in favor of global
+termination detection (the detection that no worker has any more task left to
+execute). Global termination detection can be  implemented with an overhead
+proportional to the number of workers (rather than the number of spawned
+tasks). Additionally, we show that globally clocked computations (e.g. as
+needed by breadth-first search) can be implemented efficiently through
+(repeated) global quiescence detection.
+
+Finally, we show the benefits of introducing  area-specific  operations. An
+area is a portion  of X10's place that can be written into only by its owning
+worker; some objects may be marked also as being read only by the area's owning
+worker. All objects in an area are accessible to the tasks being executed by
+the owning worker. Area-specific operations may be used to implement global
+reductions using local counters (e.g. N-queens) as well as worker-specific
+dynamic scheduling policies (e.g. for LU).
