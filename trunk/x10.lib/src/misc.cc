@@ -47,7 +47,8 @@ x10lib::Broadcast (void* buffer, size_t nbytes, x10_place_t root)
 	  
 	}
     }
-  
+
+  //replace this with a counter
   LAPI_Gfence (__x10_hndl);
 
   return X10_OK;

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.h,v 1.9 2007-08-07 06:21:52 ganeshvb Exp $ */
+/* $Id: array.h,v 1.10 2007-08-14 12:27:48 ganeshvb Exp $ */
 
 #ifndef __X10_ARRAY_H__
 #define __X10_ARRAY_H__
@@ -14,6 +14,8 @@
 #include <x10/alloc.h>
 
 #include "lapi.h"
+
+#define BASE_PTR(a) a->raw()
 
 namespace x10lib{
   
@@ -42,12 +44,13 @@ namespace x10lib{
       bases_ = new void* [__x10_num_places];
       for (int i = 0; i < __x10_num_places; i++)
 	bases_[i] = bases[i];
+
       //memset (data_, 0, sizeof (T) * region_->card());     
     }
     
-    //operator T* () const {
-    //return data_;
-    //}
+    operator T* () const {
+      return data_;
+    }
 
     Array<T, RANK>* clone();
     
@@ -72,17 +75,19 @@ namespace x10lib{
       //return (T*) ((char*) this + sizeof(Array<T, RANK>));
       return data_;
     }
-    
-   
-    void putElementAt (const Point<RANK>& P, const T& val);
-    void putElementAtRemote (const Point<RANK>& P, const T& val);
-    
+       
+    void putLocalElementAt (const Point<RANK>& P, const T& val);
     void putLocalElementAt (const uint64_t n, const T& val);
     
-    T& getElementAt (const Point<RANK>& P) const;
-    T getRemoteElementAt (Point<RANK> p) const; 
+    void putRemoteElementAt (const Point<RANK>& P, const T& val);
+    void putRemoteElementAt (const uint64_t n, const T& val) {assert (false);}
+    
+    T& getLocalElementAt (const Point<RANK>& P) const;
     T& getLocalElementAt (const uint64_t n) const;
   
+    T getRemoteElementAt (Point<RANK> p) const; 
+    T getRemoteElementAt (const uint64_t n) const {assert (false);}
+
     /** Return the array obtained from this by restricting its region to
      * this.region intersected with subRegion.
      */
@@ -210,9 +215,10 @@ namespace x10lib{
   Array<T, RANK>*
   makeLocalArray (const Region<RANK>* region, const Dist<RANK>* dist);
   
-
-
+  
 }
+
+
 
 #include "array.tcc"
 
