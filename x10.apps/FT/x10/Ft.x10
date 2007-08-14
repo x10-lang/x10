@@ -40,6 +40,7 @@
  *            which is special to the Java implementation of X10.
  *    On Aug 9, 2007: clean up "next"
  *    On Aug 10, 2007: remove finish and make async clocked in checksum().
+ *    On Aug 14, 2007: add a new constructor of DoubleArray.
  */
 
 public final value Ft {
@@ -73,7 +74,16 @@ public final value Ft {
 			// Arrays should be aligned with the cache line size (128 for FT).
 			m_array = (double[:self.rect && self.rank==1]) new double[[-offset : size-1]];
 		}
-
+		
+		DoubleArray(int size, int offset, place p) {
+			m_length = size;
+			m_offset = offset;
+			m_domain = [0 : size-1];
+			m_start = 0; m_end = size-1;
+			// Arrays should be aligned with the cache line size (128 for FT).
+			m_array = (double[:self.rect && self.rank==1]) new double[[-offset : size-1]->p];
+		}
+		
 		DoubleArray(int start, int end, int offset) {
 			m_length = end-start+1;
 			m_offset = offset;
@@ -82,6 +92,8 @@ public final value Ft {
 			//Arrays should be aligned with the cache line size.
 			m_array = (double[:self.rect && self.rank==1]) new double[[start-offset : end]];
 		}
+		
+		
 	}
 
 	// Distributed arrays of complex numbers, one array per place
@@ -102,17 +114,17 @@ public final value Ft {
 			m_size = size;
 			m_localSize = size/N_PLACES;
 			dist(:rank==1) R = [0:N_PLACES-1]-> here; //otherwise you need to put a cast clause for the next statment
-			m_array = new DoubleArray value [R]; /*(point [i]) {
+			m_array = new DoubleArray value [R]; /* (point p) {
 								return new DoubleArray(m_localSize, offset);}; */
 
 			/* It is assumed that the array size in the first dimension can be divided evenly by N_PLACES.
 			 * Otherwise, a little bit more sophisticated load balancing algorithm should be employed.
 			 * And the index here is global.
-			 m_array = new DoubleArray value [UNIQUE]; //version 1.9 shouldn't pass compilation here.*/
-			finish ateach(point [i]: UNIQUE) {
+			 m_array = new DoubleArray value [UNIQUE]; //version 1.9 shouldn't pass compilation here. */
+			finish for (point [i]: UNIQUE) { //changed to for from ateach on Aug 14, 2007
 				//int a = i*m_localSize, b = (i+1)*m_localSize-1;
 				//m_array[i] = new DoubleArray(a, b, offset);
-				m_array[i] = new DoubleArray(m_localSize, offset);
+				m_array[i] = new DoubleArray(m_localSize, offset, place.factory.place(i));
 			}
 		}
 	}
