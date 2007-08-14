@@ -12,6 +12,7 @@
 //#include "Lock.h"
 //#include "Worker.h"
 #include "Sys.h"
+#include "Executable.h"
 #include <list>
 
 namespace x10lib_cws {
@@ -27,7 +28,7 @@ class Outlet;
 
 enum { RUNNING, SUSPENDED, RETURNING, READY, ABORTING, PASSTHROUGH };
 
-class Closure {
+class Closure : public Executable {
 private:
 	/*void decrementExceptionPointer(Worker *ws);
 	void incrementExceptionPointer(Worker *ws);

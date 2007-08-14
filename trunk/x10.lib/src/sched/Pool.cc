@@ -79,15 +79,11 @@ public:
     this->p = p;
   }
   virtual void run() {
-/*#if 1*/ // RAJ -- uncommented for GQ code
     if (p->currentJob != NULL && 
 	p->currentJob->requiresGlobalQuiescence()) {
        p->currentJob->completed();
     }
     p->currentJob = NULL;
-/*#else
-#warning "Sriram: Commented some code. Check it! GQ will not work"
-#endif*/
   }
 };
 
@@ -393,7 +389,7 @@ Closure *Pool::getJob() {
         
         lock_var->lock_wait_posix();
         //try {
-        	Closure *task = jobs->poll();
+        	Job *task = jobs->poll();
         	if (task == NULL && activeJobs == 0) {
         		//work.await(); // TODO RAJ
         		pthread_cond_wait(&work,&(this->lock_var->posix_lock_var));

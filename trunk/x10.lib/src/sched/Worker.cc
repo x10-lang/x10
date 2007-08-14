@@ -20,6 +20,7 @@
 #include "StealAbort.h"
 #include "Sys.h"
 #include "Job.h"
+#include "Executable.h"
 #include <assert.h>
 #include <cstdlib>
 #include <iostream>
@@ -89,8 +90,11 @@ int Worker::rand() {
  * @param thief -- The thread making this invocation.
  * @return
  */
-Closure *Worker::steal(Worker *thief, bool retry) {
-	
+Executable *Worker::steal(Worker *thief, bool retry) {
+  if(jobRequiresGlobalQuiescence) {
+    return stealFrame(thief, retry);
+  }
+
   Closure *res = NULL;
   Worker *victim = this;
   ++stealAttempts;
@@ -200,6 +204,29 @@ Closure *Worker::steal(Worker *thief, bool retry) {
   return NULL;
 }
 
+#warning "With GQ, frames are always copied when stolen. So user should always de-allocate all allocated frames. This not true without GQ. "
+
+Executable *Worker::stealFrame(Worker *thief, bool retry) {
+  Worker *victim = this;
+  ++stealAttempts;
+  lock(thief);
+  
+  Frame *frame = NULL;
+
+  bool b=cache->dekker(thief);
+  if (b) {
+    frame = cache->topFrame();
+    assert(frame != NULL);
+
+    frame = frame->copy();
+    cache->incHead();
+    //I have work now, so checkout of the barrier.
+    thief->checkOutSteal(frame, victim);
+  }
+
+  unlock();
+  return frame;
+}
 
 /* 
  * Extract the topmost closure in the ready deque of this
@@ -371,13 +398,13 @@ bool Worker::sync(Closure *c) {
  * @param mainLoop -- when true, try mainpool for work if stealing doesnt work.
  * @return -- a task, or NULL if none is available
  */
-Closure *Worker::getTask(bool mainLoop) {
+Executable *Worker::getTask(bool mainLoop) {
   /*if ( reporting) {
     System.out.println(this + " at  " + pool.time() + " looking for work idleScanCount= " + idleScanCount + 
     " checkedIn=" + checkedIn + " job=" + currentJob() + ".");
     System.out.println(this + " " + pool.barrier.numCheckedIn);
     }*/
-  Closure *cl = NULL;
+  Executable *cl = NULL;
   checkIn();
   if (++idleScanCount < 0)
     idleScanCount=1;
@@ -407,7 +434,9 @@ Closure *Worker::getTask(bool mainLoop) {
     Worker *victim = (pool->workers).at(idx);
     if (victim != NULL && victim != thief) {
       //System.out.println(thief +  " at " + pool.time() + ": tries to steal from " + victim + "...");
-      cl = victim->steal(thief, retry);
+      cl = (jobRequiresGlobalQuiescence) 
+	? victim->stealFrame(thief, retry)
+	: victim->steal(thief, retry);
       if (cl == NULL) {
 	if ((sleeper == NULL) && // first sleeping worker
 	    victim->sleepStatus== SLEEPING)
@@ -434,6 +463,19 @@ Closure *Worker::getTask(bool mainLoop) {
   return mainLoop? this->getTaskFromPool(sleeper) : NULL;
 }
 
+void Worker::setJob(Job *currentJob) {
+  if(currentJob == NULL)
+    currentJob = pool->currentJob;
+  if (currentJob==NULL) return;
+  assert(currentJob != NULL);
+
+  if (this->job != currentJob) {
+    this->job = currentJob;
+    jobRequiresGlobalQuiescence = currentJob->requiresGlobalQuiescence();
+  }
+}
+
+
 
     /**
      * Try to get a task from pool. On failure, possibly sleep.
@@ -441,32 +483,30 @@ Closure *Worker::getTask(bool mainLoop) {
      * @param sleeper a worker noticed to be sleeping while scanning
      */
 Closure *Worker::getTaskFromPool(Worker *sleeper) {
-        Closure *job = pool->getJob();
-        if (job != NULL) {
-            idleScanCount = -1;
-            if (sleeper != NULL)
-                sleeper->wakeup();
-            checkOut(job);
-            return job;
-        }
-        if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
-            if (sleepStatus == AWAKE) {
-	      compare_exchange((int *)&sleepStatus, AWAKE, SLEEPING);
-	      sched_yield(); // TODO RAJ -- wanna give it to someone else
-	      usleep(idleScanCount * 0.001);
-                
-            	/*if (reporting)
-            		System.out.println(this + " at " + pool.time() + " parking for " 
-            				+ (idleScanCount * SLEEP_NANOS_PER_SCAN) + " nanos.");*/
-                //LockSupport.parkNanos(idleScanCount * SLEEP_NANOS_PER_SCAN);
-               /* if (reporting)
-                	System.out.println(this + " at " + pool.time() + " unparking.");*/
-                if (sleepStatus == WOKEN) // reset count on wakeup
-                    idleScanCount = 1;
-            }
-            sleepStatus = AWAKE; // TODO RAJ -- write it atomically
-        }
-        return NULL;
+  Closure *job = pool->getJob();
+  if (job != NULL) {
+    idleScanCount = -1;
+    if (sleeper != NULL)
+      sleeper->wakeup();
+    checkOut(job);
+    return job;
+  }
+  setJob(pool->currentJob);
+
+  if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
+    if (sleepStatus == AWAKE) {
+      compare_exchange((int *)&sleepStatus, AWAKE, SLEEPING);
+      sched_yield(); // TODO RAJ -- wanna give it to someone else
+      usleep(idleScanCount * 0.001);
+      
+      //LockSupport.parkNanos(idleScanCount * SLEEP_NANOS_PER_SCAN);
+      
+      if (sleepStatus == WOKEN) // reset count on wakeup
+	idleScanCount = 1;
+    }
+    sleepStatus = AWAKE; // TODO RAJ -- write it atomically
+  }
+  return NULL;
 }
 
     
@@ -479,7 +519,7 @@ void Worker::checkIn() {
     		pool->barrier->checkIn();  // TODO RAJ
     	}
 }
-void Worker::checkOut(Closure *cl) {
+void Worker::checkOut(Executable *cl) {
     	if (! checkedIn) {
     		Worker *other = (pool->workers).at(1-index);
     		/*if (reporting)
@@ -494,7 +534,7 @@ void Worker::checkOut(Closure *cl) {
     		pool->barrier->checkOut();
     	}
 }
-void Worker::checkOutSteal(Closure *cl, Worker *victim) {
+void Worker::checkOutSteal(Executable *cl, Worker *victim) {
     	assert(victim->lockOwner==this);
     	checkOut(cl);
 }
@@ -511,19 +551,38 @@ void Worker::wakeup() {
 void Worker::run() {
   assert(index >= 0);
   setRandSeed(index*162347);
-  Closure *cl = NULL; //closure.
+  Executable *cl = NULL; //frame or closure.
   int yields = 0;
   while (!done) {
 			
     if (cl == NULL) {
-      //Try geting work from the local queue.
-      lock(this);
-      cl = extractBottom(this);
-      if (((reporting )) && cl !=NULL) {
-	cerr<<index<<":: extract local closure"<<endl;
+      // Addition for GlobalQuiescence. Keep popping
+      // tasks off the deque and executing them until
+      // the deque becomes empty.
+      if (jobRequiresGlobalQuiescence) {
+	Cache *cache = this->cache;
+	for(;;) {
+	  Frame *f = cache->popAndReturnFrame(this);
+	  if (f == NULL) {
+	    assert(cache->empty());
+	    break;
+	  }
+	  f->compute(this);
+	  //Nothing much to do on exception. It just
+	  //unwound the stack as we wanted. 
+	  catchAllException();
+	}
+      } else {
+	//Try geting work from the local queue.
+	lock(this);
+	cl = extractBottom(this);
+	if (((reporting )) && cl !=NULL) {
+	  cerr<<index<<":: extract local closure"<<endl;
+	}
+	unlock();
       }
-      unlock();
     }
+
     if (cl == NULL) 	
       cl = getTask(true);
 			
@@ -535,17 +594,19 @@ void Worker::run() {
 	System.out.println(this + " executes " + cl +".");
 	}*/
       cache->reset();
-      Closure *cl1 = cl->execute(this);
+      Executable *cl1 = cl->execute(this);
       /*if ((reporting && bottom == cl)) {
 	System.out.println(this + " completes " + cl + " returns " + cl1 +".");
 	}*/
       cl=cl1;
 				
-				
       // vj: This avoids having to implement a wrap around.
       // Otherwise, head might increase on a steal, but would
       // never decrease.
-      cache->reset();
+      if(!jobRequiresGlobalQuiescence) {
+	assert(cache->empty());
+	cache->reset();
+      }
     } else if(pool->isShutdown()) {
     	
       /* sriramk: If pool says shutdown, shutdown. Global

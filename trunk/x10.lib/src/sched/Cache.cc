@@ -207,6 +207,7 @@ bool Cache::headGeqTail() {
 }
 void Cache::reset() {
   tail=0;
+  MEM_BARRIER();
   head=0;
   exception=0;
   //  WRITE_BARRIER();
@@ -221,6 +222,36 @@ bool Cache::exceptionOutstanding() {
 int Cache::gethead() { return head;}
 int Cache::gettail() { return tail;}
 int Cache::getexception() { return exception;}
+
+/**
+ * A fast way of determining whether the worker has been interrupted.
+ * @param w
+ * @return
+ */
+Frame *Cache::popAndReturnFrame(Worker *w) {
+  assert(w==owner);
+  Frame *rval;
+
+  if (head >= tail) {
+    rval = NULL;
+  } else {
+    tail--;
+    if (interrupted()) { // there has been a theft -- rare case.
+      w->lock(w);
+      // need to lock to ensure that we get the right value for head.
+      // have to set exception so that the interrupt is acknowledged.
+      exception=head;
+      w->unlock();
+    } 
+    
+    Frame *f = stack[tail];
+    stack[tail]=NULL;
+    rval = f;
+  }
+  assert (head >=0);
+  assert (tail >= 0);
+  return rval;
+}
 
 
 

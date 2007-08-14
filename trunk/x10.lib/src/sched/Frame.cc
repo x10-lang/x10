@@ -11,6 +11,8 @@
 #include "Frame.h"
 #include "Closure.h"
 #include "Sys.h"
+#include "Worker.h"
+#include "Cache.h"
 #include <assert.h>
 
 using namespace std;
@@ -54,4 +56,18 @@ void Frame::setInt(int x) { assert(0); abort();}
 	return f;	
 	}*/
 
+
+void Frame::compute(Worker *w) {
+  /*if called, it should be implemented by sub-class*/
+  assert(0);
+  abort();
+}
+
+Executable *Frame::execute(Worker *w) {
+  Cache *c = w->cache;
+  c->pushFrame(this);
+  c->resetExceptionPointer(w);
+  compute(w);
+  return NULL;
+}
 

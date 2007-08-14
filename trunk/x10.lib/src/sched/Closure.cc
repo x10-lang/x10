@@ -16,6 +16,7 @@
 #include "Frame.h"
 #include "Sys.h"
 #include "StealAbort.h"
+#include "Executable.h"
 #include <assert.h>
 #include <iostream>
 
