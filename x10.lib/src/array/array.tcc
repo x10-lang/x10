@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.10 2007-08-07 06:21:52 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.11 2007-08-14 12:27:48 ganeshvb Exp $ */
 
 #include "array.h"
 #include <x10/alloc.h>
@@ -13,6 +13,7 @@
 #include "x10/gas.h"
 #include "x10/xassert.h"
 #include <x10/xmacros.h>
+#include <x10/clock.h>
 
 namespace x10lib {
   typedef void (*void_func_t)();
@@ -23,23 +24,66 @@ namespace x10lib {
 template <class T, int RANK>
 x10_err_t
 asyncArrayCopy (Array<T, RANK>* src, int srcOffset,
-			Array<T, RANK>* dest, int dstOffset,
-			int target, int len, x10_switch_t swch)
+		Array<T, RANK>* dest, int dstOffset,
+		int target, int len, Clock* c)
+{
+  int tmp;
+  lapi_cntr_t origin_cntr;
+
+  //LRC(LAPI_Setcntr(__x10_hndl, &origin_cntr, 0));
+  
+  LAPI_Put (__x10_hndl,
+	    target,
+	    len * sizeof(T), 
+	    (void*) ((char*) dest  + sizeof (Array<T, RANK>) + sizeof(T) * dstOffset),
+	    (void*) ((char*) src->raw() + sizeof(T) * srcOffset),	    
+	    NULL,
+	    NULL, //&origin_cntr,
+	    NULL);
+  //LRC(LAPI_Waitcntr(__x10_hndl, &origin_cntr, 1, &tmp));
+  
+  return X10_OK;
+}
+
+
+template <class T, int RANK>
+x10_err_t
+asyncArrayCopy (Array<T, RANK>* src, Point <RANK> srcOffset,
+		Array<T, RANK>* dest, Point <RANK> dstOffset,
+		int target, int len, Clock* c)
 {
   int tmp;
   lapi_cntr_t origin_cntr;
   
   LRC(LAPI_Setcntr(__x10_hndl, &origin_cntr, 0));
   
-  LAPI_Put (__x10_hndl,
-	    target,
-	    len * sizeof(T), 
-	    (void*) ((char*) dest  + sizeof (Array<T, RANK>) + sizeof(T) * dstOffset),
-	    (void*) &src->getLocalElementAt(srcOffset),	    
-	    NULL,
-	    &origin_cntr,
-	    swch ? swch->get_handle() : NULL); 
-  LRC(LAPI_Waitcntr(__x10_hndl, &origin_cntr, 1, &tmp));
+  lapi_header_t construction_handler = (lapi_header_t) remoteArrayCopy<T, RANK>;
+  LAPI_Addr_set (__x10_hndl, (void*) construction_handler, 7);
+   
+  remoteArrayElementDescr header;
+  header.addr = (void*) dest;
+  for (int i = 0; i < RANK; i++)
+    header.point[i] = dstOffset.value(i);
+ 
+  assert (dest);
+  
+  if (target == __x10_my_place) 
+    {
+      memcpy (&dest->getLocalElementAt(dstOffset), &src->getLocalElementAt (srcOffset), len*sizeof(T));
+    } else {
+      LAPI_Amsend (__x10_hndl, 
+		   target,
+		   (void*) construction_handler,
+		   (void*) &header,
+		   sizeof(header),
+		   (void*) &src->getLocalElementAt (srcOffset), 
+		   len * sizeof (T),
+		   NULL,
+		   &origin_cntr,
+		   NULL);
+      
+      LAPI_Waitcntr (__x10_hndl, &origin_cntr, 1, &tmp);
+    }
   
   return X10_OK;
 }
@@ -57,55 +101,58 @@ makeLocalArray (int size)
 
 //================ Distributed Arrays =============================
 
-//================ For SPMD & Sequential Array cases =============================
+//================ For Local arrays =============================
+// template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
+// Array<T, RANK>*
+// makeArrayLocal (const Region<RANK>* region, const Dist<RANK> * dist)
+// {  
+//   assert (GlobalSMAlloc); 
+  
+//   uint64_t local_size = region->card();
+  
+//   Array<T, RANK>* ret = NULL;
+  
+//   void** addrTable = new void* [__x10_num_places];
+  
+//   for (x10_place_t p = 0; p < __x10_num_places; p++)
+//     addrTable[p] = (char*) GlobalSMAlloc->addrTable (p) + GlobalSMAlloc->offset();
+  
+//   void* arraySpace = x10lib::GlobalSMAlloc->chunk (sizeof(Array<T, RANK>));
+  
+//   T* data = (T*) x10lib::GlobalSMAlloc->chunk (local_size * sizeof(T));
+
+//   //const Dist<RANK>* dist = Dist<RANK>::makeConst (region, __x10_my_place);
+  
+//   ret = new (arraySpace) Array<T, RANK>(region, dist, local_size, data, addrTable);
+  
+//   delete [] addrTable;
+  
+//   return ret;
+// }
+
+
+
+//================ For equi-distributed arrays cases =============================
+
 template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
 Array<T, RANK>*
-makeArraySPMD (const Region<RANK>* region, const Dist<RANK>* dist)
-{  
-  assert (GlobalSMAlloc); 
-  
-  uint64_t local_size = region->card();
-  
-  Array<T, RANK>* ret = NULL;
-  
-  void** addrTable = new void* [__x10_num_places];
-  
-  for (x10_place_t p = 0; p < __x10_num_places; p++)
-    addrTable[p] = (char*) GlobalSMAlloc->addrTable (p) + GlobalSMAlloc->offset();
-  
-  void* arraySpace = x10lib::GlobalSMAlloc->chunk (sizeof(Array<T, RANK>));
-  
-  T* data = (T*) x10lib::GlobalSMAlloc->chunk (local_size * sizeof(T));
-  
-  ret = new (arraySpace) Array<T, RANK>(region, dist, local_size, data, addrTable);
-  
-  delete [] addrTable;
-  
-  return ret;
-}
-
-//================ For non-SPMD cases =============================
-
-template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
-Array<T, RANK>*
-makeLocalSection (const Region<RANK>* region, const Dist<RANK>* dist)
+makeArrayLocal (const Region<RANK>* region, const Dist<RANK>* dist)
 {  
   assert (GlobalSMAlloc);
 
-  assert (dist);
-
   void** addrTable = NULL;
   Array<T, RANK>* ret = NULL;
-
+  
   //should move to distribution
-  uint64_t local_size = region->card() / __x10_num_places;
-
+  uint64_t local_size = dist ? dist->card() : region->card();
+  //uint64_t local_size = region->card();
+  
   addrTable = new void* [__x10_num_places];
   for (x10_place_t p = 0; p < __x10_num_places; p++)
     addrTable[p] = (char*) GlobalSMAlloc->addrTable (p) + GlobalSMAlloc->offset();
   
-  void* arraySpace = x10lib::GlobalSMAlloc->chunk (sizeof(Array<T, RANK>));
-  T* data = (T*) x10lib::GlobalSMAlloc->chunk (local_size * sizeof(T));
+  void* arraySpace = x10lib::GlobalSMAlloc->chunk (sizeof(Array<T, RANK>) + local_size * sizeof(T));
+  T* data = (T*) ((char*) arraySpace + sizeof(Array<T, RANK>)); 
   ret = new(arraySpace) Array<T, RANK>(region, dist, local_size, data, addrTable);
 
   delete [] addrTable;
@@ -114,8 +161,8 @@ makeLocalSection (const Region<RANK>* region, const Dist<RANK>* dist)
 }
 
 template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
-void
-makeRemoteSection (const Region<RANK>* region, const Dist<RANK>* dist)
+Array<T, RANK>*
+makeArrayRemote (const Region<RANK>* region, const Dist<RANK>* dist, const x10_place_t target)
 {
   unsigned int buf_size = sizeof (metaDataDescr<RANK, REGION, DIST>); 
   metaDataDescr<RANK, REGION, DIST>* buf = new metaDataDescr<RANK, REGION, DIST>;
@@ -129,11 +176,11 @@ makeRemoteSection (const Region<RANK>* region, const Dist<RANK>* dist)
   
   LAPI_Setcntr (__x10_hndl, &completion_cntr, 0);
   
-  for (x10_place_t target = 0; target < __x10_num_places; target++)
-    if (target != __x10_my_place)
+  if (target != __x10_my_place)
+    {
       LAPI_Amsend (__x10_hndl, 
 		   target,
-		   (void*) 5,
+		   (void*) construction_handler,
 		   NULL,
 		   0,
 		   buf, 
@@ -141,12 +188,15 @@ makeRemoteSection (const Region<RANK>* region, const Dist<RANK>* dist)
 		   NULL,
 		   NULL,
 		   &completion_cntr);
-  
-  //Wait for completion
-  LAPI_Waitcntr (__x10_hndl, &completion_cntr, __x10_num_places - 1, &tmp); 
-  
-  delete buf;
-  
+
+      //Wait for completion
+      LAPI_Waitcntr (__x10_hndl, &completion_cntr, 1, &tmp); 
+
+      delete buf;      
+      return (Array<T, RANK>*) ((char*) GlobalSMAlloc->addrTable (target) + GlobalSMAlloc->prev_offset());
+    }
+  else    
+    return makeArrayLocal<T, RANK, REGION, DIST> (region, dist);  
 }
 
 
@@ -155,17 +205,18 @@ Array<T, RANK>*
 makeArray (const Region<RANK>* region, const Dist<RANK>* dist)
 {
   //create the array locally
-  Array<T, RANK>* ret = makeLocalSection<T, RANK, REGION, DIST> (region, dist);
-
+  Array<T, RANK>* ret = makeArrayLocal<T, RANK, REGION, DIST> (region, dist);
+  
   //create the array remotely
-  makeRemoteSection<T, RANK, REGION, DIST> (region, dist); 
-
+  for (x10_place_t target = 0; target < __x10_num_places; target++)    
+    makeArrayRemote<T, RANK, REGION, DIST> (region, dist, target); 
+  
   return ret;
 }
 
 template <typename T, int RANK>
 void 
-Array <T, RANK> :: putElementAt (const Point<RANK>& p, const T& val) 
+Array <T, RANK> :: putLocalElementAt (const Point<RANK>& p, const T& val) 
 {
 
   assert (false);
@@ -196,7 +247,7 @@ Array <T, RANK> :: putLocalElementAt (const uint64_t n, const T& val)
 
 template <typename T, int RANK>
 void 
-Array<T, RANK> :: putElementAtRemote (const Point<RANK>& p, const T& val)
+Array<T, RANK> :: putRemoteElementAt (const Point<RANK>& p, const T& val)
 {
   const Point<RANK> index =  this->region_->indexOf (p);
   int target = this->dist_->place(index);
@@ -277,22 +328,23 @@ Array<T, RANK> :: getRemoteElementAt (Point<RANK> p) const
 
 template<typename T, int RANK>
 T&
-Array <T, RANK> :: getElementAt (const Point<RANK>& p) const
+Array <T, RANK> :: getLocalElementAt (const Point<RANK>& p) const
 {
 
-  const Point<RANK> index = region_->indexOf (p);
+  //  const Point<RANK> index = region_->indexOf (p);
 
 
-  const Region<RANK>* r = region_->regionAt (index);
+  //const Region<RANK>* r = region_->regionAt (index);
 
 
-  assert (r->contains(p));
+  //assert (r->contains(p));
 
-  assert (this->dist_->place(index) == __x10_my_place);
+  //assert (this->dist_->place(index) == __x10_my_place);
 
   
-  uint64_t n = r->ord(p);
+  uint64_t n = region_->ord(p);
 
+  //  cout << "here " << n << " " << p.value(0) << endl;
   
   T& ret = getLocalElementAt (n);
  

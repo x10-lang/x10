@@ -9,6 +9,9 @@ namespace x10lib {
   template<int RANK>
   class UniqueDist;
 
+  template<int RANK>
+  class ConstDist;
+
   /**
    * Distribution class (ABSTRACT)
    *
@@ -23,6 +26,12 @@ namespace x10lib {
       return new UniqueDist<1>();
     }
     
+    static const Dist<RANK>* makeConst (const Region<RANK>* r, x10_place_t p) {
+      
+      return new ConstDist<1>(r, p);
+    }
+    
+
   public:
     
     Dist () {} 
@@ -30,27 +39,30 @@ namespace x10lib {
      * region, region(p) is mapped to places(p). Note: An array of places corresponds to
      * ARMCI's notion of a domain.
      */
-
+    
     Dist (const Region<RANK>* region) :
-      region_ (region)
+      region_ (region),
+      nplaces_ (__x10_num_places)
     {
-      places_ = new x10_place_t [region->card()];
-      for (x10_place_t i = 0; i < x10lib::__x10_num_places; i++)
-        places_[i] = i;
+      places_ = new x10_place_t [nplaces_];
+      for (int i = 0; i < nplaces_; i++)
+	places_[i] = i;
     }
-  
-    Dist (const Region<RANK>* region, x10_place_t* places) :
-      region_ (region)
+    
+    Dist (const Region<RANK>* region, x10_place_t* places, int nplaces) :
+      region_ (region),
+      nplaces_ (nplaces)
     {
-      places_ = new x10_place_t [region->card()];
-      memcpy (places_, places, sizeof(x10_place_t) * region->card());
+      places_ = new x10_place_t [nplaces_];
+      memcpy (places_, places, sizeof(x10_place_t) * nplaces_);
     }
- 
+    
     Dist (const Dist<RANK>& other) :
-      region_ (other.region_)
+      region_ (other.region_),
+      nplaces_ (other.nplaces_)
     {
-      places_ = new x10_place_t [region->card()];
-      memcpy (places_, other.places, sizeof(x10_place_t) * region->card());
+      places_ = new x10_place_t [nplaces_];
+      memcpy (places_, other.places, sizeof(x10_place_t) * nplaces_);
     }
 
     virtual Dist<RANK>* clone() const = 0;
@@ -72,12 +84,14 @@ namespace x10lib {
       return  places_;
 
     }
-    
+
+    virtual int card() const = 0;
+
   protected:
     
     const Region<RANK>* region_;
     x10_place_t* places_;
-  
+    int nplaces_;
   };
 
   /** A constant distribution maps every point in its underlying region to the same place.
@@ -87,11 +101,11 @@ namespace x10lib {
   {
   public:
  
-    ConstDist (const Region<RANK>* region, const x10_place_t p) :
-      Dist<RANK> (region, new x10_place_t (p)) {}
+    ConstDist (const Region<RANK>* region, x10_place_t* p) :
+      Dist<RANK> (region, p, 1) {}
 
     ConstDist (const ConstDist<RANK>& other) :
-      Dist<RANK> (other.region_, other.places_) 
+      Dist<RANK> (other.region_, other.places_, 1) 
     {
 
     } 
@@ -105,6 +119,10 @@ namespace x10lib {
       return this->places_[0];
     }
 
+    virtual int card() const {
+      return this->region_->card();
+    }
+
   };
 
 
@@ -116,17 +134,17 @@ namespace x10lib {
 
     UniqueDist () :
       Dist<RANK>(new RectangularRegion<RANK>(Point<RANK>(x10lib::__x10_num_places-1)))
-      {
-      } 
- 
-    UniqueDist (const Region<RANK>* region, x10_place_t* places) :
-      Dist<RANK> (region, places)
     {
-       
+    } 
+    
+    UniqueDist (const Region<RANK>* region, x10_place_t* places) :
+      Dist<RANK> (region, places, __x10_num_places)
+    {
+      
     }
 
     UniqueDist (const UniqueDist<RANK>& other) :
-      Dist<RANK> (other.region_, other.places_) 
+      Dist<RANK> (other.region_, other.places_, __x10_num_places) 
     {
 
     } 
@@ -139,6 +157,10 @@ namespace x10lib {
     const x10_place_t place (const Point<RANK>& p) const 
     {
       return this->places_[this->region_->ord (p)];
+    }
+    
+    virtual int card() const {
+      return  1;
     }
   };
   

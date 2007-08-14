@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: alloc.h,v 1.5 2007-06-27 12:22:55 ganeshvb Exp $ */
+/* $Id: alloc.h,v 1.6 2007-08-14 12:27:48 ganeshvb Exp $ */
 
 #ifndef __ALLOC_H__
 #define __ALLOC_H__
@@ -31,6 +31,7 @@ namespace x10lib{
 
     Allocator(size_t size)  :
       offset_(0),
+      prev_offset_(0),
       size_(size)
     { 
       pointer_ = new char[size];
@@ -46,6 +47,7 @@ namespace x10lib{
     char* chunk (size_t size)
     {
       char* ret =  pointer_ + offset_;
+      prev_offset_ = offset_;
       offset_ += size;
     
       return ret;
@@ -60,6 +62,11 @@ namespace x10lib{
     {
       return offset_;
     }
+    
+    const uint64_t prev_offset() const
+    {
+      return prev_offset_;
+    }
 
     ~Allocator()
     {
@@ -72,6 +79,7 @@ namespace x10lib{
     char* pointer_;
     void** addrTable_;
     uint64_t offset_;
+    uint64_t prev_offset_;
     size_t size_;
   };
 }
