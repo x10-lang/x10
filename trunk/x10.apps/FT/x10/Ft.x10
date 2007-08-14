@@ -124,7 +124,7 @@ public final value Ft {
 			finish for (point [i]: UNIQUE) { //changed to for from ateach on Aug 14, 2007
 				//int a = i*m_localSize, b = (i+1)*m_localSize-1;
 				//m_array[i] = new DoubleArray(a, b, offset);
-				m_array[i] = new DoubleArray(m_localSize, offset, place.factory.place(i));
+				m_array[i] = new DoubleArray(m_localSize, offset, UNIQUE[i]);
 			}
 		}
 	}
