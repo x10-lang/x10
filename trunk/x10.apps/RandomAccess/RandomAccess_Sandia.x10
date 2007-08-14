@@ -101,7 +101,7 @@ public class RandomAccess_Sandia {
 	private final static long POLY = 0x0000000000000007;
 	private final static long PERIOD = 1317624576693539401L;
 
-	private final static dist UNIQUE=dist.factory.unique();//dist.UNIQUE;
+	private final static dist UNIQUE=dist.UNIQUE;
 	private final static int NUMPLACES=place.MAX_PLACES;
 	private final static int PLACEIDMASK=NUMPLACES-1;
 	/*
