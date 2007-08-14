@@ -23,6 +23,8 @@ class Frame;
 class Pool;
 class Closure;
 class PosixLock;
+class Executable;
+class Job;
 
 class FrameGenerator {
 public:
@@ -38,10 +40,10 @@ const int SLEEP_NANOS_PER_SCAN = 0;
 class Worker {
 private:
 	bool checkedIn;
-	Closure *getTask(bool mainLoop);
+	Executable *getTask(bool mainLoop);
 	Closure *getTaskFromPool(Worker *sleeper);
 	void wakeup();
-
+	bool jobRequiresGlobalQuiescence;
 
  public:
 
@@ -58,6 +60,7 @@ protected:
 	Closure *closure;
 	Pool *pool;
 	PosixLock *lock_var; // dequeue_lock
+	Job *job;
 	
 	int rand();
 	void setRandSeed(int seed);
@@ -104,9 +107,9 @@ public:
 	//void abortOnSteal(Object x) throw StealAbort;
 	void pushIntUpdatingInPlace(int x) ;
 	void setFrameGenerator(FrameGenerator *x);
-	void checkOutSteal(Closure *cl, Worker *victim);
+	void checkOutSteal(Executable *cl, Worker *victim);
 	void checkIn();
-	void checkOut(Closure *cl);
+	void checkOut(Executable *cl);
 	bool isActive() const;
 	Closure *currentJob() const;
 	void addBottom(Worker *ws, Closure *cl);
@@ -115,8 +118,9 @@ public:
 	Closure *extractBottom(Worker *ws);
 	Closure *peekTop(Worker *agent, Worker *subject);
 	Closure *extractTop(Worker *ws);
-	Closure *steal(Worker *thief, bool retry);
-
+	Executable *steal(Worker *thief, bool retry);
+	Executable *stealFrame(Worker *thief, bool retry);
+	void setJob(Job *currentJob);
 };
 }
 #endif

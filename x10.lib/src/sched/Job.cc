@@ -31,10 +31,10 @@ Closure *JobFrame::makeClosure() {
 	return NULL;
 }
 void JobFrame::setOutletOn(Closure *c) {
-#warning "Object created here. Should deallocate somewhere!"
-	ResultOutlet *t = new ResultOutlet(c, this);
-	assert(t != NULL);
-	c->setOutlet(t);
+  /*Outlets are deleted by the closures to which they are attached*/
+  ResultOutlet *t = new ResultOutlet(c, this);
+  assert(t != NULL);
+  c->setOutlet(t);
 }
 		
 JobFrame *JobFrame::copy() { return new JobFrame(*this); }

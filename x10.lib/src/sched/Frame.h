@@ -11,12 +11,13 @@
 #define x10lib_Frame_h
 
 #include "Sys.h"
+#include "Executable.h"
 
 namespace x10lib_cws {
 
 class Closure;
 
-class Frame {
+class Frame : public Executable {
  public:
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
   static volatile int nCons, nDestruct;
@@ -55,6 +56,8 @@ public:
   virtual void setInt(int x);
   virtual Frame *copy() = 0; //should be implemented by sub-classes
 
+  void compute(Worker *ws);
+  Executable *execute(Worker *w);
 };
 
 }
