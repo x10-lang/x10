@@ -381,9 +381,9 @@ public :  void solve() {
   if (__x10_my_place == 0) 
     {
       Planes2d = new DistDoubleArray (MAX_PADDED_SIZE, OFFSET);
-      Planes1d = new DistDoubleArray (MAX_PADDED_SIZE, OFFSET);
-      V = new DistDoubleArray (MAX_PADDED_SIZE, OFFSET);
-      ex = new DistDoubleArray (MAX_PADDED_SIZE, OFFSET);
+      Planes1d = new DistDoubleArray (MAX_PADDED_SIZE, 0);
+      V = new DistDoubleArray (MAX_PADDED_SIZE, 0);
+      ex = new DistDoubleArray (MAX_PADDED_SIZE, 0);
       
       Planes2d->serialize (buf, offset);
       Planes1d->serialize (buf, offset);
@@ -562,8 +562,8 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
 	
 	Array<double, 1> * local1darray = dist1d.getArray(destID).m_array; 
 
-	//	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, NULL);
-	asyncArrayCopy (local2darray, Point<1> (srcStart), local1darray, Point<1> (destStart), destID, 2 * dim1, c);
+	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, NULL);
+	//asyncArrayCopy (local2darray, Point<1> (srcStart), local1darray, Point<1> (destStart), destID, 2 * dim1, c);
       }
     
   }
