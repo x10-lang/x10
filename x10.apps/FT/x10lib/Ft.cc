@@ -50,8 +50,6 @@ struct __async__0__args
 void __async__0 (__async__0__args args);
 
 
-
-
 place PLACE (x10lib::here());
 
 static int CS = 0;
@@ -114,7 +112,7 @@ public:
     return *this;
   }
 
-  DoubleArray (int size, int offset) 
+  DoubleArray (int size, int offset, int proc) 
   {
     m_length = size;
     m_offset = offset;
@@ -122,20 +120,20 @@ public:
     m_start = 0;
     m_end = size-1;
 
-    m_array = makeArrayLocal <double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
+    m_array = makeArrayRemote <double, 1, RectangularRegion, ConstDist> (m_domain, NULL, proc);
   }
 
-  DoubleArray (int start, int end, int offset) 
-  {
-    m_length = end-start+1;
-    m_offset = offset;
-    m_domain = new RectangularRegion<1> (start-offset, end);
-    m_start = 0;
-    m_end = end;
+  //  DoubleArray (int start, int end, int offset) 
+  // {
+//     m_length = end-start+1;
+//     m_offset = offset;
+//     m_domain = new RectangularRegion<1> (start-offset, end);
+//     m_start = 0;
+//     m_end = end;
 
 
-    m_array = makeArrayLocal <double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
-  }     
+//     m_array = makeArrayLocal <double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
+//   }     
 };
 
 public : class DistDoubleArray 
@@ -146,45 +144,67 @@ public : class DistDoubleArray
 
     static const int N_PLACES;
 
-    Array<DoubleArray, 1>* m_array;
+    //    Array<DoubleArray, 1>* m_array;
+
+    DoubleArray* m_array;
     int m_size;
     int m_localSize;
     
     DoubleArray getArray (int idx) const
       {        
-	return m_array->getLocalElementAt (idx);
+	return m_array[idx];
       }
     
     DistDoubleArray (const int size, const int offset) 
     {	
       m_size = size;
-
-      //      cout << N_PLACES << endl;
       m_localSize = size / N_PLACES;	
 
+      //m_array = makeArrayLocal <DoubleArray, 1, RectangularRegion, UniqueDist> (ALLPLACES->region(), NULL);
 
-      m_array = makeArrayLocal <DoubleArray, 1, RectangularRegion, UniqueDist> (ALLPLACES->region(), ALLPLACES);
+      m_array = new DoubleArray [ALLPLACES->region()->card()];
       
-      CS = finishStart (CS);
-      int a = PLACE.HERE * m_localSize;
-      int b =  (PLACE.HERE+1) * m_localSize - 1;     
-            
-      m_array->getLocalElementAt (PLACE.HERE) = *(new DoubleArray (m_localSize, offset));      
-            
-      finishEnd (NULL);
-
-      
-      //This will go away.
-      CS = finishStart(CS);
-      //caching
-      for (int i  = 0; i < N_PLACES; i++) {
-	if ( i == PLACE.HERE) continue;
-	m_array->getLocalElementAt (i) = m_array->getRemoteElementAt (Point<1>(i));
-      }             
-      finishEnd (NULL);
-
-
+      for (int i = 0; i < ALLPLACES->region()->card(); i++)
+	m_array[i] = *(new DoubleArray (m_localSize, offset, i));  
     }
+
+    void serialize (char* buf, int& offset) const
+    {       
+      memcpy (buf + offset, &m_array, sizeof(m_array));
+      offset += sizeof(m_array);
+      memcpy (buf + offset, &m_size, sizeof(m_size));
+      offset += sizeof(m_size);
+      memcpy (buf + offset, &m_localSize, sizeof(m_localSize));      
+      offset += sizeof(m_localSize);
+      
+      //this should be called transitively on DoublArray.
+      //For the moment, this suffices.
+      for (int i = 0; i < ALLPLACES->region()->card(); i++)
+	{
+	  memcpy (buf + offset, &(m_array[i]), sizeof(m_array[i]));
+	  offset += sizeof(m_array[i]);
+	}
+    }
+    
+    DistDoubleArray (char* buf, int& offset)
+    {       
+      memcpy (&m_array, buf + offset, sizeof(m_array));
+      offset += sizeof(m_array);
+      memcpy (&m_size, buf + offset, sizeof(m_size));
+      offset += sizeof(m_size);
+      memcpy (&m_localSize, buf + offset, sizeof(m_localSize));      
+      offset += sizeof(m_localSize);
+      
+      m_array = new DoubleArray [ALLPLACES->region()->card()];
+      
+      //this should be called transitively on DoublArray.
+      //For the moment, this is sufficient.
+      for (int i = 0; i < ALLPLACES->region()->card(); i++)
+	{
+	  memcpy (&(m_array[i]), buf + offset, sizeof(m_array[i]));
+	  offset += sizeof(m_array[i]);
+	}
+    }       
 };
   
 friend void __async__0 (__async__0__args args);
@@ -280,9 +300,15 @@ public :  Ft( int type, int comm) :
   dims[0] = NX; dims[1] = NY+CPAD_COLS; dims[2] = NZ;
   dims[3] = NY; dims[4] = NZ+CPAD_COLS; dims[5] = NX;
   dims[6] = NZ; dims[7] = NX+CPAD_COLS; dims[8] = NY;
-  checksum_real =  new double [MAX_ITER];// (point p) {return 0;};
-  checksum_imag =  new double [MAX_ITER];// (point p) {return 0;};
-   
+  checksum_real =  new double [MAX_ITER];
+  for (int i = 0; i < MAX_ITER; i++)
+    checksum_real[i] = 0;
+
+  checksum_imag =  new double [MAX_ITER];
+  for (int i = 0; i < MAX_ITER; i++)
+    checksum_imag[i] = 0;
+  
+  
   //FFTWTest(); //the name of dll has to begin with lower case!!!
   }
  
@@ -342,13 +368,41 @@ public: static int getowner (int x, int y, int z)
     Ft_getowner (x, y, z);
   }
   
-public :  void solve(){
-   
-  const DistDoubleArray Planes2d (MAX_PADDED_SIZE, OFFSET);
-  const DistDoubleArray Planes1d (MAX_PADDED_SIZE, 0);
-  const DistDoubleArray V (MAX_PADDED_SIZE, 0);
-  const DistDoubleArray ex (TOTALSIZE, 0);
-   
+public :  void solve() {
+
+  int size = 4*(sizeof(DistDoubleArray) + NUMPLACES * sizeof(DoubleArray)); 
+  char buf[size];
+  int offset = 0;
+  const DistDoubleArray* Planes2d;
+  const DistDoubleArray* Planes1d;
+  const DistDoubleArray* V;
+  const DistDoubleArray* ex;
+  
+  if (__x10_my_place == 0) 
+    {
+      Planes2d = new DistDoubleArray (MAX_PADDED_SIZE, OFFSET);
+      Planes1d = new DistDoubleArray (MAX_PADDED_SIZE, OFFSET);
+      V = new DistDoubleArray (MAX_PADDED_SIZE, OFFSET);
+      ex = new DistDoubleArray (MAX_PADDED_SIZE, OFFSET);
+      
+      Planes2d->serialize (buf, offset);
+      Planes1d->serialize (buf, offset);
+      V->serialize (buf, offset);
+      ex->serialize (buf, offset);
+    }
+  
+  SyncGlobal();
+  
+  Broadcast (buf, size, 0);
+  
+  if (__x10_my_place != 0)
+    {
+      offset = 0;
+      Planes2d = new DistDoubleArray (buf, offset);
+      Planes1d = new DistDoubleArray (buf, offset);
+      V = new DistDoubleArray (buf, offset);
+      ex = new DistDoubleArray (buf, offset);
+    }
    
   /* passing constants to C, which are stored as external variables */		  
   initializeC (NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
@@ -366,29 +420,31 @@ public :  void solve(){
    
   //clockNext (clk, 1);
      
-  const DoubleArray local_ex =   ex.getArray(PID);
+  const DoubleArray local_ex =   ex->getArray(PID);
   
-  const DoubleArray localPlanes2d = Planes2d.getArray(PID);
+  const DoubleArray localPlanes2d = Planes2d->getArray(PID);
   
-  const DoubleArray localPlanes1d = Planes1d.getArray(PID);
+  const DoubleArray localPlanes1d = Planes1d->getArray(PID);
 
-  const DoubleArray local_V = V.getArray(PID);
+  const DoubleArray local_V = V->getArray(PID);
    
   FFTInit(FT_COMM, BASE_PTR(localPlanes2d.m_array), BASE_PTR(localPlanes1d.m_array), PID);
 
-  clockNext (clk, 1);
+
   init_exp(BASE_PTR(local_ex.m_array), 1.0e-6, PID);
 
   /*
    * Run the entire problem once to make sure all the data is touched. This
    * reduces variable startup costs, which is important for short benchmarks
    */
+
+  //clockNext (clk, 1);
   
   computeInitialConditions(BASE_PTR(localPlanes2d.m_array), PID);
   
-  //clockNext (clk, 1);
+  clockNext (clk, 1);
 
-  FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
+  FFT2DComm(localPlanes2d, *Planes1d, FFT_FWD, current_orientation, PID, clk);
 
   clockNext (clk, 1);
 
@@ -401,13 +457,13 @@ public :  void solve(){
 
   current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
 
-  //  clockNext (clk, 1);
-
   computeInitialConditions(BASE_PTR(localPlanes2d.m_array), PID);
 
   init_exp(BASE_PTR(local_ex.m_array), 1.0e-6, PID);
 
-  FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
+  clockNext (clk, 1);
+
+  FFT2DComm(localPlanes2d, *Planes1d, FFT_FWD, current_orientation, PID, clk);
   
   clockNext (clk, 1);
 
@@ -417,33 +473,26 @@ public :  void solve(){
    
   current_orientation = switch_view(current_orientation, PID);
 
-  //clockNext (clk, 1);
-
   int saved_orientation = current_orientation;
    
   for (int iter = 1; iter <= MAX_ITER; iter ++){
-
+    
     current_orientation = set_view(saved_orientation, PID);
-
-    //clockNext (clk, 1);
-
+        
     parabolic2(BASE_PTR(localPlanes2d.m_array), BASE_PTR(local_V.m_array), BASE_PTR(local_ex.m_array), iter, 1.0e-6);
-
-    FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk);
-
+    
+    FFT2DComm(localPlanes2d, *Planes1d, FFT_BWD, current_orientation, PID, clk);
+    
     clockNext (clk, 1);
-
+    
     FT_1DFFT(FT_COMM, BASE_PTR(localPlanes1d.m_array), BASE_PTR(localPlanes2d.m_array), 1, FFT_BWD, current_orientation, PID);
 
     current_orientation = switch_view(current_orientation, PID);
-
-    checksum_real[iter-1] = 0.0;
-    checksum_imag[iter-1] = 0.0;
-
-    clockNext (clk, 1);
-
+    
+    //clockNext (clk, 1);
+    
     checksum(localPlanes2d, PID, iter);
-
+    
     clockNext (clk, 1);
 
     if (PID == 0){ 
@@ -591,7 +640,6 @@ public :  void printArray(const DistDoubleArray DDA){
    
 public : static void  main (x10::array<x10::ref<x10::lang::String> >& args) {
   
-
   if (NUMPLACES>1 &&!(NUMPLACES/2 != (NUMPLACES/2*2))){
     cout << "The number of places must be even." << endl; 
     return;
