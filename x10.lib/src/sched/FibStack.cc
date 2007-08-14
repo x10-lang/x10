@@ -296,8 +296,8 @@ int main(int argc, char *argv[]) {
   const int nReps = atoi(argv[2]);
   const int ni = atoi(argv[3]);
   //cout<<"Number of procs=" << procs <<" nReps="<<nReps<<endl;
-  if (argc > 2) 
-    Worker::reporting = true;
+//   if (argc > 2) 
+//     Worker::reporting = true;
 
 //   int points[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40};
     
@@ -322,7 +322,7 @@ int main(int argc, char *argv[]) {
     /*cout<<"Fib("<<n<<")\t="<<result<<"\t"<<
       FibC::realfib(n)<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;*/
     
-    cout<<"C++CWS Fib("<<n<<")" << "\t" <<(t-s)/1000000/nReps<<" ms" << "\t"
+    cout<<"C++CWS Fib("<<n<<")" << "\t" <<(t-s)/1000/nReps<<" us" << "\t"
     	<< ((result == FibC::realfib(n)) ? "ok" : "fail" )
     	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
         << "\t" << "stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;

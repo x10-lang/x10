@@ -257,16 +257,17 @@ protected:
 int main(int argc, char *argv[]) {
   int result;
 
-  if(argc < 3) {
-    printf("Usage: %s <threads> <nReps> \n", argv[0]);
+  if(argc < 4) {
+    printf("Usage: %s <threads> <nReps> <input-number> \n", argv[0]);
     exit(0);
   }
 
   const int procs = atoi(argv[1]);
   const int nReps = atoi(argv[2]);
-  cout<<"Number of procs=" << procs <<" nReps="<<nReps<<endl;
-  if (argc > 2) 
-    Worker::reporting = true;
+  const int ni = atoi(argv[3]);
+  //cout<<"Number of procs=" << procs <<" nReps="<<nReps<<endl;
+//   if (argc > 2) 
+//     Worker::reporting = true;
 
 //   int points[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40};
     
@@ -275,8 +276,8 @@ int main(int argc, char *argv[]) {
   assert(g != NULL);
 
   long sc = 0, sa = 0;
-  for (int n = 0; n <= 40; n+=5) {
-	  
+  //for (int n = 0; n <= 40; n+=5) {
+  int n = ni;
 	  
     long long s = nanoTime();
     for(int j=0; j<nReps; j++) {
@@ -290,7 +291,7 @@ int main(int argc, char *argv[]) {
 //     cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<
 //       FibC::realfib(points[i])<<"\t Time="<<(t-s)/1000000<<"ms"<<endl;
     cout<<"Fib("<<n<<")\t="<<result<<"\t"<<
-      FibC::realfib(n)<<"\t Time="<<(t-s)/1000000/nReps<<"ms"<< " steals="<< ((g->getStealCount()-sc)/nReps)
+      FibC::realfib(n)<<"\t Time="<<(t-s)/1000/nReps<<"us"<< " steals="<< ((g->getStealCount()-sc)/nReps)
       << " stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
     sc=g->getStealCount();
     sa=g->getStealAttempts();
@@ -299,7 +300,7 @@ int main(int argc, char *argv[]) {
 //     long t = System.nanoTime();
 //     System.out.println(points[i] + " " + (t-s)/1000000 
 // 		       + " " + result + " " + (result==realfib(n)?"ok" : "fail") );
-  }
+    //}
   g->shutdown();
   delete g;
   
