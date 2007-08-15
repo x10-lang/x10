@@ -96,6 +96,7 @@ public:
 	virtual void setupReturn(Worker *w);
 	virtual void setupGQReturnNoArg(Worker *w);
 	virtual void setupGQReturn(Worker *w);
+	virtual void setupGQReturnNoArgNoPop(Worker *w);
 		
 	virtual void setResultFloat(float x);
 	virtual void accumulateResultFloat(float x);

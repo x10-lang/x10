@@ -79,7 +79,7 @@ public:
 	//UncaughtExceptionHandler *setUncaughtExceptionHandler(UncaughtExceptionHandler *h);
 	int getPoolSize() const;
 	int activeOnJob() const;
-	bool isShutdown() const;
+	bool isShutdown() volatile;
 	bool isTerminated() const;
 	void shutdown();
 	void shutdownNow();

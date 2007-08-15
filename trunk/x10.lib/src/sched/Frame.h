@@ -56,8 +56,8 @@ public:
   virtual void setInt(int x);
   virtual Frame *copy() = 0; //should be implemented by sub-classes
 
-  void compute(Worker *ws);
-  Executable *execute(Worker *w);
+  virtual void compute(Worker *ws);
+  virtual Executable *execute(Worker *w);
 };
 
 }

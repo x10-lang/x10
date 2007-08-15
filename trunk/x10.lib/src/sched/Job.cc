@@ -170,3 +170,7 @@ void GloballyQuiescentJob::compute(Worker *w, Frame *frame) {
 			setupGQReturn(w);
 }
 
+
+
+/*------------------------GloballyQuiescentVoidJob----------------*/
+

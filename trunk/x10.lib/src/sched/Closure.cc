@@ -113,7 +113,6 @@ void Closure::removeChild(Closure *child) {
 	 * @return the child closure
 	 */
 Closure *Closure::promoteChild(Worker *thief, Worker *victim) {
-		
 		assert(lockOwner == thief);
 		assert(status == RUNNING);
 		assert(ownerReadyQueue == victim);
@@ -559,7 +558,15 @@ void Closure::setupGQReturn(Worker *w) {
 		w->unlock();
 		
 }
-	
+
+void Closure::setupGQReturnNoArgNoPop(Worker *w) {
+  w->lock(w);
+  w->extractBottom(w);
+  assert(status == RUNNING);
+  status = RETURNING;
+  w->unlock();
+}
+
 	
 void Closure::setOutlet(Outlet *o) { outlet=o;}
 /** Replace the frame by a copy. 
@@ -622,6 +629,7 @@ double Closure::resultDouble() { assert(0); abort(); return 0.0;}
 void Closure::setResultObject(void *x) {assert(0); abort();}
 void *Closure::resultObject() { assert(0); abort(); return NULL; }
 bool Closure::requiresGlobalQuiescence() /*volatile*/ {  
+  if(dynamic_cast<GloballyQuiescentJob*>(this)) return true;
 	if (dynamic_cast<Closure *>(this)) return false;
 	else if (dynamic_cast<Job *>(this)) return false;
 	// if its a GloballyQuiescentjob -- TODO later on -- make it more appropriate
