@@ -155,12 +155,12 @@ Executable *Worker::steal(Worker *thief, bool retry) {
       assert(child != NULL);
       res = extractTop(thief);
       assert(res != NULL);
-//       cerr<<thief->index<<"::Stealing: victim top="<<res<<" bottom="<<bottom<<endl;
+      //cerr<<thief->index<<"::Stealing: victim top="<<res<<" bottom="<<bottom<<endl;
       /*if (reporting)
 	System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
       thief->checkOutSteal(res, victim); //?????????????sriram TODO: checkoutsteal?
       assert(cl==res);
-			
+
       unlock();
 			
       cl->finishPromote(thief, child);
@@ -218,7 +218,11 @@ Executable *Worker::stealFrame(Worker *thief, bool retry) {
     frame = cache->topFrame();
     assert(frame != NULL);
 
+#if 0
     frame = frame->copy();
+#else
+#warning "GQ: Commenting out a frame copy. check it"
+#endif
     cache->incHead();
     //I have work now, so checkout of the barrier.
     thief->checkOutSteal(frame, victim);
@@ -441,8 +445,8 @@ Executable *Worker::getTask(bool mainLoop) {
 	if ((sleeper == NULL) && // first sleeping worker
 	    victim->sleepStatus== SLEEPING)
 	  sleeper=victim;
-					
       } else {
+	//cerr<<index<<":: stole from "<<victim->index<<endl;
 	idleScanCount = -1;
 	++stealCount;
 	if (sleeper != NULL)
@@ -460,7 +464,11 @@ Executable *Worker::getTask(bool mainLoop) {
 				
     }
   }
-  return mainLoop? this->getTaskFromPool(sleeper) : NULL;
+  //cerr<<index<<":: here. mainLoop="<<mainLoop<<" sleeper="<<sleeper<<endl;
+  Executable *x = mainLoop? this->getTaskFromPool(sleeper) : NULL;
+  //cerr<<index<<":: here 1. mainLoop="<<mainLoop<<" cl="<<x<<endl;
+
+  return x;
 }
 
 void Worker::setJob(Job *currentJob) {
@@ -469,10 +477,9 @@ void Worker::setJob(Job *currentJob) {
   if (currentJob==NULL) return;
   assert(currentJob != NULL);
 
-  if (this->job != currentJob) {
-    this->job = currentJob;
-    jobRequiresGlobalQuiescence = currentJob->requiresGlobalQuiescence();
-  }
+  //cerr<<index<<":: setting info for new job"<<endl;
+  this->job = currentJob;
+  jobRequiresGlobalQuiescence = currentJob->requiresGlobalQuiescence();
 }
 
 
@@ -483,14 +490,19 @@ void Worker::setJob(Job *currentJob) {
      * @param sleeper a worker noticed to be sleeping while scanning
      */
 Closure *Worker::getTaskFromPool(Worker *sleeper) {
+  //cerr<<index<<":: gtfrompool. here 1"<<endl;
   Closure *job = pool->getJob();
+  //cerr<<index<<":: gtfrompool. here 2"<<endl;
   if (job != NULL) {
+    //cerr<<index<<":: found non-null job"<<endl;
     idleScanCount = -1;
     if (sleeper != NULL)
       sleeper->wakeup();
     checkOut(job);
     return job;
   }
+
+  //cerr<<"Invoking gettaskfrompool"<<endl;
   setJob(pool->currentJob);
 
   if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
@@ -554,7 +566,10 @@ void Worker::run() {
   Executable *cl = NULL; //frame or closure.
   int yields = 0;
   while (!done) {
-			
+
+    if(pool->currentJob)
+      jobRequiresGlobalQuiescence = pool->currentJob->requiresGlobalQuiescence();
+
     if (cl == NULL) {
       // Addition for GlobalQuiescence. Keep popping
       // tasks off the deque and executing them until
@@ -573,6 +588,7 @@ void Worker::run() {
 	  catchAllException();
 	}
       } else {
+	//cerr<<index<<":: no GQ"<<endl;
 	//Try geting work from the local queue.
 	lock(this);
 	cl = extractBottom(this);
@@ -583,8 +599,11 @@ void Worker::run() {
       }
     }
 
-    if (cl == NULL) 	
+    if (cl == NULL) {
+      //cerr<<"Getting task"<<endl;
       cl = getTask(true);
+      //cerr<<"Got task "<<cl<<" reqGQ="<<jobRequiresGlobalQuiescence<<endl;
+    }
 			
     if (cl !=NULL) {
       // Found some work! Execute it.
@@ -604,15 +623,17 @@ void Worker::run() {
       // Otherwise, head might increase on a steal, but would
       // never decrease.
       if(!jobRequiresGlobalQuiescence) {
-	assert(cache->empty());
+// 	assert(cache->empty());
 	cache->reset();
       }
     } else if(pool->isShutdown()) {
+      //cerr<<index<<":: shutting down"<<endl;
     	
       /* sriramk: If pool says shutdown, shutdown. Global
        * termination is someone else's problem*/ 
       return;
     } else {
+      //cerr<<index<<":: yielding"<<endl;
       yields++;
       sched_yield(); // TODO RAJ
     }

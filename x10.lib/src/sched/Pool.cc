@@ -55,6 +55,7 @@ void Pool::callBackFunc::each_thread(Pool *p,int d)
      else
       ws->run((Closure *) NULL);*/
     ws->run();
+    //cerr<<id<<":: returned from Worker::run()"<<endl;
 }
 
 void *Pool::each_thread_wrapper(void *arg) {
@@ -82,6 +83,7 @@ public:
     if (p->currentJob != NULL && 
 	p->currentJob->requiresGlobalQuiescence()) {
        p->currentJob->completed();
+       p->currentJob->jobCompleted();
     }
     p->currentJob = NULL;
   }
@@ -196,7 +198,7 @@ int Pool::activeOnJob() const {
     	return activeOnJobAtomic;
 }
 
-bool Pool::isShutdown() const {
+bool Pool::isShutdown() volatile {
         return runState >= SHUTDOWN;
 }
 
@@ -218,15 +220,23 @@ void Pool::initFrameGenerator(FrameGenerator *fg) {
      */
 void Pool::shutdown() {
         // todo security checks??
-        PosixLock *l = this->lock_var;
-        l->lock_wait_posix();
+  PosixLock *l = this->lock_var;
+  l->lock_wait_posix();
 
-        if (runState < SHUTDOWN) {
-	  runState = SHUTDOWN;
+  if (runState < SHUTDOWN) {
+    runState = SHUTDOWN;
 	  MEM_BARRIER(); // for volatile update -- TODO RAJ
-        }
-        l->lock_signal_posix();
+  }
+  l->lock_signal_posix();
 	// TODO Would you like to join all the ptrheads
+	//cerr<<"Waiting for threads to join"<<endl;
+    	for(int i=0; i<workers.size(); i++) {
+	  lock_var->lock_wait_posix();
+	  pthread_cond_broadcast(&work);
+	  lock_var->lock_signal_posix();
+	  int res = pthread_join(id[i], NULL);
+	  if(res) cerr<<"Could not join with thread!"<<endl;
+	}
 }
 
     /**
@@ -387,24 +397,26 @@ void Pool::tryTerminate() const {
 }
 Closure *Pool::getJob() {
         
-        lock_var->lock_wait_posix();
-        //try {
-        	Job *task = jobs->poll();
-        	if (task == NULL && activeJobs == 0) {
-        		//work.await(); // TODO RAJ
-        		pthread_cond_wait(&work,&(this->lock_var->posix_lock_var));
-        		task=jobs->poll();
-        	}
-        	if (task != NULL) {
-        		++ activeJobs;
-        		currentJob = task;
-						MEM_BARRIER(); // Let the update be visible to everyone -- TODO RAJ
-        		//work.signalAll(); // TODO RAJ
-        		pthread_cond_broadcast(&work);
-        	}
-        //} catch(InterruptedException e) { return NULL; }
-        lock_var->lock_signal_posix();
-        return task;
+  lock_var->lock_wait_posix();
+
+  Job *task = jobs->poll();
+  if (task == NULL && activeJobs == 0) {
+    //work.await(); // TODO RAJ
+    //cerr<<"waiting on condition"<<endl;
+    pthread_cond_wait(&work,&(this->lock_var->posix_lock_var));
+    //cerr<<"woke up from condition"<<endl;
+    task=jobs->poll();
+  }
+  if (task != NULL) {
+    ++ activeJobs;
+    currentJob = task;
+    MEM_BARRIER(); // Let the update be visible to everyone -- TODO RAJ
+    //work.signalAll(); // TODO RAJ
+    pthread_cond_broadcast(&work);
+  }
+  //} catch(InterruptedException e) { return NULL; }
+  lock_var->lock_signal_posix();
+  return task;
 }
 
 

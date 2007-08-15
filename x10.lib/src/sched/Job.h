@@ -126,6 +126,28 @@ public:
 	virtual ~GloballyQuiescentJob(){}
 };
 
+class GloballyQuiescentVoidJob : public GloballyQuiescentJob {
+ public:
+  GloballyQuiescentVoidJob(Pool *pool, Frame *f)
+    : GloballyQuiescentJob(pool, f) {}
+  
+ protected:
+  void compute(Worker *w, Frame *frame) { 
+    frame->compute(w);
+    // The completion of the job might leave behind work (frames).
+    // Do not pop the framestack.
+    setupGQReturnNoArgNoPop(w);
+  }
+  
+ public:
+  int spawnTask(Worker *ws) {
+    assert(0);
+    abort();
+    return 0;
+  }
+  virtual ~GloballyQuiescentVoidJob() {}
+};
+
 
 }
 #endif
