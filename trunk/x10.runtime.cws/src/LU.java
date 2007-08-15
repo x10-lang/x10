@@ -42,16 +42,25 @@
 				this.i=i;
 			}
 			public void run() {
-				while(true) {
-					for (int i=0; i < max(nx,ny); i++) 
-						for (int k=i; k <= i; k++) {
+				Block lastBlock = M.getLocal(px, py, nx-1, ny-1);
+				int iStart=0;
+				while(!lastBlock.ready) {
+					if(M.getLocal(px, py, iStart, iStart).ready) {
+						iStart += 1;
+					}
+outer:				for (int i=iStart; i < max(nx,ny); i++) 
+						for (int k=0; k <= i; k++) {
 							if ( k < ny) {
-								Block block = M.get(i,k);
+								Block block = M.getLocal(px, py, i,k);
 								if (! block.ready)
+									if(block.step()) break outer;
+							}
+							if ( k < nx) {
+								Block block = M.getLocal(px, py, k,i);
+								if (! block.ready)
+									if(block.step()) break outer;
 							}
 						}
-							
-						
 					}
 				}
 			}
@@ -104,24 +113,29 @@
 						A[i*B+i] = 20 * Math.random() + 10;
 				}
 			}
-			void step() {
+			boolean step() {
 				if (count == maxCount) {
 					if (I==J) LU();
 					else if (I < J) backSolve(M.get(I,I));
 					else lower(M.get(J,J));
 					ready = true;
-					return;
+					return true;
 				}
 				Block IBuddy = M.get(I, count), JBuddy = M.get(count,J);
 				if (IBuddy.ready && JBuddy.ready) {
 					dgemm(IBuddy, JBuddy);
 					count++;
-					return;
+					return true;
 				}
+				return false;
 			}
 				
 			void lower(Block diag) {
-				// modify in place.
+			     for (int i = 1; i < B; i++)
+			          for (int k = 0; k < i; k++)
+			        	  for(int j=0; j<B; j++) {
+			        		  
+			        	  }
 			}
 			void backSolve(Block diag) {
 				
@@ -171,7 +185,10 @@
 			Block get(int i, int j) {
 				return A[pord(i % px, j%py)][lord(i/px,j/py)];
 			}
-			
+
+			Block getLocal(int pi, int pj, int i, int j) {
+				return A[pord(pi,pj)][lord(i,j)];
+			}
 			void set(int i, int j, Block v) {
 				A[pord(i % px, j%py)][lord(i/px,j/py)] = v;
 			}
