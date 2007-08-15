@@ -132,12 +132,7 @@ class GloballyQuiescentVoidJob : public GloballyQuiescentJob {
     : GloballyQuiescentJob(pool, f) {}
   
  protected:
-  void compute(Worker *w, Frame *frame) { 
-    frame->compute(w);
-    // The completion of the job might leave behind work (frames).
-    // Do not pop the framestack.
-    setupGQReturnNoArgNoPop(w);
-  }
+  void compute(Worker *w, Frame *frame);
   
  public:
   int spawnTask(Worker *ws) {

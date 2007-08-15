@@ -79,7 +79,6 @@ class Cache {
   Frame *currentFrame()  ;
   void reset ();
   inline void popFrame () { 
-    assert(tail >= 0);
     --tail;
     //READ_BARRIER();
     MEM_BARRIER(); 

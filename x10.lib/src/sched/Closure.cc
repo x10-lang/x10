@@ -406,7 +406,7 @@ Closure *Closure::execute(Worker *w) {
 		    // load the cache from the worker's state.
 		    cache = w->cache;
 		    assert(cache!=NULL);
-		    cache->reset();
+		    //cache->reset();
 		    cache->pushFrame(frame);
 		    cache->resetExceptionPointer(w);
 			assert(f != NULL);
@@ -428,7 +428,6 @@ Closure *Closure::execute(Worker *w) {
 		
 		case RETURNING:
 		  unlock();
-		  //assert(!requiresGlobalQuiescence()); //SRIRAM: for now -- commented by RAJ
 		  res = returnValue(w);
 		  
 		  if(res) {

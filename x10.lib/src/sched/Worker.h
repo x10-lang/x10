@@ -50,7 +50,7 @@ private:
 	/*Managing exceptions. A simple mechanism to handle StealAbort
 	 * and stack unwinding for now*/
 	bool exception;
-	bool hasThrownException() const { return exception; }
+	bool hasThrownException() { return exception; }
 	void throwException() { exception = true; }
 
 protected:

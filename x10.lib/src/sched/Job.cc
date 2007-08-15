@@ -14,6 +14,7 @@
 #include "Frame.h"
 #include "Lock.h"
 #include "Closure.h"
+#include "Cache.h"
 #include "Worker.h"
 #include "Pool.h"
 #include "Sys.h"
@@ -173,4 +174,15 @@ void GloballyQuiescentJob::compute(Worker *w, Frame *frame) {
 
 
 /*------------------------GloballyQuiescentVoidJob----------------*/
+
+/*virtual*/ void 
+GloballyQuiescentVoidJob::compute(Worker *w, Frame *frame) { 
+  frame->compute(w);
+  w->catchAllException();
+  //w->cache->reset();
+  // The completion of the job might leave behind work (frames).
+  // Do not pop the framestack.
+  setupGQReturnNoArgNoPop(w);
+  //setupGQReturnNoArg(w);
+}
 
