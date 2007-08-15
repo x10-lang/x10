@@ -97,9 +97,9 @@ public:
     if(row >= boardSize) {
       return 1;
     }
-    //    NFrame f(a, length);
-    //NFrame *f = &f;
-    NFrame *frame = new NFrame(a, length);
+    NFrame f(a, length);
+    NFrame *frame = &f;
+    //NFrame *frame = new NFrame(a, length);
     frame->q = 0;
     frame->sum = 0;
     frame->PC = LABEL_1;
@@ -115,7 +115,8 @@ public:
 	attacked = ((q==p) || (q==p-(row-i)) || (q==p+(row-i)));
       }
       if(!attacked) {
-	int *next = new int[row+1];
+// 	int *next = new int[row+1];
+	int next[row+1];
 	assert(next != NULL);
 	for(int k=0; k<row; ++k) {
 	  next[k] = a[k];
@@ -132,6 +133,10 @@ public:
       //frame->q = q+1;      
     }
     w->popFrame();
+    if(w->cache->parentInterrupted()) {
+      w->lock(w);
+      w->unlock();
+    }
     return frame->sum;
   }
 

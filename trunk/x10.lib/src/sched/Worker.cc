@@ -218,7 +218,7 @@ Executable *Worker::stealFrame(Worker *thief, bool retry) {
     frame = cache->topFrame();
     assert(frame != NULL);
 
-#if 0
+#if 1
     frame = frame->copy();
 #else
 #warning "GQ: Commenting out a frame copy. check it"
@@ -582,6 +582,7 @@ void Worker::run() {
 	    assert(cache->empty());
 	    break;
 	  }
+
 	  f->compute(this);
 	  //Nothing much to do on exception. It just
 	  //unwound the stack as we wanted. 
@@ -612,18 +613,22 @@ void Worker::run() {
       /*if ( reporting) {
 	System.out.println(this + " executes " + cl +".");
 	}*/
-      cache->reset();
+      //cache->reset();
+      assert(cache->empty());
       Executable *cl1 = cl->execute(this);
       /*if ((reporting && bottom == cl)) {
 	System.out.println(this + " completes " + cl + " returns " + cl1 +".");
 	}*/
       cl=cl1;
-				
+
+      //cerr<<index<<":: H="<<cache->gethead()<<" T="<<cache->gettail()<<endl;
+      //assert(cache->empty());
+
       // vj: This avoids having to implement a wrap around.
       // Otherwise, head might increase on a steal, but would
       // never decrease.
       if(!jobRequiresGlobalQuiescence) {
-// 	assert(cache->empty());
+ 	assert(cache->empty());
 	cache->reset();
       }
     } else if(pool->isShutdown()) {
