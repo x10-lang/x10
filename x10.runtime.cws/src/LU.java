@@ -1,11 +1,13 @@
+/**
+  (C) IBM Corporation 2007.
 
-
+  @author Sriram Krishnamoorthy, sriramkr@watson.ibm.com
+  @author vj vijay@saraswat.org
+ */
 
 	public class LU {
 	
 		final TwoDBlockCyclicArray M;
-		
-	
 		
 		final int nx,ny,px,py,B;
 		/**
@@ -154,7 +156,6 @@ outer:				for (int i=iStart; i < max(nx,ny); i++)
 		 * A B*B array of doubles, whose top left coordinate is i,j).
 		 * get/set operate on the local coordinate system, i.e.
 		 * (i,j) is treated as (0,0).
-		 * @author VijaySaraswat
 		 *
 		 */
 		static class Block {
