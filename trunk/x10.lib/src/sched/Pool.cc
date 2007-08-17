@@ -231,11 +231,14 @@ void Pool::shutdown() {
 	// TODO Would you like to join all the ptrheads
 	//cerr<<"Waiting for threads to join"<<endl;
     	for(int i=0; i<workers.size(); i++) {
-	  lock_var->lock_wait_posix();
-	  pthread_cond_broadcast(&work);
-	  lock_var->lock_signal_posix();
-	  int res = pthread_join(id[i], NULL);
-	  if(res) cerr<<"Could not join with thread!"<<endl;
+	  if(workers[i] != NULL) {
+	    lock_var->lock_wait_posix();
+	    pthread_cond_broadcast(&work);
+	    lock_var->lock_signal_posix();
+	    int res = pthread_join(id[i], NULL);
+	    if(res) cerr<<"Could not join with thread!"<<endl;
+	  }
+	  workers[i] = NULL;
 	}
 }
 

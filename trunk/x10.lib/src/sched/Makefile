@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.20 2007-08-14 13:44:02 sriramk Exp $
+# $Id: Makefile,v 1.21 2007-08-17 06:37:55 sriramk Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -99,3 +99,5 @@ SpanCStack.x: SpanCStack.cc $(SCHED_A)
 SpanCArray.x: SpanCArray.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) SpanCArray.cc $(SCHED_A) -o SpanCArray.x
 
+lu.x:	lu-priority.cc
+	$(CXX) $(CXXFLAGS) $(DEFS) lu-priority.cc -lpthread -lblas
