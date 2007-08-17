@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.12 2007-06-27 17:06:57 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.13 2007-08-17 13:18:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,6 +15,7 @@
 #define X10_MAX_AGG_HANDLERS 10
 #define X10_MAX_AGG_TASKS 1024
 #define X10_MAX_AGG_SIZE 1024
+
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
@@ -37,6 +38,24 @@ namespace x10lib {
   x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
 					x10_async_handler_t hndlr,
 					void *args, size_t size);
+
+
+
+  x10_err_t asyncSpawnInlineAgg_hc(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					x10_async_arg_t arg0);
+
+  x10_err_t asyncSpawnInlineAgg_hc(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					x10_async_arg_t arg0, x10_async_arg_t arg1);
+
+  x10_err_t asyncFlush_hc(x10_async_handler_t hndlr, size_t size);
+
+  x10_err_t asyncSpawnInlineAgg_hc(x10_place_t tgt,
+					x10_async_handler_t hndlr,
+					void *args, size_t size);
+
+
 
 } /* closing brace for namespace x10lib */
 #endif

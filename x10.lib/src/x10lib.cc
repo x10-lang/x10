@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.14 2007-06-28 16:42:58 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.15 2007-08-17 13:18:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -12,7 +12,10 @@
 #include <memory.h>
 
 extern x10_err_t asyncRegister();
-extern x10_err_t asyncRegisterAgg();
+extern x10_err_t asyncAggInit();
+extern x10_err_t asyncAggFinalize();
+extern x10_err_t asyncAggInit_hc();
+extern x10_err_t asyncAggFinalize_hc();
 extern x10_err_t finishInit();
 extern void finishTerminate();
 extern void arrayInit();
@@ -91,7 +94,9 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 
         finishInit();
         asyncRegister();
-        asyncRegisterAgg();
+        //asyncRegisterAgg();
+        asyncAggInit();
+	asyncAggInit_hc();
         arrayInit();
  
         LAPI_Gfence (__x10_hndl);
@@ -110,18 +115,22 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 /* Termination */
 x10_err_t Finalize(void)
 {
-       finishTerminate();
-    
-	/* termination should be preceded by initialization */
-	if (!__x10_inited)
-		return X10_ERR_INIT;
-
-	/* terminate LAPI context */
-	(void)LAPI_Term(__x10_hndl);
-
-	/* reset X10Lib's init var */
-	__x10_inited = 0;
-	return X10_OK;
+  
+  finishTerminate();
+  asyncAggFinalize();
+  asyncAggFinalize_hc();
+  
+ 
+  /* termination should be preceded by initialization */
+  if (!__x10_inited)
+    return X10_ERR_INIT;
+  
+  /* terminate LAPI context */
+  (void)LAPI_Term(__x10_hndl);
+  
+  /* reset X10Lib's init var */
+  __x10_inited = 0;
+  return X10_OK;
 }
 
 /* Cleanup */
