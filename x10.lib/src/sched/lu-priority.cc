@@ -11,7 +11,7 @@ using namespace std;
 
 /*Need to actually match the fortran integer. Assume int for now and
   pray. Google blas dgemm to understand the arguments.  */ 
-typedef int Integer;
+typedef long Integer;
 
 extern "C" {
 void dgemm_(char *TRANSA, char *TRANSB, 
@@ -31,23 +31,23 @@ static double format(double v, int precision){
     scale *= 10;
   return ((int)(v*scale))*1.0/scale;
 }
-static int max(int a, int b) {
+static  int max(int a, int b) {
   return a > b ? a : b;
 }
-static double max(double a, double b) {
+static  double max(double a, double b) {
   return a > b ? a : b;
 }
-static double fabs(double v){
+/*static double fabs(double v){
   return  v > 0 ? v : -v;
-}
-static int min(int a, int b) {
+  }*/
+static  int min(int a, int b) {
   return a > b ? b : a;
 }
 static double flops(int n) {
   return ((4.0 *  n - 3.0) *  n - 1.0) * n / 6.0;
 }
 
-inline long long nanoTime() {
+ long long nanoTime() {
   struct timespec ts;
   // clock_gettime is POSIX!
   ::clock_gettime(CLOCK_REALTIME, &ts);
@@ -120,6 +120,22 @@ public:
     }
   }
   bool step();
+
+  int  ord(int i, int j) {
+    return i+j*B;
+  }
+  double  get(int i, int j) {
+    return A[ord(i,j)];
+  }
+  void  set(int i, int j, double v) {
+    A[ord(i,j)] = v;
+  }
+  void  negAdd(int i, int j, double v) {
+    A[ord(i,j)] -= v;
+  }
+  void  posAdd(int i, int j, double v) {
+    A[ord(i,j)] += v;
+  }
     
   void lower(Block *diag) {
     for(int i=0; i<B; i++)
@@ -157,12 +173,12 @@ public:
     double *mC = A;
 
     char transa = 'N', transb = 'N';
-    Integer M=B, N=B, K=B;
+    Integer m=B, n=B, k=B;
     double alpha = -1.0;
     Integer lda = B, ldb = B, ldc = B;
     double beta = 1.0;
 
-    DGEMM(&transa, &transb, &M, &N, &K, &alpha, mA, &lda,
+    DGEMM(&transa, &transb, &m, &n, &k, &alpha, mA, &lda,
 	  mB, &ldb, &beta, mC, &ldc);
 
 #endif
@@ -175,21 +191,6 @@ public:
 	for(int j=k+1; j<B; j++)
 	  negAdd(i,j, a*get(k,j));
       }
-  }
-  int ord(int i, int j) {
-    return i+j*B;
-  }
-  double get(int i, int j) {
-    return A[ord(i,j)];
-  }
-  void set(int i, int j, double v) {
-    A[ord(i,j)] = v;
-  }
-  void negAdd(int i, int j, double v) {
-    A[ord(i,j)] -= v;
-  }
-  void posAdd(int i, int j, double v) {
-    A[ord(i,j)] += v;
   }
 };
 
@@ -313,6 +314,10 @@ Block::step() {
 
 /*------------Worker-----------------------*/
 
+extern "C" {
+  static void *start_thread(void *arg);
+}
+
 /*a thread base class using pthreads*/
 class Thread {
 protected:
@@ -340,7 +345,7 @@ public:
 	 
     int res = pthread_create(&thread_id, 
 			     &attr,
-			     Thread::start_thread,
+			     start_thread,
 			     (void *) this);
     if (res) {cout << "could not create thread"; abort(); }
     joined = false;
@@ -352,13 +357,15 @@ public:
       abort();
     }
   }
-private:
+};
+
+extern "C" {
   static void *start_thread(void *arg) {
     Thread *th = static_cast<Thread *>(arg);
     th->run();
     return NULL;
   }
-};
+}
 
 class Worker : public Thread {
 public:
@@ -415,7 +422,9 @@ public:
     assert( M != NULL);
   }
 
-  void lu() {
+  /*Returns time between thread creation and termination (in
+    nanoseconds). This removes the thread creation overhead*/ 
+  long long lu() {
     Thread **workers = new Thread* [px*py];
     assert(workers != NULL);
 
@@ -424,12 +433,15 @@ public:
 	workers[i*py+j] = new Worker(i, j, M);
   
     for (int i=0; i < px*py; i++) workers[i]->start();
+    long long s = nanoTime();
     // run, run, score many runs.
     for (int i=0; i < px*py; i++) {
 	workers[i]->join();
 	delete workers[i];
     }
+    long long t = nanoTime();
     delete [] workers;
+    return (t-s);
   }
   
   bool verify(TwoDBlockCyclicArray *Input) {
@@ -479,7 +491,7 @@ int main(int argc, char *argv[]) {
 
   LU *lu = new LU(px,py,nx,ny,B);
 
-  TwoDBlockCyclicArray *A = lu->M->copy();
+//   TwoDBlockCyclicArray *A = lu->M->copy();
 
 //   LU *seqlu = new LU(1,1,1,1,N);
 //   for(int i=0; i<N; i++) {
@@ -493,20 +505,26 @@ int main(int argc, char *argv[]) {
 //   seqlu->M->display(string("Seq array"));
   
   long long s = nanoTime();
-  lu->lu();
+  long long tt = lu->lu();
   long long t = nanoTime();
 
 //   seqlu->lu();
 //   lu->M->display(string("After LU"));
 //   seqlu->M->display(string("Seq after LU"));
   
-  bool correct = lu->verify(A);
+//   bool correct = lu->verify(A);
 
   delete lu;
-  delete A;
+//   delete A;
 
+//   cout<<"N="<<N<<" px="<<px<<" py="<<py<<" B="<<B
+//     <<(correct?" ok":" fail")<<" time="<<(t-s)/1000000<<"ms"
+//       <<" Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
+//       <<endl;
   cout<<"N="<<N<<" px="<<px<<" py="<<py<<" B="<<B
-    <<(correct?" ok":" fail")<<" time="<<(t-s)/1000000<<"ms"
-      <<" Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
+      <<" rt time="<<(t-s)/1000000<<"ms"
+      <<" rt Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
+      <<" comp time="<<tt/1000000<<"ms"
+      <<" comp Rate="<< format(flops(N)/(tt)*1000, 3)<<"MFLOPS"
       <<endl;
 }
