@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.cc,v 1.11 2007-08-07 06:21:52 ganeshvb Exp $
+ * $Id: async.cc,v 1.12 2007-08-17 13:18:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -34,10 +34,10 @@ asyncSpawnHandler(lapi_handle_t hndl, void *uhdr,
 x10_err_t
 asyncRegister()
 {
-        X10_DEBUG (1, "Entry");
-	LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandler, 2));
-        X10_DEBUG (1, "Exit");
-	return X10_OK;
+  X10_DEBUG (1, "Entry");
+  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandler, 2));
+  X10_DEBUG (1, "Exit");
+  return X10_OK;
 }
 
 namespace x10lib {

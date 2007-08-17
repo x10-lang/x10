@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: switch.h,v 1.6 2007-06-27 12:25:12 ganeshvb Exp $
+ * $Id: switch.h,v 1.7 2007-08-17 13:18:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -23,6 +23,8 @@ typedef enum {
 /* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {
+extern int __x10_num_places;
+extern int __x10_my_place;
 
 class Switch {
 public:
