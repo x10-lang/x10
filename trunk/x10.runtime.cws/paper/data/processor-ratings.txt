@@ -1,0 +1,3 @@
+Fri Aug 17 21:42:02 2007
+Azul: java -cp Linpack.jar Linpack 
+Mflops/s: 5.538

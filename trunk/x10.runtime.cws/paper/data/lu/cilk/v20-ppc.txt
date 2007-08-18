@@ -1,0 +1,798 @@
+This file was sent 08/13/2007 by Sreedhar Kodali.
+It represents runs of the LU in the Cilk examples directory.
+============================================
+Running on host .....
+Cilk Example: lu
+	      running on 1 processor
+Options: (n x n matrix) n = 256
+Running time  = 0.019808 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+Cilk Example: lu
+	      running on 2 processors
+Options: (n x n matrix) n = 256
+Running time  = 0.010763 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+Cilk Example: lu
+	      running on 3 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.008636 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 4 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.006468 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 5 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.005855 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 6 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.005586 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 7 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.005444 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 8 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.005300 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 9 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.005222 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 10 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.005118 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 11 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.004888 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 12 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.004908 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 13 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.004811 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 14 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.004876 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 15 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.004834 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 16 processors
+
+Options: (n x n matrix) n = 256
+
+Running time  = 0.088460 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 1 processor
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.156075 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 2 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.079934 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 3 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.057742 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 4 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.042502 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 5 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.036062 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 6 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.031732 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 7 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.028010 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 8 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.025796 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 9 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.025195 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 10 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.022992 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 11 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.021940 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 12 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.020579 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 13 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.019823 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 14 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.019453 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 15 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.018667 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 16 processors
+
+Options: (n x n matrix) n = 512
+
+Running time  = 0.121714 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 1 processor
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 1.238806 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 2 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.623729 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 3 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.428650 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 4 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.317537 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 5 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.258485 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 6 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.220041 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 7 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.190536 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 8 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.169024 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 9 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.156875 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 10 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.139370 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 11 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.128995 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 12 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.120498 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 13 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.115289 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 14 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.113823 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 15 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.102854 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 16 processors
+
+Options: (n x n matrix) n = 1024
+
+Running time  = 0.345861 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 1 processor
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 9.875636 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 2 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 4.946440 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 3 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 3.338571 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 4 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 2.486222 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 5 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 1.999560 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 6 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 1.680722 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 7 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 1.442894 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 8 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 1.266268 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 9 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 1.154103 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 10 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 1.024648 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 11 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 0.936254 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 12 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 0.858503 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 13 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 0.798802 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 14 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 0.746295 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 15 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 0.698779 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 16 processors
+
+Options: (n x n matrix) n = 2048
+
+Running time  = 1.517555 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 1 processor
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 78.863840 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 2 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 39.439521 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 3 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 26.485607 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 4 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 19.759606 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 5 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 15.826473 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 6 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 13.254146 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 7 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 11.339343 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 8 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 9.930706 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 9 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 8.967421 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 10 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 7.972507 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 11 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 7.254771 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 12 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 6.649696 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 13 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 6.156727 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 14 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 5.723865 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 15 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 5.347154 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+
+Cilk Example: lu
+	      running on 16 processors
+
+Options: (n x n matrix) n = 4096
+
+Running time  = 6.535424 s
+Work          = 0.000000 s
+Critical path = 0.000000 s
+
+.....done.
