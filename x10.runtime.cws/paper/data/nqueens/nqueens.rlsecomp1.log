@@ -1,0 +1,32 @@
+Following are cilk nqueens numbers
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for p in 1 2 4 6 8
+> do
+> for n in 8 10 12 14
+> do
+> ./nqueens -nproc $p 5 $n
+> done
+> done
+nqueens(8)=92    ok time=5176.000 us
+nqueens(10)=724  ok time=119426.000 us
+nqueens(12)=14200        ok time=3710666.000 us
+nqueens(14)=365596       ok time=148445126.000 us
+nqueens(8)=92    ok time=2640.000 us
+nqueens(10)=724  ok time=59779.000 us
+nqueens(12)=14200        ok time=1853147.000 us
+nqueens(14)=365596       ok time=74286514.000 us
+nqueens(8)=92    ok time=1492.000 us
+nqueens(10)=724  ok time=30278.000 us
+nqueens(12)=14200        ok time=927595.000 us
+nqueens(14)=365596       ok time=37213267.000 us
+nqueens(8)=92    ok time=1164.000 us
+nqueens(10)=724  ok time=20423.000 us
+nqueens(12)=14200        ok time=619611.000 us
+nqueens(14)=365596       ok time=24809530.000 us
+nqueens(8)=92    ok time=1170.000 us
+nqueens(10)=724  ok time=20325.000 us
+nqueens(12)=14200        ok time=468671.000 us
+nqueens(14)=365596       ok time=18615479.000 us
+
+___________________________________________________________________
+
