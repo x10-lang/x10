@@ -310,14 +310,21 @@ int main(int argc, char *argv[]) {
   	int n = ni;
 	long long minT;
     for(int j=0; j<nReps; j++) {
-      long long s = nanoTime();
       anon_Job1 job(g, n);
+      long _ssc = g->getStealCount();
+      long _ssa = g->getStealAttempts();
+      long long s = nanoTime();
       g->submit(&job);
-      //cout << "I" <<endl;
       result = job.getInt();
-      long long t = nanoTime();
-      
-      minT = (j>0 && minT<(t-s) ? minT : (t-s)); 
+      long long t = nanoTime(); 
+      long _tsc = g->getStealCount();
+      long _tsa = g->getStealAttempts();
+
+      if(j==0 || minT>(t-s)) {
+	minT = t-s;
+	sa = _tsa - _ssa;
+	sc = _tsc - _ssc;
+      }
     }
 
 //     cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<
@@ -328,11 +335,12 @@ int main(int argc, char *argv[]) {
     cout<<"nprocs="<<procs
 	<<" FibStack("<<n<<")" << "\t" <<minT/1000<<" us" << "\t"
     	<< ((result == FibC::realfib(n)) ? "ok" : "fail" )
-    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
-        << "\t" << "stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
-    
-        sc=g->getStealCount();
-        sa=g->getStealAttempts();
+    	<< "\t" << " steals="<< sc
+        << "\t" << "stealAttemps=" << sa
+	<<endl;
+
+//         sc=g->getStealCount();
+//         sa=g->getStealAttempts();
 
 
 

@@ -285,7 +285,7 @@ int main(int argc, char *argv[]) {
   Pool *g = new Pool(procs);
   assert(g != NULL);
 
-    
+  long sc = 0, sa = 0;    
   //  for (int i = 7; i < 12; i++) {
 // 	Pool *g = new Pool(procs);
 // 	assert(g != NULL);
@@ -296,20 +296,29 @@ int main(int argc, char *argv[]) {
     for(int j=0; j<nReps; j++) {
       Job *job = new anon_Job1(g);
       assert(job != NULL);
+      long _ssc = g->getStealCount();
+      long _ssa = g->getStealAttempts();
       long long s = nanoTime();
       g->submit(job);
       result = job->getInt();
       long long t = nanoTime();
+      long _tsc = g->getStealCount();
+      long _tsa = g->getStealAttempts();
 
-      minT = (j>0 && minT<(t-s) ? minT : (t-s)); 
+      if(j==0 || minT>(t-s)) {
+	minT = t-s;
+	sa = _tsa - _ssa;
+	sc = _tsc - _ssc;
+      }
       delete g;
     }
 
     cout<<"nprocs="<<procs
 	<<" NQueens("<<i<<")" << "\t" <<minT/1000<<" us" << "\t"
     	<< ((result == expectedSolutions[i]) ? "ok" : "fail" )
-    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
-        << "\t" << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+    	<< "\t" << " steals="<< sc
+        << "\t" << "stealAttempts=" << sa
+	<<endl;
     //}
   g->shutdown();
 }
