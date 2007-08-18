@@ -96,6 +96,8 @@ Pool::Pool(int numThreads) {
 	pthread_attr_t attr;
 	
 	if (numThreads <=0) { cout << "Illegal argument"; abort(); }
+
+	currentJob = NULL;
 	
 	lock_var = new PosixLock();
 	assert(lock_var != NULL);

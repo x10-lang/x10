@@ -278,21 +278,32 @@ int main(int argc, char *argv[]) {
   long sc = 0, sa = 0;
   //for (int n = 0; n <= 40; n+=5) {
   int n = ni;
+  long long minT;
 	  
-    long long s = nanoTime();
     for(int j=0; j<nReps; j++) {
       anon_Job1 job(g, n);
+      long long s = nanoTime();
       g->submit(&job);
       result = job.getInt();
+      long long t = nanoTime();
+
+      minT = (j>0 && minT<(t-s) ? minT : (t-s)); 
    }
-    long long t = nanoTime();
     
 
 //     cout<<"Fib("<<points[i]<<")\t="<<result<<"\t"<<
 //       FibC::realfib(points[i])<<"\t Time="<<(t-s)/1000000<<"ms"<<endl;
-    cout<<"Fib("<<n<<")\t="<<result<<"\t"<<
-      FibC::realfib(n)<<"\t Time="<<(t-s)/1000/nReps<<"us"<< " steals="<< ((g->getStealCount()-sc)/nReps)
-      << " stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+//     cout<<"nprocs="<<procs<<"Fib("<<n<<")\t="<<result<<"\t"<<
+//       FibC::realfib(n)<<"\t Time="<<(t-s)/1000/nReps<<"us"<< " steals="<< ((g->getStealCount()-sc)/nReps)
+//       << " stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+
+    cout<<"nprocs="<<procs
+	<<" Fib("<<n<<") " << "\t" <<minT/1000<<" us" << "\t"
+    	<< ((result == FibC::realfib(n)) ? "ok" : "fail" )
+    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
+        << "\t" << "stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+
+
     sc=g->getStealCount();
     sa=g->getStealAttempts();
 
