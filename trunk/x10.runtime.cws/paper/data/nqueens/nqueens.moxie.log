@@ -1,0 +1,30 @@
+Following are cilk numbers
+
+moxie - vijay - sched > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=10995.569 us
+nqueens(10)=724  ok time=249087.716 us
+nqueens(12)=14200        ok time=7621439.515 us
+nqueens(14)=365596       ok time=304206992.409 us
+nqueens(8)=92    ok time=6671.823 us
+nqueens(10)=724  ok time=127918.086 us
+nqueens(12)=14200        ok time=3812463.704 us
+nqueens(14)=365596       ok time=152581203.633 us
+nqueens(8)=92    ok time=10265.533 us
+nqueens(10)=724  ok time=76399.554 us
+nqueens(12)=14200        ok time=1922729.522 us
+nqueens(14)=365596       ok time=76228259.160 us
+nqueens(8)=92    ok time=9858.647 us
+nqueens(10)=724  ok time=51536.510 us
+nqueens(12)=14200        ok time=1285070.383 us
+nqueens(14)=365596       ok time=51053953.712 us
+nqueens(8)=92    ok time=10998.927 us
+nqueens(10)=724  ok time=51295.850 us
+nqueens(12)=14200        ok time=1025908.074 us
+nqueens(14)=365596       ok time=39368676.185 us
+
+-------------------------------------------------------
+
