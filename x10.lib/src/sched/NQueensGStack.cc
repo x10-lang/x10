@@ -224,6 +224,7 @@ public:
 
 
 int main(int argc, char *argv[]) {
+  int result;
   if(argc < 4) {
     printf("Usage: %s <threads> <nRepetitions> <input-number> \n", argv[0]);
     exit(0);
@@ -236,31 +237,40 @@ int main(int argc, char *argv[]) {
   Pool *g = new Pool(procs);
   assert(g != NULL);
 
+  long sc = 0, sa = 0;
   //for(int i=5; i<6; i++) {
   int i = ni;
     boardSize = i;
     MEM_BARRIER();
 
     long long minT;
-    long sc = 0, sa = 0;
     
     for(int j=0; j<nReps; j++) {
       Job *job = new NQueensJ(g);
       assert(job != NULL);
+      long _ssc = g->getStealCount();
+      long _ssa = g->getStealAttempts();
       long long s = nanoTime();
       g->submit(job);
       int result = job->getInt();
       long long t = nanoTime();
-
-      minT = (j>0 && minT<(t-s) ? minT : (t-s)); 
+      long _tsc = g->getStealCount();
+      long _tsa = g->getStealAttempts();
+      
+      if(j==0 || minT>(t-s)) {
+	minT = t-s;
+	sa = _tsa - _ssa;
+	sc = _tsc - _ssc;
+      }
       delete job;
     }
 
     cout<<"nprocs="<<procs
 	<<" NQueensGStack("<<i<<")" << "\t" <<minT/1000<<" us "
     	<< ((result == expectedSolutions[i]) ? "ok" : "fail" )
-    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
-        << "\t" << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+    	<< "\t" << " steals="<< sc
+        << "\t" << "stealAttempts=" << sa
+	<<endl;
 
     //}
   g->shutdown();

@@ -61,7 +61,7 @@ benchmark FibStack.x "$PROCS" "$FIBNUMS" $nReps
 benchmark Fib.x      "$PROCS" "$FIBNUMS" $nReps
 
 benchmark NQueensGStack.x "$PROCS" "$QNUMS" $nReps
-benchmark NQueensCStack.x "$PROCS" "$QNUMS" $nReps
+benchmark NQueensCStack_a.x "$PROCS" "$QNUMS" $nReps
 benchmark NQueensC.x      "$PROCS" "$QNUMS" $nReps
 
 

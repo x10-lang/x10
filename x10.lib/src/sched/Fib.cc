@@ -275,19 +275,27 @@ int main(int argc, char *argv[]) {
   Pool *g = new Pool(procs);
   assert(g != NULL);
 
-  long sc = 0, sa = 0;
   //for (int n = 0; n <= 40; n+=5) {
   int n = ni;
-  long long minT;
-	  
+  long long minT;	
+  long sc, sa;
+  
     for(int j=0; j<nReps; j++) {
       anon_Job1 job(g, n);
+      long _ssc = g->getStealCount();
+      long _ssa = g->getStealAttempts();
       long long s = nanoTime();
       g->submit(&job);
       result = job.getInt();
       long long t = nanoTime();
+      long _tsc = g->getStealCount();
+      long _tsa = g->getStealAttempts();
 
-      minT = (j>0 && minT<(t-s) ? minT : (t-s)); 
+      if(j==0 || minT>(t-s)) {
+	minT = t-s;
+	sa = _tsa - _ssa;
+	sc = _tsc - _ssc;
+      }
    }
     
 
@@ -300,12 +308,8 @@ int main(int argc, char *argv[]) {
     cout<<"nprocs="<<procs
 	<<" Fib("<<n<<") " << "\t" <<minT/1000<<" us" << "\t"
     	<< ((result == FibC::realfib(n)) ? "ok" : "fail" )
-    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
-        << "\t" << "stealAttemps=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
-
-
-    sc=g->getStealCount();
-    sa=g->getStealAttempts();
+    	<< "\t" << " steals="<< sc
+        << "\t" << "stealAttemps=" << sa<<endl;
 
       
 //     long t = System.nanoTime();
