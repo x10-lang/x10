@@ -241,24 +241,27 @@ int main(int argc, char *argv[]) {
     boardSize = i;
     MEM_BARRIER();
 
+    long long minT;
     long sc = 0, sa = 0;
     
-    Job *job = new NQueensJ(g);
-    assert(job != NULL);
-    long long s = nanoTime();
-    g->submit(job);
-    int result = job->getInt();
-    long long t = nanoTime();
+    for(int j=0; j<nReps; j++) {
+      Job *job = new NQueensJ(g);
+      assert(job != NULL);
+      long long s = nanoTime();
+      g->submit(job);
+      int result = job->getInt();
+      long long t = nanoTime();
 
-    delete job;
+      minT = (j>0 && minT<(t-s) ? minT : (t-s)); 
+      delete job;
+    }
 
-    cout<<"NQueens("<<i<<")="<<result<<"\t"
-	<<expectedSolutions[i]
-	<<(result == expectedSolutions[i]?"ok":"fail")<<"\t"
-	<<"\t Time="<<(t-s)/1000<<"us"
-	<< "\t" << "steals="<< ((g->getStealCount()-sc)/nReps) 
-	<< "\t"  << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)
-	<<endl;
+    cout<<"nprocs="<<procs
+	<<" NQueensGStack("<<i<<")" << "\t" <<minT/1000<<" us" << "\t"
+    	<< ((result == expectedSolutions[i]) ? "ok" : "fail" )
+    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
+        << "\t" << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+
     //}
   g->shutdown();
   delete g;

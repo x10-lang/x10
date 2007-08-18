@@ -269,14 +269,15 @@ protected:
 int main(int argc, char *argv[]) {
   int result;
 
-  if(argc < 3) {
-	    printf("Usage: %s <threads> <nRepetitions> \n", argv[0]);
-	    exit(0);
+  if(argc < 4) {
+    printf("Usage: %s <threads> <nRepetitions> <board-size>\n", argv[0]);
+    exit(0);
   }
 
   const int procs = atoi(argv[1]);
   const int nReps = atoi(argv[2]);
-  cout<<"Number of procs=" << procs <<endl;
+  const int ni = atoi(argv[3]);
+  //  cout<<"Number of procs=" << procs <<endl;
 //   if (argc > 2) 
 //     Worker::reporting = true;
   
@@ -285,23 +286,30 @@ int main(int argc, char *argv[]) {
   assert(g != NULL);
 
     
-  for (int i = 7; i < 12; i++) {
+  //  for (int i = 7; i < 12; i++) {
 // 	Pool *g = new Pool(procs);
 // 	assert(g != NULL);
+  int i = ni;
     boardSize = i;
-    Job *job = new anon_Job1(g);
-    assert(job != NULL);
-    
-    long long s = nanoTime();
-    
+    long long minT;
+
     for(int j=0; j<nReps; j++) {
-        g->submit(job);
-        result = job->getInt();
+      Job *job = new anon_Job1(g);
+      assert(job != NULL);
+      long long s = nanoTime();
+      g->submit(job);
+      result = job->getInt();
+      long long t = nanoTime();
+
+      minT = (j>0 && minT<(t-s) ? minT : (t-s)); 
+      delete g;
     }
-    long long t = nanoTime();
-    cout<<"NQueens("<<i<<")\t="<<result<<"\t"<<
-    expectedSolutions[i]<<"\t Time="<<(t-s)/1000/nReps<<"us"<<endl;
-  }
+
+    cout<<"nprocs="<<procs
+	<<" NQueens("<<i<<")" << "\t" <<minT/1000<<" us" << "\t"
+    	<< ((result == expectedSolutions[i]) ? "ok" : "fail" )
+    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
+        << "\t" << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+    //}
   g->shutdown();
-  delete g;
 }
