@@ -144,6 +144,11 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
 		  frame->q=q+1; 
 	  }
 	  w->popFrame();
+	  if(w->cache->parentInterrupted()) {
+	    w->lock(w);
+	    // wait for promotion of child, before the stacked frame is deleted
+	    w->unlock();
+	  }
 	  return sum;
   }
   
@@ -273,22 +278,26 @@ int main(int argc, char *argv[]) {
    
   long sc = 0, sa = 0;
   //for (int i = 11; i < 16; i++) {
-  	int i  = n;
-	boardSize = i;
-	MEM_BARRIER(); //Sriram: How do we guarantee all threads can see the new boardsize?
+  int i  = n;
+  boardSize = i;
+  MEM_BARRIER(); //Sriram: How do we guarantee all threads can see the new boardsize?
+  long long minT;
+  for(int j=0; j<nReps; j++) {
+    anon_Job1 job(g);
     long long s = nanoTime();
-    
-    for(int j=0; j<nReps; j++) {
-    	anon_Job1 job(g);
-        g->submit(&job);
-        result = job.getInt();
-    }
+    g->submit(&job);
+    result = job.getInt();
     long long t = nanoTime();
-    cout<<"C++CWS NQueens("<<i<<")" << "\t" <<(t-s)/1000/nReps
-    			<<" us" << "\t" << (result == expectedSolutions[i] ? "ok" : "fail") 
-    			<< "\t" << "steals="<< ((g->getStealCount()-sc)/nReps) 
-    			<< "\t"  << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
-    
+
+    minT = (j>0 && minT<(t-s) ? minT : (t-s)); 
+  }
+
+    cout<<"nprocs="<<procs
+	<<" NQueensCStack("<<i<<")" << "\t" <<minT/1000<<" us" << "\t"
+    	<< ((result == expectedSolutions[i]) ? "ok" : "fail" )
+    	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
+        << "\t" << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
+
     sc=g->getStealCount();
     sa=g->getStealAttempts();
   //}
