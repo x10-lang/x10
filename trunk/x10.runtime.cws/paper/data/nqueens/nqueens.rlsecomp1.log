@@ -27,6 +27,8 @@ nqueens(8)=92    ok time=1170.000 us
 nqueens(10)=724  ok time=20325.000 us
 nqueens(12)=14200        ok time=468671.000 us
 nqueens(14)=365596       ok time=18615479.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] date
+Sat Aug 18 19:41:48 EDT 2007
 
 ___________________________________________________________________
 
