@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.1 2007-08-17 13:18:38 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.2 2007-08-18 18:33:16 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -17,6 +17,9 @@
 using namespace x10lib;
 using namespace std;
 
+#define X10_MAX_INTMEDIATE_MESSGS 16
+
+static char sbuf [16384 * 8];
 static char** __x10_agg_arg_buf[X10_MAX_AGG_HANDLERS];
 
 static int* __x10_agg_counter[X10_MAX_AGG_HANDLERS];
@@ -26,15 +29,19 @@ static int __x10_agg_total[X10_MAX_AGG_HANDLERS];
 typedef struct {
   x10_async_handler_t handler; 
   ulong len;
-  int niter;
+  int niter[X10_MAX_INTMEDIATE_MESSGS];
+  int dest[X10_MAX_INTMEDIATE_MESSGS];
   void* buf;
-  int dest;
+  int scount;
+  size_t argSize;
 } x10_agg_cmpl_t;
 
 typedef struct {
   x10_async_handler_t handler;
-  int niter;
-  int dest;
+  int scount;
+  size_t argSize;
+  int niter[X10_MAX_INTMEDIATE_MESSGS];
+  int dest[X10_MAX_INTMEDIATE_MESSGS];
 } x10_agg_hdr_t;
 
 
@@ -44,16 +51,21 @@ asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
   X10_DEBUG (1,  "Entry");
 
   x10_agg_cmpl_t *c = (x10_agg_cmpl_t *)a;
-  
-  if (c->dest == __x10_my_place) {
-    asyncSwitch(c->handler, c->buf, c->niter);
-  } else {
-    int cntr =   __x10_agg_counter[c->handler][c->dest];
-    int arg_size = c->len / c->niter;
-    memcpy (&(__x10_agg_arg_buf[c->handler][c->dest][arg_size * cntr]), 
-	    (void*) c->buf, c->len); 
-    __x10_agg_counter[c->handler][c->dest] += c->niter;
-  }
+
+  char* ptr = (char*) c->buf;
+  for (int i = 0; i < c->scount; i++)
+    {      
+      int arg_size = c->argSize;
+      if (c->dest[i] == __x10_my_place) {
+	asyncSwitch(c->handler, ptr, c->niter[i]);
+      } else {
+	int cntr =   __x10_agg_counter[c->handler][c->dest[i]];
+	memcpy (&(__x10_agg_arg_buf[c->handler][c->dest[i]][arg_size * cntr]), 
+		(void*) ptr, c->niter[i] * arg_size); 
+	__x10_agg_counter[c->handler][c->dest[i]] += c->niter[i];
+      }
+      ptr += c->niter[i] * arg_size;
+    }
   
   delete[] ((char*) c->buf);
   delete c;
@@ -73,17 +85,24 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
     (lapi_return_info_t *)msg_len;
 
   if (ret_info->udata_one_pkt_ptr || (*msg_len) == 0) {
-
-    if (buf.dest == __x10_my_place) {
-      asyncSwitch(buf.handler, ret_info->udata_one_pkt_ptr, buf.niter);
-    } else {
-      int cntr =   __x10_agg_counter[buf.handler][buf.dest];
-      int arg_size = *msg_len / buf.niter;
-      memcpy (&(__x10_agg_arg_buf[buf.handler][buf.dest][arg_size * cntr]), 
-	      ret_info->udata_one_pkt_ptr, *msg_len);
-      __x10_agg_counter[buf.handler][buf.dest] += buf.niter;
-    }
     
+    char* ptr = (char*) ret_info->udata_one_pkt_ptr;
+    
+    int arg_size = buf.argSize;
+    for (int i = 0; i < buf.scount; i++)
+      {
+	if (buf.dest[i] == __x10_my_place) {
+	  asyncSwitch(buf.handler, ptr, buf.niter[i]);
+	} else {
+	  int cntr =   __x10_agg_counter[buf.handler][buf.dest[i]];
+	  memcpy (&(__x10_agg_arg_buf[buf.handler][buf.dest[i]][arg_size * cntr]), 
+		  ptr, arg_size * buf.niter[i]);
+	  __x10_agg_counter[buf.handler][buf.dest[i]] += buf.niter[i];
+	  
+	}
+	ptr += buf.niter[i] * arg_size;
+      }
+
     ret_info->ctl_flags = LAPI_BURY_MSG;    
     *comp_h = NULL;
     
@@ -94,8 +113,16 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
     c->len = *msg_len;
     c->handler = buf.handler;
     c->buf = (void *)new char [*msg_len];
-    c->niter = buf.niter;
-    c->dest = buf.dest;
+
+    for (int i = 0; i < buf.scount; i++) 
+      {
+	c->niter[i] = buf.niter[i];
+	c->dest[i] = buf.dest[i];
+      }
+
+    c->scount = buf.scount;
+    c->argSize = buf.argSize;
+
     *comp_h = asyncSpawnCompHandlerAgg;
     ret_info->ret_flags = LAPI_LOCAL_STATE;
     *user_info = (void *)c;
@@ -141,6 +168,34 @@ asyncAggFinalize_hc ()
    return X10_OK;
 }
 
+static x10_err_t
+packUpdates (x10_async_handler_t hndlr, int p, int& scount, int& ssize, size_t size, x10_agg_hdr_t* buf)
+{ 
+
+  buf->niter[scount] = __x10_agg_counter[hndlr][p];
+  buf->dest[scount] = p;
+  
+  memcpy (&(sbuf[ssize]), __x10_agg_arg_buf[hndlr][p], __x10_agg_counter[hndlr][p] * size);  
+  ssize += __x10_agg_counter[hndlr][p] * size;
+  scount++;  
+  __x10_agg_counter[hndlr][p] = 0;	    
+}
+
+static x10_err_t
+sendUpdates (int ssize, int partner, x10_agg_hdr_t* buf)
+{ 
+  lapi_cntr_t cntr;
+  int tmp;
+  
+  LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
+  LRC(LAPI_Amsend(__x10_hndl, partner, (void *)8, buf,
+		  sizeof(x10_agg_hdr_t),
+		  (void *) sbuf,
+		  ssize,
+		  NULL, &cntr, NULL));
+  LRC(LAPI_Waitcntr(__x10_hndl, &cntr, 1, &tmp));
+}
+
 static x10_err_t 
 asyncSpawnInlineAgg_i (x10_place_t tgt,
 		      x10_async_handler_t hndlr, size_t size)
@@ -154,8 +209,6 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
       X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t) ||
       (__x10_agg_total[hndlr]+1) >= X10_MAX_AGG_SIZE) {
     
-    cout << "Hello " << __x10_my_place << " " << __x10_agg_total[hndlr] << endl;
-
     //LAPI_Gfence (__x10_hndl);              
     int factor = 1;
     for (int phase = 0; factor < __x10_num_places; phase++, factor *= 2) {
@@ -163,61 +216,44 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
       uint64_t partner = (1 << phase) ^ (uint64_t)__x10_my_place;
       uint64_t mask = ((uint64_t) 1) << phase;
       
+      int ssize = 0;
+      int scount = 0;
+      x10_agg_hdr_t buf;
       if (partner > __x10_my_place) {
 	for (uint64_t  p = 0; p < (uint64_t)__x10_num_places; p++) {
 	  
 	  if ( p == __x10_my_place) continue;
 	  
 	  if ((p & mask) && __x10_agg_counter[hndlr][p]) {
-	    x10_agg_hdr_t buf;
-	    buf.handler = hndlr;
-	    buf.niter = __x10_agg_counter[hndlr][p];
-	    buf.dest = p;
-	    
-	    __x10_agg_counter[hndlr][p] = 0;	    
-	    lapi_cntr_t cntr;
-	    int tmp;
-	    LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-	    //	    cout << " phase " << phase << " me " << __x10_my_place << " partner " << partner
-	    //	 << " dest " << p << " niter " << buf.niter << endl;
-	    LRC(LAPI_Amsend(__x10_hndl, partner, (void *)8, &buf,
-			    sizeof(x10_agg_hdr_t),
-			    (void *)__x10_agg_arg_buf[hndlr][p],
-			    size * buf.niter,
-			    NULL, &cntr, NULL));
-	    LRC(LAPI_Waitcntr(__x10_hndl, &cntr, 1, &tmp));
-	    //__x10_agg_counter[hndlr][p] = 0;
+	    //cout << "before sending " << __x10_my_place << " " << partner << " " << scount << " " << ssize <<" " << __x10_agg_counter[hndlr][p] <<  endl;
+	    packUpdates (hndlr, p, scount, ssize, size, &buf);
 	  }	  
 	}
+
+	buf.handler = hndlr;
+	buf.scount = scount;
+	buf.argSize = size;
+	if (scount)
+	  sendUpdates (ssize, partner, &buf);
       } else {
 	for (uint64_t  p = 0; p < (uint64_t)__x10_num_places; p++) {
 	  
 	  if ( p == __x10_my_place) continue;
-
+	  
 	  if ((!(p & mask)) && __x10_agg_counter[hndlr][p]) {
-	    x10_agg_hdr_t buf;
-	    buf.handler = hndlr;
-	    buf.niter = __x10_agg_counter[hndlr][p];
-	    buf.dest = p;
+	    //cout << "before sending " << __x10_my_place << " " << partner << " " << scount << " " << ssize <<" " << __x10_agg_counter[hndlr][p] <<  endl;
+	    packUpdates (hndlr, p, scount, ssize, size, &buf);
+	  }
+	}     
+     
+	buf.handler = hndlr;
+	buf.scount = scount;
+	buf.argSize = size;
+	
+	if (scount)
+	  sendUpdates (ssize, partner, &buf);
 
-	    lapi_cntr_t cntr;
-	    int tmp;
-	 
-	    __x10_agg_counter[hndlr][p] = 0;
-	    LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-	    //cout << " phase " << phase << " me " << __x10_my_place << " partner " << partner
-	    // << " dest " << p << " niter " << buf.niter << endl;
-	    LRC(LAPI_Amsend(__x10_hndl, partner, (void *)8, &buf,
-			    sizeof(x10_agg_hdr_t),
-			    (void *)__x10_agg_arg_buf[hndlr][p],
-			    size * buf.niter,
-			    NULL, &cntr, NULL));
-	    LRC(LAPI_Waitcntr(__x10_hndl, &cntr, 1, &tmp));
-	    //__x10_agg_counter[hndlr][p] = 0;
-	  }	  
-	}
-      }
-    
+      }     
     }
     
     LAPI_Gfence (__x10_hndl);  
@@ -245,9 +281,12 @@ namespace x10lib {
 
     for (int j = 0; j < __x10_num_places; j++) {
       if (__x10_agg_counter[hndlr][j] > 0) {
-	buf.niter = __x10_agg_counter[hndlr][j];
-	buf.dest = j;
-	
+
+	buf.niter[0] = __x10_agg_counter[hndlr][j];
+	buf.dest[0] = j;
+	buf.scount = 1;
+	buf.argSize = size;
+
 	LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
 	LRC(LAPI_Amsend(__x10_hndl, j, (void *)8, &buf,
 			sizeof(x10_agg_hdr_t),
