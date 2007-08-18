@@ -257,7 +257,7 @@ int main(int argc, char *argv[]) {
     }
 
     cout<<"nprocs="<<procs
-	<<" NQueensGStack("<<i<<")" << "\t" <<minT/1000<<" us" << "\t"
+	<<" NQueensGStack("<<i<<")" << "\t" <<minT/1000<<" us "
     	<< ((result == expectedSolutions[i]) ? "ok" : "fail" )
     	<< "\t" << " steals="<< ((g->getStealCount()-sc)/nReps)
         << "\t" << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;

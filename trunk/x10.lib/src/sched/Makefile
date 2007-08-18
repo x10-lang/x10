@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.22 2007-08-18 14:56:11 sriramk Exp $
+# $Id: Makefile,v 1.23 2007-08-18 17:59:25 sriramk Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -56,7 +56,7 @@ $(SCHED_A): $(OBJS)
 	$(LD) $(LINKFLAGS) -o$@ $(OBJS)
 
 clean:
-	$(RM) $(SCHED_A) $(OBJS) *.log
+	$(RM) $(SCHED_A) $(OBJS) *.x *.log
 
 install:
 	@echo "Nothing to install in \"sched\" subdir."
