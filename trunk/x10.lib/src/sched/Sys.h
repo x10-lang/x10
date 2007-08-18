@@ -57,10 +57,34 @@ static __inline__ int atomic_exchange(volatile int *ptr, int x)
 }
 
 
-static __inline__ int
+static  int
 compare_exchange(int *p, int  old_value, int new_value)
 {
-#if 0
+#if defined(__xlC__)
+  int *old = &old_value;	
+  return compare_and_swap(p, old, new_value);
+
+#elif defined(__GNUC__)
+  int prev;                                        
+  __asm__ __volatile__ (                           
+			"\n"
+        		"l1:\n\t"
+			"lwarx   %0,0,%2\n\t"
+        		"cmpw    0,%0,%3\n\t"
+        		"bne-    l2 \n\t"
+        		"stwcx.  %4,0,%2\n\t"   
+        		"bne-    l1 \n\t"
+        		"isync\n"
+        		"l2:"
+        		: "=&r" (prev), "=m" (*p)
+        		: "r" (p), "r" (old_value),
+			"r" (new_value), "m" (*p)
+        		: "cc", "memory");
+  return prev;
+
+
+#else
+#error "Fix compare_exchange before running. Commented now"
   int prev;
   __asm__ __volatile__ (
 			
@@ -75,24 +99,32 @@ compare_exchange(int *p, int  old_value, int new_value)
         		: "r" (p), "r" (old_value), "r" (new_value), "m" (*p)
         		: "cc", "memory");
   return prev;
-  
-#elif defined(__xlC__)
-  int *old = &old_value;	
-  return compare_and_swap(p, old, new_value);
-  
-#else
-#error "Fix compare_exchange before running. Commented now"
-/* 	assert(0); */
-/* 	return 0; */
 #endif
- 
-
 }
 
-static __inline__ void atomic_add(volatile int* mem, int val)
+static void atomic_add(volatile int* mem, int val)
 {
     int tmp;
-#if 0
+
+#if defined(__xlC__)
+    fetch_and_add((int *)mem, val); //ignore return value
+#elif defined(__GNUC__)
+
+  __asm__ __volatile__ (                                      
+			" #Inline atomic add\n"  
+			"l1:\n\t"
+			"lwarx    %0,0,%2 \n\t"
+			"add%I3   %0,%0,%3 \n\t"
+			"stwcx.   %0,0,%2 \n\t"
+			"bne-     l1 \n\t"  
+			"isync \n\t"
+			: "=&b"(tmp), "=m" (*mem)
+			: "r" (mem), "Ir"(val), "m" (*mem) 
+			: "cr0");
+
+#else
+#error "Fix atomic_add before running. Commented now"
+
     __asm__ __volatile__ (
 			  "/* Inline atomic add */\n"
 			  "0:\t"
@@ -105,12 +137,6 @@ static __inline__ void atomic_add(volatile int* mem, int val)
 			  : "r" (mem), "Ir"(val), "m" (*mem)
 			  : "cr0");
   
-#elif defined(__xlC__)
-
-    fetch_and_add((int *)mem, val); //ignore return value
-#else
-#error "Fix atomic_add before running. Commented now"
-/*     assert(0); */
 #endif
 }
 #endif
@@ -122,8 +148,8 @@ static __inline__ int atomic_fetch(volatile int* mem)
 #if defined (__xlC__)
 	//return fetch_and_nop((int *)mem);
 	return *mem;
-#elif
-#error "Fix atomic_add before running. Commented now"
+#else
+#warning "Fix atomic_fetch before running. Commented now"
 	assert(0);
 #endif
 }

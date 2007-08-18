@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.21 2007-08-17 06:37:55 sriramk Exp $
+# $Id: Makefile,v 1.22 2007-08-18 14:56:11 sriramk Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -16,17 +16,23 @@
 #DEFS = -DMEM_DEBUG=1
 
 MAKE = make
-#CXX = mpCC_r -q64 -qarch=pwr5
-CXX = xlC_r
-#DEFS += -DNDEBUG
-CXXFLAGS = -g -O3 -qrtti -ma -q64 #-ma -qarch=pwr5 -qinline  #-qmaxmem=-1 #-qunwind #-ma -qhot #-Q -qinline #-g #-qtune=pwr5 -O3 -qhot
-#-pg -pthread 
 
-#CXX = g++
-#CXXFLAGS =-g -O3 
+ifdef GCC
+  CXX = g++
+  CXXFLAGS =-g -O3 -fno-inline
+  LINKFLAGS = -r
+else
+#  CXX = mpCC_r -q64 -qarch=pwr5
+  CXX = xlC_r -qarch=pwr5 
+#  DEFS += -DNDEBUG
+  CXXFLAGS = -g -O3 -qrtti -ma -q64 #-ma -qarch=pwr5 -qinline  #-qmaxmem=-1 #-qunwind #-ma -qhot #-Q -qinline #-g #-qtune=pwr5 -O3 -qhot
+#  -pg -pthread 
+  LINKFLAGS = -r -b64
+#  LINKFLAGS = -r
+endif
 
 INCLUDES = -I../../include
-LINKFLAGS = -r -b64
+
 RM = rm -f
 LD = ld
 AR = ar
@@ -100,4 +106,4 @@ SpanCArray.x: SpanCArray.cc $(SCHED_A)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(DEFS) $(INCLUDES) SpanCArray.cc $(SCHED_A) -o SpanCArray.x
 
 lu.x:	lu-priority.cc
-	$(CXX) $(CXXFLAGS) $(DEFS) lu-priority.cc -lpthread -lblas
+	xlC_r -g -O3 lu-priority.cc -lpthread -lblas -o lu.x

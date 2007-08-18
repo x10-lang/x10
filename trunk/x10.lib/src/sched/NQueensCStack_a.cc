@@ -284,8 +284,8 @@ int main(int argc, char *argv[]) {
         result = job.getInt();
     }
     long long t = nanoTime();
-    cout<<"C++CWS NQueens("<<i<<")" << "\t" <<(t-s)/1000000/nReps
-    			<<" ms" << "\t" << (result == expectedSolutions[i] ? "ok" : "fail") 
+    cout<<"C++CWS NQueens("<<i<<")" << "\t" <<(t-s)/1000/nReps
+    			<<" us" << "\t" << (result == expectedSolutions[i] ? "ok" : "fail") 
     			<< "\t" << "steals="<< ((g->getStealCount()-sc)/nReps) 
     			<< "\t"  << "stealAttempts=" << ((g->getStealAttempts()-sa)/nReps)<<endl;
     

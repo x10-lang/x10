@@ -11,17 +11,21 @@ using namespace std;
 
 /*Need to actually match the fortran integer. Assume int for now and
   pray. Google blas dgemm to understand the arguments.  */ 
-typedef long Integer;
+// typedef long Integer;
+typedef int Integer;
+
+//#define DGEMM dgemm_
+#define DGEMM dgemm
 
 extern "C" {
-void dgemm_(char *TRANSA, char *TRANSB, 
-	    Integer *M, Integer *N, Integer *K, 
-	    double *ALPHA, double* A, Integer *LDA,
-	    double *B, Integer *LDB, 
-	    double *BETA, double *C, Integer *LDC);
+  void DGEMM(char *TRANSA, char *TRANSB, 
+	     Integer *M, Integer *N, Integer *K, 
+	     double *ALPHA, double* A, Integer *LDA,
+	     double *B, Integer *LDB, 
+	     double *BETA, double *C, Integer *LDC);
 }
 
-#define DGEMM dgemm_
+
 
 /*---------------support routines--------------------*/
 
@@ -37,9 +41,9 @@ static  int max(int a, int b) {
 static  double max(double a, double b) {
   return a > b ? a : b;
 }
-/*static double fabs(double v){
+static double fabs(double v){
   return  v > 0 ? v : -v;
-  }*/
+  }
 static  int min(int a, int b) {
   return a > b ? b : a;
 }
@@ -275,7 +279,7 @@ public:
     return new TwoDBlockCyclicArray(*this);
   }
     
-  void display(const string &msg) {
+  void display(const char *msg) {
     cout<<msg<<endl;;
     cout<<"px="<<px<<" py="<<py<<" nx="<<nx<<" ny="<<ny<<" B="<<B<<endl;;
 
@@ -501,8 +505,8 @@ int main(int argc, char *argv[]) {
 //     }
 //   }
 
-//   lu->M->display(string("Original array"));
-//   seqlu->M->display(string("Seq array"));
+//   lu->M->display("Original array");
+//   seqlu->M->display("Seq array");
   
   long long s = nanoTime();
   long long tt = lu->lu();
