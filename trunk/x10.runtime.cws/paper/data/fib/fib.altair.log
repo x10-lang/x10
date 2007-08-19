@@ -27,5 +27,18 @@ n=30     Result: 832040  Time=66809.781 us
 n=35     Result: 9227465         Time=559108.507 us
 
 
+
+altair - vijay - fib > foreach p ( 8 6 4 2 1 )
+foreach? ./fib -nproc $p 5 40
+foreach? end
+n=40     Result: 102334155       Time=5972787.212 us
+n=40     Result: 102334155       Time=7767572.526 us
+n=40     Result: 102334155       Time=11579123.410 us
+n=40     Result: 102334155       Time=23036684.752 us
+n=40     Result: 102334155       Time=45904512.933 us
+altair - vijay - fib > date
+Sun Aug 19 11:37:30 EDT 2007
+
+
 -------------------------------------------------------------------------
 
