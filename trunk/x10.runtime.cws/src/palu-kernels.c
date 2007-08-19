@@ -1,7 +1,12 @@
 /* Copyright 2006 Keith Randall and Bradley C. Kuszmaul. */
-#include <mkl.h>
+/* #include <mkl.h> */
+#include "cblas.h"
 #include "palu-kernels.h"
 
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <alloca.h>
 
 static inline REAL rabs(REAL x) {
   return (x >= 0) ? x : -x;

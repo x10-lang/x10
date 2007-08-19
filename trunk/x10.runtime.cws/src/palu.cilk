@@ -6,9 +6,10 @@
 #include <sys/time.h>
 #include <assert.h>
 
-#include <cilk-lib.cilkh>
+//#include <cilk-lib.cilkh>
+#include <cilk-lib.h>
 
-#define BASE 64
+#define BASE 32
 
 #include "palu-kernels.h"
 
@@ -172,10 +173,24 @@ cilk void permute(REAL *A, int n, int m, int *P, long rowsep) {
   }
 }
 
+static double count_flops(int n)
+{
+     return ((4.0 * (double) n - 3.0) * (double) n -
+	     1.0) * (double) n / 6.0;
+}
+
+
 cilk int main(int argc, char *argv[]) {
-  int n = atoi(argv[1]);
-  int m = atoi(argv[2]);
-  long rowsep = m;
+  int n, m, rowsep;
+
+  if(argc != 3) {
+    printf("Usage: %s <n> <m> \n", argv[0]);
+    return 0;
+  }
+
+  n = atoi(argv[1]);
+  m = atoi(argv[2]);
+   rowsep = m;
   printf("PALU factoring %d x %d\n", n, m);
   {
     int i;
@@ -218,6 +233,7 @@ cilk int main(int argc, char *argv[]) {
     printf("Critical path = %4f ms\n", 1000*Cilk_time_to_sec(cp_elapsed));
     printf("Parallelism = %4f\n", (double)wk_elapsed/(double)cp_elapsed);
     printf("gflops = %g\n", (2.0e-9*n*m*m)/3.0 / Cilk_wall_time_to_sec(tm_elapsed));
+    printf("adjusted gflops = %g\n", count_flops(n) / Cilk_wall_time_to_sec(tm_elapsed));
   }
   return 0;
 }
