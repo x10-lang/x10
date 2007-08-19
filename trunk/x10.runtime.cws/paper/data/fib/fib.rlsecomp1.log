@@ -36,16 +36,16 @@ nprocs=1 FibStack(20)	1350 us	ok	 steals=0	stealAttemps=0
 nprocs=1 FibStack(25)	15176 us	ok	 steals=0	stealAttemps=0
 nprocs=1 FibStack(30)	171335 us	ok	 steals=0	stealAttemps=0
 nprocs=1 FibStack(35)	1866338 us	ok	 steals=0	stealAttemps=0
-nprocs=2 FibStack(20)	785 us	ok	 steals=7	stealAttemps=39
-nprocs=2 FibStack(25)	7650 us	ok	 steals=11	stealAttemps=15
+nprocs=2 FibStack(20)	785 us		ok	 steals=7	stealAttemps=39
+nprocs=2 FibStack(25)	7650 us		ok	 steals=11	stealAttemps=15
 nprocs=2 FibStack(30)	84318 us	ok	 steals=15	stealAttemps=93
 nprocs=2 FibStack(35)	929378 us	ok	 steals=16	stealAttemps=107
-nprocs=4 FibStack(20)	589 us	ok	 steals=15	stealAttemps=162
-nprocs=4 FibStack(25)	4124 us	ok	 steals=37	stealAttemps=178
+nprocs=4 FibStack(20)	589 us		ok	 steals=15	stealAttemps=162
+nprocs=4 FibStack(25)	4124 us		ok	 steals=37	stealAttemps=178
 nprocs=4 FibStack(30)	42473 us	ok	 steals=48	stealAttemps=266
 nprocs=4 FibStack(35)	614747 us	ok	 steals=88	stealAttemps=514
-nprocs=8 FibStack(20)	739 us	ok	 steals=22	stealAttemps=677
-nprocs=8 FibStack(25)	3139 us	ok	 steals=60	stealAttemps=778
+nprocs=8 FibStack(20)	739 us		ok	 steals=22	stealAttemps=677
+nprocs=8 FibStack(25)	3139 us		ok	 steals=60	stealAttemps=778
 nprocs=8 FibStack(30)	31378 us	ok	 steals=114	stealAttemps=1226
 nprocs=8 FibStack(35)	334547 us	ok	 steals=153	stealAttemps=956
 exe=Fib.x procs=1 2 4 8 nums=20 25 30 35 nreps=5
@@ -71,16 +71,16 @@ nprocs=1 FibStack(20)	1819 us	ok	 steals=0	stealAttemps=0
 nprocs=1 FibStack(25)	19861 us	ok	 steals=0	stealAttemps=0
 nprocs=1 FibStack(30)	220617 us	ok	 steals=0	stealAttemps=0
 nprocs=1 FibStack(35)	2469467 us	ok	 steals=0	stealAttemps=0
-nprocs=2 FibStack(20)	1070 us	ok	 steals=10	stealAttemps=39
+nprocs=2 FibStack(20)	1070 us		ok	 steals=10	stealAttemps=39
 nprocs=2 FibStack(25)	10227 us	ok	 steals=11	stealAttemps=52
 nprocs=2 FibStack(30)	110583 us	ok	 steals=15	stealAttemps=68
 nprocs=2 FibStack(35)	1233568 us	ok	 steals=19	stealAttemps=86
-nprocs=4 FibStack(20)	742 us	ok	 steals=16	stealAttemps=173
-nprocs=4 FibStack(25)	5342 us	ok	 steals=35	stealAttemps=194
+nprocs=4 FibStack(20)	742 us		ok	 steals=16	stealAttemps=173
+nprocs=4 FibStack(25)	5342 us		ok	 steals=35	stealAttemps=194
 nprocs=4 FibStack(30)	55878 us	ok	 steals=62	stealAttemps=293
 nprocs=4 FibStack(35)	612047 us	ok	 steals=66	stealAttemps=501
-nprocs=8 FibStack(20)	703 us	ok	 steals=28	stealAttemps=476
-nprocs=8 FibStack(25)	3873 us	ok	 steals=50	stealAttemps=896
+nprocs=8 FibStack(20)	703 us		ok	 steals=28	stealAttemps=476
+nprocs=8 FibStack(25)	3873 us		ok	 steals=50	stealAttemps=896
 nprocs=8 FibStack(30)	31527 us	ok	 steals=137	stealAttemps=1239
 nprocs=8 FibStack(35)	327580 us	ok	 steals=170	stealAttemps=1330
 exe=Fib.x procs=1 2 4 8 nums=20 25 30 35 nreps=5
