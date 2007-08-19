@@ -32,3 +32,80 @@ Sat Aug 18 19:41:48 EDT 2007
 
 ___________________________________________________________________
 
+Folliwing numbers are for the C++ cws versions 
+
+STAMP: rlsecomp1.watson.ibm.com Sat Aug 18 20:20:34 EDT 2007
+Best time of 5 runs
+Results with xlC_r
+exe=NQueensGStack.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
+nprocs=1 NQueensGStack(8)	824 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(10)	17580 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(12)	514570 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(14)	19881463 us ok	 steals=0	stealAttempts=0
+nprocs=2 NQueensGStack(8)	441 us ok	 steals=8	stealAttempts=13
+nprocs=2 NQueensGStack(10)	8846 us ok	 steals=15	stealAttempts=18
+nprocs=2 NQueensGStack(12)	257878 us ok	 steals=20	stealAttempts=24
+nprocs=2 NQueensGStack(14)	9936133 us ok	 steals=27	stealAttempts=33
+nprocs=4 NQueensGStack(8)	347 us ok	 steals=29	stealAttempts=61
+nprocs=4 NQueensGStack(10)	4513 us ok	 steals=45	stealAttempts=70
+nprocs=4 NQueensGStack(12)	128930 us ok	 steals=77	stealAttempts=120
+nprocs=4 NQueensGStack(14)	4969623 us ok	 steals=121	stealAttempts=164
+nprocs=8 NQueensGStack(8)	394 us ok	 steals=36	stealAttempts=333
+nprocs=8 NQueensGStack(10)	3697 us ok	 steals=47	stealAttempts=243
+nprocs=8 NQueensGStack(12)	73779 us ok	 steals=134	stealAttempts=286
+nprocs=8 NQueensGStack(14)	2825283 us ok	 steals=271	stealAttempts=484
+exe=NQueensCStack_a.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
+nprocs=1 NQueensCStack_a(8)	854 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(10)	18509 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(12)	540402 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(14)	20706652 us	ok	 steals=0	stealAttempts=0
+nprocs=2 NQueensCStack_a(8)	545 us	ok	 steals=8	stealAttempts=28
+nprocs=2 NQueensCStack_a(10)	9425 us	ok	 steals=13	stealAttempts=45
+nprocs=2 NQueensCStack_a(12)	270796 us	ok	 steals=23	stealAttempts=69
+nprocs=2 NQueensCStack_a(14)	10366877 us	ok	 steals=38	stealAttempts=83
+nprocs=4 NQueensCStack_a(8)	524 us	ok	 steals=24	stealAttempts=147
+nprocs=4 NQueensCStack_a(10)	5344 us	ok	 steals=51	stealAttempts=124
+nprocs=4 NQueensCStack_a(12)	143509 us	ok	 steals=89	stealAttempts=234
+nprocs=4 NQueensCStack_a(14)	5423963 us	ok	 steals=135	stealAttempts=301
+nprocs=8 NQueensCStack_a(8)	619 us	ok	 steals=25	stealAttempts=462
+nprocs=8 NQueensCStack_a(10)	3754 us	ok	 steals=65	stealAttempts=617
+nprocs=8 NQueensCStack_a(12)	80269 us	ok	 steals=188	stealAttempts=761
+nprocs=8 NQueensCStack_a(14)	2850479 us	ok	 steals=278	stealAttempts=997
+Results with g++
+exe=NQueensGStack.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
+nprocs=1 NQueensGStack(8)	980 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(10)	21263 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(12)	627368 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(14)	24341646 us ok	 steals=0	stealAttempts=0
+nprocs=2 NQueensGStack(8)	514 us ok	 steals=7	stealAttempts=11
+nprocs=2 NQueensGStack(10)	10681 us ok	 steals=12	stealAttempts=16
+nprocs=2 NQueensGStack(12)	313712 us ok	 steals=22	stealAttempts=28
+nprocs=2 NQueensGStack(14)	12153082 us ok	 steals=23	stealAttempts=281
+nprocs=4 NQueensGStack(8)	372 us ok	 steals=39	stealAttempts=66
+nprocs=4 NQueensGStack(10)	5472 us ok	 steals=64	stealAttempts=99
+nprocs=4 NQueensGStack(12)	156947 us ok	 steals=74	stealAttempts=107
+nprocs=4 NQueensGStack(14)	6076916 us ok	 steals=135	stealAttempts=156
+nprocs=8 NQueensGStack(8)	392 us ok	 steals=19	stealAttempts=233
+nprocs=8 NQueensGStack(10)	3779 us ok	 steals=91	stealAttempts=361
+nprocs=8 NQueensGStack(12)	84268 us ok	 steals=228	stealAttempts=453
+nprocs=8 NQueensGStack(14)	3455532 us ok	 steals=392	stealAttempts=615
+exe=NQueensCStack_a.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
+nprocs=1 NQueensCStack_a(8)	826 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(10)	17876 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(12)	528865 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(14)	20376214 us	ok	 steals=0	stealAttempts=0
+nprocs=2 NQueensCStack_a(8)	511 us	ok	 steals=8	stealAttempts=24
+nprocs=2 NQueensCStack_a(10)	9105 us	ok	 steals=14	stealAttempts=43
+nprocs=2 NQueensCStack_a(12)	264094 us	ok	 steals=12	stealAttempts=25
+nprocs=2 NQueensCStack_a(14)	10178836 us	ok	 steals=27	stealAttempts=61
+nprocs=4 NQueensCStack_a(8)	536 us	ok	 steals=22	stealAttempts=128
+nprocs=4 NQueensCStack_a(10)	4938 us	ok	 steals=54	stealAttempts=182
+nprocs=4 NQueensCStack_a(12)	132483 us	ok	 steals=69	stealAttempts=203
+nprocs=4 NQueensCStack_a(14)	5095919 us	ok	 steals=107	stealAttempts=268
+nprocs=8 NQueensCStack_a(8)	569 us	ok	 steals=31	stealAttempts=422
+nprocs=8 NQueensCStack_a(10)	3551 us	ok	 steals=61	stealAttempts=625
+nprocs=8 NQueensCStack_a(12)	75605 us	ok	 steals=176	stealAttempts=985
+nprocs=8 NQueensCStack_a(14)	2733841 us	ok	 steals=247	stealAttempts=27602
+
+---------------------------------------------------------------------
+
