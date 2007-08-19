@@ -1,5 +1,81 @@
 Following are cilk nqueens numbers
 
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.runtime.cws/paper/data/nqueens] for p in 1 2 4 6 8
+> do
+> for n in 8 10 12 14
+> do
+> ./nqueens-no-inlet -nproc $p 5 $n
+> done
+> done
+nqueens(8)=92    ok time=4081.000 us
+nqueens(10)=724  ok time=92355.000 us
+nqueens(12)=14200        ok time=2831116.000 us
+nqueens(14)=365596       ok time=112559141.000 us
+nqueens(8)=92    ok time=2145.000 us
+nqueens(10)=724  ok time=46487.000 us
+nqueens(12)=14200        ok time=1418609.000 us
+nqueens(14)=365596       ok time=56556831.000 us
+nqueens(8)=92    ok time=1097.000 us
+nqueens(10)=724  ok time=23681.000 us
+nqueens(12)=14200        ok time=711725.000 us
+nqueens(14)=365596       ok time=28374617.000 us
+nqueens(8)=92    ok time=1001.000 us
+nqueens(10)=724  ok time=15762.000 us
+nqueens(12)=14200        ok time=474985.000 us
+nqueens(14)=365596       ok time=18896443.000 us
+nqueens(8)=92    ok time=977.000 us
+nqueens(10)=724  ok time=16039.000 us
+nqueens(12)=14200        ok time=360972.000 us
+nqueens(14)=365596       ok time=14179533.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.runtime.cws/paper/data/nqueens] for p in 1 2 4 6 8 ; do for n in 8 10 12 14; do ./nqueens-inlet-counter -nproc $p 5 $n; done; done
+nqueens(8)=92    ok time=4270.000 us
+nqueens(10)=724  ok time=101212.000 us
+nqueens(12)=14200        ok time=3204362.000 us
+nqueens(14)=365596       ok time=131282913.000 us
+nqueens(8)=92    ok time=2240.000 us
+nqueens(10)=724  ok time=50870.000 us
+nqueens(12)=14200        ok time=1607879.000 us
+nqueens(14)=365596       ok time=65816537.000 us
+nqueens(8)=92    ok time=1185.000 us
+nqueens(10)=724  ok time=25819.000 us
+nqueens(12)=14200        ok time=803397.000 us
+nqueens(14)=365596       ok time=32992716.000 us
+nqueens(8)=92    ok time=1036.000 us
+nqueens(10)=724  ok time=17352.000 us
+nqueens(12)=14200        ok time=536134.000 us
+nqueens(14)=365596       ok time=21993776.000 us
+nqueens(8)=92    ok time=980.000 us
+nqueens(10)=724  ok time=14882.000 us
+nqueens(12)=14200        ok time=404532.000 us
+nqueens(14)=365596       ok time=16506495.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.runtime.cws/paper/data/nqueens]
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.runtime.cws/paper/data/nqueens] for p in 1 2 4 6 8 ; do for n in 8 10 12 14; do ./nqueens-atomic -nproc $p 5 $n; done; done
+nqueens(8)=92    ok time=3768.000 us
+nqueens(10)=724  ok time=85562.000 us
+nqueens(12)=14200        ok time=2626512.000 us
+nqueens(14)=365596       ok time=106286605.000 us
+nqueens(8)=92    ok time=1985.000 us
+nqueens(10)=724  ok time=43049.000 us
+nqueens(12)=14200        ok time=1324090.000 us
+nqueens(14)=365596       ok time=53224586.000 us
+nqueens(8)=92    ok time=1115.000 us
+nqueens(10)=724  ok time=21707.000 us
+nqueens(12)=14200        ok time=663161.000 us
+nqueens(14)=365596       ok time=26665643.000 us
+nqueens(8)=92    ok time=924.000 us
+nqueens(10)=724  ok time=17679.000 us
+nqueens(12)=14200        ok time=443215.000 us
+nqueens(14)=365596       ok time=17841037.000 us
+nqueens(8)=92    ok time=920.000 us
+nqueens(10)=724  ok time=12721.000 us
+nqueens(12)=14200        ok time=336943.000 us
+nqueens(14)=365596       ok time=13362984.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/cilk-5.5-matteo] date
+Sun Aug 19 01:44:39 EDT 2007
+
+
+/************************************************************
+obsolete numbers
 [rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for p in 1 2 4 6 8
 > do
 > for n in 8 10 12 14
@@ -29,6 +105,7 @@ nqueens(12)=14200        ok time=468671.000 us
 nqueens(14)=365596       ok time=18615479.000 us
 [rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] date
 Sat Aug 18 19:41:48 EDT 2007
+********************************************************************/
 
 ___________________________________________________________________
 
