@@ -1,7 +1,7 @@
 /*
 ============================================================================
  Name        : Sys.h
- Author      : Rajkishore Barik
+ Author      : Rajkishore Barik, Sriram Krishnamoorthy
  Version     :
  Copyright   : IBM Corporation 2007
  Description : Exe source file
@@ -10,61 +10,33 @@
 #ifndef x10lib_Sys_h
 #define x10lib_Sys_h
 
-/*I am hacking this file to include XLC PowerPC intrinsics on
- * rlsecomp1. I am not sure how this would work on other machines, and
- * if there exists any difference even within the powerpc
- * processors. Those would be worries for some other time.
- * @author Sriram.K
- */
-
 #include <assert.h>
 #include <time.h>
 
-#ifdef __xlC__
-#include <sys/atomic_op.h>
-#endif
-
 namespace x10lib_cws {
-#ifndef __POWERPC__ 
-#define __POWERPC__
 
-#if 1  
+#if defined(__powerpc__) || defined(__ppc__)
+
 #define MEM_BARRIER()  __asm__ __volatile__ ("sync" : : : "memory")
 #define READ_BARRIER()  __asm__ __volatile__ ("lwsync" : : : "memory")
 #define WRITE_BARRIER()  __asm__ __volatile__ ("lwsync" : : : "memory")
-#else
-#define MEM_BARRIER()  __sync()
-#define READ_BARRIER()  __lwsync()
-#define WRITE_BARRIER()  __lwsync()
-#endif
 
-static __inline__ int atomic_exchange(volatile int *ptr, int x)
-{
+static __inline__ int 
+atomic_exchange(volatile int *ptr, int x) {
   int result=0;
-  
-#if 1
   __asm__ __volatile__ (
-			"lwarx %0,0,%1\n stwcx. %2,0,%1\n .long 0x40a2fff8 \n isync\n" :
+			"lwarx %0,0,%1  \n\t"
+			"stwcx. %2,0,%1 \n\t"
+			".long 0x40a2fff8 \n\t"
+			"isync\n" :
 			"=&r"(result) : 
 			"r"(ptr), "r"(x) :
 			"cr0");
-#else
-#warning "Fix atomic_exchange before using. Commented now"
-  assert(0);
-#endif
-  
   return result;
 }
 
-
 static  int
-compare_exchange(int *p, int  old_value, int new_value)
-{
-#if defined(__xlC__)
-  int *old = &old_value;	
-  return compare_and_swap(p, old, new_value);
-
-#elif defined(__GNUC__)
+compare_exchange(int *p, int  old_value, int new_value) {
   int prev;                                        
   __asm__ __volatile__ (                           
 			"\n"
@@ -81,35 +53,11 @@ compare_exchange(int *p, int  old_value, int new_value)
 			"r" (new_value), "m" (*p)
         		: "cc", "memory");
   return prev;
-
-
-#else
-#error "Fix compare_exchange before running. Commented now"
-  int prev;
-  __asm__ __volatile__ (
-			
-        		"1:     lwarx   %0,0,%2\n\
-        				cmpw    0,%0,%3\n\
-        				bne-    2f\n\
-        				stwcx.  %4,0,%2\n\
-        				bne-    1b\
-        				isync\n\
-        		2:"	
-        		: "=&r" (prev), "=m" (*p)
-        		: "r" (p), "r" (old_value), "r" (new_value), "m" (*p)
-        		: "cc", "memory");
-  return prev;
-#endif
 }
 
-static void atomic_add(volatile int* mem, int val)
-{
-    int tmp;
-
-#if defined(__xlC__)
-    fetch_and_add((int *)mem, val); //ignore return value
-#elif defined(__GNUC__)
-
+static void 
+atomic_add(volatile int* mem, int val) {
+  int tmp;
   __asm__ __volatile__ (                                      
 			" #Inline atomic add\n"  
 			"l1:\n\t"
@@ -121,38 +69,84 @@ static void atomic_add(volatile int* mem, int val)
 			: "=&b"(tmp), "=m" (*mem)
 			: "r" (mem), "Ir"(val), "m" (*mem) 
 			: "cr0");
+}
+
+/*sriramk: What is this thing supposed to do*/
+static __inline__ int 
+atomic_fetch(volatile int* mem) {
+  return *mem;
+}
+
+#elif defined(__sparc_v9__)
+
+ /*This requires sparc v9 extension. So we assume we have sparc v9 for now.*/
+ static  __inline__ int
+   compare_exchange(int *p, int  old_value, int new_value) {
+   __asm__ __volatile__ ( "cas [%1],%2,%0"
+			  : "+r" ( new_value )
+			  : "r" ( p ), "r" ( old_value )
+			  : "memory");
+   return old_value;
+ }
+
+ static __inline__ int 
+   atomic_fetch(volatile int* mem) {
+   __asm__ __volatile__ ( "membar #StoreLoad | #LoadLoad" : : : "memory" );
+   return *(volatile int *)mem;
+ }
+ 
+ static __inline__ int
+   atomic_add(volatile int * mem, int val) {
+   int nrv;
+   do {
+     nrv = atomic_fetch(mem);
+   } while (compare_exchange(mem,nrv+val,nrv)!=nrv);
+   return nrv;
+ }
+
+#if 1
+ static __inline__ int 
+   atomic_exchange(volatile int *ptr, register int xchg) {
+   __asm__ volatile ("swap [%1],%0"
+		     :"=r" (xchg)	/* registers written */
+		     :"r"(ptr), "0"(xchg)		/* registers read */
+		     : "memory"
+		     );
+   return xchg;
+ }
 
 #else
-#error "Fix atomic_add before running. Commented now"
-
-    __asm__ __volatile__ (
-			  "/* Inline atomic add */\n"
-			  "0:\t"
-				  "lwarx    %0,0,%2 \n\t"
-				  "add%I3   %0,%0,%3 \n\t"
-				  "stwcx.   %0,0,%2 \n\t"
-				  "bne-     0b \n\t"
-   		  	"isync \n\t"
-			  : "=&b"(tmp), "=m" (*mem)
-			  : "r" (mem), "Ir"(val), "m" (*mem)
-			  : "cr0");
-  
+ static __inline__ int 
+   atomic_exchange(volatile int * mem,
+		   int val) {
+   int nrv;
+   do {
+     nrv = atomic_fetch(mem);
+   } while (compare_exchange(mem,val,nrv)!=nrv);
+   return nrv;
+ }
 #endif
-}
+ 
+
+#  ifdef __sparc_v9__
+#    define MEM_BARRIER()  \
+       __asm__ __volatile__("membar #StoreLoad | #StoreStore | #LoadLoad | #LoadStore" ::: "memory")
+#    define READ_BARRIER() __asm__ __volatile__ ("membar #StoreLoad" ::: "memory")
+#    define WRITE_BARRIER() __asm__ __volatile__ ("": : :"memory")
+#  else
+#    define MEM_BARRIER()  __asm__ __volatile__("stbar" ::: "memory")
+     static inline void READ_BARRIER(void) { int dummy; atomic_exchange(&dummy, 0); }
+#    define WRITE_BARRIER() __asm__ __volatile__ ("": : :"memory")
 #endif
 
 
-static __inline__ int atomic_fetch(volatile int* mem)
-{
-	
-#if defined (__xlC__)
-	//return fetch_and_nop((int *)mem);
-	return *mem;
+
 #else
-#warning "Fix atomic_fetch before running. Commented now"
-	assert(0);
+#error "Architecture not supported yet. Fix atomics in Sys.h to continue."
 #endif
-}
+
+
+
 /*Simple portable timers for now. Could add accurate system-specific
   timers later*/
 
