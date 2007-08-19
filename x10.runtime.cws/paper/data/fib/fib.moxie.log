@@ -28,3 +28,32 @@ n=35     Result: 9227465         Time=4458502.433 us
 
 ____________________________________________________________________________
 
+
+moxie - vijay - sched > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 20 25 30 35 )
+foreach? ./FibStack.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=1 FibStack(20)   4760 us ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(25)   52634 us        ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(30)   583638 us       ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(35)   6473914 us      ok       steals=0       stealAttemps=0
+nprocs=2 FibStack(20)   2491 us ok       steals=6       stealAttemps=26
+nprocs=2 FibStack(25)   26526 us        ok       steals=11      stealAttemps=51
+nprocs=2 FibStack(30)   292501 us       ok       steals=18      stealAttemps=67
+nprocs=2 FibStack(35)   3248630 us      ok       steals=18      stealAttemps=70
+nprocs=4 FibStack(20)   1454 us ok       steals=22      stealAttemps=225
+nprocs=4 FibStack(25)   13557 us        ok       steals=33      stealAttemps=272
+nprocs=4 FibStack(30)   146449 us       ok       steals=49      stealAttemps=344
+nprocs=4 FibStack(35)   1622369 us      ok       steals=73      stealAttemps=472
+nprocs=6 FibStack(20)   1133 us ok       steals=40      stealAttemps=630
+nprocs=6 FibStack(25)   9239 us ok       steals=64      stealAttemps=708
+nprocs=6 FibStack(30)   98071 us        ok       steals=61      stealAttemps=609
+nprocs=6 FibStack(35)   1081853 us      ok       steals=138     stealAttemps=1053
+nprocs=8 FibStack(20)   990 us  ok       steals=59      stealAttemps=913
+nprocs=8 FibStack(25)   7160 us ok       steals=81      stealAttemps=1030
+nprocs=8 FibStack(30)   75946 us        ok       steals=156     stealAttemps=1408
+nprocs=8 FibStack(35)   845041 us       ok       steals=207     stealAttemps=1741
+
+_________________________________________________________
+
