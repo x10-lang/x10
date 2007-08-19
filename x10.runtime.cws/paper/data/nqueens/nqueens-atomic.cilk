@@ -1,11 +1,8 @@
 /*
- * Version of nqueens in cilk with no inlets. We use an array to obtain
- *results from multiple spawned activities. 
- *
- * This is actually a copy of nqueens-no-inlet.cilk.		
+ * Version of nqueens in cilk with no inlets. A single counter is
+ * atomically updated (by one) everytime a solution is found. 
  * @author Sriram Krishnamoorthy
  */
-
 
 #include <cilk.h>
 /*#include <cilk-lib.cilkh>*/
@@ -16,6 +13,23 @@
 #include <time.h>
 #include <assert.h>
 
+static void atomic_add(volatile int* mem, int val)
+{
+    int tmp;
+
+  __asm__ __volatile__ (                                      
+			" #Inline atomic add\n"  
+			"l1:\n\t"
+			"lwarx    %0,0,%2 \n\t"
+			"add%I3   %0,%0,%3 \n\t"
+			"stwcx.   %0,0,%2 \n\t"
+			"bne-     l1 \n\t"  
+			"isync \n\t"
+			: "=&b"(tmp), "=m" (*mem)
+			: "r" (mem), "Ir"(val), "m" (*mem) 
+			: "cr0");
+}
+
 long long nanoTime() {
   struct timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
@@ -24,26 +38,20 @@ long long nanoTime() {
 
 
 static int board_size;
+static volatile int nSolutions;
 
-cilk int nqueens(int *a, int a_size) {
+cilk void nqueens(int *a, int a_size) {
   int *next;
   int row = a_size;
-  int sum, q, i;
+  int q, i;
   int attacked;
   int p, k;
-  int *y;
 
-  if(row >= board_size)
-    return 1;
-
-  y = Cilk_alloca((board_size)*sizeof(int));
-/*   y = malloc((board_size)*sizeof(int)); */
-  assert(y != NULL);
-
-  for(i=0; i<board_size; i++)
-    y[i] = 0;
-
-  sum = 0;
+  if(row >= board_size) {
+    /*return 1;*/
+    atomic_add(&nSolutions, 1);
+  }
+  
   q=0;
 
   while (q < board_size) {
@@ -60,16 +68,13 @@ cilk int nqueens(int *a, int a_size) {
 	next[k]=a[k]; 
       next[row]=q; 
 
-      y[q] = spawn nqueens(next, row+1);
+      spawn nqueens(next, row+1);
     }
     q++;
   }
   sync;
 
-  for(i=0; i<board_size; i++)
-    sum += y[i];
-
-  return sum;
+  return;
 }
 
 cilk int cilk_main(int argc, char *argv[])
@@ -100,12 +105,15 @@ cilk int cilk_main(int argc, char *argv[])
 	CILK_MB();
 
      for(i=0; i<nreps; i++) {
+       nSolutions=0;
+       CILK_MB();
        s = nanoTime();
-       count = spawn nqueens(a, 0);
+       spawn nqueens(a, 0);
        sync;
        t = nanoTime();
        minT = (i>0 && minT<(t-s) ? minT : (t-s));
      }
+     count = nSolutions;
 
      printf("nqueens(%d)=%d\t %s time=%.3lf us \n",
 	    n, count, (count==expectedSolutions[n]?"ok":"fail"),
