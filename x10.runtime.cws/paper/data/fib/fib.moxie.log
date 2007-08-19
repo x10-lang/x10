@@ -76,6 +76,18 @@ moxie - vijay - fib > date
 Sun Aug 19 10:08:46 EDT 2007
 
 
+moxie - vijay - fib > foreach p ( 12 8 6 4 2 1 )
+foreach? ./fib -nproc $p 5 40
+foreach? end
+n=40     Result: 102334155       Time=34097066.290 us
+n=40     Result: 102334155       Time=49595622.932 us
+n=40     Result: 102334155       Time=65484975.683 us
+n=40     Result: 102334155       Time=98027435.206 us
+n=40     Result: 102334155       Time=195540847.694 us
+n=40     Result: 102334155       Time=390939920.763 us
+moxie - vijay - fib > date
+Sun Aug 19 12:57:47 EDT 2007
+
 ____________________________________________________________________________
 
 Following results are for C++ cws
@@ -148,4 +160,15 @@ nprocs=24 FibStack(40)  4416312 us      ok       steals=815     stealAttemps=118
 nprocs=20 FibStack(40)  4851112 us      ok       steals=740     stealAttemps=9086
 nprocs=16 FibStack(40)  5455316 us      ok       steals=567     stealAttemps=5602
 nprocs=12 FibStack(40)  6731798 us      ok       steals=423     stealAttemps=5459
+
+moxie - vijay - sched > foreach p ( 8 6 4 2 1 )
+foreach? ./FibStack.x $p 5 40
+foreach? end
+nprocs=8 FibStack(40)   9282351 us      ok       steals=258     stealAttemps=2152
+nprocs=6 FibStack(40)   12124726 us     ok       steals=181     stealAttemps=1190
+nprocs=4 FibStack(40)   17985496 us     ok       steals=90      stealAttemps=597
+nprocs=2 FibStack(40)   35919579 us     ok       steals=21      stealAttemps=91
+nprocs=1 FibStack(40)   71803459 us     ok       steals=0       stealAttemps=0
+moxie - vijay - sched > date
+Sun Aug 19 11:46:03 EDT 2007
 

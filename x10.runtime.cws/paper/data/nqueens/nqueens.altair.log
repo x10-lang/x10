@@ -1,0 +1,66 @@
+These are cilk numbers (best of 5 runs)
+
+No inlet (array of integers to store result values)
+
+altair - vijay - nqueens > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-no-inlet -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=1483.654 us
+nqueens(10)=724  ok time=32011.539 us
+nqueens(12)=14200        ok time=929608.468 us
+nqueens(14)=365596       ok time=35755580.120 us
+nqueens(8)=92    ok time=1154.138 us
+nqueens(10)=724  ok time=20021.294 us
+nqueens(12)=14200        ok time=469892.649 us
+nqueens(14)=365596       ok time=17882850.524 us
+nqueens(8)=92    ok time=1492.186 us
+nqueens(10)=724  ok time=26300.053 us
+nqueens(12)=14200        ok time=236499.647 us
+nqueens(14)=365596       ok time=8965604.412 us
+nqueens(8)=92    ok time=1493.925 us
+nqueens(10)=724  ok time=25756.235 us
+nqueens(12)=14200        ok time=179070.512 us
+nqueens(14)=365596       ok time=5999242.641 us
+nqueens(8)=92    ok time=1480.804 us
+nqueens(10)=724  ok time=29618.943 us
+nqueens(12)=14200        ok time=141667.321 us
+nqueens(14)=365596       ok time=4526239.198 us
+
+
+
+Code with a inlet and single counter in the parent frame that is updated by all child activities. 
+
+altair - vijay - nqueens >
+altair - vijay - nqueens > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-inlet-counter  -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=1162.336 us
+nqueens(10)=724  ok time=25357.340 us
+nqueens(12)=14200        ok time=751983.836 us
+nqueens(14)=365596       ok time=29619652.852 us
+nqueens(8)=92    ok time=1161.433 us
+nqueens(10)=724  ok time=13160.898 us
+nqueens(12)=14200        ok time=376951.780 us
+nqueens(14)=365596       ok time=14829452.702 us
+nqueens(8)=92    ok time=1161.134 us
+nqueens(10)=724  ok time=15288.957 us
+nqueens(12)=14200        ok time=204548.949 us
+nqueens(14)=365596       ok time=7431496.500 us
+nqueens(8)=92    ok time=1158.227 us
+nqueens(10)=724  ok time=17618.920 us
+nqueens(12)=14200        ok time=139602.810 us
+nqueens(14)=365596       ok time=4963292.234 us
+nqueens(8)=92    ok time=1156.086 us
+nqueens(10)=724  ok time=20111.119 us
+nqueens(12)=14200        ok time=120517.523 us
+nqueens(14)=365596       ok time=3742639.653 us
+altair - vijay - nqueens > date
+Sun Aug 19 00:13:58 EDT 2007
+
+
+---------------------------------------------------------------------------------------
+

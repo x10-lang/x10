@@ -148,6 +148,23 @@ nprocs=8 NQueensCStack_a(8)	619 us	ok	 steals=25	stealAttempts=462
 nprocs=8 NQueensCStack_a(10)	3754 us	ok	 steals=65	stealAttempts=617
 nprocs=8 NQueensCStack_a(12)	80269 us	ok	 steals=188	stealAttempts=761
 nprocs=8 NQueensCStack_a(14)	2850479 us	ok	 steals=278	stealAttempts=997
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 8 10 12 14
+> do
+> ./NQueensGStack.x 6 5 $n
+> done
+nprocs=6 NQueensGStack(8)       310 us ok        steals=35      stealAttempts=120
+nprocs=6 NQueensGStack(10)      2913 us ok       steals=87      stealAttempts=165
+nprocs=6 NQueensGStack(12)      86082 us ok      steals=161     stealAttempts=221
+nprocs=6 NQueensGStack(14)      3312317 us ok    steals=221     stealAttempts=296
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 8 10 12 14; do ./NQueensCStack_a.x 6 5 $n; done
+nprocs=6 NQueensCStack_a(8)     662 us  ok       steals=24      stealAttempts=174
+nprocs=6 NQueensCStack_a(10)    4133 us ok       steals=92      stealAttempts=485
+nprocs=6 NQueensCStack_a(12)    93708 us        ok       steals=125     stealAttempts=286
+nprocs=6 NQueensCStack_a(14)    3660723 us      ok       steals=162     stealAttempts=716
+
+
+
 Results with g++
 exe=NQueensGStack.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
 nprocs=1 NQueensGStack(8)	980 us ok	 steals=0	stealAttempts=0
@@ -183,6 +200,23 @@ nprocs=8 NQueensCStack_a(8)	569 us	ok	 steals=31	stealAttempts=422
 nprocs=8 NQueensCStack_a(10)	3551 us	ok	 steals=61	stealAttempts=625
 nprocs=8 NQueensCStack_a(12)	75605 us	ok	 steals=176	stealAttempts=985
 nprocs=8 NQueensCStack_a(14)	2733841 us	ok	 steals=247	stealAttempts=27602
+
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 8 10 12 14; do ./NQueensGStack.x 6 5 $n; done
+nprocs=6 NQueensGStack(8)       301 us ok        steals=35      stealAttempts=74
+Illegal instruction (core dumped)
+nprocs=6 NQueensGStack(12)      104736 us ok     steals=117     stealAttempts=185
+nprocs=6 NQueensGStack(14)      4052113 us ok    steals=216     stealAttempts=289
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 8 10 12 14; do ./NQueensCStack_a.x 6 5 $n; done
+nprocs=6 NQueensCStack_a(8)     695 us  ok       steals=34      stealAttempts=247
+nprocs=6 NQueensCStack_a(10)    3742 us ok       steals=107     stealAttempts=394
+nprocs=6 NQueensCStack_a(12)    89026 us        ok       steals=130     stealAttempts=721
+nprocs=6 NQueensCStack_a(14)    3396322 us      ok       steals=230     stealAttempts=904
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] ./NQueensGStack.x 6 5 10
+nprocs=6 NQueensGStack(10)      3704 us ok       steals=88      stealAttempts=149
+
+
+
 
 ---------------------------------------------------------------------
 
