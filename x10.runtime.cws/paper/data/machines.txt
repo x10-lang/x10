@@ -8,11 +8,20 @@ Altair -- 4 dual-core Opterons (running Solaris)
   not a perfect indicator either.  
 
 
-Moxie -- Sun 32-way Niagara (running Solaris)
+Moxie -- Sun 32-way Niagara (running Solaris), 32GB memory
   Doug:
   (*) Niagaras are I think fairly atypical of other planned
   MPs based on multicores in that they show few cache contention effects
   of any sort. 
+
+  Could be that moxie has more memory? (32Gb). Other
+  possible differences might stem from us following
+  Sun recommendations for the various suggested /etc/system
+  params for affecting T2000's. Some of them controlling
+  virtual memory seem to have noticeable effect. Also, we keep
+  kernel updated regularly. Also, we have mostly up to date versions
+  of C compilers (both gcc and SunCC).
+
 
 plague -- an Azul machine
  
