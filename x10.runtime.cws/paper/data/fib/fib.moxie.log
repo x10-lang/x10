@@ -1,0 +1,30 @@
+Following are cilk numbers (best of 5 runs)
+
+moxie - vijay - fib > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 20 25 30 35 )
+foreach? ./fib -nproc $p 5 $n
+foreach? end
+foreach? end
+n=20     Result: 6765    Time=25855.050 us
+n=25     Result: 75025   Time=286593.815 us
+n=30     Result: 832040  Time=3176734.375 us
+n=35     Result: 9227465         Time=35228975.997 us
+n=20     Result: 6765    Time=13456.569 us
+n=25     Result: 75025   Time=144531.982 us
+n=30     Result: 832040  Time=1590315.954 us
+n=35     Result: 9227465         Time=17685227.001 us
+n=20     Result: 6765    Time=19825.484 us
+n=25     Result: 75025   Time=77446.139 us
+n=30     Result: 832040  Time=813791.965 us
+n=35     Result: 9227465         Time=8837060.980 us
+n=20     Result: 6765    Time=22330.576 us
+n=25     Result: 75025   Time=62895.617 us
+n=30     Result: 832040  Time=557391.560 us
+n=35     Result: 9227465         Time=5937545.938 us
+n=20     Result: 6765    Time=16014.476 us
+n=25     Result: 75025   Time=50253.100 us
+n=30     Result: 832040  Time=429683.149 us
+n=35     Result: 9227465         Time=4458502.433 us
+
+____________________________________________________________________________
+
