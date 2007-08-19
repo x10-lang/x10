@@ -1,11 +1,8 @@
 /*
  * Version of nqueens in cilk with no inlets. We use an array to obtain
  *results from multiple spawned activities. 
- *
- * This is actually a copy of nqueens-no-inlet.cilk.		
  * @author Sriram Krishnamoorthy
  */
-
 
 #include <cilk.h>
 /*#include <cilk-lib.cilkh>*/
@@ -23,7 +20,36 @@ long long nanoTime() {
 }
 
 
+/*
+ * <a> contains array of <n> queen positions.  Returns 1
+ * if none of the queens conflict, and returns 0 otherwise.
+ */
+int ok(int n, char *a)
+{
+     int i, j;
+     char p, q;
+
+     for (i = 0; i < n; i++) {
+	  p = a[i];
+
+	  for (j = i + 1; j < n; j++) {
+	       q = a[j];
+	       if (q == p || q == p - (j - i) || q == p + (j - i))
+		    return 0;
+	  }
+     }
+     return 1;
+}
+
 static int board_size;
+
+/*
+ * <a> is an array of <j> numbers.  The entries of <a> contain
+ * queen positions already set.  If there is any extension of <a>
+ * to a complete <n> queen setting, returns one of these queen
+ * settings (allocated from the heap).  Otherwise, returns NULL.
+ * Does not side-effect <a>.
+ */
 
 cilk int nqueens(int *a, int a_size) {
   int *next;
