@@ -20,7 +20,7 @@
  *
 \****************************************************************************/
 static const char *ident __attribute__((__unused__))
-     = "$HeadURL: https://bradley.csail.mit.edu/svn/repos/cilk/5.4.3/examples/lu.cilk $ $LastChangedBy: sukhaj $ $Rev: 517 $ $Date: 2007-08-18 10:28:52 $";
+     = "$HeadURL: https://bradley.csail.mit.edu/svn/repos/cilk/5.4.3/examples/lu.cilk $ $LastChangedBy: sukhaj $ $Rev: 517 $ $Date: 2007-08-19 06:07:46 $";
 
 #include <stdlib.h>
 #include <memory.h>
@@ -32,7 +32,7 @@ static const char *ident __attribute__((__unused__))
 
 /* Define the size of a block. */
 #ifndef BLOCK_SIZE
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 32
 #endif
 
 /* Define the default matrix size. */
@@ -550,15 +550,19 @@ cilk int main(int argc, char *argv[])
      if (failed)
 	  printf("WRONG ANSWER!\n");
      else {
-	  printf("\nCilk Example: lu\n");
-	  printf("	      running on %d processor%s\n\n",
-		 Cilk_active_size, Cilk_active_size > 1 ? "s" : "");
-	  printf("Options: (n x n matrix) n = %d\n\n", n);
-	  printf("Running time  = %4f s\n",
-		 Cilk_wall_time_to_sec(tm_elapsed));
-	  printf("Work          = %4f s\n", Cilk_time_to_sec(wk_elapsed));
-	  printf("Critical path = %4f s\n\n",
-		 Cilk_time_to_sec(cp_elapsed));
+/* 	  printf("\nCilk Example: lu\n"); */
+/* 	  printf("	      running on %d processor%s\n\n", */
+/* 		 Cilk_active_size, Cilk_active_size > 1 ? "s" : ""); */
+/* 	  printf("Options: (n x n matrix) n = %d\n\n", n); */
+/* 	  printf("Running time  = %4f s\n", */
+/* 		 Cilk_wall_time_to_sec(tm_elapsed)); */
+/* 	  printf("Work          = %4f s\n", Cilk_time_to_sec(wk_elapsed)); */
+/* 	  printf("Critical path = %4f s\n\n", */
+/* 		 Cilk_time_to_sec(cp_elapsed)); */
+	printf("nprocs=%d N=%d Time=%.4lf ms Rate=%.4lf MFLOPS/s\n",
+	       Cilk_active_size, n, Cilk_wall_time_to_sec(tm_elapsed)*1000.0,
+	       count_flops(n)/1000000.0);
+
      }
 
      /* Free matrix. */
