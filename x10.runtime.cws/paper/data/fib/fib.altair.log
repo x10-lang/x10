@@ -40,6 +40,41 @@ altair - vijay - fib > date
 Sun Aug 19 11:37:30 EDT 2007
 
 
+With -O2 optimization:
+
+
+altair - vijay - fib > foreach p ( 8 6 4 2 1 )
+foreach? foreach n ( 20 25 30 35 40 )
+foreach? ./fib -nproc $p 5 $n
+foreach? end
+foreach? end
+n=20     Result: 6765    Time=473.060 us
+n=25     Result: 75025   Time=5249.236 us
+n=30     Result: 832040  Time=36128.211 us
+n=35     Result: 9227465         Time=117837.203 us
+n=40     Result: 102334155       Time=969256.871 us
+n=20     Result: 6765    Time=479.575 us
+n=25     Result: 75025   Time=4938.394 us
+n=30     Result: 832040  Time=27498.270 us
+n=35     Result: 9227465         Time=134476.162 us
+n=40     Result: 102334155       Time=1225049.920 us
+n=20     Result: 6765    Time=472.094 us
+n=25     Result: 75025   Time=5219.450 us
+n=30     Result: 832040  Time=21102.658 us
+n=35     Result: 9227465         Time=170361.432 us
+n=40     Result: 102334155       Time=1808491.316 us
+n=20     Result: 6765    Time=465.847 us
+n=25     Result: 75025   Time=2952.284 us
+n=30     Result: 832040  Time=29358.074 us
+n=35     Result: 9227465         Time=320733.386 us
+n=40     Result: 102334155       Time=3512848.827 us
+n=20     Result: 6765    Time=480.844 us
+n=25     Result: 75025   Time=5323.559 us
+n=30     Result: 832040  Time=57947.025 us
+n=35     Result: 9227465         Time=638988.060 us
+n=40     Result: 102334155       Time=7084452.115 us
+
+
 -------------------------------------------------------------------------
 
 

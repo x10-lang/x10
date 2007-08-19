@@ -62,6 +62,36 @@ altair - vijay - nqueens > date
 Sun Aug 19 00:13:58 EDT 2007
 
 
+with -O2 optimization:
+
+altair - vijay - nqueens > foreach p ( 8 6 4 2 1 )                              foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-inlet-counter -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=591.955 us
+nqueens(10)=724  ok time=12538.881 us
+nqueens(12)=14200        ok time=95089.834 us
+nqueens(14)=365596       ok time=1847505.993 us
+nqueens(8)=92    ok time=591.280 us
+nqueens(10)=724  ok time=11350.986 us
+nqueens(12)=14200        ok time=92570.902 us
+nqueens(14)=365596       ok time=2419364.171 us
+nqueens(8)=92    ok time=590.672 us
+nqueens(10)=724  ok time=8878.728 us
+nqueens(12)=14200        ok time=106896.499 us
+nqueens(14)=365596       ok time=3619364.942 us
+nqueens(8)=92    ok time=591.905 us
+nqueens(10)=724  ok time=6640.773 us
+nqueens(12)=14200        ok time=187247.307 us
+nqueens(14)=365596       ok time=7229839.449 us
+nqueens(8)=92    ok time=593.325 us
+nqueens(10)=724  ok time=12812.191 us
+nqueens(12)=14200        ok time=374847.308 us
+nqueens(14)=365596       ok time=14461815.173 us
+altair - vijay - nqueens >
+
+
+
 ---------------------------------------------------------------------------------------
 
 Following are numbers for c++ cws
