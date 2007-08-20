@@ -9,7 +9,7 @@ function benchmark() {
     nums=$3
     nreps=$4
 
-    echo "exe=$exe procs=$procs nums=$nums nreps=$nreps"
+    echo "exe=$exe procs=$nprocs nums=$nums nreps=$nreps"
 
     for p in $nprocs
       do
@@ -57,12 +57,12 @@ make NQueensC.x &> /dev/null
 make NQueensCStack_a.x &> /dev/null
 make NQueensGStack.x &> /dev/null
 
-benchmark FibStack.x "$PROCS" "$FIBNUMS" $nReps
-benchmark Fib.x      "$PROCS" "$FIBNUMS" $nReps
+#benchmark FibStack.x "$PROCS" "$FIBNUMS" $nReps
+#benchmark Fib.x      "$PROCS" "$FIBNUMS" $nReps
 
 benchmark NQueensGStack.x "$PROCS" "$QNUMS" $nReps
 benchmark NQueensCStack_a.x "$PROCS" "$QNUMS" $nReps
-benchmark NQueensC.x      "$PROCS" "$QNUMS" $nReps
+#benchmark NQueensC.x      "$PROCS" "$QNUMS" $nReps
 
 
 
@@ -78,11 +78,11 @@ make GCC=y NQueensC.x &> /dev/null
 make GCC=y NQueensCStack_a.x &> /dev/null
 make GCC=y NQueensGStack.x &> /dev/null
 
-benchmark FibStack.x "$PROCS" "$FIBNUMS" $nReps
-benchmark Fib.x      "$PROCS" "$FIBNUMS" $nReps
+#benchmark FibStack.x "$PROCS" "$FIBNUMS" $nReps
+#benchmark Fib.x      "$PROCS" "$FIBNUMS" $nReps
 
 benchmark NQueensGStack.x "$PROCS" "$QNUMS" $nReps
 benchmark NQueensCStack_a.x "$PROCS" "$QNUMS" $nReps
-benchmark NQueensC.x      "$PROCS" "$QNUMS" $nReps
+#benchmark NQueensC.x      "$PROCS" "$QNUMS" $nReps
 
 

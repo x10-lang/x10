@@ -69,6 +69,7 @@ Executable *Frame::execute(Worker *w) {
   c->resetExceptionPointer(w);
   compute(w);
   w->catchAllException();
+  delete this;
   return NULL;
 }
 

@@ -252,7 +252,7 @@ int main(int argc, char *argv[]) {
       long _ssa = g->getStealAttempts();
       long long s = nanoTime();
       g->submit(job);
-      int result = job->getInt();
+      result = job->getInt();
       long long t = nanoTime();
       long _tsc = g->getStealCount();
       long _tsa = g->getStealAttempts();
@@ -266,7 +266,8 @@ int main(int argc, char *argv[]) {
     }
 
     cout<<"nprocs="<<procs
-	<<" NQueensGStack("<<i<<")" << "\t" <<minT/1000<<" us "
+	<<" NQueensGStack("<<i<<")" 
+	<< "\t" <<minT/1000<<" us "
     	<< ((result == expectedSolutions[i]) ? "ok" : "fail" )
     	<< "\t" << " steals="<< sc
         << "\t" << "stealAttempts=" << sa
