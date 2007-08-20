@@ -36,7 +36,7 @@ class NQueensC;
 
 
 
-static int boardSize;
+static volatile int boardSize;
 
 
 class anon_Outlet1 : public virtual Outlet {
@@ -153,7 +153,7 @@ static int nQueens(Worker *w, int *a, int a_size, Closure *cl) {
   }
   
   NQueensC(NFrame *frame) : Closure(frame) { frame->ownerClosure = this; }
-  ~NQueensC() {    /*delete frame;*/  }
+  ~NQueensC() {    delete frame;  }
   // Slow path
   virtual void compute(Worker *w, Frame *frame)  {
 	  NFrame *f = (NFrame *) frame;
