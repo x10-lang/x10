@@ -9,7 +9,7 @@
 ** Following #defines are for use with the -list option only. They
 ** are ignored with the -hndlr option.
 */ 
-#define IP_STRING "125.99.234.161"   /* change to addr for even tasks */
+#define IP_STRING "127.0.0.1"   /* change to addr for even tasks */
 #define BASE_PORT      62555           /* change this to the base port number */ 
 
 /* Setup the initial environment, reading command line args and */

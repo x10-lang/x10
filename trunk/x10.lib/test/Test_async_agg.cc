@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.5 2007-08-17 13:18:38 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.6 2007-08-20 14:08:54 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -79,7 +79,7 @@ struct args {
 int 
 main (int argc, char* argv[])
 {
-  int N = 1023;
+  int N = 127;
 
   x10lib::Init(NULL,0);
 
@@ -94,7 +94,7 @@ main (int argc, char* argv[])
 //       }
        ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
        ASYNC_SPAWN (target, 1, &arg, 0);
-       ASYNC_SPAWN (target, 2, i, m);
+      ASYNC_SPAWN (target, 2, i, m);
     } 
    ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
    ASYNC_FLUSH  (1, 0);
