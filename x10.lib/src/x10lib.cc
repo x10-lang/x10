@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.15 2007-08-17 13:18:38 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.16 2007-08-20 14:08:54 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -46,6 +46,8 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 {
 	char *envp;
 	lapi_info_t info;
+	
+	//cout << "enter init" << endl;
 
 	/* already inited; give up */
 	if (__x10_inited == 1)
@@ -108,6 +110,8 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
        delete [] info.add_info->add_udp_addrs;
        delete info.add_info;
 #endif
+
+       //cout << "exit init" << endl;
 
 	return X10_OK;
 }
