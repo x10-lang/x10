@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.4 2007-08-21 06:10:25 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.5 2007-08-21 11:26:33 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -16,6 +16,7 @@
 
 using namespace x10lib;
 using namespace std;
+
 
 #define X10_MAX_LOG_NUMPROCS 8
 
@@ -155,6 +156,7 @@ asyncAggInit_hc()
   for (int i = 0; i < X10_MAX_AGG_HANDLERS; i++) {
     __x10_agg_arg_buf[i] = new char* [__x10_num_places];
     __x10_agg_counter[i] = new int[__x10_num_places];
+   
     for (int j = 0; j < __x10_num_places; j++) {
       __x10_agg_counter[i][j] = 0;      
       __x10_agg_arg_buf[i][j] = new char [X10_MAX_AGG_SIZE * 32 * sizeof(x10_async_arg_t)];
@@ -186,16 +188,16 @@ asyncAggFinalize_hc ()
 }
 
 static x10_err_t
-sort_data_args (x10_async_handler_t hndlr,  int& ssize, size_t size, uint64_t mask, int phase, int cond)
+sort_data_args (x10_async_handler_t hndlr,  int& ssize, size_t size, ulong mask, int phase, int cond)
 { 
 
   for (x10_place_t p = 0; p < __x10_num_places; p++) {
     
     if (p == __x10_my_place) continue;
-
-        //cout << "Hello " << __x10_my_place << " " << (p & mask) << " " << p << " " << __x10_agg_counter[hndlr][p] << endl;
-    
-    if ( MIN((((uint64_t) p) & mask), 1) == cond && __x10_agg_counter[hndlr][p] > 0) {    
+       
+    if ( (MIN((((ulong) p) & mask), 1) == cond) && (__x10_agg_counter[hndlr][p] > 0)) {    
+      
+      //cout << "Hello " << __x10_my_place << " " << (p & mask) << " " << p << " " << __x10_agg_counter[hndlr][p] << endl;    
       
       memcpy (&(sbuf[ssize]), &p, sizeof(x10_place_t)); 
       ssize += sizeof(x10_place_t);
@@ -214,9 +216,9 @@ sort_data_args (x10_async_handler_t hndlr,  int& ssize, size_t size, uint64_t ma
 }
 
 static x10_err_t
-sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, uint64_t mask, int phase, int cond)
+sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask, int phase, int cond)
 { 
-  for (size_t s = 0; s < recvMesgLen[phase]; ) {
+  for (int s = 0; s < recvMesgLen[phase]; ) {
     
     x10_place_t p =  *((x10_place_t*) (rbuf[phase] + s));
     s += sizeof (x10_place_t);
@@ -226,31 +228,35 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, uint64_t ma
 
     //if (phase == 2) {cout << " P : " << p << endl; assert (p == __x10_my_place);}
 
-    if (p == __x10_my_place) 
-      {
-	//int cntr = __x10_agg_counter[hndlr][p];
-	asyncSwitch(hndlr, rbuf[phase] + s, message_size);
-	//memcpy (&(__x10_agg_arg_buf[hndlr][__x10_my_place][cntr]), rbuf + s, message_size * size);
-	//__x10_agg_counter[hndlr][p] += message_size;	
+   //  if (p == __x10_my_place) 
+//       {
+// 	//int cntr = __x10_agg_counter[hndlr][p];
+// 	asyncSwitch(hndlr, rbuf[phase] + s, message_size);
+// 	//memcpy (&(__x10_agg_arg_buf[hndlr][__x10_my_place][cntr]), rbuf + s, message_size * size);
+// 	//__x10_agg_counter[hndlr][p] += message_size;	
+    
+//       } else 
+    
+    if ((MIN((((ulong) p) & mask), 1) == cond) && (message_size > 0)) {    
+      
+      assert (message_size > 0);
+      
+      memcpy (&(sbuf[ssize]), &p, sizeof(x10_place_t));       
+      ssize += sizeof(x10_place_t);
 	
-      } else if ( MIN((((uint64_t) p) & mask), 1) == cond) {    
-	
-	memcpy (&(sbuf[ssize]), &p, sizeof(x10_place_t));       
-	ssize += sizeof(x10_place_t);
-	
-	memcpy (&(sbuf[ssize]), &message_size, sizeof(int));        
-	ssize += sizeof(int);
-	
-	memcpy (&(sbuf[ssize]), rbuf[phase] + s, message_size * size);        
-	ssize += message_size * size;
-      } else {	
-	int cntr = __x10_agg_counter[hndlr][p];	
-
-	assert (cntr + message_size < 1024 * 16 * 2 * 8);
-
-	memcpy (&(__x10_agg_arg_buf[hndlr][p][cntr * size]), rbuf[phase] + s, message_size * size);
-	__x10_agg_counter[hndlr][p] += message_size;	
-      }
+      memcpy (&(sbuf[ssize]), &message_size, sizeof(int));        
+      ssize += sizeof(int);
+      
+      memcpy (&(sbuf[ssize]), rbuf[phase] + s, message_size * size);        
+      ssize += message_size * size;
+    } else if (message_size > 0) {	
+      int cntr = __x10_agg_counter[hndlr][p];	
+      
+      assert (cntr + message_size < 1024 * 16 * 2 * 8);
+      
+      memcpy (&(__x10_agg_arg_buf[hndlr][p][cntr * size]), rbuf[phase] + s, message_size * size);
+      __x10_agg_counter[hndlr][p] += message_size;	
+    }
     
     s += message_size * size;
   }
@@ -262,13 +268,12 @@ send_updates (int& ssize, int phase, int partner)
   lapi_cntr_t cntr;
   int tmp;
 
-    //cout << "send " << phase << " " << __x10_my_place <<" " << partner << " " << *((int*) (sbuf)) << " " << *((int*) (sbuf + 4)) << " " << ssize << endl;       
-
+  cout << "send " << phase << " " << __x10_my_place <<" " << partner << " " << *((int*) (sbuf)) << " " << *((int*) (sbuf + 4)) << " " << ssize << endl;       
 
   assert (ssize < 2 * 32 * 1024 * 8);
 
   ulong phase_l = (ulong) phase;
-  { cout << "phase : " << phase << " " << sizeof(phase_l) << "  ssize: " << ssize << " p : " << __x10_my_place << " " << partner << endl; }
+  //{ cout << "phase : " << phase << " " << sizeof(phase_l) << "  ssize: " << ssize << " p : " << __x10_my_place << " " << partner << endl; }
   LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
   LRC(LAPI_Amsend(__x10_hndl, partner, (void *)8, &phase_l,
 		  sizeof(phase_l),
@@ -299,8 +304,8 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
     int phase = 0;
     for (; factor < __x10_num_places; phase++, factor *= 2) {
       
-      uint64_t partner = (1 << phase) ^ (uint64_t)__x10_my_place;
-      uint64_t mask = ((uint64_t) 1) << phase;
+      ulong partner = (1 << phase) ^ (ulong)__x10_my_place;
+      ulong mask = ((ulong) 1) << phase;
       
       int tmp;
       
@@ -325,13 +330,13 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
 
       send_updates (ssize, phase, partner);  
       
-      //LAPI_Gfence (__x10_hndl);  
+      LAPI_Gfence (__x10_hndl);  
         
     }      
 
     int tmp;
 
-    //    cout << "phase end " << phase << endl;
+    cout << "phase end " << phase << endl;
 
     LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &tmp);
     

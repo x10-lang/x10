@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.6 2007-08-20 14:08:54 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.7 2007-08-21 11:26:34 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -68,47 +68,46 @@ void asyncSwitch (x10_async_handler_t h, void* arg, int niter)
  
 }
 
-
-
 typedef void (*void_func_t) ();
 
-struct args {
-
+struct args 
+{
 
 };
+
 int 
 main (int argc, char* argv[])
 {
-  int N = 127;
+  int N = 511;
 
   x10lib::Init(NULL,0);
 
   struct args arg;
-   for (x10_place_t target = 0; target < __x10_num_places; target++)
-     for (long i = 0; i < N; i++) {
-//       if (target == x10lib::here()) {
-//        async0 ((x10_async_arg_t) i);
-//        async1 ();
-//        async2 (i, m);
-//        continue; 
-//       }
-       ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
-       ASYNC_SPAWN (target, 1, &arg, 0);
+  for (x10_place_t target = 0; target < __x10_num_places; target++)
+    for (long i = 0; i < N; i++) {
+      //       if (target == x10lib::here()) {
+      //        async0 ((x10_async_arg_t) i);
+      //        async1 ();
+      //        async2 (i, m);
+      //        continue; 
+      //       }
+      //       ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
+      //       ASYNC_SPAWN (target, 1, &arg, 0);
       ASYNC_SPAWN (target, 2, i, m);
     } 
-   ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
-   ASYNC_FLUSH  (1, 0);
-   ASYNC_FLUSH (2, 2*sizeof(x10_async_arg_t));
-
-     
+  //   ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
+  //   ASYNC_FLUSH  (1, 0);
+  ASYNC_FLUSH (2, 2*sizeof(x10_async_arg_t));
+  
+  
   x10lib::SyncGlobal(); 
   assert (I == __x10_num_places * N * (N-1) / 2 * m);
   assert (J == __x10_num_places * N * (N-1) / 2 * m);
   assert (K == __x10_num_places * N) ;
- 
+  
   cout << __x10_my_place << " I " << I << " " << J << " " << K << endl;
   cout << "Test_async_agg PASSED" << endl;
-
+  
   x10lib::Finalize();
 
   return 0;
