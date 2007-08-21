@@ -54,6 +54,7 @@ public class PreLoader {
 	 * @param intern whether to intern string constants
 	 */
 	public static void preLoad(Class c, boolean intern) {
+		if (c.getClassLoader() == bootstrap) return;
 		preLoad(getClassFile(c), c, intern);
 	}
 	private static void preLoad(String name, Class c) {
