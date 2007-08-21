@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.5 2007-08-21 11:26:33 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.6 2007-08-21 14:29:48 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -194,11 +194,11 @@ sort_data_args (x10_async_handler_t hndlr,  int& ssize, size_t size, ulong mask,
   for (x10_place_t p = 0; p < __x10_num_places; p++) {
     
     if (p == __x10_my_place) continue;
-       
-    if ( (MIN((((ulong) p) & mask), 1) == cond) && (__x10_agg_counter[hndlr][p] > 0)) {    
-      
-      //cout << "Hello " << __x10_my_place << " " << (p & mask) << " " << p << " " << __x10_agg_counter[hndlr][p] << endl;    
-      
+    
+    //    cout << "Hello " << __x10_my_place << " " << (p & mask) << " " << (MIN((((ulong) p) & mask), 1)) << " " <<  p << " " << __x10_agg_counter[hndlr][p] << endl;     
+    if (((MIN((((ulong) p) & mask), 1)) == cond) && (__x10_agg_counter[hndlr][p] > 0)) {    
+            
+     
       memcpy (&(sbuf[ssize]), &p, sizeof(x10_place_t)); 
       ssize += sizeof(x10_place_t);
       
@@ -225,7 +225,7 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
 
     int message_size = *((int *) (rbuf[phase] + s));    
     s += sizeof (int);
-
+    
     //if (phase == 2) {cout << " P : " << p << endl; assert (p == __x10_my_place);}
 
    //  if (p == __x10_my_place) 
@@ -237,7 +237,7 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
     
 //       } else 
     
-    if ((MIN((((ulong) p) & mask), 1) == cond) && (message_size > 0)) {    
+    if (((MIN((((ulong) p) & mask), 1)) == cond) && (message_size > 0)) {    
       
       assert (message_size > 0);
       
@@ -268,7 +268,7 @@ send_updates (int& ssize, int phase, int partner)
   lapi_cntr_t cntr;
   int tmp;
 
-  cout << "send " << phase << " " << __x10_my_place <<" " << partner << " " << *((int*) (sbuf)) << " " << *((int*) (sbuf + 4)) << " " << ssize << endl;       
+  //cout << "send " << phase << " " << __x10_my_place <<" " << partner << " " << *((int*) (sbuf)) << " " << *((int*) (sbuf + 4)) << " " << ssize << endl;       
 
   assert (ssize < 2 * 32 * 1024 * 8);
 
@@ -336,7 +336,7 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
 
     int tmp;
 
-    cout << "phase end " << phase << endl;
+    //    cout << "phase end " << phase << endl;
 
     LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &tmp);
     
@@ -353,6 +353,13 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
     
     asyncSwitch(hndlr, __x10_agg_arg_buf[hndlr][__x10_my_place], __x10_agg_counter[hndlr][__x10_my_place]);
     __x10_agg_counter[hndlr][__x10_my_place]=0;
+    
+    //for (int i = 0;i < __x10_num_places; i++) {
+    // assert (__x10_agg_counter[hndlr][i] == 0);
+    //if (__x10_agg_counter[hndlr][i] != 0) cout << "test " << __x10_my_place << " " << i << " " 
+    //					 <<__x10_agg_counter[hndlr][i] << endl;
+    //}
+    
   }
   
   X10_DEBUG (1,  "Exit");
