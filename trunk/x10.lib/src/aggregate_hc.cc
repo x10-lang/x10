@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.6 2007-08-21 14:29:48 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.7 2007-08-21 14:50:03 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -228,16 +228,14 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
     
     //if (phase == 2) {cout << " P : " << p << endl; assert (p == __x10_my_place);}
 
-   //  if (p == __x10_my_place) 
-//       {
-// 	//int cntr = __x10_agg_counter[hndlr][p];
-// 	asyncSwitch(hndlr, rbuf[phase] + s, message_size);
-// 	//memcpy (&(__x10_agg_arg_buf[hndlr][__x10_my_place][cntr]), rbuf + s, message_size * size);
-// 	//__x10_agg_counter[hndlr][p] += message_size;	
-    
-//       } else 
-    
-    if (((MIN((((ulong) p) & mask), 1)) == cond) && (message_size > 0)) {    
+    if (p == __x10_my_place) 
+      {
+	//int cntr = __x10_agg_counter[hndlr][p];
+	asyncSwitch(hndlr, rbuf[phase] + s, message_size);
+	//memcpy (&(__x10_agg_arg_buf[hndlr][__x10_my_place][cntr]), rbuf + s, message_size * size);
+	//__x10_agg_counter[hndlr][p] += message_size;	
+	
+      } else if (((MIN((((ulong) p) & mask), 1)) == cond) && (message_size > 0)) {    
       
       assert (message_size > 0);
       
@@ -330,7 +328,7 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
 
       send_updates (ssize, phase, partner);  
       
-      LAPI_Gfence (__x10_hndl);  
+      //      LAPI_Gfence (__x10_hndl);  
         
     }      
 
@@ -346,7 +344,7 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
     sort_data_recvs (hndlr, ssize, size, 0, phase-1, 1);
     recvMesgLen[phase-1] = 0;
 
-    LAPI_Fence (__x10_hndl);  
+    //    LAPI_Gfence (__x10_hndl);  
     __x10_agg_total[hndlr] = 0;
 
     //assert (__x10_agg_counter[hndlr][__x10_my_place] == 0);           
