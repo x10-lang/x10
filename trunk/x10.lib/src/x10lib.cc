@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.16 2007-08-20 14:08:54 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.17 2007-08-21 06:10:25 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -52,6 +52,7 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	/* already inited; give up */
 	if (__x10_inited == 1)
 		return X10_ERR_INIT;
+
 
 	/* query and set the environment variables */
 	/* POE/LAPI environ vars that hold default values

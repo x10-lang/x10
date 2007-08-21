@@ -6,7 +6,7 @@
 
 echo "poe <executable_name> -procs #procs"
 
-for n in `seq 1 $(($3-1))`;
+for n in `seq 1 $(($3-1))`
 do
   ssh localhost -f "$PWD/poe_internal.sh \"$PWD/$1\" $n $3"
 done

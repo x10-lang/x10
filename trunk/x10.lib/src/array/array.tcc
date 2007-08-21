@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.11 2007-08-14 12:27:48 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.12 2007-08-21 06:10:26 ganeshvb Exp $ */
 
 #include "array.h"
 #include <x10/alloc.h>
@@ -150,8 +150,8 @@ makeArrayLocal (const Region<RANK>* region, const Dist<RANK>* dist)
   addrTable = new void* [__x10_num_places];
   for (x10_place_t p = 0; p < __x10_num_places; p++)
     addrTable[p] = (char*) GlobalSMAlloc->addrTable (p) + GlobalSMAlloc->offset();
-  
-  void* arraySpace = x10lib::GlobalSMAlloc->chunk (sizeof(Array<T, RANK>) + local_size * sizeof(T));
+
+  void* arraySpace = x10lib::GlobalSMAlloc->chunk ((uint64_t) sizeof(Array<T, RANK>) + local_size * (uint64_t) sizeof(T));
   T* data = (T*) ((char*) arraySpace + sizeof(Array<T, RANK>)); 
   ret = new(arraySpace) Array<T, RANK>(region, dist, local_size, data, addrTable);
 
@@ -344,7 +344,6 @@ Array <T, RANK> :: getLocalElementAt (const Point<RANK>& p) const
   
   uint64_t n = region_->ord(p);
 
-  //  cout << "here " << n << " " << p.value(0) << endl;
   
   T& ret = getLocalElementAt (n);
  
