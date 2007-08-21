@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.13 2007-06-25 15:47:47 srkodali Exp $
+ * $Id: types.h,v 1.14 2007-08-21 06:10:25 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -13,7 +13,7 @@
 #include <sys/types.h>
 
 /* async handler */
-typedef long x10_async_arg_t;
+typedef long long x10_async_arg_t;
 typedef int x10_async_handler_t;
 typedef int x10_place_t;
 

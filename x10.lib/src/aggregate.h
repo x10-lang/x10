@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.13 2007-08-17 13:18:38 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.14 2007-08-21 06:10:25 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,7 +12,7 @@
 #include <x10/types.h>
 #include <x10/async.h>
 
-#define X10_MAX_AGG_HANDLERS 10
+#define X10_MAX_AGG_HANDLERS 3
 #define X10_MAX_AGG_TASKS 1024
 #define X10_MAX_AGG_SIZE 1024
 

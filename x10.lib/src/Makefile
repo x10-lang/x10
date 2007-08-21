@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.36 2007-08-17 13:18:38 ganeshvb Exp $
+# $Id: Makefile,v 1.37 2007-08-21 06:10:25 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -14,10 +14,10 @@ SUBDIR1 = array
 SUBDIR2 = sched
 SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 LIBDIR = ../lib
-CXX = mpCC_r 
-DEFS = -DNDEBUG -DX10_DLEVEL=0 -DHYPERCUBE_ROUTING
-CXXFLAGS = -g #-qtune=pwr5 -O3 -q64 -qarch=pwr5 -qhot 
-INCLUDES = -I. -I../include 
+CXX = mpCC_r -q64 -qarch=pwr5 
+DEFS = -DNDEBUG  -DX10_DLEVEL=0
+CXXFLAGS = -qtune=pwr5 -O3 -qinline -qhot
+INCLUDES = -I. -I../include
 LINKFLAGS =
 RM = rm -f
 AR = ar
@@ -41,19 +41,18 @@ ARRAY_A = $(SUBDIR1)/array.a
 SRCS = aggregate.cc async.cc env.cc err.cc finish.cc gas.cc lock.cc \
 		order.cc progress.cc \
 		register.cc rmc.cc switch.cc x10lib.cc asyncSwitch.cc \
-		utility.cc misc.cc clock.cc
+		utility.cc misc.cc clock.cc aggregate_hc.cc
 OBJS = aggregate.o async.o env.o err.o finish.o gas.o lock.o \
 		order.o progress.o \
 		register.o rmc.o switch.o x10lib.o asyncSwitch.o \
-		utility.o misc.o clock.o
+		utility.o misc.o clock.o aggregate_hc.o
 HEADERS = env.h err.h gas.h lock.h order.h progress.h \
 		register.h rmc.h switch.h types.h x10lib.h xassert.h \
 		xmacros.h aggregate.h async.h finish.h utility.h misc.h \
-                clock.h
-
+                clock.h 
 all: $(LIBTARGET) 
 
-#$(LIBTARGET): $(OBJS) $(SCHED_A)
+#$(LIBTARGET): $(OBJS) #$(SCHED_A)
 $(LIBTARGET): $(OBJS) $(ARRAY_A)
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(ARRAY_A)
@@ -76,7 +75,7 @@ install: $(LIBTARGET)
 
 clean:
 	(cd $(SUBDIR1); $(MAKE) $@)
-	(cd $(SUBDIR2); $(MAKE) $@)
+#	(cd $(SUBDIR2); $(MAKE) $@)
 	$(RM) $(LIBTARGET) $(OBJS) *.log core*
 	
 .cc.o: $(SRCS) $(HEADERS)
