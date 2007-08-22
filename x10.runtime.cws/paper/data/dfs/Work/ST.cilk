@@ -27,7 +27,7 @@ V* r_graph(int n,int m)
         L[j].v1=v1;
 	L[j++].v2=v2;
      } 
-    printf(" number of edges got is %d\n",j);
+//    printf(" number of edges got is %d\n",j);
 
     M = malloc(sizeof(int *)*n);
     D = malloc(sizeof(int)*n);
@@ -42,7 +42,7 @@ V* r_graph(int n,int m)
     for(i=0;i<n;i++) {
 	M[i]=malloc(sizeof(int)*(D[i]+2)); /*+2 leaves space for making connected*/
     }
-    printf("finished allocating structures\n");
+//    printf("finished allocating structures\n");
 
     for(i=0;i<n;i++) D[i]=0;
 
@@ -59,9 +59,9 @@ V* r_graph(int n,int m)
         D[L[i].v2]++;
     }   
     free(L);
-    printf("finished generating the matrix\n");
-    printf("checking if is connected\n");
-    printf("n is %d\n",n);
+//    printf("finished generating the matrix\n");
+//    printf("checking if is connected\n");
+//    printf("n is %d\n",n);
     color = malloc(sizeof(char)*n);
     stack = malloc(sizeof(int)*n);
     info  = malloc(sizeof(int)*n);
@@ -95,7 +95,7 @@ V* r_graph(int n,int m)
       }
     }
 
-    printf("checking done,tail is %d\n",tail);
+//    printf("checking done,tail is %d\n",tail);
     for(i=0;i<tail-1;i++)
     {
        M[info[i]][D[info[i]]++]=info[i+1];
@@ -127,7 +127,7 @@ V* r_graph(int n,int m)
         }
    }
 
-    printf("done generating graph structure\n");
+//    printf("done generating graph structure\n");
     for(i=0;i<n;i++)
      free(M[i]);
     free(M);
@@ -406,7 +406,7 @@ void verify(V* G, int n)
 		 free(D);
 		 return;
 	}
-   printf("verify success\n");
+//   printf("verify success\n");
    free(D);
 }
 
@@ -420,23 +420,23 @@ cilk int main(int argc, char *argv[])
 	Cilk_time cp_begin, cp_elapsed;
 	float s_best, s_elapsed;
 
-	if(argc!=3) printf("usage: ST <n> <m>\n");
+	if(argc!=2) printf("usage: ST <n> \n");
 
 	n_vertices = atoi (argv[1]);
-	n_edges = atoi(argv[2]);
+	n_edges = 4 * n_vertices;
 
-	printf("n_vertics=%d, n_edges=%d\n", n_vertices, n_edges);
+//	printf("n_vertics=%d, n_edges=%d\n", n_vertices, n_edges);
  	G=r_graph(n_vertices,n_edges);
 	color = (int *) malloc(sizeof(int)*n_vertices);
 	for(i=0;i<n_vertices;i++) color[i]=0;
-	printf("r_graph done\n");
+//	printf("r_graph done\n");
 	/* Timing. "Start" timers */
 	sync;
 /*
 	cp_begin = Cilk_user_critical_path;
 	wk_begin = Cilk_user_work;
 */
-	for(i=0;i<5;i++)
+	for(i=0;i<9;i++)
 	{
 		tm_begin = Cilk_get_wall_time();
 		spawn ST(G,n_vertices);	
@@ -448,7 +448,8 @@ cilk int main(int argc, char *argv[])
 		verify(G,n_vertices);
 		for(j=0;j<n_vertices;j++) color[j]=0;
 	}
-	printf("Running time (best of 5)  = %4f s\n", s_best);
+	printf("%4f ", n_edges/(1000000*s_best));
+//	printf("Running time (best of 5)  = %4f s\n", s_best);
 	
 	/* Timing. "Stop" timers */
 /*	wk_elapsed = Cilk_user_work - wk_begin;
