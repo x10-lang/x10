@@ -1,0 +1,10 @@
+#!/bin/bash
+OUTPUT=traversal_metrics_scale
+n=5000000
+m=20000000
+echo traversal results on rand graphs: >$OUTPUT
+for i in 1 2 4 6 8 12 14 16 18 20 22 24 26 28 30 32
+do
+    echo $n $m $i processor >>$OUTPUT
+    ./span -t $i -- 0 $n $m >> $OUTPUT 
+done
