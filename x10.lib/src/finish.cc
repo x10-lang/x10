@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.13 2007-06-27 17:06:57 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.14 2007-08-22 14:33:57 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -96,10 +96,6 @@ finishInit ()
   LRC (LAPI_Addr_set (__x10_hndl, (void*) exceptionHeaderHandler, 3));
   LRC (LAPI_Addr_set (__x10_hndl, (void*) continueHeaderHandler, 4));
   LRC (LAPI_Addr_set (__x10_hndl, (void*) numChildHeaderHandler, 5));
-  LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr1, exceptionCntr));
-  LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr2, continueCntr));
-  LRC (LAPI_Setcntr (__x10_hndl, &cntr1, 0));
-  LRC (LAPI_Setcntr (__x10_hndl, &cntr2, 0));
 
   //allocate the fence tree structure
   ftree = new ptree_t;
@@ -118,15 +114,17 @@ finishInit ()
   }
    
   ftree->numChild = 0; //leaves have no children
+
+  LAPI_Gfence (__x10_hndl);
+
   if (ftree->parent == __x10_my_place && __x10_my_place !=0) { //non-Task0 parent
-    x10_place_t p = __x10_my_place;
     ftree->numChild = ftree->numPeers;
     //send an active message to 0 to let it know that
     // I am a remote parent
     LAPI_Amsend (__x10_hndl,
                  0,
                  (void*) 5,
-                 &p,
+                 &__x10_my_place,
                  sizeof(x10_place_t),
                  NULL,
                  0,
@@ -138,8 +136,13 @@ finishInit ()
     //number of children of Task0 = #peers + #remote parents 
     ftree->numChild += ftree->numPeers ;
   }
+
+  LRC (LAPI_Setcntr (__x10_hndl, &cntr1, 0));
+  LRC (LAPI_Setcntr (__x10_hndl, &cntr2, 0));
+  LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr1, exceptionCntr));
+  LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr2, continueCntr));
   
-  LAPI_Gfence(__x10_hndl);
+  //LAPI_Gfence(__x10_hndl);
   return X10_OK;
 } 
 
