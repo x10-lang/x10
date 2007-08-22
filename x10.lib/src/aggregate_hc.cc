@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.7 2007-08-21 14:50:03 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.8 2007-08-22 10:59:53 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -277,7 +277,7 @@ send_updates (int& ssize, int phase, int partner)
 		  sizeof(phase_l),
 		  (void *) sbuf,
 		  ssize,
-		  NULL, &cntr, NULL));
+		  NULL, &cntr, 0));
   LRC(LAPI_Waitcntr(__x10_hndl, &cntr, 1, &tmp));
 
   ssize = 0;
@@ -344,19 +344,13 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
     sort_data_recvs (hndlr, ssize, size, 0, phase-1, 1);
     recvMesgLen[phase-1] = 0;
 
-    //    LAPI_Gfence (__x10_hndl);  
     __x10_agg_total[hndlr] = 0;
 
-    //assert (__x10_agg_counter[hndlr][__x10_my_place] == 0);           
     
     asyncSwitch(hndlr, __x10_agg_arg_buf[hndlr][__x10_my_place], __x10_agg_counter[hndlr][__x10_my_place]);
     __x10_agg_counter[hndlr][__x10_my_place]=0;
     
-    //for (int i = 0;i < __x10_num_places; i++) {
-    // assert (__x10_agg_counter[hndlr][i] == 0);
-    //if (__x10_agg_counter[hndlr][i] != 0) cout << "test " << __x10_my_place << " " << i << " " 
-    //					 <<__x10_agg_counter[hndlr][i] << endl;
-    //}
+     LAPI_Gfence (__x10_hndl);  
     
   }
   
