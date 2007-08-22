@@ -9,25 +9,28 @@ using namespace x10lib;
 using namespace x10::lang;
 using namespace java::lang;
 
+typedef uint64_t x10_long_t;
+typedef int32_t x10_int_t;
+
 /**
  * X10LIB version of FT
  * Uses the same distribution as Ft.x10
  * Please see README in x10/ for more details
  */
 
-extern  void Ft_initialize (double* Array, int* desc, int size, int offset, int PID);
-extern void Ft_initializeC (int numPLACE, int nx, int ny, int nz, int offset, int cpad_cols);
-extern  void Ft_computeInitialConditions (double* Array, int* desc,int PID);
-extern  void Ft_init_exp (double* Array, int* desc,double alpha, int PID);
-extern  void Ft_set_orientation (int orientation);
-extern  void Ft_parabolic2 (double* out,  int* desc1, double* in,  int* desc2,double* ex,  int* desc3, int t, double alpha);
-extern  void Ft_FFTInit (int comm, double* local2d, int* desc, double* local1d, int* desc2, int PID);
+extern  void Ft_initialize (double* Array, x10_int_t* desc, x10_int_t size, x10_int_t offset, x10_int_t PID);
+extern void Ft_initializeC (x10_int_t numPLACE, x10_int_t nx, x10_int_t ny, x10_int_t nz, x10_int_t offset, x10_int_t cpad_cols);
+extern  void Ft_computeInitialConditions (double* Array, x10_int_t* desc,x10_int_t PID);
+extern  void Ft_init_exp (double* Array, x10_int_t* desc,double alpha, x10_int_t PID);
+extern  void Ft_set_orientation (x10_int_t orientation);
+extern  void Ft_parabolic2 (double* out,  x10_int_t* desc1, double* in,  x10_int_t* desc2,double* ex,  x10_int_t* desc3, x10_int_t t, double alpha);
+extern  void Ft_FFTInit (x10_int_t comm, double* local2d, x10_int_t* desc, double* local1d, x10_int_t* desc2, x10_int_t PID);
 extern  void Ft_FFTWTest();
-extern  void Ft_FT_1DFFT (int ft_comm, double* in, int* desc, double* out, int* desc2, int offset, int dir, int orientation, int PID);
-extern void Ft_FFT2DLocalCols (double* local2d, int* desc, int ComplexOffset, int dir, int orientation, int PID);
-extern void Ft_FFT2DLocalRow (double* local2d, int* desc, int ComplexOffset, int dir, int orientation, int PID);
-extern int Ft_origindexmap (int x, int y, int z);
-extern int Ft_getowner (int x, int y, int z);
+extern  void Ft_FT_1DFFT (x10_int_t ft_comm, double* in, x10_int_t* desc, double* out, x10_int_t* desc2, x10_int_t offset, x10_int_t dir, x10_int_t orientation, x10_int_t PID);
+extern void Ft_FFT2DLocalCols (double* local2d, x10_int_t* desc, x10_int_t ComplexOffset, x10_int_t dir, x10_int_t orientation, x10_int_t PID);
+extern void Ft_FFT2DLocalRow (double* local2d, x10_int_t* desc, x10_int_t ComplexOffset, x10_int_t dir, x10_int_t orientation, x10_int_t PID);
+extern x10_int_t Ft_origindexmap (x10_int_t x, x10_int_t y, x10_int_t z);
+extern x10_int_t Ft_getowner (x10_int_t x, x10_int_t y, x10_int_t z);
 
 
 class Ft;
@@ -38,12 +41,12 @@ struct
 
 struct __async__0__args
 {
-  __async__0__args (int _captVar1, double _captVar2, double _captVar3) : 
+  __async__0__args (x10_int_t _captVar1, double _captVar2, double _captVar3) : 
     captVar1 (_captVar1),
     captVar2 (_captVar2),
     captVar3 (_captVar3){}
 
-  int captVar1;
+  x10_int_t captVar1;
   double captVar2;
   double captVar3;
 };
@@ -52,31 +55,31 @@ void __async__0 (__async__0__args args);
 
 place PLACE (x10lib::here());
 
-static int CS = 0;
+static x10_int_t CS = 0;
 
 
 class Ft {  
-private: const static int OFFSET = 3;
-private: const static int CPAD_COLS = 0;
-private: const static int PLANES_ORIENTED_X_Y_Z = 0;
-private: const static int PLANES_ORIENTED_Y_Z_X = 1;
-private: const static int PLANES_ORIENTED_Z_X_Y = 2;
-private: const static int FT_COMM_SLABS = 0;
-private: const static int FT_COMM_PENCILS = 1;
-private: const static int FFT_FWD = 1;
-private: const static int FFT_BWD = 0;
+private: const static x10_int_t OFFSET = 3;
+private: const static x10_int_t CPAD_COLS = 0;
+private: const static x10_int_t PLANES_ORIENTED_X_Y_Z = 0;
+private: const static x10_int_t PLANES_ORIENTED_Y_Z_X = 1;
+private: const static x10_int_t PLANES_ORIENTED_Z_X_Y = 2;
+private: const static x10_int_t FT_COMM_SLABS = 0;
+private: const static x10_int_t FT_COMM_PENCILS = 1;
+private: const static x10_int_t FFT_FWD = 1;
+private: const static x10_int_t FFT_BWD = 0;
  
-public: const int FT_COMM;
+public: const x10_int_t FT_COMM;
  
 public: class DoubleArray  {     
 public:
   
   Array<double, 1>* m_array;
   RectangularRegion <1>* m_domain;
-  int m_length;
-  int m_offset;
-  int m_start;
-  int m_end;
+  x10_int_t m_length;
+  x10_int_t m_offset;
+  x10_int_t m_start;
+  x10_int_t m_end;
    
   DoubleArray  () :
     m_array (NULL),
@@ -112,7 +115,7 @@ public:
     return *this;
   }
 
-  DoubleArray (int size, int offset, int proc) 
+  DoubleArray (x10_int_t size, x10_int_t offset, x10_int_t proc) 
   {
     m_length = size;
     m_offset = offset;
@@ -123,7 +126,7 @@ public:
     m_array = makeArrayRemote <double, 1, RectangularRegion, ConstDist> (m_domain, NULL, proc);
   }
 
-  //  DoubleArray (int start, int end, int offset) 
+  //  DoubleArray (x10_int_t start, x10_int_t end, x10_int_t offset) 
   // {
 //     m_length = end-start+1;
 //     m_offset = offset;
@@ -142,20 +145,20 @@ public : class DistDoubleArray
 
     static const Dist<1>* ALLPLACES;
 
-    static const int N_PLACES;
+    static const x10_int_t N_PLACES;
 
     //    Array<DoubleArray, 1>* m_array;
 
     DoubleArray* m_array;
-    int m_size;
-    int m_localSize;
+    x10_long_t m_size;
+    x10_long_t m_localSize;
     
-    DoubleArray getArray (int idx) const
+    DoubleArray getArray (x10_long_t idx) const
       {        
 	return m_array[idx];
       }
     
-    DistDoubleArray (const int size, const int offset) 
+    DistDoubleArray (const x10_long_t size, const x10_long_t offset) 
     {	
       m_size = size;
       m_localSize = size / N_PLACES;	
@@ -164,11 +167,11 @@ public : class DistDoubleArray
 
       m_array = new DoubleArray [ALLPLACES->region()->card()];
       
-      for (int i = 0; i < ALLPLACES->region()->card(); i++)
+      for (x10_int_t i = 0; i < ALLPLACES->region()->card(); i++)
 	m_array[i] = *(new DoubleArray (m_localSize, offset, i));  
     }
 
-    void serialize (char* buf, int& offset) const
+    void serialize (char* buf, x10_int_t& offset) const
     {       
       memcpy (buf + offset, &m_array, sizeof(m_array));
       offset += sizeof(m_array);
@@ -179,14 +182,14 @@ public : class DistDoubleArray
       
       //this should be called transitively on DoublArray.
       //For the moment, this suffices.
-      for (int i = 0; i < ALLPLACES->region()->card(); i++)
+      for (x10_int_t i = 0; i < ALLPLACES->region()->card(); i++)
 	{
 	  memcpy (buf + offset, &(m_array[i]), sizeof(m_array[i]));
 	  offset += sizeof(m_array[i]);
 	}
     }
     
-    DistDoubleArray (char* buf, int& offset)
+    DistDoubleArray (char* buf, x10_int_t& offset)
     {       
       memcpy (&m_array, buf + offset, sizeof(m_array));
       offset += sizeof(m_array);
@@ -199,7 +202,7 @@ public : class DistDoubleArray
       
       //this should be called transitively on DoublArray.
       //For the moment, this is sufficient.
-      for (int i = 0; i < ALLPLACES->region()->card(); i++)
+      for (x10_int_t i = 0; i < ALLPLACES->region()->card(); i++)
 	{
 	  memcpy (&(m_array[i]), buf + offset, sizeof(m_array[i]));
 	  offset += sizeof(m_array[i]);
@@ -209,20 +212,20 @@ public : class DistDoubleArray
   
 friend void __async__0 (__async__0__args args);
 
-private : static int NUMPLACES;
+private : static x10_int_t NUMPLACES;
 private : const static Dist<1>* ALLPLACES;
   
-private : const static int SS=1;
-private : const static int WW=2;
-private : const static int AA=3;
-private : const static int BB=4;
-private : const static int CC=5;
-private : const static int DD=6;
+private : const static x10_int_t SS=1;
+private : const static x10_int_t WW=2;
+private : const static x10_int_t AA=3;
+private : const static x10_int_t BB=4;
+private : const static x10_int_t CC=5;
+private : const static x10_int_t DD=6;
 
 private : String class_id_str;
 private : char class_id_char;
-private : int CLASS, NX, NY, NZ, MAXDIM, MAX_ITER, TOTALSIZE, MAX_PADDED_SIZE;
-private : int dims[9];
+private : x10_long_t CLASS, NX, NY, NZ, MAXDIM, MAX_ITER, TOTALSIZE, MAX_PADDED_SIZE;
+private : x10_int_t dims[9];
 private : double* checksum_real;
 private : double* checksum_imag;
 
@@ -239,20 +242,20 @@ public: static double mysecond()
   }
  
 
-public : int switch_view (int orientation, int PID) {
-  int next_orientation = (orientation + 1) % 3;
+public : x10_int_t switch_view (x10_int_t orientation, x10_int_t PID) {
+  x10_int_t next_orientation = (orientation + 1) % 3;
   //if (PID == 0)
     set_orientation (next_orientation);
   return next_orientation;
 }
 
-public : int set_view (int orientation, int PID) {
+public : x10_int_t set_view (x10_int_t orientation, x10_int_t PID) {
   //if (PID == 0) 
   set_orientation (orientation);
   return orientation;
 }
  
-public :  Ft( int type, int comm) : 
+public :  Ft( x10_int_t type, x10_int_t comm) : 
   CLASS (type),
   FT_COMM(comm)
   {
@@ -301,11 +304,11 @@ public :  Ft( int type, int comm) :
   dims[3] = NY; dims[4] = NZ+CPAD_COLS; dims[5] = NX;
   dims[6] = NZ; dims[7] = NX+CPAD_COLS; dims[8] = NY;
   checksum_real =  new double [MAX_ITER];
-  for (int i = 0; i < MAX_ITER; i++)
+  for (x10_int_t i = 0; i < MAX_ITER; i++)
     checksum_real[i] = 0;
 
   checksum_imag =  new double [MAX_ITER];
-  for (int i = 0; i < MAX_ITER; i++)
+  for (x10_int_t i = 0; i < MAX_ITER; i++)
     checksum_imag[i] = 0;
   
   
@@ -313,33 +316,33 @@ public :  Ft( int type, int comm) :
   }
  
   
-public : static  void initialize (double* Array, int size, int offset, int PID)
+public : static  void initialize (double* Array, x10_int_t size, x10_int_t offset, x10_int_t PID)
   {
     Ft_initialize (Array, NULL, size, offset, PID);
   }
   
-public: static void initializeC (int numPLACE, int nx, int ny, int nz, int offset, int cpad_cols)
+public: static void initializeC (x10_int_t numPLACE, x10_int_t nx, x10_int_t ny, x10_int_t nz, x10_int_t offset, x10_int_t cpad_cols)
   {
     Ft_initializeC (numPLACE, nx, ny, nz, offset, cpad_cols);
   }
-public: static  void computeInitialConditions (double* Array, int PID)
+public: static  void computeInitialConditions (double* Array, x10_int_t PID)
   {
     Ft_computeInitialConditions (Array, NULL, PID);
   }
-public: static  void init_exp (double* Array, double alpha, int PID)
+public: static  void init_exp (double* Array, double alpha, x10_int_t PID)
   {
     Ft_init_exp (Array, NULL, alpha, PID);
   }
 
-  public: static  void set_orientation (int orientation)
+  public: static  void set_orientation (x10_int_t orientation)
   {
     Ft_set_orientation (orientation);
   }
-public: static  void parabolic2 (double* out, double* in, double* ex, int t, double alpha)
+public: static  void parabolic2 (double* out, double* in, double* ex, x10_int_t t, double alpha)
   {
     Ft_parabolic2 (out, NULL, in, NULL, ex, NULL, t, alpha);
   }
-public: static  void FFTInit (int comm, double* local2d, double* local1d, int PID)
+public: static  void FFTInit (x10_int_t comm, double* local2d, double* local1d, x10_int_t PID)
   {
     Ft_FFTInit (comm, local2d, NULL, local1d, NULL, PID);
   }
@@ -347,32 +350,32 @@ public: static  void FFTWTest()
   {
     Ft_FFTWTest();
   }
-public: static  void FT_1DFFT (int ft_comm, double* in, double* out, int offset, int dir, int orientation, int PID)
+public: static  void FT_1DFFT (x10_int_t ft_comm, double* in, double* out, x10_int_t offset, x10_int_t dir, x10_int_t orientation, x10_int_t PID)
   {
     Ft_FT_1DFFT (ft_comm, in, NULL, out, NULL, offset, dir, orientation, PID);
   }
-public: static void FFT2DLocalCols (double* local2d, int ComplexOffset, int dir, int orientation, int PID)
+public: static void FFT2DLocalCols (double* local2d, x10_int_t ComplexOffset, x10_int_t dir, x10_int_t orientation, x10_int_t PID)
   {
     Ft_FFT2DLocalCols (local2d, NULL, ComplexOffset, dir, orientation, PID);
   }
-public: static void FFT2DLocalRow (double* local2d, int ComplexOffset, int dir, int orientation, int PID)
+public: static void FFT2DLocalRow (double* local2d, x10_int_t ComplexOffset, x10_int_t dir, x10_int_t orientation, x10_int_t PID)
   {
     Ft_FFT2DLocalRow (local2d, NULL, ComplexOffset, dir, orientation, PID);
   }
-public: static int origindexmap (int x, int y, int z)
+public: static x10_int_t origindexmap (x10_int_t x, x10_int_t y, x10_int_t z)
   {
     Ft_origindexmap (x, y, z);
   }
-public: static int getowner (int x, int y, int z)
+public: static x10_int_t getowner (x10_int_t x, x10_int_t y, x10_int_t z)
   {
     Ft_getowner (x, y, z);
   }
   
 public :  void solve() {
 
-  int size = 4*(sizeof(DistDoubleArray) + NUMPLACES * sizeof(DoubleArray)); 
+  x10_int_t size = 4*(sizeof(DistDoubleArray) + NUMPLACES * sizeof(DoubleArray)); 
   char buf[size];
-  int offset = 0;
+  x10_int_t offset = 0;
   const DistDoubleArray* Planes2d;
   const DistDoubleArray* Planes1d;
   const DistDoubleArray* V;
@@ -390,7 +393,7 @@ public :  void solve() {
       V->serialize (buf, offset);
       ex->serialize (buf, offset);
     }
-  
+
   SyncGlobal();
   
   Broadcast (buf, size, 0);
@@ -406,7 +409,8 @@ public :  void solve() {
    
   /* passing constants to C, which are stored as external variables */		  
   initializeC (NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
-   
+  
+ 
   double cputime1 = -mysecond();		
    
   x10_place_t PID = PLACE.HERE;
@@ -416,7 +420,7 @@ public :  void solve() {
   Clock* clk = new Clock;
    
   double cputime2; 
-  int current_orientation = set_view (PLANES_ORIENTED_X_Y_Z, PID);
+  x10_int_t current_orientation = set_view (PLANES_ORIENTED_X_Y_Z, PID);
    
   //clockNext (clk, 1);
      
@@ -473,9 +477,9 @@ public :  void solve() {
    
   current_orientation = switch_view(current_orientation, PID);
 
-  int saved_orientation = current_orientation;
+  x10_int_t saved_orientation = current_orientation;
    
-  for (int iter = 1; iter <= MAX_ITER; iter ++){
+  for (x10_int_t iter = 1; iter <= MAX_ITER; iter ++){
     
     current_orientation = set_view(saved_orientation, PID);
         
@@ -519,10 +523,10 @@ public :  void solve() {
 
 }
  
-public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray dist1d, const int dir, const int orientation, const int placeID, Clock* c){
+public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c){
    
-  int dim0, dim1, dim2;
-  int plane_size, CHUNK_SZ, numrows;
+  x10_int_t dim0, dim1, dim2;
+  x10_int_t plane_size, CHUNK_SZ, numrows;
      
   dim0 = dims[orientation*3];
   dim1 = dims[orientation*3+1];
@@ -533,7 +537,7 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
   CHUNK_SZ = (dim0/NUMPLACES)*dim1;
 
   numrows = dim0/NUMPLACES;
-  int p, t, i, offset1, offset2;
+  x10_int_t p, t, i, offset1, offset2;
      
   Array<double, 1> * local2darray = local2d.m_array;
      
@@ -548,22 +552,22 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
       
       for (t = 0; t <NUMPLACES; t++){
 	
-	int destID = t;
+	x10_int_t destID = t;
 	
 	offset2 = offset1 + destID * CHUNK_SZ + i*dim1;
 	
 	FFT2DLocalRow(BASE_PTR(local2darray), offset2, dir, orientation, placeID);
 	
-	int srcStart = offset2*2;
+	x10_int_t srcStart = offset2*2;
 	
-	int destStart = 2*(placeID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
+	x10_int_t destStart = 2*(placeID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
 	
 	const x10_place_t destPlace =  ALLPLACES->place (destID);
 	
 	Array<double, 1> * local1darray = dist1d.getArray(destID).m_array; 
 
 	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, NULL);
-	//asyncArrayCopy (local2darray, Point<1> (srcStart), local1darray, Point<1> (destStart), destID, 2 * dim1, c);
+	//asyncArrayCopy (local2darray, Pox10_int_t<1> (srcStart), local1darray, Pox10_int_t<1> (destStart), destID, 2 * dim1, c);
       }
     
   }
@@ -573,7 +577,7 @@ public : void FFT2DComm_Pencil (const DoubleArray local2d, const DistDoubleArray
 }
 
 	
-public :  void FFT2DComm(const DoubleArray local2d, const DistDoubleArray dist1d, const int dir, const int orientation, const int placeID, Clock* clk)
+public :  void FFT2DComm(const DoubleArray local2d, const DistDoubleArray dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* clk)
   {
     if (FT_COMM == FT_COMM_SLABS)
       FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID, clk);
@@ -581,15 +585,15 @@ public :  void FFT2DComm(const DoubleArray local2d, const DistDoubleArray dist1d
       FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID, clk);
   }
 
-private : void checksum(const DoubleArray C, const int PID, const int itr) {
-  int j, q, r, s, idx;
+private : void checksum(const DoubleArray C, const x10_int_t PID, const x10_int_t itr) {
+  x10_int_t j, q, r, s, idx;
   double sum_real = 0;
   double sum_imag = 0;
      
-  int proc;
+  x10_int_t proc;
   const double* temp = BASE_PTR(C.m_array) + OFFSET; 
 
-  int total=0;
+  x10_int_t total=0;
 //  CS = finishStart (CS);
   for (j=1; j <= 1024; ++j){
     q = j % NX;
@@ -600,7 +604,7 @@ private : void checksum(const DoubleArray C, const int PID, const int itr) {
     if (proc == PID) {
       total++;
       idx = 2*origindexmap(q,r,s);//+C.m_start;
-      //System.out.println(" [ "+proc+", "+idx+"])");
+      //System.out.prx10_int_tln(" [ "+proc+", "+idx+"])");
       sum_real+=temp[idx];
       sum_imag+=temp[idx+1];
     }
@@ -623,13 +627,13 @@ private : void checksum(const DoubleArray C, const int PID, const int itr) {
 } 
    
    
-public :  void printArray(const DistDoubleArray DDA){
+public :  void prx10_int_tArray(const DistDoubleArray DDA){
 
   x10_place_t PID = PLACE.HERE;   
   DoubleArray da = DDA.getArray(PID);
   cout << "At place " << PID << endl;
      
-  for (int i = da.m_domain->origin().value(0); i < da.m_domain->diagonal().value(0); i++) {
+  for (x10_int_t i = da.m_domain->origin().value(0); i < da.m_domain->diagonal().value(0); i++) {
     if (i%2 == 0) 
       cout << " [" << (i/2) << "]= (" <<  BASE_PTR(da.m_array)[i] << endl;
     else
@@ -657,9 +661,9 @@ public : static void  main (x10::array<x10::ref<x10::lang::String> >& args) {
    * others  => Debug cube
    */
      
-  int CLASS = 0; 
-  int COMM = FT_COMM_SLABS;  
-  for (int q = 0; q < args.length; ++q) {		
+  x10_int_t CLASS = 0; 
+  x10_int_t COMM = FT_COMM_SLABS;  
+  for (x10_int_t q = 0; q < args.length; ++q) {		
     if ((*args[q]).equals(String ("-s")) || (*args[q]).equals(String ("-S"))) {
       CLASS = 1;
     }
@@ -689,11 +693,11 @@ public : static void  main (x10::array<x10::ref<x10::lang::String> >& args) {
 }	
    
    
-private :  void checksum_verify(const int d1, const int d2, const int d3, const int nt,
+private :  void checksum_verify(const x10_int_t d1, const x10_int_t d2, const x10_int_t d3, const x10_int_t nt,
 				const double* real_sums, 
 				const double* imag_sums){
      
-  int i;
+  x10_int_t i;
   double err, epsilon;
   bool known_class = false;
   bool verified = false;
@@ -1063,13 +1067,13 @@ private :  void checksum_verify(const int d1, const int d2, const int d3, const 
    
 };
 
-int Ft::NUMPLACES=numPlaces();
+x10_int_t Ft::NUMPLACES=numPlaces();
 const Dist<1>* Ft::ALLPLACES = Dist<1>::makeUnique();
-const int Ft::DistDoubleArray::N_PLACES=numPlaces();
+const x10_int_t Ft::DistDoubleArray::N_PLACES=numPlaces();
 const Dist<1>* Ft::DistDoubleArray::ALLPLACES = Dist<1>::makeUnique();
 
 extern "C" {
-  int main (int ac, char* av[])
+  int main (x10_int_t ac, char* av[])
   {
     x10::array<x10::ref<x10::lang::String> >* args = x10::convert_args (ac, av);
     
@@ -1084,7 +1088,7 @@ extern "C" {
 void
 __async__0 (__async__0__args args)
 {
-  int itr = args.captVar1;
+  x10_int_t itr = args.captVar1;
   double res_real = args.captVar2;
   double res_imag = args.captVar3;
   GLOBAL_SPACE.FtSolver->checksum_real[itr-1] += res_real;
@@ -1093,12 +1097,12 @@ __async__0 (__async__0__args args)
 
 
 void
-asyncSwitch (x10_async_handler_t h, void* arg, int niter)
+asyncSwitch (x10_async_handler_t h, void* arg, x10_int_t niter)
 {
   char* args = (char*) arg;
   switch (h) {
   case 0:
-    for (int i = 0; i < niter; i++) {
+    for (x10_int_t i = 0; i < niter; i++) {
       __async__0(*((__async__0__args*)args));
       args += sizeof(__async__0__args);
     }
