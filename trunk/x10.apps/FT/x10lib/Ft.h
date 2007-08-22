@@ -6,6 +6,7 @@
  * collide with existing compiler complex types (that we don't want to rely
  * on).
  */
+
 typedef 
 struct __ComPLex {
     double real;
