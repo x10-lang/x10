@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.7 2007-08-21 11:26:34 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.8 2007-08-22 14:33:57 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -78,25 +78,26 @@ struct args
 int 
 main (int argc, char* argv[])
 {
-  int N = 511;
+  int N = 1024;
 
   x10lib::Init(NULL,0);
 
   struct args arg;
-  for (x10_place_t target = 0; target < __x10_num_places; target++)
-    for (long i = 0; i < N; i++) {
+  for (long i = 0; i < N; i++) {
+    for (x10_place_t target = 0; target < __x10_num_places; target++) {
       //       if (target == x10lib::here()) {
       //        async0 ((x10_async_arg_t) i);
       //        async1 ();
       //        async2 (i, m);
       //        continue; 
       //       }
-      //       ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
-      //       ASYNC_SPAWN (target, 1, &arg, 0);
+      ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
+      ASYNC_SPAWN (target, 1, &arg, 0);
       ASYNC_SPAWN (target, 2, i, m);
-    } 
-  //   ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
-  //   ASYNC_FLUSH  (1, 0);
+    }
+  } 
+  ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
+  ASYNC_FLUSH  (1, 0);
   ASYNC_FLUSH (2, 2*sizeof(x10_async_arg_t));
   
   

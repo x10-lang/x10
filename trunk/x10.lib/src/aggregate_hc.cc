@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.8 2007-08-22 10:59:53 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.9 2007-08-22 14:33:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -24,7 +24,7 @@ using namespace std;
 
 static char sbuf [2 * 32 * X10_MAX_AGG_SIZE * 8];
 
-static char* rbuf[X10_MAX_LOG_NUMPROCS];
+static char* rbuf[2][X10_MAX_LOG_NUMPROCS];
 
 static char** __x10_agg_arg_buf[X10_MAX_AGG_HANDLERS];
 
@@ -32,7 +32,7 @@ static int* __x10_agg_counter[X10_MAX_AGG_HANDLERS];
 
 static int __x10_agg_total[X10_MAX_AGG_HANDLERS];
 
-size_t recvMesgLen[X10_MAX_LOG_NUMPROCS];
+size_t recvMesgLen[2][X10_MAX_LOG_NUMPROCS];
 
 lapi_cntr_t recvCntr[X10_MAX_LOG_NUMPROCS];
 
@@ -55,15 +55,15 @@ asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
  
   //  if (__x10_my_place == 2) cout << "HI " << endl;
 
-//  int tmp;
+  int tmp;
 
-//  LAPI_Getcntr (__x10_hndl, &recvCntr[b->phase], &tmp);
+  LAPI_Getcntr (__x10_hndl, &recvCntr[b->phase], &tmp);
 
-//  assert (tmp == 0);
+  assert (tmp < 2);
 
-  LAPI_Setcntr (__x10_hndl, &recvCntr[b->phase], 1);
+  LAPI_Setcntr (__x10_hndl, &recvCntr[b->phase], tmp + 1);
   
-  recvMesgLen[b->phase] = b->len;
+  recvMesgLen[tmp][b->phase] = b->len;
 
   assert (b->len < 2 * 16384 * 16);
   
@@ -141,9 +141,12 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
   *comp_h = asyncSpawnCompHandlerAgg;
   ret_info->ret_flags = LAPI_LOCAL_STATE;
   *user_info = (void*) a;
+  
+  int tmp;
+  LAPI_Getcntr (__x10_hndl, &recvCntr[a->phase], &tmp);
 
   X10_DEBUG (1,  "Exit");  
-  return rbuf[a->phase];  
+  return rbuf[tmp][a->phase];  
 }
 
 x10_err_t 
@@ -164,7 +167,8 @@ asyncAggInit_hc()
   } 
 
   for (int i = 0; i < X10_MAX_LOG_NUMPROCS; i++) {
-    rbuf[i] = new char [16384 * 32];
+    rbuf[0][i] = new char [16384 * 32];
+    rbuf[1][i] = new char [16384 * 32];
     LAPI_Setcntr (__x10_hndl, &(recvCntr[i]), 0);  
   }
   
@@ -216,14 +220,14 @@ sort_data_args (x10_async_handler_t hndlr,  int& ssize, size_t size, ulong mask,
 }
 
 static x10_err_t
-sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask, int phase, int cond)
+sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask, int phase, int cond, int cntrVal)
 { 
-  for (int s = 0; s < recvMesgLen[phase]; ) {
+  for (int s = 0; s < recvMesgLen[cntrVal][phase]; ) {
     
-    x10_place_t p =  *((x10_place_t*) (rbuf[phase] + s));
+    x10_place_t p =  *((x10_place_t*) (rbuf[cntrVal][phase] + s));
     s += sizeof (x10_place_t);
 
-    int message_size = *((int *) (rbuf[phase] + s));    
+    int message_size = *((int *) (rbuf[cntrVal][phase] + s));    
     s += sizeof (int);
     
     //if (phase == 2) {cout << " P : " << p << endl; assert (p == __x10_my_place);}
@@ -231,7 +235,7 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
     if (p == __x10_my_place) 
       {
 	//int cntr = __x10_agg_counter[hndlr][p];
-	asyncSwitch(hndlr, rbuf[phase] + s, message_size);
+	asyncSwitch(hndlr, rbuf[cntrVal][phase] + s, message_size);
 	//memcpy (&(__x10_agg_arg_buf[hndlr][__x10_my_place][cntr]), rbuf + s, message_size * size);
 	//__x10_agg_counter[hndlr][p] += message_size;	
 	
@@ -245,14 +249,14 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
       memcpy (&(sbuf[ssize]), &message_size, sizeof(int));        
       ssize += sizeof(int);
       
-      memcpy (&(sbuf[ssize]), rbuf[phase] + s, message_size * size);        
+      memcpy (&(sbuf[ssize]), rbuf[cntrVal][phase] + s, message_size * size);        
       ssize += message_size * size;
     } else if (message_size > 0) {	
       int cntr = __x10_agg_counter[hndlr][p];	
       
       assert (cntr + message_size < 1024 * 16 * 2 * 8);
       
-      memcpy (&(__x10_agg_arg_buf[hndlr][p][cntr * size]), rbuf[phase] + s, message_size * size);
+      memcpy (&(__x10_agg_arg_buf[hndlr][p][cntr * size]), rbuf[cntrVal][phase] + s, message_size * size);
       __x10_agg_counter[hndlr][p] += message_size;	
     }
     
@@ -292,7 +296,6 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
   __x10_agg_counter[hndlr][tgt]++;
   __x10_agg_total[hndlr]++;
  
-
   if ((__x10_agg_total[hndlr]+1) * size >=
       X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t) ||
       (__x10_agg_total[hndlr]+1) >= X10_MAX_AGG_SIZE) {
@@ -305,7 +308,6 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
       ulong partner = (1 << phase) ^ (ulong)__x10_my_place;
       ulong mask = ((ulong) 1) << phase;
       
-      int tmp;
       
       int cond = partner > __x10_my_place ? 1 : 0;
 
@@ -314,35 +316,29 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
       sort_data_args (hndlr, ssize, size, mask, phase, cond);
       
       if (phase > 0) {	
-	//if (__x10_my_place == 2) cout << "{ " << endl;
-	LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &tmp);
-	//if (__x10_my_place == 2) cout << "} " << endl;
+	int cntrVal;
+	      
+	LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &cntrVal);
 	
-	LAPI_Setcntr (__x10_hndl, &(recvCntr[phase-1]), 0);
+	//LAPI_Setcntr (__x10_hndl, &(recvCntr[phase-1]), cntrVal - 1);
 
-	sort_data_recvs (hndlr, ssize, size, mask, phase-1, cond);	
-	recvMesgLen[phase-1] = 0;
+	sort_data_recvs (hndlr, ssize, size, mask, phase-1, cond, cntrVal);	
 
-      }
-      
+	recvMesgLen[cntrVal][phase-1] = 0;
 
-      send_updates (ssize, phase, partner);  
-      
-      //      LAPI_Gfence (__x10_hndl);  
-        
+      }     
+      send_updates (ssize, phase, partner);               
     }      
 
-    int tmp;
+    int cntrVal;
 
-    //    cout << "phase end " << phase << endl;
-
-    LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &tmp);
-    
-    LAPI_Setcntr (__x10_hndl, &(recvCntr[phase-1]), 0);
-    
+    LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &cntrVal);
+    //    LAPI_Setcntr (__x10_hndl, &(recvCntr[phase-1]), cntrVal - 1);
     int ssize = 0;
-    sort_data_recvs (hndlr, ssize, size, 0, phase-1, 1);
-    recvMesgLen[phase-1] = 0;
+
+    sort_data_recvs (hndlr, ssize, size, 0, phase-1, 1, cntrVal);
+
+    recvMesgLen[cntrVal][phase-1] = 0;
 
     __x10_agg_total[hndlr] = 0;
 
@@ -350,7 +346,7 @@ asyncSpawnInlineAgg_i (x10_place_t tgt,
     asyncSwitch(hndlr, __x10_agg_arg_buf[hndlr][__x10_my_place], __x10_agg_counter[hndlr][__x10_my_place]);
     __x10_agg_counter[hndlr][__x10_my_place]=0;
     
-     LAPI_Gfence (__x10_hndl);  
+    //LAPI_Gfence (__x10_hndl);  
     
   }
   
