@@ -17,6 +17,7 @@
 #include "Sys.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <strings.h>
 #include <iostream>
 
 using namespace x10lib_cws;
@@ -29,6 +30,7 @@ Pool::~Pool() {
 	for(i=0; i<workers.size(); i++) {
 	  if(workers[i] != NULL) {
 	    pthread_join(id[i], (void **)NULL);
+	    free(workers[i]->area());
 	  }
 	}
 	free(id);
@@ -49,6 +51,7 @@ void Pool::callBackFunc::each_thread(Pool *p,int d)
 	 Worker *ws = new Worker(d, p);
 	assert(ws != NULL);
 	 p->workers[d]=ws;
+	 MEM_BARRIER();
      //barrier->barrier();
      /*if (id == 0)
 	  ws->run(invoke_main);
@@ -80,10 +83,11 @@ public:
     this->p = p;
   }
   virtual void run() {
-    if (p->currentJob != NULL && 
-	p->currentJob->requiresGlobalQuiescence()) {
-       p->currentJob->completed();
-       p->currentJob->jobCompleted();
+    Job *job = (Job *) p->currentJob;
+    if (job != NULL && 
+	job->requiresGlobalQuiescence()) {
+       job->completed();
+       job->jobCompleted();
     }
     p->currentJob = NULL;
   }
@@ -424,7 +428,24 @@ Closure *Pool::getJob() {
   return task;
 }
 
+/*support for area-specific data */
+void Pool::allocateWorkerArea(int size /*in bytes*/) {
+  for(int i=0; i<workers.size(); i++) {
+    while(workers[i] == NULL)
+      sched_yield();
+    assert(workers[i] != NULL);
+    if(workers[i] != NULL) {
+      void *area = malloc(size);
+      assert(area != NULL);
+      bzero(area, size);
+      workers[i]->setArea(area);
+      //cerr<<"Pool. set area="<<area<<" for worker id="<<i<<endl;
+    }
+  }
+  MEM_BARRIER();
+}
 
+/*-------------------JobQueue--------------------*/
 
 JobQueue::JobQueue() {
 	elements.resize(INITIAL_JOBQUEUE_CAPACITY);
@@ -480,4 +501,6 @@ bool JobQueue::isQuiescent(vector<Worker *> &workers) const{
         }
         return true;
 }
+
+
 

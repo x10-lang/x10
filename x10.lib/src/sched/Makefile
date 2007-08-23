@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.23 2007-08-18 17:59:25 sriramk Exp $
+# $Id: Makefile,v 1.24 2007-08-23 15:20:48 sriramk Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -25,7 +25,7 @@ else
 #  CXX = mpCC_r -q64 -qarch=pwr5
   CXX = xlC_r -qarch=pwr5 
 #  DEFS += -DNDEBUG
-  CXXFLAGS = -g -O3 -qrtti -ma -q64 #-ma -qarch=pwr5 -qinline  #-qmaxmem=-1 #-qunwind #-ma -qhot #-Q -qinline #-g #-qtune=pwr5 -O3 -qhot
+  CXXFLAGS = -g -O2 -qrtti -ma -q64 #-ma -qarch=pwr5 -qinline  #-qmaxmem=-1 #-qunwind #-ma -qhot #-Q -qinline #-g #-qtune=pwr5 -O3 -qhot
 #  -pg -pthread 
   LINKFLAGS = -r -b64
 #  LINKFLAGS = -r
