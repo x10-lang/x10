@@ -79,12 +79,13 @@ class Cache {
   Frame *currentFrame()  ;
   void reset ();
   inline void popFrame () { 
+    assert(tail >= 1);
     --tail;
     //READ_BARRIER();
-    MEM_BARRIER(); 
+    //MEM_BARRIER(); 
   }
   bool interrupted() volatile { 
-    //MEM_BARRIER(); // TODO SRIRAM -- You have added this.. I am removing it.. Please check
+    MEM_BARRIER(); // TODO SRIRAM -- You have added this.. I am removing it.. Please check
     return exception>=tail; 
   }
   bool parentInterrupted() volatile { return exception+1>=tail;}
