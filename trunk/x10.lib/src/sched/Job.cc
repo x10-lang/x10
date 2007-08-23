@@ -187,7 +187,6 @@ GloballyQuiescentVoidJob::compute(Worker *w, Frame *frame) {
   //w->cache->reset();
   // The completion of the job might leave behind work (frames).
   // Do not pop the framestack.
-  //setupGQReturnNoArgNoPop(w);
-  setupGQReturnNoArg(w);
+  setupGQReturnNoArgNoPop(w);
+  //setupGQReturnNoArg(w);
 }
-

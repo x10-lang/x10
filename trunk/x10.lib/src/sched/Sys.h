@@ -67,7 +67,7 @@ atomic_add(volatile int* mem, int val) {
 			"bne-     l1 \n\t"  
 			"isync \n\t"
 			: "=&b"(tmp), "=m" (*mem)
-			: "r" (mem), "Ir"(val), "m" (*mem) 
+			: "r" (mem), "r"(val), "m" (*mem) 
 			: "cr0");
 }
 
