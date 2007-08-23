@@ -38,7 +38,7 @@ bool Worker::reporting = false;
 
 // index is the id of the pthread
 Worker::Worker(int idx, Pool *p) {
-	this->checkedIn = true;
+  this->checkedIn = true; 
 	this->exception = false;
 
 	this->top = NULL;
@@ -61,6 +61,7 @@ Worker::Worker(int idx, Pool *p) {
 	this->idleScanCount = 0;
 	this->sleepStatus = 0;
 
+	this->_area = NULL;
 }
 
 Worker::~Worker() { delete lock_var; /*delete cache;*/ }
@@ -94,7 +95,7 @@ Executable *Worker::steal(Worker *thief, bool retry) {
   if(jobRequiresGlobalQuiescence) {
     return stealFrame(thief, retry);
   }
-
+  
   Closure *res = NULL;
   Worker *victim = this;
   ++stealAttempts;
@@ -103,6 +104,19 @@ Executable *Worker::steal(Worker *thief, bool retry) {
     }*/
 		
   lock(thief);
+
+  if(pool->getCurrentJob())
+    jobRequiresGlobalQuiescence = pool->getCurrentJob()->requiresGlobalQuiescence();
+  else {
+    /*No current job => so no closure to steal?? Shouldn't we just return*/
+  }
+  if(jobRequiresGlobalQuiescence) {
+    stealAttempts--;
+    unlock();
+    return stealFrame(thief, retry);
+  }
+  
+
 		
   Closure *cl=NULL;
   cl = peekTop(thief, victim);
@@ -120,7 +134,7 @@ Executable *Worker::steal(Worker *thief, bool retry) {
 				
   int status = cl->getstatus();
 
-//   cerr<<thief->index<<"::Worker::steal. Status="<<status<<endl;
+  //cerr<<thief->index<<"::Worker::steal. Status="<<status<<endl;
 		
   assert (status == ABORTING || status == READY || status == RUNNING || status == RETURNING);
 		
@@ -218,11 +232,8 @@ Executable *Worker::stealFrame(Worker *thief, bool retry) {
     frame = cache->topFrame();
     assert(frame != NULL);
 
-#if 1
-    frame = frame->copy();
-#else
-#warning "GQ: Commenting out a frame copy. check it"
-#endif
+    assert(thief->cache->empty());
+    frame = frame->copy(thief);
     cache->incHead();
     //I have work now, so checkout of the barrier.
     thief->checkOutSteal(frame, victim);
@@ -412,6 +423,8 @@ Executable *Worker::getTask(bool mainLoop) {
   checkIn();
   if (++idleScanCount < 0)
     idleScanCount=1;
+
+  assert(cache->empty());
 		
   /* From DL:
    * Scan through workers array twice starting at random
@@ -473,7 +486,7 @@ Executable *Worker::getTask(bool mainLoop) {
 
 void Worker::setJob(Job *currentJob) {
   if(currentJob == NULL)
-    currentJob = pool->currentJob;
+    currentJob = pool->getCurrentJob();
   if (currentJob==NULL) return;
   assert(currentJob != NULL);
 
@@ -499,11 +512,12 @@ Closure *Worker::getTaskFromPool(Worker *sleeper) {
     if (sleeper != NULL)
       sleeper->wakeup();
     checkOut(job);
-    return job;
+    setJob(dynamic_cast<Job *>(job));
+   return job;
   }
 
   //cerr<<"Invoking gettaskfrompool"<<endl;
-  setJob(pool->currentJob);
+  setJob(pool->getCurrentJob());
 
   if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
     if (sleepStatus == AWAKE) {
@@ -524,27 +538,30 @@ Closure *Worker::getTaskFromPool(Worker *sleeper) {
     
     
 void Worker::checkIn() {
-    	if (!checkedIn) {
-    		/*if (reporting)
-    			System.out.println(this + " at " + pool.time() + " checks in. Gotta find me some work!");*/
-    		checkedIn = true;
-    		pool->barrier->checkIn();  // TODO RAJ
-    	}
+  if (!checkedIn) {
+    /*if (reporting)
+      System.out.println(this + " at " + pool.time() + " checks in. Gotta find me some work!");*/
+    checkedIn = true;
+    //cerr<<index<<":: checking in"<<endl;
+    pool->barrier->checkIn();  // TODO RAJ
+  }
 }
 void Worker::checkOut(Executable *cl) {
-    	if (! checkedIn) {
-    		Worker *other = (pool->workers).at(1-index);
-    		/*if (reporting)
-    			System.out.println(this + " at " + pool.time() + " tries to check out. checkedIn == false!! other.checkedIn=" 
-    					+ other.checkedIn);*/
-    		assert(false); // TODO RAJ
-    	}
-    	if (checkedIn) {
-    		/*if (reporting)
-    			System.out.println(this + " at " + pool.time() + " checks out. Work to do! " + cl);*/
-    		checkedIn = false;
-    		pool->barrier->checkOut();
-    	}
+  assert(checkedIn);
+  if (! checkedIn) {
+    Worker *other = (pool->workers).at(1-index);
+    /*if (reporting)
+      System.out.println(this + " at " + pool.time() + " tries to check out. checkedIn == false!! other.checkedIn=" 
+      + other.checkedIn);*/
+    assert(false); // TODO RAJ
+  }
+  if (checkedIn) {
+    /*if (reporting)
+      System.out.println(this + " at " + pool.time() + " checks out. Work to do! " + cl);*/
+    checkedIn = false;
+    //cerr<<index<<":: checking out"<<endl;
+    pool->barrier->checkOut();
+  }
 }
 void Worker::checkOutSteal(Executable *cl, Worker *victim) {
     	assert(victim->lockOwner==this);
@@ -568,7 +585,7 @@ void Worker::run() {
   while (!done) {
 
     if(pool->currentJob)
-      jobRequiresGlobalQuiescence = pool->currentJob->requiresGlobalQuiescence();
+      jobRequiresGlobalQuiescence = pool->getCurrentJob()->requiresGlobalQuiescence();
 
     if (cl == NULL) {
       // Addition for GlobalQuiescence. Keep popping
@@ -582,7 +599,10 @@ void Worker::run() {
 	    assert(cache->empty());
 	    break;
 	  }
-
+	  else {
+	    assert(0);
+	  }
+	  assert(!hasThrownException());
 	  f->compute(this);
 	  //Nothing much to do on exception. It just
 	  //unwound the stack as we wanted. 
@@ -604,6 +624,11 @@ void Worker::run() {
       //cerr<<"Getting task"<<endl;
       cl = getTask(true);
       //cerr<<"Got task "<<cl<<" reqGQ="<<jobRequiresGlobalQuiescence<<endl;
+      if(cl != NULL) {
+	assert(!checkedIn);
+	//assert(pool->getCurrentJob()->requiresGlobalQuiescence());
+	//assert(jobRequiresGlobalQuiescence);
+      }
     }
 			
     if (cl !=NULL) {
@@ -615,6 +640,7 @@ void Worker::run() {
 	}*/
       //cache->reset();
       assert(cache->empty());
+      cache->reset();
       Executable *cl1 = cl->execute(this);
       /*if ((reporting && bottom == cl)) {
 	System.out.println(this + " completes " + cl + " returns " + cl1 +".");
@@ -622,11 +648,13 @@ void Worker::run() {
       cl=cl1;
 
       //cerr<<index<<":: H="<<cache->gethead()<<" T="<<cache->gettail()<<endl;
-      //assert(cache->empty());
+      assert(cache->empty());
+      cache->reset();
 
       // vj: This avoids having to implement a wrap around.
       // Otherwise, head might increase on a steal, but would
       // never decrease.
+      //assert(jobRequiresGlobalQuiescence);
       if(!jobRequiresGlobalQuiescence) {
  	assert(cache->empty());
 	cache->reset();
@@ -638,7 +666,6 @@ void Worker::run() {
        * termination is someone else's problem*/ 
       return;
     } else {
-      //cerr<<index<<":: yielding"<<endl;
       yields++;
       sched_yield(); // TODO RAJ
     }

@@ -50,7 +50,7 @@ public:
 	std::vector<Worker *> workers;
 	unsigned int num_workers;
 	int /*atomic */ joinCount;
-	/*volatile*/ Job *currentJob;
+	volatile Job *currentJob;
 	ActiveWorkerCount *barrier;
 	int /*atomic*/ activeOnJobAtomic;
 
@@ -64,7 +64,7 @@ public:
 
 	static void *each_thread_wrapper (void *);
 
-    
+	Job *getCurrentJob() volatile { return (Job *)currentJob; }
     
 	/* @sriramk: Disabling the default constructor. This should
 	   get the #threads from elsewhere and call Pool(int). But we
@@ -95,7 +95,9 @@ public:
 	void jobCompleted();
 	Closure *getJob() ;
 	void tryTerminate() const;
-	
+
+	/*support for area-specific data */
+	void allocateWorkerArea(int size /*in bytes*/); 
 };
 
 

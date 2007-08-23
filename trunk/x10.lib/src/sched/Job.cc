@@ -140,7 +140,7 @@ bool Job::isJobDone() volatile { return jobDone; }
 
 /*--------------------GloballyQuiescentJob-------------------*/
 
-bool GloballyQuiescentJob::requiresGlobalQuiescence() /*const*/ { return true;}	
+bool GloballyQuiescentJob::requiresGlobalQuiescence() { return true;}	
 // GloballyQuiescentJob::GloballyQuiescentJob(Pool *pool) 
 //   : GloballyQuiescentJob(pool, new GFrame()) {}
 
@@ -177,12 +177,17 @@ void GloballyQuiescentJob::compute(Worker *w, Frame *frame) {
 
 /*virtual*/ void 
 GloballyQuiescentVoidJob::compute(Worker *w, Frame *frame) { 
+  assert(!w->hasThrownException());
   frame->compute(w);
-  w->catchAllException();
+
+  if(w->cache->interrupted()) {
+    w->throwException();
+    return;
+  }
   //w->cache->reset();
   // The completion of the job might leave behind work (frames).
   // Do not pop the framestack.
-  setupGQReturnNoArgNoPop(w);
-  //setupGQReturnNoArg(w);
+  //setupGQReturnNoArgNoPop(w);
+  setupGQReturnNoArg(w);
 }
 

@@ -55,9 +55,12 @@ class NFrame : public Frame {
 private:
   friend class anon_Outlet1;
   
-  
+
+  const bool is_dynamic;
   NFrame(const NFrame& f) 
-      : Frame(f), sum(f.sum), PC(f.PC), q(f.q), ownerClosure(f.ownerClosure), sofar_size(f.sofar_size) {
+    : Frame(f), sum(f.sum), PC(f.PC), q(f.q), 
+      ownerClosure(f.ownerClosure), sofar_size(f.sofar_size),
+      is_dynamic(true) {
       //int *sofar = (int *)malloc((sofar_size) * sizeof(int));
 	  //cout << "SOFAR_SIZE=" << sofar_size;
 	  sofar = new int[sofar_size];
@@ -74,7 +77,7 @@ public:
   int sofar_size;
   Closure *ownerClosure;
   
-  NFrame(int *a, int a_size, Closure* cl) { 
+  NFrame(int *a, int a_size, Closure* cl) : is_dynamic(false) { 
 	  sofar_size = a_size;
 	  sofar = a; 
 	  ownerClosure=cl;
@@ -83,7 +86,7 @@ public:
   virtual NFrame *copy() {
 	  return new NFrame(*this);
   }
-  virtual ~NFrame() { /*delete sofar;*/}
+  virtual ~NFrame() { if(is_dynamic) delete sofar; }
   virtual void setOutletOn(Closure *c) {
 	  Outlet *o = new anon_Outlet1(this,c);
 	  assert (o!= NULL);

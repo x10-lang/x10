@@ -53,6 +53,12 @@ private:
 	bool hasThrownException() { return exception; }
 	void throwException() { exception = true; }
 
+ public:
+	/*Areas-specific data structures*/
+	void *_area;
+	inline void *area() { return _area; }
+	void setArea(void *_area) { this->_area = _area; }
+
 protected:
 	Closure *top, *bottom;
 	int randNext;
