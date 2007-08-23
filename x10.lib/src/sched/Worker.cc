@@ -599,9 +599,6 @@ void Worker::run() {
 	    assert(cache->empty());
 	    break;
 	  }
-	  else {
-	    assert(0);
-	  }
 	  assert(!hasThrownException());
 	  f->compute(this);
 	  //Nothing much to do on exception. It just
@@ -648,8 +645,8 @@ void Worker::run() {
       cl=cl1;
 
       //cerr<<index<<":: H="<<cache->gethead()<<" T="<<cache->gettail()<<endl;
-      assert(cache->empty());
-      cache->reset();
+      //assert(cache->empty());
+      //cache->reset();
 
       // vj: This avoids having to implement a wrap around.
       // Otherwise, head might increase on a steal, but would
