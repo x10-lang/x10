@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.8 2007-08-22 14:33:57 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.9 2007-08-24 12:54:59 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -91,13 +91,13 @@ main (int argc, char* argv[])
       //        async2 (i, m);
       //        continue; 
       //       }
-      ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
-      ASYNC_SPAWN (target, 1, &arg, 0);
+//      ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
+ //     ASYNC_SPAWN (target, 1, &arg, 0);
       ASYNC_SPAWN (target, 2, i, m);
     }
   } 
-  ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
-  ASYNC_FLUSH  (1, 0);
+ // ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
+ // ASYNC_FLUSH  (1, 0);
   ASYNC_FLUSH (2, 2*sizeof(x10_async_arg_t));
   
   
