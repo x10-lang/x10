@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.9 2007-08-22 14:33:57 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.10 2007-08-24 09:37:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -131,22 +131,33 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 		     compl_hndlr_t **comp_h, void **user_info)
 {
   X10_DEBUG (1,  "Entry");
-
+  x10_agg_hdr_t buf = *((x10_agg_hdr_t *)uhdr);
   lapi_return_info_t *ret_info =
     (lapi_return_info_t *)msg_len;
-  
+
+
   x10_agg_cmpl_t* a = new x10_agg_cmpl_t;
   a->phase = *((ulong*) uhdr);
   a->len = *msg_len;
-  *comp_h = asyncSpawnCompHandlerAgg;
-  ret_info->ret_flags = LAPI_LOCAL_STATE;
-  *user_info = (void*) a;
+  int cntrVal; 
+  LAPI_Getcntr (__x10_hndl, &recvCntr[a->phase], &cntrVal);
+  if (ret_info->udata_one_pkt_ptr || (*msg_len) == 0) {
+    memcpy (rbuf[cntrVal][a->phase], ret_info->udata_one_pkt_ptr, *msg_len);
+    asyncSpawnCompHandlerAgg (&hndl, (void*) a);
+    ret_info->ctl_flags = LAPI_BURY_MSG;
+    *comp_h = NULL;
+  } else {
+    lapi_return_info_t *ret_info =
+      (lapi_return_info_t *)msg_len;
   
-  int tmp;
-  LAPI_Getcntr (__x10_hndl, &recvCntr[a->phase], &tmp);
+    *comp_h = asyncSpawnCompHandlerAgg;
+    ret_info->ret_flags = LAPI_LOCAL_STATE;
+    *user_info = (void*) a;
+  }
+
 
   X10_DEBUG (1,  "Exit");  
-  return rbuf[tmp][a->phase];  
+  return rbuf[cntrVal][a->phase];  
 }
 
 x10_err_t 

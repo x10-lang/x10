@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.37 2007-08-21 06:10:25 ganeshvb Exp $
+# $Id: Makefile,v 1.38 2007-08-24 09:37:57 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -38,10 +38,10 @@ ARRAY_A = $(SUBDIR1)/array.a
 #OBJS = x10lib.o  gas.o  aggregate.o  async.o switch.o finish.o
 #HEADERS = types.h x10lib.h gas.h alloc.h  async.h aggregate.h finish.h standalone.h
 
-SRCS = aggregate.cc async.cc env.cc err.cc finish.cc gas.cc lock.cc \
+SRCS = aggregate.cc aggregate_hc.cc async.cc env.cc err.cc finish.cc gas.cc lock.cc \
 		order.cc progress.cc \
 		register.cc rmc.cc switch.cc x10lib.cc asyncSwitch.cc \
-		utility.cc misc.cc clock.cc aggregate_hc.cc
+		utility.cc misc.cc clock.cc 
 OBJS = aggregate.o async.o env.o err.o finish.o gas.o lock.o \
 		order.o progress.o \
 		register.o rmc.o switch.o x10lib.o asyncSwitch.o \
