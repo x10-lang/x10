@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.10 2007-08-24 09:37:57 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.11 2007-08-24 12:54:58 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -146,18 +146,19 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
     asyncSpawnCompHandlerAgg (&hndl, (void*) a);
     ret_info->ctl_flags = LAPI_BURY_MSG;
     *comp_h = NULL;
+    delete a;
+    return NULL;
   } else {
     lapi_return_info_t *ret_info =
       (lapi_return_info_t *)msg_len;
-  
+    
     *comp_h = asyncSpawnCompHandlerAgg;
     ret_info->ret_flags = LAPI_LOCAL_STATE;
     *user_info = (void*) a;
+    return rbuf[cntrVal][a->phase];  
   }
-
-
+    
   X10_DEBUG (1,  "Exit");  
-  return rbuf[cntrVal][a->phase];  
 }
 
 x10_err_t 
@@ -180,6 +181,8 @@ asyncAggInit_hc()
   for (int i = 0; i < X10_MAX_LOG_NUMPROCS; i++) {
     rbuf[0][i] = new char [16384 * 32];
     rbuf[1][i] = new char [16384 * 32];
+    recvMesgLen[0][i] = 0;
+    recvMesgLen[1][i] = 0;
     LAPI_Setcntr (__x10_hndl, &(recvCntr[i]), 0);  
   }
   
@@ -236,13 +239,17 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
   for (int s = 0; s < recvMesgLen[cntrVal][phase]; ) {
     
     x10_place_t p =  *((x10_place_t*) (rbuf[cntrVal][phase] + s));
+
     s += sizeof (x10_place_t);
 
     int message_size = *((int *) (rbuf[cntrVal][phase] + s));    
     s += sizeof (int);
     
+    //cout << p << " " << recvMesgLen[cntrVal][phase] << " " << s << " " << cntrVal << " " << " " << message_size << " " <<  phase << endl;
+    assert (p >= 0 && p < __x10_num_places); 
+    
     //if (phase == 2) {cout << " P : " << p << endl; assert (p == __x10_my_place);}
-
+    
     if (p == __x10_my_place) 
       {
 	//int cntr = __x10_agg_counter[hndlr][p];
@@ -251,25 +258,30 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
 	//__x10_agg_counter[hndlr][p] += message_size;	
 	
       } else if (((MIN((((ulong) p) & mask), 1)) == cond) && (message_size > 0)) {    
-      
-      assert (message_size > 0);
-      
-      memcpy (&(sbuf[ssize]), &p, sizeof(x10_place_t));       
-      ssize += sizeof(x10_place_t);
 	
-      memcpy (&(sbuf[ssize]), &message_size, sizeof(int));        
-      ssize += sizeof(int);
-      
-      memcpy (&(sbuf[ssize]), rbuf[cntrVal][phase] + s, message_size * size);        
-      ssize += message_size * size;
-    } else if (message_size > 0) {	
-      int cntr = __x10_agg_counter[hndlr][p];	
-      
-      assert (cntr + message_size < 1024 * 16 * 2 * 8);
-      
-      memcpy (&(__x10_agg_arg_buf[hndlr][p][cntr * size]), rbuf[cntrVal][phase] + s, message_size * size);
-      __x10_agg_counter[hndlr][p] += message_size;	
-    }
+	assert (message_size > 0);
+	
+	memcpy (&(sbuf[ssize]), &p, sizeof(x10_place_t));       
+	ssize += sizeof(x10_place_t);
+	
+	memcpy (&(sbuf[ssize]), &message_size, sizeof(int));        
+	ssize += sizeof(int);
+	
+	memcpy (&(sbuf[ssize]), rbuf[cntrVal][phase] + s, message_size * size);        
+	ssize += message_size * size;
+      } else if (message_size > 0) {	
+	
+	int cntr = __x10_agg_counter[hndlr][p];	
+	
+	assert ((cntr * size) < 1024 * 32 * sizeof(x10_async_arg_t));
+	
+	assert (cntrVal >= 0 && cntrVal < 2);
+	
+	assert ((cntr * size + message_size * size) < 1024 * 32 * sizeof(x10_async_arg_t));
+
+	memcpy (&(__x10_agg_arg_buf[hndlr][p][cntr * size]), rbuf[cntrVal][phase] + s, message_size * size);
+	__x10_agg_counter[hndlr][p] += message_size;	
+      }
     
     s += message_size * size;
   }
@@ -375,7 +387,7 @@ namespace x10lib {
     x10_agg_hdr_t buf;
     buf.handler = hndlr;
     
-    //LAPI_Gfence (__x10_hndl);
+    LAPI_Gfence (__x10_hndl);
 
     for (int j = 0; j < __x10_num_places; j++) {
       if (__x10_agg_counter[hndlr][j] > 0) {

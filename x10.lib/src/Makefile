@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.38 2007-08-24 09:37:57 ganeshvb Exp $
+# $Id: Makefile,v 1.39 2007-08-24 12:54:58 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -15,7 +15,7 @@ SUBDIR2 = sched
 SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 LIBDIR = ../lib
 CXX = mpCC_r -q64 -qarch=pwr5 
-DEFS = -DNDEBUG  -DX10_DLEVEL=0
+DEFS = -DWARN  -DX10_DLEVEL=0
 CXXFLAGS = -qtune=pwr5 -O3 -qinline -qhot
 INCLUDES = -I. -I../include
 LINKFLAGS =

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.17 2007-08-21 06:10:25 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.18 2007-08-24 12:54:58 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -97,7 +97,6 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 
         finishInit();
         asyncRegister();
-        //asyncRegisterAgg();
         asyncAggInit();
 	asyncAggInit_hc();
         arrayInit();
@@ -120,6 +119,7 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 /* Termination */
 x10_err_t Finalize(void)
 {
+  LAPI_Gfence (__x10_hndl);
   
   finishTerminate();
   asyncAggFinalize();
