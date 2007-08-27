@@ -1,11 +1,74 @@
 #include <iostream>
 #include <cstdlib>
+//#include "Sys.h"
+//#include "Lock.h"
 
 #include <stdlib.h>
 #include <assert.h>
 #include <pthread.h>
 
 using namespace std;
+//using x10lib_cws::atomic_add;
+//using x10lib_cws::PosixLock;
+
+/*---------------Timing routines---------------------*/
+
+typedef long long nano_time_t;
+
+nano_time_t nanoTime() {
+  struct timespec ts;
+  // clock_gettime is POSIX!
+  ::clock_gettime(CLOCK_REALTIME, &ts);
+  return (nano_time_t)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
+}
+
+
+/*----------------Profiling variables-----------------*/
+
+class Profiler {
+protected:
+  //PosixLock plock;
+
+  //void lock() { plock.lock_wait_posix(); }
+  //void unlock() { plock.lock_signal_posix(); }
+public:
+  volatile nano_time_t runT; /*Time spent in Worker::run()*/
+  volatile nano_time_t dgemmT; /*Time spent in DGEMM*/
+  volatile nano_time_t luT; /*Time spent in Block::LU()*/
+  volatile nano_time_t bsT; /*Time in Block::backSolve()*/
+  volatile nano_time_t lwrT; /*Time in Block::lower()*/
+  volatile nano_time_t getT; /*Time in get() or getLocal() */
+  
+  Profiler() {
+    runT = dgemmT = luT = bsT = lwrT = 0;
+    //MEM_BARRIER();
+  }
+  inline void log_run(nano_time_t t) { runT += t; }
+  inline void log_dgemm(nano_time_t t) { dgemmT += t; }
+  inline void log_lu(nano_time_t t) { luT += t; }
+  inline void log_bsolve(nano_time_t t) { bsT += t; }
+  inline void log_lower(nano_time_t t) { lwrT += t; }
+
+  void report(Profiler &pf) {
+    //pf.lock();
+    pf.runT += runT;
+    pf.dgemmT += dgemmT;
+    pf.luT += luT;
+    pf.bsT += bsT;
+    pf.lwrT += lwrT;
+    //pf.unlock();
+  }
+
+  void display() {
+    cout<<"Worker::run() = "<<runT/1000000.0<<" ms"
+	<<"\t dgemm="<<dgemmT/1000000.0<<" ms"
+	<<"\t LU="<<luT/1000000.0<<" ms"
+	<<"\t bsolve="<<bsT/1000000.0<<" ms"
+	<<"\t lower="<<lwrT/1000000.0<<" ms"
+	<<endl;
+  }
+};
+
 
 /*--------------numerics declarations---------------*/
 
@@ -14,8 +77,14 @@ using namespace std;
 // typedef long Integer;
 typedef int Integer;
 
-//#define DGEMM dgemm_
+#if 0
+#define DGEMM dgemm_
+#define DTRSM dtrsm_
+
+#else
 #define DGEMM dgemm
+#define DTRSM dtrsm
+#endif
 
 extern "C" {
   void DGEMM(char *TRANSA, char *TRANSB, 
@@ -23,6 +92,10 @@ extern "C" {
 	     double *ALPHA, double* A, Integer *LDA,
 	     double *B, Integer *LDB, 
 	     double *BETA, double *C, Integer *LDC);
+
+  void DTRSM(char *SIDE, char *UPLO, char *TRANSA,
+	     char *DIAG, Integer *M, Integer *N, double *ALPHA,
+	     double *A, Integer *LDA, double *B, Integer *LDB);
 }
 
 
@@ -51,17 +124,51 @@ static double flops(int n) {
   return ((4.0 *  n - 3.0) *  n - 1.0) * n / 6.0;
 }
 
- long long nanoTime() {
-  struct timespec ts;
-  // clock_gettime is POSIX!
-  ::clock_gettime(CLOCK_REALTIME, &ts);
-  return (long long)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
-}
+/*---------2-D block-cyclic array of blocks-------------*/
+
+class Block;
+
+class TwoDBlockCyclicArray {
+public:
+  Block **A; /*array of block pointers. Note that we are using a 1-d
+	       array of all the blocks. The processor dimension is
+	       merged with the per-process data*/ 
+  const int px,py, nx,ny,B;
+  const int N;
+
+public:
+  TwoDBlockCyclicArray(int spx, int spy, int snx, int sny,int sB); 
+  TwoDBlockCyclicArray(const TwoDBlockCyclicArray &arr); 
+
+  ~TwoDBlockCyclicArray();
+    
+  void init() {}
+  int pord(int i, int j) const {
+    return i*py+j;
+  }
+  int lord(int i, int j) const {
+    return i*ny+j;
+  }
+  Block *get(int i, int j) {
+    return A[pord(i % px, j%py)*nx*ny + lord(i/px,j/py)];
+  }
+
+  Block *getLocal(int pi, int pj, int i, int j) {
+    return A[pord(pi,pj)*nx*ny + lord(i,j)];
+  }
+  void set(int i, int j, Block *v) {
+    A[pord(i % px, j%py)*nx*ny + lord(i/px,j/py)] = v;
+  }
+
+  TwoDBlockCyclicArray *copy() {
+    return new TwoDBlockCyclicArray(*this);
+  }
+    
+  void display(const char *msg);
+};
 
 
 /*--------Dense 2-D block and operations on it-------------*/
-
-class TwoDBlockCyclicArray;
 
 /**
  * A B*B array of doubles, whose top left coordinate is i,j).
@@ -84,15 +191,29 @@ public:
 private:
   const int maxCount;
   int count;
+
+  int Ip1, Ip2, I1, I2; /*mulsub contributor along i, in sync with count*/
+  int Jp1, Jp2, J1, J2; /*mulsub contributor along j, in sync with count*/
+
+  void initIBuddy() { Ip1 = I%M->px; Ip2 = 0; I1 = I/M->px; I2=0; }
+  void initJBuddy() { Jp1 = 0; Jp2 = J%M->py; J1 = 0; J2=J/M->py; }
+
+  inline void incIBuddy() { Ip2++; if(Ip2>=M->py) { Ip2=0; I2++; }  }
+  inline void incJBuddy() { Jp1++; if(Jp1>=M->px) { Jp1=0; J1++; } }
+
 public:
   const int I,J, B;
+
   Block(int sI, int sJ, int sB, TwoDBlockCyclicArray *const sM)
-  : I(sI), J(sJ), B(sB), M(sM), maxCount(min(sI,sJ)), ready(false), count(0) {
+    : I(sI), J(sJ), B(sB), M(sM), maxCount(min(sI,sJ)), ready(false), count(0) {
     A = new double[B*B];
     assert( A != NULL);
+    
+    initIBuddy(); initJBuddy();
   }
+
   Block(const Block &b) 
-    : I(b.I), J(b.J), B(b.B), M(b.M), maxCount(b.maxCount), ready(b.ready), count(0) {
+    : I(b.I), J(b.J), B(b.B), M(b.M), maxCount(b.maxCount), ready(b.ready), count(0)  {
     assert(maxCount == min(I,J));
     A = new double[B*B];
     assert(A != NULL);
@@ -123,7 +244,7 @@ public:
 	A[i+i*B] = format(rand()*20.0/RAND_MAX + 10.0, 4);
     }
   }
-  bool step();
+  bool step(Profiler &prof);
 
   int  ord(int i, int j) {
     return i+j*B;
@@ -141,7 +262,9 @@ public:
     A[ord(i,j)] += v;
   }
     
-  void lower(Block *diag) {
+  void lower(Block *diag, Profiler &prof) {
+    nano_time_t s = nanoTime();
+#if 0
     for(int i=0; i<B; i++)
       for(int j=0; j<B; j++) {
 	double r = 0.0;
@@ -150,8 +273,30 @@ public:
 	negAdd(i,j,r);
 	set(i,j,get(i,j)/diag->get(j,j));
       }
+#else
+    /*DTRSM: solve diag*X = 1.0*this; this is overwritten with X*/
+    char SIDE = 'R'; //diag is to right of X
+    char UPLO = 'U'; //diag is upper-triangular
+    char TRANSA = 'N'; //No transpose of diag
+    char DIAG = 'N'; //Nonunit-diagonal for diag
+    Integer M = B; //#rows of diag
+    Integer N = B; //#cols of diag
+    double ALPHA = 1.0; //scale on right-hand size
+    double *mA = diag->A;
+    Integer LDA = B;
+    double *mB = this->A;
+    Integer LDB = B;
+
+    DTRSM(&SIDE, &UPLO, &TRANSA, &DIAG, &M, &N, &ALPHA,
+	  mA, &LDA, mB, &LDB);
+#endif
+    nano_time_t t = nanoTime();
+    prof.log_lower(t-s);
   }
-  void backSolve(Block *diag) {
+  void backSolve(Block *diag, Profiler &prof) {
+    nano_time_t s = nanoTime();
+
+#if 0
     for (int i = 0; i < B; i++) {
       for (int j = 0; j < B; j++) {
 	double r = 0.0;
@@ -161,8 +306,30 @@ public:
 	negAdd(i, j, r);
       }
     }
+#else
+    /*DTRSM: solve diag*X = 1.0*this; this is overwritten with X*/
+    char SIDE = 'L'; //diag is to left of X
+    char UPLO = 'L'; //diag is lower-triangular
+    char TRANSA = 'N'; //No transpose of diag
+    char DIAG = 'U'; //Unit-diagonal for diag
+    Integer M = B; //#rows of diag
+    Integer N = B; //#cols of diag
+    double ALPHA = 1.0; //scale on right-hand size
+    double *mA = diag->A;
+    Integer LDA = B;
+    double *mB = this->A;
+    Integer LDB = B;
+
+    DTRSM(&SIDE, &UPLO, &TRANSA, &DIAG, &M, &N, &ALPHA,
+	  mA, &LDA, mB, &LDB);
+
+#endif
+    nano_time_t t = nanoTime();
+    prof.log_bsolve(t-s);
   }
-  void mulsub(Block *left, Block *upper) {
+  void mulsub(Block *left, Block *upper, Profiler &prof) {
+    nano_time_t s = nanoTime();
+
 #if 0
     for(int i=0; i<B; i++)
       for(int j=0; j<B; j++) {
@@ -184,10 +351,12 @@ public:
 
     DGEMM(&transa, &transb, &m, &n, &k, &alpha, mA, &lda,
 	  mB, &ldb, &beta, mC, &ldc);
-
 #endif
+    nano_time_t t = nanoTime();
+    prof.log_dgemm(t-s);
   }
-  void LU() {
+  void LU(Profiler &prof) {
+    nano_time_t s = nanoTime();
     for (int k = 0; k < B; k++)
       for (int i = k + 1; i < B; i++) {
 	set(i,k, get(i,k)/get(k,k));
@@ -195,121 +364,108 @@ public:
 	for(int j=k+1; j<B; j++)
 	  negAdd(i,j, a*get(k,j));
       }
+    nano_time_t t = nanoTime();
+    prof.log_lu(t-s);
   }
 };
 
-/*---------2-D block-cyclic array of blocks-------------*/
+/*---------Definitions after necessary forward declarations-------------*/
 
-class TwoDBlockCyclicArray {
-public:
-  Block **A; /*array of block pointers. Note that we are using a 1-d
-	       array of all the blocks. The processor dimension is
-	       merged with the per-process data*/ 
-  const int px,py, nx,ny,B;
-  const int N;
+TwoDBlockCyclicArray::TwoDBlockCyclicArray(int spx, int spy, int snx, int sny,int sB) 
+  : px(spx), py(spy), nx(snx), ny(sny), B(sB), N(spx*snx*sB) {
 
-public:
-  TwoDBlockCyclicArray(int spx, int spy, int snx, int sny,int sB) 
-    : px(spx), py(spy), nx(snx), ny(sny), B(sB), N(spx*snx*sB) {
+  assert(px*nx==py*ny);
+  A = new Block* [px*py*nx*ny];
+  assert(A != NULL);
 
-    assert(px*nx==py*ny);
-    A = new Block* [px*py*nx*ny];
-    assert(A != NULL);
-
-    int ctr=0;
-    for(int pi=0; pi<px; pi++) {
-      for(int pj=0; pj<py; pj++) {
-	for(int i=0; i<nx; i++) {
-	  for(int j=0; j<ny; j++) {
-	    A[ctr] = new Block(i*px+pi, j*py+pj, B, this);
-	    assert(A[ctr] != NULL);
-	    A[ctr]->init();
-	    ++ctr;
-	  }
+  int ctr=0;
+  for(int pi=0; pi<px; pi++) {
+    for(int pj=0; pj<py; pj++) {
+      for(int i=0; i<nx; i++) {
+	for(int j=0; j<ny; j++) {
+	  A[ctr] = new Block(i*px+pi, j*py+pj, B, this);
+	  assert(A[ctr] != NULL);
+	  A[ctr]->init();
+	  ++ctr;
 	}
       }
     }
   }
-  TwoDBlockCyclicArray(const TwoDBlockCyclicArray &arr) 
-    : px(arr.px), py(arr.py), nx(arr.nx), ny(arr.ny), B(arr.B), N(arr.N)  {
+}
 
-    assert(px*nx==py*ny);
-    A = new Block *[px*py*nx*ny];
-    assert(A != NULL);
-    int ctr=0;
-    for(int pi=0; pi<px; pi++) {
-      for(int pj=0; pj<py; pj++) {
-	for(int i=0; i<nx; i++) {
-	  for(int j=0; j<ny; j++) {
-	    A[ctr] = arr.A[ctr]->copy();
-	    assert( A[ctr] != NULL );
-	    ++ctr;
-	  }
+TwoDBlockCyclicArray::TwoDBlockCyclicArray(const TwoDBlockCyclicArray &arr) 
+  : px(arr.px), py(arr.py), nx(arr.nx), ny(arr.ny), B(arr.B), N(arr.N)  {
+
+  assert(px*nx==py*ny);
+  A = new Block *[px*py*nx*ny];
+  assert(A != NULL);
+  int ctr=0;
+  for(int pi=0; pi<px; pi++) {
+    for(int pj=0; pj<py; pj++) {
+      for(int i=0; i<nx; i++) {
+	for(int j=0; j<ny; j++) {
+	  A[ctr] = arr.A[ctr]->copy();
+	  assert( A[ctr] != NULL );
+	  ++ctr;
 	}
       }
     }
   }
+}
 
-  ~TwoDBlockCyclicArray() {
-    for(int i=0; i<px*py*nx*ny; i++) {
-      delete A[i];
+TwoDBlockCyclicArray::~TwoDBlockCyclicArray() {
+  for(int i=0; i<px*py*nx*ny; i++) {
+    delete A[i];
+  }
+  delete [] A;
+}
+
+void TwoDBlockCyclicArray::display(const char *msg) {
+  cout<<msg<<endl;;
+  cout<<"px="<<px<<" py="<<py<<" nx="<<nx<<" ny="<<ny<<" B="<<B<<endl;;
+  
+  for(int I=0; I<px*nx; I++) {
+    for(int J=0; J<py*ny; J++) {
+      get(I,J)->display();
     }
-    delete [] A;
+    //cout<<endl;
   }
-    
-  void init() {}
-  int pord(int i, int j) {
-    return i*py+j;
-  }
-  int lord(int i, int j) {
-    return i*ny+j;
-  }
-  Block *get(int i, int j) {
-    return A[pord(i % px, j%py)*nx*ny + lord(i/px,j/py)];
-  }
+  cout<<endl;
+}
 
-  Block *getLocal(int pi, int pj, int i, int j) {
-    return A[pord(pi,pj)*nx*ny + lord(i,j)];
-  }
-  void set(int i, int j, Block *v) {
-    A[pord(i % px, j%py)*nx*ny + lord(i/px,j/py)] = v;
-  }
 
-  TwoDBlockCyclicArray *copy() {
-    return new TwoDBlockCyclicArray(*this);
-  }
-    
-  void display(const char *msg) {
-    cout<<msg<<endl;;
-    cout<<"px="<<px<<" py="<<py<<" nx="<<nx<<" ny="<<ny<<" B="<<B<<endl;;
-
-    for(int I=0; I<px*nx; I++) {
-      for(int J=0; J<py*ny; J++) {
-	get(I,J)->display();
-      }
-      //cout<<endl;
-    }
-    cout<<endl;
-  }
-};
-
-/*------------Definitiomn after necessary forward-declarations---------------*/
+/*------------Definition after necessary forward-declarations---------------*/
 
 /*Try to step through the next ready operation in given priority
   order. An operation is LU, backSolve, lower, or mulSub on a block. */
 bool 
-Block::step() {
+Block::step(Profiler &prof) {
   if(ready) return false;
+  
   if (count == maxCount) {
-    if (I==J) { LU(); ready=true; }
-    else if (I < J && M->get(I, I)->ready) { backSolve(M->get(I,I)); ready=true; }
-    else if(M->get(J, J)->ready) { lower(M->get(J,J)); ready=true; }
+    if (I==J) { 
+      LU(prof); 
+      ready=true; 
+    }
+    else if (I < J && M->get(I, I)->ready) { 
+      backSolve(M->get(I,I),prof); 
+      ready=true; 
+    }
+    else if(M->get(J, J)->ready) { 
+      lower(M->get(J,J),prof); 
+      ready=true; 
+    }
     return ready;
   }
-  Block *IBuddy = M->get(I, count), *JBuddy = M->get(count,J);
+
+  Block *IBuddy = M->getLocal(Ip1, Ip2, I1, I2);
+  Block *JBuddy = M->getLocal(Jp1, Jp2, J1, J2);
+  
+  //Block *IBuddy = M->get(I, count), *JBuddy = M->get(count,J);
   if (IBuddy->ready && JBuddy->ready) {
-    mulsub(IBuddy, JBuddy);
+    mulsub(IBuddy, JBuddy, prof);
     count++;
+    incIBuddy(); incJBuddy();
     return true;
   }
   return false;
@@ -372,17 +528,22 @@ extern "C" {
 }
 
 class Worker : public Thread {
+private:
+  Profiler &gProf;
 public:
   const int pi, pj;
   TwoDBlockCyclicArray * const M;
 
-  Worker(int spi, int spj, TwoDBlockCyclicArray *sM) 
-    : pi(spi), pj(spj), M(sM) { }
+  Worker(int spi, int spj, TwoDBlockCyclicArray *sM, Profiler &_gProf) 
+    : pi(spi), pj(spj), M(sM), gProf(_gProf) { }
 
   void run() {
     const int nx = M->nx;
     const int ny = M->ny;
+    Profiler prof;
 
+    nano_time_t s = nanoTime();
+    
     Block *lastBlock = M->getLocal(pi, pj, nx-1, ny-1);
     int iStart=0;
     while(!lastBlock->ready) {
@@ -394,16 +555,19 @@ public:
 	for (int k=0; k <= i; k++) {
 	  if ( i < nx && k < ny) {
 	    Block *block = M->getLocal(pi, pj, i,k);
-	    if(block->step()) { doneForNow=true; break; }
+	    if(block->step(prof)) { doneForNow=true; break; }
 	  }
 	  if ( k < nx && i < ny) {
 	    Block *block = M->getLocal(pi, pj, k,i);
-	    if(block->step()) { doneForNow=true; break; }
+	    if(block->step(prof)) { doneForNow=true; break; }
 	  }
 	}
 	if(doneForNow) break;
       }
     }
+    nano_time_t t = nanoTime();
+    prof.log_run(t-s);
+    prof.report(gProf);
   }
 };
 
@@ -428,13 +592,13 @@ public:
 
   /*Returns time between thread creation and termination (in
     nanoseconds). This removes the thread creation overhead*/ 
-  long long lu() {
+  long long lu(Profiler &gProf) {
     Thread **workers = new Thread* [px*py];
     assert(workers != NULL);
 
     for (int i=0; i < px; i++)
       for(int j=0; j<py; j++)
-	workers[i*py+j] = new Worker(i, j, M);
+	workers[i*py+j] = new Worker(i, j, M, gProf);
   
     for (int i=0; i < px*py; i++) workers[i]->start();
     long long s = nanoTime();
@@ -472,7 +636,7 @@ public:
       }
 
     /* Check maximum difference against threshold. */
-    if (max_diff > 0.01)
+    if (max_diff > 0.0000001)
       return false;
     else
       return true;
@@ -492,10 +656,11 @@ int main(int argc, char *argv[]) {
   const int py= atoi(argv[4]);
   const int nx = N / (px*B), ny = N/(py*B);
   assert (N % (px*B) == 0 && N % (py*B) == 0);
+  Profiler gProf;
 
   LU *lu = new LU(px,py,nx,ny,B);
 
-//   TwoDBlockCyclicArray *A = lu->M->copy();
+  //TwoDBlockCyclicArray *A = lu->M->copy();
 
 //   LU *seqlu = new LU(1,1,1,1,N);
 //   for(int i=0; i<N; i++) {
@@ -509,26 +674,29 @@ int main(int argc, char *argv[]) {
 //   seqlu->M->display("Seq array");
   
   long long s = nanoTime();
-  long long tt = lu->lu();
+  long long tt = lu->lu(gProf);
   long long t = nanoTime();
 
 //   seqlu->lu();
 //   lu->M->display(string("After LU"));
 //   seqlu->M->display(string("Seq after LU"));
   
-//   bool correct = lu->verify(A);
+  //bool correct = lu->verify(A);
 
   delete lu;
-//   delete A;
+  //delete A;
 
 //   cout<<"N="<<N<<" px="<<px<<" py="<<py<<" B="<<B
 //     <<(correct?" ok":" fail")<<" time="<<(t-s)/1000000<<"ms"
 //       <<" Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
 //       <<endl;
   cout<<"N="<<N<<" px="<<px<<" py="<<py<<" B="<<B
+    //<<(correct?" ok":" fail")
       <<" rt time="<<(t-s)/1000000<<"ms"
       <<" rt Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
       <<" comp time="<<tt/1000000<<"ms"
       <<" comp Rate="<< format(flops(N)/(tt)*1000, 3)<<"MFLOPS"
       <<endl;
+
+  gProf.display();
 }
