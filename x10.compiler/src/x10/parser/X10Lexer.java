@@ -122,7 +122,21 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
     {
         int startOffset = getLeftSpan(),
             endOffset = getRightSpan(),
-        kwKind = kwLexer.lexer(startOffset, endOffset);
+            kwKind = kwLexer.lexer(startOffset, endOffset);
+        makeToken(startOffset, endOffset, kwKind);
+        if (printTokens) printValue(startOffset, endOffset);
+    }
+    
+    // This flavor of checkForKeyWord is necessary when the default kind
+    // (which is returned when the keyword filter doesn't match) is something
+    // other than _IDENTIFIER.
+    final void checkForKeyWord(int defaultKind)
+    {
+        int startOffset = getLeftSpan(),
+            endOffset = getRightSpan(),
+            kwKind = kwLexer.lexer(startOffset, endOffset);
+        if (kwKind == TK_IDENTIFIER)
+          kwKind = defaultKind;
         makeToken(startOffset, endOffset, kwKind);
         if (printTokens) printValue(startOffset, endOffset);
     }

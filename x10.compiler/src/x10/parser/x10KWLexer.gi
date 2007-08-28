@@ -4,27 +4,27 @@
 %Options list
 %Options fp=X10KWLexer
 %options package=x10.parser
-%options template=uide/KeywordTemplate.gi
+%options template=KeywordTemplate.gi
 
-$Notice
+%Notice
 /.
 //
 // Licensed Material 
 // (C) Copyright IBM Corp, 2006
 //
 ./
-$End
+%End
 
-$Import
+%Import
     GJavaKWLexer.gi
-$End
+%End
 
-$Globals
+%Globals
     /.import java.util.*;
     ./
-$End
+%End
 
-$Export
+%Export
 
     activitylocal
     async
@@ -58,9 +58,9 @@ $Export
     value
     when
     
-$End
+%End
 
-$Rules
+%Rules
 
     KeyWord ::= a s y n c
         /.$BeginAction
@@ -217,4 +217,4 @@ $Rules
                     $setResult($_when);
           $EndAction
         ./
-$End
+%End

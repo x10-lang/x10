@@ -5,11 +5,11 @@
 %options package=javaparser
 %options template=KeyWordTemplate.gi
 
-$Globals
+%Globals
     /.import java.util.*;./
-$End
+%End
 
-$Headers
+%Headers
     /.
         final static int tokenKind[] = new int[128];
         static
@@ -47,9 +47,9 @@ $Headers
             return (c < 128 ? tokenKind[c] : 0);
         }
     ./
-$End
+%End
 
-$Export
+%Export
     abstract
     assert
     boolean
@@ -104,18 +104,18 @@ $Export
     void
     volatile
     while
-$End
+%End
 
-$Terminals
+%Terminals
     a    b    c    d    e    f    g    h    i    j    k    l    m
     n    o    p    q    r    s    t    u    v    w    x    y    z
-$End
+%End
 
-$Start
+%Start
     KeyWord
-$End
+%End
 
-$Rules
+%Rules
 
     -- The Goal for the parser is a single Keyword
 
@@ -142,7 +142,6 @@ $Rules
                 $setResult($_break);
           $EndAction
         ./
-
               | b y t e
         /.$BeginAction
                 $setResult($_byte);
@@ -441,4 +440,4 @@ $Rules
                 $setResult($_while);
           $EndAction
         ./
-$End
+%End

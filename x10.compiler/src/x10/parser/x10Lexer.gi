@@ -5,23 +5,23 @@
 %Options fp=X10Lexer
 %options single_productions
 %options package=x10.parser
-%options template=uide/LexerTemplate.gi
+%options template=LexerTemplate.gi
 %options filter=X10KWLexer.gi
 
-$Notice
+%Notice
 /.
 //
 // Licensed Material 
 // (C) Copyright IBM Corp, 2006
 //
 ./
-$End
+%End
 
-$Import
+%Import
     GjavaLexer.gi
-$End
+%End
 
-$Globals 
+%Globals 
 	/.
 	import java.util.Map;
 	import java.util.HashMap;
@@ -29,21 +29,21 @@ $Globals
 	import java.io.File;
     import java.util.ArrayList;
     ./
-$End
+%End
 
-$Define
+%Define
     --
     -- Definition of macro used in the included file LexerBasicMapB.g
     --
     $kw_lexer_class /.$X10KWLexer./
-$End
+%End
 
-$Export
+%Export
 --     RANGE
     ARROW
-$End
+%End
 
-$Headers
+%Headers
     --
     -- Additional methods for the action class not provided in the template
     --
@@ -205,9 +205,9 @@ $Headers
             }
         }
     ./
-$End
+%End
 
-$Rules
+%Rules
 --     Token ::= IntLiteralAndRange
 -- 
 --     Token ::= '.' '.'
@@ -229,4 +229,4 @@ $Rules
 --                     makeToken($getToken(2), $getToken(3), $_RANGE);
 --           $EndAction
 --         ./
-$End
+%End
