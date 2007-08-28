@@ -5,14 +5,14 @@
 %options conflicts
 %options softkeywords
 %options package=x10.parser
-%options template=uide/btParserTemplate.gi
+%options template=btParserTemplate.gi
 %options import_terminals="X10Lexer.gi"
 
-$include
+%include
     "MissingId.gi"
-$End
+%End
 
-$Notice
+%Notice
 /.
 //#line $next_line "$input_file$"
 //
@@ -20,9 +20,9 @@ $Notice
 // (C) Copyright IBM Corp, 2006
 //
 ./
-$End
+%End
 
-$Globals
+%Globals
     /.
     //#line $next_line "$input_file$"
     import java.util.ArrayList;
@@ -125,12 +125,12 @@ $Globals
     import lpg.runtime.UndefinedEofSymbolException;
     import lpg.runtime.UnimplementedTerminalsException;
     ./
-$End
+%End
 
-$Import
+%Import
     GJavaParserForX10.gi
 
-    $DropSymbols
+    %DropSymbols
         ActualTypeArgumentList
         ActualTypeArgument
         AdditionalBound
@@ -178,7 +178,7 @@ $Import
         ElementValuesopt
         ElementValues
 
-    $DropRules
+    %DropRules
         ImportDeclaration ::= SingleStaticImportDeclaration
                             | StaticImportOnDemandDeclaration
         SwitchLabel ::= case EnumConstant :
@@ -219,22 +219,22 @@ $Import
                            | super . TypeArgumentsopt identifier ( ArgumentListopt )
                            | ClassName . super . TypeArgumentsopt identifier ( ArgumentListopt )
                            | TypeName . TypeArguments identifier ( ArgumentListopt )
-$End
+%End
 
-$Define
+%Define
     --
     -- Definition of macros used in the parser template
     --
     $ast_class /.polyglot.ast.Node./
     $additional_interfaces /., Parser./
-$End
+%End
 
-$Terminals
+%Terminals
 --     RANGE ::= '..'
     ARROW ::= '->'
-$End
+%End
 
-$Keywords
+%Keywords
     --
     -- All X10 keywords are soft
     --
@@ -281,9 +281,9 @@ $Keywords
     long
     float
     double
-$End
+%End
 
-$Headers
+%Headers
     /.
         //#line $next_line "$input_file$"
         private ErrorQueue eq;
@@ -771,9 +771,9 @@ $Headers
         }
 
     ./
-$End
+%End
 
-$Rules -- Overridden rules from GJavaParser
+%Rules -- Overridden rules from GJavaParser
     ClassType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
         /.$BeginJava
                          setResult(DepParametersopt == null
@@ -1026,9 +1026,9 @@ $Rules -- Overridden rules from GJavaParser
                     setResult(nf.AssignPropertyCall(pos(),  ArgumentList));
           $EndJava
         ./
-$End
+%End
 
-$Rules
+%Rules
 
     -------------------------------------- Section:::Types
 
@@ -1607,7 +1607,7 @@ $Rules
           $EndJava
         ./
 
-    Valueopt ::= $Empty
+    Valueopt ::= %Empty
         /.$NullAction./
                | value
         /.$BeginJava
@@ -2060,44 +2060,44 @@ $Rules
 
     ---------------------------------------- All the opts...
 
-ThisClauseopt ::= $Empty
+ThisClauseopt ::= %Empty
        /.$NullAction./
                             | ThisClause
                             
-    PlaceTypeSpecifieropt ::= $Empty
+    PlaceTypeSpecifieropt ::= %Empty
        /.$NullAction./
                             | PlaceTypeSpecifier
 
-    DepParametersopt ::= $Empty
+    DepParametersopt ::= %Empty
         /.$NullAction./
                        | DepParameters
-    PropertyListopt ::=  $Empty
+    PropertyListopt ::=  %Empty
         /.$NullAction./
                        | PropertyList
                        
-    WhereClauseopt ::= $Empty
+    WhereClauseopt ::= %Empty
         /.$NullAction./
                      | WhereClause
 
-    ObjectKindopt ::= $Empty
+    ObjectKindopt ::= %Empty
         /.$NullAction./
                     | ObjectKind
 
-    ArrayInitializeropt ::= $Empty
+    ArrayInitializeropt ::= %Empty
         /.$NullAction./
                           | ArrayInitializer
 
-    PlaceExpressionSingleListopt ::= $Empty
+    PlaceExpressionSingleListopt ::= %Empty
         /.$NullAction./
                                    | PlaceExpressionSingleList
 
-    X10ClassModifiersopt ::= $Empty
+    X10ClassModifiersopt ::= %Empty
         /.$BeginJava
              setResult(Collections.singletonList(X10Flags.toX10Flags(Flags.NONE)));
           $EndJava ./
           | X10ClassModifiers
           
-    Unsafeopt ::= $Empty
+    Unsafeopt ::= %Empty
         /.$NullAction./
                 | unsafe
         /.$BeginJava
@@ -2106,7 +2106,7 @@ ThisClauseopt ::= $Empty
           $EndJava
         ./
 
-    ParamIdopt ::= $Empty
+    ParamIdopt ::= %Empty
         /.$NullAction./
                  | identifier
         /.$BeginJava
@@ -2114,15 +2114,15 @@ ThisClauseopt ::= $Empty
           $EndJava
         ./
 
-    ClockedClauseopt ::= $Empty
+    ClockedClauseopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), Expr.class, false));
           $EndJava
         ./
                        | ClockedClause
-$End
+%End
 
-$Types
+%Types
     Object ::= ,opt
              | ...opt
              | PlaceTypeSpecifieropt
@@ -2348,4 +2348,4 @@ $Types
     DepParameterExpr ::= ThisClause | ThisClauseopt
     List ::= Annotations
     AnnotationNode ::= Annotation
-$End
+%End

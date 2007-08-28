@@ -1,8 +1,8 @@
-$Recover
+%Recover
     ErrorId
-$End
+%End
 
-$Rules
+%Rules
     TypeName ::= TypeName . ErrorId
             /.$BeginJava
                         setResult(new Name(nf,
@@ -126,10 +126,10 @@ $Rules
                     setResult(a);
           $EndJava
         ./
-$End
+%End
 
-$Types
+%Types
     Object ::= MethodPrimaryPrefix
              | MethodClassNameSuperPrefix
     polyglot.lex.Identifier ::= MethodSuperPrefix
-$End
+%End

@@ -5,14 +5,14 @@
 %Options fp=JavaLexer
 %options single_productions
 %options package=javaparser
-%options template=uide/LexerTemplate.gi
+%options template=LexerTemplate.gi
 %options filter=GJavaKWLexer.gi
 
-$Include
-    uide/LexerBasicMap.gi
-$End
+%Include
+    LexerBasicMap.gi
+%End
 
-$Headers
+%Headers
     --
     -- Additional methods for the action class not provided in the template
     --
@@ -497,21 +497,21 @@ assert(new_file != null);
             return;
         }
     ./
-$End
+%End
 
-$Globals
+%Globals
     /.import java.util.*;./
-$End
+%End
     
-$Define
+%Define
     --
     -- Definition of macro used in the included file LexerBasicMapB.g
     --
     $kw_lexer_class /.$GJavaKWLexer./
 
-$End
+%End
 
-$Export
+%Export
 
     IDENTIFIER
 
@@ -573,9 +573,9 @@ $Export
     EQUAL
     ELLIPSIS
 
-$End
+%End
 
-$Terminals
+%Terminals
     CtlCharNotWS
 
     LF   CR   HT   FF
@@ -627,9 +627,9 @@ $Terminals
     RightParen   ::= ')'
     Equal        ::= '='
 
-$End
+%End
 
-$Rules
+%Rules
 
     Token ::= Identifier
         /.$BeginAction
@@ -962,7 +962,7 @@ $Rules
     Inside ::= Inside Stars NotSlashOrStar
              | Inside '/'
              | Inside NotSlashOrStar
-             | $empty
+             | %empty
 
     Stars -> '*'
            | Stars '*'
@@ -976,7 +976,7 @@ $Rules
     SLC ::= '/' '/'
           | SLC NotEol
 
-    SLBody -> $empty
+    SLBody -> %empty
             | SLBody NotDQ
 
     Integer -> Digit
@@ -1108,4 +1108,4 @@ $Rules
                     | '\' '"'
                     | '\' "'"
                     | '\' '\'
-$End
+%End

@@ -1,9 +1,9 @@
 %options fp=JavaParser
 %options package=javaparser
-%options template=uide/btParserTemplate.gi
+%options template=btParserTemplate.gi
 %options import_terminals=GJavaLexer.gi
 
-$Notice
+%Notice
 /.
 //
 // This is the grammar specification from the Final Draft of the generic spec.
@@ -15,13 +15,13 @@ $Notice
 // (4) Removed EnumDeclarations.
 // 12/28/2004
 ./
-$End 
+%End 
 
-$Identifier
+%Identifier
     IDENTIFIER
-$End
+%End
 
-$Terminals
+%Terminals
 
     IntegerLiteral        -- the usual
     LongLiteral           -- IntegerLiteral followed by 'l' or 'L'
@@ -63,8 +63,8 @@ $Terminals
     SEMICOLON ::= ;
     QUESTION ::= ?
     AT ::= @  
-    LBRACKET ::= [
-    RBRACKET ::= ]
+    LBRACKET ::= '['
+    RBRACKET ::= ']'
     XOR ::= ^ 
     XOR_EQUAL ::= ^=
     LBRACE ::= {
@@ -83,14 +83,13 @@ $Terminals
     EQUAL_EQUAL ::= ==  
     GREATER ::= >
     ELLIPSIS ::= ...
-$End
+%End
 
-$Start
+%Start
     CompilationUnit
-$End
+%End
 
-$Rules
-
+%Rules
     identifier ::= IDENTIFIER$ident
         /.$BeginJava
                     ident.setKind($sym_type.TK_IDENTIFIER);
@@ -191,7 +190,7 @@ $Rules
 
     TypeVariable ::= identifier
 
-    ArrayType ::= Type [ Annotationsopt ]
+    ArrayType ::= Type '[' Annotationsopt ']'
         /.$BeginJava
                     setResult(nf.array(Type, pos(), 1));
           $EndJava
@@ -602,7 +601,7 @@ $Rules
                     setResult(new X10VarDeclarator(pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
           $EndJava
         ./
-                           | TraditionalVariableDeclaratorId [ ]
+                           | TraditionalVariableDeclaratorId '[' ']'
         /.$BeginJava
                     TraditionalVariableDeclaratorId.dims++;
                     TraditionalVariableDeclaratorId.position(pos());
@@ -611,12 +610,12 @@ $Rules
         ./
 
     VariableDeclaratorId ::= TraditionalVariableDeclaratorId
-                           | identifier [ IdentifierList ] 
+                           | identifier '[' IdentifierList ']'
         /.$BeginJava
                     setResult(new X10VarDeclarator(pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()), IdentifierList));
           $EndJava
         ./
-                           | [ IdentifierList ] 
+                           | '[' IdentifierList ']'
         /.$BeginJava
                     setResult(new X10VarDeclarator(pos(), IdentifierList));
           $EndJava
@@ -1862,18 +1861,18 @@ $Rules
           $EndJava
         ./
     
-    DimExpr ::= [ Expression ]
+    DimExpr ::= '[' Expression ']'
         /.$BeginJava
                     setResult(Expression.position(pos()));
           $EndJava
         ./
     
-    Dims ::= [ ]
+    Dims ::= '[' ']'
         /.$BeginJava
                     setResult(new Integer(1));
           $EndJava
         ./
-           | Dims [ ]
+           | Dims '[' ']'
         /.$BeginJava
                     setResult(new Integer(Dims.intValue() + 1));
           $EndJava
@@ -2205,21 +2204,21 @@ $Rules
     --
     -- Optional rules
     --
-    Dimsopt ::= $Empty
+    Dimsopt ::= %Empty
         /.$BeginJava
                     setResult(new Integer(0));
           $EndJava
         ./
               | Dims
 
-    Catchesopt ::= $Empty
+    Catchesopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), Catch.class, false));
           $EndJava
         ./
                  | Catches
 
-    identifieropt ::= $Empty
+    identifieropt ::= %Empty
         /.$NullAction./
                     | identifier
         /.$BeginJava
@@ -2227,255 +2226,255 @@ $Rules
           $EndJava
         ./
 
-    ForUpdateopt ::= $Empty
+    ForUpdateopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
           $EndJava
         ./
                    | ForUpdate
 
-    Expressionopt ::= $Empty
+    Expressionopt ::= %Empty
         /.$NullAction./
                     | Expression
 
-    ForInitopt ::= $Empty
+    ForInitopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), ForInit.class, false));
           $EndJava
         ./
                  | ForInit
 
-    SwitchLabelsopt ::= $Empty
+    SwitchLabelsopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), Case.class, false));
           $EndJava
         ./
                       | SwitchLabels
 
-    SwitchBlockStatementGroupsopt ::= $Empty
+    SwitchBlockStatementGroupsopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
           $EndJava
         ./
                                     | SwitchBlockStatementGroups
 
-    VariableModifiersopt ::= $Empty
+    VariableModifiersopt ::= %Empty
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                            | VariableModifiers
 
-    VariableInitializersopt ::= $Empty
+    VariableInitializersopt ::= %Empty
         /.$NullAction./
                               | VariableInitializers
 
-    ElementValuesopt ::= $Empty
+    ElementValuesopt ::= %Empty
         /.$NullAction./
                        | ElementValues
         /.$BadAction./
 
-    ElementValuePairsopt ::= $Empty
+    ElementValuePairsopt ::= %Empty
         /.$NullAction./
                            | ElementValuePairs
         /.$BadAction./
 
-    DefaultValueopt ::= $Empty
+    DefaultValueopt ::= %Empty
         /.$NullAction./
                       | DefaultValue
 
-    AnnotationTypeElementDeclarationsopt ::= $Empty
+    AnnotationTypeElementDeclarationsopt ::= %Empty
         /.$NullAction./
                                            | AnnotationTypeElementDeclarations
         /.$BadAction./
 
-    AbstractMethodModifiersopt ::= $Empty
+    AbstractMethodModifiersopt ::= %Empty
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                                  | AbstractMethodModifiers
 
-    ConstantModifiersopt ::= $Empty
+    ConstantModifiersopt ::= %Empty
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                            | ConstantModifiers
 
-    InterfaceMemberDeclarationsopt ::= $Empty
+    InterfaceMemberDeclarationsopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), ClassMember.class, false));
           $EndJava
         ./
                                      | InterfaceMemberDeclarations
 
-    ExtendsInterfacesopt ::= $Empty
+    ExtendsInterfacesopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), TypeNode.class, false));
           $EndJava
         ./
                            | ExtendsInterfaces
 
-    InterfaceModifiersopt ::= $Empty
+    InterfaceModifiersopt ::= %Empty
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                             | InterfaceModifiers
 
-    ClassBodyopt ::= $Empty
+    ClassBodyopt ::= %Empty
         /.$NullAction./
                    | ClassBody
 
-    Argumentsopt ::= $Empty
+    Argumentsopt ::= %Empty
         /.$NullAction./
                    | Arguments
         /.$BadAction./
 
-    EnumBodyDeclarationsopt ::= $Empty
+    EnumBodyDeclarationsopt ::= %Empty
         /.$NullAction./
                               | EnumBodyDeclarations
         /.$BadAction./
 
-    ,opt ::= $Empty
+    ,opt ::= %Empty
         /.$NullAction./
            | ,
 
-    EnumConstantsopt ::= $Empty
+    EnumConstantsopt ::= %Empty
         /.$NullAction./
                        | EnumConstants
         /.$BadAction./
 
-    ArgumentListopt ::= $Empty
+    ArgumentListopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), Catch.class, false));
           $EndJava
         ./
                       | ArgumentList
 
-    BlockStatementsopt ::= $Empty
+    BlockStatementsopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), Stmt.class, false));
           $EndJava
         ./
                          | BlockStatements
 
-    ExplicitConstructorInvocationopt ::= $Empty
+    ExplicitConstructorInvocationopt ::= %Empty
         /.$NullAction./
                                        | ExplicitConstructorInvocation
 
-    ConstructorModifiersopt ::= $Empty
+    ConstructorModifiersopt ::= %Empty
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                               | ConstructorModifiers
 
-    ...opt ::= $Empty
+    ...opt ::= %Empty
         /.$NullAction./
              | ...
 
-    FormalParameterListopt ::= $Empty
+    FormalParameterListopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), Formal.class, false));
           $EndJava
         ./
                              | FormalParameterList
 
-    Throwsopt ::= $Empty
+    Throwsopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), TypeNode.class, false));
           $EndJava
         ./
                 | Throws
 
-    MethodModifiersopt ::= $Empty
+    MethodModifiersopt ::= %Empty
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                          | MethodModifiers
 
-    FieldModifiersopt ::= $Empty
+    FieldModifiersopt ::= %Empty
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                         | FieldModifiers
 
-    ClassBodyDeclarationsopt ::= $Empty
+    ClassBodyDeclarationsopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), ClassMember.class, false));
           $EndJava
         ./
                                | ClassBodyDeclarations
 
-    Interfacesopt ::= $Empty
+    Interfacesopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), TypeNode.class, false));
           $EndJava
         ./
                     | Interfaces
 
-    Superopt ::= $Empty
+    Superopt ::= %Empty
         /.$BeginJava
                    setResult(nf.TypeNodeFromQualifiedName(pos(), "x10.lang.Object"));
           $EndJava
         ./
                | Super
 
-    TypeParametersopt ::= $Empty
+    TypeParametersopt ::= %Empty
         /.$NullAction./
                         | TypeParameters
 
-    ClassModifiersopt ::= $Empty
+    ClassModifiersopt ::= %Empty
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                         | ClassModifiers
 
-    Annotationsopt ::= $Empty
+    Annotationsopt ::= %Empty
         /.$NullAction./
                      | Annotations
         /.$BadAction./
 
-    TypeDeclarationsopt ::= $Empty
+    TypeDeclarationsopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
           $EndJava
         ./
                           | TypeDeclarations
 
-    ImportDeclarationsopt ::= $Empty
+    ImportDeclarationsopt ::= %Empty
         /.$BeginJava
                     setResult(new TypedList(new LinkedList(), Import.class, false));
           $EndJava
         ./
                             | ImportDeclarations
 
-    PackageDeclarationopt ::= $Empty
+    PackageDeclarationopt ::= %Empty
         /.$NullAction./
                             | PackageDeclaration
 
-    WildcardBoundsOpt ::= $Empty
+    WildcardBoundsOpt ::= %Empty
         /.$NullAction./
                         | WildcardBounds
         /.$BadAction./
 
-    AdditionalBoundListopt ::= $Empty
+    AdditionalBoundListopt ::= %Empty
         /.$NullAction./
                              | AdditionalBoundList
         /.$BadAction./
 
-    TypeBoundopt ::= $Empty
+    TypeBoundopt ::= %Empty
         /.$NullAction./
                    | TypeBound
         /.$BadAction./
 
-    TypeArgumentsopt ::= $Empty
+    TypeArgumentsopt ::= %Empty
         /.$NullAction./
                        | TypeArguments
         /.$BadAction./
-$End
+%End
