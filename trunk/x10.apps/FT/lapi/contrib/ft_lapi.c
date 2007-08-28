@@ -11,17 +11,15 @@
  *
  */
 
-/* This define controls whether we perform checksums while benchmarking. */
 
 #include <inttypes.h>
-#include<lapi.h>
+#include <lapi.h>
 #include <sys/time.h>
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
-#include <mpi.h>
 #include "params.h"
 #include "ft.h"
 
@@ -31,12 +29,21 @@
  *
  **********************************************************************************/
 
+int LOGTHREADS;
 int THREADS;
 int TID;
 
 lapi_info_t info;
 lapi_handle_t handle;
-void **global_addr;
+void **local_planes_1d_list;
+
+/* Scratch space for accumulating the checksums. */
+void **reduce_list;
+double *reduce;
+
+/* Counters for synchronization when performing the checksum reduce. */
+lapi_cntr_t reduce_cntr;
+void **reduce_cntr_list;
 
 #define RC(statement) \
 { \
@@ -51,29 +58,8 @@ void **global_addr;
 		     LAPI_Gfence(handle);		                \
 		     timer_profile(T_BARRIER_WAIT, FT_TIME_END)
 
-
-/***********************************************************************************
- *
- *  MPI macros and variables.  The variables and macros are just here for 
- *  correctness checking and to aggregate timers to compute the total time spent 
- *  in various sections of code.
- *
- **********************************************************************************/
-
-int MPI_THREADS;
-int MPI_TID;
-
-#define MAKE_TAG(p,i)  ((unsigned int)((((unsigned int)p)<<16) | (unsigned int)(i)))
-#define MAKE_RTAG(p,i)	MPI_ANY_TAG
-
-#define MPI_SAFE(fncall) do {     \
-   int retcode = (fncall);        \
-   if (retcode != MPI_SUCCESS) {  \
-     fprintf(stderr, "MPI Error: %s\n  returned error code %i\n", #fncall, retcode); \
-     abort();                     \
-   }                              \
- } while (0)
-
+static void reduce_sum (double *sum);
+static void commutative_reduce (double *sum, int low, int high, int depth);
 
 
 /***********************************************************************************
@@ -101,8 +87,7 @@ void FFT2DComm (ComplexPtr_t, ComplexPtr_t, int);
 
 void parabolic2 (ComplexPtr_t, ComplexPtr_t, double*, int, double);
 void mult (ComplexPtr_t, int, double);
-void local_checksum (ComplexPtr_t, double*, double*, int);	
-void global_checksum_verify (ComplexPtr_t, double*, double*);
+void checksum (ComplexPtr_t, double*, double*);
 
 /*
  * Random number generation, as provided by c_randdp.c
@@ -172,8 +157,7 @@ void set_view (int new_orientation)
 
 /**************************************************************************
  *
- *   Print out the timers.  This method uses MPI_Reduce to sum up the
- *   specific timers across all the nodes.
+ *   Print out the timers.  
  *
  *   Allocate main timer structure on T0.
  *
@@ -182,35 +166,51 @@ void set_view (int new_orientation)
 void
 print_timers_T0 ()
 {
-  int i;
-  
-  double    avg;
+  double avg;
   double mflops;
-  /* Update all timers on T0 */
-  double FTTimers_T0[T_NUMTIMERS]; 
+  double scratch[T_NUMTIMERS*THREADS];
   double total_timers[T_NUMTIMERS];
+  int    i, t;
+  char   buf[64];
+  void   *scratchList[THREADS];
 
+  /* Move the timer data into a nice contiguous array. */
   for (i=0; i < T_NUMTIMERS; i++)
     total_timers[i] = timer_val(i);
-  
-  MPI_Reduce (total_timers, FTTimers_T0, T_NUMTIMERS, MPI_DOUBLE, 
-	      MPI_SUM, 0, MPI_COMM_WORLD);
 
-  if (MPI_TID == 0) {
-    char buf[64];
+  /* Move the local data from total_timers[] to FTTimers_T0[], 
+     accumulating the data. */
+  LAPI_Address_init (handle, (void*)scratch, scratchList);
+  LAPI_Gfence (handle);
 
-    for (i=0; i < T_NUMTIMERS; i++) {
-      avg = FTTimers_T0[i] / (1.0e6*MPI_THREADS);
+  /* Put the data on the root node. */
+  RC (LAPI_Put(handle, 0, T_NUMTIMERS*sizeof(double),
+	       scratchList[0] + 
+	       ((T_NUMTIMERS * TID)*sizeof(double)),
+	       total_timers, NULL, NULL, NULL));
+  LAPI_Gfence (handle);
+
+  if (TID == 0) 
+  {
+    /* Accumulate the data in scratch into the lower portion of 
+       the array. */
+    for (t = 1; t < THREADS; t++)
+      for (i = 0; i < T_NUMTIMERS; i++)
+	scratch[i] += scratch[t*T_NUMTIMERS + i];
+
+    for (i = 0; i < T_NUMTIMERS; i++) 
+    {
+      avg = scratch[i] / (1.0e6*THREADS);
       printf (" 0> %32s: %10.4f (%10.4f)s\n", timer_descr (i), avg, 
-	     ((double)FTTimers_T0[i])/(1.0e6));
+	      ((double)scratch[i])/(1.0e6));
     } 
-	
-    avg = (double) (FTTimers_T0[T_TOTAL] / (1.0e6*MPI_THREADS));
-	
+    
+    avg = (double) (scratch[T_TOTAL] / (1.0e6*THREADS));
+    
     mflops = (1.0e-6*((double)NX*NY*NZ) *
 	      (14.8157 + 7.19641*log((double)NX*NY*NZ)
 	       + (5.23518 + 7.21113*log((double)NX*NY*NZ))*MAX_ITER)) /avg;
-    snprintf (buf, 64, "%d Threads MFlops Rate", MPI_THREADS);
+    snprintf (buf, 64, "%d Threads MFlops Rate", THREADS);
     printf (" 0> %32s: %10.4f mflops\n", buf, mflops);
   }
 }
@@ -246,13 +246,10 @@ int main (int argc, char **argv)
   RC ((LAPI_Qenv(handle, NUM_TASKS, &THREADS)));
   RC ((LAPI_Senv(handle, ERROR_CHK, 0)));
   RC ((LAPI_Senv(handle, INTERRUPT_SET, 0)));
-  global_addr = (void**) malloc (sizeof(void*)*THREADS);
-    
-  /** MPI initialization process */
-  MPI_Init (&argc, &argv);
-  MPI_Comm_size (MPI_COMM_WORLD, &MPI_THREADS);
-  MPI_Comm_rank (MPI_COMM_WORLD, &MPI_TID);
-  MPI_Errhandler_set (MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+  LOGTHREADS = (int) round (log (THREADS) / log (2));
+  local_planes_1d_list = (void**) malloc (sizeof(void*)*THREADS);
+  reduce_list = (void**) malloc (sizeof(void*)*THREADS);
+  reduce_cntr_list = (void**) malloc (sizeof(void*)*THREADS);
 
   /*
    * We only support a 1d layout, for now
@@ -275,8 +272,11 @@ int main (int argc, char **argv)
    * local data and all other thread's pointers to their data.
    */
   allocSharedPlanes (&localPlanes2d, &localPlanes1d, &lp2o, &lp1o);
+  reduce = (double*) malloc (2 * LOGTHREADS * sizeof(double));
 
-  LAPI_Address_init (handle, localPlanes1d, global_addr);
+  LAPI_Address_init (handle, localPlanes1d, local_planes_1d_list);
+  LAPI_Address_init (handle, (void*)reduce, reduce_list);
+  LAPI_Address_init (handle, (void*)&reduce_cntr, reduce_cntr_list);
   LAPI_Gfence (handle);
     
   FFTInit (THREADS, dims, FT_COMM, localPlanes2d, localPlanes1d);
@@ -288,7 +288,7 @@ int main (int argc, char **argv)
   init_exp (ex, 1.0e-6, THREADS, TID, NX, NY, NZ);
 
   /*
-   * Run the entire problem once to make sure all the data is touched. THis
+   * Run the entire problem once to make sure all the data is touched. This
    * reduces variable startup costs, which is important for short benchmarks
    * (AS IS from the original Fortrain MPI FT benchmark)
    */
@@ -345,22 +345,29 @@ int main (int argc, char **argv)
     FT_1DFFT (localPlanes1d, localPlanes2d, FFT_BWD, current_orientation);
     switch_view ();
 
-    /* Do local checksums on each thread and store the results in the
-       checksum arrays. */
-    local_checksum (localPlanes2d, checksum_real, checksum_imag, iter);
+    checksum (localPlanes2d, &(checksum_real[iter-1]), &(checksum_imag[iter-1]));
+
+    if (TID == 0) {
+      fprintf (stdout, " 0> %30s %2d: %#17.14g %#17.14g\n",
+	       "Checksum", iter, checksum_real[iter-1], checksum_imag[iter-1]);
+      fflush (stdout);
+    }
   }
 
   timer_total (T_TOTAL, FT_TIME_END);
   LAPI_Gfence (handle);
 
-  /* Do a global checksum using all the local checksums and verify results. */
-  global_checksum_verify (localPlanes2d, checksum_real, checksum_imag);
+  if (TID == 0) {
+    checksum_verify (NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);
+  }
 
   print_timers_T0 ();
-  MPI_Finalize ();
 
   LAPI_Term (handle);
-  free (global_addr);
+  free (local_planes_1d_list);
+  free (reduce_list);
+  free (reduce_cntr_list);
+  free (reduce);
   return 0;
 }
 
@@ -414,7 +421,7 @@ FFT2DComm (ComplexPtr_t local2d, ComplexPtr_t local1d, int dir)
 
       timer_profile (T_EXCH, FT_TIME_BEGIN);
       RC (LAPI_Put(handle, thread, CHUNK_SZ*SIZEOF_COMPLEX,
-		   global_addr[thread] + 
+		   local_planes_1d_list[thread] + 
 		   (TID*dim2/THREADS * 
 		    CHUNK_SZ + p*CHUNK_SZ)*SIZEOF_COMPLEX, 
 		   Pxy, NULL, NULL, NULL));
@@ -476,7 +483,7 @@ FFT2DComm (ComplexPtr_t local2d, ComplexPtr_t local1d, int dir)
 
 	timer_profile (T_EXCH, FT_TIME_BEGIN);
 	RC (LAPI_Put(handle, thread, dim1*SIZEOF_COMPLEX,
-		     global_addr[thread] + 
+		     local_planes_1d_list[thread] + 
 		     (TID*dim2/THREADS*dim1 + p*dim1 + i*dim1*dim2)*
 		     SIZEOF_COMPLEX,
 		     Pxy, NULL, NULL, NULL));
@@ -631,22 +638,22 @@ void parabolic2 (ComplexPtr_t out, ComplexPtr_t in,
 }
 
 
+void checksum (ComplexPtr_t C, double *real, double *imag)
 /**************************************************************************
  *
- *  Do a local checksum on all the processes.
+ *   Performs a checksum by first computing a local checksum, and then
+ *   accumulating the sum across all of the procsesses.  Finally, that
+ *   sum is normalized.
  *
  *************************************************************************/
-void local_checksum (ComplexPtr_t C, double *real, double *imag, int iter)
 {
   int j, q, r, s;
-  
   int proc;
   ComplexPtr_t tmp;
 
-  timer_profile (T_CHECKSUM, FT_TIME_BEGIN);
+  double sum[2] = {0.0, 0.0};
 
-  real[iter-1] = 0.0;
-  imag[iter-1] = 0.0;
+  timer_profile (T_CHECKSUM, FT_TIME_BEGIN);
 
   for (j = 1; j <= 1024; ++j) {
     q = j % NX;
@@ -655,56 +662,86 @@ void local_checksum (ComplexPtr_t C, double *real, double *imag, int iter)
       
     proc = getowner (q,r,s);
 
-    if (MPI_TID==proc) 
+    if (TID == proc) 
     {
       tmp = C + origindexmap (q,r,s);
 	
-      real[iter-1] += (tmp->real);
-      imag[iter-1] += (tmp->imag);
+      sum[0] += (tmp->real);
+      sum[1] += (tmp->imag);
     } 
+  }
+
+  reduce_sum (sum);
+  if (TID == 0)
+  {
+    *real = ((sum[0]/NX)/NY)/NZ;
+    *imag = ((sum[1]/NX)/NY)/NZ;
   }
 
   timer_profile (T_CHECKSUM, FT_TIME_END);
 }
 
 
-
+void reduce_sum (double *sum)
 /**************************************************************************
  *
- *  Do a global checksum using all of the historical local checksums,
- *  and print out the results of the checksums (as the original benchmark
- *  does.
+ *   Accumulate all of the 'sum' arrays onto the root process.
  *
  *************************************************************************/
-void global_checksum_verify (ComplexPtr_t C, double *real, double *imag)
 {
-  double checksum_real[MAX_ITER];
-  double checksum_imag[MAX_ITER];
-  double c[2];
-  int iter;
+  int i;
 
-  timer_profile (T_CHECKSUM, FT_TIME_BEGIN);
+  /* Set the counter to zero. */
+  LAPI_Setcntr (handle, &reduce_cntr, 0);
 
-  for (iter = 1; iter <= MAX_ITER; iter++)
+  /* Zero out the reduce. */
+  bzero (reduce, 2 * sizeof(double) * LOGTHREADS);
+
+  /* Call commutative reduce. */
+  commutative_reduce (sum, 0, THREADS, LOGTHREADS - 1);
+
+  if (TID == 0)
   {
-    double sum[2] = {0.0, 0.0}; 
-
-    c[0] = real[iter-1];
-    c[1] = imag[iter-1];
-
-    MPI_Reduce (c, sum, 2, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-    checksum_real[iter-1] = ((sum[0]/NX)/NY)/NZ;
-    checksum_imag[iter-1] = ((sum[1]/NX)/NY)/NZ;
-
-    if (MPI_TID==0) 
+    LAPI_Waitcntr (handle, &reduce_cntr, LOGTHREADS, NULL);
+    for (i = 0; i < LOGTHREADS; i++)
     {
-      fprintf (stdout, " 0> %30s %2d: %#17.14g %#17.14g\n",
-	       "Checksum", iter, checksum_real[iter-1], checksum_imag[iter-1]);
+      sum[0] += reduce[2 * i];
+      sum[1] += reduce[2 * i + 1];
     }
   }
+}
 
-  if (MPI_TID == 0)
-    checksum_verify (NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);
 
-  timer_profile (T_CHECKSUM, FT_TIME_END);
+void commutative_reduce (double *sum, int low, int high, int depth)
+/**************************************************************************
+ *
+ *   Recursively reduce the sum.  Note that this is not technically
+ *   legal for a non-commutative operation like FP add, but this
+ *   works for our checksums.
+ *
+ *************************************************************************/
+{
+  int src  = low + ((high - low) / 2);
+  int i;
+
+  if (depth > 0)
+  {
+    commutative_reduce (sum, low, src, depth - 1);
+    commutative_reduce (sum, src, high, depth - 1);
+  }
+
+  if (TID == src)
+  {    
+    LAPI_Waitcntr (handle, &reduce_cntr, depth, NULL);
+
+    for (i = 0; i < depth; i++) 
+    {
+      sum[0] += reduce[2 * i];
+      sum[1] += reduce[2 * i + 1];
+    }
+
+    RC (LAPI_Put (handle, low, 2 * sizeof(double),
+		  reduce_list[low] + (2 * depth * sizeof(double)), 
+		  sum, reduce_cntr_list[low], NULL, NULL)); 
+  }
 }
