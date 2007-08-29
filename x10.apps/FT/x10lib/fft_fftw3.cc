@@ -10,7 +10,7 @@
 #include <pthread.h>
 #endif
 
-#include "Ft.h"
+#include "Ft_externs.h"
 
 static int		ft_dims[9];
 static int		ft_threads;

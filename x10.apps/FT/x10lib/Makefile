@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1 2007-08-07 06:26:18 ganeshvb Exp $
+# $Id: Makefile,v 1.2 2007-08-29 18:29:06 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for RandomAccess Benchmarks (C++ Version).
@@ -19,9 +19,10 @@ TARGET = Ft.exe
 SRCS =  Ft.cc \
         fft_fftw3.cc\
         Ft_externs.cc \
-        c_randdp.cc 
+        c_randdp.cc \
+        Ft_x10stub.cc
 
-OBJS =  fft_fftw3.o Ft_externs.o c_randdp.o Ft.o
+OBJS =  fft_fftw3.o Ft_externs.o c_randdp.o Ft.o Ft_x10stub.o
 
 INCLS = Ft.h 
 
