@@ -1,166 +1,120 @@
-#ifndef _FT_H___
-#define _FT_H___
+#include <iostream>
+#include <math.h>
+#include <x10/x10lib.h>
+#include <x10lang.h>
 
-/*
- * Create our own Complex type, making sure its name is mangled enough not to
- * collide with existing compiler complex types (that we don't want to rely
- * on).
+using namespace std;
+using namespace x10lib;
+using namespace x10::lang;
+using namespace java::lang;
+
+typedef long x10_long_t;
+typedef int x10_int_t;
+
+/**
+ * X10LIB version of FT
+ * Uses the same distribution as Ft.x10
+ * Please see README in x10/ for more details
  */
 
-typedef 
-struct __ComPLex {
-    double real;
-    double imag;
-}
-_ComPLex_t;
-#define SIZEOF_COMPLEX	sizeof(_ComPLex_t)
-typedef           _ComPLex_t *ComplexPtr_t;
 
-/****INDEXING STUFF....*/
-/* first index specifies current_orientation..
-   the second index is the ith dimension
-   if oriented X_Y_Z 0->NX 1->NY 2->NZ
-   if oriented Y_Z_X 0->NY 1->NZ 2->NX
-   if oriented Z_X_Y 0->NZ 1->NX 2->NY
-*/
-#define PLANES_ORIENTED_X_Y_Z 0 /*assumes original data layout (each plane is 
-				  row major with the z dimension appearing z*NX*NY */ 
-#define PLANES_ORIENTED_Y_Z_X 1 /*assumes that Y Z planes are contiguous in the memory*/
-#define PLANES_ORIENTED_Z_X_Y 2 /*assumes that Z X planes are contiguous in the memory*/
+struct __async__0__args;
+void __async__0 (__async__0__args args);
 
-#define CPAD_SLABS  0	// Cache-pad slice elements by 1 element 
-/*
-  #ifndef CPAD_COLS
-  #define CPAD_COLS 0 
-  #endif
-*/
+class Ft {  
+private: const static x10_int_t OFFSET = 3;
+private: const static x10_int_t CPAD_COLS = 0;
+private: const static x10_int_t PLANES_ORIENTED_X_Y_Z = 0;
+private: const static x10_int_t PLANES_ORIENTED_Y_Z_X = 1;
+private: const static x10_int_t PLANES_ORIENTED_Z_X_Y = 2;
+private: const static x10_int_t FT_COMM_SLABS = 0;
+private: const static x10_int_t FT_COMM_PENCILS = 1;
+private: const static x10_int_t FFT_FWD = 1;
+private: const static x10_int_t FFT_BWD = 0;
+ 
+public: const x10_int_t FT_COMM;
+   
+public: class DoubleArray  {     
+
+public:
+  
+  Array<double, 1>* m_array;
+  RectangularRegion <1>* m_domain;
+  x10_int_t m_length;
+  x10_int_t m_offset;
+  x10_int_t m_start;
+  x10_int_t m_end;
+  DoubleArray (x10_int_t size, x10_int_t offset, x10_int_t proc);
+  char* __serialize (char* buf) const;
+  DoubleArray (char* buf, int& offset);
+  size_t size() const;
+};
+  
+  // Distributed arrays of complex numbers, one array per place
+public : class DistDoubleArray 
+{    
+public:
+  static const Dist<1>* ALLPLACES;  
+  static const x10_int_t N_PLACES;    
+  DoubleArray** m_array;  
+  x10_long_t m_size;  
+  x10_long_t m_localSize;  
+  DoubleArray* getArray (x10_long_t idx) const;  
+  DistDoubleArray (const x10_long_t size, const x10_long_t offset) ;
+  char* __serialize (char* buf) const;  
+  DistDoubleArray (char* buf, x10_int_t& offset);
+  size_t size ()  const;
+};
+  
+  friend void __async__0 (__async__0__args args);
+  
+private : static x10_int_t NUMPLACES;
+private : const static Dist<1>* ALLPLACES;
+  
+private : const static x10_int_t SS=1;
+private : const static x10_int_t WW=2;
+private : const static x10_int_t AA=3;
+private : const static x10_int_t BB=4;
+private : const static x10_int_t CC=5;
+private : const static x10_int_t DD=6;
+ 
+private : String class_id_str;
+private : char class_id_char;
+private : x10_long_t CLASS, NX, NY, NZ, MAXDIM, MAX_ITER, TOTALSIZE, MAX_PADDED_SIZE;
+private : x10_int_t dims[9];
+private : double* checksum_real;
+private : double* checksum_imag;
+ 
+public : class Init;
+public: static double mysecond();
+public : x10_int_t switch_view (x10_int_t orientation, x10_int_t PID);
+public : x10_int_t set_view (x10_int_t orientation, x10_int_t PID); 
+public :  Ft( x10_int_t type, x10_int_t comm);
+public : static  void initialize (Array<double, 1>* Array, x10_int_t size, x10_int_t offset, x10_int_t PID); 
+public: static void initializeC (x10_int_t numPLACE, x10_int_t nx, x10_int_t ny, x10_int_t nz, x10_int_t offset, x10_int_t cpad_cols);
+public: static  void computeInitialConditions (Array<double, 1>* Array, x10_int_t PID);
+public: static  void init_exp (Array<double, 1>* Array, double alpha, x10_int_t PID);
+public: static  void set_orientation (x10_int_t orientation);
+public: static  void parabolic2 (Array<double, 1>* out, Array<double, 1>* in, Array<double, 1>* ex, x10_int_t t, double alpha);
+public: static  void FFTInit (x10_int_t comm, Array<double, 1>* local2d, Array<double, 1>* local1d, x10_int_t PID);
+public: static  void FFTWTest();
+public: static  void FT_1DFFT (x10_int_t ft_comm, Array<double, 1>* in, Array<double, 1>* out, x10_int_t offset, x10_int_t dir, x10_int_t orientation, x10_int_t PID);
+public: static void FFT2DLocalCols (Array<double, 1>* local2d, x10_int_t ComplexOffset, x10_int_t dir, x10_int_t orientation, x10_int_t PID);
+public: static void FFT2DLocalRow (Array<double, 1>* local2d, x10_int_t ComplexOffset, x10_int_t dir, x10_int_t orientation, x10_int_t PID);
+public: static x10_int_t origindexmap (x10_int_t x, x10_int_t y, x10_int_t z);
+public: static x10_int_t getowner (x10_int_t x, x10_int_t y, x10_int_t z);
+public :  void solve();
+public : void FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c);
+public :  void FFT2DComm(const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* clk);
+private : void checksum(const DoubleArray* C, const x10_int_t PID, const x10_int_t itr) ;
+public :  void print_Array(const DistDoubleArray* DDA);
+public : static void  main (x10::array<x10::ref<x10::lang::String> >& args);
+private :  void checksum_verify(const x10_int_t d1, const x10_int_t d2, const x10_int_t d3, const x10_int_t nt,
+				const double* real_sums, 
+				const double* imag_sums);
+};
 
 
-#ifndef MAX
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
-#endif
-
-#define NXp (NX+CPAD_COLS)
-#define NYp (NY+CPAD_COLS)
-#define NZp (NZ+CPAD_COLS)
-
-/*macro that returns the maximum size of the cubes we'll need*/
-#define MAX_PADDED_SIZE (MAX((NXp*NY*(NZ/THREADS)), (MAX((NX*NYp*(NZ/THREADS)), \
-(NX*NY*((NZ/THREADS)+CPAD_COLS))))))
-
-#define FT_COMM_SLABS	0
-#define FT_COMM_PENCILS	1
-#define FT_COMM_ALL2ALL 2
-#define FT_COMM_LAPI_SLABS 3
-
-#ifndef FT_COMM
-  #define FT_COMM FT_COMM_SLABS
-#endif
-
-
-/*
- * Ft implementations implement these 4 functions
- * fft_fftw.c, fft_kube-gustavson.c
- */
-#define FFT_FWD 1
-#define FFT_BWD 0
-extern void FFTInit(int threads, int dims[3][3], int comm, ComplexPtr_t local2d, ComplexPtr_t local1d, int);
-extern void FFTFinalize();
-extern void FFT2DLocal(ComplexPtr_t inout, int dir, int orientation, int *dims);
-extern void FFT2DLocalCols(ComplexPtr_t in, int dir, int orientation, int *dims, int);
-extern void FFT2DLocalRow(ComplexPtr_t in, int dir, int orientation, int *dims, int);
-extern void FFT2DLocalRows(int nrows, ComplexPtr_t inout, int dir, int orientation, int *dims, int);
-extern void FFT1DLocalTranspose(ComplexPtr_t local1d, ComplexPtr_t local2d, int dir, int orient, int);
-extern void FFT1DLocal(ComplexPtr_t local1d, ComplexPtr_t local2d, int dir, int orient, int);
-extern void checksum_verify (int d1, int d2, int d3, int nt, double *real_sums, double *imag_sums);
-extern const char *FFTName;
-
-extern void init_exp(double*, double, int);
-
-/*
- * Random number generation, as provided by c_randdp.c
- */
-void   init_seed(double seed);
-double randlc (double *x, double a);
-void vranlc(int n, double *x, double a, double *y);
-double ipow46(double, int, int);
-
-/*
- * Timers
- */
-
-#define T_SETUP		    0
-#define T_FFT1DCOLS	    1
-#define T_FFT1DROWS	    2
-#define T_FFT1DPOST	    3
-#define T_EVOLVE	    4
-#define T_CHECKSUM	    5
-#define T_EXCH		    6
-#define T_EXCH_WAIT	    7
-#define T_BARRIER_WAIT	    8
-#define T_BARRIER_CHK       9
-#define T_TOTAL		   10 
-#define T_NUMTIMERS	   11
-
-#define FT_TIME_BEGIN	0
-#define FT_TIME_END	1
-
-extern uint64_t    timer_val(int tid);
-extern void	   timer_update(int tid, int action);
-extern void	   timer2_update(int tid, int idx, int action);
-extern void	   timer2_dump(int cols, int rows);
-extern void	   timer_clear();
-extern char	  *timer_descr(int tid);
-
-/* Always enable timers unless otherwise stated */
-#ifndef FT_PROFILE
-  #define FT_PROFILE 1
-#endif
-
-#if FT_PROFILE
-#  define timer_profile(tid,action) timer_update(tid,action)
-#else
-#  define timer_profile(tid,action) 
-#endif
-
-#define timer_total(tid,action)   timer_update(tid,action)
-
-/* 
- * Malloc aligned on cache lines
- */
-#define CACHE_LINE_SZ   128
-#define CACHE_LINE_MASK (CACHE_LINE_SZ-1)
-
-extern inline void *malloc_align(void **orig, size_t size);
-/*
-inline void *malloc_align(void **orig, size_t size)
-{
-  char *p;
-  *orig = (void *) malloc(size+CACHE_LINE_SZ-1);
-
-  p = (char*) *orig;
-  p = (char*) (((uintptr_t)p + CACHE_LINE_SZ - 1)&(~CACHE_LINE_MASK));
-
-  return (void*)p;
-}
-*/
-/*
- * A debugging routine.
- */
-extern inline void rowcheck (ComplexPtr_t row, int len, int tid, int rid, int pid);
- /*
-inline void 
-rowcheck (ComplexPtr_t row, int len, int tid, int rid, int pid)
-{
-  int i;
-
-  fprintf (stderr, "Thread %d dump starting at %d,%d: ", tid, rid, pid);
-  for (i = 0; i < 5; i++)
-  {
-    fprintf (stderr, "{%4.2f,%4.2f}, ", row[i].real, row[i].imag);
-  }
-  fprintf (stderr, "\n");
-}
- */
-
-#endif
+// Local Variables:
+// mode: C++
+// End:

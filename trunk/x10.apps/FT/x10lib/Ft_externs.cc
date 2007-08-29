@@ -3,7 +3,7 @@
 #include <math.h>
 #include <fftw3.h>
 //#include "Ft_x10stub.c"
-#include "Ft.h"
+#include "Ft_externs.h"
 #include "stdlib.h"
 #include <iostream>
 
