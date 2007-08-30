@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.9 2007-08-24 12:54:59 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.10 2007-08-30 05:54:12 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -83,8 +83,9 @@ main (int argc, char* argv[])
   x10lib::Init(NULL,0);
 
   struct args arg;
+  int total;
   for (long i = 0; i < N; i++) {
-    for (x10_place_t target = 0; target < __x10_num_places; target++) {
+    for (x10_place_t target = 0; target < __x10_num_places; target++, total++) {
       //       if (target == x10lib::here()) {
       //        async0 ((x10_async_arg_t) i);
       //        async1 ();
@@ -93,7 +94,10 @@ main (int argc, char* argv[])
       //       }
 //      ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
  //     ASYNC_SPAWN (target, 1, &arg, 0);
-      ASYNC_SPAWN (target, 2, i, m);
+
+        ASYNC_SPAWN (target, 2, i, m);
+      if ((total + 1) % (N/2) == 0) 
+        ASYNC_FLUSH (2, 2*sizeof(x10_async_arg_t));
     }
   } 
  // ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
