@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.13 2007-08-30 12:09:05 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.14 2007-08-30 14:19:14 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -36,6 +36,11 @@ size_t recvMesgLen[2][X10_MAX_LOG_NUMPROCS];
 
 lapi_cntr_t recvCntr[X10_MAX_LOG_NUMPROCS];
 
+int ssize = 0;
+
+static x10_err_t
+sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask, int phase, int cond, int cntrVal, char* buf);
+
 typedef struct {
   ulong len;
   ulong phase;
@@ -43,7 +48,8 @@ typedef struct {
 
 typedef struct {
   x10_async_handler_t handler;
-  int niter;
+  size_t size;
+  long phase;
 } x10_agg_hdr_t;
 
 static void
@@ -73,58 +79,6 @@ asyncSpawnCompHandlerAgg(lapi_handle_t *hndl, void *a)
 }
 
 
-typedef struct {
-  void* buf;
-  x10_async_handler_t handler; 
-  int niter;
-} x10_agg_flush_cmpl_t;
-
-static void
-asyncFlushComplHandler (lapi_handle_t *hndl, void *a)
-{
-  X10_DEBUG (1,  "Entry");
-  x10_agg_flush_cmpl_t *c = (x10_agg_flush_cmpl_t *)a;
-  asyncSwitch(c->handler, (void *)(c->buf), c->niter);
-  delete[] ((char*) c->buf);
-  delete c;
-  X10_DEBUG (1,  "Exit");
-}
-
-
-static void *
-asyncFlushHandler(lapi_handle_t hndl, void *uhdr,
-		     uint *uhdr_len, ulong *msg_len,
-		     compl_hndlr_t **comp_h, void **user_info)
-{
-  X10_DEBUG (1,  "Entry");
-  x10_agg_hdr_t buf = *((x10_agg_hdr_t *)uhdr);
-  lapi_return_info_t *ret_info =
-    (lapi_return_info_t *)msg_len;
-
-  if (ret_info->udata_one_pkt_ptr || (*msg_len) == 0) {
-    asyncSwitch(buf.handler, ret_info->udata_one_pkt_ptr,
-		buf.niter);
-    ret_info->ctl_flags = LAPI_BURY_MSG;
-    *comp_h = NULL;
-    X10_DEBUG (1,  "Exit");
-    return NULL;  
-  } else {
-    x10_agg_flush_cmpl_t *c = new x10_agg_flush_cmpl_t;
-    c->buf = (void *)new char [*msg_len];
-    c->handler = buf.handler;
-    c->niter = buf.niter;
-    *comp_h = asyncFlushComplHandler;
-    ret_info->ret_flags = LAPI_LOCAL_STATE;
-    *user_info = (void *)c;
-    X10_DEBUG (1,  "Exit");
-    return c->buf;
-  }
-
-  X10_DEBUG (1,  "Exit");
-  return NULL;
-}
-
-
 static void *
 asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 		     uint *uhdr_len, ulong *msg_len,
@@ -136,14 +90,25 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
     (lapi_return_info_t *)msg_len;
 
 
+  x10_agg_hdr_t* hdr = (x10_agg_hdr_t*) uhdr;
+
   x10_agg_cmpl_t* a = new x10_agg_cmpl_t;
-  a->phase = *((ulong*) uhdr);
+  a->phase = hdr->phase;
   a->len = *msg_len;
+
   int cntrVal; 
   LAPI_Getcntr (__x10_hndl, &recvCntr[a->phase], &cntrVal);
   if (ret_info->udata_one_pkt_ptr || (*msg_len) == 0) {
-    memcpy (rbuf[cntrVal][a->phase], ret_info->udata_one_pkt_ptr, *msg_len);
-    asyncSpawnCompHandlerAgg (&hndl, (void*) a);
+    //memcpy (rbuf[cntrVal][a->phase], ret_info->udata_one_pkt_ptr, *msg_len);    
+
+    asyncSpawnCompHandlerAgg (&hndl, (void*) a);    
+    
+    //sort_data_recvs (hdr->handler, ssize, hdr->size, 0, a->phase, 1, cntrVal, (char*) ret_info->udata_one_pkt_ptr);
+    ulong partner = (1 << (a->phase+1)) ^ (ulong)__x10_my_place;
+    ulong mask = ((ulong) 1) << (a->phase+1);      
+    int cond = partner > __x10_my_place ? 1 : 0;
+    sort_data_recvs (hdr->handler, ssize, hdr->size, mask, a->phase, cond, cntrVal, (char*) ret_info->udata_one_pkt_ptr);
+ 
     ret_info->ctl_flags = LAPI_BURY_MSG;
     *comp_h = NULL;
     return NULL;
@@ -231,31 +196,27 @@ sort_data_args (x10_async_handler_t hndlr,  int& ssize, size_t size, ulong mask,
 }
 
 static x10_err_t
-sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask, int phase, int cond, int cntrVal)
+sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask, int phase, int cond, int cntrVal, char* buf)
 { 
-  for (int s = 0; s < recvMesgLen[cntrVal][phase]; ) {
+  for (int s = 0; s <   recvMesgLen[cntrVal][phase]; ) {
     
-    x10_place_t p =  *((x10_place_t*) (rbuf[cntrVal][phase] + s));
+    x10_place_t p =  *((x10_place_t*) (buf + s));
 
     s += sizeof (x10_place_t);
 
-    int message_size = *((int *) (rbuf[cntrVal][phase] + s));    
+    int message_size = *((int *) (buf + s));    
     s += sizeof (int);
     
     //cout << p << " " << recvMesgLen[cntrVal][phase] << " " << s << " " << cntrVal << " " << " " << message_size << " " <<  phase << endl;
-    assert (p >= 0 && p < __x10_num_places); 
-    
-    //if (phase == 2) {cout << " P : " << p << endl; assert (p == __x10_my_place);}
+    assert (p >= 0 && p < __x10_num_places);     
     
     if (p == __x10_my_place) 
       {
-	//int cntr = __x10_agg_counter[p];
-	asyncSwitch(hndlr, rbuf[cntrVal][phase] + s, message_size);
-	//memcpy (&(__x10_agg_arg_buf[__x10_my_place][cntr]), rbuf + s, message_size * size);
-	//__x10_agg_counter[p] += message_size;	
-	
+	asyncSwitch(hndlr, buf + s, message_size);	
       } else if (((MIN((((ulong) p) & mask), 1)) == cond) && (message_size > 0)) {    
 	
+	assert ((1 << phase) != __x10_num_places);
+		
 	assert (message_size > 0);
 	
 	memcpy (&(sbuf[ssize]), &p, sizeof(x10_place_t));       
@@ -264,9 +225,11 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
 	memcpy (&(sbuf[ssize]), &message_size, sizeof(int));        
 	ssize += sizeof(int);
 	
-	memcpy (&(sbuf[ssize]), rbuf[cntrVal][phase] + s, message_size * size);        
+	memcpy (&(sbuf[ssize]), buf + s, message_size * size);        
 	ssize += message_size * size;
       } else if (message_size > 0) {	
+
+	assert ((1 << phase) != __x10_num_places);
 	
 	int cntr = __x10_agg_counter[p];	
 	
@@ -275,30 +238,39 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
 	assert (cntrVal >= 0 && cntrVal < 2);
 	
 	assert ((cntr * size + message_size * size) < 1024 * 32 * sizeof(x10_async_arg_t));
-
-	memcpy (&(__x10_agg_arg_buf[p][cntr * size]), rbuf[cntrVal][phase] + s, message_size * size);
+	
+	memcpy (&(__x10_agg_arg_buf[p][cntr * size]), buf + s, message_size * size);
 	__x10_agg_counter[p] += message_size;	
       }
     
     s += message_size * size;
   }
+
+  recvMesgLen[cntrVal][phase] = 0;
+	
 }
 
 static x10_err_t
-send_updates (int& ssize, int phase, int partner)
+send_updates (x10_async_handler_t hndlr, int& ssize, size_t size,int phase, int partner)
 { 
   lapi_cntr_t cntr;
   int tmp;
-
+  
   //cout << "send " << phase << " " << __x10_my_place <<" " << partner << " " << *((int*) (sbuf)) << " " << *((int*) (sbuf + 4)) << " " << ssize << endl;       
 
   assert (ssize < 2 * 32 * 1024 * 8);
 
   ulong phase_l = (ulong) phase;
+
+  x10_agg_hdr_t hdr;
+  hdr.phase = phase;
+  hdr.size = size;
+  hdr.handler = hndlr;
+  
   //{ cout << "phase : " << phase << " " << sizeof(phase_l) << "  ssize: " << ssize << " p : " << __x10_my_place << " " << partner << endl; }
   LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-  LRC(LAPI_Amsend(__x10_hndl, partner, (void *)8, &phase_l,
-		  sizeof(phase_l),
+  LRC(LAPI_Amsend(__x10_hndl, partner, (void *)8, &hdr,
+		  sizeof(hdr),
 		  (void *) sbuf,
 		  ssize,
 		  NULL, &cntr, 0));
@@ -315,18 +287,20 @@ namespace x10lib {
   {
     X10_DEBUG (1,  "Entry");
     
-    //LAPI_Gfence (__x10_hndl);              
+    ssize = 0;
+
+    LAPI_Gfence (__x10_hndl);              
     int factor = 1;
     int phase = 0;
+    
     for (; factor < __x10_num_places; phase++, factor *= 2) {
       
       ulong partner = (1 << phase) ^ (ulong)__x10_my_place;
+    
       ulong mask = ((ulong) 1) << phase;
       
       int cond = partner > __x10_my_place ? 1 : 0;
-    
-      int ssize = 0;
-      
+          
       sort_data_args (hndlr, ssize, size, mask, phase, cond);
       
       if (phase > 0) {	
@@ -336,30 +310,29 @@ namespace x10lib {
 	
 	//LAPI_Setcntr (__x10_hndl, &(recvCntr[phase-1]), cntrVal - 1);
 	
-	sort_data_recvs (hndlr, ssize, size, mask, phase-1, cond, cntrVal);	
-	
-	recvMesgLen[cntrVal][phase-1] = 0;
+	sort_data_recvs (hndlr, ssize, size, mask, phase-1, cond, cntrVal, rbuf[cntrVal][phase-1]);		
 	
       }     
-      send_updates (ssize, phase, partner);               
+      
+      send_updates (hndlr, ssize, size, phase, partner);               
+
+      ssize = 0;	    
     }      
     
     int cntrVal;
     
     LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &cntrVal);
+
     //    LAPI_Setcntr (__x10_hndl, &(recvCntr[phase-1]), cntrVal - 1);
-    int ssize = 0;
+    //int ssize = 0;
     
-    sort_data_recvs (hndlr, ssize, size, 0, phase-1, 1, cntrVal);
-    
-    recvMesgLen[cntrVal][phase-1] = 0;
-    
+    sort_data_recvs (hndlr, ssize, size, 0, phase-1, 1, cntrVal, rbuf[cntrVal][phase-1]);
+        
     __x10_agg_total = 0;
     
     
     asyncSwitch(hndlr, __x10_agg_arg_buf[__x10_my_place], __x10_agg_counter[__x10_my_place]);
     __x10_agg_counter[__x10_my_place]=0;
-    
     
     X10_DEBUG (1,  "Exit");
     return X10_OK;
