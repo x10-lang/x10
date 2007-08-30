@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.12 2007-08-30 05:54:12 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.13 2007-08-30 12:09:05 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -26,11 +26,11 @@ static char sbuf [2 * 32 * X10_MAX_AGG_SIZE * 8];
 
 static char* rbuf[2][X10_MAX_LOG_NUMPROCS];
 
-static char** __x10_agg_arg_buf[X10_MAX_AGG_HANDLERS];
+static char** __x10_agg_arg_buf;
 
-static int* __x10_agg_counter[X10_MAX_AGG_HANDLERS];
+static int* __x10_agg_counter;
 
-static int __x10_agg_total[X10_MAX_AGG_HANDLERS];
+static int __x10_agg_total;
 
 size_t recvMesgLen[2][X10_MAX_LOG_NUMPROCS];
 
@@ -167,16 +167,14 @@ asyncAggInit_hc()
 
   LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 8));
   
-  for (int i = 0; i < X10_MAX_AGG_HANDLERS; i++) {
-    __x10_agg_arg_buf[i] = new char* [__x10_num_places];
-    __x10_agg_counter[i] = new int[__x10_num_places];
-   
-    for (int j = 0; j < __x10_num_places; j++) {
-      __x10_agg_counter[i][j] = 0;      
-      __x10_agg_arg_buf[i][j] = new char [X10_MAX_AGG_SIZE * 32 * sizeof(x10_async_arg_t)];
-    }
-  } 
-
+  __x10_agg_arg_buf = new char* [__x10_num_places];
+  __x10_agg_counter = new int[__x10_num_places];
+  
+  for (int j = 0; j < __x10_num_places; j++) {
+    __x10_agg_counter[j] = 0;      
+    __x10_agg_arg_buf[j] = new char [X10_MAX_AGG_SIZE * 16 * sizeof(x10_async_arg_t)];
+  }
+  
   for (int i = 0; i < X10_MAX_LOG_NUMPROCS; i++) {
     rbuf[0][i] = new char [16384 * 32];
     rbuf[1][i] = new char [16384 * 32];
@@ -193,13 +191,13 @@ asyncAggInit_hc()
 x10_err_t
 asyncAggFinalize_hc ()
 {
-  for (int i = 0; i < X10_MAX_AGG_HANDLERS; i++) {
-     for (int j = 0; j < __x10_num_places; j++) {
-       delete [] __x10_agg_arg_buf[i][j];
-     }
-     delete [] __x10_agg_arg_buf[i];
-     delete [] __x10_agg_counter[i];
-   } 
+  for (int j = 0; j < __x10_num_places; j++) {
+    delete [] __x10_agg_arg_buf[j];
+  }
+
+  delete [] __x10_agg_arg_buf;
+  delete [] __x10_agg_counter;
+
    
    return X10_OK;
 }
@@ -212,21 +210,21 @@ sort_data_args (x10_async_handler_t hndlr,  int& ssize, size_t size, ulong mask,
     
     if (p == __x10_my_place) continue;
     
-    //    cout << "Hello " << __x10_my_place << " " << (p & mask) << " " << (MIN((((ulong) p) & mask), 1)) << " " <<  p << " " << __x10_agg_counter[hndlr][p] << endl;     
-    if (((MIN((((ulong) p) & mask), 1)) == cond) && (__x10_agg_counter[hndlr][p] > 0)) {    
+    //    cout << "Hello " << __x10_my_place << " " << (p & mask) << " " << (MIN((((ulong) p) & mask), 1)) << " " <<  p << " " << __x10_agg_counter[p] << endl;     
+    if (((MIN((((ulong) p) & mask), 1)) == cond) && (__x10_agg_counter[p] > 0)) {    
             
      
       memcpy (&(sbuf[ssize]), &p, sizeof(x10_place_t)); 
       ssize += sizeof(x10_place_t);
       
-      //int message_size = __x10_agg_counter[hndlr][p] * size;
-      memcpy (&(sbuf[ssize]), &__x10_agg_counter[hndlr][p], sizeof(int));  
+      //int message_size = __x10_agg_counter[p] * size;
+      memcpy (&(sbuf[ssize]), &__x10_agg_counter[p], sizeof(int));  
       ssize += sizeof(int);
       
-      memcpy (&(sbuf[ssize]), __x10_agg_arg_buf[hndlr][p], __x10_agg_counter[hndlr][p] * size);  
-      ssize += __x10_agg_counter[hndlr][p] * size;
+      memcpy (&(sbuf[ssize]), __x10_agg_arg_buf[p], __x10_agg_counter[p] * size);  
+      ssize += __x10_agg_counter[p] * size;
       
-      __x10_agg_counter[hndlr][p] = 0;	    
+      __x10_agg_counter[p] = 0;	    
       
     }
   }
@@ -251,10 +249,10 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
     
     if (p == __x10_my_place) 
       {
-	//int cntr = __x10_agg_counter[hndlr][p];
+	//int cntr = __x10_agg_counter[p];
 	asyncSwitch(hndlr, rbuf[cntrVal][phase] + s, message_size);
-	//memcpy (&(__x10_agg_arg_buf[hndlr][__x10_my_place][cntr]), rbuf + s, message_size * size);
-	//__x10_agg_counter[hndlr][p] += message_size;	
+	//memcpy (&(__x10_agg_arg_buf[__x10_my_place][cntr]), rbuf + s, message_size * size);
+	//__x10_agg_counter[p] += message_size;	
 	
       } else if (((MIN((((ulong) p) & mask), 1)) == cond) && (message_size > 0)) {    
 	
@@ -270,7 +268,7 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
 	ssize += message_size * size;
       } else if (message_size > 0) {	
 	
-	int cntr = __x10_agg_counter[hndlr][p];	
+	int cntr = __x10_agg_counter[p];	
 	
 	assert ((cntr * size) < 1024 * 32 * sizeof(x10_async_arg_t));
 	
@@ -278,8 +276,8 @@ sort_data_recvs (x10_async_handler_t hndlr, int& ssize, size_t size, ulong mask,
 	
 	assert ((cntr * size + message_size * size) < 1024 * 32 * sizeof(x10_async_arg_t));
 
-	memcpy (&(__x10_agg_arg_buf[hndlr][p][cntr * size]), rbuf[cntrVal][phase] + s, message_size * size);
-	__x10_agg_counter[hndlr][p] += message_size;	
+	memcpy (&(__x10_agg_arg_buf[p][cntr * size]), rbuf[cntrVal][phase] + s, message_size * size);
+	__x10_agg_counter[p] += message_size;	
       }
     
     s += message_size * size;
@@ -311,7 +309,7 @@ send_updates (int& ssize, int phase, int partner)
 
 
 namespace x10lib {
-
+  
   x10_err_t 
   asyncFlush_hc (x10_async_handler_t hndlr, size_t size)
   {
@@ -356,11 +354,11 @@ namespace x10lib {
     
     recvMesgLen[cntrVal][phase-1] = 0;
     
-    __x10_agg_total[hndlr] = 0;
+    __x10_agg_total = 0;
     
     
-    asyncSwitch(hndlr, __x10_agg_arg_buf[hndlr][__x10_my_place], __x10_agg_counter[hndlr][__x10_my_place]);
-    __x10_agg_counter[hndlr][__x10_my_place]=0;
+    asyncSwitch(hndlr, __x10_agg_arg_buf[__x10_my_place], __x10_agg_counter[__x10_my_place]);
+    __x10_agg_counter[__x10_my_place]=0;
     
     
     X10_DEBUG (1,  "Exit");
@@ -374,11 +372,11 @@ namespace x10lib {
   {
     X10_DEBUG (1,  "Entry");
     assert (size <= X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t));
-    int count = __x10_agg_counter[hndlr][tgt];
-    memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size]), args, size);
+    int count = __x10_agg_counter[tgt];
+    memcpy(&(__x10_agg_arg_buf[tgt][count * size]), args, size);
     
-    __x10_agg_counter[hndlr][tgt]++;
-    __x10_agg_total[hndlr]++;
+    __x10_agg_counter[tgt]++;
+    __x10_agg_total++;
         
     return X10_OK;
   }
@@ -389,12 +387,12 @@ namespace x10lib {
   {
     X10_DEBUG (1,  "Entry");
     size_t size = sizeof(x10_async_arg_t);
-    size_t count = __x10_agg_counter[hndlr][tgt];
-    memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size]),
+    size_t count = __x10_agg_counter[tgt];
+    memcpy(&(__x10_agg_arg_buf[tgt][count * size]),
 	   &arg0, sizeof(x10_async_arg_t));
     
-    __x10_agg_counter[hndlr][tgt]++;
-    __x10_agg_total[hndlr]++;
+    __x10_agg_counter[tgt]++;
+    __x10_agg_total++;
           
        
     X10_DEBUG (1,  "Exit");
@@ -407,16 +405,16 @@ namespace x10lib {
   {
     X10_DEBUG (1,  "Entry");
     size_t size = 2 * sizeof(x10_async_arg_t);
-    int count = __x10_agg_counter[hndlr][tgt];
+    int count = __x10_agg_counter[tgt];
 
-    memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size]),
+    memcpy(&(__x10_agg_arg_buf[tgt][count * size]),
 	   &arg0, sizeof(x10_async_arg_t));
-    memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size +
+    memcpy(&(__x10_agg_arg_buf[tgt][count * size +
 					   sizeof(x10_async_arg_t)]),
 	   &arg1, sizeof(x10_async_arg_t));
     
-    __x10_agg_counter[hndlr][tgt]++;
-    __x10_agg_total[hndlr]++;
+    __x10_agg_counter[tgt]++;
+    __x10_agg_total++;
    
     
     X10_DEBUG (1,  "Exit");
