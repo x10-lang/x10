@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.10 2007-08-30 05:54:12 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.11 2007-08-30 14:19:15 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -83,7 +83,7 @@ main (int argc, char* argv[])
   x10lib::Init(NULL,0);
 
   struct args arg;
-  int total;
+  int total=0;
   for (long i = 0; i < N; i++) {
     for (x10_place_t target = 0; target < __x10_num_places; target++, total++) {
       //       if (target == x10lib::here()) {
