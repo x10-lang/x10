@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.14 2007-08-21 06:10:25 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.15 2007-09-03 14:40:41 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -55,6 +55,8 @@ namespace x10lib {
 					x10_async_handler_t hndlr,
 					void *args, size_t size);
 
+
+  x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, long LogTableSize, int PLACEIDMASK);
 
 
 } /* closing brace for namespace x10lib */
