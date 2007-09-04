@@ -403,11 +403,12 @@ TwoDBlockCyclicArray::TwoDBlockCyclicArray(const TwoDBlockCyclicArray &arr)
   for(int pi=0; pi<px; pi++) {
     for(int pj=0; pj<py; pj++) {
       for(int i=0; i<nx; i++) {
-	for(int j=0; j<ny; j++) {
-	  A[ctr] = arr.A[ctr]->copy();
-	  assert( A[ctr] != NULL );
-	  ++ctr;
-	}
+		for(int j=0; j<ny; j++) {
+			A[ctr] = arr.A[ctr]->copy();
+	  		assert( A[ctr] != NULL );
+	  		A[ctr]->M = this;
+	  		++ctr;
+	  	}
       }
     }
   }
