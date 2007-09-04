@@ -358,8 +358,8 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    wc.cfg().map(whenExit, whenExit);
 
 	    int idx= 0;
-            Iterator stmtIter= new IteratorPlusOne(stmts.iterator(), when.stmt());
-	    for(Iterator exprIter= new IteratorPlusOne(exprs.iterator(), when.expr()); exprIter.hasNext(); idx++) {
+            Iterator stmtIter= IteratorPlusOne.make(stmts.iterator(), when.stmt());
+	    for(Iterator exprIter= IteratorPlusOne.make(exprs.iterator(), when.expr()); exprIter.hasNext(); idx++) {
 //		Branch b= (Branch) iter.next();
                 Expr expr= (Expr) exprIter.next();
                 Stmt stmt= (Stmt) stmtIter.next();
