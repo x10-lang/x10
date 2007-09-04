@@ -1,7 +1,7 @@
 /**
   (C) IBM Corporation 2007.
 
-  @author Sriram Krishnamoorthy, sriramkr@watson.ibm.com
+  @author Sriram Krishnamoorthy, sriramkr@us.ibm.com
   @author vj vijay@saraswat.org
  */
 
@@ -301,6 +301,7 @@ outer:				for (int i=iStart; i < max(nx,ny); i++)
 						for(int i=0; i<nx; i++) {
 							for(int j=0; j<ny; j++) {
 								A[pord(pi,pj)][lord(i,j)] = arr.getLocal(pi, pj, i, j).copy();
+								A[pord(pi,pj)][lord(i,j)].M = this;
 							}
 						}
 					}
