@@ -6,8 +6,9 @@
  
 #include <iostream>
 #include <cstdlib>
-//#include "Sys.h"
-//#include "Lock.h"
+#include <strings.h>
+#include "Sys.h"
+#include "Lock.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -15,7 +16,7 @@
 
 using namespace std;
 //using x10lib_cws::atomic_add;
-//using x10lib_cws::PosixLock;
+using x10lib_cws::PosixLock;
 
 /*---------------Timing routines---------------------*/
 
@@ -33,10 +34,10 @@ nano_time_t nanoTime() {
 
 class Profiler {
 protected:
-  //PosixLock plock;
+  PosixLock plock;
 
-  //void lock() { plock.lock_wait_posix(); }
-  //void unlock() { plock.lock_signal_posix(); }
+  void lock() { plock.lock_wait_posix(); }
+  void unlock() { plock.lock_signal_posix(); }
 public:
   volatile nano_time_t runT; /*Time spent in Worker::run()*/
   volatile nano_time_t dgemmT; /*Time spent in DGEMM*/
@@ -44,9 +45,13 @@ public:
   volatile nano_time_t bsT; /*Time in Block::backSolve()*/
   volatile nano_time_t lwrT; /*Time in Block::lower()*/
   volatile nano_time_t getT; /*Time in get() or getLocal() */
+  volatile nano_time_t permuteT; /*Time in permute()*/
+  volatile int nStep; /*#calls to Block::step()*/
+  volatile int nStepLU; /*#calls to stepLU*/
   
   Profiler() {
-    runT = dgemmT = luT = bsT = lwrT = 0;
+    runT=dgemmT=luT=bsT=lwrT=permuteT=0;
+    nStep = nStepLU = 0;
     //MEM_BARRIER();
   }
   inline void log_run(nano_time_t t) { runT += t; }
@@ -54,15 +59,21 @@ public:
   inline void log_lu(nano_time_t t) { luT += t; }
   inline void log_bsolve(nano_time_t t) { bsT += t; }
   inline void log_lower(nano_time_t t) { lwrT += t; }
+  inline void log_permute(nano_time_t t) { permuteT += t; }
+  inline void log_step() { nStep += 1; }
+  inline void log_stepLU() { nStepLU += 1; }
 
   void report(Profiler &pf) {
-    //pf.lock();
+    pf.lock();
     pf.runT += runT;
     pf.dgemmT += dgemmT;
     pf.luT += luT;
     pf.bsT += bsT;
     pf.lwrT += lwrT;
-    //pf.unlock();
+    pf.permuteT += permuteT;
+    pf.nStep += nStep;
+    pf.nStepLU += nStepLU;
+    pf.unlock();
   }
 
   void display() {
@@ -71,6 +82,9 @@ public:
 	<<"\t LU="<<luT/1000000.0<<" ms"
 	<<"\t bsolve="<<bsT/1000000.0<<" ms"
 	<<"\t lower="<<lwrT/1000000.0<<" ms"
+	<<"\t permute="<<permuteT/1000000.0<<" ms"
+	<<"\t nStep="<<nStep
+	<<"\t nStepLU="<<nStepLU
 	<<endl;
   }
 };
@@ -86,10 +100,14 @@ typedef int Integer;
 #if 0
 #define DGEMM dgemm_
 #define DTRSM dtrsm_
+#define DGEMV dgemv_
+#define DSCAL dscal_
 
 #else
 #define DGEMM dgemm
 #define DTRSM dtrsm
+#define DGEMV dgemv
+#define DSCAL dscal
 #endif
 
 extern "C" {
@@ -102,6 +120,14 @@ extern "C" {
   void DTRSM(char *SIDE, char *UPLO, char *TRANSA,
 	     char *DIAG, Integer *M, Integer *N, double *ALPHA,
 	     double *A, Integer *LDA, double *B, Integer *LDB);
+
+  void DGEMV(char *TRANS, Integer *M, Integer *N,
+	     double *ALPHA, 
+	     double *A, Integer *LDA,
+	     double *X, Integer *INCX, 
+	     double *BETA, double *Y, Integer *INCY);
+
+  void DSCAL(Integer *N, double *DA, double *DX, Integer *INCX);
 }
 
 
@@ -150,9 +176,13 @@ public:
     
   void init() {}
   int pord(int i, int j) const {
+    assert(j>=0 && j<py);
+    assert(i>=0 && i<px);
     return i*py+j;
   }
   int lord(int i, int j) const {
+    assert(j>=0 && j<ny);
+    assert(i>=0 && i<nx);
     return i*ny+j;
   }
   Block *get(int i, int j) {
@@ -193,7 +223,7 @@ public:
 class Block {
 public:
   double *A;
-  TwoDBlockCyclicArray *const M; //Array of which this block is part
+  TwoDBlockCyclicArray * M; //Array of which this block is part
     
   volatile bool ready;
   // counts the number of phases left for this
@@ -214,7 +244,7 @@ private:
 
 	//The column with the block in which LU is being done
 	//start with an invalid value
-	volatile int LU_col=-1;
+	volatile int LU_col;
 
 	volatile double maxColV; //maximum value in Column LU_col
 	volatile int maxRow; //Row with that value			
@@ -237,9 +267,12 @@ private:
 		}				
 	}
 	
-	int colMaxCount=0; //#maxes ready for this column
+	int colMaxCount; //#maxes ready for this column
 	//stepping through to perform panel factorization
-	bool stepLU(volatile int *pivots);
+	bool stepLU(volatile int *pivots, Profiler &prof);
+
+  void checkReadyAbove() {
+  }
 
 public:
   const int I,J, B;
@@ -248,7 +281,9 @@ public:
     : I(sI), J(sJ), B(sB), M(sM), maxCount(min(sI,sJ)), ready(false), count(0) {
     A = new double[B*B];
     assert( A != NULL);
-	readyBelowCount = I;
+    readyBelowCount = I;
+    LU_col = -1;
+    colMaxCount = 0;
     
     initIBuddy(); initJBuddy();
   }
@@ -261,7 +296,9 @@ public:
     //also copy the data
     for(int i=0; i<B*B; i++)
       A[i] = b.A[i];
-	readyBelowCount = I;
+    readyBelowCount = I;
+    LU_col = b.LU_col;
+    colMaxCount = b.colMaxCount;
   }
   ~Block() { delete [] A; }
 
@@ -304,35 +341,83 @@ public:
     A[ord(i,j)] += v;
   }
 
-	//permute, for the columns in this block, 
-	//row1 in this block with row2 (in potentially some other block)*/
-	void permute(int row1, int row2) {
-		assert (row1 != row2); //why was this called then?
-		assert (row1>=I*B && row1<(I+1)*B); //should be a row in this block
-		
-		Block *b = M->get(row2/B, J); //the other block
-		
-		for(int j=0; j<B; j++){
-			double v1 = get(row1%B, j);
-			double v2 = b->get(row2%B, j);
-			set(row1%B, j, v2);
-			b->set(row1%B, j, v1);
-		}
-	}
+
+  //permute, for the columns in this block, 
+  //row1 in this block with row2 (in potentially some other block)*/
+  //not timed: for use outside profiler
+  void permute(int row1, int row2) {
+    assert (row1 != row2); //why was this called then?
+    assert (row1>=I*B && row1<(I+1)*B); //should be a row in this block
+    Block *b = M->get(row2/B, J); //the other block
+
+#if 0    
+    for(int j=0; j<B; j++){
+      double v1 = get(row1%B, j);
+      double v2 = b->get(row2%B, j);
+      set(row1%B, j, v2);
+      b->set(row1%B, j, v1);
+    }
+#else
+    int base1 = row1%B, base2 = row2%B;
+    for(int j=0; j<B; j++) {
+      double v1 = this->A[j*B+base1];
+      this->A[j*B+base1] = b->A[j*B+base2];
+      b->A[j*B+base2] = v1;
+    }
+#endif
+  }
+
+  void permute(int row1, int row2, Profiler& prof) {
+    nano_time_t s = nanoTime();
+    permute(row1, row2);
+    nano_time_t t = nanoTime();
+    prof.log_permute(t-s);
+  }
 
 
-	void lower(Block *diag, int col, Profiler &prof) {
-		nano_time_t s = nanoTime();
-		for(int i=0; i<B; i++) {
-			double r = 0.0;
-			for(int k=0; k<col; k++)
-				r += get(i,k)*diag->get(k,col);
-			negAdd(i,col,r);
-			set(i,col,get(i,col)/diag->get(col,col));				
-		}
-		nano_time_t t = nanoTime();
-		prof.log_lower(t-s);
-	}
+  void lower(Block *diag, int col, Profiler &prof) {
+    nano_time_t s = nanoTime();
+#if 0
+    for(int i=0; i<B; i++) {
+      double r = 0.0;
+      for(int k=0; k<col; k++)
+	r += get(i,k)*diag->get(k,col);
+      negAdd(i,col,r);
+      set(i,col,get(i,col)/diag->get(col,col));				
+    }
+#else
+      /*DGEMV+DSCAL: compute 
+	this(0..B-1,col) -= this(0..B-1,0..col-1)*diag(0..col-1,col)
+	this(0..B-1,col) /= diag(col,col)*/
+
+      {      
+	char TRANSA = 'N';
+	Integer M = B;
+	Integer N = col;
+	double ALPHA = -1.0;
+	double *mA = this->A;
+	Integer LDA = B;
+	double *mX = diag->A + (B*col);
+	Integer INCX = 1;
+	double BETA = 1.0;
+	double *mY = this->A+ (B*col);
+	Integer INCY = 1;
+	
+	DGEMV(&TRANSA, &M, &N, &ALPHA, mA, &LDA,
+	      mX, &INCX, &BETA, mY, &INCY);
+      }
+
+      {	
+	Integer N = B;
+	double DA = 1.0/(diag->get(col,col));
+	double *DX = this->A + (B*col);
+	Integer INCX = 1;
+	DSCAL(&N, &DA, DX, &INCX);
+      }
+#endif
+    nano_time_t t = nanoTime();
+    prof.log_lower(t-s);
+  }
     
   void lower(Block *diag, Profiler &prof) {
     nano_time_t s = nanoTime();
@@ -370,8 +455,8 @@ public:
     nano_time_t s = nanoTime();
 
 	for(int i=I*B; i<(I+1)*B; i++) {
-		if(pivots[i] != i)
-			permute(i, pivots[i]);
+	  if(pivots[i] != i)
+	    permute(i, pivots[i], prof);
 	}
 	
 #if 0
@@ -435,18 +520,18 @@ public:
     prof.log_dgemm(t-s);
   }
 
-	void LU(int col, Profiler &prof) {
-		nano_time_t s = nanoTime();
-		for (int i = 0; i < B; i++) {
-			double r = 0.0;
-			for(int k=0; k<min(i,col); k++)
-				r += get(i,k) * get(k,col);
-			negAdd(i,col, r);
-			if(i>col) set(i,col, get(i,col)/get(col,col));
-		}				
-		nano_time_t t = nanoTime();
-		prof.log_lu(t-s);
-	}
+  void LU(int col, Profiler &prof) {
+    nano_time_t s = nanoTime();
+    for (int i = 0; i < B; i++) {
+      double r = 0.0;
+      for(int k=0; k<min(i,col); k++)
+	r += get(i,k) * get(k,col);
+      negAdd(i,col, r);
+      if(i>col) set(i,col, get(i,col)/get(col,col));
+    }				
+    nano_time_t t = nanoTime();
+    prof.log_lu(t-s);
+  }
 
 
   void LU(Profiler &prof) {
@@ -500,7 +585,7 @@ TwoDBlockCyclicArray::TwoDBlockCyclicArray(const TwoDBlockCyclicArray &arr)
 	for(int j=0; j<ny; j++) {
 	  A[ctr] = arr.A[ctr]->copy();
 	  assert( A[ctr] != NULL );
-		A[ctr]->this = M;
+	  A[ctr]->M = this;
 	  ++ctr;
 	}
       }
@@ -517,30 +602,32 @@ TwoDBlockCyclicArray::~TwoDBlockCyclicArray() {
 
 void 
 TwoDBlockCyclicArray::applyLowerPivots(volatile int *pivots) {
-	for(int i=0; i<px*nx; i++) {
-		for(int j=0; j<i;  j++) {
-			for(int r=i*B; r<(i+1)*B; r++) {
-				if(r != pivots[r])
-					assert(pivots[r]>=r);
-					assert(pivots[r]<px*nx*B);
-					get(i,j)->permute(r, pivots[r]);
-			}
-		}
+  for(int i=0; i<px*nx; i++) {
+    for(int j=0; j<i;  j++) {
+      for(int r=i*B; r<(i+1)*B; r++) {
+	assert(pivots[r]>=r);
+	assert(pivots[r]<px*nx*B);
+	if(r != pivots[r]) {
+	  get(i,j)->permute(r, pivots[r]);
 	}
+      }
+    }
+  }
 }
 
 void 
 TwoDBlockCyclicArray::applyPivots(volatile int *pivots) {
-	for(int i=0; i<px*nx; i++) {
-		for(int j=0; j<py*ny;  j++) {
-			for(int r=i*B; r<(i+1)*B; r++) {
-				assert(pivots[r]>=r);
-				assert(pivots[r]<px*nx*B);
-				if(r != pivots[r])
-					get(i,j)->permute(r, pivots[r]);
-			}
-		}
-	}				
+  for(int i=0; i<px*nx; i++) {
+    for(int j=0; j<py*ny;  j++) {
+      for(int r=i*B; r<(i+1)*B; r++) {
+	assert(pivots[r]>=r);
+	assert(pivots[r]<px*nx*B);
+	if(r != pivots[r]) {
+	  get(i,j)->permute(r, pivots[r]);
+	}
+      }
+    }
+  }				
 }
 
 void 
@@ -564,93 +651,118 @@ TwoDBlockCyclicArray::display(const char *msg) {
   order. An operation is LU, backSolve, lower, or mulSub on a block. */
 bool 
 Block::step(volatile int *pivots, Profiler &prof) {
+  prof.log_step();
+
   if(ready) return false;
 
-	if (count == maxCount) {
-		if(I<J && M->get(I,I)->ready) {
-			if(readyBelowCount==0) readyBelowCount=I;
-			for(;readyBelowCount<M->px*M->nx && 
-				(M->get(readyBelowCount, J)->count==I);
-				readyBelowCount++);
-			if(readyBelowCount==M->px*M->nx) {
-				backSolve(M->get(I,I), pivots, prof);
-				ready = true;
-				return true;
-			}
-			return false;
-		}
-		else if (I >=J)
-			return stepLU(pivots, prof);
-		else
-				return false;
-	}
-	Block IBuddy = M->get(I, count), JBuddy = M->get(count,J);
-	if (IBuddy->ready && JBuddy->ready) {
-		mulsub(IBuddy, JBuddy, prof);
-		count++;
-		return true;
-	}
-	return false;
+  //cerr<<"I="<<I<<" J="<<J<<endl;
+  if (count == maxCount) {
+    //cerr<<"Done all mulsubs"<<endl;
+    //cerr<<"Diagonal"<<endl;
+    if(I<J && M->get(I,I)->ready) {
+      if(readyBelowCount==0) readyBelowCount=I;
+      for(;readyBelowCount<M->px*M->nx && 
+	    (M->get(readyBelowCount, J)->count==I);
+	  readyBelowCount++);
+      if(readyBelowCount==M->px*M->nx) {
+	backSolve(M->get(I,I), pivots, prof);
+	checkReadyAbove();
+	ready = true;
+	//MEM_BARRIER();
+	//cerr<<"I="<<I<<" J="<<J<<endl;
+	return true;
+      }
+      return false;
+    }
+    else if (I >=J) {
+      //cerr<<"Calling stepLU"<<endl;
+      bool rval = stepLU(pivots, prof);
+      //cerr<<"Done calling stepLU"<<endl;
+      return rval;
+    }
+    else
+      return false;
+  }
+  //cerr<<"Rest"<<endl;
+  Block *IBuddy = M->get(I, count), *JBuddy = M->get(count,J);
+  if (IBuddy->ready && JBuddy->ready) {
+    mulsub(IBuddy, JBuddy, prof);
+    count++;
+    //cerr<<"Done mulsub"<<endl;
+    return true;
+  }
+  return false;
 }
 
 //stepping through to perform panel factorization
 bool
-Block::stepLU(volatile int *pivots) {
-	assert (I >= J);
-	assert (count == maxCount);
-	assert (ready == false);
-	assert (LU_col < B);
+Block::stepLU(volatile int *pivots, Profiler &prof) {
+  prof.log_stepLU();
+  assert (I >= J);
+  assert (count == maxCount);
+  assert (ready == false);
+  assert (LU_col < B);
 	
-	if(LU_col==-1 && (I==J)) { 
-		for(;readyBelowCount<M->px*M->nx && 
-		(M->get(readyBelowCount, J)->count==J);
-		readyBelowCount++);
+  if(LU_col==-1 && (I==J)) { 
+    if(readyBelowCount==0) readyBelowCount=I;
+    for(;readyBelowCount<M->px*M->nx && 
+	  (M->get(readyBelowCount, J)->count==J);
+	readyBelowCount++);
 		
-		if(readyBelowCount < M->px*M->nx) {
-			return false;
-		}
-	}
+    if(readyBelowCount < M->px*M->nx) {
+      return false;
+    }
+  }
 
-	if(I == J) {
-		if(LU_col>=0) {
-			if(colMaxCount==0) colMaxCount = I+1;
-			for(;colMaxCount<M->px*M->nx &&
-				(M->get(colMaxCount,J)->LU_col==LU_col);
-				colMaxCount++) {
-				if(fabs(M->get(colMaxCount, J)->maxColV) > fabs(maxColV)) {
-					maxColV = M->get(colMaxCount, J)->maxColV;
-					maxRow = M->get(colMaxCount, J)->maxRow;
-				}
-			}
-			if(colMaxCount < M->px*M->nx)
-					return false;
-			pivots[I*B+LU_col] = maxRow;
-			MEM_BARRIER(); //maybe not
-			if(I*B+LU_col != pivots[I*B+LU_col])
-				permute(I*B+LU_col, pivots[I*B+LU_col]);
-			LU(LU_col, prof);
-			if(LU_col==B-1)  ready=true;
-		}
-		LU_col = (LU_col==-1? 0 : LU_col+1);
-		if(LU_col<=B-1)	{
-			computeMax(LU_col, LU_col);
-			colMaxCount=0;
-		}
+  if(I == J) {
+    if(LU_col>=0) {
+      if(colMaxCount==0) colMaxCount = I+1;
+      for(;colMaxCount<M->px*M->nx &&
+	    (M->get(colMaxCount,J)->LU_col==LU_col);
+	  colMaxCount++) {
+	if(fabs(M->get(colMaxCount, J)->maxColV) > fabs(maxColV)) {
+	  maxColV = M->get(colMaxCount, J)->maxColV;
+	  maxRow = M->get(colMaxCount, J)->maxRow;
 	}
-	else {
-		if(LU_col>=0) {
-			Block *diag = M->get(J,J);
-			if(!(diag->LU_col > LU_col) && !diag->ready) 
-				return false;
-			lower(diag, LU_col, prof);
-			if(LU_col==B-1)  ready = true; 
-		}
-		if(LU_col+1 <= B-1) computeMax((LU_col==-1?0:LU_col+1));
-		MEM_BARRIER(); //A store barrier?
-		LU_col = (LU_col==-1 ? 0 : LU_col+1);
-	}
+      }
+      if(colMaxCount < M->px*M->nx)
+	return false;
+      pivots[I*B+LU_col] = maxRow;
+      //MEM_BARRIER(); //maybe not
+      if(I*B+LU_col != pivots[I*B+LU_col])
+	permute(I*B+LU_col, pivots[I*B+LU_col], prof);
+      LU(LU_col, prof);
+      if(LU_col==B-1)  {
+	checkReadyAbove();
+	ready=true;
+	//cerr<<"I="<<I<<" J="<<J<<endl;
+      }
+      //MEM_BARRIER();
+    }
+    LU_col = (LU_col==-1? 0 : LU_col+1);
+    if(LU_col<=B-1)	{
+      computeMax(LU_col, LU_col);
+      colMaxCount=0;
+    }
+  }
+  else {
+    if(LU_col>=0) {
+      Block *diag = M->get(J,J);
+      if(!(diag->LU_col > LU_col) && !diag->ready) 
+	return false;
+      lower(diag, LU_col, prof);
+      if(LU_col==B-1) {
+	checkReadyAbove();
+	ready = true;
+	//cerr<<"I="<<I<<" J="<<J<<endl;
+      } 
+    }
+    if(LU_col+1 <= B-1) computeMax((LU_col==-1?0:LU_col+1));
+    MEM_BARRIER(); //A store barrier?
+    LU_col = (LU_col==-1 ? 0 : LU_col+1);
+  }
 
-	return true;
+  return true;
 }
 
 
@@ -715,33 +827,65 @@ private:
 public:
   const int pi, pj;
   TwoDBlockCyclicArray * const M;
+  volatile int *pivots;
 
-  Worker(int spi, int spj, TwoDBlockCyclicArray *sM, Profiler &_gProf) 
-    : pi(spi), pj(spj), M(sM), gProf(_gProf) { }
+  Worker(int spi, int spj, TwoDBlockCyclicArray *sM, 
+	 volatile int *s_pivots, Profiler &_gProf) 
+    : pi(spi), pj(spj), M(sM), gProf(_gProf), pivots(s_pivots) { }
 
   void run() {
     const int nx = M->nx;
     const int ny = M->ny;
     Profiler prof;
 
+    assert(nx>=1);
+    assert(ny>=1);
+
     nano_time_t s = nanoTime();
 
-	Block *lastBlock = M->getLocal(pi, pj, nx-1, ny-1);
-	int starty = 0;
+    Block *lastBlock = M->getLocal(pi, pj, nx-1, ny-1);
+    int starty = 0;
+    int readyCount=0;
 
-	while(!lastBlock->ready) {
-		assert(ny-1>=starty);
-		if(M->getLocal(pi, pj, ny-1, starty)->ready)
-			starty += 1;
-		
-		for(int j=starty; j<ny; j++) {
-			for(int i=0; i<nx; i++) {
-				Block *block = M->getLocal(pi, pj, i,j);
-				if(block->step(pivots, prof)) { doneForNow=true; break; }
-			}
-			if(doneForNow) break;	
-		}
+    while(/*!lastBlock->ready*/ starty<ny) {
+      MEM_BARRIER();
+
+//       if(M->getLocal(pi, pj, nx-1, starty)->ready) {
+// 	for(int i=0; i<nx; i++) {
+// 	  assert(M->getLocal(pi, pj, i, starty)->ready);
+// 	}
+// 	starty += 1;
+//       }
+      assert(ny-1>=starty);
+      readyCount=0;
+
+#if 0
+      for(int j=starty; j<ny; j++) {
+	bool doneForNow = false;
+	for(int i=0; i<nx; i++) {
+	  Block *block = M->getLocal(pi, pj, i,j);
+	  //cerr<<"Calling step I="<<i<<" J="<<j<<endl;
+	  bool rval = block->step(pivots, prof);
+	  //cerr<<"Done calling step"<<endl;
+	  //if(rval) { doneForNow=true; break; }
+	  if(rval) readyCount += 1;
 	}
+	if(doneForNow) break;	
+      }
+#else
+      for(int j=starty; j<min(starty+3,ny); j++) {
+	bool doneForNow = false;
+	for(int i=0; i<nx; i++) {
+	  Block *block = M->getLocal(pi, pj, i,j);
+	  bool rval = block->step(pivots, prof);
+	  if(rval) { doneForNow = true; }
+	  if(j==starty && block->ready) readyCount += 1;
+	}
+	//if(doneForNow) break;
+      }
+#endif
+      if(readyCount == nx) starty+=1;
+    }
 
     nano_time_t t = nanoTime();
     prof.log_run(t-s);
@@ -780,7 +924,7 @@ public:
 
     for (int i=0; i < px; i++)
       for(int j=0; j<py; j++)
-	workers[i*py+j] = new Worker(i, j, M, gProf);
+	workers[i*py+j] = new Worker(i, j, M, pivots, gProf);
   
     for (int i=0; i < px*py; i++) workers[i]->start();
     long long s = nanoTime();
@@ -842,7 +986,7 @@ int main(int argc, char *argv[]) {
 
   PLU *plu = new PLU(px,py,nx,ny,B);
 
-  TwoDBlockCyclicArray *A = lu->M->copy();
+//   TwoDBlockCyclicArray *A = plu->M->copy();
 
 //   LU *seqlu = new LU(1,1,1,1,N);
 //   for(int i=0; i<N; i++) {
@@ -852,7 +996,7 @@ int main(int argc, char *argv[]) {
 //     }
 //   }
 
-//   lu->M->display("Original array");
+//    plu->M->display("Original array");
 //   seqlu->M->display("Seq array");
   
   long long s = nanoTime();
@@ -863,28 +1007,29 @@ int main(int argc, char *argv[]) {
 //   lu->M->display(string("After LU"));
 //   seqlu->M->display(string("Seq after LU"));
   
-  lu->M->applyLowerPivots(plu->pivots);
-  lu->M->display("After back-propogating pivots");
-	A->applyPivots(plu->pivots);
-	A->display("Original array after pivoting");
+//   plu->M->applyLowerPivots(plu->pivots);
+//   plu->M->display("After back-propogating pivots");
+//   A->applyPivots(plu->pivots);
+//   A->display("Original array after pivoting");
   
-  bool correct = lu->verify(A);
+//   bool correct = plu->verify(A);
+
+//   cout<<"Pivots: ";
+//   for(int i=0; i<px*nx*B; i++) {
+//     cout<<plu->pivots[i]<<" ";
+//   }
+//   cout<<endl;
 
   delete plu;
-  delete A;
+//   delete A;
 
-	cout<<"Pivots: ";
-	for(int i=0; i<px*nx*B; i++) {
-		cout<<lu->pivots[i]<<" ";
-	}
-	cout<<endl;
 
 //   cout<<"N="<<N<<" px="<<px<<" py="<<py<<" B="<<B
 //     <<(correct?" ok":" fail")<<" time="<<(t-s)/1000000<<"ms"
 //       <<" Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
 //       <<endl;
   cout<<"N="<<N<<" px="<<px<<" py="<<py<<" B="<<B
-    	<<(correct?" ok":" fail")
+//     	<<(correct?" ok":" fail")
       <<" rt time="<<(t-s)/1000000<<"ms"
       <<" rt Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
       <<" comp time="<<tt/1000000<<"ms"
