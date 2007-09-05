@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
-//#include "Sys.h"
-//#include "Lock.h"
+#include "Sys.h"
+#include "Lock.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -9,7 +9,7 @@
 
 using namespace std;
 //using x10lib_cws::atomic_add;
-//using x10lib_cws::PosixLock;
+using x10lib_cws::PosixLock;
 
 /*---------------Timing routines---------------------*/
 
@@ -27,10 +27,10 @@ nano_time_t nanoTime() {
 
 class Profiler {
 protected:
-  //PosixLock plock;
+  PosixLock plock;
 
-  //void lock() { plock.lock_wait_posix(); }
-  //void unlock() { plock.lock_signal_posix(); }
+  void lock() { plock.lock_wait_posix(); }
+  void unlock() { plock.lock_signal_posix(); }
 public:
   volatile nano_time_t runT; /*Time spent in Worker::run()*/
   volatile nano_time_t dgemmT; /*Time spent in DGEMM*/
@@ -38,25 +38,29 @@ public:
   volatile nano_time_t bsT; /*Time in Block::backSolve()*/
   volatile nano_time_t lwrT; /*Time in Block::lower()*/
   volatile nano_time_t getT; /*Time in get() or getLocal() */
+  volatile int nStep; /*#calls to Block::step()*/
   
   Profiler() {
     runT = dgemmT = luT = bsT = lwrT = 0;
-    //MEM_BARRIER();
+    nStep = 0;
+    MEM_BARRIER();
   }
   inline void log_run(nano_time_t t) { runT += t; }
   inline void log_dgemm(nano_time_t t) { dgemmT += t; }
   inline void log_lu(nano_time_t t) { luT += t; }
   inline void log_bsolve(nano_time_t t) { bsT += t; }
   inline void log_lower(nano_time_t t) { lwrT += t; }
+  inline void log_step() { nStep += 1; }
 
   void report(Profiler &pf) {
-    //pf.lock();
+    pf.lock();
     pf.runT += runT;
     pf.dgemmT += dgemmT;
     pf.luT += luT;
     pf.bsT += bsT;
     pf.lwrT += lwrT;
-    //pf.unlock();
+    pf.nStep += nStep;
+    pf.unlock();
   }
 
   void display() {
@@ -65,6 +69,7 @@ public:
 	<<"\t LU="<<luT/1000000.0<<" ms"
 	<<"\t bsolve="<<bsT/1000000.0<<" ms"
 	<<"\t lower="<<lwrT/1000000.0<<" ms"
+	<<"\t nStep="<<nStep
 	<<endl;
   }
 };
@@ -74,7 +79,7 @@ public:
 
 /*Need to actually match the fortran integer. Assume int for now and
   pray. Google blas dgemm to understand the arguments.  */ 
-// typedef long Integer;
+//typedef long Integer;
 typedef int Integer;
 
 #if 0
@@ -136,6 +141,8 @@ public:
   const int px,py, nx,ny,B;
   const int N;
 
+  PosixLock dgemm_lock; 
+
 public:
   TwoDBlockCyclicArray(int spx, int spy, int snx, int sny,int sB); 
   TwoDBlockCyclicArray(const TwoDBlockCyclicArray &arr); 
@@ -183,7 +190,7 @@ public:
 class Block {
 public:
   double *A;
-  TwoDBlockCyclicArray *const M; //Array of which this block is part
+  TwoDBlockCyclicArray * M; //Array of which this block is part
     
   volatile bool ready;
   // counts the number of phases left for this
@@ -264,7 +271,7 @@ public:
     
   void lower(Block *diag, Profiler &prof) {
     nano_time_t s = nanoTime();
-#if 0
+#if 1
     for(int i=0; i<B; i++)
       for(int j=0; j<B; j++) {
 	double r = 0.0;
@@ -274,21 +281,21 @@ public:
 	set(i,j,get(i,j)/diag->get(j,j));
       }
 #else
-    /*DTRSM: solve diag*X = 1.0*this; this is overwritten with X*/
-    char SIDE = 'R'; //diag is to right of X
-    char UPLO = 'U'; //diag is upper-triangular
-    char TRANSA = 'N'; //No transpose of diag
-    char DIAG = 'N'; //Nonunit-diagonal for diag
-    Integer M = B; //#rows of diag
-    Integer N = B; //#cols of diag
-    double ALPHA = 1.0; //scale on right-hand size
-    double *mA = diag->A;
-    Integer LDA = B;
-    double *mB = this->A;
-    Integer LDB = B;
+    /*DTRSM: solve X*diag = 1.0*this; this is overwritten with X*/
+    char b_size = 'R'; //diag is to right of X
+    char b_uplo = 'U'; //diag is upper-triangular
+    char b_transa = 'T'; //Transpose of diag
+    char b_diag = 'N'; //Nonunit-diagonal for diag
+    Integer b_M = B; //#rows of diag
+    Integer b_N = B; //#cols of diag
+    double b_alpha = 1.0; //scale on right-hand size
+    double *b_ma = diag->A;
+    Integer b_lda = B;
+    double *b_mb = this->A;
+    Integer b_ldb = B;
 
-    DTRSM(&SIDE, &UPLO, &TRANSA, &DIAG, &M, &N, &ALPHA,
-	  mA, &LDA, mB, &LDB);
+    DTRSM(&b_size, &b_uplo, &b_transa, &b_diag, &b_M, &b_N, &b_alpha,
+	  b_ma, &b_lda, b_mb, &b_ldb);
 #endif
     nano_time_t t = nanoTime();
     prof.log_lower(t-s);
@@ -296,7 +303,7 @@ public:
   void backSolve(Block *diag, Profiler &prof) {
     nano_time_t s = nanoTime();
 
-#if 0
+#if 1
     for (int i = 0; i < B; i++) {
       for (int j = 0; j < B; j++) {
 	double r = 0.0;
@@ -308,25 +315,26 @@ public:
     }
 #else
     /*DTRSM: solve diag*X = 1.0*this; this is overwritten with X*/
-    char SIDE = 'L'; //diag is to left of X
-    char UPLO = 'L'; //diag is lower-triangular
-    char TRANSA = 'N'; //No transpose of diag
-    char DIAG = 'U'; //Unit-diagonal for diag
-    Integer M = B; //#rows of diag
-    Integer N = B; //#cols of diag
-    double ALPHA = 1.0; //scale on right-hand size
-    double *mA = diag->A;
-    Integer LDA = B;
-    double *mB = this->A;
-    Integer LDB = B;
+    char b_side = 'L'; //diag is to left of X
+    char b_uplo = 'L'; //diag is lower-triangular
+    char b_transa = 'N'; //No transpose of diag
+    char b_diag = 'U'; //Unit-diagonal for diag
+    Integer b_M = B; //#rows of diag
+    Integer b_N = B; //#cols of diag
+    double b_alpha = 1.0; //scale on right-hand size
+    double *b_ma = diag->A;
+    Integer b_lda = B;
+    double *b_mb = this->A;
+    Integer b_ldb = B;
 
-    DTRSM(&SIDE, &UPLO, &TRANSA, &DIAG, &M, &N, &ALPHA,
-	  mA, &LDA, mB, &LDB);
-
+    DTRSM(&b_side, &b_uplo, &b_transa, &b_diag, &b_M, &b_N, &b_alpha,
+	  b_ma, &b_ldb, b_mb, &b_ldb);
+    MEM_BARRIER();
 #endif
     nano_time_t t = nanoTime();
     prof.log_bsolve(t-s);
   }
+
   void mulsub(Block *left, Block *upper, Profiler &prof) {
     nano_time_t s = nanoTime();
 
@@ -349,8 +357,10 @@ public:
     Integer lda = B, ldb = B, ldc = B;
     double beta = 1.0;
 
+    //M->dgemm_lock.lock_wait_posix();
     DGEMM(&transa, &transb, &m, &n, &k, &alpha, mA, &lda,
 	  mB, &ldb, &beta, mC, &ldc);
+    //M->dgemm_lock.lock_signal_posix();
 #endif
     nano_time_t t = nanoTime();
     prof.log_dgemm(t-s);
@@ -441,32 +451,36 @@ void TwoDBlockCyclicArray::display(const char *msg) {
   order. An operation is LU, backSolve, lower, or mulSub on a block. */
 bool 
 Block::step(Profiler &prof) {
+  prof.log_step();
   if(ready) return false;
   
   if (count == maxCount) {
     if (I==J) { 
       LU(prof); 
+      MEM_BARRIER();
       ready=true; 
     }
     else if (I < J && M->get(I, I)->ready) { 
       backSolve(M->get(I,I),prof); 
+      MEM_BARRIER();
       ready=true; 
     }
     else if(M->get(J, J)->ready) { 
       lower(M->get(J,J),prof); 
+      MEM_BARRIER();
       ready=true; 
     }
-    return ready;
+    return true;
   }
 
-  Block *IBuddy = M->getLocal(Ip1, Ip2, I1, I2);
-  Block *JBuddy = M->getLocal(Jp1, Jp2, J1, J2);
+  //Block *IBuddy = M->getLocal(Ip1, Ip2, I1, I2);
+  //Block *JBuddy = M->getLocal(Jp1, Jp2, J1, J2);
   
-  //Block *IBuddy = M->get(I, count), *JBuddy = M->get(count,J);
+  Block *IBuddy = M->get(I, count), *JBuddy = M->get(count,J);
   if (IBuddy->ready && JBuddy->ready) {
     mulsub(IBuddy, JBuddy, prof);
     count++;
-    incIBuddy(); incJBuddy();
+    //incIBuddy(); incJBuddy();
     return true;
   }
   return false;
@@ -524,6 +538,7 @@ extern "C" {
   static void *start_thread(void *arg) {
     Thread *th = static_cast<Thread *>(arg);
     th->run();
+    MEM_BARRIER();
     return NULL;
   }
 }
@@ -549,7 +564,7 @@ public:
     int iStart=0;
     while(!lastBlock->ready) {
       if(iStart+1<nx && iStart+1<ny && M->getLocal(pi, pj, iStart+1, iStart+1)->ready) {
-	iStart += 1;
+	//iStart += 1;
       }
       for (int i=iStart; i < max(nx,ny); i++) {
 	bool doneForNow=false;
@@ -590,6 +605,8 @@ public:
     M = new TwoDBlockCyclicArray(px,py,nx,ny,B);
     assert( M != NULL);
   }
+
+  ~LU() { delete M; }
 
   /*Returns time between thread creation and termination (in
     nanoseconds). This removes the thread creation overhead*/ 
@@ -657,11 +674,12 @@ int main(int argc, char *argv[]) {
   const int py= atoi(argv[4]);
   const int nx = N / (px*B), ny = N/(py*B);
   assert (N % (px*B) == 0 && N % (py*B) == 0);
-  Profiler gProf;
+  Profiler gProf, gProfSeq;
 
   LU *lu = new LU(px,py,nx,ny,B);
+  assert(lu != NULL);
 
-  //TwoDBlockCyclicArray *A = lu->M->copy();
+  //  TwoDBlockCyclicArray *A = lu->M->copy();
 
 //   LU *seqlu = new LU(1,1,1,1,N);
 //   for(int i=0; i<N; i++) {
@@ -678,11 +696,11 @@ int main(int argc, char *argv[]) {
   long long tt = lu->lu(gProf);
   long long t = nanoTime();
 
-//   seqlu->lu();
-//   lu->M->display(string("After LU"));
-//   seqlu->M->display(string("Seq after LU"));
+//   seqlu->lu(gProfSeq);
+//    lu->M->display("After LU");
+//   seqlu->M->display("Seq after LU");
   
-  //bool correct = lu->verify(A);
+//  bool correct = lu->verify(A);
 
   delete lu;
   //delete A;
@@ -692,7 +710,7 @@ int main(int argc, char *argv[]) {
 //       <<" Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
 //       <<endl;
   cout<<"N="<<N<<" px="<<px<<" py="<<py<<" B="<<B
-    //<<(correct?" ok":" fail")
+    //    <<(correct?" ok":" fail")
       <<" rt time="<<(t-s)/1000000<<"ms"
       <<" rt Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
       <<" comp time="<<tt/1000000<<"ms"
