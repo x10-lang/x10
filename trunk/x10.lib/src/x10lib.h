@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.22 2007-09-06 14:06:37 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.23 2007-09-06 14:17:11 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -23,13 +23,13 @@
 #include <x10/async.h>
 #include <x10/aggregate.h>
 #include <x10/clock.h>
+#include <x10/xassert.h>
 
 #ifdef __cplusplus
 #include <x10/misc.h>
 #include <x10/xmacros.h>
 #include <x10/finish.h>
 #include <x10/array.h>
-#include <x10/xassert.h>
 #endif
 
 #include <x10/utility.h>
