@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.21 2007-08-07 06:21:52 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.22 2007-09-06 14:06:37 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,8 +11,6 @@
 #define __X10_X10LIB_H
 
 #include <x10/types.h>
-#include <x10/xmacros.h>
-#include <x10/xassert.h>
 #include <x10/err.h>
 #include <x10/env.h>
 #include <x10/lock.h>
@@ -25,11 +23,13 @@
 #include <x10/async.h>
 #include <x10/aggregate.h>
 #include <x10/clock.h>
-#include <x10/misc.h>
 
 #ifdef __cplusplus
+#include <x10/misc.h>
+#include <x10/xmacros.h>
 #include <x10/finish.h>
 #include <x10/array.h>
+#include <x10/xassert.h>
 #endif
 
 #include <x10/utility.h>
