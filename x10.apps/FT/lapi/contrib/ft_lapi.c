@@ -697,6 +697,8 @@ void reduce_sum (double *sum)
   /* Zero out the reduce. */
   bzero (reduce, 2 * sizeof(double) * LOGTHREADS);
 
+  LAPI_Gfence (handle);
+
   /* Call commutative reduce. */
   commutative_reduce (sum, 0, THREADS, LOGTHREADS - 1);
 
