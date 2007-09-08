@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_ra.cc,v 1.1 2007-09-03 14:40:41 ganeshvb Exp $
+ * $Id: aggregate_ra.cc,v 1.2 2007-09-08 12:02:52 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -17,8 +17,7 @@
 using namespace x10lib;
 using namespace std;
 
-
-#define X10_MAX_LOG_NUMPROCS 8
+#define X10_MAX_LOG_NUMPROCS 10
 
 #define MIN(A, B) A > B ? B : A
 
@@ -130,11 +129,11 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 }
 
 x10_err_t 
-asyncAggInit_hc()
+asyncAggInit_ra()
 {
   X10_DEBUG (1,  "Entry");
 
-  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 8));
+  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 9));
   
   for (int i = 0; i < X10_MAX_LOG_NUMPROCS; i++) {
     rbuf[0][i] = new char [16384 * 32];
@@ -150,25 +149,32 @@ asyncAggInit_hc()
 }
 
 x10_err_t
-asyncAggFinalize_hc ()
+asyncAggFinalize_ra ()
 {  
    return X10_OK;
 }
 
+//template <typename FUNC>
+
 static x10_err_t
-sort_data (size_t size, ulong mask, int cond, char *buf, int len)
+sort_data (size_t size, ulong mask, int cond, char *inbuf, int len, FUNC func)
 {
-  
-  for (int i = 0; i < len; i += size)
+  long* buf = (long*) inbuf;
+  long* sendbuf = (long*) (sbuf + nsend);
+  long* keepbuf = (long*) (kbuf + nkeep);
+  int j = 0;
+  int k = 0;
+
+  for (int i = 0; i < len / size; i++)
     {
-      long ran = *((long*) (buf + i));
-      int p = ((int) (ran >> LogTableSize) & PLACEIDMASK);
-      if (((MIN((((ulong) p) & mask), 1)) == cond)) 
+      long ran = buf[i];
+      int p =  func (ran);
+      if (p != __x10_my_place && ((MIN((((ulong) p) & mask), 1)) == cond)) 
 	{
-	  memcpy (sbuf + nsend, buf + i, size); 
+         sendbuf[j++] = buf[i];
 	  nsend+= size;
 	} else {
-	  memcpy (kbuf + nkeep, buf + i, size); 
+          keepbuf[k++] =buf[i];
 	  nkeep += size;
 	}
     }  
@@ -193,7 +199,7 @@ send_updates (x10_async_handler_t hndlr, size_t size,int phase, int partner)
   
   //{ cout << "phase : " << phase << " " << sizeof(phase_l) << "  nsend: " << nsend<< " p : " << __x10_my_place << " " << partner << endl; }
   LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-  LRC(LAPI_Amsend(__x10_hndl, partner, (void *)8, &hdr,
+  LRC(LAPI_Amsend(__x10_hndl, partner, (void *)9, &hdr,
 		  sizeof(hdr),
 		  (void *) sbuf,
 		  nsend,
@@ -204,21 +210,22 @@ send_updates (x10_async_handler_t hndlr, size_t size,int phase, int partner)
 
 
 namespace x10lib {
-  
+
+  //template <typename FUNC>  
   x10_err_t 
-  asyncFlush_ra (x10_async_handler_t hndlr, size_t size, char* data, int len, long log_table_size, int place_id_mask)
+  asyncFlush_ra (x10_async_handler_t hndlr, size_t size, char* data, int len, FUNC func)
   {
     X10_DEBUG (1,  "Entry");
     
-    LogTableSize = log_table_size;
+    //LogTableSize = log_table_size;
     
-    PLACEIDMASK = place_id_mask;
+  //  PLACEIDMASK = place_id_mask;
     
     nsend= 0;
 
     nkeep = 0;
     
-    LAPI_Gfence (__x10_hndl);              
+    //LAPI_Gfence (__x10_hndl);              
     int factor = 1;
     int phase = 0;
     
@@ -241,18 +248,17 @@ namespace x10lib {
       
       if (factor == 1) {
 	buf = data;
-      }
-      else { 
+      } else { 
 	buf = kbuf;
       }
 
-      sort_data (size, mask, cond, buf, nkept);
+      sort_data (size, mask,cond, buf, nkept, func);
       
       if (phase > 0) 
 	{	
 	  int cntrVal;	
 	  LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &cntrVal);
-	  sort_data (size, mask, cond, rbuf[cntrVal][phase-1], recvMesgLen[cntrVal][phase-1]);		
+	  sort_data (size, mask, cond, rbuf[cntrVal][phase-1], recvMesgLen[cntrVal][phase-1],func);		
 	  recvMesgLen[cntrVal][phase-1] = 0;	  
 	}     
       
@@ -263,7 +269,7 @@ namespace x10lib {
     
     int cntrVal;    
     LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &cntrVal);
-    sort_data (size, 0, 1, rbuf[cntrVal][phase-1], recvMesgLen[cntrVal][phase-1]);		
+    sort_data (size, 0, 1, rbuf[cntrVal][phase-1], recvMesgLen[cntrVal][phase-1],func);		
     recvMesgLen[cntrVal][phase-1] = 0;
     
     //asyncSwitch(hndlr, __x10_agg_arg_buf[__x10_my_place], __x10_agg_counter[__x10_my_place]);
