@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.15 2007-09-03 14:40:41 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.16 2007-09-08 12:02:52 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -16,6 +16,7 @@
 #define X10_MAX_AGG_TASKS 1024
 #define X10_MAX_AGG_SIZE 1024
 
+typedef  int (*FUNC)(ulong);
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
@@ -56,7 +57,11 @@ namespace x10lib {
 					void *args, size_t size);
 
 
-  x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, long LogTableSize, int PLACEIDMASK);
+  //x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, long LogTableSize, int PLACEIDMASK);
+
+
+ // template <typename FUNC>
+  x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, FUNC func);
 
 
 } /* closing brace for namespace x10lib */
