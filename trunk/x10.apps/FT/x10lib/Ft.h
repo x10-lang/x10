@@ -54,7 +54,7 @@ public:
 public : class DistDoubleArray 
 {    
 public:
-  static const Dist<1>* ALLPLACES;  
+  static const Dist<1>* UNIQUE;  
   static const x10_int_t N_PLACES;    
   DoubleArray** m_array;  
   x10_long_t m_size;  
@@ -69,7 +69,7 @@ public:
   friend void __async__0 (__async__0__args args);
   
 private : static x10_int_t NUMPLACES;
-private : const static Dist<1>* ALLPLACES;
+private : const static Dist<1>* UNIQUE;
   
 private : const static x10_int_t SS=1;
 private : const static x10_int_t WW=2;
@@ -105,6 +105,7 @@ public: static x10_int_t origindexmap (x10_int_t x, x10_int_t y, x10_int_t z);
 public: static x10_int_t getowner (x10_int_t x, x10_int_t y, x10_int_t z);
 public :  void solve();
 public : void FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c);
+public : void FFT2DComm_Slab (const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c);
 public :  void FFT2DComm(const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* clk);
 private : void checksum(const DoubleArray* C, const x10_int_t PID, const x10_int_t itr) ;
 public :  void print_Array(const DistDoubleArray* DDA);

@@ -15,7 +15,8 @@
 
 double	    tran = 314159265.0;
 double	    d2m46;
-uint64_t    i246m1; 
+//uint64_t    i246m1; 
+long    i246m1; 
 double	    rand_seed;    
 
 
