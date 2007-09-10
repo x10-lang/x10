@@ -287,7 +287,7 @@ public final value Ft {
 				FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
 				next;
 				FT_1DFFT(FT_COMM, localPlanes1d.m_array, local_V.m_array, 0, FFT_FWD, current_orientation, PID);
-				//next; //redundant
+				next; //not redundant
 
 				current_orientation = switch_view(current_orientation, PID);
 				int saved_orientation = current_orientation;
