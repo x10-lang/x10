@@ -73,7 +73,7 @@ Ft::DoubleArray::DoubleArray (char* buf, int& offset)
   
   memcpy (&m_start, buf + offset, sizeof (m_start));
   offset += sizeof(m_start);
-    
+  
   memcpy (&m_end, buf + offset, sizeof(m_end));
   offset += sizeof(m_end);
 }
@@ -98,9 +98,9 @@ Ft::DistDoubleArray::DistDoubleArray (const x10_long_t size, const x10_long_t of
   m_size = size;
   m_localSize = size / N_PLACES;	
   
-  m_array = new DoubleArray* [ALLPLACES->region()->card()];
-      
-  for (x10_int_t i = 0; i < ALLPLACES->region()->card(); i++)
+  m_array = new DoubleArray* [UNIQUE->region()->card()];
+  
+  for (x10_int_t i = 0; i < UNIQUE->region()->card(); i++)
     m_array[i] = new DoubleArray (m_localSize, offset, i);  
 }
   
@@ -115,7 +115,7 @@ char* Ft::DistDoubleArray:: __serialize (char* buf) const
   memcpy (buf, &m_localSize, sizeof(m_localSize));      
   buf += sizeof(m_localSize);
     
-  for (x10_int_t i = 0; i < ALLPLACES->region()->card(); i++)
+  for (x10_int_t i = 0; i < UNIQUE->region()->card(); i++)
     {
       buf = m_array[i]->__serialize (buf);
     }
@@ -134,9 +134,9 @@ Ft::DistDoubleArray::DistDoubleArray (char* buf, x10_int_t& offset)
   memcpy (&m_localSize, buf + offset, sizeof(m_localSize));      
   offset += sizeof(m_localSize);
     
-  m_array = new DoubleArray* [ALLPLACES->region()->card()];
+  m_array = new DoubleArray* [UNIQUE->region()->card()];
     
-  for (x10_int_t i = 0; i < ALLPLACES->region()->card(); i++)
+  for (x10_int_t i = 0; i < UNIQUE->region()->card(); i++)
     {
       m_array[i] = new DoubleArray (buf, offset);
     }
@@ -147,7 +147,7 @@ size_t Ft::DistDoubleArray::size ()  const
   int val = sizeof (m_array); 
   val += sizeof (m_size); 
   val += sizeof (m_localSize);
-  for (int i = 0; i < ALLPLACES->region()->card(); i++)
+  for (int i = 0; i < UNIQUE->region()->card(); i++)
     val += m_array[i]->size();
 
   return val;
@@ -255,7 +255,7 @@ void  Ft::solve() {
       size = 4 * Planes2d->size();
       
       buf = new char[size];      
-
+      
       char* tmp;      
       tmp = Planes2d->__serialize (buf);
       tmp = Planes1d->__serialize (tmp);
@@ -264,7 +264,7 @@ void  Ft::solve() {
     }
   
   SyncGlobal();
-
+  
   Broadcast (&size, sizeof(x10_int_t), 0);
   
   if (__x10_my_place != 0) 
@@ -320,7 +320,8 @@ void  Ft::solve() {
   
   computeInitialConditions(localPlanes2d->m_array, PID);
   
-  SyncGlobal();
+  //(3)
+  //SyncGlobal();
 
 
   FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
@@ -340,7 +341,8 @@ void  Ft::solve() {
 
   init_exp(local_ex->m_array, 1.0e-6, PID);
 
-  SyncGlobal();
+  //(2)
+  //  SyncGlobal();
 
   FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
   
@@ -348,6 +350,7 @@ void  Ft::solve() {
 
   FT_1DFFT (FT_COMM, localPlanes1d->m_array, local_V->m_array, 0, FFT_FWD, current_orientation, PID);
 
+  //(1)
   SyncGlobal();
    
   current_orientation = switch_view(current_orientation, PID);
@@ -395,7 +398,51 @@ void  Ft::solve() {
 
 
 }
- 
+
+void Ft::FFT2DComm_Slab(const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* clk) {
+
+  int dim0, dim1, dim2;
+  int plane_size, CHUNK_SZ, numrows;
+  
+  dim0 = dims[orientation*3];
+  dim1 = dims[orientation*3+1];
+  dim2 = dims[orientation*3+2];
+  
+  //System.out.println(" orientation ="+orientation+" dim0 = "+dim0+" dim1 = "+dim1+" dim2 = "+dim2);
+  plane_size = dim0*dim1;
+  CHUNK_SZ = (dim0/NUMPLACES)*dim1;
+  numrows = dim0/NUMPLACES;
+  int p, t, i, offset1, offset2;
+  
+  Array<double, 1>* local2darray = local2d->m_array;
+  
+  //remove finish on August 1, 2007
+  for (p = 0; p < dim2/NUMPLACES; p++) {
+    offset1 = plane_size*p;
+    FFT2DLocalCols(local2darray, offset1, dir, orientation, placeID);
+    for (t = 0; t <NUMPLACES; t++) {
+      //final int destID = (placeID + t) % NUMPLACES; //the MPI order
+      const int destID = t;
+      offset2 = offset1 + destID*CHUNK_SZ;
+      
+      for (i = 0; i < numrows; i++)
+	FFT2DLocalRow(local2darray, offset2+i*dim1, dir, orientation, placeID);
+      //int srcStart = local2d.m_start + offset2*2;
+      int srcStart = offset2*2;
+      //int destStart = (dist1d.getArray(destID)).m_start +
+      //        2*(placeID*dim2/NUMPLACES+p)*CHUNK_SZ;
+      int destStart = 2*(placeID*dim2/NUMPLACES+p)*CHUNK_SZ;
+      int destPlace = UNIQUE->place (destID);
+      
+      Array<double, 1>* local1darray = (dist1d->getArray(destID))->m_array;
+      
+      //System.out.println(" 2DComm place: t = "+t+" placeID ="+placeID+ " destID = "+destID+ " destSstart ="+destStart);
+      
+      asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * CHUNK_SZ, clk);
+    }
+  }
+}
+
 void  Ft::FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c){
    
   x10_int_t dim0, dim1, dim2;
@@ -435,14 +482,13 @@ void  Ft::FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* d
 	
 	x10_int_t destStart = 2*(placeID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
 	
-	const x10_place_t destPlace =  ALLPLACES->place (destID);
+	const x10_place_t destPlace =  UNIQUE->place (destID);
 	
 	Array<double, 1> * local1darray = dist1d->getArray(destID)->m_array; 
 
 	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, c);
 	//asyncArrayCopy (local2darray, Pox10_int_t<1> (srcStart), local1darray, Pox10_int_t<1> (destStart), destID, 2 * dim1, c);
-      }
-    
+      }    
   }
    
 }
@@ -451,9 +497,9 @@ void  Ft::FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* d
 void  Ft::FFT2DComm(const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* clk)
 {
   if (FT_COMM == FT_COMM_SLABS)
-    FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID, clk);
+    FFT2DComm_Slab (local2d, dist1d, dir, orientation, placeID, clk);
   else
-    FFT2DComm_Pencil(local2d, dist1d, dir, orientation, placeID, clk);
+    FFT2DComm_Pencil (local2d, dist1d, dir, orientation, placeID, clk);
 }
 
 void  Ft::checksum(const DoubleArray* C, const x10_int_t PID, const x10_int_t itr) {
@@ -941,9 +987,9 @@ void  Ft::checksum_verify(const x10_int_t d1, const x10_int_t d2, const x10_int_
 }
    
 x10_int_t Ft::NUMPLACES=numPlaces();
-const Dist<1>* Ft::ALLPLACES = Dist<1>::makeUnique();
+const Dist<1>* Ft::UNIQUE = Dist<1>::makeUnique();
 const x10_int_t Ft::DistDoubleArray::N_PLACES=numPlaces();
-const Dist<1>* Ft::DistDoubleArray::ALLPLACES = Dist<1>::makeUnique();
+const Dist<1>* Ft::DistDoubleArray::UNIQUE = Dist<1>::makeUnique();
 
 
 extern "C" {
