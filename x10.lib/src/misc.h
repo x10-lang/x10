@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.3 2007-09-13 15:46:43 ganeshvb Exp $
+ * $Id: misc.h,v 1.4 2007-09-13 15:48:23 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -21,7 +21,7 @@ namespace x10lib {
   extern int __x10_num_places;
   extern int __x10_my_place;
 
-  `/**
+  /**
     * arg0 = src address.
     * arg1 = src offset (bytes).
     * handler = unique array copy handler that returns the base address of dest array.
