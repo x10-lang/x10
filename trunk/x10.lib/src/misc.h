@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.1 2007-08-07 06:21:52 ganeshvb Exp $
+ * $Id: misc.h,v 1.2 2007-09-13 15:20:04 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -20,6 +20,12 @@ namespace x10lib {
   extern int __x10_num_places;
   extern int __x10_my_place;
 
+  x10_err_t
+    asyncArrayCopy (void* src, size_t srcOffset,
+		    x10_async_handler_t handler,
+		    void* args, size_t arg_size, 
+		    int target, size_t len, Clock* c);
+  
   //x10_err_t asyncArrayCopy (void* src, int srcOffset, void* dst, int dstOffset,
   //	       int target, int len, x10_switch_t swch);
   

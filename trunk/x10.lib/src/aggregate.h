@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.16 2007-09-08 12:02:52 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.17 2007-09-13 15:20:04 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -53,15 +53,15 @@ namespace x10lib {
   x10_err_t asyncFlush_hc(x10_async_handler_t hndlr, size_t size);
 
   x10_err_t asyncSpawnInlineAgg_hc(x10_place_t tgt,
-					x10_async_handler_t hndlr,
-					void *args, size_t size);
+				   x10_async_handler_t hndlr,
+				   void *args, size_t size);
+  
 
-
-  //x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, long LogTableSize, int PLACEIDMASK);
+  x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, long LogTableSize, int PLACEIDMASK);
 
 
  // template <typename FUNC>
-  x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, FUNC func);
+ // x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, FUNC func);
 
 
 } /* closing brace for namespace x10lib */

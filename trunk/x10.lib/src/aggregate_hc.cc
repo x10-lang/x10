@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.15 2007-09-08 12:02:52 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.16 2007-09-13 15:20:04 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -282,14 +282,16 @@ send_updates (x10_async_handler_t hndlr, int& ssize, ulong size,int phase, int p
 namespace x10lib {
   
   x10_err_t 
-  asyncFlush_hc (x10_async_handler_t hndlr, ulong size)
+  asyncFlush_hc (x10_async_handler_t hndlr, size_t size)
   {
     X10_DEBUG (1,  "Entry");
     
     ssize = 0;
 
     //LAPI_Gfence (__x10_hndl);              
+
     int factor = 1;
+    
     int phase = 0;
     
     for (; factor < __x10_num_places; phase++, factor *= 2) {
@@ -303,6 +305,7 @@ namespace x10lib {
       sort_data_args (hndlr, ssize, size, mask, phase, cond);
       
       if (phase > 0) {	
+	
 	int cntrVal;
 	
 	LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &cntrVal);

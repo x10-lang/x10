@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_array.cc,v 1.4 2007-06-27 07:40:48 ganeshvb Exp $ */
+/* $Id: Test_array.cc,v 1.5 2007-09-13 15:20:04 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -34,7 +34,7 @@ main (int argc, char* argv[])
     //Array<int, 1>* a = makeArray <int,1, TiledRegion, UniqueDist >(b);
     //a->putElementAt (Point<1>(10), 10);
     //assert (a->getElementAt (Point<1>(10)) == 10);
-    a->putElementAtRemote (Point<1>(30), 10);
+    a->putRemoteElementAt (Point<1>(30), 10);
   } 
  
   cout << "Test_array PASSED" << endl;

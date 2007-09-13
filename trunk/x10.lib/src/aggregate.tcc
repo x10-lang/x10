@@ -41,11 +41,11 @@ asyncFlush_t (x10_async_handler_t handler)
   lapi_cntr_t origin_cntr;
   int tmp;
   for (int j =0; j < x10lib::__x10_num_places; j++) {
-    if (j != x10lib::here() && __x10_counter[handler][j] != 0) {
-      LRC (LAPI_Setcntr (GetHandle(), &origin_cntr, 0)); 
-      LRC (LAPI_Amsend (GetHandle(),
+    if (__x10_counter[handler][j] != 0) {
+      LRC (LAPI_Setcntr (x10lib::__x10_hndl, &origin_cntr, 0)); 
+      LRC (LAPI_Amsend (x10lib::__x10_hndl,
 			j,
-			(void*) (5+handler),
+			(void*) (__x10_num_handlers + handler),
 			NULL, 
 			0, 
 			(void*) __x10_arg_buf[handler][j],
@@ -53,7 +53,7 @@ asyncFlush_t (x10_async_handler_t handler)
 			NULL,
 			&origin_cntr,
 			NULL));
-      LRC (LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp));
+      LRC (LAPI_Waitcntr (x10lib::__x10_hndl, &origin_cntr, 1, &tmp));
       __x10_total[handler] -= __x10_counter[handler][j];
       __x10_counter[handler][j] =0;
     }
@@ -92,7 +92,7 @@ asyncRegister_t (x10_async_handler_t handle)
 {
 
   func_t tmp = (func_t) asyncSpawnHandlerAgg<N,F>; 
-  LAPI_Addr_set (GetHandle(), (void*) tmp, 8+handle);
+  LAPI_Addr_set (x10lib::__x10_hndl, (void*) tmp, __x10_num_handlers + handle);
 
   return X10_OK;
 }
@@ -120,10 +120,10 @@ asyncSpawnInlineAgg_i (x10_place_t target, x10_async_handler_t handler)
  
       lapi_cntr_t origin_cntr;
       int tmp;
-      LRC (LAPI_Setcntr (GetHandle(), &origin_cntr, 0)); 
-      LRC (LAPI_Amsend (GetHandle(),
+      LRC (LAPI_Setcntr (x10lib::__x10_hndl, &origin_cntr, 0)); 
+      LRC (LAPI_Amsend (x10lib::__x10_hndl,
 			task,
-			(void*) (5+handler),  
+			(void*) (__x10_num_handlers + handler),  
 			NULL,
 			0,
 			(void*) __x10_arg_buf[handler][task],
@@ -131,7 +131,7 @@ asyncSpawnInlineAgg_i (x10_place_t target, x10_async_handler_t handler)
 			NULL,
 			&origin_cntr,
 			NULL));
-      LRC (LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp));
+      LRC (LAPI_Waitcntr (x10lib::__x10_hndl, &origin_cntr, 1, &tmp));
       __x10_total[handler] -= max;
       __x10_counter[handler][task] = 0;
     } 

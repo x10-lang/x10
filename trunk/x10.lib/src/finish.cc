@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.14 2007-08-22 14:33:57 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.15 2007-09-13 15:20:04 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -31,8 +31,8 @@ static int numExceptions;
  
 static lapi_cntr_t cntr1;
 static lapi_cntr_t cntr2;
-static lapi_long_t exceptionCntr[X10_MAX_TASKS];
-static lapi_long_t continueCntr[X10_MAX_TASKS];
+static lapi_long_t* exceptionCntr;
+static lapi_long_t* continueCntr;
 
 static int CONTINUE_STATUS;
 
@@ -53,6 +53,7 @@ numChildHeaderHandler (lapi_handle_t handle, void* uhdr,
                               uint* hdr_len, ulong* msg_len,
                               compl_hndlr_t** comp_h, void** uinfo)
 {
+  assert (ftree);
   ftree->children[ftree->numChild] = *((int*) uhdr);
   ftree->numChild++;
   lapi_return_info_t* ret_info = (lapi_return_info_t*) msg_len;
@@ -92,13 +93,18 @@ exceptionHeaderHandler (lapi_handle_t handle, void* uhdr,
 
 x10_err_t            
 finishInit ()
-{
-  LRC (LAPI_Addr_set (__x10_hndl, (void*) exceptionHeaderHandler, 3));
-  LRC (LAPI_Addr_set (__x10_hndl, (void*) continueHeaderHandler, 4));
-  LRC (LAPI_Addr_set (__x10_hndl, (void*) numChildHeaderHandler, 5));
+{  
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) exceptionHeaderHandler, EXCEPTION_HEADER_HANDLER));
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) continueHeaderHandler, CONTINUE_HEADER_HANDLER));
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) numChildHeaderHandler, NUM_CHILD_HEADER_HANDLER));
+  
+  exceptionCntr = new lapi_long_t [__x10_num_places];
+
+  continueCntr = new lapi_long_t [__x10_num_places];
 
   //allocate the fence tree structure
   ftree = new ptree_t;
+
 
   //find my peers, i.e all the processes in the same node
   char* envstr = getenv ("MP_COMMON_TASKS");
@@ -123,7 +129,7 @@ finishInit ()
     // I am a remote parent
     LAPI_Amsend (__x10_hndl,
                  0,
-                 (void*) 5,
+                 (void*) NUM_CHILD_HEADER_HANDLER,
                  &__x10_my_place,
                  sizeof(x10_place_t),
                  NULL,
@@ -149,6 +155,8 @@ finishInit ()
 void 
 finishTerminate()
 {
+  delete [] exceptionCntr;
+  delete [] continueCntr;
   delete ftree;
 }
                    
@@ -157,6 +165,8 @@ finishStart_ (int* cs)
 {
   int tmp;
   
+  assert (ftree);
+
   if (ftree->parent != __x10_my_place) {
     numExceptions = 0;
 
@@ -178,7 +188,7 @@ finishStart_ (int* cs)
       LRC (LAPI_Setcntr (__x10_hndl, &originCntr, 0));
       LRC (LAPI_Amsend (__x10_hndl, 
                  ftree->children[i], 
-                 (void*) 4,
+                 (void*) CONTINUE_HEADER_HANDLER,
                  cs,
                  sizeof(int),
                  NULL,
@@ -190,6 +200,7 @@ finishStart_ (int* cs)
    }
      LRC (LAPI_Fence(__x10_hndl));
   }
+ 
   CONTINUE_STATUS = 0;
   return X10_OK;
 }
@@ -234,7 +245,7 @@ finishEnd_ (Exception* e)
       LRC (LAPI_Setcntr (__x10_hndl, &originCntr, 0));
       LRC (LAPI_Amsend (__x10_hndl,
 			ftree->parent,
-			(void*) 3, /*LAPI handler for exceptions */
+			(void*) EXCEPTION_HEADER_HANDLER, /*LAPI handler for exceptions */
 			&numExceptions,
 			sizeof(int),
 			ex_buf,

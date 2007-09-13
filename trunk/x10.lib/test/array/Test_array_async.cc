@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_array_async.cc,v 1.4 2007-06-27 07:40:48 ganeshvb Exp $ */
+/* $Id: Test_array_async.cc,v 1.5 2007-09-13 15:20:05 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -25,6 +25,7 @@ void async0 (x10_async_arg_t arg0, x10_async_arg_t arg1)
 {
     Array<int, 1> * a = (Array<int, 1>*) (arg0);
 
+    cout << a->localSize()  << " " << arg1 << endl;
     assert (a->localSize() == arg1);
 
     asyncSpawnInline ((here() + 1) % numPlaces(), 1, 1, here());
@@ -35,11 +36,11 @@ void asyncSwitch (x10_async_handler_t h, void* arg, int niter)
   x10_async_arg_t * args =(x10_async_arg_t*) arg;
   switch (h) {
    case 0:
-     async0(*args++, *args);
+     async0(*args, *(args + 1));
      break;
-   case 1:
-     async1(*args);
-     break;
+  case 1:
+    async1(*args);
+    break;
   }
 }
 
@@ -55,15 +56,19 @@ main (int argc, char* argv[])
   if (here() == 0) {
     Array<int, 1>* a = makeArray <int,1, RectangularRegion, UniqueDist>(grid, u);
     uint64_t tableSize = a->localSize();
-   for (x10_place_t target = 0; target < numPlaces(); target++)
-     asyncSpawnInline(target, 0, 2, (x10_async_arg_t) (GlobalSMAlloc->addrTable(target)),
-                    tableSize);
+    cout << "table size " << tableSize << endl;
+    for (x10_place_t target = 0; target < numPlaces(); target++) {
+      cout << "size " << GlobalSMAlloc->addrTable (target) << endl;
+      asyncSpawnInline(target, 0, 2, (x10_async_arg_t) (GlobalSMAlloc->addrTable(target)),
+		       tableSize);
+    }
 
   } 
  
-  cout << "Test_array_async PASSED" << endl;
 
   LAPI_Gfence (GetHandle()); 
+
+  cout << "Test_array_async PASSED" << endl;
 
   x10lib::Finalize();
 

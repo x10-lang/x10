@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.h,v 1.8 2007-06-26 16:05:57 ganeshvb Exp $ */
+/* $Id: finish.h,v 1.9 2007-09-13 15:20:04 ganeshvb Exp $ */
 
 #ifndef __FINISH_H__
 #define __FINISH_H__
@@ -33,6 +33,7 @@ class Exception{
       Exception () {}
       virtual size_t size() = 0;
       virtual void print() = 0;
+      virtual x10_place_t proc() = 0;
   };
 
   class MultiException {
@@ -46,6 +47,11 @@ class Exception{
        }
 
        int size() const { return total_; }
+
+       Exception* operator [] (int i)
+	 {
+	   return exceptions_[i];
+	 }
        Exception **const exceptions() const { return exceptions_; }
 
       ~MultiException () {
@@ -53,7 +59,8 @@ class Exception{
         // each of the exceptions_ objects. So just
         //delete the exceptions_ array only.
 
-        delete [] exceptions_; 
+	//cout << "hello" << endl;
+        //delete [] exceptions_; 
        } 
     private:
       int  total_;

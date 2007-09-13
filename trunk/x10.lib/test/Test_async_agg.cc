@@ -5,19 +5,11 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.11 2007-08-30 14:19:15 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.12 2007-09-13 15:20:04 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
 #include <x10/x10lib.h>
-
-#ifdef HC_ROUTING
-#define ASYNC_SPAWN asyncSpawnInlineAgg_hc
-#define ASYNC_FLUSH asyncFlush_hc
-#else
-#define ASYNC_SPAWN asyncSpawnInlineAgg
-#define ASYNC_FLUSH asyncFlush
-#endif
 
 using namespace std;
 using namespace x10lib;
@@ -86,23 +78,22 @@ main (int argc, char* argv[])
   int total=0;
   for (long i = 0; i < N; i++) {
     for (x10_place_t target = 0; target < __x10_num_places; target++, total++) {
-      //       if (target == x10lib::here()) {
-      //        async0 ((x10_async_arg_t) i);
-      //        async1 ();
-      //        async2 (i, m);
-      //        continue; 
-      //       }
-//      ASYNC_SPAWN (target, 0, (x10_async_arg_t) i);
- //     ASYNC_SPAWN (target, 1, &arg, 0);
-
-        ASYNC_SPAWN (target, 2, i, m);
-      if ((total + 1) % (N/2) == 0) 
-        ASYNC_FLUSH (2, 2*sizeof(x10_async_arg_t));
+ 
+      if (target == x10lib::here()) {
+	async0 ((x10_async_arg_t) i);
+	async1 ();
+	async2 (i, m);	
+      } else {
+	asyncSpawnInlineAgg (target, 0, (x10_async_arg_t) i);
+	asyncSpawnInlineAgg (target, 1, &arg, 0);
+        asyncSpawnInlineAgg (target, 2, i, m);
+      }
     }
   } 
- // ASYNC_FLUSH (0, sizeof(x10_async_arg_t));
- // ASYNC_FLUSH  (1, 0);
-  ASYNC_FLUSH (2, 2*sizeof(x10_async_arg_t));
+ 
+  asyncFlush (0, sizeof(x10_async_arg_t));
+  asyncFlush  (1, 0);
+  asyncFlush (2, 2*sizeof(x10_async_arg_t));
   
   
   x10lib::SyncGlobal(); 
