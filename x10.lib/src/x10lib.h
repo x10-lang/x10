@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.23 2007-09-06 14:17:11 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.24 2007-09-13 15:20:04 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -41,6 +41,8 @@
 
 #ifdef __cplusplus
 namespace x10lib {
+
+
 
 /* global variables that can be referenced everywhere */
 extern lapi_handle_t __x10_hndl;

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg_func.cc,v 1.2 2007-06-26 16:05:58 ganeshvb Exp $ */
+/* $Id: Test_async_agg_func.cc,v 1.3 2007-09-13 15:20:04 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -43,13 +43,13 @@ main (int argc, char* argv[])
   asyncRegister_t<1, Async0> (0);
 
    for (x10_place_t target = 0; target < numPlaces(); target++)
-     for (uint64_t i = 0; i < N; i++)
+     for (long i = 0; i < N; i++)
        asyncSpawnInlineAgg_t<Async0> (target, 0, i);
      
    asyncFlush_t<1> (0);
      
   x10lib::SyncGlobal (); 
-//  cout << here() << " I " << I << " " << K << endl;
+  cout << here() << " I " << I << " " << K << endl;
   assert (I == numPlaces() * N * (N-1) / 2 * m);
   assert (K == numPlaces() * N) ;
 

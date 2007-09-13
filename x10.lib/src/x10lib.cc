@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.19 2007-09-08 12:02:52 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.20 2007-09-13 15:20:04 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -95,8 +95,7 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	(void)LAPI_Setcntr(__x10_hndl, &__x10_wait_cntr, 0);
 	__x10_tf.Util_type = LAPI_GET_THREAD_FUNC;
 	(void)LAPI_Util(__x10_hndl, (lapi_util_t *)&__x10_tf);
-
-
+	
         finishInit();
         asyncRegister();
         asyncAggInit();

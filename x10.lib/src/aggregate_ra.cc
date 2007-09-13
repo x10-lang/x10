@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_ra.cc,v 1.2 2007-09-08 12:02:52 ganeshvb Exp $
+ * $Id: aggregate_ra.cc,v 1.3 2007-09-13 15:20:04 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -27,9 +27,9 @@ static char kbuf [2 * 32 * X10_MAX_AGG_SIZE * 8];
 
 static char* rbuf[2][X10_MAX_LOG_NUMPROCS];
 
-size_t recvMesgLen[2][X10_MAX_LOG_NUMPROCS];
+static size_t recvMesgLen[2][X10_MAX_LOG_NUMPROCS];
 
-lapi_cntr_t recvCntr[X10_MAX_LOG_NUMPROCS];
+static lapi_cntr_t recvCntr[X10_MAX_LOG_NUMPROCS];
 
 int nsend= 0;
 

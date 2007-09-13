@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.10 2007-06-28 16:54:32 ganeshvb Exp $
+# $Id: Makefile,v 1.11 2007-09-13 15:20:04 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -48,6 +48,10 @@ OBJS6 = $(TARGET6).o
 TARGET7 = Test_switch_c
 SRCS7 = $(TARGET7).c
 OBJS7 = $(TARGET7).o
+
+TARGET8 = Test_async_agg_c
+SRCS8 = $(TARGET4).c
+OBJS8 = $(TARGET4).o
 
 TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7)
 
@@ -110,6 +114,17 @@ $(TARGET7): $(OBJS7)
 $(TARGET7).o: $(TARGET7).c
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
+$(TARGET8): $(OBJS8)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS7) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET8).o: $(TARGET8).c
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+install:
+	@echo "Done \"install\" in \"test\" subdir."
+
 install:
 	@echo "Done \"install\" in \"test\" subdir."
 

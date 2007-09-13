@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.12 2007-08-21 06:10:26 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.13 2007-09-13 15:20:04 ganeshvb Exp $ */
 
 #include "array.h"
 #include <x10/alloc.h>
@@ -57,8 +57,8 @@ asyncArrayCopy (Array<T, RANK>* src, Point <RANK> srcOffset,
   
   LRC(LAPI_Setcntr(__x10_hndl, &origin_cntr, 0));
   
-  lapi_header_t construction_handler = (lapi_header_t) remoteArrayCopy<T, RANK>;
-  LAPI_Addr_set (__x10_hndl, (void*) construction_handler, 7);
+  lapi_header_t array_copy_handler = (lapi_header_t) remoteArrayCopy<T, RANK>;
+  LAPI_Addr_set (__x10_hndl, (void*) array_copy_handler, ARRAY_COPY_HANDLER);
    
   remoteArrayElementDescr header;
   header.addr = (void*) dest;
@@ -73,7 +73,7 @@ asyncArrayCopy (Array<T, RANK>* src, Point <RANK> srcOffset,
     } else {
       LAPI_Amsend (__x10_hndl, 
 		   target,
-		   (void*) construction_handler,
+		   (void*) ARRAY_COPY_HANDLER, 
 		   (void*) &header,
 		   sizeof(header),
 		   (void*) &src->getLocalElementAt (srcOffset), 
@@ -169,7 +169,7 @@ makeArrayRemote (const Region<RANK>* region, const Dist<RANK>* dist, const x10_p
   memcpy (&(buf->region), region, sizeof(REGION<RANK>));
   
   lapi_header_t construction_handler = (lapi_header_t) arrayConstructionGlobalSM <T, RANK, REGION, DIST>;
-  LAPI_Addr_set (__x10_hndl, (void*) construction_handler, 6);
+  LAPI_Addr_set (__x10_hndl, (void*) construction_handler, ARRAY_CONSTRUCTION_HANDLER);
   
   lapi_cntr_t completion_cntr;
   int tmp;
@@ -188,10 +188,10 @@ makeArrayRemote (const Region<RANK>* region, const Dist<RANK>* dist, const x10_p
 		   NULL,
 		   NULL,
 		   &completion_cntr);
-
+      
       //Wait for completion
       LAPI_Waitcntr (__x10_hndl, &completion_cntr, 1, &tmp); 
-
+      
       delete buf;      
       return (Array<T, RANK>*) ((char*) GlobalSMAlloc->addrTable (target) + GlobalSMAlloc->prev_offset());
     }
@@ -209,7 +209,8 @@ makeArray (const Region<RANK>* region, const Dist<RANK>* dist)
   
   //create the array remotely
   for (x10_place_t target = 0; target < __x10_num_places; target++)    
-    makeArrayRemote<T, RANK, REGION, DIST> (region, dist, target); 
+    if (target != __x10_my_place)
+      makeArrayRemote<T, RANK, REGION, DIST> (region, dist, target); 
   
   return ret;
 }
@@ -272,11 +273,14 @@ Array<T, RANK> :: putRemoteElementAt (const Point<RANK>& p, const T& val)
 
     int tmp;
 
+    lapi_header_t array_update_handler = (lapi_header_t) arrayElementUpdate<T>;
+    LAPI_Addr_set (__x10_hndl, (void*) array_update_handler, ARRAY_ELEMENT_UPDATE_HANDLER);
+
     LAPI_Setcntr (__x10_hndl, &origin_cntr, 0);
 
     LAPI_Amsend (__x10_hndl, 
                target,
-               arrayElementUpdate<T>,
+               (void*) ARRAY_ELEMENT_UPDATE_HANDLER,
                buf,
                sizeof (T) + sizeof(uint64_t), 
                NULL,

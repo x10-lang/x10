@@ -17,7 +17,7 @@ int main (int argc, char** argv)
   cntr = 0;
   LAPI_Addr_set (x10_get_handle(), (void*) headerHandler, 10);
   if (x10_here() == 0) {
-    x10_switch_t* s = x10_alloc_switch();
+    x10_switch_t s = x10_alloc_switch();
     for (int i = 0; i < x10_num_places(); i++) {
       if (i == x10_here())
 	  {

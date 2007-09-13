@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.18 2007-08-17 13:18:38 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.19 2007-09-13 15:20:04 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -87,7 +87,7 @@ asyncAggInit()
 {
   X10_DEBUG (1,  "Entry");
 
-  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 1));
+  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, ASYNC_SPAWN_HANDLER_AGG));
   
   for (int i = 0; i < X10_MAX_AGG_HANDLERS; i++) {
     __x10_agg_arg_buf[i] = new char* [__x10_num_places];
@@ -145,11 +145,11 @@ asyncSpawnInlineAgg_i(x10_place_t tgt,
     lapi_cntr_t cntr;
     int tmp;
     LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-    LRC(LAPI_Amsend(__x10_hndl, task, (void *)1, &buf,
-		    sizeof(x10_agg_hdr_t),
-		    (void *)__x10_agg_arg_buf[hndlr][task],
-		    size * __x10_agg_counter[hndlr][task],
-		    NULL, &cntr, NULL));
+    LRC(LAPI_Amsend (__x10_hndl, task, (void *) ASYNC_SPAWN_HANDLER_AGG, 
+		     &buf, sizeof(x10_agg_hdr_t),
+		     (void *)__x10_agg_arg_buf[hndlr][task],
+		     size * __x10_agg_counter[hndlr][task],
+		     NULL, &cntr, NULL));
     LRC(LAPI_Waitcntr(__x10_hndl, &cntr, 1, &tmp));
     __x10_agg_total[hndlr] -= max;
     __x10_agg_counter[hndlr][task] = 0;
@@ -174,7 +174,7 @@ namespace x10lib {
       if (__x10_agg_counter[hndlr][j] > 0) {
 	buf.niter = __x10_agg_counter[hndlr][j];	
 	LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-	LRC(LAPI_Amsend(__x10_hndl, j, (void *)1, &buf,
+	LRC(LAPI_Amsend(__x10_hndl, j, (void *) ASYNC_SPAWN_HANDLER_AGG, &buf,
 			sizeof(x10_agg_hdr_t),
 			(void *)__x10_agg_arg_buf[hndlr][j],
 			size * __x10_agg_counter[hndlr][j],

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_dist.cc,v 1.3 2007-06-26 16:05:58 ganeshvb Exp $ */
+/* $Id: Test_dist.cc,v 1.4 2007-09-13 15:20:05 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -39,7 +39,9 @@ void
 testConstDist()
 {
   Region<2> * r = new RectangularRegion<2> (Point<2>(N, M));
-  ConstDist<2> c  (r, 3);
+  x10_place_t place[1] = {3};
+
+  ConstDist<2> c  (r, place);
 
   for (int i = 0; i < N; i++)
     for (int j = 0; j < M; j++)
