@@ -6,6 +6,15 @@ struct
   Ft* FtSolver;  
 }GLOBAL_STATE;
 
+const Ft::DistDoubleArray* Planes1d;
+
+struct __array_copy_args_0
+{
+  __array_copy_args_0 (x10_int_t _captVar1) :
+    captVar1 (_captVar1) {}
+
+  x10_int_t captVar1;
+};
  
 struct __async__0__args
 {
@@ -240,8 +249,9 @@ void  Ft::solve() {
   
   char* buf = NULL;
   
+  
   const DistDoubleArray* Planes2d;
-  const DistDoubleArray* Planes1d;
+  //  const DistDoubleArray* Planes1d;
   const DistDoubleArray* V;
   const DistDoubleArray* ex;
   
@@ -486,7 +496,13 @@ void  Ft::FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* d
 	
 	Array<double, 1> * local1darray = dist1d->getArray(destID)->m_array; 
 
-	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, c);
+	//cout << "hello in FT " << endl;
+
+	__array_copy_args_0 args (destStart*sizeof(double));
+	asyncArrayCopy ((void*) local2darray->raw(), sizeof(double) * (srcStart + OFFSET), 
+			1, (void*) &args, sizeof (args), destID, 2*dim1*sizeof(double), c); 
+
+	//	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, c);
 	//asyncArrayCopy (local2darray, Pox10_int_t<1> (srcStart), local1darray, Pox10_int_t<1> (destStart), destID, 2 * dim1, c);
       }    
   }
@@ -1028,5 +1044,19 @@ asyncSwitch (x10_async_handler_t h, void* arg, x10_int_t niter)
     }
     break;
   }
+}
+
+
+void*
+arrayCopySwitch (x10_async_handler_t h, void* arg)
+{
+  __array_copy_args_0 * args = (__array_copy_args_0*) arg;
+  switch (h) {
+  case 1:
+    //cout << "capt var " << args->captVar1 << endl;
+    return ((char*) Planes1d->getArray(__x10_my_place)->m_array->raw()) + args->captVar1; 
+  }
+  
+  return NULL;
 }
 

@@ -18,6 +18,10 @@ typedef int x10_int_t;
  */
 
 
+extern "C" void*
+arrayCopySwitch (x10_async_handler_t h, void* arg);
+
+
 struct __async__0__args;
 void __async__0 (__async__0__args args);
 
