@@ -252,7 +252,7 @@ public class DefaultRuntime_c extends Runtime {
 		return getPlaces();
 	}
 
-    public Factory getFactory() {
+	public Factory getFactory() {
 		Factory f = new Factory() {
 			public region.factory getRegionFactory() {
 				return new RegionFactory();
@@ -298,6 +298,91 @@ public class DefaultRuntime_c extends Runtime {
 			}
 		};
 		return f;
+	}
+
+	/**
+	 * Low-level copy operation.  Use at your own risk.
+	 */
+	protected void arrayCopy_internal(x10.lang.x10Array src, int srcoffset, x10.lang.x10Array dest, int destoffset, int length) {
+		// Ugly.  But necessary, given the current design.
+		if (src instanceof x10.lang.booleanArray) {
+			assert (dest instanceof x10.lang.BooleanReferenceArray);
+			arrayCopy_internal((x10.lang.booleanArray)src, srcoffset,
+			          (x10.lang.BooleanReferenceArray)dest, destoffset, length);
+		} else
+		if (src instanceof x10.lang.byteArray) {
+			assert (dest instanceof x10.lang.ByteReferenceArray);
+			arrayCopy_internal((x10.lang.byteArray)src, srcoffset,
+			          (x10.lang.ByteReferenceArray)dest, destoffset, length);
+		} else
+		if (src instanceof x10.lang.charArray) {
+			assert (dest instanceof x10.lang.CharReferenceArray);
+			arrayCopy_internal((x10.lang.charArray)src, srcoffset,
+			          (x10.lang.CharReferenceArray)dest, destoffset, length);
+		} else
+		if (src instanceof x10.lang.doubleArray) {
+			assert (dest instanceof x10.lang.DoubleReferenceArray);
+			arrayCopy_internal((x10.lang.doubleArray)src, srcoffset,
+			          (x10.lang.DoubleReferenceArray)dest, destoffset, length);
+		} else
+		if (src instanceof x10.lang.floatArray) {
+			assert (dest instanceof x10.lang.FloatReferenceArray);
+			arrayCopy_internal((x10.lang.floatArray)src, srcoffset,
+			          (x10.lang.FloatReferenceArray)dest, destoffset, length);
+		} else
+		if (src instanceof x10.lang.intArray) {
+			assert (dest instanceof x10.lang.IntReferenceArray);
+			arrayCopy_internal((x10.lang.intArray)src, srcoffset,
+			          (x10.lang.IntReferenceArray)dest, destoffset, length);
+		} else
+		if (src instanceof x10.lang.longArray) {
+			assert (dest instanceof x10.lang.LongReferenceArray);
+			arrayCopy_internal((x10.lang.longArray)src, srcoffset,
+			          (x10.lang.LongReferenceArray)dest, destoffset, length);
+		} else
+		if (src instanceof x10.lang.shortArray) {
+			assert (dest instanceof x10.lang.ShortReferenceArray);
+			arrayCopy_internal((x10.lang.shortArray)src, srcoffset,
+			          (x10.lang.ShortReferenceArray)dest, destoffset, length);
+		} else
+		if (src instanceof x10.lang.genericArray) {
+			throw new RuntimeException("arrayCopy() on object arrays not supported");
+			//assert (dest instanceof x10.lang.GenericReferenceArray);
+			//arrayCopy_internal((x10.lang.genericArray)src, srcoffset,
+			//          (x10.lang.GenericReferenceArray)dest, destoffset, length);
+		}
+	}
+
+	private void arrayCopy_internal(x10.lang.booleanArray src, int srcoffset, x10.lang.BooleanReferenceArray dest, int destoffset, int length) {
+		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
+	}
+
+	private void arrayCopy_internal(x10.lang.byteArray src, int srcoffset, x10.lang.ByteReferenceArray dest, int destoffset, int length) {
+		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
+	}
+
+	private void arrayCopy_internal(x10.lang.charArray src, int srcoffset, x10.lang.CharReferenceArray dest, int destoffset, int length) {
+		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
+	}
+
+	private void arrayCopy_internal(x10.lang.doubleArray src, int srcoffset, x10.lang.DoubleReferenceArray dest, int destoffset, int length) {
+		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
+	}
+
+	private void arrayCopy_internal(x10.lang.floatArray src, int srcoffset, x10.lang.FloatReferenceArray dest, int destoffset, int length) {
+		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
+	}
+
+	private void arrayCopy_internal(x10.lang.intArray src, int srcoffset, x10.lang.IntReferenceArray dest, int destoffset, int length) {
+		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
+	}
+
+	private void arrayCopy_internal(x10.lang.longArray src, int srcoffset, x10.lang.LongReferenceArray dest, int destoffset, int length) {
+		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
+	}
+
+	private void arrayCopy_internal(x10.lang.shortArray src, int srcoffset, x10.lang.ShortReferenceArray dest, int destoffset, int length) {
+		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
 	}
 
 	/**

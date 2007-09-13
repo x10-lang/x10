@@ -290,6 +290,14 @@ public abstract class Runtime {
 	public abstract void run(final Activity appMain);
 
 	/**
+	 * Low-level copy operation.  Use at your own risk.
+	 */
+	public static void arrayCopy(x10Array src, int srcoffset, x10Array dest, int destoffset, int length) {
+		runtime.arrayCopy(src, srcoffset, dest, destoffset, length);
+	}
+	protected abstract void arrayCopy_internal(x10Array src, int srcoffset, x10Array dest, int destoffset, int length);
+
+	/**
 	 * @return The place of the thread executing the current activity. 
 	 * ('here' in X10).
 	 */
