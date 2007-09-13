@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.2 2007-09-13 15:20:04 ganeshvb Exp $
+ * $Id: misc.h,v 1.3 2007-09-13 15:46:43 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -16,15 +16,33 @@
 /* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {
+  
   extern lapi_handle_t __x10_hndl;
   extern int __x10_num_places;
   extern int __x10_my_place;
+
+  `/**
+    * arg0 = src address.
+    * arg1 = src offset (bytes).
+    * handler = unique array copy handler that returns the base address of dest array.
+    * args  = argument for the array copy handler.
+    * arg_size = size of arguments.
+    * target = destination node where the dest. array is residing.
+    * len = number of bytes to be copied.
+    * c = clock (optional).
+    */
+
+    /*
+     * DESCRIPTION :  This methods invokes the arrayCopySwitch method in the destinaion
+     * The arrayCopySwitch method needs to be overloaded by the programmer. It's signature
+     * is void* arrayCopySwitch (x10_async_arg_t, void* args). 
+    **/
 
   x10_err_t
     asyncArrayCopy (void* src, size_t srcOffset,
 		    x10_async_handler_t handler,
 		    void* args, size_t arg_size, 
-		    int target, size_t len, Clock* c);
+		    int target, size_t len, Clock* c=NULL);
   
   //x10_err_t asyncArrayCopy (void* src, int srcOffset, void* dst, int dstOffset,
   //	       int target, int len, x10_switch_t swch);
