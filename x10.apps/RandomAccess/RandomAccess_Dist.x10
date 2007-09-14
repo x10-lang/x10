@@ -341,27 +341,27 @@ public class RandomAccess_Dist {
 		/* End timed section */
 		cputime += mysecond();
 
-			if (VERIFY == UPDATE_AND_VERIFICATION) {
-				//Verify(logTableSize, embarrassing, Table);
-				System.out.println("Verifying result by repeating the update sequentially...");
+		if (VERIFY == UPDATE_AND_VERIFICATION) {
+			//Verify(logTableSize, embarrassing, Table);
+			System.out.println("Verifying result by repeating the update sequentially...");
 
-				finish for(point [p] : UNIQUE) {
-					long ran=HPCC_starts (p*NumUpdates);
-					for (long i=0; i<NumUpdates; i++) {
-						final int placeID;
-						if (Embarrassing)
-							placeID=p;
-						else
-							placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
-						final long temp=ran;
-						//async (UNIQUE[placeID]) Table[placeID].update(temp);
-						async (UNIQUE[placeID]) {
-							Table[placeID].array[(int)(temp & Table[placeID].mask)] ^= temp;
-						}
-						ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
+			finish for(point [p] : UNIQUE) {
+				long ran=HPCC_starts (p*NumUpdates);
+				for (long i=0; i<NumUpdates; i++) {
+					final int placeID;
+					if (Embarrassing)
+						placeID=p;
+					else
+						placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
+					final long temp=ran;
+					//async (UNIQUE[placeID]) Table[placeID].update(temp);
+					async (UNIQUE[placeID]) {
+						Table[placeID].array[(int)(temp & Table[placeID].mask)] ^= temp;
 					}
+					ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 				}
 			}
+		}
 
 		/* make sure no division by zero */
 		GUPs = (cputime > 0.0 ? 1.0 / cputime : -1.0);
