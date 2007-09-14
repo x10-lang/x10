@@ -10,10 +10,7 @@ const Ft::DistDoubleArray* Planes1d;
 
 struct __array_copy_args_0
 {
-  __array_copy_args_0 (x10_int_t _captVar1) :
-    captVar1 (_captVar1) {}
-
-  x10_int_t captVar1;
+  __array_copy_args_0 () {};
 };
  
 struct __async__0__args
@@ -498,9 +495,9 @@ void  Ft::FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* d
 
 	//cout << "hello in FT " << endl;
 
-	__array_copy_args_0 args (destStart*sizeof(double));
+	__array_copy_args_0 args ;
 	asyncArrayCopy ((void*) local2darray->raw(), sizeof(double) * (srcStart + OFFSET), 
-			1, (void*) &args, sizeof (args), destID, 2*dim1*sizeof(double), c); 
+			1, (void*) &args, sizeof (args), destStart*sizeof(double), destID, 2*dim1*sizeof(double), c); 
 
 	//	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, c);
 	//asyncArrayCopy (local2darray, Pox10_int_t<1> (srcStart), local1darray, Pox10_int_t<1> (destStart), destID, 2 * dim1, c);
@@ -1054,7 +1051,7 @@ arrayCopySwitch (x10_async_handler_t h, void* arg)
   switch (h) {
   case 1:
     //cout << "capt var " << args->captVar1 << endl;
-    return ((char*) Planes1d->getArray(__x10_my_place)->m_array->raw()) + args->captVar1; 
+    return ((char*) Planes1d->getArray(__x10_my_place)->m_array->raw()); 
   }
   
   return NULL;
