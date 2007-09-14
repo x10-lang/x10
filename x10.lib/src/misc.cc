@@ -16,6 +16,7 @@ arrayCopySwitch (x10_async_handler_t h, void* args)
 struct asyncArrayCopyHeader
 {
   x10_async_handler_t handler;
+  size_t destOffset;
   char args[MAX_UHDR_SZ];
 };
 
@@ -26,13 +27,13 @@ static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_l
   lapi_return_info_t *ret_info =
     (lapi_return_info_t *)msg_len;
   if (ret_info->udata_one_pkt_ptr) {
-    memcpy (arrayCopySwitch (header.handler, (void*) header.args), ret_info->udata_one_pkt_ptr, *msg_len);
+    memcpy ((char*) arrayCopySwitch (header.handler, (void*) header.args) + header.destOffset, ret_info->udata_one_pkt_ptr, *msg_len);
     ret_info->ctl_flags = LAPI_BURY_MSG;
     *comp_h = NULL;
     return NULL;
   } else {	  
     *comp_h = NULL;
-    return arrayCopySwitch (header.handler, (void*) header.args);
+    return (char*) arrayCopySwitch (header.handler, (void*) header.args) + header.destOffset;
   }
   
   return NULL; 
@@ -45,7 +46,7 @@ namespace x10lib {
   asyncArrayCopy (void* src, size_t srcOffset,
 		  x10_async_handler_t handler,
 		  void* args, size_t arg_size, 
-		  int target, size_t len, Clock* c)
+		  size_t destOffset, int target, size_t len, Clock* c)
   {
     int tmp;
     lapi_cntr_t origin_cntr;
@@ -61,6 +62,7 @@ namespace x10lib {
     
     asyncArrayCopyHeader header;
     header.handler = handler;
+    header.destOffset = destOffset;
     memcpy (header.args, args,arg_size);
     
     LRC (LAPI_Amsend (__x10_hndl, 
