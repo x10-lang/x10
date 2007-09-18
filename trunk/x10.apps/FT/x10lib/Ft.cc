@@ -497,7 +497,7 @@ void  Ft::FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* d
 
 	__array_copy_args_0 args ;
 	asyncArrayCopy ((void*) local2darray->raw(), sizeof(double) * (srcStart + OFFSET), 
-			1, (void*) &args, sizeof (args), destStart*sizeof(double), destID, 2*dim1*sizeof(double), c); 
+			1, (void*) &args, sizeof (args), destStart*sizeof(double), 2*dim1*sizeof(double),destID, c); 
 
 	//	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, c);
 	//asyncArrayCopy (local2darray, Pox10_int_t<1> (srcStart), local1darray, Pox10_int_t<1> (destStart), destID, 2 * dim1, c);
