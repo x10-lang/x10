@@ -79,6 +79,17 @@ import x10.parser.X10Parser;
  * Extension information for x10 extension.
  */
 public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
+    X10Lexer x10_lexer;
+    X10Parser x10_parser;
+	
+	public ExtensionInfo() {
+        x10_lexer = new X10Lexer();
+        x10_parser = new X10Parser(x10_lexer); // Create the parser
+	}
+	
+    public X10Lexer getLexer() { return x10_lexer; }
+    public X10Parser getParser() { return x10_parser; }
+
     static final boolean DEBUG_ = false;
     static {
         // force Topics to load
@@ -144,8 +155,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             //
             // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
             //
-            X10Lexer x10_lexer = new X10Lexer(source.path());
-            X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
+            x10_lexer.initialize(source.path());
+            x10_parser.initialize(ts, nf, source, eq); // Create the parser
             x10_lexer.lexer(x10_parser);
             return x10_parser; // Parse the token stream to produce an AST
         } catch (IOException e) {
