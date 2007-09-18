@@ -58,77 +58,77 @@ public class X10IRTests extends IRTests {
 
     public void testAsync1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, false);
+		emptyList, null, false);
     }
 
     public void testAsyncInvoke() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-     		new GraphAssertions(), null, true);
+     		emptyList, null, true);
     }
 
     public void testFuture1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		emptyList, null, true);
     }
 
     public void testFinish1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, false);
+		emptyList, null, false);
     }
 
     public void testFor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, false);
+		emptyList, null, false);
     }
 
     public void testForEach1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, false);
+		emptyList, null, false);
     }
 
     public void testWhen1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		emptyList, null, true);
     }
 
 //    public void testAtEach1() {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-//		new GraphAssertions(), null, true);
+//		emptyList, null, true);
 //    }
 
     public void testArrayAccess1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		emptyList, null, true);
     }
 
     public void testArrayAccess2D() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		emptyList, null, true);
     }
 
     public void testArrayAccess3D() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		emptyList, null, true);
     }
 
     public void testArrayCtor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		emptyList, null, true);
     }
 
 //    public void testArrayUpdate2D() {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-//		new GraphAssertions(), null, true);
+//		emptyList, null, true);
 //    }
     
     public void testPlaces() {
     	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-    			new GraphAssertions(), null, false);
+    			emptyList, null, false);
     }
        
     public void testHashTable() {
     	runTest(singlePkgTestSrc("p"), x10RTJar, simplePkgTestEntryPoint("p"),
-    			new GraphAssertions(), null, false);
+    			emptyList, null, false);
     }
     
 }
