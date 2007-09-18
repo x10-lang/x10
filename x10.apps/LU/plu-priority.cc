@@ -231,7 +231,7 @@ public:
 private:
   const int maxCount;
   volatile int count; //In PLU, other threads read count
-  int readyBelowCount;
+  int readyBelowCount; //# blocks in this column that are "ready" for this block to be processed
 
   int Ip1, Ip2, I1, I2; /*mulsub contributor along i, in sync with count*/
   int Jp1, Jp2, J1, J2; /*mulsub contributor along j, in sync with count*/
