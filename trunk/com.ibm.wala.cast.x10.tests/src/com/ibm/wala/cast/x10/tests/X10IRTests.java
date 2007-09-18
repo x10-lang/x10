@@ -58,77 +58,77 @@ public class X10IRTests extends IRTests {
 
     public void testAsync1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, false);
+		emptyList, false);
     }
 
     public void testAsyncInvoke() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-     		emptyList, null, true);
+     		emptyList, true);
     }
 
     public void testFuture1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, true);
+		emptyList, true);
     }
 
     public void testFinish1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, false);
+		emptyList, false);
     }
 
     public void testFor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, false);
+		emptyList, false);
     }
 
     public void testForEach1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, false);
+		emptyList, false);
     }
 
     public void testWhen1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, true);
+		emptyList, true);
     }
 
 //    public void testAtEach1() {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-//		emptyList, null, true);
+//		emptyList, true);
 //    }
 
     public void testArrayAccess1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, true);
+		emptyList, true);
     }
 
     public void testArrayAccess2D() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, true);
+		emptyList, true);
     }
 
     public void testArrayAccess3D() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, true);
+		emptyList, true);
     }
 
     public void testArrayCtor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		emptyList, null, true);
+		emptyList, true);
     }
 
 //    public void testArrayUpdate2D() {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-//		emptyList, null, true);
+//		emptyList, true);
 //    }
     
     public void testPlaces() {
     	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-    			emptyList, null, false);
+    			emptyList, false);
     }
        
     public void testHashTable() {
     	runTest(singlePkgTestSrc("p"), x10RTJar, simplePkgTestEntryPoint("p"),
-    			emptyList, null, false);
+    			emptyList, false);
     }
     
 }
