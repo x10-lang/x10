@@ -1,5 +1,5 @@
 
-//#line 18 "E:/RMF/Eclipse/Workspaces/safari-3.2/x10.compiler/src/x10/parser/x10.g"
+//#line 18 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
