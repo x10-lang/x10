@@ -46,7 +46,7 @@ namespace x10lib {
   asyncArrayCopy (void* src, size_t srcOffset,
 		  x10_async_handler_t handler,
 		  void* args, size_t arg_size, 
-		  size_t destOffset, int target, size_t len, Clock* c)
+		  size_t destOffset, size_t len, int target, Clock* c)
   {
     int tmp;
     lapi_cntr_t origin_cntr;
@@ -82,6 +82,9 @@ namespace x10lib {
   }  
 }
 
+/**
+  * TODO: remove root; make it "0" always.
+  */
 x10_err_t 
 x10lib::Broadcast (void* buffer, size_t nbytes, x10_place_t root)
 {  
@@ -106,7 +109,7 @@ x10lib::Broadcast (void* buffer, size_t nbytes, x10_place_t root)
 	}
     }
 
-  //replace this with a counter
+  //TODO: replace this with a counter
   LAPI_Gfence (__x10_hndl);
 
   return X10_OK;
