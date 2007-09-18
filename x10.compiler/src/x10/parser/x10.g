@@ -292,13 +292,21 @@
         private FileSource source;
         private boolean unrecoverableSyntaxError = false;
 
-        public $action_type(LexStream lexStream, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
+        public void initialize(TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
         {
-            this(lexStream);
             this.ts = (X10TypeSystem) t;
             this.nf = (X10NodeFactory) n;
             this.source = source;
             this.eq = q;
+        }
+
+        public $action_type(LexStream lexStream, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
+        {
+            this(lexStream);
+            initialize((X10TypeSystem) t,
+                       (X10NodeFactory) n,
+                       source,
+                       q);
         }
 
         public String getErrorLocation(int lefttok, int righttok)
