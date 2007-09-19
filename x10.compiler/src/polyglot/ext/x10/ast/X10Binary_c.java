@@ -187,21 +187,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			
 				return type(ts.Boolean());
 			}
-		if (tc instanceof TypeElaborator) {
-			
-			if (op == COND_AND ) {
-				 if (! (ts.isSubtype(l, ts.Boolean()) && ts.isSubtype(r, ts.Boolean()))) {
-						throw new SemanticException("The " + op +
-						    " operator must have operands of similar type.",
-						    position());
-					    }
-				
-					return type(ts.Boolean());
-				}
-				
-			// No other binary op  is allowed in a deptype.
-			return this;
-		}
 		// TODO: define these operations for arrays as well, with the same distribution.
 		if ((op == GT || op == LT || op == GE || op == LE) && (xts.isPoint(l)
 				|| xts.isPlace(l))) {
