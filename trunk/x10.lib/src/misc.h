@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.6 2007-09-18 05:14:23 ganeshvb Exp $
+ * $Id: misc.h,v 1.7 2007-09-19 10:24:12 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,6 +15,7 @@
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
+extern "C" void* arrayCopySwitch (x10_async_handler_t, void * args);
 namespace x10lib {
   
   extern lapi_handle_t __x10_hndl;

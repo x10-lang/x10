@@ -3,7 +3,6 @@
 
 using namespace x10lib;
 
-extern "C" void* arrayCopySwitch (x10_async_handler_t, void * args);
 
 /* extern "C"
 void*
@@ -13,11 +12,15 @@ arrayCopySwitch (x10_async_handler_t h, void* args)
   exit(-1);
 }*/
 
+#define RING_SIZE 10
+
+int copyCount = 0;
+
 struct asyncArrayCopyHeader
 {
   x10_async_handler_t handler;
   size_t destOffset;
-  char args[MAX_UHDR_SZ];
+  char args[100];
 };
 
 static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
@@ -48,36 +51,31 @@ namespace x10lib {
 		  void* args, size_t arg_size, 
 		  size_t destOffset, size_t len, int target, Clock* c)
   {
-    int tmp;
-    lapi_cntr_t origin_cntr;
-    
-    LRC(LAPI_Setcntr(__x10_hndl, &origin_cntr, 0));
-    
-    LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER);
+    LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));
     
     int max_uhdr_sz;
     (void) LAPI_Qenv(__x10_hndl, MAX_UHDR_SZ, &max_uhdr_sz);
     
     assert (arg_size >= 0 && arg_size < max_uhdr_sz);
-    
-    asyncArrayCopyHeader header;
-    header.handler = handler;
-    header.destOffset = destOffset;
-    memcpy (header.args, args,arg_size);
+   
+    LAPI_Waitcntr (__x10_hndl, &(origin_cntr[copyCount]), 1,&tmp); 
+
+    header[copyCount].handler = handler;
+    header[copyCount].destOffset = destOffset;
+    memcpy (header[copyCount].args, args,arg_size);
     
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
-		      (void*) &header,
-		      sizeof (header),
+		      (void*) &(header[copyCount]),
+		      sizeof (header[copyCount]),
 		      (void*) ((char*) src + srcOffset),
 		      len,
 		      NULL,
-		      &origin_cntr,
+		      &(origin_cntr[copyCount]),
 		      NULL));
     
-    LRC (LAPI_Waitcntr (__x10_hndl, &origin_cntr, 1, &tmp));
-    
+    copyCount = (copyCount + 1) % RING_SIZE;
     return X10_OK;
   }  
 }
