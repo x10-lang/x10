@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.20 2007-09-13 15:20:04 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.21 2007-09-19 11:07:35 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -18,9 +18,11 @@ extern x10_err_t asyncAggInit_hc();
 extern x10_err_t asyncAggFinalize_hc();
 extern x10_err_t asyncAggInit_ra();
 extern x10_err_t asyncAggFinalize_ra();
+extern x10_err_t miscInit();
 extern x10_err_t finishInit();
 extern void finishTerminate();
 extern void arrayInit();
+extern x10_err_t miscTerminate();
 
 #ifdef STANDALONE
 extern void initStandAlone (lapi_info_t*);
@@ -102,7 +104,8 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	asyncAggInit_hc();
 	asyncAggInit_ra();
         arrayInit();
- 
+	miscInit();
+
         LAPI_Gfence (__x10_hndl);
  
 	/* set X10Lib's initialization variable */
