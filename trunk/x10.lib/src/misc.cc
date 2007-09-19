@@ -14,14 +14,20 @@ arrayCopySwitch (x10_async_handler_t h, void* args)
 
 #define RING_SIZE 10
 
-int copyCount = 0;
+static int copyCount = 0;
+
+static lapi_cntr_t origin_cntr[RING_SIZE];
+
+static int max_uhdr_sz;
 
 struct asyncArrayCopyHeader
 {
   x10_async_handler_t handler;
   size_t destOffset;
-  char args[100];
+  char* args;
 };
+
+static asyncArrayCopyHeader header[RING_SIZE];
 
 static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
 			     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
@@ -35,11 +41,32 @@ static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_l
     *comp_h = NULL;
     return NULL;
   } else {	  
+    ret_info->ret_flags = LAPI_LOCAL_STATE;
     *comp_h = NULL;
     return (char*) arrayCopySwitch (header.handler, (void*) header.args) + header.destOffset;
   }
   
   return NULL; 
+}
+
+x10_err_t
+miscInit ()
+{
+  (void) LAPI_Qenv(__x10_hndl, MAX_UHDR_SZ, &max_uhdr_sz);
+
+  for (int  i = 0; i < RING_SIZE; i++) {
+    LAPI_Setcntr (__x10_hndl, &(origin_cntr[i]), 1);
+    header[i].args = new char[max_uhdr_sz];
+  }
+
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));
+}
+
+x10_err_t
+miscTerminate ()
+{
+  for (int i = 0; i < RING_SIZE; i++)
+    delete [] header[i].args;
 }
 
 namespace x10lib {
@@ -50,15 +77,12 @@ namespace x10lib {
 		  x10_async_handler_t handler,
 		  void* args, size_t arg_size, 
 		  size_t destOffset, size_t len, int target, Clock* c)
-  {
-    LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));
-    
-    int max_uhdr_sz;
-    (void) LAPI_Qenv(__x10_hndl, MAX_UHDR_SZ, &max_uhdr_sz);
-    
+  {          
     assert (arg_size >= 0 && arg_size < max_uhdr_sz);
-   
-    LAPI_Waitcntr (__x10_hndl, &(origin_cntr[copyCount]), 1,&tmp); 
+
+    int tmp = -1;
+
+    LAPI_Waitcntr (__x10_hndl, &(origin_cntr[copyCount]), 1, &tmp); 
 
     header[copyCount].handler = handler;
     header[copyCount].destOffset = destOffset;
@@ -68,7 +92,7 @@ namespace x10lib {
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
 		      (void*) &(header[copyCount]),
-		      sizeof (header[copyCount]),
+		      sizeof (asyncArrayCopyHeader),
 		      (void*) ((char*) src + srcOffset),
 		      len,
 		      NULL,
@@ -76,6 +100,7 @@ namespace x10lib {
 		      NULL));
     
     copyCount = (copyCount + 1) % RING_SIZE;
+
     return X10_OK;
   }  
 }
