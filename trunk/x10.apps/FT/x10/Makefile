@@ -29,6 +29,7 @@ endif
 endif
 
 all:	$(LIBPFX)ft.$(LIBEXT) \
+	$(LIBPFX)ftStatic.$(LIBEXT) 
 #	$(LIBPFX)test.$(LIBEXT)
 #	$(LIBPFX)ftTest.$(LIBEXT)
 	
@@ -103,6 +104,9 @@ endif
 
 $(LIBPFX)ft.$(LIBEXT):	 c_randdp.o fft_fftw3.o Ft.o  \
 	Ft_x10stub.c
+
+$(LIBPFX)ftStatic.$(LIBEXT):	 c_randdp.o fft_fftw3.o FtStatic.o  \
+	FtStatic_x10stub.c
 
 #$(LIBPFX)ftTest.$(LIBEXT):	xsupport1d.o \
 #	ftTest_x10stub.c
