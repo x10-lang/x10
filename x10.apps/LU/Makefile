@@ -5,5 +5,5 @@ CXXFLAGS = -g
 all: plu-dist
 
 plu-dist: plu-dist.cc
-	$(CXX) $(CXXFLAGS) -o plu-dist plu-dist.cc -lblas -lm -lpthread -lf
+	$(CXX) $(CXXFLAGS) -O3 -qarch=pwr5 -qrtti -o plu-dist plu-dist.cc -lblas -lm -lpthread -lf
 

@@ -11,6 +11,8 @@
 
 using namespace std;
 
+#define NDEBUG
+
 /*--------------assert macro-------------------------*/
 
 #define RC(statement) \
@@ -21,13 +23,32 @@ using namespace std;
     } \
 }
 
+/*---------------Timing routines---------------------*/
+
+typedef long long sint64_t;
+
+typedef sint64_t nano_time_t;
+
+nano_time_t nanoTime() {
+  struct timespec ts;
+  // clock_gettime is POSIX!
+  ::clock_gettime(CLOCK_REALTIME, &ts);
+  return (nano_time_t)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
+}
+
 /*--------------Communication interface---------------*/
 
 /*
  * Base class
  */
 
-typedef long long int64;
+/*dummy base class for non-blocking handles*/
+class CommBaseNBH {
+public:
+  virtual ~CommBaseNBH() {}
+}; 
+
+class Profiler;
 
 class Comm {
 private:
@@ -50,6 +71,12 @@ public:
   virtual void Put(void *src, void *dst, int bytes, int proc) = 0;
   virtual void Get(void *src, void *dst, int bytes, int proc) = 0;
 
+  virtual void NbPut(void *src, void *dst, int bytes, int proc) = 0;
+
+  virtual void NbGet(void *src, void *dst, int bytes, int proc, CommBaseNBH *nbh) = 0;
+
+  virtual void Wait(CommBaseNBH *nbh)=0;
+  virtual bool IsDone(CommBaseNBH *nbh)=0;
   virtual int here()=0; 
   virtual int nprocs() = 0;
 
@@ -59,9 +86,10 @@ public:
   virtual void ArrayFree(void **table) = 0;
 
   virtual void AtomicAdd(int val, int *dst, int proc) = 0;
-  virtual void AtomicAdd(int64 val, int64 *dst, int proc) = 0;
+  virtual void AtomicAdd(sint64_t val, sint64_t *dst, int proc) = 0;
 
   virtual void Barrier()=0;
+  virtual void Fence()=0;
   
   int getproc(int i, int j) const {
     assert(j>=0 && j<py);
@@ -72,7 +100,7 @@ public:
   int getpi() const { return pi; }
   int getpj() const { return pj; }
 
-  virtual void Poll() = 0;
+  virtual void Poll(Profiler& prof) = 0;
 };
 
 Comm *Comm::obj=NULL;
@@ -83,9 +111,14 @@ Comm& TheComm() { return *Comm::obj; }
  * LAPI Communicator
  */
 
+class LapiCommNBH : public CommBaseNBH {
+public:
+  lapi_cntr_t cntr; /*completion counter*/
+  LapiCommNBH();
+};
 
 class LapiComm : public Comm {
-private:
+public:
   lapi_handle_t       hndl;      /*<Context handle*/
   int                 num_tasks; /*<#procs?*/
   unsigned int        my_id;     /*< proc id*/
@@ -129,6 +162,7 @@ public:
     RC( LAPI_Term(hndl) );
   }
 
+  /*dst is the remote pointer here*/
   virtual void Put(void *src, void *dst, int bytes, int proc) {
     int val, orig_val;
 
@@ -144,6 +178,7 @@ public:
      * and restore it to its original value.
      */
     (void)LAPI_Getcntr(hndl, &wait_cntr, &orig_val);
+    assert(orig_val==0);
     val = orig_val + 1;
     RC(LAPI_Put(hndl, proc, bytes, dst, src, NULL, NULL,
 		 &wait_cntr));
@@ -169,6 +204,11 @@ public:
   }
 #endif
 
+  virtual void NbPut(void *src, void *dst, int bytes, int proc) {
+    LAPI_Put(hndl, proc, bytes, dst, src, NULL, NULL, NULL);
+  }
+
+  /*note that src is the remote pointer here*/
   virtual void Get(void *src, void *dst, int bytes, int proc) {
     int val, orig_val, cur_val;
 
@@ -182,13 +222,44 @@ public:
      * wait on it to ensure that data transfer is complete;
      * and restore it to its original value.
      */
-    Lock();
+    //Lock();
     (void)LAPI_Getcntr(hndl, &wait_cntr, &orig_val);
+    assert(orig_val==0);
     val = orig_val + 1;
     RC(LAPI_Get(hndl, proc, bytes, src, dst, NULL, &wait_cntr));
     (void)LAPI_Waitcntr(hndl, &wait_cntr, val, NULL); 
     (void)LAPI_Setcntr(hndl, &wait_cntr, orig_val);
-    Unlock();
+    //Unlock();
+  }
+
+  virtual void NbGet(void *src, void *dst, int bytes, int proc, CommBaseNBH *nb) {
+    assert(src != NULL);
+    assert(dst != NULL);
+    assert(proc>=0 && proc<num_tasks);
+    assert(bytes>=0);
+
+//     LapiCommNBH *nbh = dynamic_cast<LapiCommNBH *>(nb);
+    LapiCommNBH *nbh = (LapiCommNBH *)(nb);
+
+    //Lock();
+    RC(LAPI_Get(hndl, proc, bytes, src, dst, NULL, &nbh->cntr));
+    //Unlock();
+  }
+
+  virtual void Wait(CommBaseNBH *nb) {
+    LapiCommNBH *nbh = dynamic_cast<LapiCommNBH *>(nb);
+    LAPI_Waitcntr(hndl, &nbh->cntr, 1, NULL);
+  }
+
+  virtual bool IsDone(CommBaseNBH *nb) {
+    int cur_val;
+    LapiCommNBH *nbh = dynamic_cast<LapiCommNBH *>(nb);
+    LAPI_Getcntr(hndl, &nbh->cntr, &cur_val);
+    if(cur_val == 1) {
+      LAPI_Setcntr(hndl, &nbh->cntr, 0);
+      return true;
+    }
+    return false;
   }
 
   virtual int here() { return my_id; }
@@ -225,7 +296,7 @@ public:
     Unlock();
   }
 
-  virtual void AtomicAdd(int64 v, int64 *dst, int proc) {
+  virtual void AtomicAdd(sint64_t v, sint64_t *dst, int proc) {
     int new_val, orig_val;
 
     Lock();
@@ -238,8 +309,16 @@ public:
   }
 
   virtual void Barrier() { LAPI_Gfence(hndl); }
-  virtual void Poll() { lapi_msg_info_t info; LAPI_Msgpoll(hndl, 1, &info); }
+  virtual void Fence() { LAPI_Fence(hndl); }
+  virtual void Poll(Profiler& prof);
 };
+
+/*delayed definition of LapiCommNBH constructor*/
+LapiCommNBH::LapiCommNBH() {
+  LapiComm *comm = dynamic_cast<LapiComm*>(&TheComm());
+  LAPI_Setcntr(comm->hndl, &cntr, 0);
+}
+
 
 /*
  * Initializer that selects among the implementations of Comm (in theory)
@@ -249,17 +328,6 @@ Comm::Init(int px, int py) {
   obj = new LapiComm(px, py);
   obj->pi = obj->here()/py;
   obj->pj = obj->here()%py;
-}
-
-/*---------------Timing routines---------------------*/
-
-typedef int64 nano_time_t;
-
-nano_time_t nanoTime() {
-  struct timespec ts;
-  // clock_gettime is POSIX!
-  ::clock_gettime(CLOCK_REALTIME, &ts);
-  return (nano_time_t)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
 }
 
 /*----------------Profiling variables-----------------*/
@@ -272,21 +340,25 @@ private:
   void **addr;
 public:
 
-    nano_time_t runT; /*Time spent in Worker::run()*/
-    nano_time_t dgemmT; /*Time spent in DGEMM*/
-    nano_time_t luT; /*Time spent in Block::LU()*/
-    nano_time_t bsT; /*Time in Block::backSolve()*/
-    nano_time_t lwrT; /*Time in Block::lower()*/
-    nano_time_t getT; /*Time in get() or getLocal() */
-    nano_time_t permuteT; /*Time in permute()*/
-    int nStep; /*#calls to Block::step()*/
-    int nStepLU; /*#calls to stepLU*/
-
+  nano_time_t runT; /*Time spent in Worker::run()*/
+  nano_time_t dgemmT; /*Time spent in DGEMM*/
+  nano_time_t mulsubT; /*Time spend in Block::mulsub()*/
+  nano_time_t luT; /*Time spent in Block::LU()*/
+  nano_time_t bsT; /*Time in Block::backSolve()*/
+  nano_time_t lwrT; /*Time in Block::lower()*/
+  nano_time_t getT; /*Time in get() or getLocal() */
+  nano_time_t permuteT; /*Time in permute()*/
+  nano_time_t pollT; /*Time in Comm::Poll()*/
+  nano_time_t isdoneT; /*Time in Comm::IsDone()*/
+  nano_time_t newT; /*Time in Block::mulsub()'s mem alloc*/
+  int nStep; /*#calls to Block::step()*/
+  int nStepLU; /*#calls to stepLU*/
+  
   Profiler() {
     addr = new void *[TheComm().nprocs()];
     assert(addr != NULL);
     TheComm().ArrayAttach(this, addr);
-    runT=dgemmT=luT=bsT=lwrT=permuteT=0;
+    runT=dgemmT=luT=bsT=lwrT=permuteT=mulsubT=pollT=isdoneT=newT=0;
     nStep = nStepLU = 0;
     //MEM_BARRIER();
   }
@@ -295,25 +367,50 @@ public:
   }
 
   inline void log_run(nano_time_t t) { runT += t; }
+  inline void log_mulsub(nano_time_t t) { mulsubT += t; }
   inline void log_dgemm(nano_time_t t) { dgemmT += t; }
   inline void log_lu(nano_time_t t) { luT += t; }
   inline void log_bsolve(nano_time_t t) { bsT += t; }
   inline void log_lower(nano_time_t t) { lwrT += t; }
   inline void log_permute(nano_time_t t) { permuteT += t; }
+  inline void log_poll(nano_time_t t) { pollT += t; }
+  inline void log_isdone(nano_time_t t) { isdoneT += t; }
+  inline void log_new(nano_time_t t) { newT += t; }
   inline void log_step() { nStep += 1; }
   inline void log_stepLU() { nStepLU += 1; }
 
   void report(int root) {
     Profiler *gProf = (Profiler *)addr[root];
-    TheComm().AtomicAdd(runT,     &gProf->runT, root);
-    TheComm().AtomicAdd(dgemmT,   &gProf->dgemmT,root);
-    TheComm().AtomicAdd(luT,      &gProf->luT,root);
-    TheComm().AtomicAdd(bsT,      &gProf->bsT,root);
-    TheComm().AtomicAdd(lwrT,     &gProf->lwrT,root);
-    TheComm().AtomicAdd(permuteT, &gProf->permuteT,root);
-    TheComm().AtomicAdd(nStep,    &gProf->nStep,root);
-    TheComm().AtomicAdd(nStepLU,  &gProf->nStepLU,root);
-
+    if(TheComm().here() != root) {
+      if(TheComm().nprocs() > 1) {
+	TheComm().AtomicAdd(runT,     &gProf->runT, root);
+	TheComm().AtomicAdd(mulsubT,  &gProf->mulsubT,root);
+	TheComm().AtomicAdd(dgemmT,   &gProf->dgemmT,root);
+	TheComm().AtomicAdd(luT,      &gProf->luT,root);
+	TheComm().AtomicAdd(bsT,      &gProf->bsT,root);
+	TheComm().AtomicAdd(lwrT,     &gProf->lwrT,root);
+	TheComm().AtomicAdd(permuteT, &gProf->permuteT,root);
+	TheComm().AtomicAdd(pollT,    &gProf->pollT,root);
+	TheComm().AtomicAdd(isdoneT,  &gProf->isdoneT,root);
+	TheComm().AtomicAdd(newT,  &gProf->newT,root);
+	TheComm().AtomicAdd(nStep,    &gProf->nStep,root);
+	TheComm().AtomicAdd(nStepLU,  &gProf->nStepLU,root);
+      }
+      else {
+	gProf->runT += runT;
+	gProf->mulsubT += mulsubT;
+	gProf->dgemmT += dgemmT;
+	gProf->luT += luT;
+	gProf->bsT += bsT;
+	gProf->lwrT += lwrT;
+	gProf->permuteT += permuteT;
+	gProf->pollT += pollT;
+	gProf->newT += newT;
+	gProf->isdoneT += isdoneT;
+	gProf->nStep += nStep;
+	gProf->nStepLU += nStepLU;
+      }
+    }
 //     cout<<"Reported  dgemmT="<<dgemmT<<" bsT="<<bsT<<" permuteT="<<permuteT
 // 	<<" nStep="<<nStep<<" nStepLU="<<nStepLU<<endl;
   }
@@ -321,17 +418,32 @@ public:
   void display(int proc) {
     if(TheComm().here() == proc) {
       cout<<"Worker::run() = "<<runT/1000000.0<<" ms"
+	  <<"\t mulsub="<<mulsubT/1000000.0<<" ms"
 	  <<"\t dgemm="<<dgemmT/1000000.0<<" ms"
 	  <<"\t LU="<<luT/1000000.0<<" ms"
 	  <<"\t bsolve="<<bsT/1000000.0<<" ms"
 	  <<"\t lower="<<lwrT/1000000.0<<" ms"
 	  <<"\t permute="<<permuteT/1000000.0<<" ms"
+	  <<"\t poll="<<pollT/1000000.0<<" ms"
+	  <<"\t isdone="<<isdoneT/1000000.0<<" ms"
+	  <<"\t new="<<newT/1000000.0<<" ms"
 	  <<"\t nStep="<<nStep
 	  <<"\t nStepLU="<<nStepLU
 	  <<endl;
     }
   }
 };
+
+
+/*virtual*/
+void LapiComm::Poll(Profiler &prof) { 
+  nano_time_t s = nanoTime();
+//   lapi_msg_info_t info; 
+//   LAPI_Msgpoll(hndl, 1, &info); 
+ LAPI_Probe(hndl);
+  nano_time_t t = nanoTime();
+  prof.log_poll(t-s);
+}
 
 /*--------------numerics declarations---------------*/
 
@@ -451,6 +563,10 @@ public:
     return A[lord(i/px,j/py)];
   }
 
+  bool IsLocal(int i, int j) {
+    return (i%px==pi && j%py==pj);
+  }
+
   Block *getLocal(int pi, int pj, int i, int j) {
     assert(pi == this->pi);
     assert(pj == this->pj);
@@ -480,6 +596,14 @@ public:
     int proc = TheComm().getproc(I%px, J%py);
     double *src = globalData[proc] + lord(I/px,J/py)*B*B;
     TheComm().Get(src, buf, B*B*sizeof(double), proc);
+  }
+
+  void getData(int I, int J, double *buf, CommBaseNBH *nbh) { 
+    assert(I>=0 && I<nx*px);
+    assert(J>=0 && J<nx*px);
+    int proc = TheComm().getproc(I%px, J%py);
+    double *src = globalData[proc] + lord(I/px,J/py)*B*B;
+    TheComm().NbGet(src, buf, B*B*sizeof(double), proc, nbh);
   }
 
   void getDataCol(int I, int J, int col, double *buf) {
@@ -671,7 +795,8 @@ public:
       int *dst = getPtr(I, J, M->pi, j);
       int bytes = sizeof(int);
       int proc = TheComm().getproc(M->pi, j);
-      TheComm().Put(&src, dst, bytes, proc);
+      //TheComm().Put(&src, dst, bytes, proc);
+       TheComm().NbPut(&src, dst, bytes, proc);
     }
     for(int i=0; i<M->px; i++) {
       if(i == M->pi) continue;
@@ -679,8 +804,8 @@ public:
       int *dst = getPtr(I, J, i, M->pj);
       int bytes = sizeof(int);
       int proc = TheComm().getproc(i, M->pj);
-      TheComm().Put(&src, dst, bytes, proc);
-//       cerr<<"Signalled ready of I="<<I<<" J="<<J<<" to proc="<<proc<<endl;
+//       TheComm().Put(&src, dst, bytes, proc);
+      TheComm().NbPut(&src, dst, bytes, proc);
     }
   }
 };
@@ -773,10 +898,10 @@ public:
 //       cerr<<"I="<<I<<" J="<<J<<" pv->signalReady(). i="<<i<<" dstproc="<<proc<<endl;
 //       cerr<<"src="<<&pivots[i*M->B]<<" dst="<<dst<<" bytes="<<M->B*sizeof(int)<<" proc="<<proc<<endl;
 
+//       TheComm().Put(&pivots[i*M->B], dst, M->B*sizeof(int), proc);
+//       TheComm().Put(&one, remote_pready[j]+i, sizeof(int), proc);
       TheComm().Put(&pivots[i*M->B], dst, M->B*sizeof(int), proc);
-//       cerr<<"I="<<I<<" J="<<J<<" pv. done writing pivots"<<endl;
-      TheComm().Put(&one, remote_pready[j]+i, sizeof(int), proc);
-//       cerr<<"I="<<I<<" J="<<J<<" pv. done signalling pready"<<endl;
+      TheComm().NbPut(&one, remote_pready[j]+i, sizeof(int), proc);
     }
   }
 
@@ -936,7 +1061,8 @@ public:
       int *dst = neigh_LU_cols[i];
       int proc = TheComm().getproc(i, M->pj);
       assert(dst != NULL);
-      TheComm().Put(&LU_col, dst, sizeof(int), proc);
+//       TheComm().Put(&LU_col, dst, sizeof(int), proc);
+      TheComm().NbPut(&LU_col, dst, sizeof(int), proc);
     }
   }
 
@@ -1061,6 +1187,14 @@ public:
 
 /*--------Dense 2-D block and operations on it-------------*/
 
+typedef struct mulsub_frame_t {
+  int PC;
+  double *left, *upper;
+  LapiCommNBH nbh_l, nbh_u;
+
+  mulsub_frame_t() : PC(0) {}
+} MULSUB_FRAME;
+
 /**
  * A B*B array of doubles, whose top left coordinate is i,j).
  * get/set operate on the local coordinate system, i.e.
@@ -1080,18 +1214,12 @@ public:
 
   void setReady() { 
     assert(ready == false);
-//     cerr<<"I="<<I<<" J="<<J<<" setReady. Resetting readybelowcount"<<endl;
     M->cv->resetReadyBelowCount(I, J);
-//     cerr<<"I="<<I<<" J="<<J<<" setReady. Resetting readybelowcount"<<endl;
     if(I==J) {
-//       cerr<<"I="<<I<<" J="<<J<<" setReady. Signalling pivots ready"<<endl;
       M->pv->signalReady(I, J);
-//       cerr<<"I="<<I<<" J="<<J<<" setReady. Done signalling pivots ready"<<endl;
     }
     ready=true; 
-//     cerr<<"I="<<I<<" J="<<J<<" setReady. Signalling ready"<<endl;
     M->rv->signalReady(I, J); 
-//     cerr<<"I="<<I<<" J="<<J<<" setReady. Done signalling ready"<<endl;
   }
     
 private:
@@ -1168,12 +1296,11 @@ public:
     }
   }
   void init() {
-//     srand(TheComm().here()+1);
     for (int i=0; i < B*B; i++)
-      A[i] = format(rand()*10.0/RAND_MAX, 4);
+      A[i] = format(rand()*2.0/RAND_MAX + 1.0, 4);
     if (I==J) {
       for (int i=0; i < B; i++) 
-	A[i+i*B] = format(rand()*20.0/RAND_MAX + 10.0, 4);
+	A[i+i*B] = format(rand()*100.0/RAND_MAX + 10.0, 4);
     }
   }
   bool step(Profiler &prof);
@@ -1218,20 +1345,88 @@ public:
 
     double vtmp1[B], vtmp2[B];
 
-    /*FIXME: Implement strided gets/puts later?*/
+#if 0
     for(int j=0; j<B; j++) {
       TheComm().Get(remote_ptr+j*B+base2, &vtmp1[j], sizeof(double), proc);
     }
+#else
+    {
+      lapi_vec_t org_vec, tgt_vec;
+
+      org_vec.vec_type = tgt_vec.vec_type = LAPI_GEN_STRIDED_XFER;
+      org_vec.num_vecs = tgt_vec.num_vecs = M->B;
+      org_vec.len = tgt_vec.len = NULL; /*ignored*/
+      int *srct = new int[3];
+      srct[0] =(int) vtmp1;
+      srct[1] = sizeof(double);
+      srct[2] = sizeof(double);
+      org_vec.info = (void **)srct;
+
+      int *tgtt = new int[3];
+      tgtt[0] = (int)(remote_ptr+base2);
+      tgtt[1] = sizeof(double);
+      tgtt[2] = B*sizeof(double);
+      tgt_vec.info = (void **)tgtt;
+
+      LapiComm* lcomm = (LapiComm*)&TheComm();
+
+      lapi_cntr_t wait_cntr;
+      int orig_val;
+      lcomm->Lock();
+      (void)LAPI_Getcntr(lcomm->hndl, &wait_cntr, &orig_val);
+      int val = orig_val + 1;
+      LAPI_Getv(lcomm->hndl, proc, &tgt_vec, &org_vec, NULL, &wait_cntr);
+      LAPI_Waitcntr(lcomm->hndl, &wait_cntr, val, NULL);
+      lcomm->Unlock();
+
+      delete [] org_vec.info;
+      delete [] tgt_vec.info;
+    }
+#endif
     
     for(int j=0; j<B; j++) {
      vtmp2[j] = this->A[j*B+base1];
      this->A[j*B+base1] = vtmp1[j];
     }
 
-    /*FIXME: Implement strided gets/puts later?*/
+#if 0
     for(int j=0; j<B; j++) {
       TheComm().Put(&vtmp2[j], remote_ptr+j*B+base2, sizeof(double), proc);
     }
+#else
+    {
+      lapi_vec_t org_vec, tgt_vec;
+
+      org_vec.vec_type = tgt_vec.vec_type = LAPI_GEN_STRIDED_XFER;
+      org_vec.num_vecs = tgt_vec.num_vecs = M->B;
+      org_vec.len = tgt_vec.len = NULL; /*ignored*/
+      int *srct = new int[3];
+      srct[0] =(int) vtmp2;
+      srct[1] = sizeof(double);
+      srct[2] = sizeof(double);
+      org_vec.info = (void **)srct;
+
+      int *tgtt = new int[3];
+      tgtt[0] = (int)(remote_ptr+base2);
+      tgtt[1] = sizeof(double);
+      tgtt[2] = B*sizeof(double);
+      tgt_vec.info = (void **)tgtt;
+
+      LapiComm* lcomm = (LapiComm*)&TheComm();
+
+      lapi_cntr_t wait_cntr;
+      int orig_val;
+      lcomm->Lock();
+      (void)LAPI_Getcntr(lcomm->hndl, &wait_cntr, &orig_val);
+      int val = orig_val + 1;
+      LAPI_Putv(lcomm->hndl, proc, &tgt_vec, &org_vec, NULL, NULL, &wait_cntr);
+      LAPI_Waitcntr(lcomm->hndl, &wait_cntr, val, NULL);
+      lcomm->Unlock();
+
+      delete [] org_vec.info;
+      delete [] tgt_vec.info;
+    }
+#endif
 
     return;
   }
@@ -1298,7 +1493,7 @@ public:
     prof.log_lower(t-s);
   }
     
-  void backSolve(Profiler &prof) {
+  bool backSolve(Profiler &prof) {
     nano_time_t s = nanoTime();
 
     double *buf = new double[B*B];
@@ -1348,55 +1543,187 @@ public:
     delete [] buf;
     nano_time_t t = nanoTime();
     prof.log_bsolve(t-s);
+    return true;
   }
 
-  void mulsub(int count, Profiler &prof) {
-    nano_time_t s = nanoTime();
-
+#if 1
+  bool mulsub(int count, Profiler &prof) {
+    nano_time_t s1, t1, s2, t2, s3, t3;
 //     cerr<<"mulsub. I="<<I<<" J="<<J<<" count="<<count<<endl;
+
+    s2 = nanoTime();
+    switch(msf.PC) {
+    case LABEL_0:
+      assert(count>=0);
+      assert(count <= min(I,J));
+      
+      if(M->IsLocal(I, count)) {
+	msf.left = M->get(I, count)->A;
+      }
+      else {
+	s3 = nanoTime();
+	msf.left = new double[B*B];
+	assert(msf.left != NULL);
+	M->getData(I, count, msf.left, &msf.nbh_l);
+	prof.log_new(nanoTime()-s3);
+      }
+
+      if(M->IsLocal(count, J)) {
+	msf.upper = M->get(count, J)->A;
+      }
+      else {
+	s3 = nanoTime();
+	msf.upper = new double[B*B];
+	assert(msf.upper != NULL);
+	M->getData(count, J, msf.upper, &msf.nbh_u);
+	prof.log_new(nanoTime()-s3);
+      }      
+      msf.PC = LABEL_1;
+
+    case LABEL_1:
+      s3 = nanoTime(); 
+      if(!M->IsLocal(I, count) && !TheComm().IsDone(&msf.nbh_l)) {
+	prof.log_isdone(nanoTime()-s3);
+	break;
+      }
+      prof.log_isdone(nanoTime()-s3);
+      msf.PC = LABEL_2;
+
+    case LABEL_2:
+      s3 = nanoTime(); 
+      if(!M->IsLocal(count, J) && !TheComm().IsDone(&msf.nbh_u)) {
+	prof.log_isdone(nanoTime()-s3);
+	break;
+      }
+      prof.log_isdone(nanoTime()-s3);
+      msf.PC = LABEL_3;
+
+    case LABEL_3:
+    s1 = nanoTime();
+      {
+	double *mA = /*left->A*/ msf.left;
+	double *mB = /*upper->A*/ msf.upper;
+	double *mC = A;
+	
+	char transa = 'N', transb = 'N';
+	Integer m=B, n=B, k=B;
+	double alpha = -1.0;
+	Integer lda = B, ldb = B, ldc = B;
+	double beta = 1.0;
+	
+	DGEMM(&transa, &transb, &m, &n, &k, &alpha, mA, &lda,
+	      mB, &ldb, &beta, mC, &ldc);
+      }
+    t1 = nanoTime();
+    prof.log_dgemm(t1-s1);
+    
+      if(!M->IsLocal(count, J))
+	delete [] msf.upper;
+      if(!M->IsLocal(I, count))
+	delete [] msf.left;
+      msf.PC = LABEL_0; /*for use with the next count. NOTE: We use
+			  that the fact there is only one outstanding
+			  mulsub on any Block */
+      break;
+    default:
+      assert(0); //why are we here?
+    }
+    t2 = nanoTime();
+    prof.log_mulsub(t2-s2);
+    return (msf.PC==LABEL_0 ? true : false);
+  }
+#elif 0
+  bool mulsub(int count, Profiler &prof) {
+    nano_time_t s = nanoTime();
+      
+    msf.left = M->get(I, count)->A;
+    msf.upper = M->get(count, J)->A;
+   
+    {
+      double *mA = /*left->A*/ msf.left;
+      double *mB = /*upper->A*/ msf.upper;
+      double *mC = A;
+      
+      char transa = 'N', transb = 'N';
+      Integer m=B, n=B, k=B;
+      double alpha = -1.0;
+      Integer lda = B, ldb = B, ldc = B;
+      double beta = 1.0;
+      
+      DGEMM(&transa, &transb, &m, &n, &k, &alpha, mA, &lda,
+	    mB, &ldb, &beta, mC, &ldc);
+    }
+    nano_time_t t = nanoTime();
+    prof.log_dgemm(t-s);
+    return true;
+  }
+#else
+  bool mulsub(int count, Profiler &prof) {
+    nano_time_t s1, t1, s2, t2;
+//     cerr<<"mulsub. I="<<I<<" J="<<J<<" count="<<count<<endl;
+
+    s2 = nanoTime();
 
     assert(count>=0);
     assert(count <= min(I,J));
-
-    double *left = new double[B*B];
-    assert(left != NULL);
-    double *upper = new double[B*B];
-    assert(upper != NULL);
-
-    M->getData(I, count, left);
-    M->getData(count, J, upper);
-
-#if 0
-    for(int i=0; i<B; i++)
-      for(int j=0; j<B; j++) {
-	double r=0;
-	for(int k=0; k<B; k++)
-	  r += left->get(i, k) * upper->get(k, j);
-	negAdd(i,j,r);
-      }
-#else
-    double *mA = /*left->A*/ left;
-    double *mB = /*upper->A*/ upper;
-    double *mC = A;
-
-    char transa = 'N', transb = 'N';
-    Integer m=B, n=B, k=B;
-    double alpha = -1.0;
-    Integer lda = B, ldb = B, ldc = B;
-    double beta = 1.0;
-
-    DGEMM(&transa, &transb, &m, &n, &k, &alpha, mA, &lda,
-	  mB, &ldb, &beta, mC, &ldc);
-#endif
     
-    delete [] upper;
-    delete [] left;
+    if(M->IsLocal(I, count)) {
+      msf.left = M->get(I, count)->A;
+    }
+    else {
+      msf.left = new double[B*B];
+      assert(msf.left != NULL);
+      M->getData(I, count, msf.left, &msf.nbh_l);
+    }
 
-    nano_time_t t = nanoTime();
-    prof.log_dgemm(t-s);
+    if(M->IsLocal(count, J)) {
+      msf.upper = M->get(count, J)->A;
+    }
+    else {
+      msf.upper = new double[B*B];
+      assert(msf.upper != NULL);
+      M->getData(count, J, msf.upper, &msf.nbh_u);
+    }      
+
+    if(!M->IsLocal(I, count)) {
+      TheComm().Wait(&msf.nbh_l);
+    }
+    if(!M->IsLocal(I, count)) {
+      TheComm().Wait(&msf.nbh_u);
+    }
+
+    
+    
+    s1 = nanoTime();
+    {
+      double *mA = /*left->A*/ msf.left;
+	double *mB = /*upper->A*/ msf.upper;
+	double *mC = A;
+	
+	char transa = 'N', transb = 'N';
+	Integer m=B, n=B, k=B;
+	double alpha = -1.0;
+	Integer lda = B, ldb = B, ldc = B;
+	double beta = 1.0;
+	
+	DGEMM(&transa, &transb, &m, &n, &k, &alpha, mA, &lda,
+	      mB, &ldb, &beta, mC, &ldc);
+      }
+    t1 = nanoTime();
+    prof.log_dgemm(t1-s1);
+    
+    if(!M->IsLocal(count, J))
+      delete [] msf.upper;
+    if(!M->IsLocal(I, count))
+      delete [] msf.left;
+
+    t2 = nanoTime();
+    prof.log_mulsub(t2-s2);
+    return true;
   }
-
-  void LU(int col, Profiler &prof) {
+#endif
+  /*return true on completion*/
+  bool LU(int col, Profiler &prof) {
     assert(fabs(get(col, col)) >0); /*valid pivot*/
     nano_time_t s = nanoTime();
     for (int i = 0; i < B; i++) {
@@ -1408,10 +1735,12 @@ public:
     }				
     nano_time_t t = nanoTime();
     prof.log_lu(t-s);
+    return true;
   }
   
 
-  void LU(Profiler &prof) {
+  /*return true on completion*/
+  bool LU(Profiler &prof) {
     nano_time_t s = nanoTime();
     for (int k = 0; k < B; k++)
       for (int i = k + 1; i < B; i++) {
@@ -1422,7 +1751,21 @@ public:
       }
     nano_time_t t = nanoTime();
     prof.log_lu(t-s);
+    return true;
   }
+
+
+private:
+  /*proto-threads like implementation for communication
+    overlap. Instead of doing this for every method, we make the Block
+    object itself a thread that stores state for all methods it
+    invokes that need this facility.
+  
+    Also instead of being generic and stuff, I just use gotos. 
+  */
+  enum StateLabels { LABEL_0=0, LABEL_1, LABEL_2, LABEL_3, LABEL_4 };
+
+  MULSUB_FRAME msf;
 };
 
 /*---------Definitions after necessary forward declarations-------------*/
@@ -1650,37 +1993,31 @@ Block::step(Profiler &prof) {
 
   if(ready) return false;
 
-  //cerr<<"step I="<<I<<" J="<<J<<endl;
   if (count == maxCount) {
-    //cerr<<"Done all mulsubs"<<endl;
-    //cerr<<"Diagonal"<<endl;
     if(I<J && M->rv->ready(I,I)) {
       if( (I==0 || M->cv->getReadyBelowCount(I,J) == M->px*M->nx-I)
 	 && M->pv->ready(I, J)) {
-	backSolve(prof);
-	setReady();
-	//MEM_BARRIER();
-	//cerr<<"I="<<I<<" J="<<J<<endl;
-	return true;
+	if(backSolve(prof)) {
+	  setReady();
+	  return true;
+	}
+	return false;
       }
       return false;
     }
     else if (I >=J) {
-      //cerr<<"Calling stepLU"<<endl;
-      bool rval = stepLU(prof);
-      //cerr<<"Done calling stepLU"<<endl;
-      return rval;
+      return stepLU(prof);
     }
     else
       return false;
   }
-  //cerr<<"Rest"<<endl;
   if(M->rv->ready(I, count) && M->rv->ready(count, J)) {
-    mulsub(count, prof);
-    count++;
-    M->cv->reportReadyBelowCount(I,J,count);
-    //cerr<<"Done mulsub"<<endl;
-    return true;
+    if(mulsub(count, prof)) {
+      count++;
+      M->cv->reportReadyBelowCount(I,J,count);
+      return true;
+    }
+    return false;
   }
   return false;
 }
@@ -1850,14 +2187,17 @@ public:
       readyCount=0;
 
       for(int j=starty; j<min(starty+1,ny); j++) {
-	//bool doneForNow = false;
+	bool doneForNow = false;
 	for(int i=0; i<nx; i++) {
 	  Block *block = M->getLocal(pi, pj, i,j);
 	  bool rval = block->step(prof);
-	  TheComm().Poll();
 	  if(j==starty && block->ready) readyCount += 1;
+	  doneForNow = doneForNow | rval;
 	}
+	if(!doneForNow) TheComm().Poll(prof);
+	if(doneForNow) break;
       }
+      TheComm().Poll(prof);
       if(readyCount == nx) starty+=1;
     }
 
@@ -1989,19 +2329,19 @@ int main(int argc, char *argv[]) {
 //   }
 
   TheComm().Barrier();
-//      plu->M->display("Original array");
+//   plu->M->display("Original array");
 //   seqlu->M->display("Seq array");
 
   TheComm().Barrier();
   long long s = nanoTime();
   long long tt = plu->plu(&gProf);
+  TheComm().Barrier();
   long long t = nanoTime();
 
 //   seqlu->lu();
 //   lu->M->display(string("After LU"));
 //   seqlu->M->display(string("Seq after LU"));
 
-  TheComm().Barrier();
   gProf.report(0);
 
 
@@ -2009,7 +2349,7 @@ int main(int argc, char *argv[]) {
   assert(pivots!=NULL);
   plu->M->gatherPivots(pivots, 0);
   plu->M->applyLowerPivots(pivots, 0);
-//    plu->M->display("After back-propogating pivots");
+//     plu->M->display("After back-propogating pivots");
   A->applyPivots(pivots, 0);
 //    A->display("Original array after pivoting");
   
