@@ -1184,6 +1184,115 @@ public:
 };
 
 
+#if 0
+/*began implemenation of caching for inputs blocks to mulsub. They can
+  be reused across mulsub-s within a process. To be
+  completed. Commented for now. */
+
+/*-------------------Cached ready blocks-------------------*/
+
+/*Read-only cache. Simple scheme. User assumed to issue matching
+  request and release for blocks. A particular cache-block cannot
+  handle multiple outstanding requests for distincts blocks. All inits
+  are expected to be waited upon. */
+
+class CachedBlock {
+private:
+  enum CachedBlockState { BLOCK_INVALID, /*no valid data*/
+			  BLOCK_PENDING, /*a request for the block is pending*/
+			  BLOCK_READY  /*valid data available in buffer*/
+  };
+
+  double * const buf; /*buffer containing the data*/
+  const int B; /*Block size*/
+  CachedBlockState state; /*state of this block*/
+  TwoDBlockCyclicArray * const M; /*Array whose blocks are cached*/
+  int I, J; /*The block being cached*/
+  int nrefs; /*Counter on #outstanding references*/
+
+  LapiCommNBH nbh; /*non-blocking handle for outstanding block get*/
+
+public:
+  CachedBlock(int sB, TwoDBlockCyclicArray *sM) 
+    : B(sB), buf(new double [sB*sB]), state(BLOCK_INVALID), nrefs(0) {
+    assert(buf != NULL);
+  }
+
+  ~CachedBlock() { delete [] buf; }
+  
+  void RequestInit(int I, int J) {
+    if(this->I==I && this->J==J) {
+      if(state == BLOCK_INVALID) {
+	M->getData(I, J, buf, &nbh);
+      }
+      return;
+    }
+    assert(nrefs==0); 
+    I=this->I;
+    J=this->J;
+    M->getData(I, J, buf, &nbh);
+    state = BLOCK_PENDING;
+    ++nrefs;
+  }
+
+  double *RequestWait(int I, int J) {
+    assert(I==this->I);
+    assert(J==this->J);
+    assert(state != BLOCK_INVALID);
+    assert(nrefs>0); /*should have init-ed before*/
+    if(state == BLOCK_PENDING) {
+      TheComm().Wait(&nbh);
+    }
+    return buf;
+  }
+  
+  bool IsRequestReady(int I, int J) {
+    bool rval = false;
+
+    assert(I==this->I);
+    assert(J==this->J);
+    assert(nrefs>0); /*should have init-ed before*/
+
+    switch(state) {
+    case BLOCK_INVALID:
+      assert(0);
+      break;
+    case BLOCK_PENDING:
+      if(TheComm().IsDone(&nbh)) {
+	state = BLOCK_VALID;
+	rval = true;
+      }
+      rval = false;
+      break;
+    case BLOCK_VALID:
+      rval = true;
+      break;
+    default:
+      assert(0);
+    }
+    return rval;
+  }
+
+  void Release(int I, int J) {
+    assert(this->I == I);
+    assert(this->J==J);
+    assert(nrefs>0);
+    assert(state == BLOCK_VALID);
+    --nrefs;
+  }  
+
+  bool IsBlockDone(int I, int J) {
+    assert(this->I==I);
+    assert(this->J==J);
+    assert(I!=J); /*for now; actually why would this block enter
+		    cache for mulsub (backsolve -- yes)*/
+    if(I>=J) {
+      
+    }
+  }
+};
+#endif
+
 
 /*--------Dense 2-D block and operations on it-------------*/
 
@@ -1194,6 +1303,14 @@ typedef struct mulsub_frame_t {
 
   mulsub_frame_t() : PC(0) {}
 } MULSUB_FRAME;
+
+typedef struct backsolve_frame_t {
+  int PC;
+  double *diag;
+  LapiCommNBH nbh_d;
+
+  backsolve_frame_t() : PC(0) {}
+} BACKSOLVE_FRAME;
 
 /**
  * A B*B array of doubles, whose top left coordinate is i,j).
@@ -1492,7 +1609,87 @@ public:
     nano_time_t t = nanoTime();
     prof.log_lower(t-s);
   }
-    
+
+#if 1
+  bool backSolve(Profiler &prof) {
+    nano_time_t s = nanoTime();
+
+    const int diag = min(I, J);
+
+    switch(bsf.PC) {
+    case LABEL_0:
+      if(M->IsLocal(diag, diag)) {
+	bsf.diag = M->get(diag, diag)->A;
+      }
+      else {
+	bsf.diag = new double[B*B];
+	assert(bsf.diag != NULL);
+
+	M->getData(diag, diag, bsf.diag, &bsf.nbh_d);
+      }
+      bsf.PC = LABEL_1;
+
+    case LABEL_1:
+      if(!M->IsLocal(diag, diag) && !TheComm().IsDone(&bsf.nbh_d)) 
+	break;
+      bsf.PC = LABEL_2;
+
+    case LABEL_2:
+      if(!M->pv->ready(I,J))
+	break;
+      bsf.PC = LABEL_3;
+
+    case LABEL_3:
+      for(int i=I*B; i<(I+1)*B; i++) {
+	int pivot = M->pv->getPivot(I, J, i);
+	assert(pivot>=0);
+	assert(pivot>=i);
+	if(pivot != i)
+	  permute(i, pivot, prof);
+      }
+	
+#if 0
+      for (int i = 0; i < B; i++) {
+	for (int j = 0; j < B; j++) {
+	  double r = 0.0;
+	  for (int k = 0; k < i; k++) {
+	    r += diag->get(i, k) * get(k, j);
+	  }
+	  negAdd(i, j, r);
+	}
+      }
+#else
+      {
+	/*DTRSM: solve diag*X = 1.0*this; this is overwritten with X*/
+	char SIDE = 'L'; //diag is to left of X
+	char UPLO = 'L'; //diag is lower-triangular
+	char TRANSA = 'N'; //No transpose of diag
+	char DIAG = 'U'; //Unit-diagonal for diag
+	Integer M = B; //#rows of diag
+	Integer N = B; //#cols of diag
+	double ALPHA = 1.0; //scale on right-hand size
+	double *mA = /*diag->A*/ /*buf*/ bsf.diag;
+	Integer LDA = B;
+	double *mB = this->A;
+	Integer LDB = B;
+	
+	DTRSM(&SIDE, &UPLO, &TRANSA, &DIAG, &M, &N, &ALPHA,
+	      mA, &LDA, mB, &LDB);
+      }
+#endif
+      if(!M->IsLocal(diag, diag)) {
+	delete [] bsf.diag;
+      }
+      bsf.PC = LABEL_0;
+      break;
+    default:
+      assert(0);
+    }
+    nano_time_t t = nanoTime();
+    prof.log_bsolve(t-s);
+    return (bsf.PC == LABEL_0? true:false);
+  }
+#else
   bool backSolve(Profiler &prof) {
     nano_time_t s = nanoTime();
 
@@ -1545,6 +1742,7 @@ public:
     prof.log_bsolve(t-s);
     return true;
   }
+#endif
 
 #if 1
   bool mulsub(int count, Profiler &prof) {
@@ -1766,6 +1964,7 @@ private:
   enum StateLabels { LABEL_0=0, LABEL_1, LABEL_2, LABEL_3, LABEL_4 };
 
   MULSUB_FRAME msf;
+  BACKSOLVE_FRAME bsf;
 };
 
 /*---------Definitions after necessary forward declarations-------------*/
@@ -2186,7 +2385,7 @@ public:
       assert(ny-1>=starty);
       readyCount=0;
 
-      for(int j=starty; j<min(starty+1,ny); j++) {
+      for(int j=starty; j<min(starty+6,ny); j++) {
 	bool doneForNow = false;
 	for(int i=0; i<nx; i++) {
 	  Block *block = M->getLocal(pi, pj, i,j);
@@ -2194,10 +2393,10 @@ public:
 	  if(j==starty && block->ready) readyCount += 1;
 	  doneForNow = doneForNow | rval;
 	}
-	if(!doneForNow) TheComm().Poll(prof);
+ 	if(!doneForNow) TheComm().Poll(prof);
 	if(doneForNow) break;
       }
-      TheComm().Poll(prof);
+        TheComm().Poll(prof);
       if(readyCount == nx) starty+=1;
     }
 
