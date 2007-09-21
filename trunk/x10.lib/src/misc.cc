@@ -24,7 +24,7 @@ struct asyncArrayCopyHeader
 {
   x10_async_handler_t handler;
   size_t destOffset;
-  char* args;
+  char args[8];
 };
 
 static asyncArrayCopyHeader header[RING_SIZE];
@@ -56,7 +56,7 @@ miscInit ()
 
   for (int  i = 0; i < RING_SIZE; i++) {
     LAPI_Setcntr (__x10_hndl, &(origin_cntr[i]), 1);
-    header[i].args = new char[max_uhdr_sz];
+    //    header[i].args = new char[max_uhdr_sz];
   }
 
   LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));
@@ -65,8 +65,8 @@ miscInit ()
 x10_err_t
 miscTerminate ()
 {
-  for (int i = 0; i < RING_SIZE; i++)
-    delete [] header[i].args;
+  //  for (int i = 0; i < RING_SIZE; i++)
+  //delete [] header[i].args;
 }
 
 namespace x10lib {
