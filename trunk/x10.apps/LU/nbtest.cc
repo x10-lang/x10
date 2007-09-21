@@ -1,5 +1,5 @@
 /*
- * Distribed memory LU with partial pivoting
+ * Crude benchmark to measure communication initiation and roundtip costs.
  */
 
 #include <strings.h>
