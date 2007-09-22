@@ -25,7 +25,7 @@ typedef int x10_int_t;
 struct __async__0__args;
 void __async__0 (__async__0__args args);
 
-class Ft {  
+class FtStatic {  
 private: const static x10_int_t OFFSET = 3;
 private: const static x10_int_t CPAD_COLS = 0;
 private: const static x10_int_t PLANES_ORIENTED_X_Y_Z = 0;
@@ -49,29 +49,11 @@ public:
   x10_int_t m_start;
   x10_int_t m_end;
   DoubleArray (x10_int_t size, x10_int_t offset, x10_int_t proc);
-  char* __serialize (char* buf) const;
-  DoubleArray (char* buf, int& offset);
-  size_t size() const;
+  DoubleArray (x10_int_t size, x10_int_t offset);
 };
-  
-  // Distributed arrays of complex numbers, one array per place
-public : class DistDoubleArray 
-{    
-public:
-  static const Dist<1>* UNIQUE;  
-  static const x10_int_t N_PLACES;    
-  DoubleArray** m_array;  
-  x10_long_t m_size;  
-  x10_long_t m_localSize;  
-  DoubleArray* getArray (x10_long_t idx) const;  
-  DistDoubleArray (const x10_long_t size, const x10_long_t offset) ;
-  char* __serialize (char* buf) const;  
-  DistDoubleArray (char* buf, x10_int_t& offset);
-  size_t size ()  const;
-};
-  
-  friend void __async__0 (__async__0__args args);
-  
+ 
+ friend void __async__0 (__async__0__args args);
+ 
 private : static x10_int_t NUMPLACES;
 private : const static Dist<1>* UNIQUE;
   
@@ -93,7 +75,7 @@ public : class Init;
 public: static double mysecond();
 public : x10_int_t switch_view (x10_int_t orientation, x10_int_t PID);
 public : x10_int_t set_view (x10_int_t orientation, x10_int_t PID); 
-public :  Ft( x10_int_t type, x10_int_t comm);
+public :  FtStatic( x10_int_t type, x10_int_t comm);
 public : static  void initialize (Array<double, 1>* Array, x10_int_t size, x10_int_t offset, x10_int_t PID); 
 public: static void initializeC (x10_int_t numPLACE, x10_int_t nx, x10_int_t ny, x10_int_t nz, x10_int_t offset, x10_int_t cpad_cols);
 public: static  void computeInitialConditions (Array<double, 1>* Array, x10_int_t PID);
@@ -108,11 +90,11 @@ public: static void FFT2DLocalRow (Array<double, 1>* local2d, x10_int_t ComplexO
 public: static x10_int_t origindexmap (x10_int_t x, x10_int_t y, x10_int_t z);
 public: static x10_int_t getowner (x10_int_t x, x10_int_t y, x10_int_t z);
 public :  void solve();
-public : void FFT2DComm_Pencil (const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c);
-public : void FFT2DComm_Slab (const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c);
-public :  void FFT2DComm(const DoubleArray* local2d, const DistDoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* clk);
+public : void FFT2DComm_Pencil (const DoubleArray* local2d, const DoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c);
+public : void FFT2DComm_Slab (const DoubleArray* local2d, const DoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* c);
+public :  void FFT2DComm(const DoubleArray* local2d, const DoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* clk);
 private : void checksum(const DoubleArray* C, const x10_int_t PID, const x10_int_t itr) ;
-public :  void print_Array(const DistDoubleArray* DDA);
+public :  void print_Array(const DoubleArray* DDA);
 public : static void  main (x10::array<x10::ref<x10::lang::String> >& args);
 private :  void checksum_verify(const x10_int_t d1, const x10_int_t d2, const x10_int_t d3, const x10_int_t nt,
 				const double* real_sums, 
