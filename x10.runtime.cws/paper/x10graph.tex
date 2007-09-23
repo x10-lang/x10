@@ -1,0 +1,155 @@
+
+\documentclass{llncs}
+\special{papersize=8.5in,11in}
+\usepackage{epsfig}
+%\usepackage{doublespace}
+\usepackage{xspace}
+\usepackage[noend,boxed]{algorithm2e}
+% \usepackage{array}
+\usepackage{url}
+\usepackage{pslatex}
+\usepackage{latexsym}
+\usepackage{multirow}
+
+\newcommand{\uu}{\accent'27u}
+\newcommand{\UU}{\accent'27U}
+
+\newcommand{\parent}{\mbox{\emph{parent}}\xspace}
+\newcommand{\color}{\mbox{\emph{color}}\xspace}
+\newcommand{\ROOT}{\mbox{\emph{root}}\xspace}
+% \newcommand{\LOOSE}{\looseness=-1}
+\newcommand{\LOOSE}{}
+\newcommand{\PARENT}{\mbox{\emph{parent}}\xspace}
+\newcommand{\paren}[1]{\left(  #1 \right)}
+\newcommand{\littleL}[1]{\mbox{\mbox{$\omega$}$\paren{#1}$}}
+\newcommand{\littleO}[1]{\mbox{\mbox{o}$\paren{#1}$}}
+\newcommand{\bigT}[1]{\mbox{\mbox{$\Theta$}$\paren{#1}$}}
+\newcommand{\bigL}[1]{\mbox{\mbox{$\Omega$}$\paren{#1}$}}
+\newcommand{\bigO}[1]{\mbox{\mbox{O}$\paren{#1}$}\xspace}
+\newcommand{\MCB}[3]{\mbox{$\left< #1 \;;\; #2 \;;\; #3 \right>$}\xspace}
+\newcommand{\TRIPLET}{\MCB{T_{M}(n,p)}{T_{C}(n,p)}{B(p)}}
+\newcommand{\Boruvka}{Bor{\uu}vka\xspace}
+\newcommand{\BorEL}{\emph{Bor-EL}\xspace}
+\newcommand{\BorAL}{\emph{Bor-AL}\xspace}
+\newcommand{\BorALM}{\emph{Bor-ALM}\xspace}
+\newcommand{\BorFAL}{\emph{Bor-FAL}\xspace}
+\newcommand{\BCMSF}{\textbf{BC-MSF}\xspace}
+\newcommand{\MSTBC}{\emph{MST-BC}\xspace}
+\newcommand{\FINDMIN}{\emph{find-min}\xspace}
+\newcommand{\CC}{\emph{connected-components}\xspace}
+\newcommand{\COMPGRAGPH}{\emph{compact-graph}\xspace}
+\newcommand{\STRO} {\emph{str0}\xspace}
+\newcommand{\STRI} {\emph{str1}\xspace}
+\newcommand{\STRII} {\emph{str2}\xspace}
+\newcommand{\STRIII} {\emph{str3}\xspace}
+\newcommand{\IIDVI} {\emph{2D60}\xspace}
+\newcommand{\IIIDIV}{\emph{3D40}\xspace} 
+\newcommand{\IIDTORUS}{\emph{2D Torus}\xspace} 
+\newcommand{\ADIII}{\emph{AD3}\xspace}
+\newcommand{\REGIREGM}{\emph{Regular and Irregular Meshes}\xspace}
+\newcommand{\RANDGRAPH}{\emph{Random Graphs}\xspace}
+\newcommand{\HEM}{\mbox{\emph{heap\_extract\_min}}\xspace}
+\newcommand{\HDC}{\mbox{\emph{heap\_decrease\_key}}\xspace}
+\newcommand{\HINS}{\mbox{\emph{heap\_insert}}\xspace}
+\newcommand{\mycolor}{\mbox{\emph{my\_color}}\xspace}
+\newcommand{\RGRAFT}{\mbox{RST-Graft}\xspace}
+\newcommand{\EGRAFT}{\mbox{Euler-Graft}\xspace}
+\newcommand{\RTRAV}{\mbox{RST-Trav}\xspace}
+\newcommand{\SGRAFT}{\mbox{ST-Graft}\xspace}
+\newcommand{\STRAV}{\mbox{ST-Trav}\xspace}
+\newcommand{\TV}{TV\xspace}
+\newcommand{\LOWHIGH}{\emph{Low-high}\xspace}
+\newcommand{\LABELE}{\emph{Label-edge}\xspace}
+\newcommand{\T}{$T$\xspace}
+
+%% \newtheorem{theorem}{Theorem}
+%% \newtheorem{lemma}{Lemma}
+%% \newenvironment{proof}{\textbf{Proof}: }{$\Box$ \\ }
+
+%% \setlength{\textheight}{8.25in}
+%% \setlength{\voffset}{0in}
+%% \setlength{\topmargin}{0in}
+
+%% \setlength{\oddsidemargin}{0in}
+%% \setlength{\evensidemargin}{0in}
+%% \setlength{\textwidth}{6.5in}
+
+%\begin{document}
+%\pagestyle{plain}
+
+\begin{document}
+%\begin{spacing}{1}
+
+\title{Techniques for Designing Efficient Parallel Graph
+  Algorithms for SMPs and Multicore Processors}
+\titlerunning{Techniques for Designing Efficient Parallel Graph Algorithms}
+\author{ }
+\institute{}
+\maketitle
+
+\begin{abstract}
+  Graph problems are finding increasing applications in high
+performance computing disciplines. Although many regular problems 
+can be solved efficiently in parallel, obtaining efficient
+  implementations for large, irregular graph instances remains a challenge.
+ There exisit a large body of theoretically fast parallel graph algorithms, however, 
+ experimental studies show that they often times fail to achieve good parallel speedups 
+ in practice. 
+ In this paper we present the language and runtime support of X10 that help 
+ bridge the gap between theory and practice for large scale graph problems. 
+ The problems we study represent a wide range of irregular problems that have fast
+  theoretic parallel algorithms but no known efficient
+  parallel implementations that achieve speedup without serious restricting assumptions about the inputs.
+We believe our techniques will be of  practical impact in solving large-scale graph problems.
+\end{abstract}
+
+\noindent
+\textbf{Keywords:}
+ parallel algorithms, graph problems, runtime.
+
+\section{Introduction}
+\label{s:intr}
+ Graph theoretic problems arise in several traditional and emerging scientific disciplines such as VLSI design, optimization, databases, and computational biology. There are plenty of theoretically fast parallel algorithms, for example, optimal PRAM algorithms, for graph problems; however, in
+ practice few parallel implementations beat the best sequential implementations for arbitrary, sparse
+ graphs. The mismatch between theory and practice suggests a large gap between algorithm model and the actual architecture. Advances in programming language and runtime support can effectively reduces the gap.
+ X10 is part of the DARPA HPCS project that solves this problem.  In this paper we focus on X10 support on one single SMP node.
+ 
+ Modern symmetric multiprocessors (SMPs) and chip multiprocessors (CMPs) 
+ are becoming very powerful and common place. Most of the high performance
+ computers are clusters of SMPs and/or CMPs. PRAM algorithms for graph problems can be emulated much easier and more
+ efficiently on SMPs than on distributed memory platforms because shared memory allows for fast, concurrent access
+to an irregular data structure that is often difficult to partition well for distributed memory systems. 
+ Unfortunately, emulation -- even with aggressive algorithm engineering efforts --
+ oftentimes does not produce parallel implementations that beat the
+ best sequential implementation. One of the major problems is to do load-balancing, another is synchronization. Both are addressed in X10.
+ 
+ {TONG: can you please provide the introduction to X10}? X10 is a language .... Introduction to X10.  For combinatorial algorithms support, X10 provides many constructs and ...
+ In a.   
+
+ The rest of the paper is organized as follows. Sections~\ref{s:design} describes algorithm design with the X10 language.
+ Section~\ref{s:runtime} presents the workstealing runtime support for load-balancing in X10, and compare with other runtime systems, for example, CILK. 
+ Section~\ref{s:results} provides our experimental results on current main-stream SMPs.
+ In Section~\ref{s:concl} we conclude and give future work. 
+ Throughout the paper, we
+ use $n$ and $m$ to denote the number of vertices and the number of
+ edges of an input graph $G=(V,E)$, respectively. 
+  
+
+\section{Designing Parallel Graph Algorithms in X10}
+\label{s:design}
+
+\section{X10  Workstealing runtime support}
+\label{s:runtime}
+
+\section{Implementation and Runtime support }
+\label{s:results}
+
+\section{Conclusion and Future Work}
+\label{s:concl}
+%\clearpage
+%\begin{spacing}{1}
+\bibliographystyle{splncs}
+\bibliography{../../parallel}
+%\end{spacing}
+
+\end{document}
