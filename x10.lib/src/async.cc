@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.cc,v 1.13 2007-09-13 15:20:04 ganeshvb Exp $
+ * $Id: async.cc,v 1.14 2007-09-24 14:34:10 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -51,11 +51,11 @@ asyncSpawnInline(x10_place_t tgt, x10_async_handler_t hndlr,
 
 	va_start(list, n);
 	lapi_cntr_t origin_cntr;
-
+	
 	for (int i = 0; i < n; i++)
-		__x10_async_args[i] = va_arg(list, x10_async_arg_t);
+	  __x10_async_args[i] = va_arg(list, x10_async_arg_t);
 	va_end(list);
-
+	
 	int tmp;
 	x10_async_handler_t buf = hndlr;
 	LRC(LAPI_Setcntr(__x10_hndl, &origin_cntr, 0));
@@ -65,6 +65,26 @@ asyncSpawnInline(x10_place_t tgt, x10_async_handler_t hndlr,
 	LRC(LAPI_Waitcntr(__x10_hndl, &origin_cntr, 1, &tmp));
         X10_DEBUG (1, "Exit");
 	return X10_OK;
+}
+
+x10_err_t
+asyncSpawnInline(x10_place_t tgt, x10_async_handler_t hndlr,
+			void* args, size_t size)
+{
+  X10_DEBUG (1, "Entry");
+
+  extern lapi_handle_t __x10_hndl;
+  
+  lapi_cntr_t origin_cntr;
+  int tmp;
+  x10_async_handler_t buf = hndlr;
+  LRC(LAPI_Setcntr(__x10_hndl, &origin_cntr, 0));
+  LRC(LAPI_Amsend(__x10_hndl, tgt, (void *) ASYNC_SPAWN_HANDLER, &buf,
+		  sizeof(buf), args, size,
+		  NULL, &origin_cntr, NULL));
+  LRC(LAPI_Waitcntr(__x10_hndl, &origin_cntr, 1, &tmp));
+  X10_DEBUG (1, "Exit");
+  return X10_OK;
 }
 
 } /* closing brace for namespace x10lib */
