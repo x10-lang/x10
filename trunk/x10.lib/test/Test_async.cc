@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async.cc,v 1.5 2007-06-26 16:05:58 ganeshvb Exp $ */
+/* $Id: Test_async.cc,v 1.6 2007-09-24 14:34:10 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -40,7 +40,7 @@ main (int argc, char* argv[])
   x10_async_arg_t a = 333;
   if (__x10_my_place== 0)
     for (x10_place_t target = 0; target < __x10_num_places; target++)
-       asyncSpawnInline (target, 0, 1, a);
+       asyncSpawnInline (target, 0, &a, sizeof(a));
 
 
   x10lib::SyncGlobal (); 
