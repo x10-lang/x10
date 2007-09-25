@@ -138,6 +138,16 @@ to an irregular data structure that is often difficult to partition well for dis
 \section{Designing Parallel Graph Algorithms in X10}
 \label{s:design}
 
+ Invariably algorithms are designed, although sometime implicitly, for an abstract algorithm model. Different programming languages provide interfaces on different levels to the algorithm designer or programmer through programming models. For example, with the PRAM model, the processors are synchronous and access to different memory locations are of uniform distance. PRAM is great for exploring the maximum parallelism in a problem. However, as the model is too far away from any of the current or emerging architectures, significant effort is necessary to produce efficient implementations on SMPs. Distributed memoy models, on the other hand, try to take the message passing cost into consideraton. However, it forces , and you do not always see the parallelism.
+
+X10 is designed for a cluster of SMPs. On one hand you have a virtual shared address space, on the other hand you can aldotutilize the memory affinity feature.   
+
+Here we focus on two of the constructs that help. Async, and finish.
+
+We do two styles, PRAM and EFFICIENT.
+
+Elegant implemenation of DFS-like traversal of graphs. Elegant implemenation of SV.
+
 \section{X10  Workstealing runtime support}
 \label{s:runtime}
 
