@@ -464,7 +464,7 @@ public final value Ft {
 	}
 
 	public static void  main(String[] args) {
-		if (NUMPLACES>1 &&!(NUMPLACES/2 != (NUMPLACES/2*2))) {
+		if (NUMPLACES>1 &&(NUMPLACES != (NUMPLACES/2*2))) {
 			System.out.println("The number of places must be even.");
 			return;
 		}
