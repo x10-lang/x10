@@ -36,7 +36,7 @@
 			<classpath>
 				<pathelement location="../lpg.runtime.java/bin"/>
 				<pathelement location="../polyglot/classes"/>
-				<pathelement location="../x10.runtime/bin"/>
+				<pathelement location="../x10.runtime/classes"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
