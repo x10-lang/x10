@@ -357,10 +357,12 @@
             {
                 SourceFile sf = (SourceFile) parser();
 
-                if ((!unrecoverableSyntaxError) && (sf != null))
-                    return sf.source(source);
-
-                eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".", new Position(null, file(), 1, 1, 1, 1));
+                if (sf != null)
+                {
+                    if (! unrecoverableSyntaxError)
+                        return sf.source(source);
+                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".", new Position(null, file(), 1, 1, 1, 1));
+                }   
             }
             catch (RuntimeException e) {
                 // Let the Compiler catch and report it.

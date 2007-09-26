@@ -381,10 +381,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         {
             SourceFile sf = (SourceFile) parser();
 
-            if ((!unrecoverableSyntaxError) && (sf != null))
-                return sf.source(source);
-
-            eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".", new Position(null, file(), 1, 1, 1, 1));
+            if (sf != null)
+            {
+                if (! unrecoverableSyntaxError)
+                    return sf.source(source);
+                eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".", new Position(null, file(), 1, 1, 1, 1));
+            }   
         }
         catch (RuntimeException e) {
             // Let the Compiler catch and report it.
@@ -4480,13 +4482,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 430:  ClassType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 430: {
-                //#line 785 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name TypeName = (Name) getRhsSym(1);
-                //#line 785 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 785 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
                 //#line 787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name TypeName = (Name) getRhsSym(1);
+                //#line 787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                //#line 787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
+                //#line 789 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                      setResult(DepParametersopt == null
                                ? TypeName.toType()
                                : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -4497,13 +4499,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 431:  InterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 431: {
-                //#line 794 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name TypeName = (Name) getRhsSym(1);
-                //#line 794 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 794 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
                 //#line 796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name TypeName = (Name) getRhsSym(1);
+                //#line 796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                //#line 796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
+                //#line 798 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                  setResult(DepParametersopt == null
                                ? TypeName.toType()
                                : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -4514,9 +4516,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 432:  PackageDeclaration ::= package PackageName ;
             //
             case 432: {
-                //#line 802 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name PackageName = (Name) getRhsSym(2);
                 //#line 804 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name PackageName = (Name) getRhsSym(2);
+                //#line 806 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(PackageName.toPackage());
                 break;
             }
@@ -4525,19 +4527,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 433:  NormalClassDeclaration ::= X10ClassModifiersopt class identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 433: {
-                //#line 808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List X10ClassModifiersopt = (List) getRhsSym(1);
-                //#line 808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Superopt = (TypeNode) getRhsSym(5);
-                //#line 808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Interfacesopt = (List) getRhsSym(6);
-                //#line 808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                ClassBody ClassBody = (ClassBody) getRhsSym(7);
                 //#line 810 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List X10ClassModifiersopt = (List) getRhsSym(1);
+                //#line 810 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                //#line 810 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object[] PropertyListopt = (Object[]) getRhsSym(4);
+                //#line 810 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Superopt = (TypeNode) getRhsSym(5);
+                //#line 810 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Interfacesopt = (List) getRhsSym(6);
+                //#line 810 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                ClassBody ClassBody = (ClassBody) getRhsSym(7);
+                //#line 812 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
       checkTypeName(identifier);
       List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
                   : (List) PropertyListopt[0];
@@ -4558,9 +4560,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 434:  X10ClassModifiers ::= X10ClassModifier
             //
             case 434: {
-                //#line 826 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List X10ClassModifier = (List) getRhsSym(1);
                 //#line 828 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List X10ClassModifier = (List) getRhsSym(1);
+                //#line 830 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
        List l = new LinkedList();
        l.addAll(X10ClassModifier);
        setResult(l);
@@ -4571,11 +4573,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 435:  X10ClassModifiers ::= X10ClassModifiers X10ClassModifier
             //
             case 435: {
-                //#line 833 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List X10ClassModifiers = (List) getRhsSym(1);
-                //#line 833 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List X10ClassModifier = (List) getRhsSym(2);
                 //#line 835 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List X10ClassModifiers = (List) getRhsSym(1);
+                //#line 835 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List X10ClassModifier = (List) getRhsSym(2);
+                //#line 837 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
        X10ClassModifiers.addAll(X10ClassModifier);
                 break;
             }
@@ -4584,9 +4586,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 436:  X10ClassModifier ::= ClassModifier
             //
             case 436: {
-                //#line 839 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClassModifier = (List) getRhsSym(1);
                 //#line 841 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClassModifier = (List) getRhsSym(1);
+                //#line 843 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 // Done by extractFlags
                 // X10Flags.toX10Flags(ClassModifier));
                 setResult(ClassModifier);
@@ -4598,7 +4600,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 437: {
                 
-                //#line 848 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 850 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.SAFE));
                 break;
             }
@@ -4607,11 +4609,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 438:  PropertyList ::= ( Properties WhereClauseopt )
             //
             case 438: {
-                //#line 852 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Properties = (List) getRhsSym(2);
-                //#line 852 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr WhereClauseopt = (Expr) getRhsSym(3);
                 //#line 854 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Properties = (List) getRhsSym(2);
+                //#line 854 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr WhereClauseopt = (Expr) getRhsSym(3);
+                //#line 856 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
    Object[] result = new Object[2];
    result[0] = Properties;
    result[1] = WhereClauseopt;
@@ -4622,9 +4624,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 439:  PropertyList ::= ( WhereClause )
             //
             case 439: {
-                //#line 859 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr WhereClause = (Expr) getRhsSym(2);
                 //#line 861 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr WhereClause = (Expr) getRhsSym(2);
+                //#line 863 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
    Object[] result = new Object[2];
    result[0] = null;
    result[1] = WhereClause;
@@ -4635,9 +4637,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 440:  Properties ::= Property
             //
             case 440: {
-                //#line 868 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                PropertyDecl Property = (PropertyDecl) getRhsSym(1);
                 //#line 870 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                PropertyDecl Property = (PropertyDecl) getRhsSym(1);
+                //#line 872 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -4648,11 +4650,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 441:  Properties ::= Properties , Property
             //
             case 441: {
-                //#line 875 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Properties = (List) getRhsSym(1);
-                //#line 875 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                PropertyDecl Property = (PropertyDecl) getRhsSym(3);
                 //#line 877 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Properties = (List) getRhsSym(1);
+                //#line 877 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                PropertyDecl Property = (PropertyDecl) getRhsSym(3);
+                //#line 879 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Properties.add(Property);
                 // setResult(FormalParameters);
                 break;
@@ -4662,11 +4664,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 442:  Property ::= Type identifier
             //
             case 442: {
-                //#line 883 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 883 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(2);
                 //#line 885 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(1);
+                //#line 885 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(2);
+                //#line 887 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
     
                 setResult(nf.PropertyDecl(pos(), Flags.PUBLIC.Final(), Type,
                 nf.Id(identifier.getPosition(), identifier.getIdentifier())));
@@ -4678,19 +4680,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 443:  MethodDeclaration ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt MethodBody
             //
             case 443: {
-                //#line 898 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 898 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List MethodModifiersopt = (List) getRhsSym(2);
-                //#line 898 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 898 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object[] MethodDeclarator = (Object[]) getRhsSym(4);
-                //#line 898 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Throwsopt = (List) getRhsSym(5);
-                //#line 898 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Block MethodBody = (Block) getRhsSym(6);
                 //#line 900 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
+                //#line 900 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List MethodModifiersopt = (List) getRhsSym(2);
+                //#line 900 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ResultType = (TypeNode) getRhsSym(3);
+                //#line 900 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object[] MethodDeclarator = (Object[]) getRhsSym(4);
+                //#line 900 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Throwsopt = (List) getRhsSym(5);
+                //#line 900 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Block MethodBody = (Block) getRhsSym(6);
+                //#line 902 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
       Name c = (MethodDeclarator != null) ? (Name) MethodDeclarator[0] : null;
       List d = (MethodDeclarator != null) ? (List) MethodDeclarator[1] : null;
       Integer e = (MethodDeclarator != null) ? (Integer) MethodDeclarator[2] : null;
@@ -4719,9 +4721,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 444:  ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
             //
             case 444: {
-                //#line 924 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(3);
                 //#line 926 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(3);
+                //#line 928 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ThisCall(pos(), ArgumentListopt));
                 break;
             }
@@ -4730,9 +4732,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 445:  ExplicitConstructorInvocation ::= super ( ArgumentListopt ) ;
             //
             case 445: {
-                //#line 929 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(3);
                 //#line 931 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(3);
+                //#line 933 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.SuperCall(pos(), ArgumentListopt));
                 break;
             }
@@ -4741,11 +4743,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 446:  ExplicitConstructorInvocation ::= Primary . this ( ArgumentListopt ) ;
             //
             case 446: {
-                //#line 934 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Primary = (Expr) getRhsSym(1);
-                //#line 934 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(5);
                 //#line 936 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
+                //#line 936 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(5);
+                //#line 938 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ThisCall(pos(), Primary, ArgumentListopt));
                 break;
             }
@@ -4754,11 +4756,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 447:  ExplicitConstructorInvocation ::= Primary . super ( ArgumentListopt ) ;
             //
             case 447: {
-                //#line 939 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Primary = (Expr) getRhsSym(1);
-                //#line 939 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(5);
                 //#line 941 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
+                //#line 941 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(5);
+                //#line 943 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.SuperCall(pos(), Primary, ArgumentListopt));
                 break;
             }
@@ -4767,17 +4769,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 448:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier PropertyListopt ExtendsInterfacesopt InterfaceBody
             //
             case 448: {
-                //#line 945 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List InterfaceModifiersopt = (List) getRhsSym(1);
-                //#line 945 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 945 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 945 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ExtendsInterfacesopt = (List) getRhsSym(5);
-                //#line 945 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                ClassBody InterfaceBody = (ClassBody) getRhsSym(6);
                 //#line 947 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List InterfaceModifiersopt = (List) getRhsSym(1);
+                //#line 947 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                //#line 947 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object[] PropertyListopt = (Object[]) getRhsSym(4);
+                //#line 947 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ExtendsInterfacesopt = (List) getRhsSym(5);
+                //#line 947 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                ClassBody InterfaceBody = (ClassBody) getRhsSym(6);
+                //#line 949 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
       checkTypeName(identifier);
       List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
                   : (List) PropertyListopt[0];
@@ -4799,17 +4801,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 449:  AbstractMethodDeclaration ::= ThisClauseopt AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
             //
             case 449: {
-                //#line 964 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 964 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List AbstractMethodModifiersopt = (List) getRhsSym(2);
-                //#line 964 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 964 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object[] MethodDeclarator = (Object[]) getRhsSym(4);
-                //#line 964 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Throwsopt = (List) getRhsSym(5);
                 //#line 966 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
+                //#line 966 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List AbstractMethodModifiersopt = (List) getRhsSym(2);
+                //#line 966 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ResultType = (TypeNode) getRhsSym(3);
+                //#line 966 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object[] MethodDeclarator = (Object[]) getRhsSym(4);
+                //#line 966 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Throwsopt = (List) getRhsSym(5);
+                //#line 968 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
      Name c = (Name) MethodDeclarator[0];
      List d = (List) MethodDeclarator[1];
      Integer e = (Integer) MethodDeclarator[2];
@@ -4839,13 +4841,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 450:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
             //
             case 450: {
-                //#line 991 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ClassOrInterfaceType = (TypeNode) getRhsSym(2);
-                //#line 991 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(4);
-                //#line 991 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                ClassBody ClassBodyopt = (ClassBody) getRhsSym(6);
                 //#line 993 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ClassOrInterfaceType = (TypeNode) getRhsSym(2);
+                //#line 993 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(4);
+                //#line 993 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                ClassBody ClassBodyopt = (ClassBody) getRhsSym(6);
+                //#line 995 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), ClassOrInterfaceType, ArgumentListopt));
                 else setResult(nf.New(pos(), ClassOrInterfaceType, ArgumentListopt, ClassBodyopt));
@@ -4856,15 +4858,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 451:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt ) ClassBodyopt
             //
             case 451: {
-                //#line 998 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Primary = (Expr) getRhsSym(1);
-                //#line 998 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 998 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(6);
-                //#line 998 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
                 //#line 1000 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
+                //#line 1000 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
+                //#line 1000 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(6);
+                //#line 1000 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
+                //#line 1002 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Name b = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), Primary, b.toType(), ArgumentListopt));
@@ -4876,15 +4878,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 452:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
             //
             case 452: {
-                //#line 1006 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 1006 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 1006 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(6);
-                //#line 1006 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
                 //#line 1008 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name AmbiguousName = (Name) getRhsSym(1);
+                //#line 1008 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
+                //#line 1008 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(6);
+                //#line 1008 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
+                //#line 1010 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Name b = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), AmbiguousName.toExpr(), b.toType(), ArgumentListopt));
@@ -4896,13 +4898,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 453:  MethodInvocation ::= Primary . identifier ( ArgumentListopt )
             //
             case 453: {
-                //#line 1015 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Primary = (Expr) getRhsSym(1);
-                //#line 1015 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1015 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(5);
                 //#line 1017 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
+                //#line 1017 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                //#line 1017 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(5);
+                //#line 1019 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), Primary, nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4911,11 +4913,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 454:  MethodInvocation ::= super . identifier ( ArgumentListopt )
             //
             case 454: {
-                //#line 1020 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1020 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(5);
                 //#line 1022 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                //#line 1022 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(5);
+                //#line 1024 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4924,15 +4926,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 455:  MethodInvocation ::= ClassName . super$sup . identifier ( ArgumentListopt )
             //
             case 455: {
-                //#line 1025 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name ClassName = (Name) getRhsSym(1);
-                //#line 1025 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                IToken sup = (IToken) getRhsIToken(3);
-                //#line 1025 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1025 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentListopt = (List) getRhsSym(7);
                 //#line 1027 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name ClassName = (Name) getRhsSym(1);
+                //#line 1027 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                IToken sup = (IToken) getRhsIToken(3);
+                //#line 1027 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
+                //#line 1027 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentListopt = (List) getRhsSym(7);
+                //#line 1029 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4941,9 +4943,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 456:  AssignPropertyCall ::= property ( ArgumentList )
             //
             case 456: {
-                //#line 1032 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentList = (List) getRhsSym(3);
                 //#line 1034 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentList = (List) getRhsSym(3);
+                //#line 1036 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AssignPropertyCall(pos(),  ArgumentList));
                 break;
             }
@@ -4952,11 +4954,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 460:  AnnotatedType ::= Type Annotations
             //
             case 460: {
-                //#line 1047 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1047 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Annotations = (List) getRhsSym(2);
                 //#line 1049 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(1);
+                //#line 1049 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Annotations = (List) getRhsSym(2);
+                //#line 1051 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                 setResult(tn);
@@ -4967,11 +4969,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 461:  SpecialType ::= nullable < Type > DepParametersopt
             //
             case 461: {
-                //#line 1055 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1055 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(5);
                 //#line 1057 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(3);
+                //#line 1057 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(5);
+                //#line 1059 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 X10TypeNode t = nf.Nullable(pos(), Type);
                 setResult(DepParametersopt == null ? t 
                 : t.dep(null, DepParametersopt));
@@ -4983,9 +4985,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 462:  SpecialType ::= future < Type >
             //
             case 462: {
-                //#line 1063 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 1065 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(3);
+                //#line 1067 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.FutureNode(pos(), Type));
                 break;
             }
@@ -4994,11 +4996,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 465:  PrimitiveType ::= NumericType DepParametersopt
             //
             case 465: {
-                //#line 1078 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode NumericType = (TypeNode) getRhsSym(1);
-                //#line 1078 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
                 //#line 1080 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode NumericType = (TypeNode) getRhsSym(1);
+                //#line 1080 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                //#line 1082 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
               //  System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
                 setResult(DepParametersopt == null
                                ? NumericType
@@ -5010,9 +5012,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 466:  PrimitiveType ::= boolean DepParametersopt
             //
             case 466: {
-                //#line 1086 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
                 //#line 1088 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                //#line 1090 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 X10TypeNode res = (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.Boolean());
                 setResult(DepParametersopt==null 
                            ? res 
@@ -5024,13 +5026,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 471:  ClassOrInterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 471: {
-                //#line 1100 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name TypeName = (Name) getRhsSym(1);
-                //#line 1100 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1100 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
                 //#line 1102 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name TypeName = (Name) getRhsSym(1);
+                //#line 1102 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                //#line 1102 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
+                //#line 1104 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
             X10TypeNode type;
             
             if (ts.isPrimitiveTypeName(TypeName.name.id())) {
@@ -5052,9 +5054,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 472:  DepParameters ::= ( DepParameterExpr )
             //
             case 472: {
-                //#line 1119 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(2);
                 //#line 1121 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(2);
+                //#line 1123 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(DepParameterExpr);
                 break;
             }
@@ -5063,11 +5065,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 473:  DepParameterExpr ::= ArgumentList WhereClauseopt
             //
             case 473: {
-                //#line 1125 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentList = (List) getRhsSym(1);
-                //#line 1125 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr WhereClauseopt = (Expr) getRhsSym(2);
                 //#line 1127 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentList = (List) getRhsSym(1);
+                //#line 1127 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr WhereClauseopt = (Expr) getRhsSym(2);
+                //#line 1129 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.DepParameterExpr(pos(), ArgumentList, WhereClauseopt));
                 break;
             }
@@ -5076,9 +5078,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 474:  DepParameterExpr ::= WhereClause
             //
             case 474: {
-                //#line 1130 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr WhereClause = (Expr) getRhsSym(1);
                 //#line 1132 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr WhereClause = (Expr) getRhsSym(1);
+                //#line 1134 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.DepParameterExpr(pos(), Collections.EMPTY_LIST, WhereClause));
                 break;
             }
@@ -5087,9 +5089,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 475:  WhereClause ::= : ConstExpression
             //
             case 475: {
-                //#line 1136 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstExpression = (Expr) getRhsSym(2);
                 //#line 1138 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstExpression = (Expr) getRhsSym(2);
+                //#line 1140 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExpression);
                 break;
             }
@@ -5098,9 +5100,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 476:  ConstPrimary ::= Literal
             //
             case 476: {
-                //#line 1143 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.ast.Lit Literal = (polyglot.ast.Lit) getRhsSym(1);
                 //#line 1145 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.ast.Lit Literal = (polyglot.ast.Lit) getRhsSym(1);
+                //#line 1147 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Literal);
                 break;
             }
@@ -5109,9 +5111,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 477:  ConstPrimary ::= Type . class
             //
             case 477: {
-                //#line 1148 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 1150 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(1);
+                //#line 1152 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 if (Type instanceof Name)
                 {
                     Name a = (Name) Type;
@@ -5135,7 +5137,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 478: {
                 
-                //#line 1169 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1171 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
                 break;
@@ -5146,7 +5148,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 479: {
                 
-                //#line 1175 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1177 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -5156,7 +5158,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 480: {
                 
-                //#line 1180 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1182 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Here(pos()));
                 break;
             }
@@ -5165,9 +5167,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 481:  ConstPrimary ::= ClassName . this
             //
             case 481: {
-                //#line 1183 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name ClassName = (Name) getRhsSym(1);
                 //#line 1185 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name ClassName = (Name) getRhsSym(1);
+                //#line 1187 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -5176,9 +5178,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 482:  ConstPrimary ::= ( ConstExpression )
             //
             case 482: {
-                //#line 1188 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstExpression = (Expr) getRhsSym(2);
                 //#line 1190 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstExpression = (Expr) getRhsSym(2);
+                //#line 1192 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExpression);
                 break;
             }
@@ -5188,7 +5190,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 484: {
                 
-                //#line 1196 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1198 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Self(pos()));
                 break;
             }
@@ -5197,9 +5199,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 485:  ConstPostfixExpression ::= ConstPrimary
             //
             case 485: {
-                //#line 1202 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstPrimary = (Expr) getRhsSym(1);
                 //#line 1204 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstPrimary = (Expr) getRhsSym(1);
+                //#line 1206 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstPrimary);
                         break;
             }
@@ -5208,9 +5210,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 486:  ConstPostfixExpression ::= ExpressionName
             //
             case 486: {
-                //#line 1207 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name ExpressionName = (Name) getRhsSym(1);
                 //#line 1209 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name ExpressionName = (Name) getRhsSym(1);
+                //#line 1211 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -5219,9 +5221,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 487:  ConstUnaryExpression ::= ConstPostfixExpression
             //
             case 487: {
-                //#line 1212 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstPostfixExpression = (Expr) getRhsSym(1);
                 //#line 1214 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstPostfixExpression = (Expr) getRhsSym(1);
+                //#line 1216 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstPostfixExpression);
                         break;
             }
@@ -5230,9 +5232,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 488:  ConstUnaryExpression ::= + ConstUnaryExpression
             //
             case 488: {
-                //#line 1217 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstUnaryExpression = (Expr) getRhsSym(2);
                 //#line 1219 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstUnaryExpression = (Expr) getRhsSym(2);
+                //#line 1221 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.POS, ConstUnaryExpression));
                 break;
             }
@@ -5241,9 +5243,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 489:  ConstUnaryExpression ::= - ConstUnaryExpression
             //
             case 489: {
-                //#line 1222 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstUnaryExpression = (Expr) getRhsSym(2);
                 //#line 1224 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstUnaryExpression = (Expr) getRhsSym(2);
+                //#line 1226 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.NEG, ConstUnaryExpression));
                 break;
             }
@@ -5252,9 +5254,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 490:  ConstUnaryExpression ::= ! ConstUnaryExpression
             //
             case 490: {
-                //#line 1227 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstUnaryExpression = (Expr) getRhsSym(2);
                 //#line 1229 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstUnaryExpression = (Expr) getRhsSym(2);
+                //#line 1231 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.NOT, ConstUnaryExpression));
                 break;
             }
@@ -5263,9 +5265,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 491:  ConstMultiplicativeExpression ::= ConstUnaryExpression
             //
             case 491: {
-                //#line 1233 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstUnaryExpression = (Expr) getRhsSym(1);
                 //#line 1235 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstUnaryExpression = (Expr) getRhsSym(1);
+                //#line 1237 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstUnaryExpression);
                 break;
             }
@@ -5274,11 +5276,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 492:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression * ConstUnaryExpression
             //
             case 492: {
-                //#line 1238 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1238 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstUnaryExpression = (Expr) getRhsSym(3);
                 //#line 1240 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
+                //#line 1240 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstUnaryExpression = (Expr) getRhsSym(3);
+                //#line 1242 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MUL, ConstUnaryExpression));
                 break;
             }
@@ -5287,11 +5289,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 493:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression / ConstUnaryExpression
             //
             case 493: {
-                //#line 1243 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1243 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstUnaryExpression = (Expr) getRhsSym(3);
                 //#line 1245 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
+                //#line 1245 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstUnaryExpression = (Expr) getRhsSym(3);
+                //#line 1247 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.DIV, ConstUnaryExpression));
                 break;
             }
@@ -5300,11 +5302,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 494:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression % ConstUnaryExpression
             //
             case 494: {
-                //#line 1248 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1248 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstUnaryExpression = (Expr) getRhsSym(3);
                 //#line 1250 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
+                //#line 1250 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstUnaryExpression = (Expr) getRhsSym(3);
+                //#line 1252 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MOD, ConstUnaryExpression));
                 break;
             }
@@ -5313,9 +5315,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 495:  ConstAdditiveExpression ::= ConstMultiplicativeExpression
             //
             case 495: {
-                //#line 1254 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
                 //#line 1256 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
+                //#line 1258 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstMultiplicativeExpression);
                 break;
             }
@@ -5324,11 +5326,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 496:  ConstAdditiveExpression ::= ConstAdditiveExpression + ConstMultiplicativeExpression
             //
             case 496: {
-                //#line 1259 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1259 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
                 //#line 1261 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
+                //#line 1261 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
+                //#line 1263 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.ADD, ConstMultiplicativeExpression));
                 break;
             }
@@ -5337,11 +5339,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 497:  ConstAdditiveExpression ::= ConstAdditiveExpression - ConstMultiplicativeExpression
             //
             case 497: {
-                //#line 1264 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1264 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
                 //#line 1266 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
+                //#line 1266 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
+                //#line 1268 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.SUB, ConstMultiplicativeExpression));
                 break;
             }
@@ -5350,9 +5352,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 498:  ConstRelationalExpression ::= ConstAdditiveExpression
             //
             case 498: {
-                //#line 1271 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
                 //#line 1273 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
+                //#line 1275 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstAdditiveExpression);
                 break;
             }
@@ -5361,11 +5363,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 499:  ConstRelationalExpression ::= ConstRelationalExpression < ConstAdditiveExpression
             //
             case 499: {
-                //#line 1276 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1276 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
                 //#line 1278 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
+                //#line 1278 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
+                //#line 1280 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LT, ConstAdditiveExpression));
                 break;
             }
@@ -5374,11 +5376,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 500:  ConstRelationalExpression ::= ConstRelationalExpression > ConstAdditiveExpression
             //
             case 500: {
-                //#line 1281 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1281 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
                 //#line 1283 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
+                //#line 1283 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
+                //#line 1285 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GT, ConstAdditiveExpression));
                 break;
             }
@@ -5387,11 +5389,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 501:  ConstRelationalExpression ::= ConstRelationalExpression <= ConstAdditiveExpression
             //
             case 501: {
-                //#line 1286 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1286 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
                 //#line 1288 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
+                //#line 1288 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
+                //#line 1290 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LE, ConstAdditiveExpression));
                 break;
             }
@@ -5400,11 +5402,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 502:  ConstRelationalExpression ::= ConstRelationalExpression > = ConstAdditiveExpression
             //
             case 502: {
-                //#line 1291 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1291 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAdditiveExpression = (Expr) getRhsSym(4);
                 //#line 1293 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
+                //#line 1293 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAdditiveExpression = (Expr) getRhsSym(4);
+                //#line 1295 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GE, ConstAdditiveExpression));
                 break;
             }
@@ -5413,9 +5415,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 503:  ConstEqualityExpression ::= ConstRelationalExpression
             //
             case 503: {
-                //#line 1297 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
                 //#line 1299 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstRelationalExpression = (Expr) getRhsSym(1);
+                //#line 1301 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstRelationalExpression);
                 break;
             }
@@ -5424,11 +5426,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 504:  ConstEqualityExpression ::= ConstEqualityExpression == ConstRelationalExpression
             //
             case 504: {
-                //#line 1302 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1302 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstRelationalExpression = (Expr) getRhsSym(3);
                 //#line 1304 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstEqualityExpression = (Expr) getRhsSym(1);
+                //#line 1304 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstRelationalExpression = (Expr) getRhsSym(3);
+                //#line 1306 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.EQ, ConstRelationalExpression));
                 break;
             }
@@ -5437,11 +5439,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 505:  ConstEqualityExpression ::= ConstEqualityExpression != ConstRelationalExpression
             //
             case 505: {
-                //#line 1307 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1307 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstRelationalExpression = (Expr) getRhsSym(3);
                 //#line 1309 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstEqualityExpression = (Expr) getRhsSym(1);
+                //#line 1309 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstRelationalExpression = (Expr) getRhsSym(3);
+                //#line 1311 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.NE, ConstRelationalExpression));
                 break;
             }
@@ -5450,9 +5452,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 506:  ConstAndExpression ::= ConstEqualityExpression
             //
             case 506: {
-                //#line 1313 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstEqualityExpression = (Expr) getRhsSym(1);
                 //#line 1315 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstEqualityExpression = (Expr) getRhsSym(1);
+                //#line 1317 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstEqualityExpression);
                 break;
             }
@@ -5461,11 +5463,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 507:  ConstAndExpression ::= ConstAndExpression && ConstEqualityExpression
             //
             case 507: {
-                //#line 1318 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAndExpression = (Expr) getRhsSym(1);
-                //#line 1318 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstEqualityExpression = (Expr) getRhsSym(3);
                 //#line 1320 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAndExpression = (Expr) getRhsSym(1);
+                //#line 1320 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstEqualityExpression = (Expr) getRhsSym(3);
+                //#line 1322 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAndExpression, Binary.COND_AND, ConstEqualityExpression));
                 break;
             }
@@ -5474,9 +5476,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 508:  ConstExclusiveOrExpression ::= ConstAndExpression
             //
             case 508: {
-                //#line 1324 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAndExpression = (Expr) getRhsSym(1);
                 //#line 1326 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAndExpression = (Expr) getRhsSym(1);
+                //#line 1328 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstAndExpression);
                 break;
             }
@@ -5485,11 +5487,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 509:  ConstExclusiveOrExpression ::= ConstExclusiveOrExpression ^ ConstAndExpression
             //
             case 509: {
-                //#line 1329 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1329 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstAndExpression = (Expr) getRhsSym(3);
                 //#line 1331 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
+                //#line 1331 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstAndExpression = (Expr) getRhsSym(3);
+                //#line 1333 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstExclusiveOrExpression, Binary.BIT_XOR, ConstAndExpression));
                 break;
             }
@@ -5498,9 +5500,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 510:  ConstInclusiveOrExpression ::= ConstExclusiveOrExpression
             //
             case 510: {
-                //#line 1335 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
                 //#line 1337 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
+                //#line 1339 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExclusiveOrExpression);
                 break;
             }
@@ -5509,11 +5511,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 511:  ConstInclusiveOrExpression ::= ConstInclusiveOrExpression || ConstExclusiveOrExpression
             //
             case 511: {
-                //#line 1340 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1340 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstExclusiveOrExpression = (Expr) getRhsSym(3);
                 //#line 1342 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
+                //#line 1342 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstExclusiveOrExpression = (Expr) getRhsSym(3);
+                //#line 1344 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstInclusiveOrExpression, Binary.COND_OR, ConstExclusiveOrExpression));
                 break;
             }
@@ -5522,9 +5524,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 512:  ConstExpression ::= ConstInclusiveOrExpression
             //
             case 512: {
-                //#line 1346 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
                 //#line 1348 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
+                //#line 1350 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstInclusiveOrExpression);
                 break;
             }
@@ -5533,13 +5535,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 513:  ConstExpression ::= ConstInclusiveOrExpression ? ConstExpression$first : ConstExpression
             //
             case 513: {
-                //#line 1351 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1351 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr first = (Expr) getRhsSym(3);
-                //#line 1351 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstExpression = (Expr) getRhsSym(5);
                 //#line 1353 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
+                //#line 1353 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr first = (Expr) getRhsSym(3);
+                //#line 1353 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstExpression = (Expr) getRhsSym(5);
+                //#line 1355 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Conditional(pos(), ConstInclusiveOrExpression, first, ConstExpression));
                 break;
             }
@@ -5548,11 +5550,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 514:  ConstFieldAccess ::= ConstPrimary . identifier
             //
             case 514: {
-                //#line 1358 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr ConstPrimary = (Expr) getRhsSym(1);
-                //#line 1358 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 //#line 1360 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr ConstPrimary = (Expr) getRhsSym(1);
+                //#line 1360 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                //#line 1362 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(), ConstPrimary, nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5561,9 +5563,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 515:  ConstFieldAccess ::= super . identifier
             //
             case 515: {
-                //#line 1363 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 //#line 1365 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                //#line 1367 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5572,13 +5574,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 516:  ConstFieldAccess ::= ClassName . super$sup . identifier
             //
             case 516: {
-                //#line 1368 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name ClassName = (Name) getRhsSym(1);
-                //#line 1368 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                IToken sup = (IToken) getRhsIToken(3);
-                //#line 1368 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
                 //#line 1370 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name ClassName = (Name) getRhsSym(1);
+                //#line 1370 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                IToken sup = (IToken) getRhsIToken(3);
+                //#line 1370 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
+                //#line 1372 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5587,9 +5589,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 518:  X10ArrayType ::= Type [ . ]
             //
             case 518: {
-                //#line 1386 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 1388 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(1);
+                //#line 1390 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
                 break;
             }
@@ -5598,9 +5600,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 519:  X10ArrayType ::= Type value [ . ]
             //
             case 519: {
-                //#line 1391 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 1393 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(1);
+                //#line 1395 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, null));
                 break;
             }
@@ -5609,11 +5611,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 520:  X10ArrayType ::= Type [ DepParameterExpr ]
             //
             case 520: {
-                //#line 1396 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1396 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(3);
                 //#line 1398 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(1);
+                //#line 1398 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(3);
+                //#line 1400 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
                 break;
             }
@@ -5622,11 +5624,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 521:  X10ArrayType ::= Type value [ DepParameterExpr ]
             //
             case 521: {
-                //#line 1401 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1401 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(4);
                 //#line 1403 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(1);
+                //#line 1403 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(4);
+                //#line 1405 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, DepParameterExpr));
                 break;
             }
@@ -5648,7 +5650,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 524: {
                 
-                //#line 1417 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1419 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.ATOMIC));
                 break;
             }
@@ -5658,7 +5660,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 525: {
                 
-                //#line 1422 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1424 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(Flags.NATIVE));
                 break;
             }
@@ -5668,7 +5670,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 526: {
                 
-                //#line 1427 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1429 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.SAFE));
                 break;
             }
@@ -5678,7 +5680,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 527: {
                 
-                //#line 1432 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1434 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.SEQUENTIAL));
                 break;
             }
@@ -5688,7 +5690,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 528: {
                 
-                //#line 1437 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1439 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.LOCAL));
                 break;
             }
@@ -5698,7 +5700,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 529: {
                 
-                //#line 1442 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1444 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.NON_BLOCKING));
                 break;
             }
@@ -5707,19 +5709,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 531:  ValueClassDeclaration ::= X10ClassModifiersopt value identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 531: {
-                //#line 1448 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List X10ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1448 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1448 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 1448 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Superopt = (TypeNode) getRhsSym(5);
-                //#line 1448 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Interfacesopt = (List) getRhsSym(6);
-                //#line 1448 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                ClassBody ClassBody = (ClassBody) getRhsSym(7);
                 //#line 1450 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List X10ClassModifiersopt = (List) getRhsSym(1);
+                //#line 1450 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                //#line 1450 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object[] PropertyListopt = (Object[]) getRhsSym(4);
+                //#line 1450 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Superopt = (TypeNode) getRhsSym(5);
+                //#line 1450 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Interfacesopt = (List) getRhsSym(6);
+                //#line 1450 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                ClassBody ClassBody = (ClassBody) getRhsSym(7);
+                //#line 1452 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
     checkTypeName(identifier);
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
@@ -5735,19 +5737,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 532:  ValueClassDeclaration ::= X10ClassModifiersopt value class identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 532: {
-                //#line 1460 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List X10ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1460 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 1460 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object[] PropertyListopt = (Object[]) getRhsSym(5);
-                //#line 1460 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Superopt = (TypeNode) getRhsSym(6);
-                //#line 1460 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Interfacesopt = (List) getRhsSym(7);
-                //#line 1460 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                ClassBody ClassBody = (ClassBody) getRhsSym(8);
                 //#line 1462 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List X10ClassModifiersopt = (List) getRhsSym(1);
+                //#line 1462 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
+                //#line 1462 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object[] PropertyListopt = (Object[]) getRhsSym(5);
+                //#line 1462 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Superopt = (TypeNode) getRhsSym(6);
+                //#line 1462 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Interfacesopt = (List) getRhsSym(7);
+                //#line 1462 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                ClassBody ClassBody = (ClassBody) getRhsSym(8);
+                //#line 1464 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 checkTypeName(identifier);
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
@@ -5763,15 +5765,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 533:  ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
             //
             case 533: {
-                //#line 1473 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ConstructorModifiersopt = (List) getRhsSym(1);
-                //#line 1473 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object[] ConstructorDeclarator = (Object[]) getRhsSym(2);
-                //#line 1473 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Throwsopt = (List) getRhsSym(3);
-                //#line 1473 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Block ConstructorBody = (Block) getRhsSym(4);
                 //#line 1475 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ConstructorModifiersopt = (List) getRhsSym(1);
+                //#line 1475 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object[] ConstructorDeclarator = (Object[]) getRhsSym(2);
+                //#line 1475 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Throwsopt = (List) getRhsSym(3);
+                //#line 1475 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Block ConstructorBody = (Block) getRhsSym(4);
+                //#line 1477 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
      Name a = (Name) ConstructorDeclarator[1];
      DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
      List b = (List) ConstructorDeclarator[3];
@@ -5794,17 +5796,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 534:  ConstructorDeclarator ::= SimpleTypeName DepParametersopt Annotationsopt ( FormalParameterListopt WhereClauseopt )
             //
             case 534: {
-                //#line 1493 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name SimpleTypeName = (Name) getRhsSym(1);
-                //#line 1493 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1493 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Annotationsopt = (Object) getRhsSym(3);
-                //#line 1493 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List FormalParameterListopt = (List) getRhsSym(5);
-                //#line 1493 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr WhereClauseopt = (Expr) getRhsSym(6);
                 //#line 1495 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name SimpleTypeName = (Name) getRhsSym(1);
+                //#line 1495 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                //#line 1495 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Annotationsopt = (Object) getRhsSym(3);
+                //#line 1495 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List FormalParameterListopt = (List) getRhsSym(5);
+                //#line 1495 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr WhereClauseopt = (Expr) getRhsSym(6);
+                //#line 1497 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
              Object[] a = new Object[6];
              a[1] = SimpleTypeName;
              a[2] = DepParametersopt;
@@ -5819,9 +5821,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 535:  ThisClause ::= this DepParameters
             //
             case 535: {
-                //#line 1504 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(2);
                 //#line 1506 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(2);
+                //#line 1508 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(DepParameters);
                 break;
             }
@@ -5830,9 +5832,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 536:  Super ::= extends DataType
             //
             case 536: {
-                //#line 1510 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode DataType = (TypeNode) getRhsSym(2);
                 //#line 1512 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode DataType = (TypeNode) getRhsSym(2);
+                //#line 1514 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(DataType);
                 break;
             }
@@ -5841,13 +5843,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 537:  MethodDeclarator ::= identifier ( FormalParameterListopt WhereClauseopt )
             //
             case 537: {
-                //#line 1516 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1516 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1516 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr WhereClauseopt = (Expr) getRhsSym(4);
                 //#line 1518 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
+                //#line 1518 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List FormalParameterListopt = (List) getRhsSym(3);
+                //#line 1518 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr WhereClauseopt = (Expr) getRhsSym(4);
+                //#line 1520 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
             //   System.out.println("Parsing methoddeclarator...");
                 Object[] a = new Object[5];
                a[0] = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
@@ -5863,9 +5865,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 538:  MethodDeclarator ::= MethodDeclarator [ ]
             //
             case 538: {
-                //#line 1528 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object[] MethodDeclarator = (Object[]) getRhsSym(1);
                 //#line 1530 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object[] MethodDeclarator = (Object[]) getRhsSym(1);
+                //#line 1532 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
                 // setResult(MethodDeclarator);
                break;
@@ -5875,15 +5877,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 539:  FieldDeclaration ::= ThisClauseopt FieldModifiersopt Type VariableDeclarators ;
             //
             case 539: {
-                //#line 1536 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 1536 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List FieldModifiersopt = (List) getRhsSym(2);
-                //#line 1536 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1536 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List VariableDeclarators = (List) getRhsSym(4);
                 //#line 1538 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
+                //#line 1538 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List FieldModifiersopt = (List) getRhsSym(2);
+                //#line 1538 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(3);
+                //#line 1538 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List VariableDeclarators = (List) getRhsSym(4);
+                //#line 1540 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 if (VariableDeclarators != null && VariableDeclarators.size() > 0) {
                     boolean gt1 = (VariableDeclarators.size() > 1);
@@ -5914,15 +5916,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 540:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt Dims ArrayInitializer
             //
             case 540: {
-                //#line 1577 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1577 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1577 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Integer Dims = (Integer) getRhsSym(4);
-                //#line 1577 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                ArrayInit ArrayInitializer = (ArrayInit) getRhsSym(5);
                 //#line 1579 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
+                //#line 1579 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Unsafeopt = (Object) getRhsSym(3);
+                //#line 1579 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Integer Dims = (Integer) getRhsSym(4);
+                //#line 1579 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                ArrayInit ArrayInitializer = (ArrayInit) getRhsSym(5);
+                //#line 1581 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 setResult(nf.NewArray(pos(), ArrayBaseType, Dims.intValue(), ArrayInitializer));
                 break;
@@ -5932,15 +5934,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 541:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr Dims
             //
             case 541: {
-                //#line 1583 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1583 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1583 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr DimExpr = (Expr) getRhsSym(4);
-                //#line 1583 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Integer Dims = (Integer) getRhsSym(5);
                 //#line 1585 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
+                //#line 1585 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Unsafeopt = (Object) getRhsSym(3);
+                //#line 1585 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr DimExpr = (Expr) getRhsSym(4);
+                //#line 1585 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Integer Dims = (Integer) getRhsSym(5);
+                //#line 1587 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 setResult(nf.NewArray(pos(), ArrayBaseType, Collections.singletonList(DimExpr), Dims.intValue()));
                 break;
@@ -5950,17 +5952,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 542:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr DimExprs Dimsopt
             //
             case 542: {
-                //#line 1589 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1589 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1589 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr DimExpr = (Expr) getRhsSym(4);
-                //#line 1589 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List DimExprs = (List) getRhsSym(5);
-                //#line 1589 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Integer Dimsopt = (Integer) getRhsSym(6);
                 //#line 1591 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
+                //#line 1591 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Unsafeopt = (Object) getRhsSym(3);
+                //#line 1591 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr DimExpr = (Expr) getRhsSym(4);
+                //#line 1591 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List DimExprs = (List) getRhsSym(5);
+                //#line 1591 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Integer Dimsopt = (Integer) getRhsSym(6);
+                //#line 1593 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
@@ -5973,15 +5975,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 543:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ]
             //
             case 543: {
-                //#line 1598 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1598 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Valueopt = (Object) getRhsSym(3);
-                //#line 1598 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1598 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(6);
                 //#line 1600 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
+                //#line 1600 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Valueopt = (Object) getRhsSym(3);
+                //#line 1600 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Unsafeopt = (Object) getRhsSym(4);
+                //#line 1600 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(6);
+                //#line 1602 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, null));
                 break;
             }
@@ -5990,17 +5992,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 544:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression$distr ] Expression$initializer
             //
             case 544: {
-                //#line 1603 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1603 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Valueopt = (Object) getRhsSym(3);
-                //#line 1603 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1603 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr distr = (Expr) getRhsSym(6);
-                //#line 1603 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr initializer = (Expr) getRhsSym(8);
                 //#line 1605 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
+                //#line 1605 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Valueopt = (Object) getRhsSym(3);
+                //#line 1605 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Unsafeopt = (Object) getRhsSym(4);
+                //#line 1605 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr distr = (Expr) getRhsSym(6);
+                //#line 1605 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr initializer = (Expr) getRhsSym(8);
+                //#line 1607 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, distr, initializer));
                 break;
             }
@@ -6009,21 +6011,21 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 545:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ] ($lparen FormalParameter ) MethodBody
             //
             case 545: {
-                //#line 1608 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1608 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Valueopt = (Object) getRhsSym(3);
-                //#line 1608 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1608 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(6);
-                //#line 1608 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                IToken lparen = (IToken) getRhsIToken(8);
-                //#line 1608 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(9);
-                //#line 1608 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Block MethodBody = (Block) getRhsSym(11);
                 //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
+                //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Valueopt = (Object) getRhsSym(3);
+                //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Object Unsafeopt = (Object) getRhsSym(4);
+                //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(6);
+                //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                IToken lparen = (IToken) getRhsIToken(8);
+                //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                X10Formal FormalParameter = (X10Formal) getRhsSym(9);
+                //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Block MethodBody = (Block) getRhsSym(11);
+                //#line 1612 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 // Expr initializer = makeInitializer( pos(getRhsFirstTokenIndex(8), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
                 List formals = new TypedList(new ArrayList(1), Formal.class, false);
                 formals.add(FormalParameter);
@@ -6044,7 +6046,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 547: {
                 
-                //#line 1622 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1624 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -6054,9 +6056,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 551:  ArrayBaseType ::= ( Type )
             //
             case 551: {
-                //#line 1630 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(2);
                 //#line 1632 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(2);
+                //#line 1634 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Type);
                 break;
             }
@@ -6065,11 +6067,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 552:  ArrayAccess ::= ExpressionName [ ArgumentList ]
             //
             case 552: {
-                //#line 1636 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1636 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentList = (List) getRhsSym(3);
                 //#line 1638 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Name ExpressionName = (Name) getRhsSym(1);
+                //#line 1638 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentList = (List) getRhsSym(3);
+                //#line 1640 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 if (ArgumentList.size() == 1)
                      setResult(nf.X10ArrayAccess1(pos(), ExpressionName.toExpr(), (Expr) ArgumentList.get(0)));
                 else setResult(nf.X10ArrayAccess(pos(), ExpressionName.toExpr(), ArgumentList));
@@ -6080,11 +6082,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 553:  ArrayAccess ::= PrimaryNoNewArray [ ArgumentList ]
             //
             case 553: {
-                //#line 1643 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr PrimaryNoNewArray = (Expr) getRhsSym(1);
-                //#line 1643 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentList = (List) getRhsSym(3);
                 //#line 1645 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr PrimaryNoNewArray = (Expr) getRhsSym(1);
+                //#line 1645 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentList = (List) getRhsSym(3);
+                //#line 1647 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 if (ArgumentList.size() == 1)
                      setResult(nf.X10ArrayAccess1(pos(), PrimaryNoNewArray, (Expr) ArgumentList.get(0)));
                 else setResult(nf.X10ArrayAccess(pos(), PrimaryNoNewArray, ArgumentList));
@@ -6095,11 +6097,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 571:  NowStatement ::= now ( Clock ) Statement
             //
             case 571: {
-                //#line 1673 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Clock = (Expr) getRhsSym(3);
-                //#line 1673 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(5);
                 //#line 1675 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Clock = (Expr) getRhsSym(3);
+                //#line 1675 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(5);
+                //#line 1677 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Now(pos(), Clock, Statement));
                 break;
             }
@@ -6108,9 +6110,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 572:  ClockedClause ::= clocked ( ClockList )
             //
             case 572: {
-                //#line 1679 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClockList = (List) getRhsSym(3);
                 //#line 1681 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClockList = (List) getRhsSym(3);
+                //#line 1683 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(ClockList);
                 break;
             }
@@ -6119,13 +6121,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 573:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
             case 573: {
-                //#line 1685 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1685 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1685 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(4);
                 //#line 1687 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
+                //#line 1687 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClockedClauseopt = (List) getRhsSym(3);
+                //#line 1687 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(4);
+                //#line 1689 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -6137,11 +6139,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 574:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
             //
             case 574: {
-                //#line 1695 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1695 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(3);
                 //#line 1697 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
+                //#line 1697 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(3);
+                //#line 1699 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
                                                ? nf.Here(pos(getLeftSpan()))
                                                : PlaceExpressionSingleListopt), Statement));
@@ -6152,11 +6154,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 575:  WhenStatement ::= when ( Expression ) Statement
             //
             case 575: {
-                //#line 1704 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(3);
-                //#line 1704 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(5);
                 //#line 1706 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(3);
+                //#line 1706 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(5);
+                //#line 1708 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.When(pos(), Expression, Statement));
                 break;
             }
@@ -6165,15 +6167,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 576:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
             case 576: {
-                //#line 1709 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                When WhenStatement = (When) getRhsSym(1);
-                //#line 1709 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                IToken or = (IToken) getRhsIToken(2);
-                //#line 1709 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(4);
-                //#line 1709 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(6);
                 //#line 1711 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                When WhenStatement = (When) getRhsSym(1);
+                //#line 1711 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                IToken or = (IToken) getRhsIToken(2);
+                //#line 1711 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(4);
+                //#line 1711 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(6);
+                //#line 1713 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                 break;
@@ -6183,15 +6185,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 577:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
             case 577: {
-                //#line 1716 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1716 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(5);
-                //#line 1716 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1716 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(8);
                 //#line 1718 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
+                //#line 1718 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(5);
+                //#line 1718 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClockedClauseopt = (List) getRhsSym(7);
+                //#line 1718 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(8);
+                //#line 1720 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForEach(pos(),
                               FormalParameter.flags(FormalParameter.flags().Final()),
                               Expression,
@@ -6204,15 +6206,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 578:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
             case 578: {
-                //#line 1726 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1726 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(5);
-                //#line 1726 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1726 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(8);
                 //#line 1728 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
+                //#line 1728 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(5);
+                //#line 1728 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClockedClauseopt = (List) getRhsSym(7);
+                //#line 1728 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(8);
+                //#line 1730 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AtEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6225,13 +6227,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 579:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
             //
             case 579: {
-                //#line 1736 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1736 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(5);
-                //#line 1736 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(7);
                 //#line 1738 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
+                //#line 1738 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(5);
+                //#line 1738 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(7);
+                //#line 1740 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForLoop(pos(),
                         FormalParameter.flags(FormalParameter.flags().Final()),
                         Expression,
@@ -6243,9 +6245,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 580:  FinishStatement ::= finish Statement
             //
             case 580: {
-                //#line 1745 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(2);
                 //#line 1747 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(2);
+                //#line 1749 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
@@ -6254,11 +6256,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 581:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
             //
             case 581: {
-                //#line 1752 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Clock = (Expr) getRhsSym(3);
-                //#line 1752 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 //#line 1754 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Clock = (Expr) getRhsSym(3);
+                //#line 1754 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
+                //#line 1756 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Now(pos(), Clock, StatementNoShortIf));
                 break;
             }
@@ -6267,13 +6269,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 582:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
             //
             case 582: {
-                //#line 1758 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1758 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1758 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(4);
                 //#line 1760 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
+                //#line 1760 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClockedClauseopt = (List) getRhsSym(3);
+                //#line 1760 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(4);
+                //#line 1762 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt),
@@ -6285,9 +6287,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 583:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
             //
             case 583: {
-                //#line 1767 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
                 //#line 1769 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
+                //#line 1771 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), StatementNoShortIf));
                 break;
             }
@@ -6296,11 +6298,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 584:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
             //
             case 584: {
-                //#line 1773 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(3);
-                //#line 1773 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 //#line 1775 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(3);
+                //#line 1775 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
+                //#line 1777 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.When(pos(), Expression, StatementNoShortIf));
                 break;
             }
@@ -6309,15 +6311,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 585:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
             //
             case 585: {
-                //#line 1778 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                When WhenStatement = (When) getRhsSym(1);
-                //#line 1778 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                IToken or = (IToken) getRhsIToken(2);
-                //#line 1778 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(4);
-                //#line 1778 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(6);
                 //#line 1780 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                When WhenStatement = (When) getRhsSym(1);
+                //#line 1780 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                IToken or = (IToken) getRhsIToken(2);
+                //#line 1780 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(4);
+                //#line 1780 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(6);
+                //#line 1782 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, StatementNoShortIf);
                 setResult(WhenStatement);
                 break;
@@ -6327,15 +6329,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 586:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
             case 586: {
-                //#line 1785 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1785 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(5);
-                //#line 1785 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1785 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
                 //#line 1787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
+                //#line 1787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(5);
+                //#line 1787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClockedClauseopt = (List) getRhsSym(7);
+                //#line 1787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
+                //#line 1789 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6349,15 +6351,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 587:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
             case 587: {
-                //#line 1796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(5);
-                //#line 1796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
                 //#line 1798 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
+                //#line 1798 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(5);
+                //#line 1798 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClockedClauseopt = (List) getRhsSym(7);
+                //#line 1798 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
+                //#line 1800 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AtEach(pos(),
                             FormalParameter.flags(FormalParameter.flags().Final()),
                             Expression,
@@ -6370,13 +6372,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 588:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
             //
             case 588: {
-                //#line 1806 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1806 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(5);
-                //#line 1806 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(7);
                 //#line 1808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
+                //#line 1808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(5);
+                //#line 1808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(7);
+                //#line 1810 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                   setResult(nf.ForLoop(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6388,9 +6390,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 589:  FinishStatementNoShortIf ::= finish StatementNoShortIf
             //
             case 589: {
-                //#line 1815 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
                 //#line 1817 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
+                //#line 1819 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Finish(pos(), StatementNoShortIf));
                 break;
             }
@@ -6399,9 +6401,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 590:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
             case 590: {
-                //#line 1822 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr PlaceExpression = (Expr) getRhsSym(2);
                 //#line 1824 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr PlaceExpression = (Expr) getRhsSym(2);
+                //#line 1826 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
               setResult(PlaceExpression);
                 break;
             }
@@ -6411,7 +6413,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 592: {
                 
-                //#line 1832 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1834 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Next(pos()));
                 break;
             }
@@ -6420,9 +6422,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 593:  AwaitStatement ::= await Expression ;
             //
             case 593: {
-                //#line 1836 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(2);
                 //#line 1838 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(2);
+                //#line 1840 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
@@ -6431,9 +6433,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 594:  ClockList ::= Clock
             //
             case 594: {
-                //#line 1842 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Clock = (Expr) getRhsSym(1);
                 //#line 1844 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Clock = (Expr) getRhsSym(1);
+                //#line 1846 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -6444,11 +6446,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 595:  ClockList ::= ClockList , Clock
             //
             case 595: {
-                //#line 1849 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List ClockList = (List) getRhsSym(1);
-                //#line 1849 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Clock = (Expr) getRhsSym(3);
                 //#line 1851 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List ClockList = (List) getRhsSym(1);
+                //#line 1851 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Clock = (Expr) getRhsSym(3);
+                //#line 1853 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ClockList.add(Clock);
                 setResult(ClockList);
                 break;
@@ -6458,9 +6460,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 596:  Clock ::= Expression
             //
             case 596: {
-                //#line 1857 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(1);
                 //#line 1859 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(1);
+                //#line 1861 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
     setResult(Expression);
                 break;
             }
@@ -6469,11 +6471,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 597:  CastExpression ::= ( PrimitiveType ) UnaryExpression
             //
             case 597: {
-                //#line 1871 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode PrimitiveType = (TypeNode) getRhsSym(2);
-                //#line 1871 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr UnaryExpression = (Expr) getRhsSym(4);
                 //#line 1873 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode PrimitiveType = (TypeNode) getRhsSym(2);
+                //#line 1873 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr UnaryExpression = (Expr) getRhsSym(4);
+                //#line 1875 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), PrimitiveType, UnaryExpression));
                 break;
             }
@@ -6482,11 +6484,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 598:  CastExpression ::= ( SpecialType ) UnaryExpressionNotPlusMinus
             //
             case 598: {
-                //#line 1876 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode SpecialType = (TypeNode) getRhsSym(2);
-                //#line 1876 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
                 //#line 1878 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode SpecialType = (TypeNode) getRhsSym(2);
+                //#line 1878 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
+                //#line 1880 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), SpecialType, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6495,11 +6497,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 599:  CastExpression ::= ( ReferenceType ) UnaryExpressionNotPlusMinus
             //
             case 599: {
-                //#line 1881 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ReferenceType = (TypeNode) getRhsSym(2);
-                //#line 1881 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
                 //#line 1883 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ReferenceType = (TypeNode) getRhsSym(2);
+                //#line 1883 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
+                //#line 1885 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), ReferenceType, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6508,11 +6510,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 600:  CastExpression ::= ( ! Expression ) UnaryExpressionNotPlusMinus
             //
             case 600: {
-                //#line 1886 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(3);
-                //#line 1886 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(5);
                 //#line 1888 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(3);
+                //#line 1888 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(5);
+                //#line 1890 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6521,11 +6523,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 601:  CastExpression ::= ( AnnotatedType ) UnaryExpression
             //
             case 601: {
-                //#line 1891 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode AnnotatedType = (TypeNode) getRhsSym(2);
-                //#line 1891 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr UnaryExpression = (Expr) getRhsSym(4);
                 //#line 1893 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode AnnotatedType = (TypeNode) getRhsSym(2);
+                //#line 1893 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr UnaryExpression = (Expr) getRhsSym(4);
+                //#line 1895 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), AnnotatedType, UnaryExpression));
                 break;
             }
@@ -6534,11 +6536,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 602:  CastExpression ::= ( Annotations ) UnaryExpressionNotPlusMinus
             //
             case 602: {
-                //#line 1896 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List Annotations = (List) getRhsSym(2);
-                //#line 1896 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
                 //#line 1898 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List Annotations = (List) getRhsSym(2);
+                //#line 1898 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
+                //#line 1900 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr e = UnaryExpressionNotPlusMinus;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -6549,11 +6551,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 603:  RelationalExpression ::= RelationalExpression instanceof Type
             //
             case 603: {
-                //#line 1910 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1910 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 1912 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr RelationalExpression = (Expr) getRhsSym(1);
+                //#line 1912 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(3);
+                //#line 1914 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                 break;
             }
@@ -6562,9 +6564,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 604:  IdentifierList ::= identifier
             //
             case 604: {
-                //#line 1918 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 //#line 1920 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
+                //#line 1922 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Name.class, false);
                 l.add(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 setResult(l);
@@ -6575,11 +6577,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 605:  IdentifierList ::= IdentifierList , identifier
             //
             case 605: {
-                //#line 1925 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List IdentifierList = (List) getRhsSym(1);
-                //#line 1925 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 //#line 1927 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(1);
+                //#line 1927 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                //#line 1929 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 IdentifierList.add(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 setResult(IdentifierList);
                 break;
@@ -6590,7 +6592,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 606: {
                 
-                //#line 1934 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1936 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(((X10NodeFactory) nf).Here(pos()));
 //
 // A "here" expression used to be treated as an ExpressionName instead
@@ -6608,11 +6610,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 609:  RegionExpression ::= Expression$expr1 : Expression$expr2
             //
             case 609: {
-                //#line 1950 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1950 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr expr2 = (Expr) getRhsSym(3);
                 //#line 1952 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr expr1 = (Expr) getRhsSym(1);
+                //#line 1952 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr expr2 = (Expr) getRhsSym(3);
+                //#line 1954 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 /*Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
 
@@ -6633,9 +6635,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 610:  RegionExpressionList ::= RegionExpression
             //
             case 610: {
-                //#line 1968 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr RegionExpression = (Expr) getRhsSym(1);
                 //#line 1970 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr RegionExpression = (Expr) getRhsSym(1);
+                //#line 1972 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -6646,11 +6648,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 611:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
             case 611: {
-                //#line 1975 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List RegionExpressionList = (List) getRhsSym(1);
-                //#line 1975 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr RegionExpression = (Expr) getRhsSym(3);
                 //#line 1977 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List RegionExpressionList = (List) getRhsSym(1);
+                //#line 1977 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr RegionExpression = (Expr) getRhsSym(3);
+                //#line 1979 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                 break;
@@ -6660,9 +6662,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 612:  Primary ::= [ RegionExpressionList ]
             //
             case 612: {
-                //#line 1982 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                List RegionExpressionList = (List) getRhsSym(2);
                 //#line 1984 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                List RegionExpressionList = (List) getRhsSym(2);
+                //#line 1986 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Receiver x10LangPointFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.point.factory");
                 Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.region.factory");
                 Tuple tuple = nf.Tuple(pos(), x10LangPointFactory, x10LangRegionFactory, RegionExpressionList);
@@ -6674,11 +6676,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 613:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
             case 613: {
-                //#line 1991 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1991 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr expr2 = (Expr) getRhsSym(3);
                 //#line 1993 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr expr1 = (Expr) getRhsSym(1);
+                //#line 1993 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr expr2 = (Expr) getRhsSym(3);
+                //#line 1995 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ConstantDistMaker call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                 break;
@@ -6688,11 +6690,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 614:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
             //
             case 614: {
-                //#line 1998 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1998 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(4);
                 //#line 2000 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
+                //#line 2000 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(4);
+                //#line 2002 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Future(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt), Expression));
@@ -6704,7 +6706,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 615: {
                 
-                //#line 2008 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2010 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.MUTABLE));
                 break;
             }
@@ -6714,7 +6716,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 616: {
                 
-                //#line 2013 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2015 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL)));
                 break;
             }
@@ -6777,7 +6779,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 626:  MethodModifier ::= synchronized
             //
             case 626: {
-                //#line 2044 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2046 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"synchronized\" is an invalid X10 Method Modifier",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6789,7 +6791,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 627:  FieldModifier ::= volatile
             //
             case 627: {
-                //#line 2053 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2055 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"volatile\" is an invalid X10 Field Modifier",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6801,11 +6803,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 628:  SynchronizedStatement ::= synchronized ( Expression ) Block
             //
             case 628: {
-                //#line 2060 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(3);
-                //#line 2060 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                Block Block = (Block) getRhsSym(5);
                 //#line 2062 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Expr Expression = (Expr) getRhsSym(3);
+                //#line 2062 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                Block Block = (Block) getRhsSym(5);
+                //#line 2064 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Synchronized Statement is invalid in X10",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6874,7 +6876,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 645: {
                 
-                //#line 2104 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2106 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
          setResult(Collections.singletonList(X10Flags.toX10Flags(Flags.NONE)));
                 break;
             }  
@@ -6890,7 +6892,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 648: {
                 
-                //#line 2112 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2114 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -6907,9 +6909,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 650:  ParamIdopt ::= identifier
             //
             case 650: {
-                //#line 2119 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 //#line 2121 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
+                //#line 2123 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -6919,7 +6921,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 651: {
                 
-                //#line 2127 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2129 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
