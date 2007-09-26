@@ -27,7 +27,7 @@ struct __async__0__args
 
 static x10_int_t CS = 0;
 
-place PLACE (x10lib::here());
+x10::ref<place> PLACE = (x10::lang::place)x10lib::here();
 
 Ft::DoubleArray::DoubleArray (x10_int_t size, x10_int_t offset, x10_int_t proc) 
 {
@@ -295,7 +295,7 @@ void  Ft::solve() {
    
   double cputime1 = -mysecond();		
    
-  x10_place_t PID = PLACE.HERE;
+  x10_place_t PID = PLACE->id;
 
   CS = finishStart (CS);
 
@@ -550,7 +550,7 @@ void  Ft::checksum(const DoubleArray* C, const x10_int_t PID, const x10_int_t it
   //CS = finishStart(CS);
 
   __async__0__args args0(itr, res_real, res_imag);
-  if (0 == PLACE.HERE)
+  if (0 == PLACE->id)
     __async__0 (args0);
   else
     asyncSpawnInlineAgg (0, 0, &args0 , sizeof(__async__0__args));
@@ -563,7 +563,7 @@ void  Ft::checksum(const DoubleArray* C, const x10_int_t PID, const x10_int_t it
    
 void  Ft::print_Array(const DistDoubleArray* DDA){
 
-  x10_place_t PID = PLACE.HERE;   
+  x10_place_t PID = PLACE->id;   
   DoubleArray* da = DDA->getArray(PID);
   cout << "At place " << PID << endl;
      
