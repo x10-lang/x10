@@ -4,7 +4,7 @@
 MPI_CC  = /usr/bin/mpCC
 CC      = xlc
 
-FFT_HOME = /u/srkodali/fftw3
+FFT_HOME = /vol/x10/fftw3
 FFT_INC  = $(FFT_HOME)/include
 FFT_LIB  = $(FFT_HOME)/lib
 
@@ -15,7 +15,7 @@ CPAD_COLS = 1
 AUX_LIBS  = ""
 
 # CC/CFLAGS and should never be ?=, because Make always defines them
-CFLAGS  =  -q64 -I. -I$(FFT_INC) -I$(MPI_INC) -I$(PTHREAD_INC) -O3 -DCPAD_COLS=$(CPAD_COLS)
+CFLAGS  =  -q64 -I. -I$(FFT_INC) -I$(MPI_INC) -I$(PTHREAD_INC) -O3 -DCPAD_COLS=$(CPAD_COLS) -qarch=pwr5 -qtune=pwr5 -qhot -qnoinline
 
 COMOBJS = c_randdp.o verify.o init_exp.o
 

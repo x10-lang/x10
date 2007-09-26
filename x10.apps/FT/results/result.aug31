@@ -3,7 +3,7 @@ cluster : v20
 class : D
 version : pencils
 
-==========FLOPS (max)===========
+==========MFLOPS (max)===========
 PROCS   x10lib   lapi   
 1;      0.00000;        0.00000;       
 2;      0.00000;        0.00000;      
