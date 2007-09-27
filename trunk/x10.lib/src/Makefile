@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.43 2007-09-24 14:34:10 ganeshvb Exp $
+# $Id: Makefile,v 1.44 2007-09-27 07:12:45 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -14,9 +14,9 @@ SUBDIR1 = array
 SUBDIR2 = sched
 SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 LIBDIR = ../lib
-CXX = mpCC_r -q64 #-qarch=pwr5 
+CXX = mpCC_r -q64 -qarch=pwr5 
 DEFS =  -DNDEBUG -DX10_DLEVEL=0
-CXXFLAGS = g #-O3 -qinline #-qtune=pwr5  -qhot  
+CXXFLAGS = -O3 -qinline -qtune=pwr5  -qhot  
 INCLUDES = -I. -I../include
 LINKFLAGS =
 RM = rm -f
@@ -41,9 +41,9 @@ ARRAY_A = $(SUBDIR1)/array.a
 SRCS = aggregate.cc aggregate_hc.cc async.cc env.cc err.cc finish.cc gas.cc lock.cc \
 		order.cc progress.cc aggregate_ra.cc \
 		register.cc rmc.cc switch.cc x10lib.cc asyncSwitch.cc \
-		utility.cc misc.cc clock.cc arrayCopySwitch.cc
+		utility.cc misc.cc clock.cc arrayCopySwitch.cc standalone.cc
 OBJS = aggregate.o async.o env.o err.o finish.o gas.o lock.o \
-		order.o progress.o aggregate_ra.o\
+		order.o progress.o aggregate_ra.o standalone.o\
 		register.o rmc.o switch.o x10lib.o asyncSwitch.o \
 		utility.o misc.o clock.o aggregate_hc.o arrayCopySwitch.o
 HEADERS = env.h err.h gas.h lock.h order.h progress.h \

@@ -12,7 +12,7 @@ arrayCopySwitch (x10_async_handler_t h, void* args)
   exit(-1);
 }*/
 
-#define RING_SIZE 10
+#define RING_SIZE 1024
 
 static int copyCount = 0;
 
