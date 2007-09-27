@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.7 2007-09-19 10:24:12 ganeshvb Exp $
+ * $Id: misc.h,v 1.8 2007-09-27 12:49:05 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -45,6 +45,10 @@ namespace x10lib {
 		    x10_async_handler_t handler,
 		    void* args, size_t arg_size, 
 		    size_t dstOffset, size_t len, int target, Clock* c=NULL);
+  x10_err_t
+    asyncArrayCopy (void* src, size_t srcOffset,
+		    void* args, size_t arg_size, 
+		    size_t len, int target, Clock* c=NULL);
   
   //x10_err_t asyncArrayCopy (void* src, int srcOffset, void* dst, int dstOffset,
   //	       int target, int len, x10_switch_t swch);

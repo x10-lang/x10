@@ -49,6 +49,28 @@ static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_l
   return NULL; 
 }
 
+static void* asyncArrayCopyHandler_test (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
+			     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
+{
+  int handle = *((int*) uhdr);
+  int destOffset = * ((int*) uhdr + 1);
+
+  lapi_return_info_t *ret_info =
+    (lapi_return_info_t *)msg_len;
+  if (ret_info->udata_one_pkt_ptr) {
+    memcpy ((char*) arrayCopySwitch (handle, (void*) ((char*) uhdr + 2 *  sizeof(int))) + destOffset, ret_info->udata_one_pkt_ptr, *msg_len);
+    ret_info->ctl_flags = LAPI_BURY_MSG;
+    *comp_h = NULL;
+    return NULL;
+  } else {	  
+    ret_info->ret_flags = LAPI_LOCAL_STATE;
+    *comp_h = NULL;
+    return (char*) arrayCopySwitch (handle, (void*) ((char*) uhdr + 2 * sizeof(int))) + destOffset;
+  }
+  
+  return NULL; 
+}
+
 x10_err_t
 miscInit ()
 {
@@ -60,6 +82,7 @@ miscInit ()
   }
 
   LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler_test, ASYNC_ARRAY_COPY_HANDLER + 1));
 }
 
 x10_err_t
@@ -72,6 +95,29 @@ miscTerminate ()
 namespace x10lib {
 
   //TODO: take care of clock operations
+  x10_err_t
+  asyncArrayCopy (void* src, size_t srcOffset,
+		  void* args, size_t arg_size, 
+		  size_t len, int target, Clock* c)
+  {          
+    assert (arg_size >= 0 && arg_size < max_uhdr_sz);
+    
+    int tmp = -1;
+    
+    LRC (LAPI_Amsend (__x10_hndl, 
+		      target,
+		      (void*) (ASYNC_ARRAY_COPY_HANDLER + 1), 
+		      (void*) args,
+		      arg_size,
+		      (void*) ((char*) src + srcOffset),
+		      len,
+		      NULL,
+		      NULL,
+		      NULL));
+    
+    return X10_OK;
+  }
+
   x10_err_t
   asyncArrayCopy (void* src, size_t srcOffset,
 		  x10_async_handler_t handler,
