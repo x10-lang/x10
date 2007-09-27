@@ -70,7 +70,7 @@ void initStandAlone (lapi_info_t* info) {
   }
   
   /* Clear the struct (values in future fields will cause error). */
-  bzero(&lapi_info, sizeof(lapi_info_t));
+  memset(&lapi_info, 0, sizeof(lapi_info_t));
   extend_info = new lapi_extend_t;
  
   /* Assign the address of the lapi_extend_t to pass to LAPI */
