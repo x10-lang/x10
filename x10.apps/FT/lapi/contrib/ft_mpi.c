@@ -194,8 +194,9 @@ print_timers_T0()
 
     for (i=0; i < T_NUMTIMERS; i++) {
       avg = FTTimers_T0[i]/(1.0e6*THREADS);
-      printf(" 0> %32s: %10.4f (%10.4f)s\n", timer_descr(i), avg, 
-	     ((double)FTTimers_T0[i])/(1.0e6));
+      printf(" 0> %32s: %10.4f (%10.4f)s (root: %10.4f)\n", timer_descr(i), avg, 
+	     ((double)FTTimers_T0[i])/(1.0e6),
+	     ((double)total_timers[i])/(1.0e6));
     } 
 	
     avg = (double) (FTTimers_T0[T_TOTAL] / (1.0e6*THREADS));
