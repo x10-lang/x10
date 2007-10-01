@@ -36,7 +36,7 @@ FtStatic::DoubleArray::DoubleArray (x10_int_t size, x10_int_t offset)
   m_start = 0;
   m_end = size-1;
     
-  m_array = makeArrayLocal <double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
+  m_array = makeArrayLocalHeap <double, 1, RectangularRegion, ConstDist> (m_domain, NULL);
 }
   
 FtStatic::DoubleArray::DoubleArray (x10_int_t size, x10_int_t offset, x10_int_t p) 
