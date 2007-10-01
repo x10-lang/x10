@@ -192,6 +192,11 @@ print_timers_T0 ()
 
   if (TID == 0) 
   {
+    double roottimes[T_NUMTIMERS];
+
+    for (i = 0; i < T_NUMTIMERS; i++)
+      roottimes[i] = scratch[i];
+
     /* Accumulate the data in scratch into the lower portion of 
        the array. */
     for (t = 1; t < THREADS; t++)
@@ -201,8 +206,9 @@ print_timers_T0 ()
     for (i = 0; i < T_NUMTIMERS; i++) 
     {
       avg = scratch[i] / (1.0e6*THREADS);
-      printf (" 0> %32s: %10.4f (%10.4f)s\n", timer_descr (i), avg, 
-	      ((double)scratch[i])/(1.0e6));
+      printf (" 0> %32s: %10.4f (%10.4f)s (root: %10.4f)\n", timer_descr (i), avg, 
+	      ((double)scratch[i])/(1.0e6),
+	      ((double)roottimes[i])/(1.0e6));
     } 
     
     avg = (double) (scratch[T_TOTAL] / (1.0e6*THREADS));
