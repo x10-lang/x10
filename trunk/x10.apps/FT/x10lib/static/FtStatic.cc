@@ -406,9 +406,9 @@ void  FtStatic::checksum(const DoubleArray* C, const x10_int_t PID, const x10_in
   if (0 == PLACE->id)
     __async__0 (args0);
   else
-    asyncSpawnInlineAgg (0, 0, &args0 , sizeof(__async__0__args));
+    asyncSpawnInline (0, 0, &args0 , sizeof(__async__0__args));
   
-  asyncFlush (0, sizeof(__async__0__args));
+  //asyncFlush (0, sizeof(__async__0__args));
   
   //finishEnd (NULL);
 } 
