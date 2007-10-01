@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.15 2007-09-13 15:20:04 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.16 2007-10-01 08:12:10 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -16,17 +16,10 @@
 using namespace std;
 using namespace x10lib; 
 
-//duplicate (already one in async.h)
-#define X10_MAX_TASKS 1024
-
-#define X10_MAX_TASKS_NODE  16
-
-#define X10_MAX_NODES 64
-
 #define X10_EX_BUFFER_SIZE  1024
 
 static int bufSize = 0;
-static char buffer[X10_MAX_TASKS * X10_EX_BUFFER_SIZE];
+static char* buffer; 
 static int numExceptions;
  
 static lapi_cntr_t cntr1;
@@ -41,7 +34,7 @@ struct ptree_t
 {
   int numPeers;
   int numChild;
-  int children[X10_MAX_TASKS_NODE+X10_MAX_NODES];
+  int* children;
   int parent;
 };
 
@@ -102,9 +95,10 @@ finishInit ()
 
   continueCntr = new lapi_long_t [__x10_num_places];
 
+  buffer = new char [__x10_num_places * X10_EX_BUFFER_SIZE];
+
   //allocate the fence tree structure
   ftree = new ptree_t;
-
 
   //find my peers, i.e all the processes in the same node
   char* envstr = getenv ("MP_COMMON_TASKS");
@@ -112,6 +106,12 @@ finishInit ()
 
   //choose the one with the minimum rank as the parent of this group
   ftree->parent = __x10_my_place;
+
+  ftree->children = NULL;
+  if (__x10_my_place)
+    ftree->children = ftree->numPeers ? new int [ftree->numPeers] : NULL;
+  else 
+    ftree->children = new int [__x10_num_places];//an over-estimated value
 
   for (int i = 0; i < ftree->numPeers; i++)  {
     envstr = strchr (envstr, ':') + 1;
@@ -157,6 +157,11 @@ finishTerminate()
 {
   delete [] exceptionCntr;
   delete [] continueCntr;
+  delete [] buffer;
+
+  if (ftree->children) {
+    delete [] ftree->children;
+  }
   delete ftree;
 }
                    
