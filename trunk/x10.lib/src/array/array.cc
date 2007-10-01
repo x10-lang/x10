@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array.cc,v 1.9 2007-09-27 07:12:46 ganeshvb Exp $
+ * $Id: array.cc,v 1.10 2007-10-01 06:21:11 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -19,5 +19,5 @@ namespace x10lib
 void 
 arrayInit ()
 {
-  x10lib::GlobalSMAlloc = new x10lib::Allocator (1UL<<35);
+  x10lib::GlobalSMAlloc = new x10lib::Allocator (1UL<<10);
 }

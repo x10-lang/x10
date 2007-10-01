@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.13 2007-09-13 15:20:04 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.14 2007-10-01 06:21:11 ganeshvb Exp $ */
 
 #include "array.h"
 #include <x10/alloc.h>
@@ -133,6 +133,32 @@ makeLocalArray (int size)
 
 
 //================ For equi-distributed arrays cases =============================
+
+template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
+Array<T, RANK>*
+makeArrayLocalHeap (const Region<RANK>* region, const Dist<RANK>* dist)
+{  
+  assert (GlobalSMAlloc);
+
+  void** addrTable = NULL;
+  Array<T, RANK>* ret = NULL;
+  
+  //should move to distribution
+  uint64_t local_size = dist ? dist->card() : region->card();
+  //uint64_t local_size = region->card();
+  
+  addrTable = new void* [__x10_num_places];
+  for (x10_place_t p = 0; p < __x10_num_places; p++)
+    addrTable[p] =  NULL;
+
+  void* arraySpace = new char[(uint64_t) sizeof(Array<T, RANK>) + local_size * (uint64_t) sizeof(T)];
+  T* data = (T*) ((char*) arraySpace + sizeof(Array<T, RANK>)); 
+  ret = new(arraySpace) Array<T, RANK>(region, dist, local_size, data, addrTable);
+
+  delete [] addrTable;
+
+  return ret;
+}
 
 template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
 Array<T, RANK>*
