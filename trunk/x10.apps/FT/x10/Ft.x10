@@ -102,17 +102,17 @@ public final value Ft {
 		int N_PLACES = place.MAX_PLACES; //must be even
 
 		DoubleArray value [:self.rank==1] m_array;
-		int m_size;
+		long m_size;
 		int m_localSize;
 
 		DoubleArray getArray(int idx) {
 			return m_array[idx];
 		}
 		/* The dimension is logical */
-		DistDoubleArray(final int size, final int offset) {
+		DistDoubleArray(final long size, final int offset) {
 			assert size >= N_PLACES;
 			m_size = size;
-			m_localSize = size/N_PLACES;
+			m_localSize = (int)(size/N_PLACES);
 			dist(:rank==1) R = [0:N_PLACES-1]-> here; //otherwise you need to put a cast clause for the next statment
 			m_array = new DoubleArray value [R]; /* (point p) {
 								return new DoubleArray(m_localSize, offset);}; */
@@ -141,7 +141,8 @@ public final value Ft {
 
 	private final String class_id_str;
 	private final char class_id_char;
-	private final int CLASS, NX, NY, NZ, MAXDIM, MAX_ITER, TOTALSIZE, MAX_PADDED_SIZE;
+	private final int CLASS, NX, NY, NZ, MAXDIM, MAX_ITER;
+	private final long TOTALSIZE, MAX_PADDED_SIZE;
 	private final int [:self.rect && self.rank==1] dims = (int[:self.rect && self.rank==1]) new int [[0:8]];
 
 	private final double [:self.rect && self.rank==1] checksum_real;
@@ -232,8 +233,8 @@ public final value Ft {
 		}
 		//System.out.println(class_id_str+" FT_COMM = "+FT_COMM); 
 
-		TOTALSIZE = NX*NY*NZ;
-		MAX_PADDED_SIZE = Math.max(2*NX*(NY+CPAD_COLS)*NZ, Math.max(2*NY*(NZ+CPAD_COLS)*NX, 2*NZ*(NX+CPAD_COLS)*NY));
+		TOTALSIZE = NX*NY*(long)NZ;
+		MAX_PADDED_SIZE = Math.max(2L*NX*(NY+CPAD_COLS)*NZ, Math.max(2L*NY*(NZ+CPAD_COLS)*NX, 2L*NZ*(NX+CPAD_COLS)*NY));
 
 		dims[0] = NX; dims[1] = NY+CPAD_COLS; dims[2] = NZ;
 		dims[3] = NY; dims[4] = NZ+CPAD_COLS; dims[5] = NX;
@@ -251,14 +252,15 @@ public final value Ft {
 		final DistDoubleArray V = new DistDoubleArray(MAX_PADDED_SIZE, 0);
 		final DistDoubleArray ex = new DistDoubleArray(TOTALSIZE, 0);
 
-		double cputime1 = -mysecond();
+		double cputime3 = -mysecond();
 
+		final double [:rank==1] timers =new double [UNIQUE] (point p) {return 0;};
 		finish async {
 			final clock clk=clock.factory.clock();
 			ateach (point [PID]: UNIQUE) clocked(clk) {
 				/* passing constants to C, which are stored as external variables */
 				initializeC(NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
-				double cputime2;
+				double cputime1, cputime2;
 				int current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
 
 				final DoubleArray local_ex = ex.getArray(PID);
@@ -280,15 +282,18 @@ public final value Ft {
 				next;  
 
 				if (PID == 0) System.out.println("Start timing of IBM X10 NAS FT: class "+class_id_char+" ("+class_id_str+", FT_COMM = "+FT_COMM+")");
-				cputime2 = -mysecond();
+				cputime2 = -mysecond(); cputime1=cputime2;
 				current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
 				computeInitialConditions(localPlanes2d.m_array, PID);
 				init_exp(local_ex.m_array, 1.0e-6, PID);
 				FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
+				cputime1 += mysecond(); timers[PID]+=cputime1;
 				next;
+				cputime1 = -mysecond(); 
 				FT_1DFFT(FT_COMM, localPlanes1d.m_array, local_V.m_array, 0, FFT_FWD, current_orientation, PID);
+				cputime1 += mysecond(); timers[PID]+=cputime1;
 				next; //not redundant
-
+				cputime1 = -mysecond();
 				current_orientation = switch_view(current_orientation, PID);
 				int saved_orientation = current_orientation;
 
@@ -296,11 +301,15 @@ public final value Ft {
 					current_orientation = set_view(saved_orientation, PID);
 					parabolic2(localPlanes2d.m_array, local_V.m_array, local_ex.m_array, iter, 1.0e-6);
 					FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk);
+					cputime1 += mysecond(); timers[PID]+=cputime1;
 					next;
+					cputime1 = -mysecond();
 					FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_BWD, current_orientation, PID);
 					current_orientation = switch_view(current_orientation, PID);
 					checksum(localPlanes2d, PID, iter, clk);
+					cputime1 += mysecond(); timers[PID]+=cputime1;
 					next;
+					cputime1 = -mysecond();
 					if (PID == 0) {
 						System.out.println(" Iter = "+iter+" checksum_real = "+
 								checksum_real[iter]+" checksum_imag = "+checksum_imag[iter]);
@@ -310,9 +319,12 @@ public final value Ft {
 				if (PID == 0) System.out.println("The wall clock time for the timed section is "+cputime2+" secs");
 			}
 		}
-
-		cputime1 += mysecond();
-		System.out.println("The overall wall clock time is "+cputime1+" secs");
+		
+		double sum = timers.sum();
+		if (here.id == 0) System.out.println("The mean wall clock time for the timed section is "+(sum/NUMPLACES));
+		cputime3 += mysecond();
+		System.out.println("The overall wall clock time is "+cputime3+" secs");
+		
 		if (class_id_char !='T') checksum_verify(NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);
 		//System.out.println("Content of Planes2d:"); printArray(Planes2d);
 		//System.out.println("Content of ex:"); printArray(ex);
