@@ -1186,6 +1186,24 @@ implements X10ParsedClassType
 		}
 		return self;
 	}
+	
+	/**
+	 * The arg must be a region type. Set the properties of this type (rank, isZeroBased, isRect)
+	 * from arg.
+	 * @param arg
+	 */
+	public void acceptRegionProperties(X10ParsedClassType arg) {
+		C_Var rank = arg.rank();
+		acceptRegionProperties(rank, arg.isZeroBased(), arg.isRect());
+	}
+	public void acceptRegionProperties(C_Var rank, boolean isZeroBased, boolean isRect) {
+		if (rank != null) setRank(rank);
+		if (isZeroBased) setZeroBased();
+		if (isRect) setRect();
+	}
+	public void setZeroBasedRectRankOne() {
+		acceptRegionProperties(((X10TypeSystem) typeSystem()).ONE(), true, true);
+	}
 	/** Set the value of this property on the constraints of this type. Should be called
 	 * only within code that is transferring properties to this type from 
 	 * properties of referenced types, e.g. an array is zeroBased if its region is. 
