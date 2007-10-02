@@ -4297,16 +4297,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             // Rule 392:  Argumentsopt ::= $Empty
             //
-            case 392:
-                setResult(null);
+            case 392: {
+                
+                //#line 2332 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
- 
-            //
-            // Rule 393:  Argumentsopt ::= Arguments
-            //
-            case 393:
-                throw new Error("No action specified for rule " + 393);
- 
+            }
+     
             //
             // Rule 394:  ,opt ::= $Empty
             //
@@ -4319,8 +4316,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 396: {
                 
-                //#line 2351 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
-                setResult(new TypedList(new LinkedList(), Catch.class, false));
+                //#line 2353 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
      
@@ -4329,7 +4326,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 398: {
                 
-                //#line 2358 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2360 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
@@ -4346,7 +4343,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 402: {
                 
-                //#line 2369 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2371 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4363,7 +4360,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 406: {
                 
-                //#line 2380 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2382 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
@@ -4373,7 +4370,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 408: {
                 
-                //#line 2387 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2389 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4383,7 +4380,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 410: {
                 
-                //#line 2394 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2396 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4393,7 +4390,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 412: {
                 
-                //#line 2401 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2403 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4403,7 +4400,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 414: {
                 
-                //#line 2408 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2410 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -4413,7 +4410,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 416: {
                 
-                //#line 2415 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2417 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4423,7 +4420,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 418: {
                 
-                //#line 2422 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2424 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                setResult(nf.TypeNodeFromQualifiedName(pos(), "x10.lang.Object"));
                 break;
             }
@@ -4433,7 +4430,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 420: {
                 
-                //#line 2433 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2435 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4441,22 +4438,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             // Rule 422:  Annotationsopt ::= $Empty
             //
-            case 422:
-                setResult(null);
+            case 422: {
+                
+                //#line 2442 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                 break;
- 
-            //
-            // Rule 423:  Annotationsopt ::= Annotations
-            //
-            case 423:
-                throw new Error("No action specified for rule " + 423);
- 
+            }
+     
             //
             // Rule 424:  TypeDeclarationsopt ::= $Empty
             //
             case 424: {
                 
-                //#line 2445 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2449 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
@@ -4466,7 +4460,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 426: {
                 
-                //#line 2452 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2456 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
