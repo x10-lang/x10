@@ -98,5 +98,8 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	 * @throws SemanticException
 	 */
 	void checkRealClause() throws SemanticException;
-	public void setRealClause(Constraint realClause);
+	void setRealClause(Constraint realClause);
+	
+	void acceptRegionProperties(X10ParsedClassType arg);
+	void setZeroBasedRectRankOne();
 }

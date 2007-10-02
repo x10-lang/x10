@@ -7,53 +7,35 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
+import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
-import polyglot.ast.Formal;
+import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
-import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Call_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
-import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Local;
-import polyglot.ext.x10.types.constr.C_Local_c;
-import polyglot.ext.x10.types.constr.C_Root;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Promise;
-import polyglot.ext.x10.visit.TypeElaborator;
-import polyglot.main.Report;
 import polyglot.types.Context;
-import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
-import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
+import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.C_Var_c;
 
 /**
  * A method call wrapper to rewrite getLocation() calls on primitives
- * and array operator calls.
+ * and array operator calls. And perform other dep type processing on some selected method calls.
  * @author Igor
  */
 public class X10Call_c extends Call_c {
@@ -61,6 +43,7 @@ public class X10Call_c extends Call_c {
                      List arguments) {
         super(pos, target, name, arguments);
     }
+    
 
     /**
      * Rewrite getLocation() to Here for value types and operator calls for
@@ -87,6 +70,23 @@ public class X10Call_c extends Call_c {
         	}
         	result = result.adjustMI(tc);
         	result.checkAnnotations(tc);
+        	final int argSize = result.arguments.size();
+        	if (result.name().equals("block") && (argSize <= 1) && (result.target instanceof Field)) {
+        			
+        		String name = ((Field) result.target).name();
+        		if (name.equals("factory")) {
+        			Type type = result.type();
+    				X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
+        			if (argSize == 0) {
+        				rType.setZeroBasedRectRankOne();
+        			} else{
+        				Type argType =  ((Expr) arguments.get(0)).type();
+        				assert xts.isRegion(argType);
+        				rType.acceptRegionProperties((X10ParsedClassType) argType);
+        			}
+        			return result.type(rType);
+        		}
+        	}
         	return result;
         } catch (NoMemberException e) {
             if (e.getKind() != NoMemberException.METHOD || this.target == null)
