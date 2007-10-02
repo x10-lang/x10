@@ -2328,9 +2328,11 @@
                    | ClassBody
 
     Argumentsopt ::= %Empty
-        /.$NullAction./
+        /.$BeginJava
+                    setResult(new TypedList(new LinkedList(), Expr.class, false));
+          $EndJava
+        ./
                    | Arguments
-        /.$BadAction./
 
     EnumBodyDeclarationsopt ::= %Empty
         /.$NullAction./
@@ -2348,7 +2350,7 @@
 
     ArgumentListopt ::= %Empty
         /.$BeginJava
-                    setResult(new TypedList(new LinkedList(), Catch.class, false));
+                    setResult(new TypedList(new LinkedList(), Expr.class, false));
           $EndJava
         ./
                       | ArgumentList
@@ -2436,9 +2438,11 @@
                         | ClassModifiers
 
     Annotationsopt ::= %Empty
-        /.$NullAction./
+        /.$BeginJava
+                    setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
+          $EndJava
+        ./
                      | Annotations
-        /.$BadAction./
 
     TypeDeclarationsopt ::= %Empty
         /.$BeginJava
