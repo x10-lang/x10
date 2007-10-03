@@ -9,6 +9,7 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -19,6 +20,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Context;
@@ -28,10 +30,6 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.TypeChecker;
-import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.ext.x10.types.constr.C_Lit;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.C_Var_c;
 
 /**
  * A method call wrapper to rewrite getLocation() calls on primitives
@@ -70,24 +68,9 @@ public class X10Call_c extends Call_c {
         	}
         	result = result.adjustMI(tc);
         	result.checkAnnotations(tc);
-        	final int argSize = result.arguments.size();
-        	if (result.name().equals("block") && (argSize <= 1) && (result.target instanceof Field)) {
-        			
-        		String name = ((Field) result.target).name();
-        		if (name.equals("factory")) {
-        			Type type = result.type();
-    				X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
-        			if (argSize == 0) {
-        				rType.setZeroBasedRectRankOne();
-        			} else{
-        				Type argType =  ((Expr) arguments.get(0)).type();
-        				assert xts.isRegion(argType);
-        				rType.acceptRegionProperties((X10ParsedClassType) argType);
-        			}
-        			return result.type(rType);
-        		}
-        	}
-        	return result;
+        	Expr r = result.setDeptypeForBuiltInCalls(xts);
+        	
+        	return r;
         } catch (NoMemberException e) {
             if (e.getKind() != NoMemberException.METHOD || this.target == null)
                 throw e;
@@ -133,6 +116,42 @@ public class X10Call_c extends Call_c {
         }
     }
 
+    /**
+     * Check if this is a call to built in methods -- methods such as x10.lang.dist.factory.block(region r)
+     * which have a dependent return type but are currently implemented as Java hence we do not
+     * have the right signature for them. This is stand-in code and should go away when we find 
+     * a way to express all our libraries (e.g. x10.lang.dist) in X10 instead of Java.
+     * 
+     * This method must be called only after base-level type-checking has been performed. Therefore
+     * the type of this has already been set, e.g. to dist. This method should simply set
+     * the depclause on the result type if there is information in the arguments that requires this,
+     * @author vj
+     * @param xts
+     * @return
+     */
+    public Expr setDeptypeForBuiltInCalls(X10TypeSystem xts) {
+    	final int argSize = arguments.size();
+    	if (name().equals("block") && (argSize <= 1) && (target instanceof Field)) {
+    			// handles the method
+    		    // dist(:rank==a.rank,isZeroBased=a.isZeroBased,rect==a.rect) block(final region a)
+    		    // on the class x10.lang.dist.factory. (Actually, it checks that the receiver is 
+    		    // a field called factory, and the methodname is block and the call has <= 1 args.)
+    		String name = ((Field) target).name();
+    		if (name.equals("factory")) {
+    			Type type = type();
+				X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
+    			if (argSize == 0) {
+    				rType.setZeroBasedRectRankOne();
+    			} else{
+    				Type argType =  ((Expr) arguments.get(0)).type();
+    				assert xts.isRegion(argType);
+    				rType.transferRegionProperties((X10ParsedClassType) argType);
+    			}
+    			return type(rType);
+    		}
+    	}
+    	return this;
+    }
   
    
     /**

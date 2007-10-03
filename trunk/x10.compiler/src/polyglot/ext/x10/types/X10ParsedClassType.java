@@ -100,6 +100,15 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	void checkRealClause() throws SemanticException;
 	void setRealClause(Constraint realClause);
 	
-	void acceptRegionProperties(X10ParsedClassType arg);
+	/**
+	 * Transfer properties from arg to this (should be a dist type, but this is not checked).
+	 * Specifically, rank, isZeroBased and rect are transferred.
+	 * @param arg -- should represent a region type
+	 */
+	void transferRegionProperties(X10ParsedClassType arg);
+	/**
+	 * Add the clause rank==1 && rect && isZeroBased to this.
+	 *
+	 */
 	void setZeroBasedRectRankOne();
 }
