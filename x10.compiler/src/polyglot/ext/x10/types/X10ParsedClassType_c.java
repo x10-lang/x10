@@ -1192,7 +1192,7 @@ implements X10ParsedClassType
 	 * from arg.
 	 * @param arg
 	 */
-	public void acceptRegionProperties(X10ParsedClassType arg) {
+	public void transferRegionProperties(X10ParsedClassType arg) {
 		C_Var rank = arg.rank();
 		acceptRegionProperties(rank, arg.isZeroBased(), arg.isRect());
 	}
