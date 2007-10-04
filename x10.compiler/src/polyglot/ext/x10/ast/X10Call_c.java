@@ -7,6 +7,11 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Call;
@@ -63,7 +68,7 @@ public class X10Call_c extends Call_c {
             // If we found a method, the call must type check, so no need to check
             // the arguments here.
             result.checkConsistency(c);
-        	if (!  result.target().type().isCanonical()) {
+        	if (! result.target().type().isCanonical()) {
         		return result;
         	}
         	result = result.adjustMI(tc);
@@ -75,11 +80,11 @@ public class X10Call_c extends Call_c {
             if (e.getKind() != NoMemberException.METHOD || this.target == null)
                 throw e;
             Type type = target.type();
-            if (!xts.isX10Array(type))
-                throw e;
-            // Special methods on arrays
             String name = name();
             List arguments = arguments();
+            ReferenceType java_io_PrintStream = (ReferenceType) xts.forName("java.io.PrintStream");
+            if (xts.isX10Array(type)) {
+            // Special methods on arrays
             Type elem = xts.baseType(type);
             //reduce(), scan(), restriction(), union(), overlay(), update(), and lift()
             if ((name.equals("reduce") && arguments.size() == 2 &&
@@ -109,6 +114,23 @@ public class X10Call_c extends Call_c {
                 List newargs = TypedList.copy(arguments, Expr.class, false);
                 newargs.add(0, this.target);
                 return ((X10Call_c)this.target(t).arguments(newargs)).superTypeCheck(tc);
+            }
+            } else
+            // FIXME: [IP] HACK: do not typecheck printf beyond the first argument
+            if (xts.equals(type, java_io_PrintStream)) {
+                if (name.equals("printf") && arguments.size() >= 1 &&
+                        xts.isSubtype(((Expr) arguments.get(0)).type(), xts.String()))
+                {
+                    try {
+                        MethodInstance new_mi = xts.findMethod(java_io_PrintStream, "printf",
+                                Arrays.asList(new Type[] { xts.String(), xts.arrayOf(xts.Object()) }),
+                                tc.context().currentClass());
+                        return (X10Call_c)this.methodInstance(new_mi).type(new_mi.returnType());
+                    } catch (NoMemberException f) {
+                        // For Java 1.4, we need to emulate this method
+                        // TODO: generate a call to x10.lang.Runtime.printf(PrintStream, String, Object[]) instead
+                    }
+                }
             }
             throw e;
         } finally {
