@@ -358,6 +358,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 		MethodInstance mi = nativeMethod.methodInstance();
 
+		// FIXME: [IP] This looks like a bug -- in the stub, we do something else if the method is overloaded
 		String nativeName = generateX10NativeName(nativeMethod);
 		MethodDecl_c newNative = (MethodDecl_c)nativeMethod.name(nativeName);
 		ArrayList newFormals = new ArrayList();
@@ -447,6 +448,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		MethodDecl_c nativeWrapper = nativeMethod;
 
 		ArrayList newArgs = new ArrayList();
+		// FIXME: [IP] This looks like a bug -- in the stub, we do something else if the method is overloaded
 		String jniName = generateX10NativeName(nativeMethod);
 
 		TypeNode receiver = nf.CanonicalTypeNode(pos, mi.container());
@@ -709,7 +711,6 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		}
 
 		try {
-                String getcrit="/*call get critical section*/\n";
 			wrapperFile.write("\n/* * * * * * * */\n"+wrapperDecl + "\n"+jniCall + " {\n" +
                                           acquireStmts+"\n"+
 					  "\n"+
@@ -718,6 +719,11 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                                           releaseStmts+
 					  returnedValue+
                                           "}\n" + jniAlias);
+			// Also generate the underscored alias for retarded Win32 loaders
+			wrapperFile.write("#ifndef __WIN32__\nextern JNIEXPORT __typeof("
+					 + newName + ") JNICALL\n_" + newName
+					 + "\n__attribute((alias(\""
+					 + newName + "\")));\n#endif\n\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new Error("Problems writing file");
@@ -763,7 +769,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 	/**
 	 * Identify native (aka extern) x10 methods and create a wrapper with
-	 * the same name.  The wrapper make a JNI call to a routine which
+	 * the same name.  The wrapper makes a JNI call to a routine which
 	 * then calls the expected X10 native call.
 	 * e.g.
 	 * <code>
