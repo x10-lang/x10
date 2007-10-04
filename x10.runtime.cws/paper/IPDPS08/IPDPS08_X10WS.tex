@@ -1,0 +1,42 @@
+
+\documentclass{ieee}
+
+%------------------------------------------------------------------------- 
+% 
+% Use \documentclass[pagenumbers]{ieee}
+%
+% to produce page numbers, bottom centered, in the output. Default is 
+% no page numbers for camera-ready copy.
+%
+%------------------------------------------------------------------------- 
+\usepackage[pdftex]{graphicx}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{enumerate, amscd,  amsmath}  
+\usepackage{amssymb}
+\numberwithin{equation}{section}
+
+\begin{document}
+\DeclareGraphicsExtensions{.jpg, .pdf, .mps, .gif, .png}
+\title{Solving Large, Irregular Graph Problems in X10}
+
+\author{IBM Research}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+X10 work scheduling
+\end{abstract}
+
+
+
+%------------------------------------------------------------------------- 
+\input introduction2X10
+%------------------------------------------------------------------------- 
+
+\bibliographystyle{ieee}
+\bibliography{IPDPS08_X10WS}
+
+\end{document}
+
