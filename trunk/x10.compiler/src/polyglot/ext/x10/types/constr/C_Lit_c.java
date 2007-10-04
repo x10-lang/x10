@@ -41,6 +41,7 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
                 if (val == null) return "null";
                 if (type().isLong()) return val.toString() + "L";
                 if (type().isFloat()) return val.toString() + "F";
+                if (type().equals(type().typeSystem().String())) return "\"" + val + "\"";
                 return val.toString();
         }
 	public int hashCode() {
