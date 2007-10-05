@@ -132,6 +132,10 @@ package x10.runtime.cws;
     public Frame currentFrame() {
     	return stack[tail-1];
     }
+    
+    public Frame currentFrameIfStackExists() {
+    	return (stack !=null && head  < tail)? stack[tail-1] : null;
+    }
    
     protected void popFrame() {
 		--tail;

@@ -124,6 +124,7 @@ public class Pool {
     }
 
     long time() {
+    	if (currentJob==null) return 0L;
     	return ((System.nanoTime() - currentJob.startTime)/1000000);
     }
     
