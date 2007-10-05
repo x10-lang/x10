@@ -632,7 +632,7 @@ public class Worker extends Thread {
 				// Found some work! Execute it.
 				idleScanCount=-1;
 				assert cache == null || cache.empty();
-				if (true) {
+				if (reporting) {
 					System.out.println(this + " executes " + cl +". cache=" + cache.dump());
 				}
 				try {

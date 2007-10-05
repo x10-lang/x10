@@ -84,7 +84,7 @@ public class SV {
 			} else {
 				m++;
 				NB[s][D[s]++]=e;
-				if (e != s) NB[e][D[e]++]=s;
+				NB[e][D[e]++]=s;
 			}
 		}  
 		if (reporting || graphOnly) {
@@ -104,7 +104,8 @@ public class SV {
 		
 		int top=-1;
 		ncomps=0;
-		for(int i=0;i<N && G[i].level != 1;i++) {
+		for(int i=0;i<N ;i++) {
+			if (G[i].level==1) continue;
 			G[i].level=1;
 			cc[ncomps++]=stack[++top]=i;
 			while(top!=-1) {
@@ -119,7 +120,7 @@ public class SV {
 			}
 		}
 		
-		if (reporting && graphOnly) System.out.println("ncomps="+ncomps);
+		if (reporting) System.out.println("ncomps="+ncomps);
 		El1 = new E [m+ncomps-1]; 
 		
 		
@@ -131,12 +132,7 @@ public class SV {
 			if(j!=m) 
 				System.out.println("Remove duplicates failed");
 			else System.out.println("Remove duplicates succeeded,j=m="+j);
-			System.out.println("Edges:");
-			for (int i=0; i <El1.length; i++) {
-				System.out.print(El1[i]+" ");
-				if (i%5==0) System.out.println();
-			}
-			System.out.println();
+			
 		}
 		
 		/*add edges between neighboring connected comps*/
@@ -194,16 +190,16 @@ public class SV {
 					this.vHigh=(j+1)*localVertexSize-1;
 					this.eLow = j*localEdgeSize;
 					this.eHigh = (j+1)*localEdgeSize-1;
-					if (j==numWorkers-1 && localEdgeSize*numWorkers != edgeSize)
-	                   eHigh= edgeSize-1;
-					//System.out.println("Created SVWorker " + j 
-					//		+ " vLow=" + vLow + " vHigh=" + vHigh + " eLow=" + eLow + " eHigh=" + eHigh);
+					if (j==numWorkers-1) {
+						if (localEdgeSize*numWorkers != edgeSize) eHigh= edgeSize-1;
+						if (localVertexSize*numWorkers !=N) vHigh = N-1;
 					}
+				}
 				public String toString() { return "SVWorker " + j;}
 				public void compute(Worker w)  throws StealAbort {
 				
-				System.out.println(w + " starts computing on " + this);
 					boolean changed = true;
+				    
 					while (changed) {
 						changed = false;
 						for (int i=eLow; i <=eHigh; i++) {
@@ -215,49 +211,28 @@ public class SV {
 							if(s < e && e==ee) ID[e]=i;
 							if(e < s && s==D1[s]) ID[s]=i;
 						}
-						//print(ID, "ID"); print(D1, "D1");
-
-						//System.out.println(w + "Activity " + j + " arriving at 1. " + barrier);
 						barrier.arriveAndAwait(); 
-						
-						for (int i=eLow; i <=eHigh; i++) {
-							//	System.out.println("Examining " + El1[i]);
+						for (int i=eLow; i <=eHigh; ++i) {
 							final int v1=El1[i].v1, v2=El1[i].v2,s=D1[v1], e=D1[v2], ee=D1[e];
 							if(s < e && e==ee && ID[e]==i) {
-								D1[e]=s; //System.out.println("D[" + e + "]<-" + s);
-								El1[i].inTree=true;
-								//System.out.println(El1[i] + " in tree.");
-								changed=true;
+								D1[e]=s; 
+								El1[i].inTree=changed=true; 
 							}
 							if(e < s && s==D1[s] && ID[s]==i) {
-								D1[s]=e; //System.out.println("D[" + s + "]<-" + e);
-								El1[i].inTree=true;
-								//System.out.println(El1[i] + " in tree.");
-								changed=true;
+								D1[s]=e; 
+								El1[i].inTree=changed=true; 
 							}                        
 						}
-						//print(D1, "D1");
-						//System.out.println(w + " arrives at 2 changed?" + changed);
-						//System.out.println(w + "Activity " + j + " arriving at 2. " + barrier);
+						
 						barrier.arriveAndAwait();
 						
 						/*Make sure the labels of each group is the same.*/
-						for (int i=vLow; i <=vHigh; i++) {
-							int p = D1[i];
-							while (D1[p]!=p) 
-								D1[i]=p=D1[p];
-							//System.out.println("Label(" + i + ")-->" + p);
-						}
-						//print(D1, "D1");
-						//System.out.println(w + " arrives at 3.");
-						//System.out.println(w + "Activity " + j + " arriving at 3. " + barrier);
+						for (int i=vLow; i <=vHigh; i++) 
+							while (D1[D1[i]]!=D1[i]) D1[i]=D1[D1[i]];
 						barrier.arriveAndAwait();
 						
 					} // while
-					//System.out.println(w + " finishes computing on " + this);
-					//System.out.println(w  + "Deregistering " + j + ". " + barrier);
 					barrier.arriveAndDeregister();
-					//System.out.println(w + "Deregistered " + j + ". " + barrier);
 					w.popFrame();
 							
 				}
