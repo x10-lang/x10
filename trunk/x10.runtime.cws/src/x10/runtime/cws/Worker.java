@@ -480,19 +480,23 @@ public class Worker extends Thread {
 			
 			Worker victim = workers[idx];
 			if (victim != null && victim !=thief) {
-				//System.out.println(thief +  " at " + pool.time() + ": tries to steal from " + victim + "...");
-				cl = (jobRequiresGlobalQuiescence) 
+				//System.out.print(thief +  " at " + pool.time() + ": tries to steal from " 
+				//		+ victim.cache.dump() + "...");
+				/*cl = (jobRequiresGlobalQuiescence) 
 				? victim.stealFrame(thief, retry) 
-						: victim.steal(thief,retry);
+						: victim.steal(thief,retry);*/
+				cl = victim.steal(thief, retry);
 				if (cl == null) {
+					//System.out.println("fails.");
 					if ((sleeper == null) && // first sleeping worker
 							victim.sleepStatus== SLEEPING)
 						sleeper=victim;
 				} else {
+					//System.out.println(" gets " +  cl + ".");
 					idleScanCount = -1;
 					++stealCount;
-					if (sleeper !=null)
-						sleeper.wakeup();
+					if (sleeper !=null) sleeper.wakeup();
+					jobRequiresGlobalQuiescence = victim.jobRequiresGlobalQuiescence;
 					return cl;
 				}
 			}
@@ -507,14 +511,12 @@ public class Worker extends Thread {
 		return mainLoop? getTaskFromPool(sleeper) : null;
 	}
 	private void setJob(Job currentJob) {
-		if (currentJob == null)
-			currentJob = pool.currentJob;
+		if (currentJob == null) currentJob = pool.currentJob;
 		if (currentJob==null) return;
-		assert currentJob != null;
+		jobRequiresGlobalQuiescence = currentJob.requiresGlobalQuiescence();
 		if (this.job != currentJob) {
 			this.job = currentJob;
 			activeTime = 0;
-			jobRequiresGlobalQuiescence = currentJob.requiresGlobalQuiescence();
 			if (reporting)
 				System.out.println(this + ": job " + currentJob 
 						+ (jobRequiresGlobalQuiescence? " requires " : " does not require ")
@@ -527,12 +529,11 @@ public class Worker extends Thread {
      * @param sleeper a worker noticed to be sleeping while scanning
      */
     private Closure getTaskFromPool(Worker sleeper) {
-    	job=null;
+    	this.job=null;
         Job job = pool.getJob();
         if (job != null) {
             idleScanCount = -1;
-            if (sleeper != null)
-                sleeper.wakeup();
+            if (sleeper != null) sleeper.wakeup();
             checkOut(job);
             setJob(job);
             return job;
@@ -588,13 +589,21 @@ public class Worker extends Thread {
 				if (jobRequiresGlobalQuiescence) {
 					Cache cache = this.cache;
 					for(;;) {
-						Frame f = cache.popAndReturnFrame(this);
+						Frame f = cache.currentFrameIfStackExists(); // cache.popAndReturnFrame(this);
+						
 						if (f == null) {
 							assert cache.empty();
 							break;
 						}
 						try {
+							if (reporting)
+								System.out.println(this + " starts executing " + f);
 							f.compute(this);
+							if (reporting)
+								System.out.println(this + " finishes executing " + f + ".");
+							// do not pop this frame. We leave it up to the code in the 
+							// frame to pop off the frame.
+							//cache.popFrame();
 						} catch (StealAbort z) {
 						 // do nothing. the exception has done its work
 						 // unwinding the Java call stack.
@@ -615,14 +624,16 @@ public class Worker extends Thread {
 			}
 			if (cl == null) 
 				// Steal, or get it from the job.
+				if ((reporting)) 
+					System.out.println(this + " has no closure. Trying to get one." );
 				cl = getTask(true);
 			
 			if (cl !=null) {
 				// Found some work! Execute it.
 				idleScanCount=-1;
 				assert cache == null || cache.empty();
-				if ( reporting) {
-					System.out.println(this + " executes " + cl +".");
+				if (true) {
+					System.out.println(this + " executes " + cl +". cache=" + cache.dump());
 				}
 				try {
 					long ts = System.nanoTime();
@@ -663,6 +674,9 @@ public class Worker extends Thread {
 	 * @param frame -- the frame to be pushed.
 	 */
 	public void pushFrame(Frame frame) {
+		
+			if (reporting)
+				System.out.println(this + " pushes " + frame);
 		cache.pushFrame(frame);
 	}
 	/**

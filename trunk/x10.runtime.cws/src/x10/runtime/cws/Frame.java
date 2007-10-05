@@ -83,6 +83,7 @@ public class Frame implements Cloneable, Executable {
 		c.resetExceptionPointer(w);
 		try {
 			compute(w);
+			//c.popFrame();
 		} catch (StealAbort z) {
 			// do nothing. the exception has done its work
 			// unwinding the call stack.

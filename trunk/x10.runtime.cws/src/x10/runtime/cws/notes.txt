@@ -1,3 +1,16 @@
+October 4, 2007
+
+There is a negative interaction between the mechanism for stealing and the
+mechanism for executing frames left behind on the stack (for globallyQuiescent computations).
+
+For a frame or closure to be stolen it must be the case that the victim has at least two 
+frames on its cache's stack. The upper frame is the one that will be stolen, 
+the lower frame is the one that the victim is currently working on. 
+
+Therefore, when the victim enters the mode in which it is executing the frames on the cache's
+dequeue one by one, it cannot simply pop the element of the stack. It must execute the current
+frame without popping it. When it succeeds in executing this frame, then it must pop the frame.
+
 Wed May 16 06:27:36 2007
 
 Work stealing notes.

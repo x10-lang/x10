@@ -26,7 +26,6 @@ public class SV {
 			return "V("+index+")";
 		}
 	}
-	
 	class E{
 		public int v1,v2;
 		public boolean inTree;
@@ -37,9 +36,6 @@ public class SV {
 	int m;
 	final V[] G;
 	final E[] El, El1;
-	
-
-	//AtomicIntegerArray visitCount ;
 	int ncomps=0;
 
 	static int[] Ns = new int[] {10};//1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000, 5*1000*1000};
@@ -91,13 +87,14 @@ public class SV {
 				if (e != s) NB[e][D[e]++]=s;
 			}
 		}  
-		if (reporting || graphOnly)
+		if (reporting || graphOnly) {
 			System.out.println((m-1) + " edges.");
 			for(int i=0;i<N;i++) {
 				System.out.print(i + "-->");
 				for (int j=0; j < D[i]; j++) System.out.print(NB[i][j] + " ");
 				System.out.println();
 			}     
+		}
 		/* now make the graph connected*/
 		/* first we find all the connected comps*/
 		
@@ -130,7 +127,7 @@ public class SV {
 		//    Remove duplicated edges
 		for(int i=0;i<M;i++) if(El[i].v1!=-1) El1[j++]=El[i]; 
 		
-		if (true) {
+		if (reporting) {
 			if(j!=m) 
 				System.out.println("Remove duplicates failed");
 			else System.out.println("Remove duplicates succeeded,j=m="+j);
@@ -154,29 +151,40 @@ public class SV {
 			G[i].level=-1;
 			G[i].neighbors=new V [D[i]];
 			for( j=0;j<D[i];j++) G[i].neighbors[j]=G[NB[i][j]];
-			if (reporting || graphOnly)
+			if (reporting || graphOnly) {
 				System.out.print("G[" + i + "]=" + G[i]);
 				for ( j=0; j < G[i].degree; j++) System.out.print(" " + G[i].neighbors[j]);
 				System.out.println();
+			}
 		}     
 	}
 	
 	class SVJob extends Frame {
 		final int numWorkers;
-		boolean doneOnce  = false;
-		SVJob(int n) {numWorkers=n; 	
-		System.out.println("Created SVJob " + numWorkers);}
+		volatile int PC=0; 
+		SVJob(int n) {
+			numWorkers=n; 	
+			// System.out.println("Created SVJob " + numWorkers);
+		}
 		public String toString() {  return "SVJob(" + numWorkers+")";}
 		public void compute(Worker w){
-			if (doneOnce) return;
-			doneOnce=true;
-			System.out.println(w + "starts " + this);
+			if (PC==1) {
+				w.popFrame();
+				return;
+			}
+			PC=1;
+			//System.out.println(w + "starts " + this);
 			final int [] D1 = new int [N]; for (int i = 0; i <N; i++) D1[i]= i;
 			final int [] ID = new int [N]; for (int i = 0; i <N; i++) ID[i]= -1;
-			final TaskBarrier barrier = new TaskBarrier();
+		
 			final int localVertexSize = N/numWorkers;
 			final int edgeSize =El1.length;
 			final int localEdgeSize = edgeSize/numWorkers;
+			
+			final TaskBarrier barrier = new TaskBarrier() { public String name() { return "barrier";}};
+			//System.out.println("Created. " + barrier);
+			/*barrier.register();
+			System.out.println("Registered parent activity. " + barrier);*/
 			class SVWorker extends Frame {
 				int j, vLow, vHigh, eLow, eHigh;
 				
@@ -188,15 +196,14 @@ public class SV {
 					this.eHigh = (j+1)*localEdgeSize-1;
 					if (j==numWorkers-1 && localEdgeSize*numWorkers != edgeSize)
 	                   eHigh= edgeSize-1;
-					System.out.println("Created SVWorker " + j 
-							+ " vLow=" + vLow + " vHigh=" + vHigh + " eLow=" + eLow + " eHigh=" + eHigh);
+					//System.out.println("Created SVWorker " + j 
+					//		+ " vLow=" + vLow + " vHigh=" + vHigh + " eLow=" + eLow + " eHigh=" + eHigh);
 					}
 				public String toString() { return "SVWorker " + j;}
 				public void compute(Worker w)  throws StealAbort {
-					
-					System.out.println(w + " starts computing on " + this);
+				
+				System.out.println(w + " starts computing on " + this);
 					boolean changed = true;
-
 					while (changed) {
 						changed = false;
 						for (int i=eLow; i <=eHigh; i++) {
@@ -208,58 +215,70 @@ public class SV {
 							if(s < e && e==ee) ID[e]=i;
 							if(e < s && s==D1[s]) ID[s]=i;
 						}
-						print(ID, "ID"); print(D1, "D1");
+						//print(ID, "ID"); print(D1, "D1");
+
+						//System.out.println(w + "Activity " + j + " arriving at 1. " + barrier);
+						barrier.arriveAndAwait(); 
 						
-						System.out.println(w + " arrives at 1.");
-						barrier.arriveAndAwait();
 						for (int i=eLow; i <=eHigh; i++) {
-							System.out.println("Examining " + El1[i]);
+							//	System.out.println("Examining " + El1[i]);
 							final int v1=El1[i].v1, v2=El1[i].v2,s=D1[v1], e=D1[v2], ee=D1[e];
 							if(s < e && e==ee && ID[e]==i) {
-								D1[e]=s; System.out.println("D[" + e + "]<-" + s);
+								D1[e]=s; //System.out.println("D[" + e + "]<-" + s);
 								El1[i].inTree=true;
-								System.out.println(El1[i] + " in tree.");
+								//System.out.println(El1[i] + " in tree.");
 								changed=true;
 							}
 							if(e < s && s==D1[s] && ID[s]==i) {
-								D1[s]=e; System.out.println("D[" + s + "]<-" + e);
+								D1[s]=e; //System.out.println("D[" + s + "]<-" + e);
 								El1[i].inTree=true;
-								System.out.println(El1[i] + " in tree.");
+								//System.out.println(El1[i] + " in tree.");
 								changed=true;
 							}                        
 						}
-						print(D1, "D1");
-						System.out.println(w + " arrives at 2 changed?" + changed);
+						//print(D1, "D1");
+						//System.out.println(w + " arrives at 2 changed?" + changed);
+						//System.out.println(w + "Activity " + j + " arriving at 2. " + barrier);
 						barrier.arriveAndAwait();
+						
 						/*Make sure the labels of each group is the same.*/
 						for (int i=vLow; i <=vHigh; i++) {
 							int p = D1[i];
 							while (D1[p]!=p) 
 								D1[i]=p=D1[p];
-							System.out.println("Label(" + i + ")-->" + p);
+							//System.out.println("Label(" + i + ")-->" + p);
 						}
-						print(D1, "D1");
-						System.out.println(w + " arrives at 3.");
+						//print(D1, "D1");
+						//System.out.println(w + " arrives at 3.");
+						//System.out.println(w + "Activity " + j + " arriving at 3. " + barrier);
 						barrier.arriveAndAwait();
-					} 
-					System.out.println(w + " finishes computing on " + this);
+						
+					} // while
+					//System.out.println(w + " finishes computing on " + this);
+					//System.out.println(w  + "Deregistering " + j + ". " + barrier);
+					barrier.arriveAndDeregister();
+					//System.out.println(w + "Deregistered " + j + ". " + barrier);
+					w.popFrame();
+							
 				}
 			}
 			for (int i=0; i < numWorkers; i++) {
-				barrier.register();
+				barrier.register(); //System.out.println(w + "Registered activity " + i + "." + barrier);
+				// this is not a recursive call, it just pushes the frame.
 				w.pushFrame(new SVWorker(i));
 			}
-			System.out.println(w + " ends " + this);
+			/*System.out.println(w + "Deregistering parent. " + barrier);
+			barrier.arriveAndDeregister();
+			System.out.println(w + "Deregistered parent. " + barrier);*/
+			//System.out.println(w + " ends " + this);
+			// return, must not w.popFrame() because some other frames are on the stack now.
+			// when those are executed to completion, this frame will be left on the dequeue with PC=1.
+			// a normal execution of it by this worker will result in the frame being popped...see 
+			// the code at the beginning of this method.
 		}
 	}
 	boolean verifySV() {
-		
-		int sum=0;
-		for(E e : El1) 
-			
-			if(e.inTree) 
-				sum++;
-		
+		int sum=0; for(E e : El1) if(e.inTree) sum++;
 		if(sum<N-1){
 			System.out.println("verifySV failed " + sum);
 			return false;
@@ -309,17 +328,17 @@ public class SV {
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
-			for (int k=0; k < 1; ++k) {
-				long s = - System.nanoTime();
+			for (int k=0; k < 10; ++k) {
+				long s = -System.nanoTime();
 				final V root = graph.G[1];
 				root.level=0;
 				root.parent=root;
 				
 				GloballyQuiescentVoidJob job = 
 					new GloballyQuiescentVoidJob(g, graph.new SVJob(procs));
-				System.out.println("Starting " + job);
+				//System.out.println("Starting " + job);
 				g.invoke(job);
-				System.out.println(" ...done with " + job);
+				//System.out.println(" ...done with " + job);
 				s += System.nanoTime();
 				double secs = ((double) s)/NPS;
 				System.out.printf("N=%d t=%5.3f", N, secs);
