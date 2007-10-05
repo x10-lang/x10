@@ -32,9 +32,14 @@ public class SpanFTRO {
 		public V [] neighbors;
 		public volatile int color;
 		public V(int i){index=i;}
-		
+		volatile int PC=0;
 		@Override
 		public void compute(Worker w) throws StealAbort {
+			if (PC==1) {
+				w.popFrame();
+				return;
+			}
+			PC=1;
 			V node = this;
 			for (;;) {
 				V lastV = null;
@@ -261,7 +266,7 @@ public class SpanFTRO {
 				g.invoke(job);
 				long t = System.nanoTime() - s;
 				double secs = ((double) t)/NPS;
-				System.out.printf("N=%d t=%5.3f", N, secs);
+				System.out.printf("N=%d t=%5.4f", N, secs);
 				System.out.println();
 				if (! graph.verifyTraverse(graph.G[1]))
 					System.out.printf("%b ", false);
