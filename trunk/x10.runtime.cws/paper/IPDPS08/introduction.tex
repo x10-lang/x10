@@ -1,0 +1,30 @@
+
+\section{Introduction}
+\label{s:intr}
+ Graph theoretic problems arise in several traditional and emerging scientific disciplines such as VLSI design, optimization, databases, and computational biology. There are plenty of theoretically fast parallel algorithms, for example, optimal PRAM algorithms, for graph problems; however, in
+ practice few parallel implementations beat the best sequential implementations for arbitrary, sparse
+ graphs. The mismatch between theory and practice suggests a large gap between algorithm model and the actual architecture. Advances in programming language and runtime support can effectively reduces the gap.
+ X10 is part of the DARPA HPCS project that solves this problem.  In this paper we focus on X10 support on one single SMP node.
+ 
+ Modern symmetric multiprocessors (SMPs) and chip multiprocessors (CMPs) 
+ are becoming very powerful and common place. Most of the high performance
+ computers are clusters of SMPs and/or CMPs. PRAM algorithms for graph problems can be emulated much easier and more
+ efficiently on SMPs than on distributed memory platforms because shared memory allows for fast, concurrent access
+to an irregular data structure that is often difficult to partition well for distributed memory systems. 
+ Unfortunately, emulation -- even with aggressive algorithm engineering efforts --
+ oftentimes does not produce parallel implementations that beat the
+ best sequential implementation. One of the major problems is to do load-balancing, another is synchronization. Both are addressed in X10.
+ 
+ {TONG: can you please provide the introduction to X10}? X10 is a language .... Introduction to X10.  For combinatorial algorithms support, X10 provides many constructs and ...
+ In a.   
+
+ The rest of the paper is organized as follows. Sections~\ref{s:design} describes algorithm design with the X10 language.
+ Section~\ref{s:runtime} presents the workstealing runtime support for load-balancing in X10, and compare with other runtime systems, for example, CILK. 
+ Section~\ref{s:results} provides our experimental results on current main-stream SMPs.
+ In Section~\ref{s:concl} we conclude and give future work. 
+ Throughout the paper, we
+ use $n$ and $m$ to denote the number of vertices and the number of
+ edges of an input graph $G=(V,E)$, respectively. 
+  
+
+
