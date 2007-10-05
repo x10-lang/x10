@@ -14,6 +14,7 @@
 \usepackage{epsfig}
 \usepackage{enumerate, amscd,  amsmath}  
 \usepackage{amssymb}
+\usepackage{algorithm2e}
 \numberwithin{equation}{section}
 
 \begin{document}
@@ -25,16 +26,16 @@
 \maketitle
 \thispagestyle{empty}
 
-\begin{abstract}
-X10 work scheduling
-\end{abstract}
+\input abstract
 
 
+\input introduction
 
 %------------------------------------------------------------------------- 
 \input introduction2X10
 %------------------------------------------------------------------------- 
 
+\input x10graphdesign
 \bibliographystyle{ieee}
 \bibliography{IPDPS08_X10WS}
 
