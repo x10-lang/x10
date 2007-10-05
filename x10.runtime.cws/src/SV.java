@@ -37,6 +37,7 @@ public class SV {
 	final V[] G;
 	final E[] El, El1;
 	int ncomps=0;
+	boolean changed=true;
 
 	static int[] Ns = new int[] {10};//1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000, 5*1000*1000};
 	int N=1000, M=4000; //N is the number of vertexes and M is the number of edges
@@ -169,7 +170,6 @@ public class SV {
 				return;
 			}
 			PC=1;
-			//System.out.println(w + "starts " + this);
 			final int [] D1 = new int [N]; for (int i = 0; i <N; i++) D1[i]= i;
 			final int [] ID = new int [N]; for (int i = 0; i <N; i++) ID[i]= -1;
 		
@@ -178,9 +178,6 @@ public class SV {
 			final int localEdgeSize = edgeSize/numWorkers;
 			
 			final TaskBarrier barrier = new TaskBarrier() { public String name() { return "barrier";}};
-			//System.out.println("Created. " + barrier);
-			/*barrier.register();
-			System.out.println("Registered parent activity. " + barrier);*/
 			class SVWorker extends Frame {
 				int j, vLow, vHigh, eLow, eHigh;
 				
@@ -197,11 +194,12 @@ public class SV {
 				}
 				public String toString() { return "SVWorker " + j;}
 				public void compute(Worker w)  throws StealAbort {
-				
-					boolean changed = true;
-				    
-					while (changed) {
-						changed = false;
+					if (j==0) changed=true;
+					boolean locallyChanged = true;
+					barrier.arriveAndAwait(); 
+					while (locallyChanged) {
+						locallyChanged = false;
+						changed=false;
 						for (int i=eLow; i <=eHigh; i++) {
 							final int v1=El1[i].v1, 
 							v2=El1[i].v2, 
@@ -216,16 +214,18 @@ public class SV {
 							final int v1=El1[i].v1, v2=El1[i].v2,s=D1[v1], e=D1[v2], ee=D1[e];
 							if(s < e && e==ee && ID[e]==i) {
 								D1[e]=s; 
-								El1[i].inTree=changed=true; 
+								El1[i].inTree=locallyChanged=true; 
 							}
 							if(e < s && s==D1[s] && ID[s]==i) {
 								D1[s]=e; 
-								El1[i].inTree=changed=true; 
+								El1[i].inTree=locallyChanged=true; 
 							}                        
 						}
 						
 						barrier.arriveAndAwait();
-						
+						if (locallyChanged) changed=true;
+						barrier.arriveAndAwait();
+						locallyChanged=changed;
 						/*Make sure the labels of each group is the same.*/
 						for (int i=vLow; i <=vHigh; i++) 
 							while (D1[D1[i]]!=D1[i]) D1[i]=D1[D1[i]];
@@ -238,13 +238,10 @@ public class SV {
 				}
 			}
 			for (int i=0; i < numWorkers; i++) {
-				barrier.register(); //System.out.println(w + "Registered activity " + i + "." + barrier);
+				barrier.register(); 
 				// this is not a recursive call, it just pushes the frame.
 				w.pushFrame(new SVWorker(i));
 			}
-			/*System.out.println(w + "Deregistering parent. " + barrier);
-			barrier.arriveAndDeregister();
-			System.out.println(w + "Deregistered parent. " + barrier);*/
 			//System.out.println(w + " ends " + this);
 			// return, must not w.popFrame() because some other frames are on the stack now.
 			// when those are executed to completion, this frame will be left on the dequeue with PC=1.
