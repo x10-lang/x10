@@ -1,22 +1,20 @@
 
 \section{Introduction}
 \label{s:intr}
- Graph theoretic problems arise in several traditional and emerging scientific disciplines such as VLSI design, optimization, databases, and computational biology. There are plenty of theoretically fast parallel algorithms, for example, optimal PRAM algorithms, for graph problems; however, in
+
+ Graph theoretic problems arise in several traditional and emerging scientific disciplines such as VLSI design, optimization, databases, and computational biology. There are plenty of theoretically fast parallel algorithms, for example, work-time optimal PRAM algorithms, for graph problems; however, in
  practice few parallel implementations beat the best sequential implementations for arbitrary, sparse
- graphs. The mismatch between theory and practice suggests a large gap between algorithm model and the actual architecture. Advances in programming language and runtime support can effectively reduces the gap.
- X10 is part of the DARPA HPCS project that solves this problem.  In this paper we focus on X10 support on one single SMP node.
+ graphs. The mismatch between theory and practice suggests a large gap between algorithmic model and the actual architecture. We observe that the gap is increasing as new diversified architectures emerge. Elegant solutions seem hard to come by from even combined efforts of algorithmic and architectural improvement. What is lacking is an effient way of mapping fine-grained parallelism expressed by the algorithm to target architectures with good performance. X10 is a new parallel programming language that provides expressive programming constructs and efficient runtime support that effectively helps reduce the gap between theory and practice in solving graph problems. In this paper we show that with X10 the fine-grained parallelism for a graph problem can be expressed much easier at a high algorithmic level, and the X10 program, compared with native C implementation, is much simpler and more elegant, and achieves comparable, and sometimes, even better performance. 
+
+ The challenges of solving large-scale graph problems on current and emerging systems come from the irregular and combinatorial nature of the problem. Many of the important real world graphs, for example, internet topology, social interaction network, transfortation network, protein-protein interaction network, and etc., exhibit a ``small-world'' nature, and can be modeled as the so-called ``scale-free'' graph. There is no known efficient technique to partion such graph, which makes it hard to solve on distributed-memory systems. Also compared with the well-known sequential algorithms, for example, depth-first search (DFS) or breadth-first search (BFS) for the spanning tree problem, the parallel graph algorithms take exotic approaches such as ``graft-and-shortcut''. In the absence of efficient scheduling support of parallel activities, fine-grained parallelism incurs large overhead on current systems and oftentimes do not show practical parallel performance advantage. Lastly, graph algorithms tend to be load/store intensive compared with other scientific problems. For example,  They put great pressure on the memory subsystem. The problem obviously gets worse on distributed-memory architectures if necessary task management and memory affinity scheduling are not provided.  
  
- Modern symmetric multiprocessors (SMPs) and chip multiprocessors (CMPs) 
- are becoming very powerful and common place. Most of the high performance
- computers are clusters of SMPs and/or CMPs. PRAM algorithms for graph problems can be emulated much easier and more
- efficiently on SMPs than on distributed memory platforms because shared memory allows for fast, concurrent access
-to an irregular data structure that is often difficult to partition well for distributed memory systems. 
- Unfortunately, emulation -- even with aggressive algorithm engineering efforts --
- oftentimes does not produce parallel implementations that beat the
- best sequential implementation. One of the major problems is to do load-balancing, another is synchronization. Both are addressed in X10.
- 
- {TONG: can you please provide the introduction to X10}? X10 is a language .... Introduction to X10.  For combinatorial algorithms support, X10 provides many constructs and ...
- In a.   
+ There are several features of X10 that make it extremely helpful in soving large-scale graph problems. X10 provides a shared virtual address space that obviates the need to partition a graph and issue message passing commands explicitly to access remote data. The irregular nature of the graph is also the reason why no SSCA benchmark has been implemented in MPI. X10 provides a wide range of constructs that are de. X10 has a lot of balancing.
+
+ Our target architecure is a cluster of symmetric multiprocessor(SMP) nodes. Each SMP node may further comprise of chip multiprocessors (CMPs).  SMPs and CMPs are becoming very powerful and common place. Most of the high performance
+computers are clusters of SMPs and/or CMPs. It is important to solve for them.
+It is important to show flexibility but also good support of  PRAM algorithms for graph problems can be emulated much easier and more. 
+
+The problem we consider if the spanning tree problem. It is notoriously hard to achieve good parallel performance.  Several good ones, we show X10 support that can do better. 
 
  The rest of the paper is organized as follows. Sections~\ref{s:design} describes algorithm design with the X10 language.
  Section~\ref{s:runtime} presents the workstealing runtime support for load-balancing in X10, and compare with other runtime systems, for example, CILK. 
