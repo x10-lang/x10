@@ -225,7 +225,7 @@ public class RandomAccessAsynchStatic {
 				// send one message at a time from one place to another, and 
 				// use a completion counter to check that the message has been received
 				// before sending another. So this is to be implemented still.
-			if (b != null canSend(b)) {
+			if (b != null && canSend(b)) {
 				// [IP] The finish below ensures that we do not set the count
 				// to 0 until the remote processing has completed.
 
@@ -236,6 +236,28 @@ public class RandomAccessAsynchStatic {
 				final long value[.] data = bt.copy();
 
 				async {
+					// Yogish says that this finish fixes the deadlock problem,
+					// but will limit the throughput.
+					// The situation is the following: the current process is
+					// ready to send, and the remote side is ready to receive
+					// (i.e., the async has terminated), but the finish
+					// machinery is still waiting for the update to the
+					// completion counter, which is being delayed in the
+					// network.
+					// On BlueGene they did not have to resort to a finish
+					// because they could receive independently along various
+					// dimensions.  As far as he knows, LAPI does not provide
+					// such functionality.
+					// In the original code, the deadlock would have happened
+					// when two nodes send each other messages along the same
+					// dimension, and both have their buffers full.  The
+					// messages along other dimensions will end up queued
+					// behind the blocked messages.
+					// More details on the deadlock situation can be found in
+					// a technical report cited in their paper.
+					// [IP] We might be able to avoid the throughput problem
+					// by having a specialized clever finish implementation.
+					// Let's discuss...
 					finish async (bt.target()) {
 						// Note that there is no call to yield in the body of this activity.
 						// Hence when this activity is executed it will run to completion.
