@@ -6,10 +6,10 @@ package x10.runtime.cws;
  * http://creativecommons.org/licenses/publicdomain
  */
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import jsr166y.forkjoin.ForkJoinTask;
-import jsr166y.forkjoin.ForkJoinWorkerThread;
 
 /**
  * A synchronization barrier for ForkJoinTasks.  A TaskBarrier is
@@ -287,6 +287,35 @@ public class TaskBarrier {
                 return 0;
             }
         }
+    }
+    
+    AtomicBoolean[] value = new AtomicBoolean[2];
+    {  // instance initializer
+    	value[0]=new AtomicBoolean(false); 
+    	value[1] = new AtomicBoolean(false);
+    }
+    public boolean arriveAndAwaitData(boolean datum) {
+    	
+    	 for (;;) {
+             long s = state.get();
+             int cycle = cycleOf(s);
+             int nParties = nPartiesOf(s);
+             int nActive = nActiveOf(s) - 1;
+             if (nActive > 0) {
+            	 if (datum)
+            		 value[cycle % 2].getAndSet(true);
+                 long next = stateFor(cycle, nParties, nActive);
+                 if (state.compareAndSet(s, next)) {
+                     awaitCycleAdvance(cycle); 
+                     return value[cycle % 2].get(); 
+                 }
+             }
+             else {
+            	 value[(cycle+1)%2].getAndSet(false); // initialize for next round.
+                 trip(cycle, nParties); 
+                 return value[cycle%2].get(); 
+             }
+         }
     }
 
     /**
