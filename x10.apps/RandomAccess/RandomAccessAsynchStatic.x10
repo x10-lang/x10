@@ -200,6 +200,13 @@ public class RandomAccessAsynchStatic {
 		}
 	}
 	/**
+	  Check if the processing at the destination has completed.  This means that
+	  the destination is ready to receive some more data.
+	*/
+	public static boolean canSend(Bucket b) {
+		return b.count == 0;
+	}
+	/**
 	  Check if any buffer is full. If so, send it to its destination through an async, which, 
 	  on arriving at the destination will wait until the receiveBuffer at the destination for
 	  this dimension is empty, and then will copy this buffer in, and routeUpdates from it.
@@ -209,7 +216,7 @@ public class RandomAccessAsynchStatic {
 		for (point [dim] : DIMS) {
 			DimBuckets d = bs.dimBuckets[dim];
 			final nullable<Bucket> b = d.fullBucket;
-			if (b !=null /* && canSend(dim) */) {
+			//if (b != null /* && canSend(dim) */) { // }
 				// I currently dont see a way of checking whether it is 
 				// possible to send. This needs to be thought through
 				// we dont want to spawn the subsequent async, i.e. send a message
@@ -218,30 +225,35 @@ public class RandomAccessAsynchStatic {
 				// send one message at a time from one place to another, and 
 				// use a completion counter to check that the message has been received
 				// before sending another. So this is to be implemented still.
-				
+			if (b != null canSend(b)) {
+				// [IP] The finish below ensures that we do not set the count
+				// to 0 until the remote processing has completed.
+
 				// As things stand, these asyncs can be spawned eagerly and will
 				// correspond to messages being sent into the network eagerly.
 				d.fullBucket=null;
 				Bucket bt = (Bucket) b;
 				final long value[.] data = bt.copy();
-//				 The data has been copied to be sent, so the count can be set to 0.
-				b.count = 0;
-				
-				async (bt.target()) {
-					// Note that there is no call to yield in the body of this activity.
-					// Hence when this activity is executed it will run to completion.
-					final Bucket recvBuffer = DistBuckets[here.id].dimBuckets[dim].bucket[here.id];
-					
-					// This async is necessary only because of the following when.
-					// This will be triggered when routeUpdates(recvBuffer) causes
-					// recVbuffer.count to go to zero.
-					async {
-					    when(recvBuffer.count==0) { 
-						for (int i=0; i < buffSize; i++) recvBuffer.buffer[i]=data[i];
-						  routeUpdates(recvBuffer);
-					    }
-					    checkFull();
+
+				async {
+					finish async (bt.target()) {
+						// Note that there is no call to yield in the body of this activity.
+						// Hence when this activity is executed it will run to completion.
+						final Bucket recvBuffer = DistBuckets[here.id].dimBuckets[dim].bucket[here.id];
+
+						// This async is necessary only because of the following when.
+						// This will be triggered when routeUpdates(recvBuffer) causes
+						// recVbuffer.count to go to zero.
+						async {
+							when(recvBuffer.count==0) { 
+								for (int i=0; i < buffSize; i++) recvBuffer.buffer[i]=data[i];
+								routeUpdates(recvBuffer);
+							}
+							checkFull();
+						}
 					}
+					// The data has been copied to be sent, so the count can be set to 0.
+					b.count = 0;
 				}
 			}
 		}
