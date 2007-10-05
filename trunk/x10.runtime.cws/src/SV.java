@@ -15,17 +15,6 @@ import x10.runtime.cws.TaskBarrier;
 
 public class SV {
 	
-	public class V   {
-		public final int index;
-		public int level=-1;
-		public int degree;
-		public V parent;
-		public V [] neighbors;
-		public V(int i){index=i;}
-		public String toString() {
-			return "V("+index+")";
-		}
-	}
 	class E{
 		public int v1,v2;
 		public boolean inTree;
@@ -34,10 +23,9 @@ public class SV {
 	}
 	
 	int m;
-	final V[] G;
 	final E[] El, El1;
 	int ncomps=0;
-	boolean changed=true;
+
 
 	static int[] Ns = new int[] {10};//1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000, 5*1000*1000};
 	int N=1000, M=4000; //N is the number of vertexes and M is the number of edges
@@ -56,7 +44,7 @@ public class SV {
 		N=n;
 		M=m;
 		/*constructing edges*/
-		G = new V[N]; for(int i=0;i<N;i++) G[i]=new V(i);
+		
 		El = new E [M]; for (int i=0; i <M; i++) El[i] = new E(Math.abs(rand32())%N, Math.abs(rand32())%N);
 		
 		/* D[i] is the degree of vertex i (duplicate edges are counted).*/
@@ -102,20 +90,20 @@ public class SV {
 		//visitCount = new AtomicIntegerArray(N);
 		int[] stack = new int [N]; 
 		int[] cc  = new int [N]; 
-		
+		int[] level = new int[N];
 		int top=-1;
 		ncomps=0;
 		for(int i=0;i<N ;i++) {
-			if (G[i].level==1) continue;
-			G[i].level=1;
+			if (level[i]==1) continue;
+			level[i]=1;
 			cc[ncomps++]=stack[++top]=i;
 			while(top!=-1) {
 				int v = stack[top--];
 				for(int j=0;j<D[v];j++) {
 					final int mm = NB[v][j];
-					if(G[mm].level !=1){
+					if(level[mm] !=1){
 						stack[++top]=mm;
-						G[mm].level=1;
+						level[mm]=1;
 					}
 				}
 			}
@@ -143,19 +131,9 @@ public class SV {
 			NB[e][D[e]++]=s;
 			El1[m+i]=new E (e,s);
 		}
-		for(int i=0;i<N;i++) {
-			G[i].degree=D[i];
-			G[i].level=-1;
-			G[i].neighbors=new V [D[i]];
-			for( j=0;j<D[i];j++) G[i].neighbors[j]=G[NB[i][j]];
-			if (reporting || graphOnly) {
-				System.out.print("G[" + i + "]=" + G[i]);
-				for ( j=0; j < G[i].degree; j++) System.out.print(" " + G[i].neighbors[j]);
-				System.out.println();
-			}
-		}     
-	}
 	
+	}
+	boolean changed = true;
 	class SVJob extends Frame {
 		final int numWorkers;
 		volatile int PC=0; 
@@ -171,6 +149,7 @@ public class SV {
 			}
 			PC=1;
 			final int [] D1 = new int [N]; for (int i = 0; i <N; i++) D1[i]= i;
+			final long[] padding = new long[128];
 			final int [] ID = new int [N]; for (int i = 0; i <N; i++) ID[i]= -1;
 		
 			final int localVertexSize = N/numWorkers;
@@ -194,12 +173,11 @@ public class SV {
 				}
 				public String toString() { return "SVWorker " + j;}
 				public void compute(Worker w)  throws StealAbort {
-					if (j==0) changed=true;
+					
 					boolean locallyChanged = true;
-					barrier.arriveAndAwait(); 
 					while (locallyChanged) {
 						locallyChanged = false;
-						changed=false;
+						
 						for (int i=eLow; i <=eHigh; i++) {
 							final int v1=El1[i].v1, 
 							v2=El1[i].v2, 
@@ -209,7 +187,8 @@ public class SV {
 							if(s < e && e==ee) ID[e]=i;
 							if(e < s && s==D1[s]) ID[s]=i;
 						}
-						barrier.arriveAndAwait(); 
+						if (j==0) changed=false;
+						barrier.arriveAndAwait(); // changed is now reset.
 						for (int i=eLow; i <=eHigh; ++i) {
 							final int v1=El1[i].v1, v2=El1[i].v2,s=D1[v1], e=D1[v2], ee=D1[e];
 							if(s < e && e==ee && ID[e]==i) {
@@ -221,15 +200,17 @@ public class SV {
 								El1[i].inTree=locallyChanged=true; 
 							}                        
 						}
+						//if (locallyChanged) changed=true;
+					
+						locallyChanged = barrier.arriveAndAwaitData(locallyChanged); // global redn
 						
-						barrier.arriveAndAwait();
-						if (locallyChanged) changed=true;
-						barrier.arriveAndAwait();
-						locallyChanged=changed;
 						/*Make sure the labels of each group is the same.*/
 						for (int i=vLow; i <=vHigh; i++) 
 							while (D1[D1[i]]!=D1[i]) D1[i]=D1[D1[i]];
-						barrier.arriveAndAwait();
+						barrier.arriveAndAwait(); // will reflect the updates to changed, if any.
+						//locallyChanged = changed;
+						
+						
 						
 					} // while
 					barrier.arriveAndDeregister();
@@ -237,6 +218,7 @@ public class SV {
 							
 				}
 			}
+			
 			for (int i=0; i < numWorkers; i++) {
 				barrier.register(); 
 				// this is not a recursive call, it just pushes the frame.
@@ -302,9 +284,9 @@ public class SV {
 			//System.out.printf("N:%8d ", N);
 			for (int k=0; k < 10; ++k) {
 				long s = -System.nanoTime();
-				final V root = graph.G[1];
-				root.level=0;
-				root.parent=root;
+			//	final V root = graph.G[1];
+				//root.level=0;
+				//root.parent=root;
 				
 				GloballyQuiescentVoidJob job = 
 					new GloballyQuiescentVoidJob(g, graph.new SVJob(procs));
