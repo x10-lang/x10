@@ -3,17 +3,20 @@
   Graph problems are finding increasing applications in high
 performance computing disciplines. Obtaining efficient
   implementations for large, irregular graph instances remains a challenge.
- There exisit a large body of theoretically fast parallel graph algorithms, however, 
+ There exists a large body of theoretically fast parallel graph algorithms, however, 
  experimental studies show that they often times fail to achieve good parallel speedups 
  in practice as fine grained parallelism is not well supported on current system.
  In this paper we present the programming and runtime support of X10 that help 
  bridge the gap between theory and practice for large scale graph problems. X10 allows for
- elegant expression of all level of parallelism in graph algorithms, and provides efficient runtime 
- support for fast execution.
+ elegant expression of parallelism of multiple levels, and provides efficient runtime 
+ support for fast execution on parallel systems.
 
- We take the spaning tree problem as an example, and present. The problems we study represent a wide range of irregular problems that have fast
+  We take spanning tree as an example, as it represents a wide range of graph problems that have fast
   theoretic parallel algorithms but no known efficient
-  parallel implementations that achieve speedup without serious restricting assumptions about the inputs.
-We believe our techniques will be of  practical impact in solving large-scale graph problems.
+  parallel implementations that achieve speedup without serious restricting assumptions about the inputs, 
+  and present three algorithms expressed in X10. Our X10 implementation achieves better performance than 
+  the Cilk implementation. For the graph traversal approach, the X10 implementation  beats the native 
+  C implementation, demonstrating the productivity and performance advantage of the X10 programming model. 
+
 \end{abstract}
 
