@@ -412,7 +412,7 @@ and tail of the task by $H$ and $T$, respectively. When a task is
 spawned, the corresponding frame is pushed into the head of the stack
 ($H=H+1$). When a worker returns from a spawned task is checks that
 whether the current frame is stolen by executing one-half of lock-free
-Dekker's algorithm~\cite{}:
+Dekker's algorithm~\cite{dekker}:
 
 \begin{verbatim}
   --T; 
@@ -423,23 +423,23 @@ Dekker's algorithm~\cite{}:
     // Not stolen
 \end{verbatim}
 
-Note that the StoreLoadBarrier is implied in Java if {\texttt T} is
-declared to be {\texttt volatile}.
+Note that the {\texttt StoreLoadBarrier} is implied in Java if
+{\texttt T} is declared to be {\texttt volatile}.
 
 When a worker is out of work, it randomly selects a victim and
 attempts to steal from its frame stack. The procedures employed to
 steal in the case of properly- and improperly-nested tasks are shown
 in Fig.~\ref{fig:stealing-alg}(a) and Fig.~\ref{fig:stealing-alg}(b),
-respectively. Note that the victim, and multiple theives might attempt
-to operate on the same frame stack. The theif first obtains a lock on
-the victim's deque to avoid contention with other thiefs trying to
+respectively. Note that the victim, and multiple thieves might attempt
+to operate on the same frame stack. The thief first obtains a lock on
+the victim's deque to avoid contention with other thieves trying to
 steal from the same victim.
 
 When properly nested tasks are being processed, the thief identifies a
 closure at the end of the deque and locks it. If the victim is
 processing some other closure and this closure is in a {\texttt READY}
 state, there is no contention with the victim on this closure. The
-theif extracts the Closure and steals it. If the closure is in
+thief extracts the Closure and steals it. If the closure is in
 {\texttt RUNNING} state, the victim is potentially adding and deleting
 frames on the frame stack associated with the closure. Dekker's
 algorithm is used to determine whether there is more than one frame in
@@ -513,11 +513,12 @@ The overheads of the fast version over the sequential execution are:
 \begin{enumerate}
 \item Method's frame needs to be allocated, initialized, pushed onto
   the deque. Cost: A few assembly instructions.
-\item Method's state needs to be saved before each spawn. Cost: writes of
-  local dirty variables and {\em PC}, and a StoreLoad barrier
+\item Method's state needs to be saved before each spawn. Cost: writes
+  of local dirty variables and {\em PC}, and a {\texttt
+  StoreLoadBarrier}
 \item Method must check if its frame has been stolen after each
   return from a spawn. Cost: two reads, compare, branch and a 
-  StoreLoad barrier 
+  {\texttt StoreLoadBarrier} 
 \item On return, frame must be freed. Cost: A few assembly instructions
 \item An extra variable is needed to hold the frame pointer. Cost: Increased
   register pressure.
