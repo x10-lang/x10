@@ -47,7 +47,8 @@ import x10.runtime.cws.Closure.Status;
 public class Worker extends Thread {
 	protected final Pool pool;
 	protected Closure top, bottom;
-	final public Cache cache;
+	Cache cache;
+	Cache nextCache;
 	protected Lock lock; // dequeue_lock
 	protected Thread lockOwner; // the thread holding the lock.
 	protected int randNext;
@@ -110,7 +111,7 @@ public class Worker extends Thread {
      * the smallest value worth context switching out for on
      * typical platforms.
      */
-    private static final long SLEEP_NANOS_PER_SCAN = 0; //(1 << 16);
+    private static final long SLEEP_NANOS_PER_SCAN = (1 << 16);
 
 
 	/**
@@ -121,6 +122,7 @@ public class Worker extends Thread {
 		this.index = index;
 		this.lock = new ReentrantLock();
 		this.cache = new Cache(this);
+		this.nextCache = new Cache(this);
 		this.idleScanCount = 1;
 		setDaemon(true);
 		// Further initialization postponed to init()
@@ -151,33 +153,37 @@ public class Worker extends Thread {
 	 * @param thief -- The thread making this invocation.
 	 * @return
 	 */
-	protected Executable steal(Worker thief, boolean retry) {
+	static class AdvancePhaseException extends Exception{}
+	protected Executable steal(Worker thief, boolean retry) throws AdvancePhaseException {
 		if (jobRequiresGlobalQuiescence)
 			return stealFrame(thief, retry);
 		final Worker victim = this;
 		++stealAttempts;
-		
 		lock(thief);
 		Closure cl=null;
 		try {
+			if (thief.phaseNum != phaseNum) {
+				// victim hasnt yet advanced to the next phase. Give up and try again.
+				System.out.println(thief + " cannot steal from " + thief);
+				if (thief.phaseNum < phaseNum) throw new AdvancePhaseException();
+				return null;
+			}
 			cl = peekTop(thief, victim);
 			// vj: I believe the victim's ready deque should have only one
 			// closure in it.
 			//Closure cl1 = peekBottom(thief);
 			//assert cl1==cl;
+			if (cl==null)
+				return null;
+		} catch (AdvancePhaseException z) { 
+			throw z;
 		} catch (Throwable z) {
 			// wrap in an error.
 			throw new Error(z); 
-		} 
-		
-		if (cl==null) {
-			try {
-				return null;
-			} finally {
-				unlock();
-			}
+		} finally {
+			unlock();
 		}
-		
+
 		cl.lock(thief);
 		
 		Status status = null;
@@ -255,11 +261,22 @@ public class Worker extends Thread {
 		
 	}
 
-	protected Executable stealFrame(Worker thief, boolean retry) {
+	protected Executable stealFrame(Worker thief, boolean retry) throws AdvancePhaseException{
 		final Worker victim = this;
 		++stealAttempts;
 		lock(thief);
 		try {
+			if (thief.phaseNum != phaseNum) {
+				// victim hasnt yet advanced to the next phase. Give up and try again.
+
+			//	System.out.println(thief + " cannot steal frame from " + victim + " in different phase."); 
+				if (thief.phaseNum < phaseNum) throw new AdvancePhaseException();
+				return null;
+			} else {
+				//System.out.println(thief + " trying to steal frame from " + victim + "."); 
+				;
+			}
+
 			boolean b=cache.dekker(thief);
 			if (b) {
 				Frame frame = cache.topFrame();
@@ -271,14 +288,16 @@ public class Worker extends Thread {
 				cache.incHead();
 //				I have work now, so checkout of the barrier.
 				thief.checkOutSteal(frame, victim);
-				
+
 				if (  reporting) {
 					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]=  " + frame + " from "
 							+ victim + " cache=" + victim.cache.dump());
 				}
-				
+
 				return frame;
 			}
+		} catch (AdvancePhaseException z) { 
+			throw z;
 		} catch (Throwable z) {
 			z.printStackTrace();
 			throw new Error(z);
@@ -449,9 +468,10 @@ public class Worker extends Thread {
 	 * @param mainLoop -- when true, try mainpool for work if stealing doesnt work.
 	 * @return -- a task, or null if none is available
 	 */
-	private Executable getTask(boolean mainLoop) {
+	private Executable getTask(boolean mainLoop) throws AdvancePhaseException {
 		
-		checkIn();
+		boolean phaseChanged = checkIn();
+		if (phaseChanged) return null;
 		if (++idleScanCount < 0)
 			idleScanCount=1;
 		
@@ -508,7 +528,31 @@ public class Worker extends Thread {
 					break;
 			}
 		}
-		return mainLoop? getTaskFromPool(sleeper) : null;
+		if (mainLoop && pool.activeJobs==0) {
+			// reset phase, entering new job.
+			//System.out.println(Thread.currentThread() + " off to wait for task from pool.");
+			lock(this);
+			phaseNum = 0;
+			unlock();
+			Closure c = getTaskFromPool(sleeper);
+			if (c !=null) return c;
+		}
+		
+
+		if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
+			if (sleepStatus == AWAKE &&
+					sleepStatusUpdater.compareAndSet(this, AWAKE, SLEEPING)){
+				if (reporting)
+					System.out.println(this + " goes to sleep.");
+				LockSupport.parkNanos(idleScanCount * SLEEP_NANOS_PER_SCAN);
+				if (sleepStatus == WOKEN) // reset count on wakeup
+				idleScanCount = 1;
+				if (reporting)
+					System.out.println(this + " wakes sleep.");
+			}
+			sleepStatus = AWAKE;
+		}
+		return null;
 	}
 	private void setJob(Job currentJob) {
 		if (currentJob == null) currentJob = pool.currentJob;
@@ -529,35 +573,34 @@ public class Worker extends Thread {
      * @param sleeper a worker noticed to be sleeping while scanning
      */
     private Closure getTaskFromPool(Worker sleeper) {
-    	this.job=null;
-        Job job = pool.getJob();
-        if (job != null) {
-            idleScanCount = -1;
-            if (sleeper != null) sleeper.wakeup();
-            checkOut(job);
-            setJob(job);
-            return job;
-        }
-        setJob(pool.currentJob);
-       
-        if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
-            if (sleepStatus == AWAKE &&
-                sleepStatusUpdater.compareAndSet(this, AWAKE, SLEEPING)){
-                LockSupport.parkNanos(idleScanCount * SLEEP_NANOS_PER_SCAN);
-                if (sleepStatus == WOKEN) // reset count on wakeup
-                    idleScanCount = 1;
-            }
-            sleepStatus = AWAKE;
-        }
-        return null;
+    	Job job = pool.getJob();
+    	if (job != null) {
+    		idleScanCount = -1;
+    		if (sleeper != null) sleeper.wakeup();
+    		checkOut(job);
+    		setJob(job);
+    	}
+    	return job;
     }
- ;
-    boolean checkedIn = true;
-    void checkIn() {
+      
+ 
+    boolean checkedIn = true, nextPhaseHasWork=false;
+    boolean checkIn() {
     	if (!checkedIn) {
     		checkedIn = true;
-    		pool.barrier.checkIn();
+    		if (nextPhaseHasWork) {
+    			// if we have already communiated to AWC that this
+    			// worker has work for the next phase, we dont need to do this again.
+    			return pool.barrier.checkIn(this, phaseNum, false);
+    		} else {
+    			// do we have work for the next phase.
+    			nextPhaseHasWork=! nextCache.empty();
+    			return pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork);
+    		}
+    		// nextPhaseHasWork reset by advancePhase();
+
     	}
+    	return false;
     }
     void checkOut(Executable cl) {
     	if (checkedIn) {
@@ -575,6 +618,7 @@ public class Worker extends Thread {
             LockSupport.unpark(this);
         }
     }
+    int phaseNum=0;
 	@Override
 	public void run() {
 		assert index >= 0;
@@ -582,10 +626,10 @@ public class Worker extends Thread {
 		Executable cl = null; //frame or closure.
 		int yields = 0;
 		while (!done) {
+			setJob(pool.currentJob);
 			if (cl == null ) {
-				// Addition for GlobalQuiescence. Keep popping
-				// tasks off the deque and executing them until
-				// the deque becomes empty.
+				// Addition for GlobalQuiescence. Keep executing
+				// current frame until dequeue becomes empty.
 				if (jobRequiresGlobalQuiescence) {
 					Cache cache = this.cache;
 					for(;;) {
@@ -595,9 +639,12 @@ public class Worker extends Thread {
 							assert cache.empty();
 							break;
 						}
+						// next statement is a customized Frame.execute(w), with no need
+						// to push frame on deque.
 						try {
 							if (reporting)
 								System.out.println(this + " starts executing " + f);
+							// TODO: Check if cache.resetExceptionPointer() is needed. prolly!!
 							f.compute(this);
 							if (reporting)
 								System.out.println(this + " finishes executing " + f + ".");
@@ -614,6 +661,7 @@ public class Worker extends Thread {
 					// The work extracted will be a closure.
 					// cl may be null. When non-null
 					// cl is typically RETURNING.
+					assert false;
 					lock(this);
 					try {
 						cl = extractBottom(this); 
@@ -622,12 +670,16 @@ public class Worker extends Thread {
 					}
 				}
 			}
-			if (cl == null) 
+			if (cl == null) {
 				// Steal, or get it from the job.
-				if ((reporting)) 
+				if ((false)) 
 					System.out.println(this + " has no closure. Trying to get one." );
-				cl = getTask(true);
-			
+				try {
+					cl = getTask(true);
+				} catch (AdvancePhaseException z) {
+					cl=null;
+				}
+			}
 			if (cl !=null) {
 				// Found some work! Execute it.
 				idleScanCount=-1;
@@ -660,11 +712,30 @@ public class Worker extends Thread {
 					cache.reset();
 				}
 			} else {
-				// TODO: Check if this yields are needed.
-				yields++;
-				Thread.yield();
+				int bNum = pool.barrier.phaseNum;
+				if (bNum > phaseNum) {
+					assert phaseNum+1 == bNum || nextCache.empty();
+					advancePhase(bNum);
+				} else {
+					// TODO: Check if this yields are needed.
+					yields++;
+					Thread.yield();
+				}
 			}
 		}
+	}
+	void advancePhase(int bNum) {
+		lock(this);
+		checkedIn= ! nextPhaseHasWork;
+		Cache temp = cache;
+		cache = nextCache;
+		nextCache = temp;
+		phaseNum=bNum;
+		nextPhaseHasWork=false;
+		
+		if ( reporting) 
+			System.out.println(this + " advances to phase " + phaseNum);
+		unlock();
 	}
 	/**
 	 * Push a frame onto the stack of the current
@@ -674,10 +745,21 @@ public class Worker extends Thread {
 	 * @param frame -- the frame to be pushed.
 	 */
 	public void pushFrame(Frame frame) {
-		
-			if (reporting)
-				System.out.println(this + " pushes " + frame);
+		if (reporting)
+			System.out.println(this + " pushes " + frame);
 		cache.pushFrame(frame);
+	}
+	/**
+	 * Push a frame onto the stack of the current
+	 * closure (the closure at the bottom of the deque).
+	 * Called by client code in the body of a procedure
+	 * which has a spawn async before the first spawn.
+	 * @param frame -- the frame to be pushed.
+	 */
+	public void pushFrameNext(Frame frame) {
+		if (reporting)
+			System.out.println(this + " pushes " + frame + " on next deque.");
+		nextCache.pushFrame(frame);
 	}
 	/**
 	 * Pop the last frame from the stack.
@@ -687,7 +769,7 @@ public class Worker extends Thread {
 		cache.popFrame();
 	}
 	public String toString() {
-		return "Worker("+index+")";
+		return "Worker("+index+",phase=" + phaseNum+")";
 	}
 	public Closure bottom() {
 		return bottom;
@@ -880,6 +962,12 @@ public class Worker extends Thread {
 	}
 	public void setFrameGenerator(FrameGenerator x) {
 		fg=x;
+	}
+	public Frame popAndReturnFrame() {
+		return cache.popAndReturnFrame(this);
+	}
+	public Frame currentFrame() {
+		return cache.currentFrame();
 	}
 }
 

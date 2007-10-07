@@ -88,7 +88,7 @@ public class Pool {
      * This does not include those jobs that are still in job queue
      * waiting to be taken by workers.
      */
-    private int activeJobs = 0;
+    int activeJobs = 0;
 
     /** The number of workers that have not yet terminated */
     private int runningWorkers = 0;
