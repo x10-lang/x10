@@ -340,6 +340,62 @@ public void run() {
 \label{fig:worker-code}
 \end{figure*}
 
+\begin{figure*}
+\begin{minipage}{0.5\textwidth}
+\begin{verbatim}
+Closure steal(Worker thief) {
+  lock(thief); //lock victim deque
+  Closure cl = peekTop(thief, victim);
+  if (cl==null) 
+    return null; //nothing to steal
+  //cl = Closure that can be stolen
+  cl.lock(thief);
+  Status status = cl.status();
+  if (status == READY) {
+    //Closure not processed by victim
+    //steal the Closure
+  }
+  else if (status == RUNNING) {
+    //Possible contention with victim
+    //Need to steal head frame in Closure
+    if (cache.dekker(thief)) {
+      //>1 Frame available in Closure
+      //Promote child frame to Closure 
+      //Steal this Closure & head frame
+    } 
+  }
+  return null; //No Closure to steal
+}
+         (a)
+\end{verbatim}
+\end{minipage}%
+\begin{minipage}{0.5\textwidth}
+\begin{verbatim}
+Frame stealFrame(Worker thief) {
+  Worker victim = this;
+  lock(thief);
+
+  //>1 frame in victm's frame stack?
+  boolean b=cache.dekker(thief);
+  if (b) {
+    //Frame available to steal
+    Frame frame = cache.headFrame();
+    //Mark this frame as stolen
+    cache.incHead(); //H=H+1
+    return frame;
+  }
+  return null; //No frame to steal
+}
+          (b) 
+\end{verbatim}
+\end{minipage}
+\caption{Work stealing algorithm for (a) Properly nested tasks (b)
+  Improperly nested tasks. Both are invoked on victim's
+  Worker object (victim==this). Locks held are freed before returning.}%
+\label{fig:stealing-alg}
+\end{figure*}
+
+
 
 \subsection{Work Stealing}
 
@@ -355,32 +411,60 @@ The frames corresponding to the tasks form a stack. We denote the head
 and tail of the task by $H$ and $T$, respectively. When a task is
 spawned, the corresponding frame is pushed into the head of the stack
 ($H=H+1$). When a worker returns from a spawned task is checks that
-whether the current frame is stolen by executing one-half Dekker:
+whether the current frame is stolen by executing one-half of lock-free
+Dekker's algorithm~\cite{}:
 
 \begin{verbatim}
   --T; 
-  StoreLoadBarrier; // implied in Java if T is volatile
+  StoreLoadBarrier;
   if (H >= T) 
-  // Stolen 
+    // Stolen 
   else 
-  // Not stolen
+    // Not stolen
 \end{verbatim}
 
+Note that the StoreLoadBarrier is implied in Java if {\texttt T} is
+declared to be {\texttt volatile}.
+
 When a worker is out of work, it randomly selects a victim and
-attempts to steal from its stack's head. This implies that a task is
-stolen only if all its parents have already been stolen. 
+attempts to steal from its frame stack. The procedures employed to
+steal in the case of properly- and improperly-nested tasks are shown
+in Fig.~\ref{fig:stealing-alg}(a) and Fig.~\ref{fig:stealing-alg}(b),
+respectively. Note that the victim, and multiple theives might attempt
+to operate on the same frame stack. The theif first obtains a lock on
+the victim's deque to avoid contention with other thiefs trying to
+steal from the same victim.
 
-is the checking whether the parent frame, corresponding to the
-spawning task, has been stolen. This is done in a lock-free manner as
-discussed below, to minimize overheads during the normal course of the
-program.
+When properly nested tasks are being processed, the thief identifies a
+closure at the end of the deque and locks it. If the victim is
+processing some other closure and this closure is in a {\texttt READY}
+state, there is no contention with the victim on this closure. The
+theif extracts the Closure and steals it. If the closure is in
+{\texttt RUNNING} state, the victim is potentially adding and deleting
+frames on the frame stack associated with the closure. Dekker's
+algorithm is used to determine whether there is more than one frame in
+the frame stack. If there is, the locked closure together with the
+frame at the head of the stack are stolen. The immediate child frame
+of the stolen frame is promoted to a closure which is left in the
+victim's deque. The child task returns its result to the parent task
+through this promoted closure.
 
+In computations on improperly nested tasks, there is only one stack of
+frames used to represent the tasks. The thief directly locks the stack
+of frames (labeled {\texttt cache} in the algorithm) and attempts to
+steal from the stack's head when more than one tasks in available in
+the task. The frame is marked as stolen by incrementing the stack's
+head. 
 
+Since the tasks are pushed at the tail, the algorithm implies that a
+task is stolen only if all its parents have already been
+stolen. Parent tasks represent more work than child tasks, since they
+have potential to generate a greater number of tasks. The algorithms
+thus favor stealing of tasks that represent a large portion of work
+rather than fine-grained descendent tasks that do limited
+processing. This leads to better load balancing of the computation and
+reduces the number of steal attempts by workers.
 
-
-Checking for stealing is done through the Dekker's algorithm ....
-
-Dekker -----
 
 
 \subsection{Global Quiescence}
@@ -413,6 +497,10 @@ example, in the Shiloach-Vishkin algorithm ...
 
 This is achieved in cws by ...
 
+
+\subsection{Phased Computations}
+
+(stub)
 
 
 \subsection{Performance Analysis}
