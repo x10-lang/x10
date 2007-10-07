@@ -133,7 +133,7 @@ public class SV {
 		}
 	
 	}
-	boolean changed = true;
+	boolean changed=true;
 	class SVJob extends Frame {
 		final int numWorkers;
 		volatile int PC=0; 
@@ -143,6 +143,7 @@ public class SV {
 		}
 		public String toString() {  return "SVJob(" + numWorkers+")";}
 		public void compute(Worker w){
+			// An improperly nested task.
 			if (PC==1) {
 				w.popFrame();
 				return;
@@ -173,11 +174,19 @@ public class SV {
 				}
 				public String toString() { return "SVWorker " + j;}
 				public void compute(Worker w)  throws StealAbort {
-					
+					// this is a properly nested task. 
+					// There are at least two schemes to implement the global reduction for changed.
+					// (1) Use a shared variable, changed (does not need to be volatile).
+					// It is reset by proc 0 at the beginning of
+					// each phase. During a phase it is set by any proc that wishes to set it.
+					// Existing barriers (arriveAndAwait) will ensure that the change is seen by
+					// others when they read changed.
+					// (2) Use a reduction, barrier.arriveAndAwaitData.
+					// I have a suspicion (1) will be faster.
 					boolean locallyChanged = true;
 					while (locallyChanged) {
 						locallyChanged = false;
-						
+						if (j==0) changed=false;
 						for (int i=eLow; i <=eHigh; i++) {
 							final int v1=El1[i].v1, 
 							v2=El1[i].v2, 
@@ -187,7 +196,6 @@ public class SV {
 							if(s < e && e==ee) ID[e]=i;
 							if(e < s && s==D1[s]) ID[s]=i;
 						}
-						if (j==0) changed=false;
 						barrier.arriveAndAwait(); // changed is now reset.
 						for (int i=eLow; i <=eHigh; ++i) {
 							final int v1=El1[i].v1, v2=El1[i].v2,s=D1[v1], e=D1[v2], ee=D1[e];
@@ -200,18 +208,15 @@ public class SV {
 								El1[i].inTree=locallyChanged=true; 
 							}                        
 						}
-						//if (locallyChanged) changed=true;
-					
-						locallyChanged = barrier.arriveAndAwaitData(locallyChanged); // global redn
-						
+						if (locallyChanged) changed=true;
+						barrier.arriveAndAwait();
+						//						locallyChanged = barrier.arriveAndAwaitData(locallyChanged); // global redn
+						locallyChanged=changed;
 						/*Make sure the labels of each group is the same.*/
 						for (int i=vLow; i <=vHigh; i++) 
 							while (D1[D1[i]]!=D1[i]) D1[i]=D1[D1[i]];
 						barrier.arriveAndAwait(); // will reflect the updates to changed, if any.
-						//locallyChanged = changed;
-						
-						
-						
+
 					} // while
 					barrier.arriveAndDeregister();
 					w.popFrame();
@@ -281,13 +286,8 @@ public class SV {
 			SV graph = new SV(N,M);
 			if (graphOnly) return;
 		
-			//System.out.printf("N:%8d ", N);
 			for (int k=0; k < 10; ++k) {
 				long s = -System.nanoTime();
-			//	final V root = graph.G[1];
-				//root.level=0;
-				//root.parent=root;
-				
 				GloballyQuiescentVoidJob job = 
 					new GloballyQuiescentVoidJob(g, graph.new SVJob(procs));
 				//System.out.println("Starting " + job);

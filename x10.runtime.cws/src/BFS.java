@@ -1,7 +1,3 @@
-
-
-
-
 /**
  * (c) IBM Corporation 2007
  * Author: Vijay Saraswat
@@ -11,9 +7,10 @@
  * Intended to be used as the basis for speedup numbers.
  */
 
-import java.util.Set;
-import java.util.TreeSet;
+
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
+
 
 import x10.runtime.cws.Frame;
 import x10.runtime.cws.Pool;
@@ -24,27 +21,34 @@ import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
 
 public class BFS {
 	
-	public static final AtomicIntegerFieldUpdater<V> UPDATER = AtomicIntegerFieldUpdater.newUpdater(V.class, "level");
+	public static final 
+	AtomicIntegerFieldUpdater<V> UPDATER = AtomicIntegerFieldUpdater.newUpdater(V.class, "level");
 	public class V  extends Frame {
 		public final int index;
-		public int level=-1;
+		public volatile int level=-1;
 		public int degree;
 		public V parent;
 		public V [] neighbors;
 		public V(int i){index=i;}
-		
+		volatile int PC=0;
 		public void compute(Worker w)  throws StealAbort {
+			if (PC==1) {
+				w.popFrame();
+				return;
+			}
+			PC=1;
 			assert level >=0;
-			if (reporting)
+			if (Worker.reporting)
 				System.out.println(Thread.currentThread() + " visits " + this);
 						
 			for (int k=0; k < degree; k++) {
 				final V v = neighbors[k];
 				if (v.level == -1 && UPDATER.compareAndSet(v,-1,level+1)) {
+					//if (Worker.reporting)
+					//	System.out.println(w + " marks " + v + " at ply " + (level+1)) ;
 					v.parent=this;
-					/*w.pushFrameNext(v);*/
-					if (reporting)
-						System.out.println(w + " marks " + v + " at ply " + (level+1)) ;
+					w.pushFrameNext(v);
+				
 				}
 			}	
 		}
@@ -93,15 +97,9 @@ public class BFS {
 	public BFS (int n, int m){
 		N=n;
 		M=m;
-	
-		
 		/*constructing edges*/
+		G = new V[N]; for(int i=0;i<N;i++) G[i]=new V(i);
 		El = new E [M];
-		G = new V[N];
-		for(int i=0;i<N;i++) {
-			G[i]=new V(i);
-		}
-		
 		for (int i=0; i <M; i++) El[i] = new E(Math.abs(rand32())%N, Math.abs(rand32())%N);
 		
 		int[] D = new int [N];
@@ -121,19 +119,17 @@ public class BFS {
 		
 		m=0;
 		for(int i=0;i<M;i++) {
-			boolean r=false;;  
+			boolean r=false;
+			E edge = El[i];
+			int s = edge.v1, e = edge.v2;
 			/* filtering out repeated edges*/
-			for(int j=0;j<D[El[i].v1] && !r ;j++){ 
-				if(El[i].v2==NB[El[i].v1][j]) r=true;
-			}
+			for(int j=0;j<D[s] && !r ;j++) if(e==NB[s][j]) r=true;
 			if(r){
-				El[i].v1=El[i].v2=-1; /*mark as repeat*/
+				edge.v1=edge.v2=-1; /*mark as repeat*/
 			} else {
 				m++;
-				NB[El[i].v1][D[El[i].v1]]=El[i].v2;
-				NB[El[i].v2][D[El[i].v2]]=El[i].v1;
-				D[El[i].v1]++;
-				D[El[i].v2]++;
+				NB[s][D[s]++]=e;
+				NB[e][D[e]++]=s;
 			}
 		}  
 		
@@ -157,7 +153,7 @@ public class BFS {
 				
 				for(int j=0;j<D[v];j++) {
 					final int mm = NB[v][j];
-					if(G[mm].level==0){
+					if(G[mm].level !=1){
 						top++;
 						stack[top]=mm;
 						G[mm].level=1;
@@ -201,16 +197,18 @@ public class BFS {
 		}     
 	}
 	
-	
 	boolean verifyTraverse(V root) {
 		int i=0;
-		boolean result = false;
+		boolean result = true;
 		try {
-			for (;i<N && G[i].verify(root);i++) ;
-			return result = (i==N);
+			for (;i<N  ;i++) {
+				if (! G[i].verify(root))
+					result = false;
+			}
+			return result;
 		}finally {
-			if (reporting && ! result)
-				System.out.println(Thread.currentThread() + " fails at " + G[i]);
+			if ( ! result) ;
+				//System.out.println(Thread.currentThread() + " fails at " + G[i]);
 		}
 	}
 	static BFS graph;
@@ -259,7 +257,7 @@ public class BFS {
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
-			for (int k=0; k < 9; ++k) {
+			for (int k=0; k < 5; ++k) {
 				long s = System.nanoTime();
 				final V root = graph.G[1];
 				root.level=0;
@@ -271,7 +269,7 @@ public class BFS {
 				System.out.printf("N=%d t=%5.3f", N, secs);
 				System.out.println();
 				if (! graph.verifyTraverse(root))
-					System.out.printf("%b ", false);
+					System.out.printf("Test fails. %b ", false);
 				graph.clearColor();
 				
 			}
@@ -284,6 +282,7 @@ public class BFS {
 		for (int i = 0; i < N; ++i) {
 			V v= graph.G[i];
 			v.level=-1;
+			v.PC=0;
 			v.parent=null;
 		}
 	}
