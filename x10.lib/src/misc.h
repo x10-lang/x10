@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.10 2007-10-08 06:09:58 ganeshvb Exp $
+ * $Id: misc.h,v 1.11 2007-10-08 15:10:22 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -83,3 +83,7 @@ namespace x10lib {
 
 #endif
   
+
+// Local Variables:
+// mode: C++
+// End:
