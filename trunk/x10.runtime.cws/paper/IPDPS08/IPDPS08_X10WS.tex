@@ -1,6 +1,6 @@
 
-\documentclass[onecolumn,12pt]{ieee}
-
+%\documentclass[onecolumn,12pt]{ieee}
+\documentclass[12pt]{article}
 %------------------------------------------------------------------------- 
 % 
 % Use \documentclass[pagenumbers]{ieee}
@@ -9,6 +9,7 @@
 % no page numbers for camera-ready copy.
 %
 %------------------------------------------------------------------------- 
+\usepackage[dvips,letterpaper,margin=1in]{geometry}
 \usepackage[pdftex]{graphicx}
 \usepackage{times}
 \usepackage{epsfig}
@@ -21,7 +22,19 @@
 \DeclareGraphicsExtensions{.jpg, .pdf, .mps, .gif, .png}
 \title{Solving Large, Irregular Graph Problems in X10}
 
-\author{IBM Research}
+\author{Guojing Cong,  Vijay Saraswat, and Tong Wen\\
+IBM T. J. Watson Research Center\\
+ \{ gcong, vsaraswa, tongwen \}@us.ibm.com\\ 
+\\
+Sreedhar Kodali\\
+IBM Systems and Technology Group\\
+srkodali@in.ibm.com\\
+\\
+Sriram Krishnamoorthy \\
+Ohio State University\\
+Columbus, OH 43210 \\
+sriram.krishnamoorthy@gmail.com\\
+}
 
 \maketitle
 \thispagestyle{empty}
