@@ -1,0 +1,52 @@
+\relax 
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}}
+\newlabel{s:intr}{{1}{1}}
+\citation{CZF04}
+\citation{SV82}
+\citation{G06}
+\citation{KK05}
+\citation{HJ01}
+\citation{BC04a}
+\citation{X10-OOPSLA05}
+\citation{X10-OOPSLA05}
+\citation{titaniumDoc}
+\@writefile{toc}{\contentsline {section}{\numberline {2}X10: Designed for High Productivity}{3}}
+\@writefile{toc}{\contentsline {paragraph}{}{3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Dynamic parallelism with a Partitioned Global Address Space. All concurrency is expressed as asynchronous activities. Each vertical green rectangle above represents the stack for a single activity. An activity may hold references to remote objects, that is, at a different place. However, if it attempts to operate on a remote object, then it has to spawn a new activity at the remote place to perform the operation. Immutable (read only) data is special which can be accessed freely from any place providing opportunity for single-assignment parallelism.}}{4}}
+\newlabel{fig 1}{{1}{4}}
+\citation{BC07}
+\citation{MR86}
+\citation{KR88}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Designing Parallel Graph Algorithms in X10}{5}}
+\newlabel{s:design}{{3}{5}}
+\citation{BC04a}
+\citation{BC04a}
+\citation{BC04a}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}A Parallel Spanning Tree Algorithm based on graph traversal in X10}{6}}
+\newlabel{s:trav}{{3.1}{6}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {1}{\ignorespaces A spanning tree algorithm on an SMP node in X10}}{6}}
+\newlabel{alg:st-x10}{{1}{6}}
+\citation{x10-webpage}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}A spanning tree algorithm in the distributed-memory setting}{7}}
+\newlabel{s:trav-dist}{{3.2}{7}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {2}{\ignorespaces A spanning tree algorithm on a cluster of SMPs in X10}}{7}}
+\newlabel{alg:st-dist-x10}{{2}{7}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Runtime Support for X10 programs}{7}}
+\newlabel{s:runtime}{{4}{7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Task Execution}{8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces (a) X10 program for Fibonacci. (b) Fast version. (c) Slow version}}{9}}
+\newlabel{fig:fib-ill}{{2}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Support for Properly Nested Tasks}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Support for Improperly Nested Tasks}{10}}
+\citation{dekker}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Work Stealing}{11}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Code executed by workers for (a) only properly nested tasks (b) properly and improperly nested tasks. Note that (b) is an extension of (a)}}{12}}
+\newlabel{fig:worker-code}{{3}{12}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Work stealing algorithm for (a) Properly nested tasks (b) Improperly nested tasks. Both are invoked on victim's Worker object (victim==this). Locks held are freed before returning.}}{13}}
+\newlabel{fig:stealing-alg}{{4}{13}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Global Quiescence}{14}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Phased Computations}{15}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Explicitly Partitioned Programs}{15}}
+\bibstyle{ieee}
+\bibdata{IPDPS08_X10WS}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Performance Analysis}{16}}
