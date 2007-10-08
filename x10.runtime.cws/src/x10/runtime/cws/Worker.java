@@ -14,11 +14,12 @@ import static x10.runtime.cws.Closure.Status.READY;
 import static x10.runtime.cws.Closure.Status.RETURNING;
 import static x10.runtime.cws.Closure.Status.RUNNING;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-
 
 import x10.runtime.cws.Closure.Status;
 
@@ -155,17 +156,18 @@ public class Worker extends Thread {
 	 */
 	static class AdvancePhaseException extends Exception{}
 	protected Executable steal(Worker thief, boolean retry) throws AdvancePhaseException {
+		++stealAttempts;
 		if (jobRequiresGlobalQuiescence)
 			return stealFrame(thief, retry);
 		final Worker victim = this;
-		++stealAttempts;
 		lock(thief);
 		Closure cl=null;
 		try {
 			if (thief.phaseNum != phaseNum) {
 				// victim hasnt yet advanced to the next phase. Give up and try again.
-				System.out.println(thief + " cannot steal from " + thief);
-				if (thief.phaseNum < phaseNum) throw new AdvancePhaseException();
+				if (reporting)
+					System.out.println(thief + " cannot steal from " + victim);
+				if (thief.phaseNum < victim.phaseNum) throw new AdvancePhaseException();
 				return null;
 			}
 			cl = peekTop(thief, victim);
@@ -199,10 +201,14 @@ public class Worker extends Thread {
 			try {
 				Closure res = extractTop(thief);
 				assert (res == cl);
+				
+			//	thief.checkinHistory.add(pool.time() + ": " + this + " invokes checkout " + s);
 				thief.checkOut(res);
 				if ( reporting) {
-					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
-							+ victim + " cache=" + victim.cache.dump());
+//					String s= "1:: steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
+					//+ victim + " cache=" + victim.cache.dump();
+					String s= "1:: steals  closure from " + victim;
+					System.out.println(thief + s);
 				}
 				if (jobRequiresGlobalQuiescence)
 				  res.copyFrame(thief);
@@ -236,15 +242,17 @@ public class Worker extends Thread {
 					
 					res = extractTop(thief);
 //					 I have work now, so checkout of the barrier.
+					String s = "3:: steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
+					+ victim + " cache=" + victim.cache.dump();
 					thief.checkOutSteal(res, victim);
+					if (  reporting) {
+						System.out.println(thief + s);
+					}
 				} finally {
 					unlock();
 				}
 				assert cl==res;
-				if (  reporting) {
-					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
-							+ victim + " cache=" + victim.cache.dump());
-				}
+				
 				try {
 					cl.finishPromote(thief, child);
 				} finally {
@@ -268,15 +276,12 @@ public class Worker extends Thread {
 		try {
 			if (thief.phaseNum != phaseNum) {
 				// victim hasnt yet advanced to the next phase. Give up and try again.
-
-			//	System.out.println(thief + " cannot steal frame from " + victim + " in different phase."); 
-				if (thief.phaseNum < phaseNum) throw new AdvancePhaseException();
+				//	System.out.println(thief + " cannot steal frame from " + victim + " in different phase."); 
+				if (thief.phaseNum < victim.phaseNum) throw new AdvancePhaseException();
+				// If the victim is not current, not much you can do, no way to get the victim
+				// to advance without excessive synchronization.
 				return null;
-			} else {
-				//System.out.println(thief + " trying to steal frame from " + victim + "."); 
-				;
-			}
-
+			} 
 			boolean b=cache.dekker(thief);
 			if (b) {
 				Frame frame = cache.topFrame();
@@ -287,16 +292,18 @@ public class Worker extends Thread {
 				frame = frame.copy();
 				cache.incHead();
 //				I have work now, so checkout of the barrier.
+				
+		//		thief.checkinHistory.add(pool.time() + ":" + this + " invokes checkout for " + s);
 				thief.checkOutSteal(frame, victim);
-
 				if (  reporting) {
-					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]=  " + frame + " from "
-							+ victim + " cache=" + victim.cache.dump());
+//					String s = "4:: steals stack[" + (victim.cache.head()-1) + "]=  " + frame + " from "
+					//+ victim + " cache=" + victim.cache.dump();
+					String s= "1:: steals frame from " + victim;
+					System.out.println(thief + s);
 				}
-
 				return frame;
 			}
-		} catch (AdvancePhaseException z) { 
+		} catch (AdvancePhaseException z) { // rethrow
 			throw z;
 		} catch (Throwable z) {
 			z.printStackTrace();
@@ -304,8 +311,7 @@ public class Worker extends Thread {
 		} finally {
 			unlock();
 		}
-		return null;
-		
+		return null;	
 	}
 
 	/* 
@@ -469,9 +475,11 @@ public class Worker extends Thread {
 	 * @return -- a task, or null if none is available
 	 */
 	private Executable getTask(boolean mainLoop) throws AdvancePhaseException {
-		
-		boolean phaseChanged = checkIn();
-		if (phaseChanged) return null;
+		// this may throw an exception. This means stop loooking for work
+		// in this phase -- the worker has to advance to the next phase.
+	
+		checkIn();
+		assert checkedIn && cache.empty();
 		if (++idleScanCount < 0)
 			idleScanCount=1;
 		
@@ -577,38 +585,59 @@ public class Worker extends Thread {
     	if (job != null) {
     		idleScanCount = -1;
     		if (sleeper != null) sleeper.wakeup();
+    	//	checkinHistory.add(pool.time() + "2:: " + this + " invokes checkout getting " + job + " from pool.");
+    		try {
     		checkOut(job);
+    		} catch (AdvancePhaseException z) {
+    			System.err.println("Error in getTaskFromPool:");
+    			z.printStackTrace();
+    		}
     		setJob(job);
     	}
     	return job;
     }
       
- 
+ /**
+  * Each time a worker starts searching for work, it calls checkIn. However, we must ensure
+  * that the nextCount maintained by AWC is incremented at most once per worker per phase (and only if
+  * the worker has pending activities for the next phase). 
+  * 
+  * A worker must check into the AWC only when it has first checked out.
+  */
     boolean checkedIn = true, nextPhaseHasWork=false;
-    boolean checkIn() {
+    void checkIn() throws AdvancePhaseException {
     	if (!checkedIn) {
     		checkedIn = true;
+    	//	checkinHistory.add(pool.time() + ":checkedIn false -> true. checkIn called on " + pool.barrier);
     		if (nextPhaseHasWork) {
     			// if we have already communiated to AWC that this
     			// worker has work for the next phase, we dont need to do this again.
-    			return pool.barrier.checkIn(this, phaseNum, false);
+    			pool.barrier.checkIn(this, phaseNum, false);
     		} else {
     			// do we have work for the next phase.
     			nextPhaseHasWork=! nextCache.empty();
-    			return pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork);
+    			pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork);
     		}
-    		// nextPhaseHasWork reset by advancePhase();
-
+    		// Note: nextPhaseHasWork reset by advancePhase();
     	}
-    	return false;
+    	
     }
-    void checkOut(Executable cl) {
+    /**
+     * Each time a worker finds work, it calls checkout. Called holding the lock for the 
+     * victim during the process of stealing.
+     * The victim has work, therefore it must be checked out. So this ensures that
+     * as long as there is work at least one worker is checked out.
+     * @param cl
+     */
+    void checkOut(Executable cl) throws AdvancePhaseException{
+    	
     	if (checkedIn) {
     		checkedIn = false;
-    		pool.barrier.checkOut();
+    	//	checkinHistory.add(pool.time() + ":checkedIn true->fase. checkOut() called on " + pool.barrier);
+    		pool.barrier.checkOut(this, phaseNum);
     	}
     }
-    void checkOutSteal(Executable cl, Worker victim) {
+    void checkOutSteal(Executable cl, Worker victim) throws AdvancePhaseException {
     	assert victim.lockOwner==this;
     	checkOut(cl);
     }
@@ -619,6 +648,7 @@ public class Worker extends Thread {
         }
     }
     int phaseNum=0;
+   // List<String> checkinHistory = new ArrayList<String>();
 	@Override
 	public void run() {
 		assert index >= 0;
@@ -661,7 +691,7 @@ public class Worker extends Thread {
 					// The work extracted will be a closure.
 					// cl may be null. When non-null
 					// cl is typically RETURNING.
-					assert false;
+					
 					lock(this);
 					try {
 						cl = extractBottom(this); 
@@ -732,6 +762,8 @@ public class Worker extends Thread {
 		nextCache = temp;
 		phaseNum=bNum;
 		nextPhaseHasWork=false;
+	//	checkinHistory = new ArrayList<String>();
+	//	checkinHistory.add(pool.time() + "phase " + phaseNum + " checkedIn=" + checkedIn);
 		
 		if ( reporting) 
 			System.out.println(this + " advances to phase " + phaseNum);
@@ -769,7 +801,7 @@ public class Worker extends Thread {
 		cache.popFrame();
 	}
 	public String toString() {
-		return "Worker("+index+",phase=" + phaseNum+")";
+		return "Worker("+index+",phase=" + phaseNum+",checkedIn=" + checkedIn + ",nextPhaseHasWork=" + nextPhaseHasWork+")";
 	}
 	public Closure bottom() {
 		return bottom;
