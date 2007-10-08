@@ -1,4 +1,4 @@
-# m = n*4, n nodes, m edges, 16 processors
+# m = n*4, n nodes, m edges, 32 processors
 # n (M)  	time (s)
 1		0.096299	
 2		0.212452	
