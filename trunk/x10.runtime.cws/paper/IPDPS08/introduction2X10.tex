@@ -2,7 +2,7 @@
 \paragraph{}X10 is a new Partitioned Global Address Space (PGAS) language being developed at IBM as part of the DARPA HPCS project~\cite{X10-OOPSLA05}. It is designed to address both programmer productivity and parallel performance for modern architectures from the multicores, to the heterogeneous accelerators (as in the Cell processor), and to the scale-out clusters of SMPs such as Blue Gene.  The language is based on sequential Java with extensions for programming fine-grained and massive parallelism. Unlike other PGAS languages such as Co-Array Fortran, Titanium, and UPC whose model of parallelism is Single Program Multiple Data (SPMD), X10 supports dynamic and structured concurrency where SPMD is only a special case. In this section, we provide a brief introduction to the basic concepts in the X10 programming model and the language constructs used to implement the graph algorithms of interest. For more details and other features of X10, readers please refer to~\cite{X10-OOPSLA05}.
  
 \begin{enumerate}
-\item{\bf Activities}~--~All concurrency in X10 is expressed as asynchronous {\em activities}. An activity is a lightweight thread of execution, which can be spawned recursively in a fork-join manner. The syntax of spawning an activity is {\tt async S}, where a new child activity is created executing statement {\tt S}. Activities can not be named and neither aborted nor canceled. The granularity of an activities is arbitrary~--~{\tt S} can be a single statement reading a remote variable or a sequence of statements performing a stencil operation on a grid.  Our experience has been that this single notion of an asynchronous activity can subsume many levels of parallelism that  a programmer may encounter such as threads, structured parallelism (including OpenMP), messaging (including MPI), and DMA transfers.  
+\item{\bf Activities}~--~All concurrency in X10 is expressed as asynchronous {\em activities}. An activity is a lightweight thread of execution, which can be spawned recursively in a fork-join manner. The syntax of spawning an activity is {\tt async S}, where a new child activity is created executing statement {\tt S}. Activities can not be named and neither aborted nor canceled. The granularity of an activity is arbitrary~--~{\tt S} can be a single statement reading a remote variable or a sequence of statements performing a stencil operation on a grid.  Our experience has been that this single notion of an asynchronous activity can subsume many levels of parallelism that  a programmer may encounter such as threads, structured parallelism (including OpenMP), messaging (including MPI), and DMA transfers.  
 \item{\bf Places}~--~The main program starts as single activity at {\em place} 0. Place is an X10 concept which can be considered as a virtual SMP, but multiple places can be mapped to one physical SMP node. The global address space is partitioned across places. Data and activities have affinity with and only with one place. Activities can only operate on data local to them, that is, within the same place. To access data at another place, a new activity has to be spawned there to perform the operation. The syntax for spawning an activity at place $p$ is {\tt async (p) S}. The diagram in Figure \ref{fig 1} describes the X0 programming model.
 
 \begin{figure}
@@ -13,7 +13,7 @@
 \end{figure}
 
 
-\item{\bf X10 arrays}~--~X10 supports a rich set of multidimensional array abstractions and domain calculus as in Titanium~\cite{titaniumDoc}. The array index space is global where each index is an integer vector named {\em point}, and a {\em domain} is a set of points which can be either rectangular or not. The {\em distribution} of an array across places is specified by a {\tt dist}. Each distribution maps a set of points in a region to a set of places. 
+\item{\bf X10 arrays}~--~X10 supports a rich set of multidimensional array abstractions and domain calculus as in Titanium~\cite{titaniumDoc}. The array index space is global where each index is an integer vector named {\em point}, and a {\em domain} is a set of points which can be either rectangular or not. The distribution of an array across places is specified by a {\em distribution} which can be defined by users. Each distribution maps a set of points in a region to a set of places. 
 
 %For example, the following code defines a 1D block-distributed array initialized in a way such that each element contains its own index.
 
@@ -39,7 +39,7 @@
 %}
 %\end{center} 
 
-\item{\bf Finish and clock}~--~The statement {\tt async S} returns immediately when it is executed even if the statement {\tt S} is not finished, which may also spawn other activities. To wait until a statement {\tt S} has finished globally, that is, all transitively spawned child {\tt async}s have finished, one needs to use the {\it finish} clause: {\tt finish S}. %For example, 
+\item{\bf Finish and clock}~--~The statement {\tt async S} returns immediately when it is executed even if the statement {\tt S} is not finished, which may also spawn other activities. To wait until a statement {\tt S} has finished globally, that is, all transitively spawned child activities have finished, one needs to use the {\it finish} clause: {\tt finish S}. %For example, 
 %\begin{center}
 %{\small
 %\begin{verbatim}
@@ -49,8 +49,8 @@
 %}
 %\end{center}
 %Here, after the above two statements are executed, the value of {\tt Table[0]} is guaranteed to be $1$. 
-Activities can be synchronized using {\tt finish} by checking their global termination. However, there are many cases in which a barrier-like coordination is needed for a set of activities during the middle of their computation. X10 uses {\em clock} to coordinate such as set of activities. A clock has phases, and the activities registered with this clock can be synchronized by waiting for their finish of the current clock phase. An activity can be registered with multiple clocks and it can drop any of them at any time.
-\item{\bf Atomic blocks}~--~X10 uses atomic blocks for mutual exclusion. An atomic statement/method is conceptually executed in a single step, while other activities are suspended. An atomic block must be nonblocking, sequential (without spawning activities), and local (no remote data access). %Without using the atomic block, the following code will generate race conditions.
+Activities can be synchronized using {\tt finish} by checking their global termination. However, there are many cases in which a barrier-like coordination is needed for a set of activities during the middle of their computation. X10 uses {\em clock} to coordinate such a set of activities. A clock has phases, and the activities registered with this clock can be synchronized by waiting for their finish of the current clock phase. An activity can be registered with multiple clocks and it can drop any of them at any time.
+\item{\bf Atomic blocks}~--~X10 uses {\em atomic} blocks for mutual exclusion. An atomic statement/method is conceptually executed in a single step, while other activities are suspended. An atomic block must be nonblocking, sequential (without spawning activities), and local (no remote data access). %Without using the atomic block, the following code will generate race conditions.
 %\begin{center}
 %{\small
 %\begin{verbatim}
