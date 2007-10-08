@@ -33,7 +33,7 @@ public class BFS {
 		volatile int PC=0;
 		public void compute(Worker w)  throws StealAbort {
 			if (PC==1) {
-				w.popFrame();
+				w.popAndReturnFrame(); // called intead of popFrame to insure victim's half of Dekker is executed.
 				return;
 			}
 			PC=1;
@@ -63,7 +63,7 @@ public class BFS {
 			}
 			return result = (p==root);
 			} finally {
-				if (reporting && ! result)
+				if ((true || reporting) && ! result)
 					System.out.println(Thread.currentThread() + " finds bad guy " + this);
 			}
 		}
@@ -257,7 +257,7 @@ public class BFS {
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
-			for (int k=0; k < 5; ++k) {
+			for (int k=0; k < 10; ++k) {
 				long s = System.nanoTime();
 				final V root = graph.G[1];
 				root.level=0;
