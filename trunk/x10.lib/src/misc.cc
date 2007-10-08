@@ -3,70 +3,30 @@
 
 using namespace x10lib;
 
-
-/* extern "C"
-void*
-arrayCopySwitch (x10_async_handler_t h, void* args)
-{
-  cout << "arrayCopySwitch should be overriddern \n";
-  exit(-1);
-}*/
-
-#define RING_SIZE 1024
-
 static int copyCount = 0;
 
-static lapi_cntr_t origin_cntr[RING_SIZE];
-
 static int max_uhdr_sz;
-
-struct asyncArrayCopyHeader
-{
-  x10_async_handler_t handler;
-  size_t destOffset;
-  char args[8];
-};
-
-static asyncArrayCopyHeader header[RING_SIZE];
 
 static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
 			     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
 {
-  asyncArrayCopyHeader header = *((asyncArrayCopyHeader*) uhdr);	
-  lapi_return_info_t *ret_info =
-    (lapi_return_info_t *)msg_len;
-  if (ret_info->udata_one_pkt_ptr) {
-    memcpy ((char*) arrayCopySwitch (header.handler, (void*) header.args) + header.destOffset, ret_info->udata_one_pkt_ptr, *msg_len);
-    ret_info->ctl_flags = LAPI_BURY_MSG;
-    *comp_h = NULL;
-    return NULL;
-  } else {	  
-    ret_info->ret_flags = LAPI_LOCAL_STATE;
-    *comp_h = NULL;
-    return (char*) arrayCopySwitch (header.handler, (void*) header.args) + header.destOffset;
-  }
-  
-  return NULL; 
-}
+  asyncArrayCopyClosure* header = (asyncArrayCopyClosure*) uhdr;	
 
-static void* asyncArrayCopyHandler_test (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
-			     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
-{
-  int handle = *((int*) uhdr);
-  int destOffset = * ((int*) uhdr + 1);
+  lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
 
-  lapi_return_info_t *ret_info =
-    (lapi_return_info_t *)msg_len;
-  if (ret_info->udata_one_pkt_ptr) {
-    memcpy ((char*) arrayCopySwitch (handle, (void*) ((char*) uhdr + 2 *  sizeof(int))) + destOffset, ret_info->udata_one_pkt_ptr, *msg_len);
-    ret_info->ctl_flags = LAPI_BURY_MSG;
-    *comp_h = NULL;
-    return NULL;
-  } else {	  
-    ret_info->ret_flags = LAPI_LOCAL_STATE;
-    *comp_h = NULL;
-    return (char*) arrayCopySwitch (handle, (void*) ((char*) uhdr + 2 * sizeof(int))) + destOffset;
-  }
+  //  cout << header->destOffset << " " << header->handle << endl;
+
+   if (ret_info->udata_one_pkt_ptr) {
+     memcpy ((char*) arrayCopySwitch (header) + header->destOffset, 
+	     ret_info->udata_one_pkt_ptr, *msg_len);
+     ret_info->ctl_flags = LAPI_BURY_MSG;
+     *comp_h = NULL;
+     return NULL;
+   } else {	  
+     ret_info->ret_flags = LAPI_LOCAL_STATE;
+     *comp_h = NULL;
+     return (char*) arrayCopySwitch (header) + header->destOffset;
+   }
   
   return NULL; 
 }
@@ -76,39 +36,24 @@ miscInit ()
 {
   (void) LAPI_Qenv(__x10_hndl, MAX_UHDR_SZ, &max_uhdr_sz);
 
-  for (int  i = 0; i < RING_SIZE; i++) {
-    LAPI_Setcntr (__x10_hndl, &(origin_cntr[i]), 1);
-    //    header[i].args = new char[max_uhdr_sz];
-  }
-
-  LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));
-  LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler_test, ASYNC_ARRAY_COPY_HANDLER + 1));
-}
-
-x10_err_t
-miscTerminate ()
-{
-  //  for (int i = 0; i < RING_SIZE; i++)
-  //delete [] header[i].args;
+  LRC (LAPI_Addr_set (__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER)); 
 }
 
 namespace x10lib {
 
   //TODO: take care of clock operations
   x10_err_t
-  asyncArrayCopy (void* src, size_t srcOffset,
-		  void* args, size_t arg_size, 
+  asyncArrayCopyRaw (void* src, size_t srcOffset,
+		  asyncArrayCopyClosure* closure, size_t closureSize, 
 		  size_t len, int target, Clock* c)
   {          
-    assert (arg_size >= 0 && arg_size < max_uhdr_sz);
-    
-    int tmp = -1;
+    assert (closureSize >= 0 && closureSize < max_uhdr_sz);
     
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
-		      (void*) (ASYNC_ARRAY_COPY_HANDLER + 1), 
-		      (void*) args,
-		      arg_size,
+		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
+		      (void*) closure,
+		      closureSize,
 		      (void*) ((char*) src + srcOffset),
 		      len,
 		      NULL,
@@ -120,33 +65,30 @@ namespace x10lib {
 
   x10_err_t
   asyncArrayCopy (void* src, size_t srcOffset,
-		  x10_async_handler_t handler,
-		  void* args, size_t arg_size, 
-		  size_t destOffset, size_t len, int target, Clock* c)
+		  asyncArrayCopyClosure* closure, size_t closureSize, 
+		  size_t len, int target, Clock* c)
   {          
-    assert (arg_size >= 0 && arg_size < max_uhdr_sz);
+    assert (closureSize >= 0 && closureSize < max_uhdr_sz);
 
+    lapi_cntr_t origin_cntr;
+    LRC (LAPI_Setcntr (__x10_hndl, &origin_cntr, 0));
     int tmp = -1;
 
-    LAPI_Waitcntr (__x10_hndl, &(origin_cntr[copyCount]), 1, &tmp); 
-
-    header[copyCount].handler = handler;
-    header[copyCount].destOffset = destOffset;
-    memcpy (header[copyCount].args, args,arg_size);
+    //cout << "here " << closure->handle << " " << closureSize << endl;
     
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
-		      (void*) &(header[copyCount]),
-		      sizeof (asyncArrayCopyHeader),
+		      (void*) closure,
+		      closureSize,
 		      (void*) ((char*) src + srcOffset),
 		      len,
 		      NULL,
-		      &(origin_cntr[copyCount]),
+		      &origin_cntr,
 		      NULL));
-    
-    copyCount = (copyCount + 1) % RING_SIZE;
 
+    LAPI_Waitcntr (__x10_hndl, &origin_cntr, 1, &tmp); 
+   
     return X10_OK;
   }  
 }

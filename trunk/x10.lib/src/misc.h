@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.8 2007-09-27 12:49:05 ganeshvb Exp $
+ * $Id: misc.h,v 1.9 2007-10-08 05:19:35 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,7 +15,7 @@
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
-extern "C" void* arrayCopySwitch (x10_async_handler_t, void * args);
+extern "C" void* arrayCopySwitch (void * args);
 namespace x10lib {
   
   extern lapi_handle_t __x10_hndl;
@@ -40,15 +40,25 @@ namespace x10lib {
      * is void* arrayCopySwitch (x10_async_arg_t, void* args). 
     **/
 
+  struct asyncArrayCopyClosure
+  {
+    asyncArrayCopyClosure () {}
+    asyncArrayCopyClosure (int _handle, size_t _destOffset) :
+      handle (_handle),
+	 destOffset (_destOffset) {}    
+    
+    int handle;
+    size_t destOffset;
+  };
+  
   x10_err_t
-    asyncArrayCopy (void* src, size_t srcOffset,
-		    x10_async_handler_t handler,
-		    void* args, size_t arg_size, 
-		    size_t dstOffset, size_t len, int target, Clock* c=NULL);
-  x10_err_t
-    asyncArrayCopy (void* src, size_t srcOffset,
-		    void* args, size_t arg_size, 
+    asyncArrayCopy (void* src, size_t srcOffset,		  
+		    asyncArrayCopyClosure* args, size_t argSize,
 		    size_t len, int target, Clock* c=NULL);
+  x10_err_t
+    asyncArrayCopyRaw (void* src, size_t srcOffset,
+		       asyncArrayCopyClosure* args, size_t argSize,
+		       size_t len, int target, Clock* c=NULL);
   
   //x10_err_t asyncArrayCopy (void* src, int srcOffset, void* dst, int dstOffset,
   //	       int target, int len, x10_switch_t swch);
