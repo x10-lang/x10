@@ -1,11 +1,11 @@
-\section{Runtime Support for X10 programs}
+\section{Runtime Support for \Xten{} programs}
 \label{s:runtime}
 
 We have implemented a runtime system that supports co-existence of
-multiple parallel programming, as envisioned by the X10 programming
+multiple parallel programming, as envisioned by the \Xten{} programming
 model. As an initial implementation, we have developed a Java-based
 runtime system to support shared-memory parallelization. It is
-distributed as a Java package, {\texttt x10.runtime.cws}, under an
+distributed as a Java package, {\java x10.runtime.cws}, under an
 open-source license~\cite{x10-webpage}. In this section, we discuss the
 implementation key features of the runtime system.
 
@@ -20,8 +20,8 @@ that such computations. Cilk requires {\em fully-strict} programs
 in which a task waits for all its descendents to complete before
 returning. Such tasks are also called properly nested tasks. 
 
-The X10 runtime system is designed to leverage the Cilk design while
-supporting a larger class of programs. X10 provides support for {\em
+The \Xten{} runtime system is designed to leverage the Cilk design while
+supporting a larger class of programs. \Xten{} provides support for {\em
 strict} computations, in which a ancestor task need not wait for its
 descendent tasks to be completed. Such tasks are said to be improperly
 nested. {\bf (also talk about algorithmic properties such as
@@ -29,8 +29,7 @@ deadlock-freedom in this context)}
 
 The execution model consists of a pool of {\em workers} that
 co-operatively execute the tasks until termination is detected. A task
-is created as an instance of a sub-class of {\texttt
-x10.runtime.cws.Frame}. The program begins execution when a driver
+is created as an instance of a sub-class of {\java x10.runtime.cws.Frame}. The program begins execution when a driver
 thread submits a task a global task queue shared by the workers. 
 
 One of the workers retrieves the task from the global queue and begins
@@ -49,7 +48,7 @@ is discussed in subsequent sections.
 
 \subsection{Task Execution}
 
-Every async in the X10 program is compiled into a sub-class of
+Every async in the \Xten{} program is compiled into a sub-class of
 Frame. An async is said to consist of threads, where a thread is a
 non-blocking sequence of instructions terminating in the spawning of or
 waiting on an async. 
@@ -61,6 +60,7 @@ thread.
 
 \begin{figure*}
 \begin{minipage}{0.25\textwidth}
+\scriptsize
 \begin{verbatim}
 int fib(int n) {
   int x, y;
@@ -68,13 +68,14 @@ int fib(int n) {
   finish {
     async x=fib(n-1);
     async y=fib(n-2);
-  }
+ }
   return x+y;
 }
     (a)
 \end{verbatim}
 \end{minipage}%
 \begin{minipage}{0.4\textwidth}
+\scriptsize
 \begin{verbatim}
 int fib(Worker w, int n) 
  throws StealAbort { 
@@ -102,6 +103,7 @@ int fib(Worker w, int n)
 \end{verbatim}
 \end{minipage}%
 \begin{minipage}{0.45\textwidth}
+\scriptsize
 \begin{verbatim}
 void compute(Worker w, 
  Frame frm) throws StealAbort {
@@ -114,7 +116,7 @@ void compute(Worker w,
       result = n;
       setupReturn();
       return;
-    }
+   }
     f.PC=LABEL_1;
     x = fib(w, n-1);
     w.abortOnSteal(x);
@@ -130,12 +132,12 @@ void compute(Worker w,
   case LABEL_3:
     result=f.x+f.y;
     setupReturn();
-  }
+ }
 }
        (c)
 \end{verbatim}
 \end{minipage}%
-\caption{(a) X10 program for Fibonacci. (b) Fast version. (c) Slow version}%
+\caption{(a) \Xten{} program for Fibonacci. (b) Fast version. (c) Slow version}%
 \label{fig:fib-ill}
 \end{figure*}
 
@@ -148,34 +150,34 @@ Fig.~\ref{fig:fib-ill}(a).
 
 Each worker maintains a deque consisting of stack of Frames. On
 entering a fast version, a frame object is created and pushed onto the
-stack (method: {\texttt pushFrame}). This frame contains the
+stack (method: {\java pushFrame()}). This frame contains the
 up-to-date values of variables whenever any other worker might steal
-this task. This frame is popped from the stack (method: {\texttt
-popFrame}) when this method returns.
+this task. This frame is popped from the stack (method: {\java popFrame()}) 
+when this method returns.
 
 Whenever a task is spawned, the worker immediately proceeds to execute
 the spawned task like a sequential method call. When the spawned task
 finishes execution, the worker checks whether the current frame was
 stolen. If so, the result computed by the child task is stored to be
 passed onto its parent and the execution of the task aborts (method:
-{\texttt abortOnSteal}). The method call stack is unwound by throwing
-an exception ({\texttt StealAbort}) that is caught in the main
+{\java abortOnSteal()}). The method call stack is unwound by throwing
+an exception ({\java StealAbort}) that is caught in the main
 routine executed by the worker. The values in the frame of the parent
 stack are updated before proceeding to execute a spawned child, as the
 worker now has a non-executing task and hence is target of a steal. 
 
 All the descendents are guaranteed to be completed in the fast version
-when a {\texttt finish} is encountered. Hence the finish statements
+when a {\java finish} is encountered. Hence the finish statements
 are ignored.
 
 The slow version restores any local variables and uses the {\em PC} to
 start execution of the task past the execution point at which it might
 have been stolen. A task might have been stolen when its descendents
 are executing. Thus a {\em finish} statement, translated to the
-{\texttt sync} method, might cause the invoking task to suspend on
-completion of non-terminated children. The value of the {\texttt
-  result} variable is returned to the parent task on invocation of the
-{\texttt setupReturn} method. 
+{\java sync()} method, might cause the invoking task to suspend on
+completion of non-terminated children. The value of the {\java result} 
+variable is returned to the parent task on invocation of the
+{\java setupReturn()} method. 
 
 In a program with sufficient parallelism, the slow version is expected
 to execute infrequently. The design tries to minimize the overheads in
@@ -191,7 +193,7 @@ Each closure maintains a stack of frames. Frames corresponding to
 spawned tasks are pushed into the stack on entry, and popped on
 return. In the fast path, return values are propagated as they would
 be in a sequential program. A stealing worker, referred to as the
-{thief}, steals a closure together with the bottom-most available
+{\java thief}, steals a closure together with the bottom-most available
 frame, in another worker, referred to as the {\em victim}.
 
 When a task, in the form of the bottom-most frame in a closure, is
@@ -207,11 +209,11 @@ driver thread returns.
 The procedure executed by the workers to handle properly nested tasks
 is shown in Fig.~\ref{fig:worker-code}(a). On completing execution of
 a closure, a worker first attempts to obtain another closure from its
-local queue (method:{\texttt extractBottom}). If no local closure is
+local queue (method:{\java extractBottom()}). If no local closure is
 available to execute, the worker attempts to obtain a task either by
-stealing or from the global queue (method:{\texttt getTask}). It then
-executes the slow version of the task obtained (method:{\texttt
-  execute}). 
+stealing or from the global queue (method:{\java getTask()}). It then
+executes the slow version of the task obtained (method:{\java
+  execute()}). 
 
 This is the support provided by Cilk. We subsequently look at the
 improvements to the basic model.
@@ -220,15 +222,15 @@ improvements to the basic model.
 \subsection{Support for Improperly Nested Tasks}
 
 Properly nested tasks t satisfy the property that at the moment when
-the slow version terminates (method:{\texttt compute}) the frame at
+the slow version terminates (method:{\java compute()}) the frame at
 the bottom of the worker's dequeue is t. Hence the task can be
-completed (i.e., removed from the dequeue) by including a {\texttt
+completed (i.e., removed from the dequeue) by including a {\java
 w.popFrame()} call at the end of the compute method. In essence, if a
 worker is executing only properly nested tasks (this is true when it
 is executing Cilk code), there is a one-to-one correspondence between
 the frame stack and the tasks being processed.
 
-X10 permits improperly nested tasks. Such tasks q are used, for
+\Xten{} permits improperly nested tasks. Such tasks q are used, for
 instance, to implement the pseudo-depth-first search discussed in this
 paper. Such a task may add a task r to the deque of its worker (say w)
 without necessarily transferring control to r. This has two
@@ -243,17 +245,19 @@ terminate execution of q and pop q off its deque. This can be
 accomplished by defining a volatile int PC field in q, and adding the
 following code at the beginning of q's compute method
 
+{\scriptsize
 \begin{verbatim}
-if (PC==1) {
- w.popFrame();
- return;
-}
-PC=1;
+  if (PC==1) {
+    w.popFrame();
+    return;
+  }
+  PC=1;
 \end{verbatim}
+}
 
 Second for an improperly nested task when control returns from g's
 compute method, it may not be the case that the last frame on the
-dequeue is g. Therefore a call to {\texttt popFrame()} at the end of
+dequeue is g. Therefore a call to {\java popFrame()} at the end of
 g's compute method would be incorrect. Instead, the compute method
 returns (without attempting to pop the last frame on the deque). Now
 whenever the task reaches the bottom of the dequeue, the worker will,
@@ -274,6 +278,7 @@ phase in which it executes the task at the bottom of the deque:
 
 \begin{figure*}
 \begin{minipage}{0.5\textwidth}
+\scriptsize
 \begin{verbatim}
 public void run() {
   Executable cl=null; //frame/closure
@@ -306,6 +311,7 @@ public void run() {
 \end{verbatim}
 \end{minipage}%
 \begin{minipage}{0.5\textwidth}
+\scriptsize
 \begin{verbatim}
 public void run() {
   Executable cl=null; //frame or closure
@@ -343,6 +349,7 @@ public void run() {
 
 \begin{figure*}
 \begin{minipage}{0.5\textwidth}
+\scriptsize
 \begin{verbatim}
 Closure steal(Worker thief) {
   lock(thief); //lock victim deque
@@ -371,6 +378,7 @@ Closure steal(Worker thief) {
 \end{verbatim}
 \end{minipage}%
 \begin{minipage}{0.5\textwidth}
+\scriptsize
 \begin{verbatim}
 Frame stealFrame(Worker thief) {
   Worker victim = this;
@@ -415,6 +423,7 @@ spawned, the corresponding frame is pushed into the head of the stack
 whether the current frame is stolen by executing one-half of lock-free
 Dekker's algorithm~\cite{dekker}:
 
+{\scriptsize
 \begin{verbatim}
   --T; 
   StoreLoadBarrier;
@@ -423,9 +432,10 @@ Dekker's algorithm~\cite{dekker}:
   else 
     // Not stolen
 \end{verbatim}
+}
 
-Note that the {\texttt StoreLoadBarrier} is implied in Java if
-{\texttt T} is declared to be {\texttt volatile}.
+Note that the {\java StoreLoadBarrier} is implied in Java if
+{\java T} is declared to be {\java volatile}.
 
 When a worker is out of work, it randomly selects a victim and
 attempts to steal from its frame stack. The procedures employed to
@@ -438,10 +448,10 @@ steal from the same victim.
 
 When properly nested tasks are being processed, the thief identifies a
 closure at the end of the deque and locks it. If the victim is
-processing some other closure and this closure is in a {\texttt READY}
+processing some other closure and this closure is in a {\java READY}
 state, there is no contention with the victim on this closure. The
 thief extracts the Closure and steals it. If the closure is in
-{\texttt RUNNING} state, the victim is potentially adding and deleting
+{\java RUNNING} state, the victim is potentially adding and deleting
 frames on the frame stack associated with the closure. Dekker's
 algorithm is used to determine whether there is more than one frame in
 the frame stack. If there is, the locked closure together with the
@@ -452,7 +462,7 @@ through this promoted closure.
 
 In computations on improperly nested tasks, there is only one stack of
 frames used to represent the tasks. The thief directly locks the stack
-of frames (labeled {\texttt cache} in the algorithm) and attempts to
+of frames (labeled {\java cache} in the algorithm) and attempts to
 steal from the stack's head when more than one tasks in available in
 the task. The frame is marked as stolen by incrementing the stack's
 head. 
@@ -479,10 +489,10 @@ identify termination without closures.
 
 The workers share a barrier. The barrier is used to determine when all
 workers are out of work. Every worker notifies the barrier of its
-state through two methods. {\texttt checkIn()} is used to enter the
+state through two methods. {\java checkIn()} is used to enter the
 barrier barrier and notify that the worker is out of work. When such a
-worker steals work from a victim, it invokes {\texttt checkOut()} to
-leave the barrier. The barrier maintains a {\texttt checkoutCount} on
+worker steals work from a victim, it invokes {\java checkOut()} to
+leave the barrier. The barrier maintains a {\java checkoutCount} on
 the number of workers checked out. It is triggered when all the workers
 are in it. The action associated with the barrier is triggered and it
 signals that the computation has terminated.
@@ -499,12 +509,12 @@ checkoutCount is not always equal to the number of workers with work
 to do. In particular, consider a victim that finds the current frame
 as stolen. The victim cannot identify whether it has work without
 locking its deque. While it aborts, the thief has the stolen
-frame and could have invoked {\texttt checkOut()}. The barrier
+frame and could have invoked {\java checkOut()}. The barrier
 identifies both workers as having checked out even though there is one
-task between them. Note that allowing the victim to {\texttt
+task between them. Note that allowing the victim to {\java
   checkIn()} when it identifies a steal would lead to the barrier
 being incorrectly triggered while the thief still has the stolen task
-but it yet to invoke {\texttt checkOut()}.
+but it yet to invoke {\java checkOut()}.
 
 
 \subsection{Phased Computations}
@@ -522,7 +532,7 @@ can be added to the current cache or the next cache, the cache for the
 next phase. 
 
 When global quiescence is detected for this phase, the barrier action
-invokes {\texttt advancePhase()} that steps the computation into the
+invokes {\java advancePhase()} that steps the computation into the
 next phase. When a worker runs out of tasks, it checks that the
 current phase of the worker is the same as the global phase of the
 computation. If the phase of the computation has advanced further, the
@@ -530,7 +540,7 @@ workers updates its phase information and swaps the current and next
 task collections. 
 
 Each worker specifies the number of tasks it has
-outstanding for the next phase when it invokes {\texttt
+outstanding for the next phase when it invokes {\java
   checkIn()}. This information is used to identify if the next phase
 has any tasks left to be processed. 
 
@@ -586,11 +596,11 @@ The overheads of the fast version over the sequential execution are:
 \item Method's frame needs to be allocated, initialized, pushed onto
   the deque. Cost: A few assembly instructions.
 \item Method's state needs to be saved before each spawn. Cost: writes
-  of local dirty variables and {\em PC}, and a {\texttt
+  of local dirty variables and {\em PC}, and a {\java
   StoreLoadBarrier}
 \item Method must check if its frame has been stolen after each
   return from a spawn. Cost: two reads, compare, branch and a 
-  {\texttt StoreLoadBarrier} 
+  {\java StoreLoadBarrier} 
 \item On return, frame must be freed. Cost: A few assembly instructions
 \item An extra variable is needed to hold the frame pointer. Cost: Increased
   register pressure.
