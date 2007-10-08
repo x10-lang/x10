@@ -1,5 +1,36 @@
 #include "FtStatic.h"
 #include "timers.h"
+#include "reduce.tcc"
+
+class complex {
+
+public:
+  complex() {}
+
+  complex (double _real, double _imag) :
+    real (_real), imag (_imag) {}
+
+  complex (const complex& other) :
+    real (other.real),
+    imag (other.imag)
+  {}
+
+  complex operator= (complex other) {
+    real = other.real;
+    imag = other.imag;
+    return *this;
+  };
+  
+  complex operator+= (complex& other) 
+  {
+    real += other.real;
+    imag += other.imag;
+    return *this;
+  }
+  
+  double real;
+  double imag;
+};
 
 struct 
 {
@@ -131,6 +162,8 @@ FtStatic::FtStatic( x10_int_t type, x10_int_t comm) :
   
 void  FtStatic::solve() {
   
+  initReduce<complex>();
+
   x10_int_t offset = 0;
   
   x10_int_t size = 0;
@@ -257,7 +290,8 @@ void  FtStatic::solve() {
   
   if (PID==0 ) if (class_id_char != 'T') checksum_verify (NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);   
 
-
+  
+  finishReduce();
 }
 
 void FtStatic::FFT2DComm_Slab(const DoubleArray* local2d, const DoubleArray* dist1d, const x10_int_t dir, const x10_int_t orientation, const x10_int_t placeID, Clock* clk) {
@@ -298,9 +332,9 @@ void FtStatic::FFT2DComm_Slab(const DoubleArray* local2d, const DoubleArray* dis
       //System.out.println(" 2DComm place: t = "+t+" placeID ="+placeID+ " destID = "+destID+ " destSstart ="+destStart);
       
       //asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * CHUNK_SZ, clk);
-      __array_copy_args_0 args ;
-	asyncArrayCopy ((void*) local2darray->raw(), sizeof(double) * (srcStart + OFFSET), 
-			1, (void*) &args, sizeof (args), destStart * sizeof(double), 2* CHUNK_SZ *sizeof(double),destID, clk); 
+      asyncArrayCopyClosure args(0, destStart * sizeof(double)) ;
+      asyncArrayCopy ((void*) local2darray->raw(), sizeof(double) * (srcStart + OFFSET), 
+		      &args, sizeof (args), 2* CHUNK_SZ *sizeof(double), destID, clk); 
     }
   }
 }
@@ -348,9 +382,9 @@ void  FtStatic::FFT2DComm_Pencil (const DoubleArray* local2d, const DoubleArray*
 	
 	//cout << "hello in FT " << endl;
 
-	__array_copy_args_0 args ;
-	asyncArrayCopy ((void*) local2darray->raw(), sizeof(double) * (srcStart + OFFSET), 
-			1, (void*) &args, sizeof (args), destStart*sizeof(double), 2*dim1*sizeof(double),destID, clk); 
+      asyncArrayCopyClosure args(1, destStart * sizeof(double));
+      asyncArrayCopy ((void*) local2darray->raw(), sizeof(double) * (srcStart + OFFSET), 
+			&args, sizeof (args), 2*dim1*sizeof(double),destID, clk); 
 
 	//	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, clk);
 	//asyncArrayCopy (local2darray, Pox10_int_t<1> (srcStart), local1darray, Pox10_int_t<1> (destStart), destID, 2 * dim1, clk);
@@ -396,17 +430,20 @@ void  FtStatic::checksum(const DoubleArray* C, const x10_int_t PID, const x10_in
   // finishEnd (NULL);
 
   const double res_real = ((sum_real/NX)/NY)/NZ;
-  const double res_imag = ((sum_imag/NX)/NY)/NZ;
-
-  
+  const double res_imag = ((sum_imag/NX)/NY)/NZ;  
 
   //CS = finishStart(CS);
 
-  __async__0__args args0(itr, res_real, res_imag);
-  if (0 == PLACE->id)
-    __async__0 (args0);
-  else
-    asyncSpawnInline (0, 0, &args0 , sizeof(__async__0__args));
+  complex c (res_real, res_imag);
+  reduce (&c);
+  GLOBAL_STATE.FtSolver->checksum_real[itr-1] = c.real;
+  GLOBAL_STATE.FtSolver->checksum_imag[itr-1] = c.imag;
+
+  //  __async__0__args args0(itr, res_real, res_imag);
+  //if (0 == PLACE->id)
+  //  __async__0 (args0);
+  //else
+  //  asyncSpawnInline (0, 0, &args0 , sizeof(__async__0__args));
   
   //asyncFlush (0, sizeof(__async__0__args));
   
@@ -895,12 +932,14 @@ asyncSwitch (x10_async_handler_t h, void* arg, x10_int_t niter)
 
 
 void*
-arrayCopySwitch (x10_async_handler_t h, void* arg)
+arrayCopySwitch (void* args)
 {
-  __array_copy_args_0 * args = (__array_copy_args_0*) arg;
-  switch (h) {
+  asyncArrayCopyClosure *closure_args = (asyncArrayCopyClosure*) args;
+  switch (closure_args->handle) {
+  case 0:
+    return ((char*) GLOBAL_STATE.Planes1d->m_array->raw()); 
+    break;
   case 1:
-    //cout << "capt var " << args->captVar1 << endl;
     return ((char*) GLOBAL_STATE.Planes1d->m_array->raw()); 
   }
   
