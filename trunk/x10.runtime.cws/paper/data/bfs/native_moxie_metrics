@@ -1,4 +1,4 @@
-# BFS with heuristics for graphs m=4n , 16 processors
+# BFS with heuristics for graphs m=4n , 32 processors
 # size: n (M) 	time(s) 
 1	 	0.282076	
 2		0.583080	
