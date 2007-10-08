@@ -14,8 +14,6 @@ static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_l
 
   lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
 
-  //  cout << header->destOffset << " " << header->handle << endl;
-
    if (ret_info->udata_one_pkt_ptr) {
      memcpy ((char*) arrayCopySwitch (header) + header->destOffset, 
 	     ret_info->udata_one_pkt_ptr, *msg_len);
