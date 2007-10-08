@@ -80,7 +80,7 @@ public class Pool {
      * are prepared to see null entries, allowing alternative
      * schemes in which workers are added more lazily.
      */
-    private final Worker[] workers;
+     final Worker[] workers;
 
     
     /**
