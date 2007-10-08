@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.11 2007-10-08 15:10:22 ganeshvb Exp $
+ * $Id: misc.h,v 1.12 2007-10-08 15:12:21 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -64,16 +64,7 @@ namespace x10lib {
     asyncArrayCopyRaw (void* src, size_t srcOffset,
 		       asyncArrayCopyClosure* args, size_t argSize,
 		       size_t len, int target, Clock* c=NULL);
-  
-  //x10_err_t asyncArrayCopy (void* src, int srcOffset, void* dst, int dstOffset,
-  //	       int target, int len, x10_switch_t swch);
-  
-  //template <class T, int RANK>
-  //x10_err_t asyncArrayCopy (Array<T, RANK>* src, int srcOffset,
-  //Array<T, RANK>* dest, int dstOffset,
-  //int target, int len, x10_switch_t swch);
-  
-  
+     
   x10_err_t Broadcast (void* buffer, size_t nbytes, x10_place_t root);
   
   
