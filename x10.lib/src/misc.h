@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.9 2007-10-08 05:19:35 ganeshvb Exp $
+ * $Id: misc.h,v 1.10 2007-10-08 06:09:58 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -22,24 +22,12 @@ namespace x10lib {
   extern int __x10_num_places;
   extern int __x10_my_place;
 
-  /**
-    * arg0 = src address.
-    * arg1 = src offset (bytes).
-    * handler = unique array copy handler that returns the base address of dest array.
-    * args  = argument for the array copy handler.
-    * arg_size = size of arguments.
-    * dstOffset = destination offset.
-    * target = destination node where the dest. array is residing.
-    * len = number of bytes to be copied.
-    * c = clock (optional).
-    */
-
-    /*
-     * DESCRIPTION :  This methods invokes the arrayCopySwitch method in the destinaion
-     * The arrayCopySwitch method needs to be overloaded by the programmer. It's signature
-     * is void* arrayCopySwitch (x10_async_arg_t, void* args). 
-    **/
-
+  /*
+   * a type representing the closure for the asyncArrayCopy
+   * handler = unique handle for the array.
+   * dstOffset = destination offset.
+   * Every closure type argument to asyncArrayCopy should have this as its base class.
+   */
   struct asyncArrayCopyClosure
   {
     asyncArrayCopyClosure () {}
@@ -50,6 +38,23 @@ namespace x10lib {
     int handle;
     size_t destOffset;
   };
+
+  /**
+    * arg0 = src address.
+    * arg1 = src offset (bytes).
+    * closure = pointer to closure (a derived class of asyncArrayCOpyClosure).
+    * closureSize = size of the clsoure.
+    * target = destination node where the dest. array is residing.
+    * len = number of bytes to be copied.
+    * c = clock (optional).
+    */
+
+    /*
+     * DESCRIPTION :  This methods invokes the arrayCopySwitch method in the destinaion
+     * The arrayCopySwitch method needs to be overloaded by the programmer. It's signature
+     * is void* arrayCopySwitch (void* args). 
+    **/
+
   
   x10_err_t
     asyncArrayCopy (void* src, size_t srcOffset,		  
