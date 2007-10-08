@@ -1,0 +1,7 @@
+# BFS CILK for graphs m=4n , 32 processors
+# size: n (M) 	time(s) 
+1		1.873218	 	
+2	 	4.662572	
+3		7.523838 
+4		10.408257	
+5		15.351567	
