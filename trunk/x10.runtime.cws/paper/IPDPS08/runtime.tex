@@ -245,7 +245,7 @@ following code at the beginning of q's compute method
 
 \begin{verbatim}
 if (PC==1) {
- w.popStackFrame();
+ w.popFrame();
  return;
 }
 PC=1;
@@ -253,14 +253,15 @@ PC=1;
 
 Second for an improperly nested task when control returns from g's
 compute method, it may not be the case that the last frame on the
-dequeue is g. Therefore a call to popStackFrame() *at the end* of g's
-compute method would be incorrect. Instead, the compute method returns
-(without attempting to pop the last frame on the deque). Now whenever
-the task reaches the bottom of the dequeue, the worker will, as usual,
-invokes its compute method. However, the code sequence described above
-will execute, thereby popping the frame from the deque. Thus the code
-sequence above serves two purposes -- it does the cleanup necessary
-when the task is stolen as well as when it is completed.
+dequeue is g. Therefore a call to {\texttt popFrame()} at the end of
+g's compute method would be incorrect. Instead, the compute method
+returns (without attempting to pop the last frame on the deque). Now
+whenever the task reaches the bottom of the dequeue, the worker will,
+as usual, invokes its compute method. However, the code sequence
+described above will execute, thereby popping the frame from the
+deque. Thus the code sequence above serves two purposes -- it does the
+cleanup necessary when the task is stolen as well as when it is
+completed.
 
 The changes to the basic worker code necessary to support improperly
 nested tasks are shown in Fig.~\ref{fig:worker-code}(b). With
@@ -469,38 +470,109 @@ reduces the number of steal attempts by workers.
 
 \subsection{Global Quiescence}
 
-(stub)
-
 In fully-strict computations, i.e., those involving properly nested
 tasks, completion of the first task and the return of the
-corresponding Closure indicates computation termination. For
-improperly nested tasks, we present a mechanism to efficiently
-identify termination. 
+corresponding Closure indicates computation termination.
+Improperly-nested tasks that do not require a return call chain can do
+away with the closures. We have implemented a mechanism to efficiently
+identify termination without closures.
 
-The action to be performed on termination is registered with an object
-that also maintains an active worker counter. When a worker begins
-stealing, it checks in with the counter, and checks out when it has
-work to execute. When all workers are identify to be stealing, when
-the counter reaches number of workers, the computation is identified
-as terminated. 
+The workers share a barrier. The barrier is used to determine when all
+workers are out of work. Every worker notifies the barrier of its
+state through two methods. {\texttt checkIn()} is used to enter the
+barrier barrier and notify that the worker is out of work. When such a
+worker steals work from a victim, it invokes {\texttt checkOut()} to
+leave the barrier. The barrier maintains a {\texttt checkoutCount} on
+the number of workers checked out. It is triggered when all the workers
+are in it. The action associated with the barrier is triggered and it
+signals that the computation has terminated.
+
+The algorithm maintains the invariant:
+
+\[
+\mbox{{\texttt (\#workers - checkoutCount)}} = \mbox{\#(workers that know they don't
+  have work )}
+\]
+
+A worker knows it has no work if it stealing. Note that the
+checkoutCount is not always equal to the number of workers with work
+to do. In particular, consider a victim that finds the current frame
+as stolen. The victim cannot identify whether it has work without
+locking its deque. While it aborts, the thief has the stolen
+frame and could have invoked {\texttt checkOut()}. The barrier
+identifies both workers as having checked out even though there is one
+task between them. Note that allowing the victim to {\texttt
+  checkIn()} when it identifies a steal would lead to the barrier
+being incorrectly triggered while the thief still has the stolen task
+but it yet to invoke {\texttt checkOut()}.
+
+
+\subsection{Phased Computations}
+
+We also added support for phased computations in which tasks in this
+phase create tasks to be executed in the next phase. The
+implementation of the breadth-first search algorithm proceeds one
+level at a time. The nodes processed at this level are used to
+determine the nodes to be processed in the next level.
+
+Phased computations are supported as a generalization of global
+quiescence. Each worker maintains two stacks of frames, referred to as
+caches. Depending on the phase specified when spawning tasks, a task
+can be added to the current cache or the next cache, the cache for the
+next phase. 
+
+When global quiescence is detected for this phase, the barrier action
+invokes {\texttt advancePhase()} that steps the computation into the
+next phase. When a worker runs out of tasks, it checks that the
+current phase of the worker is the same as the global phase of the
+computation. If the phase of the computation has advanced further, the
+workers updates its phase information and swaps the current and next
+task collections. 
+
+Each worker specifies the number of tasks it has
+outstanding for the next phase when it invokes {\texttt
+  checkIn()}. This information is used to identify if the next phase
+has any tasks left to be processed. 
+
+Note that the global phase could have advanced much further than the
+phase operated on by this worker. This would happen when this worker
+has no work for current phase and has checked-in notifying that it has
+not tasks for the next phase. The other workers could then progress
+multiple phases before this worker observes the computation progress. 
+
+When global quiescence for this phase is triggered, the number of
+workers with tasks for the next phase is known. The computation is
+said to have terminated when the current phase has quiesced and no
+worker has any task for the next phase. 
+
+For a given phase, maintaining the invariant mentioned above for
+global quiescence is more involved with multiple phases. For example,
+consider a worker advancing its phase to match the global phase of the
+computation and its next cache is non-empty. Since the worker now has
+local tasks in this phase, it implicitly checks out of the barrier.
 
 
 \subsection{Explicitly Partitioned Programs}
-
-(stub)
 
 While work-stealing provides a convenient abstraction for
 load-balancing fine-grained programs, the performance of certain
 applications can benefit from the explicitly partitioned programs that
 would exist as a typical parallel global address space program. For
-example, in the Shiloach-Vishkin algorithm ...
+example, in the Shiloach-Vishkin algorithm we observe that explicit
+partitioning of the edges and vertices amongst the workers leads to
+better performance. This is achieved by having the task, called the
+job task, submitted by the driver thread spawns tasks, called worker
+tasks. The number of worker tasks spawned is equal to the number of
+workers in the system. The job task is improperly nested and returns
+upon spawning the worker tasks. Each of the spawned tasks now execute
+one part of the program. Note that these tasks are spawned and
+available at the worker that executed the job task. This worker now
+has work and it executes one of the worker tasks. The other workers
+identify the presence of work in this worker while stealing and steal
+a worker task. Assuming the worker tasks are sufficiently
+load-balanced, the rest of the computation proceeds without
+work-stealing with each worker executing a worker task. 
 
-This is achieved in cws by ...
-
-
-\subsection{Phased Computations}
-
-(stub)
 
 
 \subsection{Performance Analysis}
@@ -541,9 +613,21 @@ The computation is identified as terminated, the moment the last
 worker starts trying to steal. Thus there is no significant delay
 between the actual termination of the computation and its detection.
 The mechanism itself incurs the overhead of two atomic updates to a
-shared counter for every successful steal. 
+shared counter for every successful steal. The overheads incurred in
+supported phased execution are similar.
 
-Explicitly partitioned programs -- overheads???
+Explicitly partitioned programs begin execution with all the tasks on
+one worker. There is a delay before which all workers attempt to steal
+from this worker and obtain a worker task. Assuming a truly random
+scheme in the choice of the victim to steal from, the worst case in
+the number of steals before work is found is proportional to the
+number of workers. Since the worker tasks are load-balanced and there
+is no work-stealing after this initial delay, the number of steals in
+the worst case is independent of the program running time and problem
+size, and hence much smaller than that incurred in a typical
+work-stealing strategy. We observe this in our experimental evaluation
+as well. 
+
 
 Thus the common execution path in which all workers are busy involves
 little overhead. The remaining in other execution paths are
