@@ -18,7 +18,7 @@
 %For example, the following code defines a 1D block-distributed array initialized in a way such that each element contains its own index.
 
 %\begin{center}
-%{\small
+%{\scriptsize
 %\begin{verbatim}
 %region R = [0:TableSize-1];
 %dist RD = dist.factory.block(R);
@@ -31,7 +31,7 @@
 
 %shown by the following two pairs of equivalent statements.
 %\begin{center}
-%{\small
+%{\scriptsize
 %\begin{verbatim}
 %foreach (point [i] : R) Table[i]+=i; is equivalent to for (point [i] : R) async Table[i]+=i;
 %ateach (point [i] : RD) Table[i]+=i; is equvalent to for (point [i] : R) async (RD[i]) Table[i]+=i;
@@ -41,7 +41,7 @@
 
 \item{\bf Finish and clock}~--~The statement {\tt async S} returns immediately when it is executed even if the statement {\tt S} is not finished, which may also spawn other activities. To wait until a statement {\tt S} has finished globally, that is, all transitively spawned child activities have finished, one needs to use the {\it finish} clause: {\tt finish S}. %For example, 
 %\begin{center}
-%{\small
+%{\scriptsize
 %\begin{verbatim}
 %finish foreach (point [i] : R) Table[i]*=i; 
 %Table[0]+=1;.
@@ -52,7 +52,7 @@
 Activities can be synchronized using {\tt finish} by checking their global termination. However, there are many cases in which a barrier-like coordination is needed for a set of activities during the middle of their computation. X10 uses {\em clock} to coordinate such a set of activities. A clock has phases, and the activities registered with this clock can be synchronized by waiting for their finish of the current clock phase. An activity can be registered with multiple clocks and it can drop any of them at any time.
 \item{\bf Atomic blocks}~--~X10 uses {\em atomic} blocks for mutual exclusion. An atomic statement/method is conceptually executed in a single step, while other activities are suspended. An atomic block must be nonblocking, sequential (without spawning activities), and local (no remote data access). %Without using the atomic block, the following code will generate race conditions.
 %\begin{center}
-%{\small
+%{\scriptsize
 %\begin{verbatim}
 %double sum = 0;
 %finish foreach (point [i] : R) sum+=1; //should use atomic sum+=1 instead;
