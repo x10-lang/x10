@@ -348,21 +348,27 @@ implements ArrayConstructor {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
+	public Term firstChild() {
 		return (distribution != null) ? 
-				distribution.entry() 
-				:  (initializer  != null ? initializer.entry() : this);
+				distribution
+				:  (initializer  != null ? initializer : null);
 	}
 	
 	/**
 	 * Visit this term in evaluation order.
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		if (distribution != null)
-			v.visitCFG(distribution, (initializer != null) ? initializer.entry() : this);
-		if (initializer != null) {
-			v.visitCFG(initializer, this);
-		}
+		if (distribution != null) {
+                    if (initializer != null) {
+                        v.visitCFG(distribution, initializer, ENTRY);
+                    }
+                    else {
+                        v.visitCFG(distribution, this, EXIT);
+                    }
+                }
+                if (initializer != null) {
+                    v.visitCFG(initializer, this, EXIT);
+                }
 		return succs;
 	}
 	

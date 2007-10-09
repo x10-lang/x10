@@ -256,9 +256,8 @@ public class Closure_c extends Expr_c implements Closure {
         return closure;
     }
 
-    @Override
-    public Term entry() {
-        return listEntry(formals(), returnType.entry());
+    public Term firstChild() {
+        return listChild(formals(), returnType);
     }
 
     /**
@@ -270,10 +269,23 @@ public class Closure_c extends Expr_c implements Closure {
      */
     @Override
     public List acceptCFG(CFGBuilder v, List succs) {
-        v.visitCFGList(formals(), returnType.entry());
-        v.visitCFG(returnType, FlowGraph.EDGE_KEY_TRUE, body.entry(), 
-                   FlowGraph.EDGE_KEY_FALSE, this);
-        v.visitCFG(body, this);
+        v.visitCFGList(formals(), returnType, ENTRY);
+
+        // If building the CFG for the enclosing code, don't thread
+        // in the closure body.  Otherwise, we're building the CFG
+        // for the closure itself.
+        if (! succs.isEmpty()) {
+            v.visitCFG(returnType, this, EXIT);
+        }
+        else {
+            v.visitCFG(returnType, body, ENTRY);
+            v.visitCFG(body, this, EXIT);
+        }
+
+        /*
+        v.visitCFG(returnType, FlowGraph.EDGE_KEY_TRUE, body, ENTRY,
+                   FlowGraph.EDGE_KEY_FALSE, this, EXIT);
+                   */
         return succs;
     }
 

@@ -56,16 +56,16 @@ public class Await_c extends Stmt_c implements Await {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
+	public Term firstChild() {
 		// TODO Auto-generated method stub
-		return expr_.entry();
+		return expr_;
 	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		v.visitCFG(expr_, this);
+		v.visitCFG(expr_, this, EXIT);
 		return succs;
 	}
 

@@ -101,17 +101,17 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
-		return formal.entry();
+	public Term firstChild() {
+		return formal;
 	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		v.visitCFG(formal, domain.entry());
-		v.visitCFG(domain, body.entry());
-		v.visitCFG(body, this);
+		v.visitCFG(formal, domain, ENTRY);
+		v.visitCFG(domain, body, ENTRY);
+		v.visitCFG(body, this, EXIT);
 		return succs;
 	}
 
@@ -192,7 +192,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	}
 
 	public Term continueTarget() {
-		return formal.entry();
+		return formal;
 	}
 
 	public Expr cond() { return null; }

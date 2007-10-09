@@ -51,21 +51,25 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	this.arguments= TypedList.copyAndCheck(arguments, Expr.class, true);
     }
 
-    @Override
-    public Term entry() {
+    public Term firstChild() {
 	if (!(target instanceof Closure)) {
-	    return ((Term) target).entry();
+	    return ((Term) target);
 	}
-	return listEntry(arguments, this);
+	return listChild(arguments, null);
     }
 
     @Override
     public List acceptCFG(CFGBuilder v, List succs) {
 	if (!(target instanceof Closure)) { // Don't visit a literal closure here
 	    Term t= (Term) target;
-	    v.visitCFG(t, listEntry(arguments, this));
+            if (arguments.isEmpty()) {
+                v.visitCFG(t, this, EXIT);
+            }
+            else {
+                v.visitCFG(t, listChild(arguments, null), ENTRY);
+            }
 	}
-	v.visitCFGList(arguments, this);
+	v.visitCFGList(arguments, this, EXIT);
 	return succs;
     }
 

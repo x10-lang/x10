@@ -74,15 +74,15 @@ public class Finish_c extends Stmt_c implements Finish {
      * Return the first (sub)term performed when evaluating this
      * term.
      */
-    public Term entry() {
-	return (body != null ? body.entry() : this);
+    public Term firstChild() {
+	return (body != null ? body : null);
     }
 
     /**
      * Visit this term in evaluation order.
      */
     public List acceptCFG(CFGBuilder v, List succs) {
-	v.visitCFG(body, this);
+	v.visitCFG(body, this, EXIT);
 	return succs;
     }
     /** Visit the children of the statement. */

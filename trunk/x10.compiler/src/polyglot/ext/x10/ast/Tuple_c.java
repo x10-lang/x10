@@ -92,8 +92,8 @@ public class Tuple_c extends Expr_c implements Tuple {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
-		return listEntry(args, this);
+	public Term firstChild() {
+		return listChild(args, null);
 	}
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
@@ -102,7 +102,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 		// pointReceiver and regionReceiver are AmbReceiver's when they 
 		// are created. AmbReceievers are not expressions.
 		// So they are not visited during CFG construction.
-		v.visitCFGList(args, this);
+		v.visitCFGList(args, this, EXIT);
 		return succs;
 	}
 	

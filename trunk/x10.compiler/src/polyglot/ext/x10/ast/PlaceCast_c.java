@@ -71,8 +71,8 @@ public class PlaceCast_c extends Expr_c implements PlaceCast {
 	 * @see polyglot.ast.Term#entry()
 	 */
 	
-	 public Term entry() {
-        return expr.entry();
+	 public Term firstChild() {
+        return expr;
     }
 	
 
@@ -84,8 +84,8 @@ public class PlaceCast_c extends Expr_c implements PlaceCast {
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	 public List acceptCFG(CFGBuilder v, List succs) {
-        v.visitCFG(place, expr.entry());
-        v.visitCFG(expr, this);
+        v.visitCFG(place, expr, ENTRY);
+        v.visitCFG(expr, this, EXIT);
         return succs;
     }
 

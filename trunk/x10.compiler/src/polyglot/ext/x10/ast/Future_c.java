@@ -227,20 +227,20 @@ public class Future_c extends Expr_c
      * Return the first (sub)term performed when evaluating this
      * term.
      */
-    public Term entry() {
-        return place.entry();
+    public Term firstChild() {
+        return place;
     }
 
     /**
      * Visit this term in evaluation order.
      */
     public List acceptCFG(CFGBuilder v, List succs) {
-    	v.visitCFG(place, body());
+    	v.visitCFG(place, body(), ENTRY);
     	if ((stmt != null)) {
-    		v.visitCFG(body, stmt);
-    		v.visitCFG(stmt, this);
+    		v.visitCFG(body, stmt, ENTRY);
+    		v.visitCFG(stmt, this, EXIT);
     	} else {
-    		v.visitCFG(body, this);
+    		v.visitCFG(body, this, EXIT);
     	}
     	return succs;
     }

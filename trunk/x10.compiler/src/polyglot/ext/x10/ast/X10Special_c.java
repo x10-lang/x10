@@ -58,6 +58,9 @@ public class X10Special_c extends Special_c implements X10Special {
     			   throw new SemanticException("self may only be used within a dependent type", 
     					   position());
     		}
+        	if (c.inSuperTypeDeclaration()) {
+        		tt = c.supertypeDeclarationType();
+        	}
     		return type(tt);
     	}
         if (qualifier == null) {

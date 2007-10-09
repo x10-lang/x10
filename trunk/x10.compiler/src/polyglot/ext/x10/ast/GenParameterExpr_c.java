@@ -91,9 +91,9 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
+	public Term firstChild() {
 		return (args.isEmpty())
-		? null : listEntry( args, this);
+		? null : listChild( args, null);
 	}
 	
 	/* (non-Javadoc)
@@ -101,7 +101,7 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
 		if (args != null) {
-   		    v.visitCFGList( args, this);
+   		    v.visitCFGList( args, this, EXIT);
 		}
 		return succs;
 	}

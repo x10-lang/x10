@@ -8,6 +8,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,14 +28,17 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ext.x10.extension.X10Ext;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
@@ -165,13 +169,39 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
     	}
     	return n;
     }
- /*   public Context enterChildScope(Node child, Context c) {
-        if (child == this.body || child == this.classInvariant) {
-            TypeSystem ts = c.typeSystem();
-            c = c.pushClass(type, ts.staticTarget(type).toClass());
-        }
-        return super.enterChildScope(child, c);
-    }*/
+    public Context enterChildScope(Node child, Context c) {
+//        if (child == this.body || child == this.classInvariant) {
+//            TypeSystem ts = c.typeSystem();
+//            c = c.pushClass(type, ts.staticTarget(type).toClass());
+//        }
+    	
+    	X10Context xc = (X10Context) c;
+    	
+    	   if (child == this.superClass || this.interfaces.contains(child)) {
+    		   // Add this class to the context, but don't push a class scope.
+               // This allows us to detect loops in the inheritance
+               // hierarchy, but avoids an infinite loop.
+    		   
+    		   // For X10, also add the properties.
+    		   
+               X10ParsedClassType_c type = (X10ParsedClassType_c) this.type;
+               xc = xc.pushSuperTypeDeclaration(type);
+               xc = (X10Context) xc.pushBlock();
+               xc.addNamed(type);
+               
+               FieldInstance fi = type.fieldNamed(X10FieldInstance.MAGIC_PROPERTY_NAME);
+               
+               if (fi != null) {
+            	   String propertyNames = (String) fi.constantValue();
+            	   for (Iterator i = type.getDefinedPropertiesFromClass(propertyNames).iterator(); i.hasNext(); ) {
+            		   FieldInstance vi = (FieldInstance) i.next();
+            		   xc.addVariable(vi);
+            	   }
+               }
+               return child.del().enterScope(xc); 
+           }
+           return super.enterChildScope(child, xc);
+    }
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
     	

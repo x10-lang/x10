@@ -54,7 +54,7 @@ public class Region_c extends Expr_c implements Region {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
+	public Term firstChild() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -64,7 +64,7 @@ public class Region_c extends Expr_c implements Region {
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
 		// TODO Auto-generated method stub
-		return null;
+		return succs;
 	}
 
 	/* (non-Javadoc)

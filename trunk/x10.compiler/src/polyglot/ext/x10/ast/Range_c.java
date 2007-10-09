@@ -45,7 +45,7 @@ public class Range_c extends Expr_c implements Range {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
+	public Term firstChild() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -55,7 +55,7 @@ public class Range_c extends Expr_c implements Range {
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
 		// TODO Auto-generated method stub
-		return null;
+		return succs;
 	}
 
 	/* (non-Javadoc)

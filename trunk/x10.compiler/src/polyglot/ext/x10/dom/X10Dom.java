@@ -286,7 +286,8 @@ public class X10Dom {
 			for (org.w3c.dom.Node child = e.getFirstChild(); child != null; child = child.getNextSibling()) {
 				if (child instanceof Element) {
 					assert ((Element) child).getTagName().equals("item");
-					Element x = getFirstElement((Element) child);
+//					Element x = getFirstElement((Element) child);
+					Element x = (Element) child;
 					T o = lens.fromXML(v, x);
 					r.add(o);
 				}
@@ -298,17 +299,10 @@ public class X10Dom {
 			v = v.tag("List");
 			for (Iterator<T> i = l.iterator(); i.hasNext(); ) {
 				T o = i.next();
-				lens.toXML(v.tag("item"), o);
+//				DomGenerator v2 = v.tag("item");
+				DomGenerator v2 = v;
+				lens.toXML(v2, o);
 			}
-//			int k = -1;
-//			for (org.w3c.dom.Node child = v.parent.getFirstChild(); child != null; child = child.getNextSibling()) {
-//				if (child instanceof Element) {
-//					k++;
-//					assert ((Element) child).getTagName().equals("item");
-//					if (getFirstElement((Element) child).getTagName().equals("flags"))
-//						assert false;
-//				}
-//			}
 		}
 	}
 	

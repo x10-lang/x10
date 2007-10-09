@@ -158,19 +158,19 @@ implements X10ArrayAccessAssign {
 		
 	}
 	
-	public Term entry() {
-		return left().entry();
+	public Term firstChild() {
+		return left();
 	}
 	
 	protected void acceptCFGAssign(CFGBuilder v) {
 		X10ArrayAccess a = (X10ArrayAccess)left();
-		v.visitCFG(a, right().entry());
-		v.visitCFG(right(), this);
+		v.visitCFG(a, right(), ENTRY);
+		v.visitCFG(right(), this, EXIT);
 	}
 	protected void acceptCFGOpAssign(CFGBuilder v) {
 		X10ArrayAccess a = (X10ArrayAccess)left();
-		v.visitCFG(a, right().entry());
-		v.visitCFG(right(), this);
+		v.visitCFG(a, right(), ENTRY);
+		v.visitCFG(right(), this, EXIT);
 	}
 	
 	public List throwTypes(TypeSystem ts) {

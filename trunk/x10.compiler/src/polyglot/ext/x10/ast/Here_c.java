@@ -39,8 +39,8 @@ public class Here_c extends Expr_c
      * Return the first (sub)term performed when evaluating this
      * term.
      */
-    public Term entry() {
-        return this;
+    public Term firstChild() {
+        return null;
     }
 
     /**
