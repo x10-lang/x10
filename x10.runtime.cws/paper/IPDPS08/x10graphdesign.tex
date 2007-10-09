@@ -2,9 +2,9 @@
 \section{Designing Parallel Graph Algorithms in \Xten{}}
 \label{s:design}
 
- Invariably algorithms are designed, although sometimes implicitly, with an abstract algorithmic model. 
+% Invariably algorithms are designed, although sometimes implicitly, with an abstract algorithmic model. 
 %%Programming languages play an important role in the translation of an algorithm to an executable program on the target system. 
-When there is a large gap between model and architecture, programming languages and efficient runtime support can be immensely helpful in achieving high performance with relatively ease of programming. 
+%When there is a large gap between model and architecture, programming languages and efficient runtime support can be immensely helpful in achieving high performance with relatively ease of programming. 
 
  Large scale graph problems with irregular instances are challenging to solve on current and emerging parallel systems \cite{BC07}. Despite the large existing body of theoretically-fast PRAM algorithms and communication-optimal BSP algorithms, there are few implementations that achieve good parallel performance.
 %% With the PRAM model, synchronous processors are available in an unlimited amount, and accesses to memory locations are of uniform distance. 
@@ -46,8 +46,16 @@ There are two steps to the algorithm. First a small stub tree of size $O(p)$ is 
 The processors then traverse the graph in a manner similar to sequential DFS or BFS. 
 To achieve good load-balancing, a processor checks for non-empty stack/queue on some other processor when it runs out of work, and takes a portion of the stack/queue as its own.
 
-\Xten{} allows expressing the essential parallelism in the algorithm in a very concise and elegant way. Alg.~\ref{alg:st-x10} is a recursive algorithm that traverses the graph and computes a spanning tree. It looks very much like the recursive sequential DFS. The few important differences include creating parallel activities and lock-free synchronization.  
-\begin{algorithm}
+\Xten{} allows the expression of essential parallelism in the
+algorithm in a very concise and elegant way. The first program in
+Table~\ref{alg:st-x10} is a recursive algorithm that traverses the
+graph and computes a spanning tree. It is identical to the recursive
+sequential DFS, except that commands for creating logical
+parallel activities ({\emph{async}) and atomic operations
+(\emph{compareAndSet}) are used.
+
+
+\begin{table}
 \centering
 \scriptsize
 \begin{tabular}{cc}
@@ -84,17 +92,27 @@ Multi-place code
 \end{tabular}
 \caption{Single- and Multi-place spanning tree algorithm core}
 \label{alg:st-x10}
-\end{algorithm}
+\end{table}
 
-The \emph{async} keyword creates a logical parallel activity. While visiting each neighbor $v$ of vertex $u$, the algorithm spawns a new traversal activity. Since the algorithm is recursive, for a graph with millions of vertices, massive amount of parallelism is available. It puts great pressure on the runtime system for task management, scheduling, and load-balancing. In Alg.~\ref{alg:st-x10} \emph{color} is an array of atomic integers. An asynchronous activity is only created when the color of the vertex being visited is 0. The correctness of Alg~\ref{alg:st-x10} can be similarly reasoned as in Theorem in \cite{BC04a}. 
+While visiting each neighbor $v$ of vertex $u$, the algorithm spawns a
+new traversal activity. Since the algorithm is recursive, for a graph
+with millions of vertices, massive amount of parallelism is
+available. It puts great pressure on the runtime system for task
+management, scheduling, and load-balancing. 
 
-A similar algorithm can also be expressed using Cilk. However, the \Xten{} runtime support is very different from that of Cilk, and is much more friendly to graph algorithms. We leave the discussion of the \Xten{} runtime to Section~\ref{s:runtime}. For a very simple comparison, Bader and Cong's spanning tree algorithm contains over 300 lines of C code.
+The second program shows the change required to the traversal code when the graph is distributed across multiple places (as would be necessary when running the program on a cluster of SMPs). The \emph{async} command takes an extra argument specifying the place at which it is to run. 
+
+In both cases, computation is initiated by executing {\tt finish traverse(0);}. The {\tt finish} construct ensures that computation terminates only when all activities spawned during the graph search have terminated.
+
+%A similar algorithm can also be expressed using Cilk. However, the \Xten{} runtime support is very different from that of Cilk, and is much more friendly to graph algorithms. We leave the discussion of the \Xten{} runtime to Section~\ref{s:runtime}. 
+
+Note that Bader and Cong's spanning tree algorithm contains over 300 lines of C code.
 
 
-\subsection{A spanning tree algorithm in the distributed-memory setting}
+
 \label{s:trav-dist}
 
- When the target system is of NUMA architecture, or even a cluster of SMPs, \Xten{} provides constructs that can easily transform Alg.~\ref{alg:st-x10} to take advantage of memory affinity . Alg.~\ref{alg:st-dist-x10} computes a spanning tree for a graph distributed on multiple nodes. In Alg.~\ref{alg:st-dist-x10}, again \emph{async} creates parallel activities. Compared with Alg.~\ref{alg:st-x10}, here \emph{async} takes the parameter of the distribution of a vertex $v$, and creates a traversal activity on a node that owns vertex $v$ so that the activity accesses data mostly on that node. Note that the activity can be created on a remote node. Obviously complex scheduling and synchronization support are necessary for fast execution of Alg.~\ref{alg:st-dist-x10}.
+% When the target system is of NUMA architecture, or even a cluster of SMPs, \Xten{} provides constructs that can easily transform Alg.~\ref{alg:st-x10} to take advantage of memory affinity . Alg.~\ref{alg:st-dist-x10} computes a spanning tree for a graph distributed on multiple nodes. In Alg.~\ref{alg:st-dist-x10}, again \emph{async} creates parallel activities. Compared with Alg.~\ref{alg:st-x10}, here \emph{async} takes the parameter of the distribution of a vertex $v$, and creates a traversal activity on a node that owns vertex $v$ so that the activity accesses data mostly on that node. Note that the activity can be created on a remote node. Obviously complex scheduling and synchronization support are necessary for fast execution of Alg.~\ref{alg:st-dist-x10}.
 
 %\begin{algorithm}
 %\centering
