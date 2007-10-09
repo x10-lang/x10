@@ -1,0 +1,67 @@
+Sat Aug 18 13:15:59 2007
+
+Altair -- 4 dual-core Opterons (running Solaris)
+
+  Doug: 
+  Opterons are the opposite -- they show huge effects especially
+  across processor chips. Altair is just 4 dual-cores though so it's
+  not a perfect indicator either.  
+
+
+Moxie -- Sun 32-way Niagara (running Solaris), 32GB memory
+  Doug:
+  (*) Niagaras are I think fairly atypical of other planned
+  MPs based on multicores in that they show few cache contention effects
+  of any sort. 
+
+  Could be that moxie has more memory? (32Gb). Other
+  possible differences might stem from us following
+  Sun recommendations for the various suggested /etc/system
+  params for affecting T2000's. Some of them controlling
+  virtual memory seem to have noticeable effect. Also, we keep
+  kernel updated regularly. Also, we have mostly up to date versions
+  of C compilers (both gcc and SunCC).
+
+
+plague -- an Azul machine
+ 
+   For NQueens, 150proc gives roughly the same result as 300procs
+
+   Doug: I don't think it is lack of parallelism, but instead overall
+   scaling effects -- total memory bandwidth, L2 traffic, and longer
+   job startup and shutdown effects, and so on.
+
+   Make sure that you run tests so that even the cases with all
+   processors in pool run for at least several seconds.
+
+PPC: 
+
+Azuls are in-between. 
+
+Still don't know about big PPCs.
+
+
+Vijay Saraswat wrote:
+
+> I am very mystified by it. The numbers are very very slow. And even
+>for NQueens the numbers for 1 proc are much faster than 2 or 4???
+
+Doug: 
+This might have something to do with slow support for
+the base primitives (park/unpark and atomics) for
+java.util.concurrent stuff on some PPCs. I think older PPCs don't
+have a good mapping for AtomicLong (or even volatile longs),
+so they might have used locks internally, which would
+hurt a lot here. Among other effects, the internal ws deque
+would act like a lock-based queue. I can try hacking together
+a version using only ints when on one of these machines.
+Ints are OK (for "base" and "sp") except that they wrap
+around too frequently to dare release this way.
+
+The PPC fence mappings for volatiles are also surely
+hurting here.
+
+Do you have something similar to perfbar, or maybe just 'top'
+so you can see how much parallelism you are actually getting?
+
+-Doug 

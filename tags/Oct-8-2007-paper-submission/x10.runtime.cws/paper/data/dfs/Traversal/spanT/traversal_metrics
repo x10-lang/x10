@@ -1,0 +1,128 @@
+traversal results on rand graphs:
+moxie
+  2:12am  up 3 days 20:26,  15 users,  load average: 0.14, 0.16, 0.64
+1000000 4000000 16 processor
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+Best time used on TRAVERSE2 is 0.150546 s
+Best time used on TRAVERSE is 0.143319 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.531169 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.817551 s
+2000000 8000000 16 processor
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 8000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 2000000
+checking done,tail is 658
+making connected done
+n_edges=8000000
+Best time used on TRAVERSE2 is 0.220289 s
+Best time used on TRAVERSE is 0.205339 s
+Takes 659 iterations
+Takes 659 iterations
+Takes 659 iterations
+Takes 659 iterations
+Takes 659 iterations
+Best time used on BFS is 1.022024 s
+there are 659 levels
+there are 659 levels
+there are 659 levels
+there are 659 levels
+there are 659 levels
+Best time used on BFS_localq is 1.560383 s
+3000000 12000000 16 processor
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 12000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 3000000
+checking done,tail is 1018
+making connected done
+n_edges=12000000
+Best time used on TRAVERSE2 is 0.304541 s
+Best time used on TRAVERSE is 0.284737 s
+Takes 1019 iterations
+Takes 1019 iterations
+Takes 1019 iterations
+Takes 1019 iterations
+Takes 1019 iterations
+Best time used on BFS is 1.589698 s
+there are 1019 levels
+there are 1019 levels
+there are 1019 levels
+there are 1019 levels
+there are 1019 levels
+Best time used on BFS_localq is 2.404530 s
+4000000 16000000 16 processor
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+n_edges=16000000
+Best time used on TRAVERSE2 is 0.383450 s
+Best time used on TRAVERSE is 0.357347 s
+Takes 1389 iterations
+Takes 1389 iterations
+Takes 1389 iterations
+Takes 1389 iterations
+Takes 1389 iterations
+Best time used on BFS is 2.136675 s
+there are 1389 levels
+there are 1389 levels
+there are 1389 levels
+there are 1389 levels
+there are 1389 levels
+Best time used on BFS_localq is 3.251306 s
+5000000 20000000 16 processor
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+making connected done
+n_edges=20000000
+Best time used on TRAVERSE2 is 0.464312 s
+Best time used on TRAVERSE is 0.431974 s
+Takes 1728 iterations
+Takes 1728 iterations
+Takes 1728 iterations
+Takes 1728 iterations
+Takes 1728 iterations
+Best time used on BFS is 2.662499 s
+there are 1728 levels
+there are 1728 levels
+there are 1728 levels
+there are 1728 levels
+there are 1728 levels
+Best time used on BFS_localq is 4.018688 s

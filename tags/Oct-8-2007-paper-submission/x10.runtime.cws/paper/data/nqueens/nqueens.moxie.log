@@ -1,0 +1,249 @@
+Following are cilk numbers
+
+
+moxie - vijay - nqueens > foreach p ( 1 2 4 6 8 )
+foreach? foreach n  ( 8 10 12 14 )
+foreach? ./nqueens-no-inlet -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=10730.699 us
+nqueens(10)=724  ok time=243498.751 us
+nqueens(12)=14200        ok time=7539315.061 us
+nqueens(14)=365596       ok time=300039279.311 us
+nqueens(8)=92    ok time=9814.290 us
+nqueens(10)=724  ok time=123227.602 us
+nqueens(12)=14200        ok time=3747430.755 us
+nqueens(14)=365596       ok time=150062405.992 us
+nqueens(8)=92    ok time=9314.446 us
+nqueens(10)=724  ok time=67608.917 us
+nqueens(12)=14200        ok time=1882096.939 us
+nqueens(14)=365596       ok time=75089369.840 us
+nqueens(8)=92    ok time=8474.333 us
+nqueens(10)=724  ok time=52276.780 us
+nqueens(12)=14200        ok time=1267382.983 us
+nqueens(14)=365596       ok time=50391340.933 us
+nqueens(8)=92    ok time=10687.337 us
+nqueens(10)=724  ok time=76056.700 us
+nqueens(12)=14200        ok time=1014079.300 us
+nqueens(14)=365596       ok time=38710505.160 us
+moxie - vijay - nqueens >
+moxie - vijay - nqueens > foreach p ( 1 2 4 6 8 )                               foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-inlet-counter -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=9018.130 us
+nqueens(10)=724  ok time=208008.636 us
+nqueens(12)=14200        ok time=6477475.464 us
+nqueens(14)=365596       ok time=262840200.054 us
+nqueens(8)=92    ok time=4906.861 us
+nqueens(10)=724  ok time=104379.026 us
+nqueens(12)=14200        ok time=3237702.787 us
+nqueens(14)=365596       ok time=131345276.940 us
+nqueens(8)=92    ok time=8907.540 us
+nqueens(10)=724  ok time=61969.280 us
+nqueens(12)=14200        ok time=1638765.454 us
+nqueens(14)=365596       ok time=65836806.581 us
+nqueens(8)=92    ok time=8693.913 us
+nqueens(10)=724  ok time=47522.880 us
+nqueens(12)=14200        ok time=1106028.791 us
+nqueens(14)=365596       ok time=43947533.018 us
+nqueens(8)=92    ok time=9002.547 us
+nqueens(10)=724  ok time=36635.583 us
+nqueens(12)=14200        ok time=870846.085 us
+nqueens(14)=365596       ok time=33957044.167 us
+
+
+
+moxie - vijay - nqueens > foreach p ( 32 28 24 20 16 12 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-no-inlet -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=9835.453 us
+nqueens(10)=724  ok time=77432.129 us
+nqueens(12)=14200        ok time=412178.431 us
+nqueens(14)=365596       ok time=15171506.289 us
+nqueens(8)=92    ok time=9966.507 us
+nqueens(10)=724  ok time=77220.280 us
+nqueens(12)=14200        ok time=429955.014 us
+nqueens(14)=365596       ok time=15914851.645 us
+nqueens(8)=92    ok time=10678.575 us
+nqueens(10)=724  ok time=70471.842 us
+nqueens(12)=14200        ok time=449012.327 us
+nqueens(14)=365596       ok time=17160338.197 us
+nqueens(8)=92    ok time=10461.213 us
+nqueens(10)=724  ok time=78968.506 us
+nqueens(12)=14200        ok time=497124.054 us
+nqueens(14)=365596       ok time=19219825.200 us
+nqueens(8)=92    ok time=10580.470 us
+nqueens(10)=724  ok time=69723.292 us
+nqueens(12)=14200        ok time=584685.017 us
+nqueens(14)=365596       ok time=22359061.883 us
+nqueens(8)=92    ok time=9001.547 us
+nqueens(10)=724  ok time=79141.660 us
+nqueens(12)=14200        ok time=733288.599 us
+nqueens(14)=365596       ok time=27921175.758 us
+
+
+
+moxie - vijay - nqueens > foreach p ( 32 28 24 20 16 12 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-inlet-counter -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=9013.777 us
+nqueens(10)=724  ok time=89404.390 us
+nqueens(12)=14200        ok time=360828.642 us
+nqueens(14)=365596       ok time=13323288.647 us
+nqueens(8)=92    ok time=9010.433 us
+nqueens(10)=724  ok time=64203.183 us
+nqueens(12)=14200        ok time=378739.284 us
+nqueens(14)=365596       ok time=13955469.993 us
+nqueens(8)=92    ok time=9004.260 us
+nqueens(10)=724  ok time=66117.823 us
+nqueens(12)=14200        ok time=403318.268 us
+nqueens(14)=365596       ok time=15014097.111 us
+nqueens(8)=92    ok time=8813.090 us
+nqueens(10)=724  ok time=86083.950 us
+nqueens(12)=14200        ok time=435765.034 us
+nqueens(14)=365596       ok time=16838426.623 us
+nqueens(8)=92    ok time=9019.123 us
+nqueens(10)=724  ok time=79930.179 us
+nqueens(12)=14200        ok time=505117.483 us
+nqueens(14)=365596       ok time=19853433.189 us
+nqueens(8)=92    ok time=8671.519 us
+nqueens(10)=724  ok time=81118.322 us
+nqueens(12)=14200        ok time=623967.059 us
+nqueens(14)=365596       ok time=24662762.943 us
+moxie - vijay - nqueens > date
+Sun Aug 19 13:43:30 EDT 2007
+moxie - vijay - nqueens >
+
+
+/*********************************************
+These are deprecated cilk numbers. Better implementations supersede this one. 
+
+moxie - vijay - sched > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=10995.569 us
+nqueens(10)=724  ok time=249087.716 us
+nqueens(12)=14200        ok time=7621439.515 us
+nqueens(14)=365596       ok time=304206992.409 us
+nqueens(8)=92    ok time=6671.823 us
+nqueens(10)=724  ok time=127918.086 us
+nqueens(12)=14200        ok time=3812463.704 us
+nqueens(14)=365596       ok time=152581203.633 us
+nqueens(8)=92    ok time=10265.533 us
+nqueens(10)=724  ok time=76399.554 us
+nqueens(12)=14200        ok time=1922729.522 us
+nqueens(14)=365596       ok time=76228259.160 us
+nqueens(8)=92    ok time=9858.647 us
+nqueens(10)=724  ok time=51536.510 us
+nqueens(12)=14200        ok time=1285070.383 us
+nqueens(14)=365596       ok time=51053953.712 us
+nqueens(8)=92    ok time=10998.927 us
+nqueens(10)=724  ok time=51295.850 us
+nqueens(12)=14200        ok time=1025908.074 us
+nqueens(14)=365596       ok time=39368676.185 us
+******************************************************/
+
+-------------------------------------------------------
+
+Following are C++ cws numbers (best of 5 runs)
+
+moxie - vijay - sched > foreach p ( 1 2 4 6 8 )
+foreach? foreach n  ( 8 10 12 14 )
+foreach? ./NQueensCStack_a.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=1 NQueensCStack_a(8)     2320 us ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(10)    52386 us        ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(12)    1638832 us      ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(14)    67229201 us     ok       steals=0       stealAttempts=0
+nprocs=2 NQueensCStack_a(8)     1278 us ok       steals=8       stealAttempts=18
+nprocs=2 NQueensCStack_a(10)    26372 us        ok       steals=10      stealAttempts=24
+nprocs=2 NQueensCStack_a(12)    819550 us       ok       steals=19      stealAttempts=44
+nprocs=2 NQueensCStack_a(14)    33631732 us     ok       steals=33      stealAttempts=66
+nprocs=4 NQueensCStack_a(8)     859 us  ok       steals=26      stealAttempts=194
+nprocs=4 NQueensCStack_a(10)    13568 us        ok       steals=53      stealAttempts=214
+nprocs=4 NQueensCStack_a(12)    410609 us       ok       steals=82      stealAttempts=343
+nprocs=4 NQueensCStack_a(14)    16857812 us     ok       steals=149     stealAttempts=380
+nprocs=6 NQueensCStack_a(8)     649 us  ok       steals=31      stealAttempts=373
+nprocs=6 NQueensCStack_a(10)    9299 us ok       steals=76      stealAttempts=622
+nprocs=6 NQueensCStack_a(12)    274153 us       ok       steals=143     stealAttempts=751
+nprocs=6 NQueensCStack_a(14)    11267068 us     ok       steals=225     stealAttempts=853
+nprocs=8 NQueensCStack_a(8)     699 us  ok       steals=57      stealAttempts=851
+nprocs=8 NQueensCStack_a(10)    7615 us ok       steals=130     stealAttempts=1043
+nprocs=8 NQueensCStack_a(12)    210271 us       ok       steals=196     stealAttempts=1684
+nprocs=8 NQueensCStack_a(14)    9195495 us      ok       steals=333     stealAttempts=1802
+
+
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./NQueensGStack.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=1 NQueensGStack(8)       2411 us ok       steals=0       stealAttempts=0
+nprocs=1 NQueensGStack(10)      56795 us ok      steals=0       stealAttempts=0
+nprocs=1 NQueensGStack(12)      1792375 us ok    steals=0       stealAttempts=0
+nprocs=1 NQueensGStack(14)      73405831 us ok   steals=0       stealAttempts=0
+nprocs=2 NQueensGStack(8)       1255 us ok       steals=7       stealAttempts=11
+nprocs=2 NQueensGStack(10)      28480 us ok      steals=14      stealAttempts=21
+nprocs=2 NQueensGStack(12)      899540 us ok     steals=24      stealAttempts=30
+nprocs=2 NQueensGStack(14)      36622263 us ok   steals=32      stealAttempts=38
+nprocs=4 NQueensGStack(8)       691 us ok        steals=14      stealAttempts=53
+^C
+moxie - vijay - sched > foreach p ( 4 6 8 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./NQueensGStack.x $p 5 $n
+foreach? end
+foreach? end
+^C
+moxie - vijay - sched > foreach p ( 4 6 8 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./NQueensGStack.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=4 NQueensGStack(8)       705 us ok        steals=26      stealAttempts=48
+Segmentation fault
+nprocs=4 NQueensGStack(12)      449186 us ok     steals=95      stealAttempts=127
+nprocs=4 NQueensGStack(14)      18337620 us ok   steals=145     stealAttempts=193
+
+
+
+moxie - vijay - sched > foreach p ( 32 28 24 20 16 12 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./NQueensCStack_a.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=32 NQueensCStack_a(8)    1227 us ok       steals=103     stealAttempts=10382
+nprocs=32 NQueensCStack_a(10)   5809 us ok       steals=450     stealAttempts=10293
+nprocs=32 NQueensCStack_a(12)   120806 us       ok       steals=1007    stealAttempts=11299
+nprocs=32 NQueensCStack_a(14)   4923676 us      ok       steals=1708    stealAttempts=15483
+nprocs=28 NQueensCStack_a(8)    1061 us ok       steals=88      stealAttempts=8006
+nprocs=28 NQueensCStack_a(10)   5607 us ok       steals=418     stealAttempts=9104
+nprocs=28 NQueensCStack_a(12)   123013 us       ok       steals=1019    stealAttempts=9655
+nprocs=28 NQueensCStack_a(14)   4975114 us      ok       steals=1371    stealAttempts=11645
+nprocs=24 NQueensCStack_a(8)    852 us  ok       steals=83      stealAttempts=4611
+nprocs=24 NQueensCStack_a(10)   5374 us ok       steals=416     stealAttempts=5486
+nprocs=24 NQueensCStack_a(12)   123758 us       ok       steals=797     stealAttempts=8199
+nprocs=24 NQueensCStack_a(14)   5075778 us      ok       steals=1381    stealAttempts=9414
+nprocs=20 NQueensCStack_a(8)    894 us  ok       steals=93      stealAttempts=4025
+nprocs=20 NQueensCStack_a(10)   5114 us ok       steals=295     stealAttempts=4704
+Segmentation fault
+nprocs=20 NQueensCStack_a(14)   5360581 us      ok       steals=768     stealAttempts=6119
+nprocs=16 NQueensCStack_a(8)    796 us  ok       steals=90      stealAttempts=2742
+nprocs=16 NQueensCStack_a(10)   5236 us ok       steals=261     stealAttempts=3609
+nprocs=16 NQueensCStack_a(12)   144177 us       ok       steals=498     stealAttempts=4387
+nprocs=16 NQueensCStack_a(14)   5847770 us      ok       steals=882     stealAttempts=4447
+nprocs=12 NQueensCStack_a(8)    694 us  ok       steals=67      stealAttempts=1573
+nprocs=12 NQueensCStack_a(10)   5921 us ok       steals=190     stealAttempts=2039
+nprocs=12 NQueensCStack_a(12)   162679 us       ok       steals=399     stealAttempts=2710
+nprocs=12 NQueensCStack_a(14)   6946769 us      ok       steals=497     stealAttempts=3179
+moxie - vijay - sched > ./NQueensCStack_a.x 20 5 12
+nprocs=20 NQueensCStack_a(12)   128687 us       ok       steals=665     stealAttempts=5835
+moxie - vijay - sched >
+moxie - vijay - sched > date
+Sun Aug 19 13:27:47 EDT 2007

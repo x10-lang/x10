@@ -1,0 +1,115 @@
+Following are cilk numbers (best of 5 runs)
+
+altair - vijay - fib > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 20 25 30 35 )
+foreach? ./fib -nproc $p 5 $n
+foreach? end
+foreach? end
+n=20     Result: 6765    Time=3090.106 us
+n=25     Result: 75025   Time=33535.504 us
+n=30     Result: 832040  Time=378569.126 us
+n=35     Result: 9227465         Time=4138605.456 us
+n=20     Result: 6765    Time=2767.735 us
+n=25     Result: 75025   Time=20220.667 us
+n=30     Result: 832040  Time=189968.340 us
+n=35     Result: 9227465         Time=2101519.414 us
+n=20     Result: 6765    Time=3092.663 us
+n=25     Result: 75025   Time=14796.529 us
+n=30     Result: 832040  Time=99279.102 us
+n=35     Result: 9227465         Time=1053044.478 us
+n=20     Result: 6765    Time=3083.590 us
+n=25     Result: 75025   Time=24221.453 us
+n=30     Result: 832040  Time=83198.621 us
+n=35     Result: 9227465         Time=714805.837 us
+n=20     Result: 6765    Time=3090.712 us
+n=25     Result: 75025   Time=18105.353 us
+n=30     Result: 832040  Time=66809.781 us
+n=35     Result: 9227465         Time=559108.507 us
+
+
+
+altair - vijay - fib > foreach p ( 8 6 4 2 1 )
+foreach? ./fib -nproc $p 5 40
+foreach? end
+n=40     Result: 102334155       Time=5972787.212 us
+n=40     Result: 102334155       Time=7767572.526 us
+n=40     Result: 102334155       Time=11579123.410 us
+n=40     Result: 102334155       Time=23036684.752 us
+n=40     Result: 102334155       Time=45904512.933 us
+altair - vijay - fib > date
+Sun Aug 19 11:37:30 EDT 2007
+
+
+With -O2 optimization:
+
+
+altair - vijay - fib > foreach p ( 8 6 4 2 1 )
+foreach? foreach n ( 20 25 30 35 40 )
+foreach? ./fib -nproc $p 5 $n
+foreach? end
+foreach? end
+n=20     Result: 6765    Time=473.060 us
+n=25     Result: 75025   Time=5249.236 us
+n=30     Result: 832040  Time=36128.211 us
+n=35     Result: 9227465         Time=117837.203 us
+n=40     Result: 102334155       Time=969256.871 us
+n=20     Result: 6765    Time=479.575 us
+n=25     Result: 75025   Time=4938.394 us
+n=30     Result: 832040  Time=27498.270 us
+n=35     Result: 9227465         Time=134476.162 us
+n=40     Result: 102334155       Time=1225049.920 us
+n=20     Result: 6765    Time=472.094 us
+n=25     Result: 75025   Time=5219.450 us
+n=30     Result: 832040  Time=21102.658 us
+n=35     Result: 9227465         Time=170361.432 us
+n=40     Result: 102334155       Time=1808491.316 us
+n=20     Result: 6765    Time=465.847 us
+n=25     Result: 75025   Time=2952.284 us
+n=30     Result: 832040  Time=29358.074 us
+n=35     Result: 9227465         Time=320733.386 us
+n=40     Result: 102334155       Time=3512848.827 us
+n=20     Result: 6765    Time=480.844 us
+n=25     Result: 75025   Time=5323.559 us
+n=30     Result: 832040  Time=57947.025 us
+n=35     Result: 9227465         Time=638988.060 us
+n=40     Result: 102334155       Time=7084452.115 us
+
+
+-------------------------------------------------------------------------
+
+
+Following are C++ cws numbers
+
+altair - vijay - sched > foreach p ( 8 6 4 2 1 )
+foreach? foreach n ( 20 25 30 35 40 )
+foreach? ./FibStack.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=8 FibStack(20)   412 us  ok       steals=26      stealAttemps=453
+nprocs=8 FibStack(25)   2238 us ok       steals=88      stealAttemps=630
+nprocs=8 FibStack(30)   20947 us        ok       steals=119     stealAttemps=1148
+nprocs=8 FibStack(35)   231984 us       ok       steals=132     stealAttemps=1431
+nprocs=8 FibStack(40)   2371366 us      ok       steals=199     stealAttemps=2262
+nprocs=6 FibStack(20)   495 us  ok       steals=35      stealAttemps=398
+nprocs=6 FibStack(25)   2512 us ok       steals=70      stealAttemps=428
+nprocs=6 FibStack(30)   25122 us        ok       steals=84      stealAttemps=574
+nprocs=6 FibStack(35)   259330 us       ok       steals=124     stealAttemps=960
+nprocs=6 FibStack(40)   2961392 us      ok       steals=147     stealAttemps=1194
+nprocs=4 FibStack(20)   444 us  ok       steals=19      stealAttemps=140
+nprocs=4 FibStack(25)   3563 us ok       steals=26      stealAttemps=157
+nprocs=4 FibStack(30)   34315 us        ok       steals=56      stealAttemps=342
+nprocs=4 FibStack(35)   405902 us       ok       steals=58      stealAttemps=304
+nprocs=4 FibStack(40)   4341666 us      ok       steals=72      stealAttemps=411
+nprocs=2 FibStack(20)   611 us  ok       steals=6       stealAttemps=37
+nprocs=2 FibStack(25)   6527 us ok       steals=12      stealAttemps=52
+nprocs=2 FibStack(30)   72385 us        ok       steals=17      stealAttemps=67
+nprocs=2 FibStack(35)   808421 us       ok       steals=17      stealAttemps=75
+nprocs=2 FibStack(40)   8272527 us      ok       steals=24      stealAttemps=100
+nprocs=1 FibStack(20)   1225 us ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(25)   13244 us        ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(30)   132425 us       ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(35)   1468480 us      ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(40)   16286670 us     ok       steals=0       stealAttemps=0
+altair - vijay - sched > date
+Sun Aug 19 15:06:37 EDT 2007
+

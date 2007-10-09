@@ -1,0 +1,8 @@
+# n nodes, m edges, m=n*4 , with 32 processors
+#n (M) 		time (s)
+1	 	0.357145		
+2		0.630836		
+3	 	0.957080	
+4		1.247820	
+5		1.565760	
+

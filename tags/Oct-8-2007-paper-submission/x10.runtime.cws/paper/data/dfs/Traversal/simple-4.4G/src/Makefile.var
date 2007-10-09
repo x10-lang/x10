@@ -1,0 +1,469 @@
+SIMPLE     = simple
+LIBSIMPLE  = lib$(SIMPLE).a
+SIMPLE_SRC = umd.c simple.c alg_load.c alg_random.c
+SIMPLE_OBJ = $(SIMPLE_SRC:.c=.o)
+SIMPLELIBDIR = .
+LIBS       = -L$(SIMPLELIBDIR) -l$(SIMPLE) \
+	     $(MPI_LIB) \
+	     -lm 
+
+SMPNODE    = smpnode
+LIBSMPNODE = lib$(SMPNODE).a
+SMP_SRC = umd.c alg_random.c
+SMP_OBJ = $(SMP_SRC:.c=.o)
+SMPNODELIBDIR = .
+SMPLIBS       = -L$(SIMPLELIBDIR) -l$(SMPNODE) -lm 
+
+MPI_DIR_S   = $(strip $(MPI_DIR))
+THR_DIR_S   = $(strip $(THR_DIR))
+
+CFLAGS      = $(CFLAGS_GEN) $(CFLAGS_THR) $(CFLAGS_MPI)
+
+##################################################################
+# SPRNG                                                          #
+##################################################################
+SPRNG_DIR  = $(HOME)/sprng2.0
+SPRNG_INC  = $(SPRNG_DIR)/include -DSPRNG
+SPRNG_LIB  = $(SPRNG_DIR)/lib
+
+ifeq ($(_RAND),SPRNG)
+CFLAGS_SPRNG = -I$(SPRNG_INC)
+LIBS_SPRNG   = -L$(SPRNG_LIB) -lsprng
+else
+CFLAGS_SPRNG = 
+LIBS_SPRNG   = 
+endif
+
+##################################################################
+#                                                                #
+# SOLARIS_MPICH                                                  #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),SOLARIS_MPICH)
+# MESSAGE PASSING LIBRARY FOR "MPICH":
+MPI         = MPICH
+
+# GCC Compilers
+CC         = gcc
+CXX	    = g++
+F77	    = g77
+O_LEVEL     = 3
+
+# Sun Workshop Compilers
+# C	    = /opt/SUNWspro/bin/cc
+# CXX	    = /opt/SUNWspro/bin/CC
+# F77	    = /opt/SUNWspro/bin/f77
+# OPT        = -fast
+
+CFLAGS_GEN  = $(OPT) -D$(TARGET_ARCH) -DSOLARIS
+CFLAGS_THR  = -I$(THR_INC) 
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC)
+THR_LIB     = -lpthread -lposix4
+THR_INC     = /usr/include
+MPI_DIR     = /usr/local/pkg/mpich/mpich-1.1.2
+#MPI_DIR     = $(HOME)/MPI/mpich.SUNW-1.2.0
+MPI_INC     = $(MPI_DIR_S)/include -I$(MPI_DIR_S)/lib/solaris/ch_p4 \
+	      -I$(MPI_DIR_S)/build/solaris/ch_p4/include
+MPI_LIB     = # -L$(MPI_DIR_S)/lib/solaris/ch_p4 -lmpich
+MPI_CC      = $(MPI_DIR_S)/bin/mpicc
+MPI_CXX     = $(MPI_DIR_S)/bin/mpiCC
+MPI_F77     = $(MPI_DIR_S)/bin/mpif77
+ARZ	    = 
+endif # SOLARIS_MPICH
+
+##################################################################
+#                                                                #
+# SOLARIS_NATIVE                                                 #
+#                                                               #
+##################################################################
+ifeq ($(TARGET_ARCH),SOLARIS_NATIVE)
+# MESSAGE PASSING LIBRARY FOR "MPI":
+# CC          = $(MPI_DIR_S)/bin/tmcc
+CC          = /opt/SUNWspro/bin/cc
+CXX	    = $(MPI_DIR_S)/bin/tmCC
+F77	    = $(MPI_DIR_S)/bin/tmf77
+O_LEVEL     = 2
+#CFLAGS_GEN  = -mt -fast -xarch=v9a -xprefetch -D$(TARGET_ARCH) -DSOLARIS #-DSUNMMAP
+CFLAGS_GEN  = -mt -fast -xarch=amd64 -xprefetch -D$(TARGET_ARCH) -DSOLARIS #-DSUNMMAP
+CFLAGS_THR  = -I$(THR_INC)
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC)
+THR_LIB     = -lpthread -lposix4
+THR_INC     = /usr/include
+MPI_DIR     = /opt/SUNWspro
+MPI_INC     = $(MPI_DIR_S)/include
+MPI_LIB     = -L$(MPI_DIR_S)/lib -lmpi_mt -lmopt
+MPI_CC      = $(MPI_DIR_S)/bin/cc
+MPI_CXX     = $(MPI_DIR_S)/bin/tmCC
+MPI_F77     = $(MPI_DIR_S)/bin/tmf77
+AR	    = /usr/ccs/bin/ar
+RANLIB      = /usr/ccs/bin/ranlib
+ARZ	    = 
+endif # SOLARIS_NATIVE
+
+##################################################################
+#                                                                #
+# AXP                                                            #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),AXP)
+# MESSAGE PASSING LIBRARY FOR "AXP":
+MPI         = MPICH
+# MPI       = DAB_MPICH
+# MPI       = LAM
+
+#
+# POSIX 1003.1c
+#
+CC         = $(MPI_CC) 
+CXX	   = $(MPI_CXX) 
+F77	   = $(MPI_F77)
+CFLAGS_THR = -pthread  # -D_PTHREAD_USE_INLINE
+CFLAGS_GEN = $(OPT)  -fast -unroll 0 \
+	     -D$(TARGET_ARCH)
+CFLAGS_MPI = -D$(_MP_METHOD) 
+THR_LIB    = 
+
+#
+# POSIX 1003.4a/Draft 4 
+#
+# CC        = $(MPI_CC) -migrate -threads
+# CXX       = $(MPI_CXX) -migrate -threads
+# CFLAGS    = $(OPT) -D$(TARGET_ARCH) -DPTHREAD_USE_D4 -D$(_MP_METHOD) 
+# THR_LIB   =
+
+ifeq ($(MPI),MPICH)
+	MPI_DIR     = /fs/parallel/mpich
+	MPI_INC     = $(MPI_DIR_S)/include -I$(MPI_DIR_S)/lib/alpha/ch_p4 \
+	      -I$(MPI_DIR_S)/build/alpha/ch_p4/include
+	MPI_LIB     = # -L$(MPI_DIR_S)/lib/alpha/ch_p4 -lmpich
+	MPI_CC      = $(MPI_DIR_S)/bin/mpicc
+	MPI_CXX     = $(MPI_DIR_S)/bin/mpiCC
+	MPI_F77     = $(MPI_DIR_S)/bin/mpif77
+	O_LEVEL     = 5 -tune ev4
+endif
+ifeq ($(MPI),DAB_MPICH)
+	MPI_DIR     = /fs/tsunami/dbader/mpich
+	MPI_INC     = $(MPI_DIR_S)/include -I$(MPI_DIR_S)/lib/alpha/ch_p4 \
+	      -I$(MPI_DIR_S)/build/alpha/ch_p4/include
+	MPI_LIB     = # -L$(MPI_DIR_S)/lib/alpha/ch_p4 -lmpich
+	MPI_CC      = $(MPI_DIR_S)/bin/mpicc
+	MPI_CXX     = $(MPI_DIR_S)/bin/mpiCC
+	MPI_F77     = $(MPI_DIR_S)/bin/mpif77
+	O_LEVEL     = 5 -tune ev4
+endif
+ifeq ($(MPI),LAM)
+	MPI_DIR     = /fs/parallel/lam
+	MPI_INC     = $(MPI_DIR_S)/h
+	MPI_LIB     = -L$(MPI_DIR_S)/lib -lmpi
+	MPI_CC      = $(MPI_DIR_S)/bin/hcc
+	MPI_CXX     = $(MPI_DIR_S)/bin/hCC
+	MPI_F77     = $(MPI_DIR_S)/bin/h77
+	O_LEVEL     = 2
+endif
+
+ARZ = Z
+
+endif # AXP
+
+##################################################################
+#                                                                #
+# TCS: Compaq/Quadrics                                           #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),TCS)
+CC         = $(MPI_CC) 
+CXX	   = $(MPI_CXX) 
+F77	   = $(MPI_F77)
+CFLAGS_THR = -pthread  # -D_PTHREAD_USE_INLINE
+CFLAGS_GEN = $(OPT)  -fast -unroll 0 \
+	     -D$(TARGET_ARCH)
+CFLAGS_MPI = -D$(_MP_METHOD) 
+THR_LIB    = 
+
+MPI_DIR     = 
+MPI_INC     = 
+MPI_LIB     = -lmpi -lelan
+MPI_CC      = $(MPI_DIR_S)/bin/cc
+MPI_CXX     = $(MPI_DIR_S)/bin/CC
+MPI_F77     = $(MPI_DIR_S)/bin/f77
+O_LEVEL     = 3 -tune ev67
+
+ARZ = Z
+
+endif # TCS
+
+##################################################################
+#                                                                #
+# AIX_NATIVE                                                     #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),AIX_NATIVE)
+#CC          = cc_r
+#CXX         = CC_r
+CC          = xlc_r
+CXX         = XlC_r 
+F77	    = xlf_r
+MPI_CC      = mpcc_r
+MPI_CXX     = mpCC_r
+MPI_F77     = mpxlf_r
+O_LEVEL     = 2
+CFLAGS_GEN  = $(OPT) -DAIX -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) \
+	      -I/usr/lpp/ppe.poe/include
+CFLAGS_THR  =	      
+CFG_DIR     = .
+
+ARZ         =
+endif # AIX_NATIVE
+
+##################################################################
+#                                                                #
+# AIX_JUNK                                                       #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),AIX_JUNK)
+CC          = cc_r
+CXX         = CC_r
+F77         = f77_r
+O_LEVEL     = 2
+CFLAGS_GEN  = $(OPT) -DAIX -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) \
+              -I$(MPI_INC) \
+              -L$(MPI_DIR_S)/lib \
+              -L$(MPI_DIR_S)/lib/ip \
+              -F$(CFG_DIR)/poe.cfg
+CFLAGS_THR  = 
+CFG_DIR     = .
+MPI_DIR     = /usr/lpp/ppe.poe
+MPI_INC     = $(MPI_DIR_S)/include
+MPI_LIB     = -L/usr/lpp/ppe.poe/lib -lmpi 
+THR_LIB     = -lpthreads -lc_r
+
+ARZ         =
+endif # AIX_NATIVE
+
+##################################################################
+#                                                                #
+# AIX_MPICH                                                      #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),AIX_MPICH)
+MPI_DIR     = /fs/nene/dbader/mpich
+MPI_INC     = $(MPI_DIR_S)/include -I$(MPI_DIR_S)/lib/rs6000/ch_p4 \
+	      -I$(MPI_DIR_S)/build/rs6000/ch_p4/include
+MPI_LIB     = # -L$(MPI_DIR_S)/lib/rs6000/ch_p4 -lmpich
+MPI_CC      = $(MPI_DIR_S)/bin/mpicc
+MPI_CXX     = $(MPI_DIR_S)/bin/mpiCC
+MPI_F77     = $(MPI_DIR_S)/bin/mpif77
+O_LEVEL     = 2
+CFLAGS_GEN  = $(OPT) -DAIX -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC) 
+CFLAGS_THR  = 
+# Check this:
+CC          = xlc
+CXX         = xlC
+F77         = xlf
+THR_LIB     = -lpthreads -lc_r
+
+ARZ         =
+endif # AIX_MPICH
+
+##################################################################
+#                                                                #
+# FREEBSD_MPICH                                                  #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),FREEBSD_MPICH)
+MPI_CC      = $(MPI_DIR_S)/bin/mpicc
+MPI_CXX     = $(MPI_DIR_S)/bin/mpiCC
+MPI_F77     = $(MPI_DIR_S)/bin/mpif77
+O_LEVEL     = 2
+CFLAGS_GEN  = $(OPT) -D$(TARGET_ARCH) -DFREEBSD
+CFLAGS_THR  = -pthread -I$(THR_INC)
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC)
+MPI_DIR     = /usr/local/mpich
+MPI_INC     = $(MPI_DIR_S)/include -I$(MPI_DIR_S)/lib/freebsd/ch_p4 \
+	      -I$(MPI_DIR_S)/build/freebsd/ch_p4/include
+MPI_LIB     = # -L$(MPI_DIR_S)/lib/freebsd/ch_p4 -lmpich
+
+THR_DIR     = /usr
+THR_INC     = $(THR_DIR_S)/include
+THR_LIB     = 
+CC          = cc
+CXX         = CC
+F77         = f77
+
+ARZ         =
+endif # FREEBSD_MPICH
+
+##################################################################
+#                                                                #
+# SGI_NATIVE                                                     #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),SGI_NATIVE)
+MPI_CC      = $(CC)
+MPI_CXX     = $(CXX)
+MPI_F77	    = $(F77)
+O_LEVEL     = 2
+CFLAGS_GEN  = $(OPT) -DSGI -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) \
+              -I$(MPI_INC)
+CFLAGS_THR  = 
+MPI_INC     = /usr/include
+MPI_LIB     = -L/usr/lib64 -lmpi
+THR_LIB     = -L/usr/lib64 -lpthread
+CC          = cc
+CXX         = CC
+F77	    = f77
+
+ARZ         =
+endif # SGI_NATIVE
+
+##################################################################
+#                                                                #
+# SGI_MPICH                                                      #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),SGI_MPICH)
+MPI_DIR     = /usr/local/apps/mpich-10.13
+MPI_INC     = $(MPI_DIR_S)/include -I$(MPI_DIR_S)/lib/IRIX64/ch_p4 \
+	      -I$(MPI_DIR_S)/build/IRIX64/ch_p4/include
+MPI_LIB     = # -L$(MPI_DIR_S)/lib/IRIX64/ch_p4 -lmpich
+MPI_CC      = $(MPI_DIR_S)/bin/mpicc
+MPI_CXX     = $(MPI_DIR_S)/bin/mpiCC
+MPI_F77     = $(MPI_DIR_S)/bin/mpif77
+O_LEVEL     = 3
+CFLAGS_GEN  = $(OPT) -DSGI -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC)
+CFLAGS_THR  =
+THR_LIB     = -L/usr/lib64 -lpthread
+CC          = cc
+CXX         = CC
+F77         = f77
+
+ARZ         =
+endif # SGI_MPICH
+
+##################################################################
+#                                                                #
+# BEOWULF_LINUX_LAM                                              #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),BEOWULF_LINUX_LAM)
+
+MPI_DIR     = /usr
+MPI_INC     = $(MPI_DIR_S)/include
+MPI_LIB     = -L$(MPI_DIR_S)/lib -lmpi
+MPI_CC      = $(MPI_DIR_S)/bin/hcc
+MPI_CXX     = $(MPI_DIR_S)/bin/hCC
+MPI_F77     = $(MPI_DIR_S)/bin/h77
+O_LEVEL     = 2
+
+THR_DIR     = /home/dbader/linuxthreads-0.5
+# THR_DIR     = /old/usr/local/pthreads/lib/
+CFLAGS_GEN  = $(OPT) -D_MIT_POSIX_THREADS  -DLINUX -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC)
+CFLAGS_THR  = -I$(THR_DIR) 
+THR_LIB     = -L$(THR_DIR) -llinuxpthread
+# Check this:
+CC          = cc
+CXX         = CC
+F77         = f77
+
+ARZ         =
+endif # BEOWULF_LINUX_LAM
+
+##################################################################
+#                                                                #
+# LINUX_MPICH_P4                                                 #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),LINUX_MPICH_P4)
+
+MPI_DIR     = /usr/MPI/mpich
+MPI_INC     = $(MPI_DIR_S)/include -I$(MPI_DIR_S)/lib/LINUX/ch_p4 \
+	      -I$(MPI_DIR_S)/build/LINUX/ch_p4/include
+MPI_LIB     = # -L$(MPI_DIR_S)/lib/LINUX/ch_p4 -lmpich
+MPI_CC      = $(MPI_DIR_S)/bin/mpicc
+MPI_CXX     = $(MPI_DIR_S)/bin/mpiCC
+MPI_F77     = $(MPI_DIR_S)/bin/mpif77
+O_LEVEL     = 2
+
+THR_DIR     = /usr/lib
+THR_INC     = /usr/include
+CFLAGS_GEN  = $(OPT) -DLINUX -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC)
+CFLAGS_THR  = -I$(THR_INC) 
+THR_LIB     = -L$(THR_DIR) -lpthread
+# Check this:
+CC          = cc
+CXX         = CC
+F77         = f77
+
+ARZ         =
+endif # LINUX_MPICH_P4
+
+##################################################################
+#                                                                #
+# LINUX_MPICH_MYRI                                               #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),LINUX_MPICH_MYRI)
+
+MPI_DIR     = /usr/parallel/mpich-gm.pgi
+MPI_INC     = $(MPI_DIR_S)/include -I$(MPI_DIR_S)/build/LINUX/ch_gm/include/
+MPI_LIB     = 
+MPI_CC      = $(MPI_DIR_S)/bin/mpicc
+MPI_CXX     = $(MPI_DIR_S)/bin/mpiCC
+MPI_F77     = $(MPI_DIR_S)/bin/mpif77
+O_LEVEL     = 2
+
+THR_DIR     = /usr/lib
+THR_INC     = /usr/include
+CFLAGS_GEN  = $(OPT) -DLINUX -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC)
+CFLAGS_THR  = -I$(THR_INC) 
+THR_LIB     = -L$(THR_DIR) -lpthread
+# Check this:
+CC          = pgcc
+CXX         = pgCC
+F77         = pgf77
+
+ARZ         =
+endif # LINUX_MPICH_MYRI
+
+##################################################################
+#                                                                #
+# LINUX_LAM                                                      #
+#                                                                #
+##################################################################
+ifeq ($(TARGET_ARCH),LINUX_LAM)
+
+MPI_DIR     = /home/dbader/linuxcluster/lam
+MPI_INC     = $(MPI_DIR_S)/h
+MPI_LIB     = -L$(MPI_DIR_S)/lib -lmpi
+MPI_CC      = $(MPI_DIR_S)/bin/hcc
+MPI_CXX     = $(MPI_DIR_S)/bin/hCC
+MPI_F77     = $(MPI_DIR_S)/bin/h77
+O_LEVEL     = 2
+
+THR_DIR     = /home/dbader/linuxcluster/lib
+THR_INC     = /home/dbader/linuxcluster/include
+CFLAGS_GEN  = $(OPT) -D_REENTRANT -DLINUX -D$(TARGET_ARCH) 
+CFLAGS_MPI  = -D$(_MP_METHOD) -I$(MPI_INC)
+CFLAGS_THR  = -I$(THR_INC) 
+# THR_LIB   = -L$(THR_DIR) -lpthread
+THR_LIB     = $(THR_DIR)/libpthread.a
+# Check this:
+CC          = cc
+CXX         = CC
+F77         = f77
+
+ARZ         =
+endif # LINUX_LAM
+
+
+
+export
+

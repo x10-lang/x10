@@ -1,0 +1,3303 @@
+# 1 "/tmp/cc8RZUn0.cilki"
+#include <cilk-cilk2c.h>
+# 213 "/usr/lib/gcc/x86_64-redhat-linux/3.4.6/include/stddef.h"
+typedef unsigned long size_t;
+# 34 "/usr/include/bits/types.h"
+typedef unsigned char __u_char;
+typedef unsigned short __u_short;
+typedef unsigned __u_int;
+typedef unsigned long __u_long;
+
+
+typedef signed char __int8_t;
+typedef unsigned char __uint8_t;
+typedef short __int16_t;
+typedef unsigned short __uint16_t;
+typedef int __int32_t;
+typedef unsigned __uint32_t;
+
+typedef long __int64_t;
+typedef unsigned long __uint64_t;
+# 56
+typedef long __quad_t;
+typedef unsigned long __u_quad_t;
+# 136
+              typedef unsigned long __dev_t;
+              typedef unsigned __uid_t;
+              typedef unsigned __gid_t;
+              typedef unsigned long __ino_t;
+              typedef unsigned long __ino64_t;
+              typedef unsigned __mode_t;
+              typedef unsigned long __nlink_t;
+              typedef long __off_t;
+              typedef long __off64_t;
+              typedef int __pid_t;
+              typedef struct ___sue1{int __val[2];}__fsid_t;
+              typedef long __clock_t;
+              typedef unsigned long __rlim_t;
+              typedef unsigned long __rlim64_t;
+              typedef unsigned __id_t;
+              typedef long __time_t;
+              typedef unsigned __useconds_t;
+              typedef long __suseconds_t;
+
+              typedef int __daddr_t;
+              typedef long __swblk_t;
+              typedef int __key_t;
+
+
+              typedef int __clockid_t;
+
+
+              typedef int __timer_t;
+
+
+              typedef long __blksize_t;
+# 171
+              typedef long __blkcnt_t;
+              typedef long __blkcnt64_t;
+
+
+              typedef unsigned long __fsblkcnt_t;
+              typedef unsigned long __fsblkcnt64_t;
+
+
+              typedef unsigned long __fsfilcnt_t;
+              typedef unsigned long __fsfilcnt64_t;
+
+              typedef long __ssize_t;
+# 186
+typedef __off64_t __loff_t;
+typedef __quad_t *__qaddr_t;
+typedef char *__caddr_t;
+
+
+              typedef long __intptr_t;
+
+
+              typedef unsigned __socklen_t;
+# 35 "/usr/include/sys/types.h"
+typedef __u_char u_char;
+typedef __u_short u_short;
+typedef __u_int u_int;
+typedef __u_long u_long;
+typedef __quad_t quad_t;
+typedef __u_quad_t u_quad_t;
+typedef __fsid_t fsid_t;
+# 46
+typedef __loff_t loff_t;
+# 50
+typedef __ino_t ino_t;
+# 62
+typedef __dev_t dev_t;
+# 67
+typedef __gid_t gid_t;
+# 72
+typedef __mode_t mode_t;
+# 77
+typedef __nlink_t nlink_t;
+# 82
+typedef __uid_t uid_t;
+# 88
+typedef __off_t off_t;
+# 100
+typedef __pid_t pid_t;
+# 105
+typedef __id_t id_t;
+# 110
+typedef __ssize_t ssize_t;
+# 116
+typedef __daddr_t daddr_t;
+typedef __caddr_t caddr_t;
+# 123
+typedef __key_t key_t;
+# 76 "/usr/include/time.h"
+typedef __time_t time_t;
+# 92
+typedef __clockid_t clockid_t;
+# 104
+typedef __timer_t timer_t;
+# 151 "/usr/include/sys/types.h"
+typedef unsigned long ulong;
+typedef unsigned short ushort;
+typedef unsigned uint;
+# 191
+typedef __attribute__((__mode__ (            __QI__)))int int8_t;
+typedef __attribute__((__mode__ (             __HI__)))int int16_t;
+typedef __attribute__((__mode__ (             __SI__)))int int32_t;
+typedef __attribute__((__mode__ (             __DI__)))int int64_t;
+
+
+typedef __attribute__((__mode__ (                       __QI__)))unsigned u_int8_t;
+typedef __attribute__((__mode__ (                        __HI__)))unsigned u_int16_t;
+typedef __attribute__((__mode__ (                        __SI__)))unsigned u_int32_t;
+typedef __attribute__((__mode__ (                        __DI__)))unsigned u_int64_t;
+
+typedef __attribute__((__mode__ (                __word__)))int register_t;
+# 23 "/usr/include/bits/sigset.h"
+typedef int __sig_atomic_t;
+# 28
+typedef struct ___sue2
+  {
+    unsigned long __val    [(1024/  (8*  sizeof( unsigned long)))];
+  }
+# 28
+__sigset_t;
+# 38 "/usr/include/sys/select.h"
+typedef __sigset_t sigset_t;
+# 118 "/usr/include/time.h"
+struct timespec
+  {
+    __time_t tv_sec;
+    long tv_nsec;
+  };
+# 69 "/usr/include/bits/time.h"
+struct timeval
+  {
+    __time_t tv_sec;
+    __suseconds_t tv_usec;
+  };
+# 49 "/usr/include/sys/select.h"
+typedef __suseconds_t suseconds_t;
+# 55
+typedef long __fd_mask;
+# 67
+typedef struct ___sue3
+  {
+# 75
+    __fd_mask __fds_bits[1024 / (8*  sizeof( __fd_mask))];
+
+
+  }
+# 67
+fd_set;
+# 85
+typedef __fd_mask fd_mask;
+# 109
+extern int select (int __nfds, fd_set *__restrict __readfds,
+     fd_set *__restrict __writefds,
+     fd_set *__restrict __exceptfds,
+     struct timeval *__restrict __timeout);
+# 30 "/usr/include/sys/sysmacros.h"
+extern __attribute__((__nothrow__))inline unsigned gnu_dev_major(unsigned long long __dev);
+
+
+extern __attribute__((__nothrow__))inline unsigned gnu_dev_minor(unsigned long long __dev);
+
+
+extern __attribute__((__nothrow__))inline unsigned long long gnu_dev_makedev(unsigned __major,
+       unsigned __minor);
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+              extern inline unsigned gnu_dev_major(
+                                             unsigned long long __dev)
+{
+  return ((__dev>>  8)&  0xfff) | ((unsigned)     (__dev>>  32)&  ~0xfff);
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 47
+              extern inline unsigned gnu_dev_minor(
+                                             unsigned long long __dev)
+{
+  return (__dev&  0xff) | ((unsigned)     (__dev>>  12)&  ~0xff);
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 53
+              extern inline unsigned long long gnu_dev_makedev(
+                                               unsigned __major,     unsigned __minor)
+{
+  return ((__minor&  0xff) | ((__major&  0xfff)<<  8)
+   | (((unsigned long long)     (__minor&  ~0xff))<<  12)
+# 56
+         |
+
+     (((unsigned long long)     (__major&  ~0xfff))<<  32));
+}
+# 231 "/usr/include/sys/types.h"
+typedef __blkcnt_t blkcnt_t;
+# 235
+typedef __fsblkcnt_t fsblkcnt_t;
+# 239
+typedef __fsfilcnt_t fsfilcnt_t;
+# 83 "/usr/include/bits/sched.h"
+struct __sched_param
+  {
+    int __sched_priority;
+  };
+# 26 "/usr/include/bits/pthreadtypes.h"
+struct _pthread_fastlock
+{
+  long __status;
+  int __spinlock;
+
+};
+# 35
+typedef struct _pthread_descr_struct *_pthread_descr;
+# 41
+typedef struct __pthread_attr_s
+{
+  int __detachstate;
+  int __schedpolicy;
+  struct __sched_param __schedparam;
+  int __inheritsched;
+  int __scope;
+  size_t __guardsize;
+  int __stackaddr_set;
+  void *__stackaddr;
+  size_t __stacksize;
+}
+# 41
+pthread_attr_t;
+# 58
+              typedef long long __pthread_cond_align_t;
+# 63
+typedef struct ___sue4
+{
+  struct _pthread_fastlock __c_lock;
+  _pthread_descr __c_waiting;
+  char __padding[48 - sizeof( struct _pthread_fastlock)
+   - sizeof( _pthread_descr) - sizeof( __pthread_cond_align_t)];
+  __pthread_cond_align_t __align;
+}
+# 63
+pthread_cond_t;
+# 74
+typedef struct ___sue5
+{
+  int __dummy;
+}
+# 74
+pthread_condattr_t;
+# 80
+typedef unsigned pthread_key_t;
+# 86
+typedef struct ___sue6
+{
+  int __m_reserved;
+  int __m_count;
+  _pthread_descr __m_owner;
+  int __m_kind;
+  struct _pthread_fastlock __m_lock;
+}
+# 86
+pthread_mutex_t;
+# 97
+typedef struct ___sue7
+{
+  int __mutexkind;
+}
+# 97
+pthread_mutexattr_t;
+# 104
+typedef int pthread_once_t;
+# 150
+typedef unsigned long pthread_t;
+# 146 "/gsa/yktgsa/home/g/c/gcong/AMD/include/cilk/cilk-sysdep.h"
+static __attribute__((__unused__))const char*ident_cilk_sysdep_h=    "$HeadURL: https://bradley.csail.mit.edu/svn/repos/cilk/5.4.3/runtime/cilk-sysdep.h.in $ $LastChangedBy: bradley $ $Rev: 2311 $ $Date: 2007-08-19 20:44:57 $";
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 299
+   static inline void CILK_MB(void) {
+     __asm__ volatile  ("mfence" :  :  : "memory");
+   }
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+
+   static inline int Cilk_xchg(volatile int *ptr, int x)
+   {
+ __asm__ ("xchgl %0,%1" : "=r"(x) : "m"(*(ptr)),"0" (x) : "memory");
+ return x;
+   }
+# 56 "/usr/include/sys/time.h"
+struct timezone
+  {
+    int tz_minuteswest;
+    int tz_dsttime;
+  };
+
+typedef struct timezone *__restrict __timezone_ptr_t;
+# 72
+extern __attribute__((__nothrow__))int gettimeofday(struct timeval*__restrict __tv,
+    __timezone_ptr_t __tz);
+# 78
+extern __attribute__((__nothrow__))int settimeofday(const struct timeval*__tv,
+    const struct timezone   *__tz);
+# 85
+extern __attribute__((__nothrow__))int adjtime(const struct timeval*__delta,
+      struct timeval *__olddelta);
+# 91
+enum __itimer_which
+  {
+
+    ITIMER_REAL=  0,
+
+
+    ITIMER_VIRTUAL=  1,
+# 101
+    ITIMER_PROF=  2
+
+  };
+# 107
+struct itimerval
+  {
+
+    struct timeval it_interval;
+
+    struct timeval it_value;
+  };
+# 120
+typedef int __itimer_which_t;
+# 125
+extern __attribute__((__nothrow__))int getitimer(__itimer_which_t __which,
+        struct itimerval *__value);
+# 131
+extern __attribute__((__nothrow__))int setitimer(__itimer_which_t __which,
+        const struct itimerval   *__restrict __new,
+        struct itimerval *__restrict __old);
+# 138
+extern __attribute__((__nothrow__))int utimes(const char*__file,const struct timeval*__tvp);
+# 143
+extern __attribute__((__nothrow__))int lutimes(const char*__file,const struct timeval*__tvp);
+# 147
+extern __attribute__((__nothrow__))int futimes(int __fd,const struct timeval*__tvp);
+# 236 "/usr/include/unistd.h"
+typedef __intptr_t intptr_t;
+# 243
+typedef __socklen_t socklen_t;
+# 256
+extern __attribute__((__nothrow__,__nonnull__ (                                                                 1)))int access(const char*__name,int __type);
+# 287
+extern __attribute__((__nothrow__))__off_t lseek(int __fd,__off_t __offset,int __whence);
+# 305
+extern int close (int __fd);
+# 312
+extern ssize_t read (int __fd, void *__buf, size_t __nbytes);
+# 318
+extern ssize_t write (int __fd, const void   *__buf, size_t __n);
+# 369
+extern __attribute__((__nothrow__))int pipe(int*__pipedes);
+# 378
+extern __attribute__((__nothrow__))unsigned alarm(unsigned __seconds);
+# 390
+extern unsigned sleep     (unsigned __seconds);
+# 397
+extern __attribute__((__nothrow__))__useconds_t ualarm(__useconds_t __value,__useconds_t __interval);
+# 405
+extern int usleep (__useconds_t __useconds);
+# 414
+extern int pause (void);
+# 418
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 418
+int chown        (const char   *__file, __uid_t __owner, __gid_t __group);
+# 423
+extern __attribute__((__nothrow__))int fchown(int __fd,__uid_t __owner,__gid_t __group);
+# 428
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 428
+int lchown        (const char   *__file, __uid_t __owner, __gid_t __group);
+# 434
+extern __attribute__((__nothrow__,__nonnull__ (                                                    1)))int chdir(const char*__path);
+# 438
+extern __attribute__((__nothrow__))int fchdir(int __fd);
+# 448
+extern __attribute__((__nothrow__))char*getcwd(char*__buf,size_t __size);
+# 461
+extern __attribute__((__nothrow__,__nonnull__ (                                             1)))char*getwd(char*__buf);
+# 466
+extern __attribute__((__nothrow__))int dup(int __fd);
+
+
+extern __attribute__((__nothrow__))int dup2(int __fd,int __fd2);
+
+
+extern char **__environ;
+# 480
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                        1)))
+# 480
+int execve        (const char   *__path, char *const         *__argv,
+     char *const         *__envp);
+# 492
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 492
+int execv        (const char   *__path, char *const         *__argv);
+# 497
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 497
+int execle        (const char   *__path, const char   *__arg,...);
+# 502
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 502
+int execl        (const char   *__path, const char   *__arg,...);
+# 507
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 507
+int execvp        (const char   *__file, char *const         *__argv);
+# 513
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 513
+int execlp        (const char   *__file, const char   *__arg,...);
+# 519
+extern __attribute__((__nothrow__))int nice(int __inc);
+# 524
+extern __attribute__((__noreturn__))void _exit(int __status);
+# 26 "/usr/include/bits/confname.h"
+enum ___sue8
+  {
+    _PC_LINK_MAX,
+
+    _PC_MAX_CANON,
+
+    _PC_MAX_INPUT,
+
+    _PC_NAME_MAX,
+
+    _PC_PATH_MAX,
+
+    _PC_PIPE_BUF,
+
+    _PC_CHOWN_RESTRICTED,
+
+    _PC_NO_TRUNC,
+
+    _PC_VDISABLE,
+
+    _PC_SYNC_IO,
+
+    _PC_ASYNC_IO,
+
+    _PC_PRIO_IO,
+
+    _PC_SOCK_MAXBUF,
+
+    _PC_FILESIZEBITS,
+
+    _PC_REC_INCR_XFER_SIZE,
+
+    _PC_REC_MAX_XFER_SIZE,
+
+    _PC_REC_MIN_XFER_SIZE,
+
+    _PC_REC_XFER_ALIGN,
+
+    _PC_ALLOC_SIZE_MIN,
+
+    _PC_SYMLINK_MAX,
+
+    _PC_2_SYMLINKS
+
+  };
+
+
+enum ___sue9
+  {
+    _SC_ARG_MAX,
+
+    _SC_CHILD_MAX,
+
+    _SC_CLK_TCK,
+
+    _SC_NGROUPS_MAX,
+
+    _SC_OPEN_MAX,
+
+    _SC_STREAM_MAX,
+
+    _SC_TZNAME_MAX,
+
+    _SC_JOB_CONTROL,
+
+    _SC_SAVED_IDS,
+
+    _SC_REALTIME_SIGNALS,
+
+    _SC_PRIORITY_SCHEDULING,
+
+    _SC_TIMERS,
+
+    _SC_ASYNCHRONOUS_IO,
+
+    _SC_PRIORITIZED_IO,
+
+    _SC_SYNCHRONIZED_IO,
+
+    _SC_FSYNC,
+
+    _SC_MAPPED_FILES,
+
+    _SC_MEMLOCK,
+
+    _SC_MEMLOCK_RANGE,
+
+    _SC_MEMORY_PROTECTION,
+
+    _SC_MESSAGE_PASSING,
+
+    _SC_SEMAPHORES,
+
+    _SC_SHARED_MEMORY_OBJECTS,
+
+    _SC_AIO_LISTIO_MAX,
+
+    _SC_AIO_MAX,
+
+    _SC_AIO_PRIO_DELTA_MAX,
+
+    _SC_DELAYTIMER_MAX,
+
+    _SC_MQ_OPEN_MAX,
+
+    _SC_MQ_PRIO_MAX,
+
+    _SC_VERSION,
+
+    _SC_PAGESIZE,
+
+
+    _SC_RTSIG_MAX,
+
+    _SC_SEM_NSEMS_MAX,
+
+    _SC_SEM_VALUE_MAX,
+
+    _SC_SIGQUEUE_MAX,
+
+    _SC_TIMER_MAX,
+# 151
+    _SC_BC_BASE_MAX,
+
+    _SC_BC_DIM_MAX,
+
+    _SC_BC_SCALE_MAX,
+
+    _SC_BC_STRING_MAX,
+
+    _SC_COLL_WEIGHTS_MAX,
+
+    _SC_EQUIV_CLASS_MAX,
+
+    _SC_EXPR_NEST_MAX,
+
+    _SC_LINE_MAX,
+
+    _SC_RE_DUP_MAX,
+
+    _SC_CHARCLASS_NAME_MAX,
+
+
+    _SC_2_VERSION,
+
+    _SC_2_C_BIND,
+
+    _SC_2_C_DEV,
+
+    _SC_2_FORT_DEV,
+
+    _SC_2_FORT_RUN,
+
+    _SC_2_SW_DEV,
+
+    _SC_2_LOCALEDEF,
+
+
+    _SC_PII,
+
+    _SC_PII_XTI,
+
+    _SC_PII_SOCKET,
+
+    _SC_PII_INTERNET,
+
+    _SC_PII_OSI,
+
+    _SC_POLL,
+
+    _SC_SELECT,
+
+    _SC_UIO_MAXIOV,
+
+    _SC_IOV_MAX=  _SC_UIO_MAXIOV,
+
+    _SC_PII_INTERNET_STREAM,
+
+    _SC_PII_INTERNET_DGRAM,
+
+    _SC_PII_OSI_COTS,
+
+    _SC_PII_OSI_CLTS,
+
+    _SC_PII_OSI_M,
+
+    _SC_T_IOV_MAX,
+# 219
+    _SC_THREADS,
+
+    _SC_THREAD_SAFE_FUNCTIONS,
+
+    _SC_GETGR_R_SIZE_MAX,
+
+    _SC_GETPW_R_SIZE_MAX,
+
+    _SC_LOGIN_NAME_MAX,
+
+    _SC_TTY_NAME_MAX,
+
+    _SC_THREAD_DESTRUCTOR_ITERATIONS,
+
+    _SC_THREAD_KEYS_MAX,
+
+    _SC_THREAD_STACK_MIN,
+
+    _SC_THREAD_THREADS_MAX,
+
+    _SC_THREAD_ATTR_STACKADDR,
+
+    _SC_THREAD_ATTR_STACKSIZE,
+
+    _SC_THREAD_PRIORITY_SCHEDULING,
+
+    _SC_THREAD_PRIO_INHERIT,
+
+    _SC_THREAD_PRIO_PROTECT,
+
+    _SC_THREAD_PROCESS_SHARED,
+
+
+    _SC_NPROCESSORS_CONF,
+
+    _SC_NPROCESSORS_ONLN,
+
+    _SC_PHYS_PAGES,
+
+    _SC_AVPHYS_PAGES,
+
+    _SC_ATEXIT_MAX,
+
+    _SC_PASS_MAX,
+
+
+    _SC_XOPEN_VERSION,
+
+    _SC_XOPEN_XCU_VERSION,
+
+    _SC_XOPEN_UNIX,
+
+    _SC_XOPEN_CRYPT,
+
+    _SC_XOPEN_ENH_I18N,
+
+    _SC_XOPEN_SHM,
+
+
+    _SC_2_CHAR_TERM,
+
+    _SC_2_C_VERSION,
+
+    _SC_2_UPE,
+
+
+    _SC_XOPEN_XPG2,
+
+    _SC_XOPEN_XPG3,
+
+    _SC_XOPEN_XPG4,
+
+
+    _SC_CHAR_BIT,
+
+    _SC_CHAR_MAX,
+
+    _SC_CHAR_MIN,
+
+    _SC_INT_MAX,
+
+    _SC_INT_MIN,
+
+    _SC_LONG_BIT,
+
+    _SC_WORD_BIT,
+
+    _SC_MB_LEN_MAX,
+
+    _SC_NZERO,
+
+    _SC_SSIZE_MAX,
+
+    _SC_SCHAR_MAX,
+
+    _SC_SCHAR_MIN,
+
+    _SC_SHRT_MAX,
+
+    _SC_SHRT_MIN,
+
+    _SC_UCHAR_MAX,
+
+    _SC_UINT_MAX,
+
+    _SC_ULONG_MAX,
+
+    _SC_USHRT_MAX,
+
+
+    _SC_NL_ARGMAX,
+
+    _SC_NL_LANGMAX,
+
+    _SC_NL_MSGMAX,
+
+    _SC_NL_NMAX,
+
+    _SC_NL_SETMAX,
+
+    _SC_NL_TEXTMAX,
+
+
+    _SC_XBS5_ILP32_OFF32,
+
+    _SC_XBS5_ILP32_OFFBIG,
+
+    _SC_XBS5_LP64_OFF64,
+
+    _SC_XBS5_LPBIG_OFFBIG,
+
+
+    _SC_XOPEN_LEGACY,
+
+    _SC_XOPEN_REALTIME,
+
+    _SC_XOPEN_REALTIME_THREADS,
+
+
+    _SC_ADVISORY_INFO,
+
+    _SC_BARRIERS,
+
+    _SC_BASE,
+
+    _SC_C_LANG_SUPPORT,
+
+    _SC_C_LANG_SUPPORT_R,
+
+    _SC_CLOCK_SELECTION,
+
+    _SC_CPUTIME,
+
+    _SC_THREAD_CPUTIME,
+
+    _SC_DEVICE_IO,
+
+    _SC_DEVICE_SPECIFIC,
+
+    _SC_DEVICE_SPECIFIC_R,
+
+    _SC_FD_MGMT,
+
+    _SC_FIFO,
+
+    _SC_PIPE,
+
+    _SC_FILE_ATTRIBUTES,
+
+    _SC_FILE_LOCKING,
+
+    _SC_FILE_SYSTEM,
+
+    _SC_MONOTONIC_CLOCK,
+
+    _SC_MULTI_PROCESS,
+
+    _SC_SINGLE_PROCESS,
+
+    _SC_NETWORKING,
+
+    _SC_READER_WRITER_LOCKS,
+
+    _SC_SPIN_LOCKS,
+
+    _SC_REGEXP,
+
+    _SC_REGEX_VERSION,
+
+    _SC_SHELL,
+
+    _SC_SIGNALS,
+
+    _SC_SPAWN,
+
+    _SC_SPORADIC_SERVER,
+
+    _SC_THREAD_SPORADIC_SERVER,
+
+    _SC_SYSTEM_DATABASE,
+
+    _SC_SYSTEM_DATABASE_R,
+
+    _SC_TIMEOUTS,
+
+    _SC_TYPED_MEMORY_OBJECTS,
+
+    _SC_USER_GROUPS,
+
+    _SC_USER_GROUPS_R,
+
+    _SC_2_PBS,
+
+    _SC_2_PBS_ACCOUNTING,
+
+    _SC_2_PBS_LOCATE,
+
+    _SC_2_PBS_MESSAGE,
+
+    _SC_2_PBS_TRACK,
+
+    _SC_SYMLOOP_MAX,
+
+    _SC_STREAMS,
+
+    _SC_2_PBS_CHECKPOINT,
+
+
+    _SC_V6_ILP32_OFF32,
+
+    _SC_V6_ILP32_OFFBIG,
+
+    _SC_V6_LP64_OFF64,
+
+    _SC_V6_LPBIG_OFFBIG,
+
+
+    _SC_HOST_NAME_MAX,
+
+    _SC_TRACE,
+
+    _SC_TRACE_EVENT_FILTER,
+
+    _SC_TRACE_INHERIT,
+
+    _SC_TRACE_LOG,
+
+
+    _SC_LEVEL1_ICACHE_SIZE,
+
+    _SC_LEVEL1_ICACHE_ASSOC,
+
+    _SC_LEVEL1_ICACHE_LINESIZE,
+
+    _SC_LEVEL1_DCACHE_SIZE,
+
+    _SC_LEVEL1_DCACHE_ASSOC,
+
+    _SC_LEVEL1_DCACHE_LINESIZE,
+
+    _SC_LEVEL2_CACHE_SIZE,
+
+    _SC_LEVEL2_CACHE_ASSOC,
+
+    _SC_LEVEL2_CACHE_LINESIZE,
+
+    _SC_LEVEL3_CACHE_SIZE,
+
+    _SC_LEVEL3_CACHE_ASSOC,
+
+    _SC_LEVEL3_CACHE_LINESIZE,
+
+    _SC_LEVEL4_CACHE_SIZE,
+
+    _SC_LEVEL4_CACHE_ASSOC,
+
+    _SC_LEVEL4_CACHE_LINESIZE,
+# 499
+    _SC_IPV6=  _SC_LEVEL1_ICACHE_SIZE + 50,
+
+    _SC_RAW_SOCKETS
+
+  };
+
+
+enum ___sue10
+  {
+    _CS_PATH,
+
+
+    _CS_V6_WIDTH_RESTRICTED_ENVS,
+
+
+    _CS_GNU_LIBC_VERSION,
+
+    _CS_GNU_LIBPTHREAD_VERSION,
+
+
+    _CS_LFS_CFLAGS=  1000,
+
+    _CS_LFS_LDFLAGS,
+
+    _CS_LFS_LIBS,
+
+    _CS_LFS_LINTFLAGS,
+
+    _CS_LFS64_CFLAGS,
+
+    _CS_LFS64_LDFLAGS,
+
+    _CS_LFS64_LIBS,
+
+    _CS_LFS64_LINTFLAGS,
+
+
+    _CS_XBS5_ILP32_OFF32_CFLAGS=  1100,
+
+    _CS_XBS5_ILP32_OFF32_LDFLAGS,
+
+    _CS_XBS5_ILP32_OFF32_LIBS,
+
+    _CS_XBS5_ILP32_OFF32_LINTFLAGS,
+
+    _CS_XBS5_ILP32_OFFBIG_CFLAGS,
+
+    _CS_XBS5_ILP32_OFFBIG_LDFLAGS,
+
+    _CS_XBS5_ILP32_OFFBIG_LIBS,
+
+    _CS_XBS5_ILP32_OFFBIG_LINTFLAGS,
+
+    _CS_XBS5_LP64_OFF64_CFLAGS,
+
+    _CS_XBS5_LP64_OFF64_LDFLAGS,
+
+    _CS_XBS5_LP64_OFF64_LIBS,
+
+    _CS_XBS5_LP64_OFF64_LINTFLAGS,
+
+    _CS_XBS5_LPBIG_OFFBIG_CFLAGS,
+
+    _CS_XBS5_LPBIG_OFFBIG_LDFLAGS,
+
+    _CS_XBS5_LPBIG_OFFBIG_LIBS,
+
+    _CS_XBS5_LPBIG_OFFBIG_LINTFLAGS,
+
+
+    _CS_POSIX_V6_ILP32_OFF32_CFLAGS,
+
+    _CS_POSIX_V6_ILP32_OFF32_LDFLAGS,
+
+    _CS_POSIX_V6_ILP32_OFF32_LIBS,
+
+    _CS_POSIX_V6_ILP32_OFF32_LINTFLAGS,
+
+    _CS_POSIX_V6_ILP32_OFFBIG_CFLAGS,
+
+    _CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS,
+
+    _CS_POSIX_V6_ILP32_OFFBIG_LIBS,
+
+    _CS_POSIX_V6_ILP32_OFFBIG_LINTFLAGS,
+
+    _CS_POSIX_V6_LP64_OFF64_CFLAGS,
+
+    _CS_POSIX_V6_LP64_OFF64_LDFLAGS,
+
+    _CS_POSIX_V6_LP64_OFF64_LIBS,
+
+    _CS_POSIX_V6_LP64_OFF64_LINTFLAGS,
+
+    _CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS,
+
+    _CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS,
+
+    _CS_POSIX_V6_LPBIG_OFFBIG_LIBS,
+
+    _CS_POSIX_V6_LPBIG_OFFBIG_LINTFLAGS
+
+  };
+# 533 "/usr/include/unistd.h"
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 533
+long pathconf            (const char   *__path, int __name);
+# 537
+extern __attribute__((__nothrow__))long fpathconf(int __fd,int __name);
+
+
+extern __attribute__((__nothrow__,const))long sysconf(int __name);
+# 544
+extern __attribute__((__nothrow__))size_t confstr(int __name,char*__buf,size_t __len);
+# 549
+extern __attribute__((__nothrow__))__pid_t getpid(void);
+
+
+extern __attribute__((__nothrow__))__pid_t getppid(void);
+# 557
+extern __attribute__((__nothrow__))__pid_t getpgrp(void);
+# 567
+extern __attribute__((__nothrow__))__pid_t __getpgid(__pid_t __pid);
+# 576
+extern __attribute__((__nothrow__))int setpgid(__pid_t __pid,__pid_t __pgid);
+# 593
+extern __attribute__((__nothrow__))int setpgrp(void);
+# 610
+extern __attribute__((__nothrow__))__pid_t setsid(void);
+# 618
+extern __attribute__((__nothrow__))__uid_t getuid(void);
+
+
+extern __attribute__((__nothrow__))__uid_t geteuid(void);
+
+
+extern __attribute__((__nothrow__))__gid_t getgid(void);
+
+
+extern __attribute__((__nothrow__))__gid_t getegid(void);
+# 632
+extern __attribute__((__nothrow__))int getgroups(int __size,__gid_t*__list);
+# 643
+extern __attribute__((__nothrow__))int setuid(__uid_t __uid);
+# 648
+extern __attribute__((__nothrow__))int setreuid(__uid_t __ruid,__uid_t __euid);
+# 653
+extern __attribute__((__nothrow__))int seteuid(__uid_t __uid);
+# 660
+extern __attribute__((__nothrow__))int setgid(__gid_t __gid);
+# 665
+extern __attribute__((__nothrow__))int setregid(__gid_t __rgid,__gid_t __egid);
+# 670
+extern __attribute__((__nothrow__))int setegid(__gid_t __gid);
+# 695
+extern __attribute__((__nothrow__))__pid_t fork(void);
+# 702
+extern __attribute__((__nothrow__))__pid_t vfork(void);
+# 708
+extern __attribute__((__nothrow__))char*ttyname(int __fd);
+# 712
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                2)))
+# 712
+int ttyname_r        (int __fd, char *__buf, size_t __buflen);
+# 717
+extern __attribute__((__nothrow__))int isatty(int __fd);
+# 723
+extern __attribute__((__nothrow__))int ttyslot(void);
+# 728
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1, 2)))
+# 728
+int link        (const char   *__from, const char   *__to);
+# 733
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1, 2)))
+# 733
+int symlink        (const char   *__from, const char   *__to);
+# 739
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                1, 2)))
+# 739
+int readlink        (const char   *__restrict __path, char *__restrict __buf,
+       size_t __len);
+# 744
+extern __attribute__((__nothrow__,__nonnull__ (                                                     1)))int unlink(const char*__name);
+
+
+extern __attribute__((__nothrow__,__nonnull__ (                                                    1)))int rmdir(const char*__path);
+# 751
+extern __attribute__((__nothrow__))__pid_t tcgetpgrp(int __fd);
+
+
+extern __attribute__((__nothrow__))int tcsetpgrp(int __fd,__pid_t __pgrp_id);
+# 761
+extern char *getlogin (void);
+# 769
+extern __attribute__((__nonnull__ (                                                  1)))int getlogin_r(char*__name,size_t __name_len);
+# 774
+extern __attribute__((__nothrow__,__nonnull__ (                                                       1)))int setlogin(const char*__name);
+# 59 "/usr/include/getopt.h"
+extern char *optarg;
+# 73
+extern int optind;
+# 78
+extern int opterr;
+# 82
+extern int optopt;
+# 152
+extern __attribute__((__nothrow__))int getopt(int ___argc,char*const *___argv,const char*__shortopts);
+# 791 "/usr/include/unistd.h"
+extern __attribute__((__nothrow__,__nonnull__ (                                                                1)))int gethostname(char*__name,size_t __len);
+# 798
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 798
+int sethostname        (const char   *__name, size_t __len);
+# 803
+extern __attribute__((__nothrow__))int sethostid(long __id);
+# 809
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 809
+int getdomainname        (char *__name, size_t __len);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 811
+int setdomainname        (const char   *__name, size_t __len);
+# 818
+extern __attribute__((__nothrow__))int vhangup(void);
+
+
+extern __attribute__((__nothrow__,__nonnull__ (                                                     1)))int revoke(const char*__file);
+# 829
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 829
+int profil        (unsigned short     *__sample_buffer, size_t __size,
+     size_t __offset, unsigned __scale);
+# 837
+extern __attribute__((__nothrow__))int acct(const char*__name);
+# 841
+extern __attribute__((__nothrow__))char*getusershell(void);
+extern __attribute__((__nothrow__))void endusershell(void);
+extern __attribute__((__nothrow__))void setusershell(void);
+# 849
+extern __attribute__((__nothrow__))int daemon(int __nochdir,int __noclose);
+# 856
+extern __attribute__((__nothrow__,__nonnull__ (                                                     1)))int chroot(const char*__path);
+# 860
+extern __attribute__((__nonnull__ (                                        1)))char*getpass(const char*__prompt);
+# 869
+extern int fsync (int __fd);
+# 876
+extern long gethostid     (void);
+
+
+extern __attribute__((__nothrow__))void sync(void);
+# 884
+extern __attribute__((__nothrow__,const))int getpagesize(void);
+# 889
+extern __attribute__((__nothrow__))int getdtablesize(void);
+# 894
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 894
+int truncate        (const char   *__file, __off_t __length);
+# 916
+extern __attribute__((__nothrow__))int ftruncate(int __fd,__off_t __length);
+# 936
+extern __attribute__((__nothrow__))int brk(void*__addr);
+# 942
+extern __attribute__((__nothrow__))void*sbrk(intptr_t __delta);
+# 957
+extern __attribute__((__nothrow__))long syscall(long __sysno,...);
+# 980
+extern int lockf (int __fd, int __cmd, __off_t __len);
+# 1011
+extern __attribute__((__nothrow__))int fdatasync(int __fildes);
+# 526 "/gsa/yktgsa/home/g/c/gcong/AMD/include/cilk/cilk-sysdep.h"
+typedef long long Cilk_time;
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 528
+static inline Cilk_time Cilk_get_time(void)
+{
+     struct timeval tv;
+     gettimeofday(&tv, 0);
+
+     return ((Cilk_time)tv.tv_sec * 1000000LL+  (Cilk_time)tv.tv_usec);
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 536
+static inline double Cilk_time_to_sec(Cilk_time t)
+{
+     return (double) t * 1.0E-6;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 541
+static inline Cilk_time Cilk_get_wall_time(void)
+{
+     return Cilk_get_time();
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 546
+static inline double Cilk_wall_time_to_sec(Cilk_time t)
+{
+     return Cilk_time_to_sec(t);
+}
+# 43 "/gsa/yktgsa/home/g/c/gcong/AMD/include/cilk/cilk.h"
+static __attribute__((__unused__))const char*cilk_h_ident=    "$HeadURL: https://bradley.csail.mit.edu/svn/repos/cilk/5.4.3/runtime/cilk.h $ $LastChangedBy: bradley $ $Rev: 2672 $ $Date: 2007-08-19 20:44:57 $";
+# 27 "/gsa/yktgsa/home/g/c/gcong/AMD/include/cilk/cilk-conf.h"
+static __attribute__((__unused__))const char*ident_cilk_conf_h=    "$HeadURL: https://bradley.csail.mit.edu/svn/repos/cilk/5.4.3/runtime/cilk-conf.h $ $LastChangedBy: bradley $ $Rev: 1465 $ $Date: 2007-08-19 20:44:57 $";
+# 77 "/gsa/yktgsa/home/g/c/gcong/AMD/include/cilk/cilk.h"
+typedef struct ___sue11{
+     int size;
+     int index;
+     void( *inlet) ();
+     int argsize;
+     int argindex;
+}
+# 77
+CilkProcInfo;
+# 88
+struct cilk_alloca_header {
+     struct cilk_alloca_header *next;
+     size_t size;
+};
+# 96
+typedef void( *HookT)(void);
+
+typedef struct hook {
+     HookT fn;
+     struct hook *next;
+}
+# 98
+HookList;
+# 103
+extern void Cilk_add_hook(HookList **listp, HookT fn);
+extern void Cilk_run_hooks(HookList *list);
+# 112
+extern HookList              *Cilk_init_global_hooks;
+extern HookList              *Cilk_init_per_worker_hooks;
+# 128
+typedef struct ___sue12{
+     int entry;
+     int index;
+# 135
+     CilkProcInfo *sig;
+     struct cilk_alloca_header *alloca_h;
+# 145
+}
+# 128
+CilkStackFrame;
+# 150
+typedef CilkStackFrame **CilkStack;
+# 168
+typedef struct ___sue13{
+     volatile CilkStackFrame **head;volatile CilkStackFrame**tail;
+
+     volatile CilkStackFrame **exception;
+     CilkStack stack;
+     char __dummy[64];
+}
+# 168
+CilkClosureCache;
+# 177
+struct Cilk_im_descriptor {
+     void *free_list;
+     int length;
+# 184
+     int count;
+};
+
+
+struct Cilk_im_stats {
+     int used;
+     int nmalloc;
+     int in_free_lists;
+
+
+     int length[9];
+     char __dummy[64];
+};
+
+
+typedef struct Closure_s Closure;
+typedef struct Cilk_options_s Cilk_options;
+# 206
+typedef struct ___sue14{
+# 213
+   struct Cilk_im_stats *im_info;
+
+
+ Cilk_options *options;
+# 222
+ const char *assertion_failed_msg;
+ const char *stack_overflow_msg;
+
+
+ int active_size;
+        int pthread_stacksize;
+# 234
+ void *infofile;
+# 250
+ unsigned num_threads;
+ unsigned num_steals;
+# 257
+ struct ReadyDeque *deques;
+
+ Cilk_time start_time;
+
+ Closure *invoke_main;
+
+
+ HookList *Cilk_init_global_hooks;
+ HookList *Cilk_init_per_worker_hooks;
+
+}
+# 206
+CilkReadOnlyParams;
+# 270
+typedef struct CilkGlobalState_s CilkGlobalState;
+
+typedef struct ___sue15{
+
+        CilkReadOnlyParams *Cilk_RO_params;
+# 279
+ CilkGlobalState *Cilk_global_state;
+
+}
+# 272
+CilkContext;
+# 285
+typedef struct ___sue16{
+     CilkClosureCache cache;
+     int self;
+     struct Cilk_im_descriptor im_descriptor [9];
+     size_t stackdepth;
+     Cilk_time last_cp_time;
+     Cilk_time cp_hack;
+     Cilk_time work_hack;
+     Cilk_time user_work;
+     Cilk_time user_critical_path;
+     unsigned rand_next;
+     int abort_flag;
+     int barrier_direction;
+     char __dummy[64];
+     CilkContext *context;
+# 303
+}
+# 285
+CilkWorkerState;
+# 305
+typedef struct ___sue17{
+
+ CilkContext *context;
+ int id;
+
+}
+# 305
+CilkChildParams;
+# 316
+extern void Cilk_dprintf(CilkWorkerState *const ws, const char *fmt,...);
+extern void Cilk_die_internal(CilkContext *const context, CilkWorkerState *const ws, const char *fmt,...);
+extern void Cilk_unalloca_internal(CilkWorkerState *const ws,
+       CilkStackFrame *f);
+# 324
+extern void *Cilk_internal_malloc(CilkWorkerState *const ws, size_t);
+extern void Cilk_internal_free(CilkWorkerState *const ws, void *p, size_t size);
+# 337
+extern CilkContext *Cilk_init(int*argc, char**argv);
+extern void Cilk_terminate(CilkContext *const context);
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+
+
+static inline Cilk_time Cilk_get_elapsed_time(CilkWorkerState *const ws)
+{
+     Cilk_time then=  ws->last_cp_time;
+     Cilk_time now=  Cilk_get_time();;
+# 351
+     ws->last_cp_time = now;
+     return now - then;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 364
+static inline int Cilk_internal_malloc_canonicalize(size_t size)
+{
+     if (size <= 16 && 16 >= 64) return 16;;
+     if (size <= 32 && 32 >= 64) return 32;;
+     if (size <= 64 && 64 >= 64) return 64;;
+     if (size <= 128 && 128 >= 64) return 128;;
+     if (size <= 256 && 256 >= 64) return 256;;
+     if (size <= 512 && 512 >= 64) return 512;;
+     if (size <= 1024 && 1024 >= 64) return 1024;;
+     if (size <= 2048 && 2048 >= 64) return 2048;;
+     if (size <= 4096 && 4096 >= 64) return 4096;;
+     return -1;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+
+static inline int Cilk_internal_malloc_size_to_bucket(size_t size)
+{
+     if (size <= 16 && 16 >= 64) return 0;;
+     if (size <= 32 && 32 >= 64) return 1;;
+     if (size <= 64 && 64 >= 64) return 2;;
+     if (size <= 128 && 128 >= 64) return 3;;
+     if (size <= 256 && 256 >= 64) return 4;;
+     if (size <= 512 && 512 >= 64) return 5;;
+     if (size <= 1024 && 1024 >= 64) return 6;;
+     if (size <= 2048 && 2048 >= 64) return 7;;
+     if (size <= 4096 && 4096 >= 64) return 8;;
+     return -1;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+
+static inline int Cilk_internal_malloc_bucket_to_size(int b)
+{
+     if (0 == b) return 16;;
+     if (1 == b) return 32;;
+     if (2 == b) return 64;;
+     if (3 == b) return 128;;
+     if (4 == b) return 256;;
+     if (5 == b) return 512;;
+     if (6 == b) return 1024;;
+     if (7 == b) return 2048;;
+     if (8 == b) return 4096;;
+     return -1;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 419
+static inline void Cilk_fence(void)
+{
+     CILK_MB();
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+
+
+static inline void Cilk_membar_StoreStore(void)
+{
+     __asm__ volatile  (   "sfence" :  :  : "memory");
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+
+
+static inline void Cilk_membar_StoreLoad(void)
+{
+     CILK_MB();
+}
+# 446
+extern int Cilk_sync(CilkWorkerState *const ws);
+extern int Cilk_exception_handler(CilkWorkerState *const ws, void *, int);
+extern void Cilk_set_result(CilkWorkerState *const ws,
+       void *resultp, int size);
+extern void Cilk_after_sync_slow_cp(CilkWorkerState *const ws,
+        Cilk_time *work, Cilk_time *cp);
+extern void Cilk_abort_standalone(CilkWorkerState *const ws);
+extern void Cilk_abort_slow(CilkWorkerState *const ws);
+extern void Cilk_event_new_thread(CilkWorkerState *const ws);
+extern void Cilk_destroy_frame(CilkWorkerState *const ws,
+          CilkStackFrame *f, size_t size);
+# 2 "/gsa/yktgsa/home/g/c/gcong/AMD/include/cilk/cilk-cilk2c-pre.h"
+static __attribute__((__unused__))const char*ident_cilk_cilk2c_pre=    "$HeadURL: https://bradley.csail.mit.edu/svn/repos/cilk/5.4.3/runtime/cilk-cilk2c-pre.h $ $LastChangedBy: bradley $ $Rev: 1465 $ $Date: 2007-08-19 20:44:57 $";
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 31
+static inline void *Cilk_internal_malloc_fast(CilkWorkerState *const ws,
+        size_t size)
+{
+     int bucket;
+     void *mem;
+     struct Cilk_im_descriptor *d;;
+# 40
+     if (size > 4096) 
+   return Cilk_internal_malloc(ws, size);
+
+     bucket = Cilk_internal_malloc_size_to_bucket(size);
+     d = ws->im_descriptor + bucket;
+
+
+     if ((mem=  d->free_list)) {
+   d->free_list = ((void **) mem)[0];
+   d->count++;
+# 55
+     } else {
+   mem = Cilk_internal_malloc(ws, size);
+     }
+
+     return mem;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 62
+static inline void Cilk_internal_free_fast(CilkWorkerState *const ws,
+            void *p, size_t size)
+{
+     int bucket;
+     struct Cilk_im_descriptor *d;
+
+     if (size > 4096) {
+   Cilk_internal_free(ws, p, size);
+   return;
+     }
+
+     bucket = Cilk_internal_malloc_size_to_bucket(size);
+     d = ws->im_descriptor + bucket;
+
+     if (d->count <= 0) 
+   Cilk_internal_free(ws, p, size);
+     else {
+   ((void **) p)[0] = d->free_list;
+   d->free_list = p;
+   d->count--;;
+# 87
+     }
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 90
+static inline void Cilk_destroy_frame_fast(CilkWorkerState *const ws,
+            CilkStackFrame *f, size_t size)
+{
+     { if (f->alloca_h) Cilk_unalloca_internal(ws, f); };
+# 99
+     Cilk_internal_free_fast(ws, f, size);
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 102
+static inline void *Cilk_create_frame(CilkWorkerState *const ws,
+       size_t size, CilkProcInfo *sig)
+{
+     CilkStackFrame *f=  Cilk_internal_malloc_fast(ws, size);
+     f->sig = sig;
+     f->alloca_h = (struct cilk_alloca_header *) 0;;
+
+
+     return (void *) f;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 113
+static inline void Cilk_cilk2c_push_frame( __attribute__((__unused__))CilkWorkerState*const ws,
+           __attribute__((__unused__))CilkStackFrame*frame)
+{;;;
+
+
+     Cilk_membar_StoreStore();
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 121
+static inline void *Cilk_cilk2c_init_frame(CilkWorkerState *const ws,
+            size_t s, CilkProcInfo *signat)
+{
+     volatile CilkStackFrame **t;
+     void *f;
+
+     f = Cilk_create_frame(ws, s, signat);
+     t = ws->cache.tail;;
+
+
+     *t = (CilkStackFrame *) f;
+     Cilk_membar_StoreStore();
+     ws->cache.tail = t + 1;
+     return f;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+
+static inline int Cilk_cilk2c_pop_check(CilkWorkerState *const ws)
+{
+     volatile CilkStackFrame **t;
+     t = ws->cache.tail;
+     Cilk_membar_StoreLoad();
+     return (ws->cache.exception>=  t);
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 148
+static inline void Cilk_cilk2c_pop(CilkWorkerState *const ws)
+{
+     --ws->cache.tail;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 153
+static inline void Cilk_cilk2c_event_new_thread_maybe(
+                                   __attribute__((__unused__))CilkWorkerState*const ws)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 160
+static inline void Cilk_cilk2c_start_thread_slow( __attribute__((__unused__))CilkWorkerState*const ws,
+           __attribute__((__unused__))CilkStackFrame*frame)
+{;;;
+# 166
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 168
+static inline void Cilk_cilk2c_before_return_fast(CilkWorkerState *const ws,
+        CilkStackFrame *frame,
+            size_t size)
+{;;
+
+
+     Cilk_destroy_frame_fast(ws, (CilkStackFrame *) frame, size);
+     --ws->cache.tail;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 178
+static inline void Cilk_cilk2c_before_return_slow(CilkWorkerState *const ws,
+        CilkStackFrame *frame,
+            size_t size)
+{
+     Cilk_cilk2c_before_return_fast(ws, frame, size);
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 344
+static inline void Cilk_cilk2c_start_thread_fast_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 350
+static inline void Cilk_cilk2c_start_thread_slow_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 356
+static inline void Cilk_cilk2c_at_thread_boundary_slow_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 362
+static inline void Cilk_cilk2c_before_spawn_fast_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 368
+static inline void Cilk_cilk2c_before_spawn_slow_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 374
+static inline void Cilk_cilk2c_after_spawn_fast_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 380
+static inline void Cilk_cilk2c_after_spawn_slow_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 386
+static inline void Cilk_cilk2c_at_sync_fast_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 392
+static inline void Cilk_cilk2c_before_sync_slow_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 398
+static inline void Cilk_cilk2c_after_sync_slow_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 404
+static inline void Cilk_cilk2c_before_return_fast_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 410
+static inline void Cilk_cilk2c_before_return_slow_cp(
+     __attribute__((__unused__))CilkWorkerState*const ws,   __attribute__((__unused__))CilkStackFrame*frame)
+{;;
+
+
+}
+# 504 "/gsa/yktgsa/home/g/c/gcong/AMD/include/cilk/cilk.h"
+extern int Cilk_flags_are_wrong_NODEBUG_NOTIMING_NOSTATS_please_recompile;
+static int              *Cilk_check_flags_at_link_time=  &Cilk_flags_are_wrong_NODEBUG_NOTIMING_NOSTATS_please_recompile;
+
+static __attribute__((__unused__))int Cilk_check_flags_at_link_time_hack(void);
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 508
+static int Cilk_check_flags_at_link_time_hack(void) {
+     return *Cilk_check_flags_at_link_time;
+}
+
+void Cilk_start(CilkContext *const context,
+  void( *main)(CilkWorkerState *const ws, void *args),
+  void *args,
+  int return_size);
+void Cilk_free(void *);
+void *Cilk_malloc_fixed(size_t);
+# 28 "/gsa/yktgsa/home/g/c/gcong/AMD/include/cilk/cilk-lib.cilkh"
+static __attribute__((__unused__))const char*ident_cilk_lib_h=    "$HeadURL: https://bradley.csail.mit.edu/svn/repos/cilk/5.4.3/runtime/cilk-lib.cilkh $ $LastChangedBy: bradley $ $Rev: 1699 $ $Date: 2007-08-19 20:44:57 $";
+# 35
+extern void *Cilk_alloca_internal(CilkWorkerState *const ws, size_t size);
+# 42
+extern void Cilk_really_exit     (CilkWorkerState*const _cilk_ws,int retval);
+# 52
+extern void Cilk_die_external(CilkContext *const context, const char *fmt,...);
+# 58
+typedef volatile int Cilk_lockvar[1];
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 60
+static inline void Cilk_lock_init(Cilk_lockvar v)
+{
+     v[0] = 0;
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 65
+static inline void Cilk_lock(Cilk_lockvar v)
+{
+     while (Cilk_xchg((int *)v, 1) != 0) {
+   while (v[0]) ;
+     }
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 72
+static inline void Cilk_unlock(Cilk_lockvar v)
+{
+     Cilk_membar_StoreStore();
+     v[0] = 0;
+}
+# 46 "/usr/include/stdio.h"
+typedef struct _IO_FILE FILE;
+# 62
+typedef struct _IO_FILE __FILE;
+# 325 "/usr/lib/gcc/x86_64-redhat-linux/3.4.6/include/stddef.h"
+typedef int wchar_t;
+# 354
+typedef unsigned wint_t;
+# 76 "/usr/include/wchar.h"
+typedef struct ___sue19
+{
+  int __count;
+  union ___sue18
+  {
+    wint_t __wch;
+    char __wchb[4];
+  }
+# 79
+  __value;
+# 84
+}
+# 76
+__mbstate_t;
+# 26 "/usr/include/_G_config.h"
+typedef struct ___sue20
+{
+  __off_t __pos;
+  __mbstate_t __state;
+}
+# 26
+_G_fpos_t;
+# 31
+typedef struct ___sue21
+{
+  __off64_t __pos;
+  __mbstate_t __state;
+}
+# 31
+_G_fpos64_t;
+# 37 "/usr/include/gconv.h"
+enum ___sue22
+{
+  __GCONV_OK=  0,
+  __GCONV_NOCONV,
+  __GCONV_NODB,
+  __GCONV_NOMEM,
+
+  __GCONV_EMPTY_INPUT,
+  __GCONV_FULL_OUTPUT,
+  __GCONV_ILLEGAL_INPUT,
+  __GCONV_INCOMPLETE_INPUT,
+
+  __GCONV_ILLEGAL_DESCRIPTOR,
+  __GCONV_INTERNAL_ERROR
+};
+# 55
+enum ___sue23
+{
+  __GCONV_IS_LAST=  0x0001,
+  __GCONV_IGNORE_ERRORS=  0x0002
+};
+# 63
+struct __gconv_step;
+struct __gconv_step_data;
+struct __gconv_loaded_object;
+struct __gconv_trans_data;
+# 70
+typedef int( *__gconv_fct) (struct __gconv_step *, struct __gconv_step_data *,
+       const unsigned char   **, const unsigned char   *,
+       unsigned char **, size_t *, int, int);
+
+
+typedef wint_t( *__gconv_btowc_fct) (struct __gconv_step *, unsigned char);
+
+
+typedef int( *__gconv_init_fct) (struct __gconv_step *);
+typedef void( *__gconv_end_fct) (struct __gconv_step *);
+# 83
+typedef int( *__gconv_trans_fct) (struct __gconv_step *,
+      struct __gconv_step_data *, void *,
+      const unsigned char   *,
+      const unsigned char   **,
+      const unsigned char   *, unsigned char **,
+      size_t *);
+
+
+typedef int( *__gconv_trans_context_fct) (void *, const unsigned char   *,
+       const unsigned char   *,
+       unsigned char *, unsigned char *);
+
+
+typedef int( *__gconv_trans_query_fct) (const char   *, const char   ***,
+     size_t *);
+
+
+typedef int( *__gconv_trans_init_fct) (void **, const char *);
+typedef void( *__gconv_trans_end_fct) (void *);
+
+struct __gconv_trans_data
+{
+
+  __gconv_trans_fct __trans_fct;
+  __gconv_trans_context_fct __trans_context_fct;
+  __gconv_trans_end_fct __trans_end_fct;
+  void *__data;
+  struct __gconv_trans_data *__next;
+};
+# 115
+struct __gconv_step
+{
+  struct __gconv_loaded_object *__shlib_handle;
+  const char   *__modname;
+
+  int __counter;
+
+  char *__from_name;
+  char *__to_name;
+
+  __gconv_fct __fct;
+  __gconv_btowc_fct __btowc_fct;
+  __gconv_init_fct __init_fct;
+  __gconv_end_fct __end_fct;
+# 132
+  int __min_needed_from;
+  int __max_needed_from;
+  int __min_needed_to;
+  int __max_needed_to;
+
+
+  int __stateful;
+
+  void *__data;
+};
+# 145
+struct __gconv_step_data
+{
+  unsigned char *__outbuf;
+  unsigned char *__outbufend;
+# 152
+  int __flags;
+# 156
+  int __invocation_counter;
+# 160
+  int __internal_use;
+
+  __mbstate_t *__statep;
+  __mbstate_t __state;
+# 167
+  struct __gconv_trans_data *__trans;
+};
+# 172
+typedef struct __gconv_info
+{
+  size_t __nsteps;
+  struct __gconv_step *__steps;
+  __extension__ struct __gconv_step_data __data [];
+} *
+# 172
+__gconv_t;
+# 45 "/usr/include/_G_config.h"
+typedef union ___sue25
+{
+  struct __gconv_info __cd;
+  struct ___sue24
+  {
+    struct __gconv_info __cd;
+    struct __gconv_step_data __data;
+  }
+# 48
+  __combined;
+# 53
+}
+# 45
+_G_iconv_t;
+# 55
+typedef __attribute__((__mode__ (                __HI__)))int _G_int16_t;
+typedef __attribute__((__mode__ (                __SI__)))int _G_int32_t;
+typedef __attribute__((__mode__ (                          __HI__)))unsigned _G_uint16_t;
+typedef __attribute__((__mode__ (                          __SI__)))unsigned _G_uint32_t;
+# 43 "/usr/lib/gcc/x86_64-redhat-linux/3.4.6/include/stdarg.h"
+typedef __builtin_va_list __gnuc_va_list;
+# 166 "/usr/include/libio.h"
+struct _IO_jump_t; struct _IO_FILE;
+# 176
+typedef void _IO_lock_t;
+# 182
+struct _IO_marker {
+  struct _IO_marker *_next;
+  struct _IO_FILE *_sbuf;
+# 188
+  int _pos;
+# 199
+};
+
+
+enum __codecvt_result
+{
+  __codecvt_ok,
+  __codecvt_partial,
+  __codecvt_error,
+  __codecvt_noconv
+};
+# 267
+struct _IO_FILE {
+  int _flags;
+# 273
+  char*_IO_read_ptr;
+  char*_IO_read_end;
+  char*_IO_read_base;
+  char*_IO_write_base;
+  char*_IO_write_ptr;
+  char*_IO_write_end;
+  char*_IO_buf_base;
+  char*_IO_buf_end;
+
+  char *_IO_save_base;
+  char *_IO_backup_base;
+  char *_IO_save_end;
+
+  struct _IO_marker *_markers;
+
+  struct _IO_FILE *_chain;
+
+  int _fileno;
+# 294
+  int _flags2;
+
+  __off_t _old_offset;
+# 300
+  unsigned short _cur_column;
+  signed char _vtable_offset;
+  char _shortbuf[1];
+# 306
+  _IO_lock_t *_lock;
+# 315
+  __off64_t _offset;
+# 324
+  void *__pad1;
+  void *__pad2;
+  void *__pad3;
+  void *__pad4;
+  size_t __pad5;
+
+  int _mode;
+
+  char _unused2[15 * sizeof( int) - 4 * sizeof( void *) - sizeof( size_t)];
+
+};
+
+
+typedef struct _IO_FILE _IO_FILE;
+
+
+struct _IO_FILE_plus;
+
+extern struct _IO_FILE_plus _IO_2_1_stdin_;
+extern struct _IO_FILE_plus _IO_2_1_stdout_;
+extern struct _IO_FILE_plus _IO_2_1_stderr_;
+# 360
+typedef __ssize_t __io_read_fn (void *__cookie, char *__buf, size_t __nbytes);
+# 368
+typedef __ssize_t __io_write_fn (void *__cookie, const char   *__buf,
+     size_t __n);
+# 377
+typedef int __io_seek_fn (void *__cookie, __off64_t *__pos, int __w);
+
+
+typedef int __io_close_fn (void *__cookie);
+# 412
+extern __attribute__((__nothrow__))int __underflow(_IO_FILE*);
+extern __attribute__((__nothrow__))int __uflow(_IO_FILE*);
+extern __attribute__((__nothrow__))int __overflow(_IO_FILE*,int);
+extern __attribute__((__nothrow__))wint_t __wunderflow(_IO_FILE*);
+extern __attribute__((__nothrow__))wint_t __wuflow(_IO_FILE*);
+extern __attribute__((__nothrow__))wint_t __woverflow(_IO_FILE*,wint_t);
+# 450
+extern __attribute__((__nothrow__))int _IO_getc(_IO_FILE*__fp);
+extern __attribute__((__nothrow__))int _IO_putc(int __c,_IO_FILE*__fp);
+extern __attribute__((__nothrow__))int _IO_feof(_IO_FILE*__fp);
+extern __attribute__((__nothrow__))int _IO_ferror(_IO_FILE*__fp);
+
+extern __attribute__((__nothrow__))int _IO_peekc_locked(_IO_FILE*__fp);
+# 461
+extern __attribute__((__nothrow__))void _IO_flockfile(_IO_FILE*);
+extern __attribute__((__nothrow__))void _IO_funlockfile(_IO_FILE*);
+extern __attribute__((__nothrow__))int _IO_ftrylockfile(_IO_FILE*);
+# 480
+extern int _IO_vfscanf (_IO_FILE *__restrict , const char *__restrict ,
+   __gnuc_va_list, int *__restrict );
+extern int _IO_vfprintf (_IO_FILE *__restrict ,const char *__restrict ,
+    __gnuc_va_list);
+extern __attribute__((__nothrow__))__ssize_t _IO_padn(_IO_FILE*,int,__ssize_t);
+extern __attribute__((__nothrow__))size_t _IO_sgetn(_IO_FILE*,void*,size_t);
+
+extern __attribute__((__nothrow__))__off64_t _IO_seekoff(_IO_FILE*,__off64_t,int,int);
+extern __attribute__((__nothrow__))__off64_t _IO_seekpos(_IO_FILE*,__off64_t,int);
+
+extern __attribute__((__nothrow__))void _IO_free_backup_area(_IO_FILE*);
+# 88 "/usr/include/stdio.h"
+typedef _G_fpos_t fpos_t;
+# 142
+extern struct _IO_FILE *stdin;
+extern struct _IO_FILE *stdout;
+extern struct _IO_FILE *stderr;
+# 154
+extern __attribute__((__nothrow__))int remove(const char*__filename);
+
+extern __attribute__((__nothrow__))int rename(const char*__old,const char*__new);
+# 166
+extern FILE *tmpfile (void);
+# 180
+extern __attribute__((__nothrow__))char*tmpnam(char*__s);
+# 186
+extern __attribute__((__nothrow__))char*tmpnam_r(char*__s);
+# 198
+extern __attribute__((__nothrow__,__malloc__))char*tempnam(const char*__dir,const char*__pfx);
+# 208
+extern int fclose (FILE *__stream);
+# 213
+extern int fflush (FILE *__stream);
+# 223
+extern int fflush_unlocked (FILE *__stream);
+# 243
+extern FILE *fopen (const char   *__restrict __filename,
+      const char   *__restrict __modes);
+# 249
+extern FILE *freopen (const char   *__restrict __filename,
+        const char   *__restrict __modes,
+        FILE *__restrict __stream);
+# 275
+extern __attribute__((__nothrow__))FILE*fdopen(int __fd,const char*__modes);
+# 299
+extern __attribute__((__nothrow__))void setbuf(FILE*__restrict __stream,char*__restrict __buf);
+# 303
+extern __attribute__((__nothrow__))int setvbuf(FILE*__restrict __stream,char*__restrict __buf,
+      int __modes, size_t __n);
+# 310
+extern __attribute__((__nothrow__))void setbuffer(FILE*__restrict __stream,char*__restrict __buf,
+         size_t __size);
+
+
+extern __attribute__((__nothrow__))void setlinebuf(FILE*__stream);
+# 323
+extern int fprintf (FILE *__restrict __stream,
+      const char   *__restrict __format,...);
+# 329
+extern int printf (const char   *__restrict __format,...);
+
+extern __attribute__((__nothrow__))int sprintf(char*__restrict __s,
+      const char   *__restrict __format,...);
+# 338
+extern int vfprintf (FILE *__restrict __s, const char   *__restrict __format,
+       __gnuc_va_list __arg);
+# 344
+extern int vprintf (const char   *__restrict __format, __gnuc_va_list __arg);
+
+extern __attribute__((__nothrow__))int vsprintf(char*__restrict __s,const char*__restrict __format,
+       __gnuc_va_list __arg);
+# 353
+extern __attribute__((__nothrow__,__format__ (
+
+                                                               __printf__, 3, 4)))
+# 353
+int snprintf        (char *__restrict __s, size_t __maxlen,
+       const char   *__restrict __format,...);
+
+
+extern __attribute__((__nothrow__,__format__ (
+
+                                                               __printf__, 3, 0)))
+# 357
+int vsnprintf        (char *__restrict __s, size_t __maxlen,
+        const char   *__restrict __format, __gnuc_va_list __arg);
+# 395
+extern int fscanf (FILE *__restrict __stream,
+     const char   *__restrict __format,...);
+# 401
+extern int scanf (const char   *__restrict __format,...);
+
+extern __attribute__((__nothrow__))int sscanf(const char*__restrict __s,
+     const char   *__restrict __format,...);
+# 437
+extern int fgetc (FILE *__stream);
+extern int getc (FILE *__stream);
+# 444
+extern int getchar (void);
+# 456
+extern int getc_unlocked (FILE *__stream);
+extern int getchar_unlocked (void);
+# 467
+extern int fgetc_unlocked (FILE *__stream);
+# 479
+extern int fputc (int __c, FILE *__stream);
+extern int putc (int __c, FILE *__stream);
+# 486
+extern int putchar (int __c);
+# 500
+extern int fputc_unlocked (int __c, FILE *__stream);
+# 508
+extern int putc_unlocked (int __c, FILE *__stream);
+extern int putchar_unlocked (int __c);
+# 516
+extern int getw (FILE *__stream);
+
+
+extern int putw (int __w, FILE *__stream);
+# 528
+extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream);
+# 535
+extern char *gets (char *__s);
+# 585
+extern int fputs (const char   *__restrict __s, FILE *__restrict __stream);
+# 591
+extern int puts (const char   *__s);
+# 598
+extern int ungetc (int __c, FILE *__stream);
+# 605
+extern size_t fread (void *__restrict __ptr, size_t __size,
+       size_t __n, FILE *__restrict __stream);
+# 611
+extern size_t fwrite (const void   *__restrict __ptr, size_t __size,
+        size_t __n, FILE *__restrict __s);
+# 633
+extern size_t fread_unlocked (void *__restrict __ptr, size_t __size,
+         size_t __n, FILE *__restrict __stream);
+extern size_t fwrite_unlocked (const void   *__restrict __ptr, size_t __size,
+          size_t __n, FILE *__restrict __stream);
+# 645
+extern int fseek (FILE *__stream, long __off,     int __whence);
+# 650
+extern long ftell     (FILE *__stream);
+# 655
+extern void rewind (FILE *__stream);
+# 694
+extern int fgetpos (FILE *__restrict __stream, fpos_t *__restrict __pos);
+# 699
+extern int fsetpos (FILE *__stream, const fpos_t   *__pos);
+# 722
+extern __attribute__((__nothrow__))void clearerr(FILE*__stream);
+
+extern __attribute__((__nothrow__))int feof(FILE*__stream);
+
+extern __attribute__((__nothrow__))int ferror(FILE*__stream);
+# 731
+extern __attribute__((__nothrow__))void clearerr_unlocked(FILE*__stream);
+extern __attribute__((__nothrow__))int feof_unlocked(FILE*__stream);
+extern __attribute__((__nothrow__))int ferror_unlocked(FILE*__stream);
+# 742
+extern void perror (const char   *__s);
+# 27 "/usr/include/bits/sys_errlist.h"
+extern int sys_nerr;
+extern const char   *const sys_errlist  [];
+# 754 "/usr/include/stdio.h"
+extern __attribute__((__nothrow__))int fileno(FILE*__stream);
+# 759
+extern __attribute__((__nothrow__))int fileno_unlocked(FILE*__stream);
+# 769
+extern FILE *popen (const char   *__command, const char   *__modes);
+# 775
+extern int pclose (FILE *__stream);
+# 781
+extern __attribute__((__nothrow__))char*ctermid(char*__s);
+# 809
+extern __attribute__((__nothrow__))void flockfile(FILE*__stream);
+# 813
+extern __attribute__((__nothrow__))int ftrylockfile(FILE*__stream);
+
+
+extern __attribute__((__nothrow__))void funlockfile(FILE*__stream);
+# 98 "/usr/include/stdlib.h"
+typedef struct ___sue26
+  {
+    int quot;
+    int rem;
+  }
+# 98
+div_t;
+# 106
+typedef struct ___sue27
+  {
+    long quot;
+    long rem;
+  }
+# 106
+ldiv_t;
+# 140
+extern __attribute__((__nothrow__))size_t __ctype_get_mb_cur_max(void);
+# 145
+extern __attribute__((__nothrow__,__pure__,__nonnull__ (
+                                                                                           1)))
+# 145
+double atof        (const char   *__nptr);
+
+
+extern __attribute__((__nothrow__,__pure__,__nonnull__ (
+                                                                                           1)))
+# 148
+int atoi        (const char   *__nptr);
+
+
+extern __attribute__((__nothrow__,__pure__,__nonnull__ (
+                                                                                           1)))
+# 151
+long atol            (const char   *__nptr);
+# 158
+              extern __attribute__((__nothrow__,__pure__,__nonnull__ (
+                                                                                           1)))
+# 158
+              long long atoll            (const char   *__nptr);
+# 165
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                               1)))
+# 165
+double strtod        (const char   *__restrict __nptr,
+        char **__restrict __endptr);
+# 183
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 183
+long strtol            (const char   *__restrict __nptr,
+   char **__restrict __endptr, int __base);
+
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 187
+unsigned long strtoul            (const char   *__restrict __nptr,
+      char **__restrict __endptr, int __base);
+# 195
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 195
+long long strtoq            (const char   *__restrict __nptr,
+        char **__restrict __endptr, int __base);
+# 200
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 200
+unsigned long long strtouq            (const char   *__restrict __nptr,
+           char **__restrict __endptr, int __base);
+# 209
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 209
+long long strtoll            (const char   *__restrict __nptr,
+         char **__restrict __endptr, int __base);
+# 214
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 214
+unsigned long long strtoull            (const char   *__restrict __nptr,
+     char **__restrict __endptr, int __base);
+# 277
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 277
+double __strtod_internal        (const char   *__restrict __nptr,
+     char **__restrict __endptr, int __group);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1)))
+# 280
+float __strtof_internal        (const char   *__restrict __nptr,
+    char **__restrict __endptr, int __group);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                                   1)))
+# 283
+long double __strtold_internal        (const char   *__restrict __nptr,
+           char **__restrict __endptr,
+           int __group);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+
+                                                                1)))
+# 287
+long __strtol_internal            (const char   *__restrict __nptr,
+       char **__restrict __endptr,
+       int __base, int __group);
+# 294
+extern __attribute__((__nothrow__,__nonnull__ (
+
+
+                                                                1)))
+# 294
+unsigned long __strtoul_internal            (const char   *__restrict __nptr,
+          char **__restrict __endptr,
+          int __base, int __group);
+# 303
+extern __attribute__((__nothrow__,__nonnull__ (
+
+
+                                                                1)))
+# 303
+long long __strtoll_internal            (const char   *__restrict __nptr,
+      char **__restrict __endptr,
+      int __base, int __group);
+# 311
+extern __attribute__((__nothrow__,__nonnull__ (
+# 315
+                                                                1)))
+# 311
+unsigned long long __strtoull_internal            (const char   *__restrict __nptr,
+
+         char **__restrict __endptr,
+         int __base, int __group);
+# 424
+extern __attribute__((__nothrow__))char*l64a(long __n);
+
+
+extern __attribute__((__nothrow__,__pure__,__nonnull__ (
+                                                                                           1)))
+# 427
+long a64l            (const char   *__s);
+# 440
+extern __attribute__((__nothrow__))long random(void);
+
+
+extern __attribute__((__nothrow__))void srandom(unsigned __seed);
+# 449
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                 2)))
+# 449
+char        *initstate (unsigned __seed,     char *__statebuf,
+   size_t __statelen);
+# 454
+extern __attribute__((__nothrow__,__nonnull__ (                                                     1)))char*setstate(char*__statebuf);
+# 462
+struct random_data
+  {
+    int32_t *fptr;
+    int32_t *rptr;
+    int32_t *state;
+    int rand_type;
+    int rand_deg;
+    int rand_sep;
+    int32_t *end_ptr;
+  };
+
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                                1, 2)))
+# 473
+int random_r        (struct random_data *__restrict __buf,
+       int32_t *__restrict __result);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                2)))
+# 476
+int srandom_r        (unsigned __seed,     struct random_data *__buf);
+
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+
+                                                                2, 4)))
+# 479
+int initstate_r        (unsigned __seed,     char *__restrict __statebuf,
+   size_t __statelen,
+   struct random_data *__restrict __buf);
+
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1, 2)))
+# 484
+int setstate_r        (char *__restrict __statebuf,
+         struct random_data *__restrict __buf);
+# 493
+extern __attribute__((__nothrow__))int rand(void);
+
+extern __attribute__((__nothrow__))void srand(unsigned __seed);
+# 500
+extern __attribute__((__nothrow__))int rand_r(unsigned*__seed);
+# 508
+extern __attribute__((__nothrow__))double drand48(void);
+extern __attribute__((__nothrow__,__nonnull__ (                                                                  1)))double erand48(unsigned short*__xsubi);
+
+
+extern __attribute__((__nothrow__))long lrand48(void);
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 513
+long nrand48            (unsigned short            *__xsubi);
+# 517
+extern __attribute__((__nothrow__))long mrand48(void);
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 518
+long jrand48            (unsigned short            *__xsubi);
+# 522
+extern __attribute__((__nothrow__))void srand48(long __seedval);
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 523
+unsigned short            *seed48 (unsigned short              *__seed16v);
+
+extern __attribute__((__nothrow__,__nonnull__ (                                                                1)))void lcong48(unsigned short*__param);
+# 531
+struct drand48_data
+  {
+    unsigned short __x    [3];
+    unsigned short __old_x    [3];
+    unsigned short __c;
+    unsigned short __init;
+    unsigned long long __a;
+  };
+
+
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                                1, 2)))
+# 541
+int drand48_r        (struct drand48_data *__restrict __buffer,
+        double *__restrict __result);
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                                                1, 2)))
+# 543
+int erand48_r        (unsigned short            *__xsubi,
+        struct drand48_data *__restrict __buffer,
+        double *__restrict __result);
+
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1, 2)))
+# 548
+int lrand48_r        (struct drand48_data *__restrict __buffer,
+        long     *__restrict __result);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+
+                                                                1, 2)))
+# 551
+int nrand48_r        (unsigned short            *__xsubi,
+        struct drand48_data *__restrict __buffer,
+        long     *__restrict __result);
+# 557
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1, 2)))
+# 557
+int mrand48_r        (struct drand48_data *__restrict __buffer,
+        long     *__restrict __result);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+
+                                                                1, 2)))
+# 560
+int jrand48_r        (unsigned short            *__xsubi,
+        struct drand48_data *__restrict __buffer,
+        long     *__restrict __result);
+# 566
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                2)))
+# 566
+int srand48_r        (long __seedval,     struct drand48_data *__buffer);
+
+
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                                 1, 2)))
+# 569
+int seed48_r        (unsigned short              *__seed16v,
+       struct drand48_data *__buffer);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                1, 2)))
+# 572
+int lcong48_r        (unsigned short            *__param,
+        struct drand48_data *__buffer);
+# 584
+extern __attribute__((__nothrow__,__malloc__))void*malloc(size_t __size);
+
+extern __attribute__((__nothrow__,__malloc__))void*calloc(size_t __nmemb,size_t __size);
+# 595
+extern __attribute__((__nothrow__,__malloc__))void*realloc(void*__ptr,size_t __size);
+
+extern __attribute__((__nothrow__))void free(void*__ptr);
+# 602
+extern __attribute__((__nothrow__))void cfree(void*__ptr);
+# 33 "/usr/include/alloca.h"
+extern __attribute__((__nothrow__))void*alloca(size_t __size);
+# 611 "/usr/include/stdlib.h"
+extern __attribute__((__nothrow__,__malloc__))void*valloc(size_t __size);
+# 622
+extern __attribute__((__nothrow__,__noreturn__))void abort(void);
+# 626
+extern __attribute__((__nothrow__,__nonnull__ (                                                      1)))int atexit(void(*__func)(void));
+# 632
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 632
+int on_exit        (void( *__func) (int __status, void *__arg), void *__arg);
+# 640
+extern __attribute__((__nothrow__,__noreturn__))void exit(int __status);
+# 654
+extern __attribute__((__nothrow__,__nonnull__ (                                                       1)))char*getenv(const char*__name);
+# 659
+extern __attribute__((__nothrow__,__nonnull__ (                                                                1)))char*__secure_getenv(const char*__name);
+# 665
+extern __attribute__((__nothrow__,__nonnull__ (                                               1)))int putenv(char*__string);
+# 671
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                2)))
+# 671
+int setenv        (const char   *__name, const char   *__value, int __replace);
+# 675
+extern __attribute__((__nothrow__))int unsetenv(const char*__name);
+# 682
+extern __attribute__((__nothrow__))int clearenv(void);
+# 691
+extern __attribute__((__nothrow__,__nonnull__ (                                                   1)))char*mktemp(char*__template);
+# 702
+extern __attribute__((__nonnull__ (                                1)))int mkstemp(char*__template);
+# 721
+extern __attribute__((__nothrow__,__nonnull__ (                                                    1)))char*mkdtemp(char*__template);
+# 730
+extern int system (const char   *__command);
+# 749
+extern __attribute__((__nothrow__))char*realpath(const char*__restrict __name,
+         char *__restrict __resolved);
+# 757
+typedef int( *__compar_fn_t) (const void   *, const void   *);
+# 767
+extern __attribute__((__nonnull__ (
+
+                                  1, 2, 5)))
+# 767
+void        *bsearch (const void   *__key, const void   *__base,
+        size_t __nmemb, size_t __size, __compar_fn_t __compar);
+# 773
+extern __attribute__((__nonnull__ (
+                                                          1, 4)))
+# 773
+void qsort        (void *__base, size_t __nmemb, size_t __size,
+     __compar_fn_t __compar);
+# 778
+extern __attribute__((__nothrow__,const))int abs(int __x);
+extern __attribute__((__nothrow__,const))long labs(long __x);
+# 792
+extern __attribute__((__nothrow__,const))div_t div(int __numer,int __denom);
+
+extern __attribute__((__nothrow__,const))ldiv_t ldiv(long __numer,long __denom);
+# 814
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                        3, 4)))
+# 814
+char        *ecvt (double __value, int __ndigit, int *__restrict __decpt,
+     int *__restrict __sign);
+# 820
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                                        3, 4)))
+# 820
+char        *fcvt (double __value, int __ndigit, int *__restrict __decpt,
+     int *__restrict __sign);
+# 826
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                3)))
+# 826
+char        *gcvt (double __value, int __ndigit, char *__buf);
+# 832
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                3, 4)))
+# 832
+char        *qecvt (long double __value, int __ndigit,
+      int *__restrict __decpt, int *__restrict __sign);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                3, 4)))
+# 835
+char        *qfcvt (long double __value, int __ndigit,
+      int *__restrict __decpt, int *__restrict __sign);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                3)))
+# 838
+char        *qgcvt (long double __value, int __ndigit, char *__buf);
+# 844
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                              3, 4, 5)))
+# 844
+int ecvt_r        (double __value, int __ndigit, int *__restrict __decpt,
+     int *__restrict __sign, char *__restrict __buf,
+     size_t __len);
+extern __attribute__((__nothrow__,__nonnull__ (
+
+                                                                              3, 4, 5)))
+# 847
+int fcvt_r        (double __value, int __ndigit, int *__restrict __decpt,
+     int *__restrict __sign, char *__restrict __buf,
+     size_t __len);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+
+                                                                3, 4, 5)))
+# 851
+int qecvt_r        (long double __value, int __ndigit,
+      int *__restrict __decpt, int *__restrict __sign,
+      char *__restrict __buf, size_t __len);
+
+extern __attribute__((__nothrow__,__nonnull__ (
+
+
+                                                                3, 4, 5)))
+# 855
+int qfcvt_r        (long double __value, int __ndigit,
+      int *__restrict __decpt, int *__restrict __sign,
+      char *__restrict __buf, size_t __len);
+# 866
+extern __attribute__((__nothrow__))int mblen(const char*__s,size_t __n);
+
+
+extern __attribute__((__nothrow__))int mbtowc(wchar_t*__restrict __pwc,
+     const char   *__restrict __s, size_t __n);
+
+
+extern __attribute__((__nothrow__))int wctomb(char*__s,wchar_t __wchar);
+# 877
+extern __attribute__((__nothrow__))size_t mbstowcs(wchar_t*__restrict __pwcs,
+   const char   *__restrict __s, size_t __n);
+
+extern __attribute__((__nothrow__))size_t wcstombs(char*__restrict __s,
+   const wchar_t   *__restrict __pwcs, size_t __n);
+# 891
+extern __attribute__((__nothrow__,__nonnull__ (                                                          1)))int rpmatch(const char*__response);
+# 954
+extern __attribute__((__nothrow__,__nonnull__ (
+                                                                1)))
+# 954
+int getloadavg        (double          *__loadavg,int __nelem);
+# 8 "/gsa/yktgsa-h1/00/gcong/AMD/5.4.3/Work/graph.h"
+typedef struct vertex{
+   int n_neighbors;
+   int *my_neighbors;
+# 19
+   int edge_start;
+}
+# 8
+V;
+# 22
+typedef struct edge{
+ int v1;int v2;
+
+ int workspace;
+ }
+# 22
+E;
+# 28
+int initialize_graph(const char *file, V**graph,  int *nVertices);
+# 7 "/gsa/yktgsa-h1/00/gcong/AMD/5.4.3/Work/ST.cilk"
+int *color;
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+
+V*r_graph (int n,int m)
+{
+    int i;int j;int v1;int v2;int v;int top;int tail;int r;
+    E *L;
+    char *filename;
+    FILE *fp;
+    char *color;
+    int * *M;
+    int *D;int*info;int*stack;
+    V*graph;
+
+    L=(E *) malloc(sizeof(E)*m);
+    j=0;
+    for (i=0; i<m; i++) 
+     {
+ v1=(int)(drand48()*n)%n;
+ v2=(int)(drand48()*n)%n;
+ while (v2==v1) v2=(int)(drand48()*n)%n;
+        L[j].v1=v1;
+ L[j++].v2=v2;
+     }
+    printf(" number of edges got is %d\n",j);
+
+    M = malloc(sizeof(int *)*n);
+    D = malloc(sizeof(int)*n);
+
+    for (i=0; i<n; i++) D[i]=0;
+
+    for (i=0; i<m; i++) {
+ D[L[i].v1]++;
+ D[L[i].v2]++;
+    }
+
+    for (i=0; i<n; i++) {
+ M[i]=malloc(sizeof(int)*(D[i]+2));
+    }
+    printf("finished allocating structures\n");
+
+    for (i=0; i<n; i++) D[i]=0;
+
+    for (i=0; i<m; i++) 
+    {
+  r=0;
+  for (j=0; j<D[L[i].v1]; j++) 
+   if (L[i].v2==M[L[i].v1][j]) r=1;
+  if (r==1) continue;
+
+  M[L[i].v1][D[L[i].v1]]=L[i].v2;
+        M[L[i].v2][D[L[i].v2]]=L[i].v1;
+        D[L[i].v1]++;
+        D[L[i].v2]++;
+    }
+    free(L);
+    printf("finished generating the matrix\n");
+    printf("checking if is connected\n");
+    printf("n is %d\n",n);
+    color = malloc(sizeof(char)*n);
+    stack = malloc(sizeof(int)*n);
+    info = malloc(sizeof(int)*n);
+
+    if (!color|| ! stack || ! info) {
+      printf("error allocating memory\n");
+      exit(0);
+    }
+
+    for (i=0; i<n; i++) color[i]=0;
+    top=-1;
+    tail=0;
+
+    for (i=0; i<n; i++) 
+    {
+      if (color[i]==1) continue;
+      else info[tail++]=i;
+
+      stack[++top]=i;
+      color[i]=1;
+      while (top!=-1) {
+      v = stack[top];
+      top--;
+
+      for (j=0; j<D[v]; j++) 
+        if (color[M[v][j]]==0) {
+          top++;
+   stack[top]=M[v][j];
+   color[M[v][j]]=1;
+         }
+      }
+    }
+
+    printf("checking done,tail is %d\n",tail);
+    for (i=0; i<tail-1; i++) 
+    {
+       M[info[i]][D[info[i]]++]=info[i+1];
+       M[info[i+1]][D[info[i+1]]++]=info[i];
+    }
+
+   graph = (V*)malloc(n *sizeof( V));
+   if (graph==((void*)0)) 
+   {
+        printf("1 mem alloc error\n");
+        return (( void *)0);
+   }
+   for (i=0; i<n; i++) 
+   {
+
+
+   graph[i].n_neighbors=D[i];
+        graph[i].my_neighbors=(int *)malloc(D[i]*sizeof(int));
+
+        if (graph[i].my_neighbors==((void*)0)) {
+                printf("2 mem alloc error\n");
+                return ((void *)0);
+        }
+        for (j=0; j<D[i]; j++) 
+        {
+            graph[i].my_neighbors[j]=M[i][j];
+
+        }
+   }
+
+    printf("done generating graph structure\n");
+    for (i=0; i<n; i++) 
+     free(M[i]);
+    free(M);
+    free(D);
+    free(stack);
+    free(info);
+    free(color);
+    return (graph);
+ }
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 142
+V*torus (int k)
+{
+  int *Buff;
+  int **Adj;
+  int i;int j;int l;int s;
+  V*graph;
+  int n=  k*k;
+
+  Buff = malloc(sizeof(int)*n);
+  Adj = malloc(sizeof(int*)*n);
+  for (i=0; i<n; i++) Adj[i]=malloc(sizeof(int)*4);
+
+
+  for (i=0; i<n; i++) Buff[i]=i;
+
+  for (i=0; i<n/2; i++) {
+ l=(int)(drand48()*n)%n;
+  s=(int)(drand48()*n)%n;
+ j=Buff[l];
+ Buff[l]=Buff[s];
+ Buff[s]=j;
+  }
+
+  for (i=0; i<k; i++) 
+    {
+      for (j=0; j<k; j++) 
+ {
+   Adj[Buff[i*k+j]][0]= Buff[((k+i-1)%k)*k+j];
+   Adj[Buff[i*k+j]][1]= Buff[((i+1)%k)*k+j];
+   Adj[Buff[i*k+j]][2]= Buff[i*k+((k+j-1)%k)];
+   Adj[Buff[i*k+j]][3]= Buff[i*k+((j+1)%k)];
+ }
+
+    }
+# 195
+   graph = (V*)malloc(n *sizeof( V));
+   if (graph==((void*)0)) 
+   {
+        printf("1 mem alloc error\n");
+        return (( void *)0);
+   }
+   for (i=0; i<n; i++) 
+   {
+
+
+   graph[i].n_neighbors=4;
+        graph[i].my_neighbors=(int *)malloc(4*sizeof(int));
+
+        if (graph[i].my_neighbors==((void*)0)) {
+                printf("2 mem alloc error\n");
+                return ((void *)0);
+        }
+        for (j=0; j<4; j++) 
+        {
+            graph[i].my_neighbors[j]=Adj[i][j];
+
+        }
+   }
+
+  for (i=0; i<n; i++) free(Adj[i]);
+  free(Adj);
+  free(Buff);
+  return (graph);
+
+ }
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+V*k_graph (int n, int k)
+{
+  int neighbor;
+  char *visited;
+  int *stack;int*super;
+  int i;int j;int u;int v;int nextn;int top=-1;int n_comp=0;int rep;int s;
+  int **array;int*counter;
+  V*graph;
+
+  int TIMES=3;
+  int THRESHOLD=100;
+
+  array = malloc(sizeof(int *)*n);
+  visited = malloc(sizeof(char)*n);
+  counter = malloc(sizeof(int) *n);
+
+  if (array==((void*)0) || visited==((void *)0) || counter==((void *)0)) 
+    {
+      printf("not enough mem\n");
+      exit(-1);
+    }
+
+  for (i=0; i<n; i++) 
+  {
+    array[i]=malloc(sizeof(int)*k*TIMES);
+    if (array[i]==((void*)0)) {
+      printf("not enough mem\n");
+      exit(-1);
+    }
+    counter[i]=0;
+    visited[i]=0;
+  }
+
+
+  stack = malloc(sizeof(int)*(n)/2);
+  super = malloc(sizeof(int)*(n)/2);
+
+  if (stack==((void*)0) || super==((void *)0)) 
+    {
+      printf("not enough mem\n");
+      exit(-1);
+    }
+
+  for (i=0; i<n; i++) 
+  {
+     for (j=counter[i]; j<k; j++) 
+     {
+      if (i<n-THRESHOLD) 
+         neighbor=(int)(drand48()*(n-i))%(n-i)+i;
+        else neighbor=(int)(drand48()*THRESHOLD)%(THRESHOLD);
+  rep=0;
+  for (s=0; s<counter[i]; s++) 
+      if (array[i][s]==neighbor) rep=1;
+  while (rep==1) 
+  {
+   rep=0;
+   if (i<n-THRESHOLD) 
+          neighbor=(int)(drand48()*(n-i))%(n-i)+i;
+         else neighbor=(int)(drand48()*THRESHOLD)%(THRESHOLD);
+   for (s=0; s<counter[i]; s++) 
+       if (array[i][s]==neighbor) rep=1;
+  }
+# 293
+ while (counter[neighbor]>TIMES*k-1|| neighbor==i) neighbor=(neighbor+1)%n;
+        array[i][counter[i]]=neighbor;
+        counter[i]++;
+        array[neighbor][counter[neighbor]]=i;
+        counter[neighbor]++;
+     }
+  }
+
+  printf("check if it is connected\n");
+
+
+  for (i=0; i<n; i++) 
+    {
+      if (!visited[i]) {
+ visited[i]=1;
+ stack[++top]=i;
+ super[n_comp++]=i;
+
+ while (top!=-1) 
+   {
+     v = stack[top];
+     top--;
+
+     for (j=0; j<counter[v]; j++) {
+       nextn = array[v][j];
+       if (!visited[nextn]) {
+  visited[nextn]=1;
+  stack[++top]=nextn;
+       }
+     }
+   }
+      }
+    }
+
+  for (i=1; i<n_comp; i++) 
+    {
+      u = super[i];
+      v = super[i-1];
+      array[u][counter[u]++]=v;
+      array[v][counter[v]++]=u;
+    }
+
+   graph = (V*)malloc(n *sizeof( V));
+   if (graph==((void*)0)) 
+   {
+        printf("1 mem alloc error\n");
+        return (( void *)0);
+   }
+   for (i=0; i<n; i++) 
+   {
+
+
+   graph[i].n_neighbors=counter[i];
+        graph[i].my_neighbors=(int *)malloc(counter[i]*sizeof(int));
+
+        if (graph[i].my_neighbors==((void*)0)) {
+                printf("2 mem alloc error\n");
+                return ((void *)0);
+        }
+        for (j=0; j<counter[i]; j++) 
+        {
+            graph[i].my_neighbors[j]=array[i][j];
+
+        }
+   }
+
+  for (i=0; i<n; i++) free(array[i]);
+  free(array);
+  free(counter);
+  free(stack);
+  free(super);
+  free(visited);
+  return (graph);
+}
+
+struct _cilk_traverse_frame{CilkStackFrame header;struct{V*G;int r;}scope0;struct{int i;int v;}scope1;};struct _cilk_traverse_args{V*G;int r;};static void _cilk_traverse_slow(CilkWorkerState*const _cilk_ws,struct _cilk_traverse_frame*_cilk_frame);static CilkProcInfo _cilk_traverse_sig[]={{0,sizeof(struct _cilk_traverse_frame),_cilk_traverse_slow,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_FAST_PROCEDURE
+# 368
+void traverse     (CilkWorkerState*const _cilk_ws,V*G,int r){struct _cilk_traverse_frame*_cilk_frame;CILK2C_INIT_FRAME(_cilk_frame,sizeof(struct _cilk_traverse_frame),_cilk_traverse_sig);CILK2C_START_THREAD_FAST();
+{
+   int i;int v;
+
+   for (i=0; i<G[r].n_neighbors; i++) 
+   {
+      v = G[r].my_neighbors[i];
+      if (color[v]==0) {
+  color[v]=1;
+  {_cilk_frame->header.entry=1;_cilk_frame->scope0.G=G;_cilk_frame->scope0.r=r;_cilk_frame->scope1.i=i;CILK2C_BEFORE_SPAWN_FAST();CILK2C_PUSH_FRAME(_cilk_frame);traverse(_cilk_ws,G,v);CILK2C_XPOP_FRAME_NORESULT(_cilk_frame,/* return nothing */);CILK2C_AFTER_SPAWN_FAST();}
+      }
+   }
+CILK2C_AT_SYNC_FAST();{CILK2C_BEFORE_RETURN_FAST();return;}}}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_SLOW_PROCEDURE
+# 368
+static void _cilk_traverse_slow(CilkWorkerState*const _cilk_ws,struct _cilk_traverse_frame*_cilk_frame){V*G;int r;CILK2C_START_THREAD_SLOW();switch (_cilk_frame->header.entry) {case 1: goto _cilk_sync1;case 2: goto _cilk_sync2;}G=_cilk_frame->scope0.G;r=_cilk_frame->scope0.r;
+{
+   int i;int v;
+
+   for (i=0; i<G[r].n_neighbors; i++) 
+   {
+      v = G[r].my_neighbors[i];
+      if (color[v]==0) {
+  color[v]=1;
+  {_cilk_frame->header.entry=1;_cilk_frame->scope0.G=G;_cilk_frame->scope0.r=r;_cilk_frame->scope1.i=i;CILK2C_BEFORE_SPAWN_SLOW();CILK2C_PUSH_FRAME(_cilk_frame);traverse(_cilk_ws,G,v);CILK2C_XPOP_FRAME_NORESULT(_cilk_frame,/* return nothing */);CILK2C_AFTER_SPAWN_SLOW();if (0) {_cilk_sync1:G=_cilk_frame->scope0.G;r=_cilk_frame->scope0.r;i=_cilk_frame->scope1.i;}CILK2C_AT_THREAD_BOUNDARY_SLOW();}
+      }
+   }
+{CILK2C_BEFORE_SYNC_SLOW();_cilk_frame->header.entry=2;if (CILK2C_SYNC) {return;_cilk_sync2:;}CILK2C_AFTER_SYNC_SLOW();CILK2C_AT_THREAD_BOUNDARY_SLOW();}{CILK2C_SET_NORESULT();CILK2C_BEFORE_RETURN_SLOW();return;}}}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 368
+static void _cilk_traverse_import(CilkWorkerState*const _cilk_ws,void*_cilk_procargs_v)
+{(void)_cilk_ws;(void)_cilk_procargs_v;traverse(_cilk_ws,((struct _cilk_traverse_args*)_cilk_procargs_v)->G,((struct _cilk_traverse_args*)_cilk_procargs_v)->r);
+# 380
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 368
+void mt_traverse(CilkContext*const context,V*G,int r)
+{struct _cilk_traverse_args*_cilk_procargs;_cilk_procargs=(struct _cilk_traverse_args*)Cilk_malloc_fixed(sizeof(struct _cilk_traverse_args));_cilk_procargs->G=G;_cilk_procargs->r=r;Cilk_start(context,_cilk_traverse_import,_cilk_procargs,0);Cilk_free(_cilk_procargs);
+# 380
+}
+
+struct _cilk_ST_frame{CilkStackFrame header;struct{V*G;int n;}scope0;struct{int i;int t;}scope1;};struct _cilk_ST_args{V*G;int n;};static void _cilk_ST_slow(CilkWorkerState*const _cilk_ws,struct _cilk_ST_frame*_cilk_frame);static CilkProcInfo _cilk_ST_sig[]={{0,sizeof(struct _cilk_ST_frame),_cilk_ST_slow,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_FAST_PROCEDURE
+# 382
+void ST     (CilkWorkerState*const _cilk_ws,V*G,int n){struct _cilk_ST_frame*_cilk_frame;CILK2C_INIT_FRAME(_cilk_frame,sizeof(struct _cilk_ST_frame),_cilk_ST_sig);CILK2C_START_THREAD_FAST();
+{
+    int i;int t;
+
+    color = (int *) malloc(sizeof(int)*n);
+    for (i=0; i<n; i++) color[i]=0;
+    {_cilk_frame->header.entry=1;CILK2C_BEFORE_SPAWN_FAST();CILK2C_PUSH_FRAME(_cilk_frame);traverse(_cilk_ws,G,0);CILK2C_XPOP_FRAME_NORESULT(_cilk_frame,/* return nothing */);CILK2C_AFTER_SPAWN_FAST();}
+    CILK2C_AT_SYNC_FAST();
+    free(color);
+{CILK2C_BEFORE_RETURN_FAST();return;}}}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_SLOW_PROCEDURE
+# 382
+static void _cilk_ST_slow(CilkWorkerState*const _cilk_ws,struct _cilk_ST_frame*_cilk_frame){V*G;int n;CILK2C_START_THREAD_SLOW();switch (_cilk_frame->header.entry) {case 1: goto _cilk_sync1;case 2: goto _cilk_sync2;}G=_cilk_frame->scope0.G;n=_cilk_frame->scope0.n;
+{
+    int i;int t;
+
+    color = (int *) malloc(sizeof(int)*n);
+    for (i=0; i<n; i++) color[i]=0;
+    {_cilk_frame->header.entry=1;CILK2C_BEFORE_SPAWN_SLOW();CILK2C_PUSH_FRAME(_cilk_frame);traverse(_cilk_ws,G,0);CILK2C_XPOP_FRAME_NORESULT(_cilk_frame,/* return nothing */);CILK2C_AFTER_SPAWN_SLOW();if (0) {_cilk_sync1:;}CILK2C_AT_THREAD_BOUNDARY_SLOW();}
+    {CILK2C_BEFORE_SYNC_SLOW();_cilk_frame->header.entry=2;if (CILK2C_SYNC) {return;_cilk_sync2:;}CILK2C_AFTER_SYNC_SLOW();CILK2C_AT_THREAD_BOUNDARY_SLOW();}
+    free(color);
+{CILK2C_SET_NORESULT();CILK2C_BEFORE_RETURN_SLOW();return;}}}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 382
+static void _cilk_ST_import(CilkWorkerState*const _cilk_ws,void*_cilk_procargs_v)
+{(void)_cilk_ws;(void)_cilk_procargs_v;ST(_cilk_ws,((struct _cilk_ST_args*)_cilk_procargs_v)->G,((struct _cilk_ST_args*)_cilk_procargs_v)->n);
+# 391
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 382
+void mt_ST(CilkContext*const context,V*G,int n)
+{struct _cilk_ST_args*_cilk_procargs;_cilk_procargs=(struct _cilk_ST_args*)Cilk_malloc_fixed(sizeof(struct _cilk_ST_args));_cilk_procargs->G=G;_cilk_procargs->n=n;Cilk_start(context,_cilk_ST_import,_cilk_procargs,0);Cilk_free(_cilk_procargs);
+# 391
+}
+
+struct _cilk_cilk_main_frame{CilkStackFrame header;struct{int argc;char**argv;}scope0;struct{V*G;E*El;int n_vertices;int n_edges;int t;int size;Cilk_time tm_begin;Cilk_time tm_elapsed;Cilk_time wk_begin;Cilk_time wk_elapsed;Cilk_time cp_begin;Cilk_time cp_elapsed;}scope1;};struct _cilk_cilk_main_args{int _cilk_proc_result;int argc;char**argv;};static void _cilk_cilk_main_slow(CilkWorkerState*const _cilk_ws,struct _cilk_cilk_main_frame*_cilk_frame);static CilkProcInfo _cilk_cilk_main_sig[]={{sizeof(int),sizeof(struct _cilk_cilk_main_frame),_cilk_cilk_main_slow,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_FAST_PROCEDURE
+# 393
+int cilk_main(CilkWorkerState*const _cilk_ws,int argc,char**argv){struct _cilk_cilk_main_frame*_cilk_frame;CILK2C_INIT_FRAME(_cilk_frame,sizeof(struct _cilk_cilk_main_frame),_cilk_cilk_main_sig);CILK2C_START_THREAD_FAST();
+{
+ V*G;
+ E*El;
+ int n_vertices=100000;int n_edges=400000;int t;int size;
+ Cilk_time tm_begin;Cilk_time tm_elapsed;
+ Cilk_time wk_begin;Cilk_time wk_elapsed;
+ Cilk_time cp_begin;Cilk_time cp_elapsed;
+
+  G=r_graph(n_vertices,n_edges);
+ printf("r_graph done\n");
+
+ CILK2C_AT_SYNC_FAST();
+ cp_begin = Cilk_user_critical_path;
+ wk_begin = Cilk_user_work;
+ tm_begin = Cilk_get_wall_time();
+ {_cilk_frame->header.entry=2;_cilk_frame->scope1.tm_begin=tm_begin;_cilk_frame->scope1.wk_begin=wk_begin;_cilk_frame->scope1.cp_begin=cp_begin;CILK2C_BEFORE_SPAWN_FAST();CILK2C_PUSH_FRAME(_cilk_frame);ST(_cilk_ws,G,n_vertices);CILK2C_XPOP_FRAME_NORESULT(_cilk_frame,0);CILK2C_AFTER_SPAWN_FAST();}
+ CILK2C_AT_SYNC_FAST();
+ printf("Critical path = %4f s\n\n", Cilk_time_to_sec(cp_elapsed));
+
+ tm_elapsed = Cilk_get_wall_time() - tm_begin;
+ wk_elapsed = Cilk_user_work - wk_begin;
+ cp_elapsed = Cilk_user_critical_path - cp_begin;
+ printf("\nCilk Example: cilksort\n");
+ printf(" running on %d processor(s)\n\n", _cilk_ws->context->Cilk_RO_params->active_size);
+ printf("options: number of elements = %ld\n\n", size);
+ printf("Running time = %4f s\n", Cilk_wall_time_to_sec(tm_elapsed));
+ printf("Work = %4f s\n", Cilk_time_to_sec(wk_elapsed));
+{CILK2C_BEFORE_RETURN_FAST();return;}}}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_SLOW_PROCEDURE
+# 393
+static void _cilk_cilk_main_slow(CilkWorkerState*const _cilk_ws,struct _cilk_cilk_main_frame*_cilk_frame){int argc;char**argv;CILK2C_START_THREAD_SLOW();switch (_cilk_frame->header.entry) {case 1: goto _cilk_sync1;case 2: goto _cilk_sync2;case 3: goto _cilk_sync3;}argc=_cilk_frame->scope0.argc;argv=_cilk_frame->scope0.argv;
+{
+ V*G;
+ E*El;
+ int n_vertices=100000;int n_edges=400000;int t;int size;
+ Cilk_time tm_begin;Cilk_time tm_elapsed;
+ Cilk_time wk_begin;Cilk_time wk_elapsed;
+ Cilk_time cp_begin;Cilk_time cp_elapsed;
+
+  G=r_graph(n_vertices,n_edges);
+ printf("r_graph done\n");
+
+ {CILK2C_BEFORE_SYNC_SLOW();_cilk_frame->header.entry=1;_cilk_frame->scope1.G=G;_cilk_frame->scope1.n_vertices=n_vertices;if (CILK2C_SYNC) {return;_cilk_sync1:G=_cilk_frame->scope1.G;n_vertices=_cilk_frame->scope1.n_vertices;size=_cilk_frame->scope1.size;cp_elapsed=_cilk_frame->scope1.cp_elapsed;}CILK2C_AFTER_SYNC_SLOW();CILK2C_AT_THREAD_BOUNDARY_SLOW();}
+ cp_begin = Cilk_user_critical_path;
+ wk_begin = Cilk_user_work;
+ tm_begin = Cilk_get_wall_time();
+ {_cilk_frame->header.entry=2;_cilk_frame->scope1.tm_begin=tm_begin;_cilk_frame->scope1.wk_begin=wk_begin;_cilk_frame->scope1.cp_begin=cp_begin;CILK2C_BEFORE_SPAWN_SLOW();CILK2C_PUSH_FRAME(_cilk_frame);ST(_cilk_ws,G,n_vertices);CILK2C_XPOP_FRAME_NORESULT(_cilk_frame,/* return nothing */);CILK2C_AFTER_SPAWN_SLOW();if (0) {_cilk_sync2:size=_cilk_frame->scope1.size;tm_begin=_cilk_frame->scope1.tm_begin;wk_begin=_cilk_frame->scope1.wk_begin;cp_begin=_cilk_frame->scope1.cp_begin;cp_elapsed=_cilk_frame->scope1.cp_elapsed;}CILK2C_AT_THREAD_BOUNDARY_SLOW();}
+ {CILK2C_BEFORE_SYNC_SLOW();_cilk_frame->header.entry=3;if (CILK2C_SYNC) {return;_cilk_sync3:size=_cilk_frame->scope1.size;tm_begin=_cilk_frame->scope1.tm_begin;wk_begin=_cilk_frame->scope1.wk_begin;cp_begin=_cilk_frame->scope1.cp_begin;cp_elapsed=_cilk_frame->scope1.cp_elapsed;}CILK2C_AFTER_SYNC_SLOW();CILK2C_AT_THREAD_BOUNDARY_SLOW();}
+ printf("Critical path = %4f s\n\n", Cilk_time_to_sec(cp_elapsed));
+
+ tm_elapsed = Cilk_get_wall_time() - tm_begin;
+ wk_elapsed = Cilk_user_work - wk_begin;
+ cp_elapsed = Cilk_user_critical_path - cp_begin;
+ printf("\nCilk Example: cilksort\n");
+ printf(" running on %d processor(s)\n\n", _cilk_ws->context->Cilk_RO_params->active_size);
+ printf("options: number of elements = %ld\n\n", size);
+ printf("Running time = %4f s\n", Cilk_wall_time_to_sec(tm_elapsed));
+ printf("Work = %4f s\n", Cilk_time_to_sec(wk_elapsed));
+{CILK2C_SET_NORESULT();CILK2C_BEFORE_RETURN_SLOW();return;}}}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 393
+static void _cilk_cilk_main_import(CilkWorkerState*const _cilk_ws,void*_cilk_procargs_v)
+{(void)_cilk_ws;(void)_cilk_procargs_v;((struct _cilk_cilk_main_args*)_cilk_procargs_v)->_cilk_proc_result=cilk_main(_cilk_ws,((struct _cilk_cilk_main_args*)_cilk_procargs_v)->argc,((struct _cilk_cilk_main_args*)_cilk_procargs_v)->argv);
+# 421
+}
+#undef CILK_WHERE_AM_I
+#define CILK_WHERE_AM_I IN_C_CODE
+# 393
+int mt_cilk_main(CilkContext*const context,int argc,char**argv)
+{struct _cilk_cilk_main_args*_cilk_procargs;
+# 393
+int _cilk_proc_result;_cilk_procargs=(struct _cilk_cilk_main_args*)Cilk_malloc_fixed(sizeof(struct _cilk_cilk_main_args));_cilk_procargs->argc=argc;_cilk_procargs->argv=argv;Cilk_start(context,_cilk_cilk_main_import,_cilk_procargs,sizeof(int));_cilk_proc_result=_cilk_procargs->_cilk_proc_result;Cilk_free(_cilk_procargs);return _cilk_proc_result;
+# 421
+}
