@@ -1,13 +1,12 @@
 \section{Runtime Support for \Xten{} programs}
 \label{s:runtime}
 
-We have implemented a runtime system that supports co-existence of
-multiple parallel programming, as envisioned by the \Xten{} programming
-model. As an initial implementation, we have developed a Java-based
+We have implemented a runtime system for \Xten{}. 
+As an initial implementation, we have developed a Java-based
 runtime system to support shared-memory parallelization. It is
 distributed as a Java package, {\java x10.runtime.cws}, under an
 open-source license~\cite{x10-webpage}. In this section, we discuss the
-implementation key features of the runtime system.
+implementation of key features of the runtime system.
 
 The computation is organized as collection of {\em tasks}. A task is a
 sequence of instructions that can spawn other tasks and wait for
@@ -15,47 +14,62 @@ completion of the spawned tasks. The computation begins with a single
 task and is considered complete when there are no more tasks executing
 in the system. 
 
-Cilk is a popular programming model for shared-memory parallelization
-that such computations. Cilk requires {\em fully-strict} programs
+\subsection{Cilk work-stealing}
+We first describe Cilk work stealing, as implemented in \XWS. It
+closely follows the description of the implementation of Cilk in
+\cite{frigo98implementation}.
+
+Cilk Work Stealing (CWS) is organized around a collection of
+cooperating threads called {\em workers}. Each worker maintains a
+double-ended queue (deque) of tasks. During execution as a worker
+creates more tasks it pushes them at the bottom of the queue. When it
+needs more tasks it retrieves the current task from the bottom of the
+deque. When a worker runs out of work (its deque is empty), it
+randomly chooses another worker (the {\em victim}) and attempts to
+steal a task by fetching it from the top of the deque.
+
+Cilk requires {\em fully-strict} programs
 in which a task waits for all its descendents to complete before
 returning. Such tasks are also called properly nested tasks. 
 
 The \Xten{} runtime system is designed to leverage the Cilk design while
 supporting a larger class of programs. \Xten{} provides support for {\em
 strict} computations, in which a ancestor task need not wait for its
-descendent tasks to be completed. Such tasks are said to be improperly
-nested. {\bf (also talk about algorithmic properties such as
-deadlock-freedom in this context)}
+descendent tasks to be completed. Such tasks are said to be {\em improperly
+nested}. 
+%{\bf (also talk about algorithmic properties such as
+%deadlock-freedom in this context)}
 
 The execution model consists of a pool of {\em workers} that
 co-operatively execute the tasks until termination is detected. A task
-is created as an instance of a sub-class of {\java x10.runtime.cws.Frame}. The program begins execution when a driver
-thread submits a task a global task queue shared by the workers. 
+is created as an instance of a sub-class of {\java
+x10.runtime.cws.Frame}. The program begins execution when a driver
+thread submits a task to a global task queue shared by the workers.
 
 One of the workers retrieves the task from the global queue and begins
-executing it. When a worker does not have tasks to execute it steals
+executing it. When a worker does not have tasks to execute it {\em steals}
 tasks available at other workers. Assuming the computation contains
 sufficient parallelism stealing happens infrequently. The design
 ensures that there are few overheads during normal execution, referred
-to as the fast path. The additional overheads incurred to load-balance
+to as {\em the fast path}. The additional overheads incurred to load-balance
 the computation are proportional to the number of steals in the
 execution. The design of the worker for the the task types supported
 is discussed in subsequent sections.
 
-%The normal execution corresponds to the depth-first
-%sequential execution of the tasks spawned. Thus the execution
-%corresponds to a sequential execution when there is only one worker. 
+The normal execution corresponds to the depth-first
+sequential execution of the tasks spawned. Thus the execution
+corresponds to a sequential execution when there is only one worker. 
 
 \subsection{Task Execution}
 
-Every async in the \Xten{} program is compiled into a sub-class of
-Frame. An async is said to consist of threads, where a thread is a
-non-blocking sequence of instructions terminating in the spawning of or
-waiting on an async. 
+Every \emph{async} in the \Xten{} program is compiled into a sub-class of
+{\tt Frame}. An \emph{async} is said to consist of {\em threads}, where a thread is a
+non-blocking sequence of instructions terminating in a spawn or
+waiting on an \emph{async}. 
 
-Each class created for an async contains as member variables the local
-variables used in the async body, a counter ({\em PC}) that specifies
-the next instruction in the body of the async after the current
+Each class created for an \emph{async} contains as member variables the local
+variables used in the \emph{async} body, a counter ({\em PC}) that specifies
+the next instruction in the body of the \emph{async} after the current
 thread.
 
 \begin{figure*}
@@ -141,7 +155,7 @@ void compute(Worker w,
 \label{fig:fib-ill}
 \end{figure*}
 
-Two versions of the async body are created -- the fast and the slow
+Two versions of the \emph{async} body are created -- the fast and the slow
 versions. The fast version of the program is executed during the
 normal course of the program. The slow version is invoked by the
 worker to initiate processing of a task. Fig.~\ref{fig:fib-ill} shows
@@ -610,7 +624,7 @@ allocation scheme. Thus the overhead in the fast path is very
 little, as is also demonstrated in the experimental evaluation.
 
 The number of closures created and invocations of the slow version of
-an async is proportional to the number of successful steals. The
+an \emph{async} is proportional to the number of successful steals. The
 number of locks requested is proportional to the numbers of attempted
 steals. 
 
@@ -641,7 +655,7 @@ Thus the common execution path in which all workers are busy involves
 little overhead. The remaining in other execution paths are
 proportional to the number of attempted and successful steals
 performed by the workers. The experimental evaluation section
-demonstrates that both are far lower than the number of asyncs
+demonstrates that both are far lower than the number of \emph{asyncs}
 spawned, effectively enabling load-balanced execution of fine-grained
 parallel programs.
 
