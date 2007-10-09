@@ -50,21 +50,39 @@ To achieve good load-balancing, a processor checks for non-empty stack/queue on 
 \begin{algorithm}
 \centering
 \scriptsize
-\begin{minipage}{0.5\textwidth}
+\begin{tabular}{cc}
+\begin{minipage}[t]{0.5\textwidth}
 \begin{verbatim} 
   void traverse(int u) {
     finish for(int k=0;k<G[u].degree;k++) {
-      int v=G[u].neighbors[k];
-      if(color[v].compareAndSet(0,1)) {
+      final int v=G[u].neighbors[k];
+      if(G[v].color.compareAndSet(0,1)) {
         G[v].parent=u;
-        final int V=v;
-        async traverse(V);
+        async traverse(v);
       }
     }
   }
 \end{verbatim}
+Single-place code
+\end{minipage} &
+\begin{minipage}[t]{0.5\textwidth}
+\begin{verbatim} 
+  void traverse(int u) {
+    finish for(int k=0;k<G[u].degree;k++) {
+      final int v=G[u].neighbors[k];
+      async (G.distribution[v]) {
+        if(G[v].color.compareAndSet(0,1)) {
+          G[V].parent=U;
+          traverse(v);
+        }
+      }
+    }
+  }
+\end{verbatim}
+Multi-place code
 \end{minipage}
-\caption{A spanning tree algorithm on an SMP node in \Xten{}}
+\end{tabular}
+\caption{Single- and Multi-place spanning tree algorithm core}
 \label{alg:st-x10}
 \end{algorithm}
 
@@ -78,29 +96,29 @@ A similar algorithm can also be expressed using Cilk. However, the \Xten{} runti
 
  When the target system is of NUMA architecture, or even a cluster of SMPs, \Xten{} provides constructs that can easily transform Alg.~\ref{alg:st-x10} to take advantage of memory affinity . Alg.~\ref{alg:st-dist-x10} computes a spanning tree for a graph distributed on multiple nodes. In Alg.~\ref{alg:st-dist-x10}, again \emph{async} creates parallel activities. Compared with Alg.~\ref{alg:st-x10}, here \emph{async} takes the parameter of the distribution of a vertex $v$, and creates a traversal activity on a node that owns vertex $v$ so that the activity accesses data mostly on that node. Note that the activity can be created on a remote node. Obviously complex scheduling and synchronization support are necessary for fast execution of Alg.~\ref{alg:st-dist-x10}.
 
-\begin{algorithm}
-\centering
-\scriptsize
-\begin{minipage}{0.5\textwidth}
-\begin{verbatim} 
-  void traverse(int u) {
-    finish for(int k=0;k<G[u].degree;k++) {
-      int v=G[u].neighbors[k];
-      if(color[v]==0) {
-        color[v]=1;
-        final int U=u, V=v;
-        async (G.distribution[v]){
-          G[V].parent=U;
-          traverse(V);
-        }
-      }
-    }
-  }
-\end{verbatim}
-\end{minipage}
-\caption{A spanning tree algorithm on a cluster of SMPs in \Xten{}}
-\label{alg:st-dist-x10}
-\end{algorithm}
+%\begin{algorithm}
+%\centering
+%\scriptsize
+%\begin{minipage}{0.5\textwidth}
+%\begin{verbatim} 
+%  void traverse(int u) {
+%    finish for(int k=0;k<G[u].degree;k++) {
+%      int v=G[u].neighbors[k];
+%      if(color[v]==0) {
+%        color[v]=1;
+%        final int U=u, V=v;
+%        async (G.distribution[v]){
+%          G[V].parent=U;
+%          traverse(V);
+%        }
+%      }
+%    }
+%  }
+%\end{verbatim}
+%\end{minipage}
+%\caption{A spanning tree algorithm on a cluster of SMPs in \Xten{}}
+%\label{alg:st-dist-x10}
+%\end{algorithm}
 
 
 
