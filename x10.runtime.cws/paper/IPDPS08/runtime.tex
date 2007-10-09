@@ -15,36 +15,19 @@ task and is considered complete when there are no more tasks executing
 in the system. 
 
 \subsection{Cilk work-stealing}
-We first describe Cilk work stealing, as implemented in \XWS. It
+This section describes Cilk work stealing, as implemented in \XWS. It
 closely follows the description of the implementation of Cilk in
 \cite{frigo98implementation}.
 
-Cilk Work Stealing (CWS) is organized around a collection of
-cooperating threads called {\em workers}. Each worker maintains a
+In summary, Cilk Work Stealing (CWS) is organized around a collection
+of cooperating threads called {\em workers}. Each worker maintains a
 double-ended queue (deque) of tasks. During execution as a worker
 creates more tasks it pushes them at the bottom of the queue. When it
 needs more tasks it retrieves the current task from the bottom of the
 deque. When a worker runs out of work (its deque is empty), it
 randomly chooses another worker (the {\em victim}) and attempts to
-steal a task by fetching it from the top of the deque.
-
-Cilk requires {\em fully-strict} programs
-in which a task waits for all its descendents to complete before
-returning. Such tasks are also called properly nested tasks. 
-
-The \Xten{} runtime system is designed to leverage the Cilk design while
-supporting a larger class of programs. \Xten{} provides support for {\em
-strict} computations, in which a ancestor task need not wait for its
-descendent tasks to be completed. Such tasks are said to be {\em improperly
-nested}. 
-%{\bf (also talk about algorithmic properties such as
-%deadlock-freedom in this context)}
-
-The execution model consists of a pool of {\em workers} that
-co-operatively execute the tasks until termination is detected. A task
-is created as an instance of a sub-class of {\java
-x10.runtime.cws.Frame}. The program begins execution when a driver
-thread submits a task to a global task queue shared by the workers.
+steal a task by fetching it from the top of the deque. Program begins
+execution when the environment submits a task to a central task queue.
 
 One of the workers retrieves the task from the global queue and begins
 executing it. When a worker does not have tasks to execute it {\em steals}
@@ -56,16 +39,16 @@ the computation are proportional to the number of steals in the
 execution. The design of the worker for the the task types supported
 is discussed in subsequent sections.
 
-The normal execution corresponds to the depth-first
-sequential execution of the tasks spawned. Thus the execution
-corresponds to a sequential execution when there is only one worker. 
+The normal execution corresponds to the depth-first sequential
+execution of the tasks spawned. Thus the execution corresponds to a
+sequential execution when there is only one worker.
 
-\subsection{Task Execution}
+We now describe the details.
 
-Every \emph{async} in the \Xten{} program is compiled into a sub-class of
-{\tt Frame}. An \emph{async} is said to consist of {\em threads}, where a thread is a
-non-blocking sequence of instructions terminating in a spawn or
-waiting on an \emph{async}. 
+Every \emph{async} in the \Xten{} program is compiled into a sub-class
+of {\tt Frame}. An \emph{async} is said to consist of {\em threads},
+where a thread is a non-blocking sequence of instructions terminating
+in a spawn or waiting on an \emph{async}.
 
 Each class created for an \emph{async} contains as member variables the local
 variables used in the \emph{async} body, a counter ({\em PC}) that specifies
@@ -155,7 +138,8 @@ void compute(Worker w,
 \label{fig:fib-ill}
 \end{figure*}
 
-Two versions of the \emph{async} body are created -- the fast and the slow
+Cilk implements a scheme for handling continuations.  Two versions of
+the \emph{async} body are created -- the fast and the slow
 versions. The fast version of the program is executed during the
 normal course of the program. The slow version is invoked by the
 worker to initiate processing of a task. Fig.~\ref{fig:fib-ill} shows
@@ -174,8 +158,8 @@ the spawned task like a sequential method call. When the spawned task
 finishes execution, the worker checks whether the current frame was
 stolen. If so, the result computed by the child task is stored to be
 passed onto its parent and the execution of the task aborts (method:
-{\java abortOnSteal()}). The method call stack is unwound by throwing
-an exception ({\java StealAbort}) that is caught in the main
+{\tt abortOnSteal()}). The method call stack is unwound by throwing
+an exception ({\tt StealAbort}) that is caught in the main
 routine executed by the worker. The values in the frame of the parent
 stack are updated before proceeding to execute a spawned child, as the
 worker now has a non-executing task and hence is target of a steal. 
@@ -195,28 +179,38 @@ variable is returned to the parent task on invocation of the
 
 In a program with sufficient parallelism, the slow version is expected
 to execute infrequently. The design tries to minimize the overheads in
-the fast version even at the expense of the slow version. 
+the fast version even at the expense of the slow version (the
+``work-first'' principle).
 
 \subsection{Support for Properly Nested Tasks}
+Cilk requires {\em fully-strict} programs
+in which a task waits for all its descendents to complete before
+returning. Such tasks are also called properly nested tasks. 
 
-Each worker contains a dequeue of closures. Closures are objects used
+The \Xten{} runtime system is designed to leverage the Cilk design while
+supporting a larger class of programs. \Xten{} provides support for {\em
+strict} computations, in which a ancestor task need not wait for its
+descendent tasks to be completed. Such tasks are said to be {\em improperly
+nested}. 
+
+Each worker contains a {\em closure}. A closure is an  object used
 to return values from the spawned tasks to their parents in the
 presence of work stealing.  
 
 Each closure maintains a stack of frames. Frames corresponding to
 spawned tasks are pushed into the stack on entry, and popped on
 return. In the fast path, return values are propagated as they would
-be in a sequential program. A stealing worker, referred to as the
-{\java thief}, steals a closure together with the bottom-most available
-frame, in another worker, referred to as the {\em victim}.
+be in a sequential program. The thief steals a closure together with
+the bottom-most available frame from its
+{\em victim}.
 
-When a task, in the form of the bottom-most frame in a closure, is
-stolen, its descendents continue to execute. In order to return values
-from the descendents to the parent, a new closure is created that on
-completion returns the result to the parent closure that was stolen. 
+When a thief steals a task, the descendants of the task in the
+victim's dequeue continue to execute.  In order to return values from
+the descendents to the parent, a new closure is created that on
+completion returns the result to the parent closure that was stolen.
 
 Thus the closures form a tree of return value propagation
-corresponding to the steal operation performed. Termination can be
+corresponding to the steal operation performed. Termination is
 detected when the closure corresponding to the task inserted by the
 driver thread returns. 
 
@@ -229,35 +223,32 @@ stealing or from the global queue (method:{\java getTask()}). It then
 executes the slow version of the task obtained (method:{\java
   execute()}). 
 
-This is the support provided by Cilk. We subsequently look at the
-improvements to the basic model.
-
 
 \subsection{Support for Improperly Nested Tasks}
 
-Properly nested tasks t satisfy the property that at the moment when
+Properly nested tasks $t$ satisfy the property that at the moment when
 the slow version terminates (method:{\java compute()}) the frame at
-the bottom of the worker's dequeue is t. Hence the task can be
+the bottom of the worker's dequeue is $t$. Hence the task can be
 completed (i.e., removed from the dequeue) by including a {\java
 w.popFrame()} call at the end of the compute method. In essence, if a
 worker is executing only properly nested tasks (this is true when it
 is executing Cilk code), there is a one-to-one correspondence between
 the frame stack and the tasks being processed.
 
-\Xten{} permits improperly nested tasks. Such tasks q are used, for
+\Xten{} permits improperly nested tasks. Such tasks $q$ are used, for
 instance, to implement the pseudo-depth-first search discussed in this
-paper. Such a task may add a task r to the deque of its worker (say w)
-without necessarily transferring control to r. This has two
+paper. Such a task may add a task $r$ to the deque of its worker (say $w$)
+without necessarily transferring control to $r$. This has two
 consequences. First, recall that as soon as a worker's dequeue
 contains more than one task the worker may be the target of a
-theft. Therefore as soon as q pushes r onto w's dequeue, q is
-available to be stolen.  Therefore q's compute method must record the
-fact that is computation has begun so that the stealing worker z may
-do the right thing. For instance, if q's compute method does not
-contain any internal suspension point then z must immediately
-terminate execution of q and pop q off its deque. This can be
-accomplished by defining a volatile int PC field in q, and adding the
-following code at the beginning of q's compute method
+theft. Therefore as soon as $q$ pushes $r$ onto $w$'s dequeue, $q$ is
+available to be stolen.  Therefore $q$'s compute method must record the
+fact that is computation has begun so that the stealing worker $z$ may
+do the right thing. For instance, if $q$'s compute method does not
+contain any internal suspension point then $z$ must immediately
+terminate execution of $q$ and pop $q$ off its deque. This can be
+accomplished by defining a volatile int PC field in $q$, and adding the
+following code at the beginning of $q$'s compute method
 
 {\scriptsize
 \begin{verbatim}
@@ -269,10 +260,10 @@ following code at the beginning of q's compute method
 \end{verbatim}
 }
 
-Second for an improperly nested task when control returns from g's
+Second for an improperly nested task when control returns from $g$'s
 compute method, it may not be the case that the last frame on the
-dequeue is g. Therefore a call to {\java popFrame()} at the end of
-g's compute method would be incorrect. Instead, the compute method
+dequeue is $g$. Therefore a call to {\java popFrame()} at the end of
+$g$'s compute method would be incorrect. Instead, the compute method
 returns (without attempting to pop the last frame on the deque). Now
 whenever the task reaches the bottom of the dequeue, the worker will,
 as usual, invokes its compute method. However, the code sequence
@@ -336,7 +327,7 @@ public void run() {
       //Keep executing current frame 
       //until dequeue becomes empty.
       if (jobMayHaveImproperTask) {
-        Cache cache = this.cache;
+       Cache cache = this.cache;
         for(;;) {
           if(!cache.empty())
             Frame f=cache.currentFrame();
@@ -420,78 +411,76 @@ Frame stealFrame(Worker thief) {
 
 
 
-\subsection{Work Stealing}
-
-
-%% In the fast version of an async, any modified local variables are
-%% copied back into the Frame object before entering a spawned
-%% child. This ensures that the updated values are available to any thief
-%% that may steal the parent frame before the execution of the current
-%% worker can return to it. On return from a spawned task, the task clone
-%% checks for 
-
-The frames corresponding to the tasks form a stack. We denote the head
-and tail of the task by $H$ and $T$, respectively. When a task is
-spawned, the corresponding frame is pushed into the head of the stack
-($H=H+1$). When a worker returns from a spawned task is checks that
-whether the current frame is stolen by executing one-half of lock-free
-Dekker's algorithm~\cite{dekker}:
-
-{\scriptsize
-\begin{verbatim}
-  --T; 
-  StoreLoadBarrier;
-  if (H >= T) 
-    // Stolen 
-  else 
-    // Not stolen
-\end{verbatim}
-}
-
-Note that the {\java StoreLoadBarrier} is implied in Java if
-{\java T} is declared to be {\java volatile}.
-
-When a worker is out of work, it randomly selects a victim and
-attempts to steal from its frame stack. The procedures employed to
-steal in the case of properly- and improperly-nested tasks are shown
-in Fig.~\ref{fig:stealing-alg}(a) and Fig.~\ref{fig:stealing-alg}(b),
-respectively. Note that the victim, and multiple thieves might attempt
-to operate on the same frame stack. The thief first obtains a lock on
-the victim's deque to avoid contention with other thieves trying to
-steal from the same victim.
-
-When properly nested tasks are being processed, the thief identifies a
-closure at the end of the deque and locks it. If the victim is
-processing some other closure and this closure is in a {\java READY}
-state, there is no contention with the victim on this closure. The
-thief extracts the Closure and steals it. If the closure is in
-{\java RUNNING} state, the victim is potentially adding and deleting
-frames on the frame stack associated with the closure. Dekker's
-algorithm is used to determine whether there is more than one frame in
-the frame stack. If there is, the locked closure together with the
-frame at the head of the stack are stolen. The immediate child frame
-of the stolen frame is promoted to a closure which is left in the
-victim's deque. The child task returns its result to the parent task
-through this promoted closure.
-
-In computations on improperly nested tasks, there is only one stack of
-frames used to represent the tasks. The thief directly locks the stack
-of frames (labeled {\java cache} in the algorithm) and attempts to
-steal from the stack's head when more than one tasks in available in
-the task. The frame is marked as stolen by incrementing the stack's
-head. 
-
-Since the tasks are pushed at the tail, the algorithm implies that a
-task is stolen only if all its parents have already been
-stolen. Parent tasks represent more work than child tasks, since they
-have potential to generate a greater number of tasks. The algorithms
-thus favor stealing of tasks that represent a large portion of work
-rather than fine-grained descendent tasks that do limited
-processing. This leads to better load balancing of the computation and
-reduces the number of steal attempts by workers.
-
-
-
+%\subsection{How to steal quickly}
+%
+%
+%%% In the fast version of an async, any modified local variables are
+%%% copied back into the Frame object before entering a spawned
+%%% child. This ensures that the updated values are available to any thief
+%%% that may steal the parent frame before the execution of the current
+%%% worker can return to it. On return from a spawned task, the task clone
+%%% checks for 
+%
+%The frames corresponding to the tasks form a stack. We denote the head
+%and tail of the task by $H$ and $T$, respectively. When a task is
+%spawned, the corresponding frame is pushed into the head of the stack
+%($H=H+1$). When a worker returns from a spawned task is checks that
+%whether the current frame is stolen by executing one-half of lock-free
+%Dekker's algorithm~\cite{dekker}:
+%
+%{\scriptsize
+%\begin{verbatim}
+%  --T; 
+%  StoreLoadBarrier;
+%  if (H >= T) 
+%    // Stolen 
+%  else 
+%    // Not stolen
+%\end{verbatim}
+%}
+%
+%Note that the {\java StoreLoadBarrier} is implied in Java if
+%{\java T} is declared to be {\java volatile}.
+%
+%When a worker is out of work, it randomly selects a victim and
+%attempts to steal from its frame stack. The procedures employed to
+%steal in the case of properly- and improperly-nested tasks are shown
+%in Fig.~\ref{fig:stealing-alg}(a) and Fig.~\ref{fig:stealing-alg}(b),
+%respectively. Note that the victim, and multiple thieves might attempt
+%to operate on the same frame stack. The thief first obtains a lock on
+%the victim's deque to avoid contention with other thieves trying to
+%steal from the same victim.
+%
+%When properly nested tasks are being processed, the thief identifies a
+%closure at the end of the deque and locks it. If the victim is
+%processing some other closure and this closure is in a {\java READY}
+%state, there is no contention with the victim on this closure. The
+%thief extracts the Closure and steals it. If the closure is in
+%{\java RUNNING} state, the victim is potentially adding and deleting
+%frames on the frame stack associated with the closure. Dekker's
+%algorithm is used to determine whether there is more than one frame in
+%the frame stack. If there is, the locked closure together with the
+%frame at the head of the stack are stolen. The immediate child frame
+%of the stolen frame is promoted to a closure which is left in the
+%victim's deque. The child task returns its result to the parent task
+%through this promoted closure.
+%
+%In computations on improperly nested tasks, there is only one stack of
+%frames used to represent the tasks. The thief directly locks the stack
+%of frames (labeled {\java cache} in the algorithm) and attempts to
+%steal from the stack's head when more than one tasks in available in
+%the task. The frame is marked as stolen by incrementing the stack's
+%head. 
+%
+%Since the tasks are pushed at the tail, the algorithm implies that a
+%task is stolen only if all its parents have already been
+%stolen. Parent tasks represent more work than child tasks, since they
+%have potential to generate a greater number of tasks. The algorithms
+%thus favor stealing of tasks that represent a large portion of work
+%rather than fine-grained descendent tasks that do limited
+%processing. This leads to better load balancing of the computation and
+%reduces the number of steal attempts by workers.
+%
 \subsection{Global Quiescence}
 
 In fully-strict computations, i.e., those involving properly nested
