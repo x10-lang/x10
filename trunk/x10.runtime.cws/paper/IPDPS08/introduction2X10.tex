@@ -6,9 +6,9 @@
 \item{\bf Places}~--~The main program starts as single activity at {\em place} 0. Place is an \Xten{} concept which can be considered as a virtual SMP, but multiple places can be mapped to one physical SMP node. The global address space is partitioned across places. Data and activities have affinity with and only with one place. Activities can only operate on data local to them, that is, within the same place. To access data at another place, a new activity has to be spawned there to perform the operation. The syntax for spawning an activity at place $p$ is {\tt async (p) S}. The diagram in Figure \ref{fig 1} describes the X0 programming model.
 
 \begin{figure}
-        \begin{center}
-        \pdfimage width 12cm {X10ProgModel.jpg}
-        \end{center}
+\begin{center}
+\pdfimage width 14cm  {X10ProgModel.jpg}
+\end{center}
 
 Dynamic parallelism with a Partitioned Global Address Space. All
 concurrency is expressed as asynchronous activities.  Each vertical
