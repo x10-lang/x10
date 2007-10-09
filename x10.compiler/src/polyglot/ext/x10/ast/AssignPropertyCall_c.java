@@ -59,15 +59,15 @@ implements AssignPropertyCall, Return {
 		this.arguments = arguments;
 		
 	}
-	  public Term entry() {
-	        return listEntry(arguments, this);
+	  public Term firstChild() {
+	        return listChild(arguments, null);
 	    }
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	  public List acceptCFG(CFGBuilder v, List succs) {
-	        v.visitCFGList(arguments, this);
+	        v.visitCFGList(arguments, this, EXIT);
 	        return succs;
 	    }
 

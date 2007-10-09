@@ -70,6 +70,10 @@ public class X10Context_c extends Context_c implements X10Context {
 		super(ts);
 	}
 	
+	// Set if we are in a supertype declaration of this type. 
+	protected X10NamedType inSuperOf = null;
+	public boolean inSuperTypeDeclaration() { return inSuperOf != null; }
+	public X10NamedType supertypeDeclarationType() { return inSuperOf; }
 	
 	// Invariant: isDepType => outer != null.
 	
@@ -372,6 +376,15 @@ public class X10Context_c extends Context_c implements X10Context {
 		v.depType = type;
 		v.varWhoseTypeIsBeingElaborated = varWhoseTypeIsBeingElaborated;
 		v.type = type instanceof ClassType ? (ClassType) type : null;
+		v.inCode = false;
+		//Report.report(1, "X10Context_c: Pushing deptype |" + type + "|" + v.hashCode());
+		return v;
+	}
+	
+	public X10Context pushSuperTypeDeclaration(X10NamedType type) {
+		
+		X10Context_c v = (X10Context_c) push();
+		v.inSuperOf = type;
 		v.inCode = false;
 		//Report.report(1, "X10Context_c: Pushing deptype |" + type + "|" + v.hashCode());
 		return v;

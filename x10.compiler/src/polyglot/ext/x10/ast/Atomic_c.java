@@ -145,16 +145,16 @@ implements Atomic {
 	 * Return the first (sub)term performed when evaluating this
 	 * term.
 	 */
-	public Term entry() {
-		return place.entry();
+	public Term firstChild() {
+		return place;
 	}
 	
 	/**
 	 * Visit this term in evaluation order.
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		v.visitCFG(place, body.entry());
-		v.push(this).visitCFG(body, this);
+		v.visitCFG(place, body, ENTRY);
+		v.push(this).visitCFG(body, this, EXIT);
 		return succs;
 	}
 	

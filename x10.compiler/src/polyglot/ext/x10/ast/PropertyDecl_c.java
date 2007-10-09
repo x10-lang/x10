@@ -141,7 +141,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         Flags flags = Flags.PUBLIC.Final();
         List formals = Collections.EMPTY_LIST;
         List throwTypes = Collections.EMPTY_LIST;
-        Expr e = nf.AmbExpr(pos, name);
+        Expr e = nf.Field(pos, nf.This(pos), name);
         //Report.report(1, "PropertyDecl_c: GOLDEN e=|" + e + " " + e.getClass());
         
         Stmt s = nf.Return(pos, e);

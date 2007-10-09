@@ -29,9 +29,9 @@ public class Next_c extends Stmt_c implements Next {
     
 
 
-    public Term entry() {
+    public Term firstChild() {
         // TODO:
-        return this;
+        return null;
     }
 
     public List acceptCFG(CFGBuilder v, List succs) {

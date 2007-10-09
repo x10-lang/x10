@@ -65,6 +65,7 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
            
             if (xc.isDepType()) {
             	boolean result = ts.equals(scope, xc.currentDepType());
+            	
             	//Report.report(1, "X10Disamb_c: Making missing field target for " + fi + " field scope =|"
             	//		+ scope +"| deptype=|"+ xc.currentDepType() + " " + result);
             	r = result ? ((X10NodeFactory) nf).Self(pos) : 

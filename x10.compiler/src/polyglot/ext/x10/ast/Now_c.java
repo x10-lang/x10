@@ -66,13 +66,13 @@ public class Now_c extends Expr_c implements Now {
         return n;
     }
 
-    public Term entry() {
-        return stmt.entry();
+    public Term firstChild() {
+        return stmt;
     }
 
     public List acceptCFG(CFGBuilder v, List succs) {
-        v.visitCFG(clock, this);
-        v.visitCFG(stmt, this);
+        v.visitCFG(clock, this, EXIT);
+        v.visitCFG(stmt, this, EXIT);
         return succs;
     }
     

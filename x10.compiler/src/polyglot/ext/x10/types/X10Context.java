@@ -38,7 +38,11 @@ public interface X10Context extends Context {
      * This is usually a subclass of <code>findProperty(name).container()</code>.
      */
     ClassType findPropertyScope(String name) throws SemanticException;
-    
+	// Set if we are in a supertype declaration of this type. 
+    public boolean inSuperTypeDeclaration();
+	X10NamedType supertypeDeclarationType();
+    X10Context pushSuperTypeDeclaration(X10NamedType type);
+    	
     /** Enter the scope of a deptype. */
     X10Context pushDepType(X10NamedType t);
     

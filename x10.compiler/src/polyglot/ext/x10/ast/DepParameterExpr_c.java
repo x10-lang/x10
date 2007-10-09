@@ -67,7 +67,7 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
     }
     public DepParameterExpr_c(Position pos, List l, Expr cond) {
         super(pos);
-        this.args =  TypedList.copyAndCheck(l, Expr.class, false);
+        this.args =  TypedList.copyAndCheck(l, Expr.class, true);
         this.condition = cond;
     }
     
@@ -154,11 +154,10 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
     /* (non-Javadoc)
      * @see polyglot.ast.Term#entry()
      */
-    @Override
-    public Term entry() {
+    public Term firstChild() {
         return (args.isEmpty())
-        ? condition.entry()
-                : listEntry( args, this);
+                ? condition
+                : listChild( args, null);
     }
     
     /* (non-Javadoc)
@@ -168,13 +167,13 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
     public List acceptCFG(CFGBuilder v, List succs) {
         if (args == null) {
             if (condition != null) 
-                v.visitCFG(condition, this);
+                v.visitCFG(condition, this, EXIT);
         } else {
             if (condition != null) {
-                v.visitCFGList( args, condition.entry());
-                v.visitCFG(condition, this);
+                v.visitCFGList( args, condition, ENTRY);
+                v.visitCFG(condition, this, EXIT);
             } else {
-                v.visitCFGList( args, this);
+                v.visitCFGList( args, this, EXIT);
             }
         }
         

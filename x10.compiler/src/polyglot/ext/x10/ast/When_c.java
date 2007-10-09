@@ -143,8 +143,8 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 	 * Return the first (sub)term performed when evaluating this
 	 * term.
 	 */
-	public Term entry() {
-		return expr.entry();
+	public Term firstChild() {
+		return expr;
 	}
 
 	/**
@@ -161,15 +161,15 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 		Iterator ss = stmts.iterator();
         while (es.hasNext()) {
 			ne = (Expr) es.next();
-			v.visitCFG(e, FlowGraph.EDGE_KEY_TRUE, s.entry(),
-						  FlowGraph.EDGE_KEY_FALSE, ne);
-			v.visitCFG(s, this);
+			v.visitCFG(e, FlowGraph.EDGE_KEY_TRUE, s, ENTRY,
+						  FlowGraph.EDGE_KEY_FALSE, ne, ENTRY);
+			v.visitCFG(s, this, EXIT);
 			e = ne;
 			s = (Stmt) ss.next();
         }
-		v.visitCFG(e, FlowGraph.EDGE_KEY_TRUE, s.entry(),
-					  FlowGraph.EDGE_KEY_FALSE, expr);
-		v.visitCFG(s, this);
+		v.visitCFG(e, FlowGraph.EDGE_KEY_TRUE, s, ENTRY,
+					  FlowGraph.EDGE_KEY_FALSE, expr, ENTRY);
+		v.visitCFG(s, this, EXIT);
 		return succs;
 	}
 }

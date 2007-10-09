@@ -223,13 +223,18 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 	}
 	
 	
-	public Term entry() {
-		return array.entry();
+	public Term firstChild() {
+		return array;
 	}
 	
 	public List acceptCFG(CFGBuilder v, List succs) {
-		v.visitCFG(array, listEntry(index, this));
-		v.visitCFGList(index, this);
+                if (index.isEmpty()) {
+                    v.visitCFG(array, this, EXIT);
+                }
+                else {
+                    v.visitCFG(array, listChild(index, null), ENTRY);
+                    v.visitCFGList(index, this, EXIT);
+                }
 		return succs;
 	}
 	

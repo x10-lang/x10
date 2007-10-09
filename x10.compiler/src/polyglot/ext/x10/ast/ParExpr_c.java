@@ -91,15 +91,15 @@ public class ParExpr_c extends Expr_c implements ParExpr {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
-		return expr.entry();
+	public Term firstChild() {
+		return expr;
 	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-	    v.visitCFG( expr, this);
+	    v.visitCFG( expr, this, EXIT);
 		return succs;
 	}
 	public String toString() {

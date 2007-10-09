@@ -216,8 +216,16 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
 	 * Return the first (sub)term performed when evaluating this
 	 * term.
 	 */
-	public Term entry() {
-		return (place != null ? place.entry() : this);
+	public Term firstChild() {
+                if (place != null) {
+                        return place;
+                }
+		
+		if (clocks() == null || clocks().isEmpty()) {
+                        return body;
+		} else {
+                        return (Term) clocks().get(0);
+		}
 	}
 
 	 
@@ -231,14 +239,16 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
 		
-		v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body.entry(), 
-						  FlowGraph.EDGE_KEY_FALSE, this);
+                if (place != null) {
+                    v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body, ENTRY,
+                                      FlowGraph.EDGE_KEY_FALSE, this, EXIT);
+                }
 		
-		if (clocks() == null) {
-			v.visitCFG(body, this);
+		if (clocks() == null || clocks().isEmpty()) {
+			v.visitCFG(body, this, EXIT);
 		} else {
-			v.visitCFGList(clocks, body.entry());
-			v.visitCFG(body, this);
+			v.visitCFGList(clocks, body, ENTRY);
+			v.visitCFG(body, this, EXIT);
 		}
 		
 		return succs;

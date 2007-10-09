@@ -167,27 +167,28 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 	      }
 	  }
 	  
-	  public Term entry() {
-	      return left().entry();
+	  public Term firstChild() {
+	      X10ArrayAccess1 a = (X10ArrayAccess1)left();
+              return a.array();
 	  }
 	  
 	  protected void acceptCFGAssign(CFGBuilder v) {
 	      X10ArrayAccess1 a = (X10ArrayAccess1)left();
 	      
 	      //    a[i] = e: visit a -> i -> e -> (a[i] = e)
-	      v.visitCFG(a.array(), a.index().entry());
-	      v.visitCFG(a.index(), right().entry());
-	      v.visitCFG(right(), this);
+	      v.visitCFG(a.array(), a.index(), ENTRY);
+	      v.visitCFG(a.index(), right(), ENTRY);
+	      v.visitCFG(right(), this, EXIT);
 	  }
 	  protected void acceptCFGOpAssign(CFGBuilder v) {
 	      X10ArrayAccess1 a = (X10ArrayAccess1)left();
 	      
 	      // a[i] OP= e: visit a -> i -> a[i] -> e -> (a[i] OP= e)
-	      v.visitCFG(a.array(), a.index().entry());
-	      v.visitCFG(a.index(), a);
+	      v.visitCFG(a.array(), a.index(), ENTRY);
+	      v.visitCFG(a.index(), a, EXIT);
 	      v.visitThrow(a);
-	      v.edge(a, right().entry());
-	      v.visitCFG(right(), this);
+	      v.edge(a, right(), ENTRY);
+	      v.visitCFG(right(), this, EXIT);
 	  }
 
 	  public List throwTypes(TypeSystem ts) {

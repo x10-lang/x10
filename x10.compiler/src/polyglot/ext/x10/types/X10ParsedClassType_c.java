@@ -926,6 +926,7 @@ implements X10ParsedClassType
 		for (Iterator<FieldInstance> i = properties.iterator(); i.hasNext(); ) {
 			FieldInstance fi = i.next();
 			X10Type t = (X10Type) fi.type();
+                        if (t == this) throw new InternalCompilerError("loop on " + t, position());
 			if (! t.propertiesElaborated()) 
 				return false;
 		}
@@ -988,16 +989,7 @@ implements X10ParsedClassType
 		return definedProperties;
 	}
 	protected List<FieldInstance> getPropertiesFromClass(String propertyNames) {
-		List<FieldInstance> properties = new ArrayList<FieldInstance>();
-		Scanner s = new Scanner(propertyNames);
-		while (s.hasNext()) {
-			String propName = s.next();
-			FieldInstance prop = fieldNamed(propName);
-			if (prop == null) 
-				throw new InternalCompilerError("Type " 
-						+ name + " has no property named " + propName); 
-			properties.add(prop);
-		}
+		List<FieldInstance> properties = getDefinedPropertiesFromClass(propertyNames);
 		if (superType != null) 
 			properties.addAll(((X10Type) superType).properties());
 //		for (Iterator i = interfaces().iterator(); i.hasNext(); ) {
@@ -1007,6 +999,30 @@ implements X10ParsedClassType
 		if (Report.should_report(Report.types, 2))
 			Report.report(2, "Type " + name + " has properties " + properties +".");
 		return properties;
+	}
+
+	public List<FieldInstance> getDefinedPropertiesFromClass(String propertyNames) {
+		List<FieldInstance> properties = new ArrayList<FieldInstance>();
+		Scanner s = new Scanner(propertyNames);
+		while (s.hasNext()) {
+			String propName = s.next();
+			FieldInstance prop = noncanonicalFieldNamed(propName);
+			if (prop == null) 
+				throw new InternalCompilerError("Type " 
+						+ name + " has no property named " + propName); 
+			properties.add(prop);
+		}
+		return properties;
+	}
+	public FieldInstance noncanonicalFieldNamed(String name) {
+		init.initFields();
+		for (Iterator i = fields.iterator(); i.hasNext(); ) {
+			FieldInstance fi = (FieldInstance) i.next();
+			if (fi.name().equals(name)) {
+				return fi;
+			}
+		}
+		return null;
 	}
 	public Constraint classInvariant() {
 		if (! isRootType()) return ((X10ParsedClassType_c) rootType).classInvariant();

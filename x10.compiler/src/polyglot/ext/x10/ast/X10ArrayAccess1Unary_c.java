@@ -95,10 +95,6 @@ public class X10ArrayAccess1Unary_c extends Unary_c
        
 	}
 	
-	public Term entry() {
-		return expr().entry();
-	}
-	
 	public List throwTypes(TypeSystem ts) {
 		List l = new ArrayList(super.throwTypes(ts));
 		l.add(ts.NullPointerException());

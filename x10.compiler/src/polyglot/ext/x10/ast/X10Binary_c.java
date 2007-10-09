@@ -434,8 +434,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		if ((op == COND_OR && (left instanceof dist || left instanceof region))
 				|| (op == COND_AND && left instanceof region))
 		{
-			v.visitCFG(left, right.entry());
-			v.visitCFG(right, this);
+			v.visitCFG(left, right, ENTRY);
+			v.visitCFG(right, this, EXIT);
 			return succs;
 		}
 		return super.acceptCFG(v, succs);

@@ -60,7 +60,7 @@ public class AssignPropertyChecker extends DataFlow {
 		return null;
 	}
 	
-	public Item createInitialItem(FlowGraph graph, Term node) {
+	public Item createInitialItem(FlowGraph graph, Term node, boolean entry) {
 		return createItem(DataFlowItem.ZERO, DataFlowItem.ZERO);
 	}
 	
@@ -124,12 +124,17 @@ public class AssignPropertyChecker extends DataFlow {
 		return i;
 	}
 	
-	public Map flow(Item in, FlowGraph graph, Term n, Set succEdgeKeys) {
+	public Map flow(Item in, FlowGraph graph, Term n, boolean entry, Set succEdgeKeys) {
 		// If every path from the exit node to the entry goes through a property
 		// assign, we're okay. So make the propAssign bit false at exit and true
 		// at every property assignment; the confluence operation is &&.
 		// We deal with exceptions specially, and assume that any exception
 		// edge to the exit node is OK.
+
+
+                // Only flow from exit.
+                if (entry)
+                    return itemToMap(in, succEdgeKeys);
 		
 		DataFlowItem inItem = (DataFlowItem) in;
 		
@@ -137,7 +142,7 @@ public class AssignPropertyChecker extends DataFlow {
 			return itemToMap(createItem(DataFlowItem.ZERO, DataFlowItem.ZERO), succEdgeKeys);
 		}
 		
-		if (n == graph.exitNode()) {
+		if (graph.exitPeers().contains(n)) {
 			// Exception edges are assumed to be safe
 			if (needsProperty()) {
 				Map m = itemToMap(createItem(DataFlowItem.DONT_CARE, DataFlowItem.DONT_CARE), succEdgeKeys);
@@ -172,7 +177,7 @@ public class AssignPropertyChecker extends DataFlow {
 		return itemToMap(in, succEdgeKeys);
 	}
 	
-//	 protected Item confluence(List items, List itemKeys, Term node, FlowGraph graph) {
+//	 protected Item confluence(List items, List itemKeys, Term node, boolean entry, FlowGraph graph) {
 //		 List l1 = new ArrayList(3);
 //		 List l2 = new ArrayList(3);
 //		 Iterator i = items.iterator();
@@ -193,7 +198,7 @@ public class AssignPropertyChecker extends DataFlow {
 //		 return super.confluence(l1, l2, node, graph);
 //	 }
 	 
-	 protected Item confluence(List items, Term node, FlowGraph graph) {
+	 protected Item confluence(List items, Term node, boolean entry, FlowGraph graph) {
 		// intersect the items
 		int min = DataFlowItem.DONT_CARE;
 		int max = DataFlowItem.DONT_CARE;
@@ -208,9 +213,12 @@ public class AssignPropertyChecker extends DataFlow {
 		return createItem(min, max); 
 	}
 	
-	public void check(FlowGraph graph, Term n, Item inItem, Map outItems) throws SemanticException {
+	public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) throws SemanticException {
+                if (entry)
+                    return;
+
 		// Check that all paths to exit have exactly one property() statement.
-		if (n == graph.entryNode()) {
+		if (graph.entryPeers().contains(n)) {
 			if (outItems != null && !outItems.isEmpty()) {
 				// due to the flow equations, all DataFlowItems in the outItems map
 				// are the same, so just take the first one.

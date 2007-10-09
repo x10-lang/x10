@@ -53,8 +53,8 @@ public class Point_c extends Expr_c implements Point {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
-	public Term entry() {
-	    return this;
+	public Term firstChild() {
+	    return null;
 	}
 
 	/* (non-Javadoc)
