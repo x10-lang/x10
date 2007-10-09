@@ -84,9 +84,8 @@ A similar algorithm can also be expressed using Cilk. However, the \Xten{} runti
 \begin{minipage}{0.5\textwidth}
 \begin{verbatim} 
   void traverse(int u) {
-    int k,v;
-    finish for(k=0;k<G[u].degree;k++) {
-      v=G[u].neighbors[k];
+    finish for(int k=0;k<G[u].degree;k++) {
+      int v=G[u].neighbors[k];
       if(color[v]==0) {
         color[v]=1;
         final int U=u, V=v;
