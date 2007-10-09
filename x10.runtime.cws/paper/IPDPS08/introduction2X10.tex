@@ -8,7 +8,18 @@
 \begin{figure}
         \begin{center}
         \pdfimage width 12cm {X10ProgModel.jpg}
-        \caption{Dynamic parallelism with a Partitioned Global Address Space. All concurrency is expressed as asynchronous activities.  Each vertical green rectangle above represents the stack for a single activity. An activity may hold references to remote objects, that is, at a different place.  However, if it attempts to operate on a remote object, then it has to spawn a new activity at the remote place to perform the operation.  Immutable (read only) data is special which can be accessed freely from any place providing opportunity for single-assignment parallelism.} \label{fig 1}
+
+Dynamic parallelism with a Partitioned Global Address Space. All
+concurrency is expressed as asynchronous activities.  Each vertical
+green rectangle above represents the stack for a single activity. An
+activity may hold references to remote objects, that is, at a
+different place.  However, if it attempts to operate on a remote
+object, then it has to spawn a new activity at the remote place to
+perform the operation.  Immutable (read only) data is special which
+can be accessed freely from any place providing opportunity for
+single-assignment parallelism.
+\caption{X10 Programming Model}
+\label{fig 1}
         \end{center}
 \end{figure}
 
