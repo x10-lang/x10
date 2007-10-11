@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: reduce.h,v 1.1 2007-10-08 15:10:25 ganeshvb Exp $ */
+/* $Id: reduce.h,v 1.2 2007-10-11 10:55:56 ganeshvb Exp $ */
 
 #ifndef __X10_REDUCE_H
 #define __X10_REDUCE_H
@@ -14,7 +14,7 @@
 #include <lapi.h>
 #include <iostream>
 
-#define LOG2(x)  (int) round (log (x) / log (2))
+#define LOG2(x)  (int) round (log ((double) x) / log (2.0))
 
 #define X10_MAX_REDUCE_OPS_INFLIGHT 4
 
@@ -95,7 +95,7 @@ namespace x10lib {
       LAPI_Setcntr (x10lib::__x10_hndl, &reduce_cntr, 0);
       
       /* Zero out the reduce. */
-      bzero (scratch, reduceCount * sizeof(T) * LOG2(x10lib::__x10_num_places));
+      memset (scratch, 0, reduceCount * sizeof(T) * LOG2(x10lib::__x10_num_places));
       
       LAPI_Gfence (x10lib::__x10_hndl);
       

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: closure.h,v 1.1 2007-10-11 08:27:15 ganeshvb Exp $
+ * $Id: closure.h,v 1.2 2007-10-11 10:55:56 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -32,7 +32,7 @@ namespace x10lib {
 typedef x10lib::Closure* x10_closure_t;
 #else
 struct Closure;
-typedef Closure* x10_closure_t;
+typedef struct Closure* x10_closure_t;
 #endif
 
 #endif
