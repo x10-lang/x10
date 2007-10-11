@@ -79,14 +79,16 @@ public class RandomAccessAsync {
 			DimBuckets row = buckets[here.id].dimBuckets[nextDim];
 			pushIntoBucket(datum, nextDim, row);
 		}
-	}
+	
+
 	public static void pushIntoBucket(long datum, int dim, DimBuckets row) {
 		int nextHop = nextHop(datum, dim);
 		Bucket d = row.bucket[nextHop];
 		d.buffer[d.count++]=datum;
 		if (d.count == buffSize-1) 
-			row.fullBucket=d;
-	}
+			row.fullBucket=d;	
+	}	
+
 	public static void routeUpdates(final Bucket b) {
 		int nextDim = nextDim(b.bucketRow.dim);
 		DimBuckets row = buckets[here.id].dimBuckets[nextDim];
@@ -97,11 +99,11 @@ public class RandomAccessAsync {
 			} else {
 				assert nextDim > 0;
 				if (row.fullBucket != null) return;
-				pushIntoBucket(datum, nextDim, row);
-				
+				pushIntoBucket(datum, nextDim, row);				
 			}
 		}
 	}
+
 	/**
 	  Check if any buffer is full. If so, send it to its destination through an async, which, 
 	  on arriving at the destination will wait until the receiveBuffer at the destination for
