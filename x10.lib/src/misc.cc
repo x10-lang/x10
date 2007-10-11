@@ -1,9 +1,6 @@
 #include <x10/misc.h>
 #include <x10/xmacros.h>
 
-/**
-  * TODO: remove root; make it "0" always.
-  */
 x10_err_t 
 x10lib::Broadcast (void* buffer, size_t nbytes)
 {  
