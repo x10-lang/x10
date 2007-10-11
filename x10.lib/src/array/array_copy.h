@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.h,v 1.1 2007-10-11 09:48:22 ganeshvb Exp $
+ * $Id: array_copy.h,v 1.2 2007-10-11 10:55:59 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,7 +11,6 @@
 #include <x10/err.h>
 #include <x10/types.h>
 #include <x10/switch.h>
-#include <x10/array.h>
 #include <x10/closure.h>
 
 /* C++ Lang Interface */
@@ -59,8 +58,9 @@ namespace x10lib {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  x10_err_t x10_async_array_copy (void* src, x10_closure_t args, size_t len, int target, x10_switch_t c=NULL);
-  x10_err_t x10_async_array_copy_raw (void* src, x10_closure_t args, size_t len, int target,x10_switch_t c=NULL);
+
+  x10_err_t x10_async_array_copy (void* src, x10_closure_t args, size_t len, int target, x10_switch_t c);
+  x10_err_t x10_async_array_copy_raw (void* src, x10_closure_t args, size_t len, int target,x10_switch_t c);
 
 #ifdef __cplusplus
 }

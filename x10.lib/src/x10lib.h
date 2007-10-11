@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.25 2007-10-11 08:27:15 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.26 2007-10-11 10:55:56 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -27,6 +27,7 @@
 #include <x10/closure.h>
 #include <x10/array_copy.h>
 #include <x10/misc.h>
+
 #ifdef __cplusplus
 #include <x10/xmacros.h>
 #include <x10/finish.h>

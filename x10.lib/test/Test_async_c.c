@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_c.c,v 1.5 2007-10-11 08:27:16 ganeshvb Exp $ */
+/* $Id: Test_async_c.c,v 1.6 2007-10-11 10:55:59 ganeshvb Exp $ */
 
 #include <x10/x10lib.h>
 
@@ -30,7 +30,7 @@ main (int argc, char* argv[])
 
   x10_init(NULL, 0);
 
-  int val = 333;
+  long val = 333;
   if (x10_here() == 0)
     for (x10_place_t target = 0; target < x10_num_places(); target++)
        x10_async_spawn_inline (target, 0, &val, sizeof(val));

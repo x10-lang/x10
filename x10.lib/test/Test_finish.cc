@@ -83,7 +83,7 @@ int main ()
     assert (sum == sum1);
   }
 
-  cout <<"Test_exception PASSED" << endl;
+  cout <<"Test_finish PASSED" << endl;
 
   cs = 0;
   cs = finishStart (cs);

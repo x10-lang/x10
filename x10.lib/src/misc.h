@@ -1,18 +1,16 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.13 2007-10-11 08:27:15 ganeshvb Exp $
+ * $Id: misc.h,v 1.14 2007-10-11 10:55:56 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_MISC_H
 #define __X10_MISC_H
 
+#include <lapi.h>
 #include <x10/err.h>
 #include <x10/types.h>
-#include <x10/switch.h>
-#include <x10/array.h>
-
 /* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {

@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.12 2007-10-08 06:09:58 ganeshvb Exp $
+# $Id: Makefile,v 1.13 2007-10-11 10:55:59 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -53,11 +53,15 @@ TARGET8 = Test_async_agg_c
 SRCS8 = $(TARGET4).c
 OBJS8 = $(TARGET4).o
 
-TARGET9 = Test_exception
+TARGET9 = Test_finish
 SRCS9 = $(TARGET9).cc
 OBJS9 = $(TARGET9).o
 
-TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET9)
+TARGET10 = Test_broadcast
+SRCS10 = $(TARGET10).cc
+OBJS10 = $(TARGET10).o
+
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET9) $(TARGET10)
 
 all: $(TARGETS)
 	(cd array; $(MAKE) $@)
@@ -134,10 +138,14 @@ $(TARGET9): $(OBJS9)
 $(TARGET9).o: $(TARGET9).cc
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
-install:
-install:
-	@echo "Done \"install\" in \"test\" subdir."
 
+$(TARGET10): $(OBJS10)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS10) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET10).o: $(TARGET10).cc
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 install:
 	@echo "Done \"install\" in \"test\" subdir."
 

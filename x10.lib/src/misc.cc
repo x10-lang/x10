@@ -8,7 +8,7 @@ x10lib::Broadcast (void* buffer, size_t nbytes)
   
   LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) buffer, remoteAddresses));
   
-  if (__x10_my_place == __x10_my_place)
+  if (__x10_my_place == 0)
     {
       for (x10_place_t p = 0; p < __x10_num_places; p++) 
 	{

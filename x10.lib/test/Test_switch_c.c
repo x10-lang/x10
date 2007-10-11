@@ -7,6 +7,8 @@ void* headerHandler (lapi_handle_t* hndl, void* uhdr, int* ulen,
 		     ulong* mlen, compl_hndlr_t** comp, void** uinfo)
 {
   cntr++;
+  lapi_return_info_t *ret_info = (lapi_return_info_t*) mlen;
+  ret_info->ctl_flags = LAPI_BURY_MSG;
   *comp = NULL;
   return NULL;
 }
