@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.7 2007-08-21 06:10:25 ganeshvb Exp $
+# $Id: Makefile,v 1.8 2007-10-11 08:27:15 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -23,8 +23,8 @@ RANLIB = ranlib -X64
 
 ARRAY_A = array.a
 
-SRCS =  array.cc
-OBJS = array.o
+SRCS =  array.cc array_copy.cc
+OBJS = array.o array_copy.o
 HEADERS = array.h region.h point.h dist.h
 
 all: $(ARRAY_A)

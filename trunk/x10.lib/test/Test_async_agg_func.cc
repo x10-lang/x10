@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg_func.cc,v 1.3 2007-09-13 15:20:04 ganeshvb Exp $ */
+/* $Id: Test_async_agg_func.cc,v 1.4 2007-10-11 08:27:16 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -49,7 +49,7 @@ main (int argc, char* argv[])
    asyncFlush_t<1> (0);
      
   x10lib::SyncGlobal (); 
-  cout << here() << " I " << I << " " << K << endl;
+//  cout << here() << " I " << I << " " << K << endl;
   assert (I == numPlaces() * N * (N-1) / 2 * m);
   assert (K == numPlaces() * N) ;
 

@@ -15,7 +15,7 @@ int main (int argc, char** argv)
 {
   x10_init(NULL, 0);
   cntr = 0;
-  LAPI_Addr_set (x10_get_handle(), (void*) headerHandler, 10);
+  LAPI_Addr_set (x10_get_handle(), (void*) headerHandler, __x10_num_handlers + 1);
   if (x10_here() == 0) {
     x10_switch_t s = x10_alloc_switch();
     for (int i = 0; i < x10_num_places(); i++) {
@@ -27,7 +27,7 @@ int main (int argc, char** argv)
       x10_decrement_switch(s);
       LAPI_Amsend (x10_get_handle(),
 		   i,
-		   (void*) 10,
+		   (void*) (__x10_num_handlers + 1),
 		   NULL,
 		   0,
 		   NULL,

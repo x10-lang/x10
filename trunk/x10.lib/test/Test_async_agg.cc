@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.12 2007-09-13 15:20:04 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.13 2007-10-11 08:27:16 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -101,7 +101,7 @@ main (int argc, char* argv[])
   assert (J == __x10_num_places * N * (N-1) / 2 * m);
   assert (K == __x10_num_places * N) ;
   
-  cout << __x10_my_place << " I " << I << " " << J << " " << K << endl;
+  //cout << __x10_my_place << " I " << I << " " << J << " " << K << endl;
   cout << "Test_async_agg PASSED" << endl;
   
   x10lib::Finalize();

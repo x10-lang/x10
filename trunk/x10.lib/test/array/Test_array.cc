@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_array.cc,v 1.5 2007-09-13 15:20:04 ganeshvb Exp $ */
+/* $Id: Test_array.cc,v 1.6 2007-10-11 08:27:16 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -18,6 +18,8 @@ using namespace x10lib;
 int 
 main (int argc, char* argv[])
 {
+  cout << "Test Case Not Working -- please do not use it now " << endl;
+
   x10lib::Init(NULL, 0);
 
   Region<1>* r = new RectangularRegion<1>(Point<1>(99));

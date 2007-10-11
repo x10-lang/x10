@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.16 2007-10-01 08:12:10 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.17 2007-10-11 08:27:15 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -153,7 +153,7 @@ finishInit ()
 } 
 
 void 
-finishTerminate()
+finishFinalize()
 {
   delete [] exceptionCntr;
   delete [] continueCntr;

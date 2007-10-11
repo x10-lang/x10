@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.22 2007-10-08 15:10:25 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.23 2007-10-11 08:27:15 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -11,18 +11,24 @@
 #include <stdlib.h>
 #include <memory.h>
 
-extern x10_err_t asyncRegister();
+extern x10_err_t asyncInit();
+
 extern x10_err_t asyncAggInit();
 extern x10_err_t asyncAggFinalize();
+
 extern x10_err_t asyncAggInit_hc();
 extern x10_err_t asyncAggFinalize_hc();
+
 extern x10_err_t asyncAggInit_ra();
 extern x10_err_t asyncAggFinalize_ra();
-extern x10_err_t miscInit();
+
+extern x10_err_t arrayCopyInit();
+
 extern x10_err_t finishInit();
-extern void finishTerminate();
+extern void finishFinalize();
+
 extern void arrayInit();
-extern x10_err_t miscTerminate();
+
 extern void reduceInit();
 extern void reduceFinalize();
 
@@ -90,7 +96,6 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	else
 		(void)LAPI_Senv(__x10_hndl, INTERRUPT_SET, 0);
 	
-
 	/* global data initialization */
 	(void)LAPI_Qenv(__x10_hndl, TASK_ID, &__x10_my_place);
 	(void)LAPI_Qenv(__x10_hndl, NUM_TASKS, &__x10_num_places);
@@ -99,14 +104,15 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	(void)LAPI_Setcntr(__x10_hndl, &__x10_wait_cntr, 0);
 	__x10_tf.Util_type = LAPI_GET_THREAD_FUNC;
 	(void)LAPI_Util(__x10_hndl, (lapi_util_t *)&__x10_tf);
-	
-        finishInit();
-        asyncRegister();
+
+	/* initialize individual sub modules */
+        asyncInit();
         asyncAggInit();
-	asyncAggInit_hc();
-	asyncAggInit_ra();
+	asyncAggInit_hc(); /* an experimental version */
+	asyncAggInit_ra(); /* an experimental version */
+        finishInit();	
         arrayInit();
-	miscInit();
+	arrayCopyInit();
 	reduceInit();
 
         LAPI_Gfence (__x10_hndl);
@@ -129,10 +135,12 @@ x10_err_t Finalize(void)
 {
   LAPI_Gfence (__x10_hndl);
   
-  finishTerminate();
+  /* terminate the individual sub modules */
+
   asyncAggFinalize();
   asyncAggFinalize_hc();
   asyncAggFinalize_ra();
+  finishFinalize();
   reduceFinalize();
  
   /* termination should be preceded by initialization */

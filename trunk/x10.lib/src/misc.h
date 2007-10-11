@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: misc.h,v 1.12 2007-10-08 15:12:21 ganeshvb Exp $
+ * $Id: misc.h,v 1.13 2007-10-11 08:27:15 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,62 +15,26 @@
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
-extern "C" void* arrayCopySwitch (void * args);
 namespace x10lib {
   
   extern lapi_handle_t __x10_hndl;
   extern int __x10_num_places;
   extern int __x10_my_place;
-
-  /*
-   * a type representing the closure for the asyncArrayCopy
-   * handler = unique handle for the array.
-   * dstOffset = destination offset.
-   * Every closure type argument to asyncArrayCopy should have this as its base class.
-   */
-  struct asyncArrayCopyClosure
-  {
-    asyncArrayCopyClosure () {}
-    asyncArrayCopyClosure (int _handle, size_t _destOffset) :
-      handle (_handle),
-	 destOffset (_destOffset) {}    
-    
-    int handle;
-    size_t destOffset;
-  };
-
-  /**
-    * arg0 = src address.
-    * arg1 = src offset (bytes).
-    * closure = pointer to closure (a derived class of asyncArrayCOpyClosure).
-    * closureSize = size of the clsoure.
-    * target = destination node where the dest. array is residing.
-    * len = number of bytes to be copied.
-    * c = clock (optional).
-    */
-
-    /*
-     * DESCRIPTION :  This methods invokes the arrayCopySwitch method in the destinaion
-     * The arrayCopySwitch method needs to be overloaded by the programmer. It's signature
-     * is void* arrayCopySwitch (void* args). 
-    **/
-
-  
-  x10_err_t
-    asyncArrayCopy (void* src, size_t srcOffset,		  
-		    asyncArrayCopyClosure* args, size_t argSize,
-		    size_t len, int target, Clock* c=NULL);
-  x10_err_t
-    asyncArrayCopyRaw (void* src, size_t srcOffset,
-		       asyncArrayCopyClosure* args, size_t argSize,
-		       size_t len, int target, Clock* c=NULL);
      
-  x10_err_t Broadcast (void* buffer, size_t nbytes, x10_place_t root);
+  x10_err_t Broadcast (void* buffer, size_t nbytes);
   
   
 } /* closing brace for namespace x10lib */
 #endif
- 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  x10_err_t x10_broadcast (void* buffer, size_t nbytes);
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif
   
