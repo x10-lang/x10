@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.26 2007-06-29 15:54:17 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.27 2007-10-11 15:59:13 ganeshvb Exp $ */
 
 /* Main Version */
 
@@ -179,7 +179,8 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
       VERIFY = java::lang::Integer::parseInt(args[q])%3;
     }
   }
-  
+ 
+  finishStart(-1); 
   const glong_t tableSize = (1UL << logTableSize);
   const glong_t numUpdates = tableSize*4*NUMPLACES;
   GLOBAL_SPACE.Table = new localTable (tableSize);
@@ -327,7 +328,7 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
 }
 
 
-Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
+const Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
 
 int RandomAccess_Dist::NUMPLACES = numPlaces();
 
