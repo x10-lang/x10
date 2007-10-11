@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.13 2007-10-11 10:55:59 ganeshvb Exp $
+# $Id: Makefile,v 1.14 2007-10-11 11:57:59 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -64,6 +64,7 @@ OBJS10 = $(TARGET10).o
 TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET9) $(TARGET10)
 
 all: $(TARGETS)
+	rm *.o
 	(cd array; $(MAKE) $@)
 	(cd sched; $(MAKE) $@)
 
