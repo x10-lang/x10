@@ -1,12 +1,13 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.1 2007-10-11 08:27:15 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.2 2007-10-11 11:57:59 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 #include <x10/array_copy.h>
 #include <x10/xmacros.h>
+#include <x10/xassert.h>
 
 static int max_uhdr_sz;
 
