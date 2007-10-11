@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_ra.cc,v 1.3 2007-09-13 15:20:04 ganeshvb Exp $
+ * $Id: aggregate_ra.cc,v 1.4 2007-10-11 08:27:15 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -153,8 +153,6 @@ asyncAggFinalize_ra ()
 {  
    return X10_OK;
 }
-
-//template <typename FUNC>
 
 static x10_err_t
 sort_data (size_t size, ulong mask, int cond, char *inbuf, int len, FUNC func)

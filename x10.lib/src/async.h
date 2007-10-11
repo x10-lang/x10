@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.h,v 1.16 2007-09-24 14:34:10 ganeshvb Exp $
+ * $Id: async.h,v 1.17 2007-10-11 08:27:15 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -28,9 +28,6 @@ extern int __x10_num_places;
 extern int __x10_my_place;
 
 x10_err_t asyncSpawnInline(x10_place_t tgt,
-				x10_async_handler_t hndlr, int n, ...);
-
-x10_err_t asyncSpawnInline(x10_place_t tgt,
 			x10_async_handler_t hndlr, void* args, size_t size);
 
 
@@ -42,11 +39,8 @@ x10_err_t asyncSpawnInline(x10_place_t tgt,
 extern "C" {
 #endif
 
-int x10_async_switch(x10_async_handler_t hndlr,
-			x10_async_arg_t *args, int n);
-
 x10_err_t x10_async_spawn_inline(x10_place_t tgt,
-			x10_async_handler_t hndlr, int n, ...);
+			x10_async_handler_t hndlr, void* args, size_t size);
 
 
 x10_err_t x10_async_register(void);
