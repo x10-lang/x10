@@ -11,7 +11,6 @@ import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
 import x10.runtime.cws.Worker;
 import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
-import x10.runtime.cws.TaskBarrier;
 
 public class SV {
 	
