@@ -293,8 +293,8 @@ public class SV {
 				g.invoke(job);
 				//System.out.println(" ...done with " + job);
 				s += System.nanoTime();
-				double secs = ((double) s)/NPS;
-				System.out.printf("N=%d t=%5.3f", N, secs);
+				double GEps = M/(double) s;
+				System.out.printf("N=%d t=%d ns %5.3f GE/s", N, s, GEps);
 				System.out.println();
 				if (! graph.verifySV())
 					System.out.printf("%b ", false);
