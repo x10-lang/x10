@@ -178,14 +178,13 @@ public class Worker extends Thread {
 			if (cl==null)
 				return null;
 		} catch (AdvancePhaseException z) { 
+			unlock();
 			throw z;
 		} catch (Throwable z) {
 			// wrap in an error.
-			throw new Error(z); 
-		} finally {
 			unlock();
-		}
-
+			throw new Error(z); 
+		} 
 		cl.lock(thief);
 		
 		Status status = null;
@@ -353,7 +352,7 @@ public class Worker extends Thread {
 		return cl;
 	}
 	/**
-	 * Return the closure at the bottom fo the deque.
+	 * Return the closure at the bottom of the deque.
 	 * Required: ws = Thread.currentThread()
 	 * @return
 	 */
@@ -466,6 +465,8 @@ public class Worker extends Thread {
 		return false;
 		
 	}
+	
+	
 	
 
 	/**
@@ -669,6 +670,8 @@ public class Worker extends Thread {
 							assert cache.empty();
 							break;
 						}
+						// no one must be waiting for an answer.
+						assert bottom==null;
 						// next statement is a customized Frame.execute(w), with no need
 						// to push frame on deque.
 						try {
