@@ -1,4 +1,4 @@
-package x10.runtime.cws;
+
 
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
@@ -9,7 +9,7 @@ package x10.runtime.cws;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import jsr166y.forkjoin.ForkJoinTask;
+//import jsr166y.forkjoin.ForkJoinTask;
 
 /**
  * A synchronization barrier for ForkJoinTasks.  A TaskBarrier is
@@ -95,7 +95,7 @@ import jsr166y.forkjoin.ForkJoinTask;
  * maximum number of registered parties to 65535. Attempts to register
  * additional parties result in IllegalStateExceptions.  
  */
-public class TaskBarrier {
+class TaskBarrier {
     /*
      * This class implements a form of X10 "clocks".  Thanks to Vijay
      * Saraswat for the idea of applying it to ForkJoinTasks.
@@ -246,7 +246,8 @@ public class TaskBarrier {
             int p = getCycle();
             if (p != cycle || p < 0)
                 return p;
-            ForkJoinTask<?> t = null; // vj -- no helping!!
+            /// vj no helping!
+           /*ForkJoinTask<?> t = null; // vj -- no helping!!
             if (t != null) {
                 p = getCycle();
                 if (p != cycle) { // if barrier advanced
@@ -255,7 +256,7 @@ public class TaskBarrier {
                 }
                 else
                     t.exec();
-            }
+            }*/
         }
     }
 

@@ -39,49 +39,49 @@ public class FibC  extends Closure {
   }
   
   
- @AllocateOnStack
- static class FibFrame extends Frame {
-//	 The label at which computation must be continued by the associated
-		// closure.
-		public volatile int PC;
-    final int n;
-    int x,y;
-    public FibFrame(int n) {
-      super();
-      this.n=n;
-    }
-    @Override public void setOutletOn(final Closure c) {
-        assert PC==LABEL_1 || PC == LABEL_2;
-        c.setOutlet((PC==LABEL_1) ?
-            new Outlet() {
-              public void run() {
-            	  
-                x = c.resultInt();
-                final int xcheck = realfib(n-1);
-                if (x != xcheck)
-                	System.out.println(Thread.currentThread() 
-                			+ " fails when joining x=fib(" + (n-1) + ") yielding " + x + "(correct="+ xcheck+")");
-              }
-              public String toString() { return "OutletInto x from " + c;}
-              } 
-        : new Outlet() {
-          public void run() {
-            y = c.resultInt();
-            final int ycheck = realfib(n-2);
-            if (y != ycheck)
-            	System.out.println(Thread.currentThread() + " fails when joining y=fib(" + (n-2) + ") yielding " + y + "(correct="+ ycheck+")");
-          }
-          public String toString() { return "OutletInto y from " + c;}
-          });
-      
-      }
-    
-    public Closure makeClosure() {
-      return new FibC(this);
-    }
-    public String toString() { return "FibFrame(n="+n+",x="+x+",y="+y+",PC=" + PC + ")";}
+  @AllocateOnStack
+  static class FibFrame extends Frame {
+//	  The label at which computation must be continued by the associated
+	  // closure.
+	  public volatile int PC;
+	  final int n;
+	  int x,y;
+	  public FibFrame(int n) {
+		  super();
+		  this.n=n;
+	  }
+	  @Override public void setOutletOn(final Closure c) {
+		  assert PC==LABEL_1 || PC == LABEL_2;
+		  c.setOutlet((PC==LABEL_1) ?
+				  new Outlet() {
+			  public void run() {
+
+				  x = c.resultInt();
+				  final int xcheck = realfib(n-1);
+				  if (x != xcheck)
+					  System.out.println(Thread.currentThread() 
+							  + " fails when joining x=fib(" + (n-1) + ") yielding " + x + "(correct="+ xcheck+")");
+			  }
+			  public String toString() { return "OutletInto x from " + c;}
+		  } 
+		  : new Outlet() {
+			  public void run() {
+				  y = c.resultInt();
+				  final int ycheck = realfib(n-2);
+				  if (y != ycheck)
+					  System.out.println(Thread.currentThread() + " fails when joining y=fib(" + (n-2) + ") yielding " + y + "(correct="+ ycheck+")");
+			  }
+			  public String toString() { return "OutletInto y from " + c;}
+		  });
+
+	  }
+
+	  public Closure makeClosure() {
+		  return new FibC(this);
+	  }
+	  public String toString() { return "FibFrame(n="+n+",x="+x+",y="+y+",PC=" + PC + ")";}
   }
-  
+
   
   static int fib(Worker w, int n) throws StealAbort { // fast mode
     if (n < 2) return n;
@@ -94,7 +94,8 @@ public class FibC  extends Closure {
     final int x = fib(w, n-1);
     final int xcheck = realfib(n-1);
     if (x != xcheck)
-    	System.out.println(w + " fails when evaluating x=fib(" + (n-1) + ") yielding " + x + "(correct="+ xcheck+")");
+    	System.out.println(w + " fails when evaluating x=fib(" + (n-1) + ") yielding " 
+    			+ x + "(correct="+ xcheck+")");
     
     // Now need to figure out who is doing fib(n-2).
     // If frame has been stolen, then this thread wont do fib(n-2).
