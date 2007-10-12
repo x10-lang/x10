@@ -193,7 +193,7 @@ public class SpanCI {
 				w.popFrame();
 				w.abortOnSteal();
 				if (u==baseU) break;
-				frame = (TFrame) w.cache.currentFrame();
+				frame = (TFrame) w.currentFrame();
 			} else {
 				final int v = g[u].neighbors[k];
 				boolean result = c.get(v) == 0 && c.compareAndSet(v,0,1);
