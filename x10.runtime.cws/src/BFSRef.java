@@ -8,8 +8,7 @@
  */
 
 
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 
 import x10.runtime.cws.Frame;
@@ -19,15 +18,13 @@ import x10.runtime.cws.Worker;
 import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
 
 
-public class BFS {
+public class BFSRef {
 	
 	public static final 
-	AtomicIntegerFieldUpdater<V> UPDATER = AtomicIntegerFieldUpdater.newUpdater(V.class, "level");
+	AtomicReferenceFieldUpdater<V,V> UPDATER = AtomicReferenceFieldUpdater.newUpdater(V.class, V.class, "parent");
 	public class V  extends Frame {
 		public final int index;
-		public volatile int level=-1;
-		public int degree;
-		public V parent;
+		public volatile V parent;
 		public V [] neighbors;
 		public V(int i){index=i;}
 		volatile int PC=0;
@@ -37,16 +34,12 @@ public class BFS {
 				return;
 			}
 			PC=1;
-			assert level >=0;
 			if (Worker.reporting)
 				System.out.println(Thread.currentThread() + " visits " + this);
 						
-			for (int k=0; k < degree; k++) {
+			for (int k=0; k < neighbors.length; k++) {
 				final V v = neighbors[k];
-				if (v.level == -1 && UPDATER.compareAndSet(v,-1,level+1)) {
-					//if (Worker.reporting)
-					//	System.out.println(w + " marks " + v + " at ply " + (level+1)) ;
-					v.parent=this;
+				if (UPDATER.get(v)==null && UPDATER.compareAndSet(v,null,this)) {
 					w.pushFrameNext(v);
 				
 				}
@@ -55,15 +48,12 @@ public class BFS {
 		
 		public boolean verify(V root) {
 			boolean result = false;
-			try { if (level < 0) return result;
 			V p = parent;
-			for (int i=0; i < level; i++) {
-				if (p==null) return result;
-				p=p.parent;
-			}
+			try { if (p==null) return result;
+			while ((p=p.parent)!=null && p != root);
 			return result = (p==root);
 			} finally {
-				if ((true || reporting) && ! result)
+				if (reporting && ! result)
 					System.out.println(Thread.currentThread() + " finds bad guy " + this);
 			}
 		}
@@ -71,7 +61,7 @@ public class BFS {
 		public String toString() {
 			String s="[" + (neighbors.length==0? "]" : "" + neighbors[0].index);
 			for (int i=1; i < neighbors.length; i++) s += ","+neighbors[i].index;
-			return "v(" + index + ",level=" + level + ",degree="+degree+ ",n=" + s+"])";
+			return "v(" + index + ",degree="+neighbors.length+ ",n=" + s+"])";
 		}
 	}
 	
@@ -94,7 +84,7 @@ public class BFS {
 	
 	int randSeed = 17673573; 
 	int rand32() { return randSeed = 1664525 * randSeed + 1013904223;}
-	public BFS (int n, int m){
+	public BFSRef (int n, int m){
 		N=n;
 		M=m;
 		/*constructing edges*/
@@ -138,25 +128,25 @@ public class BFS {
 		
 		//visitCount = new AtomicIntegerArray(N);
 		int[] stack = new int [N]; 
-		int[] connected_comps  = new int [N]; 
+		int[] connected_comps  = new int [N], level = new int[N]; 
 		
 		int top=-1;
 		ncomps=0;
 		for(int i=0;i<N ;i++) {
-			if (G[i].level==1) continue;
+			if (level[i]==1) continue;
 			connected_comps[ncomps++]=i;
 			stack[++top]=i;
-			G[i].level=1;
+			level[i]=1;
 			while(top!=-1) {
 				int v = stack[top];
 				top--;
 				
 				for(int j=0;j<D[v];j++) {
 					final int mm = NB[v][j];
-					if(G[mm].level !=1){
+					if(level[mm] !=1){
 						top++;
 						stack[top]=mm;
-						G[mm].level=1;
+						level[mm]=1;
 					}
 				}
 			}
@@ -185,8 +175,6 @@ public class BFS {
 		//visited = new boolean[N];
 		
 		for(int i=0;i<N;i++) {
-			G[i].degree=D[i];
-			G[i].level=-1;
 			G[i].neighbors=new V [D[i]];
 			for(j=0;j<D[i];j++) {
 				G[i].neighbors[j]=G[NB[i][j]];
@@ -211,7 +199,7 @@ public class BFS {
 				//System.out.println(Thread.currentThread() + " fails at " + G[i]);
 		}
 	}
-	static BFS graph;
+	static BFSRef graph;
 	static boolean reporting = false;
 	static final long NPS = (1000L * 1000 * 1000);
 	static boolean graphOnly =false;
@@ -253,14 +241,13 @@ public class BFS {
 			// ensure the sole reference to the previous graph is nulled before gc.
 			graph = null;
 			System.gc();
-			graph = new BFS(N,M);
+			graph = new BFSRef(N,M);
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
 			for (int k=0; k < 10; ++k) {
 				long s = System.nanoTime();
 				final V root = graph.G[1];
-				root.level=0;
 				root.parent=root;
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, root);
 				g.invoke(job);
@@ -281,10 +268,10 @@ public class BFS {
 	void clearColor() {
 		for (int i = 0; i < N; ++i) {
 			V v= graph.G[i];
-			v.level=-1;
 			v.PC=0;
-			v.parent=null;
+			UPDATER.set(v,null);
 		}
+			
 	}
 }
 

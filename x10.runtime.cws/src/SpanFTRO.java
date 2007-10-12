@@ -14,6 +14,7 @@
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
+
 import x10.runtime.cws.Frame;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
@@ -64,6 +65,24 @@ public class SpanFTRO {
 			// cannot call w.popFrame() because this frame may not be
 			// the current frame on the dequeue, since the task is not
 			// properly nested.
+		}
+		public boolean verify(V root) {
+			boolean result = false;
+			V p = parent;
+			int count=0;
+			try { 
+				if (p==null) return result;
+
+				while ((p=p.parent)!=null && p !=this && p != root && count < N) {
+					count++;
+				}
+				return result = (count < N && p==root && (this==root || p !=this));
+			} finally {
+				if (reporting && ! result)
+					System.out.println(Thread.currentThread() + " finds bad guy " + this +
+							"count=" + count + "p=" + p );
+				
+			}
 		}
 		@Override
 		public String toString() {
@@ -206,6 +225,18 @@ public class SpanFTRO {
 	}
 	
 	boolean verifyTraverse(V root) {
+		int i=0;
+		boolean result = false;
+		try {
+			for (;i<N && G[i].verify(root);i++) ;
+			return result = (i==N);
+		}finally {
+			if (reporting && ! result)
+				System.out.println(Thread.currentThread() + " fails at " + G[i]);
+		}
+	}
+	/*
+	boolean verifyTraverse(V root) {
 		V[] X = new V [N];
 		for (int i=0;i<N;i++) {
 			//System.out.println( G[i] + ".parent=" + G[i].parent);
@@ -222,9 +253,9 @@ public class SpanFTRO {
 			}
 		}
 		return true;
-	}
+	}*/
 	static SpanFTRO graph;
-	static boolean reporting = false;
+	static boolean reporting = true;
 	static final long NPS = (1000L * 1000 * 1000);
 	static boolean graphOnly =false;
 	public static void main(String[] args) {
@@ -255,13 +286,15 @@ public class SpanFTRO {
 			System.out.println("Usage: java SpanFTRO <threads> [<N> [<Degree> [[false|true] [false|true]]]]");
 			return;
 		}
+		//System.out.print("Creating pool...");
 		Pool g = new Pool(procs);
+		//System.out.print("done.");
 		if (num >= 0) {
 			Ns = new int[] {num};
 		}
 		for (int i=Ns.length-1; i >= 0; i--) {
 			
-			int N = Ns[i], M = D*N;
+			final int N = Ns[i], M = D*N;
 			// ensure the sole reference to the previous graph is nulled before gc.
 			graph = null;
 			System.gc();
@@ -272,16 +305,17 @@ public class SpanFTRO {
 			for (int k=0; k < 9; ++k) {
 				UPDATER.set(graph.G[1], graph.G[1]);
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, graph.G[1]);
+				//System.out.println("Starting timed section...");
 				long s = System.nanoTime();
 				g.invoke(job);
 				long t = System.nanoTime() - s;
 				double secs = ((double) t)/NPS;
-				double Geps = M/(secs * 1000*1000*1000);
+				double Geps = M/(double)t;
 				
 				if (! graph.verifyTraverse(graph.G[1]))
 					System.out.println("false");
 				else {
-					System.out.printf("N=%d t=%5.4f %5.4f GigeEdges/s", N, secs, Geps);
+					System.out.printf("N=%d t=%5.4f ns %5.4f GigeEdges/s", N, (double)t, Geps);
 					System.out.println();
 				}
 				graph.clearColor();
@@ -294,6 +328,8 @@ public class SpanFTRO {
 	}
 	void clearColor() {
 		for (int i = 0; i < N; ++i) {
+			V v=graph.G[1];
+			v.PC=0;
 			UPDATER.set(graph.G[1],null);
 		}
 	}
