@@ -11,6 +11,8 @@
  * Intended to be used as the basis for speedup numbers.
  */
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -19,21 +21,18 @@ public class BFSSeq {
 	
 	public class V  implements Comparable {
 		public final int index;
-		public int level=-1;
-		public int degree;
 		public V parent;
 		public V [] neighbors;
 		public V(int i){index=i;}
 		
-		public void compute(int l, Set<V> a)  {
-			assert level >=0;
+		public void compute(int l, List<V> a)  {
+			assert parent !=null;
 			if (reporting)
 				System.out.println(Thread.currentThread() + " visits " + this);
 						
-			for (int k=0; k < degree; k++) {
+			for (int k=0; k < neighbors.length; k++) {
 				final V v = neighbors[k];
-				if (v.level < 0) {
-					v.level = l;
+				if (v.parent==null) {
 					v.parent=this;
 					a.add(v);
 					if (reporting)
@@ -48,30 +47,26 @@ public class BFSSeq {
 			return index  - other.index;
 		}
 		public void computeBFS() {
-			Set<V> nodes = new TreeSet<V>();
-			level = 1;
+			List<V> nodes = new ArrayList<V>();
 			parent=this;
 			
 			nodes.add(this);
 			int l=1;
 			
 			while (! nodes.isEmpty()) {
-				Set<V> next = new TreeSet<V>();
+				List<V> next = new ArrayList<V>();
 				for( V node : nodes) node.compute(l,next);
 				nodes=next;
 				l++;
 				if (reporting)
-					System.out.println(Thread.currentThread() + " moves to level " + level);
+					System.out.println(Thread.currentThread() + " moves to level " + l);
 			}
 		}
 		public boolean verify(V root) {
 			boolean result = false;
-			try { if (level < 0) return result;
 			V p = parent;
-			for (int i=0; i < level; i++) {
-				if (p==null) return result;
-				p=p.parent;
-			}
+			try { if (p==null) return result;
+			while ((p=p.parent)!=null && p != root);
 			return result = (p==root);
 			} finally {
 				if (reporting && ! result)
@@ -82,7 +77,7 @@ public class BFSSeq {
 		public String toString() {
 			String s="[" + (neighbors.length==0? "]" : "" + neighbors[0].index);
 			for (int i=1; i < neighbors.length; i++) s += ","+neighbors[i].index;
-			return "v(" + index + ",level=" + level + ",degree="+degree+ ",n=" + s+"])";
+			return "v(" + index + ",degree="+neighbors.length+ ",n=" + s+"])";
 		}
 	}
 	
@@ -157,25 +152,25 @@ public class BFSSeq {
 		
 		//visitCount = new AtomicIntegerArray(N);
 		int[] stack = new int [N]; 
-		int[] connected_comps  = new int [N]; 
+		int[] connected_comps  = new int [N], level = new int[N];
 		
 		int top=-1;
 		ncomps=0;
 		for(int i=0;i<N ;i++) {
-			if (G[i].level==1) continue;
+			if (level[i]==1) continue;
 			connected_comps[ncomps++]=i;
 			stack[++top]=i;
-			G[i].level=1;
+			level[i]=1;
 			while(top!=-1) {
 				int v = stack[top];
 				top--;
 				
 				for(int j=0;j<D[v];j++) {
 					final int mm = NB[v][j];
-					if(G[mm].level==0){
+					if(level[mm]==0){
 						top++;
 						stack[top]=mm;
-						G[mm].level=1;
+						level[mm]=1;
 					}
 				}
 			}
@@ -204,8 +199,6 @@ public class BFSSeq {
 		//visited = new boolean[N];
 		
 		for(int i=0;i<N;i++) {
-			G[i].degree=D[i];
-			G[i].level=-1;
 			G[i].neighbors=new V [D[i]];
 			for(j=0;j<D[i];j++) {
 				G[i].neighbors[j]=G[NB[i][j]];
@@ -292,7 +285,6 @@ public class BFSSeq {
 	void clearColor() {
 		for (int i = 0; i < N; ++i) {
 			V v= graph.G[i];
-			v.level=-1;
 			v.parent=null;
 		}
 	}

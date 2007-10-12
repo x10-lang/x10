@@ -252,7 +252,7 @@ public class SpanFTRO {
 			}
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java SpanF <threads> [<N> [<Degree> [[false|true] [false|true]]]]");
+			System.out.println("Usage: java SpanFTRO <threads> [<N> [<Degree> [[false|true] [false|true]]]]");
 			return;
 		}
 		Pool g = new Pool(procs);
@@ -276,7 +276,7 @@ public class SpanFTRO {
 				g.invoke(job);
 				long t = System.nanoTime() - s;
 				double secs = ((double) t)/NPS;
-				double Geps = M/(secs * 1000*1000);
+				double Geps = M/(secs * 1000*1000*1000);
 				
 				if (! graph.verifyTraverse(graph.G[1]))
 					System.out.println("false");
