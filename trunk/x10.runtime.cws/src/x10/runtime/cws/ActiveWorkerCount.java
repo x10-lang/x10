@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  * @author vj 05/27/07
  *
  */
-public class ActiveWorkerCount {
+class ActiveWorkerCount {
 	volatile int numCheckedOut;
 	final AtomicIntegerFieldUpdater<ActiveWorkerCount> numCheckedOutUpdater;
 	final Runnable barrierAction;

@@ -10,7 +10,7 @@ package x10.runtime.cws;
  * @author vj 05/18/2007
  *
  */
- public class Cache {
+class Cache {
 	public static final int MAXIMUM_CAPACITY = 1 << 30;
 	public static final int INITIAL_CAPACITY = 1 << 20; // too high??
 	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
