@@ -62,15 +62,6 @@ public final value FtStatic {
 			m_array = (double[:self.rect && self.rank==1]) new double[[-offset : size-1]];
 		}
 
-		DoubleArray(int size, int offset, place p) {
-			m_length = size;
-			m_offset = offset;
-			m_domain = [0 : size-1];
-			m_start = 0; m_end = size-1;
-			// Arrays should be aligned with the cache line size (128 for FT).
-			m_array = (double[:self.rect && self.rank==1]) new double[[-offset : size-1]->p];
-		}
-
 		DoubleArray(int start, int end, int offset) {
 			m_length = end-start+1;
 			m_offset = offset;
@@ -133,12 +124,12 @@ public final value FtStatic {
 	private static void checksum(final DoubleArray C, final int PID, final int itr, final clock clk,
 				     final int NX, final int NY, final int NZ,
 				     final double [:self.rect && self.rank==1] checksum_real,
-				     final double [:self.rect && self.rank==1] checksum_imag) { 
+				     final double [:self.rect && self.rank==1] checksum_imag) {
 
 		double sum_real = 0;
 		double sum_imag = 0;
 		final double[:self.rect && self.rank==1] temp = C.m_array;
-		finish for (int j=1; j <= 1024; ++j) {
+		for (int j=1; j <= 1024; ++j) {
 			final int q = j % NX;
 			final int r = (3*j) % NY;
 			final int s = (5*j) % NZ;
@@ -216,78 +207,87 @@ public final value FtStatic {
 		}
 		final int CLASS = CLASS_TMP;
 		final int FT_COMM = FT_COMM_TMP;
-		final int NX, NY, NZ, MAXDIM, MAX_ITER;
-		final String class_id_str;
-		final char class_id_char;
+		final int _NX, _NY, _NZ, _MAXDIM, _MAX_ITER;
+		final String _class_id_str;
+		final char _class_id_char;
 		switch (CLASS) {
 			case SS:
-				NX = 64; NY = 64; NZ = 64; MAXDIM = 64; MAX_ITER = 6;
-				class_id_str = "NPB CLASS S 64x64x64 6 iterations";
-				class_id_char = 'S';
+				_NX = 64; _NY = 64; _NZ = 64; _MAXDIM = 64; _MAX_ITER = 6;
+				_class_id_str = "NPB CLASS S 64x64x64 6 iterations";
+				_class_id_char = 'S';
 				break;
 			case WW:
-				NX = 128; NY = 128; NZ = 32; MAXDIM = 128; MAX_ITER = 6;
-				class_id_str = "NPB CLASS W 128x128x32 6 iterations";
-				class_id_char = 'W';
+				_NX = 128; _NY = 128; _NZ = 32; _MAXDIM = 128; _MAX_ITER = 6;
+				_class_id_str = "NPB CLASS W 128x128x32 6 iterations";
+				_class_id_char = 'W';
 				break;
 			case AA:
-				NX = 256; NY = 256; NZ = 128; MAXDIM = 256; MAX_ITER = 6;
-				class_id_str = "NPB CLASS A 256x256x128 6 iterations";
-				class_id_char = 'A';
+				_NX = 256; _NY = 256; _NZ = 128; _MAXDIM = 256; _MAX_ITER = 6;
+				_class_id_str = "NPB CLASS A 256x256x128 6 iterations";
+				_class_id_char = 'A';
 				break;
 			case BB:
-				NX = 512; NY = 256; NZ = 256; MAXDIM = 512; MAX_ITER = 20;
-				class_id_str = "NPB CLASS B 512x256x256 20 iterations";
-				class_id_char = 'B';
+				_NX = 512; _NY = 256; _NZ = 256; _MAXDIM = 512; _MAX_ITER = 20;
+				_class_id_str = "NPB CLASS B 512x256x256 20 iterations";
+				_class_id_char = 'B';
 				break;
 			case CC:
-				NX = 512; NY = 512; NZ = 512; MAXDIM = 512; MAX_ITER = 20;
-				class_id_str = "NPB CLASS C 512x512x512 20 iterations";
-				class_id_char = 'C';
+				_NX = 512; _NY = 512; _NZ = 512; _MAXDIM = 512; _MAX_ITER = 20;
+				_class_id_str = "NPB CLASS C 512x512x512 20 iterations";
+				_class_id_char = 'C';
 				break;
 			case DD:
-				NX = 2048; NY = 1024; NZ = 1024; MAXDIM = 2048; MAX_ITER = 25;
-				class_id_str = "NPB CLASS D 2048x1024x1024 25 iterations";
-				class_id_char = 'D';
+				_NX = 2048; _NY = 1024; _NZ = 1024; _MAXDIM = 2048; _MAX_ITER = 25;
+				_class_id_str = "NPB CLASS D 2048x1024x1024 25 iterations";
+				_class_id_char = 'D';
 				break;
 			default:
-				NX = 2; NY = 4; NZ = 4; MAXDIM = 4; MAX_ITER = 1;
-				class_id_str = "Test mode: 2x4x4 1 iterations";
-				class_id_char = 'T';
+				_NX = 2; _NY = 4; _NZ = 4; _MAXDIM = 4; _MAX_ITER = 1;
+				_class_id_str = "Test mode: 2x4x4 1 iterations";
+				_class_id_char = 'T';
 		}
 		//System.out.println(class_id_str+" FT_COMM = "+FT_COMM);
 
-		final int TOTALSIZE = NX*NY*NZ;
-		final int MAX_PADDED_SIZE = Math.max(2*NX*(NY+CPAD_COLS)*NZ, Math.max(2*NY*(NZ+CPAD_COLS)*NX, 2*NZ*(NX+CPAD_COLS)*NY));
+		final int NX = _NX;
+		final int NY = _NY;
+		final int NZ = _NZ;
+		final int MAXDIM = _MAXDIM;
+		final int MAX_ITER = _MAX_ITER;
+		final String class_id_str = _class_id_str;
+		final char class_id_char = _class_id_char;
 
-		final int [:self.rect && self.rank==1]  dims = 
-		    (int  [:self.rect && self.rank==1]) 
-		    new int [[0:8]] (point [i]){ return (i==0) ? NX 
-		      : (i==1) ? NY+CPAD_COLS
-		      : (i==2) ? NZ
-		      : (i==3) ? NY
-		      : (i==4) ? NZ+CPAD_COLS
-		      : (i==5) ? NX
-		      : (i==6) ? NZ
-		      : (1==7) ? NX+CPAD_COLS
-                      : NY;
-		    };
-		final double [:self.rect && self.rank==1] checksum_real = 
+		final long TOTALSIZE = NX*NY*(long)NZ;
+		final long MAX_PADDED_SIZE = Math.max(2L*NX*(NY+CPAD_COLS)*NZ, Math.max(2L*NY*(NZ+CPAD_COLS)*NX, 2L*NZ*(NX+CPAD_COLS)*NY));
+
+		final int [:self.rect && self.rank==1 && self.zeroBased] dims =
+			(int[:self.rect && self.rank==1 && self.zeroBased])
+			new int [[0:8]] (point [i]){
+				return (i==0) ? NX
+					: (i==1) ? NY+CPAD_COLS
+					: (i==2) ? NZ
+					: (i==3) ? NY
+					: (i==4) ? NZ+CPAD_COLS
+					: (i==5) ? NX
+					: (i==6) ? NZ
+					: (1==7) ? NX+CPAD_COLS
+					: NY;
+			};
+		final double [:self.rect && self.rank==1] checksum_real =
 		    (double [:self.rect && self.rank==1]) new double [[1:MAX_ITER]]; // (point p) {return 0;};
-		final double [:self.rect && self.rank==1] checksum_imag = 
+		final double [:self.rect && self.rank==1] checksum_imag =
 		    (double [:self.rect && self.rank==1]) new double [[1:MAX_ITER]]; // (point p) {return 0;};
 
 		//FFTWTest(); //the name of dll has to begin with lower case!!!
 
 		// these arrays are value arrays, but Igor is too lazy to implement the necessary caching scheme. :-)
 		final DoubleArray[.] Planes2d = new DoubleArray[UNIQUE]
-			(point p) { return new DoubleArray(MAX_PADDED_SIZE/NUMPLACES, OFFSET); };
+			(point p) { return new DoubleArray((int)(MAX_PADDED_SIZE/NUMPLACES), OFFSET); };
 		final DoubleArray[.] Planes1d = new DoubleArray[UNIQUE]
-			(point p) { return new DoubleArray(MAX_PADDED_SIZE/NUMPLACES, 0); };
+			(point p) { return new DoubleArray((int)(MAX_PADDED_SIZE/NUMPLACES), 0); };
 		final DoubleArray[.] V = new DoubleArray[UNIQUE]
-			(point p) { return new DoubleArray(MAX_PADDED_SIZE/NUMPLACES, 0); };
+			(point p) { return new DoubleArray((int)(MAX_PADDED_SIZE/NUMPLACES), 0); };
 		final DoubleArray[.] ex = new DoubleArray[UNIQUE]
-			(point p) { return new DoubleArray(TOTALSIZE/NUMPLACES, 0); };
+			(point p) { return new DoubleArray((int)(TOTALSIZE/NUMPLACES), 0); };
 
 		double cputime1 = -mysecond();
 
@@ -312,67 +312,10 @@ public final value FtStatic {
 				 * reduces variable startup costs, which is important for short benchmarks
 				 */
 				computeInitialConditions(localPlanes2d.m_array, PID);
-				//FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk, 
+				//FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk,
 				//	  dims, FT_COMM);
 				{
-				    final int dim0 = dims[current_orientation*3], 
-					dim1 = dims[current_orientation*3+1], dim2 = dims[current_orientation*3+2],
-					plane_size = dim0*dim1, CHUNK_SZ = (dim0/NUMPLACES)*dim1, numrows = dim0/NUMPLACES;
-				    final double[:self.rect && self.rank==1] local2darray = localPlanes2d.m_array;
-				    //remove finish on August 1, 2007
-				    for (int p = 0; p < dim2/NUMPLACES; p++) {
-					final int offset1 = plane_size*p;
-					FFT2DLocalCols(local2darray, offset1, FFT_FWD, current_orientation, PID);
-					for (int i = 0; i < numrows; i++)
-					    for (int t = 0; t <NUMPLACES; t++) {
-						//final int destID = (PID + t) % NUMPLACES; //the MPI order
-						final int destID = t;
-						final int offset2 = offset1 + destID*CHUNK_SZ + i*dim1;
-						FFT2DLocalRow(local2darray, offset2, FFT_FWD, current_orientation,PID);
-						//int srcStart = localPlanes2d.m_start + offset2*2;
-						final int srcStart = offset2*2;
-						//int destStart = Planes1d[destID].m_start +
-						//        2*(PID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
-						final int destStart = 2*(PID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
-						final place destPlace = UNIQUE[destID];
-						/*
-						 * The below is implemented by grabbing the whole chunk of the array and
-						 * sending it to the destination place, along with the id of a function
-						 * to be used to compute the pointer to the storage where to place this
-						 * chunk.
-						 */
-						/*async (destPlace) clocked(clk) {
-						  x10.lang.Runtime.arrayCopy(localPlanes2darray, srcStart, Planes1d[here.id].m_array, destStart, 2*dim1);
-						  }*/
-						// We cannot do the following, because Planes1d[destID] cannot be dereferenced at PID
-						//x10.lang.Runtime.arrayCopy(localPlanes2darray, srcStart, Planes1d[destID].m_array, destStart, 2*dim1);
-						// The manual version of this code is:
-						for (int j = 0; j < 2*dim1; j++) {
-						    final double srcVal = local2darray[srcStart + j];
-						    final int destIdx = destStart + j;
-						    //add clocked clause on Aug 1, 2007
-						    async (destPlace) clocked(clk) {
-							Planes1d[here.id].m_array[destIdx] = srcVal;
-						    }
-						}
-					    }
-				    }
-				}
-
-
-				next;
-				FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_FWD, current_orientation, PID);
-				next;
-
-				if (PID == 0) System.out.println("Start timing of IBM X10 NAS FT: class "+class_id_char+" ("+class_id_str+", FT_COMM = "+FT_COMM+")");
-				cputime2 = -mysecond();
-				current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
-				computeInitialConditions(localPlanes2d.m_array, PID);
-				init_exp(local_ex.m_array, 1.0e-6, PID);
-				//FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk,
-				//  dims,  FT_COMM);
-				{
-				    final int dim0 = dims[current_orientation*3], 
+				    final int dim0 = dims[current_orientation*3],
 					dim1 = dims[current_orientation*3+1], dim2 = dims[current_orientation*3+2],
 					plane_size = dim0*dim1, CHUNK_SZ = (dim0/NUMPLACES)*dim1, numrows = dim0/NUMPLACES;
 				    final double[:self.rect && self.rank==1] local2darray = localPlanes2d.m_array;
@@ -386,7 +329,7 @@ public final value FtStatic {
 						final int destID = t;
 						final int offset2 = offset1 + destID*CHUNK_SZ + i*dim1;
 						FFT2DLocalRow(local2darray, offset2, FFT_FWD, current_orientation, PID);
-						//int srcStart = local2d.m_start + offset2*2;
+						//int srcStart = localPlanes2d.m_start + offset2*2;
 						final int srcStart = offset2*2;
 						//int destStart = Planes1d[destID].m_start +
 						//        2*(PID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
@@ -399,23 +342,84 @@ public final value FtStatic {
 						 * chunk.
 						 */
 						/*async (destPlace) clocked(clk) {
-						  x10.lang.Runtime.arrayCopy(local2darray, srcStart, Planes1d[here.id].m_array, destStart, 2*dim1);
-						  }*/
-						// We cannot do the following, because Planes1d[destID] cannot be dereferenced at PID
-						//x10.lang.Runtime.arrayCopy(local2darray, srcStart, Planes1d[destID].m_array, destStart, 2*dim1);
+						    x10.lang.Runtime.arrayCopy(local2darray, srcStart,
+									       Planes1d[here.id].m_array, destStart, 2*dim1);
+						}*/
+						// We cannot do the following, because Planes1d[destID] cannot be
+						// dereferenced at PID
+						//x10.lang.Runtime.arrayCopy(local2darray, srcStart, Planes1d[destID].m_array,
+						// destStart, 2*dim1);
 						// The manual version of this code is:
 						for (int j = 0; j < 2*dim1; j++) {
-						    final double srcVal = local2darray[srcStart + j];
-						    final int destIdx = destStart + j;
-						    //add clocked clause on Aug 1, 2007
-						    async (destPlace) clocked(clk) {
-							Planes1d[here.id].m_array[destIdx] = srcVal;
-						    }
+							final double srcVal = local2darray[srcStart + j];
+							final int destIdx = destStart + j;
+							//add clocked clause on Aug 1, 2007
+							async (destPlace) clocked(clk) {
+								Planes1d[here.id].m_array[destIdx] = srcVal;
+							}
 						}
 					    }
 				    }
 				}
+
 				next;
+				FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_FWD, current_orientation, PID);
+				next;
+
+				if (PID == 0) System.out.println("Start timing of IBM X10 NAS FT: class "+class_id_char+" ("+class_id_str+", FT_COMM = "+FT_COMM+")");
+				cputime2 = -mysecond();
+				current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
+				computeInitialConditions(localPlanes2d.m_array, PID);
+				init_exp(local_ex.m_array, 1.0e-6, PID);
+				//FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk,
+				//	  dims,  FT_COMM);
+				{
+				    final int dim0 = dims[current_orientation*3],
+					dim1 = dims[current_orientation*3+1], dim2 = dims[current_orientation*3+2],
+					plane_size = dim0*dim1, CHUNK_SZ = (dim0/NUMPLACES)*dim1, numrows = dim0/NUMPLACES;
+				    final double[:self.rect && self.rank==1] local2darray = localPlanes2d.m_array;
+				    //remove finish on August 1, 2007
+				    for (int p = 0; p < dim2/NUMPLACES; p++) {
+					final int offset1 = plane_size*p;
+					FFT2DLocalCols(local2darray, offset1, FFT_FWD, current_orientation, PID);
+					for (int i = 0; i < numrows; i++)
+						for (int t = 0; t <NUMPLACES; t++) {
+							//final int destID = (PID + t) % NUMPLACES; //the MPI order
+							final int destID = t;
+							final int offset2 = offset1 + destID*CHUNK_SZ + i*dim1;
+							FFT2DLocalRow(local2darray, offset2, FFT_FWD, current_orientation, PID);
+							//int srcStart = local2d.m_start + offset2*2;
+							final int srcStart = offset2*2;
+							//int destStart = Planes1d[destID].m_start +
+							//        2*(PID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
+							final int destStart = 2*(PID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
+							final place destPlace = UNIQUE[destID];
+							/*
+							 * The below is implemented by grabbing the whole chunk of the array and
+							 * sending it to the destination place, along with the id of a function
+							 * to be used to compute the pointer to the storage where to place this
+							 * chunk.
+							 */
+							/*async (destPlace) clocked(clk) {
+							  x10.lang.Runtime.arrayCopy(local2darray, srcStart,
+							  Planes1d[here.id].m_array, destStart, 2*dim1);
+							  }*/
+							// We cannot do the following, because Planes1d[destID] cannot be dereferenced at PID
+							//x10.lang.Runtime.arrayCopy(local2darray, srcStart, Planes1d[destID].m_array, destStart, 2*dim1);
+							// The manual version of this code is:
+							for (int j = 0; j < 2*dim1; j++) {
+								final double srcVal = local2darray[srcStart + j];
+								final int destIdx = destStart + j;
+								//add clocked clause on Aug 1, 2007
+								async (destPlace) clocked(clk) {
+									Planes1d[here.id].m_array[destIdx] = srcVal;
+								}
+							}
+						}
+				    }
+				}
+				next;
+
 				FT_1DFFT(FT_COMM, localPlanes1d.m_array, local_V.m_array, 0, FFT_FWD, current_orientation, PID);
 				next; // NOT redundant
 
@@ -425,11 +429,13 @@ public final value FtStatic {
 				for (int iter = 1; iter <= MAX_ITER; iter ++) {
 					current_orientation = set_view(saved_orientation, PID);
 					parabolic2(localPlanes2d.m_array, local_V.m_array, local_ex.m_array, iter, 1.0e-6);
-					// FFT2DComm_Pencil(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk, dims);
+					//FFT2DComm_Pencil(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk,
+					//  dims);
 					{
-					    final int dim0 = dims[current_orientation*3], 
+					    final int dim0 = dims[current_orientation*3],
 						dim1 = dims[current_orientation*3+1], dim2 = dims[current_orientation*3+2],
-						plane_size = dim0*dim1, CHUNK_SZ = (dim0/NUMPLACES)*dim1, numrows = dim0/NUMPLACES;
+						plane_size = dim0*dim1, CHUNK_SZ = (dim0/NUMPLACES)*dim1,
+						numrows = dim0/NUMPLACES;
 					    final double[:self.rect && self.rank==1] local2darray = localPlanes2d.m_array;
 					    //remove finish on August 1, 2007
 					    for (int p = 0; p < dim2/NUMPLACES; p++) {
@@ -454,50 +460,54 @@ public final value FtStatic {
 							 * chunk.
 							 */
 							/*async (destPlace) clocked(clk) {
-							  x10.lang.Runtime.arrayCopy(local2darray, srcStart, Planes1d[here.id].m_array, destStart, 2*dim1);
-							  }*/
-							// We cannot do the following, because Planes1d[destID] cannot be dereferenced at PID
-							//x10.lang.Runtime.arrayCopy(local2darray, srcStart, Planes1d[destID].m_array, destStart, 2*dim1);
+							    x10.lang.Runtime.arrayCopy(local2darray, srcStart,
+										       Planes1d[here.id].m_array, destStart,
+										       2*dim1);
+							}*/
+							// We cannot do the following, because Planes1d[destID] cannot
+							// be dereferenced at PID
+							//x10.lang.Runtime.arrayCopy(local2darray, srcStart,
+							// Planes1d[destID].m_array, destStart, 2*dim1);
 							// The manual version of this code is:
 							for (int j = 0; j < 2*dim1; j++) {
-							    final double srcVal = local2darray[srcStart + j];
-							    final int destIdx = destStart + j;
-							    //add clocked clause on Aug 1, 2007
-							    async (destPlace) clocked(clk) {
-								Planes1d[here.id].m_array[destIdx] = srcVal;
-							    }
+								final double srcVal = local2darray[srcStart + j];
+								final int destIdx = destStart + j;
+								//add clocked clause on Aug 1, 2007
+								async (destPlace) clocked(clk) {
+									Planes1d[here.id].m_array[destIdx] = srcVal;
+								}
 							}
 						    }
 					    }
 					}
-
 					next;
+
 					FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_BWD, current_orientation, PID);
 					current_orientation = switch_view(current_orientation, PID);
 					//checksum(localPlanes2d, PID, iter, clk,NX,NY,NZ, checksum_real, checksum_imag);
 					double sum_real = 0;
 					double sum_imag = 0;
 					final double[:self.rect && self.rank==1] temp = localPlanes2d.m_array;
-					finish for (int j=1; j <= 1024; ++j) {
-					    final int q = j % NX;
-					    final int r = (3*j) % NY;
-					    final int s = (5*j) % NZ;
+					for (int j=1; j <= 1024; ++j) {
+						final int q = j % NX;
+						final int r = (3*j) % NY;
+						final int s = (5*j) % NZ;
 
-					    final int proc = getowner(q, r, s);
-					    if (proc == PID) {
-						//idx = 2*origindexmap(q,r,s)+localPlanes2d.m_start;
-						final int idx = 2*origindexmap(q,r,s);
-						//System.out.println(" [ "+proc+", "+idx+"])");
-						sum_real+=temp[idx];
-						sum_imag+=temp[idx+1];
-					    }
+						final int proc = getowner(q, r, s);
+						if (proc == PID) {
+							//idx = 2*origindexmap(q,r,s)+localPlanes2d.m_start;
+							final int idx = 2*origindexmap(q,r,s);
+							//System.out.println(" [ "+proc+", "+idx+"])");
+							sum_real+=temp[idx];
+							sum_imag+=temp[idx+1];
+						}
 					}
 					final double res_real = ((sum_real/NX)/NY)/NZ;
 					final double res_imag = ((sum_imag/NX)/NY)/NZ;
 					final int iiter = iter;
 					async(UNIQUE[0]) clocked(clk) atomic { //On Aug 10, 2007remove finish and make async clocked
-					    checksum_real[iiter]+=res_real;
-					    checksum_imag[iiter]+=res_imag;
+						checksum_real[iiter]+=res_real;
+						checksum_imag[iiter]+=res_imag;
 					}
 					next;
 					if (PID == 0) {
@@ -512,7 +522,7 @@ public final value FtStatic {
 
 		cputime1 += mysecond();
 		System.out.println("The overall wall clock time is "+cputime1+" secs");
-		if (class_id_char !='T') 
+		if (class_id_char !='T')
 		    checksum_verify(NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);
 		//System.out.println("Content of Planes2d:"); printArray(Planes2d);
 		//System.out.println("Content of ex:"); printArray(ex);
@@ -765,14 +775,15 @@ public final value FtStatic {
 				err = (real_sums[i+1] - vdata_real_s[i]) / vdata_real_s[i];
 				if (Math.abs (err) > epsilon)
 				{
-
 					verified = false;
+					System.err.println("Mismatch for real part on iteration "+i+": "+real_sums[i+1]+" vs. "+vdata_real_s[i]);
 					break;
 				}
 				err = (imag_sums[i+1] - vdata_imag_s[i]) / vdata_imag_s[i];
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real imag on iteration "+i+": "+imag_sums[i+1]+" vs. "+vdata_imag_s[i]);
 					break;
 				}
 			}
@@ -790,12 +801,14 @@ public final value FtStatic {
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real part on iteration "+i+": "+real_sums[i+1]+" vs. "+vdata_real_w[i]);
 					break;
 				}
 				err = (imag_sums[i+1] - vdata_imag_w[i]) / vdata_imag_w[i];
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real imag on iteration "+i+": "+imag_sums[i+1]+" vs. "+vdata_imag_w[i]);
 					break;
 				}
 			}
@@ -813,12 +826,14 @@ public final value FtStatic {
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real part on iteration "+i+": "+real_sums[i+1]+" vs. "+vdata_real_a[i]);
 					break;
 				}
 				err = (imag_sums[i+1] - vdata_imag_a[i]) / vdata_imag_a[i];
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real imag on iteration "+i+": "+imag_sums[i+1]+" vs. "+vdata_imag_a[i]);
 					break;
 				}
 			}
@@ -836,12 +851,14 @@ public final value FtStatic {
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real part on iteration "+i+": "+real_sums[i+1]+" vs. "+vdata_real_b[i]);
 					break;
 				}
 				err = (imag_sums[i+1] - vdata_imag_b[i]) / vdata_imag_b[i];
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real imag on iteration "+i+": "+imag_sums[i+1]+" vs. "+vdata_imag_b[i]);
 					break;
 				}
 			}
@@ -859,12 +876,14 @@ public final value FtStatic {
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real part on iteration "+i+": "+real_sums[i+1]+" vs. "+vdata_real_c[i]);
 					break;
 				}
 				err = (imag_sums[i+1] - vdata_imag_c[i]) / vdata_imag_c[i];
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real imag on iteration "+i+": "+imag_sums[i+1]+" vs. "+vdata_imag_c[i]);
 					break;
 				}
 			}
@@ -882,12 +901,14 @@ public final value FtStatic {
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real part on iteration "+i+": "+real_sums[i+1]+" vs. "+vdata_real_d[i]);
 					break;
 				}
 				err = (imag_sums[i+1] - vdata_imag_d[i]) / vdata_imag_d[i];
 				if (Math.abs (err) > epsilon)
 				{
 					verified = false;
+					System.err.println("Mismatch for real imag on iteration "+i+": "+imag_sums[i+1]+" vs. "+vdata_imag_d[i]);
 					break;
 				}
 			}
