@@ -12,29 +12,35 @@
  * represented as references to vertices, not their indices.
  */
 
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import x10.runtime.cws.Frame;
-import x10.runtime.cws.Job;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
 import x10.runtime.cws.Worker;
 import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
-import static x10.runtime.cws.Job.*;
 
 
 public class SpanFTRO {
 	
 	public class V  extends Frame {
 		public final int index;
-		public V parent;
-		public int degree;
+		public volatile V parent;
 		public V [] neighbors;
-		public volatile int color;
 		public V(int i){index=i;}
 		volatile int PC=0;
 		@Override
 		public void compute(Worker w) throws StealAbort {
+			// An improperly nested frame is one which is not
+			// guaranteed to be at the bottom of the dequeue when its
+			// compute method terminates. For instance, such a frame
+			// may have pushed other frames onto the dequeue without
+			// transferring control to them.
+			
+			// Improperly nested frames may be executed a second time
+			// either becuase they are stolen or because the worker
+			// has just executed them. We use this technique to pop
+			// the frame off the dequeue.
 			if (PC==1) {
 				w.popFrame();
 				return;
@@ -43,10 +49,9 @@ public class SpanFTRO {
 			V node = this;
 			for (;;) {
 				V lastV = null;
-				for (int k=0; k < node.degree; k++) {
+				for (int k=0; k < node.neighbors.length; k++) {
 					final V v = node.neighbors[k];
-					if (v.color==0 && UPDATER.compareAndSet(v,0,1)) {
-						v.parent=node;
+					if (UPDATER.get(v)==null && UPDATER.compareAndSet(v,null,node)) {
 						if (lastV != null) {
 							// async lastV.compute();
 							w.pushFrame(lastV);
@@ -56,13 +61,16 @@ public class SpanFTRO {
 				}
 				if ((node=lastV)==null) break;
 			}
-			
+			// cannot call w.popFrame() because this frame may not be
+			// the current frame on the dequeue, since the task is not
+			// properly nested.
 		}
 		@Override
 		public String toString() {
 			String s="[" + (neighbors.length==0? "]" : "" + neighbors[0].index);
 			for (int i=1; i < neighbors.length; i++) s += ","+neighbors[i].index;
-			return "v(" + index + ", color=" + color + ",parent=" + parent.index + ",degree="+degree+ ",n=" + s+"])";
+			return "v(" + index +  ",parent=" + (parent==null? "null" :parent.index + "")
+			+ ",degree="+neighbors.length+ ",n=" + s+"])";
 		}
 	}
 	
@@ -76,8 +84,8 @@ public class SpanFTRO {
 	V[] G;
 	E[] El;
 	E[] El1;
-	final static AtomicIntegerFieldUpdater<V> UPDATER 
-	= AtomicIntegerFieldUpdater.newUpdater(V.class, "color");
+	final static AtomicReferenceFieldUpdater<V,V> UPDATER 
+	= AtomicReferenceFieldUpdater.newUpdater(V.class, V.class, "parent");
 	
 	//AtomicIntegerArray visitCount ;
 	int ncomps=0;
@@ -140,25 +148,25 @@ public class SpanFTRO {
 		
 		//visitCount = new AtomicIntegerArray(N);
 		int[] stack = new int [N]; 
-		int[] connected_comps  = new int [N]; 
+		int[] connected_comps  = new int [N], color=new int[N];
 		
 		int top=-1;
 		ncomps=0;
 		for(int i=0;i<N ;i++) {
-			if (G[i].color==1) continue;
+			if (color[i]==1) continue;
 			connected_comps[ncomps++]=i;
 			stack[++top]=i;
-			G[i].color=1;
+			color[i]=1;
 			while(top!=-1) {
 				int v = stack[top];
 				top--;
 				
 				for(int j=0;j<D[v];j++) {
 					final int mm = NB[v][j];
-					if(G[mm].color==0){
+					if(color[mm]==0){
 						top++;
 						stack[top]=mm;
-						G[mm].color=1;
+						color[mm]=1;
 					}
 				}
 			}
@@ -185,9 +193,8 @@ public class SpanFTRO {
 		//visited = new boolean[N];
 		
 		for(int i=0;i<N;i++) {
-			G[i].degree=D[i];
-			G[i].parent = G[i];
-			G[i].color=0;
+			UPDATER.set(G[i],null);
+			color[i]=0;
 			G[i].neighbors=new V [D[i]];
 			for(j=0;j<D[i];j++) {
 				G[i].neighbors[j]=G[NB[i][j]];
@@ -198,18 +205,21 @@ public class SpanFTRO {
 		}     
 	}
 	
-	
 	boolean verifyTraverse(V root) {
 		V[] X = new V [N];
 		for (int i=0;i<N;i++) {
+			//System.out.println( G[i] + ".parent=" + G[i].parent);
 			if (G[i].parent==G[i] && G[i] !=root) 
-				System.out.println("Questionable guy " + i + " index=" + G[i]);
+				System.out.println("Questionable guy " + G[i] + ".parent=" + G[i].parent);
 		}
 		for(int i=0;i<N;i++) X[i]=G[i].parent;
 		V temp;
 		for(int i=0;i<N;i++) {
-			while(X[i]!=(temp=X[X[i].index])) X[i]=temp;
-			if (X[i] != root) return false;
+			while(X[i]!=null && X[i] !=(temp=X[X[i].index])) X[i]=temp;
+			if (X[i] != root) {
+				System.out.println("X[" + i + "]=" + X[i]);
+				return false;
+			}
 		}
 		return true;
 	}
@@ -260,16 +270,20 @@ public class SpanFTRO {
 		
 			//System.out.printf("N:%8d ", N);
 			for (int k=0; k < 9; ++k) {
-				graph.G[1].color=1;
+				UPDATER.set(graph.G[1], graph.G[1]);
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, graph.G[1]);
 				long s = System.nanoTime();
 				g.invoke(job);
 				long t = System.nanoTime() - s;
 				double secs = ((double) t)/NPS;
-				System.out.printf("N=%d t=%5.4f", N, secs);
-				System.out.println();
+				double Geps = M/(secs * 1000*1000);
+				
 				if (! graph.verifyTraverse(graph.G[1]))
-					System.out.printf("%b ", false);
+					System.out.println("false");
+				else {
+					System.out.printf("N=%d t=%5.4f %5.4f GigeEdges/s", N, secs, Geps);
+					System.out.println();
+				}
 				graph.clearColor();
 				
 			}
@@ -280,7 +294,7 @@ public class SpanFTRO {
 	}
 	void clearColor() {
 		for (int i = 0; i < N; ++i) {
-			graph.G[i].color=0;
+			UPDATER.set(graph.G[1],null);
 		}
 	}
 }
