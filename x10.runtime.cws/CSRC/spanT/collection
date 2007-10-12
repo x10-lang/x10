@@ -1,0 +1,14 @@
+#!/bin/bash
+OUTPUT=traversal_metrics
+echo traversal results on rand graphs: >$OUTPUT
+for proc in 1 2 4 8 16 
+do
+for n in 1000000 2000000 3000000 4000000 5000000
+do
+    m=`expr $n \* 4`
+
+    echo $n $m $proc processor 
+    echo $n $m $proc processor >>$OUTPUT
+    /u/gcong/spanT/span -t $proc -- 0 $n $m >> $OUTPUT 
+done
+done
