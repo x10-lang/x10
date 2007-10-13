@@ -1,3 +1,25 @@
+October 6, 2007
+
+We distinguish between proper and improperly nested frames (= tasks = Cilk's procedure invocation). 
+A properly nested frame f is one
+whose body pushes a frame onto the dequeue only when it transfers control to the frame. This
+guarantees that when f's compute method returns the frame at the bottom of the dequeue is f.
+Therefore a simple w.popStackFrame() is adequate to get rid of the (now useless) frame. 
+
+An improperly nested frame g will have a compute method that may push frames without transfering
+control to them. Hence at the moment when control returns from g's method, it may not be the case
+that the last frame on the dequeue is g. Therefore a call to popStackFrame() at the end of
+g's compute method would be incorrect. Instead, the compute method returns, leaving the frame on the
+stack. Now the worker, as usual, invokes the compute method on the frame at the bottom of the dequeue
+(g). We ensure that g's compute method contains code at the beginning which checks whether the 
+frame has aready been executed (e.g. by looking at the vaue of the PC). If so, the frame is popped.
+
+This piece of code is in any case necessary because g may get stolen while the victim is executing it. 
+For, g's compute method may push another frame onto its dequeue, thereby making g eligible for theft,
+according to the rules of the work stealing implementation. We permit g to be stolen; however, since
+its PC records the fact that another worker is executing its body (PC==1), the victim simply
+pushes it onto its stack and then pops it. 
+
 October 4, 2007
 
 There is a negative interaction between the mechanism for stealing and the
