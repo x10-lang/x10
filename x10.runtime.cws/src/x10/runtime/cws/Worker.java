@@ -53,7 +53,7 @@ public class Worker extends Thread {
 	protected Lock lock; // dequeue_lock
 	protected Thread lockOwner; // the thread holding the lock.
 	protected int randNext;
-	protected int index;
+	public int index;
 	protected  boolean done;
 	protected Closure closure;
 	
@@ -178,13 +178,15 @@ public class Worker extends Thread {
 			if (cl==null)
 				return null;
 		} catch (AdvancePhaseException z) { 
-			unlock();
+			//unlock();
 			throw z;
 		} catch (Throwable z) {
 			// wrap in an error.
-			unlock();
+			//unlock();
 			throw new Error(z); 
-		} 
+		} finally {
+			unlock();
+		}
 		cl.lock(thief);
 		
 		Status status = null;
@@ -694,7 +696,6 @@ public class Worker extends Thread {
 					// The work extracted will be a closure.
 					// cl may be null. When non-null
 					// cl is typically RETURNING.
-					
 					lock(this);
 					try {
 						cl = extractBottom(this); 
@@ -705,7 +706,7 @@ public class Worker extends Thread {
 			}
 			if (cl == null) {
 				// Steal, or get it from the job.
-				if ((false)) 
+				if ((reporting)) 
 					System.out.println(this + " has no closure. Trying to get one." );
 				try {
 					cl = getTask(true);
