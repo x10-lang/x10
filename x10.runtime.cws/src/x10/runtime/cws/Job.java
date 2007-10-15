@@ -177,8 +177,8 @@ public abstract class Job extends Closure implements Future {
 	abstract public int spawnTask(Worker ws) throws StealAbort;
 	public void completed() {
 		super.completed();
-	/*	if ( Worker.reporting)
-			System.out.println(Thread.currentThread() + " completed. result=" + resultInt());*/
+		if ( Worker.reporting)
+			System.out.println(Thread.currentThread() + " completed.");
 		synchronized(this) {
 			notifyAll();
 		}
