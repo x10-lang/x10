@@ -14,7 +14,6 @@
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
-
 import x10.runtime.cws.Frame;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
@@ -66,23 +65,32 @@ public class SpanFTRO {
 			// the current frame on the dequeue, since the task is not
 			// properly nested.
 		}
-		public boolean verify(V root) {
-			boolean result = false;
+		public boolean verify(V root, boolean[] reachesRoot, int N) {
 			V p = parent;
 			int count=0;
 			try { 
-				if (p==null) return result;
-
-				while ((p=p.parent)!=null && p !=this && p != root && count < N) {
+				while (! (p==null || reachesRoot[p.index] || p ==this || p == root || count == N)) {
+					p = p.parent;
 					count++;
 				}
-				return result = (count < N && p==root && (this==root || p !=this));
+				reachesRoot[index]=(count < N && p != null && ( p==root || reachesRoot[p.index]));
+				return reachesRoot[index];
 			} finally {
-				if (reporting && ! result)
-					System.out.println(Thread.currentThread() + " finds bad guy " + this +
-							"count=" + count + "p=" + p );
-				
+				if (reporting) {
+					if (count > N-10) {
+						System.out.println(Thread.currentThread() + " finds possibly bad guy " + this +
+								"count=" + count + "p=" + p );
+					}
+					if (! reachesRoot[index])
+						System.out.println(Thread.currentThread() + " finds bad guy " + this +
+								"count=" + count + "p=" + p );
+				}
 			}
+		}
+		public void reset() {
+			PC=0;
+			UPDATER.set(this,null);
+
 		}
 		@Override
 		public String toString() {
@@ -210,7 +218,7 @@ public class SpanFTRO {
 		}
 		
 		//visited = new boolean[N];
-		
+		reachesRoot = new boolean[N];
 		for(int i=0;i<N;i++) {
 			UPDATER.set(G[i],null);
 			color[i]=0;
@@ -223,14 +231,15 @@ public class SpanFTRO {
 				System.out.println("G[" + i + "]=" + G[i]);
 		}     
 	}
-	
-	boolean verifyTraverse(V root) {
+	boolean[] reachesRoot;
+	public boolean verifyTraverse(V root) {
+		for (int i=0; i < reachesRoot.length; i++) reachesRoot[i]=false;
 		int i=0;
 		boolean result = false;
 		try {
-			for (;i<N && G[i].verify(root);i++) ;
+			for (;i<N && G[i].verify(root, reachesRoot, N);i++) ;
 			return result = (i==N);
-		}finally {
+		} finally {
 			if (reporting && ! result)
 				System.out.println(Thread.currentThread() + " fails at " + G[i]);
 		}
@@ -254,7 +263,7 @@ public class SpanFTRO {
 		}
 		return true;
 	}*/
-	static SpanFTRO graph;
+
 	static boolean reporting = true;
 	static final long NPS = (1000L * 1000 * 1000);
 	static boolean graphOnly =false;
@@ -296,26 +305,34 @@ public class SpanFTRO {
 			
 			final int N = Ns[i], M = D*N;
 			// ensure the sole reference to the previous graph is nulled before gc.
-			graph = null;
+			
 			System.gc();
-			graph = new SpanFTRO(N,M);
+			long creationTime = -System.nanoTime();
+			SpanFTRO graph = new SpanFTRO(N,M);
+			creationTime += System.nanoTime();
+			System.out.printf("Creation time:%5.4f s",((double) creationTime)/NPS);
+			System.out.println();
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
 			for (int k=0; k < 9; ++k) {
 				UPDATER.set(graph.G[1], graph.G[1]);
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, graph.G[1]);
-				//System.out.println("Starting timed section...");
+				//System.out.println(Thread.currentThread() + " Starting timed section...");
 				long s = System.nanoTime();
 				g.invoke(job);
 				long t = System.nanoTime() - s;
+				//System.out.println(Thread.currentThread() + " Done with timed section...");
 				double secs = ((double) t)/NPS;
-				double Geps = M/(double)t;
-				
+				double Meps = 1000*(M/(double)t);
+				System.out.printf("N=%d t=%5.4f s %5.4f MegaEdges/s", N, secs, Meps);
+				long verificationTime = - System.nanoTime();
 				if (! graph.verifyTraverse(graph.G[1]))
 					System.out.println("false");
 				else {
-					System.out.printf("N=%d t=%5.4f ns %5.4f GigeEdges/s", N, (double)t, Geps);
+					verificationTime += System.nanoTime();
+					double vSecs = ((double) verificationTime)/NPS;
+					System.out.printf(" (verification %5.4f s)", vSecs );
 					System.out.println();
 				}
 				graph.clearColor();
@@ -327,11 +344,8 @@ public class SpanFTRO {
 		g.shutdown(); 
 	}
 	void clearColor() {
-		for (int i = 0; i < N; ++i) {
-			V v=graph.G[1];
-			v.PC=0;
-			UPDATER.set(graph.G[1],null);
-		}
+		for (V v : G) v.reset();
+		
 	}
 }
 
