@@ -302,7 +302,7 @@ public class Closure  implements Executable {
 	void pollInlets(Worker w) {
 		assert lockOwner==w;
 		//System.out.println(w + " polling " + this);
-		if (status==Status.RUNNING && ! cache.atTopOfStack()) {
+		if (status==Status.RUNNING && ! w.jobRequiresGlobalQuiescence && ! cache.atTopOfStack()) {
 			assert w.lockOwner == w;
 		}
 		if (completeInlets != null)
