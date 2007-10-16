@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: region.tcc,v 1.3 2007-06-27 07:17:20 ganeshvb Exp $ */
+/* $Id: region.tcc,v 1.4 2007-10-16 03:05:49 ipeshansky Exp $ */
 
 #include "region.h"
 #include <iostream>
@@ -75,24 +75,28 @@ template <int RANK>
 Point<RANK> RectangularRegion<RANK> :: coord (int ord) const
 {
   assert(false);
+  return Point<RANK>();
 }
 
 template <int RANK>
 bool RectangularRegion<RANK> :: isEqual (const Region<RANK>& x) const
 {
    assert(false);
+   return false;
 }
 
 template <int RANK>
 bool RectangularRegion<RANK> :: isConvex () const
 {
    assert(false);
+   return false;
 }
 
 template <int RANK>
 bool RectangularRegion<RANK> :: isDisjoint (const Region<RANK>& x) const
 {
    assert(false);
+   return false;
 }
 
 //===================== TiledRegion =======================================
