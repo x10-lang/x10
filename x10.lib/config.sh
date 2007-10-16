@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: config.sh,v 1.3 2007-06-27 01:43:49 ipeshansky Exp $
+# $Id: config.sh,v 1.4 2007-10-16 03:05:31 ipeshansky Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -24,6 +24,12 @@ then
 	echo "${MKDIR} ${X10IDIR}"
 	${MKDIR} ${X10IDIR}
 fi
+X10XWSDIR=${INCDIR}/x10/xws
+if [ ! -d ${X10XWSDIR} ]
+then
+	echo "${MKDIR} ${X10XWSDIR}"
+	${MKDIR} ${X10XWSDIR}
+fi
 
 LIBDIR=lib
 if [ ! -d ${LIBDIR} ]
@@ -34,17 +40,25 @@ fi
 
 # create header file links.
 TOPDIR=`pwd`
-SRCDIR=../../src
+SRCDIR=`cd src && pwd`
 ARRAYDIR=${SRCDIR}/array
 SCHEDDIR=${SRCDIR}/sched
 LN=ln
 FIND=find
 echo "cd ${X10IDIR}"
 cd ${X10IDIR}
-for i in ${SRCDIR} ${ARRAYDIR} ${SCHEDDIR}
+for i in ${SRCDIR} ${ARRAYDIR}
 do
-	`${FIND} ${i} -name CVS -prune -o -name '*.h' -type f -exec ${LN} -s -f {} . ';'`
-	`${FIND} ${i} -name CVS -prune -o -name '*.tcc' -type f -exec ${LN} -s -f {} . ';'`
+	`${FIND} ${i} -maxdepth 1 -name CVS -prune -o -name '*.h' -type f -exec ${LN} -s -f {} . ';'`
+	`${FIND} ${i} -maxdepth 1 -name CVS -prune -o -name '*.tcc' -type f -exec ${LN} -s -f {} . ';'`
+done
+cd ${TOPDIR}
+echo "cd ${X10XWSDIR}"
+cd ${X10XWSDIR}
+for i in ${SCHEDDIR}
+do
+	`${FIND} ${i} -maxdepth 1 -name CVS -prune -o -name '*.h' -type f -exec ${LN} -s -f {} . ';'`
+	`${FIND} ${i} -maxdepth 1 -name CVS -prune -o -name '*.tcc' -type f -exec ${LN} -s -f {} . ';'`
 done
 echo "cd ${TOPDIR}"
 cd ${TOPDIR}
