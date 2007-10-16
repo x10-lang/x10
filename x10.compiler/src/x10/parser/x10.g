@@ -1629,6 +1629,7 @@
     ArrayBaseType ::= PrimitiveType
                     | ClassOrInterfaceType
                     | SpecialType
+                    | ArrayType
                     | ( Type )
         /.$BeginJava
                     setResult(Type);
