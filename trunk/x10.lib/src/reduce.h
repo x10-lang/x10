@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: reduce.h,v 1.2 2007-10-11 10:55:56 ganeshvb Exp $ */
+/* $Id: reduce.h,v 1.3 2007-10-16 03:05:38 ipeshansky Exp $ */
 
 #ifndef __X10_REDUCE_H
 #define __X10_REDUCE_H
@@ -20,50 +20,50 @@
 
 #define X10_MAX_REDUCE_OBJECT_SIZE 4 * sizeof(double)
 
-extern lapi_cntr_t   reduce_cntr;
-extern void**        reduce_cntr_list;
-extern void*         scratch;
-extern void**        reduce_list;
-extern void*         inbuf[X10_MAX_REDUCE_OPS_INFLIGHT];
-extern int           reduceCount;
-
-template <typename T, void F (T&, const T&)>
-static x10_err_t commutative_reduce (T *values, int low, int high, int depth)
-     /**************************************************************************
-      *
-      *   Recursively reduce the sum.  Note that this is not technically
-      *   legal for a non-commutative operation like FP add, but this
-      *   works for our checksums.
-      *
-      *************************************************************************/
-{
-  int src  = low + ((high - low) / 2);
-  int i;
-  
-  if (depth > 0)
-    {
-      commutative_reduce<T, F> (values, low, src, depth - 1);
-      commutative_reduce<T, F> (values, src, high, depth - 1);
-    }
-  
-  if (x10lib::__x10_my_place == src)
-    {    
-      LAPI_Waitcntr (x10lib::__x10_hndl, &reduce_cntr, depth, NULL);
-      
-      for (i = 0; i < depth; i++) 
-	{
-	  for (int j = 0; j < reduceCount; j++) 
-	    F (values[j],((T*) scratch)[reduceCount * i + j]);
-	} 
-      
-      LRC (LAPI_Put (x10lib::__x10_hndl, low, reduceCount * sizeof(T),
-		     (char*) reduce_list[low] + reduceCount * depth * sizeof(T), 
-		     values, (lapi_cntr_t*) reduce_cntr_list[low], NULL, NULL)); 
-    }
-}
-
 namespace x10lib {
-  
+
+  extern lapi_cntr_t   reduce_cntr;
+  extern void**        reduce_cntr_list;
+  extern void*         scratch;
+  extern void**        reduce_list;
+  extern void*         inbuf[X10_MAX_REDUCE_OPS_INFLIGHT];
+  extern int           reduceCount;
+
+  /**************************************************************************
+   *
+   *   Recursively reduce the sum.  Note that this is not technically
+   *   legal for a non-commutative operation like FP add, but this
+   *   works for our checksums.
+   *
+   *************************************************************************/
+  template <typename T, void F (T&, const T&)>
+  static x10_err_t commutative_reduce (T *values, int low, int high, int depth)
+  {
+    int src  = low + ((high - low) / 2);
+    int i;
+    
+    if (depth > 0)
+      {
+	commutative_reduce<T, F> (values, low, src, depth - 1);
+	commutative_reduce<T, F> (values, src, high, depth - 1);
+      }
+    
+    if (x10lib::__x10_my_place == src)
+      {    
+	LAPI_Waitcntr (x10lib::__x10_hndl, &reduce_cntr, depth, NULL);
+	
+	for (i = 0; i < depth; i++) 
+	  {
+	    for (int j = 0; j < reduceCount; j++) 
+	      F (values[j],((T*) scratch)[reduceCount * i + j]);
+	  } 
+	
+	LRC (LAPI_Put (x10lib::__x10_hndl, low, reduceCount * sizeof(T),
+		       (char*) reduce_list[low] + reduceCount * depth * sizeof(T), 
+		       values, (lapi_cntr_t*) reduce_cntr_list[low], NULL, NULL)); 
+      }
+  }
+
   template <typename T>
     void reduce (T* sum)
     {

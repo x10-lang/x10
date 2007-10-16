@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: reduce.cc,v 1.1 2007-10-08 15:10:25 ganeshvb Exp $ */
+/* $Id: reduce.cc,v 1.2 2007-10-16 03:05:38 ipeshansky Exp $ */
 
 #include <x10/x10lib.h>
 #include <iostream>
@@ -16,6 +16,8 @@
 #define X10_MAX_REDUCE_OPS_INFLIGHT 4
 
 #define X10_MAX_REDUCE_OBJECT_SIZE 4 * sizeof(double)
+
+namespace x10lib {
 
 lapi_cntr_t   reduce_cntr;
 void**        reduce_cntr_list;
@@ -43,3 +45,5 @@ void reduceFinalize()
   delete [] reduce_cntr_list;
   delete [] reduce_list;
 }
+
+} // namespace x10lib
