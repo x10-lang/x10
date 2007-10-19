@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rmc.cc,v 1.2 2007-06-26 10:15:51 srkodali Exp $
+ * $Id: rmc.cc,v 1.3 2007-10-19 16:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -58,7 +58,7 @@ x10_err_t __get(x10_gas_ref_t src, void *dest, int n,
 				return X10_ERR_PARAM_INVALID;
 			
 			/* retrieve and init the provided handle */
-			lcp = sw->get_handle();
+			lcp = (lapi_cntr_t*) sw->get_handle();
 			sw->decrement();
 
 			LRC(LAPI_Get(__x10_hndl, place, n, addr, dest, NULL, lcp));
@@ -143,7 +143,7 @@ x10_err_t __put(void *src, x10_gas_ref_t dest, int n,
 				return X10_ERR_PARAM_INVALID;
 				
 			/* retrieve and initialize the provided handle */
-			lcp = sw->get_handle();
+			lcp = (lapi_cntr_t*) sw->get_handle();
 			sw->decrement();
 
 			LRC(LAPI_Put(__x10_hndl, place, n, addr, src, NULL, NULL, lcp));
@@ -184,6 +184,30 @@ x10_err_t NbPut(void *src, x10_gas_ref_t dest, int n,
 				x10_switch_t sw)
 {
 	return __put(src, dest, n, RMC_NON_BLOCK, sw);
+}
+
+/* Equivalents of Waitcntr and the LAPI_Put 
+ * This is for use by reduce.h
+ * This needs to be merged with exisiting functionaliy
+ * in one way or another.
+ */
+
+x10_err_t LAPIStylePut (int destPlace, size_t size, void* dest, void* src,
+	       void* target_cntr, void* origin_cntr,
+	       void* compl_cntr)
+{
+  LRC (LAPI_Put (__x10_hndl, destPlace, size, dest, src, 
+		 (lapi_cntr_t*) target_cntr, (lapi_cntr_t*) origin_cntr, (lapi_cntr_t*) compl_cntr));
+}
+
+x10_err_t LAPIStyleWaitcntr (void* cntr, int value, int* ret)
+{
+  LRC (LAPI_Waitcntr (__x10_hndl, (lapi_cntr_t*) cntr, value, ret));
+}
+
+x10_err_t LAPIStyleSetcntr (void* cntr, int value)
+{
+  LRC (LAPI_Setcntr (__x10_hndl, (lapi_cntr_t*) cntr, 0));
 }
 
 /* Remote get operation(s) for int/long/double/float. */

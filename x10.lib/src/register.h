@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: register.h,v 1.1 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: register.h,v 1.2 2007-10-19 16:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -21,6 +21,8 @@ namespace x10lib {
 
 	/* Get the function address of a specified handler. */
 	x10_err_t GetHandlerAddr(void **addr, int ah);
+
+	x10_err_t AddressInit (void* addr, void** table);
 
 } /* closing brace for namespace x10lib */
 #endif

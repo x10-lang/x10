@@ -1,26 +1,29 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.2 2007-10-11 11:57:59 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.3 2007-10-19 16:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 #include <x10/array_copy.h>
 #include <x10/xmacros.h>
 #include <x10/xassert.h>
+#include <lapi.h>
+
+using namespace std;
+
 
 static int max_uhdr_sz;
 
 static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
 			     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
 {
-  x10lib::Closure* header = (x10lib::Closure*) uhdr;	
-
   lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
   
+  int handler = *((int*) uhdr);
   if (ret_info->udata_one_pkt_ptr) {
 
-    memcpy ((char*) arrayCopySwitch (header), 
+    memcpy ((char*) arrayCopySwitch (handler, (char*) uhdr + sizeof (handler) ),
 	    ret_info->udata_one_pkt_ptr, *msg_len);
    
     ret_info->ctl_flags = LAPI_BURY_MSG;
@@ -32,22 +35,16 @@ static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_l
     ret_info->ret_flags = LAPI_LOCAL_STATE;
     *comp_h = NULL;
 
-    return (char*) arrayCopySwitch (header);
+    return (char*) arrayCopySwitch (handler,(char*)  uhdr + sizeof(handler));
   }
   
   return NULL; 
 }
 
-x10_err_t
-arrayCopyInit ()
-{
-  (void) LAPI_Qenv(x10lib::__x10_hndl, MAX_UHDR_SZ, &max_uhdr_sz);
-
-  LRC (LAPI_Addr_set (x10lib::__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER)); 
-}
 
 namespace x10lib {
 
+  extern lapi_handle_t __x10_hndl;
   //TODO: take care of switch operations
   x10_err_t
   asyncArrayCopyRaw (void* src, 
@@ -56,13 +53,14 @@ namespace x10lib {
 		     int target, 
 		     x10_switch_t c)
   {          
-    assert (closure->len >= 0 && closure->len < max_uhdr_sz);
+    assert (closure->len + sizeof(x10_async_handler_t) >= 0 
+	    && closure->len + sizeof(x10_async_handler_t) < max_uhdr_sz);
     
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
-		      (void*) closure,
-		      closure->len,
+		      (void*) &(closure->handler),
+		      closure->len + sizeof(x10_async_handler_t),
 		      src,
 		      len,
 		      NULL,
@@ -79,7 +77,8 @@ namespace x10lib {
 		  int target, 
 		  x10_switch_t c)
   {          
-    assert (closure->len >= 0 && closure->len < max_uhdr_sz);
+    assert (closure->len + sizeof(x10_async_handler_t) >= 0 
+	    && closure->len + sizeof(x10_async_handler_t) < max_uhdr_sz);
     
     lapi_cntr_t origin_cntr;
     LRC (LAPI_Setcntr (__x10_hndl, &origin_cntr, 0));
@@ -88,20 +87,26 @@ namespace x10lib {
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
-		      (void*) closure,
-		      closure->len,
+		      (void*) &(closure->handler),
+		      closure->len + sizeof(x10_async_handler_t),
 		      src,
 		      len,
 		      NULL,
 		      &origin_cntr,
 		      NULL));
-
-    LAPI_Waitcntr (__x10_hndl, &origin_cntr, 1, &tmp); 
    
     return X10_OK;
   }  
 }
 
+x10_err_t
+arrayCopyInit ()
+{
+  (void) LAPI_Qenv(x10lib::__x10_hndl, MAX_UHDR_SZ, &max_uhdr_sz);
+
+  LRC (LAPI_Addr_set (x10lib::__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));  
+
+}
 extern "C"
 x10_err_t 
 x10_async_array_copy (void* src, x10_closure_t args, size_t len, int target, x10_switch_t c)

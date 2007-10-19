@@ -2,10 +2,9 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.14 2007-10-01 06:21:11 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.15 2007-10-19 16:04:29 ganeshvb Exp $ */
 
 #include "array.h"
 #include <x10/alloc.h>

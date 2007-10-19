@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.4 2007-10-11 11:57:59 ganeshvb Exp $
+# $Id: Makefile,v 1.5 2007-10-19 16:04:29 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -54,7 +54,7 @@ SRCS8 = $(TARGET8).cc
 OBJS8 = $(TARGET8).o
 
 TARGETS = $(TARGET3) $(TARGET4) \
-			$(TARGET5) $(TARGET6) $(TARGET7) $(TARGET8)
+			$(TARGET5) $(TARGET7) $(TARGET8)
 
 all:: $(TARGETS)
 	rm *.o

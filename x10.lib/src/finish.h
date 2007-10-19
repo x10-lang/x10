@@ -2,10 +2,9 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.h,v 1.9 2007-09-13 15:20:04 ganeshvb Exp $ */
+/* $Id: finish.h,v 1.10 2007-10-19 16:04:29 ganeshvb Exp $ */
 
 #ifndef __FINISH_H__
 #define __FINISH_H__
@@ -14,14 +13,11 @@
 #include <x10/err.h>
 #include <x10/types.h>
 #include <x10/gas.h>
-#include <lapi.h>
 
 namespace x10lib {
 
 extern int __x10_inited;
-extern lapi_handle_t __x10_hndl;
-extern lapi_thread_func_t __x10_tf;
-extern lapi_cntr_t __x10_wait_cntr;
+
 
 extern int __x10_num_places;
 extern int __x10_my_place;

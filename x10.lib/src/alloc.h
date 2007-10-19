@@ -2,10 +2,9 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: alloc.h,v 1.6 2007-08-14 12:27:48 ganeshvb Exp $ */
+/* $Id: alloc.h,v 1.7 2007-10-19 16:04:28 ganeshvb Exp $ */
 
 #ifndef __ALLOC_H__
 #define __ALLOC_H__
@@ -15,13 +14,12 @@
 
 #include  <x10/xassert.h>
 #include  <x10/gas.h> 
-#include  <lapi.h>
+#include <x10/register.h>
 
 using namespace std;
 
 namespace x10lib{
 
-  extern lapi_handle_t __x10_hndl;
   extern int __x10_num_places;
   extern int __x10_my_place;
 
@@ -36,7 +34,7 @@ namespace x10lib{
     { 
       pointer_ = new char[size];
       addrTable_ = new void*[__x10_num_places];
-      LAPI_Address_init (__x10_hndl, pointer_, addrTable_);
+      x10lib::AddressInit(pointer_, addrTable_);
     }
 
     char* addr () const 

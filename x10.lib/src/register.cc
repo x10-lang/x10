@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: register.cc,v 1.1 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: register.cc,v 1.2 2007-10-19 16:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -50,6 +50,15 @@ x10_err_t GetHandlerAddr(void **addr, int ah)
 	return X10_OK;
 }
 	
+
+/* get the remote address in to a local table */
+x10_err_t AddressInit (void* addr, void** table)
+{
+  extern lapi_handle_t __x10_hndl;
+  (void) LAPI_Address_init (__x10_hndl, addr, table);
+  return X10_OK;
+}
+
 } /* closing brace for namespace x10lib */
 
 /* Register the address of a function handler. */

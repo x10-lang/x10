@@ -2,10 +2,9 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: finish.cc,v 1.17 2007-10-11 08:27:15 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.18 2007-10-19 16:04:29 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -15,6 +14,10 @@
 
 using namespace std;
 using namespace x10lib; 
+
+namespace x10lib {
+  extern lapi_handle_t __x10_hndl;
+}
 
 #define X10_EX_BUFFER_SIZE  1024
 

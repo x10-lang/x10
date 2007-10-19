@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: switch.cc,v 1.12 2007-06-26 16:05:57 ganeshvb Exp $
+ * $Id: switch.cc,v 1.13 2007-10-19 16:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,6 +9,7 @@
 
 #include <x10/switch.h>
 #include <x10/xassert.h>
+#include <lapi.h>
 
 namespace x10lib {
 
@@ -22,19 +23,19 @@ Switch::Switch(int val)
 
 	cntrp = new lapi_cntr_t;
 	assert(cntrp != NULL);
-	(void)LAPI_Setcntr(__x10_hndl, cntrp, val);
+	(void)LAPI_Setcntr(__x10_hndl, (lapi_cntr_t*) cntrp, val);
 }
 
 /* Switch destructor */
 Switch::~Switch(void)
 {
-	delete cntrp;
+	delete (lapi_cntr_t*) cntrp;
 }
 	
 /* Get switch internal handle. */
-lapi_cntr_t *Switch::get_handle(void)
+void *Switch::get_handle(void)
 {
-	return (cntrp);
+	return (lapi_cntr_t*) (cntrp);
 }
 
 /* Decrement switch before waiting once again. */
@@ -43,9 +44,9 @@ void Switch::decrement(void)
 	extern lapi_handle_t __x10_hndl;
 	int val;
 
-	(void)LAPI_Getcntr(__x10_hndl, cntrp, &val);
+	(void)LAPI_Getcntr(__x10_hndl, (lapi_cntr_t*) cntrp, &val);
 	val -= 1;
-	(void)LAPI_Setcntr(__x10_hndl, cntrp, val);
+	(void)LAPI_Setcntr(__x10_hndl, (lapi_cntr_t*) cntrp, val);
 }
 
 /* Perform next (wait) operation on switch. */
@@ -53,7 +54,7 @@ void Switch::next(void)
 {
 	extern lapi_handle_t __x10_hndl;
 
-	(void)LAPI_Waitcntr(__x10_hndl, cntrp, 0, NULL);
+	(void)LAPI_Waitcntr(__x10_hndl, (lapi_cntr_t*) cntrp, 0, NULL);
 }
 
 /* Allocate switch object and return reference to it. */
@@ -99,7 +100,7 @@ void x10_next_on_switch(x10_switch_t sw)
 }
 
 /* return the underlying lapi_cntr_t */
-lapi_cntr_t* x10_switch_get_handle (x10_switch_t sw)
+void* x10_switch_get_handle (x10_switch_t sw)
 {
         return sw->get_handle();
 }

@@ -39,7 +39,7 @@ int main (int argc, char** argv)
 		   0,
 		   NULL,
 		   NULL,
-		   s->get_handle());
+		   (lapi_cntr_t*) s->get_handle());
     }
 
     s->next();
