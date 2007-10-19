@@ -44,13 +44,24 @@ struct
   FtStatic* FtSolver;  
 }GLOBAL_STATE;
 
+struct __array_copy_args_0 
+{
+  __array_copy_args_0 (x10_int_t _captVar1) :
+     captVar1 (_captVar1) {}
+
+  __array_copy_args_0 (const __array_copy_args_0 & other) :
+    captVar1 (other.captVar1) {}
+
+  x10_int_t captVar1;
+};
+
 struct __closure_0 : public Closure
 {
-  __closure_0 (int _handle, int _destOffset) :
-        Closure (sizeof(__closure_0), _handle),
-        destOffset (_destOffset) { };
+  __closure_0 (int _handle, __array_copy_args_0 _args) :
+        Closure (sizeof(__array_copy_args_0), _handle),
+        args (_args) { };
 
-  int destOffset;
+  __array_copy_args_0 args;
 };
  
 struct __async__0__args
@@ -340,9 +351,10 @@ void FtStatic::FFT2DComm_Slab(const DoubleArray* local2d, const DoubleArray* dis
       //System.out.println(" 2DComm place: t = "+t+" placeID ="+placeID+ " destID = "+destID+ " destSstart ="+destStart);
       
       //asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * CHUNK_SZ, clk);
-      __closure_0 args(0, destStart);
+      __array_copy_args_0 args (destStart);
+      __closure_0 closure (0, args);
       asyncArrayCopy ((void*) (local2darray->raw() +  srcStart + OFFSET), 
-		      &args, 2 * CHUNK_SZ * sizeof(double), destID); 
+		      &closure, 2 * CHUNK_SZ * sizeof(double), destID); 
     }
   }
 }
@@ -390,9 +402,10 @@ void  FtStatic::FFT2DComm_Pencil (const DoubleArray* local2d, const DoubleArray*
 	
 	//cout << "hello in FT " << endl;
 
-      __closure_0 args(1, destStart);
+      __array_copy_args_0 args (destStart);
+      __closure_0 closure (1, args);
       asyncArrayCopy ((void*) (local2darray->raw() + (srcStart + OFFSET)), 
-			&args, 2 * dim1 * sizeof(double), destID); 
+			&closure, 2 * dim1 * sizeof(double), destID); 
 
 	//	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, clk);
 	//asyncArrayCopy (local2darray, Pox10_int_t<1> (srcStart), local1darray, Pox10_int_t<1> (destStart), destID, 2 * dim1, clk);
@@ -946,15 +959,15 @@ asyncSwitch (x10_async_handler_t h, void* arg, x10_int_t niter)
 
 
 void*
-arrayCopySwitch (void* args)
+arrayCopySwitch (int handler, void* args)
 {
-  __closure_0 *closure_args = (__closure_0*) args;
-  switch (closure_args->handler) {
+  __array_copy_args_0 *array_copy_args = (__array_copy_args_0*) args;
+  switch (handler) {
   case 0:
-    return (GLOBAL_STATE.Planes1d->m_array->raw() + closure_args->destOffset); 
+    return (GLOBAL_STATE.Planes1d->m_array->raw() + array_copy_args->captVar1); 
   case 1:
     //    cout << "hello " << closure_args->destOffset << endl;
-    return (GLOBAL_STATE.Planes1d->m_array->raw() + closure_args->destOffset); 
+    return (GLOBAL_STATE.Planes1d->m_array->raw() + array_copy_args->captVar1); 
   }
   
   return NULL;
