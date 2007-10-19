@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rmc.h,v 1.1 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: rmc.h,v 1.2 2007-10-19 16:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -101,6 +101,23 @@ namespace x10lib {
 	x10_err_t NbPutFloat(float val, x10_gas_ref_t dest,
 						x10_switch_t sw);
 
+	
+	/* LAPI Style operatins with the same kinds of arguments
+	 *  except __x10_hndl.
+	 *  We do not have
+	 * complete coverage for all the LAPI semantics right now.
+	 * To overcome this limitation, we provide this stop gap
+	 * arrangement.
+	 */
+
+	x10_err_t LAPIStylePut (int destPlace, size_t size, void* dest, void* src,
+				void* target_cntr, void* origin_cntr,
+				void* compl_cntr);
+	
+	x10_err_t LAPIStyleWaitcntr (void* cntr, int value, int* ret);
+
+	x10_err_t LAPIStyleSetcntr (void* cntr, int value);
+	
 } /* closing brace for namespace x10lib */
 #endif
 

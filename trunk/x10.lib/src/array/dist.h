@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "region.h"
+#include "rectangular_region.h"
 
 namespace x10lib {
 

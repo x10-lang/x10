@@ -2,10 +2,9 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.tcc,v 1.4 2007-06-27 07:17:19 ganeshvb Exp $ */
+/* $Id: async.tcc,v 1.5 2007-10-19 16:04:29 ganeshvb Exp $ */
 
 #include <iostream>
 #include <stdarg.h>

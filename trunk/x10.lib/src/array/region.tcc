@@ -1,11 +1,9 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: region.tcc,v 1.5 2007-10-19 16:04:29 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
-
-/* $Id: region.tcc,v 1.4 2007-10-16 03:05:49 ipeshansky Exp $ */
 
 #include "region.h"
 #include <iostream>

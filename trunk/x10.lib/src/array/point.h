@@ -1,11 +1,9 @@
 /*
  * (c) Copyright IBM Corporation 2007
- *
- * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
- */
 
-/* $Id: point.h,v 1.6 2007-06-26 16:05:57 ganeshvb Exp $ */
+ * $Id: point.h,v 1.7 2007-10-19 16:04:29 ganeshvb Exp $ 
+ * This file is part of X10 Runtime System.
+ */
 
 #ifndef __X10_POINT_H__
 #define __X10_POINT_H__

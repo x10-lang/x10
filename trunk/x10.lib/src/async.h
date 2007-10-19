@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.h,v 1.17 2007-10-11 08:27:15 ganeshvb Exp $
+ * $Id: async.h,v 1.18 2007-10-19 16:04:28 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,7 +10,6 @@
 
 #include <x10/types.h>
 #include <x10/err.h>
-#include <lapi.h>
 
 /* C++ Lang Interface */
 #define X10_MAX_ASYNC_ARGS 6
@@ -23,7 +22,6 @@
 extern "C" void asyncSwitch(x10_async_handler_t, void *,
 				int niter);
 namespace x10lib {
-extern lapi_handle_t __x10_hndl;
 extern int __x10_num_places;
 extern int __x10_my_place;
 

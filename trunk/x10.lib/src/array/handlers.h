@@ -1,11 +1,10 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: handlers.h,v 1.11 2007-10-19 16:04:29 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
 
-/* $Id: handlers.h,v 1.10 2007-09-13 15:20:04 ganeshvb Exp $ */
 
 #ifndef __HANDLERS_H__
 #define __HANDLERS_H__

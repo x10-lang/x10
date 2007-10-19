@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: switch.h,v 1.7 2007-08-17 13:18:38 ganeshvb Exp $
+ * $Id: switch.h,v 1.8 2007-10-19 16:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,7 +10,6 @@
 #ifndef __X10_SWITCH_H
 #define __X10_SWITCH_H
 
-#include <lapi.h>
 
 /* x10 waiting categories (unused for the moment) */
 typedef enum {
@@ -30,11 +29,11 @@ class Switch {
 public:
 	Switch(int val = 0);
 	~Switch();
-	lapi_cntr_t *get_handle(void);
+	void* get_handle(void);
 	void decrement(void);
 	void next(void);
 private:
-	lapi_cntr_t *cntrp;
+	void *cntrp;
 };
 
 } /* closing brace for namespace x10lib */
@@ -73,7 +72,7 @@ void x10_decrement_switch(x10_switch_t sw);
 void x10_next_on_switch(x10_switch_t sw);
 
 /* return the underlying counter */
-lapi_cntr_t* x10_switch_get_handle (x10_switch_t sw);
+void* x10_switch_get_handle (x10_switch_t sw);
 
 #ifdef __cplusplus
 } /* closing brace for extern "C" */

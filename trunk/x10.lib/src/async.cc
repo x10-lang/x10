@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.cc,v 1.16 2007-10-11 08:27:15 ganeshvb Exp $
+ * $Id: async.cc,v 1.17 2007-10-19 16:04:28 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,6 +10,7 @@
 #include <x10/xmacros.h>
 #include <x10/xassert.h>
 #include <stdarg.h>
+#include <lapi.h>
 
 using namespace x10lib;
 
@@ -34,18 +35,10 @@ asyncSpawnHandler(lapi_handle_t hndl, void *uhdr,
   return NULL;
 }
 
-x10_err_t
-asyncInit()
-{
-  X10_DEBUG (1, "Entry");
-
-  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandler, ASYNC_SPAWN_HANDLER));
-
-  X10_DEBUG (1, "Exit");
-  return X10_OK;
-}
 
 namespace x10lib {
+
+  extern lapi_handle_t __x10_hndl;
 
   x10_err_t
   asyncSpawnInline(x10_place_t tgt, x10_async_handler_t hndlr,
@@ -67,17 +60,30 @@ namespace x10lib {
     LRC(LAPI_Waitcntr(__x10_hndl, &origin_cntr, 1, &tmp));
     
     X10_DEBUG (1, "Exit");
+
     return X10_OK;
   }
 
 } /* closing brace for namespace x10lib */
 
+x10_err_t
+asyncInit()
+{
+  X10_DEBUG (1, "Entry");
+
+  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandler, ASYNC_SPAWN_HANDLER));
+
+  X10_DEBUG (1, "Exit");
+  return X10_OK;
+}
 extern "C"
 x10_err_t
 x10_async_spawn_inline (x10_place_t tgt, x10_async_handler_t hndlr, void* args, size_t size)
 {
   X10_DEBUG (1, "Entry");
+
   x10_err_t err = x10lib::asyncSpawnInline(tgt, hndlr, args, size);
+
   X10_DEBUG (1, "Exit");
   return err;
 }

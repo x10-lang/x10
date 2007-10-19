@@ -36,7 +36,7 @@ int main (int argc, char** argv)
 		   0,
 		   NULL,
 		   NULL,
-		   x10_switch_get_handle(s));
+		   (lapi_cntr_t*) x10_switch_get_handle(s));
     }
 
     x10_next_on_switch (s);

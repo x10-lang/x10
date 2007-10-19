@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_ra.cc,v 1.4 2007-10-11 08:27:15 ganeshvb Exp $
+ * $Id: aggregate_ra.cc,v 1.5 2007-10-19 16:04:28 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -13,9 +13,14 @@
 #include <stdarg.h>
 #include <string.h>
 #include <iostream>
+#include <lapi.h>
 
 using namespace x10lib;
 using namespace std;
+
+namespace x10lib {
+  extern lapi_handle_t __x10_hndl;
+};
 
 #define X10_MAX_LOG_NUMPROCS 10
 

@@ -1,11 +1,9 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: xassert.h,v 1.6 2007-10-19 16:04:29 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
-
-/* $Id: xassert.h,v 1.5 2007-06-26 16:05:57 ganeshvb Exp $ */
 
 #ifndef __X10_ASSERT_H__
 #define __X10_ASSERT_H__
@@ -13,7 +11,7 @@
 /* This is a wrapper around default assert which only prints
  * the message, but not causes the program to abort.
  * Additionally it also prints the process id.
- * And it does beep :)
+ * Plus, it beeps :)
  * Use -DWARN compiler flag to enable this.
  */
 #define stringize(a) #a

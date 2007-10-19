@@ -1,11 +1,9 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: array.h,v 1.11 2007-10-19 16:04:29 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
- * Author : Ganesh Bikshandi
  */
-
-/* $Id: array.h,v 1.10 2007-08-14 12:27:48 ganeshvb Exp $ */
 
 #ifndef __X10_ARRAY_H__
 #define __X10_ARRAY_H__
