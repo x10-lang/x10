@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.4 2007-10-22 08:18:23 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.5 2007-10-22 10:03:01 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -37,7 +37,7 @@ static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_l
     ret_info->ret_flags = LAPI_LOCAL_STATE;
     *comp_h = NULL;
 
-    return (char*) arrayCopySwitch (handler,(char*)  uhdr + sizeof(handler));
+    return (char*) arrayCopySwitch (handler,(char*)  uhdr + sizeof (x10lib::Closure) - sizeof(size_t));
   }
   
   return NULL; 
