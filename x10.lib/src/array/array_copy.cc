@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.3 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.4 2007-10-22 08:18:23 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -21,9 +21,11 @@ static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_l
   lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
   
   int handler = *((int*) uhdr);
+
+   //cout << "handler " << handler << " " << *((int*) ((char*) uhdr + sizeof (handler) )) << endl;
   if (ret_info->udata_one_pkt_ptr) {
 
-    memcpy ((char*) arrayCopySwitch (handler, (char*) uhdr + sizeof (handler) ),
+    memcpy ((char*) arrayCopySwitch (handler, (char*) uhdr + sizeof (x10lib::Closure) - sizeof(size_t) ),
 	    ret_info->udata_one_pkt_ptr, *msg_len);
    
     ret_info->ctl_flags = LAPI_BURY_MSG;
@@ -83,12 +85,16 @@ namespace x10lib {
     lapi_cntr_t origin_cntr;
     LRC (LAPI_Setcntr (__x10_hndl, &origin_cntr, 0));
     int tmp = -1;
-    
+   
+//cout << "asyncArrayCopy  " << closure->len << " " << sizeof(x10_async_handler_t) 
+ //    << " " << closure->handler << " " << &(closure->handler)
+   //  << " " <<  *((int*)((char*) &(closure->handler) + sizeof(int))) << endl;
+  
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
 		      (void*) &(closure->handler),
-		      closure->len + sizeof(x10_async_handler_t),
+		      closure->len + sizeof(Closure) - sizeof(size_t),
 		      src,
 		      len,
 		      NULL,
