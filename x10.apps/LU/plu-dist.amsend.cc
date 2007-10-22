@@ -96,7 +96,6 @@ class Comm {
 
         virtual void NbGet(void *src, void *dst, int bytes, int proc, CommBaseNBH *nbh) = 0;
 
-        virtual void Wait(CommBaseNBH *nbh)=0;
         virtual bool IsDone(CommBaseNBH *nbh)=0;
         virtual int here()=0; 
         virtual int nprocs() = 0;
@@ -108,10 +107,10 @@ class Comm {
 
         virtual void AtomicAdd(int val, int *dst, int proc) = 0;
         virtual void AtomicAdd(sint64_t val, sint64_t *dst, int proc) = 0;
-        virtual void AtomicAdd(int val, int *dst, int proc, Profiler &prof) = 0;
 
         virtual void Barrier()=0;
         virtual void Fence()=0;
+        virtual void InitCounter(CommBaseNBH *nb, int val) = 0;
 
         int getproc(int i, int j) const {
             assert(j>=0 && j<py);
@@ -293,11 +292,6 @@ class LapiComm : public Comm {
             RC(LAPI_Get(hndl, proc, bytes, src, dst, NULL, &nbh->cntr));
         }
 
-        virtual void Wait(CommBaseNBH *nb) {
-            LapiCommNBH *nbh = dynamic_cast<LapiCommNBH *>(nb);
-            LAPI_Waitcntr(hndl, &nbh->cntr, 1, NULL);
-        }
-
         virtual bool IsDone(CommBaseNBH *nb) {
             int cur_val;
             lapi_msg_info_t info;
@@ -353,10 +347,11 @@ class LapiComm : public Comm {
             (void)LAPI_Waitcntr(hndl, &wait_cntr, new_val, NULL); 
             (void)LAPI_Setcntr(hndl, &wait_cntr, orig_val);
         }
-
-        /* This function is used when Report is being called to
-         * avoid adding this cost to the profiled time spent in atomics */
-        virtual void AtomicAdd(int v, int *dst, int proc, Profiler& prof);
+        
+        virtual void InitCounter(CommBaseNBH *nb, int val) {
+            LapiCommNBH *nbh = dynamic_cast<LapiCommNBH *>(nb);
+            RC(LAPI_Setcntr(hndl, &nbh->cntr, val));
+        }
 
         virtual void Barrier() { LAPI_Gfence(hndl); }
         virtual void Fence() { LAPI_Fence(hndl); }
@@ -401,7 +396,6 @@ class Profiler {
         nano_time_t pollT; /*Time in Comm::Poll()*/
         nano_time_t isdoneT; /*Time in Comm::IsDone()*/
         nano_time_t newT; /*Time in Block::mulsub()'s mem alloc*/
-        nano_time_t atomicAdd; /*Time in AtomicAdd */
         int nStep; /*#calls to Block::step()*/
         int nStepLU; /*#calls to stepLU*/
 
@@ -411,7 +405,6 @@ class Profiler {
             TheComm().ArrayAttach(this, addr);
             runT=dgemmT=luT=bsT=lwrT=permuteT=mulsubT=pollT=isdoneT=newT=0;
             nStep = nStepLU = 0;
-            atomicAdd = 0;
             //MEM_BARRIER();
         }
         ~Profiler() {
@@ -428,7 +421,6 @@ class Profiler {
         inline void log_poll(nano_time_t t) { pollT += t; }
         inline void log_isdone(nano_time_t t) { isdoneT += t; }
         inline void log_new(nano_time_t t) { newT += t; }
-        inline void log_atomicAdd(nano_time_t t) { atomicAdd += t; }
         inline void log_step() { nStep += 1; }
         inline void log_stepLU() { nStepLU += 1; }
 
@@ -446,7 +438,6 @@ class Profiler {
                     TheComm().AtomicAdd(pollT,    &gProf->pollT,root);
                     TheComm().AtomicAdd(isdoneT,  &gProf->isdoneT,root);
                     TheComm().AtomicAdd(newT,  &gProf->newT,root);
-                    TheComm().AtomicAdd(atomicAdd,  &gProf->atomicAdd,root);
                     TheComm().AtomicAdd(nStep,    &gProf->nStep,root);
                     TheComm().AtomicAdd(nStepLU,  &gProf->nStepLU,root);
                 }
@@ -481,7 +472,6 @@ class Profiler {
                     <<"\t poll="<<pollT/1000000.0<<" ms"
                     <<"\t isdone="<<isdoneT/1000000.0<<" ms"
                     <<"\t new="<<newT/1000000.0<<" ms"
-                    <<"\t atomicAdd="<<atomicAdd/1000000.0<<" ms"
                     <<"\t nStep="<<nStep
                     <<"\t nStepLU="<<nStepLU
                     <<endl;
@@ -500,24 +490,6 @@ void LapiComm::Poll(Profiler &prof) {
     t = nanoTime();
 
     prof.log_poll(t - s);
-}
-
-void LapiComm::AtomicAdd(int v, int *dst, int proc, Profiler& prof)
-{
-    int new_val, orig_val;
-    nano_time_t s, t;
-
-    s = nanoTime();
-
-    (void)LAPI_Getcntr(hndl, &wait_cntr, &orig_val);
-    new_val = orig_val + 1;
-    LAPI_Rmw(hndl, FETCH_AND_ADD, proc, dst, &v, NULL, &wait_cntr);
-    (void)LAPI_Waitcntr(hndl, &wait_cntr, new_val, NULL); 
-    (void)LAPI_Setcntr(hndl, &wait_cntr, orig_val);
-
-    t = nanoTime();
-
-    prof.log_atomicAdd(t-s);
 }
 
 /*--------------numerics declarations---------------*/
@@ -672,9 +644,19 @@ class TwoDBlockCyclicArray {
         void getDataCol(int I, int J, int col, double *buf) {
             assert(I>=0 && I<nx*px);
             assert(J>=0 && J<nx*px);
+            /* SS: This should not be used now! */
+            assert(0);
             int proc = TheComm().getproc(I%px, J%py);
             double *src = globalData[proc] + lord(I/px,J/py)*B*B + col*B;
             TheComm().Get(src, buf, B*sizeof(double), proc);    
+        }
+
+        void getDataCol(int I, int J, int col, double *buf, CommBaseNBH *nbh) {
+            assert(I>=0 && I<nx*px);
+            assert(J>=0 && J<nx*px);
+            int proc = TheComm().getproc(I%px, J%py);
+            double *src = globalData[proc] + lord(I/px,J/py)*B*B + col*B;
+            TheComm().NbGet(src, buf, B*sizeof(double), proc, nbh);    
         }
 
         TwoDBlockCyclicArray *copy() {
@@ -1380,6 +1362,12 @@ typedef struct backsolve_frame_t {
     backsolve_frame_t() : PC(0) {}
 } BACKSOLVE_FRAME;
 
+typedef struct step_lu_frame_t {
+    double *block; /* Need to use this memory for non-blocking Get */
+    LapiCommNBH nbh_s;
+    bool nbget_started; /* Check if we started a get on this block! */
+} STEPLU_FRAME;
+
 /**
  * A B*B array of doubles, whose top left coordinate is i,j).
  * get/set operate on the local coordinate system, i.e.
@@ -1414,6 +1402,19 @@ class Block {
         volatile int count; //In PLU, other threads read count
 
         int LU_col; /*The column within a block being panel factorized*/
+
+        /*proto-threads like implementation for communication
+          overlap. Instead of doing this for every method, we make the Block
+          object itself a thread that stores state for all methods it
+          invokes that need this facility.
+
+          Also instead of being generic and stuff, I just use gotos. 
+          */
+        enum StateLabels { LABEL_0=0, LABEL_1, LABEL_2, LABEL_3, LABEL_4 };
+
+        MULSUB_FRAME msf;
+        BACKSOLVE_FRAME bsf;
+        STEPLU_FRAME slu;
 
         void updateLU_col(int val) {
             LU_col = val;
@@ -1451,6 +1452,13 @@ class Block {
             : I(sI), J(sJ), B(sB), M(sM), maxCount(min(sI,sJ)), ready(false), 
         count(0), A(data), LU_col(-1) {
             assert( A != NULL);
+            /* SS: Initialize NBH communication handles for sanity */
+            TheComm().InitCounter(&bsf.nbh_d, 0);
+            TheComm().InitCounter(&msf.nbh_u, 0);
+            TheComm().InitCounter(&msf.nbh_l, 0);
+            TheComm().InitCounter(&slu.nbh_s, 0);
+            slu.block = new double [B];
+            slu.nbget_started = false;
         }
 
         Block(const Block &b, double *data) 
@@ -1463,6 +1471,7 @@ class Block {
                 A[i] = b.A[i];
         }
         ~Block() { 
+            delete [] slu.block;
         }
 
         Block *copy(double *data) {
@@ -1598,7 +1607,6 @@ class Block {
             return;
         }
 
-
         void permute(int row1, int row2, Profiler& prof) {
             nano_time_t s = nanoTime();
             permute(row1, row2);
@@ -1606,9 +1614,57 @@ class Block {
             prof.log_permute(t-s);
         }
 
+        void lower_nb(int col, int done, Profiler &prof) {
+
+            nano_time_t s = nanoTime();
+
+            if (done) {
+                /* We had started data transfer before,
+                 * now we have to process it */
+                {      
+                    char TRANSA = 'N';
+                    Integer M = B;
+                    Integer N = col;
+                    double ALPHA = -1.0;
+                    double *mA = this->A;
+                    Integer LDA = B;
+                    double *mX = slu.block;
+                    Integer INCX = 1;
+                    double BETA = 1.0;
+                    double *mY = this->A+ (B*col);
+                    Integer INCY = 1;
+
+                    DGEMV(&TRANSA, &M, &N, &ALPHA, mA, &LDA,
+                            mX, &INCX, &BETA, mY, &INCY);
+                }
+
+                {   
+                    Integer N = B;
+                    double pivot = slu.block[col]; 
+                    double DA = 1.0/pivot;
+                    double *DX = this->A + (B*col);
+                    Integer INCX = 1;
+                    DSCAL(&N, &DA, DX, &INCX);
+                }
+
+            } else {
+                /* Start data transfer */
+                const int diag = min(I,J);
+
+                assert(NULL != slu.block);
+
+                M->getDataCol(diag, diag, col, slu.block, &slu.nbh_s);    
+            }
+
+            nano_time_t t = nanoTime();
+            prof.log_lower(t-s);
+        }
 
         void lower(int col, Profiler &prof) {
             nano_time_t s = nanoTime();
+
+            /* SS: This routine should not be used now! */
+            assert(0);
 
             double *buf= new double[B];
             assert(buf != NULL);
@@ -1833,20 +1889,6 @@ class Block {
             prof.log_lu(t-s);
             return true;
         }
-
-
-                    private:
-        /*proto-threads like implementation for communication
-          overlap. Instead of doing this for every method, we make the Block
-          object itself a thread that stores state for all methods it
-          invokes that need this facility.
-
-          Also instead of being generic and stuff, I just use gotos. 
-          */
-        enum StateLabels { LABEL_0=0, LABEL_1, LABEL_2, LABEL_3, LABEL_4 };
-
-        MULSUB_FRAME msf;
-        BACKSOLVE_FRAME bsf;
 };
 
 /*---------Definitions after necessary forward declarations-------------*/
@@ -2176,10 +2218,36 @@ Block::stepLU(Profiler &prof) {
             if(!(diag_LU_col > LU_col) && !M->rv->ready(J,J)) {
                 return false;
             }
+
+#if 1
+            if(slu.nbget_started) {
+                /* We're waiting on data to come to us */
+
+                if(TheComm().IsDone(&slu.nbh_s)) {
+                    /* Got the data! */
+                    lower_nb(LU_col, 1, prof);
+                    if(LU_col==B-1) {
+                        setReady();
+                    } 
+                    slu.nbget_started = false;
+                } else {
+                    /* Nopes, still waiting on it ... */
+                    return false;
+                }
+            } else {
+                /* Start non-blocking get */
+                lower_nb(LU_col, 0, prof);
+                slu.nbget_started = true;
+                return false;
+            }
+#else
+            /* This version of "lower" was blocking --
+             * waiting on getDataCol */
             lower(LU_col, prof);
             if(LU_col==B-1) {
                 setReady();
             } 
+#endif
         }
         int LU_col1 = (LU_col==-1?0:LU_col+1);
         if(LU_col1 <= B-1) {
