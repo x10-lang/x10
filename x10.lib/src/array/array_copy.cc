@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.5 2007-10-22 10:03:01 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.6 2007-10-22 11:00:37 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -100,7 +100,9 @@ namespace x10lib {
 		      NULL,
 		      &origin_cntr,
 		      NULL));
-   
+
+    LAPI_Waitcntr (__x10_hndl,  &origin_cntr,  1, &tmp);
+ 
     return X10_OK;
   }  
 }
