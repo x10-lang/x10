@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_table.h,v 1.1 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: array_table.h,v 1.2 2007-10-22 08:18:23 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,12 +11,12 @@
 #define __X10_ARRAY_TABLE_H
 
 
-#include <iostream>
 #include <x10/types.h>
 #include <x10/err.h>
 
 #define X10_MAX_RANK 7 //Following the FORTRAN convention.
 
+#ifdef __cplusplus
 namespace x10lib {
   
   struct array_info
@@ -39,6 +39,6 @@ namespace x10lib{
   
   array_info_t getLocalAddress (int handle);  
 }
-
+#endif
 
 #endif
