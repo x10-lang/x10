@@ -4,7 +4,7 @@
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: reduce.h,v 1.4 2007-10-19 16:04:29 ganeshvb Exp $ */
+/* $Id: reduce.h,v 1.5 2007-10-23 18:05:29 ipeshansky Exp $ */
 
 /* Implementation file for user-defined reductions */
 
@@ -41,7 +41,6 @@ extern int           reduceCount;
 template <typename T, void F (T&, const T&)>
 static x10_err_t 
 commutative_reduce (T *values, int low, int high, int depth)
-    
 {
   int src  = low + ((high - low) / 2);
   int i;
@@ -71,6 +70,7 @@ commutative_reduce (T *values, int low, int high, int depth)
       //	     (char*) reduce_list[low] + reduceCount * depth * sizeof(T), 
       //	     values, (lapi_cntr_t*) reduce_cntr_list[low], NULL, NULL)); 
     }
+  return X10_OK;
 }
 
   /**

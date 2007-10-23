@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rectangular_region.h,v 1.1 2007-10-19 16:04:29 ganeshvb Exp $ 
+ * $Id: rectangular_region.h,v 1.2 2007-10-23 18:05:29 ipeshansky Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -138,16 +138,19 @@ namespace x10lib {
     bool isEqual(const Region<RANK>& x) const
     {
       assert(false);
+      return false;
     }
 
     bool isConvex() const
     {
       assert(false);
+      return false;
     }
 
     bool isDisjoint(const Region<RANK>& r) const
     {
       assert(false);
+      return false;
     }
   
     const int card() const
