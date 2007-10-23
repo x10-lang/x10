@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.*;
  *
  */
 public class PLU {
+	public static final int NUM_TESTS=10;
+	public static final boolean VERIFY = true;
 	final TwoDBCA M;
 	/**
 	 * Row permutation for pivoting
@@ -28,7 +30,13 @@ public class PLU {
 		this.nx=nx; this.ny=ny; this.px=px; this.py=py; this.B=B;
 		M = new TwoDBCA(px,py,nx,ny,B);
 		pivots = new AtomicIntegerArray(nx*px*B);
-		for(int i=0; i<nx*px*B; i++) pivots.set(i,i);
+		for(int i=0; i<pivots.length(); i++) pivots.set(i,i);
+	}
+	public PLU(PLU old, TwoDBCA orig) {
+		this.nx=old.nx; this.ny=old.ny; this.px=old.px; this.py=old.py; this.B=old.B;
+		M = orig.copy();
+		pivots = old.pivots;
+		for(int i=0; i<pivots.length(); i++) pivots.set(i,i);
 	}
 
 	static double format(double v, int precision){
@@ -44,6 +52,7 @@ public class PLU {
 	static double flops(int n) { return ((4.0 *  n - 3.0) *  n - 1.0) * n / 6.0; }
 
 	public static void main(String[] a) {
+		System.out.print("PLU ");
 		if (a.length < 4) {
 			System.out.println("Usage: PLU N b px py");
 			return;
@@ -56,38 +65,45 @@ public class PLU {
 
 		final int nx = N / (px*B), ny = N/(py*B);
 		assert (N % (px*B) == 0 && N % (py*B) == 0);
-		System.out.println("PLU " + N + " " + B + " " + px + " " + py + ":");
+		System.out.println(N + " " + B + " " + px + " " + py + ":");
 		PLU lu = new PLU(px,py,nx,ny,B);
-		//lu.M.display("Before LU");
+		final TwoDBCA orig = lu.M.copy();
+		int i=0;
+		do {
+			TwoDBCA A = orig.copy();
+			System.gc();
+			long s = - System.nanoTime();
+			lu.M.plu();
+			s += System.nanoTime();
+			lu.M.applyLowerPivots();
+			A.applyPivots();
+			System.out.println("N="+N+" px="+px+" py="+py+" B="+B
+					+" time="+(s)/1000000+"ms"
+					+" Rate="+format(flops(N)/(s)*1000, 3)+" MFLOPS");
 
-		TwoDBCA A = lu.M.copy();
-		long s = - System.nanoTime();
-		lu.M.plu();
-		s += System.nanoTime();
-		lu.M.applyLowerPivots();
-		A.applyPivots();
-
-		System.out.println("N="+N+" px="+px+" py="+py+" B="+B
-				+" time="+(s)/1000000+"ms"
-				+" Rate="+format(flops(N)/(s)*1000, 3)+" MFLOPS");
-		
-		System.out.print("Verifying... ");
-		long v = - System.nanoTime();
-		boolean correct = A.verify(lu.M);
-		v += System.nanoTime();
-		
+			if (VERIFY) {
+				System.out.print("Verifying... ");
+				long v = - System.nanoTime();
+				boolean correct = A.verify(lu.M);
+				v += System.nanoTime();
+				//lu.printPivots();
+				System.out.println(((v)/1000000) + " ms " + (correct?" ok":" fail"));
+			}
+			if (++i >= NUM_TESTS) break;
+			lu = new PLU(lu, orig);
+		} while (true);
+	}
+	
+	void printPivots() {
 		System.out.print("Pivots: ");
-		for(int i=0; i<lu.pivots.length(); i++) {
-			System.out.print(lu.pivots.get(i)+" ");
+		for(int i=0; i<pivots.length(); i++) {
+			System.out.print(pivots.get(i)+" ");
 			if (i % 10==0) { 
 				System.out.println();
 				System.out.print(" " );
 			}
 		}
 		System.out.println(" ");
-
-		
-		System.out.println("Verification " + ((v)/1000000) + " ms " + (correct?" ok":" fail"));
 	}
 	class TwoDBCA {
 		/**
@@ -105,56 +121,45 @@ public class PLU {
 			private volatile int count=0; //in PLU other threads read the count
 			final int I,J, B;
 			Block(int I, int J, int B) {
-				assert B > 0 && in(I, 0,px*nx) && in(J, 0, py*ny);
-				this.I=I; this.J=J;this.B=B; //this.MMM=TwoDBCA.this;
+				assert (B > 0 && in(I, 0,px*nx) && in(J, 0, py*ny));
+				this.I=I; this.J=J;this.B=B; 
 				A = new double[B*B];
 				maxCount = min(I,J);
 				readyBelowCount = I;
 			}
 			Block(final Block b) {
-				this.I=b.I; this.J=b.J;this.B=b.B; //this.MMM=b.MMM;
+				this.I=b.I; this.J=b.J;this.B=b.B; 
 				A = new double[B*B];
 				maxCount = min(I,J);
 				for(int i=0; i<B*B; i++) A[i] = b.A[i];
 				readyBelowCount = I;
 			}
-			void display() {
-				//System.out.println("I="+I+" J="+J);
-				for(int i=0; i<B; i++) 
-					for(int j=0; j<B; j++) 
-						System.out.print(format(A[i*B+j],6) + " ");
-			}
+			void display() { for (double d: A) System.out.print(format(d,6) + " "); }
 			void init() {
-				for (int i=0; i < B*B; i++)
+				for (int i=0; i < A.length; ++i)
 					A[i] = format(10 * Math.random(), 4);
-				if (I==J) {
-//					for (int i=0; i < B; i++) 
-//					A[i*B+i] = format(20 * Math.random() + 10, 4);
-				}
 			}
 			//#blocks below this one, that have all mulsubs done so that 
 			//we can permute and do backSolve on this block
 			private int readyBelowCount; 	
+			/**
+			 * 
+			 * @return true -- iff a mulsub was performed (and hence count was increased)
+			 */
 			boolean step() {
-				if(ready) return false;
+				assert !ready;
+				final TwoDBCA me = TwoDBCA.this;
 				if (count == maxCount) {
-					if(I<J && TwoDBCA.this.get(I,I).ready) {
+					if(I<J && me.get(I,I).ready) {
 						if(readyBelowCount==0) readyBelowCount=I; 
-						for(;readyBelowCount<px*nx && (TwoDBCA.this.get(readyBelowCount, J).count==I); readyBelowCount++)
-							;
-						if(readyBelowCount==px*nx) {
-							bSolve(TwoDBCA.this.get(I,I), pivots);
-							ready = true;
-							return true;
-						}
-						return false;
+						while(readyBelowCount<px*nx && (me.get(readyBelowCount, J).count==I)) { readyBelowCount++;}
+						if(readyBelowCount < px*nx) return false;
+						bSolve(me.get(I,I));
+						return ready = true;
 					}
-					else if (I >=J)
-						return stepLU(pivots);
-					else
-						return false;
+					else return (I>=J) ? stepLU() : false;
 				}
-				Block IBuddy = TwoDBCA.this.get(I, count), JBuddy = TwoDBCA.this.get(count,J);
+				Block IBuddy = me.get(I, count), JBuddy = me.get(count,J);
 				if (IBuddy.ready && JBuddy.ready) {
 					mulsub(IBuddy, JBuddy);
 					count++;
@@ -170,160 +175,151 @@ public class PLU {
 			private volatile int maxRow; //Row with that value			
 
 			void computeMax(int col) { computeMax(col, 0); }
-
 			void computeMax(int col, int startRow) {
-					assert in(col, 0, B);
-					assert in(startRow, 0, B);
-					maxColV = get(startRow,col);
-					maxRow = I*B+startRow;
-					
-					for(int i=startRow; i<B; i++) {
-						if(fabs(get(i,col)) > fabs(maxColV)) {
-							maxColV = get(i,col);
-							maxRow = I*B+i;
-						}
-					}		
-					assert in(maxRow, 0, N);
+				assert in(col, 0, B) && in(startRow, 0, B);
+				int ord=ord(startRow,col);
+				maxColV = A[ord]; 
+				maxRow = I*B+startRow;
+
+				for(int i=startRow+1; i<B; i++) {
+					ord +=B;
+					double a = A[ord]; 
+					if(fabs(a) > fabs(maxColV)) {
+						maxColV = a;
+						maxRow = I*B+i;
+					}
+				}		
+				assert in(maxRow, 0, N);
 			}
 
 			private int colMaxCount=0; //#maxes ready for this column
-			//stepping through to perform panel factorization
-			boolean stepLU(AtomicIntegerArray pivots) {
-				assert I >= J;
-					assert count == maxCount;
-					assert ready == false;
-					assert LUCol < B;
-
-					if(LUCol==-1 && (I==J)) { 
-						for(;readyBelowCount<px*nx && (TwoDBCA.this.get(readyBelowCount, J).count==J); readyBelowCount++);
-						if(readyBelowCount < px*nx) return false;
-						
-					}
-
-					if(I == J) {
-						if(LUCol>=0) {
-							if(colMaxCount==0) colMaxCount = I+1;
-							for(;colMaxCount<px*nx && (TwoDBCA.this.get(colMaxCount,J).LUCol==LUCol); colMaxCount++) {
-								if(fabs(TwoDBCA.this.get(colMaxCount, J).maxColV) > fabs(maxColV)) {
-									maxColV = TwoDBCA.this.get(colMaxCount, J).maxColV;
-									maxRow = TwoDBCA.this.get(colMaxCount, J).maxRow;
-								}
+			/** stepping through to perform panel factorization
+			 * 
+			 * @return true if this block was ready to execute, and executed.
+			 */
+			boolean stepLU() {
+				final TwoDBCA me = TwoDBCA.this;
+				assert (I >= J && count == maxCount && !ready && LUCol < B);
+				if(LUCol==-1 && (I==J)) { 
+					for(;readyBelowCount<px*nx && (me.get(readyBelowCount, J).count==J); readyBelowCount++);
+					if(readyBelowCount < px*nx) return false;
+				}
+				if(I == J) {
+					if(LUCol>=0) {
+						if(colMaxCount==0) colMaxCount = I+1;
+						Block block;
+						for(;colMaxCount<px*nx && ((block=me.get(colMaxCount,J)).LUCol==LUCol); colMaxCount++) {
+							if(fabs(block.maxColV) > fabs(maxColV)) {
+								maxColV = block.maxColV;
+								maxRow = block.maxRow;
 							}
-							if(colMaxCount < px*nx) return false;
-							final int row = I*B+LUCol;
-							assert in(row, 0, N);
-							pivots.set(row, maxRow);
-							if(row != maxRow) {
+						}
+						if(colMaxCount < px*nx) return false;
+						final int row = I*B+LUCol;
+						assert in(row, 0, N);
+						pivots.set(row, maxRow);
+						if(row != maxRow) {
 							//	System.out.println("StepLU: Invoking permute " + row + " --> " + maxRow);
-								permute(row, maxRow);
-							}
-							LU(LUCol);
-							if(LUCol==B-1)  ready=true;
+							permute(row, maxRow);
 						}
-						LUCol = (LUCol==-1? 0 : LUCol+1);
-						if(LUCol<=B-1)	{
-							computeMax(LUCol, LUCol);
-							colMaxCount=0;
-						}
+						LU(LUCol);
+						if(LUCol==B-1)  ready=true;
 					}
-					else {
-						if(LUCol>=0) {
-							Block diag = TwoDBCA.this.get(J,J);
-							if(!(diag.LUCol > LUCol) && !diag.ready) 
-								return false;
-							lower(diag, LUCol);
-							if(LUCol==B-1)  ready = true; 
-						}
-						if(LUCol+1 <= B-1) computeMax((LUCol==-1?0:LUCol+1));
-						//A store barrier?
-						LUCol = (LUCol==-1 ? 0 : LUCol+1);
+					++LUCol;
+					if(LUCol<=B-1)	{
+						computeMax(LUCol, LUCol);
+						colMaxCount=0;
 					}
-
-					return true;
+				} else {
+					if(LUCol>=0) {
+						Block diag = me.get(J,J);
+						if(!(diag.LUCol > LUCol) && !diag.ready) return false;
+						lower(diag, LUCol);
+						if(LUCol==B-1) ready = true; 
+					}
+					if(LUCol+1 <= B-1) computeMax(LUCol+1);
+					//A store barrier?
+					++LUCol;
+				}
+				return true;
 			}
 
-			void lower(Block diag, int col) {
+			void lower(final Block diag, final int col) {
+				assert in(col, 0, B);
 				for(int i=0; i<B; i++) {
-					double r = 0.0;
-					for(int k=0; k<col; k++)
-						r += get(i,k)*diag.get(k,col);
-					negAdd(i,col,r);
-					set(i,col,get(i,col)/diag.get(col,col));				
+					double r=0.0; for(int k=0; k<col; k++) r += get(i,k)*diag.get(k,col);
+					int ord = ord(i,col);
+					A[ord] = (A[ord] -r)/diag.get(col,col);			
 				}
 			}
+			//void lower(final Block diag) { for (int j=0; j <B; j++) lower(diag, j); }
 
-			void lower(Block diag) {
-				for(int i=0; i<B; i++)
-					for(int j=0; j<B; j++) {
-						double r = 0.0;
-						for(int k=0; k<j; k++)
-							r += get(i,k)*diag.get(k,j);
-						negAdd(i,j,r);
-						set(i,j,get(i,j)/diag.get(j,j));
-					}
-			}
-
-			//permute, for the columns in this block, 
-			//row1 in this block with row2 (in potentially some other block)*/
+			/**permute, for the columns in this block, 
+			row1 in this block with row2 (in potentially some other block)*/
 			void permute(int row1, int row2) {
 				assert row1 != row2; //why was this called then?
-				assert row1>=I*B && row1<(I+1)*B; //should be a row in this block
-
+				assert in(row1,I*B,(I+1)*B); //should be a row in this block
 				Block b = TwoDBCA.this.get(row2/B, J); //the other block
-
 				for(int j=0; j<B; j++){
-					double v1 = get(row1%B, j);
-					double v2 = b.get(row2%B, j);
-					set(row1%B, j, v2);
-					b.set(row1%B, j, v1);
+					final int ord1 = ord(row1%B,j), ord2=ord(row2%B,j);
+					final double v1 = A[ord1], v2 = b.A[ord2];
+					A[ord1]=v2; b.A[ord2]=v1;
 				}
 			}
-			void bSolve(Block diag, AtomicIntegerArray pivots) {
-				for(int i=I*B; i<(I+1)*B; i++) 
-					if(pivots.get(i) != i)
-						permute(i, pivots.get(i));
-				for (int i = 0; i < B; i++) 
-					for (int j = 0; j < B; j++) {
-						double r = 0.0;
-						for (int k = 0; k < i; k++) 
-							r += diag.get(i,k)*get(k, j);
-						negAdd(i, j, r);
+			void bSolve(final Block diag) {
+				assert I<J;
+				for(int i=I*B; i<(I+1)*B; i++) { // permute first, if necessary
+					final int target = pivots.get(i);
+					if(target != i) permute(i, target);
+				}
+				for (int i=0; i<B; ++i) { //optimized ord calculations
+					final int iord = ord(i,0);
+					for (int j=0; j<B; ++j) {
+						int jord = ord(0,j);
+						double r=0.0; for (int k=0; k<i; ++k) {
+							r += diag.A[iord+k]*A[jord]; 
+							jord +=B;
+						}
+						A[iord+j] -=r;
 					}
+				}
 			}
-			void mulsub(Block left, Block upper) {
-				for(int i=0; i<B; i++)
-					for(int j=0; j<B; j++) {
-						double r=0;
-						for(int k=0; k<B; k++)
-							r += left.get(i, k) * upper.get(k, j);
-						negAdd(i,j,r);
+			void mulsub(final Block left, final Block upper) {
+				for(int i=0; i<B; ++i) { //optimized ord calculations
+					final int iord = ord(i,0);
+					for(int j=0; j<B; ++j) {
+						int jord = ord(0,j);
+						double r=0; for(int k=0; k<B; ++k) { //mul
+							r += left.A[iord+k]*upper.A[jord]; 
+							jord +=B;
+						}
+						A[iord+j] -=r; //sub
 					}
+				}
 			}
 
-			void LU(int col) {
-				for (int i = 0; i < B; i++) {
-					double r = 0.0;
-					for(int k=0; k<min(i,col); k++)
-						r += get(i,k) * get(k,col);
-					negAdd(i,col, r);
-					if(i>col) set(i,col, get(i,col)/get(col,col));
+			void LU(final int col) {
+				for (int i = 0; i < B; ++i) { // optimized ord calculations
+					int iord=ord(i,0), jord=ord(0,col), m = min(i,col);
+					double r = 0.0; for(int k=0; k<m; ++k) {
+						r += A[iord+k]*A[jord]; //get(i,k)*get(k,col);
+						jord +=B;
+					}
+					iord +=col;
+					A[iord] -=r; // negAdd(i,col, r);
+					if(i>col) A[iord] /= A[jord]; //set(i,col, get(i,col)/get(col,col));
 				}				
 			}
 
-			void LU() {
-				for (int k = 0; k < B; k++)
-					for (int i = k + 1; i < B; i++) {
-						set(i,k, get(i,k)/get(k,k));
-						double a = get(i,k);
-						for(int j=k+1; j<B; j++)
-							negAdd(i,j, a*get(k,j));
+			/*void LU() {
+				for (int k=0; k<B; ++k)
+					for (int i=k+1; i<B; ++i) {
+						int ord = ord(i,k);
+						double a =A[ord]=A[ord]/A[ord(k,k)];
+						for(int j=k+1; j<B; ++j) negAdd(i,j, a*get(k,j));
 					}				
-			}
-			int ord(int i, int j) {
-				assert j>=0 && j<B;
-				assert i>=0 && i < B;
-				return i*B+j;
-			}
+			}*/
+			int ord(int i, int j) { assert in(i,0,B) && in(j, 0,B); return i*B+j; }
 			double get(int i, int j) { return A[ord(i,j)];	}
 			void set(int i, int j, double v) { 	A[ord(i,j)] = v; }
 			void negAdd(int i, int j, double v) { A[ord(i,j)] -= v; }
@@ -333,23 +329,21 @@ public class PLU {
 
 		class Worker implements Runnable {
 			final int pi, pj;
-			public Worker(int pi, int pj) { this.pi=pi; this.pj=pj; }
+			final Block[] myBlocks;
+			public Worker(int pi, int pj) { this.pi=pi; this.pj=pj; int index=pord(pi,pj); myBlocks=A[index];}
 			public void run() {
-				final Block lastBlock = getLocal(pi, pj, nx-1, ny-1);
-				int starty=0, ct=0;
-
+				final Block lastBlock = myBlocks[lord(nx-1, ny-1)];
+				int startY=0, ct=0;
 				while(!lastBlock.ready) {
-					assert ny-1>=starty;
-
-					if(getLocal(pi, pj, nx-1, starty).ready) ++starty;
-					outer:	for(int j=starty; j<ny; j++) {
+					assert ny-1>=startY;
+					if(myBlocks[lord(nx-1, startY)].ready) ++startY;
+					outer:	for(int j=startY; j<ny; j++) {
 						for(int i=0; i<nx; i++) {
 							ct++;
-							if (ct % 10000000 == 0) {
+							if (ct % 10000000 == 0) 
 								System.out.println( "Worker(" + pi + ","+pj+"): count=" + ct);
-							}
-							Block block = getLocal(pi, pj, i,j);
-							if(block.step()) break outer;
+							Block block = myBlocks[lord(i,j)];
+							if((! block.ready) && block.step()) break outer;
 						}
 					}
 					Thread.currentThread().yield();
@@ -420,7 +414,7 @@ public class PLU {
 						if(r != pivots.get(r))
 							get(i,j).permute(r, pivots.get(r));						
 		}
-		
+
 		// invoked by a single thread, should be parallelized
 		void applyPivots() {
 			for(int i=0; i<px*nx; i++) 
@@ -444,7 +438,7 @@ public class PLU {
 					get(I,J).display();
 			System.out.println(" ");
 		}
-		
+
 		// invoked by a single thread, should be parallelized
 		boolean verify(TwoDBCA M) {
 			/* Initialize test. */
@@ -471,7 +465,5 @@ public class PLU {
 			/* Check maximum difference against threshold. */
 			return (max_diff <= 0.01);
 		}
-		
 	} // TwoDBlockCyclicArray
-	
 }
