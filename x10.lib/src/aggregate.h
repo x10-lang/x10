@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.18 2007-09-24 14:01:48 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.19 2007-10-23 15:49:16 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -16,7 +16,7 @@
 #define X10_MAX_AGG_TASKS 1024
 #define X10_MAX_AGG_SIZE 1024
 
-typedef  int (*FUNC)(ulong);
+//typedef  int (*FUNC)(ulong);
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
