@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: config.sh,v 1.5 2007-10-22 08:18:23 ganeshvb Exp $
+# $Id: config.sh,v 1.6 2007-10-23 17:29:12 ipeshansky Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -46,19 +46,17 @@ SCHEDDIR=${SRCDIR}/sched
 LN=ln
 FIND=find
 echo "cd ${X10IDIR}"
-cd ${X10IDIR}
-for i in ${SRCDIR} ${ARRAYDIR}
+cd "${X10IDIR}"
+for i in "${SRCDIR}" "${ARRAYDIR}"
 do
-	`${FIND} ${i}  -name CVS -prune -o -name '*.h' -type f -exec ${LN} -s -f {} . ';'`
-	`${FIND} ${i}  -name CVS -prune -o -name '*.tcc' -type f -exec ${LN} -s -f {} . ';'`
+	${FIND} "${i}" -maxdepth 1 -name CVS -prune -o -type f '(' -name '*.h' -o -name '*.tcc' ')' -exec ${LN} -s -f {} . ';'
 done
 cd ${TOPDIR}
 echo "cd ${X10XWSDIR}"
 cd ${X10XWSDIR}
 for i in ${SCHEDDIR}
 do
-	`${FIND} ${i} -name CVS -prune -o -name '*.h' -type f -exec ${LN} -s -f {} . ';'`
-	`${FIND} ${i} -name CVS -prune -o -name '*.tcc' -type f -exec ${LN} -s -f {} . ';'`
+	${FIND} "${i}" -maxdepth 1 -name CVS -prune -o -type f '(' -name '*.h' -o -name '*.tcc' ')' -exec ${LN} -s -f {} . ';'
 done
 echo "cd ${TOPDIR}"
 cd ${TOPDIR}
