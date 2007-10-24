@@ -8,35 +8,6 @@ void add (double& arg1, const double& arg2)
   arg1 += arg2;
 }
 
-class complex {
-
-public:
-  complex() {}
-
-  complex (double _real, double _imag) :
-    real (_real), imag (_imag) {}
-
-  complex (const complex& other) :
-    real (other.real),
-    imag (other.imag)
-  {}
-
-  complex operator= (complex other) {
-    real = other.real;
-    imag = other.imag;
-    return *this;
-  };
-  
-  complex operator+= (complex& other) 
-  {
-    real += other.real;
-    imag += other.imag;
-    return *this;
-  }
-  
-  double real;
-  double imag;
-};
 
 struct 
 {
@@ -46,24 +17,49 @@ struct
 
 struct __array_copy_args_0 
 {
-  __array_copy_args_0 (x10_int_t _captVar1) :
-     captVar1 (_captVar1) {}
+  __array_copy_args_0 (x10_int_t destStart) :
+     _destStart (destStart) {}
+  
+  __array_copy_args_0 () {}
 
-  __array_copy_args_0 (const __array_copy_args_0 & other) :
-    captVar1 (other.captVar1) {}
-
-  x10_int_t captVar1;
+  x10_int_t _destStart;
 };
 
 struct __closure_0 : public Closure
 {
-  __closure_0 (int _handle, __array_copy_args_0 _args) :
-        Closure (sizeof(__array_copy_args_0), _handle),
-        args (_args) { };
+  __closure_0 (int destStart) :
+        Closure (sizeof(__array_copy_args_0), 0),
+        args (destStart) { };
+
+  __closure_0 () {}
 
   __array_copy_args_0 args;
 };
  
+struct __array_copy_args_1
+{
+  __array_copy_args_1 (x10_int_t destStart) :
+     _destStart (destStart) {}
+
+  __array_copy_args_1 () {}
+
+  x10_int_t _destStart;
+};
+
+struct __closure_1 : public Closure
+{
+  __closure_1 (int destStart) :
+        Closure (sizeof(__array_copy_args_1), 1),
+        args (destStart) { };
+
+  __closure_1 () {}
+
+  __array_copy_args_1 args;
+};
+
+static int closureCount = 0;
+Closure* closure; 
+
 struct __async__0__args
 {
   __async__0__args (x10_int_t _captVar1, double _captVar2, double _captVar3) : 
@@ -182,7 +178,7 @@ FtStatic::FtStatic( x10_int_t type, x10_int_t comm) :
 }
   
 void  FtStatic::solve() {
-  
+
 
   x10_int_t offset = 0;
   
@@ -190,6 +186,8 @@ void  FtStatic::solve() {
   
   char* buf = NULL;
   
+  closure = (FT_COMM == FT_COMM_PENCILS) ? (Closure*) new __closure_1 [MAX_PADDED_SIZE/NUMPLACES] : 
+    (Closure*) new __closure_0 [MAX_PADDED_SIZE/NUMPLACES];
   
   const DoubleArray* Planes2d = new DoubleArray (MAX_PADDED_SIZE/NUMPLACES, OFFSET);
   const DoubleArray* Planes1d = new DoubleArray (MAX_PADDED_SIZE/NUMPLACES, OFFSET);
@@ -202,7 +200,7 @@ void  FtStatic::solve() {
    
   double cputime1 = -mysecond();		
    
-  x10_place_t PID = PLACE->id;
+  x10_place_t PID = PLACE->x10__id;
 
   CS = finishStart (CS);
 
@@ -242,6 +240,8 @@ void  FtStatic::solve() {
 
   SyncGlobal();
 
+  closureCount = 0;
+
   FT_1DFFT(FT_COMM, localPlanes1d->m_array, localPlanes2d->m_array, 1, FFT_FWD, current_orientation, PID);
 
   SyncGlobal();
@@ -262,6 +262,8 @@ void  FtStatic::solve() {
   
   SyncGlobal();
 
+  closureCount = 0;
+
   FT_1DFFT (FT_COMM, localPlanes1d->m_array, local_V->m_array, 0, FFT_FWD, current_orientation, PID);
 
   //(1)
@@ -280,6 +282,8 @@ void  FtStatic::solve() {
     FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk);
     
     SyncGlobal();
+    
+    closureCount = 0;
     
     FT_1DFFT(FT_COMM, localPlanes1d->m_array, localPlanes2d->m_array, 1, FFT_BWD, current_orientation, PID);
 
@@ -350,11 +354,25 @@ void FtStatic::FFT2DComm_Slab(const DoubleArray* local2d, const DoubleArray* dis
             
       //System.out.println(" 2DComm place: t = "+t+" placeID ="+placeID+ " destID = "+destID+ " destSstart ="+destStart);
       
-      //asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * CHUNK_SZ, clk);
-      __array_copy_args_0 args (destStart);
-      __closure_0 closure (0, args);
+      
+      /* using asyncArrayCopy */
+      /* __closure_0 closure (destStart);
       asyncArrayCopy ((void*) (local2darray->raw() +  srcStart + OFFSET), 
-		      &closure, 2 * CHUNK_SZ * sizeof(double), destID); 
+      &closure, 2 * CHUNK_SZ * sizeof(double), destID); */
+      
+
+      
+      /* using asyncArrayCopyRaw */
+      ((__closure_0*) closure)[closureCount].handler = 1;
+      ((__closure_0*) closure)[closureCount].len = sizeof (__closure_0);
+      ((__closure_0*) closure)[closureCount].args._destStart = destStart;
+      
+      asyncArrayCopyRaw ((void*) (local2darray->raw() + (srcStart + OFFSET)), 
+			 &(((__closure_0*)closure))[closureCount], 2 * CHUNK_SZ * sizeof(double), destID); 
+      
+      closureCount++;
+      
+      
     }
   }
 }
@@ -402,13 +420,21 @@ void  FtStatic::FFT2DComm_Pencil (const DoubleArray* local2d, const DoubleArray*
 	
 	//cout << "hello in FT " << endl;
 
-      __array_copy_args_0 args (destStart);
-      __closure_0 closure (1, args);
-      asyncArrayCopy ((void*) (local2darray->raw() + (srcStart + OFFSET)), 
-			&closure, 2 * dim1 * sizeof(double), destID); 
-
-	//	asyncArrayCopy (local2darray, srcStart + OFFSET, local1darray, destStart, destID, 2 * dim1, clk);
-	//asyncArrayCopy (local2darray, Pox10_int_t<1> (srcStart), local1darray, Pox10_int_t<1> (destStart), destID, 2 * dim1, clk);
+	/* using asyncArrayCopy */
+	/* __closure_1 closure (destStart);
+	   asyncArrayCopy ((void*) (local2darray->raw() + (srcStart + OFFSET)), 
+	   &closure, 2 * dim1 * sizeof(double), destID); */
+	
+	
+	/* using asyncArrayCopyRaw */
+	((__closure_1*) closure)[closureCount].handler = 1;
+	((__closure_1*) closure)[closureCount].len = sizeof (__closure_1);
+	((__closure_1*) closure)[closureCount].args._destStart = destStart;
+	
+	asyncArrayCopyRaw ((void*) (local2darray->raw() + (srcStart + OFFSET)), 
+			   &(((__closure_1*)closure))[closureCount], 2 * dim1 * sizeof(double), destID); 
+	closureCount++;
+      
       }    
   }
    
@@ -480,7 +506,7 @@ void  FtStatic::checksum(const DoubleArray* C, const x10_int_t PID, const x10_in
    
 void  FtStatic::print_Array(const DoubleArray* DDA){
 
-  x10_place_t PID = PLACE->id;   
+  x10_place_t PID = PLACE->x10__id;   
   const DoubleArray* da = DDA;
   cout << "At place " << PID << endl;
      
@@ -514,7 +540,7 @@ void   FtStatic::main (x10::array<x10::ref<x10::lang::String> >& args) {
      
   x10_int_t CLASS = 0; 
   x10_int_t COMM = FT_COMM_SLABS;  
-  for (x10_int_t q = 0; q < args.length; ++q) {		
+  for (x10_int_t q = 0; q < args.x10__length; ++q) {		
     if ((*args[q]).equals(String ("-s")) || (*args[q]).equals(String ("-S"))) {
       CLASS = 1;
     }
@@ -961,13 +987,19 @@ asyncSwitch (x10_async_handler_t h, void* arg, x10_int_t niter)
 void*
 arrayCopySwitch (int handler, void* args)
 {
-  __array_copy_args_0 *array_copy_args = (__array_copy_args_0*) args;
+
   switch (handler) {
   case 0:
-    return (GLOBAL_STATE.Planes1d->m_array->raw() + array_copy_args->captVar1); 
+    {
+      __array_copy_args_0 *array_copy_args = (__array_copy_args_0*) args;
+    return (GLOBAL_STATE.Planes1d->m_array->raw() + array_copy_args->_destStart); 
+    }
   case 1:
+    {
+      __array_copy_args_1 *array_copy_args = (__array_copy_args_1*) args;
     //    cout << "hello " << closure_args->destOffset << endl;
-    return (GLOBAL_STATE.Planes1d->m_array->raw() + array_copy_args->captVar1); 
+    return (GLOBAL_STATE.Planes1d->m_array->raw() + array_copy_args->_destStart); 
+    }
   }
   
   return NULL;
