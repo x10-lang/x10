@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.6 2007-10-22 11:00:37 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.7 2007-10-24 09:51:49 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -62,7 +62,7 @@ namespace x10lib {
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
 		      (void*) &(closure->handler),
-		      closure->len + sizeof(x10_async_handler_t),
+		      closure->len + sizeof(Closure) - sizeof(size_t),
 		      src,
 		      len,
 		      NULL,
