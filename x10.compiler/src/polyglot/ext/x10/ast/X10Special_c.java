@@ -61,6 +61,11 @@ public class X10Special_c extends Special_c implements X10Special {
         	if (c.inSuperTypeDeclaration()) {
         		tt = c.supertypeDeclarationType();
         	}
+        	
+        	// The type of self should not include a dep clause; otherwise
+        	// self in C(:c) could have type C(:c), causing an infinite regress
+        	// later in type checking.
+        	tt = (X10NamedType) tt.makeNoClauseVariant();
     		return type(tt);
     	}
         if (qualifier == null) {
