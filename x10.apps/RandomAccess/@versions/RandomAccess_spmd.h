@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.2 2007-06-29 15:54:17 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.h,v 1.3 2007-10-24 08:34:26 ganeshvb Exp $ */
 
 /* Main version */
 #include <iostream>
@@ -20,8 +20,8 @@ using namespace java::lang;
 
 /* This gives the opportunity to use either int64_t or uint64_t */
 
-typedef long long glong_t;
-typedef long long sglong_t;
+typedef long glong_t;
+typedef long sglong_t;
 
 //typedef int32_t glong_t;
 //typedef int32_t sglong_t;
@@ -55,7 +55,7 @@ private:
   static const glong_t POLY = 0x0000000000000007LL;  
   static const glong_t PERIOD = 131762457669539401LL;
  
-  static Dist<1>*  UNIQUE;
+  const static Dist<1>*  UNIQUE;
   static int NUMPLACES;
   static int PLACEIDMASK;
 
