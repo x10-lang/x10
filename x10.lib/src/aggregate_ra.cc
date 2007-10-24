@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_ra.cc,v 1.5 2007-10-19 16:04:28 ganeshvb Exp $
+ * $Id: aggregate_ra.cc,v 1.6 2007-10-24 07:16:31 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -138,7 +138,7 @@ asyncAggInit_ra()
 {
   X10_DEBUG (1,  "Entry");
 
-  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 9));
+  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, ASYNC_SPAWN_HANDLER_AGG_RA));
   
   for (int i = 0; i < X10_MAX_LOG_NUMPROCS; i++) {
     rbuf[0][i] = new char [16384 * 32];
@@ -160,7 +160,7 @@ asyncAggFinalize_ra ()
 }
 
 static x10_err_t
-sort_data (size_t size, ulong mask, int cond, char *inbuf, int len, FUNC func)
+sort_data (size_t size, ulong mask, int cond, char *inbuf, int len)
 {
   long* buf = (long*) inbuf;
   long* sendbuf = (long*) (sbuf + nsend);
@@ -171,7 +171,7 @@ sort_data (size_t size, ulong mask, int cond, char *inbuf, int len, FUNC func)
   for (int i = 0; i < len / size; i++)
     {
       long ran = buf[i];
-      int p =  func (ran);
+      int p = ((int) (ran >> LogTableSize) & PLACEIDMASK);
       if (p != __x10_my_place && ((MIN((((ulong) p) & mask), 1)) == cond)) 
 	{
          sendbuf[j++] = buf[i];
@@ -202,7 +202,7 @@ send_updates (x10_async_handler_t hndlr, size_t size,int phase, int partner)
   
   //{ cout << "phase : " << phase << " " << sizeof(phase_l) << "  nsend: " << nsend<< " p : " << __x10_my_place << " " << partner << endl; }
   LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-  LRC(LAPI_Amsend(__x10_hndl, partner, (void *)9, &hdr,
+  LRC(LAPI_Amsend(__x10_hndl, partner, (void *) ASYNC_SPAWN_HANDLER_AGG_RA, &hdr,
 		  sizeof(hdr),
 		  (void *) sbuf,
 		  nsend,
@@ -216,13 +216,14 @@ namespace x10lib {
 
   //template <typename FUNC>  
   x10_err_t 
-  asyncFlush_ra (x10_async_handler_t hndlr, size_t size, char* data, int len, FUNC func)
+  asyncFlush_ra (x10_async_handler_t hndlr, size_t size, char* data, int len, int log_table_size,
+                 int place_id_mask)
   {
     X10_DEBUG (1,  "Entry");
     
-    //LogTableSize = log_table_size;
+    LogTableSize = log_table_size;
     
-  //  PLACEIDMASK = place_id_mask;
+    PLACEIDMASK = place_id_mask;
     
     nsend= 0;
 
@@ -255,13 +256,13 @@ namespace x10lib {
 	buf = kbuf;
       }
 
-      sort_data (size, mask,cond, buf, nkept, func);
+      sort_data (size, mask,cond, buf, nkept);
       
       if (phase > 0) 
 	{	
 	  int cntrVal;	
 	  LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &cntrVal);
-	  sort_data (size, mask, cond, rbuf[cntrVal][phase-1], recvMesgLen[cntrVal][phase-1],func);		
+	  sort_data (size, mask, cond, rbuf[cntrVal][phase-1], recvMesgLen[cntrVal][phase-1]);		
 	  recvMesgLen[cntrVal][phase-1] = 0;	  
 	}     
       
@@ -272,7 +273,7 @@ namespace x10lib {
     
     int cntrVal;    
     LAPI_Waitcntr (__x10_hndl, &(recvCntr[phase-1]), 1, &cntrVal);
-    sort_data (size, 0, 1, rbuf[cntrVal][phase-1], recvMesgLen[cntrVal][phase-1],func);		
+    sort_data (size, 0, 1, rbuf[cntrVal][phase-1], recvMesgLen[cntrVal][phase-1]);		
     recvMesgLen[cntrVal][phase-1] = 0;
     
     //asyncSwitch(hndlr, __x10_agg_arg_buf[__x10_my_place], __x10_agg_counter[__x10_my_place]);
