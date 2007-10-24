@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.7 2007-10-24 09:51:49 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.8 2007-10-24 14:58:40 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -55,8 +55,8 @@ namespace x10lib {
 		     int target, 
 		     x10_switch_t c)
   {          
-    assert (closure->len + sizeof(x10_async_handler_t) >= 0 
-	    && closure->len + sizeof(x10_async_handler_t) < max_uhdr_sz);
+    assert (closure->len + sizeof(Closure) - sizeof(size_t) >= 0 
+	    && closure->len + sizeof(Closure) - sizeof(size_t) < max_uhdr_sz);
     
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
@@ -79,16 +79,16 @@ namespace x10lib {
 		  int target, 
 		  x10_switch_t c)
   {          
-    assert (closure->len + sizeof(x10_async_handler_t) >= 0 
-	    && closure->len + sizeof(x10_async_handler_t) < max_uhdr_sz);
+    assert (closure->len + sizeof(Closure) - sizeof(size_t) >= 0 
+	    && closure->len + sizeof(Closure) - sizeof(size_t) < max_uhdr_sz);
     
     lapi_cntr_t origin_cntr;
     LRC (LAPI_Setcntr (__x10_hndl, &origin_cntr, 0));
     int tmp = -1;
    
-//cout << "asyncArrayCopy  " << closure->len << " " << sizeof(x10_async_handler_t) 
- //    << " " << closure->handler << " " << &(closure->handler)
-   //  << " " <<  *((int*)((char*) &(closure->handler) + sizeof(int))) << endl;
+    //cout << "asyncArrayCopy  " << closure->len << " " << sizeof(x10_async_handler_t) 
+    //    << " " << closure->handler << " " << &(closure->handler)
+    //  << " " <<  *((int*)((char*) &(closure->handler) + sizeof(int))) << endl;
   
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
