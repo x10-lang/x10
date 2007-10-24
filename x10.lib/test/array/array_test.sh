@@ -3,14 +3,14 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: array_test.sh,v 1.3 2007-10-11 10:55:59 ganeshvb Exp $
+# $Id: array_test.sh,v 1.4 2007-10-24 10:47:43 ganeshvb Exp $
 # Script for testing the X10Lib's array functionality.
 #
 
 arrayTest() {
 	RC=0
 	for i in  Test_dist Test_point \
-			Test_region Test_tiled_region 
+			Test_region 
 	do
 		let "TOTAL_TESTS = TOTAL_TESTS + 1"
 		CMD=${SRC_TEST}/array/${i}
