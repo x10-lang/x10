@@ -1,6 +1,6 @@
 /*
  * (c) Copyright IBM Corporation 2007
- * $Id: reduce.cc,v 1.3 2007-10-19 16:04:29 ganeshvb Exp $ 
+ * $Id: reduce.cc,v 1.4 2007-10-24 09:51:48 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -25,8 +25,12 @@ int           reduceCount = 0;
 
 }
 
+using namespace x10lib;
+
 void reduceInit()
 {
+  X10_DEBUG (1, "Entry");
+
   x10lib::reduce_cntr_list = (void**) malloc (sizeof(void*)*x10lib::__x10_num_places); 
   
   LAPI_Address_init (x10lib::__x10_hndl, (void*)&x10lib::reduce_cntr, x10lib::reduce_cntr_list);
@@ -36,6 +40,8 @@ void reduceInit()
   x10lib::scratch = new char[X10_MAX_REDUCE_OBJECT_SIZE * X10_MAX_REDUCE_OPS_INFLIGHT * LOG2(x10lib::__x10_num_places)];
   
   LAPI_Address_init (x10lib::__x10_hndl, (void*)x10lib::scratch, x10lib::reduce_list);  
+
+  X10_DEBUG (1, "Exit");
 }
 
 void reduceFinalize()

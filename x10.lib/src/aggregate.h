@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.20 2007-10-24 07:16:31 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.21 2007-10-24 09:51:48 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -58,10 +58,6 @@ namespace x10lib {
   
 
   x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, long LogTableSize, int PLACEIDMASK);
-
-
- // template <typename FUNC>
- x10_err_t asyncFlush_ra(x10_async_handler_t hndlr, size_t size, char* buf, int len, int, int);
 
 
 } /* closing brace for namespace x10lib */

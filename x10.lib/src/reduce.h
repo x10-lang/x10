@@ -4,7 +4,7 @@
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: reduce.h,v 1.5 2007-10-23 18:05:29 ipeshansky Exp $ */
+/* $Id: reduce.h,v 1.6 2007-10-24 09:51:48 ganeshvb Exp $ */
 
 /* Implementation file for user-defined reductions */
 
@@ -42,6 +42,8 @@ template <typename T, void F (T&, const T&)>
 static x10_err_t 
 commutative_reduce (T *values, int low, int high, int depth)
 {
+
+  X10_DEBUG (1, "Entry");
   int src  = low + ((high - low) / 2);
   int i;
   
@@ -70,6 +72,7 @@ commutative_reduce (T *values, int low, int high, int depth)
       //	     (char*) reduce_list[low] + reduceCount * depth * sizeof(T), 
       //	     values, (lapi_cntr_t*) reduce_cntr_list[low], NULL, NULL)); 
     }
+  X10_DEBUG (1, "Exit");
   return X10_OK;
 }
 
@@ -85,12 +88,16 @@ commutative_reduce (T *values, int low, int high, int depth)
   template <typename T>
     void reduce (T* var)
     {
+      X10_DEBUG (1, "Entry");
+
       assert (sizeof (T) <= X10_MAX_REDUCE_OBJECT_SIZE);
       
       assert (reduceCount < X10_MAX_REDUCE_OPS_INFLIGHT);
       
       inbuf[reduceCount] = var;
       reduceCount++; 
+
+      X10_DEBUG (1, "Exit");
     }
   
 
@@ -108,6 +115,7 @@ commutative_reduce (T *values, int low, int high, int depth)
      *
      *************************************************************************/
     {
+      X10_DEBUG (1, "Entry");
       int i;
       
       T* values = new T [reduceCount];
@@ -141,6 +149,7 @@ commutative_reduce (T *values, int low, int high, int depth)
       
       delete [] values;
       reduceCount = 0;
+      X10_DEBUG (1, "Exit");
     }
   
 }

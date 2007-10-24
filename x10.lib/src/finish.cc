@@ -4,7 +4,7 @@
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: finish.cc,v 1.18 2007-10-19 16:04:29 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.19 2007-10-24 09:51:48 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -89,7 +89,9 @@ exceptionHeaderHandler (lapi_handle_t handle, void* uhdr,
 
 x10_err_t            
 finishInit ()
-{  
+{
+  X10_DEBUG (1, "Entry");
+  
   LRC (LAPI_Addr_set (__x10_hndl, (void*) exceptionHeaderHandler, EXCEPTION_HEADER_HANDLER));
   LRC (LAPI_Addr_set (__x10_hndl, (void*) continueHeaderHandler, CONTINUE_HEADER_HANDLER));
   LRC (LAPI_Addr_set (__x10_hndl, (void*) numChildHeaderHandler, NUM_CHILD_HEADER_HANDLER));
@@ -126,6 +128,7 @@ finishInit ()
 
   LAPI_Gfence (__x10_hndl);
 
+  X10_DEBUG (1, "Before if");
   if (ftree->parent == __x10_my_place && __x10_my_place !=0) { //non-Task0 parent
     ftree->numChild = ftree->numPeers;
     //send an active message to 0 to let it know that
@@ -145,12 +148,14 @@ finishInit ()
     //number of children of Task0 = #peers + #remote parents 
     ftree->numChild += ftree->numPeers ;
   }
+  X10_DEBUG (1, "After if");
 
   LRC (LAPI_Setcntr (__x10_hndl, &cntr1, 0));
   LRC (LAPI_Setcntr (__x10_hndl, &cntr2, 0));
   LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr1, exceptionCntr));
   LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr2, continueCntr));
   
+  X10_DEBUG (1, "Exit" );
   //LAPI_Gfence(__x10_hndl);
   return X10_OK;
 } 
