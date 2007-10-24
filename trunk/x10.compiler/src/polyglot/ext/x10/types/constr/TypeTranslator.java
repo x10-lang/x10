@@ -118,25 +118,20 @@ public class TypeTranslator implements Serializable {
 		//Report.report(1, "TypeTranslator: translating to constraint left=|" + left 
 		//		+ "| op=|" + op + "| right=|" + right + "|");
 		if (op.equals("==")) {
-			if (left instanceof Variable) {
-				//Report.report(1, "TypeTranslator: translating to constraint left=|" + left 
-				//		+ "| is a variable.");
-				return c.addBinding((C_Var) trans((Variable) left), (C_Var) trans(right));
-			}
+			C_Term l = trans(left);
+			C_Term r = trans(right);
 			if (left instanceof X10Special) {
 				X10Special s = (X10Special) left;
 				if (! s.kind().toString().equals("self"))
 					throw new SemanticException("Cannot constrain this.");
-				return c.addBinding((C_Var) trans(s), (C_Var) trans(right));
 			}
-			if (right instanceof Variable) 
-				return c.addBinding((C_Var)trans((Variable) right), (C_Var) trans(left));
-		
 			if (right instanceof X10Special) {
 				X10Special s = (X10Special) right;
 				if (! s.kind().toString().equals("self"))
 					throw new SemanticException("Cannot constrain this.");
-				return c.addBinding( (C_Var) trans(s), (C_Var) trans(left));
+			}
+			if (l instanceof C_Var && r instanceof C_Var) {
+				return c.addBinding((C_Var) l, (C_Var) r);
 			}
 		}
 		if (op.equals("&&")) {
