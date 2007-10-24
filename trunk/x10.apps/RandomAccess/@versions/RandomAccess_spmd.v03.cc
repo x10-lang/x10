@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.v03.cc,v 1.1 2007-06-28 09:55:00 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.v03.cc,v 1.2 2007-10-24 08:34:26 ganeshvb Exp $ */
 
 /* Main Version 
         - minus finshStart/End (i.e. uses Gfence)
@@ -18,9 +18,10 @@
 #include <x10/aggregate.tcc>
 
 struct Async0{
-inline void operator () (x10_async_arg_t arg0)
+inline void operator () (x10_async_arg_t ran)
 {
-  GLOBAL_SPACE.Table->update (arg0);
+  glong_t off = ran & GLOBAL_SPACE.Table->mask;
+  GLOBAL_SPACE.Table->array[off]  ^= ran;
 }
 };
 
@@ -303,7 +304,7 @@ RandomAccess_Dist::main (x10::array<x10::ref<x10::lang::String> >& args)
 }
 
 
-Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
+const Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
 
 int RandomAccess_Dist::NUMPLACES = numPlaces();
 
