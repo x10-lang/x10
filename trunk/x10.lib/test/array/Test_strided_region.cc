@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_strided_region.cc,v 1.1 2007-10-24 10:44:58 ganeshvb Exp $ */
+/* $Id: Test_strided_region.cc,v 1.2 2007-10-24 10:47:43 ganeshvb Exp $ */
 #include <iostream>
 
 #include <x10/x10lib.h>
@@ -72,7 +72,7 @@ main (int argc, char* argv[])
 
   testNegativeOrigin();
 
-  cout << "Test_region PASSED" << endl;  
+  cout << "Test_strided_region PASSED" << endl;  
 
   Finalize();
   return 0;
