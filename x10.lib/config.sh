@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: config.sh,v 1.7 2007-10-24 12:38:38 srkodali Exp $
+# $Id: config.sh,v 1.8 2007-10-24 17:24:04 ipeshansky Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -45,33 +45,24 @@ ARRAYDIR=${SRCDIR}/array
 SCHEDDIR=${SRCDIR}/sched
 LN=ln
 FIND=find
-SYSNAME=`uname -s`
 echo "cd ${X10IDIR}"
 cd "${X10IDIR}"
 for i in "${SRCDIR}" "${ARRAYDIR}"
 do
-	case "${SYSNAME}" in
-		AIX*)
-			${FIND} "${i}" -name CVS -prune -o -type f '(' -name '*.h' -o -name '*.tcc' ')' -exec ${LN} -s -f {} . ';'
-			;;
-		CYGWIN*)
-			${FIND} "${i}" -maxdepth 1 -name CVS -prune -o -type f '(' -name '*.h' -o -name '*.tcc' ')' -exec ${LN} -s -f {} . ';'
-			;;
-	esac
+	for f in "$i"/*.h "$i"/*.tcc
+	do
+		[ -f "$f" ] && ${LN} -s -f "$f" .
+	done
 done
 cd ${TOPDIR}
 echo "cd ${X10XWSDIR}"
 cd ${X10XWSDIR}
 for i in ${SCHEDDIR}
 do
-	case "${SYSNAME}" in
-		AIX*)
-			${FIND} "${i}" -name CVS -prune -o -type f '(' -name '*.h' -o -name '*.tcc' ')' -exec ${LN} -s -f {} . ';'
-			;;
-		CYGWIN*)
-			${FIND} "${i}" -maxdepth 1 -name CVS -prune -o -type f '(' -name '*.h' -o -name '*.tcc' ')' -exec ${LN} -s -f {} . ';'
-			;;
-	esac
+	for f in "$i"/*.h "$i"/*.tcc
+	do
+		[ -f "$f" ] && ${LN} -s -f "$f" .
+	done
 done
 echo "cd ${TOPDIR}"
 cd ${TOPDIR}
