@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.16 2007-09-13 15:20:04 ganeshvb Exp $
+ * $Id: types.h,v 1.17 2007-10-24 07:16:31 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -35,6 +35,7 @@ enum internal_handlers
     ASYNC_SPAWN_HANDLER = 1,
     ASYNC_SPAWN_HANDLER_AGG,
     ASYNC_SPAWN_HANDLER_AGG_HYPER,
+    ASYNC_SPAWN_HANDLER_AGG_RA,
     
     EXCEPTION_HEADER_HANDLER,
     CONTINUE_HEADER_HANDLER,

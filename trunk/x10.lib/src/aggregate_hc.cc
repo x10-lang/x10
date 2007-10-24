@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.17 2007-10-19 16:04:28 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.18 2007-10-24 07:16:31 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -133,7 +133,7 @@ asyncAggInit_hc()
 {
   X10_DEBUG (1,  "Entry");
 
-  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, 8));
+  LRC(LAPI_Addr_set(__x10_hndl, (void *)asyncSpawnHandlerAgg, ASYNC_SPAWN_HANDLER_AGG_HYPER));
   
   __x10_agg_arg_buf = new char* [__x10_num_places];
   __x10_agg_counter = new int[__x10_num_places];
@@ -271,7 +271,7 @@ send_updates (x10_async_handler_t hndlr, int& ssize, ulong size,int phase, int p
   hdr.handler = hndlr;
   
   LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
-  LRC(LAPI_Amsend(__x10_hndl, partner, (void *)8, &hdr,
+  LRC(LAPI_Amsend(__x10_hndl, partner, (void *) ASYNC_SPAWN_HANDLER_AGG_HYPER, &hdr,
 		  sizeof(hdr),
 		  (void *) sbuf,
 		  ssize,
