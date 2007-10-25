@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xmacros.h,v 1.10 2007-08-07 06:21:52 ganeshvb Exp $
+ * $Id: xmacros.h,v 1.11 2007-10-25 11:04:30 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -23,11 +23,17 @@ do { \
 } while (0)
 
 /* debugging */
+
 /* Originally developed by Christoph von Praun */
+
+#ifdef X10_DLEVEL
 #if (X10_DLEVEL >= 0)
 #define X10_DEBUG(L,X)    { if (L <= X10_DLEVEL) { std::cout << "DEBG[" << L << ", " << __func__ << ", " << __x10_my_place << "]  " << X << std::endl << std::flush; } }
 #else
 #define X10_DEBUG(L,X)    { ; }
+#endif /* X10_DLEVEL */
+#else
+#define X10_DEBUG(L,X) ;
 #endif /* X10_DLEVEL */
 
 /* deprecation */
