@@ -64,6 +64,9 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	}
 
 	public Distribution_c(region r, place onePlace) {
+	this(r, onePlace, onePlace !=null, false);
+	}
+	public Distribution_c(region r, place onePlace, boolean somePlace, boolean isUnique) {
 		super(r, onePlace);
 		this.places = new HashSet();
 	}
@@ -465,7 +468,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		place place_;
 
 		Constant(region r, place p) {
-			super(r,p);
+			super(r,p, true, false);
 			this.places.add(p);
 			place_ = p;
 		}
@@ -597,8 +600,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	static class Unique extends Distribution_c {
 
 		place[] placeseq;
-		Unique(place[] ps) {
-			super(new ContiguousRange(0, ps.length - 1), ps.length==1?ps[0] : null);
+		Unique(place[] ps, boolean isUnique) {
+			super(new ContiguousRange(0, ps.length - 1), ps.length==1?ps[0] : null, ps.length==1, isUnique);
 			this.placeseq = ps;
 			for (int i=0; i<placeseq.length; i++)
 				places.add(ps[i]);
