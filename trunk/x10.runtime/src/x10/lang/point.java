@@ -8,9 +8,10 @@
 package x10.lang;
 
 import x10.annotations.NoSideEffects;
+import x10.compilergenerated.Parameter1;
 
 abstract public /*value*/ class point/*(region region)*/ extends java.lang.Object
-	implements Indexable, ValueType
+	implements Indexable, ValueType, Parameter1
 {
 	//public final region region;
 	/*parameter*/ public final /*nat*/int rank;

@@ -24,25 +24,39 @@ import x10.lang.GlobalIndexMap;
 abstract public /*value*/ class dist/*(region region)*/ extends Object
 implements Indexable, ValueType {
 
-	/*parameter*/ public final region region;
+	/*property*/ public final region region;
 
 	/**
 	 * The parameter rank may be used in constructing types derived
 	 * from the class distribution. For instance, distribution(rank=k)
 	 * is the type of all k-dimensional distributions.
 	 */
-	/*parameter*/ public final /*nat*/ int rank;
+	/*property*/ public final /*nat*/ int rank;
 	/**
 	 * Does the distribution map all points in its region to a single place, onePlace?
 	 * If not, onePlace is null.
 	 */
-	/*parameter*/ public final place onePlace;
-	/*parameter*/ public final boolean rect;
-	/*parameter*/ public final boolean zeroBased;
+	/*property*/ public final place onePlace;
+	/**
+	 * == region.rect
+	 */
+	/*property*/ public final boolean rect;
+	/**
+	 *  == region.zeroBased
+	 */
+	/*property*/ public final boolean zeroBased;
+	/**
+	 * Does this distribution map exactly one point to each place? (And is it asserted as doing so.)
+	 */
+	/*property*/ public final boolean unique;
+	/**
+	 * Is true iff onePlace != null
+	 */
+	/*property*/ public final boolean somePlace;
 
-	public static final String propertyNames$ = " region rank onePlace rect zeroBased ";
+	public static final String propertyNames$ = " region rank onePlace rect zeroBased somePlace unique ";
 	/*
-	 * disrtibution is Indexable and as such regarded by the compiler as an X10array.
+	 * disrtribution is Indexable and as such regarded by the compiler as an X10array.
 	 * Hence it must have a field 'distrubution' (see ateach construct)
 	 */
 	public final dist distribution;
@@ -62,15 +76,22 @@ implements Indexable, ValueType {
 	}
 
 	protected dist(region R, place onePlace) {
+		this(R,onePlace, false, false);
+
+		//_indexMap = null;
+	}
+	protected dist(region R, place onePlace, boolean somePlace, boolean unique) {
 		this.region = R;
 		this.rank = R.rank;
 		this.distribution = this;
 		this.zeroBased = R.zeroBased;
 		this.rect = R.rect;
 		this.onePlace = onePlace;
-
-		//_indexMap = null;
+		this.unique=unique;
+		this.somePlace=somePlace;
+		assert  (somePlace && onePlace != null || (!somePlace && onePlace==null));
 	}
+	
 
 	public static class MalformedError extends java.lang.Error {}
 
@@ -84,9 +105,9 @@ implements Indexable, ValueType {
 		 * i'th element in Q in canonical place-order.
 		 */
 		abstract public
-		dist/*(:rank=1)*/ unique(Set/*<place>*/ Q);
+		dist/*(:rank=1)*/ unique(Set/*<place>*/ Q, boolean isUnique);
 		public dist/*(:rank=1)*/ unique() {
-			return unique(x10.lang.place.places);
+			return unique(x10.lang.place.places, true);
 		}
 		public /*(region R)*/ dist/*(R)*/ local(region R) {
 			return constant(R, Runtime.here());
@@ -366,4 +387,6 @@ implements Indexable, ValueType {
 	public place onePlace() {
 		return onePlace;
 	}
+	public boolean somePlace() { return somePlace;}
+	public boolean unique() { return unique;}
 }
