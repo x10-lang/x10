@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.10 2007-10-25 11:04:32 ganeshvb Exp $
+# $Id: Makefile,v 1.11 2007-10-25 11:12:42 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -12,7 +12,7 @@
 MAKE = make
 CXX = mpCC_r -q64 -qarch=pwr5
 DEFS = -DNDEBUG 
-CXXFLAGS = -qtune=pwr5 -O3 -qinline -qhot -g
+CXXFLAGS = -qtune=pwr5 -O3 -qinline -qhot -qpath=ILbc:/vol/x10/patches/xlC/070919/exe
 INCLUDES = -I. -I.. -I../../include
 LINKFLAGS = -r -b64
 RM = rm -f
