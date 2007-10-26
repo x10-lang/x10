@@ -18,7 +18,6 @@ import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10ArrayAccess1Assign;
 import polyglot.ext.x10.ast.X10ArrayAccess1Unary;
-import polyglot.ext.x10.ast.X10ArrayAccess1_c;
 import polyglot.ext.x10.ast.X10ArrayAccessAssign;
 import polyglot.ext.x10.ast.X10ArrayAccessUnary;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -52,7 +51,7 @@ public class QueryEngine {
 	 * @param a Array variable being used in one-dimensional access
 	 * @return true iff a is a dense one-diemnsional array with zero origin
 	 */
-	public boolean isRectangularRankOneLowZero(X10ArrayAccess1_c a) {
+	public boolean isRectangularRankOneLowZero(X10ArrayAccess1 a) {
 		if ( a.array().type() instanceof X10ParsedClassType ) {
 			X10ParsedClassType t = (X10ParsedClassType) a.array().type();
 			return t.isZeroBased() && t.isRankOne() && t.isRect();
