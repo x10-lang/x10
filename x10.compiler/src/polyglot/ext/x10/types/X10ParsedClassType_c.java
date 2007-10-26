@@ -1203,6 +1203,32 @@ implements X10ParsedClassType
 		return self;
 	}
 	
+	boolean isConstantDist;
+	boolean isConstantDistSet;
+	public boolean isConstantDist() {
+		if (isConstantDistSet) return isConstantDist;
+		isConstantDistSet = true;
+		Constraint c = realClause();
+		return isConstantDist= c==null ? false : this.fullName().equals("x10.lang.dist") && amIProperty("constant");
+	}
+	public void setConstantDist() {
+		setProperty("constant");
+		isConstantDist = isConstantDistSet = true;
+	}
+	
+	boolean isUniqueDist;
+	boolean isUniqueDistSet;
+	public boolean isUniqueDist() {
+		if (isUniqueDistSet) return isUniqueDist;
+		isUniqueDistSet = true;
+		Constraint c = realClause();
+		return isUniqueDist= c==null ? false : this.fullName().equals("x10.lang.dist") && amIProperty("unique");
+	}
+	public void setUniqueDist() {
+		setProperty("unique");
+		isUniqueDist = isUniqueDistSet = true;
+	}
+	
 	/**
 	 * The arg must be a region type. Set the properties of this type (rank, isZeroBased, isRect)
 	 * from arg.

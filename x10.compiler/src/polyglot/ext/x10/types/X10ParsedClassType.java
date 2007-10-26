@@ -87,6 +87,20 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	
 	C_Var self();
 	
+	/** 
+	 * Returns true iff this type is an X10 distribution that maps all points to one place.
+	 * @return
+	 */
+	boolean isConstantDist();
+	void setConstantDist();
+
+	/** 
+	 * Returns true iff this type is an X10 distribution that maps exactly one point to each place.
+	 * @return
+	 */
+	boolean isUniqueDist();
+	void setUniqueDist();
+
 	void setDistribution(C_Var dist);
 	
 	C_Var distribution();
