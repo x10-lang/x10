@@ -62,6 +62,9 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
 		
 		boolean isRect = lType.isRect();
 		if (isRect) type.setRect();
+
+		type.setConstantDist();
+
 	//Report.report(1, "ConstantDistMaker.. returning " + this + " with type "  + type);
 		return n.type(type);
     }
