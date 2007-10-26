@@ -297,13 +297,13 @@ public class DistributionFactory extends dist.factory {
 	 * @param p the list of places (implicitly defines the Region_c)
 	 * @return
 	 */
-	public dist unique(Set/*<place>*/ p, boolean isUnique) {
+	public dist unique(Set/*<place>*/ p) {
 		Object[] places = p.toArray();
 		place[] ps = new place[places.length];
 		for (int i=0;i<places.length;i++)
 			ps[i] = (place) places[i];
 		
-		dist newDist = new Distribution_c.Unique(ps, isUnique);
+		dist newDist = new Distribution_c.Unique(ps);
 		return newDist;
 	}
 	
