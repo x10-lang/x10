@@ -4,7 +4,7 @@
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: reduce.h,v 1.6 2007-10-24 09:51:48 ganeshvb Exp $ */
+/* $Id: reduce.h,v 1.7 2007-10-26 07:33:04 ganeshvb Exp $ */
 
 /* Implementation file for user-defined reductions */
 
@@ -53,7 +53,7 @@ commutative_reduce (T *values, int low, int high, int depth)
       commutative_reduce<T, F> (values, src, high, depth - 1);
     }
   
-  if (x10lib::__x10_my_place == src)
+  if (x10lib::__x10_my_place == src && __x10_num_places > 1)
     {    
       // LAPI_Waitcntr (x10lib::__x10_hndl, &reduce_cntr, depth, NULL);
       
