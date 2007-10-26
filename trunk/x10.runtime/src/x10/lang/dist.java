@@ -50,13 +50,15 @@ implements Indexable, ValueType {
 	 */
 	/*property*/ public final boolean unique;
 	/**
+	 * Does the distribution map all points in its region to a single place?
 	 * Is true iff onePlace != null
 	 */
-	/*property*/ public final boolean somePlace;
+	/*property*/ public final boolean constant;
 
-	public static final String propertyNames$ = " region rank onePlace rect zeroBased somePlace unique ";
+	public static final String propertyNames$ = " region rank onePlace rect zeroBased constant unique ";
+
 	/*
-	 * disrtribution is Indexable and as such regarded by the compiler as an X10array.
+	 * distribution is Indexable and as such regarded by the compiler as an X10array.
 	 * Hence it must have a field 'distrubution' (see ateach construct)
 	 */
 	public final dist distribution;
@@ -76,22 +78,21 @@ implements Indexable, ValueType {
 	}
 
 	protected dist(region R, place onePlace) {
-		this(R,onePlace, false, false);
+		this(R, onePlace, false);
 
 		//_indexMap = null;
 	}
-	protected dist(region R, place onePlace, boolean somePlace, boolean unique) {
+
+	protected dist(region R, place onePlace, boolean unique) {
 		this.region = R;
 		this.rank = R.rank;
 		this.distribution = this;
 		this.zeroBased = R.zeroBased;
 		this.rect = R.rect;
 		this.onePlace = onePlace;
-		this.unique=unique;
-		this.somePlace=somePlace;
-		assert  (somePlace && onePlace != null || (!somePlace && onePlace==null));
+		this.constant = onePlace != null;
+		this.unique = unique;
 	}
-	
 
 	public static class MalformedError extends java.lang.Error {}
 
@@ -105,9 +106,9 @@ implements Indexable, ValueType {
 		 * i'th element in Q in canonical place-order.
 		 */
 		abstract public
-		dist/*(:rank=1)*/ unique(Set/*<place>*/ Q, boolean isUnique);
+		dist/*(:rank=1)*/ unique(Set/*<place>*/ Q);
 		public dist/*(:rank=1)*/ unique() {
-			return unique(x10.lang.place.places, true);
+			return unique(x10.lang.place.places);
 		}
 		public /*(region R)*/ dist/*(R)*/ local(region R) {
 			return constant(R, Runtime.here());
@@ -387,6 +388,6 @@ implements Indexable, ValueType {
 	public place onePlace() {
 		return onePlace;
 	}
-	public boolean somePlace() { return somePlace;}
-	public boolean unique() { return unique;}
+	public boolean constant() { return constant; }
+	public boolean unique() { return unique; }
 }
