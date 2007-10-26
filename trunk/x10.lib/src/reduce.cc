@@ -1,6 +1,6 @@
 /*
  * (c) Copyright IBM Corporation 2007
- * $Id: reduce.cc,v 1.4 2007-10-24 09:51:48 ganeshvb Exp $ 
+ * $Id: reduce.cc,v 1.5 2007-10-26 07:33:04 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -37,7 +37,7 @@ void reduceInit()
   
   x10lib::reduce_list = (void**) malloc (sizeof(void*) * x10lib::__x10_num_places);  
   
-  x10lib::scratch = new char[X10_MAX_REDUCE_OBJECT_SIZE * X10_MAX_REDUCE_OPS_INFLIGHT * LOG2(x10lib::__x10_num_places)];
+  x10lib::scratch = x10lib::__x10_num_places == 1 ? NULL : new char[X10_MAX_REDUCE_OBJECT_SIZE * X10_MAX_REDUCE_OPS_INFLIGHT * LOG2(x10lib::__x10_num_places)];
   
   LAPI_Address_init (x10lib::__x10_hndl, (void*)x10lib::scratch, x10lib::reduce_list);  
 
@@ -46,7 +46,8 @@ void reduceInit()
 
 void reduceFinalize()
 {
-  delete [] (char*) x10lib::scratch;
+  if (x10lib::scratch) 
+    delete [] (char*) x10lib::scratch;
   delete [] x10lib::reduce_cntr_list;
   delete [] x10lib::reduce_list;
 }
