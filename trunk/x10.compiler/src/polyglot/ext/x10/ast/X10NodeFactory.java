@@ -126,6 +126,7 @@ public interface X10NodeFactory extends NodeFactory {
     ConstructorDecl ConstructorDecl(Position pos, Flags flags, Id name,
             TypeNode returnType, List formals,  List throwTypes, Block body);
     PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, Id name);
+    PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, Id name, Expr init);
     Special Self(Position pos);
     
     StmtSeq StmtSeq(Position pos, List/*<Stmt>*/ l);

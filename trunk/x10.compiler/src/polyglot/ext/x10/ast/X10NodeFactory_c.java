@@ -803,6 +803,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (PropertyDecl)n.del(delFactory().delFieldDecl());
 		return n;
 	}
+	public PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, Id name, Expr init) {
+		PropertyDecl n = new PropertyDecl_c(pos, flags, type, name, init, this);
+		n = (PropertyDecl)n.ext(extFactory().extFieldDecl());
+		n = (PropertyDecl)n.del(delFactory().delFieldDecl());
+		return n;
+	}
 	public final Special Self(Position pos) {
 		return Special(pos, X10Special.SELF, null);
 	}
