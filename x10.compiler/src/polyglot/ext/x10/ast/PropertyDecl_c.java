@@ -118,10 +118,10 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
            s = s.append(p.name()).append(" ");
        }
        
-       FieldDecl f = new PropertyDecl_c(pos, 
+       FieldDecl f = nf.PropertyDecl(pos, 
     		   Flags.PUBLIC.Static().Final(), tn, 
     		   nf.Id(pos, X10FieldInstance.MAGIC_PROPERTY_NAME),
-               nf.StringLit(pos, s.toString()).type(ts.String()), nf)
+               nf.StringLit(pos, s.toString()).type(ts.String()))
                .type(nf.CanonicalTypeNode(pos, ts.String()));
       
        return f;
