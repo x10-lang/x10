@@ -1313,7 +1313,7 @@
     
     -- Chapter 14
     
-    Block ::= Annotationsopt { BlockStatementsopt }
+    Block ::= { BlockStatementsopt }
         /.$BeginJava
                     setResult(nf.Block(pos(), BlockStatementsopt));
           $EndJava
@@ -1396,7 +1396,7 @@
                 | IfThenElseStatement
                 | WhileStatement
                 | ForStatement
-                | Annotation Statement
+
     
     StatementWithoutTrailingSubstatement ::= Block
                                            | EmptyStatement

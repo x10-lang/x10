@@ -1659,7 +1659,8 @@
                 | ForEachStatement
                 | AtEachStatement
                 | FinishStatement
-                
+                | AnnotationStatement
+
 
     StatementWithoutTrailingSubstatement ::= NextStatement
                                            | AwaitStatement
@@ -1672,6 +1673,8 @@
                          | ForEachStatementNoShortIf
                          | AtEachStatementNoShortIf
                          | FinishStatementNoShortIf
+                         | AnnotationStatementNoShortIf
+
 
     NowStatement ::= now ( Clock ) Statement
         /.$BeginJava
@@ -1752,6 +1755,16 @@
         ./
 
 
+    AnnotationStatement ::= Annotations Statement
+        /.$BeginJava
+                    if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
+                        Statement = (Stmt) ((X10Ext) Statement.ext()).annotations((List) Annotations);
+                    }
+                    setResult(Statement);
+          $EndJava
+        ./
+
+
     NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
         /.$BeginJava
                     setResult(nf.Now(pos(), Clock, StatementNoShortIf));
@@ -1818,6 +1831,16 @@
     FinishStatementNoShortIf ::= finish StatementNoShortIf
         /.$BeginJava
                     setResult(nf.Finish(pos(), StatementNoShortIf));
+          $EndJava
+        ./
+
+
+    AnnotationStatementNoShortIf ::= Annotations StatementNoShortIf
+        /.$BeginJava
+                    if (StatementNoShortIf.ext() instanceof X10Ext && Annotations instanceof List) {
+                        StatementNoShortIf = (Stmt) ((X10Ext) StatementNoShortIf.ext()).annotations((List) Annotations);
+                    }
+                    setResult(StatementNoShortIf);
           $EndJava
         ./
 
@@ -2239,6 +2262,7 @@ ThisClauseopt ::= %Empty
     While ::= WhileStatement | WhileStatementNoShortIf
     Do ::= DoStatement
     For ::= ForStatement | ForStatementNoShortIf
+    Stmt ::= AnnotationStatement | AnnotationStatementNoShortIf
     List ::= ForInitopt | ForInit
     List ::= ForUpdateopt | ForUpdate
     List ::= StatementExpressionList
