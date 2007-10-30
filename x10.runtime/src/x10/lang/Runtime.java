@@ -293,7 +293,7 @@ public abstract class Runtime {
 	 * Low-level copy operation.  Use at your own risk.
 	 */
 	public static void arrayCopy(x10Array src, int srcoffset, x10Array dest, int destoffset, int length) {
-		runtime.arrayCopy(src, srcoffset, dest, destoffset, length);
+		runtime.arrayCopy_internal(src, srcoffset, dest, destoffset, length);
 	}
 	protected abstract void arrayCopy_internal(x10Array src, int srcoffset, x10Array dest, int destoffset, int length);
 
