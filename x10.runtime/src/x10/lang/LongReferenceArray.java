@@ -263,4 +263,14 @@ public abstract class LongReferenceArray extends longArray {
 		set(v - 1, p,q,r,s);
 		return v;
 	}
+
+	/**
+	 * Return the local chunk of this distributed array.  The result will have a
+	 * 1-dimensional 0-based contiguous region.
+	 * FIXME: this is just a stub for now.
+	 * @return the local chunk of this array.
+	 */
+	public LongReferenceArray local() {
+		return this;
+	}
 }
