@@ -195,4 +195,14 @@ abstract public class longArray extends x10Array {
 	 * @return an immutable version of this array.
 	 */
 	abstract public longArray toValueArray();
+
+	/**
+	 * Return the local chunk of this distributed array.  The result will have a
+	 * 1-dimensional 0-based contiguous region.
+	 * FIXME: this is just a stub for now.
+	 * @return the local chunk of this array.
+	 */
+	public longArray local() {
+		return this;
+	}
 }

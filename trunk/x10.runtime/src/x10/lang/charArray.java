@@ -113,4 +113,14 @@ abstract public class charArray extends x10Array {
 	 * @return an immutable version of this array.
 	 */
 	abstract public charArray toValueArray();
+
+	/**
+	 * Return the local chunk of this distributed array.  The result will have a
+	 * 1-dimensional 0-based contiguous region.
+	 * FIXME: this is just a stub for now.
+	 * @return the local chunk of this array.
+	 */
+	public charArray local() {
+		return this;
+	}
 }

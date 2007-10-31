@@ -48,4 +48,14 @@ public abstract class BooleanReferenceArray extends booleanArray {
 	abstract public boolean bitXorSet(boolean v, int p, int q);
 	abstract public boolean bitXorSet(boolean v, int p, int q, int r);
 	abstract public boolean bitXorSet(boolean v, int p, int q, int r, int s);
+
+	/**
+	 * Return the local chunk of this distributed array.  The result will have a
+	 * 1-dimensional 0-based contiguous region.
+	 * FIXME: this is just a stub for now.
+	 * @return the local chunk of this array.
+	 */
+	public BooleanReferenceArray local() {
+		return this;
+	}
 }

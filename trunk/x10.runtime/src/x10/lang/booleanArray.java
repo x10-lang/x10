@@ -24,9 +24,9 @@ import x10.array.Operator.Unary;
 public abstract class booleanArray extends x10Array {
 	
 	public static class Constant extends Operator.Pointwise {
-	    private final boolean c_;
-	    public Constant(boolean c) { c_ = c; }
-	    public boolean apply(point p, boolean i) { return c_; }
+		private final boolean c_;
+		public Constant(boolean c) { c_ = c; }
+		public boolean apply(point p, boolean i) { return c_; }
 	}
 
 	protected booleanArray(dist d, boolean mutable) {
@@ -36,7 +36,7 @@ public abstract class booleanArray extends x10Array {
 	abstract public boolean[] getBackingArray();
 	abstract public int[]  getDescriptor();
 
-    /**
+	/**
 	 * Return the value of the array at the given point in the
 	 * region.
 	 */
@@ -60,4 +60,14 @@ public abstract class booleanArray extends x10Array {
 	 * @return an immutable version of this array.
 	 */
 	abstract public booleanArray toValueArray();
+
+	/**
+	 * Return the local chunk of this distributed array.  The result will have a
+	 * 1-dimensional 0-based contiguous region.
+	 * FIXME: this is just a stub for now.
+	 * @return the local chunk of this array.
+	 */
+	public booleanArray local() {
+		return this;
+	}
 }
