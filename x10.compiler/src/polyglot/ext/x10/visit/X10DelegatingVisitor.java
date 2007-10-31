@@ -150,6 +150,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof AssignPropertyCall_c) { visit((AssignPropertyCall_c)n); return; }
 		if (n instanceof Assert_c) { visit((Assert_c)n); return; }
 		if (n instanceof SwitchBlock_c) { visit((SwitchBlock_c)n); return; }
+		if (n instanceof AssignPropertyBody_c) { visit((AssignPropertyBody_c)n); return; }
 		if (n instanceof StmtSeq_c) { visit((StmtSeq_c)n); return; }
 		if (n instanceof Block_c) { visit((Block_c)n); return; }
 		if (n instanceof AbstractBlock_c) { visit((AbstractBlock_c)n); return; }
@@ -359,6 +360,7 @@ public class X10DelegatingVisitor {
 				public void visit(AbstractBlock_c n) { visit((Stmt_c)n); }
 					public void visit(Block_c n) { visit((AbstractBlock_c)n); }
 					public void visit(StmtSeq_c n) { visit((AbstractBlock_c)n); }
+						public void visit(AssignPropertyBody_c n) { visit((StmtSeq_c)n); }
 					public void visit(SwitchBlock_c n) { visit((AbstractBlock_c)n); }
 				public void visit(Assert_c n) { visit((Stmt_c)n); }
 				public void visit(AssignPropertyCall_c n) { visit((Stmt_c)n); }
