@@ -6086,40 +6086,40 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 571:  NowStatement ::= now ( Clock ) Statement
+            // Rule 573:  NowStatement ::= now ( Clock ) Statement
             //
-            case 571: {
-                //#line 1676 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 573: {
+                //#line 1679 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1676 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1679 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1678 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1681 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Now(pos(), Clock, Statement));
                 break;
             }
      
             //
-            // Rule 572:  ClockedClause ::= clocked ( ClockList )
+            // Rule 574:  ClockedClause ::= clocked ( ClockList )
             //
-            case 572: {
-                //#line 1682 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 574: {
+                //#line 1685 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1684 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1687 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(ClockList);
                 break;
             }
      
             //
-            // Rule 573:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
+            // Rule 575:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
-            case 573: {
-                //#line 1688 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 575: {
+                //#line 1691 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1688 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1691 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1688 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1691 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1690 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1693 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -6128,14 +6128,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 574:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
+            // Rule 576:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
             //
-            case 574: {
-                //#line 1698 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 576: {
+                //#line 1701 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1698 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1701 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1700 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1703 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
                                                ? nf.Here(pos(getLeftSpan()))
                                                : PlaceExpressionSingleListopt), Statement));
@@ -6143,49 +6143,49 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 575:  WhenStatement ::= when ( Expression ) Statement
+            // Rule 577:  WhenStatement ::= when ( Expression ) Statement
             //
-            case 575: {
-                //#line 1707 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 577: {
+                //#line 1710 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1707 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1710 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1709 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.When(pos(), Expression, Statement));
                 break;
             }
      
             //
-            // Rule 576:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
+            // Rule 578:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
-            case 576: {
-                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 578: {
+                //#line 1715 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1715 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1715 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1712 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1715 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1714 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1717 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                 break;
             }
      
             //
-            // Rule 577:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
+            // Rule 579:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
-            case 577: {
-                //#line 1719 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 579: {
+                //#line 1722 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1719 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1722 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1719 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1722 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1719 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1722 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1721 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1724 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForEach(pos(),
                               FormalParameter.flags(FormalParameter.flags().Final()),
                               Expression,
@@ -6195,18 +6195,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 578:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
+            // Rule 580:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
-            case 578: {
-                //#line 1729 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 580: {
+                //#line 1732 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1729 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1732 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1729 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1732 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1729 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1732 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1731 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1734 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AtEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6216,16 +6216,16 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 579:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
+            // Rule 581:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
             //
-            case 579: {
-                //#line 1739 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 581: {
+                //#line 1742 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1739 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1742 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1739 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1742 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1741 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1744 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForLoop(pos(),
                         FormalParameter.flags(FormalParameter.flags().Final()),
                         Expression,
@@ -6234,40 +6234,56 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 580:  FinishStatement ::= finish Statement
+            // Rule 582:  FinishStatement ::= finish Statement
             //
-            case 580: {
-                //#line 1748 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 582: {
+                //#line 1751 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1750 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1753 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
      
             //
-            // Rule 581:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
+            // Rule 583:  AnnotationStatement ::= Annotations Statement
             //
-            case 581: {
-                //#line 1755 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 583: {
+                //#line 1758 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                List Annotations = (List) getRhsSym(1);
+                //#line 1758 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                Stmt Statement = (Stmt) getRhsSym(2);
+                //#line 1760 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
+                    Statement = (Stmt) ((X10Ext) Statement.ext()).annotations((List) Annotations);
+                }
+                setResult(Statement);
+                break;
+            }
+     
+            //
+            // Rule 584:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
+            //
+            case 584: {
+                //#line 1768 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1755 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1768 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1757 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1770 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Now(pos(), Clock, StatementNoShortIf));
                 break;
             }
      
             //
-            // Rule 582:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
+            // Rule 585:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
             //
-            case 582: {
-                //#line 1761 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 585: {
+                //#line 1774 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1761 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1774 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1761 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1774 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(4);
-                //#line 1763 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1776 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt),
@@ -6276,60 +6292,60 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 583:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
+            // Rule 586:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
             //
-            case 583: {
-                //#line 1770 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 586: {
+                //#line 1783 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1772 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1785 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), StatementNoShortIf));
                 break;
             }
      
             //
-            // Rule 584:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
+            // Rule 587:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
             //
-            case 584: {
-                //#line 1776 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 587: {
+                //#line 1789 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1776 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1789 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1778 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1791 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.When(pos(), Expression, StatementNoShortIf));
                 break;
             }
      
             //
-            // Rule 585:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
+            // Rule 588:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
             //
-            case 585: {
-                //#line 1781 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 588: {
+                //#line 1794 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1781 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1794 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1781 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1794 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1781 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1794 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(6);
-                //#line 1783 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1796 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, StatementNoShortIf);
                 setResult(WhenStatement);
                 break;
             }
      
             //
-            // Rule 586:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
+            // Rule 589:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
-            case 586: {
-                //#line 1788 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 589: {
+                //#line 1801 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1788 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1801 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1788 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1801 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1788 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1801 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
-                //#line 1790 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1803 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6340,18 +6356,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 587:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
+            // Rule 590:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
-            case 587: {
-                //#line 1799 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 590: {
+                //#line 1812 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1799 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1812 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1799 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1812 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1799 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1812 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
-                //#line 1801 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1814 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AtEach(pos(),
                             FormalParameter.flags(FormalParameter.flags().Final()),
                             Expression,
@@ -6361,16 +6377,16 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 588:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
+            // Rule 591:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
             //
-            case 588: {
-                //#line 1809 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 591: {
+                //#line 1822 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1809 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1822 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1809 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1822 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(7);
-                //#line 1811 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1824 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                   setResult(nf.ForLoop(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6379,55 +6395,71 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 589:  FinishStatementNoShortIf ::= finish StatementNoShortIf
+            // Rule 592:  FinishStatementNoShortIf ::= finish StatementNoShortIf
             //
-            case 589: {
-                //#line 1818 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 592: {
+                //#line 1831 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1820 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1833 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Finish(pos(), StatementNoShortIf));
                 break;
             }
      
             //
-            // Rule 590:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            // Rule 593:  AnnotationStatementNoShortIf ::= Annotations StatementNoShortIf
             //
-            case 590: {
-                //#line 1825 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 593: {
+                //#line 1838 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                List Annotations = (List) getRhsSym(1);
+                //#line 1838 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
+                //#line 1840 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                if (StatementNoShortIf.ext() instanceof X10Ext && Annotations instanceof List) {
+                    StatementNoShortIf = (Stmt) ((X10Ext) StatementNoShortIf.ext()).annotations((List) Annotations);
+                }
+                setResult(StatementNoShortIf);
+                break;
+            }
+     
+            //
+            // Rule 594:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            //
+            case 594: {
+                //#line 1848 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1827 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1850 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
               setResult(PlaceExpression);
                 break;
             }
      
             //
-            // Rule 592:  NextStatement ::= next ;
+            // Rule 596:  NextStatement ::= next ;
             //
-            case 592: {
+            case 596: {
                 
-                //#line 1835 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1858 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Next(pos()));
                 break;
             }
      
             //
-            // Rule 593:  AwaitStatement ::= await Expression ;
+            // Rule 597:  AwaitStatement ::= await Expression ;
             //
-            case 593: {
-                //#line 1839 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 597: {
+                //#line 1862 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1841 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1864 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 594:  ClockList ::= Clock
+            // Rule 598:  ClockList ::= Clock
             //
-            case 594: {
-                //#line 1845 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 598: {
+                //#line 1868 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1847 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1870 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -6435,104 +6467,104 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 595:  ClockList ::= ClockList , Clock
+            // Rule 599:  ClockList ::= ClockList , Clock
             //
-            case 595: {
-                //#line 1852 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 599: {
+                //#line 1875 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1852 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1875 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1854 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1877 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ClockList.add(Clock);
                 setResult(ClockList);
                 break;
             }
      
             //
-            // Rule 596:  Clock ::= Expression
+            // Rule 600:  Clock ::= Expression
             //
-            case 596: {
-                //#line 1860 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 600: {
+                //#line 1883 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1862 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1885 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
     setResult(Expression);
                 break;
             }
      
             //
-            // Rule 597:  CastExpression ::= ( PrimitiveType ) UnaryExpression
+            // Rule 601:  CastExpression ::= ( PrimitiveType ) UnaryExpression
             //
-            case 597: {
-                //#line 1874 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 601: {
+                //#line 1897 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode PrimitiveType = (TypeNode) getRhsSym(2);
-                //#line 1874 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1897 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(4);
-                //#line 1876 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1899 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), PrimitiveType, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 598:  CastExpression ::= ( SpecialType ) UnaryExpressionNotPlusMinus
+            // Rule 602:  CastExpression ::= ( SpecialType ) UnaryExpressionNotPlusMinus
             //
-            case 598: {
-                //#line 1879 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 602: {
+                //#line 1902 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode SpecialType = (TypeNode) getRhsSym(2);
-                //#line 1879 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1902 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1881 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1904 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), SpecialType, UnaryExpressionNotPlusMinus));
                 break;
             }
      
             //
-            // Rule 599:  CastExpression ::= ( ReferenceType ) UnaryExpressionNotPlusMinus
+            // Rule 603:  CastExpression ::= ( ReferenceType ) UnaryExpressionNotPlusMinus
             //
-            case 599: {
-                //#line 1884 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 603: {
+                //#line 1907 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ReferenceType = (TypeNode) getRhsSym(2);
-                //#line 1884 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1907 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1886 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1909 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), ReferenceType, UnaryExpressionNotPlusMinus));
                 break;
             }
      
             //
-            // Rule 600:  CastExpression ::= ( ! Expression ) UnaryExpressionNotPlusMinus
+            // Rule 604:  CastExpression ::= ( ! Expression ) UnaryExpressionNotPlusMinus
             //
-            case 600: {
-                //#line 1889 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 604: {
+                //#line 1912 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1889 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1912 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(5);
-                //#line 1891 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1914 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
                 break;
             }
      
             //
-            // Rule 601:  CastExpression ::= ( AnnotatedType ) UnaryExpression
+            // Rule 605:  CastExpression ::= ( AnnotatedType ) UnaryExpression
             //
-            case 601: {
-                //#line 1894 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 605: {
+                //#line 1917 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode AnnotatedType = (TypeNode) getRhsSym(2);
-                //#line 1894 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1917 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(4);
-                //#line 1896 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1919 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), AnnotatedType, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 602:  CastExpression ::= ( Annotations ) UnaryExpressionNotPlusMinus
+            // Rule 606:  CastExpression ::= ( Annotations ) UnaryExpressionNotPlusMinus
             //
-            case 602: {
-                //#line 1899 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 606: {
+                //#line 1922 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1899 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1922 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1901 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1924 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr e = UnaryExpressionNotPlusMinus;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -6540,25 +6572,25 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 603:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 607:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 603: {
-                //#line 1913 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 607: {
+                //#line 1936 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1913 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1936 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1915 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1938 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                 break;
             }
      
             //
-            // Rule 604:  IdentifierList ::= identifier
+            // Rule 608:  IdentifierList ::= identifier
             //
-            case 604: {
-                //#line 1921 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 608: {
+                //#line 1944 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1923 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1946 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Name.class, false);
                 l.add(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 setResult(l);
@@ -6566,25 +6598,25 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 605:  IdentifierList ::= IdentifierList , identifier
+            // Rule 609:  IdentifierList ::= IdentifierList , identifier
             //
-            case 605: {
-                //#line 1928 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 609: {
+                //#line 1951 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 1928 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1951 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1930 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1953 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 IdentifierList.add(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 setResult(IdentifierList);
                 break;
             }
      
             //
-            // Rule 606:  Primary ::= here
+            // Rule 610:  Primary ::= here
             //
-            case 606: {
+            case 610: {
                 
-                //#line 1937 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1960 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(((X10NodeFactory) nf).Here(pos()));
 //
 // A "here" expression used to be treated as an ExpressionName instead
@@ -6599,14 +6631,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 609:  RegionExpression ::= Expression$expr1 : Expression$expr2
+            // Rule 613:  RegionExpression ::= Expression$expr1 : Expression$expr2
             //
-            case 609: {
-                //#line 1953 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 613: {
+                //#line 1976 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1953 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1976 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1955 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1978 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 /*Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
 
@@ -6624,12 +6656,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 610:  RegionExpressionList ::= RegionExpression
+            // Rule 614:  RegionExpressionList ::= RegionExpression
             //
-            case 610: {
-                //#line 1971 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 614: {
+                //#line 1994 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 1973 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 1996 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -6637,26 +6669,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 611:  RegionExpressionList ::= RegionExpressionList , RegionExpression
+            // Rule 615:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
-            case 611: {
-                //#line 1978 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 615: {
+                //#line 2001 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 1978 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2001 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 1980 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2003 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                 break;
             }
      
             //
-            // Rule 612:  Primary ::= [ RegionExpressionList ]
+            // Rule 616:  Primary ::= [ RegionExpressionList ]
             //
-            case 612: {
-                //#line 1985 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 616: {
+                //#line 2008 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(2);
-                //#line 1987 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2010 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Receiver x10LangPointFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.point.factory");
                 Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.region.factory");
                 Tuple tuple = nf.Tuple(pos(), x10LangPointFactory, x10LangRegionFactory, RegionExpressionList);
@@ -6665,28 +6697,28 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 613:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 617:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
-            case 613: {
-                //#line 1994 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 617: {
+                //#line 2017 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1994 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2017 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1996 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2019 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 ConstantDistMaker call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                 break;
             }
      
             //
-            // Rule 614:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
+            // Rule 618:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
             //
-            case 614: {
-                //#line 2001 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 618: {
+                //#line 2024 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 2001 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2024 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 2003 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2026 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Future(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt), Expression));
@@ -6694,84 +6726,84 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 615:  FieldModifier ::= mutable
+            // Rule 619:  FieldModifier ::= mutable
             //
-            case 615: {
+            case 619: {
                 
-                //#line 2011 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2034 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(X10Flags.MUTABLE));
                 break;
             }
      
             //
-            // Rule 616:  FieldModifier ::= const
+            // Rule 620:  FieldModifier ::= const
             //
-            case 616: {
+            case 620: {
                 
-                //#line 2016 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2039 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(Collections.singletonList(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL)));
                 break;
             }
      
             //
-            // Rule 617:  FunExpression ::= fun Type ( FormalParameterListopt ) { Expression }
-            //
-            case 617:
-                throw new Error("No action specified for rule " + 617);
- 
-            //
-            // Rule 618:  MethodInvocation ::= MethodName ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
-            //
-            case 618:
-                throw new Error("No action specified for rule " + 618); 
- 
-            //
-            // Rule 619:  MethodInvocation ::= Primary . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
-            //
-            case 619:
-                throw new Error("No action specified for rule " + 619); 
- 
-            //
-            // Rule 620:  MethodInvocation ::= super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
-            //
-            case 620:
-                throw new Error("No action specified for rule " + 620); 
- 
-            //
-            // Rule 621:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 621:  FunExpression ::= fun Type ( FormalParameterListopt ) { Expression }
             //
             case 621:
-                throw new Error("No action specified for rule " + 621); 
+                throw new Error("No action specified for rule " + 621);
  
             //
-            // Rule 622:  MethodInvocation ::= TypeName . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 622:  MethodInvocation ::= MethodName ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 622:
                 throw new Error("No action specified for rule " + 622); 
  
             //
-            // Rule 623:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 623:  MethodInvocation ::= Primary . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 623:
                 throw new Error("No action specified for rule " + 623); 
  
             //
-            // Rule 624:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 624:  MethodInvocation ::= super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 624:
                 throw new Error("No action specified for rule " + 624); 
  
             //
-            // Rule 625:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 625:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 625:
                 throw new Error("No action specified for rule " + 625); 
  
             //
-            // Rule 626:  MethodModifier ::= synchronized
+            // Rule 626:  MethodInvocation ::= TypeName . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
-            case 626: {
-                //#line 2047 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 626:
+                throw new Error("No action specified for rule " + 626); 
+ 
+            //
+            // Rule 627:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            //
+            case 627:
+                throw new Error("No action specified for rule " + 627); 
+ 
+            //
+            // Rule 628:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            //
+            case 628:
+                throw new Error("No action specified for rule " + 628); 
+ 
+            //
+            // Rule 629:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            //
+            case 629:
+                throw new Error("No action specified for rule " + 629); 
+ 
+            //
+            // Rule 630:  MethodModifier ::= synchronized
+            //
+            case 630: {
+                //#line 2070 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"synchronized\" is an invalid X10 Method Modifier",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6780,10 +6812,10 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 627:  FieldModifier ::= volatile
+            // Rule 631:  FieldModifier ::= volatile
             //
-            case 627: {
-                //#line 2056 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 631: {
+                //#line 2079 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"volatile\" is an invalid X10 Field Modifier",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6792,14 +6824,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 628:  SynchronizedStatement ::= synchronized ( Expression ) Block
+            // Rule 632:  SynchronizedStatement ::= synchronized ( Expression ) Block
             //
-            case 628: {
-                //#line 2063 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 632: {
+                //#line 2086 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2063 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2086 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 2065 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2088 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Synchronized Statement is invalid in X10",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6808,112 +6840,112 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 629:  ThisClauseopt ::= $Empty
-            //
-            case 629:
-                setResult(null);
-                break;
- 
-            //
-            // Rule 631:  PlaceTypeSpecifieropt ::= $Empty
-            //
-            case 631:
-                setResult(null);
-                break;
- 
-            //
-            // Rule 633:  DepParametersopt ::= $Empty
+            // Rule 633:  ThisClauseopt ::= $Empty
             //
             case 633:
                 setResult(null);
                 break;
  
             //
-            // Rule 635:  PropertyListopt ::= $Empty
+            // Rule 635:  PlaceTypeSpecifieropt ::= $Empty
             //
             case 635:
                 setResult(null);
                 break;
  
             //
-            // Rule 637:  WhereClauseopt ::= $Empty
+            // Rule 637:  DepParametersopt ::= $Empty
             //
             case 637:
                 setResult(null);
                 break;
  
             //
-            // Rule 639:  ObjectKindopt ::= $Empty
+            // Rule 639:  PropertyListopt ::= $Empty
             //
             case 639:
                 setResult(null);
                 break;
  
             //
-            // Rule 641:  ArrayInitializeropt ::= $Empty
+            // Rule 641:  WhereClauseopt ::= $Empty
             //
             case 641:
                 setResult(null);
                 break;
  
             //
-            // Rule 643:  PlaceExpressionSingleListopt ::= $Empty
+            // Rule 643:  ObjectKindopt ::= $Empty
             //
             case 643:
                 setResult(null);
                 break;
  
             //
-            // Rule 645:  X10ClassModifiersopt ::= $Empty
+            // Rule 645:  ArrayInitializeropt ::= $Empty
             //
-            case 645: {
-                
-                //#line 2107 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
-         setResult(Collections.singletonList(X10Flags.toX10Flags(Flags.NONE)));
+            case 645:
+                setResult(null);
                 break;
-            }  
+ 
             //
-            // Rule 647:  Unsafeopt ::= $Empty
+            // Rule 647:  PlaceExpressionSingleListopt ::= $Empty
             //
             case 647:
                 setResult(null);
                 break;
  
             //
-            // Rule 648:  Unsafeopt ::= unsafe
+            // Rule 649:  X10ClassModifiersopt ::= $Empty
             //
-            case 648: {
+            case 649: {
                 
-                //#line 2115 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2130 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+         setResult(Collections.singletonList(X10Flags.toX10Flags(Flags.NONE)));
+                break;
+            }  
+            //
+            // Rule 651:  Unsafeopt ::= $Empty
+            //
+            case 651:
+                setResult(null);
+                break;
+ 
+            //
+            // Rule 652:  Unsafeopt ::= unsafe
+            //
+            case 652: {
+                
+                //#line 2138 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 // any value distinct from null
                 setResult(this);
                 break;
             }
      
             //
-            // Rule 649:  ParamIdopt ::= $Empty
+            // Rule 653:  ParamIdopt ::= $Empty
             //
-            case 649:
+            case 653:
                 setResult(null);
                 break;
  
             //
-            // Rule 650:  ParamIdopt ::= identifier
+            // Rule 654:  ParamIdopt ::= identifier
             //
-            case 650: {
-                //#line 2122 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+            case 654: {
+                //#line 2145 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2124 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2147 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
      
             //
-            // Rule 651:  ClockedClauseopt ::= $Empty
+            // Rule 655:  ClockedClauseopt ::= $Empty
             //
-            case 651: {
+            case 655: {
                 
-                //#line 2130 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+                //#line 2153 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
