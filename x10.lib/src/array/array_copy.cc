@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.8 2007-10-24 14:58:40 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.9 2007-10-31 13:05:47 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -49,7 +49,7 @@ namespace x10lib {
   extern lapi_handle_t __x10_hndl;
   //TODO: take care of switch operations
   x10_err_t
-  asyncArrayCopyRaw (void* src, 
+  asyncArrayIput (void* src, 
 		     x10_closure_t closure,
 		     size_t len, 
 		     int target, 
@@ -73,7 +73,7 @@ namespace x10lib {
   }
 
   x10_err_t
-  asyncArrayCopy (void* src, 
+  asyncArrayPut (void* src, 
 		  x10_closure_t closure, 
 		  size_t len, 
 		  int target, 
@@ -86,10 +86,6 @@ namespace x10lib {
     LRC (LAPI_Setcntr (__x10_hndl, &origin_cntr, 0));
     int tmp = -1;
    
-    //cout << "asyncArrayCopy  " << closure->len << " " << sizeof(x10_async_handler_t) 
-    //    << " " << closure->handler << " " << &(closure->handler)
-    //  << " " <<  *((int*)((char*) &(closure->handler) + sizeof(int))) << endl;
-  
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
@@ -104,7 +100,30 @@ namespace x10lib {
     LAPI_Waitcntr (__x10_hndl,  &origin_cntr,  1, &tmp);
  
     return X10_OK;
-  }  
+  } 
+
+  x10_err_t
+  asyncArrayCopy (void* src,
+                  x10_closure_t closure,
+                  size_t len,
+                  int target,
+                  x10_switch_t c)
+  {
+    X10_DEPRECATED ("asyncArrayPut");
+    return asyncArrayPut (src, closure, len, target, c);
+  } 
+
+  x10_err_t
+  asyncArrayCopyRaw (void* src,
+                  x10_closure_t closure,
+                  size_t len,
+                  int target,
+                  x10_switch_t c)
+  {
+    X10_DEPRECATED ("asyncArrayIput");
+    return asyncArrayIput (src, closure, len, target, c);
+  }
+
 }
 
 x10_err_t
