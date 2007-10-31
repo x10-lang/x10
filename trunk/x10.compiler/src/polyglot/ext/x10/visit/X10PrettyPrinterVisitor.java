@@ -35,17 +35,21 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
+import polyglot.ast.Term_c;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.*;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
@@ -193,6 +197,44 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		} else {
 			visit((Node)binary);
 		}
+	}
+
+	X10ClassType annotationNamed(TypeSystem ts, Node o, String name) throws SemanticException {
+		// Nate's code. This one.
+		if (o.ext() instanceof X10Ext) {
+			X10Ext ext = (X10Ext) o.ext();
+			X10ClassType baseType = (X10ClassType) ts.systemResolver().find(name);
+			List<X10ClassType> ats = ext.annotationMatching(baseType);
+			if (ats.size() > 1) {
+				throw new SemanticException("Expression has more than one " + name + " annotation.", o.position());
+			}
+			if (!ats.isEmpty()) {
+				X10ClassType at = ats.get(0);
+				return at;
+			}
+		}
+		return null;
+	}
+
+	private boolean hasAnnotation(Node dec, String name) {
+		try {
+			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+			if (annotationNamed(ts, dec, name) != null)
+				return true;
+		} catch (NoClassException e) {
+			if (!e.getClassName().equals(name))
+				throw new InternalCompilerError("Something went terribly wrong", e);
+		} catch (SemanticException e) {
+			throw new InternalCompilerError("Something is terribly wrong", e);
+		}
+		return false;
+	}
+
+	public void visit(FieldDecl_c n) {
+		if (hasAnnotation(n, "x10.lang.shared")) {
+			w.write ("volatile ");
+		}
+		n.translate(w, tr);
 	}
 
 	public void visit(MethodDecl_c dec) {
