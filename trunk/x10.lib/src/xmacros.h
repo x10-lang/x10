@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xmacros.h,v 1.11 2007-10-25 11:04:30 ganeshvb Exp $
+ * $Id: xmacros.h,v 1.12 2007-10-31 13:05:46 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -36,11 +36,10 @@ do { \
 #define X10_DEBUG(L,X) ;
 #endif /* X10_DLEVEL */
 
-/* deprecation */
-#ifdef X10_REPORT_DEPRECATION
-#define X10_DEPRECATED(X)    { std::cout << "DEPRECATED: " << X << std::endl << std::flush; }
+#ifndef X10_USE_DEPRECATED
+#define X10_DEPRECATED(Y)    { std::cout << "DEPRECATED: " << __func__ << ", USE " << Y << std::endl << std::flush; }
 #else
-#define X10_DEPRECATED(X)    { ; }
-#endif /* X10_REPORT_DEPRECATION */
+#define X10_DEPRECATED(Y) {;}
+#endif
 
 #endif /* __X10_XMACROS_H */

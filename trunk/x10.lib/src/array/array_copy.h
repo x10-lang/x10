@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.h,v 1.4 2007-10-22 08:18:23 ganeshvb Exp $
+ * $Id: array_copy.h,v 1.5 2007-10-31 13:05:47 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -42,7 +42,7 @@ namespace x10lib {
    */
   
   x10_err_t
-  asyncArrayCopy (void* src, 
+  asyncArrayPut (void* src, 
 		  x10_closure_t args,
 		  size_t len, 
 		  int target, 
@@ -56,12 +56,30 @@ namespace x10lib {
    */
   
   x10_err_t
-  asyncArrayCopyRaw (void* src, 
+  asyncArrayIput (void* src, 
 		     x10_closure_t args,
 		     size_t len, 
 		     int target, 
 		     x10_switch_t c=NULL);
-  
+ 
+
+  /* DEPRECATED */
+  x10_err_t
+  asyncArray (void* src,
+                     x10_closure_t args,
+                     size_t len,
+                     int target,
+                     x10_switch_t c=NULL);
+
+
+  /* DEPRECATED */
+  x10_err_t
+  asyncArrayCopyRaw (void* src,
+                     x10_closure_t args,
+                     size_t len,
+                     int target,
+                     x10_switch_t c=NULL);
+ 
  } /* closing brace for namespace x10lib */
 #endif
 
