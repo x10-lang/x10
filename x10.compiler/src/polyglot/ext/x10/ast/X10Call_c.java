@@ -176,8 +176,7 @@ public class X10Call_c extends Call_c {
     	}
     	return this;
     }
-  
-   
+
     /**
      * Compute the new resulting type for the method call by replacing this and 
      * any argument variables that occur in the rettype depclause with new
@@ -188,11 +187,22 @@ public class X10Call_c extends Call_c {
      * @throws SemanticException
      */
     private X10Call_c adjustMI(TypeChecker tc) throws SemanticException {
-    	
-    	X10MethodInstance xmi = (X10MethodInstance) mi;
     	if (mi == null) return this;
+    	X10MethodInstance xmi = (X10MethodInstance) mi;
+    	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
     	X10Type type = (X10Type) mi.returnType();
     	X10Type retType = X10New_c.instantiateType(type, target, arguments);
+    	// FIXME: [IP] HACK!
+    	if (xts.isX10Array(mi.container()) && mi.name().equals("local") &&
+    			(mi.formalTypes() == null || mi.formalTypes().size() == 0))
+    	{
+    		X10ParsedClassType ra = ((X10ParsedClassType)retType).makeVariant();
+    		ra.setRect();
+    		ra.setZeroBased();
+    		ra.setRank(xts.ONE());
+    		ra.setRail();
+    		retType = ra;
+    	}
     	if (retType != type) {
     		mi.setReturnType(retType);
     	}
