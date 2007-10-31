@@ -29,11 +29,13 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.TypeChecker;
@@ -154,25 +156,46 @@ public class X10Call_c extends Call_c {
      * @return
      */
     public Expr setDeptypeForBuiltInCalls(X10TypeSystem xts) {
+    	Type type = type();
+    	FieldInstance dist_factory = null;
+    	try {
+    		dist_factory = xts.findField(xts.distribution(), "factory");
+    	} catch (NoMemberException e) {
+    		if (e.getKind() != NoMemberException.FIELD)
+    			throw new InternalCompilerError("Something went terribly wrong", e);
+    	} catch (SemanticException e) {
+			throw new InternalCompilerError("Something went terribly wrong", e);
+    	}
     	final int argSize = arguments.size();
-    	if (name().equals("block") && (argSize <= 1) && (target instanceof Field)) {
-    			// handles the method
-    		    // dist(:rank==a.rank,isZeroBased=a.isZeroBased,rect==a.rect) block(final region a)
-    		    // on the class x10.lang.dist.factory. (Actually, it checks that the receiver is 
-    		    // a field called factory, and the methodname is block and the call has <= 1 args.)
-    		String name = ((Field) target).name();
-    		if (name.equals("factory")) {
-    			Type type = type();
-				X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
-    			if (argSize == 0) {
-    				rType.setZeroBasedRectRankOne();
-    			} else{
-    				Type argType =  ((Expr) arguments.get(0)).type();
-    				assert xts.isRegion(argType);
-    				rType.transferRegionProperties((X10ParsedClassType) argType);
-    			}
-    			return type(rType);
+    	if (target instanceof Field && xts.equals(((Field) target).fieldInstance(), dist_factory) &&
+    			name().equals("block") && argSize <= 1)
+    	{
+    		// handles the method
+    		// dist(:rank==a.rank,isZeroBased=a.isZeroBased,rect==a.rect) block(final region a)
+    		// on the class x10.lang.dist.factory. (Actually, it checks that the receiver is 
+    		// a field called factory, and the methodname is block and the call has <= 1 args.)
+    		X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
+    		if (argSize == 0) {
+    			rType.setZeroBasedRectRankOne();
+    		} else {
+    			Type argType = ((Expr) arguments.get(0)).type();
+    			assert xts.isRegion(argType);
+    			rType.transferRegionProperties((X10ParsedClassType) argType);
     		}
+    		return type(rType);
+    	}
+    	else if (xts.isRegion(target.type()) && name().equals("toDistribution") && argSize == 0) {
+    		X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
+			rType.transferRegionProperties((X10ParsedClassType) target.type());
+    		return type(rType);
+    	}
+    	else if (xts.isX10Array(target.type()) && name().equals("local") && argSize == 0) {
+    		X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
+    		rType.setRect();
+    		rType.setZeroBased();
+    		rType.setRank(xts.ONE());
+    		rType.setRail();
+    		return type(rType);
     	}
     	return this;
     }
@@ -189,20 +212,8 @@ public class X10Call_c extends Call_c {
     private X10Call_c adjustMI(TypeChecker tc) throws SemanticException {
     	if (mi == null) return this;
     	X10MethodInstance xmi = (X10MethodInstance) mi;
-    	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
     	X10Type type = (X10Type) mi.returnType();
     	X10Type retType = X10New_c.instantiateType(type, target, arguments);
-    	// FIXME: [IP] HACK!
-    	if (xts.isX10Array(mi.container()) && mi.name().equals("local") &&
-    			(mi.formalTypes() == null || mi.formalTypes().size() == 0))
-    	{
-    		X10ParsedClassType ra = ((X10ParsedClassType)retType).makeVariant();
-    		ra.setRect();
-    		ra.setZeroBased();
-    		ra.setRank(xts.ONE());
-    		ra.setRail();
-    		retType = ra;
-    	}
     	if (retType != type) {
     		mi.setReturnType(retType);
     	}
