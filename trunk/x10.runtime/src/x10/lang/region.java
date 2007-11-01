@@ -43,7 +43,9 @@ public abstract /*value*/ class region extends Object
 	 * in it.
 	 */
 	/*property*/ public final boolean zeroBased;
-	public static final String propertyNames$ = " rank rect zeroBased ";
+	/*property*/ public final boolean rail;
+	
+	public static final String propertyNames$ = " rank rect zeroBased  rail";
 
 	public static abstract /*value*/ class factory implements ValueType {
 		/**
@@ -61,10 +63,10 @@ public abstract /*value*/ class region extends Object
 		/**
 		 * Construct a 1-dimensional region low..high with stride 1.
 		 */
-		public region/*(1)*/ region(int low, int high) {
+		final public region/*(1)*/ region(int low, int high) {
 			final region/*(1)*/ result = region(low, high, 1);
 			assert result.rank == 1;
-			return region(low, high, 1);
+			return result; // region(low, high, 1);
 		}
 
 		/**
@@ -146,6 +148,7 @@ public abstract /*value*/ class region extends Object
 		this.rank = rank;
 		this.rect = rect;
 		this.zeroBased = zeroB;
+		rail = rank==1 && rect&&zeroBased;
 	}
 
 	/**
@@ -292,6 +295,9 @@ public abstract /*value*/ class region extends Object
 	}
 	public boolean zeroBased() {
 		return zeroBased;
+	}
+	public boolean rail() {
+		return rail;
 	}
 
 }

@@ -54,8 +54,9 @@ implements Indexable, ValueType {
 	 * Is true iff onePlace != null
 	 */
 	/*property*/ public final boolean constant;
+	/*property*/ public final boolean rail;
 
-	public static final String propertyNames$ = " region rank onePlace rect zeroBased constant unique ";
+	public static final String propertyNames$ = " region rank onePlace rect rail zeroBased constant unique ";
 
 	/*
 	 * distribution is Indexable and as such regarded by the compiler as an X10array.
@@ -92,6 +93,7 @@ implements Indexable, ValueType {
 		this.onePlace = onePlace;
 		this.constant = onePlace != null;
 		this.unique = unique;
+		this.rail = rank==1&&zeroBased&&rect;
 	}
 
 	public static class MalformedError extends java.lang.Error {}

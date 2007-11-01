@@ -15,6 +15,7 @@ package x10.array.sharedmemory;
 
 import x10.array.Operator;
 import x10.array.Region0Base;
+import x10.array.Region1D0Base;
 import x10.array.Region3D0Base;
 import x10.array.Operator.Pointwise;
 import x10.lang.DoubleReferenceArray;
@@ -33,7 +34,14 @@ public class SpecializedArrayFactory extends DefaultArrayFactory {
 	public DoubleReferenceArray DoubleArray(dist d, Operator.Pointwise init, boolean safe, boolean mutable, boolean ignored) {
 		if (d.region instanceof Region3D0Base)
 			return new DoubleArray3d_c(d, init, mutable, ignored);
+		if (d.region instanceof Region1D0Base)
+			return new DoubleArray1d_c(d, init, mutable, ignored);
 		return super.DoubleArray(d, init, safe, mutable, ignored);
+	}
+	public DoubleReferenceArray DoubleArray1d(dist d, Operator.Pointwise init, boolean safe, boolean mutable, boolean ignored) {
+	
+			return new DoubleArray1d_c(d, init, mutable, ignored);
+		
 	}
 
 	/**

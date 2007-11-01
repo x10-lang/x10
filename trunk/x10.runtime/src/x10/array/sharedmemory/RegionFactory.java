@@ -23,14 +23,6 @@ public  class RegionFactory extends region.factory {
 		return new EmptyRegion(k);
 	}
 	
-	/** Construct a 1-dimensional Region_c low..high with stride 1. 
-	 */
-	public region/*(1)*/ region( int low, int high ) {
-		final region/*(1)*/ result = region(low, high, 1);
-		assert result.rank == 1;
-		return result;
-	}
-	
 	/** Construct a 1-dimensional Region_c, low..high with the given stride.
 	 * Return an empty region if low > high
 	 */
