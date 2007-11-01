@@ -1059,6 +1059,7 @@ implements X10ParsedClassType
 	boolean isRect;
 	boolean isRectSet;
 	public boolean isRect() {
+		if (isRail()) return true;
 		if (isRectSet) return isRect;
 		isRectSet = true;
 		Constraint c = realClause();
@@ -1067,6 +1068,7 @@ implements X10ParsedClassType
 	public void setRect() {
 		setProperty("rect");
 		isRect = isRectSet = true;
+		if (isRankOne() && isZeroBased() && ! isRail()) setRail();
 	}
 	
 	C_Var onePlace;
@@ -1092,6 +1094,7 @@ implements X10ParsedClassType
 	boolean isZeroBasedSet;
 	public boolean isZeroBased() {
 		//Report.report(1, "X10ParsedClassType_c: isZerobased" + isZeroBasedSet + " " + isZeroBased);
+		if (isRail()) return true;
 		if (isZeroBasedSet) return isZeroBased;
 		
 		Constraint c = realClause();
@@ -1104,6 +1107,7 @@ implements X10ParsedClassType
 	public void setZeroBased() {
 		setProperty("zeroBased");
 		isZeroBased=isZeroBasedSet = true;
+		if (isRect() && isRankOne() && ! isRail()) setRail();
 	}
 	
 	boolean isRail;
@@ -1112,17 +1116,20 @@ implements X10ParsedClassType
 		if (isRailSet) return isRail;
 		isRailSet = true;
 		Constraint c = realClause();
-		return isRail=c == null? false : isX10Array() && amIProperty("zeroBased");
+		return isRail=c == null? false : amIProperty("rail");
 	}
 	public void setRail() {
 		setProperty("rail");
+		if (! isRankSet) setRank(((X10TypeSystem) typeSystem()).ONE());
+		if (! isZeroBased()) setZeroBased();
+		if (! isRect()) setRect();
 		isRail = isRailSet = true;
 	}
 	
 	boolean isRankSet;
 	C_Var rank;
 	public C_Var rank() {
-		
+		if (isRail()) return ((X10TypeSystem) typeSystem()).ONE();
 		if (isRankSet) return rank;
 		
 		Constraint c = realClause();
@@ -1150,10 +1157,12 @@ implements X10ParsedClassType
 		setProperty("rank", rank);
 		isRankSet=true;
 		this.rank = rank;
+		if (isRankOne() && isZeroBased() && isRect() && ! isRail())
+			setRail();
 	}
 	
 	public boolean isRankOne() {
-		return ((X10TypeSystem) typeSystem()).ONE().equals(rank());
+		return isRail() || ((X10TypeSystem) typeSystem()).ONE().equals(rank());
 	}
 	public boolean isRankTwo() {
 		return ((X10TypeSystem) typeSystem()).TWO().equals(rank());
@@ -1236,15 +1245,16 @@ implements X10ParsedClassType
 	 */
 	public void transferRegionProperties(X10ParsedClassType arg) {
 		C_Var rank = arg.rank();
-		acceptRegionProperties(rank, arg.isZeroBased(), arg.isRect());
+		acceptRegionProperties(rank, arg.isZeroBased(), arg.isRect(), arg.isRail());
 	}
-	public void acceptRegionProperties(C_Var rank, boolean isZeroBased, boolean isRect) {
+	public void acceptRegionProperties(C_Var rank, boolean isZeroBased, boolean isRect, boolean isRail) {
 		if (rank != null) setRank(rank);
 		if (isZeroBased) setZeroBased();
 		if (isRect) setRect();
+		if (isRail) setRail();
 	}
 	public void setZeroBasedRectRankOne() {
-		acceptRegionProperties(((X10TypeSystem) typeSystem()).ONE(), true, true);
+		acceptRegionProperties(((X10TypeSystem) typeSystem()).ONE(), true, true, true);
 	}
 	/** Set the value of this property on the constraints of this type. Should be called
 	 * only within code that is transferring properties to this type from 
