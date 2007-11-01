@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.20 2007-10-19 16:04:28 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.21 2007-11-01 10:51:10 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -88,6 +88,7 @@ asyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 namespace x10lib {
 
   extern lapi_handle_t __x10_hndl;
+  extern int __x10_max_agg_size;
 
   x10_err_t asyncFlush(x10_async_handler_t hndlr, size_t size)
   {
@@ -120,7 +121,7 @@ namespace x10lib {
 		      void *args, size_t size)
   {
     X10_DEBUG (1,  "Entry");
-    assert (size <= X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t));
+    assert (size <= __x10_max_agg_size * sizeof(x10_async_arg_t));
     int count = __x10_agg_counter[hndlr][tgt];
     memcpy(&(__x10_agg_arg_buf[hndlr][tgt][count * size]), args, size);
     x10_err_t err = asyncSpawnInlineAgg_i(tgt, hndlr, size);
@@ -138,7 +139,7 @@ namespace x10lib {
     lapi_cntr_t origin_cntr;
 
     size_t size = sizeof(x10_async_arg_t);
-    assert (n * size <= X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t));
+    assert (n * size <= __x10_max_agg_size * sizeof(x10_async_arg_t));
     size_t count = __x10_agg_counter[hndlr][tgt];
     for (int i = 0; i < n; i++) {
       __x10_agg_arg_buf[hndlr][tgt][count * size +
@@ -200,7 +201,7 @@ asyncAggInit()
     __x10_agg_counter[i] = new int[__x10_num_places];
     for (int j = 0; j < __x10_num_places; j++) {
       __x10_agg_counter[i][j] = 0;      
-      __x10_agg_arg_buf[i][j] = new char [X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t)];
+      __x10_agg_arg_buf[i][j] = new char [__x10_max_agg_size * sizeof(x10_async_arg_t)];
     }
   } 
   
@@ -232,8 +233,8 @@ asyncSpawnInlineAgg_i(x10_place_t tgt,
   __x10_agg_total[hndlr]++;
 
   if ((__x10_agg_total[hndlr]+1) * size >=
-      X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t) ||
-      (__x10_agg_total[hndlr]+1) >= X10_MAX_AGG_SIZE) {
+      __x10_max_agg_size * sizeof(x10_async_arg_t) ||
+      (__x10_agg_total[hndlr]+1) >= __x10_max_agg_size) {
     int max = 0;
     int task = 0;
     

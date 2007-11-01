@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate_hc.cc,v 1.18 2007-10-24 07:16:31 ganeshvb Exp $
+ * $Id: aggregate_hc.cc,v 1.19 2007-11-01 10:51:10 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -19,6 +19,7 @@ using namespace x10lib;
 using namespace std;
 namespace x10lib {
   extern lapi_handle_t __x10_hndl;
+  extern int __x10_max_agg_size;
 };
 
 #define X10_MAX_LOG_NUMPROCS 10
