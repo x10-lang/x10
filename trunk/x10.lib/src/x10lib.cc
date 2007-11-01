@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.23 2007-10-11 08:27:15 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.24 2007-11-01 10:51:10 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -50,7 +50,8 @@ int __x10_my_place;
 int __x10_addr_hndl;
 int __x10_addrtbl_sz;
 
-
+/* aggregation limit */
+int __x10_max_agg_size;
 
 
 /* Initialization */
@@ -77,6 +78,14 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	envp = getenv("X10_USE_SHM");
 	if (envp && (strcmp(envp, "yes") == 0))
 		(void)putenv("LAPI_USE_SHM=yes");
+
+	envp = getenv("X10_MAX_AGG_SIZE");
+        if (envp)
+              __x10_max_agg_size = atoi (envp);
+        else
+              __x10_max_agg_size = 1024;
+
+         X10_DEBUG (1, "AGG_LIMIT " << __x10_max_agg_size);
 
 	/* LAPI initialization */
 	(void)memset((void *)&info, 0, sizeof(lapi_info_t));

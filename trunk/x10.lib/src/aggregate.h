@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.21 2007-10-24 09:51:48 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.22 2007-11-01 10:51:10 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -14,7 +14,9 @@
 
 #define X10_MAX_AGG_HANDLERS 10
 #define X10_MAX_AGG_TASKS 1024
-#define X10_MAX_AGG_SIZE 1024
+
+/* DEPRECATED -- used only by aggregate_ra & aggregate_hc.cc */
+#define X10_MAX_AGG_SIZE 8
 
 //typedef  int (*FUNC)(ulong);
 

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.28 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.29 2007-11-01 10:51:10 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -56,6 +56,7 @@ namespace x10lib {
 //extern int __x10_my_place;
 //extern int __x10_addr_hndl;
 //extern int __x10_addrtbl_sz;
+//extern int __x10_max_agg_size;
 
 /* Initialization */
 x10_err_t Init(x10_async_handler_t *hndlrs, int n);
