@@ -492,9 +492,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// vj: Code illustrating type-driven dispatch
 		X10ParsedClassType type = (X10ParsedClassType) a.type();
 		
-		if (runtimeName.equals("DoubleArray") && type.isRect() && type.isRankThree() && type.isZeroBased()) {
+		if (runtimeName.equals("DoubleArray") 
+				&& ((type.isRect() && type.isRankThree() && type.isZeroBased()))) {
 			runtimeName += "3d";
 		}
+		if (runtimeName.equals("DoubleArray") 
+				&& (type.isRail() || (type.isRect() && type.isRankOne() && type.isZeroBased()))) {
+			runtimeName += "1d";
+		}
+		
 		//Report.report(1, "GOLDEN: X10PrettyPrintVisitor type is " + type + "runtimeName is " + runtimeName);
 		// End typs-driven dispatch.s
 		Object init = (a.initializer() instanceof Closure) ? handleArrayInitClosure((Closure_c) a.initializer()) : a.initializer();

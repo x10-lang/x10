@@ -54,7 +54,7 @@ public class QueryEngine {
 	public boolean isRectangularRankOneLowZero(X10ArrayAccess1 a) {
 		if ( a.array().type() instanceof X10ParsedClassType ) {
 			X10ParsedClassType t = (X10ParsedClassType) a.array().type();
-			return t.isZeroBased() && t.isRankOne() && t.isRect();
+			return (t.isRail() || (t.isZeroBased() && t.isRankOne() && t.isRect()));
 		}
 		else 
 			// a does not represent an X10 array (it may be a distribution or region)
