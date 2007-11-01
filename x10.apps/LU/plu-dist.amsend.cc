@@ -107,6 +107,7 @@ class Comm {
 
         virtual void AtomicAdd(int val, int *dst, int proc) = 0;
         virtual void AtomicAdd(sint64_t val, sint64_t *dst, int proc) = 0;
+        virtual void AtomicAdd(double val, double *dst, int proc) = 0;
 
         virtual void Barrier()=0;
         virtual void Fence()=0;
@@ -174,9 +175,17 @@ void * receivePivotCandidate(lapi_handle_t *hndl, void *uhdr, uint *uhdr_len,
 
     msg = (struct AmMsg *) ret_info->udata_one_pkt_ptr;
 
-    dst_ptr = (int *) msg->dst;
+    /* Apply the first two "puts" */
+    dst_ptr = (int *) msg[0].dst;
+    *dst_ptr = msg[0].val;
 
-    x10lib_cws::atomic_add( dst_ptr, msg->val);
+    dst_ptr = (int *) msg[1].dst;
+    *dst_ptr = msg[1].val;
+
+    /* Apply the atomic add */
+    dst_ptr = (int *) msg[2].dst;
+
+    x10lib_cws::atomic_add( dst_ptr, msg[2].val);
 
     ret_info->ctl_flags = LAPI_BURY_MSG;
     *ucomp = NULL;
@@ -347,6 +356,17 @@ class LapiComm : public Comm {
             (void)LAPI_Waitcntr(hndl, &wait_cntr, new_val, NULL); 
             (void)LAPI_Setcntr(hndl, &wait_cntr, orig_val);
         }
+
+        virtual void AtomicAdd(double v, double *dst, int proc) {
+            int new_val, orig_val;
+
+            (void)LAPI_Getcntr(hndl, &wait_cntr, &orig_val);
+            new_val = orig_val + 1;
+            LAPI_Rmw64(hndl, FETCH_AND_ADD, proc, (long long *)dst, 
+                    (long long *) &v, NULL, &wait_cntr);
+            (void)LAPI_Waitcntr(hndl, &wait_cntr, new_val, NULL); 
+            (void)LAPI_Setcntr(hndl, &wait_cntr, orig_val);
+        }
         
         virtual void InitCounter(CommBaseNBH *nb, int val) {
             LapiCommNBH *nbh = dynamic_cast<LapiCommNBH *>(nb);
@@ -383,6 +403,7 @@ Comm::Init(int px, int py) {
 class Profiler {
     private:
         void **addr;
+        void **flop_addrs;
     public:
 
         nano_time_t runT; /*Time spent in Worker::run()*/
@@ -398,17 +419,25 @@ class Profiler {
         nano_time_t newT; /*Time in Block::mulsub()'s mem alloc*/
         int nStep; /*#calls to Block::step()*/
         int nStepLU; /*#calls to stepLU*/
+        double *mflops; /* Final result from all procs */
+        int is_ok; /* Combination of pass/fail status at each proc */
 
         Profiler() {
             addr = new void *[TheComm().nprocs()];
             assert(addr != NULL);
             TheComm().ArrayAttach(this, addr);
             runT=dgemmT=luT=bsT=lwrT=permuteT=mulsubT=pollT=isdoneT=newT=0;
-            nStep = nStepLU = 0;
-            //MEM_BARRIER();
+            nStep = nStepLU = 0; is_ok = 0;
+
+            mflops = new double [TheComm().nprocs()];
+            memset(mflops, 0, sizeof(double)*TheComm().nprocs());
+            flop_addrs = new void *[TheComm().nprocs()];
+            TheComm().ArrayAttach(mflops, flop_addrs);
         }
         ~Profiler() {
             delete [] addr;
+            delete [] mflops;
+            delete [] flop_addrs;
         }
 
         inline void log_run(nano_time_t t) { runT += t; }
@@ -455,6 +484,49 @@ class Profiler {
                     gProf->nStep += nStep;
                     gProf->nStepLU += nStepLU;
                 }
+            }
+        }
+
+        void report_results(int root, double flops, int ok_flag) {
+            Profiler *gProf = (Profiler *)addr[root];
+            double *remote_flop_addr = (double *) flop_addrs[root];
+
+            remote_flop_addr += TheComm().here();
+
+            if(TheComm().here() != root) {
+                if(TheComm().nprocs() > 1) {
+                    TheComm().AtomicAdd(ok_flag,  &gProf->is_ok, root);
+                    TheComm().Put(&flops, 
+                            (void *)remote_flop_addr, 
+                            sizeof(double), root);
+                } else {
+                    gProf->is_ok += ok_flag;
+                }
+            } 
+        }
+
+        void display_results(int proc, double this_flops, int correct) {
+            if(TheComm().here() == proc) {
+                bool result_verified = false;
+                double total_flops = 0.0;
+
+                if( (is_ok == TheComm().nprocs() - 1) && correct) {
+                    result_verified = true;
+                }
+
+                total_flops += this_flops;
+
+                for(int i = 0; i < TheComm().nprocs(); i++) {
+                    if(i == TheComm().here())
+                        continue;
+                    total_flops += mflops[i];
+                }
+
+                cout << endl;
+                cout << "NPROCS " << TheComm().nprocs()
+                     << " Avg MFlops " << total_flops/TheComm().nprocs()
+                     << " Verfied " << (result_verified ? "ok" : "fail")
+                     << endl;
             }
         }
 
@@ -1182,23 +1254,31 @@ class ColumnVariables {
 
                     double colv=maxColV[M->pi];
                     int row = maxRow[M->pi];
-                    struct AmMsg msg;
+                    struct AmMsg msg[3];
                     assert(colv>0.0);
 
                     /*The proc handling diag will do it after computing the pivot*/
                     *pivotCount=0;
                     maxColV[M->pi] = -1;
                     maxRow[M->pi]=-1;
-                    MEM_BARRIER();
 
-                    TheComm().Put(&colv, dstColV, sizeof(double), proc);
-                    TheComm().Put(&row, dstRow, sizeof(int), proc);
+                    //SS: Replace the following blocking PUTs by
+                    //combining the messages into the AmSend
+                    //TheComm().Put(&colv, dstColV, sizeof(double), proc);
+                    //TheComm().Put(&row, dstRow, sizeof(int), proc);
+
+                    msg[0].dst = dstColV;
+                    msg[0].val = colv;
+
+                    msg[1].dst = dstRow;
+                    msg[1].val = row;
+                    
                     //TheComm().AtomicAdd(nupdates, dstpivotCount, proc, prof);         
                     /* Replace Atomic with AmSend */
-                    msg.dst = dstpivotCount;
-                    msg.val = nupdates;
+                    msg[2].dst = dstpivotCount;
+                    msg[2].val = nupdates;
                     TheComm().AmSend(proc, (void *) HDR_HNDL_PIVOT_CANDIDATE, &msg, 
-                            sizeof(struct AmMsg));         
+                            sizeof(struct AmMsg) * 3);         
                 }
             }
         }
@@ -1490,10 +1570,6 @@ class Block {
         void init() {
             for (int i=0; i < B*B; i++)
                 A[i] = format(rand()*2.0/RAND_MAX + 1.0, 4);
-            if (I==J) {
-                for (int i=0; i < B; i++) 
-                    A[i+i*B] = format(rand()*100.0/RAND_MAX + 10.0, 4);
-            }
         }
         bool step(Profiler &prof);
 
@@ -1873,22 +1949,6 @@ class Block {
             prof.log_lu(t-s);
             return true;
         }
-
-
-        /*return true on completion*/
-        bool LU(Profiler &prof) {
-            nano_time_t s = nanoTime();
-            for (int k = 0; k < B; k++)
-                for (int i = k + 1; i < B; i++) {
-                    set(i,k, get(i,k)/get(k,k));
-                    double a = get(i,k);
-                    for(int j=k+1; j<B; j++)
-                        negAdd(i,j, a*get(k,j));
-                }
-            nano_time_t t = nanoTime();
-            prof.log_lu(t-s);
-            return true;
-        }
 };
 
 /*---------Definitions after necessary forward declarations-------------*/
@@ -1914,6 +1974,8 @@ TwoDBlockCyclicArray::TwoDBlockCyclicArray(int spx, int spy, int snx, int sny,in
         for(int i=0; i<px*py; i++) {
             assert(globalData[i] != NULL);
         }
+
+        srand(32+TheComm().here());
 
         int ctr=0;
         for(int i=0; i<nx; i++) {
@@ -2423,7 +2485,10 @@ int main(int argc, char *argv[]) {
 
     Profiler gProf; /*all procs simultaneously create a copy*/
 
-    cout<<TheComm().here()<<"::N="<<N<<" B="<<B<<" px="<<px<<" py="<<py<<endl;
+    //cout<<TheComm().here()<<"::N="<<N<<" B="<<B<<" px="<<px<<" py="<<py<<endl;
+    if(0 == TheComm().here()) {
+        cout<<TheComm().nprocs()<<"::N="<<N<<" B="<<B<<" px="<<px<<" py="<<py<<endl;
+    }
 
     PLU *plu = new PLU(px,py,nx,ny,B);
 
@@ -2453,11 +2518,22 @@ int main(int argc, char *argv[]) {
     TheComm().Barrier();
     bool correct = plu->verify(A);
 
+#if 0
     cout<<"N="<<N<<" px="<<px<<" py="<<py<<" B="<<B
         <<(correct?" ok":" fail")
         <<" rt time="<<(t-s)/1000000.0<<"ms"
         <<" rt Rate="<< format(flops(N)/(t-s)*1000, 3)<<"MFLOPS"
         <<endl;
+#endif
+
+    double rate =  format(flops(N)/(t-s)*1000, 3);
+
+    /* Combine all results at root */
+    gProf.report_results(0, rate, correct? 1:0);
+    
+    TheComm().Barrier();
+
+    gProf.display_results(0, rate, correct? 1:0);
 
     TheComm().Barrier();
 
