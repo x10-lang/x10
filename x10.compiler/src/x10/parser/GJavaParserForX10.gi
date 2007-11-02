@@ -46,8 +46,8 @@
     MINUS_EQUAL ::= -=
     NOT ::= !
     NOT_EQUAL ::= !=
-    REMAINDER ::= %
-    REMAINDER_EQUAL ::= %=  
+    REMAINDER ::= '%'
+    REMAINDER_EQUAL ::= '%='
     AND ::= &
     AND_AND ::= && 
     AND_EQUAL ::= &= 
@@ -1995,7 +1995,7 @@
                     setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
           $EndJava
         ./
-                               | MultiplicativeExpression % UnaryExpression
+                               | MultiplicativeExpression '%' UnaryExpression
         /.$BeginJava
                     setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
           $EndJava
@@ -2149,7 +2149,7 @@
                     setResult(Assign.DIV_ASSIGN);
           $EndJava
         ./
-                         | %=
+                         | '%='
         /.$BeginJava
                     setResult(Assign.MOD_ASSIGN);
           $EndJava
