@@ -27,6 +27,7 @@
 %Export
 
     activitylocal
+    any
     async
     ateach 
     atomic 
@@ -65,6 +66,11 @@
     KeyWord ::= a s y n c
         /.$BeginAction
                     $setResult($_async);
+          $EndAction
+        ./
+              | a n y
+        /.$BeginAction
+                    $setResult($_any);
           $EndAction
         ./
               | a c t i v i t y l o c a l
