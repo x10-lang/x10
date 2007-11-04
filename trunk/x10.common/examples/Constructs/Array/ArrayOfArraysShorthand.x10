@@ -15,11 +15,11 @@ import harness.x10Test;
 public class ArrayOfArraysShorthand extends x10Test {
 
 	public boolean run() {
-		final region r1 = [0:7];
-		final region r2 = [0:9];
-		final region r = [r1, r2];
+		final region(:rail) r1 = [0:7];
+		final region(:rail) r2 = [0:9];
+		final region(:rect&&zeroBased&&rank==2) r = [r1, r2];
 		final int value [.][.] ia = new int value [r1][r2];
-		for (point [i,j]: r) chk(ia[i][j] == null);
+		for (point [i,j]: r) chk(ia[i][j] == 0);
 		return true;
 	}
 
