@@ -62,7 +62,7 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 	public DoubleArray1d_c(dist d, double c, boolean mutable) {
 		super(d, c, mutable);
 		if (d.rank != 1)
-			throw new RankMismatchException(d, 3);
+			throw new RankMismatchException(d, 1);
 		// assert d.region instanceof Region3D0Base;
 		if (d.region.rank(0).low() != 0 )
 			throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
@@ -72,7 +72,7 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 	private DoubleArray1d_c(dist d, double[] a, boolean mutable) {
 		super(d, a, mutable);
 		if (d.rank != 1)
-			throw new RankMismatchException(d, 3);
+			throw new RankMismatchException(d, 1);
 		//assert d.region instanceof Region3D0Base;
 		if (d.region.rank(0).low() != 0 )
 			throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
@@ -137,10 +137,10 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 	}
 
 	public double get(point pos, boolean chkPl, boolean chkAOB) {
-		if (pos.rank != 3)
-			throw new RankMismatchException(pos, 3);
+		if (pos.rank != 1)
+			throw new RankMismatchException(pos, pos.rank);
 		int[] pos1 = pos.val();
-		return get(pos1[0], pos1[1], pos1[2], chkPl, chkAOB);
+		return get(pos1[0], chkPl, chkAOB);
 	}
 
 //	public double get(int[] pos) { return get(pos, true, true); }
@@ -176,17 +176,17 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 	}
 
 	public double set(double a, point pos) {
-		if (pos.rank != 3)
-			throw new RankMismatchException(pos, 3);
+		if (pos.rank != 1)
+			throw new RankMismatchException(pos, pos.rank);
 		int[] v = pos.val();
-		return set(a, v[0], v[1], v[2], false, false);
+		return set(a, v[0], false, false);
 	}
 
 	public double set(double a, point pos, boolean chkPl, boolean chkAOB) {
-		if (pos.rank != 3)
-			throw new RankMismatchException(pos, 3);
+		if (pos.rank != 1)
+			throw new RankMismatchException(pos, pos.rank);
 		int[] v = pos.val();
-		return set(a, v[0], v[1], v[2], chkPl, chkAOB);
+		return set(a, v[0], chkPl, chkAOB);
 	}
 
 	public int ord(int i, int j, int k) { return i; }
