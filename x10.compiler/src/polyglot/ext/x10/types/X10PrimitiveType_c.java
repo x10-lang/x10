@@ -256,7 +256,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 					if (t!=null) {
 						Constraint toRC = toType.realClause();
 						if (toRC !=null) {
-							C_Term t2 = toRC.lookup(C_Special_c.Self).term();
+							Promise t20 = toRC.lookup(C_Special_c.Self);
+							if (t20 ==null) return result=true;
+							C_Term t2 = t20.term();
 							return result = (t2 == null ||  t.equals(t2));
 							
 						}
