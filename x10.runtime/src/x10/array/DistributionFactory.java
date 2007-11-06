@@ -306,5 +306,9 @@ public class DistributionFactory extends dist.factory {
 		dist newDist = new Distribution_c.Unique(ps);
 		return newDist;
 	}
+	public dist unique(region R) {
+		dist newDist = new KDimUnique(R);
+		return newDist;
+	}
 	
 }
