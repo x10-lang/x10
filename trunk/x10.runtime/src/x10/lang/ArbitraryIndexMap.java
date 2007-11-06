@@ -9,7 +9,7 @@ package x10.lang;
 
 import x10.lang.GlobalIndexMap;
 import java.util.Hashtable;
-
+import java.lang.System;
 /**
  * 
  * @author donawa

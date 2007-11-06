@@ -7,6 +7,7 @@
  */
 package x10.lang;
 
+import java.lang.System;
 import java.util.Iterator;
 
 import x10.base.TypeArgument;
