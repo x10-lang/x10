@@ -7,6 +7,7 @@
  */
 package x10.lang;
 
+import java.lang.System;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

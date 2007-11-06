@@ -74,7 +74,7 @@ implements Indexable, ValueType {
 	public place[] placesArray() {
 		java.lang.Object[] a = places().toArray();
 		place[] res = new place[a.length];
-		System.arraycopy(a,0,res,0,a.length);
+		java.lang.System.arraycopy(a,0,res,0,a.length);
 		return res;
 	}
 
@@ -112,6 +112,9 @@ implements Indexable, ValueType {
 		public dist/*(:rank=1)*/ unique() {
 			return unique(x10.lang.place.places);
 		}
+		
+		public abstract dist/*(:rank==R.rank)*/ unique(region R);
+			
 		public /*(region R)*/ dist/*(R)*/ local(region R) {
 			return constant(R, Runtime.here());
 		}

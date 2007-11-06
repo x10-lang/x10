@@ -20,7 +20,7 @@ import x10.array.BooleanArray;
 import x10.array.Operator;
 import x10.array.sharedmemory.BooleanArray_c;
 import x10.compilergenerated.Parameter1;
-
+import java.lang.System;
 /**
  * Helper routines for array manipulation.
  * This class contains only static methods, and is not intended
