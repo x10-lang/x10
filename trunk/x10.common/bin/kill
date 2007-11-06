@@ -4,8 +4,6 @@ use strict;
 my $sig = shift || 0;
 my $pid = shift || 0;
 
-print STDERR "kill $sig $pid\n";
-
 if ($sig =~ /^-(\d+)$/) {
   $sig = $1;
 }
