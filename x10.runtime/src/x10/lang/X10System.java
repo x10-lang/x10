@@ -2,7 +2,7 @@ package x10.lang;
 
 import java.util.Iterator;
 
-public class System {
+public class X10System {
 	
 	/**
 	 * Copy the i'th element in the enumeration order of the source array into the
