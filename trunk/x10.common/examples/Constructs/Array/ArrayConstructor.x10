@@ -17,11 +17,12 @@ import harness.x10Test;
 public class ArrayConstructor extends x10Test {
 
 	public boolean run() {
-		int x = 1.0;
+		double x = 1.0;
 		double[.] a = new double[[0:5]](point p) {
-			int x=2.0;
+			double x=2.0;
 			return x;
 		};
+		return true;
 	}
 
 	public static void main(String[] args) {
