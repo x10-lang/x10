@@ -25,7 +25,7 @@ import x10.runtime.Configuration;
  */
 public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Cloneable {
 
-	private final boolean[] arr_;
+	public final boolean[] arr_;
 	public final int[] descriptor_;
 
 	/**
