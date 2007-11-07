@@ -561,12 +561,16 @@ implements X10ParsedClassType
 	 * @param i
 	 * @return
 	 */
-	private FieldInstance translateTypes(FieldInstance i) {
-		return i;
-		/* FieldInstance fi = (FieldInstance)i.copy();
-		 fi.setType(translateType(i.type()));
+	private FieldInstance translateTypes(FieldInstance fi) {
+		 fi.setType(translateType(fi.type()));
+		 X10TypeSystem xts = (X10TypeSystem) ts;
+		if (xts.equals(fi.container(), xts.distribution()) && fi.name().equals("UNIQUE")) {
+				X10ParsedClassType ud = ((X10ParsedClassType)fi.type()).makeVariant();
+				ud.setUniqueDist();
+				fi.setType(ud);
+		 }
 		 fi.container(this);
-		 return fi;*/
+		 return fi;
 	}
 	private MethodInstance translateTypes(MethodInstance i) {
 		MethodInstance mi = (MethodInstance)i.copy();
