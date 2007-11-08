@@ -26,11 +26,13 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 /** Implements an X10ReferenceType. We have it inherit from ReferenceType_c because
@@ -101,7 +103,12 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
 			depClause = new Constraint_c((X10TypeSystem) ts);
-		depClause = depClause.addBinding(t1, t2);
+		try {
+			depClause = depClause.addBinding(t1, t2);
+		}
+		catch (Failure f) {
+			throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+		}
 	}
     public boolean consistent() {
     	return depClause== null || depClause.consistent();

@@ -22,9 +22,11 @@ import polyglot.ext.x10.types.constr.C_Field;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Special_c;
+import polyglot.ext.x10.types.constr.C_Type_c;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.main.Report;
@@ -35,6 +37,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 
@@ -165,10 +168,18 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 		boolean changed = false;
 		if ( flags().isFinal()) {
 			X10Type t = (X10Type) type();
-			C_Field self = new C_Field_c(this, C_Special_c.This);
-			Constraint c = Constraint_c.addSelfBinding(self, t.depClause(), (X10TypeSystem) ts);
-			X10Type newType = t.makeVariant(c,t.typeParameters());
-			setType(newType);
+			C_Var receiver = C_Special_c.This;
+			if (flags().isStatic())
+				receiver = new C_Type_c((X10Type) container());
+			C_Field self = new C_Field_c(this, receiver);
+			try {
+				Constraint c = Constraint_c.addSelfBinding(self, t.depClause(), (X10TypeSystem) ts);
+				X10Type newType = t.makeVariant(c,t.typeParameters());
+				setType(newType);
+			}
+			catch (Failure f) {
+				throw new InternalCompilerError("Could not add self binding.", f);
+			}
 			changed = true;
 		}
 		return changed;

@@ -47,7 +47,7 @@ public abstract class X10Type_c extends Type_c implements X10Type {
     public X10Type rootType() { return rootType;}
     public boolean isParametric() { return (typeParameters == null) || ! typeParameters.isEmpty();}
     public List typeParameters() {return typeParameters;}
-    public Constraint depClause() { return depClause();}
+    public Constraint depClause() { return depClause;}
     protected X10TypeSystem xts = (X10TypeSystem) ts;
     
     private X10Type_c() { super(); }

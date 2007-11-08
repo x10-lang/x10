@@ -104,13 +104,13 @@ public class Promise_c implements Promise, Serializable {
 		return result;
 	}
 	public Promise cloneRecursively(HashMap<Promise, Promise> env) {
+		Promise q = env.get(this);
+		if (q != null)
+			return q;
 		Promise_c clone = clone();
 		env.put(this, clone);
 		if (this.value != null) {
-			Promise valueClone = env.get(value);
-			if (valueClone == null) {
-				valueClone = value.cloneRecursively(env);
-			}
+			Promise valueClone = value.cloneRecursively(env);
 			clone.value = valueClone;
 		}
 		if ( this.fields != null) {
@@ -120,10 +120,7 @@ public class Promise_c implements Promise, Serializable {
 				Map.Entry<String,Promise> entry = it.next();
 				String key = entry.getKey();
 				Promise p = entry.getValue();
-				Promise cloneP = env.get(p);
-				if (cloneP == null) {
-					cloneP = p.cloneRecursively(env);
-				}
+				Promise cloneP = p.cloneRecursively(env);
 				cloneFields.put(key, cloneP);
 			}
 			clone.fields = cloneFields;
@@ -224,7 +221,7 @@ public class Promise_c implements Promise, Serializable {
 
 	public boolean bind(/*@nonnull*/Promise target) throws Failure {
 		if (forwarded())
-			throw new InternalCompilerError("The promise " + this + " is already bound to "
+			throw new Failure("The promise " + this + " is already bound to "
 					+ value + "; cannot bind it to " + target + ".");
 		if (this==target) // nothing to do!
 			return false;
@@ -258,10 +255,10 @@ public class Promise_c implements Promise, Serializable {
 			}
 		return false;
 	}
-	public void dump(HashMap<C_Var,C_Var> result, C_Term prefix) {
+	public void dump(HashMap<C_Var, C_Var> result, C_Term prefix) {
 		dump(result, prefix, null, null);
 	}
-	public void  dump(HashMap<C_Var,C_Var> result, C_Term prefix, C_Var newSelf, C_Var newThis) {
+	public void  dump(HashMap<C_Var, C_Var> result, C_Term prefix, C_Var newSelf, C_Var newThis) {
 		if (value != null) {
 			C_Var t1 = term();
 			if (t1==null || t1.isEQV())  // nothing to dump!
@@ -305,8 +302,7 @@ public class Promise_c implements Promise, Serializable {
 				String key = p.getKey();
 				Promise value = p.getValue();
 				if (value.equals(x)) {
-					fields.remove(key);
-					fields.put(key, y);
+					p.setValue(y);
 				} else {
 					value.replaceDescendant(y,x);
 				}
@@ -315,5 +311,5 @@ public class Promise_c implements Promise, Serializable {
 	
 		
 	public Promise value() { return value;}
-	public HashMap<String,Promise> fields() { return fields;}
+	public HashMap<String, Promise> fields() { return fields;}
 }

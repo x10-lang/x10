@@ -22,6 +22,7 @@ public interface X10ConstructorDecl extends ConstructorDecl {
 	X10ConstructorDecl reconstruct(TypeNode t);
 
 
-	Expr argWhereClause();
+	Expr whereClause();
+	X10ConstructorDecl whereClause(Expr e);
 	
 }

@@ -13,11 +13,14 @@ import polyglot.ast.Special_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10ProcedureInstance;
 import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
+import polyglot.types.CodeInstance;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 
@@ -98,17 +101,33 @@ public class X10Special_c extends Special_c implements X10Special {
                 "field or method, or refer to \"this\" or \"super\" " + 
                 "from a static context.", this.position());
         }
-        
+
+        X10Special result = this;
+
         if (kind == THIS) {
         	X10Type tt = (X10Type) t.copy();
         	tt.setSelfVar(C_Special.This);
-            return type(tt);
+            result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
-            return type(t.superType());
+            result = (X10Special) type(t.superType());
         }
-        
-        return this;
+
+        // Fold in the method's where clause.
+        CodeInstance ci = c.currentCode();
+        if (ci instanceof X10ProcedureInstance) {
+            X10ProcedureInstance pi = (X10ProcedureInstance) ci;
+            Constraint where = pi.whereClause();
+            if (where != null) {
+                X10Type newType = (X10Type) result.type().copy();
+                Constraint dep = newType.depClause().copy();
+                dep.addIn(where);
+                newType = newType.makeVariant(dep, newType.typeParameters());
+                return result.type(newType);
+            }
+        }
+
+        return result;
     }
 
 }

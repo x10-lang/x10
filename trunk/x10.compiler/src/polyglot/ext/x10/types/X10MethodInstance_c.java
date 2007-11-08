@@ -12,37 +12,29 @@ package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
-import polyglot.types.MethodInstance_c;
-import polyglot.types.TypeSystem_c;
 import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
-import polyglot.ext.x10.ast.PropertyDecl_c;
-import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Root;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.C_Var_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.types.constr.Promise;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
+import polyglot.types.MethodInstance_c;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 /**
@@ -122,6 +114,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		super(ts, pos, container,flags, returnType, name, formalTypes,	excTypes);
 	}
 	
+	/** Constraint on formal parameters. */
+	protected Constraint whereClause;
+	public Constraint whereClause() { return whereClause; }
+	public void setWhereClause(Constraint s) { 
+		this.whereClause = s; 
+	}
+
 	public boolean canOverrideImpl(MethodInstance mj, boolean quiet) throws SemanticException {
 		//  Report.report(1, "X10MethodInstance_c: " + this + " canOverrideImpl " + mj);
 		boolean result = super.canOverrideImpl(mj, quiet);
@@ -147,8 +146,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	}
 	public boolean isPropertyGetter() {
 		assert container instanceof X10ParsedClassType;
-		boolean isJavaType = ((X10ParsedClassType) container).isJavaType();
-		if (isJavaType) return false;
+		if (isJavaMethod()) return false;
 		if (!formalTypes.isEmpty()) return false;
 		FieldInstance fi = container.fieldNamed(X10FieldInstance.MAGIC_PROPERTY_NAME);
 		if (fi == null) return false;
@@ -190,7 +188,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		return sb.toString();
 	}
 	
-	public X10MethodInstance instantiateForThis(X10Type thisType ) {
+	public X10MethodInstance instantiateForThis(X10Type thisType ) throws SemanticException {
 		boolean needed = false;
 		X10Type retType = (X10Type) returnType();
 		X10Type newRetType = retType;
@@ -220,8 +218,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			if (rc!=null && rc.hasVar(THIS)) {
 				C_Var myVar = selfVar;
 				if (myVar == null) myVar = rc.genEQV(type, true); // not thisType for the args.
-				Constraint rc2 = rc.substitute(selfVar, THIS, false);
-				newType = type.makeVariant(rc2,null);
+				try {
+					Constraint rc2 = rc.substitute(myVar, THIS, false);
+					newType = type.makeVariant(rc2,null);
+				}
+				catch (Failure f) {
+					throw new SemanticException("Could not instantiate constraint " + rc + " on receiver type " + thisType + ".");
+				}
 			}
 			newFormalTypes.add(newType);
 		}
@@ -274,14 +277,26 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     		}
     		if (x[i]==null) 
     			x[i] = env.genEQV(type, false, false);
-    		env.internRecursively(y[i]); 
+    		try {
+    			env.internRecursively(y[i]); 
+    		}
+    		catch (Failure f) {
+    			// environment is inconsistent.
+    			return false;
+    		}
 	    }
 	    for (int i=0; result && (i < n); i++) {
     		Constraint query = formals.get(i).realClause();
     		if (query != null && ! query.valid()) {
-    			Constraint query2 = query.substitute(y,x, false);
-    			Constraint query3 = query2.substitute(y[i], C_Special_c.Self, false);
-    			result = env.entails(query3);
+    			try {
+    				Constraint query2 = query.substitute(y,x, false);
+    				Constraint query3 = query2.substitute(y[i], C_Special_c.Self, false);
+    				result = env.entails(query3);
+    			}
+    			catch (Failure f) {
+    				// Substitution introduces inconsistency.
+    				result = false;
+    			}
     		}
 	    }
 	    return result;
@@ -308,6 +323,11 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         }
 
         return ! (i1.hasNext() || i2.hasNext());
+    }
+
+    public String signature() {
+    	return name + "(" + X10TypeSystem_c.listToString(formalTypes) + 
+    	(whereClause != null ? ": " + whereClause.toString() : "") + ")";
     }
 	public String toString() {
 		String s = designator() + " " + flags + " " + returnType + " " +

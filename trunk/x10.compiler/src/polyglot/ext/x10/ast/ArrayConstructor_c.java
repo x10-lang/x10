@@ -21,12 +21,17 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.main.Report;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.ParsedClassType;
@@ -310,6 +315,8 @@ implements ArrayConstructor {
 		if (rank !=null) t.setRank(rank);
 		if (t.hasLocalProperty() && zeroBased && isRect && ((X10TypeSystem) t.typeSystem()).ONE().equals(rank)) 
 			t.setRail();
+		C_Var region = distType.region();
+		if (region != null) t.setRegion(region);
 		//Report.report(1, "t is now " + t);
 		return t;
 	}

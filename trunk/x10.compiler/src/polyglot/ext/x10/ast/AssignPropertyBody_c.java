@@ -1,6 +1,5 @@
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.types.X10ConstructorInstance;
-import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Field_c;
@@ -21,16 +19,11 @@ import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.TypeTranslator;
-import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.frontend.Job;
-import polyglot.parse.Name;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
-import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
 public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBody {
@@ -65,6 +58,10 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 		Constraint result = ci.constraint();
 		Constraint known = ci.supClause();
 		known = (known==null ? new Constraint_c(ts) : known.copy());
+		{
+			known.addIn(ci.whereClause());
+		}
+
 		List<Stmt> s = statements();
 		int len = s.size();
 		for (int i=0; i < len; i++) {

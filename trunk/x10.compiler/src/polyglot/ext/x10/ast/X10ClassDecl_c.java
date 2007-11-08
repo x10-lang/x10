@@ -28,13 +28,23 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ext.x10.extension.X10Ext;
+import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ParsedClassType_c;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.types.constr.C_Field_c;
+import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Promise;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.main.Report;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
@@ -105,6 +115,15 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
     
     public TypeNode classInvariant() {
     	return classInvariant;
+    }
+    
+    public X10ClassDecl classInvariant(TypeNode tn) {
+    	if (this.classInvariant == tn) {
+    		return this;
+    	}
+    	X10ClassDecl_c n = (X10ClassDecl_c) copy();
+    	n.classInvariant = tn;
+    	return n;
     }
     
     /**
@@ -202,9 +221,59 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
            }
            return super.enterChildScope(child, xc);
     }
+    
+    @Override
+    public Node visitChildren(NodeVisitor v) {
+    	Id name = (Id) visitChild(this.name, v);
+		TypeNode superClass = (TypeNode) visitChild(this.superClass, v);
+		List interfaces = visitList(this.interfaces, v);
+		TypeNode ci = (TypeNode) visitChild(this.classInvariant, v);
+		ClassBody body = (ClassBody) visitChild(this.body, v);
+		X10ClassDecl_c n = (X10ClassDecl_c) reconstruct(name, superClass, interfaces, body);
+		return n.classInvariant(ci);
+    }
+    public boolean isDisambiguated() {
+    	return super.isDisambiguated() && (classInvariant == null || classInvariant.isDisambiguated());
+    }
+    public boolean isTypeChecked() {
+    	return super.isTypeChecked() && (classInvariant == null || classInvariant.isTypeChecked());
+    }
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
+    	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
     	
+    	if (type instanceof X10ParsedClassType) {
+    		X10ParsedClassType xtype = (X10ParsedClassType) type;
+    		Constraint c = xtype.realClause();
+
+    		if (c != null) {
+    			X10ParsedClassType_c type = (X10ParsedClassType_c) this.type;
+
+    			FieldInstance fi = type.fieldNamed(X10FieldInstance.MAGIC_PROPERTY_NAME);
+
+    			if (fi != null) {
+    				String propertyNames = (String) fi.constantValue();
+    				for (Iterator i = type.getDefinedPropertiesFromClass(propertyNames).iterator(); i.hasNext(); ) {
+    					FieldInstance vi = (FieldInstance) i.next();
+
+    					X10Type newType = (X10Type) vi.type();
+    					// Fold in the where clause.
+    					Constraint dep = newType.depClause().copy();
+    					dep.addIn(c);
+
+    					C_Var var = new C_Field_c(vi, C_Special.Self);
+    					Promise p = dep.intern(var);
+    					Constraint_c.addSelfBinding(p.term(), dep, xts);
+
+    					if (! dep.consistent()) {
+    						throw new SemanticException("The type of the property is inconsistent with the constructor's dependent clause.", vi.position());
+    					}
+    				}
+    			}
+    		}
+    	}
+        
+		
     	if (this.type instanceof X10ParsedClassType) {
     		X10ParsedClassType xpType = (X10ParsedClassType) type;
     		xpType.checkRealClause();

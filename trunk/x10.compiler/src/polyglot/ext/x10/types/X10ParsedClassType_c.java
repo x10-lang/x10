@@ -307,7 +307,13 @@ implements X10ParsedClassType
 				Constraint result = rootType().realClause();
 				result = result==null? new Constraint_c((X10TypeSystem) ts) : result.copy();
 				if (depClause != null) {
-					result.addIn(depClause);
+					try {
+						result.addIn(depClause);
+					}
+					catch (Failure f) {
+						result.setInconsistent();
+						realClauseInvalid = new SemanticException("The dependent clause is inconsistent with respect to the class invariant and property constraints.", position());
+					}
 				}
 				realClause = result;
 				realClauseSet = true;
@@ -363,7 +369,7 @@ implements X10ParsedClassType
      * 
      * @return
      */
-	private void initRealClause()  {
+	private void initRealClause() {
 		// Force properties to be initialized.
 		assert (isRootType() && ! realClauseSet);
 		List<FieldInstance> properties = properties();
@@ -418,9 +424,15 @@ implements X10ParsedClassType
 		}
 		
 		// Now add all these collected bindings to the constraint.
-		realClause = new Constraint_c((X10TypeSystem) ts);
+		Constraint realClause = new Constraint_c((X10TypeSystem) ts);
 		if (! result.isEmpty()) {
-			realClause = realClause.addBindings(result);
+			try {
+				realClause = realClause.addBindings(result);
+			}
+			catch (Failure f) {
+				realClause.setInconsistent();
+				this.realClauseInvalid = new SemanticException("The class invariant and property constraints are inconsistent.", position());
+			}
 		}
 		if (aPropertyIsRecursive) {
 			//aPropertyIsRecursiveReport.report(1, "X10ParsedClassType_c: This type has a recursive property.");
@@ -430,7 +442,8 @@ implements X10ParsedClassType
 				FieldInstance fi =  it.next();
 				C_Var var = new C_Field_c(fi, C_Special.Self);
 				if (! realClause.entailsType(var)) {
-					realClauseInvalid = 
+					 this.realClause = realClause;
+					 this.realClauseInvalid = 
 					 new SemanticException("The real clause," + realClause 
 							+ " does not satisfy constraints from the property declaration " 
 							+ var.type() + " " + var + ".", position());
@@ -438,15 +451,26 @@ implements X10ParsedClassType
 			}
 		}
 		if (depClause !=null) {
-			realClause = realClause.addIn(depClause);
+			try {
+				realClause = realClause.addIn(depClause);
+			}
+			catch (Failure f) {
+				realClause.setInconsistent();
+				this.realClauseInvalid = new SemanticException("The dependent clause is inconsistent with respect to the class invariant and property constraints.", position());
+			}
 		}
-		realClauseSet = true;
+		this.realClause = realClause;
+		this.realClauseSet = true;
 	}
 	public void addBinding(C_Var t1, C_Var t2) {
 		ensureClauses();
-		depClause = depClause.addBinding(t1, t2);
-		realClause = realClause.addBinding(t1,t2);
-		//assert realClause.entails(depClause);
+		try {
+			depClause = depClause.addBinding(t1, t2);
+			realClause = realClause.addBinding(t1,t2);
+		}
+		catch (Failure f) {
+			throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+		}
 	}
 	public boolean isConstrained() { 
 		Constraint rc = realClause();
@@ -455,7 +479,13 @@ implements X10ParsedClassType
 	public void setDepGen(Constraint d, List<Type> l) {
 		depClause = d;
 		if (realClauseSet) {
-			realClause = realClause.addIn(d);
+			try {
+				realClause = realClause.addIn(d);
+			}
+			catch (Failure f) {
+				realClause.setInconsistent();
+				this.realClauseInvalid = new SemanticException("The dependent clause is inconsistent with respect to the class invariant and property constraints.", position());
+			}
 		}
 		typeParameters = l;
 	}
@@ -479,7 +509,15 @@ implements X10ParsedClassType
 		n.depClause = d;
 //		 do not set realClause, but if it is already set, then make sure you add d.
 		if (((X10ParsedClassType_c) n.rootType).realClauseSet) {
-			n.realClause = n.rootType.realClause().copy().addIn(n.depClause);
+			n.realClause = n.rootType.realClause().copy();
+			try {
+				n.realClause = n.realClause.addIn(n.depClause);
+			}
+			catch (Failure f) {
+				n.realClause.setInconsistent();
+				n.realClauseInvalid = new SemanticException("The dependent clause is inconsistent with respect to the class invariant and property constraints.", n.position());
+				n.realClauseSet = true;
+			}
 		}
 		
 //		 hack, forced by decision to explicitly represent dist/region/array type logic.
@@ -497,8 +535,15 @@ implements X10ParsedClassType
 		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
 		
 		n.depClause = d;
-		n.realClause = n.rootType.realClause().copy().addIn(n.depClause);
-		n.realClauseSet = true;
+		n.realClause = n.rootType.realClause().copy();
+		try {
+			n.realClause = n.realClause.addIn(n.depClause);
+		}
+		catch (Failure f) {
+			n.realClause.setInconsistent();
+			n.realClauseInvalid = new SemanticException("The dependent clause is inconsistent with respect to the class invariant and property constraints.", n.position());
+			n.realClauseSet = true;
+		}
 	
 		// hack, forced by decision to explicitly represent dist/region/array type logic.
 		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
@@ -794,16 +839,19 @@ implements X10ParsedClassType
 			sb.append("\t").append(trace[i]).append("\n");
 		return sb.toString();
 	}
-	public String toStringForDisplay() { 
+	public String toStringForDisplay(boolean includeClause) { 
 		String clause = null;
 		if (realClause != null && ! realClause.valid()) {
 			clause = realClause.toString();
 		}
 		
 		return  
-		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toString())
-		+ (isParametric() ?  typeParameters.toString() : "") 
-		+ (clause==null? "" : clause);
+		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toStringForDisplay(false))
+		+ (includeClause && isParametric() ?  typeParameters.toString() : "") 
+		+ (includeClause && clause!=null? clause : "");
+	}
+	public String toStringForDisplay() { 
+                return toStringForDisplay(true);
 	}
 	
 	
@@ -913,8 +961,13 @@ implements X10ParsedClassType
 		result = ((X10ParsedClassType_c) makeNoClauseVariant()).superIsCastValidImpl(other.makeNoClauseVariant());
 		if (!result ) return result;
 		Constraint r = realClause().copy();
-		r.addIn(other.realClause());
-		result = r.consistent();
+		try {
+			r.addIn(other.realClause());
+			result = r.consistent();
+		}
+		catch (Failure e) {
+			return false;
+		}
 		return result;
 	}
 	boolean superIsCastValidImpl(Type toType) {
@@ -1174,6 +1227,35 @@ implements X10ParsedClassType
 	public boolean isRankThree() {
 		return ((X10TypeSystem) typeSystem()).THREE().equals(rank());
 	}
+	boolean isRegionSet;
+	C_Var region;
+	public C_Var region() {
+		if (isRegionSet) return region;
+		
+		Constraint c = realClause();
+		if (c == null)
+			return region = null;
+		region = c.find("region");
+		if (region == null) {
+			// build the synthetic term.
+			C_Var var = c.selfVar();
+			if (var !=null) {
+				FieldInstance fi = definedFieldNamed("region");
+				if (fi != null)
+					region = new C_Field_c(fi, var);
+			}
+		}
+		isRegionSet = true;
+		//Report.report(1, "X1ParsedClassType region is " + region);
+		C_Var result = region;
+		return result;
+	}
+	public void setRegion(C_Var region) {
+		setProperty("region", region);
+		isRegionSet=true;
+		this.region = region;
+	}
+	
 	boolean isDistSet;
 	C_Var dist;
 	public C_Var distribution() {
@@ -1193,7 +1275,7 @@ implements X10ParsedClassType
 			}
 		}
 		isDistSet = true;
-		//Report.report(1, "X1ParsedClassType dist is " + rank);
+		//Report.report(1, "X1ParsedClassType dist is " + dist);
 		C_Var result = dist;
 		return result;
 	}
@@ -1249,16 +1331,20 @@ implements X10ParsedClassType
 	 */
 	public void transferRegionProperties(X10ParsedClassType arg) {
 		C_Var rank = arg.rank();
-		acceptRegionProperties(rank, arg.isZeroBased(), arg.isRect(), arg.isRail());
+		C_Var region = arg.region();
+		if (region == null && ((X10TypeSystem) ts).isRegion(arg))
+			region = arg.self();
+		acceptRegionProperties(region, rank, arg.isZeroBased(), arg.isRect(), arg.isRail());
 	}
-	public void acceptRegionProperties(C_Var rank, boolean isZeroBased, boolean isRect, boolean isRail) {
+	public void acceptRegionProperties(C_Var region, C_Var rank, boolean isZeroBased, boolean isRect, boolean isRail) {
+		if (region != null) setRegion(region);
 		if (rank != null) setRank(rank);
 		if (isZeroBased) setZeroBased();
 		if (isRect) setRect();
 		if (isRail) setRail();
 	}
 	public void setZeroBasedRectRankOne() {
-		acceptRegionProperties(((X10TypeSystem) typeSystem()).ONE(), true, true, true);
+		acceptRegionProperties(region, ((X10TypeSystem) typeSystem()).ONE(), true, true, true);
 	}
 	/** Set the value of this property on the constraints of this type. Should be called
 	 * only within code that is transferring properties to this type from 

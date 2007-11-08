@@ -34,6 +34,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
+import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term_c;
 import polyglot.ast.TypeNode;
@@ -102,6 +103,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10Instanceof_c c) {
 		// [IP] FIXME: process type correctly
 		visit((Node) c);
+	}
+
+	public void visit(Special_c n) {
+		polyglot.types.Context c = tr.context();
+		if (((X10Translator) tr).inInnerClass() && n.qualifier() == null) {
+			printType(n.type());
+			w.write(".");
+		}
+
+		visit((Node) n);
 	}
 
 	public void visit(RemoteCall_c c) {
@@ -176,9 +187,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Closure_c n) {
-	    new Template("closure", new Object[] {
+		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+		new Template("closure", new Object[] {
 		    n.returnType(), new Join("\n", n.formals()), n.body()
-	    }).expand();
+	    }).expand(tr2);
 	}
 
 	public void visit(Binary_c binary) {
@@ -278,10 +290,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Async_c a) {
+		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		new Template("Async",
 					 a.place(),
 					 processClocks(a),
-					 a.body()).expand();
+					 a.body()).expand(tr2);
 	}
 
 	public void visit(Atomic_c a) {
@@ -301,7 +314,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Future_c f) {
-		new Template("Future", f.place(), f.stmt(), f.body()).expand();
+		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+		new Template("Future", f.place(), f.stmt(), f.body()).expand(tr2);
 	}
 
 	public void visit(ForLoop_c f) {
@@ -369,6 +383,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	private void processClockedLoop(String template, X10ClockedLoop l) {
+		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		new Template(template,
 					 new Object[] {
 						 l.formal().flags().translate(),
@@ -378,7 +393,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						 new Join("\n", new Join("\n", l.locals()), l.body()),
 						 processClocks(l),
 						 new Join("\n", l.locals())
-					 }).expand();
+					 }).expand(tr2);
 	}
 
 	public void visit(ForEach_c f) {
@@ -391,7 +406,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Now_c n) {
-		new Template("Now", n.clock(), n.body()).expand();
+		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+		new Template("Now", n.clock(), n.body()).expand(tr2);
 	}
 
 	/*
@@ -504,6 +520,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//Report.report(1, "GOLDEN: X10PrettyPrintVisitor type is " + type + "runtimeName is " + runtimeName);
 		// End typs-driven dispatch.s
 		Object init = (a.initializer() instanceof Closure) ? handleArrayInitClosure((Closure_c) a.initializer()) : a.initializer();
+		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		String tmpl = Configuration.ARRAY_OPTIMIZATIONS ?
 				"array_specialized_init" : "array_new_init";
 		new Template(tmpl,
@@ -514,7 +531,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						 new Boolean(a.isSafe()),
 						 new Boolean(!a.isValue()),
 						 new Boolean(refs_to_values)
-					 }).expand();
+					 }).expand(tr2);
 	}
 
 	private TypeNode getParameterType(X10Type at) {
@@ -916,9 +933,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	 *
 	 * @param o object to print
 	 */
-	private void prettyPrint(Object o) {
+	private void prettyPrint(Object o, Translator tr) {
 		if (o instanceof Expander) {
-			((Expander) o).expand();
+			((Expander) o).expand(tr);
 		} else if (o instanceof Node) {
 			((Node) o).del().translate(w, tr);
 		} else if (o instanceof Type) {
@@ -934,7 +951,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	 * @param id xcd filename for the template
 	 * @param components arguments to the template.
 	 */
-	private void dump(String id, Object[] components) {
+	private void dump(String id, Object[] components, Translator tr) {
 		String regex = translate(id);
 		int len = regex.length();
 		int pos = 0;
@@ -953,7 +970,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				start = pos+1;
 				if (idx.intValue() >= components.length)
 					throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
-				prettyPrint(components[idx.intValue()]);
+				prettyPrint(components[idx.intValue()], tr);
 			}
 			pos++;
 		}
@@ -963,7 +980,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	/**
 	 * An abstract class for sub-template expansion.
 	 */
-	public abstract class Expander { public abstract void expand(); }
+	public abstract class Expander {
+		public void expand() {
+			expand(X10PrettyPrinterVisitor.this.tr);
+		}
+
+		public abstract void expand(Translator tr);
+	}
 
 	/**
 	 * Expand a given template with the given set of arguments.
@@ -993,7 +1016,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			this.args = args;
 		}
 		public void expand() {
-			dump(id, args);
+			expand(X10PrettyPrinterVisitor.this.tr);
+		}
+		public void expand(Translator tr) {
+			dump(id, args, tr);
 		}
 	}
 
@@ -1054,7 +1080,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				assert(lists[i].size() == n || lists[i].size() == -1);
 			this.N = n;
 		}
-		public void expand() {
+		public void expand(Translator tr) {
 			w.write("/* Loop: { */");
 			Object[] args = new Object[lists.length];
 			Iterator[] iters = new Iterator[lists.length];
@@ -1064,7 +1090,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < args.length; j++)
 					args[j] = iters[j].next();
-				dump(id, args);
+				dump(id, args, tr);
 			}
 			w.write("/* } */");
 		}
@@ -1095,13 +1121,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			this.delimiter = delimiter;
 			this.args = args;
 		}
-		public void expand() {
+		public void expand(Translator tr) {
 			w.write("/* Join: { */");
 			int N = args.size();
 			for (Iterator i = args.iterator(); i.hasNext(); ) {
-				prettyPrint(i.next());
+				prettyPrint(i.next(), tr);
 				if (i.hasNext())
-					prettyPrint(delimiter);
+					prettyPrint(delimiter, tr);
 			}
 			w.write("/* } */");
 		}

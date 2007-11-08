@@ -22,12 +22,20 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Field_c;
+import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
@@ -69,6 +77,7 @@ public class X10Call_c extends Call_c {
         try {
             Context c = tc.context();
             X10Call_c result = (X10Call_c) super.typeCheck(tc);
+    		result = (X10Call_c) result.methodInstance((X10MethodInstance) result.methodInstance().copy());
             // If we found a method, the call must type check, so no need to check
             // the arguments here.
             result.checkConsistency(c);
@@ -76,6 +85,7 @@ public class X10Call_c extends Call_c {
         		return result;
         	}
         	result = result.adjustMI(tc);
+        	result.checkWhereClause(tc);
         	result.checkAnnotations(tc);
         	Expr r = result.setDeptypeForBuiltInCalls(xts);
         	
@@ -187,7 +197,17 @@ public class X10Call_c extends Call_c {
     	else if (xts.isRegion(target.type()) && name().equals("toDistribution") && argSize == 0) {
     		X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
 			rType.transferRegionProperties((X10ParsedClassType) target.type());
-    		return type(rType);
+//			try {
+//				C_Term targetTerm = new TypeTranslator(xts).trans(target);
+//				if (targetTerm instanceof C_Var) {
+//					FieldInstance fi = xts.findField(xts.distribution(), "region");
+//					rType.addBinding(new C_Field_c(fi, C_Special.Self), (C_Var) targetTerm);
+//				}
+//			}
+//			catch (Exception e) {
+//				System.out.println(e.getMessage());
+//			}
+			return type(rType);
     	}
     	else if (xts.isX10Array(target.type()) && name().equals("local") && argSize == 0) {
     		X10ParsedClassType rType = ((X10ParsedClassType) type).makeVariant();
@@ -217,7 +237,21 @@ public class X10Call_c extends Call_c {
     	if (retType != type) {
     		mi.setReturnType(retType);
     	}
+    	if (xmi.whereClause() != null) {
+    		Constraint where = X10New_c.instantiateConstraint(xmi.whereClause(), target, arguments);
+    		xmi.setWhereClause(where);
+    	}
     	return (X10Call_c) this.type(retType);
+    }
+    private void checkWhereClause(TypeChecker tc) throws SemanticException {
+    	X10Context c = (X10Context) tc.context();
+    	X10MethodInstance mi = (X10MethodInstance) methodInstance();
+    	if (mi !=null) {
+    		Constraint where = mi.whereClause();
+    		if (where != null && ! where.consistent()) {
+    			throw new SemanticException(mi + ": Method's dependent clause not satisfied by caller.", position());
+    		}
+    	}
     }
     private void checkAnnotations(TypeChecker tc) throws SemanticException {
     	X10Context c = (X10Context) tc.context();

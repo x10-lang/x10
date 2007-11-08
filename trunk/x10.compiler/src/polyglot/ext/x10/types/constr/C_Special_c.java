@@ -19,7 +19,7 @@ public class C_Special_c extends C_Var_c implements C_Special {
 	public final C_Kind kind;
 	
 	public C_Special_c(X10Special t) {
-		super(t.type(), t.kind().equals(Special.THIS), t.kind().equals(Special.SUPER));
+		super(t.type(), t.kind().equals(Special.THIS), t.kind().equals(X10Special.SELF));
 		kind= C_Special.C_Kind.trans(t.kind());
 		TypeNode tn = t.qualifier();
 		qualifier = tn==null? null : tn.type();
@@ -32,7 +32,7 @@ public class C_Special_c extends C_Var_c implements C_Special {
 	}
 	
 	public C_Special_c(Type t, Type qualifier, C_Kind kind) {
-		super(t, kind == THIS, kind == SUPER);
+		super(t, kind == THIS, kind == SELF);
 		this.qualifier = qualifier;
 		this.kind = kind;
 	}

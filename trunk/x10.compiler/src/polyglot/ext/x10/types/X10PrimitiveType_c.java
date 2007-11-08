@@ -33,6 +33,7 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.ext.x10.types.constr.Promise;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
@@ -41,6 +42,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 
 /** X10 has no primitive types. Types such as int etc are all value class types. 
  * However, this particular X10 implementation uses Java primitive types to implement some of
@@ -117,7 +119,12 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
 			depClause = new Constraint_c((X10TypeSystem) ts);
-		depClause = depClause.addBinding(t1, t2);
+		try {
+			depClause = depClause.addBinding(t1, t2);
+		}
+		catch (Failure f) {
+			throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+		}
 	}
 	public boolean consistent() {
 		return depClause== null || depClause.consistent();
@@ -331,7 +338,14 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			if (result==false) return result;
 			C_Special self = new C_Special_c(X10Special.SELF, tb);
 			C_Lit val = new C_Lit_c(value, tb);
-			Constraint c = Constraint_c.makeBinding(self, val, ts);
+			Constraint c;
+			try {
+				c = Constraint_c.makeBinding(self, val, ts);
+			}
+			catch (Failure f) {
+				// Adding binding makes real clause inconsistent.
+				return result;
+			}
 			result = ts.entailsClause(xme.realClause(), c);
 			return result;
 		} finally {

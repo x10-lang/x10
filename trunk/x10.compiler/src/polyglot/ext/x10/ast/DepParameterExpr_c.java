@@ -147,7 +147,7 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         Type t = condition.type();
         
         if (! t.isBoolean())
-        	throw new SemanticError("The type of the depclause, "+ condition 
+        	throw new SemanticError("The type of the dependent clause, "+ condition 
         			+ ", must be boolean and not " + t + ".", position());
         return type(t);
     }

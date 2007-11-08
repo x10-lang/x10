@@ -103,6 +103,10 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements
 		this.returnType = returnType;
 	}
 	
+	public boolean isCanonical() {
+		return super.isCanonical() && returnType.isCanonical();
+	}
+
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.types.X10ConstructorInstance#depClause()
 	 */
@@ -112,10 +116,18 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements
 		
 		}
 	public X10Type returnType() { return this.returnType;}
+	
+	/** Constraint on superclass constructor call return type. */
 	protected Constraint supClause;
 	public Constraint supClause() { return supClause; }
 	public void setSupClause(Constraint s) { 
 		this.supClause = s; 
+	}
+	/** Constraint on formal parameters. */
+	protected Constraint whereClause;
+	public Constraint whereClause() { return whereClause; }
+	public void setWhereClause(Constraint s) { 
+		this.whereClause = s; 
 	}
 	
 	public boolean callValidImplNoClauses(List argTypes) {
@@ -127,6 +139,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements
 	}
 	  public String signature() {
 	        return ((returnType != null) ? returnType.toString() : container.toString())
-	        + "(" + X10TypeSystem_c.listToString(formalTypes) + ")";
+	        + "(" + X10TypeSystem_c.listToString(formalTypes) + 
+	        (whereClause != null ? ": " + whereClause.toString() : "") + ")";
 	    }
 }

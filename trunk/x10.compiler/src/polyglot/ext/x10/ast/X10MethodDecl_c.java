@@ -21,10 +21,19 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ext.x10.extension.X10Ext;
+import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10ProcedureInstance;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Promise;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.Flags;
@@ -37,6 +46,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
@@ -50,7 +60,7 @@ import polyglot.visit.TypeChecker;
 public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     // The representation of this( DepParameterExpr ) in the production.
     DepParameterExpr thisClause;
-    // The reprsentation of the : Constraint in the parameter list.
+    // The representation of the : Constraint in the parameter list.
     Expr whereClause;
      /*   public X10MethodDecl_c(Position pos, 
                 Flags flags, TypeNode returnType,
@@ -65,8 +75,30 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
    
 }
         
+        /** Visit the children of the method. */
+        public Node visitChildren(NodeVisitor v) {
+        	X10MethodDecl_c result = (X10MethodDecl_c) super.visitChildren(v);
+        	DepParameterExpr thisClause = (DepParameterExpr) visitChild(result.thisClause, v);
+        	if (thisClause != result.thisClause)
+        		result = (X10MethodDecl_c) result.thisClause(thisClause);
+        	Expr whereClause = (Expr) visitChild(result.whereClause, v);
+        	if (whereClause != result.whereClause)
+        		result = (X10MethodDecl_c) result.whereClause(whereClause);
+        	return result;
+        }
+        
         public DepParameterExpr thisClause() { return thisClause; }
+        public X10MethodDecl thisClause(DepParameterExpr e) {
+        	X10MethodDecl_c n = (X10MethodDecl_c) copy();
+        	n.thisClause = e;
+        	return n;
+        }
         public Expr whereClause() { return whereClause; }
+        public X10MethodDecl whereClause(Expr e) {
+        	X10MethodDecl_c n = (X10MethodDecl_c) copy();
+        	n.whereClause = e;
+        	return n;
+        }
         
         protected boolean listIsDisambiguated(List l) {
         	for (Iterator i = l.iterator(); i.hasNext(); ) {
@@ -163,19 +195,30 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	this.flags = X10Flags.toX10Flags(flags);
         	super.translate(w, tr);
         }
-     
+        
         public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
-        	MethodDecl nn = this;
-            MethodDecl old = nn;
+        	X10MethodDecl nn = this;
+            X10MethodDecl old = nn;
+
+            X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
             
-            // Step I. Typecheck the formal arguments.
-            int n = formals.size();
-            List nnFormals = nn.formals();
+            // Step I.a.  Check the where clause.
+            if (whereClause != null) {
+            	TypeChecker childtc3 = (TypeChecker) tc.enter(parent, nn);
+            	Expr w = (Expr) nn.visitChild(whereClause, childtc3);
+            	if (childtc3.hasErrors()) throw new SemanticException();
+            	nn = nn.whereClause(w);
+            	if (! w.isTypeChecked()) {
+            		return nn;
+            	}
+            	Constraint c = new TypeTranslator(xts).constraint(w);
+            	((X10MethodInstance) nn.methodInstance()).setWhereClause(c);
+            }
             
-        	TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
+            TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
         	// First, record the final status of each of the formals.
-        	List<Formal> processedFormals = nn.visitList(nnFormals,childtc);
-            nn = nn.formals(processedFormals);
+        	List<Formal> processedFormals = nn.visitList(nn.formals(), childtc);
+            nn = (X10MethodDecl) nn.formals(processedFormals);
             // Now build the new formal arg list.
             // TODO: Add a marker to the TypeChecker which records
             // whether in fact it changed the type of any formal.
@@ -184,15 +227,53 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             	List<Formal> formals = nn.formals();
             	
             	//List newFormals = new ArrayList(formals.size());
-            	List<Type> formalTypes = new ArrayList<Type>(n);
-            	
-            	for (int i=0; i < n; i++) {
-            		formalTypes.add(formals.get(i).type().type());
+            	List<Type> formalTypes = new ArrayList<Type>(formals.size());
+
+            	X10ProcedureInstance pi = (X10ProcedureInstance) nn.methodInstance();
+            	Constraint c = pi.whereClause();
+                if (c != null)
+                    c = c.copy();
+    			
+            	for (Iterator<Formal> it = formals.iterator(); it.hasNext(); ) {
+            		Formal n =  it.next();
+            		X10Type newType = (X10Type) n.type().type();
+            		
+            		if (c != null) {
+            			// Fold the formal's constraint into the where clause.
+            			C_Var var = new TypeTranslator(xts).trans(n.localInstance());
+            			Constraint dep = newType.depClause().copy();
+            			Promise p = dep.intern(var);
+            			dep = dep.substitute(p.term(), C_Special.Self);
+            			c.addIn(dep);
+            		}
+            		
+            		//LocalInstance li = n.localInstance().type(newType);
+            		//newFormals.add(n.localInstance(li));
+            		formalTypes.add(newType);
             	}
+
             	nn.methodInstance().setFormalTypes(formalTypes);
             	 // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
+
+            	// Fold this's constraint (the class invariant) into the where clause.
+            	{
+            		X10Type t = (X10Type) tc.context().currentClass();
+            		if (c != null && t.depClause() != null) {
+            			Constraint dep = t.depClause().copy();
+            			Promise p = dep.intern(C_Special.This);
+            			dep = dep.substitute(p.term(), C_Special.Self);
+            			c.addIn(dep);
+            		}
+            	}
+
+            	// Check if the where clause is consistent.
+            	if (c != null && ! c.consistent()) {
+            		throw new SemanticException("The method's dependent clause is inconsistent.",
+            				 whereClause != null ? whereClause.position() : position());
+            	}
             }
- 
+
+
             // Step II. Check the return tpe. 
             // Now visit the returntype to ensure that its depclause, if any is processed.
             // Visit the formals so that they get added to the scope .. the return type
@@ -205,7 +286,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	nn.visitList(nn.formals(),childtc1);
         	(( X10Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
         	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
-            nn = nn.returnType(r);
+            nn = (X10MethodDecl) nn.returnType(r);
             final Type rt = r.type();
             if (childtc1.hasErrors()) throw new SemanticException(); 
             if (! rt.isCanonical()) {
@@ -223,9 +304,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
            	nn.visitList(nn.formals(),childtc2);
            	//Report.report(1, "X10MethodDecl_c: after visiting formals " + childtc2.context());
            	// Now process the body.
-            nn = (MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
+            nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
             if (childtc2.hasErrors()) throw new SemanticException();
-            nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
+            nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
             
             return nn;
         }

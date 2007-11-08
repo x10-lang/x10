@@ -41,7 +41,6 @@ import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.ext.x10.visit.X10MLVerifier;
-import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Compiler;
@@ -243,9 +242,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	   public Goal CastRewritten(final Job job) {
 		   return CastRewritten.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
 	   }
-	   public Goal X10Qualified(final Job job) {
-		   return X10Qualified.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
-	   }
 	   public Goal X10Expanded(final Job job) {
 		   return X10Expanded.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
 	   }
@@ -406,7 +402,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		l.add(x10Sched.X10Boxed(job));
     		l.add(x10Sched.X10Casted(job));    		
     	//	l.add(x10Sched.X10ExprFlattened(job));
-    		l.add(x10Sched.X10Qualified(job));
     		l.add(x10Sched.TypeElaborated(job));
     		l.add(x10Sched.X10Expanded(job));
     		l.add(x10Sched.PropertyAssignmentsChecked(job));
@@ -719,26 +714,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		return l;
     	}
     	
-    }
-
-    static class X10Qualified extends VisitorGoal {
-    	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
-    		return scheduler.internGoal(new X10Qualified(job, ts, nf));
-    	}
-    	private X10Qualified(Job job, TypeSystem ts, NodeFactory nf) {
-    		super(job, new X10Qualifier(job, ts, nf));
-    	}
-    	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		List<Goal> l = new ArrayList<Goal>();
-    		l.add(scheduler.TypeChecked(job));
-    		l.add(scheduler.ConstantsChecked(job));
-    		l.addAll(super.prerequisiteGoals(scheduler));
-    		return l;
-    	}
-    	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
-//  		System.out.println("Creating pass for X10Qualified goal...");
-    		return super.createPass(extInfo);
-    	}
     }
 
     static class X10Expanded extends VisitorGoal {

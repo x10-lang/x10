@@ -84,18 +84,21 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inSequentialCode;
 	protected boolean inLocalCode;
 	protected boolean inNonBlockingCode;
+	protected boolean inLoopHeader;
 	protected boolean inAnnotation;
-
+	
 	public boolean inSafeCode() { return inSafeCode; }
 	public boolean inSequentialCode() { return inSequentialCode; }
 	public boolean inNonBlockingCode() { return inNonBlockingCode; }
 	public boolean inLocalCode() { return inLocalCode; }
+	public boolean inLoopHeader() { return inLoopHeader; }
 	public boolean inAnnotation() { return inAnnotation; }
 
 	public void setSafeCode() { inSafeCode = true; }
 	public void setSequentialCode() { inSequentialCode = true; }
 	public void setNonBlockingCode() { inNonBlockingCode = true; }
 	public void setLocalCode() { inLocalCode = true; }
+	public void setLoopHeader() { inLoopHeader = true; }
 	public void setAnnotation() { inAnnotation = true; }
 	public void clearAnnotation() { inAnnotation = false; }
 
@@ -142,7 +145,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	public LocalInstance findLocal(String name) throws SemanticException {
 		return depType == null ? super.findLocal(name) : pop().findLocal(name);
 	}
-
+	
 	public ClassType type() { return type; }
 
 	/**
