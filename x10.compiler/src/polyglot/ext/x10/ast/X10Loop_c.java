@@ -27,10 +27,13 @@ import polyglot.ast.Stmt_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Context;
+import polyglot.types.Flags;
+import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 /**
@@ -196,5 +199,25 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	}
 
 	public Expr cond() { return null; }
+	
+	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+		X10Loop n = (X10Loop) super.buildTypes(tb);
+		
+		// Set the final flag on all formals introduced in the loop.
+		Formal f = (Formal) n.formal().visit(new NodeVisitor() {
+			public Node leave(Node old, Node n, NodeVisitor v) {
+				if (n instanceof Formal) {
+					Formal f = (Formal) n;
+					LocalInstance li = f.localInstance();
+					Flags flags = f.flags();
+					flags = flags.Final();
+					li.setFlags(flags);
+					return f.flags(flags).localInstance(li);
+				}
+				return n;
+			}
+		});
+		return n.formal(f);
+	}
 }
 
