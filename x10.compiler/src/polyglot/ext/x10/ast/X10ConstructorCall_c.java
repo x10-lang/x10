@@ -52,7 +52,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c {
 			X10Type type = (X10Type) ci.returnType();
 			
 			
-			// Now construct from this generic return type the instance obtained by subtituting 
+			// Now construct from this generic return type the instance obtained by substituting 
 			// the actual parameters for the formals.
 			X10Type retType = X10New_c.instantiateType(type, arguments);
 			Constraint c = retType.realClause();
