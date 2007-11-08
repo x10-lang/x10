@@ -147,10 +147,10 @@ checkUsage() {
 # Also perform simple checks before running script.
 
   checkGNU egrep
-  checkGNU xargs
   if [ "`uname -s`" != Darwin ]; then
     # MacOSX's find and sed are BSD, not GNU.  They're mostly compatible,
     # but be careful!
+    checkGNU xargs
     checkGNU find
     checkGNU sed
   fi
@@ -440,7 +440,7 @@ runWithTimeLimit() {
   # as a whole
   "$MYDIR"/newpgrp "$cmd" >> $tmpFile 2>&1 &    #main job
   local pidMain=$!   #remember pid of main job
-  "$MYDIR"/newpgrp "sleep $maxsec; /usr/bin/kill -9 -$pidMain" &> /dev/null & #timer job
+  "$MYDIR"/newpgrp "sleep $maxsec; kill -9 -$pidMain" &> /dev/null & #timer job
   local pidTimer=$!  #remember pid of timer job
   wait $pidMain      # wait until main job finishes,
                      # either normally or through the timer
@@ -451,10 +451,11 @@ runWithTimeLimit() {
     echo "++++++ Got killed by signal $temp"      >> logDetail.$tdir.$className
     echo "++++++ Time limit was $maxsec seconds"  >> logDetail.$tdir.$className
   fi
-  /usr/bin/kill -9 -$pidTimer &> /dev/null #kill the timer job
+  kill -9 -$pidTimer &> /dev/null #kill the timer job
+  wait $pidTimer      #wait for the timer job
   correctExitCode "$mustFindPat" "$mustNotFindPat" "$rcMain" "$tmpFile"
   local rcMain2=$?
-  cat $tmpFile | uniq -c | awk '{t=8;n=substr($0,1,t);gsub(/ /, "", n);if(n>3){print substr($0,t+1)"\n...["(n-2)" identical lines]\n"substr($0,t+1)}else{for(i=0;i<n;i++)print substr($0,t+1)}}' >> logDetail.$tdir.$className
+  cat $tmpFile | uniq -c | /usr/bin/perl -e 'while(<>){chomp;if (/^\s*(\d+)\s(.*)$/) { ($n,$s) = ($1,$2); } if($n>3){print "$s\n...[",($n-2)," identical lines]\n$s\n"}else{print "$s\n" x $n}}' >> logDetail.$tdir.$className
   rm -f $tmpFile
   return  $rcMain2    #return (possibly corrected) exit code of main job
 
