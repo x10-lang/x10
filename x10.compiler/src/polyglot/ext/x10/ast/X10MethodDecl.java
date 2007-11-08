@@ -8,4 +8,5 @@ public interface X10MethodDecl extends MethodDecl {
     DepParameterExpr thisClause();
     // The reprsentation of the : Constraint in the parameter list.
     Expr whereClause();
+    X10MethodDecl whereClause(Expr e);
 }

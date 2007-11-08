@@ -10,6 +10,8 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
+
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
@@ -20,6 +22,8 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.types.X10UnknownType_c;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
@@ -127,6 +131,22 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 		assert baseType !=null;
 		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
 		X10Type resultType = ts.createNullableType(position(), baseType);
+		
+		try {
+			DepParameterExpr dep = dep();
+
+			if (dep != null) {
+				TypeTranslator eval = ts.typeTranslator();
+				Constraint newParameter = eval.constraint(dep.condition());
+				resultType = resultType.makeVariant(newParameter, Collections.EMPTY_LIST); // baseType.makeVariant(newParameter, typeParameters);
+				NullableNode_c n = (NullableNode_c) type(resultType);
+				n = (NullableNode_c) n.dep(null, null);
+				return n;
+			}
+		}
+		catch (SemanticException e) {
+		}
+        
 		return (NullableNode_c) type(resultType);
 	}
 	/**

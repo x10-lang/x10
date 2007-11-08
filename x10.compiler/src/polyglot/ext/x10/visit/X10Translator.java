@@ -24,7 +24,10 @@ import polyglot.visit.Translator;
 public class X10Translator extends Translator {
     public X10Translator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
            super(job, ts, nf, tf);
+           inInnerClass = false;
     }
+    
+    boolean inInnerClass;
 
     public void print(Node parent, Node n, CodeWriter w) {
         if (n != null && n.position().line() > 0 &&
@@ -37,4 +40,16 @@ public class X10Translator extends Translator {
 
         super.print(parent, n, w);
     }
+
+
+	public boolean inInnerClass() {
+		return inInnerClass;
+	}
+
+	public X10Translator inInnerClass(boolean inInnerClass) {
+		if (inInnerClass == this.inInnerClass) return this;
+		X10Translator tr = (X10Translator) copy();
+		tr.inInnerClass = inInnerClass;
+		return tr;
+	}
 }

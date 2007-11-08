@@ -19,11 +19,13 @@ import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.types.LocalInstance_c;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 /**
@@ -102,9 +104,14 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
 		boolean changed = false;
 		if ( flags().isFinal()) {
 			X10Type t = (X10Type) type();
-			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(this), t.depClause(), (X10TypeSystem) ts);
-			X10Type newType = t.makeVariant(c,t.typeParameters());
-			setType(newType);
+			try {
+				Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(this), t.depClause(), (X10TypeSystem) ts);
+				X10Type newType = t.makeVariant(c,t.typeParameters());
+				setType(newType);
+			}
+			catch (Failure f) {
+				throw new InternalCompilerError("Could not add self binding.", f);
+			}
 			changed = true;
 		}
 		return changed;

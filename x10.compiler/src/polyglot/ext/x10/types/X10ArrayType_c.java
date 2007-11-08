@@ -12,25 +12,21 @@ package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import polyglot.types.ArrayType_c;
-import polyglot.ast.Expr;
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.frontend.MissingDependencyException;
+import polyglot.ext.x10.types.constr.Failure;
+import polyglot.types.ArrayType_c;
 import polyglot.types.Named;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 /** This is simply the X10 representation for a Java ([]) array.
@@ -85,7 +81,12 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
 			depClause = new Constraint_c((X10TypeSystem) ts);
-		depClause = depClause.addBinding(t1, t2);
+		try {
+			depClause = depClause.addBinding(t1, t2);
+		}
+		catch (Failure f) {
+			throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+		}
 	}
 	public boolean consistent() {
 		return depClause== null || depClause.consistent();

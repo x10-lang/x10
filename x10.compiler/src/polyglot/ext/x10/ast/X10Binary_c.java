@@ -260,8 +260,13 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			if (rank != null) type.setRank(rank);
 			if (xts.isPlace(r) && r instanceof Here) 
 				type.setOnePlace(xts.here());
-			if (TypeTranslator.isPureTerm(right))
-					type.setDistribution((C_Var)TypeTranslator.translate(right, xts));
+			if (TypeTranslator.isPureTerm(right)) {
+                                C_Var v = (C_Var)TypeTranslator.translate(right, xts);
+				if (xts.isDistribution(r))
+					type.setDistribution(v);
+				if (xts.isRegion(r))
+					type.setRegion(v);
+			}
 			
 			Expr result = type(type);
 			//Report.report(1, "X10Binary_c: returning " + result + " of type " + result.type());
@@ -372,7 +377,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 					right + " (of type " + r + ") has distribution " + rDist + "; these must be equal.");
 		}
 		
-		result.setRank(lDist);
+		result.setDistribution(lDist);
 		//Report.report(1, "X10Binary_c: exiting lRank=" + lRank + " rRank=" + rRank);
 		return result;
 	}

@@ -9,10 +9,11 @@ package polyglot.ext.x10.types.constr;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import polyglot.types.LocalInstance_c;
@@ -22,6 +23,7 @@ import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.Receiver;
 import polyglot.ext.x10.ast.Here;
+import polyglot.ext.x10.ast.SemanticError;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10LocalInstance_c;
@@ -52,7 +54,7 @@ public class Constraint_c implements Constraint, Cloneable {
 
 	//Maps C_Var's to nodes.
 	protected HashMap<C_Var,Promise> roots;
-	public HashMap<C_Var,Promise> roots() { return roots;}
+	public HashMap<C_Var, Promise> roots() { return roots; }
 	
 	// Map from variables to values for negative bindings.
 	// protected Map negBindings;
@@ -97,12 +99,27 @@ public class Constraint_c implements Constraint, Cloneable {
 	 * */
 	
 	public Constraint copy() {
-		return copyInto(new Constraint_c(typeSystem));
+		try {
+			return copyInto(new Constraint_c(typeSystem));
+		}
+		catch (Failure f) {
+			throw new InternalCompilerError("Copying constraint made it inconsistent.", f);
+		}
 	}
 	/** 
 	 * Clone this constraint, physically. Note that this is the usual default shallow copy.
 	 */
 	public Constraint clone() {
+		if (false) {
+			Constraint_c clone = new Constraint_c(this.typeSystem);
+			try {
+				this.copyInto(clone);
+			}
+			catch (Failure f) {
+				throw new InternalCompilerError("Error while cloning.", f);
+			}
+			return clone;
+		}
 		try {
 			Constraint_c clone = (Constraint_c) super.clone();
 			if (roots != null) {
@@ -118,8 +135,9 @@ public class Constraint_c implements Constraint, Cloneable {
 				}
 			}
 			return clone;
-		} catch (CloneNotSupportedException z) {
-//			  But it is!!
+		}
+		catch (CloneNotSupportedException z) {
+			// But it is!
 			return null;
 		}
 	}
@@ -129,8 +147,9 @@ public class Constraint_c implements Constraint, Cloneable {
 	 * copy self-clauses as is. 
 	 * @param c
 	 * @return
+	 * @throws Failure 
 	 */
-	private Constraint copyInto(Constraint_c c) {
+	private Constraint copyInto(Constraint_c c) throws Failure {
 		c.addIn(this);
 		c.placePossiblyNull = placePossiblyNull;
 		c.placeIsHere = placeIsHere;
@@ -138,7 +157,7 @@ public class Constraint_c implements Constraint, Cloneable {
 		// represent varWhoseTypeThisIs via a self==this constraint.
 		return c;
 	}
-	public Constraint addIn(Constraint c) {
+	public Constraint addIn(Constraint c) throws Failure {
 		if (c !=null) {
 			HashMap result = c.constraints();
 			addBindings(result);
@@ -153,7 +172,7 @@ public class Constraint_c implements Constraint, Cloneable {
 		}
 		return this;
 	}
-	public Constraint addBindings(HashMap<C_Var,C_Var> result) {
+	public Constraint addBindings(HashMap<C_Var,C_Var> result) throws Failure {
 		if (result==null || result.isEmpty())
 			return this;
 		for (Iterator<Map.Entry<C_Var,C_Var>> it = result.entrySet().iterator(); it.hasNext();) {
@@ -164,7 +183,7 @@ public class Constraint_c implements Constraint, Cloneable {
 		}
 		return this;
 	}
-	public static Constraint makeBinding(C_Var var, C_Var val, X10TypeSystem xts)  {
+	public static Constraint makeBinding(C_Var var, C_Var val, X10TypeSystem xts) throws Failure  {
 		Constraint c = new Constraint_c(xts);
 		return c.addBinding(var,val);
 	}
@@ -176,8 +195,9 @@ public class Constraint_c implements Constraint, Cloneable {
 	 * @param val
 	 * @param c
 	 * @return
+	 * @throws Failure TODO
 	 */
-	public static Constraint addSelfBinding(C_Var val, Constraint c, X10TypeSystem xts)  {
+	public static Constraint addSelfBinding(C_Var val, Constraint c, X10TypeSystem xts) throws Failure  {
 		c = (c==null) ? new Constraint_c(xts) : c;
 		if (val instanceof C_Var && ! (val instanceof C_Lit)) {
 			c.setSelfVar((C_Var) val);
@@ -200,6 +220,7 @@ public class Constraint_c implements Constraint, Cloneable {
 	 * where s and t are not equal.
 	 */
 	public boolean consistent() {return consistent;}
+	public void setInconsistent() {consistent = false;}
 	
 	/** Is the constraint valid? i.e. vacuous.
 	 * 
@@ -208,8 +229,14 @@ public class Constraint_c implements Constraint, Cloneable {
 	public boolean isLocal() { return placePossiblyNull || placeIsHere; }
 	public boolean isPossiblyRemote() { return ! isLocal();}
 	
-	public Promise intern(C_Var term)  {
-		return intern(term, null);
+	public Promise intern(C_Var term) {
+		try {
+			return intern(term, null);
+		}
+		catch (Failure f) {
+			// Failure should only happen if last != null, which it isn't.
+			throw new InternalCompilerError("Could not intern a " + term + " into " + this + ".", f);
+		}
 	}
 	/**
 	 * Used to implement substitution:  if last != null, term, is substituted for 
@@ -222,18 +249,14 @@ public class Constraint_c implements Constraint, Cloneable {
 	 * @param term
 	 * @param last
 	 * @return
+	 * @throws Failure 
 	 */
-	public Promise intern(C_Term term, Promise last)  {
+	public Promise intern(C_Term term, Promise last) throws Failure  {
 		if (term instanceof Promise ) {
 			Promise q = (Promise) term;
 			// this is the case for literals, for here
 			if (last != null) {
-				try {
-					last.bind(q);
-				} catch (Failure f) {
-					throw new InternalCompilerError("A term ( " + term 
-							+ ") cannot be interned to a promise (" + last + ") whose value is not null.");
-				}
+				last.bind(q);
 			}
 			return q;
 		}
@@ -255,7 +278,7 @@ public class Constraint_c implements Constraint, Cloneable {
 		}
 		return p.intern(vars, 1, last);
 	}
-	public void internRecursively(C_Var v) {
+	public void internRecursively(C_Var v) throws Failure {
 		intern(v);
 		propagateRecursively(v);
 	}
@@ -299,7 +322,7 @@ public class Constraint_c implements Constraint, Cloneable {
 	 * @param var -- t1
 	 * @param val -- t2
 	 */
-	public Constraint addBinding(C_Var t1, C_Var t2)  {
+	public Constraint addBinding(C_Var t1, C_Var t2) throws Failure  {
 		Constraint result = null;
 		String oldString = this.toString();
 		try { 
@@ -326,9 +349,9 @@ public class Constraint_c implements Constraint, Cloneable {
 			valid &= ! modified;
 			result=this;
 		} catch (Failure z) {
-			consistent=false;
-			throw new InternalCompilerError("Adding binding " + t1 + "=" + t2 + " to " + this 
-					+ " has made it inconsistent.");
+			setInconsistent();
+			throw new Failure("Adding binding " + t1 + "=" + t2 + " to " + this 
+					+ " has made it inconsistent.", z);
 		} finally {
 			//Report.report(1, "Constraint_c: Adding " + t1 + "=" + t2 + " to (:" + oldString +") yields (:" + result+").");
 		}
@@ -337,7 +360,7 @@ public class Constraint_c implements Constraint, Cloneable {
 	public Constraint addBindingPromise(C_Var t1, Promise p)  {
 		try { 
 			
-			if (!consistent ) return this; 
+			if (!consistent) return this; 
 			if (roots == null) roots = new HashMap<C_Var, Promise>();
 			if (t1==null) t1 = this.typeSystem.NULL();
 			if (selfVar !=null) {
@@ -347,8 +370,9 @@ public class Constraint_c implements Constraint, Cloneable {
 			boolean modified = p1.bind(p);
 			
 		} catch (Failure z) {
-			
 			consistent=false;
+			if (true)
+				return this;
 			throw new InternalCompilerError("Adding binding " + t1 + "=" + p + " to " + this 
 					+ " has made it inconsistent.");
 		}
@@ -528,7 +552,13 @@ public class Constraint_c implements Constraint, Cloneable {
 			return true;
 		assert (roots !=null);
 		HashMap result = constraints();
-		other.saturate();
+		try {
+			other.saturate();
+		}
+		catch (Failure f) {
+			// inconsistent implies true
+			return true;
+		}
 		for (Iterator it = result.entrySet().iterator(); it.hasNext();) {
 			Map.Entry entry = (Map.Entry) it.next();
 			if (! other.entails((C_Var) entry.getKey(), (C_Var) entry.getValue()))
@@ -536,7 +566,6 @@ public class Constraint_c implements Constraint, Cloneable {
 		}
 		return true;
 	}
-	
 	
 	/*public boolean entails(Constraint other) {
 		//Report.report(1, "Constraint: " + this + " entails " + other + "?");
@@ -557,22 +586,27 @@ public class Constraint_c implements Constraint, Cloneable {
 		return result;
 	}*/
 
+    /** Does this entail that t1=t2? */
 	public boolean entails(C_Var t1, C_Var t2) {
 		boolean result = entailsImmed(t1, t2);
 		if (result) return result;
-		if (t1 instanceof C_Var) {
-			result =checkSelfEntails((C_Var) t1,t2);
-			if (result) return result;
-		}
-		if (t1 instanceof C_Var) {
-			C_Var t1r = rootBindingForTerm((C_Var)t1);
-			if (t1r != null && (! t1r.equals(t1)) && entails(t1r, t2)) return true;
-		}
-		if (t2 instanceof C_Var) {
-			C_Var t2r = rootBindingForTerm((C_Var)t2);
-			if (t2r != null && (! t2r.equals(t2)) && entails(t1, t2r)) return true;
-		}
-		
+
+		result = checkSelfEntails(t1, t2);
+		if (result) return result;
+
+		C_Var t1r = rootBindingForTerm(t1);
+		if (t1r != null && (! t1r.equals(t1)) && entails(t1r, t2)) return true;
+
+		C_Var t2r = rootBindingForTerm(t2);
+		if (t2r != null && (! t2r.equals(t2)) && entails(t1, t2r)) return true;
+
+		// \exists q. x=q is true since x=x.
+                if (t1 instanceof C_EQV) {
+                    if (roots == null || ! roots.containsKey(t1)) return true;
+                }
+                if (t2 instanceof C_EQV) {
+                    if (roots == null || ! roots.containsKey(t2)) return true;
+                }
 		return false;
 		
 	}
@@ -669,6 +703,7 @@ public class Constraint_c implements Constraint, Cloneable {
 		 if ((! consistent) || roots ==null) return null;
 		// Report.report(1, "Constraint_c.find: roots are " + roots);
 		 Promise self = (Promise) roots.get(C_Special_c.Self);
+		 if (self == null) return null;
 		 Promise result = self.lookup(varName);
 		 return result==null ? null : result.term();
 	 }
@@ -676,8 +711,8 @@ public class Constraint_c implements Constraint, Cloneable {
 	
 	public String toString() { 
 		String str = constraints().toString();
-		return  "(:" + str.substring(1, str.length()-1)+")" ;
-		}
+		return  "(:" + str.substring(1, str.length()-1) + ")";
+	}
 
 	protected int eqvCount;
 	public C_EQV genEQV(Type type, boolean isSelfVar) {
@@ -691,10 +726,10 @@ public class Constraint_c implements Constraint, Cloneable {
 		C_EQV result = new C_EQV_c(li, isSelfVar, hidden);
 		return result;
 	}
-	public Constraint substitute(C_Var y, C_Root x) {
+	public Constraint substitute(C_Var y, C_Root x) throws Failure {
 		return substitute(y, x, true);
 	}
-	public Constraint substitute(C_Var y, C_Root x, boolean propagate) {
+	public Constraint substitute(C_Var y, C_Root x, boolean propagate) throws Failure {
 		assert (y != null && x !=null);
 		if (y.equals(x)) return this;
 		Promise last = lookupPartialOk(x);
@@ -703,10 +738,10 @@ public class Constraint_c implements Constraint, Cloneable {
 		result.applySubstitution(y,x, propagate);
 		return result;
 	}
-	public Constraint substitute(HashMap<C_Root, C_Var> subs) {
+	public Constraint substitute(HashMap<C_Root, C_Var> subs) throws Failure {
 		return substitute(subs, true);
 	}
-	public Constraint substitute(HashMap<C_Root, C_Var> subs, boolean propagate) {
+	public Constraint substitute(HashMap<C_Root, C_Var> subs, boolean propagate) throws Failure {
 		if (subs==null || subs.isEmpty()) return this;
 		boolean notneeded = true;
 		for (Iterator<Map.Entry<C_Root, C_Var>> it = subs.entrySet().iterator();
@@ -722,25 +757,25 @@ public class Constraint_c implements Constraint, Cloneable {
 		result.applySubstitution(subs, propagate);
 		return result;
 	}
-	public Constraint substitute(C_Var[] ys, C_Root[] xs) {
+	public Constraint substitute(C_Var[] ys, C_Root[] xs) throws Failure {
 		return substitute(ys, xs, true);
 	}
-	public Constraint substitute(C_Var[] ys, C_Root[] xs, boolean propagate) {
+	public Constraint substitute(C_Var[] ys, C_Root[] xs, boolean propagate) throws Failure {
 		assert xs.length == ys.length;
 		final int n = xs.length;
-		Constraint result = null;
+		Constraint result = this;
 		for (int i=0; i < n; i++) {
 			C_Root x = xs[i];
 			C_Var y = ys[i];
 			if (! (y.equals(x) || lookupPartialOk(x) == null)) {
-				if (result==null)
+				if (result==this)
 					result = clone();
 				result.applySubstitution(y, x, propagate);
 			}
 		}
-		return result==null ? this : result;
+		return result;
 	}
-	public void applySubstitution( HashMap<C_Root, C_Var> subs, boolean propagate) {
+	public void applySubstitution( HashMap<C_Root, C_Var> subs, boolean propagate) throws Failure {
 		for (Iterator<Map.Entry<C_Root, C_Var>> it = subs.entrySet().iterator(); it.hasNext(); ) {
 			Map.Entry<C_Root, C_Var> e = it.next();
 			C_Root x = e.getKey();
@@ -748,7 +783,7 @@ public class Constraint_c implements Constraint, Cloneable {
 			applySubstitution(y,x, propagate);
 		}
 	}
-	public void applySubstitution(C_Var y, C_Root x, boolean propagate) {
+	public void applySubstitution(C_Var y, C_Root x, boolean propagate) throws Failure {
 		if (roots == null)
 			// nothing to substitute
 			return;
@@ -758,15 +793,37 @@ public class Constraint_c implements Constraint, Cloneable {
 			return;
 		// Remove this now so that you avoid alpha capture issues. y may be the same as x. 
 		roots.remove(x);
-		Promise q = intern(y); 
+		Promise q = intern(y);
+		if (q.term().equals(x)) {
+			// Cannot replace x with x.  Instead,
+                        // introduce an EQV and substitute that for x.
+			
+			C_EQV v = genEQV(x.type(), false);
+
+			// Clone the root map, with the renaming map primed
+                        // with x -> v
+			HashMap<Promise, Promise> renaming = new HashMap<Promise,Promise>();
+			renaming.put(q, new Promise_c(v));
+			
+			for (Iterator<Map.Entry<C_Var,Promise>> it = roots.entrySet().iterator();
+			it.hasNext(); ) {
+				Map.Entry<C_Var, Promise> m = it.next();
+				C_Var var = m.getKey();
+				Promise p2 = m.getValue();
+				Promise q2 = p2.cloneRecursively(renaming);
+				m.setValue(q2);
+			}
+
+			return;
+		}
 		replace(q, p);
 		if (p instanceof C_Lit) {
-			try {
+//			try {
 				q.bind(p);
-			} catch (Failure f) {
-				throw new InternalCompilerError("Error in replacing " + x 
-						+ " with " + y + " in " + this + ": binding failure with "  + p);
-			}
+//			} catch (Failure f) {
+//				throw new InternalCompilerError("Error in replacing " + x 
+//						+ " with " + y + " in " + this + ": binding failure with "  + p);
+//			}
 			if (propagate) 
 				propagate(y);
 			return;
@@ -774,30 +831,30 @@ public class Constraint_c implements Constraint, Cloneable {
 		Promise xf = p.value();
 		if (xf != null) {
 			//addBinding(y, xf.term());
-			try {
+//			try {
 				q.bind(xf);
-			} catch (Failure f) {
-				throw new InternalCompilerError("Error in replacing " + x 
-						+ " with " + y + " in " + this + ": binding failure with "  + xf);
-			}
+//			} catch (Failure f) {
+//				throw new InternalCompilerError("Error in replacing " + x 
+//						+ " with " + y + " in " + this + ": binding failure with "  + xf, f);
+//			}
 		} else {
 			
-			HashMap<String,Promise> fields = p.fields(); 
+			HashMap<String, Promise> fields = p.fields(); 
 			if (fields != null)
 				for (Iterator<Entry<String,Promise>> it = fields.entrySet().iterator(); it.hasNext();) {
 					Entry<String, Promise> entry = it.next();
 					String s = entry.getKey();
 					Promise orphan = entry.getValue();
-					try {
+//					try {
 						q.addIn(s, orphan);
 						C_Field oldTerm = (C_Field) orphan.term();
 						FieldInstance oldfi = oldTerm.fieldInstance();
 						C_Field newTerm = new C_Field_c(oldfi, (C_Var) q.term());
 						orphan.setTerm(newTerm);
-					} catch (Failure f) {
-						throw new InternalCompilerError("Error in replacing " + x 
-								+ " with " + y + " in " + this + ": failure in forwarding " + entry);
-					}
+//					} catch (Failure f) {
+//						throw new InternalCompilerError("Error in replacing " + x 
+//								+ " with " + y + " in " + this + ": failure in forwarding " + entry);
+//					}
 				}
 		}
 		
@@ -823,7 +880,7 @@ public class Constraint_c implements Constraint, Cloneable {
 		}
 	}
 	
-	public void propagate(C_Var y) {
+	public void propagate(C_Var y) throws Failure {
 		X10Type yType = (X10Type) y.type();
 		if (yType == null) return;
 		Constraint yTypeRC = yType.realClause();
@@ -834,9 +891,16 @@ public class Constraint_c implements Constraint, Cloneable {
 		addIn(yTypeRC);
 		
 	}
-	public void propagateRecursively(C_Var y) {
+	public void propagateRecursively(C_Var y) throws Failure {
 		X10Type yType = (X10Type) y.type();
 		if (yType == null) return;
+		
+		// This constraint is a copy of a class dep clause, with stuff added in.
+		// y.type is the root type and has class dep clause.
+		// So, yTypeRC is the class dep clause; which is not necessarily smaller than
+		// this constraint ==> infinite loop.
+        // Example: this == self{i=self.i, j=self.j->self.i}
+		// where self : ValueProp1(:self.i=self.j)
 		Constraint yTypeRC = yType.realClause();
 		if (yTypeRC == null) return;
 		yTypeRC = yTypeRC.clone();
@@ -845,7 +909,8 @@ public class Constraint_c implements Constraint, Cloneable {
 		yTypeRC = yTypeRC.substitute(y,C_Special.Self, false);
 		addIn(yTypeRC);
 	}
-	public void saturate() {
+	
+	public void saturate() throws Failure {
 		if (roots != null) {
 			final HashMap<C_Var,Promise> rootSnapshot = (HashMap<C_Var,Promise>) roots.clone();
 			for (Iterator<C_Var> it = rootSnapshot.keySet().iterator(); it.hasNext();) {
@@ -864,8 +929,8 @@ public class Constraint_c implements Constraint, Cloneable {
 		HashMap<C_Var, C_Var> yTypeRCSubtermBindings = yTypeRC.constraints(C_Special.Self, y);
 		boolean result = true;
 		for (Iterator<Map.Entry<C_Var, C_Var>> 
-		it2 = yTypeRCSubtermBindings.entrySet().iterator(); 
-		result && it2.hasNext();) {
+		     it2 = yTypeRCSubtermBindings.entrySet().iterator();
+  		     result && it2.hasNext();) {
 			Map.Entry<C_Var, C_Var> e2 = it2.next();
 			C_Var yp = e2.getKey();
 			C_Var t1 = e2.getValue();
@@ -876,7 +941,7 @@ public class Constraint_c implements Constraint, Cloneable {
 		//		+ (result ? " entails " : " does not entail ") + yType + " " + y);
 		return result;
 	}
-	public Constraint instantiate(List<X10Type> list) {
+	public Constraint instantiate(List<X10Type> list) throws Failure {
 		String thisString = this.toString();
 		HashMap<C_Root, C_Var> subs = null;
 		Set<C_Var> roots =  roots().keySet();

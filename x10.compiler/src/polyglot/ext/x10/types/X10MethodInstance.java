@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ast.Formal;
 import polyglot.types.MethodInstance;
+import polyglot.types.SemanticException;
 
 /**
  * @author vj
@@ -41,7 +42,8 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance 
 	 * at T, with no propagation.
 	 * @param thisType
 	 * @return
+	 * @throws SemanticException 
 	 */
-	X10MethodInstance instantiateForThis(X10Type thisType);
+	X10MethodInstance instantiateForThis(X10Type thisType) throws SemanticException;
 
 }

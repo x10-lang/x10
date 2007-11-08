@@ -26,11 +26,13 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.types.FieldInstance;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 
 /**
  * @author vj
@@ -126,7 +128,12 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
 			depClause = new Constraint_c((X10TypeSystem) ts);
-		depClause = depClause.addBinding(t1, t2);
+		try {
+			depClause = depClause.addBinding(t1, t2);
+		}
+		catch (Failure f) {
+			throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+		}
 	}
     public boolean consistent() {
     	return depClause== null || depClause.consistent();

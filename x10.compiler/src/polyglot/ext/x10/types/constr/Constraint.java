@@ -32,7 +32,8 @@ public interface Constraint extends Serializable {
 	 * @return true iff the constraint is consistent.
 	 */
 	boolean consistent();
-	HashMap<C_Var,Promise> roots();
+	void setInconsistent();
+	HashMap<C_Var, Promise> roots();
 	
 	/**
 	 * Is the constraint valid? That is, is every valuation a solution?
@@ -85,16 +86,18 @@ public interface Constraint extends Serializable {
 	 * @param var
 	 * @param t
 	 * @return new constraint with t1=t2 added.
+	 * @throws Failure TODO
 	 */
-	Constraint addBinding(C_Var var, C_Var val);
+	Constraint addBinding(C_Var var, C_Var val) throws Failure;
 	/**
 	 * For each pair (t1,t2) in result, ddd t1 -> t2 to the constraint,
 	 * and return the resulting constraint.
 	 * @param var
 	 * @param t
 	 * @return new constraint with t1=t2 added.
+	 * @throws Failure TODO
 	 */
-	Constraint addBindings(HashMap<C_Var,C_Var> result);
+	Constraint addBindings(HashMap<C_Var,C_Var> result) throws Failure;
 	
 	Constraint copy();
 	Constraint clone();
@@ -102,8 +105,9 @@ public interface Constraint extends Serializable {
 	 * Add constraint c into this, and return this.
 	 * @param c
 	 * @return
+	 * @throws Failure TODO
 	 */
-	Constraint addIn(Constraint c);
+	Constraint addIn(Constraint c) throws Failure;
 	/**
 	 * Add the binding term=true to the constraint.
 	 * @param term -- must be of type Boolean.
@@ -128,7 +132,7 @@ public interface Constraint extends Serializable {
 	 * @return
 	 */
 	Promise intern(C_Var term) ;
-	void internRecursively(C_Var variable);
+	void internRecursively(C_Var variable) throws Failure;
 	
 	/** Look this term up in the constraint graph.  If the term is of the form x.f1...fk
 	 * and the longest prefix that exists in the graph is x.f1..fi, return the promise
@@ -151,13 +155,13 @@ public interface Constraint extends Serializable {
 	Promise lookup(C_Term term);
 	
 	/**
-	 * Return in HashMap a set of bindings t1-> t2 equivalent to the current constraint.
+	 * Return in Map a set of bindings t1-> t2 equivalent to the current constraint.
 	 * Equivalent to constraints(new HashMap()).
 	 * @return
 	 */
 	HashMap<C_Var, C_Var> constraints();
 	/**
-	 * Return in HashMap a set of bindings t1 -> t2 entailed by the current cosntraint,
+	 * Return in Map a set of bindings t1 -> t2 entailed by the current constraint,
 	 * where y is a variable that occurs in this, and all terms t1 are of the form
 	 * y.p, for some possibly empty path (sequence of fields) p. 
 	 * @param y
@@ -193,23 +197,26 @@ public interface Constraint extends Serializable {
 	 * If y equals x, or x does not occur in this,
 	 * return this, else copy the constraint
 	 * and return it after performing applySubstitution(y,x).
+	 * @throws Failure TODO
 	 * 
 	 * 
 	 */
-	Constraint substitute(C_Var y, C_Root x);
-	Constraint substitute(C_Var y, C_Root x, boolean propagate);
+	Constraint substitute(C_Var y, C_Root x) throws Failure;
+	Constraint substitute(C_Var y, C_Root x, boolean propagate) throws Failure;
 	/** 
 	 * xs and ys must be of the same length.
 	 * Perform substitute(ys[i], xs[i]) for each i < xs.length.
+	 * @throws Failure TODO
 	 */
-	Constraint substitute(C_Var[] ys, C_Root[] xs);
-	Constraint substitute(C_Var[] ys, C_Root[] xs, boolean propagate);
+	Constraint substitute(C_Var[] ys, C_Root[] xs) throws Failure;
+	Constraint substitute(C_Var[] ys, C_Root[] xs, boolean propagate) throws Failure;
 	/** 
 	 * Perform substitute(y, x) for every binding x -> y in bindings.
+	 * @throws Failure TODO
 	 * 
 	 */
-	Constraint substitute(HashMap<C_Root, C_Var> bindings);
-	Constraint substitute(HashMap<C_Root, C_Var> bindings, boolean propagate);
+	Constraint substitute(HashMap<C_Root, C_Var> bindings) throws Failure;
+	Constraint substitute(HashMap<C_Root, C_Var> bindings, boolean propagate) throws Failure;
 	/**
 	 * Preconditions: x occurs in this.
 	 * It must be the case that the real clause of the
@@ -224,9 +231,10 @@ public interface Constraint extends Serializable {
 	 * Return this now fully explicit constraint.
 	 * @param y
 	 * @param x
+	 * @throws Failure TODO
 	 */
-	void applySubstitution(C_Var y, C_Root x, boolean propagate);
-	void applySubstitution(HashMap<C_Root, C_Var> bindings, boolean propagate);
+	void applySubstitution(C_Var y, C_Root x, boolean propagate) throws Failure;
+	void applySubstitution(HashMap<C_Root, C_Var> bindings, boolean propagate) throws Failure;
 	
 	/**
 	 * Return the constraint obtained by replacing each local variable
@@ -235,8 +243,9 @@ public interface Constraint extends Serializable {
 	 * the return type of a methodinstance.
 	 * @param li
 	 * @return
+	 * @throws Failure 
 	 */
-	Constraint instantiate(List<X10Type> li);
+	Constraint instantiate(List<X10Type> li) throws Failure;
 	
 	/**
 	 * Does this constraint contain occurrences of the variable v?
@@ -258,8 +267,9 @@ public interface Constraint extends Serializable {
 	/**
 	 * For each C_Var v in the root, propagate v. To propagate v is to lookup v's type,
 	 * saturate it, and transfer these constraints into the current constraint.
+	 * @throws Failure 
 	 */
-	void saturate();
+	void saturate() throws Failure;
 	
 	int eqvCount();
 	boolean placeIsHere();

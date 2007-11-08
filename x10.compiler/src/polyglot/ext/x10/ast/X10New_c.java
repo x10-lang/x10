@@ -11,39 +11,33 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import polyglot.ast.AmbTypeNode;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
-import polyglot.ast.Id;
 import polyglot.ast.Lit;
-import polyglot.ast.Local;
 import polyglot.ast.Local_c;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
-import polyglot.ast.New_c;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10LocalInstance;
-import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Field;
+import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Local;
 import polyglot.ext.x10.types.constr.C_Root;
 import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.ext.x10.types.constr.Promise;
 import polyglot.ext.x10.types.constr.TypeTranslator;
-import polyglot.lex.Literal;
-import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
@@ -52,7 +46,6 @@ import polyglot.types.ParsedClassType;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.TypeChecker;
@@ -138,6 +131,7 @@ public class X10New_c extends New_c {
 			}
 		}
 		X10New_c result = (X10New_c) super.typeCheck(tc);
+		result = (X10New_c) result.constructorInstance((X10ConstructorInstance) result.constructorInstance().copy());
 		result = result.adjustCI(tc);
 		return result;
 	}
@@ -180,8 +174,18 @@ public class X10New_c extends New_c {
     		type = anonType.makeDepVariant(type.depClause(), type.typeParameters());
     	}
     	
- 		 X10Type retType = instantiateType(type, arguments);
- 		 return (X10New_c) this.type(retType);
+    	X10Type retType = instantiateType(type, arguments);
+    	if (type != retType) {
+    		xci.setReturnType(retType);
+    	}
+    	if (xci.whereClause() != null) {
+    		Constraint where = X10New_c.instantiateConstraint(xci.whereClause(), null, arguments);
+    		if (! where.consistent()) {
+    			throw new SemanticException("Constructor invocation inconsistent with arguments.", position());
+    		}
+    		xci.setWhereClause(where);
+    	}
+    	return (X10New_c) this.type(retType);
     }
     /**
      * Invoke instantiateType(X10Type, X10Type, List<Expr>) with the given arguments
@@ -189,8 +193,9 @@ public class X10New_c extends New_c {
      * @param formalReturnType
      * @param arguments
      * @return
+     * @throws SemanticException 
      */
-    public static X10Type instantiateType(X10Type formalReturnType, List<Expr> arguments) {
+    public static X10Type instantiateType(X10Type formalReturnType, List<Expr> arguments) throws SemanticException {
     	return instantiateType(formalReturnType, null, arguments);
     }
     /**
@@ -201,19 +206,31 @@ public class X10New_c extends New_c {
      * @param formalReturnType
      * @param arguments
      * @return
+     * @throws SemanticException 
      */
    public static X10Type instantiateType(X10Type formalReturnType, Receiver target, 
-		   List<Expr> arguments) {
+		   List<Expr> arguments) throws SemanticException {
 	   //Report.report(1, "X10new_c: instantiatetype "  + formalReturnType + "args=" + arguments);
     	X10Type retType = formalReturnType;
     	Constraint rc = formalReturnType.realClause();
     	if (rc == null) return retType;
+    	Constraint newRC = instantiateConstraint(rc, target, arguments);
+
+    	if (newRC != rc) {
+    		retType = formalReturnType.makeVariant(newRC, null);
+    	}
+	    return retType;
+   }
+
+	public static Constraint instantiateConstraint(Constraint rc,
+			Receiver target, List<Expr> arguments) throws SemanticException {
     	
+		if (rc == null) return null;
     	
     	// Replace each method parameter in the return type 
     	// by a parameter constructed from the actual argument.
-    	HashMap<C_Var,Promise> m = rc.roots();
-    	if (m == null) return retType;
+    	Map<C_Var,Promise> m = rc.roots();
+    	if (m == null) return rc;
     	
     	Set<C_Var> vars = m.keySet();
     	HashMap<C_Root, C_Var> subs = new HashMap<C_Root, C_Var>();
@@ -251,6 +268,15 @@ public class X10New_c extends New_c {
         					renaming.put(actual.localInstance(), realVar);
         				}
     				}
+    				else if (arg instanceof Lit) {
+    					try {
+    						X10TypeSystem xts = (X10TypeSystem) li.typeSystem();
+    						C_Lit t = (C_Lit) new TypeTranslator(xts).trans(arg);
+    						realVar = t;
+    					}
+    					catch (SemanticException e) {
+    					}
+    				}
     				if (realVar == null) {
     					realVar = rc.selfVar(arg, false); 
     				}
@@ -259,13 +285,16 @@ public class X10New_c extends New_c {
     			}
     		}
     	}
+    	Constraint newRC = rc;
     	if (! subs.isEmpty()) {
-    		Constraint newRC = rc.substitute(subs);
-    		retType = formalReturnType.makeVariant(newRC, null);
+    		try {
+    			newRC = rc.substitute(subs);
+    		}
+    		catch (Failure f) {
+    			throw new SemanticException("Constraint is possibly inconsistent with respect to the actual arguments: " + f.getMessage());
+    		}
     	}
-    	
-    	
-	    return retType;
-   }
+    	return newRC;
+	}
 }
 

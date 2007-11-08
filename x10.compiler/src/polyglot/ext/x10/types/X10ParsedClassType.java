@@ -104,6 +104,10 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	void setDistribution(C_Var dist);
 	
 	C_Var distribution();
+
+	void setRegion(C_Var region);
+	
+	C_Var region();
 	
 	
 	/**
@@ -125,4 +129,6 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	 *
 	 */
 	void setZeroBasedRectRankOne();
+	
+	Constraint classInvariant();
 }

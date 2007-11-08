@@ -25,6 +25,7 @@ import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Source;
@@ -1246,9 +1247,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		
 	}
 	public boolean entailsClause(X10Type me, X10Type other) {
-		Constraint c1 = me.realClause(), c2=other.depClause();
-		return entailsClause(c1,c2);
-		
+		try {
+			Constraint c1 = me.realClause(), c2=other.depClause();
+			return entailsClause(c1,c2);
+		}
+		catch (InternalCompilerError e) {
+			if (e.getCause() instanceof Failure) {
+				return false;
+			}
+			throw e;
+		}
 	}
 
 	protected C_Here_c hereConstraintLit; // Maybe this should be declared as C_Lit instead of a concrete impl class?

@@ -72,6 +72,12 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 		//System.out.println("NullableType_c:makeNullable: base=" + base);
 		return new NullableType_c(ts, pos, base);
 	}
+	
+@Override
+public Object copy() {
+	// TODO Auto-generated method stub
+	return super.copy();
+}
 
 	/**
 	 * Constructor is made private. Called only in the factory method above.

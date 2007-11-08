@@ -20,11 +20,21 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10ProcedureInstance;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Promise;
+import polyglot.ext.x10.types.constr.TypeTranslator;
+import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.Flags;
+import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -38,7 +48,7 @@ import polyglot.visit.TypeChecker;
  */
 public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10ConstructorDecl {
    
-    protected Expr argWhereClause; // ignored for now.
+    protected Expr whereClause; // ignored for now.
     protected TypeNode returnType;
     
     public X10ConstructorDecl_c(Position pos, Flags flags, 
@@ -52,14 +62,20 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             List throwTypes, Block body) {
         super(pos, flags,  name, formals, throwTypes, body);
         this.returnType = returnType;
-        this.argWhereClause=argWhereClause;
+        this.whereClause=argWhereClause;
         
     }
+    
     public TypeNode returnType() {
     	return returnType;
     }
-    public Expr argWhereClause() {
-    	return argWhereClause;
+    public Expr whereClause() {
+    	return whereClause;
+    }
+    public X10ConstructorDecl whereClause(Expr e) {
+    	X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
+    	n.whereClause = e;
+    	return n;
     }
     /** Reconstruct the constructor. */
     public X10ConstructorDecl reconstruct(TypeNode returnType) {
@@ -96,6 +112,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     public Node visitChildren(NodeVisitor v) {
     	X10ConstructorDecl_c result = (X10ConstructorDecl_c) super.visitChildren(v);
     	TypeNode returnType = (TypeNode) visitChild(result.returnType, v);
+    	Expr whereClause = (Expr) visitChild(result.whereClause, v);
+    	if (whereClause != result.whereClause)
+    		result = (X10ConstructorDecl_c) result.whereClause(whereClause);
     	return result.reconstruct(returnType);
     }
 
@@ -103,8 +122,25 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
     	X10ConstructorDecl nn = this;
         X10ConstructorDecl old = nn;
+
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         
         // Step I. Typecheck the formal arguments. 
+
+        // Step I.a.  Check the where clause.
+		if (whereClause != null) {
+        	TypeChecker childtc3 = (TypeChecker) tc.enter(parent, nn);
+        	Expr w = (Expr) nn.visitChild(whereClause, childtc3);
+        	if (childtc3.hasErrors()) throw new SemanticException();
+        	nn = nn.whereClause(w);
+        	if (! w.isTypeChecked()) {
+        		return nn;
+        	}
+        	Constraint c = new TypeTranslator(xts).constraint(w);
+        	((X10ConstructorInstance) nn.constructorInstance()).setWhereClause(c);
+        }
+        
+        // Step I.b.  Check the formals.
     	TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
         nn = (X10ConstructorDecl) nn.formals(nn.visitList(nn.formals(),childtc));
         // Now build the new formal arg list.
@@ -114,11 +150,23 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (nn != old) {
         	List<Formal> formals = nn.formals();
         	List<Type> formalTypes = new ArrayList<Type>(formals.size());
-        	
-        	Iterator<Formal> it = formals.iterator();
-        	while (it.hasNext()) {
+
+        	X10ProcedureInstance pi = (X10ProcedureInstance) nn.constructorInstance();
+        	Constraint c = pi.whereClause();
+                if (c != null)
+                    c = c.copy();
+			
+        	for (Iterator<Formal> it = formals.iterator(); it.hasNext(); ) {
         		Formal n =  it.next();
         		X10Type newType = (X10Type) n.type().type();
+        		if (c != null) {
+        			// Fold the formal's constraint into the where clause.
+        			C_Var var = new TypeTranslator(xts).trans(n.localInstance());
+        			Constraint dep = newType.depClause().copy();
+        			Promise p = dep.intern(var);
+        			dep = dep.substitute(p.term(), C_Special.Self);
+        			c.addIn(dep);
+        		}
         		//LocalInstance li = n.localInstance().type(newType);
         		//newFormals.add(n.localInstance(li));
         		formalTypes.add(newType);
@@ -130,6 +178,24 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 				n.position());
                 }
         	}
+
+        	// Fold this's constraint (the class invariant) into the where clause.
+        	{
+        		X10Type t = (X10Type) tc.context().currentClass();
+        		if (c != null && t.depClause() != null) {
+        			Constraint dep = t.depClause().copy();
+        			Promise p = dep.intern(C_Special.This);
+        			dep = dep.substitute(p.term(), C_Special.Self);
+        			c.addIn(dep);
+        		}
+        	}
+
+        	// Check if the where clause is consistent.
+        	if (c != null && ! c.consistent()) {
+        		throw new SemanticException("The constructor's dependent clause is inconsistent.",
+        				whereClause != null ? whereClause.position() : position());
+        	}
+        	
         	//nn = nn.formals(newFormals);
         	nn.constructorInstance().setFormalTypes(formalTypes);
         	 // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
