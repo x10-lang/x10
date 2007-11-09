@@ -28,6 +28,7 @@ import x10.runtime.Configuration;
 * this array logically belong to different places, as
 * specified by the distribution.
 *
+*Note: the region underlying the distribution may be empty. 
 * @author vj
 */
 public final class DoubleArray1d_c extends DoubleArray_c {
@@ -48,9 +49,10 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 			throw new RankMismatchException(d, 1);
 		// assert d.region instanceof Region3D0Base;
 		//Region3D0Base r = (Region3D0Base) d.region;
-		if (d.region.rank(0).low() != 0)
+		region r = d.region;
+		if (r.size() > 0 && r.rank(0).low() != 0)
 			throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
-		I = d.region.rank(0).high()+1;
+		I = r.size()==0? -1: d.region.rank(0).high()+1;
 	}
 
 	/**
@@ -61,12 +63,14 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 	 */
 	public DoubleArray1d_c(dist d, double c, boolean mutable) {
 		super(d, c, mutable);
+		
 		if (d.rank != 1)
 			throw new RankMismatchException(d, 1);
 		// assert d.region instanceof Region3D0Base;
-		if (d.region.rank(0).low() != 0 )
+		region r = d.region;
+		if (r.size() > 0 && r.rank(0).low() != 0 )
 			throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
-		I = d.region.rank(0).high()+1;
+		I = r.size()==0? -1: d.region.rank(0).high()+1;
 	}
 
 	private DoubleArray1d_c(dist d, double[] a, boolean mutable) {
@@ -74,9 +78,10 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		if (d.rank != 1)
 			throw new RankMismatchException(d, 1);
 		//assert d.region instanceof Region3D0Base;
-		if (d.region.rank(0).low() != 0 )
+		region r = d.region;
+		if (r.size() > 0 && r.rank(0).low() != 0 )
 			throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
-		I = d.region.rank(0).high()+1;
+		I = r.size()==0? -1: d.region.rank(0).high()+1;
 	}
 
 	/**

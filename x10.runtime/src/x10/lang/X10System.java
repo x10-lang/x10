@@ -1,7 +1,7 @@
 package x10.lang;
 
 import java.util.Iterator;
-
+import static java.lang.System.*;
 public class X10System {
 	
 	/**
@@ -11,9 +11,15 @@ public class X10System {
 	 * @param src
 	 * @param dest
 	 */
-	public static void arrayCopy(doubleArray src, doubleArray dest) {
+	public static void arraycopy(doubleArray src, doubleArray dest) {
 		double[] s = src.getBackingArray(), d  = dest.getBackingArray();
-		for (int i=0; i < s.length; i++) d[i]=s[i];
+		System.arraycopy(s,0,d,0,s.length);
+		
+	}
+	public static void arraycopy(doubleArray src, int srcPos, doubleArray dest, int destPos, int length) {
+		double[] s = src.getBackingArray(), d  = dest.getBackingArray();
+		System.arraycopy(s,srcPos,d,destPos,length);
+		
 	}
 	/**
 	 * Copy into each element
@@ -22,7 +28,7 @@ public class X10System {
 	 * @param dest
 	 * @param destR
 	 */
-	public static void arrayCopy(doubleArray src, region srcR, DoubleReferenceArray dest, region destR) {
+	public static void arraycopy(doubleArray src, region srcR, DoubleReferenceArray dest, region destR) {
 		int count=0;
 		point srcOrd=srcR.startPoint();
 		for (Iterator it = destR.iterator(); it.hasNext(); ) {
