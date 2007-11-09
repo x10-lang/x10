@@ -366,7 +366,9 @@ public class DefaultRuntime_c extends Runtime {
 	}
 
 	private void arrayCopy_internal(x10.lang.doubleArray src, int srcoffset, x10.lang.DoubleReferenceArray dest, int destoffset, int length) {
-		System.arraycopy(src.getBackingArray(), srcoffset, dest.getBackingArray(), destoffset, length);
+		double[] s = src.getBackingArray(), d=dest.getBackingArray();
+		assert srcoffset +length <= s.length && destoffset+length <= d.length;
+		System.arraycopy(s, srcoffset, d, destoffset, length);
 	}
 
 	private void arrayCopy_internal(x10.lang.floatArray src, int srcoffset, x10.lang.FloatReferenceArray dest, int destoffset, int length) {
