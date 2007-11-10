@@ -14,9 +14,9 @@ public static class Main extends x10.runtime.Activity {
 // the original app-main method
 public static void main(#0) {
 	if (x10.lang.Runtime.runtime == null) {
-		System.err.println("Please use the 'x10' script to invoke X10 programs, or see the generated");
-		System.err.println("Java code for alternate invocation instructions.");
-		System.exit(128);
+		java.lang.System.err.println("Please use the 'x10' script to invoke X10 programs, or see the generated");
+		java.lang.System.err.println("Java code for alternate invocation instructions.");
+		java.lang.System.exit(128);
 	}
 #1
 }
