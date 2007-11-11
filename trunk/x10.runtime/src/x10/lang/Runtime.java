@@ -296,6 +296,21 @@ public abstract class Runtime {
 	public static void arrayCopy(x10Array src, int srcoffset, x10Array dest, int destoffset, int length) {
 		runtime.arrayCopy_internal(src, srcoffset, dest, destoffset, length);
 	}
+	/**
+	 * Copy the i'th element in the enumeration order of the source array into the
+	 * i'th element in the enumeration order of the target array. The two arrays must
+	 * be of the same size.
+	 * @param src
+	 * @param dest
+	 */
+	public static void arrayCopy(x10Array src, x10Array dest) {
+		//if (src.distribution.rank != dest.distribution.rank)
+		//	throw new RankMismatchException(src.distribution.rank, dest.distribution.rank);
+		if (src.distribution.region.size() != dest.distribution.region.size())
+			throw new IllegalArgumentException("Arrays must be of the same size");
+		arrayCopy(src, 0, dest, 0, src.distribution.region.size());
+	}
+
 	protected abstract void arrayCopy_internal(x10Array src, int srcoffset, x10Array dest, int destoffset, int length);
 
 	/**
