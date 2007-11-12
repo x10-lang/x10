@@ -7,7 +7,6 @@
  */
 package x10.lang;
 
-import java.lang.System;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -15,8 +14,8 @@ import java.lang.reflect.Modifier;
 import java.util.StringTokenizer;
 
 import x10.array.ArrayFactory;
+import x10.compilergenerated.Parameter1;
 import x10.runtime.Activity;
-import x10.runtime.ActivityRunner;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Future_c;
@@ -291,11 +290,52 @@ public abstract class Runtime {
 	public abstract void run(final Activity appMain);
 
 	/**
+	 * A specialized method for copying a portion of an array from one object located 
+	 * here to another linked object located at the given remote place. The two objects
+	 * are linked in that are pointed to by G[here.id] and G[remote.id]. 
+	 * 
+	 * The objects must be of type x10.lang.RemoteDoubleArrayCopier.
+	 * 
+	 * @param G  -- the global array (i.e. defined uniquely over all places)
+	 * @param srcoffset -- the offset in the source array from which to copy
+	 * @param remote   -- the remote place identifying the remote object
+	 * @param destoffset -- the offset in the target array into which to copy
+	 * @param length  -- the number of elements to be copied.
+	 * @param postCopyRun -- if true, the destination objects postCopyRun() method is called after copying.
+	 */
+	public static void asyncDoubleArrayCopy(genericArray G, int srcoffset, 
+			place remote, int destoffset, int length, boolean postCopyRun) {
+		assert G != null;
+		Parameter1[] GB = G.getBackingArray();
+		
+		place here = here();
+		assert here.id < GB.length;
+		assert remote.id < GB.length;
+		Parameter1 oh = G.get(here.id);
+		assert oh != null;
+		assert oh instanceof RemoteDoubleArrayCopier;
+		RemoteDoubleArrayCopier src = (RemoteDoubleArrayCopier) oh;
+		RemoteDoubleArrayCopier dest = (RemoteDoubleArrayCopier) G.get(srcoffset);
+		assert dest != null;
+		DoubleReferenceArray destArray = dest.getDestArray();
+		doubleArray srcArray = src.getSourceArray();
+		System.arraycopy(srcArray, srcoffset, destArray, destoffset, length);
+		if (postCopyRun) {
+			try {
+				runtime.setCurrentPlace(remote);
+				dest.postCopyRun(destoffset);
+			} finally {
+				runtime.setCurrentPlace(here);
+			}
+		}
+	}
+	/**
 	 * Low-level copy operation.  Use at your own risk.
 	 */
 	public static void arrayCopy(x10Array src, int srcoffset, x10Array dest, int destoffset, int length) {
 		runtime.arrayCopy_internal(src, srcoffset, dest, destoffset, length);
 	}
+	
 	/**
 	 * Copy the i'th element in the enumeration order of the source array into the
 	 * i'th element in the enumeration order of the target array. The two arrays must
@@ -310,7 +350,17 @@ public abstract class Runtime {
 			throw new IllegalArgumentException("Arrays must be of the same size");
 		arrayCopy(src, 0, dest, 0, src.distribution.region.size());
 	}
+	
+	public static void arrayCopyAdd(DoubleReferenceArray src, int srcoffset, DoubleReferenceArray dest,
+			int destoffset, int length) {
+		//if (src.distribution.rank != dest.distribution.rank)
+		//	throw new RankMismatchException(src.distribution.rank, dest.distribution.rank);
+		if (src.distribution.region.size() != dest.distribution.region.size())
+			throw new IllegalArgumentException("Arrays must be of the same size");
+		runtime.arrayCopyAdd_internal(src, srcoffset, dest, destoffset, length);
+	}
 
+	protected abstract void arrayCopyAdd_internal(DoubleReferenceArray src, int srcoffset, DoubleReferenceArray dest, int destoffset, int length);
 	protected abstract void arrayCopy_internal(x10Array src, int srcoffset, x10Array dest, int destoffset, int length);
 
 	/**
