@@ -315,11 +315,16 @@ public abstract class Runtime {
 		assert oh != null;
 		assert oh instanceof RemoteDoubleArrayCopier;
 		RemoteDoubleArrayCopier src = (RemoteDoubleArrayCopier) oh;
-		RemoteDoubleArrayCopier dest = (RemoteDoubleArrayCopier) G.get(srcoffset);
+		RemoteDoubleArrayCopier dest = (RemoteDoubleArrayCopier) G.get(remote.id);
 		assert dest != null;
-		DoubleReferenceArray destArray = dest.getDestArray();
-		doubleArray srcArray = src.getSourceArray();
-		System.arraycopy(srcArray, srcoffset, destArray, destoffset, length);
+		double[] destArray = dest.getDestArray().getBackingArray();
+		double[] srcArray = src.getSourceArray().getBackingArray();
+		try {
+			System.arraycopy(srcArray, srcoffset, destArray, destoffset, length);
+		} catch (ArrayStoreException z) {
+			z.printStackTrace();
+			throw z;
+		}
 		if (postCopyRun) {
 			try {
 				runtime.setCurrentPlace(remote);
