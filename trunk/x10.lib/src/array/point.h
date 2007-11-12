@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
 
- * $Id: point.h,v 1.7 2007-10-19 16:04:29 ganeshvb Exp $ 
+ * $Id: point.h,v 1.8 2007-11-12 07:56:58 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -135,8 +135,25 @@ namespace x10lib{
   class Point<3>
   {
   public:
+
+    Point (const int k) :
+      i_(k), j_(k), k_(k)
+    {}
+
     Point (int i, int j, int k) : i_(i), j_(j), k_(k) {}
-    
+
+    Point (const int* values) : 
+      i_(values[0]),
+      j_ (values[1]),
+      k_ (values[2])
+    {}
+   
+    const int value (const int x) const
+    {
+      assert (x <= 2);
+      return x == 0 ? i_ : 
+	x == 1 ? j_ : k_;
+    }    
   private:
     const int i_;
     const int j_;

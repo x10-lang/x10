@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.h,v 1.5 2007-10-31 13:05:47 ganeshvb Exp $
+ * $Id: array_copy.h,v 1.6 2007-11-12 07:56:58 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,11 +12,13 @@
 #include <x10/types.h>
 #include <x10/switch.h>
 #include <x10/closure.h>
+#include "lapi.h"
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
 #include <iostream>
 extern "C" void* arrayCopySwitch (int handler, void * args);
+extern "C" lapi_vec_t* genArrayCopySwitch (int handler, void * args);
 namespace x10lib {
   
   extern int __x10_num_places;
@@ -63,13 +65,32 @@ namespace x10lib {
 		     x10_switch_t c=NULL);
  
 
+
+  lapi_vec_t*
+  getIOVector  (void* data,
+		int rank,
+		int* lda,
+		size_t el_size,
+		int* origin,
+		int* diagonal);
+
+  x10_err_t
+  freeIOVector (lapi_vec_t* vec);
+
+		
+  x10_err_t
+  asyncArrayPut (lapi_vec_t* vec,
+		 x10_closure_t args,       
+		 int target, 
+		 x10_switch_t c = NULL);
+
   /* DEPRECATED */
   x10_err_t
   asyncArray (void* src,
-                     x10_closure_t args,
-                     size_t len,
-                     int target,
-                     x10_switch_t c=NULL);
+	      x10_closure_t args,
+	      size_t len,
+	      int target,
+	      x10_switch_t c=NULL);
 
 
   /* DEPRECATED */

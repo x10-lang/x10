@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rectangular_region.h,v 1.2 2007-10-23 18:05:29 ipeshansky Exp $ 
+ * $Id: rectangular_region.h,v 1.3 2007-11-12 07:56:58 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -178,6 +178,11 @@ namespace x10lib {
     Point<RANK> stride() const 
     {
       return stride_;
+    }
+
+    const int* lda() const 
+    {
+      return linearStep_;
     }
 
   protected :
