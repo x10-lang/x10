@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_table.h,v 1.2 2007-10-22 08:18:23 ganeshvb Exp $
+ * $Id: array_table.h,v 1.3 2007-11-12 07:56:58 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -27,6 +27,7 @@ namespace x10lib {
     int rank;
     int sizes[X10_MAX_RANK];
     int stride[X10_MAX_RANK];
+    int lda[X10_MAX_RANK];
   };
 }
 

@@ -1578,3 +1578,218 @@ Return values:
 
 	X10_OK		    Indicates the method/function call completed successfully.
 	X10_ERR_COM 	Error from the underlying communication system.
+
+=====================
+16) Array Copy
+=====================
+
+/// GENERAL ARRAY COPY ///
+
+Purpose:
+	Copy a local array section to a remote array section. The array section should
+	be rectangular. 
+
+Library:
+	libx10.a
+
+C++ Syntax : 
+
+    #include <x10/x10lib.h>	
+    asyncArrayPut (vec, args, target, switch)
+    lapi_vec_t* vec;
+    x10_clousre_t closure;
+    x10_place_t target;
+    x10_switch_t switch;  
+ 
+    asyncArrayIput (vec, args, target, switch)
+    lapi_vec_t* vec;
+    x10_clousre_t closure;
+    x10_place_t target;
+    x10_switch_t switch;   
+
+C Syntax : 
+
+    #include <x10/x10lib.h>	
+    x10_async_array_put (vec, closure, target, switch)
+    lapi_vec_t* vec;
+    x10_closure_t closure;
+    x10_place_t target;
+    x10_switch_t switch;    
+
+    x10_async_array_iput (vec, args, target, switch)
+    lapi_vec_t* vec;
+    x10_clousre_t closure;
+    x10_place_t target;
+    x10_switch_t switch;
+  
+Parameters:
+
+	INPUT
+
+	vec - a generalized IO vector that contains the bases addreses & length of the vectors.
+	      Use genIOVector function call to generate an IO Vector
+
+	closure - a closure that describes the handler & other arguments for remote execution.
+
+	target - destination of the remote array.
+
+	switch - switch for synchronization [OPTIONAL].
+
+Return values:
+
+	X10_OK - SUCCESSFUL completion
+
+	Other values - FAILUARE (see err.h for more details)       
+Note :
+     
+     1) This method requires the presence of genArrayCopySwitch method with the following signature:
+
+	     lapi_vec_t* genArrayCopySwitch (int handler, void* args)
+		
+        This method will return a pointer to an IO vector to the LAPI handler. The handler will
+        use this to intiate the data transfer at the destination location.
+
+     2) The Put & Iput versions are very similar. The latter does not wait for the operation
+        to complete locally, while the former does. This implies that it is the user's responsibility
+	to ensure that vec & closure are not de-allocated or re-used before a succeding SyncGlobal 
+	or SyncLocal operation.
+
+       
+/// GEN IO VECTOR ///
+
+Purpose:
+	Generate an IO vector for the given array & rectangular regoin.
+
+C++ Syntax:
+
+	#include <x10/x10lib.h>
+	lapi_vec_t* genIOVector (data, rank, lda, el_size, origin, diagonal)
+	void* data;
+	int rank;
+	int[] lda;
+	size_t el_size;
+	int[] origin;
+	int[] diagonal;
+	
+Parameters:
+	
+	INPUT
+	
+	data - the base pointer of the source array
+
+	rank - rank of the array.
+
+	lda[rank] - an array describing the "global" stride for every dimension.
+		    lda[rank-1].
+
+	el_size - size of every individual element in the input array.
+
+	origin[rank] - origin of a rectangular subsection of the region of the input array.
+
+	diagonal[rank] - diagonal of a rectangular subsection of the regoin of the input array.		    	
+
+Return values:
+       
+       NON-NULL - A pointer to the IO vector
+
+       NULL - Unsuccessful completion.
+
+/// FREE IO VECTOR ///
+
+Purpose:
+	Free an IO vector
+
+C++ Syntax:
+    #include <x10/x10lib.h>
+    x10_err_t freeIOVector (vec)
+    lapi_vec_t* vec;
+
+Parameters:
+	INPUT
+	
+	vec - the IO vector to be freed
+	
+Return values:
+
+       X10_OK - SUCCESSFUL completion
+
+       Other values - UNSUCCESSFUL (see err.h for a list of error codes)
+	
+/// ARRAY PUT ///
+
+Purpose:
+
+	A specialized version of general array put that assumes that the arrays
+	are 1-D and copies N bytes of contiguous data from the src to dest.
+
+C++ Syntax :
+
+    x10_err_t
+    asyncArrayPut (src, closure, len, target, switch);
+    void *src;
+    x10_closure_t closure;
+    size_t len;
+    x10_place_t target;
+    x10_switch_t switch;
+
+    x10_err_t	 
+    asyncArrayIput (src, closure, len, target, switch);
+    void *src;
+    x10_closure_t closure;
+    size_t len;
+    x10_place_t target;
+    x10_switch_t switch;
+
+Parameters:
+	
+	INPUT
+
+	src - base pointer of the source array
+	closure - a pointer to closure representing the destination closure (see CLOSURE)
+	len - number of bytes to be copied
+	target - the location of the remote array
+	switch - switch for synchronization [OPTIONAL]
+
+Return values:
+
+       X10_OK - SUCCESSFUL completion.
+
+       Other values - UNSUCCESSFUL (see err.h for a list of error codes)
+Note :
+	1)  This method requires the presence of arrayCopySwitch method with the following signature:
+
+	     void* arrayCopySwitch (int handler, void* args)
+			 
+	    This method will return the base address of the destination array to the LAPI handler.
+	    The handler will use this address to intiate data transfer. 
+
+        2) The Put & Iput versions are very similar. The latter does not wait for the operation
+	   to complete locally, while the former does. This implies that it is the user's responsibility
+	   to ensure that src & closure are not de-allocated or re-used before a succeding SyncGlobal 
+	   or SyncLocal operation.
+
+/// CLOSURE ///
+
+Purpose : 
+	A data type to represent all the information to be sent to the destination for sucessful execution
+	of a remote async or aggregate async or one-sided array copy.
+
+Usage : 
+	Users should inherit from the base class Closure defined in x10lib. Closure is of the following type:
+	
+	struct Closure
+	{	
+	  Closure () :
+	    len (0), handler (0) {}
+	 
+	  Closure (int _len, int _handler) :
+	    len (_len), handler (_handler) {}
+    
+	  size_t len;
+	  x10_async_handler_t handler;
+	}
+
+	User's should initialize the base class Closure with proper arguments -- len (in bytes) and 
+	handler (a constant integer). The derived class can add other arguments to the closure
+	like the base offset, region etc.
+
