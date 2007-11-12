@@ -1626,20 +1626,20 @@ Parameters:
 
 	INPUT
 
-	vec - a generalized IO vector that contains the bases addreses & length of the vectors.
-	      Use genIOVector function call to generate an IO Vector
+	vec  		a generalized IO vector that contains the bases addreses & length of the vectors.
+	      		Use genIOVector function call to generate an IO Vector
 
-	closure - a closure that describes the handler & other arguments for remote execution.
+	closure  	a closure that describes the handler & other arguments for remote execution.
 
-	target - destination of the remote array.
+	target  	destination of the remote array.
 
-	switch - switch for synchronization [OPTIONAL].
+	switch  	switch for synchronization [OPTIONAL].
 
 Return values:
 
-	X10_OK - SUCCESSFUL completion
+	X10_OK		SUCCESSFUL completion
 
-	Other values - FAILUARE (see err.h for more details)       
+	Other values	FAILUARE (see err.h for more details)       
 Note :
      
      1) This method requires the presence of genArrayCopySwitch method with the following signature:
@@ -1675,24 +1675,29 @@ Parameters:
 	
 	INPUT
 	
-	data - the base pointer of the source array
+	data		the base pointer of the source array
 
-	rank - rank of the array.
+	rank		rank of the array.
 
-	lda[rank] - an array describing the "global" stride for every dimension.
-		    lda[rank-1].
+	lda[rank]	an array describing the "global" stride for every dimension.
+		    	lda[rank-1].
 
-	el_size - size of every individual element in the input array.
+	el_size		size of every individual element in the input array.
 
-	origin[rank] - origin of a rectangular subsection of the region of the input array.
+	origin[rank]	origin of a rectangular subsection of the region of the input array.
 
-	diagonal[rank] - diagonal of a rectangular subsection of the regoin of the input array.		    	
+	diagonal[rank]	diagonal of a rectangular subsection of the regoin of the input array.		    	
 
 Return values:
        
-       NON-NULL - A pointer to the IO vector
+       NON-NULL		A pointer to the IO vector
 
-       NULL - Unsuccessful completion.
+       NULL		Unsuccessful completion.
+
+Notes :
+
+	1) In the next revision, data, rank, lda and el_size will be combined in to one single
+	   struture, array_info.
 
 /// FREE IO VECTOR ///
 
@@ -1707,13 +1712,13 @@ C++ Syntax:
 Parameters:
 	INPUT
 	
-	vec - the IO vector to be freed
+	vec		the IO vector to be freed
 	
 Return values:
 
-       X10_OK - SUCCESSFUL completion
+       X10_OK		SUCCESSFUL completion
 
-       Other values - UNSUCCESSFUL (see err.h for a list of error codes)
+       Other values	UNSUCCESSFUL (see err.h for a list of error codes)
 	
 /// ARRAY PUT ///
 
@@ -1744,17 +1749,17 @@ Parameters:
 	
 	INPUT
 
-	src - base pointer of the source array
-	closure - a pointer to closure representing the destination closure (see CLOSURE)
-	len - number of bytes to be copied
-	target - the location of the remote array
-	switch - switch for synchronization [OPTIONAL]
+	src		base pointer of the source array
+	closure		a pointer to closure representing the destination closure (see CLOSURE)
+	len		number of bytes to be copied
+	target		the location of the remote array
+	switch		switch for synchronization [OPTIONAL]
 
 Return values:
 
-       X10_OK - SUCCESSFUL completion.
+       X10_OK		SUCCESSFUL completion.
 
-       Other values - UNSUCCESSFUL (see err.h for a list of error codes)
+       Other values	UNSUCCESSFUL (see err.h for a list of error codes)
 Note :
 	1)  This method requires the presence of arrayCopySwitch method with the following signature:
 
