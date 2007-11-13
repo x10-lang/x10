@@ -1188,7 +1188,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 			return Double();
 		if (!isX10Array(me))
 			return null;
-		return ((X10Type)me).rootType();
+		List typeParams = ((X10Type)me).typeParameters();
+		if (typeParams.size() != 1)
+			return null;
+		return (Type) typeParams.get(0);
 	}
 	
 	public VarInstance createSelf(X10Type t) {
