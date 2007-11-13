@@ -58,17 +58,16 @@ $(LIBPFX)%.$(LIBEXT):	checkjava
 	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
 
 else				# Must be Cygwin
-DLLWRAP=dllwrap $(CCEXTRA)
 CCEXTRA=-mno-cygwin
 
 $(LIBPFX)%.$(LIBEXT):	checkjava dll_entry.o
-	@$(MAKE) $*.def __DEPS__="$^"
-	$(DLLWRAP) $(CFLAGS) -shared $(LDFLAGS) -o $@ --def $*.def $(filter %.o,$^)
+	@$(MAKE) $*.def __DEPS__="$^" LDLIBS="$(LDLIBS)"
+	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $@ $*.def $(filter %.o,$^) $(LDLIBS)
 	$(RM) $*.def
 
 ifneq ($(__DEPS__),)
 %.din:	dll_entry.o $(__DEPS__)
-	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $*.tmp.dll -Wl,--output-def=$@ $(filter %.o,$^)
+	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $*.tmp.dll -Wl,--output-def=$@ $(filter %.o,$^) $(LDLIBS)
 	$(RM) $*.tmp.dll
 
 %.def:	%.din
