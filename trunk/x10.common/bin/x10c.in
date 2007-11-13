@@ -78,7 +78,9 @@ classpath="${CP_OVERRIDE}"
 [ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${POLYGLOT_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${ext_cp}${extra_cp}"
 
-command="\"$JAVA\" -Xmx128m $config $profile -classpath \"$classpath\" ${java_args} polyglot.main.Main $extargs $args"
+[ -z "$MAIN" ] && MAIN="polyglot.main.Main"
+
+command="\"$JAVA\" -Xmx128m $config $profile -classpath \"$classpath\" ${java_args} $MAIN $extargs $args"
 
 [ -n "$verbose" ] && echo "$command"
 
