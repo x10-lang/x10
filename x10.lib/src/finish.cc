@@ -4,7 +4,7 @@
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: finish.cc,v 1.19 2007-10-24 09:51:48 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.20 2007-11-13 05:28:50 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -90,7 +90,7 @@ exceptionHeaderHandler (lapi_handle_t handle, void* uhdr,
 x10_err_t            
 finishInit ()
 {
-  X10_DEBUG (1, "Entry");
+  X10_DEBUG (1, "ENTRY");
   
   LRC (LAPI_Addr_set (__x10_hndl, (void*) exceptionHeaderHandler, EXCEPTION_HEADER_HANDLER));
   LRC (LAPI_Addr_set (__x10_hndl, (void*) continueHeaderHandler, CONTINUE_HEADER_HANDLER));
@@ -156,7 +156,11 @@ finishInit ()
   LRC (LAPI_Address_init64 (__x10_hndl, (lapi_long_t) &cntr2, continueCntr));
   
   X10_DEBUG (1, "Exit" );
-  //LAPI_Gfence(__x10_hndl);
+  LAPI_Gfence(__x10_hndl);
+
+
+  //cout << "Stat: " << __x10_my_place << " " << ftree->parent << " " << ftree->numChild << " "
+       //<< ftree->numPeers << " " << endl;
   return X10_OK;
 } 
 
@@ -176,19 +180,22 @@ finishFinalize()
 static x10_err_t
 finishStart_ (int* cs)
 {
+  X10_DEBUG (1, "ENTRY" << ftree->parent);
   int tmp;
   
   assert (ftree);
 
   if (ftree->parent != __x10_my_place) {
+     X10_DEBUG (1, "CHILD" << "CS: " << *cs << " " );
     numExceptions = 0;
 
-    if (*cs > 0) return X10_OK;
+   if (*cs > 0) return X10_OK;
     LRC (LAPI_Waitcntr (__x10_hndl, 
                   &cntr2,
                   1, 
                   &tmp));
     *cs = CONTINUE_STATUS;
+     X10_DEBUG (1, "CHILD_DONE");
   }
 
  
@@ -196,8 +203,10 @@ finishStart_ (int* cs)
     lapi_cntr_t originCntr;
      numExceptions = 0;
      bufSize = 0;
+    X10_DEBUG (1, "PARENT");
     for (int i = 0 ; i < ftree->numChild; i++) {
 
+      X10_DEBUG(1, "PARENT SENDS TO " << " " << ftree->children[i]);
       LRC (LAPI_Setcntr (__x10_hndl, &originCntr, 0));
       LRC (LAPI_Amsend (__x10_hndl, 
                  ftree->children[i], 
@@ -211,16 +220,21 @@ finishStart_ (int* cs)
                  NULL));
      LRC (LAPI_Waitcntr (__x10_hndl, &originCntr, 1, &tmp));
    }
+    X10_DEBUG (1, "PARENT_BEFORE_FENCE");
      LRC (LAPI_Fence(__x10_hndl));
+    X10_DEBUG (1, "PARENT_DONE");
   }
  
   CONTINUE_STATUS = 0;
+
+  X10_DEBUG (1, "EXIT");
   return X10_OK;
 }
 
 static x10_err_t
 finishEnd_ (Exception* e)
 {
+  X10_DEBUG (1, "ENTRY");
   void* ex_buf = (void*) e;
   int esize = e ? e->size() : 0;
 
@@ -250,6 +264,7 @@ finishEnd_ (Exception* e)
   }
 
   if (ftree->parent != __x10_my_place) {
+      X10_DEBUG (1, "PARENT");
     if (e != NULL) {
       if (ftree->numChild == 0)
         numExceptions++;
@@ -267,10 +282,14 @@ finishEnd_ (Exception* e)
 			&originCntr,
 			NULL));
       LRC (LAPI_Waitcntr (__x10_hndl, &originCntr, 1, &tmp));
+      X10_DEBUG (1, "PARENT");
     } else {
+      X10_DEBUG (1, "CHILD");
       LRC (LAPI_Put (__x10_hndl, ftree->parent, 0, NULL, NULL, (lapi_cntr_t*) exceptionCntr[0], NULL, NULL)); 
+      X10_DEBUG (1, "CHILD_DONE");
     }
   }
+  X10_DEBUG (1, "EXIT");
   return X10_OK;
 }
 

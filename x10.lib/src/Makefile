@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.47 2007-10-25 11:12:41 ganeshvb Exp $
+# $Id: Makefile,v 1.48 2007-11-13 05:28:49 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -40,12 +40,14 @@ ARRAY_A = $(SUBDIR1)/array.a
 
 SRCS = aggregate.cc aggregate_hc.cc async.cc env.cc err.cc finish.cc gas.cc lock.cc \
 		order.cc progress.cc aggregate_ra.cc \
-		register.cc rmc.cc switch.cc x10lib.cc asyncSwitch.cc \
-		utility.cc misc.cc clock.cc arrayCopySwitch.cc standalone.cc reduce.cc
+		register.cc rmc.cc switch.cc x10lib.cc async_switch.cc \
+		utility.cc misc.cc clock.cc array_copy_switch.cc standalone.cc reduce.cc\
+                gen_array_copy_switch.cc
 OBJS = aggregate.o async.o env.o err.o finish.o gas.o lock.o \
 		order.o progress.o aggregate_ra.o standalone.o\
-		register.o rmc.o switch.o x10lib.o asyncSwitch.o \
-		utility.o misc.o clock.o aggregate_hc.o arrayCopySwitch.o reduce.o
+		register.o rmc.o switch.o x10lib.o async_switch.o \
+		utility.o misc.o clock.o aggregate_hc.o array_copy_switch.o reduce.o \
+                gen_array_copy_switch.o
 HEADERS = env.h err.h gas.h lock.h order.h progress.h \
 		register.h rmc.h switch.h types.h x10lib.h xassert.h \
 		xmacros.h aggregate.h async.h finish.h utility.h misc.h \

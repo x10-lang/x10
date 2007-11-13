@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: regress.sh,v 1.4 2007-10-11 11:57:58 ganeshvb Exp $
+# $Id: regress.sh,v 1.5 2007-11-13 05:28:49 ganeshvb Exp $
 # Script for starting the test harness.
 #
 
@@ -11,7 +11,7 @@ SRC_TEST=${SRC_TOP}/test
 CORE_TEST=${SRC_TEST}/core_test.sh
 ARRAY_TEST=${SRC_TEST}/array/array_test.sh
 SCHED_TEST=${SRC_TEST}/sched/sched_test.sh
-HOSTFILE=${SRC_TOP}/hostfiles/host_v20.list
+HOSTFILE=host.list
 TMP=/tmp
 RESFILE=${TMP}/results.$$.dat
 FAILED_CORE_TESTS=0
@@ -64,3 +64,4 @@ regress() {
 	fi
 	return 0
 }
+
