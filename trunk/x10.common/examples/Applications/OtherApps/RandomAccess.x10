@@ -5,8 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;
-import java.util.Set;
+import harness.*;
+import java.util.*;
 
 /**
  * RandomAccess benchmark.
