@@ -25,6 +25,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Local_c;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -59,6 +60,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
@@ -149,11 +151,18 @@ public class PropagateDependentAnnotationsVisitor extends NodeVisitor {
 					
 					if (xo instanceof X10ParsedClassType) {
 						X10ParsedClassType ct = (X10ParsedClassType) xo;
-						if (ct.isRootType() && ct.job() == PropagateDependentAnnotationsVisitor.this.job()) {
+						if (ct.job() == PropagateDependentAnnotationsVisitor.this.job()) {
+							ct.setAnnotations(Collections.EMPTY_LIST);
+							if (ct.isRootType())
+								ct.setClassAnnotations(Collections.EMPTY_LIST);
 							return;
 						}
-						if (ct.job() == null)
+						if (ct.job() == null) {
+							ct.setAnnotations(Collections.EMPTY_LIST);
+							if (ct.isRootType())
+								ct.setClassAnnotations(Collections.EMPTY_LIST);
 							return;
+						}
 					}
 					else if (xo instanceof MemberInstance) {
 						MemberInstance mi = (MemberInstance) xo;
@@ -164,12 +173,18 @@ public class PropagateDependentAnnotationsVisitor extends NodeVisitor {
 						if (mi instanceof X10ConstructorInstance && ((X10ConstructorInstance) mi).orig() == mi) isRoot = true;
 						if (mi.container() instanceof ParsedClassType) {
 							ParsedClassType ct = (ParsedClassType) mi.container();
-							if (isRoot && ct.job() == PropagateDependentAnnotationsVisitor.this.job()) {
-//								xo.setAnnotations(Collections.EMPTY_LIST);
+							if (ct.job() == PropagateDependentAnnotationsVisitor.this.job()) {
+								if (isRoot) {
+									xo.setAnnotations(Collections.EMPTY_LIST);
+								}
 								return;
 							}
-							if (ct.job() == null)
+							if (ct.job() == null) {
+								if (isRoot) {
+									xo.setAnnotations(Collections.EMPTY_LIST);
+								}
 								return;
+							}
 						}
 					}
 					else {
@@ -248,6 +263,12 @@ public class PropagateDependentAnnotationsVisitor extends NodeVisitor {
 			@Override
 			public void visit(LocalDecl_c n) {
 				force(n.localInstance());
+				super.visit(n);
+			}
+
+			@Override
+			public void visit(MethodDecl_c n) {
+				force(n.methodInstance());
 				super.visit(n);
 			}
 
