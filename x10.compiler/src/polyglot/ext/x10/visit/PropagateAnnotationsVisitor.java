@@ -73,11 +73,11 @@ public class PropagateAnnotationsVisitor extends ContextVisitor {
 		
 		new PropagateDependentAnnotationsVisitor(job, ts, nf).leave(old, n, v);
 		
-		if (n.ext() == null) {
-			return n;
-		}
+		List<AnnotationNode> as = null;
 		
-		List<AnnotationNode> as = ((X10Ext) n.ext()).annotations();
+		if (n.ext() != null) {
+			as = ((X10Ext) n.ext()).annotations();
+		}
 		
 		if (as == null)
 			as = Collections.<AnnotationNode>emptyList();
