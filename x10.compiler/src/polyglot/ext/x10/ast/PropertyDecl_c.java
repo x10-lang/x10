@@ -50,6 +50,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
             Id name, Expr init, X10NodeFactory nf) {
         super(pos, flags, type, name, init);
     }
+
    /**
     * Return body, augmented with properties and their getters. Used for classes. May be called during
     * initial AST construction phase.
@@ -179,6 +180,8 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     	// An error occurred.
     	if (n.fi == null)
     		return this;
+    	
+    	((X10FieldInstance) n.fi).setProperty();
     	
         // Property fields of interfaces are NOT static.
         Flags f = n.flags;
