@@ -62,9 +62,9 @@
  * Author: Tong Wen
  */
 
-public class RandomAccess_Dist {
+public final class RandomAccess_Dist {
 
-	public static class localTable {
+	public static final class localTable {
 		public final long[:self.rect && self.zeroBased && self.rank==1] array;
 		public final long tableSize;
 		public final long mask;
