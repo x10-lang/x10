@@ -47,6 +47,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
 	protected List<X10ClassType> annotations;
 	
+	public Object copy() { 
+		return super.copy();
+	}
+	
 	public List<X10ClassType> annotations() {
 		if (this != orig()) {
 			return ((X10MethodInstance) orig()).annotations();
@@ -55,7 +59,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			if (container() instanceof X10ParsedClassType) {
 				X10Scheduler scheduler = (X10Scheduler) typeSystem().extensionInfo().scheduler();
 				X10ParsedClassType ct = (X10ParsedClassType) container();
-				if (ct.job() != null) {
+				ct = (X10ParsedClassType) ct.rootType();
+				if (ct.job() != null && ct.job() != scheduler.currentJob()) {
 					throw new MissingDependencyException(scheduler.TypeObjectAnnotationsPropagated(ct), false);
 				}
 			}
@@ -228,9 +233,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			}
 			newFormalTypes.add(newType);
 		}
-		X10MethodInstance result = new X10MethodInstance_c(ts, position(),
-				container, flags, newRetType, name,
-				 newFormalTypes,  throwTypes());
+		X10MethodInstance result = this;
+		result = (X10MethodInstance) result.copy();
+		result = (X10MethodInstance) result.returnType(newRetType);
+		result = (X10MethodInstance) result.formalTypes(newFormalTypes);
 		return result;
 	}
 	  /** Returns true if a call can be made with the given argument types. 

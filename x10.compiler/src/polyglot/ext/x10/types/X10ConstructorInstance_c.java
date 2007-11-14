@@ -40,6 +40,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements
 			if (container() instanceof X10ParsedClassType) {
 				X10Scheduler scheduler = (X10Scheduler) typeSystem().extensionInfo().scheduler();
 				X10ParsedClassType ct = (X10ParsedClassType) container();
+				ct = (X10ParsedClassType) ct.rootType();
 				if (ct.job() != null) {
 					throw new MissingDependencyException(scheduler.TypeObjectAnnotationsPropagated(ct), false);
 				}
