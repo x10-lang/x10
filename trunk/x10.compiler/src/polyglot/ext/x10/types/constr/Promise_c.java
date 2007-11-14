@@ -288,6 +288,7 @@ public class Promise_c implements Promise, Serializable {
 	}
 	
 	public void replaceDescendant(Promise y, Promise x) {
+		var = var.substitute(y.term(), x.term());
 		if (value!= null) {
 			if (value.equals(x)) {
 				value = y;
