@@ -614,31 +614,29 @@ implements X10ParsedClassType
 				ud.setUniqueDist();
 				fi.setType(ud);
 		 }
-		 fi.container(this);
+		 fi.setContainer(this);
 		 return fi;
 	}
 	private MethodInstance translateTypes(MethodInstance i) {
-		MethodInstance mi = (MethodInstance)i.copy();
-		List<Type> formals = mi.formalTypes();
+		List<Type> formals = i.formalTypes();
 		List<Type> nformals = new LinkedList<Type>();
 		Iterator it = formals.iterator();
 		while (it.hasNext())
 			nformals.add(translateType((Type)it.next()));
-		mi.formalTypes(nformals);
-		mi.returnType(translateType(i.returnType()));
-		mi.container(this);
-		return mi;
+		i.setFormalTypes(nformals);
+		i.setReturnType(translateType(i.returnType()));
+		i.setContainer(this);
+		return i;
 	}
 	private ConstructorInstance translateTypes(ConstructorInstance i) {
-		ConstructorInstance ci = (ConstructorInstance)i.copy();
-		List<Type> formals = ci.formalTypes();
+		List<Type> formals = i.formalTypes();
 		List<Type> nformals = new LinkedList<Type>();
 		Iterator it = formals.iterator();
 		while (it.hasNext())
 			nformals.add(translateType((Type)it.next()));
-		ci.formalTypes(nformals);
-		ci.container(this);
-		return ci;
+		i.setFormalTypes(nformals);
+		i.setContainer(this);
+		return i;
 	}
 	
 	/* (non-Javadoc)
