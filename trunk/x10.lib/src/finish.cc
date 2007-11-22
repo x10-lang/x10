@@ -4,7 +4,7 @@
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: finish.cc,v 1.20 2007-11-13 05:28:50 ganeshvb Exp $ */
+/* $Id: finish.cc,v 1.21 2007-11-22 04:12:25 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -286,6 +286,7 @@ finishEnd_ (Exception* e)
     } else {
       X10_DEBUG (1, "CHILD");
       LRC (LAPI_Put (__x10_hndl, ftree->parent, 0, NULL, NULL, (lapi_cntr_t*) exceptionCntr[0], NULL, NULL)); 
+      LAPI_Fence (__x10_hndl);
       X10_DEBUG (1, "CHILD_DONE");
     }
   }
