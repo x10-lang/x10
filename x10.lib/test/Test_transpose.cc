@@ -1,9 +1,11 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose.cc,v 1.2 2007-11-28 19:04:04 ganeshvb Exp $ 
+ * $Id: Test_transpose.cc,v 1.3 2007-11-28 19:06:16 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
+
+/* Transpose a 2D array */
 
 #include <iostream>
 #include <x10/xassert.h>
