@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.10 2007-11-12 07:56:58 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.11 2007-11-28 14:14:19 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -88,8 +88,10 @@ namespace x10lib {
   freeIOVector (lapi_vec_t* vec)
   {    
     delete [] (char*)vec->info;
-    delete [] vec->len;    
+    delete [] vec->len;   
+    //cout << "delete " << (long) vec << endl; 
     delete vec;
+    vec = NULL;
   }
 
   lapi_vec_t*
@@ -101,7 +103,8 @@ namespace x10lib {
 		int* diagonal)
   {
 
-    lapi_vec_t* vec = new lapi_vec_t;
+    lapi_vec_t* vec = (lapi_vec_t*) new char [sizeof(lapi_vec_t)];
+    //cout << "create " << (long) vec << " " << __x10_my_place << " " << sizeof(lapi_vec_t) <<  endl; 
 
     int offset = 0;    
     
@@ -199,7 +202,7 @@ namespace x10lib {
     
     LAPI_Waitcntr (__x10_hndl,  &origin_cntr,  1, &tmp);
 
-    delete vec;    
+    //delete vec;    
     return X10_OK;
   } 
 
