@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose.cc,v 1.1 2007-11-28 14:14:19 ganeshvb Exp $ 
+ * $Id: Test_transpose.cc,v 1.2 2007-11-28 19:04:04 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -15,7 +15,6 @@ using namespace x10lib;
 
 double* data;
 double* data2;
-const int* lda;
 
 struct __closure__0__args
 {
@@ -82,8 +81,6 @@ main (int argc, char* argv[])
   Point<2> diagonal (X-1, Y-1);
   RectangularRegion<2> r (origin, diagonal);
 
-  lda = r.lda();
-
   __closure__0* closure = new __closure__0 [nRows * __x10_num_places];
 
   x10lib::SyncGlobal();
@@ -92,6 +89,7 @@ main (int argc, char* argv[])
 
   for (int k=0; k <__x10_num_places; ++k) { //for each block
 
+    /* In-place transposition of sub-blocks*/
     int colStartA = k*nRows;
     for (int i=0; i<nRows; ++i)
       for (int j=i; j<nRows; ++j) {
@@ -103,7 +101,8 @@ main (int argc, char* argv[])
 	data[idxB] = tmp0; 
 
       }
-        
+       
+    /* remote array copy using nRows asyncArrayCopies*/ 
     for (int i=0; i<nRows;++i) {
       int srcI=  i*SQRT_N + colStartA;
       int destI= i*SQRT_N + P*nRows;                                      
@@ -121,7 +120,6 @@ main (int argc, char* argv[])
     for (int j = 0; j < Y; j++)
       {
 	assert (data2 [i * Y + j] == j * Y + i + P * nRows);       	
-	//    cout << data2 [i * Y + j] << endl;
       }
    
   cout << "Test_transpose PASSED" << endl;

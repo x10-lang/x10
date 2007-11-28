@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose_iov.cc,v 1.1 2007-11-28 14:14:20 ganeshvb Exp $ 
+ * $Id: Test_transpose_iov.cc,v 1.2 2007-11-28 19:04:04 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -52,7 +52,6 @@ lapi_vec_t* genArrayCopySwitch (int handler, void* buf)
   
   lapi_vec_t* vec = getIOVector (data2, 2, (int*) lda, sizeof (double), closure_args->_origin, closure_args->_diagonal);
  
-  //cout << "handler " << __x10_my_place << " " <<  (long) vec << endl;
 
   return vec;
 }
@@ -96,6 +95,7 @@ main (int argc, char* argv[])
   
   for (int k=0; k <__x10_num_places; ++k) { //for each block
 
+    /* in-place transpostion of sub-blocks */
     int colStartA = k*nRows;
     for (int i=0; i<nRows; ++i)
       for (int j=i; j<nRows; ++j) {
@@ -107,21 +107,18 @@ main (int argc, char* argv[])
 	data[idxB] = tmp0; 
 
       }
-        
+       
+
+    /* single asyncArrrayCopy using iovectors */ 
     int a_values[2] = {0, k * nRows};
     int b_values[2] = {X-1, (k+1) * nRows - 1};
-
     lapi_vec_t* vec = getIOVector (data, 2, (int*) lda, sizeof(double), a_values, b_values);
-    
     int aprime_values[2] = {0, P * nRows};
     int bprime_values[2] = {X-1, (P+1) * nRows - 1};
     Point<2> a (aprime_values);
     Point<2> b (bprime_values);
-       
     __closure__0 args (2, a, b);
-    
     asyncArrayPut (vec, &args, k);
-    
     freeIOVector (vec);
   }
   
@@ -131,7 +128,6 @@ main (int argc, char* argv[])
     for (int j = 0; j < Y; j++)
       {
 	assert (data2 [i * Y + j] == j * Y + i + P * nRows);       	
-	//    cout << data2 [i * Y + j] << endl;
       }
    
   cout << "Test_transpse_iov PASSED" << endl;

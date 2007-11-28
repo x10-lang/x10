@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose_contig.cc,v 1.1 2007-11-28 15:43:38 ganeshvb Exp $ 
+ * $Id: Test_transpose_contig.cc,v 1.2 2007-11-28 19:04:04 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -90,14 +90,16 @@ main (int argc, char* argv[])
   
   int n = 0;
 
+  /* tranpose local chunk and copy to contiguous location */
   for (int i = 0; i < X; i++)
    for (int j = 0; j < Y; j++)
       data2 [j * X + i] = data [ i * Y + j];
 
   x10lib::SyncGlobal();
 
+  /* use single arrayCopy for every destination */
   int chunk_size = nRows * nRows;
-  for (int k=0; k <__x10_num_places; ++k) { //for each block
+  for (int k=0; k <__x10_num_places; ++k) { 
 
       int srcI= k * chunk_size; 
       int destI= P * chunk_size;
@@ -109,6 +111,9 @@ main (int argc, char* argv[])
   
   x10lib::SyncGlobal();
 
+  /* scatter the result back, so we get the row contributions from 
+   * different processors in contiguous locations
+   */
   int n2 = X;
   int n1 = __x10_num_places;
   for (int k = 0; k < n2; k++)
@@ -122,10 +127,9 @@ main (int argc, char* argv[])
     for (int j = 0; j < Y; j++)
       {
 	assert (data2 [i * Y + j] == j * Y + i + P * nRows);       	
-	//    cout << data2 [i * Y + j] << endl;
       }
    
-  cout << "Test_transpose PASSED" << endl;
+  cout << "Test_transpose_contig PASSED" << endl;
 
   delete [] closure;
   x10lib::Finalize();
