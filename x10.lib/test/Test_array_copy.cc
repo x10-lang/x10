@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_array_copy.cc,v 1.1 2007-11-28 19:11:18 ganeshvb Exp $ 
+ * $Id: Test_array_copy.cc,v 1.2 2007-11-28 19:13:38 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -39,8 +39,6 @@ struct __closure__0 : Closure
 void* arrayCopySwitch (int handler, void* buf)
 {
   __closure__0__args* closure_args = (__closure__0__args*) buf;
-
-  //cout << "inside array copy switch " << __x10_my_place  << " " << closure_args->_offset << endl;  
   return data + closure_args->_offset;
 }
 
@@ -119,18 +117,13 @@ main (int argc, char* argv[])
       for (int i = a0; i <= a1; i++)
         for (int j = b0; j <= b1; j++)
          for (int k = c0; k <= c1; k++) 
-      //for (int i = 0; i <= X; i++)
-        //for (int j = 0; j <= Y; j++)
-         //for (int k = 0; k <= Z; k++) 
-	    
 	    {
-//	       cout << data [i * lda[0] + j * lda[1] + k]  << " " <<  i * lda[0]+ j * lda[1] + k << endl;
 	       assert (data [i * lda[0] + j * lda[1] + k] == i * lda[0]+ j * lda[1] + k);
 	    }
     }
   
  
-  cout << "Test_array_table PASSED" << endl;
+  cout << "Test_array_copy PASSED" << endl;
   
   x10lib::Finalize();
   
