@@ -612,6 +612,7 @@ implements X10ParsedClassType
 		if (xts.equals(fi.container(), xts.distribution()) && fi.name().equals("UNIQUE")) {
 				X10ParsedClassType ud = ((X10ParsedClassType)fi.type()).makeVariant();
 				ud.setUniqueDist();
+				ud.setRail();
 				fi.setType(ud);
 		 }
 		 fi.setContainer(this);
