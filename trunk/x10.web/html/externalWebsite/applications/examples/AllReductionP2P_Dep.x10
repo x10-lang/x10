@@ -1,4 +1,4 @@
-import harness.x10Test;
+//import harness.x10Test;
 
 /***************************************************************************************
          An example of implementing all reduction using X10's conditional blocks
@@ -20,35 +20,22 @@ Author: Tong Wen @IBM Research
 *****************************************************************************************/
 
 public class  AllReductionP2P_Dep extends x10Test {
-	public boolean powerOf2(int a_int){
-		assert a_int>0; //int(:self>0) is not supported yet.
-		int i=(int)Math.abs(a_int);
-		if (i==0) return false;
-		else{
-			if (i!=(pow2(log2(i)))) return false;
-		}
-		return true;
-	}
-	public int log2(int a_int){
-		return (int)(Math.log(a_int)/Math.log(2));
-	}
-	public int pow2(int a_int){
-		return (int)Math.pow(2,a_int);
-	}
+
 	public boolean run() {
-		final dist(:rank==1) ALLPLACES=(dist(:rank==1))dist.factory.unique();//the size must be a power of 2
+		/** :rail is equivalent to :rect&&zeroBased&&rank==1 **/
+		final dist(:rail) ALLPLACES=(dist(:rail))dist.UNIQUE;//the size must be a power of 2
 	    	final int numPlaces=place.MAX_PLACES;
 	    	assert powerOf2(numPlaces);
 	    	
-	    	final double [:rank==1] A=new double [ALLPLACES] (point[i]){return 1;};
+	    	final double [:rail] A=new double [ALLPLACES] (point[i]){return 1;};
 	    	
 	        /*define the buffers*/
-		final double [:rank==1] B=new double [ALLPLACES];
+		final double [:rail] B=new double [ALLPLACES] (point[i]){return 0;};
 	        /*Flag1 is used to align the phase of each pair, 
 	          while Flag2 is used to coordinate the exchange of values between them.
 	        */  
-		final int [:rank==1] Flag1=new int [ALLPLACES] (point [i]){return -1;};
-		final int [:rank==1] Flag2=new int [ALLPLACES] (point [i]){return -1;};
+		final int [:rail] Flag1=new int [ALLPLACES] (point [i]){return -1;};
+		final int [:rail] Flag2=new int [ALLPLACES] (point [i]){return -1;};
 		final int factor=numPlaces;
 		final int phases=log2(factor);
 		  
