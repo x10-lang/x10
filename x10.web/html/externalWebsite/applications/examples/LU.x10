@@ -1,4 +1,4 @@
-import harness.x10Test;
+//import harness.x10Test;
 
 /**
 LU Factorization with partial pivoting. 
@@ -43,6 +43,7 @@ A literal translation of the following Matlab code:
  *
  *
  * @author Tong
+ * Modified by T.W. 11/29/2007: comment out the import statements.
  */
 public class LU extends x10Test {
 	 const double epsilon2 = 0.000000000001;
@@ -118,7 +119,7 @@ public class LU extends x10Test {
 		double [] UDiag={1, -2, 2, -4, 4, -6, 6, -8, 8, 0};
 		int [] P={1,2,3,4,5,6,7,8,9,0};
 		for (int i=0;i<size;i++){
-			temp1+=UDiag[i]-U[i,i]
+			temp1+=UDiag[i]-U[i,i];
 		}
 		for (point [i]:p.region) temp2+=p[i]-P[i];
 		//System.out.println("temp1= "+temp1+", temp2= "+temp2);

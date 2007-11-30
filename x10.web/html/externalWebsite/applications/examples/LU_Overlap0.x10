@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;
+//import harness.x10Test;
 
 /**
                                LU Factorization with partial pivoting. 
@@ -28,6 +28,7 @@ Date:   10/15/06
         11/08/06 clean up comments
         12/24/06 vj -- cosmetic touches to code
         01/23/07 change synchronization style by breaking up the update operation
+	11/30/07 comment out the import statement
 **/
 
 public class LU_Overlap0(region(:rank==2&& zeroBased&&rect) R, 

@@ -1,4 +1,4 @@
-import harness.x10Test;
+//import harness.x10Test;
 
 /**
 LU Factorization with partial pivoting. 
@@ -40,24 +40,26 @@ A literal translation of the following Matlab code:
 		% Separate result
 		L = tril(A,-1) + eye(n,n);
 		U = triu(A);
- *
- *
- * @author Tong
- */
+*
+*
+* @author Tong
+*  Modified by T.W. 11/29/2007: comment out the import statements;
+*                              add more property. 
+**/
 public class LU_Dep extends x10Test {
 	 const double eps = 0.000000000001;
-	 public static void lu(final double [:rank==2] a_A, final double [:rank==2] a_L, final double [:rank==2] a_U,  final int [:rank==1] a_p){
-			final region(:rank==2) R=a_A.region;
-			final dist(:rank==2) D=a_A.distribution;
+	 public static void lu(final double [:rank==2&&rect] a_A, final double [:rank==2&&rect] a_L, final double [:rank==2&&rect] a_U,  final int [:rank==1&&rect] a_p){
+			final region(:rank==2&&rect) R=a_A.region;
+			final dist(:rank==2&&rect) D=a_A.distribution;
 			final int n=R.rank(0).size();
 			assert n==R.rank(1).size();
 			//precompute the index sets
-			final region(:rank==1) N = [0:n-1];
-			final region(:rank==1) NLess1 = [0:n-2];
-			final region(:rank==1) value [:rank==1] NCurrent 
-			    = (region(:rank==1) value [:rank==1])new region value [NLess1] (point [k]) { return [k+1:n-1];};
+			final region(:rank==1&&rect) N = [0:n-1];
+			final region(:rank==1&&rect) NLess1 = [0:n-2];
+			final region(:rank==1) value [:rank==1&&rect] NCurrent 
+			    = new region value [NLess1] (point [k]) { return [k+1:n-1];};
 			    
-			final double [:rank==2] A=new double [D] (point [i,j]){return a_A[i,j];}; //In Matlab, A is passed by value.
+			final double [:rank==2&&rect] A=new double [D] (point [i,j]){return a_A[i,j];}; //In Matlab, A is passed by value.
 			finish foreach (point [i]:a_p) a_p[i]=i;
 			
 			double r; int maxIdx;
@@ -88,7 +90,7 @@ public class LU_Dep extends x10Test {
 					
 					// Update the remainder of the matrix
 					finish foreach (point [i,j]:[(region(:rank==1))NCurrent[k],(region(:rank==1))NCurrent[k]]) //R[k] returns a general region?
-					//finish foreach (point [i,j]:[NCurrent[k],NCurrent[k]])
+					//finish foreach (point [i,j]:[NCurrent[k],NCurrent[k]]) //this line should pass compilation
 					A[i,j]-=A[i,k]*A[k,j];
 				}
 			}
@@ -106,16 +108,15 @@ public class LU_Dep extends x10Test {
 	public boolean run() {
 		//set up a test problem
 		final int size=10;
-		final region(:rank==2) R=[0:size-1,0:size-1];
-		final dist(:rank==2) D=R->here;
-		final double [:rank==2] A=new double [D] (point [i,j]){
+		final region(:rank==2&&rect) R=[0:size-1,0:size-1];
+		final double [:rank==2&&rect] A=new double [R] (point [i,j]){
 			int res=i%2;
 			if (i-1==j) res=i*(res==0?-1:1);
 			return res;};
 			
-		final double [:rank==2]  L= new double [D];
-		final double [:rank==2] U=new double [D];
-		final int [:rank==1] p=(int [:rank==1])new int [[0:size-1]];
+		final double [:rank==2&&rect]  L= new double [R];
+		final double [:rank==2&&rect] U=new double [R];
+		final int [:rank==1&&rect] p=new int [[0:size-1]];
 		
 		//compute LU factorization of A
 		lu(A, L, U, p);
