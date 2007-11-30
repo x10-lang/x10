@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;
+//import harness.x10Test;
 
 /**
                                LU Factorization with partial pivoting. 
@@ -27,7 +27,7 @@ Author: Tong Wen, IBM Research
 Date:   10/15/06
         11/08/06 clean up comments
         12/24/06 vj -- cosmetic touches to code
-
+	11/30/2007 tw -- comment out the import statement
 **/
 
 public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R, 

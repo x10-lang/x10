@@ -1,5 +1,4 @@
-package harness;
-
+//package harness;
 import java.util.Random;
 
 /**
@@ -8,10 +7,31 @@ import java.util.Random;
  */
 public abstract class x10Test  extends x10.lang.Object {
 
+	/** some utility functions **/
+	
+	public boolean powerOf2(int a_int){
+		assert a_int>0; //int(:self>0) is not supported yet.
+		int i=(int)Math.abs(a_int);
+		/*if (i==0) return false;
+		else{
+			if (i!=(pow2(log2(i)))) return false;
+		}*/
+		return (i==0)? false: (i!=(pow2(log2(i))))? false: true;
+	}
+
+	public  int log2(int a_int){
+		return (int)(Math.log(a_int)/Math.log(2));
+	}
+
+	public  int pow2(int a_int){
+		return (int)Math.pow(2,a_int);
+	}
+
 	/**
 	 * The body of the test.
 	 * @return true on success, false on failure
 	 */
+
 	protected abstract boolean run();
 
 	public void executeAsync() {

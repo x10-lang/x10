@@ -45,7 +45,8 @@ public class  AllReductionP2P_Dep extends x10Test {
 			for (int j=0;j<phases;j++){
 				shift=Factor/2;
 				final int destProcID=(i+shift)%Factor+i/Factor*Factor;
-				when (Flag1[destProcID]==(j-1)) {}
+				//when (Flag1[destProcID]==(j-1)) {}
+				await (Flag1[destProcID]==(j-1));
 					B[i]=A[destProcID]; 
 					async (ALLPLACES[destProcID]) atomic Flag2[destProcID]++;
 				await (Flag2[i]==j);
