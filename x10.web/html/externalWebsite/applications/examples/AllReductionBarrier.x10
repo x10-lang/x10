@@ -1,4 +1,4 @@
-import harness.x10Test;
+//import harness.x10Test;
 
 /***************************************************************************************
 An example of implementing all reduction using X10's clock 
@@ -14,32 +14,21 @@ Also, the explicit and implicit syntax for accessing a remote array element are 
 Date:   11/09/06
 
 Author: Tong Wen @IBM Research
+
+Modified by T.W. 11/29/2007: comment out the import statements;
+                             use dist.UNIQUE. 
 *****************************************************************************************/
 
 public class  AllReductionBarrier extends x10Test {
-	public boolean powerOf2(int a_int){
-		assert a_int>0;
-		int i=(int)Math.abs(a_int);
-		if (i==0) return false;
-		else{
-			if (i!=(pow2(log2(i)))) return false;
-		}
-		return true;
-	}
-	public int log2(int a_int){
-		return (int)(Math.log(a_int)/Math.log(2));
-	}
-	public int pow2(int a_int){
-		return (int)Math.pow(2,a_int);
-	}
+
 	public boolean run() {
-		final dist ALLPLACES=dist.factory.unique();//the size must be a power of 2
+		final dist ALLPLACES=dist.UNIQUE;//the size must be a power of 2
 	    	final int numPlaces=place.MAX_PLACES;
 	    	assert powerOf2(numPlaces);
 	    	final double [.] A=new double [ALLPLACES] (point[i]){return 1;};
 	    	
 	    	/*using the buffer approach to avoid dependence between each pair*/
-	    	final double [.] B=new double [ALLPLACES];
+	    	final double [.] B=new double [ALLPLACES] (point[i]){return 0;};
 	    	final int factor=numPlaces;
 	    	final int phases=log2(factor);
 	    	
@@ -53,7 +42,6 @@ public class  AllReductionBarrier extends x10Test {
 				for (int j=0;j<phases;j++){
 					shift=Factor/2;
 					final int destProcID=(i+shift)%Factor+i/Factor*Factor;
-					double [.] result, buffDest,buffSrc;
 					if (red){
 						//B[i]=future(A.distribution[destProcID]){A[destProcID]}.force();
 						//B[i]+=A[i];
