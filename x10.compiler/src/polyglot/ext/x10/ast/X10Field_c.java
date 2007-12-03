@@ -112,13 +112,6 @@ public class X10Field_c extends Field_c {
 					retType = type.makeVariant(newRC, null);
 					fi = fi.type(retType);
 				}
-				// FIXME: [IP] HACK!
-				if (xts.equals(fi.container(), xts.distribution()) && fi.name().equals("UNIQUE")) {
-					X10ParsedClassType ud = ((X10ParsedClassType)fi.type()).makeVariant();
-					ud.setUniqueDist();
-					fi.setType(ud);
-					retType = (X10Type) fi.type();
-				}
 			}
 			result = (X10Field_c)fieldInstance(fi).type(retType);  
 			result.checkConsistency(c);
