@@ -155,7 +155,26 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
 		Expr newPlace = place;
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
 		if (! placeIsPlace) {
-			newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).del().typeCheck(tc);
+			// FIXME: [IP] This is really ugly -- all array accesses should have a common superclass
+			if (place instanceof X10ArrayAccess1) {
+				X10ArrayAccess1 aa = (X10ArrayAccess1) place;
+				Expr arr = aa.array();
+				newPlace = (Expr) nf.X10ArrayAccess1(aa.position(),
+						(Expr) nf.Field(arr.position(), arr, nf.Id(arr.position(), "distribution")).del().typeCheck(tc),
+						aa.index()).del().typeCheck(tc);
+			} else
+			if (place instanceof X10ArrayAccess) {
+				X10ArrayAccess aa = (X10ArrayAccess) place;
+				Expr arr = aa.array();
+				newPlace = (Expr) nf.X10ArrayAccess(aa.position(),
+						(Expr) nf.Field(arr.position(), arr, nf.Id(arr.position(), "distribution")).del().typeCheck(tc),
+						aa.index()).del().typeCheck(tc);
+			} else
+			{
+				newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).del().typeCheck(tc);
+			}
+			// [IP] FIXME
+//			assert (ts.isImplicitCastValid(newPlace.type(), ts.place()));
 		}
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())
