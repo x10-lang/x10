@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose_iov.cc,v 1.3 2007-11-28 19:06:16 ganeshvb Exp $ 
+ * $Id: Test_transpose_iov.cc,v 1.4 2007-12-04 08:32:51 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -61,6 +61,11 @@ int
 main (int argc, char* argv[])
 {
   x10lib::Init(NULL,0);
+
+  if (argc != 2)  {
+     cout << "Syntax: ./a.out SQRTN " << endl;
+     exit (-1);
+  }
 
   int SQRT_N = atoi (argv[1]);
 

@@ -1,13 +1,14 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose.cc,v 1.3 2007-11-28 19:06:16 ganeshvb Exp $ 
+ * $Id: Test_transpose.cc,v 1.4 2007-12-04 08:32:51 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
 /* Transpose a 2D array */
 
 #include <iostream>
+#include <x10/timers.h>
 #include <x10/xassert.h>
 #include <x10/x10lib.h>
 #include "lapi.h"
@@ -55,6 +56,11 @@ main (int argc, char* argv[])
 {
   x10lib::Init(NULL,0);
 
+  if (argc != 2)  {
+     cout << "Syntax: ./a.out SQRTN " << endl; 
+     exit (-1);
+  }
+
   int SQRT_N = atoi (argv[1]);
 
   int X = SQRT_N /  __x10_num_places;
@@ -89,8 +95,15 @@ main (int argc, char* argv[])
   
   int n = 0;
 
+  double timers[4];
+
+  for (int i = 0; i < 4; i++) timers[i] = 0;
+
+  timers[0] = nanoTime();
+
   for (int k=0; k <__x10_num_places; ++k) { //for each block
 
+    timers[1] += nanoTime();
     /* In-place transposition of sub-blocks*/
     int colStartA = k*nRows;
     for (int i=0; i<nRows; ++i)
@@ -103,7 +116,9 @@ main (int argc, char* argv[])
 	data[idxB] = tmp0; 
 
       }
-       
+
+    timers[2] += nanoTime();
+      
     /* remote array copy using nRows asyncArrayCopies*/ 
     for (int i=0; i<nRows;++i) {
       int srcI=  i*SQRT_N + colStartA;
@@ -113,9 +128,11 @@ main (int argc, char* argv[])
       asyncArrayCopyRaw (data + srcI, closure + n, nRows*sizeof(double), k);
       n++;
     }
+    timers[3] += nanoTime();
   }
-  
-
+ 
+  timers[4] = nanoTime();
+ 
   x10lib::SyncGlobal();
   
   for (int i = 0; i < X; i++)
@@ -123,7 +140,16 @@ main (int argc, char* argv[])
       {
 	assert (data2 [i * Y + j] == j * Y + i + P * nRows);       	
       }
-   
+
+  cout << "*************** Summary BEGIN ***********************************" << endl
+       << "***************** Timing (Seconds) BEGIN************************* " << endl
+       << "Total Time: " << (timers[4] - timers[0]) * 1e-9 << endl    
+       << "in-place transposition : " << (timers[2] - timers[1]) * 1e-9  << endl
+       << "array copy : " << (timers[3] - timers[2]) * 1e-9 << endl
+       << "***************** Timing (Seconds) END ************************* " << endl
+       << "Total Memory (per place) : " << 2 * X * Y * sizeof(double) / (1024 * 1024) << "Mega Bytes" << endl
+       << "*************** Summary END ***********************************" << endl ;
+ 
   cout << "Test_transpose PASSED" << endl;
 
   delete [] closure;
