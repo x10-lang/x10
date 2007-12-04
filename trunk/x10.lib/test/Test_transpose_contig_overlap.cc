@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose_contig_overlap.cc,v 1.1 2007-12-04 10:11:18 ganeshvb Exp $ 
+ * $Id: Test_transpose_contig_overlap.cc,v 1.2 2007-12-04 10:23:00 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -124,7 +124,7 @@ main (int argc, char* argv[])
       int destI= P * chunk_size;
      
       (closure + n)->_args._offset = destI;
-      /* use single arrayCopy for every destination */
+      /* use single arrayCopy for every destination (output = data3) */
       asyncArrayCopyRaw (data2 + srcI, closure + n, chunk_size*sizeof(double), k);
       n++;
   }
