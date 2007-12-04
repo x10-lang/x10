@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose_contig.cc,v 1.5 2007-12-04 10:11:17 ganeshvb Exp $ 
+ * $Id: Test_transpose_contig_overlap.cc,v 1.1 2007-12-04 10:11:18 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -20,6 +20,7 @@ using namespace x10lib;
 
 double* data;
 double* data2;
+double* data3;
 const int* lda;
 
 struct __closure__0__args
@@ -51,7 +52,7 @@ void* arrayCopySwitch (int handler, void* buf)
 {
   __closure__0__args* closure_args = (__closure__0__args*) buf;
   
-  return data + closure_args->_offset;
+  return data3 + closure_args->_offset;
 }
 
 int 
@@ -76,6 +77,7 @@ main (int argc, char* argv[])
   
   data = new double[N];
   data2 = new double[N];
+  data3 = new double[N];
 
   int P = x10lib::__x10_my_place;
 
@@ -84,6 +86,7 @@ main (int argc, char* argv[])
       {
 	data [i * Y + j] = (i + P * nRows) * Y + j;
        	data2 [i * Y + j] =  0;
+        data3 [i * Y + j] =  0;
       }
   
 
@@ -102,25 +105,26 @@ main (int argc, char* argv[])
 
   double timers[4];
   timers[0] = nanoTime();
-  /* tranpose local chunk and copy to contiguous location */
 
-  for (int ii = 0; ii < X; ii += NBLK)
-    for (int jj = 0; jj < Y; jj += NBLK) 
-      for (int i = ii; i < ii + NBLK; i++)
-         for (int j = jj; j < jj + NBLK; j++)
-             data2 [j * X + i] = data [ i * Y + j];
 
   x10lib::SyncGlobal();
   timers[1] = nanoTime();
 
-  /* use single arrayCopy for every destination */
   int chunk_size = nRows * nRows;
   for (int k=0; k <__x10_num_places; ++k) { 
+
+  /* tranpose local chunk and copy to contiguous location */
+    for (int ii = 0; ii < X; ii += NBLK)
+      for (int jj = k * nRows; jj < (k+1) * nRows; jj += NBLK) 
+        for (int i = ii; i < ii + NBLK; i++)
+           for (int j = jj; j < jj + NBLK; j++)
+              data2 [j * X + i] = data [ i * Y + j];
 
       int srcI= k * chunk_size; 
       int destI= P * chunk_size;
      
       (closure + n)->_args._offset = destI;
+      /* use single arrayCopy for every destination */
       asyncArrayCopyRaw (data2 + srcI, closure + n, chunk_size*sizeof(double), k);
       n++;
   }
@@ -136,7 +140,7 @@ main (int argc, char* argv[])
   for (int k = 0; k < n2; k++)
     for (int i = 0; i < n1; i++)
       for (int j = 0; j < n2; j++)
-      data2 [k * n2 * n1 + j + i * n2] = data [ i * n2 * n2 + k * n2 + j];
+      data [k * n2 * n1 + j + i * n2] = data3 [ i * n2 * n2 + k * n2 + j];
   
   x10lib::SyncGlobal();
   timers[3] = nanoTime();
@@ -144,7 +148,7 @@ main (int argc, char* argv[])
   for (int i = 0; i < X; i++)
     for (int j = 0; j < Y; j++)
       {
-	assert (data2 [i * Y + j] == j * Y + i + P * nRows);       	
+	assert (data [i * Y + j] == j * Y + i + P * nRows);       	
       }
  
   cout << "*************** Summary BEGIN ***********************************" << endl
@@ -154,7 +158,7 @@ main (int argc, char* argv[])
        << "array copy: " << (timers[2] - timers[1]) * 1e-9 << endl
        << "scatter: " << (timers[3] - timers[2]) * 1e-9 << endl
        << "***************** Timing (Seconds) END ************************* " << endl
-       << "Total Memory (per place) : " << 2 * X * Y * sizeof(double) / (1024 * 1024) << "Mega Bytes" << endl
+       << "Total Memory (per place) : " << 3 * X * Y * sizeof(double) / (1024 * 1024) << "Mega Bytes" << endl
        << "*************** Summary END ***********************************" << endl ;
 
   cout << "Test_transpose_contig PASSED" << endl;
