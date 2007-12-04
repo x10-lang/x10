@@ -5,14 +5,10 @@ TARGETS: header.dvi header.ps header.pdf
 all: header.pdf
 
 header.pdf: header.tex
-        pdflatex header
-        bibtex header
-        pdflatex header
-        bibtex header
-        pdflatex header
+	pdflatex header; bibtex header; pdflatex header; bibtex header; pdflatex header
 
 
 clean:
 	rm -f header.blg header.dvi header.log header.bbl header.aux \
-	header.ps header.pdf header.lof header.lot header.toc \
+	header.ps header.pdf header.lof header.lot header.toc header.out \
 	`find . -name '*~'` _region_*
