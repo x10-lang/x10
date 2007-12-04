@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.14 2007-10-11 11:57:59 ganeshvb Exp $
+# $Id: Makefile,v 1.15 2007-12-04 10:23:00 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -61,7 +61,23 @@ TARGET10 = Test_broadcast
 SRCS10 = $(TARGET10).cc
 OBJS10 = $(TARGET10).o
 
-TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET9) $(TARGET10)
+TARGET11 = Test_transpose
+SRCS11 = $(TARGET11).cc
+OBJS11 = $(TARGET11).o
+
+TARGET12 = Test_transpose_contig
+SRCS12 = $(TARGET12).cc
+OBJS12 = $(TARGET12).o
+
+TARGET13 = Test_transpose_contig_overlap
+SRCS13 = $(TARGET13).cc
+OBJS13 = $(TARGET13).o
+
+TARGET14 = Test_transpose_iov
+SRCS14 = $(TARGET14).cc
+OBJS14 = $(TARGET14).o
+
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET9) $(TARGET10) $(TARGET11) $(TARGET12) $(TARGET13) $(TARGET14)
 
 all: $(TARGETS)
 	rm *.o
@@ -147,6 +163,39 @@ $(TARGET10): $(OBJS10)
 $(TARGET10).o: $(TARGET10).cc
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
+$(TARGET11): $(OBJS11)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS11) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET11).o: $(TARGET11).cc
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
+$(TARGET12): $(OBJS12)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS12) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET12).o: $(TARGET12).cc
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
+$(TARGET13): $(OBJS13)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS13) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET13).o: $(TARGET13).cc
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
+$(TARGET14): $(OBJS14)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS14) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET14).o: $(TARGET14).cc
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
 install:
 	@echo "Done \"install\" in \"test\" subdir."
 
