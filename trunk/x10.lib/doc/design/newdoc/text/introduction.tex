@@ -1,4 +1,52 @@
 \section{Introduction}
+
+\Xten{} is an experimental new language currently under development at
+IBM in collaboration with academic partners. The \Xten{} effort is part of
+the IBM PERCS project (Productive Easy-to-use Reliable Computer Systems)
+in the DARPA program on High Productivity Computer Systems. The PERCS
+project is focused on a hardware-software co-design methodology to
+integrate advances in chip technology, architecture, operating systems,
+compilers, programming language and programming tools to deliver new
+adaptable, scalable systems that will provide an order-of-magnitude
+improvement in development productivity for parallel applications. It is
+expected that applications written in \Xten{} will execute over
+high-performance interconnects using low-level communication libraries.
+\Xtenlib{} is a library that is built on top of low level communication
+libraries, like LAPI~\cite{LAPI} and provides a runtime target API for
+the \Xten{} compiler.
+
+\begin{figure}
+\center
+\includegraphics[scale=0.5]{figs/x10-block.pdf}
+\caption{Overview of Implementation Strategies for \Xten{}}
+\label{fig:x10-block}
+\end{figure}
+
+Figure~\ref{fig:x10-block} depicts the implementation strategy for the
+\Xten{} programming language. The \Xten{} backend is responsible for
+converting \Xten{} programs to map to either the C++ backend or the
+{\sc{Java}} backend. The C++ backend then links with the \Xtenlib{} API
+to run over high-performance interconnects on multiple places, i.e. on
+multiple processes spread out over different nodes connected by a
+network. The {\sc{Java}} backend is used to run \Xten{} programs in the
+context of a JVM. In this document, we will focus only on \Xtenlib{}.
+The Low-Level Communication API (LAPI)~\cite{LAPI} is utilized by
+\Xtenlib{} to communicate over the network. This provides a highly
+optimized runtime library.
+
+The primary purpose of \Xtenlib{} is to provide the \textit{Partitioned
+Global Address Space (PGAS)} required by \Xten{} along with methods to
+deploy and execute \Xten{} programs. \Xtenlib{} provies the PGAS by
+logically dividing up the address space among the various computing
+processes and managing the book-keeping required to convert
+pointer-dereferences into communication calls. \Xtenlib{} borrows the
+process management framework from Parallel Operating Environment (POE),
+which is ordinarily used to run MPI applications. Thus, inheriting a
+highly optimized and scalable runtime environment.
+
+The rest of this Section outlines the design goals and summarizes
+desired functionality.
+
 \subsection{Design Goals}
 \Xtenlib{} is a runtime system for \Xten{}~\cite{x10}. 
 We list the following explicit design goals for \Xtenlib:
@@ -206,15 +254,3 @@ change state. Writes to fields of monitored objects result in the
 suspension queue being examined. The suspension predicate for each
 async in the queue is evaluated, if it is true the async is moved from
 the suspension queue to the async queue associated with the place.
-
-% Are there any memory model issues. Barrier acquire release? 
-%\paragraph{Interaction with LAPI} 
-%Configuration information is used to determine whether each processor
-%interacts with LAPI through polling or via interrupts.  (Different
-<%\Xten{} programs may wish to be computation driven or compute driven.)
-
-%% How do we deal with library code that contains blocking calls? 
-
-%% Each place is associated with a lock.  Really, do we need it to be?
-
-
