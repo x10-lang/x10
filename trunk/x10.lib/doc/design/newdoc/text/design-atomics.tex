@@ -1,1 +1,11 @@
 \subsection{Atomic Sections}
+
+\paragraph{Implementation of atomic operations}
+{}\Xtenlib{} provides special kind of objects, {\em monitored} objects
+(e.g.{} futures). Each monitored object is a normal \Xten{} object
+together with a data-structure (the suspension queue) for recording
+the activities that are suspended on this datum, waiting for it to
+change state. Writes to fields of monitored objects result in the
+suspension queue being examined. The suspension predicate for each
+async in the queue is evaluated, if it is true the async is moved from
+the suspension queue to the async queue associated with the place.
