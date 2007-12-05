@@ -1,0 +1,194 @@
+\subsection{API for PGAS and Active Messages}
+The methods in this API implement the partitioned global address
+space (PGAS) and provide remote memory access either using
+put and get operations or active messages. The methods are inspired
+from GASnet~\cite{gasnet} and ARMCI~\cite{armci}. 
+
+\subsubsection {GAS Initialization and Management}
+
+We provide the following methods related to GAS:
+
+\begin{verbatim}
+
+int gas_init (...);
+
+int gas_finish (...);
+
+int gas_alloc (int nbytes);
+
+int gas_free (gas_addr addr);
+
+\end{verbatim}
+
+
+\subsubsection {Active Messages}
+
+The active message API is inspired from GASnet. A key feature in
+the active message interface of GASnet is the ability for programmer
+supply several parameters to AM handlers, as  a part of the
+AM message routines. The library internally communicates those
+parameters to the receiver. This functionality is useful for 
+implementing remote {\em async} activities. A remote {\em async} activity is just
+a function call that has to executed on a place P. An {\em async} can also
+access certain local variables (e.g. final variables) from the parent's
+local stack. These variables can be passed as arguments to the function call.
+Another feature of GASnet is that it provides three different types of AM 
+targeting short, medium and long messages. This functionality will be also
+provided in the \Xtenlib{}; \Xten compiler can recognize the size of
+the remote messages (e.g. a[i] = x vs a[1:1000] = x[1:1000]) and use the
+appropriate method to handle communication. 
+
+There are three kinds of methods in this category. All the methods are appended with a number
+M. M should be replaced by a number between $0 to NUMARGS-1$ in the actual call; $NUMARGS$ is 
+a pre-defined constant that specifies the maximum number of arguments allowed for a
+handler. All the calls are non-blocking. That is the sender does not wait for the completion
+of the receipt at the receiver end. However, the source buffer may be safely over-written.
+That is, on the sender side the message is guaranteed to be sent (or buffered). As a future
+extension, we can also consider {\em asynchronous} versions of the active message send
+operations, which do not wait for the message to be sent (or buffered).
+
+\begin {itemize}
+
+\item i) :
+\begin{verbatim}
+int am_send_shortM (int dst, handler_t handler, exec_type_t e,
+	                       arg_type_t arg0, arg_type_t arg1, ... arg_type_t argM-1)
+
+\end{verbatim}
+
+\item ii) :             
+\begin{verbatim}
+int am_send_mediumM (int dst, handler_t handler, exec_type_t e, void* source_addr, int nbytes, 
+	                         arg_type_t arg0, arg_type_t arg1, ... arg_type_t argM-1)
+
+\end{verbatim}	
+\item iii) : 
+
+\begin{verbatim}
+int am_send_longM (int dst, handler_t handler, exec_type_t e, void* source_addr, void* dst_addr, int nbytes,
+		 	        arg_type_t arg0, arg_type_t arg1, ... arg_type_t argM-1)
+	
+\end{verbatim}
+
+\item iv) : 
+\begin{verbatim}
+int am_wait (handler_t handler);
+\end{verbatim}
+
+\end {itemize}
+
+
+\subsubsection {Memory transfer operations}
+
+Though the active messages are general enough to transfer values from a local memory to
+remote memory it is desirable to have a specialized memory transfer operations for 
+various reasons. Chief reason is active messages are not sufficient to transfer non-contiguous data
+efficiently. Additionally, functionalities like aggregate remote copy can be provided in
+this API. 
+
+All the methods in the category take the following three parameters: pointer to destination
+memory, pointer to source memory and number of bytes to be transferred. Optionally,
+pointer to a {\tt stride\_desc\_t}  can be passed as the fourth argument. {\tt stride\_desc\_t} 
+is a structure with  {\tt dst\_stride\_arr}, {\tt src\_stride\_arr}, dim and count as its
+primary member. {\tt dst\_stride\_arr} and {\tt src\_stride\_arr}  describe the stride
+of the data in destination and source memory for each dimension of the array. 
+dim specifies the number of dimensions of the array and count specifies the size
+along each dimension. If {\tt stride\_desc} is null, the data is assumed to be contiguous. 
+
+Another optional argument is  the
+destination node that can be passed as the last argument. This is not required for 64-bit 
+architectures, but only for 32-bit architectures.
+
+We provide three kinds of put and get operations : blocking, non-blocking and aggregate.
+Calls to blocking put and get operations block until the transfer is complete. 
+Non-blocking put and get methods do not block until the transfer is complete. Instead,
+they return immediately with a handle. The transfer is completed only on a {\tt sync} operation
+on the handle. However, the source buffer is safe to be re-used after the put and get methods return. 
+The contents of the destination memory is un-defined until the synchronization completes successfully.
+Aggregate puts and gets queue all the non-blocking puts and gets on a given handle and finish
+them at once during a synchronization operation on that handle. 
+
+\begin{itemize}
+
+\item i) : 
+
+\begin{verbatim}
+
+int put (void* dst, void* src, int nbytes, 
+	 stride_desc_t *stride_desc = NULL,
+         int dest = -1)
+
+handle_t put_nb (void* dst, void* src, int nbytes, 
+	    stride_desc_t *stride_desc = NULL,
+            int dest = -1)
+
+handle_t put_nb_agg (void* dst, void* src, int nbytes, 
+	    stride_desc_t *stride_desc = NULL,
+            int dest = -1)
+\end{verbatim}
+
+\item ii) : 
+
+\begin{verbatim}
+int get (void* dst, void* src, int nbytes,
+	 stride_desc_t *stride_desc = NULL,
+    	 int dest = -1)
+
+handle_t get_nb (void* dst, void* src, int nbytes,
+        	stride_desc_t *stride_desc = NULL,
+    	 	int dest = -1)
+
+handle_t get_nb_agg (void* dst, void* src, int nbytes, 
+		stride_desc_t *stride_desc = NULL,
+            	int dest = -1)
+\end{verbatim}
+
+\item iii) :
+
+\begin{verbatim}
+int sync (handler_t handle)
+
+int sync_all()
+\end{verbatim}
+
+\end {itemize}
+
+\subsubsection {Read-Modify-Write Operatons}
+
+\Xtenlib{} also provides atomic read-modify-write operations, that
+atomically updates a remote location with a given value and
+operation. 
+
+\begin{verbatim}
+int rmw (void *dst, long value, int op, int dest = -1)
+
+int rmw_nb (void *dst, long value, int op, handler_t handle, int dest = -1)
+\end{verbatim}
+
+
+
+\subsubsection {Collective Operations}
+The following collective Operatons are provided by \Xtenlib{} : {\tt broadcast},
+{\tt reduce} and {\tt allreduce}. 
+
+\begin{itemize}
+\item i):
+\begin{verbatim}
+void broadcast (void* data, int nbytes, int root=-1)
+\end{verbatim}
+
+\item ii):
+
+\begin{verbatim}
+void reduce (void* data, int nbytes, int type, op_t op, int root)
+void allreduce (void* data, int nbytes, int type, op_t op)
+\end{verbatim}
+
+\item iii):
+
+\begin{verbatim}
+void barrier(void)
+\end{verbatim}
+
+\end {itemize}
+
