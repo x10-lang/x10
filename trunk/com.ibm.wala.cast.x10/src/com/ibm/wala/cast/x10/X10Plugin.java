@@ -1,4 +1,4 @@
-package com.ibm.domo.ast.x10;
+package com.ibm.wala.cast.x10;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;

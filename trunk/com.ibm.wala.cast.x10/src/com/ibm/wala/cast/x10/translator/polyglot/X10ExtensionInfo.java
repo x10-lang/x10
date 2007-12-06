@@ -1,9 +1,7 @@
 /*
  * Created on Mar 25, 2006
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
-
-import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.frontend.Job;
@@ -11,12 +9,11 @@ import polyglot.frontend.JobExt;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
-import com.ibm.wala.cast.tree.impl.*;
-import com.ibm.wala.eclipse.util.*;
+import com.ibm.wala.cast.tree.impl.CAstRewriterFactory;
+import com.ibm.wala.cast.x10.analysis.AnalysisJobExt;
 import com.ibm.wala.types.ClassLoaderReference;
 
 public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTranslatorExtension {

@@ -1,18 +1,16 @@
 /*
  * Created on Feb 23, 2006
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.io.PrintWriter;
 
 import polyglot.frontend.AbstractPass;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
-import com.ibm.domo.ast.x10.translator.X10CAstPrinter;
+import com.ibm.wala.cast.x10.analysis.AnalysisJobExt;
+import com.ibm.wala.cast.x10.translator.X10CAstPrinter;
 import com.ibm.wala.cast.tree.CAstEntity;
-import com.ibm.wala.cast.tree.CAstNode;
-import com.ibm.wala.cast.util.CAstPrinter;
 
 public class CAstDumperPass extends AbstractPass {
 

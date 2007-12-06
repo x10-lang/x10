@@ -1,4 +1,4 @@
-package com.ibm.domo.ast.x10.loader;
+package com.ibm.wala.cast.x10.loader;
 
 import com.ibm.wala.classLoader.ArrayClassLoader;
 import com.ibm.wala.classLoader.ClassLoaderImpl;

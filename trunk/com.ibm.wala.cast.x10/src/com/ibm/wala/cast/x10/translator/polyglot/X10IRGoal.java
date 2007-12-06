@@ -1,19 +1,16 @@
 /*
  * Created on Oct 7, 2005
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.Pass;
-import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.frontend.goals.EndGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
-import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 
 public class X10IRGoal extends AbstractGoal implements EndGoal {

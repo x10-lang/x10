@@ -1,14 +1,13 @@
 /*
  * Created on Feb 23, 2006
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.domo.ast.x10.analysis.AsyncAnalysisGoal;
-import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.wala.cast.x10.analysis.AsyncAnalysisGoal;
 import com.ibm.wala.types.ClassLoaderReference;
 
 public class X10DOMOScheduler extends DOMOScheduler {

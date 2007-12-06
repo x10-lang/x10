@@ -1,7 +1,7 @@
 /*
  * Created on Sep 8, 2005
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +27,8 @@ import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 
-import com.ibm.domo.ast.x10.translator.X10CAstEntity;
-import com.ibm.domo.ast.x10.translator.X10CastNode;
+import com.ibm.wala.cast.x10.translator.X10CAstEntity;
+import com.ibm.wala.cast.x10.translator.X10CastNode;
 import com.ibm.wala.cast.ir.translator.AstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;

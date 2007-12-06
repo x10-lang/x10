@@ -1,11 +1,11 @@
-package com.ibm.domo.ast.x10.client;
+package com.ibm.wala.cast.x10.client;
 
 import java.util.Set;
 
-import com.ibm.domo.ast.x10.loader.X10AnalysisScope;
-import com.ibm.domo.ast.x10.loader.X10Language;
-import com.ibm.domo.ast.x10.translator.polyglot.X10ClassLoaderFactory;
-import com.ibm.domo.ast.x10.translator.polyglot.X10IRTranslatorExtension;
+import com.ibm.wala.cast.x10.loader.X10AnalysisScope;
+import com.ibm.wala.cast.x10.loader.X10Language;
+import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
+import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;

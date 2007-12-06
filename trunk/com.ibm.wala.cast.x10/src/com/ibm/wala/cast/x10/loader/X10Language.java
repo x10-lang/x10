@@ -1,4 +1,4 @@
-package com.ibm.domo.ast.x10.loader;
+package com.ibm.wala.cast.x10.loader;
 
 import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.classLoader.LanguageImpl;

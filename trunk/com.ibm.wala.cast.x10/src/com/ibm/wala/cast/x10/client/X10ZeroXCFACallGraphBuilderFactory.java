@@ -1,6 +1,6 @@
-package com.ibm.domo.ast.x10.client;
+package com.ibm.wala.cast.x10.client;
 
-import com.ibm.domo.ast.x10.ipa.callgraph.X10ZeroXCFABuilder;
+import com.ibm.wala.cast.x10.ipa.callgraph.X10ZeroXCFABuilder;
 import com.ibm.wala.client.CallGraphBuilderFactory;
 import com.ibm.wala.ipa.callgraph.*;
 import com.ibm.wala.ipa.callgraph.impl.Util;

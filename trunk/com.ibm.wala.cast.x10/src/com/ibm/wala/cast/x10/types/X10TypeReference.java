@@ -1,4 +1,4 @@
-package com.ibm.domo.ast.x10.types;
+package com.ibm.wala.cast.x10.types;
 
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.TypeName;

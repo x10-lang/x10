@@ -1,7 +1,7 @@
 /*
  * Created on Feb 23, 2006
  */
-package com.ibm.domo.ast.x10.analysis;
+package com.ibm.wala.cast.x10.analysis;
 
 import java.util.HashMap;
 

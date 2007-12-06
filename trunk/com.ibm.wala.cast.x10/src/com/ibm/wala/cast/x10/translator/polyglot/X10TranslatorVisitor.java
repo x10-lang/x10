@@ -1,7 +1,7 @@
 /*
  * Created on Oct 6, 2005
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.ext.x10.ast.*;
 

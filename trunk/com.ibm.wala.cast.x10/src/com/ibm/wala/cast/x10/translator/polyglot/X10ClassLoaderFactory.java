@@ -1,11 +1,11 @@
 /*
  * Created on Apr 28, 2006
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.io.IOException;
 
-import com.ibm.domo.ast.x10.loader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.wala.classLoader.ClassLoaderImpl;

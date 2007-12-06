@@ -1,16 +1,13 @@
 /*
  * Created on Feb 23, 2006
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.wala.cast.tree.CAstEntity;
-import com.ibm.wala.util.debug.Assertions;
-import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
-import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
+import com.ibm.wala.cast.x10.analysis.AnalysisJobExt;
 
 public class X10CASTPass extends AbstractPass {
     private final Job fJob;

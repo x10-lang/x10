@@ -1,6 +1,6 @@
-package com.ibm.domo.ast.x10.loader;
+package com.ibm.wala.cast.x10.loader;
 
-import com.ibm.domo.ast.x10.translator.polyglot.X10SourceLoaderImpl;
+import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.types.ClassLoaderReference;
 
@@ -14,8 +14,8 @@ public class X10AnalysisScope extends JavaSourceAnalysisScope {
 	loadersByName.put(X10PrimordialClassLoader.X10PrimordialName, X10PrimordialClassLoader.X10Primordial);
 	loadersByName.put(X10SourceLoaderImpl.X10SourceLoaderName, X10SourceLoaderImpl.X10SourceLoader);
 	
-	setLoaderImpl(X10SourceLoaderImpl.X10SourceLoader, "com.ibm.domo.ast.x10.translator.polyglot.X10SourceLoaderImpl");
-	setLoaderImpl(X10PrimordialClassLoader.X10Primordial, "com.ibm.domo.ast.x10.loader.X10PrimordialClassLoader");
+	setLoaderImpl(X10SourceLoaderImpl.X10SourceLoader, "com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl");
+	setLoaderImpl(X10PrimordialClassLoader.X10Primordial, "com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader");
     }
 
     public ClassLoaderReference getX10PrimordialLoader() {

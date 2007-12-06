@@ -1,14 +1,14 @@
 /*
  * Created on Oct 7, 2005
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.util.ArrayList;
 
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
+import com.ibm.wala.cast.x10.analysis.AnalysisJobExt;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.wala.cast.tree.CAstEntity;
 

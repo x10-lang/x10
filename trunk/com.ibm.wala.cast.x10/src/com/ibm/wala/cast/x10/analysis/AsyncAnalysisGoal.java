@@ -1,7 +1,7 @@
 /*
  * Created on Feb 23, 2006
  */
-package com.ibm.domo.ast.x10.analysis;
+package com.ibm.wala.cast.x10.analysis;
 
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
@@ -10,7 +10,7 @@ import polyglot.frontend.Pass;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.domo.ast.x10.translator.polyglot.DOMOScheduler;
+import com.ibm.wala.cast.x10.translator.polyglot.DOMOScheduler;
 import com.ibm.wala.cast.tree.CAstEntity;
 
 public class AsyncAnalysisGoal extends AbstractGoal {
