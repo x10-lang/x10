@@ -5,6 +5,7 @@ package com.ibm.domo.ast.x10.translator.polyglot;
 
 import java.io.IOException;
 
+import com.ibm.domo.ast.x10.loader.X10Language;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
@@ -15,17 +16,32 @@ import com.ibm.wala.cast.tree.CAstSourcePositionMap;
 import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
+import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.Atom;
 
 public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
+    public static Atom X10SourceLoaderName= Atom.findOrCreateAsciiAtom("X10Source");
+
+    public static ClassLoaderReference X10SourceLoader= new ClassLoaderReference(X10SourceLoaderName, X10Language.X10);
 
     public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,
 	    IClassHierarchy cha, IRTranslatorExtension extInfo) throws IOException {
 	super(loaderRef, parent, exclusions, cha, extInfo);
+    }
+
+    @Override
+    public ClassLoaderReference getReference() {
+        return X10SourceLoader;
+    }
+
+    @Override
+    public Language getLanguage() {
+        return X10Language.X10Lang;
     }
 
     public void defineAsync(CAstEntity fn, TypeReference asyncRef, CAstSourcePositionMap.Position fileName) {
@@ -58,5 +74,9 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
 	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo));
 	} else
 	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo);
+    }
+
+    public String toString() {
+      return "X10 Source Loader (classes " + loadedClasses.values() + ")";
     }
 }
