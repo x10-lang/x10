@@ -13,13 +13,15 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.core,
  com.ibm.wala.cast,
  com.ibm.wala.cast.java,
- com.ibm.wala.eclipse
+ com.ibm.wala.eclipse,
+ x10.runtime
 Eclipse-AutoStart: true
 Export-Package: com.ibm.domo.ast.x10,
  com.ibm.domo.ast.x10.analysis,
  com.ibm.domo.ast.x10.analysis.typeInference,
  com.ibm.domo.ast.x10.client,
  com.ibm.domo.ast.x10.ipa.callgraph,
+ com.ibm.domo.ast.x10.loader,
  com.ibm.domo.ast.x10.ssa,
  com.ibm.domo.ast.x10.translator,
  com.ibm.domo.ast.x10.translator.polyglot,
