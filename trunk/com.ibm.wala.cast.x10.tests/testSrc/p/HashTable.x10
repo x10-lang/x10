@@ -1,5 +1,5 @@
 
-package testSrc.p;
+package p;
 
 public value HashTable {
   region R = [1:1000];
@@ -19,8 +19,8 @@ public value HashTable {
     	new HashTable().put(new K(), new V());
   }
 
-  public void put(K key, V value) {
-    int hash = key.hashCode()% 1000; // need R.max etc.
+  public void put(final K key, final V value) {
+    final int hash = key.hashCode()% 1000; // need R.max etc.
     async (D[hash]) {
       nullable<Bucket> b = buckets[hash];
       while (b != null) {
