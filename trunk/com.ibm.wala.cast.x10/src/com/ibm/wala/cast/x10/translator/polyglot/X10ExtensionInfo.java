@@ -34,7 +34,7 @@ public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTransl
     }
 
     public ClassLoaderReference getSourceLoaderReference() {
-	return EclipseProjectPath.SOURCE_REF;
+	return X10SourceLoaderImpl.X10SourceLoader;
     }
 
     protected Scheduler createScheduler() {
