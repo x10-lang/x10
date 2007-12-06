@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: X10 Tests Plug-in
-Bundle-SymbolicName: com.ibm.domo.ast.x10.tests
+Bundle-Name: X10 WALA IR Tests Plug-in
+Bundle-SymbolicName: com.ibm.wala.cast.x10.tests
 Bundle-Version: 1.0.0
 Bundle-Activator: com.ibm.wala.cast.x10.tests.X10Tests
 Bundle-Vendor: IBM Watson Research Center
