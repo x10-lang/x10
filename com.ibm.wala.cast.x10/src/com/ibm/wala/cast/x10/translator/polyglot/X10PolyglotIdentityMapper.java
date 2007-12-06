@@ -18,15 +18,15 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
     private final static Map<String, String> typeTranslationMap= new HashMap<String, String>();
 
     static {
-	typeTranslationMap.put("x10.lang.BooleanReferenceArray", "[Z");
-	typeTranslationMap.put("x10.lang.ByteReferenceArray", "[B");
-	typeTranslationMap.put("x10.lang.CharReferenceArray", "[C");
-	typeTranslationMap.put("x10.lang.DoubleReferenceArray", "[D");
-	typeTranslationMap.put("x10.lang.FloatReferenceArray", "[F");
-	typeTranslationMap.put("x10.lang.GenericReferenceArray", "[L");
-	typeTranslationMap.put("x10.lang.IntReferenceArray", "[I");
-	typeTranslationMap.put("x10.lang.LongReferenceArray", "[J");
-	typeTranslationMap.put("x10.lang.ShortReferenceArray", "[S");
+//	typeTranslationMap.put("x10.lang.BooleanReferenceArray", "[Z");
+//	typeTranslationMap.put("x10.lang.ByteReferenceArray", "[B");
+//	typeTranslationMap.put("x10.lang.CharReferenceArray", "[C");
+//	typeTranslationMap.put("x10.lang.DoubleReferenceArray", "[D");
+//	typeTranslationMap.put("x10.lang.FloatReferenceArray", "[F");
+//	typeTranslationMap.put("x10.lang.GenericReferenceArray", "[L");
+//	typeTranslationMap.put("x10.lang.IntReferenceArray", "[I");
+//	typeTranslationMap.put("x10.lang.LongReferenceArray", "[J");
+//	typeTranslationMap.put("x10.lang.ShortReferenceArray", "[S");
     }
 
     public String typeToTypeID(Type type) {
