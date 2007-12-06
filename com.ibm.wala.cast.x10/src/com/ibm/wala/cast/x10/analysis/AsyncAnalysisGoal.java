@@ -10,14 +10,14 @@ import polyglot.frontend.Pass;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.wala.cast.x10.translator.polyglot.DOMOScheduler;
+import com.ibm.wala.cast.x10.translator.polyglot.WALAScheduler;
 import com.ibm.wala.cast.tree.CAstEntity;
 
 public class AsyncAnalysisGoal extends AbstractGoal {
     public AsyncAnalysisGoal(Job job) {
 	super(job);
 	try {
-	    DOMOScheduler scheduler= (DOMOScheduler) job.extensionInfo().scheduler();
+	    WALAScheduler scheduler= (WALAScheduler) job.extensionInfo().scheduler();
 
 	    addPrerequisiteGoal(scheduler.CAstGenerated(job), scheduler);
 	    addPrerequisiteGoal(scheduler.CAstDumped(job), scheduler);

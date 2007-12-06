@@ -8,9 +8,9 @@ import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
-public abstract class DOMOScheduler extends JLScheduler {
+public abstract class WALAScheduler extends JLScheduler {
 
-    public DOMOScheduler(ExtensionInfo extInfo) {
+    public WALAScheduler(ExtensionInfo extInfo) {
 	super(extInfo);
     }
 

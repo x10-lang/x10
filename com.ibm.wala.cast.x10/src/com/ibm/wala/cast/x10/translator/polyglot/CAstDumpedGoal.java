@@ -15,7 +15,7 @@ public class CAstDumpedGoal extends AbstractGoal {
     public CAstDumpedGoal(Job job) {
 	super(job);
 	try {
-	    DOMOScheduler scheduler= (DOMOScheduler) job.extensionInfo().scheduler();
+	    WALAScheduler scheduler= (WALAScheduler) job.extensionInfo().scheduler();
 
 	    addPrerequisiteGoal(scheduler.CAstGenerated(job), scheduler);
 	} catch (CyclicDependencyException e) {

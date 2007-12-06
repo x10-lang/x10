@@ -22,7 +22,7 @@ public class X10IRGoal extends AbstractGoal implements EndGoal {
 	fSourceLoader = sourceLoader;
 
 	try {
-	    DOMOScheduler scheduler= (DOMOScheduler) job.extensionInfo().scheduler();
+	    WALAScheduler scheduler= (WALAScheduler) job.extensionInfo().scheduler();
 
 	    addPrerequisiteGoal(scheduler.CAstGenerated(job), scheduler);
 	} catch (CyclicDependencyException e) {
@@ -38,7 +38,7 @@ public class X10IRGoal extends AbstractGoal implements EndGoal {
     }
 
     public String name() {
-	return "<DOMO IR goal for " + job().source().path() + ">";
+	return "<WALA IR goal for " + job().source().path() + ">";
     }
     
     public JavaCAst2IRTranslator getJavaCAst2IRTranslator(){

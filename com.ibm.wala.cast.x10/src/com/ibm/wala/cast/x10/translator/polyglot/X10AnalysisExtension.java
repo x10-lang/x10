@@ -8,6 +8,6 @@ import polyglot.frontend.goals.Goal;
 
 public class X10AnalysisExtension extends X10ExtensionInfo {
     public Goal getCompileGoal(Job job) {
-	return ((DOMOScheduler) this.scheduler).AsyncsAnalyzed(job);
+	return ((WALAScheduler) this.scheduler).AsyncsAnalyzed(job);
     }
 }

@@ -23,7 +23,7 @@ public class X10IRTranslatorExtension extends X10ExtensionInfo {
      * associated CAstEntities at a later point.
      */
     public Goal getCompileGoal(Job job) {
-    	X10IRGoal g = (X10IRGoal) ((DOMOScheduler) this.scheduler).IRGenerated(job);
+    	X10IRGoal g = (X10IRGoal) ((WALAScheduler) this.scheduler).IRGenerated(job);
     	jobList.add(job);
     	if (this.g == null) 
     		this.g = g;

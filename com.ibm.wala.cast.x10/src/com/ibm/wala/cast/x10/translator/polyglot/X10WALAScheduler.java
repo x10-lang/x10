@@ -10,8 +10,8 @@ import polyglot.frontend.goals.Goal;
 import com.ibm.wala.cast.x10.analysis.AsyncAnalysisGoal;
 import com.ibm.wala.types.ClassLoaderReference;
 
-public class X10DOMOScheduler extends DOMOScheduler {
-    public X10DOMOScheduler(ExtensionInfo extInfo) {
+public class X10WALAScheduler extends WALAScheduler {
+    public X10WALAScheduler(ExtensionInfo extInfo) {
 	super(extInfo);
     }
 

@@ -35,7 +35,7 @@ public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTransl
     }
 
     protected Scheduler createScheduler() {
-        return new X10DOMOScheduler(this);
+        return new X10WALAScheduler(this);
     }
 
     public JobExt jobExt() {
