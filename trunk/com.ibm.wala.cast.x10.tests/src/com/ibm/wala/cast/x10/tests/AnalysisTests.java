@@ -1,12 +1,11 @@
 /*
  * Created on Feb 23, 2006
  */
-package com.ibm.domo.ast.x10.tests;
+package com.ibm.wala.cast.x10.tests;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import polyglot.frontend.Compiler;
@@ -15,7 +14,7 @@ import polyglot.main.Main.TerminationException;
 import polyglot.util.ErrorQueue;
 import polyglot.util.StdErrorQueue;
 
-import com.ibm.domo.ast.x10.translator.polyglot.X10AnalysisExtension;
+import com.ibm.wala.cast.x10.translator.polyglot.X10AnalysisExtension;
 
 public class AnalysisTests extends TestCase {
     protected static String testSrcPath= "." + File.separator + "testSrc";

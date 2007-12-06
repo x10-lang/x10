@@ -1,7 +1,7 @@
 /*
  * Created on Oct 21, 2005
  */
-package com.ibm.domo.ast.x10.tests;
+package com.ibm.wala.cast.x10.tests;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import com.ibm.domo.ast.x10.client.X10SourceAnalysisEngine;
-import com.ibm.domo.ast.x10.translator.polyglot.X10SourceLoaderImpl;
+import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
+import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.test.IRTests;
 import com.ibm.wala.classLoader.JarFileModule;
@@ -34,7 +34,7 @@ public class X10IRTests extends IRTests {
 
 	try {
 	    // Force X10 version of CAstPrinter to be used...
-	    Class.forName("com.ibm.domo.ast.x10.translator.X10CAstPrinter");
+	    Class.forName("com.ibm.wala.cast.x10.translator.X10CAstPrinter");
 	} catch (ClassNotFoundException e) {
 	    System.err.println(e.getMessage());
 	}
