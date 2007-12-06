@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define  MAKE_FFTW_THREADSAFE 1
+#define  MAKE_FFTW_THREADSAFE 0
 
 #if MAKE_FFTW_THREADSAFE
 #include <pthread.h>
@@ -237,7 +237,9 @@ FFT2DLocalRow(ComplexPtr_t inout, int dir, int orientation, int *dims, int PID)
 #else
   fftw_plan     plan = myfftw_planset->plans_1drow[orientation][dir];
 #endif
+  //printf("  FFT2DLocalRow start: PID= %d \n", PID); 
   fftw_execute_dft(plan,FPTR(inout),FPTR(inout));
+  //printf("  FFT2DLocalRow end: PID= %d \n", PID); 
   return;
 }
 
