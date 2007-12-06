@@ -1,4 +1,4 @@
-package com.ibm.domo.ast.x10.ssa;
+package com.ibm.wala.cast.x10.ssa;
 
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.ssa.ValueDecorator;

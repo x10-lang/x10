@@ -1,25 +1,26 @@
 /*
  * Created on Sep 26, 2005
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
-import com.ibm.domo.ast.x10.ssa.AsyncCallSiteReference;
-import com.ibm.domo.ast.x10.ssa.AsyncInvokeInstruction;
-import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
-import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
-import com.ibm.domo.ast.x10.ssa.SSAForceInstruction;
-import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
-import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
-import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
-import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
-import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByIndexInstruction;
-import com.ibm.domo.ast.x10.ssa.X10ArrayLoadByPointInstruction;
-import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByIndexInstruction;
-import com.ibm.domo.ast.x10.ssa.X10ArrayStoreByPointInstruction;
-import com.ibm.domo.ast.x10.translator.X10CAstEntity;
-import com.ibm.domo.ast.x10.translator.X10CastNode;
-import com.ibm.domo.ast.x10.visit.X10CAstVisitor;
+import com.ibm.wala.cast.x10.ssa.AsyncCallSiteReference;
+import com.ibm.wala.cast.x10.ssa.AsyncInvokeInstruction;
+import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
+import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
+import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
+import com.ibm.wala.cast.x10.ssa.SSAHereInstruction;
+import com.ibm.wala.cast.x10.ssa.SSARegionIterHasNextInstruction;
+import com.ibm.wala.cast.x10.ssa.SSARegionIterInitInstruction;
+import com.ibm.wala.cast.x10.ssa.SSARegionIterNextInstruction;
+import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByIndexInstruction;
+import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByPointInstruction;
+import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByIndexInstruction;
+import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByPointInstruction;
+import com.ibm.wala.cast.x10.translator.X10CAstEntity;
+import com.ibm.wala.cast.x10.translator.X10CastNode;
+import com.ibm.wala.cast.x10.visit.X10CAstVisitor;
 import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
+import com.ibm.wala.cast.ir.translator.AstTranslator;
 import com.ibm.wala.cast.ir.translator.AstTranslator.DefaultContext;
 import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
@@ -28,7 +29,6 @@ import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.visit.CAstVisitor;
-import com.ibm.wala.cast.tree.visit.CAstVisitor.Context;
 import com.ibm.wala.classLoader.NewSiteReference;
 import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.types.Descriptor;
@@ -245,7 +245,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     }
 
     private void translate(final CAstEntity N, final String nm) {
-	if (translator.DEBUG_TOP)
+	if (AstTranslator.DEBUG_TOP)
 	    Trace.println("translating " + nm);
 //	PrintWriter printWriter= new PrintWriter(System.out);
 //	X10CAstPrinter.printTo(N, printWriter);

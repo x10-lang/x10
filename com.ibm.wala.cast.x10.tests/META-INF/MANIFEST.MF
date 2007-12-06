@@ -3,11 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: X10 Tests Plug-in
 Bundle-SymbolicName: com.ibm.domo.ast.x10.tests
 Bundle-Version: 1.0.0
-Bundle-Activator: com.ibm.domo.ast.x10.tests.X10Tests
+Bundle-Activator: com.ibm.wala.cast.x10.tests.X10Tests
 Bundle-Vendor: IBM Watson Research Center
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
- com.ibm.domo.ast.x10,
+ com.ibm.wala.cast.x10,
  org.junit,
  polyglot,
  x10.compiler,

@@ -1,4 +1,4 @@
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
 import com.ibm.wala.cast.loader.AstFunctionClass;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;

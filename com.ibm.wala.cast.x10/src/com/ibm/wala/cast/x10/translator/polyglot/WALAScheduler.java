@@ -1,15 +1,12 @@
 /*
  * Created on Feb 23, 2006
  */
-package com.ibm.domo.ast.x10.translator.polyglot;
+package com.ibm.wala.cast.x10.translator.polyglot;
 
-import polyglot.frontend.JLScheduler;
 import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
-import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.Goal;
-import polyglot.types.FieldInstance;
-import polyglot.types.ParsedClassType;
 
 public abstract class DOMOScheduler extends JLScheduler {
 

@@ -1,7 +1,7 @@
 /*
  * Created on Oct 21, 2005
  */
-package com.ibm.domo.ast.x10.translator;
+package com.ibm.wala.cast.x10.translator;
 
 import java.io.Writer;
 

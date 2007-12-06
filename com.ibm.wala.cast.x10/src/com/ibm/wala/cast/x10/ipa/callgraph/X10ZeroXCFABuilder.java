@@ -1,4 +1,4 @@
-package com.ibm.domo.ast.x10.ipa.callgraph;
+package com.ibm.wala.cast.x10.ipa.callgraph;
 
 import com.ibm.wala.ipa.callgraph.*;
 import com.ibm.wala.ipa.callgraph.impl.DefaultContextSelector;

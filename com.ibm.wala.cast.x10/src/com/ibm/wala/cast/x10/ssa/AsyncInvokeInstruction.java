@@ -1,4 +1,4 @@
-package com.ibm.domo.ast.x10.ssa;
+package com.ibm.wala.cast.x10.ssa;
 
 import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
 import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;

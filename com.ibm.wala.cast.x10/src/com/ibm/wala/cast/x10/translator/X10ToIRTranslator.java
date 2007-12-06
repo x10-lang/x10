@@ -1,12 +1,12 @@
 /*
  * Created on Sep 26, 2005
  */
-package com.ibm.domo.ast.x10.translator;
+package com.ibm.wala.cast.x10.translator;
 
 import java.io.PrintWriter;
 
-import com.ibm.domo.ast.x10.translator.polyglot.X10CAst2IRTranslator;
-import com.ibm.domo.ast.x10.translator.polyglot.X10SourceLoaderImpl;
+import com.ibm.wala.cast.x10.translator.polyglot.X10CAst2IRTranslator;
+import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.Java2IRTranslator;
 import com.ibm.wala.cast.java.translator.TranslatorToCAst;
 import com.ibm.wala.cast.tree.CAstEntity;
