@@ -45,6 +45,7 @@
 
 public final value Ft {
 
+	private static final boolean MAKE_FFTW_THREADSAFE = false; /* MAKE_FFTW_THREADSAFE in fft-fftw3.c must be set to 0, if false*/
 	private final static int OFFSET = 3;
 	private final static int CPAD_COLS = 0;
 	private final static int PLANES_ORIENTED_X_Y_Z = 0; /*assumes original data layout (each plane is
@@ -130,7 +131,7 @@ public final value Ft {
 	}
 
 	private final static int NUMPLACES = place.MAX_PLACES;
-	private final static dist(:rank==1) UNIQUE = (dist(:rank==1))dist.UNIQUE;
+	private final static dist(:rank==1) UNIQUE = (dist(:rank==1)) dist.UNIQUE;
 
 	private final static int SS = 1;
 	private final static int WW = 2;
@@ -149,7 +150,7 @@ public final value Ft {
 	private final double [:self.rect && self.rank==1] checksum_imag;
 
 	static {
-		//System.load("c:/FFTW/fftw-3.1.2-dll/libfftw3-3.dll"); //only for cygwin environment; comment it out for AIX
+		System.load("c:/FFTW/fftw-3.1.2-dll/libfftw3-3.dll"); //only for cygwin environment; comment it out for AIX
 		System.loadLibrary("ft"); //for cygwin change it to Ft from ft (AIX)
 	}
 
@@ -260,7 +261,7 @@ public final value Ft {
 			ateach (point [PID]: UNIQUE) clocked(clk) {
 				/* passing constants to C, which are stored as external variables */
 				initializeC(NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
-				double cputime1, cputime2;
+				double cputime1=0, cputime2=0;
 				int current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
 
 				final DoubleArray local_ex = ex.getArray(PID);
@@ -269,7 +270,7 @@ public final value Ft {
 				final DoubleArray local_V = V.getArray(PID);
 
 				FFTInit(FT_COMM, localPlanes2d.m_array, localPlanes1d.m_array, PID);
-				//next; //next needed here when MAKE_FFTW_THREADSAFE = 0
+				if (!MAKE_FFTW_THREADSAFE) next; //next needed here when MAKE_FFTW_THREADSAFE=0 in fft-fftw3.c
 				init_exp(local_ex.m_array, 1.0e-6, PID);
 				/*
 				 * Run the entire problem once to make sure all the data is touched. This
@@ -296,7 +297,7 @@ public final value Ft {
 				cputime1 = -mysecond();
 				current_orientation = switch_view(current_orientation, PID);
 				int saved_orientation = current_orientation;
-
+				
 				for (int iter = 1; iter <= MAX_ITER; iter ++) {
 					current_orientation = set_view(saved_orientation, PID);
 					parabolic2(localPlanes2d.m_array, local_V.m_array, local_ex.m_array, iter, 1.0e-6);
@@ -358,16 +359,19 @@ public final value Ft {
 				for (i = 0; i < numrows; i++)
 					FFT2DLocalRow(local2darray, offset2+i*dim1, dir, orientation, placeID);
 				//int srcStart = local2d.m_start + offset2*2;
-				int srcStart = offset2*2;
+				final int srcStart = offset2*2;
 				//int destStart = (dist1d.getArray(destID)).m_start +
 				//        2*(placeID*dim2/NUMPLACES+p)*CHUNK_SZ;
-				int destStart = 2*(placeID*dim2/NUMPLACES+p)*CHUNK_SZ;
+				final int destStart = 2*(placeID*dim2/NUMPLACES+p)*CHUNK_SZ;
 				final place destPlace = UNIQUE[destID];
 				final double[:self.rect && self.rank==1] local1darray =
 					(dist1d.getArray(destID)).m_array;
 
 				//System.out.println(" 2DComm place: t = "+t+" placeID ="+placeID+ " destID = "+destID+ " destSstart ="+destStart);
-
+				/*async (destPlace) clocked(clk) {
+					x10.lang.Runtime.arrayCopy(local2darray, srcStart, dist1d.getArray(here.id).m_array, destStart, 2*CHUNK_SZ);
+				}*/
+				//the element wise version of the above arrayCopy method
 				for (int j = 0; j < 2*CHUNK_SZ; j++) {
 					final double srcVal = local2darray[srcStart + j];
 					final int destIdx = destStart + j;
@@ -378,6 +382,7 @@ public final value Ft {
 				}
 			}
 		}
+		//System.out.flush();
 	}
 
 	public void FFT2DComm_Pencil(final DoubleArray local2d, final DistDoubleArray dist1d, final int dir, final int orientation, final int placeID, final clock clk) {

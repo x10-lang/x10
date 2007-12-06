@@ -83,7 +83,7 @@ public final value FtStatic {
 
 
 	static {
-		//System.load("c:/FFTW/fftw-3.1.2-dll/libfftw3-3.dll"); //only for cygwin environment; comment it out for AIX
+		System.load("c:/FFTW/fftw-3.1.2-dll/libfftw3-3.dll"); //only for cygwin environment; comment it out for AIX
 		System.loadLibrary("ftStatic"); //for cygwin change it to FtStatic from ftStatic (AIX)
 	}
 
@@ -282,7 +282,7 @@ public final value FtStatic {
 		}
 	}
 	*/
-
+	static final boolean MAKE_FFTW_THREADSAFE = false; // MAKE_FFTW_THREADSAFE in fft-fftw3.c must be set to 0, if false
 	static final  int FT_COMM_SLABS = 0, FT_COMM_PENCILS = 1, FFT_FWD = 1, FFT_BWD = 0;
 	static final int OFFSET = 3, CPAD_COLS = 0;
         static final  int PLANES_ORIENTED_X_Y_Z = 0, /*assumes original data layout (each plane is
@@ -405,7 +405,7 @@ public final value FtStatic {
 				final DoubleArray local_V = V[PID];
 
 				FFTInit(FT_COMM, localPlanes2d.m_array, localPlanes1d.m_array, PID);
-				//next; //next needed here when MAKE_FFTW_THREADSAFE = 0
+				if (!MAKE_FFTW_THREADSAFE) next; //next needed here when MAKE_FFTW_THREADSAFE = 0
 				init_exp(local_ex.m_array, 1.0e-6, PID);
 				/*
 				 * Run the entire problem once to make sure all the data is touched. This

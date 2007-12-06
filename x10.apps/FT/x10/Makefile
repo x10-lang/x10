@@ -13,9 +13,17 @@ endif
 endif
 LIBPFX=lib
 LIBEXT=so
-CFLAGS="-I${JAVA_HOME}/include" $(CFLAGSEXTRA) "-I${HOME}/fftw3/include"
-LDFLAGS="-L${HOME}/fftw3/lib"
-LDLIBS= -lpthreads -l fftw3 -lm
+
+#Specify the location of fftw3 library in the following, and if the thread-safe option 
+#is chosen, pthreads library is needed.
+#----example for AIX----
+#CFLAGS="-I${JAVA_HOME}/include" $(CFLAGSEXTRA) "-I${HOME}/fftw3/include"
+#LDFLAGS="-L${HOME}/fftw3/lib"
+#LDLIBS= -lpthreads -l fftw3 -lm
+#----example for cygwin----
+CFLAGS="-I${JAVA_HOME}/include" $(CFLAGSEXTRA) -I/cygdrive/c/FFTW/fftw-3.1.2-dll 
+LDFLAGS= -L/cygdrive/c/FFTW/fftw-3.1.2-dll
+LDLIBS=-l fftw3-3  -lm
 
 ifneq ($(UNAME),AIX)
 ifneq ($(UNAME),Linux)
@@ -64,12 +72,12 @@ CCEXTRA=-mno-cygwin
 
 $(LIBPFX)%.$(LIBEXT):	checkjava dll_entry.o
 	@$(MAKE) $*.def __DEPS__="$^"
-	$(DLLWRAP) $(CFLAGS) -shared $(LDFLAGS)  -o $@ --def $*.def $(filter %.o,$^)   
+	$(DLLWRAP) $(CFLAGS) -shared $(LDFLAGS)  -o $@ --def $*.def $(filter %.o,$^)  $(LDLIBS)   
 	$(RM) $*.def 
 
 ifneq ($(__DEPS__),)
 %.din:	dll_entry.o $(__DEPS__)
-	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $*.tmp.dll -Wl,--output-def=$@ $(filter %.o,$^)  
+	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $*.tmp.dll -Wl,--output-def=$@ $(filter %.o,$^)  $(LDLIBS)  
 	$(RM) $*.tmp.dll 
 
 %.def:	%.din
