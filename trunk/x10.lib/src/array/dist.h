@@ -7,7 +7,6 @@
 
 namespace x10lib {
 
-  template<int RANK>
   class UniqueDist;
 
   template<int RANK>
@@ -22,14 +21,14 @@ namespace x10lib {
   {
   public:
     
-    static const Dist<RANK>* makeUnique () {
+    static const Dist<1>* makeUnique () {
       
-      return new UniqueDist<1>();
+      return new UniqueDist();
     }
     
     static const Dist<RANK>* makeConst (const Region<RANK>* r, x10_place_t p) {
       
-      return new ConstDist<1>(r, p);
+      return new ConstDist<RANK>(r, p);
     }
     
 
@@ -42,57 +41,63 @@ namespace x10lib {
      */
     
     Dist (const Region<RANK>* region) :
-      region_ (region),
-      nplaces_ (__x10_num_places)
+      _region (region),
+      _nplaces (__x10_num_places)
     {
-      places_ = new x10_place_t [nplaces_];
-      for (int i = 0; i < nplaces_; i++)
-	places_[i] = i;
+      _places = new x10_place_t [_nplaces];
+      for (int i = 0; i < _nplaces; i++)
+	_places[i] = i;
     }
     
     Dist (const Region<RANK>* region, x10_place_t* places, int nplaces) :
-      region_ (region),
-      nplaces_ (nplaces)
+      _region (region),
+      _nplaces (nplaces)
     {
-      places_ = new x10_place_t [nplaces_];
-      memcpy (places_, places, sizeof(x10_place_t) * nplaces_);
+      _places = new x10_place_t [_nplaces];
+      memcpy (_places, places, sizeof(x10_place_t) * _nplaces);
     }
     
     Dist (const Dist<RANK>& other) :
-      region_ (other.region_),
-      nplaces_ (other.nplaces_)
+      _region (other._region),
+      _nplaces (other._nplaces)
     {
-      places_ = new x10_place_t [nplaces_];
-      memcpy (places_, other.places, sizeof(x10_place_t) * nplaces_);
+      _places = new x10_place_t [_nplaces];
+      memcpy (_places, other.places, sizeof(x10_place_t) * _nplaces);
     }
 
     virtual Dist<RANK>* clone() const = 0;
- 
+   
+    virtual RectangularRegion<RANK> restrict (int p) const = 0;
+      
     ~Dist () 
     {
-      delete [] places_;
+      delete [] _places;
     }
     
     virtual const x10_place_t place (const Point<RANK>& p) const = 0;
 
     const Region<RANK>* region () const{
 
-      return region_;
+      return _region;
     }
 
     const int* places() const{
 
-      return  places_;
+      return  _places;
 
+    }
+    
+    const int nplaces() const {
+      return _nplaces;
     }
 
     virtual int card() const = 0;
 
   protected:
     
-    const Region<RANK>* region_;
-    x10_place_t* places_;
-    int nplaces_;
+    const Region<RANK>* _region;
+    x10_place_t* _places;
+    int _nplaces;
   };
 
   /** A constant distribution maps every point in its underlying region to the same place.
@@ -106,7 +111,7 @@ namespace x10lib {
       Dist<RANK> (region, p, 1) {}
 
     ConstDist (const ConstDist<RANK>& other) :
-      Dist<RANK> (other.region_, other.places_, 1) 
+      Dist<RANK> (other._region, other._places, 1) 
     {
 
     } 
@@ -117,55 +122,125 @@ namespace x10lib {
     }
     const x10_place_t place (const Point<RANK>& p) const
     { 
-      return this->places_[0];
+      return this->_places[0];
     }
 
     virtual int card() const {
-      return this->region_->card();
+      return this->_region->card();
+    }
+
+    virtual RectangularRegion<RANK> restrict (int p) const {
+      assert (p == this->_places[0]);
+      return *((RectangularRegion<RANK>*) this->_region);
     }
 
   };
 
-
-  template <int RANK>
-  class UniqueDist : public Dist<RANK>
+  class UniqueDist : public Dist<1>
   {
-
+    
   public:
-
+    
     UniqueDist () :
-      Dist<RANK>(new RectangularRegion<RANK>(Point<RANK>(x10lib::__x10_num_places-1)))
+      Dist<1>(new RectangularRegion<1>(Point<1>(x10lib::__x10_num_places-1)))
     {
+
     } 
     
-    UniqueDist (const Region<RANK>* region, x10_place_t* places) :
-      Dist<RANK> (region, places, __x10_num_places)
+    UniqueDist (const Region<1>* region, x10_place_t* places) :
+      Dist<1> (region, places, __x10_num_places)
     {
-      
+
     }
 
-    UniqueDist (const UniqueDist<RANK>& other) :
-      Dist<RANK> (other.region_, other.places_, __x10_num_places) 
+    UniqueDist (const UniqueDist & other) :
+      Dist<1> (other._region, other._places, __x10_num_places) 
     {
 
     } 
 
-    virtual UniqueDist<RANK>* clone() const 
+    virtual UniqueDist* clone() const 
     {
-      return new UniqueDist<RANK> (*this);
+      return new UniqueDist (*this);
     }
   
-    const x10_place_t place (const Point<RANK>& p) const 
+    const x10_place_t place (const Point<1>& p) const 
     {
-      return this->places_[this->region_->ord (p)];
+      return p.value(0);
     }
     
     virtual int card() const {
       return  1;
     }
+    
+    virtual RectangularRegion<1> restrict (int p) const {
+      
+      assert (p >= 0  && p < __x10_num_places);
+      
+      return RectangularRegion<1> (Point<1>(p), Point<1>(p));
+    }
+  };  
+
+
+  /* Works only for RANK = 1 */
+  template <int RANK>
+  class BlockDist : public Dist<RANK>
+  {
+    
+  private:
+    
+    BlockDist (const Region<RANK>* region, x10_place_t* places, int* blkSize) :
+      Dist<RANK> (region, places, __x10_num_places)
+    {
+      assert (RANK == 1);
+    }    
   };
   
+  template <>
+  class BlockDist<1> : public Dist<1>
+  {
+    
+  public:
+    
+    BlockDist (const Region<1>* region, x10_place_t* places, int nplaces, int* blkSize) :
+      Dist<1> (region, places, nplaces),
+      _blkSize (blkSize[0])
+    {
+    }
+    
+    BlockDist (const BlockDist<1>& other) :
+      Dist<1> (other._region, other._places, other._nplaces) 
+    {
+    
+    } 
+
+    virtual BlockDist<1>* clone() const 
+    {
+      return new BlockDist<1> (*this);
+    }
+  
+    const x10_place_t place (const Point<1>& p) const 
+    {
+      return this->_places[p.value(0) / _blkSize];
+    }
+    
+    virtual int card() const {
+      return  _blkSize;
+    }
+    
+    virtual RectangularRegion<1> restrict (int p) const{
+
+      assert (p >= 0  && p < _nplaces);
+
+      return RectangularRegion<1> (Point<1> (p * _blkSize), Point<1> ((p+1) * _blkSize -1));
+    }
+
+  private:
+
+    int _blkSize;
+  };    
 }
+
 #endif /*X10DIST_H_*/
 
 // Local Variables:
