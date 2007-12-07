@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_dist.cc,v 1.6 2007-12-07 14:08:59 ganeshvb Exp $ */
+/* $Id: Test_dist.cc,v 1.7 2007-12-07 14:31:11 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -32,9 +32,9 @@ testBlockDist()
   for (int i = 0; i < 100; ++i)
     assert (b.place (Point<1>(i)) == i / blk_size);
   
-  /* test restrict() */
+  /* test restriction() */
   for (int p = 0; p < num_places; ++p) {
-    RectangularRegion<1> r = b.restrict (p);
+    RectangularRegion<1> r = b.restriction (p);
     assert (r.origin().value(0) == p * blk_size);
     assert (r.diagonal().value(0) == (p+1) * blk_size - 1);
     assert (r.card() == blk_size);

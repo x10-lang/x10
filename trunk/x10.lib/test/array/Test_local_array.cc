@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_local_array.cc,v 1.1 2007-12-07 14:08:59 ganeshvb Exp $ 
+ * $Id: Test_local_array.cc,v 1.2 2007-12-07 14:31:11 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -31,13 +31,14 @@ main (int argc, char* argv[])
 
   int here = __x10_my_place;
 
-  LocalArray<double, 1>* a = new LocalArray<double, 1> (&(b->restrict (here)), 1);
+  RectangularRegion<1> local_region = b->restriction(here);
+  LocalArray<double, 1>* a = new LocalArray<double, 1> (&local_region, 1);
 
-  for_local_1d (I, :, b->restrict(here)) 
+  for_local_1d (I, :, b->restriction(here)) 
       a->elementAt (Point<1>(I)) = I;
 
   int k = 0;
-  for_local_1d (I, :, b->restrict(here))  {
+  for_local_1d (I, :, b->restriction(here))  {
     assert (a->elementAt (Point<1>(I)) == k + blk_size * __x10_my_place);
     k++;
   }
