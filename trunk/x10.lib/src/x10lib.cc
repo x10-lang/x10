@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.24 2007-11-01 10:51:10 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.25 2007-12-07 14:08:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -27,7 +27,7 @@ extern x10_err_t arrayCopyInit();
 extern x10_err_t finishInit();
 extern void finishFinalize();
 
-extern void arrayInit();
+extern x10_err_t arrayInit();
 
 extern void reduceInit();
 extern void reduceFinalize();

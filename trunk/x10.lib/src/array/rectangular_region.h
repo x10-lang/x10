@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rectangular_region.h,v 1.3 2007-11-12 07:56:58 ganeshvb Exp $ 
+ * $Id: rectangular_region.h,v 1.4 2007-12-07 14:08:58 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -130,9 +130,18 @@ namespace x10lib {
       return ord;
     }
     
-    Point<RANK> coord(long ord) const
+    Point<RANK> coord(long idx) const
     {
-      assert (false);
+       assert (idx >= 0 && idx < this->card());
+
+       int ret [RANK];
+       /* start with most significant dimension (dim 0) */
+       for (int d = 0; d < RANK; ++d) {
+        ret[d] = idx / linearStep_[d] + origin_.value(d);
+        idx %=  linearStep_[d];
+       }
+
+      return Point<RANK> (ret);
     }
   
     bool isEqual(const Region<RANK>& x) const

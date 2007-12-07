@@ -4,7 +4,7 @@
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: alloc.h,v 1.7 2007-10-19 16:04:28 ganeshvb Exp $ */
+/* $Id: alloc.h,v 1.8 2007-12-07 14:08:57 ganeshvb Exp $ */
 
 #ifndef __ALLOC_H__
 #define __ALLOC_H__
@@ -26,7 +26,7 @@ namespace x10lib{
   class Allocator
   {  
   public:
-
+    
     Allocator(size_t size)  :
       offset_(0),
       prev_offset_(0),
@@ -36,21 +36,21 @@ namespace x10lib{
       addrTable_ = new void*[__x10_num_places];
       x10lib::AddressInit(pointer_, addrTable_);
     }
-
+    
     char* addr () const 
     {
       return pointer_;
     }  
-
+    
     char* chunk (size_t size)
     {
       char* ret =  pointer_ + offset_;
       prev_offset_ = offset_;
       offset_ += size;
-    
+      
       return ret;
     }
- 
+    
     void* addrTable (int i)
     {
       return addrTable_[i];

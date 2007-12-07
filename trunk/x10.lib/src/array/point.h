@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
 
- * $Id: point.h,v 1.8 2007-11-12 07:56:58 ganeshvb Exp $ 
+ * $Id: point.h,v 1.9 2007-12-07 14:08:58 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -159,7 +159,16 @@ namespace x10lib{
     const int j_;
     const int k_;
   };
-  
+
+  template <int RANK> 
+  bool isEqual (Point<RANK> a, Point<RANK> b)
+   {
+      for (int i = 0; i < RANK; i++) {
+         if (a.value(i) != b.value(i))
+            return false;
+      } 
+      return true;
+   } 
 }
 
 #endif /* __X10__POINT_H__*/
