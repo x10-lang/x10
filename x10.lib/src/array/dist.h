@@ -67,7 +67,7 @@ namespace x10lib {
 
     virtual Dist<RANK>* clone() const = 0;
    
-    virtual RectangularRegion<RANK> restrict (int p) const = 0;
+    virtual RectangularRegion<RANK> restriction (int p) const = 0;
       
     ~Dist () 
     {
@@ -129,7 +129,7 @@ namespace x10lib {
       return this->_region->card();
     }
 
-    virtual RectangularRegion<RANK> restrict (int p) const {
+    virtual RectangularRegion<RANK> restriction (int p) const {
       assert (p == this->_places[0]);
       return *((RectangularRegion<RANK>*) this->_region);
     }
@@ -173,7 +173,7 @@ namespace x10lib {
       return  1;
     }
     
-    virtual RectangularRegion<1> restrict (int p) const {
+    virtual RectangularRegion<1> restriction (int p) const {
       
       assert (p >= 0  && p < __x10_num_places);
       
@@ -228,7 +228,7 @@ namespace x10lib {
       return  _blkSize;
     }
     
-    virtual RectangularRegion<1> restrict (int p) const{
+    virtual RectangularRegion<1> restriction (int p) const{
 
       assert (p >= 0  && p < _nplaces);
 

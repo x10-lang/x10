@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.7 2007-12-07 14:08:58 ganeshvb Exp $
+# $Id: Makefile,v 1.8 2007-12-07 14:31:11 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -33,6 +33,10 @@ TARGET5 = Test_region
 SRCS5 = $(TARGET5).cc
 OBJS5 = $(TARGET5).o
 
+TARGET6 = Test_strided_region
+SRCS6 = $(TARGET6).cc
+OBJS6 = $(TARGET6).o
+
 TARGET7 = Test_point2
 SRCS7 = $(TARGET7).cc
 OBJS7 = $(TARGET7).o
@@ -58,7 +62,7 @@ SRCS12 = $(TARGET12).cc
 OBJS12 = $(TARGET12).o
 
 TARGETS = $(TARGET3) $(TARGET4) \
-			$(TARGET5) $(TARGET7) $(TARGET8) $(TARGET9) $(TARGET10) $(TARGET11) $(TARGET12)
+			$(TARGET5) $(TARGET6) $(TARGET7) $(TARGET8) $(TARGET9) $(TARGET10) $(TARGET11) $(TARGET12)
 
 all:: $(TARGETS)
 

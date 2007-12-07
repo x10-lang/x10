@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.22 2007-11-13 05:28:49 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.23 2007-12-07 14:31:10 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -130,29 +130,6 @@ namespace x10lib {
     return err;
   }
 
-  x10_err_t
-  asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
-		      int n, ...)
-  {
-    X10_DEBUG (2,  "Entry");
-    va_list list;
-    va_start(list, n);
-    lapi_cntr_t origin_cntr;
-
-    assert (tgt >=0 && tgt < __x10_num_places);
-    size_t size = sizeof(x10_async_arg_t);
-    assert (n * size <= __x10_max_agg_size * sizeof(x10_async_arg_t));
-    size_t count = __x10_agg_counter[hndlr][tgt];
-    for (int i = 0; i < n; i++) {
-      __x10_agg_arg_buf[hndlr][tgt][count * size +
-				    i * sizeof(x10_async_arg_t)] =
-	va_arg(list, x10_async_arg_t);
-    }
-    va_end(list);
-    x10_err_t err = asyncSpawnInlineAgg_i(tgt, hndlr, size);
-    X10_DEBUG (2,  "Exit");
-    return err;
-  }
 
   x10_err_t
   asyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,

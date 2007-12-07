@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.22 2007-11-01 10:51:10 ganeshvb Exp $
+ * $Id: aggregate.h,v 1.23 2007-12-07 14:31:10 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -34,9 +34,6 @@ namespace x10lib {
 
   x10_err_t asyncFlush(x10_async_handler_t hndlr, size_t size);
 
-  x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
-					x10_async_handler_t hndlr,
-				int n,...);
 
   x10_err_t asyncSpawnInlineAgg(x10_place_t tgt,
 					x10_async_handler_t hndlr,

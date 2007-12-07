@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: dist_array.h,v 1.1 2007-12-07 11:12:48 ganeshvb Exp $ 
+ * $Id: dist_array.h,v 1.2 2007-12-07 14:31:10 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -58,16 +58,21 @@ namespace x10lib {
       
     for (int p = 0; p < dist->nplaces(); ++p) {
 	
-      RectangularRegion<RANK> local_region = dist->restrict (p);
+      RectangularRegion<RANK> local_region = dist->restriction (p);
 	
       ByteArray* local_array = new ByteArray;
 	
       local_array->_nelements = local_region.card();
       local_array->_elsize = sizeof (T);
       local_array->_rank = RANK;
-      memcpy (local_array->_origin, &(local_region.origin()), RANK * sizeof (int));
-      memcpy (local_array->_diagonal, &(local_region.diagonal()), RANK * sizeof (int));
-      memcpy (local_array->_stride, &(local_region.stride()), RANK * sizeof (int));
+   
+      Point<RANK> origin = local_region.origin();
+      Point<RANK> diagonal = local_region.diagonal();
+      Point<RANK> stride = local_region.stride();
+
+      memcpy (local_array->_origin, &origin, RANK * sizeof (int));
+      memcpy (local_array->_diagonal, &diagonal, RANK * sizeof (int));
+      memcpy (local_array->_stride, &stride, RANK * sizeof (int));
 	
       if (p != __x10_my_place)
 	{	      
