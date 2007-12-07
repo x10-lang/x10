@@ -4,7 +4,7 @@
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: array.tcc,v 1.15 2007-10-19 16:04:29 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.1 2007-12-07 11:25:48 ganeshvb Exp $ */
 
 #include "array.h"
 #include <x10/alloc.h>
@@ -100,38 +100,7 @@ makeLocalArray (int size)
 
 //================ Distributed Arrays =============================
 
-//================ For Local arrays =============================
-// template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
-// Array<T, RANK>*
-// makeArrayLocal (const Region<RANK>* region, const Dist<RANK> * dist)
-// {  
-//   assert (GlobalSMAlloc); 
-  
-//   uint64_t local_size = region->card();
-  
-//   Array<T, RANK>* ret = NULL;
-  
-//   void** addrTable = new void* [__x10_num_places];
-  
-//   for (x10_place_t p = 0; p < __x10_num_places; p++)
-//     addrTable[p] = (char*) GlobalSMAlloc->addrTable (p) + GlobalSMAlloc->offset();
-  
-//   void* arraySpace = x10lib::GlobalSMAlloc->chunk (sizeof(Array<T, RANK>));
-  
-//   T* data = (T*) x10lib::GlobalSMAlloc->chunk (local_size * sizeof(T));
-
-//   //const Dist<RANK>* dist = Dist<RANK>::makeConst (region, __x10_my_place);
-  
-//   ret = new (arraySpace) Array<T, RANK>(region, dist, local_size, data, addrTable);
-  
-//   delete [] addrTable;
-  
-//   return ret;
-// }
-
-
-
-//================ For equi-distributed arrays cases =============================
+//================ Local creation of equi-distributed arrays =============================
 
 template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
 Array<T, RANK>*
@@ -142,10 +111,8 @@ makeArrayLocalHeap (const Region<RANK>* region, const Dist<RANK>* dist)
   void** addrTable = NULL;
   Array<T, RANK>* ret = NULL;
   
-  //should move to distribution
   uint64_t local_size = dist ? dist->card() : region->card();
-  //uint64_t local_size = region->card();
-  
+    
   addrTable = new void* [__x10_num_places];
   for (x10_place_t p = 0; p < __x10_num_places; p++)
     addrTable[p] =  NULL;
