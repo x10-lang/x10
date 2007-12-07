@@ -165,20 +165,21 @@ public final value FtStatic {
 				 * to be used to compute the pointer to the storage where to place this
 				 * chunk.
 				 */
-				/*async (destPlace) clocked(clk) {
-					x10.lang.Runtime.arrayCopy(local2darray, srcStart, dist1d[here.id].m_array, destStart, 2*CHUNK_SZ);
-				}*/
+				async (destPlace) clocked(clk) {
+					x10.lang.Runtime.arrayCopy(local2darray, srcStart+OFFSET, dist1d[here.id].m_array, destStart, 2*CHUNK_SZ);
+				}
 				// We cannot do the following, because dist1d[destID] cannot be dereferenced at PID
 				//x10.lang.Runtime.arrayCopy(local2darray, srcStart, dist1d[destID].m_array, destStart, 2*CHUNK_SZ);
+				
 				// The manual version of this code is:
-				for (int j = 0; j < 2*CHUNK_SZ; j++) {
+				/*for (int j = 0; j < 2*CHUNK_SZ; j++) {
 					final double srcVal = local2darray[srcStart + j];
 					final int destIdx = destStart + j;
 					//add clocked clause on Aug 1, 2007
 					async (destPlace) clocked(clk) {
 						dist1d[here.id].m_array[destIdx] = srcVal;
 					}
-				}					
+				}*/					
 			}
 		}
 	}
@@ -211,20 +212,21 @@ public final value FtStatic {
 					 * to be used to compute the pointer to the storage where to place this
 					 * chunk.
 					 */
-					/*async (destPlace) clocked(clk) {
-						x10.lang.Runtime.arrayCopy(local2darray, srcStart, dist1d[here.id].m_array, destStart, 2*dim1);
-					}*/
+					async (destPlace) clocked(clk) {
+						x10.lang.Runtime.arrayCopy(local2darray, srcStart+OFFSET, dist1d[here.id].m_array, destStart, 2*dim1);
+					}
 					// We cannot do the following, because dist1d[destID] cannot be dereferenced at PID
 					//x10.lang.Runtime.arrayCopy(local2darray, srcStart, dist1d[destID].m_array, destStart, 2*dim1);
+					
 					// The manual version of this code is:
-					for (int j = 0; j < 2*dim1; j++) {
+					/*for (int j = 0; j < 2*dim1; j++) {
 						final double srcVal = local2darray[srcStart + j];
 						final int destIdx = destStart + j;
 						//add clocked clause on Aug 1, 2007
 						async (destPlace) clocked(clk) {
 							dist1d[here.id].m_array[destIdx] = srcVal;
 						}
-					}
+					}*/
 				}
 		}
 	}

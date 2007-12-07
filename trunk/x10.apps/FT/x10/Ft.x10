@@ -368,18 +368,18 @@ public final value Ft {
 					(dist1d.getArray(destID)).m_array;
 
 				//System.out.println(" 2DComm place: t = "+t+" placeID ="+placeID+ " destID = "+destID+ " destSstart ="+destStart);
-				/*async (destPlace) clocked(clk) {
-					x10.lang.Runtime.arrayCopy(local2darray, srcStart, dist1d.getArray(here.id).m_array, destStart, 2*CHUNK_SZ);
-				}*/
+				async (destPlace) clocked(clk) {
+					x10.lang.Runtime.arrayCopy(local2darray, srcStart+OFFSET, dist1d.getArray(here.id).m_array, destStart, 2*CHUNK_SZ);
+				}
 				//the element wise version of the above arrayCopy method
-				for (int j = 0; j < 2*CHUNK_SZ; j++) {
+				/*for (int j = 0; j < 2*CHUNK_SZ; j++) {
 					final double srcVal = local2darray[srcStart + j];
 					final int destIdx = destStart + j;
 					//add clocked clause on Aug 1, 2007
 					async (destPlace) clocked(clk) {
 						local1darray[destIdx] = srcVal;
 					}
-				}
+				}*/
 			}
 		}
 		//System.out.flush();
@@ -411,22 +411,24 @@ public final value Ft {
 					FFT2DLocalRow(local2darray, offset2, dir, orientation, placeID);
 
 					//int srcStart = local2d.m_start + offset2*2;
-					int srcStart = offset2*2;
+					final int srcStart = offset2*2;
 					//int destStart = (dist1d.getArray(destID)).m_start +
 					//        2*(placeID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
-					int destStart = 2*(placeID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
+					final int destStart = 2*(placeID*dim2/NUMPLACES*dim1+p*dim1 + i*dim1*dim2);
 					final place destPlace = UNIQUE[destID];
 					final double[:self.rect && self.rank==1] local1darray =
 						(dist1d.getArray(destID)).m_array;
-
-					for (int j = 0; j < 2*dim1; j++) {
+					async (destPlace) clocked(clk) {
+						x10.lang.Runtime.arrayCopy(local2darray, srcStart+OFFSET, dist1d.getArray(here.id).m_array, destStart, 2*dim1);
+					}
+					/*for (int j = 0; j < 2*dim1; j++) {
 						final double srcVal = local2darray[srcStart + j];
 						final int destIdx = destStart + j;
 						//add clocked clause on Aug 1, 2007
 						async (destPlace) clocked(clk) {
 							local1darray[destIdx] = srcVal;
 						}
-					}
+					}*/
 				}
 		}
 	}
