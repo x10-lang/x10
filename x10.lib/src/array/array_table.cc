@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_table.cc,v 1.1 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: array_table.cc,v 1.2 2007-12-07 11:12:48 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -16,7 +16,7 @@ using namespace std;
 
 #define X10_MAX_ARRAYS 128
 
-static array_info_t table[X10_MAX_ARRAYS];
+static void* table[X10_MAX_ARRAYS];
 
 namespace x10lib 
 {  
@@ -24,7 +24,7 @@ namespace x10lib
   extern int __x10_my_place;
   extern int __x10_num_places;
 
-  x10_err_t registerArray (const array_info_t a, const int handle)
+  x10_err_t registerLocalSection (void* a, const int handle)
   {
     assert (handle >= 0);
     
@@ -32,16 +32,25 @@ namespace x10lib
     
     assert (handle >=0 && handle < X10_MAX_ARRAYS);
     
-    table[handle] = (array_info_t) a;
+    table[handle] = a;
     
     return X10_OK; 
   }
   
-  array_info_t getLocalAddress (int handle)
+  void* getLocalSection (int handle)
   {
     assert (handle >=0 && handle < X10_MAX_ARRAYS);
     
     return table[handle];
+  }
+
+  x10_err_t freeLocalSection (int handle)
+  {
+    assert (handle >=0 && handle < X10_MAX_ARRAYS);
+    
+    table[handle] = NULL;
+
+    return X10_OK;
   }
   
 }
