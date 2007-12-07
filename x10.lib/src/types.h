@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.18 2007-11-12 07:56:58 ganeshvb Exp $
+ * $Id: types.h,v 1.19 2007-12-07 14:08:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -43,6 +43,7 @@ enum internal_handlers
     
     ARRAY_COPY_HANDLER,
     ARRAY_CONSTRUCTION_HANDLER,
+    ARRAY_DELETION_HANDLER,
     ARRAY_ELEMENT_UPDATE_HANDLER,
     ASYNC_ARRAY_COPY_HANDLER,
     ASYNC_GEN_ARRAY_COPY_HANDLER,

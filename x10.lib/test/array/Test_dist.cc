@@ -5,46 +5,62 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_dist.cc,v 1.5 2007-10-19 16:04:29 ganeshvb Exp $ */
+/* $Id: Test_dist.cc,v 1.6 2007-12-07 14:08:59 ganeshvb Exp $ */
 
 #include <iostream>
 
-#include <x10/array.h>
+#include <x10/dist.h>
 #include <x10/x10lib.h>
 
 using namespace std;
 using namespace x10lib;
 
-int N = 1; 
-int M = 1;
+void
+testBlockDist()
+{
+  Region<1>* region = new RectangularRegion<1> (Point<1>(100));
+
+  int num_places = 4;
+  int* places = new int [num_places];
+  for (int i = 0; i < num_places; i++)
+    places[i] = i;
+
+  int blk_size = 100 / num_places;
+  BlockDist<1> b (region, places, num_places, &blk_size);
+  
+  /* test place() */
+  for (int i = 0; i < 100; ++i)
+    assert (b.place (Point<1>(i)) == i / blk_size);
+  
+  /* test restrict() */
+  for (int p = 0; p < num_places; ++p) {
+    RectangularRegion<1> r = b.restrict (p);
+    assert (r.origin().value(0) == p * blk_size);
+    assert (r.diagonal().value(0) == (p+1) * blk_size - 1);
+    assert (r.card() == blk_size);
+  }  
+}
 
 void 
 testUniqueDist()
 {
-  Region<2> * r = new RectangularRegion<2> (Point<2>(N, M));
+  UniqueDist u;
 
-  x10_place_t places [4] = {0, 1, 2, 3};
-
-  UniqueDist<2> u (r, places);
-
-  int k = 0;
-  for (int i = 0; i < N; i++)
-    for (int j = 0; j < M; j++)
-      assert (u.place (Point<2>(i,j)) == places[k++]);
-
-  delete r;
+  for (int i = 0; i < __x10_num_places; i++)
+    assert (u.place (Point<1>(i)) == i); 
 }
 
 void 
 testConstDist()
 {
-  Region<2> * r = new RectangularRegion<2> (Point<2>(N, M));
+  Region<2> * r = new RectangularRegion<2> (Point<2>(10, 10));
+
   x10_place_t place[1] = {3};
 
   ConstDist<2> c  (r, place);
 
-  for (int i = 0; i < N; i++)
-    for (int j = 0; j < M; j++)
+  for (int i = 0; i < 10; i++)
+    for (int j = 0; j < 10; j++)
       assert (c.place (Point<2>(i,j)) == 3);
    
   delete r;  
@@ -52,16 +68,14 @@ testConstDist()
 
 int 
 main (int argc, char* argv[])
-{
-  Init(NULL, 0);
-  
+{  
   testUniqueDist();
 
   testConstDist();
 
-  cout << "Test_dist PASSED" << endl;
+  testBlockDist();
 
-  Finalize();
+  cout << "Test_dist PASSED" << endl;
 
   return 0;
 }
