@@ -1,14 +1,14 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.22 2007-12-08 10:07:31 srkodali Exp $
+ * $Id: types.h,v 1.23 2007-12-08 10:21:02 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** X10Lib's Primitive Types. **/
 
-#ifndef __X10_TYPES_H__
-#define __X10_TYPES_H__
+#ifndef __X10_TYPES_H
+#define __X10_TYPES_H
 
 #include <sys/types.h>
 
