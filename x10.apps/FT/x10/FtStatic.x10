@@ -19,16 +19,17 @@
  *          -PRELOAD_CLASSES=true Ft -w [-p]
  *
  * The output looks like
- *    NPB CLASS W 128x128x32 6 iterations
- *    IBM X10 NAS FT: class W (NPB CLASS W 128x128x32 6 iterations)
- *    Iter = 1 checksum_real = 567.3612178943621 checksum_imag = 529.3246849175001
- *    Iter = 2 checksum_real = 563.1436885271294 checksum_imag = 528.214998662905
- *    Iter = 3 checksum_real = 559.4024089970093 checksum_imag = 527.0996558037011
- *    Iter = 4 checksum_real = 556.0698047020239 checksum_imag = 526.0027904925023
- *    Iter = 5 checksum_real = 553.089899124982 checksum_imag = 524.9400845632628
- *    Iter = 6 checksum_real = 550.4159734538397 checksum_imag = 523.9212247086305
- *    The wall clock time is 633.3439149856567
- *    Result verification successful
+ *	Start timing of IBM X10 NAS FT: class W (NPB CLASS W 128x128x32 6 iterations, FT_COMM = 0)
+ *	Iter = 1 checksum_real = 567.361217894362 checksum_imag = 529.3246849175001
+ *	Iter = 2 checksum_real = 563.1436885271293 checksum_imag = 528.2149986629049
+ *	Iter = 3 checksum_real = 559.4024089970092 checksum_imag = 527.0996558037011
+ *	Iter = 4 checksum_real = 556.069804702024 checksum_imag = 526.0027904925023
+ *	Iter = 5 checksum_real = 553.089899124982 checksum_imag = 524.9400845632628
+ *	Iter = 6 checksum_real = 550.4159734538397 checksum_imag = 523.9212247086305
+ *	The wall clock time for the timed section is 1.6411430000007385 secs
+ *	The mean wall clock time for the timed section is 0.6077015000009851
+ *	The overall wall clock time is 2.9783509999979287 secs
+ *	Result verification successful
  *
  * Related files: Ft.c Ft.h fft_fftw3 c_randdp
  * Author: Tong Wen @ IBM Research
@@ -41,6 +42,7 @@
  *    On Aug 9, 2007: clean up "next"
  *    On Aug 10, 2007: remove finish and make async clocked in checksum().
  *    On Aug 14, 2007: add a new constructor of DoubleArray.
+ *       Dec 07, 2007: fix the indexing error in arrayCopy
  */
 
 public final value FtStatic {
