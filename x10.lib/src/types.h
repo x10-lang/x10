@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.20 2007-12-07 15:54:19 srkodali Exp $
+ * $Id: types.h,v 1.21 2007-12-08 09:49:46 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,8 +12,8 @@
 
 #include <sys/types.h>
 
-/* x10lang types
- * previously used to be part of x10lang.h
+/* X10Lang Types
+ * Previously part of x10lang.h
  */
 typedef bool x10_boolean;
 typedef int8_t x10_byte;
@@ -24,24 +24,26 @@ typedef int64_t x10_long;
 typedef float x10_float;
 typedef double x10_double;
 
-/* array index type */
+/* X10Lang Array Index */
 #ifdef USE_LONG_ARRAYS
 typedef x10_long x10_index_t;
 #else
 typedef x10_int x10_index_t;
 #endif
 
-/* async handler */
+/* Async Handler Types */
 typedef long x10_async_arg_t;
 typedef int x10_async_handler_t;
+
+/* X10 Place */
 typedef int x10_place_t;
 
 
-/* completion handler */
+/* Completion Handler */
 typedef void (x10_compl_hndlr_t) (void *uinfo);
 
-/* send completion handler */
-/* data structure for return info */
+/* Send Completion Handler */
+/* Return Info Struct */
 typedef struct {
 	unsigned int src;
 	unsigned int reason;
@@ -49,27 +51,23 @@ typedef struct {
 
 typedef void (x10_scompl_hndlr_t) (void *cparam, x10_sh_info_t *xinfo);
 
-enum internal_handlers
-  {
-    ASYNC_SPAWN_HANDLER = 1,
-    ASYNC_SPAWN_HANDLER_AGG,
-    ASYNC_SPAWN_HANDLER_AGG_HYPER,
-    ASYNC_SPAWN_HANDLER_AGG_RA,
-    
-    EXCEPTION_HEADER_HANDLER,
-    CONTINUE_HEADER_HANDLER,
-    NUM_CHILD_HEADER_HANDLER,
-    
-    ARRAY_COPY_HANDLER,
-    ARRAY_CONSTRUCTION_HANDLER,
-    ARRAY_DELETION_HANDLER,
-    ARRAY_ELEMENT_UPDATE_HANDLER,
-    ASYNC_ARRAY_COPY_HANDLER,
-    ASYNC_GEN_ARRAY_COPY_HANDLER,
-    
-    __x10_num_handlers 
-    
-  };
-
+/* X10Lib Internal Handler Index Table */
+enum {
+	ASYNC_SPAWN_HANDLER = 1, /* 1 - General Async Spawn */
+	ASYNC_SPAWN_HANDLER_AGG, /* 2 - Async with Aggregation */
+	EXCEPTION_HEADER_HANDLER, /* 3 - Finish Logic Exceptions */
+	CONTINUE_HEADER_HANDLER, /* 4 - Finish Logic Continuations */
+	NUM_CHILD_HEADER_HANDLER, /* 5 - Finish Logic Process 0 Children */
+/* Array Operation Handlers */
+	ARRAY_COPY_HANDLER, /* 6 */
+	ARRAY_CONSTRUCTION_HANDLER, /* 7 */
+	ARRAY_DELETION_HANDLER, /* 8 */
+	ARRAY_ELEMENT_UPDATE_HANDLER, /* 9 */
+	ASYNC_ARRAY_COPY_HANDLER, /* 10 */
+	ASYNC_GEN_ARRAY_COPY_HANDLER, /* 11 */
+	/* ... */
+	X10_INVALID_HANDLER /* ??? */
+	/*** Do not add any thing below ***/
+};
 
 #endif /* __X10_TYPES_H */
