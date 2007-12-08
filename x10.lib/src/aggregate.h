@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.h,v 1.24 2007-12-08 11:37:15 srkodali Exp $
+ * $Id: aggregate.h,v 1.25 2007-12-08 14:28:40 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -29,7 +29,8 @@ namespace x10lib {
 					x10_async_handler_t hndlr,
 					void *args, size_t size);
 
-	x10_err_t AsyncFlush(x10_async_handler_t hndlr, size_t size);
+	/* Flush left-over asyncs during aggregation */
+	x10_err_t AsyncAggFlush(x10_async_handler_t hndlr, size_t size);
 
 } /* closing brace for namespace x10lib */
 #endif
@@ -54,7 +55,8 @@ x10_err_t x10_async_spawn_inline_agg(x10_place_t tgt,
 					x10_async_handler_t hndlr,
 					void *args, size_t size);
 
-x10_err_t x10_async_flush(x10_async_handler_t hndlr, size_t size);
+/* Flush left-over asyncs during aggregation */
+x10_err_t x10_async_agg_flush(x10_async_handler_t hndlr, size_t size);
 
 #ifdef __cplusplus
 } /* closing brace for extern "C" */
