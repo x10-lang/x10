@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose_contig_overlap.cc,v 1.2 2007-12-04 10:23:00 ganeshvb Exp $ 
+ * $Id: Test_transpose_contig_overlap.cc,v 1.3 2007-12-08 06:47:29 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -106,10 +106,6 @@ main (int argc, char* argv[])
   double timers[4];
   timers[0] = nanoTime();
 
-
-  x10lib::SyncGlobal();
-  timers[1] = nanoTime();
-
   int chunk_size = nRows * nRows;
   for (int k=0; k <__x10_num_places; ++k) { 
 
@@ -130,7 +126,7 @@ main (int argc, char* argv[])
   }
   
   x10lib::SyncGlobal();
-  timers[2] = nanoTime();
+  timers[1] = nanoTime();
 
   /* scatter the result back, so we get the row contributions from 
    * different processors in contiguous locations
@@ -143,7 +139,7 @@ main (int argc, char* argv[])
       data [k * n2 * n1 + j + i * n2] = data3 [ i * n2 * n2 + k * n2 + j];
   
   x10lib::SyncGlobal();
-  timers[3] = nanoTime();
+  timers[2] = nanoTime();
 
   for (int i = 0; i < X; i++)
     for (int j = 0; j < Y; j++)
@@ -153,10 +149,9 @@ main (int argc, char* argv[])
  
   cout << "*************** Summary BEGIN ***********************************" << endl
        << "***************** Timing (Seconds) BEGIN************************* " << endl
-       << "Total Time: " << (timers[3] - timers[0]) * 1e-9 << endl
-       << "local transposition: " << (timers[1] - timers[0]) * 1e-9 << endl
-       << "array copy: " << (timers[2] - timers[1]) * 1e-9 << endl
-       << "scatter: " << (timers[3] - timers[2]) * 1e-9 << endl
+       << "Total Time: " << (timers[2] - timers[0]) * 1e-9 << endl
+       << "array copy: " << (timers[1] - timers[0]) * 1e-9 << endl
+       << "scatter: " << (timers[2] - timers[1]) * 1e-9 << endl
        << "***************** Timing (Seconds) END ************************* " << endl
        << "Total Memory (per place) : " << 3 * X * Y * sizeof(double) / (1024 * 1024) << "Mega Bytes" << endl
        << "*************** Summary END ***********************************" << endl ;
