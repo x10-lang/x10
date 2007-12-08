@@ -31,30 +31,31 @@ To compile and run the code, for example, please follow the following steps:
    3) x10  -J-mx2000m -J-ms2000m -libpath . -NUMBER_OF_LOCAL_PLACES=4 -INIT_THREADS_PER_PLACE=1 
   	-PRELOAD_CLASSES=true Ft -w
 
-Please note that to run the code in cygwin environment, one needs first to uncomment the first System.load statment in 
+Please note that to run the code in cygwin environment, one needs first to uncomment the first System.load statement in 
 "Ft.x10". Then, one needs to set MAKE_FFTW_THREADSAFE accordingly in fft-fftw3.c and Ft.x10 as described above. Before 
-running Makefile, one needs to update the location of fftw3 and/or pthreads libraries.
+running Makefile, one needs to update the locations of fftw3 and/or pthreads libraries.
 
   The output looks like
 
-  	NPB CLASS W 128x128x32 6 iterations
-  	IBM X10 NAS FT: class W (NPB CLASS W 128x128x32 6 iterations)
-  	Iter = 1 checksum_real = 567.3612178943621 checksum_imag = 529.3246849175001
- 	Iter = 2 checksum_real = 563.1436885271294 checksum_imag = 528.214998662905
-  	Iter = 3 checksum_real = 559.4024089970093 checksum_imag = 527.0996558037011
-  	Iter = 4 checksum_real = 556.0698047020239 checksum_imag = 526.0027904925023
-  	Iter = 5 checksum_real = 553.089899124982 checksum_imag = 524.9400845632628
-  	Iter = 6 checksum_real = 550.4159734538397 checksum_imag = 523.9212247086305
-  	The wall clock time is 633.3439149856567
-  	Result verification successful
+	Start timing of IBM X10 NAS FT: class W (NPB CLASS W 128x128x32 6 iterations, FT_COMM = 0)
+ 	Iter = 1 checksum_real = 567.361217894362 checksum_imag = 529.3246849175001
+ 	Iter = 2 checksum_real = 563.1436885271291 checksum_imag = 528.214998662905
+ 	Iter = 3 checksum_real = 559.4024089970093 checksum_imag = 527.0996558037011
+ 	Iter = 4 checksum_real = 556.069804702024 checksum_imag = 526.0027904925021
+ 	Iter = 5 checksum_real = 553.0898991249821 checksum_imag = 524.9400845632626
+ 	Iter = 6 checksum_real = 550.4159734538397 checksum_imag = 523.9212247086305
+	The wall clock time for the timed section is 1.876589999999851 secs
+	The mean wall clock time for the timed section is 0.6875357500048267
+	The overall wall clock time is 2.9769339999984368 secs
+ 	Result verification successful
  
   Related files: Ft.x10 Ft.c Ft.h fft_fftw3 c_randdp Makefile, FtStatic.x10, FtStatic.c
-  Note that FtStatic.X10 a variation of Ft.x10 to be used by x10c++ which generates C++
+  Note that FtStatic.X10 is a variation of Ft.x10 to be used by x10c++ which generates C++
 	codes running with lapi. The X10 code compiled with x10c++ is expected to have
 	better performance.
   Author: Tong Wen @ IBM Research
   Date:   Nov 2007
   TODO: In cygwin environment, we still have linking problems when multiple places are used. 
   	The runtime errors are recorded in RuntimeErrors.txt. x10.lang.Runtime.
-	The method arrayCopy is not working, which generates wrong result.
+
  	
