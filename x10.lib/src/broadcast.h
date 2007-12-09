@@ -1,42 +1,33 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: broadcast.h,v 1.1 2007-12-09 10:31:19 srkodali Exp $
+ * $Id: broadcast.h,v 1.2 2007-12-09 12:07:18 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
-#ifndef __X10_MISC_H
-#define __X10_MISC_H
+#ifndef __X10_BROADCAST_H
+#define __X10_BROADCAST_H
 
-#include <lapi.h>
-#include <x10/err.h>
-#include <x10/types.h>
 /* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {
-  
-  extern lapi_handle_t __x10_hndl;
-  extern int __x10_num_places;
-  extern int __x10_my_place;
-     
-  x10_err_t Broadcast (void* buffer, size_t nbytes);
-  
-  
+
+	/* Brodcast args from root to other places. */
+	x10_err_t Broadcast(void *buffer, size_t nbytes);
+
 } /* closing brace for namespace x10lib */
 #endif
 
+/* C Lang Interface */
 #ifdef __cplusplus
 extern "C" {
 #endif
-  x10_err_t x10_broadcast (void* buffer, size_t nbytes);
+
+/* Broadcast args from root to other places. */
+x10_err_t x10_broadcast(void *buffer, size_t nbytes);
 
 #ifdef __cplusplus
-}
-#endif 
-
+} /* closing brace for extern "C" */
 #endif
-  
 
-// Local Variables:
-// mode: C++
-// End:
+#endif /* __X10_BROADCAST_H */
