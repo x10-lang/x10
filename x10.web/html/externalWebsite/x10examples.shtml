@@ -327,8 +327,14 @@ We have been porting benchmarks to X10 (literal translation to X10 or implementa
 <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/NPB/epl-v10.html">License</a>
 </li>
 <li>
-MG (an X10 implementation for expressiveness study): <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/NPB/MGX10.tar">MGX10.tar</a>  and <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
+MG: <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/NPB/MGX10.tar">MGX10.tar</a>  and <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="applications/docs/NPBMGX10.pdf">report</a>
+</li>
+<li>
+CG: <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/NPB/CGX10.tar">CGX10.tar</a>
+</li>
+<li>
+FT: <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/NPB/FTX10.tar">FTX10.tar</a>
 </li>
 </ul>
 </p></td>
@@ -353,17 +359,15 @@ MG (an X10 implementation for expressiveness study): <img src="http://www.ibm.co
 <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/epl-v10.html">License</a>
 </li>
 <li>
-HPL (a port of Java Grande Forum Benchmark Thread Version 1.0): <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/HPL.x10">HPL.x10</a> </li>
+HPL: <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/HPLX10.tar">HPLX10.tar</a> </li>
 </li>
 <li>
-STREAM (a port of John D. McCalpin's code): <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/stream.x10">stream.x10</a>
+STREAM: <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/STREAMX10.tar">STREAMX10.tar</a>
 </li>
-<li>
-PTRANS (an X10 code doing parallel matrix transpose):<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/PTRAN.x10">PTRAN.x10</a>
+<!-- <li> PTRANS (an X10 code doing parallel matrix transpose):<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/PTRAN.x10">PTRAN.x10</a> </li> -->
+<li>RandomAccess: <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/RAX10.tar">RAX10.tar</a>
 </li>
-<li>RandomAccess (a port of the code from DARPAR HPCS program): <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/RandomAccess.x10">RandomAccess.x10</a>
-</li>
-<li>FFT (a hybrid of X10 and C code calling FFTW): <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/fftX10.tar">fftX10.tar</a> </li>
+<li>FFT: <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/FFTX10.tar">FFTX10.tar</a> </li>
 </ul>
 </p></td>
 </tr>
