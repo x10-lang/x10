@@ -1,89 +1,71 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: alloc.h,v 1.9 2007-12-09 11:11:03 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: alloc.h,v 1.8 2007-12-07 14:08:57 ganeshvb Exp $ */
+#ifndef __X10_ALLOC_H
+#define __X10_ALLOC_H
 
-#ifndef __ALLOC_H__
-#define __ALLOC_H__
-
-#include <iostream>
+#include <x10/register.h>
+#include <x10/xassert.h>
 #include <sys/types.h>
 
-#include  <x10/xassert.h>
-#include  <x10/gas.h> 
-#include <x10/register.h>
+namespace x10lib {
 
-using namespace std;
+	class Allocator {
+		private:
+			char *pointer_;
+			void **addr_table_;
+			uint64_t offset_;
+			unit64_t prev_offset_;
+			size_t size_;
+		public:
+		
+			Allocator(size_t size) :
+					offset_(0), prev_offset_(0), size_(size)
+			{
+				pointer_ = new char[size];
+				assert(pointer_ != 0);
+				addr_table_ = new (void*) [__x10_num_places];
+				assert(addr_table_ != 0);
+				AddressInit(pointer_, addr_table_);
+			}
 
-namespace x10lib{
+			~Allocator()
+			{
+				delete [] pointer_;
+				delete [] addr_table_;
+			}
 
-  extern int __x10_num_places;
-  extern int __x10_my_place;
+			char *addr() const
+			{
+				return pointer_;
+			}
 
-  class Allocator
-  {  
-  public:
-    
-    Allocator(size_t size)  :
-      offset_(0),
-      prev_offset_(0),
-      size_(size)
-    { 
-      pointer_ = new char[size];
-      addrTable_ = new void*[__x10_num_places];
-      x10lib::AddressInit(pointer_, addrTable_);
-    }
-    
-    char* addr () const 
-    {
-      return pointer_;
-    }  
-    
-    char* chunk (size_t size)
-    {
-      char* ret =  pointer_ + offset_;
-      prev_offset_ = offset_;
-      offset_ += size;
-      
-      return ret;
-    }
-    
-    void* addrTable (int i)
-    {
-      return addrTable_[i];
-    }  
+			char *chunk(size_t size)
+			{
+				char *addr = pointer_ + offset_;
+				prev_offset_ = offset_;
+				offset_ += size;
+				return addr;
+			}
 
-    const uint64_t offset () const 
-    {
-      return offset_;
-    }
-    
-    const uint64_t prev_offset() const
-    {
-      return prev_offset_;
-    }
+			void *addr_table(int i)
+			{
+				return addr_table_[i];
+			}
 
-    ~Allocator()
-    {
-      delete [] pointer_;
-      delete [] addrTable_;
-    }
-  
-  private:
+			const uint64_t offset() const
+			{
+				return offset_;
+			}
 
-    char* pointer_;
-    void** addrTable_;
-    uint64_t offset_;
-    uint64_t prev_offset_;
-    size_t size_;
-  };
-}
+			const uint64_t prev_offset() const
+			{
+				return prev_offset_;
+			}
+	};
 
-#endif
-
-// Local Variables:
-// mode: C++
-// End:
+} /* closing brace for namespace x10lib */
