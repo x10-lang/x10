@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10init.h,v 1.1 2007-06-25 14:08:25 ganeshvb Exp $
+ * $Id: x10init.h,v 1.1 2007-12-09 10:31:19 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 

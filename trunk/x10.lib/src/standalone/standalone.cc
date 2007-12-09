@@ -1,3 +1,4 @@
+/* $Id: standalone.cc,v 1.1 2007-12-09 10:31:19 srkodali Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
