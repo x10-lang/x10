@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: am.h,v 1.1 2007-12-08 10:20:26 srkodali Exp $
+ * $Id: am.h,v 1.2 2007-12-09 10:31:19 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,6 +9,9 @@
 
 #ifndef __X10_AM_H
 #define __X10_AM_H
+
+/* Max number of aggregate handlers */
+#define X10_MAX_AGG_HANDLERS 2
 
 /* X10Lib Internal Handler Index Table */
 enum {
