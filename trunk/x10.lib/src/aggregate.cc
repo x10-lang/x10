@@ -1,12 +1,13 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.24 2007-12-08 14:27:51 srkodali Exp $
+ * $Id: aggregate.cc,v 1.25 2007-12-10 09:29:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** Implementation file for inlinable asyncs aggregation. **/
 
+#include <x10/types.h>
 #include <x10/am.h>
 #include <x10/aggregate.h>
 #include <x10/xmacros.h>
@@ -14,6 +15,7 @@
 #include <string.h>
 #include <iostream>
 #include <lapi.h>
+#include "x10libP.h"
 
 
 /* local types */
@@ -54,8 +56,8 @@ x10_err_t AsyncAggInit(void)
 	LRC(LAPI_Addr_set(__x10_hndl, (void *)AsyncSpawnHandlerAgg,
 			ASYNC_SPAWN_HANDLER_AGG));
 
-	for (int i = 0; i < X10_MAX_AGG_HANDLERS, i++) {
-		__x10_agg_arg_buf[i] = new (char*) [__x10_num_places];
+	for (int i = 0; i < X10_MAX_AGG_HANDLERS; i++) {
+		__x10_agg_arg_buf[i] = new char*[__x10_num_places];
 		__x10_agg_counter[i] = new int [__x10_num_places];
 
 		for (int j = 0; j < __x10_num_places; j++) {
@@ -131,7 +133,7 @@ x10_err_t AsyncSpawnInlineAgg(x10_place_t tgt,
 {
 	X10_DEBUG(2, "Entry");
 	assert (tgt >= 0 && tgt < __x10_num_places);
-	assert (size <= X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t);
+	assert (size <= X10_MAX_AGG_SIZE * sizeof(x10_async_arg_t));
 
 	int count = __x10_agg_counter[hndlr][tgt];
 
@@ -240,9 +242,10 @@ __AsyncSpawnInlineAgg(x10_place_t tgt, x10_async_handler_t hndlr,
 
 		LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
 		LRC(LAPI_Amsend(__x10_hndl, task,
-				(void *)ASYNC_SPAWN_HANDLER_AGG,
+				(void *)ASYNC_SPAWN_HANDLER_AGG, &buf,
+				sizeof(x10_agg_hdr_t),
 				(void *)__x10_agg_arg_buf[hndlr][task],
-				size * __x10_agg-counter[hndlr][task],
+				size * __x10_agg_counter[hndlr][task],
 				NULL, &cntr, NULL));
 		LRC(LAPI_Waitcntr(__x10_hndl, &cntr, 1, &tmp));
 
@@ -290,7 +293,7 @@ AsyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 		c->buf = (void *)new char [*msg_len];
 		c->niter = buf.niter;
 		*comp_h = AsyncSpawnCompHandlerAgg;
-		ret_info->ret-flags = LAPI_LOCAL_STATE;
+		ret_info->ret_flags = LAPI_LOCAL_STATE;
 		*user_info = (void *)c;
 		X10_DEBUG(2, "Exit");
 		return c->buf;

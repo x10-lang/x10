@@ -1,16 +1,17 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: alloc.h,v 1.9 2007-12-09 11:11:03 srkodali Exp $
+ * $Id: alloc.h,v 1.10 2007-12-10 09:29:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_ALLOC_H
 #define __X10_ALLOC_H
 
+#include <x10/types.h>
 #include <x10/register.h>
 #include <x10/xassert.h>
-#include <sys/types.h>
+#include "x10libP.h"
 
 namespace x10lib {
 
@@ -19,7 +20,7 @@ namespace x10lib {
 			char *pointer_;
 			void **addr_table_;
 			uint64_t offset_;
-			unit64_t prev_offset_;
+			uint64_t prev_offset_;
 			size_t size_;
 		public:
 		
@@ -28,7 +29,7 @@ namespace x10lib {
 			{
 				pointer_ = new char[size];
 				assert(pointer_ != 0);
-				addr_table_ = new (void*) [__x10_num_places];
+				addr_table_ = new void*[__x10_num_places];
 				assert(addr_table_ != 0);
 				AddressInit(pointer_, addr_table_);
 			}
@@ -69,3 +70,5 @@ namespace x10lib {
 	};
 
 } /* closing brace for namespace x10lib */
+
+#endif /* __X10_ALLOC_H */

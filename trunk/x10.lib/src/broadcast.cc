@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: broadcast.cc,v 1.2 2007-12-09 12:07:18 srkodali Exp $
+ * $Id: broadcast.cc,v 1.3 2007-12-10 09:29:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,6 +10,7 @@
 #include <x10/broadcast.h>
 #include <x10/xmacros.h>
 #include <lapi.h>
+#include "x10libP.h"
 
 namespace x10lib {
 

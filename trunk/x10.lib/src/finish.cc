@@ -1,16 +1,20 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.22 2007-12-10 07:28:47 srkodali Exp $
+ * $Id: finish.cc,v 1.23 2007-12-10 09:29:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** Implementation file for X10Lib's finish logic. **/
 
+#include <x10/types.h>
+#include <x10/err.h>
+#include <x10/am.h>
 #include <x10/xassert.h>
 #include <x10/xmacros.h>
 #include <x10/finish.h>
 #include <lapi.h>
+#include "x10libP.h"
 
 
 /* local types */
@@ -37,6 +41,8 @@ static int continue_status;
 
 /* global data */
 ptree_t *ftree=NULL;
+
+using namespace x10lib;
 
 /* local methods */
 static void*
@@ -142,7 +148,7 @@ x10_err_t FinishInit()
 	LRC(LAPI_Setcntr(__x10_hndl, &cntr2, 0));
 	LRC(LAPI_Address_init64(__x10_hndl, (lapi_long_t)&cntr1,
 			exceptionCntr));
-	LRC(LAPI_Addres_init64(__x10_hndl, (lapi_long_t)&cntr2,
+	LRC(LAPI_Address_init64(__x10_hndl, (lapi_long_t)&cntr2,
 			continueCntr));
 
 	X10_DEBUG(1, "Exit");
@@ -170,7 +176,7 @@ namespace x10lib {
 int FinishStart(int cs)
 {
 	int cs_ = cs;
-	x10_err_t err = FinishStart_(&cs_)
+	x10_err_t err = FinishStart_(&cs_);
 	if (err != X10_OK) {
 		throw err;
 	}
@@ -220,7 +226,7 @@ ContinueHeaderHandler(lapi_handle_t handle, void *uhdr,
 }
 
 static void*
-ExceptionHeaderhandler(lapi_handle_t handle, void *uhdr,
+ExceptionHeaderHandler(lapi_handle_t handle, void *uhdr,
 			uint *hdr_len, ulong *msg_len,
 			compl_hndlr_t **comp_h, void **uinfo)
 {
@@ -230,7 +236,7 @@ ExceptionHeaderhandler(lapi_handle_t handle, void *uhdr,
 	memcpy((buffer + bufSize), ret_info->udata_one_pkt_ptr, *msg_len);
 	bufSize += *msg_len;
 	numExceptions += child_exceptions;
-	ret_info->ctrl_flags = LAPI_BURY_MSG;
+	ret_info->ctl_flags = LAPI_BURY_MSG;
 	*comp_h = NULL;
 	return NULL;
 }
@@ -297,7 +303,7 @@ static x10_err_t FinishEnd_(Exception *e)
 
 		if (numExceptions) {
 			if (__x10_my_place == 0) {
-				Exception **e = new (Exception*) [numExceptions];
+				Exception **e = new Exception*[numExceptions];
 				assert (e != 0);
 				int ex_size = bufSize / numExceptions;
 				for (int i = 0; i < numExceptions; i++) {

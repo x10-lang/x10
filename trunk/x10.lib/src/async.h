@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.h,v 1.19 2007-12-09 12:56:37 srkodali Exp $
+ * $Id: async.h,v 1.20 2007-12-10 09:29:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -19,7 +19,7 @@
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
-namepsace x10lib {
+namespace x10lib {
 	
 	/* Spawn an inlinable async on a given place. */
 	x10_err_t AsyncSpawnInline(x10_place_t tgt,

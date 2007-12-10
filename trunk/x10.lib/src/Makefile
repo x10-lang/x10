@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.49 2007-12-09 10:31:18 srkodali Exp $
+# $Id: Makefile,v 1.50 2007-12-10 09:29:57 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -18,9 +18,8 @@ LIBNAME = x10
 X10LIB_MAJOR = 0
 X10LIB_MINOR = 6
 
-# Build by default both static and shared libraries
+# Build by default static library
 LIBTARGET = lib$(LIBNAME).a
-SHLIBTARGET = lib$(LIBNAME).so
 
 SRCS = aggregate.cc \
 	async.cc \
@@ -92,7 +91,7 @@ HEADERS = aggreate.h \
 #SRCS += aggregate_hc.cc
 #OBJS += aggregate_hc.o
 
-all: $(LIBTARGET) #$(SHLIBTARGET)
+all: $(LIBTARGET)
 
 $(LIBTARGET): $(OBJS) #$(X10LIB_ARRAY)
 	$(RM) $@
