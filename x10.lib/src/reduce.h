@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: reduce.h,v 1.9 2007-12-10 12:12:05 srkodali Exp $
+ * $Id: reduce.h,v 1.10 2007-12-10 13:38:14 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -57,7 +57,7 @@ CommutativeReduce(T *values, int low, int high, int depth)
 
 		LAPIStylePut(low, reduceCount * sizeof(T),
 			(char *)reduce_list[low] + reduceCount * depth * sizeof(T),
-			values, (lapi_cntr_t *)reduce_cntr_+list[low],
+			values, (lapi_cntr_t *)reduce_cntr_list[low],
 			NULL, NULL);
 	}
 	X10_DEBUG(1, "Exit");
@@ -115,12 +115,12 @@ void FinishReduceAll ()
 	if (__x10_my_place == 0) {
 		LAPIStyleWaitcntr(&reduce_cntr, LOG2(__x10_num_places), NULL);
 		for (i = 0; i < LOG2(__x10_num_places); i++) {
-			for int j = 0; j < reduceCount; j++) {
+			for (int j = 0; j < reduceCount; j++) {
 				F(*((T*)(inbuf[j])), ((T*)scratch)[reduceCount * i + j]);
 			}
 		}
 	}
-	delte [] values;
+	delete [] values;
 	reduceCount = 0;
 	X10_DEBUG(1, "Exit");
 }
