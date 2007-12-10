@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
 
- * $Id: point.h,v 1.9 2007-12-07 14:08:58 ganeshvb Exp $ 
+ * $Id: point.h,v 1.10 2007-12-10 13:15:45 srkodali Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -12,13 +12,10 @@
 #include <x10/gas.h>
 #include <iostream>
 
-using namespace std;
+/* C++ Lang Interface */
+#ifdef __cplusplus
+namespace x10lib {
 
-namespace x10lib{
-
-  extern int __x10_my_place;
-  extern int __x10_num_places;
-  
   template<int RANK>
   class Point {
     
@@ -169,11 +166,8 @@ namespace x10lib{
       } 
       return true;
    } 
-}
 
-#endif /* __X10__POINT_H__*/
+} /* closing brace for namespance x10lib */
+#endif
 
-
-// Local Variables:
-// mode: C++
-// End:
+#endif /* __X10__POINT_H */

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.h,v 1.6 2007-11-12 07:56:58 ganeshvb Exp $
+ * $Id: array_copy.h,v 1.7 2007-12-10 13:15:45 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,29 +12,24 @@
 #include <x10/types.h>
 #include <x10/switch.h>
 #include <x10/closure.h>
-#include "lapi.h"
+#include <lapi.h>
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
-#include <iostream>
-extern "C" void* arrayCopySwitch (int handler, void * args);
-extern "C" lapi_vec_t* genArrayCopySwitch (int handler, void * args);
 namespace x10lib {
-  
-  extern int __x10_num_places;
-  extern int __x10_my_place;
 
   /**
-   * arg0 = src address.
-   * args = pointer to closure (a derived class of asyncArrayCOpyClosure).
-   * len = number of bytes to be copied.
-   * target = destination node where the dest. array is residing.
-   * c = clock (optional).
+   * arg0 = src address
+   * args = pointer to closure
+   * (a derived class of asyncArrayCopyClosure)
+   * len = number of bytes to be copied
+   * target = destination node where the dest. array is residing
+   * c = clock (optional)
    */
   
   /**
-   * DESCRIPTION :  This methods invokes the arrayCopySwitch method in the destinaion
-   * The arrayCopySwitch method needs to be overloaded by the programmer. It's signature
+   * DESCRIPTION :  This methods invokes the arrayCopySwitch method
+   * in the destinaion. The arrayCopySwitch method needs to be overloaded by the programmer. It's signature
    * is void* arrayCopySwitch (void* args). 
    **/
   
@@ -119,9 +114,4 @@ extern "C" {
 }
 #endif 
 
-#endif
-  
-
-// Local Variables:
-// mode: C++
-// End:
+#endif /* __X10_ARRAY_COPY_H */

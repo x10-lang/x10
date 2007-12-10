@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.12 2007-12-10 05:59:33 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.13 2007-12-10 13:15:45 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,7 +10,8 @@
 #include <x10/xmacros.h>
 #include <x10/xassert.h>
 #include <lapi.h>
-#include "array_table.h"
+#include <x10/array_table.h>
+#include "__x10lib.h__"
 
 using namespace std;
 
@@ -263,7 +264,7 @@ namespace x10lib {
 }
 
 x10_err_t
-arrayCopyInit ()
+ArrayCopyInit ()
 {
   (void) LAPI_Qenv(x10lib::__x10_hndl, MAX_UHDR_SZ, &max_uhdr_sz);
 

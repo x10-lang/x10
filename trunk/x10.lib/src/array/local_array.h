@@ -1,21 +1,23 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: local_array.h,v 1.2 2007-12-10 05:59:33 ganeshvb Exp $ 
+ * $Id: local_array.h,v 1.3 2007-12-10 13:15:45 srkodali Exp $ 
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_LOCAL_ARRAY_H__
 #define __X10_LOCAL_ARRAY_H__
 
-#include "dist.h"
+#include <x10/dist.h>
 #include <x10/alloc.h>
 
-#include "lapi.h"
+#include <lapi.h>
 
 #define X10_MAX_RANK 7
 
-namespace x10lib{
+/* C++ Lang Interface */
+#ifdef __cplusplus
+namespace x10lib {
     
   /* A Generic Array that is "readily" serializable.
    * That is, it has no pointers (except data) and no base type.
@@ -122,11 +124,8 @@ namespace x10lib{
     int _handle;
     
   };
-} 
-  
-  
-#endif /*X10ARRAY_H*/
 
-// Local Variables:
-// mode: C++
-// End:
+} /* closing brace for namespace x10lib */ 
+#endif
+  
+#endif /* __X10_LOCAL_ARRAY_H */

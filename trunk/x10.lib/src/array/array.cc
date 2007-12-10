@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array.cc,v 1.14 2007-12-10 05:59:33 ganeshvb Exp $
+ * $Id: array.cc,v 1.15 2007-12-10 13:15:45 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -58,7 +58,7 @@ arrayDeletionHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len,
 }
 
 x10_err_t
-arrayInit ()
+ArrayInit ()
 {
   x10lib::GlobalSMAlloc = new x10lib::Allocator (1UL<<5);
 

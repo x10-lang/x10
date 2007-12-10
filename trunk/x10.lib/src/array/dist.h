@@ -1,10 +1,21 @@
+/*
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: dist.h,v 1.12 2007-12-10 13:15:45 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
+
 #ifndef __X10_DIST_H__
 #define __X10_DIST_H__
 
-#include "types.h"
-#include "region.h"
-#include "rectangular_region.h"
+#include <x10/types.h>
+#include <x10/region.h>
+#include <x10/rectangular_region.h>
 
+using namespace x10lib;
+
+/* C++ Lang Interface */
+#ifdef __cplusplus
 namespace x10lib {
 
   class UniqueDist;
@@ -142,7 +153,7 @@ namespace x10lib {
   public:
     
     UniqueDist () :
-      Dist<1>(new RectangularRegion<1>(Point<1>(x10lib::__x10_num_places-1)))
+      Dist<1>(new RectangularRegion<1>(Point<1>(__x10_num_places-1)))
     {
 
     } 
@@ -239,10 +250,8 @@ namespace x10lib {
 
     int _blkSize;
   };    
-}
 
-#endif /*X10DIST_H_*/
+} /* closing brace for namespace x10lib */
+#endif
 
-// Local Variables:
-// mode: C++
-// End:
+#endif /* __X10_DIST_H */
