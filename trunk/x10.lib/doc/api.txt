@@ -1219,8 +1219,7 @@ Library: libx10.a
 C++ Syntax:
 
 	#include <x10/x10lib.h>
-	int x10lib::FinishStart(cs)
-		int cs;
+	int x10lib::FinishStart(int cs)
 
 C Syntax:
 
@@ -1257,8 +1256,7 @@ Purpose:  Block the root process (process 0) until all the processes
 C++ Syntax:
 
 	#include <x10/x10lib.h>
-	x10_err_t x10lib::FinishEnd(ex)
-		Exception* ex;    
+	x10_err_t x10lib::FinishEnd(Exception *ex)
 
 C syntax:
 

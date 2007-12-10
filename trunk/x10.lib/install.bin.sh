@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: install.bin.sh,v 1.2 2007-07-02 10:33:20 srkodali Exp $
+# $Id: install.bin.sh,v 1.3 2007-12-10 18:06:02 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -46,17 +46,17 @@ BINMODE=755
 DATAMODE=644
 
 # files to customize before install
-FRONT_ENDS="x10libCC x10libcc"
+FRONT_ENDS="x10libcxx x10libcc"
 EX_MAKE="Makefile"
 
 # other files to install
-TOPLFILES="RELEASE.NOTES INSTALL epl-v10.html"
+TOPLFILES="RELEASE.NOTES RELEASE.NOTES_05 INSTALL epl-v10.html"
 DOCFILES="api.txt usage.txt x10lib-design.pdf"
 EXFILES="README.examples *.c *.cc"
 EXSCRIPTS="*.sh"
 HOSTFILES="*.list"
 LIBFILE=libx10.a
-INCFILES="*.h *.tcc"
+INCFILES="*.h"
 
 # install log file
 LOGFILE=/tmp/install.$$.log
