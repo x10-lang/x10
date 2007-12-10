@@ -1,26 +1,16 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.11 2007-10-25 11:12:42 ganeshvb Exp $
+# $Id: Makefile,v 1.12 2007-12-10 12:12:06 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Makefile for X10Lib src/array subdir.
 
-.SUFFIXES: .cc .cxx .cpp .C .o .h
+TOP = ../..
+include $(TOP)/config/Make.AIX
 
-MAKE = make
-CXX = mpCC_r -q64 -qarch=pwr5
-DEFS = -DNDEBUG 
-CXXFLAGS = -qtune=pwr5 -O3 -qinline -qhot -qpath=ILbc:/vol/x10/patches/xlC/070919/exe
-INCLUDES = -I. -I.. -I../../include
-LINKFLAGS = -r -b64
-RM = rm -f
-LD = ld
-AR = ar
-ARFLAGS = -v -r -X64
-RANLIB = ranlib -X64
-
+LINKFLAGS += -r -b64
 ARRAY_A = array.a
 
 SRCS =  array.cc array_copy.cc array_table.cc

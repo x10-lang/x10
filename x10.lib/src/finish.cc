@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.23 2007-12-10 09:29:57 srkodali Exp $
+ * $Id: finish.cc,v 1.24 2007-12-10 12:12:04 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -14,7 +14,7 @@
 #include <x10/xmacros.h>
 #include <x10/finish.h>
 #include <lapi.h>
-#include "x10libP.h"
+#include "__x10lib.h__"
 
 
 /* local types */

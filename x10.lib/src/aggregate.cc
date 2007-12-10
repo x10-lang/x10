@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.25 2007-12-10 09:29:57 srkodali Exp $
+ * $Id: aggregate.cc,v 1.26 2007-12-10 12:12:04 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,7 +15,7 @@
 #include <string.h>
 #include <iostream>
 #include <lapi.h>
-#include "x10libP.h"
+#include "__x10lib.h__"
 
 
 /* local types */

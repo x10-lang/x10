@@ -1,6 +1,6 @@
 /*
  * (c) Copyright IBM Corporation 2007
- * $Id: reduce.cc,v 1.6 2007-12-10 10:22:44 srkodali Exp $ 
+ * $Id: reduce.cc,v 1.7 2007-12-10 12:12:05 srkodali Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -9,7 +9,7 @@
 #include <iostream>
 #include <lapi.h>
 #include <math.h>
-#include "x10libP.h"
+#include "__x10lib.h__"
 
 namespace x10lib {
 
