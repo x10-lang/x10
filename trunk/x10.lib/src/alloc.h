@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: alloc.h,v 1.11 2007-12-10 12:12:04 srkodali Exp $
+ * $Id: alloc.h,v 1.12 2007-12-10 13:42:10 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,7 +11,6 @@
 #include <x10/types.h>
 #include <x10/register.h>
 #include <x10/xassert.h>
-#include "__x10lib.h__"
 
 namespace x10lib {
 
