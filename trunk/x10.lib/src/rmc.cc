@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rmc.cc,v 1.3 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: rmc.cc,v 1.4 2007-12-10 10:48:31 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,6 +11,7 @@
 #include <x10/lock.h>
 #include <x10/x10lib.h>
 #include <lapi.h>
+#include "x10libP.h"
 
 namespace x10lib {
 
@@ -19,13 +20,9 @@ static
 x10_err_t __get(x10_gas_ref_t src, void *dest, int n,
 				x10_rmc_type_t type, x10_switch_t sw)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern lapi_cntr_t __x10_wait_cntr;
-	extern int __x10_num_places;
 	int val, orig_val, cur_val;
 	int place;
 	void *addr;
-	extern int __x10_inited;
 
 	if (!__x10_inited)
 		return X10_ERR_INIT;
@@ -104,13 +101,9 @@ x10_err_t NbGet(x10_gas_ref_t src, void *dest, int n,
 x10_err_t __put(void *src, x10_gas_ref_t dest, int n,
 				x10_rmc_type_t type, x10_switch_t sw)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern lapi_cntr_t __x10_wait_cntr;
-	extern int __x10_num_places;
 	int val, orig_val;
 	int place;
 	void *addr;
-	extern int __x10_inited;
 
 	if (!__x10_inited)
 		return X10_ERR_INIT;
@@ -187,27 +180,32 @@ x10_err_t NbPut(void *src, x10_gas_ref_t dest, int n,
 }
 
 /* Equivalents of Waitcntr and the LAPI_Put 
- * This is for use by reduce.h
- * This needs to be merged with exisiting functionaliy
- * in one way or another.
+ * This is for use by reduction operations.
+ * This needs to be merged with exisiting functionaliy.
  */
 
-x10_err_t LAPIStylePut (int destPlace, size_t size, void* dest, void* src,
-	       void* target_cntr, void* origin_cntr,
-	       void* compl_cntr)
+x10_err_t LAPIStylePut(int destPlace, size_t size,
+		void* dest, void* src,
+		void* target_cntr, void* origin_cntr,
+		void* compl_cntr)
 {
-  LRC (LAPI_Put (__x10_hndl, destPlace, size, dest, src, 
-		 (lapi_cntr_t*) target_cntr, (lapi_cntr_t*) origin_cntr, (lapi_cntr_t*) compl_cntr));
+	LRC(LAPI_Put(__x10_hndl, destPlace, size, dest, src,
+			(lapi_cntr_t *)target_cntr,
+			(lapi_cntr_t *)origin_cntr,
+			(lapi_cntr_t *)compl_cntr));
+	return X10_OK;
 }
 
 x10_err_t LAPIStyleWaitcntr (void* cntr, int value, int* ret)
 {
-  LRC (LAPI_Waitcntr (__x10_hndl, (lapi_cntr_t*) cntr, value, ret));
+	LRC(LAPI_Waitcntr(__x10_hndl, (lapi_cntr_t *)cntr, value, ret));
+	return X10_OK;
 }
 
 x10_err_t LAPIStyleSetcntr (void* cntr, int value)
 {
-  LRC (LAPI_Setcntr (__x10_hndl, (lapi_cntr_t*) cntr, 0));
+	LRC(LAPI_Setcntr(__x10_hndl, (lapi_cntr_t *)cntr, 0));
+	return X10_OK;
 }
 
 /* Remote get operation(s) for int/long/double/float. */

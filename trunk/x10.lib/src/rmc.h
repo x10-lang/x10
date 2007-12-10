@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rmc.h,v 1.2 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: rmc.h,v 1.3 2007-12-10 10:48:31 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -103,14 +103,11 @@ namespace x10lib {
 
 	
 	/* LAPI Style operatins with the same kinds of arguments
-	 *  except __x10_hndl.
-	 *  We do not have
-	 * complete coverage for all the LAPI semantics right now.
-	 * To overcome this limitation, we provide this stop gap
-	 * arrangement.
+	 * without the first handle argument.
+	 * Just a stop-gap arrangement.
 	 */
-
-	x10_err_t LAPIStylePut (int destPlace, size_t size, void* dest, void* src,
+	x10_err_t LAPIStylePut(int destPlace, size_t size,
+				void* dest, void* src,
 				void* target_cntr, void* origin_cntr,
 				void* compl_cntr);
 	
