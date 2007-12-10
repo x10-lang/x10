@@ -980,6 +980,7 @@ asyncSwitch (x10_async_handler_t h, void* arg, x10_int_t niter)
 }
 
 
+extern "C"
 void*
 arrayCopySwitch (int handler, void* args)
 {
