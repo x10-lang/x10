@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.7 2007-06-27 14:48:33 srkodali Exp $
+# $Id: Makefile,v 1.8 2007-12-10 15:52:09 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for sample programs.
@@ -54,8 +54,20 @@ TARGET8 = acc_ret_cc
 SRCS8 = $(TARGET8).cc
 OBJS8 = $(TARGET8).o
 
+TARGET9 = async_cc
+SRCS9 = $(TARGET9).cc
+OBJS9 = $(TARGET9).o
+
+TARGET10 = async_array_put_cc
+SRCS10 = $(TARGET10).cc
+OBJS10 = $(TARGET10).o
+
+TARGET11 = dist_array_onesided_cc
+SRCS11 = $(TARGET11).cc
+OBJS11 = $(TARGET11).o
+
 TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) \
-			$(TARGET6) $(TARGET7) $(TARGET8)
+			$(TARGET6) $(TARGET7) $(TARGET8) $(TARGET9)
 
 all: $(TARGETS)
 
@@ -90,6 +102,10 @@ $(TARGET7): $(OBJS7)
 $(TARGET8): $(OBJS8)
 	$(RM) $@
 	$(CXX) $(LINKFLAGS) $(OBJS8)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET9): $(OBJS9)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS9)  -o $@ $(LIBDIRS) $(LIBS)
 
 install:
 	@echo "Nothing to \"install\" in \"examples\" subdir."

@@ -2,7 +2,7 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.5
+                              Version 0.6
 
 
                               R E A D M E
@@ -30,7 +30,7 @@ Instructions for configuring, building, and installing the X10 Runtime System:
 * Configure the Build Process
   ---------------------------
 
-          Run './config.sh'.
+          Run './configure'.
 
   This creates "include" and "lib" subdirs under the toplevel for installation.
   It automatically detects header files located under src and its subdirs and

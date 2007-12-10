@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.34 2007-12-10 14:14:13 srkodali Exp $
+ * $Id: x10lib.h,v 1.35 2007-12-10 15:52:11 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -54,6 +54,25 @@
 
 #ifdef __cplusplus
 namespace x10lib {
+
+/* x10lib global state */
+extern int __x10_inited;
+extern lapi_handle_t __x10_hndl;
+extern lapi_thread_func_t __x10_tf;
+extern lapi_cntr_t __x10_wait_cntr;
+extern int __x10_num_places;
+extern int __x10_my_place;
+extern int __x10_addr_hndl;
+extern int __x10_addrtbl_sz;
+extern int __x10_max_agg_size;
+
+/** reduction variables **/
+extern lapi_cntr_t reduce_cntr;
+extern void **reduce_cntr_list;
+extern void *scratch;
+extern void **reduce_list;
+extern void *inbuf[];
+extern int reduceCount;
 
 /* Initialization */
 x10_err_t Init(x10_async_handler_t *hndlrs, int n);

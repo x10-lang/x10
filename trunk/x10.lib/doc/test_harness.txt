@@ -2,7 +2,7 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.5
+                              Version 0.6
 
 
                         T E S T  H A R N E S S

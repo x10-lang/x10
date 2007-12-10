@@ -2,7 +2,7 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.5
+                              Version 0.6
 
 
                               R E A D M E
@@ -11,7 +11,7 @@
 
 This is the Readme file for X10 Runtime System Binary Programs.
 
-* x10libCC
+* x10libcxx
 
 	Script for linking C++ programs against the library.
 

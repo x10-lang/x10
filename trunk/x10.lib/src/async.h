@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.h,v 1.20 2007-12-10 09:29:57 srkodali Exp $
+ * $Id: async.h,v 1.21 2007-12-10 15:52:11 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -38,6 +38,8 @@ extern "C" {
 x10_err_t x10_async_spawn_inline(x10_place_t tgt,
 				x10_async_handler_t hndlr,
 				void *args, size_t size);
+
+void AsyncSwitch(x10_async_handler_t h, void *args, int niter);
 
 #ifdef __cplusplus
 } /* closing brace for extern "C" */

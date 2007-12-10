@@ -2,18 +2,18 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.5
+                              Version 0.6
 
 
                              I N S T A L L
                              -------------
 
 
-Follow these instructions for installing X10Lib ver 0.5 binary distribution.
+Follow these instructions for installing X10Lib ver 0.6 binary distribution.
 
 The distribution is made available currently in a gzipped tar ball:
 
-		libx10-0.5_aix5.3_ppc.tar.gz
+		libx10-0.6_aix5.3_ppc.tar.gz
 
 In future, the distribution will also be made available in the Standard AIX
 Package Format (x10.rte Fileset).  Please checkeout x10.sourceforge.net
@@ -46,12 +46,12 @@ and untar it using the following command:
 
 	$ cd ${TMP_WORK}
 
-	$ gzip -d -c libx10-0.5_aix5.3_ppc.tar.gz | tar -x -v -f - 
+	$ gzip -d -c libx10-0.6_aix5.3_ppc.tar.gz | tar -x -v -f - 
 
 Once this is done, libx10-0.5 directory will be created in the current
 working directory and all the distribution files can be located under it.
 
-	$ cd libx10-0.5
+	$ cd libx10-0.6
 
 Run the provided install script 'install.sh' with a PREFIX pointing to
 the top directory with respect to which all the other subdirectories
@@ -73,10 +73,9 @@ in various subdirectories for regular usage:
 
 ${PATH_TO_X10LIB_HOME}/
 
-		bin/x10libCC
+		bin/x10libcxx
 		bin/x10libcc
 		include/*.h
-		include/*.tcc
 		lib/libx10.a
 		share/X10Lib/RELEASE.NOTES
 		share/X10Lib/INSTALL
