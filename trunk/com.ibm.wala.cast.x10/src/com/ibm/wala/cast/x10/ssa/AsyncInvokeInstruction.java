@@ -16,11 +16,12 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
     }
 
     public AsyncInvokeInstruction(int[] params, int exception, CallSiteReference site, int placeExpr) {
-	this(-1, params, exception, site, placeExpr);
+	super(params, exception, site);
+	this.placeExpr= placeExpr;
     }
 
-    protected AsyncInvokeInstruction(int result, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr) {
-	super(result, params, exception, csr, lexicalReads, lexicalWrites);
+    protected AsyncInvokeInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr) {
+	super(results, params, exception, csr, lexicalReads, lexicalWrites);
     }
 
     public int getPlaceExpr() {
@@ -54,8 +55,8 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
     }
 
     @Override
-    protected SSAInstruction copyInstruction(int result, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites) {
-        return new AsyncInvokeInstruction(result, params, exception, lexicalReads, lexicalWrites, getCallSite());
+  protected SSAInstruction copyInstruction(int results[], int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites) {
+      return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, getCallSite());
     }
 
     @Override
