@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: local_array.h,v 1.3 2007-12-10 13:15:45 srkodali Exp $ 
+ * $Id: local_array.h,v 1.4 2007-12-10 16:44:39 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -9,7 +9,6 @@
 #define __X10_LOCAL_ARRAY_H__
 
 #include <x10/dist.h>
-#include <x10/alloc.h>
 
 #include <lapi.h>
 
@@ -19,12 +18,13 @@
 #ifdef __cplusplus
 namespace x10lib {
     
-  /* A Generic Array that is "readily" serializable.
+  /** Generic Arrays - arrays with no rank and type .
+   *  When the array creation is truly one-sided the type and
+   *  rank is known only at the "creation" site, not at "participants" side
+   *
+   * A Generic Array is "readily" serializable.
    * That is, it has no pointers (except data) and no base type.
    * Should not have any virtual functions too.
-   * This is useful to represent arrays whose type and rank is not known
-   * For eg, when the array creation is truly one-sided the type and
-   * rank is known only at the "creation" site, not at "participants" side
    */
   
   class GenericArray
@@ -92,11 +92,10 @@ namespace x10lib {
     
     /** A pointer to the local chunk of memory used to store the elements of the array.
      */
-    T* raw() const
+    T* raw (Point<RANK> offset) const
     {
-      return _data;
+      return _data + _region->ord (offset);
     }
-       
 	     
     T& elementAt (const Point<RANK> p)
     {

@@ -2,18 +2,20 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * $Id: finish_cc.cc,v 1.1 2007-12-09 11:00:54 ganeshvb Exp $ 
+ * $Id: finish_cc.cc,v 1.2 2007-12-10 16:44:38 ganeshvb Exp $ 
  */
 
 
-/** Example to illustrate the usage of finishStart and finishEnd
+/** Example to illustrate the usage of FinishStart and FinishEnd.
  **
- ** An inlinable async is spawned from place zero on other places.
- ** The async sends the rank of destination ("val") to the destination.
+ ** An inlinable Async is spawned from place zero on other places.
+ ** The Async sends the rank of destination ("val") to the destination.
  **
- ** Followed by this, another async is spawned from non-zero places
- ** to place zero. This async sends back the "val" to place zero.
+ ** Followed by this, another Async is spawned from non-zero places
+ ** to place zero. This Async sends back the "val" to place zero.
  ** Place zero cumulatively adds the "val" to "sum".
+
+ ** Syncrhonization is performed using FinishStart and FinishEnd. 
  **
  **/
 
@@ -28,8 +30,9 @@ long val;
 long sum = 0;
 
 
-/* async switch routine */
-void asyncSwitch (x10_async_handler_t h, void* arg, int niter) 
+/* Async switch routine */
+extern "C"
+void AsyncSwitch (x10_async_handler_t h, void* arg, int niter) 
 {
   switch (h) {
    case 0:
@@ -50,7 +53,7 @@ main (int argc, char* argv[])
   int CS = 0;
 
   if (__x10_my_place == 0) CS = 1;
-  CS = finishStart (CS);
+  CS = FinishStart (CS);
   if (CS != 1) goto SKIP_1;
 
   if (__x10_my_place != 0) goto SKIP_s1;
@@ -58,23 +61,22 @@ main (int argc, char* argv[])
     for (x10_place_t target = 0; target < __x10_num_places; target++)
        if (target != __x10_my_place) {
          long i = (long) target; 
-         asyncSpawnInline (target, 0, &i, sizeof(i));
+         AsyncSpawnInline (target, 0, &i, sizeof(i));
        }
 SKIP_s1:
 SKIP_1:
-    finishEnd (NULL);
+    FinishEnd (NULL);
     CS = 0;
 
   if (__x10_my_place == 0) CS = 2;
-  CS = finishStart(CS);
+  CS = FinishStart(CS);
   if (CS != 2) goto SKIP_2;
 
   /* reduce "val" from all the places to 0 in sum */
-    asyncSpawnInline (0, 1, &val, sizeof(val)); 
+    AsyncSpawnInline (0, 1, &val, sizeof(val)); 
 SKIP_2:
-     finishEnd (NULL);
+     FinishEnd (NULL);
      CS = 0;
-  //cout << "Hello " << endl;
   if (__x10_my_place == 0) {
      long ref = __x10_num_places * (__x10_num_places - 1) / 2;
      cout << "result: " << sum << " expected : " << ref << endl;

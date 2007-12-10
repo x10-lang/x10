@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_region_iter.cc,v 1.1 2007-12-07 14:08:59 ganeshvb Exp $ */
+/* $Id: Test_region_iter.cc,v 1.2 2007-12-10 16:44:40 ganeshvb Exp $ */
 #include <iostream>
 
 #include <x10/x10lib.h>
@@ -14,6 +14,16 @@
 using namespace std;
 
 using namespace x10lib;
+
+void sum (Point<1> p)
+{
+  cout << p.value(0) << endl;  
+}
+
+void sum_2d (Point<2> p)
+{
+  cout << p.value(0) << " " << p.value(1) << endl;  
+}
 
 void test2d ()
 {
@@ -65,6 +75,7 @@ void test2d ()
   }
   assert (idx == r.card() * s.card());
 
+  foreach <2, sum_2d> (&r);
 }
 
 void test1d ()
@@ -78,6 +89,8 @@ void test1d ()
     //cout << "( " << I << ") " << endl;
   }
   assert (idx == r.card()); 
+
+  foreach <sum> (&r);
 }
 
 int 

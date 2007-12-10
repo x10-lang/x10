@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: clock.cc,v 1.4 2007-12-10 12:12:04 srkodali Exp $
+ * $Id: clock.cc,v 1.5 2007-12-10 16:44:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,7 +15,7 @@
 namespace x10lib {
 
 /* Perform next operation on the specified clock. */
-x10_err_t x10lib::ClockNext(Clock *c, int n)
+x10_err_t ClockNext(Clock *c, int n)
 {
 	// refine???
 	LRC(LAPI_Gfence(__x10_hndl));

@@ -1,4 +1,4 @@
-/* $Id: standalone.cc,v 1.1 2007-12-09 10:31:19 srkodali Exp $ */
+/* $Id: standalone.cc,v 1.2 2007-12-10 16:44:40 ganeshvb Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -55,7 +55,7 @@ static int setup_addr_list(lapi_udp_t *addr_list, int num_tasks)
 }
 
 
-void initStandAlone (lapi_info_t* info) {
+void InitStandAlone (lapi_info_t* info) {
   int           rc;            /* Return code from func. calls */
   lapi_handle_t lapi_handle;   /* LAPI handle */
   lapi_info_t   lapi_info;     /* Info to pass to LAPI_Init */

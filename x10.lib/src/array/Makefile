@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.13 2007-12-10 13:15:45 srkodali Exp $
+# $Id: Makefile,v 1.14 2007-12-10 16:44:39 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -11,7 +11,7 @@ TOP = ../..
 include $(TOP)/config/Make.AIX
 
 LINKFLAGS += -r -b64
-INCLUDES += -I..
+INCLUDES += -I ../
 ARRAY_A = array.a
 
 SRCS =  array.cc \

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_local_array.cc,v 1.2 2007-12-07 14:31:11 ganeshvb Exp $ 
+ * $Id: Test_local_array.cc,v 1.3 2007-12-10 16:44:40 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -27,7 +27,7 @@ main (int argc, char* argv[])
   for (int i = 0; i < __x10_num_places; ++i)
     places [i] = i;
 
-  Dist<1>* b = new BlockDist<1> (region, places, __x10_num_places, &blk_size);
+  Dist<1>* b = new BlockDist<1> (region, places, __x10_num_places);
 
   int here = __x10_my_place;
 

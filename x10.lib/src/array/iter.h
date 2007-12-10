@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: iter.h,v 1.4 2007-12-10 13:15:45 srkodali Exp $ 
+ * $Id: iter.h,v 1.5 2007-12-10 16:44:39 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -20,20 +20,40 @@ template <int RANK, void F (x10lib::Point<RANK>)>
 void foreach (x10lib::Region<RANK>* r)
 {
   for (int i = 0; i < r->card(); ++i)
-	F (r->coord(i)); 
+    F (r->coord(i)); 
 } 
 
 /* specialization */
 template <void F (x10lib::Point<1>)>
 int foreach (x10lib::Region<1>* r)
 {
- 	int start_i = r->origin().value(0);
-	int end_i = r->diagonal().value(0);
-	int step_i = r->stride().value(0);
-	for (int i = start_i; i < end_i; i += step_i)
-		F (x10lib::Point<1>(i)); 
+  int start_i = r->origin().value(0);
+  int end_i = r->diagonal().value(0);
+  int step_i = r->stride().value(0);
+  for (int i = start_i; i < end_i; i += step_i)
+    F (x10lib::Point<1>(i)); 
 }
 
+/* specialization */
+template <void F (x10lib::Point<2>)>
+int foreach (x10lib::Region<2>* r)
+{
+  int start_i = r->origin().value(0);
+  int end_i = r->diagonal().value(0);
+  int step_i = r->stride().value(0);
+
+  int start_j = r->origin().value(1);
+  int end_j = r->diagonal().value(1);
+  int step_j = r->stride().value(1);
+  
+  for (int i = start_i; i < end_i; i += step_i) 
+    for (int j = start_j; j < end_j; j += step_j) 
+      F (x10lib::Point<2>(i, j));   
+}
+
+/* rectangular 1-d, 2-d and 3-d iterators */
+
+/* Row-major order */
 
 /* rectangular 1-d, 2-d and 3-d iterators */
 
@@ -49,7 +69,7 @@ int foreach (x10lib::Region<1>* r)
 
 #define for_local_3d(I, J, K,  _, R) \
    for (int I = R.origin().value(0); I <= R.diagonal().value(0); I += R.stride().value(0)) \
-     for (int J = R.origin().value(1); J <= R.diagonal().value(1); J += R.stride().value(1)) \ 
+     for (int J = R.origin().value(1); J <= R.diagonal().value(1); J += R.stride().value(1)) \
        for (int K = R.origin().value(2); K < R.diagonal().value(2); K += R.stride().value(2)) 
      
 
@@ -68,7 +88,7 @@ int foreach (x10lib::Region<1>* r)
 /* diagonal iterator (only for 2D and SQUARE region)*/
 
 #define for_local_2d_diag(I, J, _, R) \
-   for (int I = R.origin().value(0), J = R.origin().value(1); I <= R.diagonal().value(0) ||  J <= R.diagonal().value(1); I += R.stride().value(0), J += R.stride().value(1)) \
+   for (int I = R.origin().value(0), J = R.origin().value(1); I <= R.diagonal().value(0) ||  J <= R.diagonal().value(1); I += R.stride().value(0), J += R.stride().value(1)) 
 
 #endif
 

@@ -1,29 +1,20 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array.cc,v 1.15 2007-12-10 13:15:45 srkodali Exp $
+ * $Id: array.cc,v 1.16 2007-12-10 16:44:39 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** helper functions (internal) for array classe */
 
 #include <x10/am.h>
-#include <x10/alloc.h>
 #include <x10/types.h>
 #include <x10/local_array.h>
 #include <x10/array_table.h>
 #include <x10/xmacros.h>
 #include <iostream>
-
 #include "lapi.h"
-
-using namespace std;
-
-namespace x10lib
-{
-  extern lapi_handle_t __x10_hndl;
-  Allocator* GlobalSMAlloc = NULL;
-}
+#include "__x10lib.h__"
 
 void* 
 arrayConstructionHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
@@ -60,8 +51,6 @@ arrayDeletionHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len,
 x10_err_t
 ArrayInit ()
 {
-  x10lib::GlobalSMAlloc = new x10lib::Allocator (1UL<<5);
-
   LRC(LAPI_Addr_set(x10lib::__x10_hndl, (void *)arrayConstructionHandler, ARRAY_CONSTRUCTION_HANDLER));
   LRC(LAPI_Addr_set(x10lib::__x10_hndl, (void *)arrayDeletionHandler, ARRAY_DELETION_HANDLER));
 

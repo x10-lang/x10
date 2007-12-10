@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
 
- * $Id: point.h,v 1.10 2007-12-10 13:15:45 srkodali Exp $ 
+ * $Id: point.h,v 1.11 2007-12-10 16:44:39 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -11,6 +11,7 @@
 #include <x10/xassert.h>
 #include <x10/gas.h>
 #include <iostream>
+//#include "__x10lib.h__"
 
 /* C++ Lang Interface */
 #ifdef __cplusplus

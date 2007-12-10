@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_dist.cc,v 1.7 2007-12-07 14:31:11 ganeshvb Exp $ */
+/* $Id: Test_dist.cc,v 1.8 2007-12-10 16:44:40 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -26,7 +26,7 @@ testBlockDist()
     places[i] = i;
 
   int blk_size = 100 / num_places;
-  BlockDist<1> b (region, places, num_places, &blk_size);
+  BlockDist<1> b (region, places, num_places);
   
   /* test place() */
   for (int i = 0; i < 100; ++i)

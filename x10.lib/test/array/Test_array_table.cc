@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_array_table.cc,v 1.1 2007-12-07 14:08:59 ganeshvb Exp $ 
+ * $Id: Test_array_table.cc,v 1.2 2007-12-10 16:44:40 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -19,7 +19,7 @@ main (int argc, char* argv[])
   
   x10lib::Init(NULL,0);
   
-  ByteArray* a = new ByteArray;
+  GenericArray* a = new GenericArray;
   a->_data = (char*) new double[N];
   a->_nelements = N;
   a->_elsize = sizeof (double);

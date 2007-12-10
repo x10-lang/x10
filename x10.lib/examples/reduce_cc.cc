@@ -2,11 +2,11 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * $Id: reduce_cc.cc,v 1.1 2007-12-09 11:00:54 ganeshvb Exp $ 
+ * $Id: reduce_cc.cc,v 1.2 2007-12-10 16:44:38 ganeshvb Exp $ 
  */
 
 
-/** Example to illustrate the usage of reduce.
+/** Example to illustrate the usage of Reduce.
  ** Reduction is performed over an (logical) uniquely 
  ** distributed array whose values are 0:rank-1.
  ** The result is collected at place 0.
@@ -14,7 +14,6 @@
  **/
 
 #include <x10/x10lib.h>
-#include <x10/reduce.h>
 
 #include <iostream>
 
@@ -33,8 +32,8 @@ main (int argc, char* argv[])
   x10lib::Init(NULL, 0);
 
   int val = __x10_my_place;
-  reduce <int> (&val);
-  finishReduceAll <int, add> ();
+  Reduce <int> (&val);
+  FinishReduceAll <int, add> ();
 
   if (__x10_my_place == 0) {
      long ref = __x10_num_places * (__x10_num_places - 1) / 2;
