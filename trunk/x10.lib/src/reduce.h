@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: reduce.h,v 1.10 2007-12-10 13:38:14 srkodali Exp $
+ * $Id: reduce.h,v 1.11 2007-12-10 13:38:58 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -44,7 +44,7 @@ CommutativeReduce(T *values, int low, int high, int depth)
 
 	if (depth > 0) {
 		CommutativeReduce<T,F> (values, low, src, (depth - 1));
-		CommutativeReduce<T,F> (vlaues, src, high, (depth - 1));
+		CommutativeReduce<T,F> (values, src, high, (depth - 1));
 	}
 
 	if (__x10_my_place == src && __x10_num_places > 1) {
