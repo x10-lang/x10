@@ -145,6 +145,9 @@
 <br>
 The examples listed here are either  small applications extracted from computational kernels or scientific computing benchmarks. Most of them are covered by our presentations:
 <ul>
+</li>
+<li>HPC Challenge Submission for X10 (SC 2007) <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/benchmark/HPCC/x10-hpcc07-v3.pdf">pdf</a> (won Class 2 award: Most Productive Research Implementation)</li>
 <li> Programming Scientific Computations in X10 (PGAS 2006, X10 Demo SC 2006) <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="applications/docs/SC06-X10Demo.pdf">pdf</a>
 </li>
@@ -165,7 +168,7 @@ More examples (not limited to the domain of scientific computing) will be added.
 <tr>
 <td>
 <br>
-The following examples demonstrate in X10 how to build and iterate over distributed arrays, and how to coordinate  activities. Each of them either has a dependent-type version or itself uses dependent types. Note that our implementation of dependent types is still in the initial stage. More support and improvements are on the way.
+The following examples demonstrate in X10 how to build and iterate over distributed arrays, and how to coordinate  activities. Each of them either has a dependent-type version or itself uses dependent types. Note that our implementation of dependent types is still an ongoing effort. More support and improvements are on the way.
 <br>
 </td>
 </tr>
@@ -310,7 +313,7 @@ The following examples demonstrate in X10 how to build and iterate over distribu
 <tr>
 <td>
 <br>
-We have been porting benchmarks to X10 (literal translation to X10 or implementation from scratch). More of them will be released soon.
+We have been implementing benchmarks in X10 (literal translation to X10 or implementation from scratch). With the new x10c++ compiler which translates X10 programs into C++ SPMD programs communicating using an active messaging infrastructure and the runtime system based on IBM's LAPI (Low-level API), performance comparable to hand-written MPI implementations is realized for well-known benchmarks such as FT in NPB, and Random Access, Stream, and FFT in HPCC. Some of the X10 programs posted below also have a "static" version which is the one to be compiled with x10c++. Note that the current x10c++ compiler and runtime system (to be released soon) only implements a subset of X10 functionalities.
 <br>
 <br>
 <!--start -->
