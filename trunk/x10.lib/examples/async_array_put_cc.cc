@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async_array_put_cc.cc,v 1.1 2007-12-08 14:28:15 ganeshvb Exp $ 
+ * $Id: async_array_put_cc.cc,v 1.2 2007-12-10 17:22:27 srkodali Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -58,6 +58,7 @@ struct __closure__0 : Closure
 
 
 /*array copy switch routine */
+extern "C"
 void* arrayCopySwitch (int handler, void* buf)
 {
   __closure__0__args* closure_args = (__closure__0__args*) buf;
