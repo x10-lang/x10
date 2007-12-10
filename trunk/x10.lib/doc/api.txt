@@ -2,7 +2,7 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.5
+                              Version 0.6
 
 
                 APPLICATION PROGRAMMING INTERFACE (API)
@@ -1219,7 +1219,7 @@ Library: libx10.a
 C++ Syntax:
 
 	#include <x10/x10lib.h>
-	int x10lib::finishStart(cs)
+	int x10lib::FinishStart(cs)
 		int cs;
 
 C Syntax:
@@ -1257,7 +1257,7 @@ Purpose:  Block the root process (process 0) until all the processes
 C++ Syntax:
 
 	#include <x10/x10lib.h>
-	x10_err_t x10lib::finishEnd(ex)
+	x10_err_t x10lib::FinishEnd(ex)
 		Exception* ex;    
 
 C syntax:
@@ -1287,11 +1287,11 @@ Exceptions:
 Note:
 	The following sequence is equivalent to a Gfence:
 
-		finishEnd();
+		FinishEnd();
 
    		process 0 code with no async spawns;
 
-		finishBegin();
+		FinishBegin();
 
 
 
@@ -1442,9 +1442,9 @@ Library: libx10.a
 C++ syntax:
 
 	#include <x10/x10lib.h>
-	x10_err_t x10lib::asyncSpawnInline (dest, handler, n, args);
-	x10_err_t x10lib::asyncSpawnInline (dest, handler, arg0);
-	x10_err_t x10lib::asyncSpawnInline (dest, handler, arg0, arg1);
+	x10_err_t x10lib::AsyncSpawnInline (dest, handler, n, args);
+	x10_err_t x10lib::AsyncSpawnInline (dest, handler, arg0);
+	x10_err_t x10lib::AsyncSpawnInline (dest, handler, arg0, arg1);
 		x10_place_t dest;
         x10_async_handler_t handler;
         int n;
@@ -1472,14 +1472,14 @@ Description:
     the user defined function asyncSwitch, which has the following
     prototype.
      
-    x10_err_t asyncSwitch (async_handler_t handler, async_arg_t* args, int niter);
+    x10_err_t AsyncSwitch (async_handler_t handler, async_arg_t* args, int niter);
 
     The body of the asyncSwitch should invoke the remote method corresponding to
     the handler and repeat it niter times. For non-aggregate asyncs, niter is 1.
     asyncSwitch should be declared in the user program. Typically, the body of
     asyncSwitch is of the following from:
 
-    x10_err_t asyncSwitch (async_handler_t handler, async_arg_t* args, int niter) 
+    x10_err_t AsyncSwitch (async_handler_t handler, async_arg_t* args, int niter) 
 	{
 	  for (int i = 0; i < niter; i ++)
 		switch (handler) {
@@ -1513,9 +1513,9 @@ Library: libx10.a
 C++ Syntax:
 
 	#include <x10/x10lib.h>
-	x10_err_t x10lib::asyncSpawnInlineAgg (dest, handler, n, args);
-	x10_err_t x10lib::asyncSpawnInlineAgg (dest, handler, arg0);
-	x10_err_t x10lib::asyncSpawnInlineAgg (dest, handler, arg0, arg1);
+	x10_err_t x10lib::AsyncSpawnInlineAgg (dest, handler, n, args);
+	x10_err_t x10lib::AsyncSpawnInlineAgg (dest, handler, arg0);
+	x10_err_t x10lib::AsyncSpawnInlineAgg (dest, handler, arg0, arg1);
 	x10_place_t dest;
 	        x10_async_handler_t handler;
 	        int n;
@@ -1555,7 +1555,7 @@ Purpose : Flush all the outstanding aggregated active messages.
 C++ Syntax:
 
 	#include <x10/x10lib.h>
-	x10_err_t x10lib::asyncflush (handle, n)
+	x10_err_t x10lib::Asyncflush (handle, n)
         x10_async_handler_t handle;
         int n;
 
@@ -1810,7 +1810,7 @@ Purpose : To initialize  a reduction operation.
 C++ syntax:
       
 	template <typename T>
-	x10_err_t reduce (inout)
+	x10_err_t Reduce (inout)
 	T* inout;
 
 Parameters:
@@ -1840,14 +1840,14 @@ Description:
 Note:
 	A maximum of X10_MAX_REDUCE_OPS_INFLIGHT reduction operations can be overlapped. 
 
-/// finishReduceAll <T, OP> ///
+/// FinishReduceAll <T, OP> ///
 
 Purpose: Complete all outstanding reduction operations
 
 C++ Syntax:
 	
 	template <typename T, void OP(T&, const T&>
- 	x10_err_t finishAllReduce ()
+ 	x10_err_t FinishAllReduce ()
 
 Return Values :
 
@@ -1865,7 +1865,7 @@ Template Parameters:
 
 Description: 
 
-	finishReduceAll completes all the outstanding reduction operation. The
+	FinishReduceAll completes all the outstanding reduction operation. The
 	result is returned to the input of the earlier redue operations at place zero. 
 	A maximum of X10_MAX_REDUCE_OPS_INFLIGHT can be overlapped. All the
         earlier reduce operations should have the same reduction function. 
