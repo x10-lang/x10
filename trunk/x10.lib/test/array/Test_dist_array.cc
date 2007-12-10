@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_dist_array.cc,v 1.1 2007-12-07 14:08:59 ganeshvb Exp $ 
+ * $Id: Test_dist_array.cc,v 1.2 2007-12-10 16:44:40 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -35,13 +35,13 @@ main (int argc, char* argv[])
       for (int i = 0; i < __x10_num_places; ++i)
 	places [i] = i;
       
-      Dist<1>* b = new BlockDist<1> (region, places, __x10_num_places, &blk_size);
+      Dist<1>* b = new BlockDist<1> (region, places, __x10_num_places);
       a = MakeDistArray <double, 1> (b, 1);
     }
 
   x10lib::SyncGlobal();
 
-  ByteArray* local_array = (ByteArray*) getLocalSection (1);
+  GenericArray* local_array = (GenericArray*) getLocalSection (1);
  
   assert (local_array->_data != NULL); 
   assert (local_array->_nelements == blk_size);

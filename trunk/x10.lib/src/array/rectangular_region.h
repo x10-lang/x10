@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rectangular_region.h,v 1.5 2007-12-10 13:15:45 srkodali Exp $ 
+ * $Id: rectangular_region.h,v 1.6 2007-12-10 16:44:39 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -214,7 +214,7 @@ namespace x10lib {
 
       for (int i = 0; i < RANK; i++)
 	{
-	  size_[i] = (ceil((diagonal_.value(i) - origin_.value(i) + 1) / (double) stride_.value(i))); 
+	  size_[i] = (int) (ceil((diagonal_.value(i) - origin_.value(i) + 1) / (double) stride_.value(i))); 
 	  card_ *= size_[i];
 	}      
 

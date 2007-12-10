@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: dist.h,v 1.12 2007-12-10 13:15:45 srkodali Exp $
+ * $Id: dist.h,v 1.13 2007-12-10 16:44:39 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -17,6 +17,8 @@ using namespace x10lib;
 /* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {
+
+  extern int __x10_num_places;
 
   class UniqueDist;
 
@@ -53,7 +55,7 @@ namespace x10lib {
     
     Dist (const Region<RANK>* region) :
       _region (region),
-      _nplaces (__x10_num_places)
+      _nplaces (x10lib::__x10_num_places)
     {
       _places = new x10_place_t [_nplaces];
       for (int i = 0; i < _nplaces; i++)
@@ -159,13 +161,13 @@ namespace x10lib {
     } 
     
     UniqueDist (const Region<1>* region, x10_place_t* places) :
-      Dist<1> (region, places, __x10_num_places)
+      Dist<1> (region, places, x10lib::__x10_num_places)
     {
 
     }
 
     UniqueDist (const UniqueDist & other) :
-      Dist<1> (other._region, other._places, __x10_num_places) 
+      Dist<1> (other._region, other._places, x10lib::__x10_num_places) 
     {
 
     } 
@@ -186,7 +188,7 @@ namespace x10lib {
     
     virtual RectangularRegion<1> restriction (int p) const {
       
-      assert (p >= 0  && p < __x10_num_places);
+      assert (p >= 0  && p < x10lib::__x10_num_places);
       
       return RectangularRegion<1> (Point<1>(p), Point<1>(p));
     }
@@ -201,7 +203,7 @@ namespace x10lib {
   private:
     
     BlockDist (const Region<RANK>* region, x10_place_t* places, int* blkSize) :
-      Dist<RANK> (region, places, __x10_num_places)
+      Dist<RANK> (region, places, x10lib::__x10_num_places)
     {
       assert (RANK == 1);
     }    

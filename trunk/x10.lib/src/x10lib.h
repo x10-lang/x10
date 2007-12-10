@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.35 2007-12-10 15:52:11 srkodali Exp $
+ * $Id: x10lib.h,v 1.36 2007-12-10 16:44:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -33,7 +33,7 @@
 
 /* arry operations */
 #ifdef __cplusplus
-#include <x10/alloc.h>
+//#include <x10/alloc.h>
 #include <x10/reduce.h>
 #include <x10/xmacros.h>
 #include <x10/finish.h>

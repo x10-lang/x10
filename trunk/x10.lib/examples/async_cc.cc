@@ -2,11 +2,11 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * $Id: async_cc.cc,v 1.2 2007-12-10 15:52:10 srkodali Exp $ 
+ * $Id: async_cc.cc,v 1.3 2007-12-10 16:44:37 ganeshvb Exp $ 
  */
 
 
-/** Example to illustrate the usage of asyncSpawnInline and SyncGlobal.
+/** Example to illustrate the usage of AsyncSpawnInline and SyncGlobal.
  **
  ** An inlinable async is spawned from place zero on other places.
  ** The async sends the rank of destination ("val") to the destination.
@@ -30,7 +30,6 @@ using namespace x10lib;
 
 long val;
 long sum = 0;
-
 
 /* async switch routine */
 extern "C"
@@ -60,7 +59,7 @@ main (int argc, char* argv[])
     for (x10_place_t target = 0; target < num_places; target++)
        if (target != my_place) {
          long i = (long) target; 
-         x10lib::AsyncSpawnInline (target, 0, &i, sizeof(i));
+         AsyncSpawnInline (target, 0, &i, sizeof(i));
        }
   }
 

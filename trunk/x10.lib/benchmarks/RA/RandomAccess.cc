@@ -2,7 +2,7 @@
  * (c) Copyright IBM Corporation 2007
  *
  * x10lib version of RandomAccess
- * $Id: RandomAccess.cc,v 1.1 2007-12-10 07:58:00 ganeshvb Exp $ 
+ * $Id: RandomAccess.cc,v 1.2 2007-12-10 16:44:37 ganeshvb Exp $ 
  */
 
 #include "RandomAccess.h"
@@ -63,8 +63,8 @@ inline __async__2 (__async__2__args args)
 }
 
 /* async switch for remote asyncs */
-void
-asyncSwitch (x10_async_handler_t h, void* arg, int niter)
+extern "C" void
+AsyncSwitch (x10_async_handler_t h, void* arg, int niter)
 {
   char* args = (char*) arg;
   switch (h) {
@@ -183,11 +183,11 @@ RandomAccess::main (x10::array<x10::ref<x10::lang::String> >& args)
     }
   }
  
-  finishStart(-1); 
+  FinishStart(-1); 
   const glong_t tableSize = (1UL << logTableSize);
   const glong_t numUpdates = tableSize*4*NUMPLACES;
   GLOBAL_STATE.Table = new localTable (tableSize);
-  finishEnd (NULL); 
+  FinishEnd (NULL); 
  
   double GUPs;
   double cputime;    /* CPU time to update table */
@@ -210,7 +210,7 @@ RandomAccess::main (x10::array<x10::ref<x10::lang::String> >& args)
    
   if (VERIFY == VERIFICATION_P) { 
 
-    CS = finishStart (CS);
+    CS = FinishStart (CS);
 
     glong_t ran = HPCC_starts (x10lib::__x10_my_place*NumUpdates);
     for (glong_t i = 0; i < NumUpdates; i++) {
@@ -225,17 +225,17 @@ RandomAccess::main (x10::array<x10::ref<x10::lang::String> >& args)
       __async__1__args a(temp);
       
       if (placeID == x10lib::__x10_my_place) __async__1 (a); 
-      else asyncSpawnInlineAgg(placeID, 1, &a, sizeof(a));
+      else AsyncSpawnInlineAgg(placeID, 1, &a, sizeof(a));
 
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     } 
 
-    asyncFlush (1, sizeof(__async__1__args));
+    AsyncAggFlush (1, sizeof(__async__1__args));
 
-    finishEnd (NULL);
+    FinishEnd (NULL);
   } else {   
  
-    CS = finishStart (CS);
+    CS = FinishStart (CS);
 
     glong_t ran = HPCC_starts (x10lib::__x10_my_place*NumUpdates);
 
@@ -250,15 +250,15 @@ RandomAccess::main (x10::array<x10::ref<x10::lang::String> >& args)
       __async__0__args a(temp);
 
       if (placeID == x10lib::__x10_my_place) __async__0(a);
-      else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
+      else AsyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
 
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
     }   
 
-    asyncFlush (0, sizeof(__async__0__args));
+    AsyncAggFlush (0, sizeof(__async__0__args));
 
     //SyncGlobal ();
-    finishEnd (NULL);
+    FinishEnd (NULL);
   }
 
   if (x10lib::__x10_my_place == 0) {
@@ -272,7 +272,7 @@ RandomAccess::main (x10::array<x10::ref<x10::lang::String> >& args)
     cout << "Verifying result by repeating the update sequentially " << endl;
   L1:
 
-    CS = finishStart (CS);
+    CS = FinishStart (CS);
 
     if (x10lib::__x10_my_place != 0) goto L2;
 
@@ -287,16 +287,16 @@ RandomAccess::main (x10::array<x10::ref<x10::lang::String> >& args)
 	const glong_t temp = ran;
 	__async__0__args a(temp);
 	if (placeID == x10lib::__x10_my_place) __async__0 (a);
-	else asyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
+	else AsyncSpawnInlineAgg (placeID, 0, &a, sizeof(a));
 	ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
       }
     }
 
-    asyncFlush (0, sizeof(__async__0__args));
+    AsyncAggFlush (0, sizeof(__async__0__args));
 
   L2:
 
-    finishEnd (NULL);    
+    FinishEnd (NULL);    
   }
  
   if (x10lib::__x10_my_place ==0) {
@@ -316,7 +316,7 @@ RandomAccess::main (x10::array<x10::ref<x10::lang::String> >& args)
       GLOBAL_STATE.SUM = new glong_t [NUMPLACES];
     }
     
-    CS = finishStart (CS);
+    CS = FinishStart (CS);
 
     glong_t sum =0;
 
@@ -327,17 +327,16 @@ RandomAccess::main (x10::array<x10::ref<x10::lang::String> >& args)
     __async__2__args a(temp, p);
 
     if (0 == x10lib::__x10_my_place) __async__2 (a); 
-    else asyncSpawnInlineAgg (0, 2, &a, sizeof(a));
+    else AsyncSpawnInline (0, 2, &a, sizeof(a));
     
-    asyncFlush (2, sizeof(__async__2__args));
     
-    finishEnd (NULL);
+    FinishEnd (NULL);
 
 
     /* CHECK */
     CS = -1; 
 
-    CS = finishStart (CS);
+    CS = FinishStart (CS);
     
     if (x10lib::__x10_my_place == 0) {
       glong_t globalSum = 0;

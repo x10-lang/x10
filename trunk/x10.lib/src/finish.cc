@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.24 2007-12-10 12:12:04 srkodali Exp $
+ * $Id: finish.cc,v 1.25 2007-12-10 16:44:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -247,20 +247,27 @@ static x10_err_t FinishStart_(int *cs)
 	X10_DEBUG(1, "Entry" << ftree->parent);
 	int tmp;
 
+	 /* CHILDREN */
 	if (ftree->parent != __x10_my_place) {
 		X10_DEBUG(1, "CHILD" << "CS: " << *cs << " ");
 		numExceptions = 0;
 
 		if (*cs > 0) return X10_OK;
+
+   		/* wait on CONTINUE_STATUS */
 		LRC(LAPI_Waitcntr(__x10_hndl, &cntr2, 1, &tmp));
 		*cs = continue_status;
 		X10_DEBUG(1, "CHILD DONE");
 	}
+
+	/* PARENT */
 	if (ftree->numChild) {
 		lapi_cntr_t originCntr;
 		numExceptions = 0;
 		bufSize = 0;
 		X10_DEBUG(1, "PARENT");
+
+	        /* write CS into CONTINUE_STATUES for each child */
 		for (int i = 0; i < ftree->numChild; i++) {
 			X10_DEBUG(1, "PARENT SENDS TO " << " " <<
 				ftree->children[i]);
@@ -275,6 +282,8 @@ static x10_err_t FinishStart_(int *cs)
 		}
 
 		X10_DEBUG(1, "PARENT BEFORE FENCE");
+
+		/* LAPI LOCAL_FENCE */
 		LRC(LAPI_Fence(__x10_hndl));
 		X10_DEBUG(1, "PARENT DONE");
 	}
@@ -290,17 +299,24 @@ static x10_err_t FinishEnd_(Exception *e)
 	void *ex_buf = (void *)e;
 	int esize = e ? e->size() : 0;
 
+	/* LAPI LOCAL_FENCE */
 	LAPI_Fence(__x10_hndl);
+
+	/* PARENT */
 	if (ftree->numChild) {
+
+    		/* append the exception to exception buffer */
 		if (e != NULL) {
 			memcpy((buffer + bufSize), e, e->size());
 			bufSize += e->size();
 			numExceptions++;
 		}
-
+		
+		/* wait until the counter reaches N-1 */
 		int tmp;
 		LRC(LAPI_Waitcntr(__x10_hndl, &cntr1, ftree->numChild, &tmp));
 
+		/* if buffer not empty throw MultiException */
 		if (numExceptions) {
 			if (__x10_my_place == 0) {
 				Exception **e = new Exception*[numExceptions];
@@ -317,15 +333,17 @@ static x10_err_t FinishEnd_(Exception *e)
 		}
 	}
 
+	/* CHILD */
 	if (ftree->parent != __x10_my_place) {
-		X10_DEBUG(1, "PARENT");
+		X10_DEBUG(1, "CHILD");
 
-		if (e != NULL) {
+		if (e != NULL) {/* if exception not null, perform an active message send */
 			if (ftree->numChild == 0)
 				numExceptions++;
 			lapi_cntr_t originCntr;
 			int tmp;
 
+		        /* append the exception on parent and increment the counter */
 			LRC(LAPI_Setcntr(__x10_hndl, &originCntr, 0));
 			LRC(LAPI_Amsend(__x10_hndl,
 				ftree->parent,
@@ -337,15 +355,14 @@ static x10_err_t FinishEnd_(Exception *e)
 				(lapi_cntr_t *)exceptionCntr[0],
 				&originCntr, NULL));
 			LRC(LAPI_Waitcntr(__x10_hndl, &originCntr, 1, &tmp));
-			X10_DEBUG(1, "PARENT DONE");
-		} else {
+		} else { /* else just increment the Gfence counter */
 			X10_DEBUG(1, "CHILD");
 			LRC(LAPI_Put(__x10_hndl, ftree->parent, 0, NULL,
 					NULL, (lapi_cntr_t *)exceptionCntr[0],
 					NULL, NULL));
-			LAPI_Fence(__x10_hndl);
-			X10_DEBUG(1, "CHILD DONE");
 		}
+		LAPI_Fence(__x10_hndl);
+		X10_DEBUG(1, "CHILD DONE");
 	}
 	X10_DEBUG(1, "Exit");
 	return X10_OK;

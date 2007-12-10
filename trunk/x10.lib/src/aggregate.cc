@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.26 2007-12-10 12:12:04 srkodali Exp $
+ * $Id: aggregate.cc,v 1.27 2007-12-10 16:44:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -156,6 +156,7 @@ x10_err_t AsyncAggFlush(x10_async_handler_t hndlr, size_t size)
 	buf.handler = hndlr;
 	for (int j = 0; j < __x10_num_places; j++) {
 		if (__x10_agg_counter[hndlr][j] > 0) {
+	        	buf.niter = __x10_agg_counter[hndlr][j];
 			LRC(LAPI_Setcntr(__x10_hndl, &cntr, 0));
 			LRC(LAPI_Amsend(__x10_hndl, j,
 					(void *)ASYNC_SPAWN_HANDLER_AGG,

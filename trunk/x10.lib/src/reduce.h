@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: reduce.h,v 1.11 2007-12-10 13:38:58 srkodali Exp $
+ * $Id: reduce.h,v 1.12 2007-12-10 16:44:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,7 +10,6 @@
 #ifndef __X10_REDUCE_H
 #define __X10_REDUCE_H
 
-#include <x10/types.h>
 #include <x10/xmacros.h>
 #include <x10/err.h>
 #include <lapi.h>
@@ -23,10 +22,27 @@
 
 #define X10_MAX_REDUCE_OBJECT_SIZE 4 * sizeof(double)
 
+
 /* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {
+extern int __x10_inited;
+extern lapi_handle_t __x10_hndl;
+extern lapi_thread_func_t __x10_tf;
+extern lapi_cntr_t __x10_wait_cntr;
+extern int __x10_num_places;
+extern int __x10_my_place;
+extern int __x10_addr_hndl;
+extern int __x10_addrtbl_sz;
+extern int __x10_max_agg_size;
 
+/** reduction variables **/
+extern lapi_cntr_t reduce_cntr;
+extern void **reduce_cntr_list;
+extern void *scratch;
+extern void **reduce_list;
+extern void *inbuf[];
+extern int reduceCount;
 
 /*
  * Recursively reduce the sum.
@@ -48,14 +64,14 @@ CommutativeReduce(T *values, int low, int high, int depth)
 	}
 
 	if (__x10_my_place == src && __x10_num_places > 1) {
-		LAPIStyleWaitcntr(&reduce_cntr, depth, NULL);
+		x10lib::LAPIStyleWaitcntr(&reduce_cntr, depth, NULL);
 
 		for (i = 0; i < depth; i++) {
 			for (int j = 0; j < reduceCount; j++)
 				F(values[j],((T*)scratch)[reduceCount * i + j]);
 		}
 
-		LAPIStylePut(low, reduceCount * sizeof(T),
+		x10lib::LAPIStylePut(low, reduceCount * sizeof(T),
 			(char *)reduce_list[low] + reduceCount * depth * sizeof(T),
 			values, (lapi_cntr_t *)reduce_cntr_list[low],
 			NULL, NULL);
@@ -100,20 +116,20 @@ void FinishReduceAll ()
 		values[i] = *((T*) inbuf[i]);
 
 	/* Set the counter to zero. */
-	LAPIStyleSetcntr(&reduce_cntr, 0);
+	x10lib::LAPIStyleSetcntr(&reduce_cntr, 0);
 
 	/* Zero out the reduce. */
 	memset(scratch, 0, reduceCount * sizeof(T) *
 			LOG2(__x10_num_places));
 
-	SyncGlobal();
+	x10lib::SyncGlobal();
 
 	/* Call commutative reduce. */
 	CommutativeReduce<T,F> (values, 0, __x10_num_places,
 		LOG2(__x10_num_places) - 1);
 
 	if (__x10_my_place == 0) {
-		LAPIStyleWaitcntr(&reduce_cntr, LOG2(__x10_num_places), NULL);
+		x10lib::LAPIStyleWaitcntr(&reduce_cntr, LOG2(__x10_num_places), NULL);
 		for (i = 0; i < LOG2(__x10_num_places); i++) {
 			for (int j = 0; j < reduceCount; j++) {
 				F(*((T*)(inbuf[j])), ((T*)scratch)[reduceCount * i + j]);

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.h,v 1.7 2007-12-10 13:15:45 srkodali Exp $
+ * $Id: array_copy.h,v 1.8 2007-12-10 16:44:39 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -16,6 +16,7 @@
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
+#include <iostream>
 namespace x10lib {
 
   /**

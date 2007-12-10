@@ -1,5 +1,4 @@
 #include "FtStatic.h"
-#include  <x10/reduce.h>
 #include  <x10/timers.h>
 
 
@@ -204,7 +203,7 @@ void  FtStatic::solve() {
    
   x10_place_t PID = PLACE->x10__id;
 
-  CS = finishStart (CS);
+  CS = FinishStart (CS);
 
   Clock* clk = new Clock;
    
@@ -227,7 +226,7 @@ void  FtStatic::solve() {
 
   /*
    * Run the entire problem once to make sure all the data is touched. This
-   * reduces variable startup costs, which is important for short benchmarks
+   * Reduces variable startup costs, which is important for short benchmarks
    */
 
   //clockNext (clk, 1);
@@ -303,7 +302,7 @@ void  FtStatic::solve() {
   cputime2 += mysecond(); 
   if (PID == 0) cout << " The wall clock time for the timed section is " << cputime2 << " secs" << endl;
       
-  finishEnd (NULL);
+  FinishEnd (NULL);
    
   cputime1 += mysecond();
   
@@ -335,7 +334,7 @@ void FtStatic::FFT2DComm_Slab(const DoubleArray* local2d, const DoubleArray* dis
   
   LocalArray<double, 1>* local2darray = local2d->m_array;
   
-  //remove finish on August 1, 2007
+  //remove Finish on August 1, 2007
   for (p = 0; p < dim2/NUMPLACES; p++) {
     offset1 = plane_size*p;
     FFT2DLocalCols(local2darray, offset1, dir, orientation, placeID);
@@ -475,15 +474,15 @@ void  FtStatic::checksum(const DoubleArray* C, const x10_int_t PID, const x10_in
     }
   }
 
-  // finishEnd (NULL);
+  // FinishEnd (NULL);
 
   double res_real = ((sum_real/NX)/NY)/NZ;
   double res_imag = ((sum_imag/NX)/NY)/NZ;  
 
   /* reduction */
-  reduce(&res_real);
-  reduce(&res_imag);
-  finishReduceAll<double, add>();
+  Reduce(&res_real);
+  Reduce(&res_imag);
+  FinishReduceAll<double, add>();
 
   GLOBAL_STATE.FtSolver->checksum_real[itr-1] = res_real; //c.real;
   GLOBAL_STATE.FtSolver->checksum_imag[itr-1] = res_imag; //c.imag;
@@ -497,7 +496,7 @@ void  FtStatic::checksum(const DoubleArray* C, const x10_int_t PID, const x10_in
   
   //asyncFlush (0, sizeof(__async__0__args));
   
-  //finishEnd (NULL);
+  //FinishEnd (NULL);
 } 
    
    

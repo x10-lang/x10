@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.24 2007-12-10 15:52:11 srkodali Exp $
+ * $Id: types.h,v 1.25 2007-12-10 16:44:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,6 +11,7 @@
 #define __X10_TYPES_H
 
 #include <sys/types.h>
+#include <stdint.h>
 
 /* x10lang types
  * previously part of x10lang.h

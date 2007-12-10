@@ -20,7 +20,7 @@ int main (int argc, char** argv)
 {
   Init (NULL, 0);
   cntr = 0;
-  LAPI_Addr_set (GetHandle(), (void*) headerHandler, __x10_num_handlers + 1);
+  LAPI_Addr_set (GetHandle(), (void*) headerHandler, X10_INVALID_HANDLER + 1);
   if (here() == 0) {
     x10_switch_t s  = AllocSwitch(); 
     for (int i = 0; i < numPlaces(); i++) {
@@ -32,7 +32,7 @@ int main (int argc, char** argv)
       s->decrement(); 
       LAPI_Amsend (GetHandle(),
 		   i,
-		   (void*) (__x10_num_handlers + 1),
+		   (void*) (X10_INVALID_HANDLER + 1),
 		   NULL,
 		   0,
 		   NULL,

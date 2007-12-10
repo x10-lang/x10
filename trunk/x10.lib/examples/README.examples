@@ -76,7 +76,46 @@ This is the Readme file for X10 Runtime System Example Programs.
 	Example that demonstrates the usage of X10Lib's remote
 	copy interface (blocking). [C Lang Version]
 
+* async_cc.cc
 
+	Example the demonstrates the usage of async spawn routines and
+	global synchronization routines in X10LIB. The example performs
+	a broadcast of values in the range [0:rank-1] to every other place
+	from place zero. Then the other places return the value to zero, which
+	sums them up locally. 
+
+* finish_cc.cc
+
+	Example the demonstrates the usage of FinishBegin and FinishEnd.
+	The example is same as async_cc.cc, except that instead of SyncGlobal,
+	FinishBegin and FinishEnd are used.
+
+* reduce_cc.cc
+
+	Example the demonstrates the usage of Reduce and FinishReduceAll. The
+	example performs sum reduction over a (logically) uniquely distributed
+        array.
+
+* region_cc.cc
+
+	Example that demonstrates the usage of points, regions and region iterators
+
+* dist_array_spmd.cc
+	
+	Example that demonstartes the usage of local arrays with unique handle. Every
+	place creates a local array (that logically belongs to a distributed array)
+	independently.
+
+* dist_array_onesided.cc
+
+	Example that demonstrates the usage of one-sided constructors to create a
+  	distributed array from a parent without other's involvement.  
+
+*  async_array_put_cc.cc
+
+	Example that demonstrates the usage of AsyncArrayPut method. The example
+	simply transposes a (logically) distributed array.
+ 	
 Scripts for running the build examples
 --------------------------------------
 
