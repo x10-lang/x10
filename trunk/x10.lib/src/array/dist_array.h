@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: dist_array.h,v 1.2 2007-12-07 14:31:10 ganeshvb Exp $ 
+ * $Id: dist_array.h,v 1.3 2007-12-10 05:59:33 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -10,6 +10,7 @@
 
 #include "dist.h"
 #include "array_table.h"
+#include <x10/am.h>
     
 namespace x10lib {
   
@@ -60,7 +61,7 @@ namespace x10lib {
 	
       RectangularRegion<RANK> local_region = dist->restriction (p);
 	
-      ByteArray* local_array = new ByteArray;
+      GenericArray* local_array = new GenericArray;
 	
       local_array->_nelements = local_region.card();
       local_array->_elsize = sizeof (T);
@@ -86,7 +87,7 @@ namespace x10lib {
 			    &handle,
 			    sizeof(int),
 			    local_array,
-			    sizeof (ByteArray),
+			    sizeof (GenericArray),
 			    NULL,
 			    &origin_cntr,
 			    &completion_cntr);
@@ -138,7 +139,7 @@ namespace x10lib {
 	  LRC (LAPI_Waitcntr (__x10_hndl, &origin_cntr, 1, &tmp)); 
 	}	
       else {
-	ByteArray* local_array = (ByteArray*) getLocalSection (array->handle());
+	GenericArray* local_array = (GenericArray*) getLocalSection (array->handle());
 	delete local_array;
 	freeLocalSection (array->handle());
       }

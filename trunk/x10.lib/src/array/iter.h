@@ -1,15 +1,35 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: iter.h,v 1.2 2007-12-07 14:08:58 ganeshvb Exp $ 
+ * $Id: iter.h,v 1.3 2007-12-10 05:59:33 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_ITER_H__
 #define __X10_ITER_H__
 
-#include "point.h"
+#include <x10/region.h>
 #include <math.h>
+
+/* For each iterator */
+
+template <int RANK, void F (x10lib::Point<RANK>)>
+void foreach (x10lib::Region<RANK>* r)
+{
+  for (int i = 0; i < r->card(); ++i)
+	F (r->coord(i)); 
+} 
+
+/* specialization */
+template <void F (x10lib::Point<1>)>
+int foreach (x10lib::Region<1>* r)
+{
+ 	int start_i = r->origin().value(0);
+	int end_i = r->diagonal().value(0);
+	int step_i = r->stride().value(0);
+	for (int i = start_i; i < end_i; i += step_i)
+		F (x10lib::Point<1>(i)); 
+}
 
 
 /* rectangular 1-d, 2-d and 3-d iterators */
