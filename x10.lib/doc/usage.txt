@@ -2,7 +2,7 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.5
+                              Version 0.6
 
 
                          U S A G E  N O T E S
@@ -248,19 +248,19 @@ distribution requirements]:
 processors. Otherwise, repeat a particular only certain number
 of times.
 
-For example, on V80 machine at Poughkeepsie Benchmarking Center
-using first two nodes (which are always used in shared mode):
+For example, on V20 machine at Poughkeepsie Benchmarking Center
+using two of its shared nodes:
 
-The names of the first two nodes are 'v80n01.pbm.ihost.com'
-and	'v80n02.pbm.ihost.com'; and each of them have 16 processors
+The names of the first two shared nodes are 'v20n17.pbm.ihost.com'
+and	'v20n18.pbm.ihost.com'; and each of them have 16 processors
 to use.
 
 The hostfile can then be written as follows:
 
-	v80n01.pbm.ihost.com
-	v80n02.pbm.ihost.com
-	v80n01.pbm.ihost.com
-	v80n02.pbm.ihost.com
+	v20n17.pbm.ihost.com
+	v20n18.pbm.ihost.com
+	v20n17.pbm.ihost.com
+	v20n18.pbm.ihost.com
 	..... 16 times
 
 In this case, you have 2 X 16 simultaneous tasks running.
