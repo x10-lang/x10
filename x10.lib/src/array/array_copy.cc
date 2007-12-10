@@ -1,11 +1,12 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.11 2007-11-28 14:14:19 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.12 2007-12-10 05:59:33 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 #include <x10/array_copy.h>
+#include <x10/am.h>
 #include <x10/xmacros.h>
 #include <x10/xassert.h>
 #include <lapi.h>

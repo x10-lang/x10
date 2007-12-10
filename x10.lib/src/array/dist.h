@@ -195,16 +195,16 @@ namespace x10lib {
       assert (RANK == 1);
     }    
   };
-  
+ 
+  /* TODO : assumes |region| is perfectly divisible by nplaces */ 
   template <>
   class BlockDist<1> : public Dist<1>
   {
-    
   public:
     
-    BlockDist (const Region<1>* region, x10_place_t* places, int nplaces, int* blkSize) :
+    BlockDist (const Region<1>* region, x10_place_t* places, int nplaces) :
       Dist<1> (region, places, nplaces),
-      _blkSize (blkSize[0])
+      _blkSize (region->card() / nplaces)
     {
     }
     

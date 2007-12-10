@@ -1,18 +1,19 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array.cc,v 1.13 2007-12-07 11:12:48 ganeshvb Exp $
+ * $Id: array.cc,v 1.14 2007-12-10 05:59:33 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** helper functions (internal) for array classe */
 
-#include <iostream>
+#include <x10/am.h>
 #include <x10/alloc.h>
 #include <x10/types.h>
 #include <x10/local_array.h>
 #include <x10/array_table.h>
 #include <x10/xmacros.h>
+#include <iostream>
 
 #include "lapi.h"
 
@@ -34,9 +35,9 @@ arrayConstructionHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len,
   
   assert (ret_info_ptr->udata_one_pkt_ptr);
   
-  x10lib::ByteArray* local_array = new x10lib::ByteArray;
+  x10lib::GenericArray* local_array = new x10lib::GenericArray;
   
-  memcpy (local_array, (x10lib::ByteArray*) ret_info_ptr->udata_one_pkt_ptr, sizeof(x10lib::ByteArray));
+  memcpy (local_array, (x10lib::GenericArray*) ret_info_ptr->udata_one_pkt_ptr, sizeof(x10lib::GenericArray));
   
   local_array->_data = new char [local_array->_nelements * local_array->_elsize];
   
@@ -49,7 +50,7 @@ arrayDeletionHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len,
 {
   int handle = * ((int*) uhdr);
 
-  x10lib::ByteArray* local_array = (x10lib::ByteArray*) x10lib::getLocalSection (handle);
+  x10lib::GenericArray* local_array = (x10lib::GenericArray*) x10lib::getLocalSection (handle);
 	
   delete local_array;
   

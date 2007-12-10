@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: local_array.h,v 1.1 2007-12-07 11:12:48 ganeshvb Exp $ 
+ * $Id: local_array.h,v 1.2 2007-12-10 05:59:33 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -17,7 +17,7 @@
 
 namespace x10lib{
     
-  /* A Byte Array that is "readily" serializable.
+  /* A Generic Array that is "readily" serializable.
    * That is, it has no pointers (except data) and no base type.
    * Should not have any virtual functions too.
    * This is useful to represent arrays whose type and rank is not known
@@ -25,13 +25,13 @@ namespace x10lib{
    * rank is known only at the "creation" site, not at "participants" side
    */
   
-  class ByteArray
+  class GenericArray
   {    
   public:
 
-    ByteArray () {}
+    GenericArray () {}
     
-    ~ByteArray() 
+    ~GenericArray() 
     {
       delete [] _data;
     }
