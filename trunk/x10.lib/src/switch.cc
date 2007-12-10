@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: switch.cc,v 1.13 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: switch.cc,v 1.14 2007-12-10 10:51:27 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,15 +10,13 @@
 #include <x10/switch.h>
 #include <x10/xassert.h>
 #include <lapi.h>
+#include "x10libP.h"
 
 namespace x10lib {
 
 /* Switch constructor (1) */
 Switch::Switch(int val)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern int __x10_inited;
-
 	if (!__x10_inited) return;
 
 	cntrp = new lapi_cntr_t;
@@ -41,7 +39,6 @@ void *Switch::get_handle(void)
 /* Decrement switch before waiting once again. */
 void Switch::decrement(void)
 {
-	extern lapi_handle_t __x10_hndl;
 	int val;
 
 	(void)LAPI_Getcntr(__x10_hndl, (lapi_cntr_t*) cntrp, &val);
@@ -52,8 +49,6 @@ void Switch::decrement(void)
 /* Perform next (wait) operation on switch. */
 void Switch::next(void)
 {
-	extern lapi_handle_t __x10_hndl;
-
 	(void)LAPI_Waitcntr(__x10_hndl, (lapi_cntr_t*) cntrp, 0, NULL);
 }
 
