@@ -119,11 +119,11 @@ This is the Readme file for X10 Runtime System Example Programs.
 Scripts for running the build examples
 --------------------------------------
 
-* run_v80.sh
+* run_v20.sh
 
-    Runtime script for "v80n01.pbm.ihost.com" system.
-	[Uses v80n01 and v80n02 nodes on v80 cluster.]
-	Uses ../hostfiles/host_v80.list file during runtime
+    Runtime script for "v20n17.pbm.ihost.com" system.
+	[Uses v20n17 and v20n18 nodes on v20 cluster.]
+	Uses ../hostfiles/host_v20.list file during runtime
 	for node identification.
 
 * run_rlsecomp1.sh
