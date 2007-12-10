@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: register.cc,v 1.2 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: register.cc,v 1.3 2007-12-10 10:36:40 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,17 +9,13 @@
 
 #include <x10/register.h>
 #include <lapi.h>
+#include "x10libP.h"
 
 namespace x10lib {
 	
 /* Register the address of a function handler. */
 int RegHandlerAddr(void *addr)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern int __x10_addr_hndl;
-	extern int __x10_addrtbl_sz;
-	extern int __x10_inited;
-
 	if (!__x10_inited)
 		return -1;
 
@@ -33,10 +29,6 @@ int RegHandlerAddr(void *addr)
 /* Get the function address of a specified handler. */
 x10_err_t GetHandlerAddr(void **addr, int ah)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern int __x10_addr_hndl;
-	extern int __x10_inited;
-
 	if (!__x10_inited)
 		return X10_ERR_INIT;
 
@@ -51,11 +43,10 @@ x10_err_t GetHandlerAddr(void **addr, int ah)
 }
 	
 
-/* get the remote address in to a local table */
-x10_err_t AddressInit (void* addr, void** table)
+/* Collects remote address into a local table. */
+x10_err_t AddressInit (void *addr, void **table)
 {
-  extern lapi_handle_t __x10_hndl;
-  (void) LAPI_Address_init (__x10_hndl, addr, table);
+  (void)LAPI_Address_init(__x10_hndl, addr, table);
   return X10_OK;
 }
 
@@ -73,4 +64,11 @@ extern "C"
 x10_err_t x10_get_handler_addr(void **addr, int ah)
 {
 	return x10lib::GetHandlerAddr(addr, ah);
+}
+
+/* Collect remote addresses into a local table. */
+extern "C"
+x10_err_t x10_address_init(void *addr, void **table)
+{
+	return x10lib::AddressInit(addr, table);
 }

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: register.h,v 1.2 2007-10-19 16:04:29 ganeshvb Exp $
+ * $Id: register.h,v 1.3 2007-12-10 10:36:40 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -22,7 +22,8 @@ namespace x10lib {
 	/* Get the function address of a specified handler. */
 	x10_err_t GetHandlerAddr(void **addr, int ah);
 
-	x10_err_t AddressInit (void* addr, void** table);
+	/* Create a remote address table. */
+	x10_err_t AddressInit (void *addr, void **table);
 
 } /* closing brace for namespace x10lib */
 #endif
@@ -37,6 +38,9 @@ int x10_reg_handler_addr(void *addr);
 
 /* Get the function address of a specified handler. */
 x10_err_t x10_get_handler_addr(void **addr, int ah);
+
+/* Create a remote address table. */
+x10_err_t x10_address_init(void *addr, void **table);
 
 #ifdef __cplusplus
 } /* closing brace for extern "C" */
