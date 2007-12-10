@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.cc,v 1.18 2007-12-09 12:56:37 srkodali Exp $
+ * $Id: async.cc,v 1.19 2007-12-10 09:29:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,9 +9,11 @@
 
 #include <x10/types.h>
 #include <x10/async.h>
+#include <x10/am.h>
 #include <x10/xmacros.h>
 #include <x10/xassert.h>
 #include <lapi.h>
+#include "x10libP.h"
 
 /* local methods */
 static void*
@@ -51,6 +53,7 @@ x10_err_t AsyncSpawnInline(x10_place_t tgt,
 	LRC(LAPI_Setcntr(__x10_hndl, &origin_cntr, 0));
 	LRC(LAPI_Amsend(__x10_hndl, tgt,
 			(void *)ASYNC_SPAWN_HANDLER, &hndlr,
+			sizeof(hndlr), args, size,
 			NULL, &origin_cntr, NULL));
 	LRC(LAPI_Waitcntr(__x10_hndl, &origin_cntr, 1, &tmp));
 

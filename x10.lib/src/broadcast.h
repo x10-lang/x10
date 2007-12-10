@@ -1,12 +1,15 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: broadcast.h,v 1.2 2007-12-09 12:07:18 srkodali Exp $
+ * $Id: broadcast.h,v 1.3 2007-12-10 09:29:57 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_BROADCAST_H
 #define __X10_BROADCAST_H
+
+#include <x10/types.h>
+#include <x10/err.h>
 
 /* C++ Lang Interface */
 #ifdef __cplusplus

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.h,v 1.11 2007-12-10 07:28:47 srkodali Exp $
+ * $Id: finish.h,v 1.12 2007-12-10 09:29:58 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -63,5 +63,6 @@ void FinishEnd(Exception *a);
 int FinishStart(int cs);
 
 } /* closing brace for namespace x10lib */
+#endif
 
 #endif /* __X10_FINISH_H */

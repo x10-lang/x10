@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: gas.h,v 1.7 2007-08-17 13:18:38 ganeshvb Exp $
+ * $Id: gas.h,v 1.8 2007-12-10 09:29:58 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -30,8 +30,6 @@ typedef struct __x10_gas_ref_t x10_gas_ref_t;
 #ifdef __cplusplus
 namespace x10lib {
  
-	extern int __x10_num_places;
-	extern int __x10_my_place;
 	/* Construct GAS reference for the specified place
 	 * and virtual address.
 	 */
