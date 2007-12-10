@@ -1,14 +1,14 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_table.cc,v 1.2 2007-12-07 11:12:48 ganeshvb Exp $
+ * $Id: array_table.cc,v 1.3 2007-12-10 13:15:45 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** Implementation file for array table interface. **/
 
 #include <iostream>
-#include "array_table.h"
+#include <x10/array_table.h>
 #include <x10/xassert.h>
 #include <lapi.h>
 

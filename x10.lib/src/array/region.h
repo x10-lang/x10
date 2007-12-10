@@ -1,16 +1,18 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: region.h,v 1.5 2007-10-19 16:04:29 ganeshvb Exp $ 
+ * $Id: region.h,v 1.6 2007-12-10 13:15:45 srkodali Exp $ 
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_REGION_H__
 #define __X10_REGION_H__
 
-#include "point.h"
+#include <x10/point.h>
 #include <math.h>
 
+/* C++ Lang Interface */
+#ifdef __cplusplus
 namespace x10lib {
   
   template<int RANK>
@@ -49,9 +51,8 @@ namespace x10lib {
     virtual Point<RANK> stride() const = 0;
 
   };
-}  
-#endif /*X10REGION_H_*/
 
-// Local Variables:
-// mode: C++
-// End:
+} /* closing brace for namespace x10lib */
+#endif
+
+#endif /* __X10_REGION_H */

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: iter.h,v 1.3 2007-12-10 05:59:33 ganeshvb Exp $ 
+ * $Id: iter.h,v 1.4 2007-12-10 13:15:45 srkodali Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -10,6 +10,9 @@
 
 #include <x10/region.h>
 #include <math.h>
+
+/* C++ Lang Interface */
+#ifdef __cplusplus
 
 /* For each iterator */
 
@@ -68,3 +71,5 @@ int foreach (x10lib::Region<1>* r)
    for (int I = R.origin().value(0), J = R.origin().value(1); I <= R.diagonal().value(0) ||  J <= R.diagonal().value(1); I += R.stride().value(0), J += R.stride().value(1)) \
 
 #endif
+
+#endif /* __X10_ITER_H */

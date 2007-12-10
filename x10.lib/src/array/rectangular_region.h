@@ -1,18 +1,19 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rectangular_region.h,v 1.4 2007-12-07 14:08:58 ganeshvb Exp $ 
+ * $Id: rectangular_region.h,v 1.5 2007-12-10 13:15:45 srkodali Exp $ 
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_RECTANGULAR_REGION_H__
 #define __X10_RECTANGULAR_REGION_H__
 
-#include "point.h"
-#include "region.h"
+#include <x10/point.h>
+#include <x10/region.h>
 
+/* C++ Lang Interface **/
+#ifdef __cplusplus
 namespace x10lib {
-
 
   /**
    * Rectangular Region --
@@ -222,10 +223,8 @@ namespace x10lib {
 	linearStep_[i] = size_[i+1] * linearStep_[i+1]; 
     }
   };   
-}
 
-#endif /*X10REGION_H_*/
+} /* closing brace for namespace x10lib */
+#endif
 
-// Local Variables:
-// mode: C++
-// End:
+#endif /* __X10_RECTANGULAR_REGION */

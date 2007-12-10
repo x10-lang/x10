@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.12 2007-12-10 12:12:06 srkodali Exp $
+# $Id: Makefile,v 1.13 2007-12-10 13:15:45 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -11,11 +11,30 @@ TOP = ../..
 include $(TOP)/config/Make.AIX
 
 LINKFLAGS += -r -b64
+INCLUDES += -I..
 ARRAY_A = array.a
 
-SRCS =  array.cc array_copy.cc array_table.cc
-OBJS = array.o array_copy.o array_table.o
-HEADERS = array.h region.h point.h dist.h array_table.h
+SRCS =  array.cc \
+		array_copy.cc \
+		array_table.cc \
+		array_copy_switch.cc \
+		gen_array_copy_switch.cc
+
+OBJS = array.o \
+		array_copy.o \
+		array_table.o \
+		array_copy_switch.o \
+		gen_array_copy_switch.o
+
+HEADERS = array_copy.h \
+		array_table.h \
+		dist.h \
+		dist_array.h \
+		iter.h \
+		local_array.h \
+		point.h \
+		rectangular_region.h \
+		region.h
 
 all: $(ARRAY_A)
 
@@ -25,22 +44,3 @@ $(ARRAY_A): $(OBJS)
 
 clean:
 	$(RM) $(ARRAY_A) $(OBJS) *.log
-
-install:
-	@echo "Nothing to install in \"array\" subdir."
-	
-.cc.o:
-	$(RM) $@
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
-
-.C.o:
-	$(RM) $@
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
-
-.cxx.o:
-	$(RM) $@
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
-
-.cpp.o:
-	$(RM) $@
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@

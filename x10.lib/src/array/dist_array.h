@@ -1,17 +1,19 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: dist_array.h,v 1.3 2007-12-10 05:59:33 ganeshvb Exp $ 
+ * $Id: dist_array.h,v 1.4 2007-12-10 13:15:45 srkodali Exp $ 
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_DIST_ARRAY_H__
 #define __X10_DIST_ARRAY_H__
 
-#include "dist.h"
-#include "array_table.h"
+#include <x10/dist.h>
+#include <x10/array_table.h>
 #include <x10/am.h>
     
+/* C++ Lang Interface */
+#ifdef __cplusplus
 namespace x10lib {
   
   template <typename T, int RANK>
@@ -151,12 +153,8 @@ namespace x10lib {
       
     return X10_OK;
   }
-};
 
-#endif /*__X10_ARRAY_H__ */
+} /* closing brace for namespace x10lib */
+#endif
 
-
-// Local Variables:
-// mode: C++
-// End:
-
+#endif /* __X10_DIST_ARRAY_H */

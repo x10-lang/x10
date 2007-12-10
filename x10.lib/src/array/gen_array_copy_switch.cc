@@ -1,14 +1,13 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
+ * $Id: gen_array_copy_switch.cc,v 1.2 2007-12-10 13:15:45 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
-/* $Id: gen_array_copy_switch.cc,v 1.1 2007-12-09 10:31:19 srkodali Exp $ */
-
-#include "types.h"
+#include <x10/types.h>
 #include <iostream>
-#include "lapi.h"
+#include <lapi.h>
 
 using namespace std;
 
@@ -18,5 +17,3 @@ lapi_vec_t* genArrayCopySwitch (int handler, void * args)
    cout << "genArrayCopySwitch should be overriddern \n";
    exit(-1);
 }
-
-
