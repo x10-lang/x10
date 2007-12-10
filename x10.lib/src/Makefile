@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.51 2007-12-10 12:12:04 srkodali Exp $
+# $Id: Makefile,v 1.52 2007-12-10 13:33:26 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -97,15 +97,16 @@ HEADERS = aggreate.h \
 
 all: $(LIBTARGET)
 
-$(LIBTARGET): $(OBJS) #$(ARRAY_A)
+$(LIBTARGET): $(OBJS) $(ARRAY_A)
 	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(ARRAY_A)
 	$(RANLIB) $@
+	$(CP) $(LIBTARGET) ../lib
 
 $(ARRAY_A):
 	(cd $(SUBDIR1); $(MAKE) all) 
 
 clean:
 	(cd $(SUBDIR1); $(MAKE) $@)
-	(cd $(SUBDIR2); $(MAKE) $@)
+	#(cd $(SUBDIR2); $(MAKE) $@)
 	$(RM) $(LIBTARGET) $(OBJS) *.log
