@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.50 2007-12-10 09:29:57 srkodali Exp $
+# $Id: Makefile,v 1.51 2007-12-10 12:12:04 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -10,9 +10,9 @@
 TOP = ..
 include $(TOP)/config/Make.AIX
 
-X10LIB_ARRAY = array
-X10LIB_SCHED = sched
-SUBDIRS = $(X10LIB_ARRAY) $(X10LIB_SCHED)
+SUBDIR1 = array
+SUBDIR2 = sched
+SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 
 LIBNAME = x10
 X10LIB_MAJOR = 0
@@ -20,6 +20,7 @@ X10LIB_MINOR = 6
 
 # Build by default static library
 LIBTARGET = lib$(LIBNAME).a
+ARRAY_A = $(SUBDIR1)/array.a
 
 SRCS = aggregate.cc \
 	async.cc \
@@ -62,6 +63,7 @@ OBJS = aggregate.o \
 
 HEADERS = aggreate.h \
 	async.h \
+	am.h \
 	broadcast.h \
 	clock.h \
 	closure.h \
@@ -83,28 +85,27 @@ HEADERS = aggreate.h \
 	xmacros.h
 
 # uncomment the following for standalone version
-#SRCS += standalone.cc
-#OBJS += standalone.o
-#HEADERS += x10init.h
+#SRCS += standalone/standalone.cc
+#OBJS += standalone/standalone.o
+#HEADERS += standalone/x10init.h
+#INCLUDES += -I./standalone
 
 # uncomment the following for hypercube based routing
-#SRCS += aggregate_hc.cc
-#OBJS += aggregate_hc.o
+#SRCS += alpha/aggregate_hc.cc
+#OBJS += alpha/aggregate_hc.o
+#INCLUDES += -I./alpha
 
 all: $(LIBTARGET)
 
-$(LIBTARGET): $(OBJS) #$(X10LIB_ARRAY)
+$(LIBTARGET): $(OBJS) #$(ARRAY_A)
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
-$(X10LIB_ARRAY):
-	(cd $(X10LIB_ARRAY); $(MAKE) all)
-
-$(X10LIB_SCHED):
-	(cd $(X10LIB_SCHED); $(MAKE) all)
+$(ARRAY_A):
+	(cd $(SUBDIR1); $(MAKE) all) 
 
 clean:
-	(cd $(X10LIB_ARRAY); $(MAKE) $@)
-	(cd $(X10LIB_SCHED); $(MAKE) $@)
+	(cd $(SUBDIR1); $(MAKE) $@)
+	(cd $(SUBDIR2); $(MAKE) $@)
 	$(RM) $(LIBTARGET) $(OBJS) *.log

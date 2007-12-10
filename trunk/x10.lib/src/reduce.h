@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: reduce.h,v 1.8 2007-12-10 10:22:44 srkodali Exp $
+ * $Id: reduce.h,v 1.9 2007-12-10 12:12:05 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -48,7 +48,7 @@ CommutativeReduce(T *values, int low, int high, int depth)
 	}
 
 	if (__x10_my_place == src && __x10_num_places > 1) {
-		LAPIStyleWaitCntr(&reduce_cntr, depth, NULL);
+		LAPIStyleWaitcntr(&reduce_cntr, depth, NULL);
 
 		for (i = 0; i < depth; i++) {
 			for (int j = 0; j < reduceCount; j++)
@@ -100,7 +100,7 @@ void FinishReduceAll ()
 		values[i] = *((T*) inbuf[i]);
 
 	/* Set the counter to zero. */
-	LAPIStyleSetCntr(&reduce_cntr, 0);
+	LAPIStyleSetcntr(&reduce_cntr, 0);
 
 	/* Zero out the reduce. */
 	memset(scratch, 0, reduceCount * sizeof(T) *
@@ -113,7 +113,7 @@ void FinishReduceAll ()
 		LOG2(__x10_num_places) - 1);
 
 	if (__x10_my_place == 0) {
-		LAPIStyleWaitCntr(&reduce_cntr, LOG2(__x10_num_places), NULL);
+		LAPIStyleWaitcntr(&reduce_cntr, LOG2(__x10_num_places), NULL);
 		for (i = 0; i < LOG2(__x10_num_places); i++) {
 			for int j = 0; j < reduceCount; j++) {
 				F(*((T*)(inbuf[j])), ((T*)scratch)[reduceCount * i + j]);

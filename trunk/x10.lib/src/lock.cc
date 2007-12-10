@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: lock.cc,v 1.1 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: lock.cc,v 1.2 2007-12-10 12:12:05 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,16 +10,13 @@
 #include <x10/lock.h>
 #include <sys/errno.h>
 #include <lapi.h>
+#include "__x10lib.h__"
 
 namespace x10lib {
 
 /* Blockingly acquire the shared lock. */
 void Lock(void)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern lapi_thread_func_t __x10_tf;
-	extern int __x10_inited;
-
 	if (!__x10_inited) return;
 	(void)__x10_tf.mutex_lock(__x10_hndl);
 }
@@ -27,10 +24,6 @@ void Lock(void)
 /* Release the acquired shared lock. */
 void Unlock(void)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern lapi_thread_func_t __x10_tf;
-	extern int __x10_inited;
-
 	if (!__x10_inited) return;
 
 	(void)__x10_tf.mutex_unlock(__x10_hndl);
@@ -39,10 +32,6 @@ void Unlock(void)
 /* Try and acquire the shared lock. */
 int TryLock(void)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern lapi_thread_func_t __x10_tf;
-	extern int __x10_inited;
-
 	if (!__x10_inited) return EINVAL;
 
 	return __x10_tf.mutex_trylock(__x10_hndl);

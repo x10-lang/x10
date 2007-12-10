@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: switch.cc,v 1.14 2007-12-10 10:51:27 srkodali Exp $
+ * $Id: switch.cc,v 1.15 2007-12-10 12:12:05 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,7 +10,7 @@
 #include <x10/switch.h>
 #include <x10/xassert.h>
 #include <lapi.h>
-#include "x10libP.h"
+#include "__x10lib.h__"
 
 namespace x10lib {
 

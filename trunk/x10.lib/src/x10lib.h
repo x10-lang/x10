@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.31 2007-12-09 10:31:19 srkodali Exp $
+ * $Id: x10lib.h,v 1.32 2007-12-10 12:12:05 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -25,20 +25,24 @@
 #include <x10/clock.h>
 #include <x10/xassert.h>
 #include <x10/closure.h>
-#include <x10/array_copy.h>
+#include <x10/utility.h>
 #include <x10/broadcast.h>
+#include <x10/am.h>
+#include <x10/array_copy.h>
 #include <x10/array_table.h>
 
+/* arry operations */
 #ifdef __cplusplus
+#include <x10/alloc.h>
 #include <x10/reduce.h>
 #include <x10/xmacros.h>
 #include <x10/finish.h>
 #include <x10/region.h>
 #include <x10/iter.h>
 #include <x10/dist.h>
+#include <x10/point.h>
 #include <x10/local_array.h>
 #include <x10/dist_array.h>
-
 #endif
 
 #include <x10/utility.h>
@@ -50,18 +54,6 @@
 
 #ifdef __cplusplus
 namespace x10lib {
-
-
-
-/* global variables that can be referenced everywhere */
-//extern lapi_handle_t __x10_hndl;
-//extern lapi_thread_func_t __x10_tf;
-//extern lapi_cntr_t __x10_wait_cntr;
-//extern int __x10_num_places;
-//extern int __x10_my_place;
-//extern int __x10_addr_hndl;
-//extern int __x10_addrtbl_sz;
-//extern int __x10_max_agg_size;
 
 /* Initialization */
 x10_err_t Init(x10_async_handler_t *hndlrs, int n);

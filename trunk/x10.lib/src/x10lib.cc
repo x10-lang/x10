@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.25 2007-12-07 14:08:57 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.26 2007-12-10 12:12:05 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -10,36 +10,13 @@
 #include <x10/x10lib.h>
 #include <stdlib.h>
 #include <memory.h>
-
-extern x10_err_t asyncInit();
-
-extern x10_err_t asyncAggInit();
-extern x10_err_t asyncAggFinalize();
-
-extern x10_err_t asyncAggInit_hc();
-extern x10_err_t asyncAggFinalize_hc();
-
-extern x10_err_t asyncAggInit_ra();
-extern x10_err_t asyncAggFinalize_ra();
-
-extern x10_err_t arrayCopyInit();
-
-extern x10_err_t finishInit();
-extern void finishFinalize();
-
-extern x10_err_t arrayInit();
-
-extern void reduceInit();
-extern void reduceFinalize();
-
-#ifdef STANDALONE
-extern void initStandAlone (lapi_info_t*);
-#endif
+#include "__x10lib.h__"
 
 namespace x10lib {
 
 /* global data */
 /* will subsequently become X10Lib's context */
+
 int __x10_inited;
 lapi_handle_t __x10_hndl;
 lapi_thread_func_t __x10_tf;
@@ -60,9 +37,7 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	char *envp;
 	lapi_info_t info;
 	
-	//cout << "enter init" << endl;
-
-	/* already inited; give up */
+	/* already inited; give up -- not re-entrant for the moment  */
 	if (__x10_inited == 1)
 		return X10_ERR_INIT;
 
@@ -80,18 +55,18 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 		(void)putenv("LAPI_USE_SHM=yes");
 
 	envp = getenv("X10_MAX_AGG_SIZE");
-        if (envp)
-              __x10_max_agg_size = atoi (envp);
-        else
-              __x10_max_agg_size = 1024;
+	if (envp)
+		__x10_max_agg_size = atoi(envp);
+	else
+		__x10_max_agg_size = 1024;
 
-         X10_DEBUG (1, "AGG_LIMIT " << __x10_max_agg_size);
+	X10_DEBUG(1, "AGG_LIMIT " << __x10_max_agg_size);
 
 	/* LAPI initialization */
 	(void)memset((void *)&info, 0, sizeof(lapi_info_t));
 
 #ifdef STANDALONE
-        initStandAlone (&info);
+	InitStandAlone(&info);
 #endif
 
 	LRC(LAPI_Init(&__x10_hndl, &info));
@@ -115,17 +90,15 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	(void)LAPI_Util(__x10_hndl, (lapi_util_t *)&__x10_tf);
 
 	/* initialize individual sub modules */
-        asyncInit();
-        asyncAggInit();
-	asyncAggInit_hc(); /* an experimental version */
-	asyncAggInit_ra(); /* an experimental version */
-        finishInit();	
-        arrayInit();
-	arrayCopyInit();
-	reduceInit();
+	AsyncInit();
+	AsyncAggInit();
+	FinishInit();
+	ReduceInit();
+	ArrayInit();
+	ArrayCopyInit();
 
-        LAPI_Gfence (__x10_hndl);
- 
+	LAPI_Gfence(__x10_hndl);
+
 	/* set X10Lib's initialization variable */
 	__x10_inited = 1;
 
@@ -133,35 +106,29 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
        delete [] info.add_info->add_udp_addrs;
        delete info.add_info;
 #endif
-
-       //cout << "exit init" << endl;
-
 	return X10_OK;
 }
 
 /* Termination */
 x10_err_t Finalize(void)
 {
-  LAPI_Gfence (__x10_hndl);
-  
-  /* terminate the individual sub modules */
+	LAPI_Gfence(__x10_hndl);
 
-  asyncAggFinalize();
-  asyncAggFinalize_hc();
-  asyncAggFinalize_ra();
-  finishFinalize();
-  reduceFinalize();
- 
-  /* termination should be preceded by initialization */
-  if (!__x10_inited)
-    return X10_ERR_INIT;
+	/* termination should be preceded by initialization */
+	if (!__x10_inited)
+		return X10_ERR_INIT;
+
+	/* terminate all the module functionality */
+	ReduceFinalize();
+	FinishFinalize();
+	AsyncAggFinalize();
   
-  /* terminate LAPI context */
-  (void)LAPI_Term(__x10_hndl);
+	/* terminate LAPI context */
+	(void)LAPI_Term(__x10_hndl);
   
-  /* reset X10Lib's init var */
-  __x10_inited = 0;
-  return X10_OK;
+	/* reset X10Lib's init var */
+	__x10_inited = 0;
+	return X10_OK;
 }
 
 /* Cleanup */
@@ -174,8 +141,14 @@ void Cleanup(void)
 	if (__x10_hndl)
 		(void)LAPI_Term(__x10_hndl);
 
-	/* free up any allocated memory??? */
-	/* ..... */
+	/* free up any allocated memory???
+	 * instead of this we should have fine grain deallocation
+	 * mechanism
+	 */
+	ReduceFinalize();
+	FinishFinalize();
+	AsyncAggFinalize();
+
 	/* reset X10Lib's init var */
 	__x10_inited = 0;
 }

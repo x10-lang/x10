@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: env.cc,v 1.1 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: env.cc,v 1.2 2007-12-10 12:12:04 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -17,15 +17,13 @@
 #include <arpa/inet.h>
 #include <lapi.h>
 #include <cstring>
+#include "__x10lib.h__"
 
 namespace x10lib {
 
 /* Query X10Lib's runtime information */
 x10_err_t Getenv(x10_query_t query, int *ret_val)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern int __x10_inited;
-
 	if (!__x10_inited)
 		return X10_ERR_INIT;
 
@@ -79,9 +77,6 @@ x10_err_t Getenv(x10_query_t query, int *ret_val)
 /* Set X10Lib's runtime variables */
 x10_err_t Setenv(x10_query_t query, int set_val)
 {
-	extern lapi_handle_t __x10_hndl;
-	extern int __x10_inited;
-
 	if (!__x10_inited)
 		return X10_ERR_INIT;
 

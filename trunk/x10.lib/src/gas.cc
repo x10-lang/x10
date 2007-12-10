@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: gas.cc,v 1.5 2007-06-25 16:07:36 srkodali Exp $
+ * $Id: gas.cc,v 1.6 2007-12-10 12:12:04 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,6 +10,7 @@
 #include <x10/xassert.h>
 #include <x10/gas.h>
 #include <lapi.h>
+#include "__x10lib.h__"
 
 namespace x10lib {
 
@@ -19,9 +20,6 @@ namespace x10lib {
 x10_gas_ref_t MakeGASRef(int place, void *addr)
 {
 	x10_gas_ref_t ref;
-	extern int __x10_num_places;
-	extern int __x10_my_place;
-	extern int __x10_inited;
 
 	/* sanity check; is place valid? */
 	if (!__x10_inited || place < 0 || place > (__x10_num_places - 1)) {
@@ -34,8 +32,6 @@ x10_gas_ref_t MakeGASRef(int place, void *addr)
 			ref.addr = (unsigned long)addr;
 		/* global reference */
 		} else {
-			extern lapi_handle_t __x10_hndl;
-
 			lapi_long_t *add_tab = new lapi_long_t [__x10_num_places];
 			assert(add_tab != NULL);
 

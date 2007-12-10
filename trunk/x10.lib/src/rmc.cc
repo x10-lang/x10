@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: rmc.cc,v 1.4 2007-12-10 10:48:31 srkodali Exp $
+ * $Id: rmc.cc,v 1.5 2007-12-10 12:12:05 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,7 +11,7 @@
 #include <x10/lock.h>
 #include <x10/x10lib.h>
 #include <lapi.h>
-#include "x10libP.h"
+#include "__x10lib.h__"
 
 namespace x10lib {
 
