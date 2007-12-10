@@ -2,7 +2,7 @@
  * (c) Copyright IBM Corporation 2007
  *
  * This file is part of X10 Runtime System.
- * $Id: async_cc.cc,v 1.1 2007-12-08 14:28:15 ganeshvb Exp $ 
+ * $Id: async_cc.cc,v 1.2 2007-12-10 15:52:10 srkodali Exp $ 
  */
 
 
@@ -33,7 +33,8 @@ long sum = 0;
 
 
 /* async switch routine */
-void asyncSwitch (x10_async_handler_t h, void* arg, int niter) 
+extern "C"
+void AsyncSwitch (x10_async_handler_t h, void* arg, int niter) 
 {
   switch (h) {
    case 0:
@@ -51,26 +52,29 @@ main (int argc, char* argv[])
   /* Initialize x10lib */
   x10lib::Init(NULL, 0);
 
+  int my_place = x10lib::here();
+  int num_places = x10lib::numPlaces();
+
   /* brodcast val from 0 to all other places */
-  if (__x10_my_place == 0) {
-    for (x10_place_t target = 0; target < __x10_num_places; target++)
-       if (target != __x10_my_place) {
+  if (my_place == 0) {
+    for (x10_place_t target = 0; target < num_places; target++)
+       if (target != my_place) {
          long i = (long) target; 
-         asyncSpawnInline (target, 0, &i, sizeof(i));
+         x10lib::AsyncSpawnInline (target, 0, &i, sizeof(i));
        }
   }
 
   x10lib::SyncGlobal (); 
 
   /* reduce "val" from all the places to 0 in sum */
-  if (__x10_my_place != 0) {
-    asyncSpawnInline (0, 1, &val, sizeof(val)); 
+  if (my_place != 0) {
+    x10lib::AsyncSpawnInline (0, 1, &val, sizeof(val)); 
   }
 
   x10lib::SyncGlobal (); 
 
-  if (__x10_my_place == 0) {
-     long ref = __x10_num_places * (__x10_num_places - 1) / 2;
+  if (my_place == 0) {
+     long ref = num_places * (num_places - 1) / 2;
      cout << "result: " << sum << " expected : " << ref << endl;
   }
 

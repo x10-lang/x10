@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.23 2007-12-08 10:21:02 srkodali Exp $
+ * $Id: types.h,v 1.24 2007-12-10 15:52:11 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,7 +15,9 @@
 /* x10lang types
  * previously part of x10lang.h
  */
+#ifdef __cplusplus
 typedef bool x10_boolean;
+#endif
 typedef int8_t x10_byte;
 typedef uint16_t x10_char;
 typedef int16_t x10_short;

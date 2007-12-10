@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.52 2007-12-10 13:33:26 srkodali Exp $
+# $Id: Makefile,v 1.53 2007-12-10 15:52:10 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -24,7 +24,7 @@ ARRAY_A = $(SUBDIR1)/array.a
 
 SRCS = aggregate.cc \
 	async.cc \
-	async_switch.cc \
+	async_swith.cc \
 	broadcast.cc \
 	clock.cc \
 	env.cc \

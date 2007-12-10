@@ -2,7 +2,7 @@
 
                     X10Lib : The X10 Runtime System
 
-                              Version 0.5
+                              Version 0.6
 
 
                               R E A D M E
@@ -10,17 +10,14 @@
 
 
 This is the Readme file for X10 Runtime System Hostfiles for running programs.
+* host_v20.list
 
+    Hostfile for "v20n17.pbm.ihost.com" system.
 
-* run_r36n11.list
-
-    Hostfile for "r36n11.pbm.ihost.com" system.
-
-
-* run_v80.list
-
-    Hostfile for "v80n01.pbm.ihost.com" system.
-
-* run_rlsecomp1.list
+* host_rlsecomp1.list
 
 	Hostfile for "rlsecomp1.watson.ibm.com" system.
+
+* generate.sh
+	
+	Script for generating hostfiles on a v20 type cluster.
