@@ -131,6 +131,10 @@
 <td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
 <td><a class="toclink" href="#a3">Benchmarks</a></td>
 </tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
+<td><a class="toclink" href="#a4">Other Applications</a></td>
+</tr>
 </table>
 
 <!-- ANCHOR_LINK_LIST_END -->
@@ -383,10 +387,20 @@ STREAM: <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" b
 </tr>
 </table>
 
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+
+<br /><a name="a4"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-1">Other Applications</td>
+</tr>
+<tr>
+<td>
+<br>
 <!--start -->
 <table border="0" cellpadding="0" cellspacing="0" width="610">
 <tr>
-<td class="v14-header-5">Other Applications</td>
+<td class="v14-header-5">Graph algorithms</td>
 </tr>
 <tr>
 <td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table">
@@ -407,6 +421,10 @@ Multithreaded spanning tree algorithms (BFS, DFS, Shiloach-Vishkin): <img src="h
 <tr><td width="10">&nbsp;</td></tr>
 </table>
 <!--end -->
+
+</td>
+</tr>
+</table>
 
 <table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
 
