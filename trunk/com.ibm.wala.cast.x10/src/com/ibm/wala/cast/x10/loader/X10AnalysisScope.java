@@ -2,11 +2,21 @@ package com.ibm.wala.cast.x10.loader;
 
 import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
+import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.types.ClassLoaderReference;
 
+import java.util.*;
+
 public class X10AnalysisScope extends JavaSourceAnalysisScope {
+    private static final Set languages = new HashSet(2);
+
+    static {
+      languages.add(Language.JAVA);
+      languages.add(X10Language.X10Lang);
+    }
+
     public X10AnalysisScope() {
-	super();
+	super(languages);
 
 	X10SourceLoaderImpl.X10SourceLoader.setParent(X10PrimordialClassLoader.X10Primordial);
 	X10PrimordialClassLoader.X10Primordial.setParent(ClassLoaderReference.Application);

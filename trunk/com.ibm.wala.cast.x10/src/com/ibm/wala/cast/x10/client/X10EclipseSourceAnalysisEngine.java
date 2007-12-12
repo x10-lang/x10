@@ -2,12 +2,13 @@ package com.ibm.wala.cast.x10.client;
 
 import org.eclipse.jdt.core.IJavaProject;
 
-import com.ibm.wala.cast.x10.loader.X10Language;
+import com.ibm.wala.cast.x10.loader.*;
 import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
 import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.JavaIRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
+import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
 import com.ibm.wala.eclipse.util.EclipseProjectSourceAnalysisEngine;
@@ -30,10 +31,8 @@ public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysis
 	return fX10ExtInfo;
     }
 
-    @Override
-    protected void buildAnalysisScope() {
-        super.buildAnalysisScope();
-        this.scope.addLanguageToScope(X10Language.X10Lang);
+    protected AnalysisScope makeSourceAnalysisScope() {
+        return new X10AnalysisScope();
     }
 
     @Override

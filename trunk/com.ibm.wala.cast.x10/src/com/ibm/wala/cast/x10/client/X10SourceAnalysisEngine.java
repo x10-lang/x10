@@ -76,6 +76,5 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
         for( Module M : this.x10SourceEntries) {
             scope.addToScope(x10Scope.getX10SourceLoader(), M);
         }
-        scope.addLanguageToScope(X10Language.X10Lang);
     }
 }
