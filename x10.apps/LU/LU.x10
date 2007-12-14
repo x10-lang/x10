@@ -126,9 +126,8 @@ public class LU {
 	    if(ready) return false;
 	    if (count == maxCount) {
 		if (I==J) { LU(); }
-		else if (I < J && M.get(I, I).ready) { backSolve(M.get(I,I));  }
-		else if(M.get(J, J).ready) { lower(M.get(J,J));  }
-		ready=true;
+		else if (I < J) { if(M.get(I, I).ready) { backSolve(M.get(I,I));  ready=true;}}
+		else if(M.get(J, J).ready) { lower(M.get(J,J));  ready=true; }
 		return ready;
 	    }
 	    Block IBuddy = M.get(I, count), JBuddy = M.get(count,J);
