@@ -1,21 +1,21 @@
 /*
-============================================================================
- Name        : Job.h
- Author      : Rajkishore Barik
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
-#ifndef x10lib_Job_h
-#define x10lib_Job_h
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: Job.h,v 1.16 2007-12-14 13:39:35 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
+
+#ifndef __X10_XWS_JOB_H
+#define __X10_XWS_JOB_H
 
 #include "Frame.h"
 #include "Closure.h"
 #include "Sys.h"
 #include <assert.h>
 
-namespace x10lib_cws {
+/* C++ Lang Interface */
+#ifdef __cplusplus
+namespace x10lib_xws {
 
 class Outlet;
 //class Closure;
@@ -143,6 +143,7 @@ class GloballyQuiescentVoidJob : public GloballyQuiescentJob {
   virtual ~GloballyQuiescentVoidJob() {}
 };
 
-
-}
+} /* closing brace for namespace x10lib_xws */
 #endif
+
+#endif /* __X10_XWS_JOB_H */

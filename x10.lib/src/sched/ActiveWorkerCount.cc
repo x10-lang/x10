@@ -1,13 +1,15 @@
 /*
-============================================================================
- Name        : ActiveWorkerCount.cc
- Author      : Rajkishore Barik
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: ActiveWorkerCount.cc,v 1.7 2007-12-14 13:39:34 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
 
+/* An active worker count keeps track of the number of workers
+ * that are active.
+ * An action is triggered when the counter transitions to zero.
+ */
+ 
 #include "ActiveWorkerCount.h"
 #include "Closure.h"
 #include "Sys.h"
@@ -15,7 +17,7 @@
 #include <assert.h>
 
 using namespace std;
-using namespace x10lib_cws;
+using namespace x10lib_xws;
 
 	
 // ActiveWorkerCount::ActiveWorkerCount()

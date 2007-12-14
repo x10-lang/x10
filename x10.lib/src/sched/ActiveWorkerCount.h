@@ -1,19 +1,20 @@
 /*
-============================================================================
- Name        : ActiveWorkerCount.h
- Author      : Rajkishore Barik
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: ActiveWorkerCount.h,v 1.6 2007-12-14 13:39:34 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
 
-#ifndef x10lib_ActiveWorkerCount_h
-#define x10lib_ActiveWorkerCount_h
+/* Active worker count interface file. */
+
+#ifndef __X10_XWS_ACTIVE_WORKER_COUNT_H
+#define __X10_XWS_ACTIVE_WORKER_COUNT_H
 
 #include <cstdlib>
 
-namespace x10lib_cws {
+/* C++ Lang Interface */
+#ifdef __cplusplus
+namespace x10lib_xws {
 
 class Closure;
 class Runnable;
@@ -36,5 +37,7 @@ class ActiveWorkerCount {
 		virtual int getNumberCheckedOut();
 };
 
-}
+} /* closing brace for namespace x10lib_xws */
 #endif
+
+#endif /* __X10_XWS_ACTIVE_WORKER_COUNT_H */

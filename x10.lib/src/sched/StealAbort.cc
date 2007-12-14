@@ -1,22 +1,9 @@
 /*
- * =====================================================================================
+ * (c) Copyright IBM Corporation 2007
  *
- *       Filename:  StealAbort.cc
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  06/11/2007 05:51:32 AM UTC
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Rajkishore Barik (), rajbarik@in.ibm.com
- *        Company:  IBM India Research lab
- *
- * =====================================================================================
+ * $Id: StealAbort.cc,v 1.2 2007-12-14 13:39:35 srkodali Exp $
+ * This file is part of X10 Runtime System.
  */
-
-
 #include "StealAbort.h"
 
-using namespace x10lib_cws;
+using namespace x10lib_xws;

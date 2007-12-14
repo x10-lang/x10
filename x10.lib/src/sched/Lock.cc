@@ -1,17 +1,14 @@
 /*
-============================================================================
- Name        : Lock.cpp
- Author      : Rajkishore Barik
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: Lock.cc,v 1.8 2007-12-14 13:39:35 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
 
 #include "Lock.h"
 #include "Sys.h"
 
-using namespace x10lib_cws;
+using namespace x10lib_xws;
 
 #define FENCE
 #ifdef FENCE

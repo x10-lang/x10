@@ -1,14 +1,9 @@
 /*
-============================================================================
- Name        : Worker.cc
- Author      : Rajkishore Barik
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
-
-
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: Worker.cc,v 1.27 2007-12-14 13:39:35 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
 
 #include "Worker.h"
 #include "Lock.h"
@@ -27,7 +22,7 @@
 #include <sys/sched.h>
 #include <unistd.h>
 
-using namespace x10lib_cws;
+using namespace x10lib_xws;
 using namespace std;
 
 

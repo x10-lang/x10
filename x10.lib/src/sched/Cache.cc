@@ -1,13 +1,13 @@
 /*
-============================================================================
- Name        : Cache.cpp
- Author      : Rajkishore Barik
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: Cache.cc,v 1.14 2007-12-14 13:39:34 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
 
+/* Used by Worker and Closure to cache the frames for
+ * the bottom most closure in a worker's ready deque.
+ */
 
 #include "Cache.h"
 #include "Worker.h"
@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace x10lib_cws;
+using namespace x10lib_xws;
 using namespace std;
 
 Cache::Cache(Worker *w) 

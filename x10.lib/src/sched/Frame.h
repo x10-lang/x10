@@ -1,19 +1,19 @@
 /*
-============================================================================
- Name        : Frame.h
- Author      : Rajkishore Barik
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
-#ifndef x10lib_Frame_h
-#define x10lib_Frame_h
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: Frame.h,v 1.14 2007-12-14 13:39:35 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
+
+#ifndef __X10_XWS_FRAME_H
+#define __X10_XWS_FRAME_H
 
 #include "Sys.h"
 #include "Executable.h"
 
-namespace x10lib_cws {
+/* C++ Lang Interface */
+#ifdef __cplusplus
+namespace x10lib_xws {
 
 class Closure;
 
@@ -61,5 +61,7 @@ public:
   virtual Executable *execute(Worker *w);
 };
 
-}
+} /* closing brace for namespace x10lib_xws */
 #endif
+
+#endif /* __X10_XWS_FRAME_H */
