@@ -1,19 +1,19 @@
 /*
-============================================================================
- Name        : Sys.h
- Author      : Rajkishore Barik, Sriram Krishnamoorthy
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
-#ifndef x10lib_Sys_h
-#define x10lib_Sys_h
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: Sys.h,v 1.13 2007-12-14 13:39:35 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
+
+#ifndef __X10_XWS_SYS_H
+#define __X10_XWS_SYS_H
 
 #include <assert.h>
 #include <time.h>
 
-namespace x10lib_cws {
+/* C++ Lang Interface */
+#ifdef __cplusplus
+namespace x10lib_xws {
 
 #if defined(__powerpc__) || defined(__ppc__)
 
@@ -157,6 +157,7 @@ inline long long nanoTime() {
   return (long long)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
 }
 
-
-}
+} /* closing brace for namespace x10lib_xws */
 #endif
+
+#endif /* __X10_XWS_SYS_H */

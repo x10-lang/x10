@@ -1,12 +1,9 @@
 /*
-============================================================================
- Name        : Frame.cpp
- Author      : Rajkishore Barik
- Version     :
- Copyright   : IBM Corporation 2007
- Description : Exe source file
-============================================================================
-*/
+ * (c) Copyright IBM Corporation 2007
+ *
+ * $Id: Frame.cc,v 1.13 2007-12-14 13:39:35 srkodali Exp $
+ * This file is part of X10 Runtime System.
+ */
 
 #include "Frame.h"
 #include "Closure.h"
@@ -16,7 +13,7 @@
 #include <assert.h>
 
 using namespace std;
-using namespace x10lib_cws;
+using namespace x10lib_xws;
 
 #if defined(MEM_DEBUG) && (MEM_DEBUG!=0)
 volatile int Frame::nCons=0;
