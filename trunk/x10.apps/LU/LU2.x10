@@ -110,7 +110,7 @@ public class LU {
 	    for (point [i,j] : A) A[i,j] = format(10 * Math.random(), 4);
 	    if (I==J) for (point [i] : [0:B-1])  A[i,i] = format(20 * Math.random() + 10, 4);
 	}
-	boolean run() {
+	void run() {
 	    for (int count=0; i < maxCount; i++) {
 		Block IBuddy = M.get(I, count), JBuddy = M.get(count,J);
 		when (IBuddy.ready && JBuddy.ready) 
@@ -118,7 +118,7 @@ public class LU {
 	    }
 	    when (count == maxCount) {
 		if (I==J) { LU(); }
-		else when (I < J && M.get(I, I).ready) { backSolve(M.get(I,I));  }
+		else if(I<J) when (M.get(I, I).ready) { backSolve(M.get(I,I));  }
 		else when (M.get(J, J).ready) { lower(M.get(J,J));  }
 		ready=true;
 	    }
