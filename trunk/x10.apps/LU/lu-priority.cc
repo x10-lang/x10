@@ -453,7 +453,8 @@ Block::step(Profiler &prof) {
       MEM_BARRIER();
       ready=true; 
     }
-    else if (I < J && M->get(I, I)->ready) { 
+    else if (I < J) { 
+      if(M->get(I, I)->ready) { 
       backSolve(M->get(I,I),prof); 
       MEM_BARRIER();
       ready=true; 
