@@ -1,4 +1,4 @@
-\documentclass[nocopyrightspace,preprint,9pt]{sigplanconf}
+\documentclass{llncs}
 
 \usepackage{times-lite}
 \usepackage{mathptm}
@@ -28,9 +28,9 @@
 
 \newcommand\Implies{\Rightarrow}
 
-\newtheorem{example}{Example}[section]
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{example}{Example}[section]
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}[theorem]{Lemma}
 
 \newcommand\Xten{{\sf X10}}
 \newcommand\DML{{DML}}
@@ -42,29 +42,29 @@
 \newcommand\FXten{{FX10}}
 
 \begin{document}
+
 \title{Constrained Types for Object-Oriented Languages}
-\authorinfo{Vijay Saraswat\titlenote{IBM T.~J. Watson Research
-Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
-  {vsaraswa@us.ibm.com}
-\authorinfo{Nathaniel Nystrom$^{\;*}$}{}
-  {nystrom@us.ibm.com}
-% \authorinfo{Radha Jagadeesan\titlenote{School of CTI, DePaul
-% University, 243 S. Wabash Avenue, Chicago IL 60604 USA}}{}
-  % {rjagadeesan@cs.depaul.edu}
-\authorinfo{Jens Palsberg\titlenote{UCLA Computer Science Department,
-Boelter Hall, Los Angeles CA 90095 USA}}{}
-  {palsberg@cs.ucla.edu}
-\authorinfo{Christian Grothoff\titlenote{
+\titlerunning{Constrained Types}
+
+
+\author{Vijay Saraswat\inst{1} \and Nathaniel Nystrom\inst{1}
+\and Jens Palsberg\inst{2} \and Christian Grothoff\inst{3}}
+\authorrunning{Vijay Saraswat et al.}
+
+\institute{IBM T.~J. Watson Research
+Center, P.O. Box 704, Yorktown Heights NY 10598 USA,
+\email{vsaraswa@us.ibm.com}
+\and
+UCLA Computer Science Department,
+Boelter Hall, Los Angeles CA 90095 USA,
+\email{palsberg@cs.ucla.edu}
+\and
 Department of Computer Science, University of Denver,
 2360 S. Gaylord Street, John
-Green Hall, Room 214, Denver CO, 80208 USA}}{}
-  {christian@grothoff.org}
+Green Hall, Room 214, Denver CO, 80208 USA,
+\email{christian@grothoff.org}}
 
 \maketitle
-
-% \conferenceinfo{POPL'08}{XXX}
-% \copyrightyear{2008}
-% \copyrightdata{[to be supplied]}
 
 \begin{abstract}
 \input{abstract}
@@ -97,6 +97,7 @@ Green Hall, Room 214, Denver CO, 80208 USA}}{}
 %\input{future}
 \input{conclusion}
 
+\if 0
 \section*{Acknowledgments}
 
 The authors thank Radha Jagadeesan,
@@ -108,6 +109,7 @@ the X10 compiler and examples.
 This material is based upon work supported by the Defense
 Advanced Research Projects Agency under its Agreement No.
 HR0011-07-9-0002.
+\fi
 
 
 \bibliographystyle{plain}
