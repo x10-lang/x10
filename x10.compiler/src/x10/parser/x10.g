@@ -2066,21 +2066,21 @@
 
 
     MethodModifier ::= synchronized
-        /.$BeginAction
+        /.$BeginJava
                     unrecoverableSyntaxError = true;
                     eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"synchronized\" is an invalid X10 Method Modifier",
                                getErrorPosition(getLeftSpan(), getRightSpan()));
                     setResult(Collections.singletonList(Flags.SYNCHRONIZED));
-          $EndAction
+          $EndJava
         ./
 
     FieldModifier ::= volatile
-        /.$BeginAction
+        /.$BeginJava
                     unrecoverableSyntaxError = true;
                     eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"volatile\" is an invalid X10 Field Modifier",
                                getErrorPosition(getLeftSpan(), getRightSpan()));
                     setResult(Collections.singletonList(Flags.VOLATILE));
-          $EndAction
+          $EndJava
         ./
 
     SynchronizedStatement ::= synchronized ( Expression ) Block
