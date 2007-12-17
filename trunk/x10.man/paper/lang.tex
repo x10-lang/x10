@@ -46,16 +46,16 @@ the object whose type is being defined. Thus, {\tt int(:self >= 0)} is
 the set of natural numbers, and {\tt point(:x*x + y*y <= 1.0)}
 represents the interior of a circle (for a class {\tt point} with two
 {\tt float} properties {\tt x} and {\tt y}). The type {\tt C(:self !=
-null)} represents all instances of {\tt C}.\footnote{When there is no
+null)} represents all instances of {\tt C}. When there is no
 ambiguity, a property reference {\tt self.x} may be abbreviated to {\tt
-x}.} The type {\tt int(:self==v)} represents a ``singleton'' type, an
+x}. The type {\tt int(:self==v)} represents a ``singleton'' type, an
 {\tt int} is of this type only if it has the same value as {\tt v}.
 
 Constraints are specified in terms of an underlying
 constraint system~\cite{CCCC}---a pre-defined logical vocabulary of
 functions and predicates with algorithms for consistency and
 entailment.  The \Xten{} compiler permits different constraint
-systems to installed using compiler plugins.~\cite{??}.
+systems to be installed using compiler plugins.~\cite{??}.
 Constraint system plugins define a language of constraints by
 symbolically interpreting
 the boolean expression specifying a type's condition; plugins
@@ -395,28 +395,32 @@ graphs. For such programs the real-clause can be computed quickly and
 only a bounded number of questions to the constraint-solver are
 generated during type-checking.
 
+\eat{
 \subsection{Existential types}
 
 The use of constraints makes existential types very natural.  Consider
-the return type of {\tt filter} above---it specifies that the list
-returned is of some unknown length. The only thing known about it is
-that its size is bounded by {\tt n}. Thus, constrained types naturally
-subsume existential dependent types. Indeed, every base type {\tt C}
+the return type of \xcd{filter} in Figure~\ref{fig:list-example}: it specifies that the list
+returned is of some unknown length, which is known
+to be bounded by \xcd{n}. Thus, constrained types naturally
+subsume existential dependent types. Indeed, every base type \xcd{C}
 is an ``existential'' constrained type since it does not specify any
 constraint on its properties. Thus, code written with constrained types
 can interact seamlessly with legacy library code---using just base
 types wherever appropriate.
+}
 
 \subsection{Parametric consistency}
 
-Consider the set of final variables that are referenced in a type {\tt
-T=C(:c)}. These are the {\em parameters} of the type. A type is said
+Consider the set of final variables that are referenced in a type
+\xcd{T=C(:c)}. These are the {\em parameters} of the type. A type is said
 to be {\em parametrically consistent} if its where clause is solvable
 for each possible assignment of values to parameters.  A
 parametrically consistent type has the property that its extension
 will never be empty. 
 
 Types are required to be parametrically consistent.
+
+\ref{TODO} syntax of tail's type not explained
 
 Consider  a variation of List from Figure~\ref{fig:list-example}:
 \begin{displayxten}
@@ -426,9 +430,9 @@ class List(int(:self >= 0) n) {
   ...
 }
 \end{displayxten}
-The type of the field {\tt tail} is not parametrically
-consistent. There exists a value for its parameter {\tt n}, namely,
-{\tt 0} for which the where clause {\tt self != null =>
+The type of the field \xcd{tail} is not parametrically
+consistent. There exists a value for its parameter \xcd{n}, namely,
+\xcd{0} for which the where clause \xcd{self != null =>
 (self.n=this.n-1, self.n >= 0), self!=null} is not satisfiable.
 
 The compiler will throw a type error when it encounters the

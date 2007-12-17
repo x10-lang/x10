@@ -46,7 +46,10 @@
 %\newenvironment{displayxten}{\begin{xten}}{\end{xten}}
 
 
-\newcommand{\xcd}[1]{\lstinline[language=X10,basicstyle=\tt]{#1}}
+\newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\tt]{#1}}}
+\newcommand{\tcd}[1]{{\tt{#1}}}
+
+\pagestyle{plain}
 
 
 \ifpdf
