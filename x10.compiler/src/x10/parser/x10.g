@@ -6,7 +6,7 @@
 %options softkeywords
 %options package=x10.parser
 %options template=btParserTemplate.gi
-%options import_terminals="X10Lexer.gi"
+%options import_terminals="x10Lexer.gi"
 
 %include
     "MissingId.gi"

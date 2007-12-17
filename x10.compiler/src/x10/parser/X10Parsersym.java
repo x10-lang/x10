@@ -1,5 +1,5 @@
 
-//#line 18 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+//#line 18 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -124,6 +124,7 @@ public interface X10Parsersym {
       TK_volatile = 101,
       TK_while = 82,
       TK_activitylocal = 35,
+      TK_any = 137,
       TK_async = 17,
       TK_ateach = 18,
       TK_atomic = 7,
@@ -165,10 +166,9 @@ public interface X10Parsersym {
       TK_RIGHT_SHIFT_EQUAL = 146,
       TK_UNSIGNED_RIGHT_SHIFT_EQUAL = 147,
       TK_ErrorId = 96,
-      TK_any = 137,
       TK_ERROR_TOKEN = 148;
 
-      public final static String orderedTerminalSymbols[] = {
+    public final static String orderedTerminalSymbols[] = {
                  "",
                  "LPAREN",
                  "value",
@@ -320,5 +320,6 @@ public interface X10Parsersym {
                  "ERROR_TOKEN"
              };
 
+    public final static int numTokenKinds = orderedTerminalSymbols.length;
     public final static boolean isValidForParser = true;
 }
