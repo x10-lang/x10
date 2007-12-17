@@ -1,9 +1,9 @@
 \begin{tightcode}
-\quad\num{1}point NORTH = new point(1,0);
-\quad\num{2}point WEST  = new point(0,1);
+\quad\num{1}point NORTH = point.factory.point(1,0);
+\quad\num{2}point WEST  = point.factory.point(0,1);
 \quad\num{3}void sor(double omega, double[.] G, int iter) \{
-\quad\num{4}  region(:self=G.region) outer = G.region;
-\quad\num{5}  region(:self$\subseteq$outer) inner =
+\quad\num{4}  region(:self==G.region) outer = G.region;
+\quad\num{5}  region(:outer.contains(self)) inner =
 \quad\num{6}    outer & (outer-NORTH) & (outer+NORTH)
 \quad\num{7}          & (outer-WEST)  & (outer+WEST);
 \quad\num{8}  region d0 = inner.project(0);

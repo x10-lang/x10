@@ -10,11 +10,44 @@
 \usepackage{amssymb}
 \usepackage{afterpage}
 \usepackage{balance}
+\usepackage{floatflt}
 \usepackage{defs}
 \usepackage{pldefs}
 \usepackage{utils}
 \usepackage[pdftex]{graphicx}
 \usepackage{ifpdf}
+\usepackage{listings}
+
+\lstdefinelanguage{X10}%
+  {morekeywords={abstract,break,case,catch,class,%
+      const,continue,default,do,else,extends,false,final,%
+      finally,for,goto,if,implements,import,instanceof,%
+      interface,label,native,new,null,package,private,protected,%
+      public,return,static,super,switch,synchronized,this,throw,%
+      throws,transient,true,try,void,volatile,while,%
+      async,atomic,when,foreach,ateach,finish,clock,clocked,%
+      self,property,nullable,future},%
+   sensitive,%
+   morecomment=[l]//,%
+   morecomment=[s]{/*}{*/},%
+   morestring=[b]",%
+   morestring=[b]',%
+  }
+
+\lstnewenvironment{displayxten}
+  {\footnotesize\lstset{language=X10,basicstyle=\tt,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em}}
+  {}
+\lstnewenvironment{xten}
+  {\footnotesize\lstset{language=X10,basicstyle=\tt,tabsize=4,columns=fullflexible,captionpos=b}}
+  {}
+\newcommand\inputxten[1]{\footnotesize\lstinputlisting[language=X10,basicstyle=\tt]{#1}}
+
+
+%\newenvironment{displayxten}{\begin{xten}}{\end{xten}}
+
+
+\newcommand{\xcd}[1]{\lstinline[language=X10,basicstyle=\tt]{#1}}
+
 
 \ifpdf
 \setlength{\pdfpagewidth}{8.5in}
@@ -51,17 +84,15 @@
 \and Jens Palsberg\inst{2} \and Christian Grothoff\inst{3}}
 \authorrunning{Vijay Saraswat et al.}
 
-\institute{IBM T.~J. Watson Research
-Center, P.O. Box 704, Yorktown Heights NY 10598 USA,
+\institute{IBM T.~J. Watson Research~Center, P.O.~Box~704, Yorktown~Heights NY 10598 USA,
 \email{vsaraswa@us.ibm.com}
 \and
-UCLA Computer Science Department,
-Boelter Hall, Los Angeles CA 90095 USA,
+UCLA~Computer~Science~Department,
+Boelter~Hall, Los~Angeles CA 90095 USA,
 \email{palsberg@cs.ucla.edu}
 \and
-Department of Computer Science, University of Denver,
-2360 S. Gaylord Street, John
-Green Hall, Room 214, Denver CO, 80208 USA,
+Department~of~Computer~Science, University~of~Denver,
+2360~S.~Gaylord~Street, John~Green~Hall, Room~214, Denver~CO, 80208 USA,
 \email{christian@grothoff.org}}
 
 \maketitle
@@ -73,25 +104,21 @@ Green Hall, Room 214, Denver CO, 80208 USA,
 \section{Introduction}\label{sec:intro}
 \input{intro}
 
-\subsection{Related work}\label{sec:related}
-\input{related}
-
-\section{Constrained types and their formalization}\label{sec:lang}
+\section{Constrained types}\label{sec:lang}
 %II. Language design and rules (CFJ) (3.5 pages)
 
 \label{method-sec}
 \input{lang}
 
-\subsection{Semantics}
-\label{sec:semantics}
-\input{semantics}
-
-\section{Applied constrained calculi}\label{sec:examples}
+\section{Examples}\label{sec:examples}
 \input{examples}
 
 \section{Implementation}\label{sec:implementation}
 \label{sec:impl}
 \input{impl}
+
+\section{Related work}\label{sec:related}
+\input{related}
 
 \section{Conclusion and Future work}\label{sec:future}\label{sec:conclusions}
 %\input{future}
@@ -114,7 +141,12 @@ HR0011-07-9-0002.
 
 \bibliographystyle{plain}
 \bibliography{master}
-\balance
+
+\appendix
+
+\section{Formal semantics}
+\label{sec:semantics}
+\input{semantics}
 
 % \appendix
 % \onecolumn

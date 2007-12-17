@@ -1,8 +1,8 @@
-point NORTH = new point(1,0);
-point WEST  = new point(0,1);
+point NORTH = point.factory.point(1,0);
+point WEST  = point.factory.point(0,1);
 void sor(double omega, double[.] G, int iter) {
-  region(:self=G.region) outer = G.region;
-  region(:self$\subseteq$outer) inner =
+  region(:self==G.region) outer = G.region;
+  region(:outer.contains(self)) inner =
     outer & (outer-NORTH) & (outer+NORTH)
           & (outer-WEST)  & (outer+WEST);
   region d0 = inner.project(0);

@@ -16,11 +16,16 @@
 %(c) ownership types, alias control.
 %
 \def\clocked{{\tt clocked}}
-The following section presents examples using several different
-constraint systems.  Many of these constraint systems are more
+The following section presents example uses of constrained types
+using several different
+constraint systems.
+%
+\ref{TODO}
+Many of these constraint systems are more
 expressive than the constraint system implemented in the current
 \Xten{} compiler and have not (yet) been implemented.
 
+\ref{TODO}
 In the following we will use the shorthand $\tt C(\bar{t}:c)$ for the
 type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
 {\tt C} is $\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ldots$  Also,
@@ -44,65 +49,34 @@ variable) with the same simple syntax. In the example below,
 the type of {\tt a} does not place any constraint on the second
 dimension of {\tt a}, but this dimension can be used in other
 types (e.g., the return type).
-{\footnotesize
-\begin{verbatim}
+\begin{displayxten}
   class Matrix(int m, int n) {
-    Matrix(m,a.n) mul(Matrix(:m=this.n) a) {...}
+    Matrix(m,a.n) mul(Matrix(:m==this.n) a) {...}
     ...
   }
-\end{verbatim}}
+\end{displayxten}
 
 Constraints also naturally permit the expression of existential types:
-{\footnotesize
-\begin{verbatim}
+\begin{displayxten}
   class List(int length) { 
     List(:length <= this.length) filter(Comparator k) {...} 
     ...
   }
-\end{verbatim}}
+\end{displayxten}
 \noindent
 Here, the length of the list returned by the {\tt filter} method is 
 unknown, but is bound by the length of the original list.
 }
 
-\subsection{AVL trees and red--black trees}
-
-AVL trees and red-black trees can be modeled so that the
-data structure invariant is enforced statically.
-
-{\footnotesize
-\begin{verbatim}
-class AVLTree(int(:self >= 0) height) {...}
-class Leaf(Object key) extends AVLTree(0) {...}
-class Node(Object key, AVLTree l, AVLTree r
-         : int d=l.height-r.height; -1 <= d, d <= 1) 
-    extends AVLTree(max(l.height,r.height)+1) {...}
-\end{verbatim}}
-
-Red--black trees may be modeled similarly. Such trees have the
-invariant that (a) all leaves are black, (b) each non-leaf node has
-the same number of black nodes on every path to a leaf (the black
-height), (c) the immediate children of every red node are black.
-{\footnotesize
-\begin{verbatim}
-class RBTree(int blackHeight) {...}
-class Leaf extends RBTree(0) { int value; ... }
-class Node(boolean isBlack, 
-           RBTree(:this.isBlack || isBlack) l, 
-           RBTree(:this.isBlack || isBlack,
-                   blackHeight=l.blackHeight) r)
-    extends RBTree(l.blackHeight+1) { int value; ... }
-\end{verbatim}}
-
-\eat{
-\subsection{Nullable types}
+\subsection{Equality constraints: ownership types}
 
 A constraint system that supports disequalities can be used to
 enforce a non-null invariant on reference types.
 A non-null type {\tt C} can be written simply as {\tt C(:self != null)}.
-}
 
-\subsection{Array bounds}
+\subsection{Disequalities: non-null types}
+
+\subsection{Presburger constraints: array bounds}
 
 Xi and Pfenning proposed using dependent types for eliminating
 array bounds checks~\cite{xi98array}.
@@ -110,13 +84,12 @@ In CFJ, an array of type {\tt T[]} indexed by (signed) integers
 can be modeled as a class with the following
 signature:\footnote{For this example, we assume generics
 are supported.}
-{\footnotesize
-\begin{verbatim}
+\begin{displayxten}
 interface Array<T>(int(:self >= 0) length) {
   T get(int(:0 <= self, self < this.length) i);
   void set(int(:0 <= self, self < this.length) i, T v);
 }
-\end{verbatim}}
+\end{displayxten}
 
 Bounds can be checked using a constraint system based on
 Presburger arithmetic~\cite{omega}.  Constraint terms include
@@ -130,8 +103,7 @@ constraints include inequalities:
 
 \eat{
 Some code that iterates over an array (sugaring {\tt get} and {\tt set}):
-{\footnotesize
-\begin{verbatim}
+\begin{xten}
 double dot(double[] x, double[] y
          : x.length = y.length) {
   double r = 0.; 
@@ -141,14 +113,12 @@ double dot(double[] x, double[] y
   }
   return r;
 }
-\end{verbatim}
-}
+\end{xten}
 }
 
 \eat{
 Another one:
-{\footnotesize
-\begin{verbatim}
+\begin{xten}
 double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length = y.length) {
     double[](:length = x.length) result = new double[x.length];
     for (int(:self >= 0, self < x.length) i = 0; i < x.length; i++) {
@@ -156,11 +126,12 @@ double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length =
     }
     return result;
 }
-\end{verbatim}
-}
+\end{xten}
 }
 
-\subsection{Region-based arrays}
+\subsection{Presburger constraints: LU factorization}
+
+\subsection{Set constraints: region-based arrays}
 
 \Xten{} takes another approach to ensuring array bounds violations
 do no occur.
@@ -204,7 +175,9 @@ offset by another point {\tt p}.
 
 \begin{figure}
 \footnotesize
-\input{sor}
+
+\inputxten{sor.x10}
+
 \caption{Successive over-relaxation with regions}
 \label{fig:sor}
 \end{figure}
@@ -215,6 +188,33 @@ The type-checker establishes that the {\tt region}
 property of the point {\tt ij} (line 17) is
 {\tt inner \& [i:i,d1min:d1max]}, and that this
 region is a subset of {\tt outer}, the region of the array {\tt G}.
+
+\subsection{AVL trees and red--black trees}
+
+AVL trees and red-black trees can be modeled so that the
+data structure invariant is enforced statically.
+
+\begin{displayxten}
+class AVLTree(int(:self >= 0) height) {...}
+class Leaf(Object key) extends AVLTree(0) {...}
+class Node(Object key, AVLTree l, AVLTree r
+         : int d=l.height-r.height; -1 <= d, d <= 1) 
+    extends AVLTree(max(l.height,r.height)+1) {...}
+\end{displayxten}
+
+Red--black trees may be modeled similarly. Such trees have the
+invariant that (a) all leaves are black, (b) each non-leaf node has
+the same number of black nodes on every path to a leaf (the black
+height), (c) the immediate children of every red node are black.
+\begin{displayxten}
+class RBTree(int blackHeight) {...}
+class Leaf extends RBTree(0) { int value; ... }
+class Node(boolean isBlack, 
+           RBTree(:this.isBlack || isBlack) l, 
+           RBTree(:this.isBlack || isBlack,
+                   blackHeight=l.blackHeight) r)
+    extends RBTree(l.blackHeight+1) { int value; ... }
+\end{displayxten}
 
 \eat{
 \subsection{Self types and binary methods}
@@ -228,8 +228,7 @@ In the example below, the {\tt Set} interface has a {\tt union} method
 whose argument must be of the same class as {\tt this}.
 \noindent This enables the {\tt IntSet} class's {\tt union}
 method to access the {\tt bits} field of its argument {\tt s}.
-{\footnotesize
-\begin{verbatim}
+\begin{xten}
   interface Set(:Class klass) {
     Set(this.klass) union(Set(this.klass) s);
   }
@@ -247,7 +246,7 @@ method to access the {\tt bits} field of its argument {\tt s}.
       r.bits = this.bits | s.bits;
       return r; }
   }
-\end{verbatim}}
+\end{xten}
 \noindent
 The key to ensuring that this code type-checks is the
 \rn{T-constr}
@@ -284,8 +283,7 @@ index types.
 
 \subsection{Quicksort}
 
-{\footnotesize
-\begin{verbatim}
+\begin{xten}
 int(:left <= self & self <= right)
 partition(T[] array, int left, int right, int pivotIndex : left <= pivotIndex & pivotIndex <= right) {
      T pivotValue = array[pivotIndex];
@@ -324,8 +322,7 @@ void quicksort(T[] array, int left, int right : left <= right) {
          quicksort(array, pivotNewIndex+1, right)
     }
 }
-\end{verbatim}
-}
+\end{xten}
 }
 
 
@@ -335,21 +332,21 @@ This example is due to Satish Chandra. We wish to specify a balanced
 distributed tree with the property that its right child is always at
 the same place as its parent, and once the left child is at the same
 place then the entire subtree is at that place. (Recall that in
-\Xten{} every reference class has a field {\tt loc} of type {\tt place} which specifies the location at which this object is located.)
+\Xten{} every reference class has a field {\tt location} of type {\tt place} which specifies the location at which this object is located.)
 
 The desired property may be specified thus:
-{\footnotesize
-\begin{verbatim}
+\begin{xten}
 class Tree(boolean localLeft) extends Object {
-  Tree(:this.localLeft => (loc=here,self.localLeft)) left; 
-  Tree(:loc=here) right);
+  Tree(:! this.localLeft || (location=here && self.localLeft)) left; 
+  Tree(:location=here) right);
   ...
 }
-\end{verbatim}}
+\end{xten}
 \noindent Note that the consequent of the condition for {\tt left} 
 sets {\tt self.localLeft}. This ensures, recursively, that the entire
 left subtree will be located at the same place.
 
+\eat{
 \subsection{Clocked types}
 
 Clocks are barriers that are adapted to a context where activities may be
@@ -387,6 +384,7 @@ $$
 \infer{\Gamma \vdash ({\tt T}_{0:n}\ {\tt z}_{0:n}; S)\ {\tt e}_0.{\tt m({\tt e}_{1:n})}}
 \end{array}
 $$
+}
 
 \eat{
 \subsection{Capabilities}
@@ -394,6 +392,7 @@ $$
 Capabilities (from Radha and Vijay's paper on neighborhoods)
 }
 
+\eat{
 \subsection{Activity-local objects}
 
 Parallelism in \Xten{} is supported through lightweight asynchronous {\em
@@ -406,22 +405,20 @@ the activity that created it or by an ancestor of that activity.
 % it or by a descendant of that activity.
 Local objects are declared and created by qualifying their type
 with {\tt local}:
-{\footnotesize
-\begin{verbatim}
+\begin{displayxten}
   local C o = new local C();
-\end{verbatim}}
+\end{displayxten}
 
-To encode local objects in CFJ, we add an {\tt activity} property to objects:
-{\footnotesize
-\begin{verbatim}
+To encode local objects in \Xten{}, we add an {\tt activity}
+property to objects:
+\begin{displayxten}
   class Object(Activity activity) { ... }
-\end{verbatim}}
+\end{displayxten}
 \noindent
 where {\tt Activity} has a possibly null {\tt parent} property:
-{\footnotesize
-\begin{verbatim}
+\begin{displayxten}
   class Activity(Activity parent) { ... }
-\end{verbatim}}
+\end{displayxten}
 \noindent
 
 To track the current activity ({\tt z}), we augment typing judgments
@@ -489,14 +486,13 @@ locals can be written by contained asyncs.
 locals created by an activity are inherited by the parent when
 the activity terminates.
 
-{\footnotesize
-\begin{verbatim}
+\begin{displayxten}
 C(:thread = current) x = ...;
 finish foreach (...) {
   C(:thread = current) y = x; // no!
   x = y;
 }
-\end{verbatim}}
+\end{displayxten}
 
 // can read if thread prop is current, or an ancestor of current
 // can write if thread prop is current or a child of current
@@ -511,6 +507,7 @@ extensions:
 
 1. add thread to context
 2. strengthen T-field rule
+}
 }
 
 \eat{

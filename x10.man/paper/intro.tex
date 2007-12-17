@@ -32,227 +32,168 @@ sets to places, known as {\em distributions}.  \Xten{} supports a rich
 algebra of operations over regions, distributions and arrays.
 
 A central design goal of \Xten{} is to rule out large classes of error
-by design. Thus, the possibility of indexing a 2-d array with 3-d
+by design. For instance, the possibility of indexing a 2-d array with 3-d
 points should simply be ruled out at compile-time. This means that one
 must permit the programmer to express types such as {\tt
-region(2)}, the type of all two-dimensional regions, {\tt int[5]}, the
-type of all arrays of {\tt int} of length {\tt 5}, {\tt
-int[region(2)]}, the type of all {\tt int} arrays over two dimensional
-regions, and {\tt Obj!}, the type of all {\tt Obj} located on the
+region(2)}, the type of all two-dimensional regions, \xcd{int[5]}, the
+type of all arrays of \xcd{int} of length \xcd{5}, {\tt
+int[region(2)]}, the type of all \xcd{int} arrays over two dimensional
+regions, and since \Xten{} supports distributed computation, \xcd{Obj!}, the type of all \xcd{Obj} located on the
 current node. For concurrent computations, one needs the ability to
 statically check that a method is being invoked by an activity that is
 registered with a given clock (i.e., dynamic barrier)~\cite{X10}.
 
-Thus, one needs a practical and usable framework for {\em dependent
-types} for concurrent, imperative, object-oriented
-languages. Dependent types are types parametrized by {\em values}
-\cite{dependent-types}  and have a rich and distinguished history in
+In this paper we describe {\Xten}'s support for {\em
+constrained types}, user-defined {\em dependent types}
+on top of predicates over the {\em immutable}
+state of objects. Such types statically capture many common invariants
+that naturally arise in code. For instance, typically the shape of an
+array (the number of dimensions (the rank) and the size of each dimension)
+is determined at
+run time, but is fixed once the array is constructed. Thus, the shape of an
+array is part of its immutable state.
+
+Constrained types are instances of {\em dependent
+types}, types parametrized by {\em values}
+\cite{dependent-types}.
+Dependent types have a rich and distinguished history in
 logic and functional programming languages (see e.g.,
 \cite{xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter})
 and in the development of logical frameworks
-\cite{calc-constructions}.  In the current setting, several questions
-must be answered: How are dependent types defined? What vocabulary of
-functions and predicates can be used in forming dependent types? Is
-this vocabulary extensible?  How do dependent types interact with
-inheritance, method overloading and overriding, type casting? Are
-types checked statically? Can classes continue to be compiled separately in the presence of dependent types?
+\cite{calc-constructions}. 
 
-We believe these questions must be answered in a way that achieves
-certain desirable properties:
+\Xten{} provides a framework for specifying and checking constrained types
+that achieves certain desirable properties:
 \begin{itemize}
 \item 
 {\bf Ease of use.}  The framework must be easy to use for practicing
-programmers. In particular, the syntax of types should be a simple and
-natural extension of existing syntax for types.
+programmers. In particular, since \Xten{} is an extension of Java,
+the syntax of types is a simple and
+natural extension of Java's types.
 
 \item
 {\bf Flexibility.}
 The framework
-must permit the development of concrete,
+permits the development of concrete,
 specific type systems tailored to the application area at
-hand, enabling a kind of pluggable type system~\cite{bracha04-pluggable}.
-Hence, the framework must be parametric in the kinds of
-expressions used in the type system.
+hand.  \Xten{}'s compiler permits extension with different constraint systems
+via compiler plugins, enabling a kind of pluggable type system~\cite{bracha04-pluggable}.
+The framework is parametric in the kinds of
+expressions used in the type system, permitting the installed constraint
+system to interpret the constraints.
 
 \item
 {\bf Modularity.}
 The rules for type-checking
-must be specified once in a way that is independent of the
+are specified once in a way that is independent of the
 particular vocabulary of operations used in the dependent type
 system.
+The type system supports separate compilation.
 
 \item
 {\bf Integration with OO languages.}
-The framework must work smoothly with nominal type systems found in
-Java-like languages. It must permit separate compilation.
+The framework  works smoothly with Java's nominal type system.
+It permits separate compilation.
 
 \item
-{\bf Static checking.}  The framework must permit mostly static
-type-checking. (The user should be able to escape the confines of
+{\bf Static checking.}  The framework permits mostly static
+type-checking. The user is able to escape the confines of
 static type-checking using dynamic casts, as is common for Java-like
-languages.)
+languages.
 \end{itemize}
 
-\subsection{Overview}
+\subsection{Constrained types}
 
-In this paper we develop a general syntactic and semantic framework
-for {\em constrained types}, user-defined constraint-based types for
-modern class-based OO languages such as \java{}, \csharp{} and
-\Xten{}. Our central insight is that a rich, user-extensible type
-system can be developed on top of predicates over the {\em immutable}
-state of objects. Such types statically capture many common invariants
-naturally arising in code. For instance, typically the shape of an
-array (number of dimensions, size of each dimension) is determined at
-runtime but fixed once the array is constructed. Thus, the shape of an
-array is part of its immutable state.
+Our basic approach to introducing constrained types into \Xten{}
+is to
+follow the spirit of generic types, but to use values instead of
+types.
 
-\paragraph{Properties.}
-Our first step is to permit a class specification to specify {\em
-properties}. A property is a {\tt public} final instance field of the
-class that cannot be overridden by subclassing. Like any other field,
-a property is typed, and its type need not necessarily be
-primitive. Thus, properties capture the immutable public state of
-object---initialized when the object is created---that can be
-classified by constrained types. Syntactically, properties are
-specified in a parameter list right after the name of the class in a
-class definition. The class body may contain specifications of other
-fields; these fields are considered mutable.
+We permit the definition of a class \xcd{C} to specify
+a list of typed parameters, or {\em properties},
+{\tt (T1 x1, \ldots, Tk xk)} similar in syntactic structure to
+a method formal parameter list.
+%
+Each property in this list is treated as  a \xcd{public} {\tt
+final} instance field.
+%
+We also permit the
+specification of a {\em class invariant}, a
+{\em where clause}~\cite{where-clauses}
+in the class definition. A class invariant
+is a boolean expression on the properties of the class.
+The compiler ensures that all
+instances of the class created at run time satisfy the
+invariant.
+%
+The class invariant is separated from the
+property list with a ``\xcd{:}''. 
+%
+For instance, we may specify a class \xcd{List} with an
+\xcd{int length} property as follows:
+\begin{displayxten}
+    class List(int length: length >= 0) {...}
+\end{displayxten}
+Given such a definition for a class \xcd{C}, types can be
+constructed by {\em constraining} the properties of \xcd{C}.  In
+principle, {\em any} boolean expression over the properties
+specifies a type: the type of all instances of the class
+satisfying the boolean expression. Thus, \xcd{List(:length ==
+3)}
+is a permissible type, as are \xcd{List(:length <= 41)} and
+even \xcd{List(:length * f() >= g())}.
+In practice, \xcd{e} is restricted by the particular constraint
+system in use.
 
-\paragraph{Constraints.}
-Given a class {\tt C} with properties {\tt T1 p1}, \ldots, {\tt Tn
-pn}, a user may construct a potentially infinite family of types {\tt
-C(:c)}, by using a {\em constraint} {\tt c} on the properties of {\tt
-C} and final variables in scope at the type. ({\tt C} is called the
-{\em base class} of the type, and {\tt c} its {\em condition} or {\em where
-clause}.)  Constraints specify (possibly) partial information about the
-variables of interest. 
+Accordingly, a {\em constrained type} is of the form {\tt
+C(:e)}, the name of a class or interface \xcd{C}, called the
+{\em base class}, followed by a {\em condition} \xcd{e},
+a boolean expression on the properties of the
+base class and the \xcd{final} variables in scope at the type.
+Constraints specify (possibly) partial information about the
+variables of interest.
+Such a type represents a refinement of \xcd{C}: the set of all
+instances of \xcd{C} whose immutable state satisfies the
+condition
+\xcd{c}.
 
-Such a type represents a refinement of {\tt C}---the set of all
-instances of {\tt C} whose immutable state satisfies the condition
-{\tt c}.  The constraint is specified in terms of an underlying
-constraint system~\cite{CCCC}---a pre-defined logical vocabulary of
-functions and predicates with algorithms for consistency and
-entailment.  It may use the special variable {\tt self} to stand for
-the object whose type is being defined. Thus, {\tt int(:self >= 0)} is
-the set of natural numbers, and {\tt point(: x*x + y*y <= 1)}
-represents the interior of a circle (for a class {\tt point} with two
-{\tt int} properties {\tt x} and {\tt y}). The type {\tt C(:self !=
-null)} represents all instances of {\tt C}.\footnote{When there is no
-ambiguity a property reference {\tt self.x} may be abbreviated to {\tt
-x}.} The type {\tt int(:self==v)} represents a ``singleton'' type, an
-{\tt int} is of this type only if it has the same value as {\tt v}.
-
-\begin{example}	
-Consider the class definition:
-{\footnotesize
-\begin{verbatim}
-class List(int(:self >= 0) n) {...}
-\end{verbatim}}
-The type {\tt List(:n==3)} is permissible and represents the set of
-all lists with length {\tt 3}. Similarly for {\tt List(:n <= 41)}
-and even {\tt List(:n * f() >= g())}.
-\end{example}
-
-\paragraph{Interface properties.}
-Since properties play a central role in the specification of
-refinements of a type, it makes sense to permit interfaces to specify
-properties. Any class implementing the interface is required to define
-at least the same properties as the interface. It is an error for a
-class to inherit a property with the same name but different types
-from two different interfaces.  Thus, an object {\tt o} satisfies a
-type {\tt I(:c)} if it is an instance of a class {\tt C} implementing
-{\tt I} and it satisfies {\tt c}.
-
-\paragraph{Properties are typed.}
-Properties may be of arbitrary type. For instance, the class {\tt
-region} has an {\tt int} property called {\tt rank}. In turn, the
-class {\tt dist} has a {\tt region} property, called {\tt region}, and
-also an {\tt int} property {\tt rank}.  The invariant for {\tt dist}
-ensures that {\tt this.region.rank=this.rank}. Similarly, an array has
-properties {\tt dist}, {\tt region}, and {\tt rank}
-and appropriate constraints ensuring that the statically available
-information about them is consistent.\footnote{All constraint
-languages used in constrained types permit object references, field
-selection and equality. Such constraint systems have been studied
-extensively under the name of ``feature structures''
-\cite{feature-structures}.}
-
-In this way a class invariant (and constraint clauses in constrained
-types) may specify fairly rich constraints on the immutable portion of
-the object reference graph rooted at the current object, and utilizing
-objects at user-defined types.
-
-\paragraph{Subtyping.} 
-Constrained types are naturally endowed with a subtype relation that
-combines the nominal subtyping relation of classes and interfaces with
-the logical entailment relation of the constraint system. Namely, a
-constraint {\tt C(:c)} is a subtype of {\tt D(:d)} if {\tt C} is a
-subtype of {\tt D} and every value in {\tt C} that satisfies {\tt c}
-also satisfies {\tt d}. Thus, the set of constrained types on a base
-type {\tt C} inherits a lattice structure from the underlying
-constraint system. The maximal element is {\tt C(:true)}, which is
-just {\tt C} and the minimal element is the unsatisfiable constraint.
-
-Constrained types may occur wherever normal types occur. In
-particular, they may be used to specify the types of (possibly
-mutable) local variables, properties, (possibly mutable) fields,
-arguments to methods, return types of methods, in casts etc.  Note
-that final local variables as well as final parameters of methods may
-be used to define types. Specifically all the final parameters of a
-method are in scope at the return type of the method and can be used
-to construct the return type.
-
-\begin{example}
-A method that multiplies two matrices may be specified by:
-{\footnotesize
-\begin{verbatim}
-class Matrix(int I, int J) {
-  Matrix(I, arg.J) mul(final Matrix(:self.I==this.J) arg) 
-  {...}
-  ...
-}
-\end{verbatim}}
-
-\end{example}
-\paragraph{Method overloading.}
-Several design alternatives are possible for integrating method
-overloading, overriding, shadowing and obscuring~\cite{Java3} with
-dependent types. We discuss in more detail in
-Section~\ref{method-sec}. In summary, our current implementation
-erases dependent type information when compiling to Java. Therefore it
-must be the case that a class does not have two different method
-definitions that conflict with each other when the constrained
-clauses in their types are erased.
-
-\paragraph{Invariants.}
-For additional expressiveness, we permit the specification of a {\em
-class invariant}, a {\em where clause}~\cite{where-clauses} in the
-class definition. A where clause is a boolean expression on the
-parameters separated from the parameter list with a ``{\tt :}''.  The
-compiler ensures that all instances of the class created at runtime
-satisfy the where clause associated with the class.
-
-Where clauses may also be specified in argument lists of methods and
-constructors. They place an additional constraint on the actual
-arguments to the method or constructor.
-
-For brevity, we write {\tt C} as a type as well; it
-corresponds to the (vacuously) constrained type {\tt C(:true)}.
+For brevity, we write \xcd{C} as a type as well; it
+corresponds to the (vacuously) constrained type \xcd{C(:true)}.
 We also permit the syntax {\tt C(t1,\ldots, tk)} for
 the type {\tt C (:x1 = t1, \ldots, xk = tk)} (assuming that
-the property list for {\tt C} specifies the {\tt k} properties {\tt
-x1,\ldots, xk}, and each term {\tt ti} is of the correct
-type). 
+the property list for \xcd{C} specifies the \xcd{k} properties
+{\tt
+x1,\ldots, xk}, and each term \xcd{ti} is of the correct
+type).
 
-Thus, using the definition above, {\tt List(n)} is the type of
-all lists of length {\tt n}.
+Thus, using the definitions above, \xcd{List(n)} is the type of
+all lists of length \xcd{n}, shown in
+Figure~\ref{fig:list-example}.
+%
+Intuitively, this definition states that a \xcd{List} has a \xcd{int}
+property \xcd{n}, which must be non-negative.  The class has two
+fields that hold the head and tail of the list.  The properties of a
+class are set through the invocation of \xcd{property}{\tt (\ldots);}
+(analogously to \xcd{super}{\tt (\ldots);}).  Constructors have ``return
+types'' that can specify a where clause satisfied by the object being
+returned by the constructor.  The compiler verifies that the
+constructor postcondition and the class invariant are implied by the
+\xcd{property} statement and any \xcd{super} calls in the constructor
+body.
+%
+The \xcd{List} class has three constructors: the first
+constructor returns a empty list; the second returns 
+a singleton list of length \xcd{1}; the third
+returns a list of length \xcd{m+1}, where \xcd{m} is
+the length of the second argument.  If an argument appears in the
+return type then the argument must be declared \xcd{final},
+ensuring the
+argument points to the same object throughout the evaluation of
+the constructor body.
 
-\begin{example}[List]
-This program implements a mutable list of Objects. The size of a list
-does not change through its lifetime, even though at different points
-in time its head and tail might point to different structures.
-{\footnotesize
-\begin{verbatim}
+
+\begin{figure}
+\begin{xten}
 class List(int(:self >= 0) n) {
   Object head = null;
   List(n-1) tail = null;
@@ -279,156 +220,32 @@ class List(int(:self >= 0) n) {
      new List(head,l) : l;
   }
 }
-\end{verbatim}}
+\end{xten}
+
+\caption{
+This program implements a mutable list of Objects. The size of a list
+does not change through its lifetime, even though at different points
+in time its head and tail might point to different structures.}
 \label{fig:list-example}
-Intuitively, this definition states that a {\tt List} has a {\tt int}
-property {\tt n}, which must be non-negative.  The class has two
-fields that hold the head and tail of the list.  The properties of a
-class are set through the invocation of {\tt property(\ldots);}
-(analogously to {\tt super(\ldots);}).  Constructors have ``return
-types'' that can specify a where clause satisfied by the object being
-returned by the constructor.  The compiler verifies that the
-constructor postcondition and the class invariant are implied by the
-{\tt property} statement and any {\tt super} calls in the constructor
-body imply
+\end{figure}
 
-The second constructor returns a singleton list of length {\tt 1}. The
-third constructor returns a list of length {\tt m+1}, where {\tt m} is
-the length of the second argument.  If an argument appears in the
-return type then the argument must be declared {\tt final}.  Thus, the
-argument will point to the same object throughout the evaluation of
-the constructor body.
-\end{example}
-
-\paragraph{Final variables.}
-The use of final variables (local variables, method arguments) in
-types has proven to be particularly valuable in practice. The same
-variable that is being used in computation can also be used to specify
-types. There is no need to introduce separate, universally and
-existentially quantified ``index'' variables.
-
-During type-checking, final variables are turned into symbolic
-variables---some fixed but unknown value---of the same type.
-Computation is performed in a constraint-based fashion on such
-variables.
-
-\paragraph{Separation between compile-time and run-time computation}
-Our design distinguishes between compile-time execution (performed
-during type-checking) and run-time execution. At compile-time, the
-compiler processes the abstract syntax tree of the program generating
-queries to the constraint solver. The only computation engine running
-is the constraint-solver, which operates on its own vocabulary of
-predicates and functions. Program variables (such as local variables)
-that occur in types are dealt with symbolically. They are replaced
-with logical variables---some fixed, but unknown value---of the same
-type. The constraint-solver knows how to process pieces of partial
-information about these logical variables in order to determine
-whether some constraint is entailed. At runtime, the same program
-variable will have a concrete value and will perform ``arithmetic''
-(calculations) where the compiler performed ``algebra'' (symbolic
-analysis).
-
-\paragraph{Query evaluation.}
-
-Because OO languages permit arbitrary mutual recursion between
-classes---class {\tt A} and {\tt B} may have fields of type {\tt B} and
-{\tt A} respectively---the type/property graph may have loops. The nodes
-in this graph are base types (class and interface names). There is an
-edge from node {\tt A} to node {\tt B} if {\tt A} has a property whose
-base type is {\tt B}.
-
-Let us define the real-clause of a constrained type {\tt C(:c)} to be
-the set of constraints that must be satisfied by any instance of {\tt
-C(:c)}. This includes {\tt c} but also includes constraints that hold
-for all instances of {\tt C}, as determined by the definition of {\tt
-C}. Let us use the notation $\rc({\tt C})$ for the {\em real clause} of {\tt
-C}. Since we consider only top-level classes, the only free variable in 
-$\rc({\tt C})$ is {\tt self}.
-
-What is $\rc({\tt C}, {\tt X})$ (we have drawn out {\tt X} as the
-formal variable)? Consider a general class definition:
-$$\class\ {\tt C}(\bar{\tt T}\ \bar{\tt x} : c)\extends\ D(:d)\ \{\bar{M}\}$$
-
-\noindent Clearly, from this we get:
-
-$$\rc({\tt C},{\tt X}) \leftrightarrow 
-\begin{array}{l}
-\quad ({\tt c},{\tt d})[{\tt X}/\this] \wedge   \rc({\tt D},{\tt
-X}) \wedge \\
-\quad \rc({\tt P}_1, {\tt X.x}_1)\wedge \cdots \wedge \rc({\tt P}_k, {\tt X.x}_k)
-\end{array}
-$$
-  
-That is, given a program $P$ with classes ${\tt C}_1,\ldots, {\tt
-C}_k$, the set of real-clauses for ${\tt C}_1,\ldots, {\tt C}_k$ are
-defined in a mutually recursive fashion through the Clark completion
-of a Horn clause theory (over an underlying constraint system).
-
-The central algorithmic question now becomes whether given a
-constrained clause {\tt d}, does $\rc({\tt C},{\tt X})$ entail {\tt d}? 
-
-From the above formulation the question is clearly semi-decidable. It
-is not clear however whether it is decidable. This is a direction for
-further work.
-
-In practice, many data-structures have non-cyclic dependency
-graphs. For such programs the real-clause can be computed quickly and
-only a bounded number of questions to the constraint-solver are
-generated during type-checking.
-
-\paragraph{Existential Types.}
-The use of constraints makes existential types very natural.  Consider
-the return type of {\tt filter} above---it specifies that the list
-returned is of some unknown length. The only thing known about it is
-that its size is bounded by {\tt n}. Thus, constrained types naturally
-subsume existential dependent types. Indeed, every base type {\tt C}
-is an ``existential'' constrained type since it does not specify any
-constraint on its properties. Thus, code written with constrained types
-can interact seamlessly with legacy library code---using just base
-types wherever appropriate.
-
-\paragraph{Parametric Consistency.}
-Consider the set of final variables that are referenced in a type {\tt
-T=C(:c)}. These are the {\em parameters} of the type. A type is said
-to be {\em parametrically consistent} if its where clause is solvable
-for each possible assignment of values to parameters.  A
-parametrically consistent type has the property that its extension
-will never be empty. 
-
-Types are required to be parametrically consistent.
-
-\begin{example}[List, revisited] Consider  a variation of List:
-{\footnotesize
-\begin{verbatim}
-class List(int(:self >= 0) n) {
-  Object head;
-  List(n-1: self!= null) tail;
-  ...
-}
-\end{verbatim}}
-The type of the field {\tt tail} is not parametrically
-consistent. There exists a value for its parameter {\tt n}, namely,
-{\tt 0} for which the where clause {\tt self != null =>
-(self.n=this.n-1, self.n >= 0), self!=null} is not satisfiable.
-
-The compiler will throw a type error when it encounters the
-initializer for this field in a constructor since it will not be able
-to prove that the initial value is of the given type.
-
-\end{example}
-
-\paragraph{Runtime type casts.} 
-Constrained types may occur in a class cast {\tt (T) o}.  Code is
-generated to check at runtime that {\tt o} satisfies {\tt T}.
+\subsection{Constraint plugins}
 
 
 \subsection{Claims}
-The paper presents a framework for integrating dependent types into
-Java-like OO languages by augmenting nominal types with constraints on
-properties of the type. This framework is the basis for the design of
-the dependent type system for \Xten{}. The design has been implemented
-in \Xten{} version 1.0 (for a simple equality-based constraint
-system), available at {\tt x10.sf.net}.  The implementation is
+
+The paper presents the design of a constrained types framework
+in \Xten{}.
+THe framework supports
+integrating
+different constraint solvers into the language.
+The design has been implemented
+in \Xten{}.  The \Xten{} compiler, available at \xcd{x10.sf.net}
+implements a simple
+equality-based constraint system.  Constraint solver plugins
+have been implemented for Presburger constraints using the Omega
+library~\cite{omega} and the CVC3 theorem prover~\cite{cvc}.
+The implementation is
 discussed in Section~\ref{sec:impl}.
 
 As in staged languages~\cite{nielson-multistage,ts97-multistage}, the
@@ -466,6 +283,8 @@ We establish subject reduction and progress theorems.
 % XXX contrast with hybrid type checking.
 
 \paragraph{Rest of this paper.}
+
+\ref{TODO} rewrite to agree with the rest of the paper
 
 The next section reviews related work.
 Section~\ref{sec:lang} fleshes out the syntactic and semantic details of the
