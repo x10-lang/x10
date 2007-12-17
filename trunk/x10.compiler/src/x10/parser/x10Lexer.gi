@@ -6,7 +6,7 @@
 %options single_productions
 %options package=x10.parser
 %options template=LexerTemplate.gi
-%options filter=X10KWLexer.gi
+%options filter=x10KWLexer.gi
 
 %Notice
 /.
@@ -18,7 +18,7 @@
 %End
 
 %Import
-    GjavaLexer.gi
+    GJavaLexer.gi
 %End
 
 %Globals 
@@ -35,7 +35,7 @@
     --
     -- Definition of macro used in the included file LexerBasicMapB.g
     --
-    $kw_lexer_class /.$X10KWLexer./
+    $kw_lexer_class /.$x10KWLexer./
 %End
 
 %Export

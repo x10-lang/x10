@@ -1,5 +1,5 @@
 
-//#line 18 "C:/Users/Igor/Work/x10/cvs/SOURCEFORGE/x10.compiler/src/x10/parser/x10.g"
+//#line 18 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -4962,21 +4962,21 @@ public class X10Parserprs implements lpg.runtime.ParseTable, X10Parsersym {
 
     public interface TerminalIndex {
         public final static char terminalIndex[] = {0,
-            12,135,131,134,23,128,109,112,54,56,
-            59,65,72,79,81,91,107,108,110,115,
-            116,117,119,120,121,123,124,125,126,127,
-            133,136,138,24,106,111,113,114,118,122,
-            129,130,132,13,97,21,44,103,94,89,
+            12,136,132,135,23,129,110,113,54,56,
+            59,65,72,79,81,91,108,109,111,116,
+            117,118,120,121,122,124,125,126,127,128,
+            134,137,139,24,106,112,114,115,119,123,
+            130,131,133,13,97,21,44,103,94,89,
             46,47,48,49,50,51,69,83,84,101,
             86,87,92,1,34,17,70,52,28,93,
             3,33,5,20,16,60,42,80,32,25,
             96,105,53,55,62,64,73,75,88,90,
-            95,98,102,40,36,147,31,14,61,100,
+            95,98,102,40,36,148,31,14,61,100,
             104,7,18,39,37,6,10,26,41,57,
             63,4,8,11,15,19,27,30,35,38,
-            67,78,2,9,22,29,76,137,58,68,
-            71,77,82,99,43,85,148,66,74,139,
-            140,141,142,143,144,145,146,149
+            67,78,2,9,22,29,76,138,58,68,
+            71,77,82,99,43,85,107,66,74,140,
+            141,142,143,144,145,146,147,149
         };
     };
     public final static char terminalIndex[] = TerminalIndex.terminalIndex;
@@ -5498,6 +5498,7 @@ public class X10Parserprs implements lpg.runtime.ParseTable, X10Parsersym {
             "volatile",
             "while",
             "activitylocal",
+            "any",
             "async",
             "ateach",
             "atomic",
@@ -5539,7 +5540,6 @@ public class X10Parserprs implements lpg.runtime.ParseTable, X10Parsersym {
             "RIGHT_SHIFT_EQUAL",
             "UNSIGNED_RIGHT_SHIFT_EQUAL",
             "ErrorId",
-            "any",
             "ERROR_TOKEN",
             "TypeName",
             "PackageName",

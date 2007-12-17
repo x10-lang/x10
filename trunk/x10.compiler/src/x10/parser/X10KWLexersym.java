@@ -9,7 +9,7 @@ package x10.parser;
 public interface X10KWLexersym {
     public final static int
       Char_a = 3,
-      Char_b = 15,
+      Char_b = 16,
       Char_c = 7,
       Char_d = 14,
       Char_e = 1,
@@ -32,11 +32,11 @@ public interface X10KWLexersym {
       Char_v = 22,
       Char_w = 19,
       Char_x = 23,
-      Char_y = 16,
+      Char_y = 15,
       Char_z = 25,
       Char_EOF = 26;
 
-      public final static String orderedTerminalSymbols[] = {
+    public final static String orderedTerminalSymbols[] = {
                  "",
                  "e",
                  "t",
@@ -52,8 +52,8 @@ public interface X10KWLexersym {
                  "h",
                  "f",
                  "d",
-                 "b",
                  "y",
+                 "b",
                  "m",
                  "p",
                  "w",
@@ -67,5 +67,6 @@ public interface X10KWLexersym {
                  "j"
              };
 
+    public final static int numTokenKinds = orderedTerminalSymbols.length;
     public final static boolean isValidForParser = true;
 }
