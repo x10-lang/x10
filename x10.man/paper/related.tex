@@ -88,7 +88,10 @@ Our work is most closely related to DML, the extension of ML with dependent type
 With hybrid type-checking~\cite{flanagan-popl06,flanagan-fool06},
 types can be constrained by arbitrary boolean expressions.
 While typing is undecidable, dynamic checks are inserted into
-where the type-checker cannot accept or reject a program.
+the program when necessary if the type-checker cannot determine
+type safety statically.
+In \Xten{} dynamic type checks, including tests of dependent
+clauses, are inserted only at explicit casts.
 
 % Ada dependent types.
 % Ada has constrained array definitions.  A constraint

@@ -47,13 +47,15 @@ constraint terms.
 
 In this form, the constraint is represented as a 
 conjunction of constraints from different theories.  Constraints
-are checked for consistency using a Nelson--Oppen
+are checked for satisfiability using a Nelson--Oppen
 procedure~\cite{nelson-oppen}.
 After constructing a constraint-system specific 
 representation of a conjunct, each plugin computes the set of
 term equalities entailed by the conjunct.  These equalities are
-propagated to the other conjuncts.  If an inconsistency is
-found, an error is reported. 
+propagated to the other conjuncts, which are again checked for
+satisfiability and any new equalities generated are propagated.
+If a conjunct is found to be unsatisfiable, an error is
+reported. 
 
 \if 0
 Individual constraint systems may interpret a conjunct as a

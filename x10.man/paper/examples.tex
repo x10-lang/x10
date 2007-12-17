@@ -353,7 +353,8 @@ Clocks are barriers that are adapted to a context where activities may be
 dynamically created, and are designed so that all clock operations are
 determinate.
 
-For each arity $n$, we introduce a {\em Gentzen predicate} ${\tt
+For each arity $n$, we introduce a {\em Gentzen predicate}
+${\tt 
 clocked(\bar{t})}$. A $k$-ary Gentzen predicate $a$ satisfies the
 property that $a(t_1,\ldots, t_k) \vdash a(s_1,\ldots,s_n)$ iff $k=n$
 and $t_i=s_i$ for $i\leq k$.
@@ -370,18 +371,18 @@ a {\tt clocked} clause. The rule for method elaboration and method invocation th
 $$
 \begin{array}{l}
 \from{ \bar{\tt T}\ \bar{\tt x}, {\tt C}\ \this, {\tt c},\clocked(\bar{\tt k}) \vdash {\tt S}\ {\tt e}, {\tt S} \subtype {\tt T} }   
-\infer{\tt T\ m(\bar{\tt T}\,\bar{\tt x} : c) \clocked(\bar{\tt k})\{\return\ e;\}\ \mbox{OK in}\ C} 
+\infer{\tt T\ m(\bar{\tt T}\,\bar{\tt x} : c) \clocked(\bar{\tt  k})\{\return\ e;\}\ \mbox{OK in}\ C} 
 \\ \quad\\ 
 \rname{T-Invk}%
 \from{\begin{array}{l}
 \Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  \\
-\mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c,clocked(\bar{\tt k}) \rightarrow {\tt S} \\
-\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt Z}_{1:n}\\
-\sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C} {\tt c} \ \ \ 
-\mbox {(${\tt z}_{0:n}$ fresh)} \\
-\Gamma \vdash \clocked(\bar{\tt k})\\
+\mtype({\tt  T}_0,{\tt  m},{\tt  z}_0)= \tt {\tt  Z}_{1:n}\ {\tt  z}_{1:n}:c,clocked(\bar{\tt  k}) \rightarrow {\tt  S} \\
+\Gamma, {\tt  T}_{0:n}\ {\tt  z}_{0:n} \vdash {\tt  T}_{1:n} \subtype {\tt  Z}_{1:n}\\
+\sigma(\Gamma, {\tt  T}_{0:n}\ {\tt  z}_{0:n}) \vdash_{\cal C} {\tt  c} \ \ \ 
+\mbox {(${\tt  z}_{0:n}$ fresh)} \\
+\Gamma \vdash \clocked(\bar{\tt  k})\\
 \end{array}}
-\infer{\Gamma \vdash ({\tt T}_{0:n}\ {\tt z}_{0:n}; S)\ {\tt e}_0.{\tt m({\tt e}_{1:n})}}
+\infer{\Gamma \vdash ({\tt  T}_{0:n}\ {\tt  z}_{0:n}; S)\ {\tt  e}_0.{\tt  m({\tt  e}_{1:n})}}
 \end{array}
 $$
 }
@@ -396,7 +397,7 @@ Capabilities (from Radha and Vijay's paper on neighborhoods)
 \subsection{Activity-local objects}
 
 Parallelism in \Xten{} is supported through lightweight asynchronous {\em
-activities}, created by {\tt async} statements.
+activities}, created by {\tt  async} statements.
 It is often useful to restrict objects so that they are {\em local} to a
 particular activity.
 A local object may be accessed only by
@@ -404,76 +405,76 @@ the activity that created it or by an ancestor of that activity.
 % it may be written only by the activity that created
 % it or by a descendant of that activity.
 Local objects are declared and created by qualifying their type
-with {\tt local}:
+with {\tt  local}:
 \begin{displayxten}
   local C o = new local C();
 \end{displayxten}
 
-To encode local objects in \Xten{}, we add an {\tt activity}
+To encode local objects in \Xten{}, we add an {\tt  activity}
 property to objects:
 \begin{displayxten}
   class Object(Activity activity) { ... }
 \end{displayxten}
 \noindent
-where {\tt Activity} has a possibly null {\tt parent} property:
+where {\tt  Activity} has a possibly null {\tt  parent} property:
 \begin{displayxten}
   class Activity(Activity parent) { ... }
 \end{displayxten}
 \noindent
 
-To track the current activity ({\tt z}), we augment typing judgments
+To track the current activity ({\tt  z}), we augment typing judgments
 as follows:
 \[
-  {\tt z};~\Gamma \vdash {\tt T}\ {\tt e}
+  {\tt  z};~\Gamma \vdash {\tt  T}\ {\tt  e}
 \]
-\noindent where ${\tt Activity}({{\tt z}'})~{\tt z} \in \Gamma$.
-When the current activity is {\tt z},
-we encode the type {\tt local C} as ${\tt C}({\tt z})$.
+\noindent where ${\tt  Activity}({{\tt  z}'})~{\tt  z} \in \Gamma$.
+When the current activity is {\tt  z},
+we encode the type {\tt  local C} as ${\tt  C}({\tt  z})$.
 
-Spawning a new activity with an {\tt async} statement
-introduces a fresh activity ${\tt z}'$:
+Spawning a new activity with an {\tt  async} statement
+introduces a fresh activity ${\tt  z}'$:
 \[
 \from{
-{\tt z}';~\Gamma,~{\tt Activity}({\tt z})~{\tt z'} \vdash {\tt T}\ {\tt e}\ \ \ 
-\mbox{(${\tt z}'$ fresh)}
+{\tt  z}';~\Gamma,~{\tt  Activity}({\tt  z})~{\tt  z'} \vdash {\tt  T}\ {\tt  e}\ \ \ 
+\mbox{(${\tt  z}'$ fresh)}
 }
 \infer{
-{\tt z};~\Gamma \vdash {\tt T}\ ({\tt async}\ {\tt e})
+{\tt  z};~\Gamma \vdash {\tt  T}\ ({\tt  async}\ {\tt  e})
 }
 \]
 The rule \rn{T-Field} is strengthened to require that reads 
-only be performed on objects whose {\tt activity} property is a
+only be performed on objects whose {\tt  activity} property is a
 descendant of the current activity.
 %\rname{T-Field-Local}%
 \[
 \from{
 \begin{array}{ll}
-{\tt z};~\Gamma \vdash {\tt T}_0\ {\tt e} \\
-\mathit{fields}({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f}_i &
-\mbox{(${\tt z}_0$ fresh)} \\
-{\tt z};~\Gamma \vdash {\tt T}_0 \subtype {\tt C}(:{\tt activity} = {\tt z}') &
-\Gamma \vdash {\tt z}~\mathsf{spawns}~{\tt z}'
+{\tt  z};~\Gamma \vdash {\tt  T}_0\ {\tt  e} \\
+\mathit{fields}({\tt  T}_0,{\tt  z}_0)= \bar{\tt  U}\ \bar{\tt  f}_i &
+\mbox{(${\tt  z}_0$ fresh)} \\
+{\tt  z};~\Gamma \vdash {\tt  T}_0 \subtype {\tt  C}(:{\tt  activity} = {\tt  z}') &
+\Gamma \vdash {\tt  z}~\mathsf{spawns}~{\tt  z}'
 \end{array}
 }
-\infer{{\tt z};~\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}_i=\self;{\tt U}_i)\ {\tt e.f}_i}
+\infer{{\tt  z};~\Gamma \vdash ({\tt  T}_0\ {\tt  z}_0; {\tt  z}_0.{\tt  f}_i=\self;{\tt  U}_i)\ {\tt  e.f}_i}
 \]
 
-%\Gamma \vdash {\tt z}_0.{\tt activity} = {\tt z}' &
+%\Gamma \vdash {\tt  z}_0.{\tt  activity} = {\tt  z}' &
 
 \noindent
 where the $\mathsf{spawns}$ relation is defined as follows:
 \[
-\Gamma \vdash {\tt z}~\mathsf{spawns}~{\tt z}
+\Gamma \vdash {\tt  z}~\mathsf{spawns}~{\tt  z}
 \]
 \[
 \from{
-\Gamma \vdash {\tt z_1}~\mathsf{spawns}~{\tt z_2} \ \ \ 
-\Gamma \vdash {\tt z_2}~\mathsf{spawns}~{\tt z_3}}
-\infer{\Gamma \vdash {\tt z_1}~\mathsf{spawns}~{\tt z_3}}
+\Gamma \vdash {\tt  z_1}~\mathsf{spawns}~{\tt  z_2} \ \ \ 
+\Gamma \vdash {\tt  z_2}~\mathsf{spawns}~{\tt  z_3}}
+\infer{\Gamma \vdash {\tt  z_1}~\mathsf{spawns}~{\tt  z_3}}
 \]
 \[
-\from{\Gamma \vdash {\tt z_2}.{\tt parent} = {\tt z_1}}
-\infer{\Gamma \vdash {\tt z_1}~\mathsf{spawns}~{\tt z_2}}
+\from{\Gamma \vdash {\tt  z_2}.{\tt  parent} = {\tt  z_1}}
+\infer{\Gamma \vdash {\tt  z_1}~\mathsf{spawns}~{\tt  z_2}}
 \]
 
 \eat{
