@@ -1,173 +1,65 @@
-Our basic approach to introducing dependent types into
-class-based statically typed OO languages is to
-follow the spirit of generic types, but use values instead of
-types.
+This section describes constrained types in \Xten{}.
 
-We permit the definition of a class {\tt C} to specify
-a list of typed parameters, or {\em properties},
-{\tt (T1 x1, \ldots, Tk xk)} similar in syntactic structure to
-a method argument list. Each
-property in this list is treated as a {\tt public final} instance
-field of the class.
-We also permit the
-specification of a {\em class invariant}, a
-{\em where clause}~\cite{where-clauses}
-in the class definition. A where
-clause is a boolean expression on the properties separated from the
-property list with a ``{\tt :}''.  The compiler ensures that all
-instances of the class created at runtime satisfy the where clause
-associated with the class.
-Thus, for instance, we may specify a class {\tt List} with an
-{\tt int length} property as follows:
-{\footnotesize
-\begin{code}
-  class List(int length: length >= 0) \{...\}
-\end{code}}
+\subsection{Properties}
 
-Given such a definition for a class {\tt C},
-types can be constructed by {\em constraining} the properties of
-{\tt C}.
-In principle, {\em any} boolean expression over the
-properties specifies a type: the type of all instances of the
-class satisfying the boolean expression. Thus,
-{\tt List(:length == 3)} is a permissible type, as are
-{\tt List(:length <= 41)} and even
-{\tt List(:length * f() >= g())}.
+A property is a {\tt public} {\tt final} instance field of the
+class that cannot be overridden by subclassing. Like any other field,
+a property is typed, and its type need not necessarily be
+primitive. Thus, properties capture the immutable public state of an
+object, initialized when the object is created, that can be
+classified by constrained types. Syntactically, properties are
+specified in a parameter list right after the name of the class in a
+class definition. The class body may contain specifications of other
+fields; these fields are considered mutable.
 
-
-Accordingly, a {\em constrained type} is of the form {\tt C(:e)}, the name of
-a class or interface {\tt C}, called the {\em base class}, followed by a
-where clause {\tt e}, called the {\em condition}, a boolean expression
-on the properties of the base class. 
-The denotation, or
-semantic interpretation, of such a type is the set of all instances
-of subclasses of the base class whose properties satisfy the
-condition.
-Clearly, for the denotation of a constrained type $t$ to be
-non-empty the condition of $t$ must be consistent with the class
-invariant, if any, of the base class of $t$.  The compiler is required to
-ensure that the type of any variable declaration is non-empty.
-
-For brevity, we write {\tt C} as a type as well; it
-corresponds to the (vacuously) constrained type {\tt C(:true)}.
-We also permit the syntax {\tt C(t1,\ldots, tk)} for
-the type {\tt C (:x1 = t1, \ldots, xk = tk)} (assuming that
-the property list for {\tt C} specifies the {\tt k} properties {\tt
-x1,\ldots, xk}, and each term {\tt ti} is of the correct
-type). 
-%Thus, using the definition above, {\tt List(n)} is the type of
-%all lists of length {\tt n}.
-
-Constrained types naturally come equipped with a {\em subtyping
-structure}: type $t_1$ is a subtype of $t_2$ if the denotation of
-$t_1$ is a subset of $t_2$. This definition satisfies
-Liskov's Substitution Principle~\cite{liskov-behaviors}),
-and implies that
-{\tt C(:e1)} is a subtype of {\tt C(:e2)} if {\tt e1} implies {\tt e2}.
-In particular, for all conditions {\tt e},
-{\tt C(:e)} is a subtype of {\tt C}.
-{\tt C(:e)} is empty exactly
-when {\tt e} conjoined with {\tt C}'s class invariant is inconsistent.
-
-Two constrained types {\tt C1(:e1)} and {\tt C2(:e2)} are considered
-equivalent if {\tt C1} and {\tt C2} are the same base type and {\tt
-e1} and {\tt e2} are equivalent when considered as logical
-expressions. Thus {\tt C(:x*x=4)} and {\tt C(:x=2 || x=-2)} are
-equivalent types.
-
-\subsection{Method and constructor preconditions}
-
-Methods and constructors may specify preconditions on their parameters
-as where clauses.  For an invocation of a method (or constructor) to
-be type-correct, the associated where clause must be statically known
-to be satisfied. Note that the where clause may contain constraints on
-the properties of {\tt this}. Thus the where clause may be used to
-specify that a method is {\em conditionally} available on some objects
-of the class and not others.
-
-The
-return type of a method may also contain expressions involving the
-arguments to the method. However, we will require
-that any argument used in this way must be declared {\tt final},
-ensuring it is not mutated by the method body.
-For instance:
-\begin{verbatim}
-  List(arg.length-1)
-    tail(final List arg : arg.length > 0) {...}
-\end{verbatim}
-\noindent will be a valid method declaration. It says that
-{\tt tail} must be passed a non-empty list, and it returns a list
-whose length is one less than its argument.
-
-\subsubsection{Method overriding}
-The definitions of method overloading, overriding, hiding, shadowing
-and obscuring in \Xten{} are the same as in \Java, modulo the following
-considerations motivated by dependent types.
-
-The definition of a method declaration {\tt m1} ``having the same
-signature as'' a method declaration {\tt m2} involves identity of
-types. Two \Xten{} types are defined to be identical iff they are
-equivalent.  Two methods are said to have {\em the same signature} if
-(a) they have the same number of formal parameters, (b) for each
-parameter their types are equivalent, and (c) the constraints
-associated with their parameter list (if any) are equivalent.  It is a
-compile-time error for there to be two methods with the same name and
-same signature in a class (either defined in that class or in a
-superclass).
-
-A class {\tt C} inherits from its direct superclass and
-superinterfaces all their methods visible according to the access
-restriction modifiers public/private/protected/(package) of the
-superclass/superinterfaces that are not hidden or overridden. A method
-{\tt M1} in a class {\tt C} overrides a method {\tt M2} in a
-superclass {\tt D} if {\tt M1} and {\tt M2} have the same signature.
-Methods are overridden on a signature-by-signature basis.
-
-Dynamic method lookup does not take dependent type information into
-account, only the class hierarchy. This design decision ensures that
-serious errors such as method invocation errors are captured at
-compile-time. (Such errors can arise because multiple incomparable
-methods with the same name and acceptable argument lists might be
-available at the dynamic dependent type of the subject. Examples are
-not difficult to construct.)
-
-The current \Xten{} compiler produces \Java{} code. It further
-implements the restriction that no two methods for the same class can
-have the same signature after their constraints are erased. This
-simplifies implementation -- no name mangling is needed to preserve
-the dependent type distinction in the generated \Java{} code. However, this does cut down on the usefulness of constrained clauses for method dispatch.
-
-\subsection{Constructors for dependent classes}
-
-Like a method definition,
-a constructor may
-specify preconditions on its arguments
-and a postcondition on the value produced by the constructor.
-
-Postconditions may be specified in a constructor declaration between
-the name of the class and the argument list of the constructor using a
-where clause. The where clause can reference only the properties of
-the class.
-
-For instance, the
-nullary constructor for {\tt List} ensures that the property
-{\tt length} has the value {\tt 0}:
-{\footnotesize
-\begin{verbatim}
-    public List(0)() { property(0); }
-\end{verbatim}}
-The {\tt property} statement is used to set all the properties
-of the new object simultaneously.  Capturing this assignment in
-a single statement simplifies checking that the constructor
-postcondition and class invariant are established.  If a class
-has properties, every path through the constructor must contain
-exactly one {\tt property} statement.
-
-%% Cannot throw an exception.
-
-%% Figure out the real condition. Not sure this is important.
+Properties may be of arbitrary type. For instance, the class {\tt
+region} has an {\tt int} property called {\tt rank}. In turn, the
+class {\tt dist} has a {\tt region} property, called {\tt region}, and
+also an {\tt int} property {\tt rank}.  The invariant for {\tt dist}
+ensures that {\tt rank == region.rank}. Similarly, an array has
+properties {\tt dist}, {\tt region}, and {\tt rank}
+and appropriate constraints ensuring that the statically available
+information about them is consistent.\footnote{All constraint
+languages used in constrained types permit object references, field
+selection and equality. Such constraint systems have been studied
+extensively under the name of ``feature structures''
+\cite{feature-structures}.}
+%
+In this way, rich  
+constraints on the immutable portion of
+the object reference graph, rooted at the current object and utilizing
+objects at user-defined types, may be specified.
 
 \subsection{Constraints}
+A constrained type is of the form {\tt
+C(:e)}, consisting of a {\em base class} {\tt C} and a {\em
+condition} {\tt e}, a boolean expresion on the properties of the
+base class and the {\tt final} variables in scope at the type.
+Constraints specify (possibly) partial information about the
+variables of interest.
+Such a type represents a refinement of {\tt C}---the set of all
+instances of {\tt C} whose immutable state satisfies the condition
+{\tt c}.
+
+Constraints may use the special variable {\tt self} to stand for
+the object whose type is being defined. Thus, {\tt int(:self >= 0)} is
+the set of natural numbers, and {\tt point(:x*x + y*y <= 1.0)}
+represents the interior of a circle (for a class {\tt point} with two
+{\tt float} properties {\tt x} and {\tt y}). The type {\tt C(:self !=
+null)} represents all instances of {\tt C}.\footnote{When there is no
+ambiguity, a property reference {\tt self.x} may be abbreviated to {\tt
+x}.} The type {\tt int(:self==v)} represents a ``singleton'' type, an
+{\tt int} is of this type only if it has the same value as {\tt v}.
+
+Constraints are specified in terms of an underlying
+constraint system~\cite{CCCC}---a pre-defined logical vocabulary of
+functions and predicates with algorithms for consistency and
+entailment.  The \Xten{} compiler permits different constraint
+systems to installed using compiler plugins.~\cite{??}.
+Constraint system plugins define a language of constraints by
+symbolically interpreting
+the boolean expression specifying a type's condition; plugins
+may report an error if the condition cannot be interpreted.
 
 In this framework, types may be constrained by any boolean
 expression over the properties.  For practical reasons,
@@ -199,6 +91,169 @@ constructing constrained types. A field that is ``accidentally'' {\tt
 final} may not be used in the construction of a constrained type. It must be
 declared as a property.
 
+
+\subsection{Subtyping}
+Constrained types naturally come equipped with a subtype relation that
+combines the nominal subtyping relation of classes and interfaces with
+the logical entailment relation of the constraint system. Namely, a
+constraint {\tt C(:c)} is a subtype of {\tt D(:d)} if {\tt C} is a
+subtype of {\tt D} and every value in {\tt C} that satisfies {\tt c}
+also satisfies {\tt d}.
+
+% Thus, the set of constrained types on a base
+% type {\tt C} inherits a lattice structure from the underlying
+% constraint system. The maximal element is {\tt C(:true)}, which is
+% just {\tt C}, and the minimal element is the unsatisfiable constraint.
+
+% Constrained types naturally come equipped with a {\em subtyping
+% structure}: type $t_1$ is a subtype of $t_2$ if the denotation of
+% $t_1$ is a subset of $t_2$.
+This definition 
+% satisfies Liskov's Substitution Principle~\cite{liskov-behaviors}) and
+implies that
+{\tt C(:e1)} is a subtype of {\tt C(:e2)} if {\tt e1} implies {\tt e2}.
+In particular, for all conditions {\tt e},
+{\tt C(:e)} is a subtype of {\tt C}.
+{\tt C(:e)} is empty exactly
+when {\tt e} conjoined with {\tt C}'s class invariant is inconsistent.
+
+Two constrained types {\tt C1(:e1)} and {\tt C2(:e2)} are considered
+equivalent if {\tt C1} and {\tt C2} are the same base type and {\tt
+e1} and {\tt e2} are equivalent when considered as logical
+expressions. Thus {\tt C(:x*x=4)} and {\tt C(:x=2 || x=-2)} are
+equivalent types.
+
+Constrained types may occur wherever normal types occur. In
+particular, they may be used to specify the types of (possibly
+mutable) local variables, properties, (possibly mutable) fields,
+arguments to methods, return types of methods, in casts etc.  Note
+that final local variables as well as final parameters of methods may
+be used to define types. Specifically all the final parameters of a
+method are in scope at the return type of the method and can be used
+to construct the return type.
+
+For example, a method that multiplies two matrices may be specified by:
+\begin{displayxten}
+    class Matrix(int I, int J) {
+      Matrix(I, arg.J) mul(final Matrix(:self.I==this.J) arg) 
+      {...}
+      ...
+    }
+\end{displayxten}
+
+\subsection{Final variables}
+The use of final variables (local variables, method arguments) in
+types has proven to be particularly valuable in practice. The same
+variable that is being used in computation can also be used to specify
+types. There is no need to introduce separate, universally and
+existentially quantified ``index'' variables.
+
+During type-checking, final variables are turned into symbolic
+variables---some fixed but unknown value---of the same type.
+Computation is performed in a constraint-based fashion on such
+variables.
+
+\subsection{Method and constructor preconditions}
+
+Methods and constructors may specify preconditions on their parameters
+as where clauses.  For an invocation of a method (or constructor) to
+be type-correct, the associated where clause must be statically known
+to be satisfied. Note that the where clause may contain constraints on
+the properties of {\tt this}. Thus the where clause may be used to
+specify that a method is {\em conditionally} available on some objects
+of the class and not others.
+
+The
+return type of a method may also contain expressions involving the
+arguments to the method. However, we will require
+that any argument used in this way must be declared {\tt final},
+ensuring it is not mutated by the method body.
+For instance:
+\begin{verbatim}
+  List(arg.length-1)
+    tail(final List arg : arg.length > 0) {...}
+\end{verbatim}
+\noindent will be a valid method declaration. It says that
+{\tt tail} must be passed a non-empty list, and it returns a list
+whose length is one less than its argument.
+
+
+\subsection{Method overloading}
+
+The definitions of method overloading, overriding, hiding,
+shadowing and obscuring in \Xten{} are the same as in
+\Java~\cite{Java3}, modulo the following considerations
+motivated by dependent types.
+
+Our current implementation
+erases dependent type information when compiling to Java. Therefore it
+must be the case that a class does not have two different method
+definitions that conflict with each other when the constrained
+clauses in their types are erased.
+
+\if 0
+The definition of a method declaration {\tt m1} ``having the same
+signature as'' a method declaration {\tt m2} involves identity of
+types. Two \Xten{} types are defined to be identical iff they are
+equivalent.  Two methods are said to have {\em the same signature} if
+(a) they have the same number of formal parameters, (b) for each
+parameter their types are equivalent, and (c) the constraints
+associated with their parameter list (if any) are equivalent.  It is a
+compile-time error for there to be two methods with the same name and
+same signature in a class (either defined in that class or in a
+superclass).
+\fi
+
+A class {\tt C} inherits from its direct superclass and
+superinterfaces all their methods visible according to the access
+restriction modifiers public/private/protected/(package) of the
+superclass/superinterfaces that are not hidden or overridden. A method
+{\tt M1} in a class {\tt C} overrides a method {\tt M2} in a
+superclass {\tt D} if {\tt M1} and {\tt M2} have the same signature.
+Methods are overridden on a signature-by-signature basis.
+
+Dynamic method lookup does not take dependent type information into
+account, only the class hierarchy. This design decision ensures that
+serious errors such as method invocation errors are captured at
+compile-time. (Such errors can arise because multiple incomparable
+methods with the same name and acceptable argument lists might be
+available at the dynamic dependent type of the subject. Examples are
+not difficult to construct.)
+
+The current \Xten{} compiler produces \Java{} code. It further
+implements the restriction that no two methods for the same class can
+have the same signature after their constraints are erased. This
+simplifies implementation---no name mangling is needed to preserve
+the dependent type distinction in the generated \Java{} code.
+However, this approach does cut down on the usefulness of constrained
+clauses for method dispatch.
+
+\subsection{Constructors for dependent classes}
+
+Like a method definition,
+a constructor may
+specify preconditions on its arguments
+and a postcondition on the value produced by the constructor.
+
+Postconditions may be specified in a constructor declaration between
+the name of the class and the argument list of the constructor using a
+where clause. The where clause can reference only the properties of
+the class.
+
+For instance, the
+nullary constructor for {\tt List} ensures that the property
+{\tt length} has the value {\tt 0}:
+{\footnotesize
+\begin{verbatim}
+    public List(0)() { property(0); }
+\end{verbatim}}
+The {\tt property} statement is used to set all the properties
+of the new object simultaneously.  Capturing this assignment in
+a single statement simplifies checking that the constructor
+postcondition and class invariant are established.  If a class
+has properties, every path through the constructor must contain
+exactly one {\tt property} statement.
+
 \java{}-like languages permit constructors to throw exceptions. This
 is necessary to deal with the situation in which the arguments to a
 constructor for a class {\tt C} are such that no object can be
@@ -212,13 +267,15 @@ The compiler's static check for
 non-emptiness of the type of any variable captures these invariant
 violations at compile-time.
 
+%% Cannot throw an exception.
 
-
+%% Figure out the real condition. Not sure this is important.
 
 \subsection{Extending dependent classes}
 
-A class may extend a constrained class, e.g.{} ${\tt \class C(\ldots)\ 
-\extends\ D(:d)\ldots}$. This documents the programmer's intention that
+A class may extend a constrained class, e.g.{}
+${\tt \class\ C(\ldots)\ \extends\ D(:d)\ldots}$.
+This documents the programmer's intention that
 every call to {\tt super} in a constructor for {\tt C} must ensure
 that the invariant {\tt d} is established on the state of the class
 {\tt D}. The expressions in the actual parameter list for the super
@@ -236,17 +293,11 @@ class may involve only the properties of the class being defind.
 \java{} does not allow interfaces to specify instance fields. Rather all
 fields in an interface are final static fields (constants).
 
-\Xten{} supports rich user-definable extensions to the type system by
-allowing the user of a type to construct new constrained types: new
-types that are predicates on the immutable state of the base type.
-For interfaces to support this extension, they must support
-user-definable properties, so that constrained types can be
-built over interfaces.
-
-As with classes, an interface definition may specify properties
-in a 
-list after the name of the interface. Similarly, an interface
-definition may specify a where clause in its property list. Methods
+Since properties play a central role in the specification of
+refinements of a type, it makes sense to permit interfaces to specify
+properties.
+Similarly, an interface
+definition may specify an invariant on its properties.  Methods
 in the body of an interface may have where clauses
 as well.
 
@@ -277,4 +328,115 @@ precondition, if any, is implied by the precondition of the method in
 the interface.
 
 
+\subsection{Separation between compile-time and run-time computation}
+
+Our design distinguishes between compile-time execution (performed
+during type-checking) and run-time execution. At compile-time, the
+compiler processes the abstract syntax tree of the program generating
+queries to the constraint solver. The only computation engine running
+is the constraint-solver, which operates on its own vocabulary of
+predicates and functions. Program variables (such as local variables)
+that occur in types are dealt with symbolically. They are replaced
+with logical variables---some fixed, but unknown value---of the same
+type. The constraint-solver knows how to process pieces of partial
+information about these logical variables in order to determine
+whether some constraint is entailed. At runtime, the same program
+variable will have a concrete value and will perform ``arithmetic''
+(calculations) where the compiler performed ``algebra'' (symbolic
+analysis).
+
+
+\subsection{Query evaluation}
+
+Because object-oriented languages permit arbitrary mutual recursion between
+classes: classes {\tt A} and {\tt B} may have fields of type {\tt B} and
+{\tt A} respectively---the type/property graph may have loops. The nodes
+in this graph are base types (class and interface names). There is an
+edge from node {\tt A} to node {\tt B} if {\tt A} has a property whose
+base type is {\tt B}.
+
+Let us define the real-clause of a constrained type {\tt C(:c)} to be
+the set of constraints that must be satisfied by any instance of {\tt
+C(:c)}. This includes {\tt c} but also includes constraints that hold
+for all instances of {\tt C}, as determined by the definition of {\tt
+C}. Let us use the notation $\rc({\tt C})$ for the {\em real clause} of {\tt
+C}. Since we consider only top-level classes, the only free variable in
+$\rc({\tt C})$ is {\tt self}.
+
+\ref{TODO} not clear, esp. what X is
+
+What is $\rc({\tt C}, {\tt X})$ (we have drawn out {\tt X} as the
+formal variable)? Consider a general class definition:
+$$\class\ {\tt C}(\bar{\tt T}\ \bar{\tt x} : c)~\extends\ D(:d)\ \{\bar{M}\}$$
+
+\noindent Clearly, from this we get:
+
+$$\rc({\tt C},{\tt X}) ~~~ \iff
+\begin{array}{l}
+\quad ({\tt c} \wedge {\tt d})[{\tt X}/\this] \wedge   \rc({\tt D},{\tt X}) \wedge \\
+\quad \rc({\tt P}_1, {\tt X.x}_1)\wedge \cdots \wedge \rc({\tt P}_k, {\tt X.x}_k)
+\end{array}
+$$
+
+That is, given a program $P$ with classes ${\tt C}_1,\ldots, {\tt
+C}_k$, the set of real-clauses for ${\tt C}_1,\ldots, {\tt C}_k$ are
+defined in a mutually recursive fashion through the Clark completion
+of a Horn clause theory (over an underlying constraint system).
+
+The central algorithmic question now becomes whether given a
+constrained clause {\tt d}, does $\rc({\tt C},{\tt X})$ entail {\tt d}? 
+
+From the above formulation the question is clearly semi-decidable. It
+is not clear however whether it is decidable. This is a direction for
+further work.
+
+In practice, many data-structures have non-cyclic dependency
+graphs. For such programs the real-clause can be computed quickly and
+only a bounded number of questions to the constraint-solver are
+generated during type-checking.
+
+\subsection{Existential types}
+
+The use of constraints makes existential types very natural.  Consider
+the return type of {\tt filter} above---it specifies that the list
+returned is of some unknown length. The only thing known about it is
+that its size is bounded by {\tt n}. Thus, constrained types naturally
+subsume existential dependent types. Indeed, every base type {\tt C}
+is an ``existential'' constrained type since it does not specify any
+constraint on its properties. Thus, code written with constrained types
+can interact seamlessly with legacy library code---using just base
+types wherever appropriate.
+
+\subsection{Parametric consistency}
+
+Consider the set of final variables that are referenced in a type {\tt
+T=C(:c)}. These are the {\em parameters} of the type. A type is said
+to be {\em parametrically consistent} if its where clause is solvable
+for each possible assignment of values to parameters.  A
+parametrically consistent type has the property that its extension
+will never be empty. 
+
+Types are required to be parametrically consistent.
+
+Consider  a variation of List from Figure~\ref{fig:list-example}:
+\begin{displayxten}
+class List(int(:self >= 0) n) {
+  Object head;
+  List(n-1: self!= null) tail;
+  ...
+}
+\end{displayxten}
+The type of the field {\tt tail} is not parametrically
+consistent. There exists a value for its parameter {\tt n}, namely,
+{\tt 0} for which the where clause {\tt self != null =>
+(self.n=this.n-1, self.n >= 0), self!=null} is not satisfiable.
+
+The compiler will throw a type error when it encounters the
+initializer for this field in a constructor since it will not be able
+to prove that the initial value is of the given type.
+
+
+\subsection{Run-time type casts}
+Constrained types may occur in a class cast {\tt (T) o}.  Code is
+generated to check at runtime that {\tt o} satisfies {\tt T}.
 

@@ -3,20 +3,127 @@
 %Specify what has been implemented and how. What is interesting about
 %the implementation.
 
-Constrained types are implemented in the \Xten{}
-language.
-Constraints in \Xten{} are conjunctions of equalities over immutable
-side-effect-free expressions.
-
+The \Xten{} compiler provides a framework for writing and
+checking constrained types.  The \Xten{} 
+language, 
+constraints in \Xten{} are conjunctions of equalities over immutable
+side-effect-free expressions.  Compiler plugins may be installed
+that support other constraint languages, Presburger
+constraints (linear inequalities)~\cite{??}.
 
 The \Xten{} compiler is implemented as an extension of
 Java using the Polyglot compiler framework~\cite{ncm03}.
 Expressions used in constrained
 types are type-checked as normal non-dependent \Xten{} expressions;
-no constraint solving is performed.
-A separate compiler pass generates and solves constraints via an
-ask--tell interface~\cite{my-thesis-book}.
+no constraint solving is performed on these expressions.
+During type-checking, constraints are generated and solved using
+the built-in constraint solver or using solvers provided by
+plugins.  The system allows types to constrained by conjunctions
+of constraints in different constraint languages.
 If constraints cannot be solved, an error is reported.
+
+\subsection{Constraint checking}
+
+After type-checking a constraint as a boolean expression {\tt e},
+the abstract syntax tree for
+the boolean expression is transformed into a list of conjuncts.
+{\tt e1 \&\& ... \&\& ek}.  Each conjunct {\tt ei} is given to 
+the installed constraint system plugins, which symbolically
+evaluate the expression to create an internal representation of
+the conjunct.  If no
+constraint system can handle the conjunct, an error is reported.
+
+To interoperate, the constraint solvers must share a common
+vocabulary: constraint terms {\tt t} range over the properties of the
+base type, the final variables in scope at the type (including
+{\tt this}), the special variable {\tt self} representing
+the a value of the type, and field selections {\tt t.f}.
+All
+constraint systems are required to support the trivial
+constraint
+\true, conjunction, existential quantification and equality on
+constraint terms.
+
+
+In this form, the constraint is represented as a 
+conjunction of constraints from different theories.  Constraints
+are checked for consistency using a Nelson--Oppen
+procedure~\cite{nelson-oppen}.
+After constructing a constraint-system specific 
+representation of a conjunct, each plugin computes the set of
+term equalities entailed by the conjunct.  These equalities are
+propagated to the other conjuncts.  If an inconsistency is
+found, an error is reported. 
+
+\if 0
+Individual constraint systems may interpret a conjunct as a
+formula containing constraint-system-specific atomic functions
+{\tt g} and predicates {\tt p}.  
+
+For example, given the constrained type
+{\tt Node(:self.x >= 0 \&\& reachable(self).contains(y))},
+Presburger constraint system interprets the formula as:
+
+a Presburger constraint {\tt self.x >= 0}
+and
+an uninterpreted constraint {\tt `reachable/contains'(self,y)}.
+
+A reachability constraint system interprets the formula with the
+inequality uninterpreted and the reachability constraint
+interpreted.
+
+The base system sees {\tt '>='(self, 0) \&\& 'reachable-contains'(self,y)} 
+
+Neet to propagate implied bindings between terms.  For instance:
+
+{\tt int(:self >= x \&\& self <= x)}
+should be equivalent to the type
+{\tt int(:self == x)}.
+
+By ensuring constraint systems share the same vocabulary and all
+support equality on constraint terms, we can propagate
+equalities between constraint systems.
+cf. Nelson-Oppen.
+
+Constraint systems must not have conflicting or overlaping
+constraints ..XXX
+
+Above, ``,'' binds tighter than ``;''. We use the syntax {\tt
+{\tt T\;x};\;c} for the constraint obtained by existentially
+quantifying the
+variable {\tt x} of type {\tt T} in {\tt c}. {\tt p} ranges over
+the collection of predicates supplied by the underlying
+constraint
+system, and {\tt g} over the collection of functions.
+
+
+
+
+After this translation step, constraints are represented as
+lists of constraint-system-specific conjuncts.
+
+The constraints are checked for consistency as follows.
+\ref{TODO}
+\fi
+
+During type-checking, the type checker needs to determine if the
+type
+{\tt C(:c)} is a subtype of {\tt D(:d)}.  This is true if 
+the base type {\tt C} is a subtype of {\tt D} and if the
+constraint {\tt c} entails {\tt d}.
+
+To check entailment, each constraint solver is asked if
+a given conjunct of {\tt d} is entailed by {\tt c}.
+If any report false, the entailment does not hold and the
+subtyping check fails.
+
+% what if a conjunct of d that makes c unsat is ignored?
+
+% propagation of bindings.
+
+
+
+\subsection{Translation}
 
 After constraint-checking, the \Xten{} code is translated to
 Java in a straightforward manner.  Each dependent class
@@ -59,7 +166,7 @@ For examples, casts are translated as:
 }
 \begin{code}
   $\Lb$(C(:c) e$\Rb$ = 
-    new Object() \{
+    {\bf new} Object() \{
       C cast(C self) \{
         if ($\Lb$c$\Rb$) return self;
         throw new ClassCastException(); \}
