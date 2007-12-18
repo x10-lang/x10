@@ -24,24 +24,24 @@ If constraints cannot be solved, an error is reported.
 
 \subsection{Constraint checking}
 
-After type-checking a constraint as a boolean expression {\tt e},
+After type-checking a constraint as a boolean expression \xcd{e},
 the abstract syntax tree for
 the boolean expression is transformed into a list of conjuncts.
-{\tt e1 \&\& ... \&\& ek}.  Each conjunct {\tt ei} is given to 
+\xcd{e1 \& ... \& ek}.  Each conjunct \xcd{ei} is given to 
 the installed constraint system plugins, which symbolically
 evaluate the expression to create an internal representation of
 the conjunct.  If no
 constraint system can handle the conjunct, an error is reported.
 
 To interoperate, the constraint solvers must share a common
-vocabulary: constraint terms {\tt t} range over the properties of the
+vocabulary: constraint terms \xcd{t} range over the properties of the
 base type, the final variables in scope at the type (including
-{\tt this}), the special variable {\tt self} representing
-the a value of the type, and field selections {\tt t.f}.
+\xcd{this}), the special variable \xcd{self} representing
+the a value of the type, and field selections \xcd{t.f}.
 All
 constraint systems are required to support the trivial
 constraint
-\true, conjunction, existential quantification and equality on
+\xcd{true}, conjunction, existential quantification and equality on
 constraint terms.
 
 
@@ -60,27 +60,27 @@ reported.
 \if 0
 Individual constraint systems may interpret a conjunct as a
 formula containing constraint-system-specific atomic functions
-{\tt g} and predicates {\tt p}.  
+\xcd{g} and predicates \xcd{p}.  
 
 For example, given the constrained type
-{\tt Node(:self.x >= 0 \&\& reachable(self).contains(y))},
+\xcd{Node(:self.x >= 0 \& reachable(self).contains(y))},
 Presburger constraint system interprets the formula as:
 
-a Presburger constraint {\tt self.x >= 0}
+a Presburger constraint \xcd{self.x >= 0}
 and
-an uninterpreted constraint {\tt `reachable/contains'(self,y)}.
+an uninterpreted constraint \xcd{`reachable/contains'(self,y)}.
 
 A reachability constraint system interprets the formula with the
 inequality uninterpreted and the reachability constraint
 interpreted.
 
-The base system sees {\tt '>='(self, 0) \&\& 'reachable-contains'(self,y)} 
+The base system sees \xcd{'>='(self, 0) \&\& 'reachable-contains'(self,y)} 
 
 Neet to propagate implied bindings between terms.  For instance:
 
-{\tt int(:self >= x \&\& self <= x)}
+\xcd{int(:self >= x \&\& self <= x)}
 should be equivalent to the type
-{\tt int(:self == x)}.
+\xcd{int(:self == x)}.
 
 By ensuring constraint systems share the same vocabulary and all
 support equality on constraint terms, we can propagate
@@ -90,13 +90,12 @@ cf. Nelson-Oppen.
 Constraint systems must not have conflicting or overlaping
 constraints ..XXX
 
-Above, ``,'' binds tighter than ``;''. We use the syntax {\tt
-{\tt T\;x};\;c} for the constraint obtained by existentially
+Above, ``,'' binds tighter than ``;''. We use the syntax \xcd{T\;x;\;c} for the constraint obtained by existentially
 quantifying the
-variable {\tt x} of type {\tt T} in {\tt c}. {\tt p} ranges over
+variable \xcd{x} of type \xcd{T} in \xcd{c}. \xcd{p} ranges over
 the collection of predicates supplied by the underlying
 constraint
-system, and {\tt g} over the collection of functions.
+system, and \xcd{g} over the collection of functions.
 
 
 
@@ -110,12 +109,12 @@ The constraints are checked for consistency as follows.
 
 During type-checking, the type checker needs to determine if the
 type
-{\tt C(:c)} is a subtype of {\tt D(:d)}.  This is true if 
-the base type {\tt C} is a subtype of {\tt D} and if the
-constraint {\tt c} entails {\tt d}.
+\xcd{C(:c)} is a subtype of \xcd{D(:d)}.  This is true if 
+the base type \xcd{C} is a subtype of \xcd{D} and if the
+constraint \xcd{c} entails \xcd{d}.
 
 To check entailment, each constraint solver is asked if
-a given conjunct of {\tt d} is entailed by {\tt c}.
+a given conjunct of \xcd{d} is entailed by \xcd{c}.
 If any report false, the entailment does not hold and the
 subtyping check fails.
 
@@ -131,8 +130,8 @@ After constraint-checking, the \Xten{} code is translated to
 Java in a straightforward manner.  Each dependent class
 is translated into a single class of the same name without dependent
 types. The explicit properties of the dependent class are translated
-into {\tt public final} (instance) fields of the target class.
-A {\tt property} statement in a constructor is translated to a
+into \xcd{public final} (instance) fields of the target class.
+A \xcd{property} statement in a constructor is translated to a
 sequence of assignments to initialize the property fields.
 
 For each property, a getter method is also generated in the
@@ -146,11 +145,11 @@ Usually, constrained types are simply translated to
 non-constrained types by erasure; constraints are checked
 statically and need no run-time representation.
 However, dependent types may be used in casts
-and {\tt instanceof} expressions.  Because the constraint syntax
+and \xcd{instanceof} expressions.  Because the constraint syntax
 in \Xten{} is a subset of the \Xten{} expression syntax, run-time tests
 of constrained types are translated to Java
 by evaluating the constraint with
-{\tt self} bound to the expression being tested.
+\xcd{self} bound to the expression being tested.
 For examples, casts are translated as:
 \eat{
 \begin{code}
@@ -168,12 +167,17 @@ For examples, casts are translated as:
 }
 \begin{code}
   $\Lb$(C(:c) e$\Rb$ = 
-    {\bf new} Object() \{
+    \textbf{new} Object() \{
       C cast(C self) \{
-        if ($\Lb$c$\Rb$) return self;
-        throw new ClassCastException(); \}
+        \textbf{if} ($\Lb$c$\Rb$) \textbf{return} self;
+        \textbf{throw new} ClassCastException(); \}
     \}.cast((C) $\Lb$e$\Rb$)
 \end{code}
-\noindent Wrapping the evaluation of {\tt c} in an anonymous class
-ensures the expression {\tt e} is evaluated only once.
+\noindent Wrapping the evaluation of \xcd{c} in an anonymous class
+ensures the expression \xcd{e} is evaluated only once.
+
+To support separate compilation, abstract syntax trees for
+constraints are embedded into the generated Java code, and from
+there into the generated class file.  The compiler reconstructs
+dependent types in referenced class files from their ASTs.
 

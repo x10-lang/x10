@@ -92,9 +92,42 @@ languages.
 
 \subsection{Constrained types}
 
-Our basic approach to introducing constrained types into \Xten{}
-is to follow the spirit of generic types, but to use values
-instead of types.
+\begin{figure}[t!]
+\begin{xten}
+class List(int(:self >= 0) n) {
+  Object head = null;
+  List(n-1) tail = null;
+
+  List(0)() { property(0); }
+  List(1)(Object head) { this(head, new List());}
+  List(tail.n+1)(Object head, List tail) {
+    property(tail.n+1);
+    this.head = head;
+    this.tail = tail;
+  }
+
+  List(n+arg.n) append(final List arg) {
+    return (n==0) ? arg : new List(head, tail.append(arg));
+  }
+
+  List(n) reverse() { return rev(new List()); }
+  List(n+acc.n) rev(final List acc) {
+    return (n==0) ? acc : tail.rev(new List(head, acc));
+  }
+
+  List(:self.n <= this.n) filter(Predicate f) {
+    if (n==0) return this;
+    List(:self.n <= this.n-1) l = tail.filter(f);
+    return (f.isTrue(head)) ? new List(head,l) : l;
+  }
+}
+\end{xten}
+\caption{
+This program implements a mutable list of Objects. The size of a list
+does not change through its lifetime, even though at different points
+in time its head and tail might point to different structures.}
+\label{fig:list-example}
+\end{figure}
 
 We permit the definition of a class \xcd{C} to specify
 a list of typed parameters, or {\em properties},
@@ -149,47 +182,12 @@ the property list for \xcd{C} specifies the \xcd{k} properties
 \xcd{x1}, \ldots, \xcd{xk}, and each term \xcd{ei} is of the correct
 type).
 
-\begin{figure}
-\begin{xten}
-class List(int(:self >= 0) n) {
-  Object head = null;
-  List(n-1) tail = null;
+Constrained types may occur wherever normal types occur. In
+particular, they may be used to specify the types of (possibly
+mutable) local variables, properties, (possibly mutable) fields,
+arguments to methods, return types of methods, in casts etc.
 
-  List(0)() { property(0); }
-  List(1)(Object head) { this(head, new List());}
-  List(tail.n+1)(Object head, List tail) {
-    property(tail.n+1);
-    this.head = head;
-    this.tail = tail;
-  }
-
-  List(n+arg.n) append(final List arg) {
-    return (n == 0) 
-      ? arg : new List(head, tail.append(arg));
-  }
-
-  List(n) reverse() { return rev(new List()); }
-  List(n+acc.n) rev(final List acc) {
-    return (n == 0) 
-     ? acc : tail.rev(new List(head, acc));
-  }
-
-  List(:self.n <= this.n) filter(Predicate f) {
-    if (n==0) return this;
-    List(:self.n <=this.n-1) l = tail.filter(f);
-    return (f.isTrue(head)) ?
-     new List(head,l) : l;
-  }
-}
-\end{xten}
-\caption{
-This program implements a mutable list of Objects. The size of a list
-does not change through its lifetime, even though at different points
-in time its head and tail might point to different structures.}
-\label{fig:list-example}
-\end{figure}
-
-Thus, using the definitions above, \xcd{List(n)}, shown in
+Using the definitions above, \xcd{List(n)}, shown in
 Figure~\ref{fig:list-example}, is the type of all lists of
 length \xcd{n}.
 %
@@ -199,6 +197,10 @@ fields that hold the head and tail of the list.  The properties
 of the
 class are set through the invocation of \xcd{property}\tcd{(\ldots)}
 (analogously to \xcd{super}\tcd{(\ldots)}) in the constructors.
+
+Our basic approach to introducing constrained types into \Xten{}
+is to follow the spirit of generic types, but to use values
+instead of types.
 
 Constructors have ``return
 types'' that can specify an invariant satisfied by the object being
@@ -212,7 +214,7 @@ a singleton list of length \xcd{1}; the third
 returns a list of length \xcd{m+1}, where \xcd{m} is
 the length of the second argument.
 
-In this constructor, as well as 
+In the third constructor, as well as 
 the \xcd{append} and \xcd{rev} method, the return type
 depends on properties of the formal parameters. 
 If an argument appears in a
@@ -259,7 +261,8 @@ The \Xten{} compiler
 implements a simple
 equality-based constraint system.  Constraint solver plugins
 have been implemented for Presburger constraints using the Omega
-library~\cite{omega} and the CVC3 solver~\cite{cvc}.
+library~\cite{omega} and the CVC3 solver~\cite{cvc} and a
+separate set-based constraint system built using CVC3.
 The implementation is
 discussed in Section~\ref{sec:impl}.
 

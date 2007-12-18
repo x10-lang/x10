@@ -26,6 +26,7 @@
       public,return,static,super,switch,synchronized,this,throw,%
       throws,transient,true,try,void,volatile,while,%
       async,atomic,when,foreach,ateach,finish,clock,clocked,%
+      here,%
       self,property,nullable,future},%
    sensitive,%
    morecomment=[l]//,%
@@ -34,20 +35,22 @@
    morestring=[b]',%
   }
 
+\newcommand\codestyle\sf
+
 \lstnewenvironment{displayxten}
-  {\footnotesize\lstset{language=X10,basicstyle=\tt,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em}}
+  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em}}
   {}
 \lstnewenvironment{xten}
-  {\footnotesize\lstset{language=X10,basicstyle=\tt,tabsize=4,columns=fullflexible,captionpos=b}}
+  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b}}
   {}
-\newcommand\inputxten[1]{\footnotesize\lstinputlisting[language=X10,basicstyle=\tt]{#1}}
+\newcommand\inputxten[1]{\lstinputlisting[language=X10,basicstyle=\codestyle\footnotesize,columns=fullflexible,tabsize=4,captionpos=b]{#1}}
 
 
 %\newenvironment{displayxten}{\begin{xten}}{\end{xten}}
 
 
-\newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\tt]{#1}}}
-\newcommand{\tcd}[1]{{\tt{#1}}}
+\newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true]{#1}}}
+\newcommand{\tcd}[1]{{\codestyle{#1}}}
 
 \pagestyle{plain}
 
