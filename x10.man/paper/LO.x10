@@ -1,20 +1,27 @@
-class Owned(Owned owner) { }
+class Owned(Owned owner) {
+    boolean owns(Owned o) {
+        return this == world || this == o.owner || this.owns(o.owner);
+    }
+    
+    Owned(:owner==o)(final Owned o) { property(o); }
 
-class List(Owned valOwner
-         : owner owns valOwner)
-    extends Owned {
-  Owned(valOwner) head;
-  List(this, valOwner) tail;
+    static final Owned(null) world = new Owned(null);
+}
 
-  List(:owner=o, valOwner=v, o owns v)
-      (Owned o, Owned v: o owns v) {
-    super(o);
-    property(v);
-  }
+class List(Owned(:owns(owner)) valOwner)
+    extends Owned
+{
+    Owned(:owner==valOwner) head;
+    List(:owner==this & valOwner==this.valOwner) tail;
 
-  List(this, valOwner) expose() {
-    return tail;
-  }
+    List(:owner==o & valOwner==v)(Owned o, Owned v: o.owns(v)) {
+        super(o);
+        property(v);
+    }
 
-  ...
+    List(:owner==this & valOwner==this.valOwner) tail() {
+        return tail;
+    }
+
+    ...
 }

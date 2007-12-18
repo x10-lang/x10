@@ -271,34 +271,35 @@ OO languages. Hence technically our development of constrained types
 takes the route of an extension to \FJ. But there are several other
 crucial differences as well.
 
+\lstnewenvironment{displayml}
+  {\footnotesize\lstset{language=ML,basicstyle=\tt,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em}}
+  {}
+
 First, \DML{} achieves its separation by not permitting program
 variables to be used in types. Instead, a parallel set of (universally
-or existentially quantified) ``index'' variables have to be
-introduced. For instance the typing of the {\tt app} operation on
+or existentially quantified) ``index'' variables are
+introduced. For instance the typing of the {\tt append} operation on
 lists is provided by:
-
-{\footnotesize
-\begin{verbatim}
+\begin{displayml}
 fun('a)
   append(nil, ys) = ys
- | append(cons(x, xs), ys) = cons(x, append(xs,ys))
+| append(cons(x, xs), ys) = cons(x, append(xs,ys))
 where append <| {m:nat}{n:nat} 
-               'a list(m) * 'a list(n) -> 'a list(m+n)  
-\end{verbatim}}
+              'a list(m) * 'a list(n) -> 'a list(m+n)  
+\end{displayml}
 \noindent in contrast with the direct embedded expression with constrained types:
-{\footnotesize
-\begin{verbatim}
+\begin{displayxten}
 class List(int(:self >= 0) n) {
    Object item;
    List(n-1) tail;
-   List(n+a.n) app(final List a) { 
-     return n==0 ? a : new List(item, tail.app(a));}
+   List(n+a.n) append(final List a) { 
+     return n==0 ? a : new List(item, tail.app(a)); }
    ...
 }
-\end{verbatim}}
+\end{displayxten}
 
 Second, \DML{} permits only variables of basic index sorts known to
-the constraint solver {e.g.{} {\tt bool}, {\tt int}, {\tt nat}) to
+the constraint solver (e.g., {\tt bool}, {\tt int}, {\tt nat}) to
 occur in types. In contrast, constrained types permit program
 variables at any type to occur in constrained types. As with \DML,
 only operations specified by the constraint system are permitted in
