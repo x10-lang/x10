@@ -1,16 +1,14 @@
 class Owned(Owned owner) {
+    Owned(:owner==o)(final Owned o) { property(o); }
+
     boolean owns(Owned o) {
         return this == world || this == o.owner || this.owns(o.owner);
     }
     
-    Owned(:owner==o)(final Owned o) { property(o); }
-
     static final Owned(null) world = new Owned(null);
 }
 
-class List(Owned(:owns(owner)) valOwner)
-    extends Owned
-{
+class List(Owned(:owns(owner)) valOwner) extends Owned {
     Owned(:owner==valOwner) head;
     List(:owner==this & valOwner==this.valOwner) tail;
 

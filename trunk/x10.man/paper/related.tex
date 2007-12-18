@@ -105,9 +105,8 @@ $S(e : \tau)$
 is the type of all values of type $\tau$ that are equal to $e$.
 Term equivalence is
 constructed so that type-checking is decidable.
-The singleton $S(e: \tau)$ can be encoded in CFJ as
-$\tau(:{\tt self} {\tt =} \lfloor e \rfloor)$, where 
-$\lfloor e \rfloor$ lifts $e$ to a constraint term.
+The singleton $S(e: \tau)$ can be encoded in \Xten{} as
+$\tau$\xcd{(:self ==}~$e$\xcd{)}.
 
         % Used for array bounds by Morrisett et al (I think--need
         % to find paper)
@@ -117,16 +116,16 @@ $\lfloor e \rfloor$ lifts $e$ to a constraint term.
 Several languages---gbeta~\cite{ernst99-gbeta},
 Scala~\cite{scala-overview,scala-oopsla05}, J\&~\cite{nqm06} and
 others~\cite{oz01,ocrz-ecoop03}---provide {\em path-dependent
-types}.  For a final access path {\tt p}, {\tt p.type}
-in Scala is the singleton type containing the object {\tt p}.
-In J\& {\tt p.class} is a type containing all objects
-whose run-time class is the same as {\tt p}'s.
-Scala's {\tt p.type} can be encoded in CFJ using an equality
-constraint {\tt C(:self == p)}, where {\tt C} is a supertype of
-{\tt p}'s static type.
+types}.  For a final access path \xcd{p}, {\tt p.type}
+in Scala is the singleton type containing the object \xcd{p}.
+In J\&, {\tt p.class} is a type containing all objects
+whose run-time class is the same as \xcd{p}'s.
+Scala's {\tt p.type} can be encoded in \Xten{} using an equality
+constraint \xcd{C(:self == p)}, where \xcd{C} is a supertype of
+\xcd{p}'s static type.
 \eat{
 These types can be encoded in CFJ by introducing a
-{\tt type} property.
+\xcd{type} property.
 \rn{T-constr}, as
 described in Section~\ref{sec:examples}.
 }
@@ -278,7 +277,7 @@ crucial differences as well.
 First, \DML{} achieves its separation by not permitting program
 variables to be used in types. Instead, a parallel set of (universally
 or existentially quantified) ``index'' variables are
-introduced. For instance the typing of the {\tt append} operation on
+introduced. For instance the typing of the \xcd{append} operation on
 lists is provided by:
 \begin{displayml}
 fun('a)
@@ -299,7 +298,7 @@ class List(int(:self >= 0) n) {
 \end{displayxten}
 
 Second, \DML{} permits only variables of basic index sorts known to
-the constraint solver (e.g., {\tt bool}, {\tt int}, {\tt nat}) to
+the constraint solver (e.g., \xcd{bool}, \xcd{int}, \xcd{nat}) to
 occur in types. In contrast, constrained types permit program
 variables at any type to occur in constrained types. As with \DML,
 only operations specified by the constraint system are permitted in

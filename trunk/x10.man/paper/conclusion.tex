@@ -8,16 +8,18 @@
 %
 %Bibliography (1.5 page)
 
-We have presented a simple design for constrained types
-in \java-like languages. The design considerably enriches the space of
+We have presented the design and implementation of 
+constrained types in \Xten{}.
+The design considerably enriches the space of
 statically checkable types expressible in the language. This is
 particularly important for data-structures such as lists and arrays.
-We have formalized constrained types in a sound extension of FJ,
-Constrained FJ.
+% We have formalized constrained types in a sound extension of FJ,
+% Constrained FJ.
 Several examples of constrained types were presented.
 Constrained types have been implemented in \Xten{}
 and used for place types, clocked types, and array types.
 
+The implementation supports extension with constraint solver plugins.
 In future work,
 we plan to investigate
 optimizations (such as array

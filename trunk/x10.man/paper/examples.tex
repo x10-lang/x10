@@ -146,9 +146,8 @@ collection of two-dimensional points \xcd{(i,j)} with \xcd{i}
 ranging from \xcd{0} to \xcd{200} and \xcd{j} ranging from
 \xcd{1} to \xcd{100}.
 
-We modeled regions and points in CVC~\cite{cvc} to create a
-constraint solver than ensures  
-array bounds
+Regions and points were modeled in CVC~\cite{cvc} to create a
+constraint solver than ensures array bounds
 violations do not occur:
 an array access type-checks if the index point can be statically
 determined to be in the region over which the array is defined.
@@ -194,6 +193,7 @@ property of the point \xcd{ij} (line 17) is
 \xcd{inner && [i:i,d1min:d1max]}, and that this
 region is a subset of \xcd{outer}, the region of the array \xcd{G}.
 
+\eat{
 \subsection{AVL trees and red--black trees}
 
 AVL trees and red-black trees can be modeled so that the
@@ -220,6 +220,7 @@ class Node(boolean isBlack,
                    blackHeight=l.blackHeight) r)
     extends RBTree(l.blackHeight+1) { int value; ... }
 \end{displayxten}
+}
 
 \eat{
 \subsection{Self types and binary methods}
@@ -363,22 +364,27 @@ left subtree will be located at the same place.
 \label{fig:ownership}
 \end{figure}
 
-Figure~\ref{fig:ownership} shows a fragment of a \xcd{List} class, 
-demonstrating how ownership
-types~\cite{ownership-types} can be encoded as constrained
-types using a simple extension of \Xten{}'s built-in equality
-constraint system.
+Using a simple extension of \Xten{}'s built-in equality
+constraint system,
+constrained types can also be used to encode a form of ownership
+types~\cite{ownwership-types}.
+Shows a fragment of a \xcd{List} class with ownership types.
 
-Each \xcd{Owned} object has an \xcd{owner} property.
-Objects also have properties that are used as owner parameters.
+Each \xcd{Owned} object has an \xcd{owner} property.  Objects
+also have properties that are used as owner parameters.
 %
 The \xcd{List} class has an \xcd{owner} property inherited from
 \xcd{Owned} and also declares a \xcd{valOwner} property that is
-instantiated with the owner of the values in the list, stored
-in the \xcd{head} field of each element.
-The \xcd{tail} of the list is owned by the list object itself.
+instantiated with the owner of the values in the list, stored in
+the \xcd{head} field of each element.  The \xcd{tail} of the
+list is owned by the list object itself.
 
-To encode the ``owners as dominators'' property, the owner of
+Ownership type systems enforce an ``owners as dominators''
+property: the ownership relation forms a tree within the object
+graph; a reference is not permitted to point directly to objects
+with a different owner.
+%
+To encode this property, the owner of
 the values \xcd{valOwner} must be contained within the owner
 of the list itself; that is, \xcd{valOwner} must be \xcd{owner}
 or \xcd{valOwner}'s owner must be contained in \xcd{owner}.
@@ -412,11 +418,13 @@ not valid because the \xcd{owner} property is bound to \xcd{xs}:
     List(:owner==xs & valOwner==o) ys = xs.tail();
 \end{displayxten}
 
+\if 0
 \subsection{Disequalities: non-null types}
 
 A constraint system that supports disequalities can be used to
 enforce a non-null invariant on reference types.
 A non-null type \xcd{C} can be written simply as \xcd{C(:self != null)}.
+\fi
 
 \eat{
 \subsection{Clocked types}
