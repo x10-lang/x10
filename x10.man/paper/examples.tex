@@ -132,9 +132,13 @@ double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length =
 
 \subsection{Set constraints: region-based arrays}
 
-\Xten{} takes another approach to ensuring array bounds violations
-do no occur.
-Following ZPL~\cite{ZPL}, arrays in \Xten{}
+Xi and Pfenning proposed using dependent types for eliminating
+array bounds checks~\cite{xi98array}.  A Presburger constraint
+system can be used to keep track of array dimensions and array
+indices to ensure bounds violations do not occur..
+
+\Xten{} takes another approach:
+following ZPL~\cite{ZPL}, arrays in \Xten{}
 are defined over sets of $n$-dimensional {\em index points}
 called {\em regions}~\cite{gps06-arrays}.
 For instance, the region \xcd{[0:200,1:100]} specifies a
@@ -142,35 +146,37 @@ collection of two-dimensional points \xcd{(i,j)} with \xcd{i}
 ranging from \xcd{0} to \xcd{200} and \xcd{j} ranging from
 \xcd{1} to \xcd{100}.
 
-Constrained types ensure array bounds
+We modeled regions and points in CVC~\cite{cvc} to create a
+constraint solver than ensures  
+array bounds
 violations do not occur:
 an array access type-checks if the index point can be statically
 determined to be in the region over which the array is defined.
 
-\eat{
-\[
-\from{\Gamma \vdash {\tt T[.]}(: {\tt c})\ {\tt a} \ \ \
-      \Gamma \vdash {\tt point}(: {\tt d})\ {\tt i} \ \ \ 
-      \sigma(\Gamma, {\tt T[.]}\ {\tt a}) \vdash_{\cal C} {\tt z}.{\tt region} = {\tt y}.{\tt region}}
-\infer{\Gamma \vdash {\tt T}\ {\tt a[i]}}
-\]
-}
-
-Region constraints are subset constraints and have the following syntax:
+Region constraints are subset constraints
+written as calls to the \xcd{contains}
+method of the \xcd{region} class.
+Constraints have the following syntax:
 
 \begin{tabular}{rrcl}
-  (Constraint)   &\xcd{c} &::=& $\xcd{r} \subseteq \xcd{r}$ \bnf \dots \\
-  (Region) &{\tt r} &::=& {\tt t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf  \\
-           &        &   & {\tt r|r} \bnf {\tt r{\&}r} \bnf {\tt r-r} \bnf {\tt r+p} \\
-  (Point)  &{\tt p} &::=& ${\tt t} \bnf [{\tt b}_1,\ldots,{\tt b}_k]$ \\
-(Integer)&{\tt b},{\tt d} &::=& ${\tt t} \bnf {\tt n}$ \\
+  (Constraint)   &\xcd{c} &::=& \xcd{r.contains(r)} \\
+  (Region) &\xcd{r} &::=& \xcd{t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf  \\
+           &        &   & \xcd{r || r} \bnf \xcd{r && r} \bnf
+           \xcd{r - r} \bnf \xcd{r + p} \bnf \xcd{r - p} \\
+  (Point)  &\xcd{p} &::=& \xcd{t} \bnf $[{\tt b}_1,\ldots,{\tt b}_k]$ \\
+(Integer)&\xcd{b},\xcd{d} &::=& \xcd{t} \bnf \xcd{n} \\
 \end{tabular}
 
 \noindent
-Regions used in constraints are either constraint terms {\tt t},
-region constants, unions ({\tt |}), intersections ({\tt \&}),
-or differences ({\tt -}), or regions where each point is
-offset by another point {\tt p}.
+where \xcd{t} are constraint terms (properties and final variables)
+and \xcd{n} are integer literals.
+
+Regions used in constraints are either constraint terms \xcd{t},
+region constants, unions (\xcd{||}), intersections (\xcd{&&}),
+or differences (\xcd{-}), or regions where each point is
+offset by another point \xcd{p} using \xcd{+} or \xcd{-}.
+
+% $\xcd{r}_1$\xcd{.contains(}$\xcd{r}_2$\xcd{)}.
 
 \begin{figure}
 \footnotesize
@@ -182,11 +188,11 @@ offset by another point {\tt p}.
 \end{figure}
 
 For example, the code in Figure~\ref{fig:sor} performs a successive
-over-relaxation~\cite{sor} of an $n \times n$ matrix {\tt G}.
-The type-checker establishes that the {\tt region}
-property of the point {\tt ij} (line 17) is
-{\tt inner \& [i:i,d1min:d1max]}, and that this
-region is a subset of {\tt outer}, the region of the array {\tt G}.
+over-relaxation~\cite{sor} of an $n \times n$ matrix \xcd{G}.
+The type-checker establishes that the \xcd{region}
+property of the point \xcd{ij} (line 17) is
+\xcd{inner && [i:i,d1min:d1max]}, and that this
+region is a subset of \xcd{outer}, the region of the array \xcd{G}.
 
 \subsection{AVL trees and red--black trees}
 
