@@ -1,28 +1,17 @@
-\Xten{} is a modern object-oriented language designed for productivity
-and performance in concurrent and distributed systems, such as
-(heterogeneous) multicores and clusters. In this context, dependent
-types arise naturally: objects may be located at one of many places,
-arrays may be multidimensional, activities may be associated with one
-or more clocks, variables may be marked as shared or private following
-an ownership discipline, etc.  A framework for dependent types offers
-significant opportunities for detecting design errors statically,
-documenting design decisions, eliminating costly runtime checks
-(e.g., for array bounds, null values), and improving the quality of
-generated code.
+\Xten{} is a modern object-oriented language designed for productivity and
+performance in concurrent and distributed systems.  In this setting, dependent
+types offer significant opportunities for detecting design errors statically,
+documenting design decisions, eliminating costly runtime checks (e.g., for
+array bounds, null values), and improving the quality of generated code.
 
-We present the design and implementation of constraint-based
-dependent types in \Xten{}.
-The system is parametric on an underlying constraint
-system {\cal C}: the compiler provides a framework that supports extension
-with new constraint systems using compiler 
-plugins.
-Classes and interfaces are associated with {\em
-properties} (= final instance fields). A type \xcd{C(:c)} names a class
-or interface \xcd{C} and a {\em constraint} \xcd{c} on the
-properties of \xcd{C} and in-scope final variables.  Constraints
-may also be associated with class definitions (representing
-class invariants) and with method and constructor definitions
-(representing preconditions). Dynamic casting is permitted.
+We present the design and implementation of {\em constrained types},
+a natural, simple, clean, and expressive extension to object-oriented
+programming: A type \xcd{C(:c)} names a class or interface \xcd{C} and a {\em
+constraint} \xcd{c} on the immutable state of \xcd{C} and in-scope final
+variables.  Constraints may also be associated with class definitions
+(representing class invariants) and with method and constructor definitions
+(representing preconditions).  Dynamic casting is permitted.  The system is
+parametric on the underlying constraint system: the compiler supports a simple
+equality-based constraint system but, in addition, supports extension with new
+constraint systems using compiler plugins.
 
-In conclusion, we believe that constrained types offer a natural,
-simple, clean, and expressive extension to OO programming.
