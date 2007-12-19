@@ -59,18 +59,18 @@ a list with type
 the returned \xcd{List}; \xcd{this.n} is the length of the 
 receiver of the call to \xcd{filter}.
 
-
 Constraints are specified in terms of an underlying
 constraint system~\cite{CCCC}---a pre-defined logical vocabulary of
 functions and predicates with algorithms for consistency and
 entailment.  The \Xten{} compiler permits different constraint
 systems to be installed using compiler plugins.~\cite{??}.
+%
 Constraint system plugins define a language of constraints by
 symbolically interpreting
 the boolean expression specifying a type's condition; plugins
 may report an error if the condition cannot be interpreted.
 
-In this framework, types may be constrained by any boolean
+In principle, types may be constrained by any boolean
 expression over the properties.  For practical reasons,
 restrictions need to be imposed to ensure constraint checking is
 decidable.
@@ -318,7 +318,7 @@ Our design distinguishes between compile-time execution (performed
 during type-checking) and run-time execution. At compile-time, the
 compiler processes the abstract syntax tree of the program generating
 queries to the constraint solver. The only computation engine running
-is the constraintnsolver, which operates on its own vocabulary of
+is the constraint solver, which operates on its own vocabulary of
 predicates and functions. Program variables (such as local variables)
 that occur in types are dealt with symbolically. They are replaced
 with logical variables---some fixed, but unknown value---of the same
@@ -329,8 +329,9 @@ variable will have a concrete value and will perform ``arithmetic''
 (calculations) where the compiler performed ``algebra'' (symbolic
 analysis).
 
-Constrained types may occur in a class cast \xcd{(T) o}.  Code is
-generated to check at run time that \xcd{o} satisfies \xcd{T}.
+Constrained types may occur in a class cast \xcd{(T)}\;\xcd{e}.  Code is
+generated to check at run time that the expression \xcd{e}
+satisfies any constraints in \xcd{T}.
 
 \subsection{Query evaluation}
 
@@ -341,48 +342,48 @@ in this graph are base types (class and interface names). There is an
 edge from node \xcd{A} to node \xcd{B} if \xcd{A} has a property whose
 base type is \xcd{B}.
 
-Let us define the real-clause of a constrained type \xcd{C(:c)} to be
+Let us define the {\em real clause} of a constrained type \xcd{C(:c)} to be
 the set of constraints that must be satisfied by any instance of
-\xcd{
-C(:c)}. This includes \xcd{c} but also includes constraints that hold
-for all instances of \xcd{C}, as determined by the definition of
-\xcd{
-C}. Let us use the notation $\rc({\tt C})$ for the {\em real
-clause} of \xcd{
-C}. Since we consider only top-level classes, the only free variable in
-$\rc({\tt C})$ is \xcd{self}.
+\xcd{C(:c)}. This includes not only the condition \xcd{c} but also
+constraints that hold for all instances of \xcd{C}, as
+determined by \xcd{C}'s class invariant. Let 
+$\rc({\tt C(:c)})$ denote the {\em real clause} of \xcd{C(:c)}.
+For simplicity, we consider only top-level classes; thus, the
+only free variable
+in $\rc({\tt C(:c)})$ is \xcd{self}.  We draw out \xcd{self} as a
+formal parameter and write $\rc({\tt C(:c)}, {\tt X})$
+for $\rc({\tt C(:c}[{\tt X}/\mbox{\xcd{self}}]))$.
 
-\ref{TODO} not clear, esp. what X is
-
-What is $\rc({\tt C}, {\tt X})$ (we have drawn out \xcd{X} as the
-formal variable)? Consider a general class definition:
+Consider a general class definition:
 \begin{displayxten}
-class C(T1 x1, ..., Tk xk: c) extends D(:d) { ... }
+class C(C$_k$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c) extends D(:d) { ... }
 \end{displayxten}
 
-\noindent Clearly, from this we get:
+\noindent From this, we get:
 
 $$\rc({\tt C},{\tt X}) ~~~ \iff
 \begin{array}{l}
-\quad ({\tt c} \wedge {\tt d})[{\tt X}/\this] \wedge   \rc({\tt D},{\tt X}) \wedge \\
-\quad \rc({\tt P}_1, {\tt X.x}_1)\wedge \cdots \wedge \rc({\tt P}_k, {\tt X.x}_k)
+\quad  ({\tt c} \wedge {\tt d})[{\tt X}/\this]
+\;\wedge\; \rc({\tt D},{\tt X}) \;\wedge \\
+\quad  \rc(\mbox{\tcd{C$_1$(:c$_1$)}}, {\tt X.x}_1) \;\wedge\; \cdots
+\;\wedge\; \rc(\mbox{\tcd{C$_k$(:c$_k$)}}, {\tt X.x}_k)
 \end{array}
 $$
 
 That is, given a program $P$ with classes ${\tt C}_1,\ldots, {\tt
-C}_k$, the set of real-clauses for ${\tt C}_1,\ldots, {\tt C}_k$ are
+C}_k$, the set of real clauses for ${\tt C}_1,\ldots, {\tt C}_k$ are
 defined in a mutually recursive fashion through the Clark completion
 of a Horn clause theory (over an underlying constraint system).
 
 The central algorithmic question now becomes whether given a
-constrained clause {\tt d}, does $\rc({\tt C},{\tt X})$ entail {\tt d}? 
-
+constrained clause {\tt d}, does $\rc(\mbox{\tt C(:c)},{\tt X})$ entail {\tt d}? 
+%
 From the above formulation the question is clearly semi-decidable. It
 is not clear however whether it is decidable. This is a direction for
 further work.
 
-In practice, many data-structures have non-cyclic dependency
-graphs. For such programs the real-clause can be computed quickly and
+In practice, many data structures have non-cyclic dependency
+graphs. For such programs the real clause can be computed quickly and
 only a bounded number of questions to the constraint-solver are
 generated during type-checking.
 
@@ -405,13 +406,10 @@ types wherever appropriate.
 Consider the set of final variables that are referenced in a
 type \xcd{T} = \xcd{C(:c)}. These are the {\em parameters} of
 the type. A type is said to be {\em parametrically consistent}
-if its where clause is solvable for each possible assignment of
+if its where clause \xcd{c} is solvable for each possible assignment of
 values to parameters.  A parametrically consistent type has the
 property that its extension will never be empty. 
-
 Types are required to be parametrically consistent.
-
-\ref{TODO} syntax of tail's type not explained
 
 Consider  a variation of List from Figure~\ref{fig:list-example}:
 \begin{displayxten}
@@ -422,9 +420,10 @@ class List(int(:self >= 0) n) {
 }
 \end{displayxten}
 The type of the field \xcd{tail} is not parametrically
-consistent. There exists a value for its parameter \xcd{n}, namely,
-\xcd{0} for which the real clause \xcd{self != null &
-self.n == this.n-1 & self.n >= 0} is not satisfiable.
+consistent. There exists a value for its parameter \xcd{n}, namely
+\xcd{0}, for which the real clause \xcd{self}~\xcd{!=}~\xcd{null} \xcd{&}
+\xcd{self.n}~\xcd{==}~\xcd{this.n-1} \xcd{&}
+\xcd{self.n}~\xcd{>=}~\xcd{0} is not satisfiable.
 
 The compiler will throw a type error when it encounters the
 initializer for this field in a constructor since it will not be able

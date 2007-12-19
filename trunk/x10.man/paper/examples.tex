@@ -379,6 +379,9 @@ instantiated with the owner of the values in the list, stored in
 the \xcd{head} field of each element.  The \xcd{tail} of the
 list is owned by the list object itself.
 
+\Xten{}'s equality-based constraint system is sufficient for
+tracking object ownership, however is does not capture all
+properties of ownership type systems.
 Ownership type systems enforce an ``owners as dominators''
 property: the ownership relation forms a tree within the object
 graph; a reference is not permitted to point directly to objects
