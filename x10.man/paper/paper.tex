@@ -5,6 +5,7 @@
 \usepackage{txtt}
 \usepackage{stmaryrd}
 \usepackage{code}
+\usepackage{bcprules}
 %\usepackage{ttquot}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -38,7 +39,7 @@
 \newcommand\codestyle\tt
 
 \lstnewenvironment{displayxten}
-  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em}}
+  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,mathescape=true}}
   {}
 \lstnewenvironment{xten}
   {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b}}
@@ -49,7 +50,7 @@
 %\newenvironment{displayxten}{\begin{xten}}{\end{xten}}
 
 
-\newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true]{#1}}}
+\newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true,columns=fullflexible]{#1}}}
 \newcommand{\tcd}[1]{{\codestyle{#1}}}
 
 \pagestyle{plain}
@@ -126,7 +127,7 @@ Department~of~Computer~Science, University~of~Denver,
 \section{Related work}\label{sec:related}
 \input{related}
 
-\section{Conclusion and Future work}\label{sec:future}\label{sec:conclusions}
+\section{Conclusion and future work}\label{sec:future}\label{sec:conclusions}
 %\input{future}
 \input{conclusion}
 
