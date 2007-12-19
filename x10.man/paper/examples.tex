@@ -24,8 +24,7 @@ idioms and
 object-oriented type systems can be captured naturally using
 constrained types: specifically we discuss types for places,
 aliases,
-ownership, arrays and clocks. We have implemented the type
-system
+ownership, arrays and clocks.  \ref{TODO}
 
 %
 \ref{TODO}
@@ -128,7 +127,55 @@ double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length =
 \end{xten}
 }
 
-\subsection{Presburger constraints: blocked LU factorization}
+% \subsection{Presburger constraints: blocked LU factorization}
+
+\subsection{Equality constraints}
+
+The \Xten{} compiler includes a simple equality-based constraint
+system.  Constraints are conjunctions of equalities (using \xcd{==}) between
+constraint terms: properties, \xcd{final} variables, 
+compile-time constants, and \xcd{self}.  Equalities constraints
+are used throughout \Xten{} programs.  For example, to ensure
+$n$-dimensional arrays are indexed only be $n$-dimensional
+index points, the array access operation requires that the
+array's \xcd{rank} property be equal to the index's \xcd{rank}.
+
+\subsection{Equality constraints with disjunction: place types}
+
+This example is due to Satish Chandra. We wish to specify a balanced
+distributed tree with the property that its right child is always at
+the same place as its parent, and once the left child is at the same
+place then the entire subtree is at that place.  In
+\Xten{}, every object has a field {\tt location} of type
+{\tt place} that specifies the location at which the object is located.
+%
+The desired property may be specified thus:
+\begin{displayxten}
+class Tree(boolean localLeft) extends Object {
+  Tree(:! this.localLeft || (location==here && self.localLeft)) left; 
+  Tree(:location==here) right);
+  ...
+}
+\end{displayxten}
+The constraint on \xcd{left} states that if
+the \xcd{localLeft} property is true, then the location 
+of the \xcd{left} child must be \xcd{here} and its
+\xcd{localLeft} property must be set.
+This ensures, recursively, that the entire
+left subtree will be located at the same place.
+
+\subsection{Presburger constraints}
+
+Presburger constraints are linear integer inequalities.
+A constraint solver plugin was implemented using a port to Java of the
+Omega library.~\cite{omega,scale}  A separate implementation
+of a Presburger constraint solver was implemented using
+CVC3~\cite{cvc}. 
+
+Presburger constraints are particularly useful in a
+high-performance computing setting where array operations are
+pervasive.  These constraints can be used to ensure array
+indices are withing the bounds of an array~\cite{xi98array}.
 
 \subsection{Set constraints: region-based arrays}
 
@@ -139,9 +186,10 @@ indices to ensure bounds violations do not occur..
 
 \Xten{} takes another approach:
 following ZPL~\cite{ZPL}, arrays in \Xten{}
-are defined over sets of $n$-dimensional {\em index points}
-called {\em regions}~\cite{gps06-arrays}.
-For instance, the region \xcd{[0:200,1:100]} specifies a
+are defined over
+{\em regions},
+sets of $n$-dimensional {\em index points}~\cite{gps06-arrays}.
+For instance, the region \xcd{[0:200,}\xcd{1:100]} specifies a
 collection of two-dimensional points \xcd{(i,j)} with \xcd{i}
 ranging from \xcd{0} to \xcd{200} and \xcd{j} ranging from
 \xcd{1} to \xcd{100}.
@@ -157,13 +205,15 @@ written as calls to the \xcd{contains}
 method of the \xcd{region} class.
 Constraints have the following syntax:
 
-\begin{tabular}{rrcl}
+\begin{tabular}{r@{\quad}rcl}
+\\
   (Constraint)   &\xcd{c} &::=& \xcd{r.contains(r)} \\
   (Region) &\xcd{r} &::=& \xcd{t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf  \\
            &        &   & \xcd{r || r} \bnf \xcd{r && r} \bnf
            \xcd{r - r} \bnf \xcd{r + p} \bnf \xcd{r - p} \\
   (Point)  &\xcd{p} &::=& \xcd{t} \bnf $[{\tt b}_1,\ldots,{\tt b}_k]$ \\
 (Integer)&\xcd{b},\xcd{d} &::=& \xcd{t} \bnf \xcd{n} \\
+\\
 \end{tabular}
 
 \noindent
@@ -177,7 +227,7 @@ offset by another point \xcd{p} using \xcd{+} or \xcd{-}.
 
 % $\xcd{r}_1$\xcd{.contains(}$\xcd{r}_2$\xcd{)}.
 
-\begin{figure}
+\begin{figure}[t]
 \footnotesize
 
 \inputxten{sor.x10}
@@ -332,33 +382,9 @@ void quicksort(T[] array, int left, int right : left <= right) {
 }
 
 
-\subsection{Place types}
-
-This example is due to Satish Chandra. We wish to specify a balanced
-distributed tree with the property that its right child is always at
-the same place as its parent, and once the left child is at the same
-place then the entire subtree is at that place.  In
-\Xten{}, every object has a field {\tt location} of type
-{\tt place} that specifies the location at which the object is located.
-%
-The desired property may be specified thus:
-\begin{displayxten}
-class Tree(boolean localLeft) extends Object {
-  Tree(:! this.localLeft || (location==here && self.localLeft)) left; 
-  Tree(:location==here) right);
-  ...
-}
-\end{displayxten}
-The constraint on \xcd{left} states that if
-the \xcd{localLeft} property is true, then the location 
-of the \xcd{left} child must be \xcd{here} and its
-\xcd{localLeft} property must be set.
-This ensures, recursively, that the entire
-left subtree will be located at the same place.
-
 \subsection{Ownership constraints}
 
-\begin{figure}
+\begin{figure}[t]
 \inputxten{LO.x10}
 \caption{Ownership types}
 \label{fig:ownership}

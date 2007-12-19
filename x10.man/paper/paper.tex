@@ -19,6 +19,8 @@
 \usepackage{ifpdf}
 \usepackage{listings}
 
+\hfuzz=1pt
+
 \lstdefinelanguage{X10}%
   {morekeywords={abstract,break,case,catch,class,%
       const,continue,default,do,else,extends,false,final,%
@@ -39,18 +41,17 @@
 \newcommand\codestyle\tt
 
 \lstnewenvironment{displayxten}
-  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,mathescape=true}}
+  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,mathescape=true,keepspaces=true}}
   {}
 \lstnewenvironment{xten}
   {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b}}
   {}
-\newcommand\inputxten[1]{\lstinputlisting[language=X10,basicstyle=\codestyle\footnotesize,columns=fullflexible,tabsize=4,captionpos=b]{#1}}
-
+\newcommand\inputxten[1]{\lstinputlisting[language=X10,basicstyle=\codestyle\footnotesize,columns=fullflexible,tabsize=4,captionpos=b,keepspaces]{#1}}
 
 %\newenvironment{displayxten}{\begin{xten}}{\end{xten}}
 
 
-\newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true,columns=fullflexible]{#1}}}
+\newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true,columns=flexible,breaklines]{#1}}}
 \newcommand{\tcd}[1]{{\codestyle{#1}}}
 
 \pagestyle{plain}
@@ -92,7 +93,7 @@
 \authorrunning{Vijay Saraswat et al.}
 
 \institute{IBM T.~J. Watson Research~Center, P.O.~Box~704, Yorktown~Heights NY 10598 USA,
-\email{vsaraswa@us.ibm.com}
+\email{\{vsaraswa,nystrom\}@us.ibm.com}
 \and
 UCLA~Computer~Science~Department,
 Boelter~Hall, Los~Angeles CA 90095 USA,
