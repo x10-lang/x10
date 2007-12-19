@@ -382,9 +382,12 @@ From the above formulation the question is clearly semi-decidable. It
 is not clear however whether it is decidable. This is a direction for
 further work.
 
+The \Xten{} compiler is conservative and rejects
+programs with cyclic dependency graphs.
+%
 In practice, many data structures have non-cyclic dependency
 graphs. For such programs the real clause can be computed quickly and
-only a bounded number of questions to the constraint-solver are
+only a bounded number of questions to the constraint solver are
 generated during type-checking.
 
 \eat{
