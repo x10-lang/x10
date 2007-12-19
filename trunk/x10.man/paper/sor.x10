@@ -13,7 +13,7 @@ void sor(double omega, final double[:rank==2] G, int iter) {
 	if (d1.size() == 0) return;
 	
 	final int d1min = d1.low();
-	final int d1max = d1.low();
+	final int d1max = d1.high();
 	
 	for (int off = 1; off <= iter*2; off++)
 		finish foreach (point[i] : d0)

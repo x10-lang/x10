@@ -19,19 +19,23 @@ The following section presents example uses of constrained types
 using several different
 constraint systems.
 %
+\eat{
 Many common object-oriented
 idioms and
 object-oriented type systems can be captured naturally using
 constrained types: specifically we discuss types for places,
 aliases,
 ownership, arrays and clocks.  \ref{TODO}
+}
 
-%
+\eat{
 \ref{TODO}
 Many of these constraint systems are more
 expressive than the constraint system implemented in the current
 \Xten{} compiler and have not (yet) been implemented.
+}
 
+\eat{
 \ref{TODO}
 In the following we will use the shorthand $\tt C(\bar{t}:c)$ for the
 type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
@@ -39,6 +43,7 @@ type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
 we abbreviate $\tt C(\bar{t}:\true)$ as $\tt C(\bar{t})$.
 Finally, we use the shorthand $\tt T\;x=t;~c$ for the constraint
 $\tt T\;x;~x=t;~c$.
+}
 
 \eat{
 Finally, we
@@ -134,12 +139,27 @@ double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length =
 The \Xten{} compiler includes a simple equality-based constraint
 system.  Constraints are conjunctions of equalities (using \xcd{==}) between
 constraint terms: properties, \xcd{final} variables, 
-compile-time constants, and \xcd{self}.  Equalities constraints
+compile-time constants, and \xcd{self}:
+
+\begin{tabular}{r@{\quad}rcl}
+\\
+    (C Term) & \xcd{t} &{::=}& \xcd{x} \alt \xcd{this} \alt
+    \xcd{self} \alt \xcd{t.f} \alt $n$ \\
+(Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true} \alt \xcd{t == t} \alt \xcd{c && c}\alt \xcd{T x; c} \\
+\\
+\end{tabular}
+
+\noindent
+We use the syntax \xcd{T x; c} for the constraint obtained by existentially
+quantifying the variable \xcd{x} of type \xcd{T} in \xcd{c}.
+
+Equalities constraints
 are used throughout \Xten{} programs.  For example, to ensure
 $n$-dimensional arrays are indexed only be $n$-dimensional
 index points, the array access operation requires that the
 array's \xcd{rank} property be equal to the index's \xcd{rank}.
 
+\eat{
 \subsection{Equality constraints with disjunction: place types}
 
 This example is due to Satish Chandra. We wish to specify a balanced
@@ -152,17 +172,16 @@ place then the entire subtree is at that place.  In
 The desired property may be specified thus:
 \begin{displayxten}
 class Tree(boolean localLeft) extends Object {
-  Tree(:! this.localLeft || (location==here && self.localLeft)) left; 
+  Tree(:!this.localLeft || (location==here && self.localLeft)) left; 
   Tree(:location==here) right);
   ...
 }
 \end{displayxten}
-The constraint on \xcd{left} states that if
-the \xcd{localLeft} property is true, then the location 
-of the \xcd{left} child must be \xcd{here} and its
-\xcd{localLeft} property must be set.
-This ensures, recursively, that the entire
-left subtree will be located at the same place.
+The constraint on \xcd{left} states that if the \xcd{localLeft} property is
+true for the current node, then the location of the \xcd{left} child must be
+\xcd{here} and its \xcd{localLeft} property must be set.  This ensures,
+recursively, that the entire left subtree will be located at the same place.
+}
 
 \subsection{Presburger constraints}
 
@@ -207,10 +226,13 @@ Constraints have the following syntax:
 
 \begin{tabular}{r@{\quad}rcl}
 \\
-  (Constraint)   &\xcd{c} &::=& \xcd{r.contains(r)} \\
-  (Region) &\xcd{r} &::=& \xcd{t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf  \\
-           &        &   & \xcd{r || r} \bnf \xcd{r && r} \bnf
-           \xcd{r - r} \bnf \xcd{r + p} \bnf \xcd{r - p} \\
+  (Constraint)   &\xcd{c} &::=& \xcd{r.contains(r)} \bnf \dots \\
+  (Region) &\xcd{r} &::=& \xcd{t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf
+           \xcd{r || r} \bnf \xcd{r && r} \bnf
+           \xcd{r - r}
+           \\
+           &        &  \bnf &
+           \xcd{r + p} \bnf \xcd{r - p} \\
   (Point)  &\xcd{p} &::=& \xcd{t} \bnf $[{\tt b}_1,\ldots,{\tt b}_k]$ \\
 (Integer)&\xcd{b},\xcd{d} &::=& \xcd{t} \bnf \xcd{n} \\
 \\
@@ -393,7 +415,7 @@ void quicksort(T[] array, int left, int right : left <= right) {
 Using a simple extension of \Xten{}'s built-in equality
 constraint system,
 constrained types can also be used to encode a form of ownership
-types~\cite{ownwership-types}.
+types~\cite{ownership-types,liskov-popl2003}.
 Shows a fragment of a \xcd{List} class with ownership types.
 
 Each \xcd{Owned} object has an \xcd{owner} property.  Objects
