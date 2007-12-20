@@ -195,10 +195,9 @@ with equivalent (unerased) formal parameter types.
 Dynamic method lookup does not take dependent type information into
 account, only the class hierarchy. This design decision ensures that
 serious errors such as method invocation errors are captured at
-compile-time. (Such errors can arise because multiple incomparable
+compile-time. Such errors can arise because multiple incomparable
 methods with the same name and acceptable argument lists might be
-available at the dynamic dependent type of the subject. Examples are
-not difficult to construct.)
+available at the dynamic dependent type of the subject.
 
 \eat{
 The current \Xten{} compiler produces \Java{} code. It further
