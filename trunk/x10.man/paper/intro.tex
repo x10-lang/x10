@@ -45,7 +45,7 @@ registered with a given clock (i.e., dynamic barrier)~\cite{X10}.
 In this paper we describe {\Xten}'s support for {\em
 constrained types}.  
 Constrained types are a form of {\em dependent
-type}~\cite{dependent-types,xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter,calc-constructions}---types parametrized by {\em values}---defined 
+type}~\cite{dependent-types,xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter,calc-constructions}---types parametrized by values---defined 
 on top of predicates over the {\em immutable}
 state of objects. Such types statically capture many common invariants
 that naturally arise in code. For instance, typically the shape of an
@@ -58,9 +58,8 @@ array is part of its immutable state.
 that achieves certain desirable properties:
 \begin{itemize}
 \item 
-{\bf Ease of use.}  The framework must be easy to use for practicing
-programmers. In particular, since \Xten{} is an extension of Java,
-the syntax of types is a simple and
+{\bf Ease of use.}  
+The syntax of constrained types is a simple and
 natural extension of Java's types.  Constrained types can
 interoperate smoothly with Java libraries.
 
@@ -158,13 +157,15 @@ principle, {\em any} boolean expression over the properties
 specifies a type: the type of all instances of the class
 satisfying the boolean expression. Thus, \xcd{List(:length ==
 3)}
-is a permissible type, as are \xcd{List(:length <= 41)} and
+is a permissible type, as are \xcd{List(:length <= 42)} and
 even \xcd{List(:length * f() >= g())}.
 In practice, \xcd{e} is restricted by the particular constraint
 system in use.
 
 In general, a {\em constrained type} is of the form \xcd{C(:e)},
-the name of a class or interface\footnote{In \Xten{}, primitive types such as \xcd{int} are classes.} \xcd{C}, called the {\em base class}, followed
+the name of a class or interface\footnote{In \Xten{}, primitive
+types such as \xcd{int} and \xcd{double} are object types.}
+\xcd{C}, called the {\em base class}, followed
 by a {\em condition} \xcd{e},
 a boolean expression on the properties of the
 base class and the \xcd{final} variables in scope at the type.
@@ -183,9 +184,10 @@ the property list for \xcd{C} specifies the \xcd{k} properties
 type).
 
 Constrained types may occur wherever normal types occur. In
-particular, they may be used to specify the types of (possibly
-mutable) local variables, properties, (possibly mutable) fields,
-arguments to methods, return types of methods, in casts etc.
+particular, they may be used to specify the types of properties,
+(possibly mutable) local variables or fields,
+arguments to methods, return types of methods; they may also be
+used in casts, etc.
 
 Using the definitions above, \xcd{List(n)}, shown in
 Figure~\ref{fig:list-example}, is the type of all lists of
@@ -215,14 +217,14 @@ returns a list of length \xcd{m+1}, where \xcd{m} is
 the length of the second argument.
 
 In the third constructor, as well as 
-the \xcd{append} and \xcd{rev} method, the return type
+the \xcd{append} and \xcd{reverse} method, the return type
 depends on properties of the formal parameters. 
 If an argument appears in a
 return type then the parameter must be declared \xcd{final},
 ensuring the
 argument points to the same object throughout the evaluation of
-the constructor body.  Parameters may also depend on other 
-parameters in the argument list.
+the method or constructor body.  A parameters may also depend on
+another parameter in the argument list.
 
 The use of constraints makes existential types very natural.
 Consider the return type of \xcd{filter}: it specifies
@@ -247,11 +249,11 @@ Constraint systems provide code for checking consistency and
 entailment.
 
 The condition of a constrained type is parsed and type-checked
-as a normal boolean expressions over properties and
+as a normal boolean expression over properties and
 the \xcd{final} variables in scope at the type.  Installed
 constraint systems translate the expression into an internal
 form, rejecting expressions that cannot be represented.
-
+%
 A given condition may be a conjunction of constraints from
 multiple constraint systems.
 A Nelson--Oppen procedure~\cite{nelson-oppen} is used to check
@@ -261,17 +263,18 @@ The \Xten{} compiler
 implements a simple
 equality-based constraint system.  Constraint solver plugins
 have been implemented for Presburger constraints using the Omega
-library~\cite{omega} and the CVC3 solver~\cite{cvc} and a
-separate set-based constraint system built using CVC3.
-The implementation is
+library~\cite{omega} and the CVC3 theorem prover~\cite{cvc}.  A
+separate set-based constraint system has been built using CVC3.
+These constraint systems are described in
+Section~\ref{sec:examples}; the implementation is
 discussed in Section~\ref{sec:impl}.
 
 \subsection{Claims}
 
 The paper presents constrained types in the \Xten{} programming
 language.
-We claim that the design is natural and easy to use and useful. Many
-example programs have been written using dependent types and are
+We claim that the design is natural, easy to use, useful. Many
+example programs have been written using constrained types and are
 available at {\tt x10.sf.net}.
 
 As in staged languages~\cite{nielson-multistage,ts97-multistage}, the
@@ -296,8 +299,6 @@ parametric on the constraint system being used.
 The compiler supports
 integration of
 different constraint solvers into the language.
-The design has been implemented
-in \Xten{}, available at {\tt x10.sf.net}.
 Dependent clauses are also form
 the basis of a general user-definable annotation framework we have
 implemented separately~\cite{ns07-x10anno}. 
