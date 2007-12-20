@@ -74,7 +74,7 @@ interpreted.
 
 The base system sees \xcd{'>='(self, 0) \&\& 'reachable-contains'(self,y)} 
 
-Neet to propagate implied bindings between terms.  For instance:
+Need to propagate implied bindings between terms.  For instance:
 
 \xcd{int(:self >= x \&\& self <= x)}
 should be equivalent to the type
@@ -85,7 +85,7 @@ support equality on constraint terms, we can propagate
 equalities between constraint systems.
 cf. Nelson-Oppen.
 
-Constraint systems must not have conflicting or overlaping
+Constraint systems must not have conflicting or overlapping
 constraints ..XXX
 
 Above, ``,'' binds tighter than ``;''. We use the syntax \xcd{T\;x;\;c} for the constraint obtained by existentially
