@@ -137,7 +137,7 @@ double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length =
 \subsection{Equality constraints}
 
 The \Xten{} compiler includes a simple equality-based constraint
-system.  Constraints are conjunctions of equalities (using \xcd{==}) between
+system.  Constraints are conjunctions of equalities between
 constraint terms: properties, \xcd{final} variables, 
 compile-time constants, and \xcd{self}:
 
@@ -193,16 +193,15 @@ CVC3~\cite{cvc}.
 
 Presburger constraints are particularly useful in a
 high-performance computing setting where array operations are
-pervasive.  These constraints can be used to ensure array
-indices are within the bounds of an array~\cite{xi98array}.
-
-\subsection{Set constraints: region-based arrays}
-
+pervasive.
 Xi and Pfenning proposed using dependent types for eliminating
 array bounds checks~\cite{xi98array}.  A Presburger constraint
 system can be used to keep track of array dimensions and array
-indices to ensure bounds violations do not occur..
+indices to ensure bounds violations do not occur.
 
+\subsection{Set constraints: region-based arrays}
+
+Rather than using Presburger constraints, 
 \Xten{} takes another approach:
 following ZPL~\cite{ZPL}, arrays in \Xten{}
 are defined over
@@ -261,9 +260,10 @@ offset by another point \xcd{p} using \xcd{+} or \xcd{-}.
 For example, the code in Figure~\ref{fig:sor} performs a successive
 over-relaxation~\cite{sor} of an $n \times n$ matrix \xcd{G}.
 The type-checker establishes that the \xcd{region}
-property of the point \xcd{ij} (line 17) is
+property of the point \xcd{ij} (line 21) is
 \xcd{inner && [i:i,d1min:d1max]}, and that this
-region is a subset of \xcd{outer}, the region of the array \xcd{G}.
+region is a subset of \xcd{outer}, the region of the array \xcd{G}
+accessed within the loop body.
 
 \eat{
 \subsection{AVL trees and red--black trees}
