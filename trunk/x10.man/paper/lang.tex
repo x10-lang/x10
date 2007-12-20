@@ -37,9 +37,9 @@ A constrained type is of the form \xcd{C(:e)}, consisting of a
 boolean expression on the properties of the base class and the
 \xcd{final} variables in scope at the type.  Constraints specify
 (possibly) partial information about the variables of interest.
-Such a type represents a refinement of \xcd{C}---the set of all
+The type \xcd{C(:e)} represents the set of all
 instances of \xcd{C} whose immutable state satisfies the
-condition \xcd{c}.
+condition \xcd{e}.
 
 Constraints may use the special variable \xcd{self} to stand for
 the object whose type is being defined. Thus, \xcd{int(:self >= 0)} is
@@ -63,7 +63,8 @@ Constraints are specified in terms of an underlying
 constraint system~\cite{CCCC}---a pre-defined logical vocabulary of
 functions and predicates with algorithms for consistency and
 entailment.  The \Xten{} compiler permits different constraint
-systems to be installed using compiler plugins.~\cite{??}.
+systems to be installed using compiler
+plugins~\cite{bracha04-pluggable}.
 %
 Constraint system plugins define a language of constraints by
 symbolically interpreting
@@ -104,7 +105,7 @@ declared as a property.
 
 
 \subsection{Subtyping}
-Constrained types naturally come equipped with a subtype relation that
+Constrained types come equipped with a subtype relation that
 combines the nominal subtyping relation of classes and interfaces with
 the logical entailment relation of the constraint system. Namely, a
 constraint \xcd{C(:c)} is a subtype of \xcd{D(:d)} if \xcd{C} is a
@@ -116,7 +117,7 @@ also satisfies \xcd{d}.
 % constraint system. The maximal element is \xcd{C(:true)}, which is
 % just \xcd{C}, and the minimal element is the unsatisfiable constraint.
 
-% Constrained types naturally come equipped with a {\em subtyping
+% Constrained types come equipped with a {\em subtyping
 % structure}: type $t_1$ is a subtype of $t_2$ if the denotation of
 % $t_1$ is a subset of $t_2$.
 This definition 

@@ -169,8 +169,6 @@ types such as \xcd{int} and \xcd{double} are object types.}
 by a {\em condition} \xcd{e},
 a boolean expression on the properties of the
 base class and the \xcd{final} variables in scope at the type.
-Constraints specify (possibly) partial information about the
-variables of interest.
 Such a type represents a refinement of \xcd{C}: the set of all
 instances of \xcd{C} whose immutable state satisfies the
 condition \xcd{e}.
@@ -194,7 +192,9 @@ Figure~\ref{fig:list-example}, is the type of all lists of
 length \xcd{n}.
 %
 Intuitively, this definition states that a \xcd{List} has a \xcd{int}
-property \xcd{n}, which must be non-negative.  The class has two
+property \xcd{n}, which must be non-negative.
+In a constraint, the name \xcd{self} refers to the type being constrained.
+The class has two
 fields that hold the head and tail of the list.  The properties
 of the
 class are set through the invocation of \xcd{property}\tcd{(\ldots)}
@@ -325,4 +325,5 @@ system plugins, is  described Section~\ref{sec:impl}.
 Section~\ref{sec:related} reviews related work.
 The paper concludes in Section~\ref{sec:future}
 with a discussion of future work.
+
 
