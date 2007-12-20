@@ -333,6 +333,66 @@ Constrained types may occur in a class cast \xcd{(T)}\;\xcd{e}.  Code is
 generated to check at run time that the expression \xcd{e}
 satisfies any constraints in \xcd{T}.
 
+\subsection{Equality-based constraints}
+
+The \Xten{} compiler includes a simple equality-based constraint
+system.
+All constraint systems installed using plugins must support at least the core
+equality-based constraints.
+Constraints are conjunctions of equalities between
+constraint terms: properties, \xcd{final} variables,
+compile-time constants, and \xcd{self}:
+
+\begin{tabular}{r@{\quad}rcl}
+\\
+    (C Term) & \xcd{t} &{::=}& \xcd{x} \alt \xcd{this} \alt
+    \xcd{self} \alt \xcd{t.f} \alt $n$ \\
+(Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true} \alt \xcd{t == t} \alt \xcd{c 
+&& c}\alt \xcd{T x; c} \\\\\end{tabular}
+\noindent
+We use the syntax \xcd{T x; c} for the constraint obtained by existentially
+quantifying the variable \xcd{x} of type \xcd{T} in \xcd{c}.
+
+\subsection{Existential quantification}
+
+Constrained types subsume existential types.
+For example, the length of the
+list returned by \xcd{filter} in Figure~\ref{fig:list-example} is existentially
+quantified.
+Existential quantification may also be introduced explicitly:
+the following function computes the greatest
+common divisor of two positive integers:\footnote{Checking this program
+requires a constraint system capable of reasoning about integer
+multiplication and
+division.  We have not yet implemented such a system.}
+\begin{displayxten}
+int(:int(:self >= 0) x; int(:self >= 0) y;
+     a == x*self && b == y*self && self >= 0) 
+  gcd(final int(:self >= 0) a, final int(:self >= 0) b) {
+    if (b == 0) return a;
+    else return gcd(b, a % b);
+}
+\end{displayxten}
+
+Operations on values of constrained type
+propagate constraints
+to the operation result by introducing existentially quantified
+variables.  Consider the following assignment:
+\begin{displayxten}
+int(:self >= 0) product(int(:self >= 0) a, int(:self >= 0) b) {
+    return a*b;
+}
+\end{displayxten}
+We would like this function to type-check.
+During type-checking, the type of \xcd{a*b} is
+\xcd{int(:int x; int y; self == x*y && x >= 0 && y >= 0)}.
+The constraint on this type is strong enough to establish the
+constraint on the return type.  If the new constraint cannot be
+represented by any installed constraint system, rather than
+report an error, the constraint is simply removed---in this
+case, the type of \xcd{a*b} becomes \xcd{int}.
+
+
 \subsection{Query evaluation}
 
 Because object-oriented languages permit arbitrary mutual recursion between

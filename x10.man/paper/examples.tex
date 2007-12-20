@@ -137,27 +137,13 @@ double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length =
 \subsection{Equality constraints}
 
 The \Xten{} compiler includes a simple equality-based constraint
-system.  Constraints are conjunctions of equalities between
-constraint terms: properties, \xcd{final} variables, 
-compile-time constants, and \xcd{self}:
-
-\begin{tabular}{r@{\quad}rcl}
-\\
-    (C Term) & \xcd{t} &{::=}& \xcd{x} \alt \xcd{this} \alt
-    \xcd{self} \alt \xcd{t.f} \alt $n$ \\
-(Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true} \alt \xcd{t == t} \alt \xcd{c && c}\alt \xcd{T x; c} \\
-\\
-\end{tabular}
-
-\noindent
-We use the syntax \xcd{T x; c} for the constraint obtained by existentially
-quantifying the variable \xcd{x} of type \xcd{T} in \xcd{c}.
-
+system, described in Section~\ref{sec:lang}.
 Equalities constraints
 are used throughout \Xten{} programs.  For example, to ensure
 $n$-dimensional arrays are indexed only be $n$-dimensional
 index points, the array access operation requires that the
 array's \xcd{rank} property be equal to the index's \xcd{rank}.
+
 
 \eat{
 \subsection{Equality constraints with disjunction: place types}
