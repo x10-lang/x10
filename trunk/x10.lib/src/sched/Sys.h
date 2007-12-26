@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Sys.h,v 1.14 2007-12-26 07:57:34 srkodali Exp $
+ * $Id: Sys.h,v 1.15 2007-12-26 12:53:11 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -40,14 +40,14 @@ compare_exchange(int *p, int  old_value, int new_value) {
   int prev;                                        
   __asm__ __volatile__ (                           
 			"\n"
-        		"l1:\n\t"
+        		"L1%=:\n\t"
 			"lwarx   %0,0,%2\n\t"
         		"cmpw    0,%0,%3\n\t"
-        		"bne-    l2 \n\t"
+        		"bne-    L2%= \n\t"
         		"stwcx.  %4,0,%2\n\t"   
-        		"bne-    l1 \n\t"
+        		"bne-    L1%= \n\t"
         		"isync\n"
-        		"l2:"
+        		"L2%=:"
         		: "=&r" (prev), "=m" (*p)
         		: "r" (p), "r" (old_value),
 			"r" (new_value), "m" (*p)
@@ -60,11 +60,11 @@ atomic_add(volatile int* mem, int val) {
   int tmp;
   __asm__ __volatile__ (                                      
 			" #Inline atomic add\n"  
-			"l1:\n\t"
+			"l%=:\n\t"
 			"lwarx    %0,0,%2 \n\t"
 			"add%I3   %0,%0,%3 \n\t"
 			"stwcx.   %0,0,%2 \n\t"
-			"bne-     l1 \n\t"  
+			"bne-     l%= \n\t"  
 			"isync \n\t"
 			: "=&b"(tmp), "=m" (*mem)
 			: "r" (mem), "r"(val), "m" (*mem) 

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: ActiveWorkerCount.cc,v 1.8 2007-12-26 07:57:33 srkodali Exp $
+ * $Id: ActiveWorkerCount.cc,v 1.9 2007-12-26 12:53:11 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,7 +12,7 @@
  
 #include <x10/xws/ActiveWorkerCount.h>
 #include <x10/xws/Closure.h>
-#inlcude <x10/xws/Sys.h>
+#include <x10/xws/Sys.h>
 #include <x10/xws/Runnable.h>
 
 using namespace std;
