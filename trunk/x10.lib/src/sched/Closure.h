@@ -1,17 +1,17 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Closure.h,v 1.15 2007-12-14 13:39:35 srkodali Exp $
+ * $Id: Closure.h,v 1.16 2007-12-26 07:57:34 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_XWS_CLOSURE_H
 #define __X10_XWS_CLOSURE_H
 
-//#include "Lock.h"
-//#include "Worker.h"
-#include "Sys.h"
-#include "Executable.h"
+//#include <x10/xws/Lock.h>
+//#include <x10/xws/Worker.h>
+#include <x10/xws/Sys.h>
+#include <x10/xws/Executable.h>
 #include <list>
 
 /* C++ Lang Interface */

@@ -1,17 +1,17 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Job.h,v 1.16 2007-12-14 13:39:35 srkodali Exp $
+ * $Id: Job.h,v 1.17 2007-12-26 07:57:34 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_XWS_JOB_H
 #define __X10_XWS_JOB_H
 
-#include "Frame.h"
-#include "Closure.h"
-#include "Sys.h"
-#include <assert.h>
+#include <x10/xws/Frame.h>
+#include <x10/xws/Closure.h>
+#include <x10/xws/Sys.h>
+#include <x10/xassert.h>
 
 /* C++ Lang Interface */
 #ifdef __cplusplus

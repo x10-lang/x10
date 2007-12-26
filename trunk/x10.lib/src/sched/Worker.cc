@@ -1,22 +1,22 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Worker.cc,v 1.27 2007-12-14 13:39:35 srkodali Exp $
+ * $Id: Worker.cc,v 1.28 2007-12-26 07:57:34 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
-#include "Worker.h"
-#include "Lock.h"
-#include "Frame.h"
-#include "Pool.h"
-#include "Closure.h"
-#include "Cache.h"
-#include "ActiveWorkerCount.h"
-#include "StealAbort.h"
-#include "Sys.h"
-#include "Job.h"
-#include "Executable.h"
-#include <assert.h>
+#include <x10/xws/Worker.h>
+#include <x10/xws/Lock.h>
+#include <x10/xws/Frame.h>
+#include <x10/xws/Pool.h>
+#include <x10/xws/Closure.h>
+#include <x10/xws/Cache.h>
+#include <x10/xws/ActiveWorkerCount.h>
+#include <x10/xws/StealAbort.h>
+#include <x10/xws/Sys.h>
+#include <x10/xws/Job.h>
+#include <x10/xws/Executable.h>
+#include <x10/xassert.h>
 #include <cstdlib>
 #include <iostream>
 #include <sys/sched.h>
