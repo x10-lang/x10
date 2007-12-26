@@ -1,19 +1,19 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Pool.cc,v 1.19 2007-12-14 13:39:35 srkodali Exp $
+ * $Id: Pool.cc,v 1.20 2007-12-26 07:57:34 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
-#include "Pool.h"
-#include "ActiveWorkerCount.h"
-#include "Runnable.h"
-#include "Job.h"
-#include "Lock.h"
-#include "Worker.h"
-#include "Sys.h"
+#include <x10/xws/Pool.h>
+#include <x10/xws/ActiveWorkerCount.h>
+#include <x10/xws/Runnable.h>
+#include <x10/xws/Job.h>
+#include <x10/xws/Lock.h>
+#include <x10/xws/Worker.h>
+#include <x10/xws/Sys.h>
+#include <x10/xassert.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <strings.h>
 #include <iostream>
 

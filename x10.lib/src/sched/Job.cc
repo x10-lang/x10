@@ -1,20 +1,20 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Job.cc,v 1.20 2007-12-14 13:39:35 srkodali Exp $
+ * $Id: Job.cc,v 1.21 2007-12-26 07:57:34 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
-#include "Job.h"
-#include "Frame.h"
-#include "Lock.h"
-#include "Closure.h"
-#include "Cache.h"
-#include "Worker.h"
-#include "Pool.h"
-#include "Sys.h"
+#include <x10/xws/Job.h>
+#include <x10/xws/Frame.h>
+#include <x10/xws/Lock.h>
+#include <x10/xws/Closure.h>
+#include <x10/xws/Cache.h>
+#include <x10/xws/Worker.h>
+#include <x10/xws/Pool.h>
+#include <x10/xws/Sys.h>
+#include <x10/xassert.h>
 #include <pthread.h>
-#include <assert.h>
 #include <iostream>
 
 using namespace std;

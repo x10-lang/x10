@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: ActiveWorkerCount.cc,v 1.7 2007-12-14 13:39:34 srkodali Exp $
+ * $Id: ActiveWorkerCount.cc,v 1.8 2007-12-26 07:57:33 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,11 +10,10 @@
  * An action is triggered when the counter transitions to zero.
  */
  
-#include "ActiveWorkerCount.h"
-#include "Closure.h"
-#include "Sys.h"
-#include "Runnable.h"
-#include <assert.h>
+#include <x10/xws/ActiveWorkerCount.h>
+#include <x10/xws/Closure.h>
+#inlcude <x10/xws/Sys.h>
+#include <x10/xws/Runnable.h>
 
 using namespace std;
 using namespace x10lib_xws;

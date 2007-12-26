@@ -1,18 +1,18 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Cache.h,v 1.16 2007-12-14 13:39:35 srkodali Exp $
+ * $Id: Cache.h,v 1.17 2007-12-26 07:57:34 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_XWS_CACHE_H
 #define __X10_XWS_CACHE_H
 
+
+#include <x10/xws/Sys.h>
+#include <x10/xassert.h>
 #include <limits.h>
 #include <vector>
-
-#include "Sys.h"
-#include <assert.h>
 
 using namespace std;
 

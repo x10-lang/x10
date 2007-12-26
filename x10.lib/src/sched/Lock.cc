@@ -1,12 +1,12 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Lock.cc,v 1.8 2007-12-14 13:39:35 srkodali Exp $
+ * $Id: Lock.cc,v 1.9 2007-12-26 07:57:34 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
-#include "Lock.h"
-#include "Sys.h"
+#include <x10/xws/Lock.h>
+#include <x10/xws/Sys.h>
 
 using namespace x10lib_xws;
 
