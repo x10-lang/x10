@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Pool.cc,v 1.20 2007-12-26 07:57:34 srkodali Exp $
+ * $Id: Pool.cc,v 1.21 2007-12-26 12:53:11 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -71,7 +71,8 @@ void *Pool::each_thread_wrapper(void *arg) {
 // Pool::Pool() { }
 
 /*Anonymous innner class argument to ActiveWorkerCount from Java code*/
-class anon_Runnable : public virtual Runnable {
+//class anon_Runnable : public virtual Runnable {
+class anon_Runnable : public Runnable {
 private:
   Pool *p;
   ~anon_Runnable(){} //cannot inherit
@@ -79,7 +80,8 @@ public:
   anon_Runnable(Pool *p) {
     this->p = p;
   }
-  virtual void run() {
+  //virtual void run() {
+  void run() {
     Job *job = (Job *) p->currentJob;
     if (job != NULL && 
 	job->requiresGlobalQuiescence()) {
