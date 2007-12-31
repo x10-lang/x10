@@ -1,6 +1,6 @@
 package com.ibm.wala.cast.x10.client;
 
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.*;
 
 import com.ibm.wala.cast.x10.loader.*;
 import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
@@ -13,13 +13,17 @@ import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
 import com.ibm.wala.eclipse.util.EclipseProjectSourceAnalysisEngine;
 
+import java.io.*;
+
 public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysisEngine {
 
     private IRTranslatorExtension fX10ExtInfo;
 
     private IRTranslatorExtension fJavaExtInfo;
 
-    public X10EclipseSourceAnalysisEngine(IJavaProject javaProject) {
+    public X10EclipseSourceAnalysisEngine(IJavaProject javaProject) 
+	throws JavaModelException, IOException
+    {
 	super(javaProject, "x10");
 	setCallGraphBuilderFactory(new X10ZeroXCFACallGraphBuilderFactory());
 	fX10ExtInfo = new X10IRTranslatorExtension();
