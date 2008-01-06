@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose_iov.cc,v 1.4 2007-12-04 08:32:51 ganeshvb Exp $ 
+ * $Id: Test_transpose_iov.cc,v 1.5 2008-01-06 03:28:51 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -51,7 +51,7 @@ lapi_vec_t* genArrayCopySwitch (int handler, void* buf)
 {
   __closure__0__args* closure_args = (__closure__0__args*) buf;
   
-  lapi_vec_t* vec = getIOVector (data2, 2, (int*) lda, sizeof (double), closure_args->_origin, closure_args->_diagonal);
+  lapi_vec_t* vec = GetIOVector (data2, 2, (int*) lda, sizeof (double), closure_args->_origin, closure_args->_diagonal);
  
 
   return vec;
@@ -118,14 +118,14 @@ main (int argc, char* argv[])
     /* single asyncArrrayCopy using iovectors */ 
     int a_values[2] = {0, k * nRows};
     int b_values[2] = {X-1, (k+1) * nRows - 1};
-    lapi_vec_t* vec = getIOVector (data, 2, (int*) lda, sizeof(double), a_values, b_values);
+    lapi_vec_t* vec = GetIOVector (data, 2, (int*) lda, sizeof(double), a_values, b_values);
     int aprime_values[2] = {0, P * nRows};
     int bprime_values[2] = {X-1, (P+1) * nRows - 1};
     Point<2> a (aprime_values);
     Point<2> b (bprime_values);
     __closure__0 args (2, a, b);
-    asyncArrayPut (vec, &args, k);
-    freeIOVector (vec);
+    AsyncArrayPut (vec, &args, k);
+    FreeIOVector (vec);
   }
   
   x10lib::SyncGlobal();

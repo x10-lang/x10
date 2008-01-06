@@ -1,18 +1,20 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.h,v 1.8 2007-12-10 16:44:39 ganeshvb Exp $
+ * $Id: array_copy.h,v 1.9 2008-01-06 03:28:51 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 #ifndef __X10_ARRAY_COPY_H
 #define __X10_ARRAY_COPY_H
 
-#include <x10/err.h>
-#include <x10/types.h>
-#include <x10/switch.h>
-#include <x10/closure.h>
 #include <lapi.h>
+
+#include <x10/am.h>
+#include <x10/closure.h>
+#include <x10/err.h>
+#include <x10/switch.h>
+#include <x10/types.h>
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
@@ -22,7 +24,7 @@ namespace x10lib {
   /**
    * arg0 = src address
    * args = pointer to closure
-   * (a derived class of asyncArrayCopyClosure)
+   * (a derived class of AsyncArrayCopyClosure)
    * len = number of bytes to be copied
    * target = destination node where the dest. array is residing
    * c = clock (optional)
@@ -31,7 +33,7 @@ namespace x10lib {
   /**
    * DESCRIPTION :  This methods invokes the arrayCopySwitch method
    * in the destinaion. The arrayCopySwitch method needs to be overloaded by the programmer. It's signature
-   * is void* arrayCopySwitch (void* args). 
+   * is void* arrayCopySwitch (int handler, void* args). 
    **/
   
   /**
@@ -40,7 +42,7 @@ namespace x10lib {
    */
   
   x10_err_t
-  asyncArrayPut (void* src, 
+  AsyncArrayPut (void* src, 
 		  x10_closure_t args,
 		  size_t len, 
 		  int target, 
@@ -54,7 +56,7 @@ namespace x10lib {
    */
   
   x10_err_t
-  asyncArrayIput (void* src, 
+  AsyncArrayIput (void* src, 
 		     x10_closure_t args,
 		     size_t len, 
 		     int target, 
@@ -63,7 +65,7 @@ namespace x10lib {
 
 
   lapi_vec_t*
-  getIOVector  (void* data,
+  GetIOVector  (void* data,
 		int rank,
 		int* lda,
 		size_t el_size,
@@ -71,18 +73,18 @@ namespace x10lib {
 		int* diagonal);
 
   x10_err_t
-  freeIOVector (lapi_vec_t* vec);
+  FreeIOVector (lapi_vec_t* vec);
 
 		
   x10_err_t
-  asyncArrayPut (lapi_vec_t* vec,
+  AsyncArrayPut (lapi_vec_t* vec,
 		 x10_closure_t args,       
 		 int target, 
 		 x10_switch_t c = NULL);
 
   /* DEPRECATED */
   x10_err_t
-  asyncArray (void* src,
+  AsyncArray (void* src,
 	      x10_closure_t args,
 	      size_t len,
 	      int target,
@@ -91,7 +93,7 @@ namespace x10lib {
 
   /* DEPRECATED */
   x10_err_t
-  asyncArrayCopyRaw (void* src,
+  AsyncArrayCopyRaw (void* src,
                      x10_closure_t args,
                      size_t len,
                      int target,
@@ -111,6 +113,7 @@ extern "C" {
 
   x10_err_t x10_async_array_copy_raw (void* src, x10_closure_t args, size_t len, int target,x10_switch_t c);
 
+  void* ArrayCopySwitch (int handler, void* args);
 #ifdef __cplusplus
 }
 #endif 

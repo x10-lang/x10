@@ -1,15 +1,15 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.13 2007-12-10 13:15:45 srkodali Exp $
+ * $Id: array_copy.cc,v 1.14 2008-01-06 03:28:51 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
+#include <lapi.h>
+
 #include <x10/array_copy.h>
-#include <x10/am.h>
 #include <x10/xmacros.h>
 #include <x10/xassert.h>
-#include <lapi.h>
 #include <x10/array_table.h>
 #include "__x10lib.h__"
 
@@ -17,45 +17,12 @@ using namespace std;
 
 static int max_uhdr_sz;
 
-static void* asyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
-			     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
-{
-  lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
-  
-  int handler = *((int*) uhdr);
-  
-  if (ret_info->udata_one_pkt_ptr) {
-    
-    memcpy ((char*) arrayCopySwitch (handler, (char*) uhdr + sizeof (x10lib::Closure) - sizeof(size_t) ),
-	    ret_info->udata_one_pkt_ptr, *msg_len);
-   
-    ret_info->ctl_flags = LAPI_BURY_MSG;
-    *comp_h = NULL;
-   
-    return NULL;
-  } else {	  
-  
-    ret_info->ret_flags = LAPI_LOCAL_STATE;
-    *comp_h = NULL;
-    
-    return (char*) arrayCopySwitch (handler,(char*)  uhdr + sizeof (x10lib::Closure) - sizeof(size_t));
-  }
-  
-  return NULL; 
-}
+/* LAPI handlers */
+static lapi_vec_t* AsyncGenArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
+					     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info);
 
-static lapi_vec_t* asyncGenArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
-					     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
-{
-  lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
-  
-  int handler = *((int*) uhdr);
-  
-  ret_info->ret_flags = LAPI_LOCAL_STATE;
-  *comp_h = NULL;
-  
-  return  genArrayCopySwitch (handler,(char*)  uhdr + sizeof (x10lib::Closure) - sizeof(size_t));
-}
+static void* AsyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
+			     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info);
 
 namespace x10lib {
 
@@ -63,7 +30,7 @@ namespace x10lib {
 
   //TODO: take care of switch operations
   x10_err_t
-  asyncArrayIput (void* src, 
+  AsyncArrayIput (void* src, 
 		     x10_closure_t closure,
 		     size_t len, 
 		     int target, 
@@ -87,7 +54,7 @@ namespace x10lib {
   }
 
   x10_err_t
-  freeIOVector (lapi_vec_t* vec)
+  FreeIOVector (lapi_vec_t* vec)
   {    
     delete [] (char*)vec->info;
     delete [] vec->len;   
@@ -97,7 +64,7 @@ namespace x10lib {
   }
 
   lapi_vec_t*
-  getIOVector  (void* data,
+  GetIOVector  (void* data,
 		int rank,
 		int* lda,
 		size_t el_size,
@@ -179,7 +146,7 @@ namespace x10lib {
   }
   
   x10_err_t
-  asyncArrayPut (lapi_vec_t* vec,
+  AsyncArrayPut (lapi_vec_t* vec,
 		 x10_closure_t closure,
 		 int target, 
 		 x10_switch_t c)
@@ -209,7 +176,7 @@ namespace x10lib {
   } 
 
   x10_err_t
-  asyncArrayPut (void* src, 
+  AsyncArrayPut (void* src, 
 		  x10_closure_t closure, 
 		  size_t len, 
 		  int target, 
@@ -240,25 +207,25 @@ namespace x10lib {
   } 
 
   x10_err_t
-  asyncArrayCopy (void* src,
+  AsyncArrayCopy (void* src,
                   x10_closure_t closure,
                   size_t len,
                   int target,
                   x10_switch_t c)
   {
-    X10_DEPRECATED ("asyncArrayPut");
-    return asyncArrayPut (src, closure, len, target, c);
+    X10_DEPRECATED ("AsyncArrayPut");
+    return AsyncArrayPut (src, closure, len, target, c);
   } 
 
   x10_err_t
-  asyncArrayCopyRaw (void* src,
+  AsyncArrayCopyRaw (void* src,
                   x10_closure_t closure,
                   size_t len,
                   int target,
                   x10_switch_t c)
   {
-    X10_DEPRECATED ("asyncArrayIput");
-    return asyncArrayIput (src, closure, len, target, c);
+    X10_DEPRECATED ("AsyncArrayIput");
+    return AsyncArrayIput (src, closure, len, target, c);
   }
 
 }
@@ -268,21 +235,62 @@ ArrayCopyInit ()
 {
   (void) LAPI_Qenv(x10lib::__x10_hndl, MAX_UHDR_SZ, &max_uhdr_sz);
 
-  LRC (LAPI_Addr_set (x10lib::__x10_hndl, (void*) asyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));  
+  LRC (LAPI_Addr_set (x10lib::__x10_hndl, (void*) AsyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));  
 
-  LRC (LAPI_Addr_set (x10lib::__x10_hndl, (void*) asyncGenArrayCopyHandler, ASYNC_GEN_ARRAY_COPY_HANDLER));  
+  LRC (LAPI_Addr_set (x10lib::__x10_hndl, (void*) AsyncGenArrayCopyHandler, ASYNC_GEN_ARRAY_COPY_HANDLER));  
 
 }
+
+static void* AsyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
+			     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
+{
+  lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
+  
+  int handler = *((int*) uhdr);
+  
+  if (ret_info->udata_one_pkt_ptr) {
+    
+    memcpy ((char*) ArrayCopySwitch (handler, (char*) uhdr + sizeof (x10lib::Closure) - sizeof(size_t) ),
+	    ret_info->udata_one_pkt_ptr, *msg_len);
+   
+    ret_info->ctl_flags = LAPI_BURY_MSG;
+    *comp_h = NULL;
+   
+    return NULL;
+  } else {	  
+  
+    ret_info->ret_flags = LAPI_LOCAL_STATE;
+    *comp_h = NULL;
+    
+    return (char*) ArrayCopySwitch (handler,(char*)  uhdr + sizeof (x10lib::Closure) - sizeof(size_t));
+  }
+  
+  return NULL; 
+}
+
+static lapi_vec_t* AsyncGenArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_len, 
+					     ulong* msg_len,  compl_hndlr_t **comp_h, void **user_info)
+{
+  lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
+  
+  int handler = *((int*) uhdr);
+  
+  ret_info->ret_flags = LAPI_LOCAL_STATE;
+  *comp_h = NULL;
+  
+  return  GenArrayCopySwitch (handler,(char*)  uhdr + sizeof (x10lib::Closure) - sizeof(size_t));
+}
+
 extern "C"
 x10_err_t 
 x10_async_array_copy (void* src, x10_closure_t args, size_t len, int target, x10_switch_t c)
 {
-  return x10lib::asyncArrayCopy (src, args, len, target, c);
+  return x10lib::AsyncArrayCopy (src, args, len, target, c);
 }
 
 extern "C"
 x10_err_t 
 x10_async_array_copy_raw (void* src, x10_closure_t args, size_t len, int target, x10_switch_t c)
 {
-  return x10lib::asyncArrayCopyRaw (src, args, len, target, c);
+  return x10lib::AsyncArrayCopyRaw (src, args, len, target, c);
 }

@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.14 2007-12-10 16:44:39 ganeshvb Exp $
+# $Id: Makefile,v 1.15 2008-01-06 03:28:51 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -16,15 +16,11 @@ ARRAY_A = array.a
 
 SRCS =  array.cc \
 		array_copy.cc \
-		array_table.cc \
-		array_copy_switch.cc \
-		gen_array_copy_switch.cc
+		array_table.cc 
 
 OBJS = array.o \
 		array_copy.o \
-		array_table.o \
-		array_copy_switch.o \
-		gen_array_copy_switch.o
+		array_table.o 
 
 HEADERS = array_copy.h \
 		array_table.h \

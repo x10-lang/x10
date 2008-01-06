@@ -43,7 +43,7 @@ int main ()
 
   Exception* exception  = NULL;
   int cs = 0; 
-  cs = finishStart (cs);
+  cs = FinishStart (cs);
   try {
    if (here() % 2 == 1) throw new MathException (here());
   } catch (Exception* e) {
@@ -51,7 +51,7 @@ int main ()
   }
 
   try {
-    finishEnd (exception);
+    FinishEnd (exception);
   } catch (MultiException me) {
     int sum1 = 0;
     int sum = 0;
@@ -64,7 +64,7 @@ int main ()
 
   exception = NULL; 
   cs = 0;
-  cs = finishStart (cs);
+  cs = FinishStart (cs);
   try {
     if (here() % 2 == 0) throw new NullPointerException (here());
   } catch (Exception* e ) {
@@ -72,7 +72,7 @@ int main ()
   }
 
   try {
-    finishEnd (exception);
+    FinishEnd (exception);
   } catch (MultiException me) {
     int sum1 = 0;
     int sum = 0;
@@ -86,7 +86,7 @@ int main ()
   cout <<"Test_finish PASSED" << endl;
 
   cs = 0;
-  cs = finishStart (cs);
+  cs = FinishStart (cs);
   
 
   Finalize();

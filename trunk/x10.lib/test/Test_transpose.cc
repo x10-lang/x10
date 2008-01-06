@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose.cc,v 1.4 2007-12-04 08:32:51 ganeshvb Exp $ 
+ * $Id: Test_transpose.cc,v 1.5 2008-01-06 03:28:51 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -44,7 +44,7 @@ struct __closure__0 : Closure
 };
 
 
-void* arrayCopySwitch (int handler, void* buf)
+void* ArrayCopySwitch (int handler, void* buf)
 {
   __closure__0__args* closure_args = (__closure__0__args*) buf;
   
@@ -125,7 +125,7 @@ main (int argc, char* argv[])
       int destI= i*SQRT_N + P*nRows;                                      
      
       (closure + n)->_args._offset = destI;
-      asyncArrayCopyRaw (data + srcI, closure + n, nRows*sizeof(double), k);
+      AsyncArrayIput (data + srcI, closure + n, nRows*sizeof(double), k);
       n++;
     }
     timers[3] += nanoTime();

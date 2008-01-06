@@ -1,20 +1,22 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: aggregate.cc,v 1.27 2007-12-10 16:44:38 ganeshvb Exp $
+ * $Id: aggregate.cc,v 1.28 2008-01-06 03:28:51 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** Implementation file for inlinable asyncs aggregation. **/
 
-#include <x10/types.h>
+#include <iostream>
+#include <string.h>
+
+#include <lapi.h>
+
 #include <x10/am.h>
 #include <x10/aggregate.h>
+#include <x10/types.h>
 #include <x10/xmacros.h>
 #include <x10/xassert.h>
-#include <string.h>
-#include <iostream>
-#include <lapi.h>
 #include "__x10lib.h__"
 
 
@@ -284,8 +286,8 @@ AsyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 	if (ret_info->udata_one_pkt_ptr || (*msg_len) == 0) {
 		AsyncSwitch(buf.handler, ret_info->udata_one_pkt_ptr,
 					buf.niter);
-		ret_info->ctl_flags = LAPI_BURY_MSG;
-		*comp_h = NULL;
+		ret_info->ctl_flags = LAPI_BURY_MSG; // Do not copy the incoming message 
+		*comp_h = NULL; // no completion handler 
 	} else {
 		x10_agg_cmpl_t *c = new x10_agg_cmpl_t;
 
@@ -294,7 +296,7 @@ AsyncSpawnHandlerAgg(lapi_handle_t hndl, void *uhdr,
 		c->buf = (void *)new char [*msg_len];
 		c->niter = buf.niter;
 		*comp_h = AsyncSpawnCompHandlerAgg;
-		ret_info->ret_flags = LAPI_LOCAL_STATE;
+		ret_info->ret_flags = LAPI_LOCAL_STATE; // Inline completion handler 
 		*user_info = (void *)c;
 		X10_DEBUG(2, "Exit");
 		return c->buf;

@@ -1,14 +1,15 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: order.cc,v 1.2 2007-12-10 12:12:05 srkodali Exp $
+ * $Id: order.cc,v 1.3 2008-01-06 03:28:51 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** Implementation file for Message ordering interface. **/
 
-#include <x10/order.h>
 #include <lapi.h>
+
+#include <x10/order.h>
 #include "__x10lib.h__"
 
 namespace x10lib {

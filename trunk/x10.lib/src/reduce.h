@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: reduce.h,v 1.12 2007-12-10 16:44:38 ganeshvb Exp $
+ * $Id: reduce.h,v 1.13 2008-01-06 03:28:51 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,11 +10,13 @@
 #ifndef __X10_REDUCE_H
 #define __X10_REDUCE_H
 
-#include <x10/xmacros.h>
-#include <x10/err.h>
 #include <lapi.h>
+
 #include <iostream>
 #include <math.h>
+
+#include <x10/err.h>
+#include <x10/xmacros.h>
 
 #define LOG2(x)  (int) round (log ((double) x) / log (2.0))
 
@@ -26,61 +28,61 @@
 /* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {
-extern int __x10_inited;
-extern lapi_handle_t __x10_hndl;
-extern lapi_thread_func_t __x10_tf;
-extern lapi_cntr_t __x10_wait_cntr;
-extern int __x10_num_places;
-extern int __x10_my_place;
-extern int __x10_addr_hndl;
-extern int __x10_addrtbl_sz;
-extern int __x10_max_agg_size;
-
-/** reduction variables **/
-extern lapi_cntr_t reduce_cntr;
-extern void **reduce_cntr_list;
-extern void *scratch;
-extern void **reduce_list;
+  extern int __x10_inited;
+  extern lapi_handle_t __x10_hndl;
+  extern lapi_thread_func_t __x10_tf;
+  extern lapi_cntr_t __x10_wait_cntr;
+  extern int __x10_num_places;
+  extern int __x10_my_place;
+  extern int __x10_addr_hndl;
+  extern int __x10_addrtbl_sz;
+  extern int __x10_max_agg_size;
+  
+  /** reduction variables **/
+  extern lapi_cntr_t reduce_cntr;
+  extern void **reduce_cntr_list;
+  extern void *scratch;
+  extern void **reduce_list;
 extern void *inbuf[];
-extern int reduceCount;
-
-/*
- * Recursively reduce the sum.
- * Note that this is not technically legal for a non-commutative
- * operation like FP add, but this works for our checksums.
- */
-
-template <typename T, void F (T&, const T&)>
-static x10_err_t
-CommutativeReduce(T *values, int low, int high, int depth)
-{
-	X10_DEBUG(1, "Entry");
-	int src = low + ((high - low) / 2);
-	int i;
-
+ extern int reduceCount;
+ 
+ /*
+  * Recursively reduce the sum.
+  * Note that this is not technically legal for a non-commutative
+  * operation like FP add, but this works for our checksums.
+  */
+ 
+ template <typename T, void F (T&, const T&)>
+   static x10_err_t
+   CommutativeReduce(T *values, int low, int high, int depth)
+   {
+     X10_DEBUG(1, "Entry");
+     int src = low + ((high - low) / 2);
+     int i;
+     
 	if (depth > 0) {
-		CommutativeReduce<T,F> (values, low, src, (depth - 1));
-		CommutativeReduce<T,F> (values, src, high, (depth - 1));
+	  CommutativeReduce<T,F> (values, low, src, (depth - 1));
+	  CommutativeReduce<T,F> (values, src, high, (depth - 1));
 	}
-
+	
 	if (__x10_my_place == src && __x10_num_places > 1) {
-		x10lib::LAPIStyleWaitcntr(&reduce_cntr, depth, NULL);
-
-		for (i = 0; i < depth; i++) {
-			for (int j = 0; j < reduceCount; j++)
+	  x10lib::LAPIStyleWaitcntr(&reduce_cntr, depth, NULL);
+	  
+	  for (i = 0; i < depth; i++) {
+	    for (int j = 0; j < reduceCount; j++)
 				F(values[j],((T*)scratch)[reduceCount * i + j]);
-		}
-
-		x10lib::LAPIStylePut(low, reduceCount * sizeof(T),
-			(char *)reduce_list[low] + reduceCount * depth * sizeof(T),
-			values, (lapi_cntr_t *)reduce_cntr_list[low],
-			NULL, NULL);
+	  }
+	  
+	  x10lib::LAPIStylePut(low, reduceCount * sizeof(T),
+			       (char *)reduce_list[low] + reduceCount * depth * sizeof(T),
+			       values, (lapi_cntr_t *)reduce_cntr_list[low],
+			       NULL, NULL);
 	}
 	X10_DEBUG(1, "Exit");
 	return X10_OK;
-}
-
-/*
+   }
+ 
+ /*
  * Perform a reduction operation over the variable var.
  * This operation just queues the reduction operations.
  * The reduction itself is performed by FinishReduceAll.
@@ -88,59 +90,59 @@ CommutativeReduce(T *values, int low, int high, int depth)
  * var - reduction variable
  */
 template <typename T>
-void Reduce(T *var)
-{
-	X10_DEBUG(1, "Entry");
+  void Reduce(T *var)
+  {
+    X10_DEBUG(1, "Entry");
 	assert(sizeof(T) <= X10_MAX_REDUCE_OBJECT_SIZE);
 	assert(reduceCount < X10_MAX_REDUCE_OPS_INFLIGHT);
 	inbuf[reduceCount] = var;
 	reduceCount++;
 	X10_DEBUG(1, "Exit");
 }
-
+ 
 /*
  * Finish-up all the queued reductions.
  * T - reduction type
  * F - reduction funcion (should be commutative)
  */
-template <typename T, void F (T&, const T&)>
-void FinishReduceAll ()
-{
-	X10_DEBUG(1, "Entry");
+ template <typename T, void F (T&, const T&)>
+   void FinishReduceAll ()
+   {
+     X10_DEBUG(1, "Entry");
 	int i;
-
+	
 	T *values = new T [reduceCount];
-
-	/* Accumulate all of the sum arrays onto the root process. */
+	
+	//Accumulate all of the sum arrays onto the root process. 
 	for (int i = 0; i < reduceCount; i++)
-		values[i] = *((T*) inbuf[i]);
-
-	/* Set the counter to zero. */
+	  values[i] = *((T*) inbuf[i]);
+	
+	//Set the counter to zero. 
 	x10lib::LAPIStyleSetcntr(&reduce_cntr, 0);
-
-	/* Zero out the reduce. */
+	
+	//Zero out the reduce. 
 	memset(scratch, 0, reduceCount * sizeof(T) *
-			LOG2(__x10_num_places));
+	       LOG2(__x10_num_places));
 
 	x10lib::SyncGlobal();
-
-	/* Call commutative reduce. */
+	
+	//Call commutative reduce.
 	CommutativeReduce<T,F> (values, 0, __x10_num_places,
 		LOG2(__x10_num_places) - 1);
-
+	
 	if (__x10_my_place == 0) {
-		x10lib::LAPIStyleWaitcntr(&reduce_cntr, LOG2(__x10_num_places), NULL);
-		for (i = 0; i < LOG2(__x10_num_places); i++) {
-			for (int j = 0; j < reduceCount; j++) {
-				F(*((T*)(inbuf[j])), ((T*)scratch)[reduceCount * i + j]);
-			}
-		}
+	  x10lib::LAPIStyleWaitcntr(&reduce_cntr, LOG2(__x10_num_places), NULL);
+	  for (i = 0; i < LOG2(__x10_num_places); i++) {
+	    for (int j = 0; j < reduceCount; j++) {
+	      F(*((T*)(inbuf[j])), ((T*)scratch)[reduceCount * i + j]);
+	    }
+	  }
 	}
 	delete [] values;
 	reduceCount = 0;
 	X10_DEBUG(1, "Exit");
-}
-
+   }
+ 
 } /* closing brace for namespace x10lib */
 #endif
 

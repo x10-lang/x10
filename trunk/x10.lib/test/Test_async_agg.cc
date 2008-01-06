@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.13 2007-10-11 08:27:16 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.14 2008-01-06 03:28:51 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/xassert.h>
@@ -35,7 +35,7 @@ void async2(x10_async_arg_t arg0, x10_async_arg_t arg1)
   J += arg0 * arg1; 
 }
 
-void asyncSwitch (x10_async_handler_t h, void* arg, int niter) 
+void AsyncSwitch (x10_async_handler_t h, void* arg, int niter) 
 {
 
   x10_async_arg_t* args;
@@ -82,26 +82,21 @@ main (int argc, char* argv[])
       if (target == x10lib::here()) {
 	async0 ((x10_async_arg_t) i);
 	async1 ();
-	async2 (i, m);	
       } else {
-	asyncSpawnInlineAgg (target, 0, (x10_async_arg_t) i);
-	asyncSpawnInlineAgg (target, 1, &arg, 0);
-        asyncSpawnInlineAgg (target, 2, i, m);
+	AsyncSpawnInlineAgg (target, 0, (x10_async_arg_t) i);
+	AsyncSpawnInlineAgg (target, 1, &arg, 0);
       }
     }
   } 
  
-  asyncFlush (0, sizeof(x10_async_arg_t));
-  asyncFlush  (1, 0);
-  asyncFlush (2, 2*sizeof(x10_async_arg_t));
+  AsyncAggFlush (0, sizeof(x10_async_arg_t));
+  AsyncAggFlush  (1, 0);
   
   
   x10lib::SyncGlobal(); 
   assert (I == __x10_num_places * N * (N-1) / 2 * m);
-  assert (J == __x10_num_places * N * (N-1) / 2 * m);
-  assert (K == __x10_num_places * N) ;
+  assert (K == __x10_num_places * N);
   
-  //cout << __x10_my_place << " I " << I << " " << J << " " << K << endl;
   cout << "Test_async_agg PASSED" << endl;
   
   x10lib::Finalize();
