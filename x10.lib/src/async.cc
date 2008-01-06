@@ -1,18 +1,19 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async.cc,v 1.20 2007-12-10 12:12:04 srkodali Exp $
+ * $Id: async.cc,v 1.21 2008-01-06 03:28:51 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** Implementation file for X10Lib's async interface. **/
 
-#include <x10/types.h>
-#include <x10/async.h>
+#include <lapi.h>
+
 #include <x10/am.h>
+#include <x10/async.h>
+#include <x10/types.h>
 #include <x10/xmacros.h>
 #include <x10/xassert.h>
-#include <lapi.h>
 #include "__x10lib.h__"
 
 /* local methods */
@@ -45,8 +46,8 @@ x10_err_t AsyncSpawnInline(x10_place_t tgt,
 				x10_async_handler_t hndlr,
 				void *args, size_t size)
 {
-	X10_DEBUG(1, "Entry");
-
+        X10_DEBUG(1, "Entry");
+	
 	lapi_cntr_t origin_cntr;
 	int tmp;
 

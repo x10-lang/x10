@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.53 2007-12-10 15:52:10 srkodali Exp $
+# $Id: Makefile,v 1.54 2008-01-06 03:28:51 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -25,6 +25,8 @@ ARRAY_A = $(SUBDIR1)/array.a
 SRCS = aggregate.cc \
 	async.cc \
 	async_swith.cc \
+        array_copy_switch.cc \
+        gen_array_copy_switch.cc \
 	broadcast.cc \
 	clock.cc \
 	env.cc \
@@ -45,6 +47,8 @@ SRCS = aggregate.cc \
 OBJS = aggregate.o \
 	async.o \
 	async_switch.o \
+	array_copy_switch.o \
+	gen_array_copy_switch.o \
 	broadcast.o \
 	clock.o \
 	env.o \

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose_contig.cc,v 1.5 2007-12-04 10:11:17 ganeshvb Exp $ 
+ * $Id: Test_transpose_contig.cc,v 1.6 2008-01-06 03:28:51 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -47,7 +47,7 @@ struct __closure__0 : Closure
 };
 
 
-void* arrayCopySwitch (int handler, void* buf)
+void* ArrayCopySwitch (int handler, void* buf)
 {
   __closure__0__args* closure_args = (__closure__0__args*) buf;
   
@@ -121,7 +121,7 @@ main (int argc, char* argv[])
       int destI= P * chunk_size;
      
       (closure + n)->_args._offset = destI;
-      asyncArrayCopyRaw (data2 + srcI, closure + n, chunk_size*sizeof(double), k);
+      AsyncArrayIput (data2 + srcI, closure + n, chunk_size*sizeof(double), k);
       n++;
   }
   

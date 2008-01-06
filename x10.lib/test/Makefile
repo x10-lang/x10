@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.15 2007-12-04 10:23:00 ganeshvb Exp $
+# $Id: Makefile,v 1.16 2008-01-06 03:28:51 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -37,9 +37,9 @@ TARGET4 = Test_async_agg_c
 SRCS4 = $(TARGET4).c
 OBJS4 = $(TARGET4).o
 
-TARGET5 = Test_async_agg_func
-SRCS5 = $(TARGET5).cc
-OBJS5 = $(TARGET5).o
+#TARGET5 = Test_async_agg_func
+#SRCS5 = $(TARGET5).cc
+#OBJS5 = $(TARGET5).o
 
 TARGET6 = Test_switch
 SRCS6 = $(TARGET6).cc
@@ -116,14 +116,14 @@ $(TARGET4).o: $(TARGET4).c
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES)  -c $< -o $@
 
-$(TARGET5): $(OBJS5)
-	$(RM) $@
-	$(CXX) $(LINKFLAGS) $(OBJS5) -o $@ $(LIBDIRS) $(LIBS)
+#$(TARGET5): $(OBJS5)
+#	$(RM) $@
+#	$(CXX) $(LINKFLAGS) $(OBJS5) -o $@ $(LIBDIRS) $(LIBS)
 
-$(TARGET5).o: $(TARGET5).cc
-	$(RM) $@
+#$(TARGET5).o: $(TARGET5).cc
+#	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
-
+#
 $(TARGET6): $(OBJS6)
 	$(RM) $@
 	$(CXX) $(LINKFLAGS) $(OBJS6) -o $@ $(LIBDIRS) $(LIBS)

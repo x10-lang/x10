@@ -1,16 +1,18 @@
 /*
  * (c) Copyright IBM Corporation 2007
- * $Id: reduce.cc,v 1.8 2007-12-10 16:44:38 ganeshvb Exp $ 
+ * $Id: reduce.cc,v 1.9 2008-01-06 03:28:51 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
+#include <iostream>
+#include <math.h>
+
+#include <lapi.h>
+
+#include <x10/types.h>
 #include <x10/x10lib.h>
 #include "__x10lib.h__"
-#include <x10/types.h>
 #include <x10/reduce.h>
-#include <iostream>
-#include <lapi.h>
-#include <math.h>
 
 namespace x10lib {
 

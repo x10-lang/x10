@@ -5,12 +5,12 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_dist.cc,v 1.8 2007-12-10 16:44:40 ganeshvb Exp $ */
+/* $Id: Test_dist.cc,v 1.9 2008-01-06 03:28:51 ganeshvb Exp $ */
 
 #include <iostream>
 
-#include <x10/dist.h>
 #include <x10/x10lib.h>
+#include <x10/dist.h>
 
 using namespace std;
 using namespace x10lib;

@@ -1,21 +1,21 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.25 2007-12-10 16:44:38 ganeshvb Exp $
+ * $Id: finish.cc,v 1.26 2008-01-06 03:28:51 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
 /** Implementation file for X10Lib's finish logic. **/
 
-#include <x10/types.h>
-#include <x10/err.h>
+#include <lapi.h>
+
 #include <x10/am.h>
+#include <x10/err.h>
+#include <x10/finish.h>
+#include <x10/types.h>
 #include <x10/xassert.h>
 #include <x10/xmacros.h>
-#include <x10/finish.h>
-#include <lapi.h>
 #include "__x10lib.h__"
-
 
 /* local types */
 /* process tree structure */
@@ -124,9 +124,9 @@ x10_err_t FinishInit()
 		// non-task0 parent
 		ftree->numChild = ftree->numPeers;
 
-		/* send an active message to 0 to let it know that
-		 * i am a remote parent
-		 */
+		// send an active message to 0 to let it know that
+		// i am a remote parent
+		// 
 		LAPI_Amsend(__x10_hndl,
 				0,
 				(void *)NUM_CHILD_HEADER_HANDLER,
@@ -137,9 +137,9 @@ x10_err_t FinishInit()
 				NULL, NULL, NULL);
 		ftree->parent = 0; // make 0 as my parent
 	} else if (__x10_my_place == 0) {
-		/* task0 parent
-		 * number of children of tasks0 = #peers + #remote parents
-		 */
+		// task0 parent
+		// number of children of tasks0 = #peers + #remote parents
+		// 
 		ftree->numChild += ftree->numPeers;
 	}
 	X10_DEBUG(1, "After if");
@@ -247,27 +247,27 @@ static x10_err_t FinishStart_(int *cs)
 	X10_DEBUG(1, "Entry" << ftree->parent);
 	int tmp;
 
-	 /* CHILDREN */
+	//CHILDREN 
 	if (ftree->parent != __x10_my_place) {
 		X10_DEBUG(1, "CHILD" << "CS: " << *cs << " ");
 		numExceptions = 0;
 
 		if (*cs > 0) return X10_OK;
 
-   		/* wait on CONTINUE_STATUS */
+   		//wait on CONTINUE_STATUS 
 		LRC(LAPI_Waitcntr(__x10_hndl, &cntr2, 1, &tmp));
 		*cs = continue_status;
 		X10_DEBUG(1, "CHILD DONE");
 	}
 
-	/* PARENT */
+	//PARENT 
 	if (ftree->numChild) {
 		lapi_cntr_t originCntr;
 		numExceptions = 0;
 		bufSize = 0;
 		X10_DEBUG(1, "PARENT");
 
-	        /* write CS into CONTINUE_STATUES for each child */
+	        //write CS into CONTINUE_STATUES for each child 
 		for (int i = 0; i < ftree->numChild; i++) {
 			X10_DEBUG(1, "PARENT SENDS TO " << " " <<
 				ftree->children[i]);
@@ -283,7 +283,7 @@ static x10_err_t FinishStart_(int *cs)
 
 		X10_DEBUG(1, "PARENT BEFORE FENCE");
 
-		/* LAPI LOCAL_FENCE */
+		//LAPI LOCAL_FENCE 
 		LRC(LAPI_Fence(__x10_hndl));
 		X10_DEBUG(1, "PARENT DONE");
 	}
@@ -299,24 +299,24 @@ static x10_err_t FinishEnd_(Exception *e)
 	void *ex_buf = (void *)e;
 	int esize = e ? e->size() : 0;
 
-	/* LAPI LOCAL_FENCE */
+	// LAPI LOCAL_FENCE
 	LAPI_Fence(__x10_hndl);
 
-	/* PARENT */
+	//PARENT
 	if (ftree->numChild) {
 
-    		/* append the exception to exception buffer */
+    		//append the exception to exception buffer 
 		if (e != NULL) {
 			memcpy((buffer + bufSize), e, e->size());
 			bufSize += e->size();
 			numExceptions++;
 		}
 		
-		/* wait until the counter reaches N-1 */
+		//wait until the counter reaches N-1 
 		int tmp;
 		LRC(LAPI_Waitcntr(__x10_hndl, &cntr1, ftree->numChild, &tmp));
 
-		/* if buffer not empty throw MultiException */
+		//if buffer not empty throw MultiException
 		if (numExceptions) {
 			if (__x10_my_place == 0) {
 				Exception **e = new Exception*[numExceptions];
@@ -333,17 +333,17 @@ static x10_err_t FinishEnd_(Exception *e)
 		}
 	}
 
-	/* CHILD */
+	//CHILD 
 	if (ftree->parent != __x10_my_place) {
 		X10_DEBUG(1, "CHILD");
 
-		if (e != NULL) {/* if exception not null, perform an active message send */
+		if (e != NULL) {//if exception not null, perform an active message send 
 			if (ftree->numChild == 0)
 				numExceptions++;
 			lapi_cntr_t originCntr;
 			int tmp;
 
-		        /* append the exception on parent and increment the counter */
+		        //append the exception on parent and increment the counter 
 			LRC(LAPI_Setcntr(__x10_hndl, &originCntr, 0));
 			LRC(LAPI_Amsend(__x10_hndl,
 				ftree->parent,
@@ -355,7 +355,7 @@ static x10_err_t FinishEnd_(Exception *e)
 				(lapi_cntr_t *)exceptionCntr[0],
 				&originCntr, NULL));
 			LRC(LAPI_Waitcntr(__x10_hndl, &originCntr, 1, &tmp));
-		} else { /* else just increment the Gfence counter */
+		} else { //else just increment the Gfence counter 
 			X10_DEBUG(1, "CHILD");
 			LRC(LAPI_Put(__x10_hndl, ftree->parent, 0, NULL,
 					NULL, (lapi_cntr_t *)exceptionCntr[0],
