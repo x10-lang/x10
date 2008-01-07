@@ -17,16 +17,14 @@ The programming model of \Xten{} enables an algorithm designer to focus on expre
 
 %%  \Xten{} is designed for applications that run on a cluster of SMPs. First note that similar to PGAS languages, a global virtual space is provided and this is critical in solving sparse, irregular graph instances as no graph partitioning techniques are available. Also \Xten{} provides a notion of affinity that helps. \Xten{} also provides various task constructs that is critical in expressing various kinds of parallelism. 
 
- We next present two algorithms that are programmed in \Xten{} and showcase its expressiveness in designing graph algorithms. Among the many productivity-improving features, we here choose to show those that are related to activity scheduling as this is the foundation of high performance guarantee from \Xten{}. 
+ We present algorithms that are programmed in \Xten{}, and showcase its expressiveness in designing graph algorithms. Among the many productivity-improving features, we here choose to show those that are related to activity scheduling as this is the foundation of high performance guarantee from \Xten{}. 
 We take the spanning tree problem as our example. Finding a spanning tree of a graph is an important building
 block for many graph algorithms, for example, biconnected components
 and ear decomposition \cite{MR86}, and can be used in graph planarity testing \cite{KR88}.
 Spanning tree represents a wide range of graph problems that have fast
 theoretic parallel algorithms but no known efficient
 parallel implementations that achieve speedup without serious restricting assumptions about the inputs. 
-Section~\ref{s:trav} describes a new algorithm on SMP, whose performance is further studied in subsequent sections.
-As an illustration of the ease to extend an algorithm designed for an SMP to run on a cluster of SMPs, section~\ref{s:trav-dist} is the algorithm
-for distributed environment. 
+Section~\ref{s:trav} describes a new algorithm on SMPs implemented through \Xten{}. The algorithm is surprisingly simple, yet it relies heavily on the \Xten{} programming model. Section~\ref{s:other-algs} discusses \Xten{} support for popular graph algorithms based on PRAM and other models using the spanning tree problem as an example.
 
  
 %% The Shiloach-Vishkin algorithm, representative of the ``graft-and-shortcut'' parallel approach,
@@ -53,7 +51,6 @@ graph and computes a spanning tree. It is identical to the recursive
 sequential DFS, except that commands for creating logical
 parallel activities ({\emph{async}) and atomic operations
 (\emph{compareAndSet}) are used.
-
 
 \begin{table}
 \centering
@@ -108,9 +105,14 @@ In both cases, computation is initiated by executing {\tt finish traverse(0);}. 
 
 Note that Bader and Cong's spanning tree algorithm contains over 300 lines of C code.
 
+\subsection{Expressing Prior Graph Algorithms in \Xten{}}
 
+PRAM algorithms and algorithms with coarse-grain parallelism can be easily expressed in \Xten{}. Here we consider two other variants of the spanning tree algorithm, that is, parallel BFS and the Shiloach-Vishkin algorithm (SV).  Parallel BFS is similar to the sequential version except that the expansion of the frontiers is executed by coordinating processors in parallel. SV is representative of several connectivity algorithms in that it adapts the widely-used
+graft-and-shortcut approach. Through carefully designed grafting
+schemes, the algorithm achieves complexities of \bigO{\log n} time and
+\bigO{(m+n)\log n} work under the arbitrary CRCW PRAM model. SV starts with $n$ isolated vertices. In each round, it inspects the edge $(u,v)$, and grafts vertex $u$ to $v$ under the condition that $u<v$. The edge that causes the grafting is labeled as a tree edge. At the end of each round, vertices that are connected by tree edges are compacted into supervertices. The process is iterated until only one vertex is left. Both parallel DFS and SV utilize fine-grained parallelism, and they can be easily expressed in \Xten{}. The appropriate aggregation and scheduling of activities are left to its runtime support. \Xten{} provides more epxressive ways to sepcify the parallelism of an algorithm, compared with other parallel languages, for example CILK and UPC.
 
-\label{s:trav-dist}
+%\label{s:trav-dist}
 
 % When the target system is of NUMA architecture, or even a cluster of SMPs, \Xten{} provides constructs that can easily transform Alg.~\ref{alg:st-x10} to take advantage of memory affinity . Alg.~\ref{alg:st-dist-x10} computes a spanning tree for a graph distributed on multiple nodes. In Alg.~\ref{alg:st-dist-x10}, again \emph{async} creates parallel activities. Compared with Alg.~\ref{alg:st-x10}, here \emph{async} takes the parameter of the distribution of a vertex $v$, and creates a traversal activity on a node that owns vertex $v$ so that the activity accesses data mostly on that node. Note that the activity can be created on a remote node. Obviously complex scheduling and synchronization support are necessary for fast execution of Alg.~\ref{alg:st-dist-x10}.
 
