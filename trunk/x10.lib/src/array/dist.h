@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: dist.h,v 1.13 2007-12-10 16:44:39 ganeshvb Exp $
+ * $Id: dist.h,v 1.14 2008-01-09 16:02:24 surs Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -11,8 +11,6 @@
 #include <x10/types.h>
 #include <x10/region.h>
 #include <x10/rectangular_region.h>
-
-using namespace x10lib;
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
