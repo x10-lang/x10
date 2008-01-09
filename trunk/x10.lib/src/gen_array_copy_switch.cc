@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: gen_array_copy_switch.cc,v 1.2 2007-12-10 13:15:45 srkodali Exp $
+ * $Id: gen_array_copy_switch.cc,v 1.3 2008-01-09 05:36:43 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,7 +12,7 @@
 using namespace std;
 
 extern "C"
-lapi_vec_t* genArrayCopySwitch (int handler, void * args)
+lapi_vec_t* GenArrayCopySwitch (int handler, void * args)
 {
    cout << "genArrayCopySwitch should be overriddern \n";
    exit(-1);
