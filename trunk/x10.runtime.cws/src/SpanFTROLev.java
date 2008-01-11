@@ -71,10 +71,11 @@ public class SpanFTROLev {
 			// properly nested.
 		}
 		public boolean verify(V root, boolean[] reachesRoot, int N) {
-			V p = parent;
+			V p = parent, oldP=null;
 			int count=0;
 			try { 
 				while (! (p==null || reachesRoot[p.index] || p ==this || p == root || count == N)) {
+					oldP=p;
 					p = p.parent;
 					count++;
 				}
@@ -84,11 +85,11 @@ public class SpanFTROLev {
 				if (reporting) {
 					if (count > N-10) {
 						System.out.println(Thread.currentThread() + " finds possibly bad guy " + this +
-								"count=" + count + "p=" + p );
+								"count=" + count + " p=" + p );
 					}
 					if (! reachesRoot[index])
 						System.out.println(Thread.currentThread() + " finds bad guy " + this +
-								"count=" + count + "p=" + p );
+								"count=" + count + " p=" + p  + " oldP=" + oldP);
 				}
 			}
 		}
@@ -150,30 +151,24 @@ public class SpanFTROLev {
 	
 	public void torusGraph (int k, final V [] graph){
 		System.out.println("Generating graph...");
-		int n = k*k,i,j,l,s;
-		int [] buff = new int [n];
-  		V [][] adj = new V [n][4];//Java support arrays of arrays
-  		for(i=0;i<n;i++) buff[i]=i;
-
-  		for(i=0;i<n/2;i++){
-			l=(int)(Math.random()*n)%n;
- 			s=(int)(Math.random()*n)%n;
-			j=buff[l];
+		final int n = k*k;
+		int [] buff = new int [n]; for(int i=0;i<n;i++) buff[i]=i;
+  		V [][] adj = new V [n][4];
+  		for(int i=0;i<n/2;i++){
+			int l=(int)(Math.random()*n)%n, s=(int)(Math.random()*n)%n;
+			int j=buff[l];
 			buff[l]=buff[s];
 			buff[s]=j;
   		}
 	
-  		for(i=0;i<k;i++)
-      		for(j=0;j<k;j++)
+  		for(int i=0;i<k;i++)
+      		for(int j=0;j<k;j++)
 	 		adj[buff[i*k+j]] = new V[]{graph[buff[((k+i-1)%k)*k+j]], 
       				graph[buff[((i+1)%k)*k+j]],
 	  		                    graph[buff[i*k+((k+j-1)%k)]], 
 	  		                    graph[buff[i*k+((j+1)%k)]]};
 		
-   		for(i=0;i<n;i++){
-			// vj -- why is this? graph[i].parent=i;
-        		graph[i].neighbors=adj[i];
-   		}
+   		for(int i=0;i<n;i++) graph[i].neighbors=adj[i];
    		reachesRoot = new boolean[n];
    		System.out.println("Graph generated.");
 	}
@@ -451,7 +446,7 @@ public class SpanFTROLev {
 		}
 		for (int i=Ns.length-1; i >= 0; i--) {
 			
-			final int N = Ns[i], M = D*N;
+			final int N = Ns[i], M = D*(graphType=='T'?N:1)*N;
 			// ensure the sole reference to the previous graph is nulled before gc.
 			
 			System.gc();
@@ -466,11 +461,11 @@ public class SpanFTROLev {
 			for (int k=0; k < 9; ++k) {
 				graph.setRoot();
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, graph.G[1]);
-				//System.out.println(Thread.currentThread() + " Starting timed section...");
+				System.out.print("   " + Thread.currentThread() + " Starting timed section...");
 				long s = System.nanoTime();
 				g.invoke(job);
 				long t = System.nanoTime() - s;
-				//System.out.println(Thread.currentThread() + " Done with timed section...");
+				System.out.println(Thread.currentThread() + " ....done.");
 				double secs = ((double) t)/NPS;
 				double Meps = 1000*(M/(double)t);
 				System.out.printf("N=%d t=%5.4f s %5.4f MegaEdges/s", N, secs, Meps);
