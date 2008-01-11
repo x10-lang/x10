@@ -182,48 +182,47 @@ public class SpanFTROLev {
 		int n=N;
 		int k=4;
 		final int TIMES=5;
-  		final int THRESHOLD=100;
-  		int neighbor;
-  		char [] visited = new char [n];
-  		int [] stack = new  int [n];
+		final int THRESHOLD=100;
+		int neighbor;
+		char [] visited = new char [n];
+		int [] stack = new  int [n];
 		int [] SUPER = new int [n];
-  		int i,j,u,v,nextn,top=-1,n_comp=0,rep,s;
+		int i,j,u,v,nextn,top=-1,n_comp=0,rep,s;
 		int [] counter = new int [n];
-  		final int [][] array = new int [n][k*TIMES-1];
-  		
-  		for(i=0;i<n;i++){
-   			 counter[i]=0;
-   			 visited[i]=0;
-  		}
+		final int [][] array = new int [n][k*TIMES];
 
-  		for(i=0;i<n;i++){
-     			for(j=counter[i];j<k;j++){
-    				if(i<n-THRESHOLD)
-       					neighbor=(int)(Math.random()*(n-i))%(n-i)+i;
-       				else 
+		for(i=0;i<n;i++){
+			counter[i]=0;
+			visited[i]=0;
+		}
+
+		for(i=0;i<n;i++){
+			for(j=counter[i];j<k;j++){
+				if(i<n-THRESHOLD)
+					neighbor=(int)(Math.random()*(n-i))%(n-i)+i;
+				else 
 					neighbor=(int)(Math.random()*THRESHOLD)%(THRESHOLD);
 				rep=0;
 				for(s=0;s<counter[i];s++) 
-   					if(array[i][s]==neighbor) rep=1;
+					if(array[i][s]==neighbor) rep=1;
 				while(rep==1){
 					rep=0;
 					if(i<n-THRESHOLD)
-       						neighbor=(int)(Math.random()*(n-i))%(n-i)+i;
-       					else 
+						neighbor=(int)(Math.random()*(n-i))%(n-i)+i;
+					else 
 						neighbor=(int)(Math.random()*THRESHOLD)%(THRESHOLD);
 					for(s=0;s<counter[i];s++) 
-   					if(array[i][s]==neighbor) rep=1;
+						if(array[i][s]==neighbor) rep=1;
 				}
 
 				while(counter[neighbor]>TIMES*k-1 || neighbor==i) neighbor=(neighbor+1)%n;
-        			array[i][counter[i]]=neighbor;
-        			counter[i]++;
-        			array[neighbor][counter[neighbor]]=i;
-        			counter[neighbor]++;
-     			}
-  		}
+				array[i][counter[i]]=neighbor;
+				counter[i]++;
+				array[neighbor][counter[neighbor]]=i;
+				counter[neighbor]++;
+			}
+		}
 	
-  		System.out.println("checking if it is connected\n");
 
   		/* now make the graph connected if it is not*/
   		for(i=0;i<n;i++){
@@ -247,16 +246,13 @@ public class SpanFTROLev {
       			}
     		}
  
-  		System.out.println("checking done\n");
- 
   		for(i=1;i<n_comp;i++){
       			u = SUPER[i];
       			v = SUPER[i-1];
       			array[u][counter[u]++]=v;
       			array[v][counter[v]++]=u;
     		}
-  		System.out.println("making connected done\n");
-  
+
    		for(i=0;i<n;i++){
 			
 			/*graph[i].self=i;*/
@@ -268,6 +264,7 @@ public class SpanFTROLev {
             			graph[i].neighbors[j]=graph[array[i][j]];
         		}
    		}
+   		reachesRoot = new boolean[n];
   		System.out.println("generating graph done\n");
 	}
 
