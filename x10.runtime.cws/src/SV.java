@@ -6,6 +6,7 @@
  * Shiloach Vishkin algorithm.
  */
 
+
 import x10.runtime.cws.Frame;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
@@ -22,7 +23,7 @@ public class SV {
 	}
 	
 	int m;
-	final E[] El, El1;
+	E[] El, El1;
 	int ncomps=0;
 
 
@@ -39,12 +40,139 @@ public class SV {
 		  }
 		  System.out.println("}"); 
 		}
-	public SV (int n, int m){
+	public SV (int n, int m, char graphType){
 		N=n;
 		M=m;
+		if (graphType=='E') {
+			randomEdgeGraph();
+		} else if (graphType=='T') {
+			N=n*n;
+			torusGraph(n);
+		} else if (graphType=='K') {
+			kGraph();
+		} else if (graphType=='R') {
+			
+			//rGraph(G,El);
+		}
+	}
+	public void torusGraph (int k){
+		System.out.println("Generating graph...");
+		int n = k*k,i,j,l,s;
+		int [] buff = new int [n];
+  		for(i=0;i<n;i++) buff[i]=i;
+
+  		for(i=0;i<n/2;i++){
+			l=(int)(Math.random()*n)%n;
+ 			s=(int)(Math.random()*n)%n;
+			j=buff[l];
+			buff[l]=buff[s];
+			buff[s]=j;
+  		}
+	
+  		El1 = new E[4*n];
+  		int c=0;
+  		for(i=0;i<k;i++)
+      		for(j=0;j<k;j++) {
+      			int v1= buff[i*k+j];
+      			El1[c++] = new E(v1, buff[((k+i-1)%k)*k+j]);
+      			El1[c++] = new E(v1, buff[((i+1)%k)*k+j]);
+      			El1[c++] = new E(v1, buff[i*k+((k+j-1)%k)]);
+      			El1[c++] = new E(v1, buff[i*k+((j+1)%k)]);
+      		}
+	 		
+   		System.out.println("Graph generated.");
+	}
+
+	public void kGraph(){
+		int n=N;
+		int k=4;
+		final int TIMES=5;
+		final int THRESHOLD=100;
+		int neighbor;
+		char [] visited = new char [n];
+		int [] stack = new  int [n];
+		int [] SUPER = new int [n];
+		int i,j,u,v,nextn,top=-1,n_comp=0,rep,s;
+		int [] counter = new int [n];
+		final int [][] array = new int [n][k*TIMES];
+
+		for(i=0;i<n;i++){
+			counter[i]=0;
+			visited[i]=0;
+		}
+
+		for(i=0;i<n;i++){
+			for(j=counter[i];j<k;j++){
+				if(i<n-THRESHOLD)
+					neighbor=(int)(Math.random()*(n-i))%(n-i)+i;
+				else 
+					neighbor=(int)(Math.random()*THRESHOLD)%(THRESHOLD);
+				rep=0;
+				for(s=0;s<counter[i];s++) 
+					if(array[i][s]==neighbor) rep=1;
+				while(rep==1){
+					rep=0;
+					if(i<n-THRESHOLD)
+						neighbor=(int)(Math.random()*(n-i))%(n-i)+i;
+					else 
+						neighbor=(int)(Math.random()*THRESHOLD)%(THRESHOLD);
+					for(s=0;s<counter[i];s++) 
+						if(array[i][s]==neighbor) rep=1;
+				}
+
+				while(counter[neighbor]>TIMES*k-1 || neighbor==i) neighbor=(neighbor+1)%n;
+				array[i][counter[i]]=neighbor;
+				counter[i]++;
+				array[neighbor][counter[neighbor]]=i;
+				counter[neighbor]++;
+			}
+		}
+	
+
+  		/* now make the graph connected if it is not*/
+  		for(i=0;i<n;i++){
+      			if(visited[i]==0){
+				visited[i]=1;
+				stack[++top]=i;
+				SUPER[n_comp++]=i;
+
+				while(top!=-1){
+	    				v = stack[top];
+	    				top--;
+
+	    				for (j=0; j<counter[v]; j++) {
+	      					nextn = array[v][j];
+	      					if(visited[nextn]==0) {  /* not seen yet */
+							visited[nextn]=1;
+							stack[++top]=nextn;
+	      					}
+	    				}
+	  			}
+      			}
+    		}
+ 
+  		for(i=1;i<n_comp;i++){
+      			u = SUPER[i];
+      			v = SUPER[i-1];
+      			array[u][counter[u]++]=v;
+      			array[v][counter[v]++]=u;
+    		}
+
+  		int count = 0;
+  		for(i=0;i<n;i++) count += counter[i];
+  		El1 = new E[count];
+  		count = 0;
+   		for(i=0;i<n;i++) for (j=0; j<counter[i];j++)
+   			El1[count++] = new E(i,array[i][j]);
+   		
+   		
+  		System.out.println("generating graph done\n");
+	}
+
+	void randomEdgeGraph() {
+		El = new E[M];
 		/*constructing edges*/
-		
-		El = new E [M]; for (int i=0; i <M; i++) El[i] = new E(Math.abs(rand32())%N, Math.abs(rand32())%N);
+		for (int i=0; i <M; i++) El[i] = new E(Math.abs(rand32())%N, Math.abs(rand32())%N);
 		
 		/* D[i] is the degree of vertex i (duplicate edges are counted).*/
 		int[] D = new int [N];
@@ -248,31 +376,44 @@ public class SV {
 	static final long NPS = (1000L * 1000 * 1000);
 	static boolean graphOnly =false;
 	public static void main(String[] args) {
+		int procs;
 		int num=-1;
-		int procs =1;
 		int D=4;
+		char graphType='E';
 		try {
 			procs = Integer.parseInt(args[0]);
-			System.out.println("P=" + procs);
+			System.out.println("Number of procs=" + procs);
 			if (args.length > 1) {
-				num = Integer.parseInt(args[1]);
-				System.out.println("N=" + num);
+				String s = args[1];
+				if (s.equalsIgnoreCase("T")) {
+					graphType='T'; 
+				}
+				else if (s.equalsIgnoreCase("R"))
+					graphType='R'; 
+				else if (s.equalsIgnoreCase("K"))
+					graphType='K'; 
+				System.out.println("graphType=" + graphType);
 			}
 			if (args.length > 2) {
-				D = Integer.parseInt(args[2]);
-				System.out.println("D=" + D);
+				num = Integer.parseInt(args[2]);
+				System.out.println("N=" + num);
 			}
+			
 			if (args.length > 3) {
-				boolean b = Boolean.parseBoolean(args[3]);
-				reporting=b;
+				D = Integer.parseInt(args[3]);
+				System.out.println("D=" + D);
 			}
 			if (args.length > 4) {
 				boolean b = Boolean.parseBoolean(args[4]);
+				reporting=b;
+			}
+			if (args.length > 5) {
+				boolean b = Boolean.parseBoolean(args[5]);
 				graphOnly=b;
 			}
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java SV <P>  [<N> [<Degree> [[false|true] [false|true]]]]");
+			System.out.println("Usage: java SV <threads> [<Type> [<N> [<Degree> [[false|true] [false|true]]]]]");
 			return;
 		}
 		Pool g = new Pool(procs);
@@ -282,7 +423,7 @@ public class SV {
 		for (int i=Ns.length-1; i >= 0; i--) {
 			int N = Ns[i], M = D*N;
 			System.gc();
-			SV graph = new SV(N,M);
+			SV graph = new SV(N,M, graphType);
 			if (graphOnly) return;
 		
 			for (int k=0; k < 10; ++k) {
