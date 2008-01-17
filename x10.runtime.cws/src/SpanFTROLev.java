@@ -458,7 +458,7 @@ public class SpanFTROLev {
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
-			for (int k=0; k < 9; ++k) {
+			for (int k=0; k < 19; ++k) {
 				graph.setRoot();
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, graph.G[1]);
 				System.out.print("   " + Thread.currentThread() + " Starting timed section...");
