@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.26 2008-01-06 03:28:51 ganeshvb Exp $
+ * $Id: finish.cc,v 1.27 2008-01-19 18:20:05 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -147,9 +147,9 @@ x10_err_t FinishInit()
 	LRC(LAPI_Setcntr(__x10_hndl, &cntr1, 0));
 	LRC(LAPI_Setcntr(__x10_hndl, &cntr2, 0));
 	LRC(LAPI_Address_init64(__x10_hndl, (lapi_long_t)&cntr1,
-			exceptionCntr));
+			 exceptionCntr));
 	LRC(LAPI_Address_init64(__x10_hndl, (lapi_long_t)&cntr2,
-			continueCntr));
+			 continueCntr));
 
 	X10_DEBUG(1, "Exit");
 	LAPI_Gfence(__x10_hndl);

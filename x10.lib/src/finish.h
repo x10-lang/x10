@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.h,v 1.12 2007-12-10 09:29:58 srkodali Exp $
+ * $Id: finish.h,v 1.13 2008-01-19 18:20:06 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -28,8 +28,8 @@ class Exception {
 
 class MultiException {
 	private:
-		int total_;
 		Exception **exceptions_;
+		int total_;
 
 	public:
 		MultiException(Exception **e, int n) :

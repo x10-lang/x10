@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.14 2008-01-06 03:28:51 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.15 2008-01-19 18:20:18 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -61,6 +61,8 @@ namespace x10lib {
     //cout << "delete " << (long) vec << endl; 
     delete vec;
     vec = NULL;
+
+    return X10_OK;
   }
 
   lapi_vec_t*
@@ -238,6 +240,8 @@ ArrayCopyInit ()
   LRC (LAPI_Addr_set (x10lib::__x10_hndl, (void*) AsyncArrayCopyHandler, ASYNC_ARRAY_COPY_HANDLER));  
 
   LRC (LAPI_Addr_set (x10lib::__x10_hndl, (void*) AsyncGenArrayCopyHandler, ASYNC_GEN_ARRAY_COPY_HANDLER));  
+
+ return X10_OK;
 
 }
 

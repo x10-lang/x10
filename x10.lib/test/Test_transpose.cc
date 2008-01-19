@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: Test_transpose.cc,v 1.5 2008-01-06 03:28:51 ganeshvb Exp $ 
+ * $Id: Test_transpose.cc,v 1.6 2008-01-19 18:20:18 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -131,9 +131,9 @@ main (int argc, char* argv[])
     timers[3] += nanoTime();
   }
  
+  x10lib::SyncGlobal();
   timers[4] = nanoTime();
  
-  x10lib::SyncGlobal();
   
   for (int i = 0; i < X; i++)
     for (int j = 0; j < Y; j++)
