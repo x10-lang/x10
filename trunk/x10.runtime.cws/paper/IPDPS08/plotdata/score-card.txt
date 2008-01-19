@@ -1,0 +1,24 @@
+BFS Random Altair
+-- XWS is marginally better than SpanT at p=8 for V=10M
+   **Dont know about Cilk.***
+
+BFS Random Moxie
+
+-- XWS outperforms Cilk at 1M (at 10M Cilk is marginally better?).
+-- XWS outperforms SpanT.
+
+BFS K Moxie
+
+-- XWS outperforms Cilk at 1M, 10M
+-- XWS comparable to SpanT at 1M, 10M
+
+BFS Torus Moxie **5M data point would be good**
+
+-- XWS outperforms Cilk at 10M for p>4. But not at 1M. 
+-- XWS outperforms C at p=16,32 for 1M,10M
+
+
+BFS K Graph Moxie
+-- XWS outperforms Cilk at 1M. ***Worse at 10M***
+-- ***XWS significant underperforms C at 1M and at 10M***
+
