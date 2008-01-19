@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: dist.h,v 1.14 2008-01-09 16:02:24 surs Exp $
+ * $Id: dist.h,v 1.15 2008-01-19 18:20:18 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -80,7 +80,7 @@ namespace x10lib {
    
     virtual RectangularRegion<RANK> restriction (int p) const = 0;
       
-    ~Dist () 
+    virtual ~Dist () 
     {
       delete [] _places;
     }

@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: broadcast.cc,v 1.5 2008-01-06 03:28:51 ganeshvb Exp $
+ * $Id: broadcast.cc,v 1.6 2008-01-19 18:20:05 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -22,13 +22,12 @@ x10_err_t Broadcast(void *buffer, size_t nbytes)
   lapi_long_t remoteAddresses[__x10_num_places];
   
   LRC(LAPI_Address_init64(__x10_hndl, (lapi_long_t)buffer,
-			  remoteAddresses));
+			   remoteAddresses));
   
   if (__x10_my_place == 0) {
     for (x10_place_t p = 0; p < __x10_num_places; p++) {
       if (p == __x10_my_place) continue;
-      LAPI_Put(__x10_hndl, p, nbytes,
-				(void *)remoteAddresses[p], buffer,
+      LAPI_Put(__x10_hndl, p, nbytes, (void*) remoteAddresses[p], (void*) buffer,
 	       NULL, NULL, NULL);
     }
   }

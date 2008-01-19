@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: iter.h,v 1.5 2007-12-10 16:44:39 ganeshvb Exp $ 
+ * $Id: iter.h,v 1.6 2008-01-19 18:20:18 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -25,7 +25,7 @@ void foreach (x10lib::Region<RANK>* r)
 
 /* specialization */
 template <void F (x10lib::Point<1>)>
-int foreach (x10lib::Region<1>* r)
+void foreach (x10lib::Region<1>* r)
 {
   int start_i = r->origin().value(0);
   int end_i = r->diagonal().value(0);
@@ -36,7 +36,7 @@ int foreach (x10lib::Region<1>* r)
 
 /* specialization */
 template <void F (x10lib::Point<2>)>
-int foreach (x10lib::Region<2>* r)
+void foreach (x10lib::Region<2>* r)
 {
   int start_i = r->origin().value(0);
   int end_i = r->diagonal().value(0);
