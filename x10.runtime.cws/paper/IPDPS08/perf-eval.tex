@@ -32,6 +32,12 @@ Greiner \cite{Gre94}, Hsu \emph{et al.} \cite{HRD97}, Krishnamurthy
 \end{itemize}
 
 
+All the C implementations follow the SPMD programming style.  $P$ threads are created, and each of them is assigned a piece of work .  The DFS implemenation balances the workload through a simple, explicit work-stealing scheme as described in \cite{BL94}.  Both the BFS and SV implementaions simply distribute the input array evenly to each processor to work on. 
+Ajacency array are used for the input representation in BFS and DFS.  SV simulates the corresponding PRAM algorithm, and uses the edge list representation.
+In DFS, mutula-exclusion through atomic instruction is used for synchronization.  BFS and SV employ only barriers, and the barrier implemenation is the usual $O(\log P)$ tree implemenation.
+
+DFS in Cilk use the same input represenation as the C implementation.  Concurrency and synchronization are supported by Cilk runtime and Cilk lock ( an efficient implementation through atomic instructions). 
+
 The performance numbers for handwritten C application and for the
 \XWS{} code are given below, for psuedo-depth-first search,
 breadth-first search and the Shiloach Vishkin algorithm for spanning
