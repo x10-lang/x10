@@ -1,5 +1,37 @@
 \section{Performance Evaluation}\label{s:results}
 
+We use a collection of sparse graph generators to compare the performance of the different implementations of 
+parallel spanning tree graph algorithms. Our generators include several employed in previous
+experimental studies of parallel graph algorithms for related
+problems. For instance, we include the torus topologies used in the connectivity studies of Greiner
+\cite{Gre94}, Krishnamurthy \emph{et al.} \cite{KLC97}, Hsu \emph{et
+  al.} \cite{HRD97}, Goddard \emph{et al.} \cite{GKP97}, and Bader and Cong \cite{BC04b}, the
+random graphs used by Greiner \cite{Gre94}, Hsu \emph{et al.}  \cite{HRD97}, and Goddard \emph{et
+  al.} \cite{GKP97}, the geometric graphs used by
+Greiner \cite{Gre94}, Hsu \emph{et al.} \cite{HRD97}, Krishnamurthy
+\emph{et al.} \cite{KLC97}, and Goddard \emph{et al.} \cite{GKP97}.
+
+\begin{itemize}
+\itemsep0pt
+
+\item \textbf{2D Torus} The vertices of the graph are placed on a 2D
+  mesh, with each vertex connected to its four neighbors.  
+
+\item \textbf{Random Graph} We create a random graph of $n$ vertices
+  and $m$ edges by randomly adding $m$ unique edges to the vertex
+  set. Several software packages generate random graphs this way,
+  including LEDA \cite{MN99}.
+  
+\item \textbf{Geometric Graphs and AD3} In these $k$-regular graphs,
+  %$n$ points are chosen uniformly and at random in a unit square in
+  %the Cartesian plane, and 
+  each vertex is connected to its $k$ %nearest
+  neighbors.  Moret and Shapiro \cite{MS94} use these
+  in their empirical study of sequential MST algorithms. \textbf{AD3}
+  is a geometric graph with $k=3$.  
+\end{itemize}
+
+
 The performance numbers for handwritten C application and for the
 \XWS{} code are given below, for psuedo-depth-first search,
 breadth-first search and the Shiloach Vishkin algorithm for spanning
