@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.54 2008-01-06 03:28:51 ganeshvb Exp $
+# $Id: Makefile,v 1.55 2008-01-21 11:31:15 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -23,6 +23,7 @@ LIBTARGET = lib$(LIBNAME).a
 ARRAY_A = $(SUBDIR1)/array.a
 
 SRCS = aggregate.cc \
+        aggregate_single.cc\
 	async.cc \
 	async_swith.cc \
         array_copy_switch.cc \
@@ -45,6 +46,7 @@ SRCS = aggregate.cc \
 
 
 OBJS = aggregate.o \
+       aggregate_single.o\
 	async.o \
 	async_switch.o \
 	array_copy_switch.o \
@@ -66,6 +68,7 @@ OBJS = aggregate.o \
 	x10lib.o
 
 HEADERS = aggreate.h \
+        aggregate_single.h\
 	async.h \
 	am.h \
 	broadcast.h \

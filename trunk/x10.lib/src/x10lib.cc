@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.29 2007-12-10 16:44:38 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.30 2008-01-21 11:31:16 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -11,30 +11,6 @@
 #include <stdlib.h>
 #include <memory.h>
 
-extern x10_err_t asyncInit();
-
-extern x10_err_t asyncAggInit();
-extern x10_err_t asyncAggFinalize();
-
-//extern x10_err_t asyncAggInit_hc();
-//extern x10_err_t asyncAggFinalize_hc();
-
-//extern x10_err_t asyncAggInit_ra();
-//extern x10_err_t asyncAggFinalize_ra();
-
-extern x10_err_t arrayCopyInit();
-
-extern x10_err_t finishInit();
-extern void finishFinalize();
-
-extern x10_err_t arrayInit();
-
-extern void reduceInit();
-extern void reduceFinalize();
-
-#ifdef STANDALONE
-extern void initStandAlone (lapi_info_t*);
-#endif
 #include "__x10lib.h__"
 
 namespace x10lib {
@@ -116,6 +92,7 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 
 	AsyncInit();
 	AsyncAggInit();
+	AsyncAggSingleInit();
 	FinishInit();
 	ReduceInit();
 	ArrayInit();
@@ -146,6 +123,7 @@ x10_err_t Finalize(void)
 	ReduceFinalize();
 	FinishFinalize();
 	AsyncAggFinalize();
+	AsyncAggSingleFinalize();
   
 	/* terminate LAPI context */
 	(void)LAPI_Term(__x10_hndl);

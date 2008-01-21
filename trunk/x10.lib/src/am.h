@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: am.h,v 1.2 2007-12-09 10:31:19 srkodali Exp $
+ * $Id: am.h,v 1.3 2008-01-21 11:31:15 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -17,17 +17,18 @@
 enum {
 	ASYNC_SPAWN_HANDLER = 1, /* 1 - General Async Spawn */
 	ASYNC_SPAWN_HANDLER_AGG, /* 2 - Async with Aggregation */
-	EXCEPTION_HEADER_HANDLER, /* 3 - Finish Logic Exceptions */
-	CONTINUE_HEADER_HANDLER, /* 4 - Finish Logic Continuations */
-	NUM_CHILD_HEADER_HANDLER, /* 5 - Finish Logic Process 0 Children */
+	ASYNC_SPAWN_HANDLER_AGG2, /* 3 - Async with Aggregation (Special case) */
+	EXCEPTION_HEADER_HANDLER, /* 4 - Finish Logic Exceptions */
+	CONTINUE_HEADER_HANDLER, /*  5 - Finish Logic Continuations */
+	NUM_CHILD_HEADER_HANDLER, /* 6 - Finish Logic Process 0 Children */
 
 	/* Array Operation Handlers */
-	ARRAY_COPY_HANDLER, /* 6 */
-	ARRAY_CONSTRUCTION_HANDLER, /* 7 */
-	ARRAY_DELETION_HANDLER, /* 8 */
-	ARRAY_ELEMENT_UPDATE_HANDLER, /* 9 */
-	ASYNC_ARRAY_COPY_HANDLER, /* 10 */
-	ASYNC_GEN_ARRAY_COPY_HANDLER, /* 11 */
+	ARRAY_COPY_HANDLER, /* 7 */
+	ARRAY_CONSTRUCTION_HANDLER, /* 8 */
+	ARRAY_DELETION_HANDLER, /* 9 */
+	ARRAY_ELEMENT_UPDATE_HANDLER, /* 10 */
+	ASYNC_ARRAY_COPY_HANDLER, /* 11 */
+	ASYNC_GEN_ARRAY_COPY_HANDLER, /* 12 */
 
 	/* ... */
 
