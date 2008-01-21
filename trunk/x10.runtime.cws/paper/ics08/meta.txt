@@ -1,0 +1,17 @@
+problem
+
+Graphs. different variety. need
+
+
+Machine descriptions
+
+Methodology
+
+max of many runs. there is variation on runs.
+
+loaded machines, variations on runs.
+
+Drawbacks fo Java
+
+garbage collection, card marking
+overhead for objects.

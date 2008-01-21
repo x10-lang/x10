@@ -1,0 +1,14 @@
+
+* Check algorithms in the paper in general. In particular 
+
+  * discussion of dekker.
+
+  *Improperly nested tasks. currentFrameIfStackNotEmpty() split into a
+conditional. Think about locking issues.
+
+
+* Check X10 reference and a sentence on its open-source at the
+  beginning of the runtime section.
+
+* Discussion of the theoritical properties of X10. I just have some
+  sentence in bold saying it is to be done.
