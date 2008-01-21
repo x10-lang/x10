@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.36 2007-12-10 16:44:38 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.37 2008-01-21 11:31:16 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -21,6 +21,8 @@
 #include <x10/switch.h>
 #include <x10/order.h>
 #include <x10/async.h>
+#include <x10/aggregate.h>
+#include <x10/aggregate_single.h>
 #include <x10/aggregate.h>
 #include <x10/clock.h>
 #include <x10/xassert.h>

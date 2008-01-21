@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.27 2008-01-19 18:20:05 ganeshvb Exp $
+ * $Id: finish.cc,v 1.28 2008-01-21 11:31:16 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -209,6 +209,7 @@ NumChildHeaderHandler(lapi_handle_t handle, void *uhdr,
 	ftree->numChild++;
 	lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
 	ret_info->ctl_flags = LAPI_BURY_MSG;
+	ret_info->ret_flags = LAPI_LOCAL_STATE;
 	*comp_h = NULL;
 	return NULL;
 }
@@ -221,6 +222,7 @@ ContinueHeaderHandler(lapi_handle_t handle, void *uhdr,
 	continue_status = *((uint *)uhdr);
 	lapi_return_info_t *ret_info = (lapi_return_info_t *)msg_len;
 	ret_info->ctl_flags = LAPI_BURY_MSG;
+	ret_info->ret_flags = LAPI_LOCAL_STATE;
 	*comp_h = NULL;
 	return NULL;
 }
@@ -237,6 +239,7 @@ ExceptionHeaderHandler(lapi_handle_t handle, void *uhdr,
 	bufSize += *msg_len;
 	numExceptions += child_exceptions;
 	ret_info->ctl_flags = LAPI_BURY_MSG;
+	ret_info->ret_flags = LAPI_LOCAL_STATE;
 	*comp_h = NULL;
 	return NULL;
 }
