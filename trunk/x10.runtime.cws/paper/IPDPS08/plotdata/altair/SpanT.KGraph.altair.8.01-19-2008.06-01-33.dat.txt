@@ -1,0 +1,213 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 2
+# Start Time: 01/19/2008 - 06:01:33
+############################################################
+#
+# Run: 1
+#
+
+## Size: 5000000
+
+### nproc: 1
+./span -t 1 -- 2 5000000 3
+THREADS: 1
+check if it is connected
+generating graph done
+init edge list done, n_edge = 16222558, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 5.759903 s
+Best time used on TRAVERSE is 2.864981 s
+Best time used on BFS is 3.195399 s
+Best time used on BFS_localq is 2.463123 s
+./span -t 1 -- 2 5000000 4
+THREADS: 1
+check if it is connected
+generating graph done
+init edge list done, n_edge = 21272624, n_vertices=5000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 5.704078 s
+Best time used on TRAVERSE is 3.066206 s
+Best time used on BFS is 3.318448 s
+Best time used on BFS_localq is 2.625026 s
+
+### nproc: 2
+./span -t 2 -- 2 5000000 3
+THREADS: 2
+check if it is connected
+generating graph done
+init edge list done, n_edge = 16222558, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 3.622140 s
+Best time used on TRAVERSE is 1.647799 s
+Best time used on BFS is 2.047701 s
+Best time used on BFS_localq is 1.567594 s
+./span -t 2 -- 2 5000000 4
+THREADS: 2
+check if it is connected
+generating graph done
+init edge list done, n_edge = 21272624, n_vertices=5000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 5.540659 s
+Best time used on TRAVERSE is 1.966961 s
+Best time used on BFS is 2.273602 s
+Best time used on BFS_localq is 1.988676 s
+
+### nproc: 4
+./span -t 4 -- 2 5000000 3
+THREADS: 4
+check if it is connected
+generating graph done
+init edge list done, n_edge = 16222558, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 2.234716 s
+Best time used on TRAVERSE is 1.117227 s
+Best time used on BFS is 1.259328 s
+Best time used on BFS_localq is 0.983301 s
+./span -t 4 -- 2 5000000 4
+THREADS: 4
+check if it is connected
+generating graph done
+init edge list done, n_edge = 21272624, n_vertices=5000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 4.936579 s
+Best time used on TRAVERSE is 1.250972 s
+Best time used on BFS is 1.425985 s
+Best time used on BFS_localq is 1.187839 s
+
+### nproc: 8
+./span -t 8 -- 2 5000000 3
+THREADS: 8
+check if it is connected
+generating graph done
+init edge list done, n_edge = 16222558, n_vertices=5000000
+number of iterations:6
+number of iterations:5
+Best time used on CRCW is 1.827172 s
+Best time used on TRAVERSE is 0.767204 s
+Best time used on BFS is 0.941112 s
+Best time used on BFS_localq is 0.624669 s
+./span -t 8 -- 2 5000000 4
+THREADS: 8
+check if it is connected
+generating graph done
+init edge list done, n_edge = 21272624, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 5.982669 s
+Best time used on TRAVERSE is 1.203829 s
+Best time used on BFS is 1.382294 s
+Best time used on BFS_localq is 0.704390 s
+#
+# Run: 2
+#
+
+## Size: 5000000
+
+### nproc: 1
+./span -t 1 -- 2 5000000 3
+THREADS: 1
+check if it is connected
+generating graph done
+init edge list done, n_edge = 16222558, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 5.725068 s
+Best time used on TRAVERSE is 2.838892 s
+Best time used on BFS is 3.175070 s
+Best time used on BFS_localq is 2.446065 s
+./span -t 1 -- 2 5000000 4
+THREADS: 1
+check if it is connected
+generating graph done
+init edge list done, n_edge = 21272624, n_vertices=5000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 5.727318 s
+Best time used on TRAVERSE is 3.089791 s
+Best time used on BFS is 3.348758 s
+Best time used on BFS_localq is 2.624069 s
+
+### nproc: 2
+./span -t 2 -- 2 5000000 3
+THREADS: 2
+check if it is connected
+generating graph done
+init edge list done, n_edge = 16222558, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 3.609223 s
+Best time used on TRAVERSE is 1.639835 s
+Best time used on BFS is 2.045082 s
+Best time used on BFS_localq is 1.572838 s
+./span -t 2 -- 2 5000000 4
+THREADS: 2
+check if it is connected
+generating graph done
+init edge list done, n_edge = 21272624, n_vertices=5000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 5.173796 s
+Best time used on TRAVERSE is 1.823856 s
+Best time used on BFS is 1.986825 s
+Best time used on BFS_localq is 1.650537 s
+
+### nproc: 4
+./span -t 4 -- 2 5000000 3
+THREADS: 4
+check if it is connected
+generating graph done
+init edge list done, n_edge = 16222558, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 2.815257 s
+Best time used on TRAVERSE is 1.084165 s
+Best time used on BFS is 1.228116 s
+Best time used on BFS_localq is 0.902752 s
+./span -t 4 -- 2 5000000 4
+THREADS: 4
+check if it is connected
+generating graph done
+init edge list done, n_edge = 21272624, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 6.022898 s
+Best time used on TRAVERSE is 1.232264 s
+Best time used on BFS is 1.430781 s
+Best time used on BFS_localq is 1.204107 s
+
+### nproc: 8
+./span -t 8 -- 2 5000000 3
+THREADS: 8
+check if it is connected
+generating graph done
+init edge list done, n_edge = 16222558, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 2.077306 s
+Best time used on TRAVERSE is 0.744343 s
+Best time used on BFS is 0.925725 s
+Best time used on BFS_localq is 0.621239 s
+./span -t 8 -- 2 5000000 4
+THREADS: 8
+check if it is connected
+generating graph done
+init edge list done, n_edge = 21272624, n_vertices=5000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 5.991456 s
+Best time used on TRAVERSE is 1.187639 s
+Best time used on BFS is 1.373219 s
+Best time used on BFS_localq is 0.654185 s
+
+############################################################
+# End Time: 01/19/2008 - 06:19:29
+############################################################
