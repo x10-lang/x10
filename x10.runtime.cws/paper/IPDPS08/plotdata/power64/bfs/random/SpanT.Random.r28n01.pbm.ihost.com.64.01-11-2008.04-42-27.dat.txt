@@ -1,0 +1,2201 @@
+############################################################
+# Benchmark Host: r28n01.pbm.ihost.com
+# Number Of Processors: 64
+# Usable Physical Memory: 513792 MBytes
+# SMT Enabled: false
+# SMT Threads: 2
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 01/11/2008 - 04:42:27
+############################################################
+#
+# Run: 1
+#
+
+## Size: 100000
+
+### nproc: 1
+./span -t 1 -- 0 100000 400000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=800040
+ count=800040
+ count=800040
+ count=800040
+ count=800040
+Best time used on TRAVERSE2 is 0.032950 s
+Best time used on DFS is 0.018716 s
+Best time used on SV is 0.058016 s
+Best time used on CRCW_spinlock is 0.030994 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.018059 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.016175 s
+
+### nproc: 2
+./span -t 2 -- 0 100000 400000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=789539
+ count=794645
+ count=792614
+ count=793580
+ count=794129
+Best time used on TRAVERSE2 is 0.040556 s
+Best time used on DFS is 0.015134 s
+Best time used on SV is 0.034367 s
+Best time used on CRCW_spinlock is 0.021258 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.014860 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.012038 s
+
+### nproc: 4
+./span -t 4 -- 0 100000 400000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=796750
+ count=799731
+ count=799769
+ count=799643
+ count=799688
+Best time used on TRAVERSE2 is 0.026501 s
+Best time used on DFS is 0.009334 s
+Best time used on SV is 0.020600 s
+Best time used on CRCW_spinlock is 0.012743 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.010279 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.011492 s
+
+### nproc: 8
+./span -t 8 -- 0 100000 400000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=800566
+ count=799900
+ count=800905
+ count=799195
+ count=800379
+Best time used on TRAVERSE2 is 0.017524 s
+Best time used on DFS is 0.007622 s
+Best time used on SV is 0.013485 s
+Best time used on CRCW_spinlock is 0.008942 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.010050 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.018688 s
+
+### nproc: 16
+./span -t 16 -- 0 100000 400000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=807978
+ count=808310
+ count=808290
+ count=808197
+ count=808307
+Best time used on TRAVERSE2 is 0.017528 s
+Best time used on DFS is 0.012021 s
+Best time used on SV is 0.012080 s
+Best time used on CRCW_spinlock is 0.007182 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.016623 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.045833 s
+
+### nproc: 32
+./span -t 32 -- 0 100000 400000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=920599
+ count=921209
+ count=917182
+ count=920444
+ count=916582
+Best time used on TRAVERSE2 is 0.046538 s
+Best time used on DFS is 0.029838 s
+Best time used on SV is 0.023972 s
+Best time used on CRCW_spinlock is 0.013218 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.041084 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.128101 s
+
+### nproc: 64
+./span -t 64 -- 0 100000 400000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=1839465
+ count=1839335
+ count=1839563
+ count=1839111
+ count=1839573
+Best time used on TRAVERSE2 is 0.110743 s
+Best time used on DFS is 0.058170 s
+Best time used on SV is 0.090177 s
+Best time used on CRCW_spinlock is 0.033145 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.066643 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.162453 s
+
+
+
+## Size: 1000000
+
+### nproc: 1
+./span -t 1 -- 0 1000000 4000000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8000665
+ count=8000665
+ count=8000665
+ count=8000665
+ count=8000665
+Best time used on TRAVERSE2 is 0.944243 s
+Best time used on DFS is 0.644247 s
+Best time used on SV is 1.376503 s
+Best time used on CRCW_spinlock is 0.767143 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.625860 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.543310 s
+
+### nproc: 2
+./span -t 2 -- 0 1000000 4000000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=7946376
+ count=7952608
+ count=7959550
+ count=7961492
+ count=7959052
+Best time used on TRAVERSE2 is 0.767106 s
+Best time used on DFS is 0.353496 s
+Best time used on SV is 0.820864 s
+Best time used on CRCW_spinlock is 0.462816 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.352150 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.304001 s
+
+### nproc: 4
+./span -t 4 -- 0 1000000 4000000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=7995438
+ count=7993155
+ count=7985874
+ count=7990173
+ count=7995155
+Best time used on TRAVERSE2 is 0.409524 s
+Best time used on DFS is 0.175929 s
+Best time used on SV is 0.411512 s
+Best time used on CRCW_spinlock is 0.247445 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.195270 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.206748 s
+
+### nproc: 8
+./span -t 8 -- 0 1000000 4000000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8000118
+ count=7998383
+ count=8000556
+ count=7999129
+ count=7999172
+Best time used on TRAVERSE2 is 0.195601 s
+Best time used on DFS is 0.088220 s
+Best time used on SV is 0.216008 s
+Best time used on CRCW_spinlock is 0.131398 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.134077 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.238120 s
+
+### nproc: 16
+./span -t 16 -- 0 1000000 4000000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8007454
+ count=8007737
+ count=8006812
+ count=8005184
+ count=8007609
+Best time used on TRAVERSE2 is 0.101376 s
+Best time used on DFS is 0.050549 s
+Best time used on SV is 0.121404 s
+Best time used on CRCW_spinlock is 0.072827 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.176125 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.505780 s
+
+### nproc: 32
+./span -t 32 -- 0 1000000 4000000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8064278
+ count=8064158
+ count=8064278
+ count=8064205
+ count=8064263
+Best time used on TRAVERSE2 is 0.099707 s
+Best time used on DFS is 0.047333 s
+Best time used on SV is 0.076743 s
+Best time used on CRCW_spinlock is 0.046399 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.405458 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 1.436240 s
+
+### nproc: 64
+./span -t 64 -- 0 1000000 4000000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8512451
+ count=8511231
+ count=8517941
+ count=8455597
+ count=8517475
+Best time used on TRAVERSE2 is 0.170264 s
+Best time used on DFS is 0.076051 s
+Best time used on SV is 0.135556 s
+Best time used on CRCW_spinlock is 0.057116 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.616775 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 1.793803 s
+
+
+
+## Size: 10000000
+
+### nproc: 1
+./span -t 1 -- 0 10000000 40000000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80006592
+ count=80001223
+ count=80006593
+ count=80006590
+ count=80006593
+Best time used on TRAVERSE2 is 24.548318 s
+Best time used on DFS is 16.004371 s
+Best time used on SV is 41.116567 s
+Best time used on CRCW_spinlock is 23.228804 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 15.392987 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 12.797217 s
+
+### nproc: 2
+./span -t 2 -- 0 10000000 40000000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79981965
+ count=79947607
+ count=79974170
+ count=79978845
+ count=79986786
+Best time used on TRAVERSE2 is 12.264444 s
+Best time used on DFS is 7.454198 s
+Best time used on SV is 23.733889 s
+Best time used on CRCW_spinlock is 13.281305 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 7.191358 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 6.079166 s
+
+### nproc: 4
+./span -t 4 -- 0 10000000 40000000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79990892
+ count=79990761
+ count=79991053
+ count=79990513
+ count=79986513
+Best time used on TRAVERSE2 is 6.523330 s
+Best time used on DFS is 3.660059 s
+Best time used on SV is 11.332566 s
+Best time used on CRCW_spinlock is 6.441055 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 3.782239 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 3.599026 s
+
+### nproc: 8
+./span -t 8 -- 0 10000000 40000000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79997596
+ count=79996097
+ count=79995440
+ count=79989404
+ count=79991604
+Best time used on TRAVERSE2 is 3.280368 s
+Best time used on DFS is 1.705809 s
+Best time used on SV is 5.656221 s
+Best time used on CRCW_spinlock is 2.891178 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 2.240324 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 3.028365 s
+
+### nproc: 16
+./span -t 16 -- 0 10000000 40000000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80013343
+ count=80013924
+ count=80013416
+ count=80013196
+ count=80013859
+Best time used on TRAVERSE2 is 1.614859 s
+Best time used on DFS is 0.820659 s
+Best time used on SV is 3.031567 s
+Best time used on CRCW_spinlock is 1.455807 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 2.105554 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 5.243496 s
+
+### nproc: 32
+./span -t 32 -- 0 10000000 40000000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80064106
+ count=80064695
+ count=80064165
+ count=80061128
+ count=80064686
+Best time used on TRAVERSE2 is 0.809940 s
+Best time used on DFS is 0.415698 s
+Best time used on SV is 1.410382 s
+Best time used on CRCW_spinlock is 0.712383 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 4.120191 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 14.120276 s
+
+### nproc: 64
+./span -t 64 -- 0 10000000 40000000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80521916
+ count=80522247
+ count=80522218
+ count=80521847
+ count=80521871
+Best time used on TRAVERSE2 is 0.682247 s
+Best time used on DFS is 0.267339 s
+Best time used on SV is 0.775901 s
+Best time used on CRCW_spinlock is 0.392676 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 6.031382 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 15.681630 s
+
+
+#
+# Run: 2
+#
+
+## Size: 100000
+
+### nproc: 1
+./span -t 1 -- 0 100000 400000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=800040
+ count=800040
+ count=800040
+ count=800040
+ count=800040
+Best time used on TRAVERSE2 is 0.038057 s
+Best time used on DFS is 0.020815 s
+Best time used on SV is 0.069847 s
+Best time used on CRCW_spinlock is 0.039147 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.019759 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.016606 s
+
+### nproc: 2
+./span -t 2 -- 0 100000 400000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=793641
+ count=794462
+ count=792464
+ count=790727
+ count=792154
+Best time used on TRAVERSE2 is 0.040233 s
+Best time used on DFS is 0.015123 s
+Best time used on SV is 0.034797 s
+Best time used on CRCW_spinlock is 0.021345 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.014831 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.011971 s
+
+### nproc: 4
+./span -t 4 -- 0 100000 400000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=797045
+ count=799604
+ count=799877
+ count=799613
+ count=799724
+Best time used on TRAVERSE2 is 0.027411 s
+Best time used on DFS is 0.009638 s
+Best time used on SV is 0.020775 s
+Best time used on CRCW_spinlock is 0.014501 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.010428 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.011541 s
+
+### nproc: 8
+./span -t 8 -- 0 100000 400000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=800024
+ count=801066
+ count=801017
+ count=800557
+ count=800877
+Best time used on TRAVERSE2 is 0.017071 s
+Best time used on DFS is 0.007287 s
+Best time used on SV is 0.013243 s
+Best time used on CRCW_spinlock is 0.008717 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.009783 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.018547 s
+
+### nproc: 16
+./span -t 16 -- 0 100000 400000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=807452
+ count=808332
+ count=808299
+ count=808288
+ count=808365
+Best time used on TRAVERSE2 is 0.017683 s
+Best time used on DFS is 0.012147 s
+Best time used on SV is 0.013553 s
+Best time used on CRCW_spinlock is 0.007274 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.016919 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.046502 s
+
+### nproc: 32
+./span -t 32 -- 0 100000 400000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=920564
+ count=920728
+ count=917788
+ count=921070
+ count=920799
+Best time used on TRAVERSE2 is 0.045245 s
+Best time used on DFS is 0.028527 s
+Best time used on SV is 0.022966 s
+Best time used on CRCW_spinlock is 0.012793 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.039702 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.121584 s
+
+### nproc: 64
+./span -t 64 -- 0 100000 400000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=1839015
+ count=1839046
+ count=1839567
+ count=1838999
+ count=1838858
+Best time used on TRAVERSE2 is 0.110063 s
+Best time used on DFS is 0.059498 s
+Best time used on SV is 0.110965 s
+Best time used on CRCW_spinlock is 0.030879 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.069790 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.147582 s
+
+
+
+## Size: 1000000
+
+### nproc: 1
+./span -t 1 -- 0 1000000 4000000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8000664
+ count=8000665
+ count=8000665
+ count=8000665
+ count=8000665
+Best time used on TRAVERSE2 is 0.961010 s
+Best time used on DFS is 0.682675 s
+Best time used on SV is 1.365738 s
+Best time used on CRCW_spinlock is 0.765395 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.663894 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.562593 s
+
+### nproc: 2
+./span -t 2 -- 0 1000000 4000000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=7965148
+ count=7974094
+ count=7971907
+ count=7967015
+ count=7966639
+Best time used on TRAVERSE2 is 0.742057 s
+Best time used on DFS is 0.340869 s
+Best time used on SV is 0.822713 s
+Best time used on CRCW_spinlock is 0.456474 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.343700 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.292095 s
+
+### nproc: 4
+./span -t 4 -- 0 1000000 4000000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8000248
+ count=7995642
+ count=7999033
+ count=7996990
+ count=7998398
+Best time used on TRAVERSE2 is 0.398822 s
+Best time used on DFS is 0.171628 s
+Best time used on SV is 0.421135 s
+Best time used on CRCW_spinlock is 0.244155 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.190397 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.202593 s
+
+### nproc: 8
+./span -t 8 -- 0 1000000 4000000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8000418
+ count=8000912
+ count=8001434
+ count=8000038
+ count=8001662
+Best time used on TRAVERSE2 is 0.194367 s
+Best time used on DFS is 0.087001 s
+Best time used on SV is 0.215140 s
+Best time used on CRCW_spinlock is 0.130486 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.135329 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.237216 s
+
+### nproc: 16
+./span -t 16 -- 0 1000000 4000000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8007494
+ count=8008127
+ count=8007943
+ count=8008056
+ count=8008191
+Best time used on TRAVERSE2 is 0.101407 s
+Best time used on DFS is 0.050511 s
+Best time used on SV is 0.125564 s
+Best time used on CRCW_spinlock is 0.072038 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.175891 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.507216 s
+
+### nproc: 32
+./span -t 32 -- 0 1000000 4000000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8064316
+ count=8064293
+ count=8064140
+ count=8064232
+ count=8064310
+Best time used on TRAVERSE2 is 0.102781 s
+Best time used on DFS is 0.048276 s
+Best time used on SV is 0.076417 s
+Best time used on CRCW_spinlock is 0.044908 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.405562 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 1.439752 s
+
+### nproc: 64
+./span -t 64 -- 0 1000000 4000000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8524500
+ count=8524945
+ count=8524351
+ count=8524807
+ count=8524483
+Best time used on TRAVERSE2 is 0.131175 s
+Best time used on DFS is 0.072906 s
+Best time used on SV is 0.119836 s
+Best time used on CRCW_spinlock is 0.047669 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.676410 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 1.700544 s
+
+
+
+## Size: 10000000
+
+### nproc: 1
+./span -t 1 -- 0 10000000 40000000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80006592
+ count=80006590
+ count=80006593
+ count=80006591
+ count=80006593
+Best time used on TRAVERSE2 is 24.481088 s
+Best time used on DFS is 15.953787 s
+Best time used on SV is 41.708998 s
+Best time used on CRCW_spinlock is 23.190196 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 15.314540 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 12.723437 s
+
+### nproc: 2
+./span -t 2 -- 0 10000000 40000000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79937938
+ count=79935482
+ count=79937381
+ count=79921911
+ count=79922122
+Best time used on TRAVERSE2 is 12.671929 s
+Best time used on DFS is 7.832520 s
+Best time used on SV is 21.705907 s
+Best time used on CRCW_spinlock is 13.425753 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 7.582501 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 6.435075 s
+
+### nproc: 4
+./span -t 4 -- 0 10000000 40000000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79992122
+ count=79986315
+ count=79979351
+ count=79979518
+ count=79970367
+Best time used on TRAVERSE2 is 6.465405 s
+Best time used on DFS is 3.601550 s
+Best time used on SV is 12.261228 s
+Best time used on CRCW_spinlock is 6.443379 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 3.725109 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 3.511255 s
+
+### nproc: 8
+./span -t 8 -- 0 10000000 40000000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79983293
+ count=79980486
+ count=79982083
+ count=79985906
+ count=79985813
+Best time used on TRAVERSE2 is 3.252817 s
+Best time used on DFS is 1.698719 s
+Best time used on SV is 5.908046 s
+Best time used on CRCW_spinlock is 2.964402 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 2.237383 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 3.065180 s
+
+### nproc: 16
+./span -t 16 -- 0 10000000 40000000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80013719
+ count=80011240
+ count=80008407
+ count=80010906
+ count=80011781
+Best time used on TRAVERSE2 is 1.613963 s
+Best time used on DFS is 0.815862 s
+Best time used on SV is 3.068108 s
+Best time used on CRCW_spinlock is 1.440947 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 2.110296 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 5.245527 s
+
+### nproc: 32
+./span -t 32 -- 0 10000000 40000000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80063669
+ count=80064362
+ count=80064554
+ count=80063813
+ count=80064149
+Best time used on TRAVERSE2 is 0.808915 s
+Best time used on DFS is 0.409707 s
+Best time used on SV is 1.394559 s
+Best time used on CRCW_spinlock is 0.720289 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 4.096614 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 14.020829 s
+
+### nproc: 64
+./span -t 64 -- 0 10000000 40000000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80522284
+ count=80521861
+ count=80521899
+ count=80522265
+ count=80521898
+Best time used on TRAVERSE2 is 0.700621 s
+Best time used on DFS is 0.274171 s
+Best time used on SV is 0.777941 s
+Best time used on CRCW_spinlock is 0.398772 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 6.881346 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 19.010092 s
+
+
+#
+# Run: 3
+#
+
+## Size: 100000
+
+### nproc: 1
+./span -t 1 -- 0 100000 400000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=800040
+ count=800040
+ count=800040
+ count=800040
+ count=800040
+Best time used on TRAVERSE2 is 0.035266 s
+Best time used on DFS is 0.019377 s
+Best time used on SV is 0.059958 s
+Best time used on CRCW_spinlock is 0.042586 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.018575 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.016417 s
+
+### nproc: 2
+./span -t 2 -- 0 100000 400000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=788107
+ count=793061
+ count=791617
+ count=792090
+ count=792090
+Best time used on TRAVERSE2 is 0.039160 s
+Best time used on DFS is 0.014380 s
+Best time used on SV is 0.033775 s
+Best time used on CRCW_spinlock is 0.020569 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.014383 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.011754 s
+
+### nproc: 4
+./span -t 4 -- 0 100000 400000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=797122
+ count=800023
+ count=799812
+ count=798738
+ count=799896
+Best time used on TRAVERSE2 is 0.027316 s
+Best time used on DFS is 0.009542 s
+Best time used on SV is 0.020129 s
+Best time used on CRCW_spinlock is 0.012987 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.010200 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.011589 s
+
+### nproc: 8
+./span -t 8 -- 0 100000 400000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=800167
+ count=800563
+ count=800643
+ count=801082
+ count=801040
+Best time used on TRAVERSE2 is 0.017524 s
+Best time used on DFS is 0.007369 s
+Best time used on SV is 0.013289 s
+Best time used on CRCW_spinlock is 0.009094 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.009991 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.018429 s
+
+### nproc: 16
+./span -t 16 -- 0 100000 400000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=808284
+ count=807930
+ count=808162
+ count=808347
+ count=808152
+Best time used on TRAVERSE2 is 0.017755 s
+Best time used on DFS is 0.012333 s
+Best time used on SV is 0.012194 s
+Best time used on CRCW_spinlock is 0.007946 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.016709 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.045707 s
+
+### nproc: 32
+./span -t 32 -- 0 100000 400000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=920675
+ count=920538
+ count=921157
+ count=918341
+ count=920745
+Best time used on TRAVERSE2 is 0.046632 s
+Best time used on DFS is 0.029370 s
+Best time used on SV is 0.023013 s
+Best time used on CRCW_spinlock is 0.012769 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.040923 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.123860 s
+
+### nproc: 64
+./span -t 64 -- 0 100000 400000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+making connected done
+n_edges=400000
+ count=1839154
+ count=1839258
+ count=1838604
+ count=1839371
+ count=1839367
+Best time used on TRAVERSE2 is 0.110666 s
+Best time used on DFS is 0.059362 s
+Best time used on SV is 0.091097 s
+Best time used on CRCW_spinlock is 0.032564 s
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Takes 31 iterations
+Best time used on BFS is 0.058963 s
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+there are 31 levels
+Best time used on BFS_localq is 0.113397 s
+
+
+
+## Size: 1000000
+
+### nproc: 1
+./span -t 1 -- 0 1000000 4000000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8000665
+ count=8000665
+ count=8000665
+ count=8000665
+ count=8000665
+Best time used on TRAVERSE2 is 0.942146 s
+Best time used on DFS is 0.665903 s
+Best time used on SV is 1.369249 s
+Best time used on CRCW_spinlock is 0.765596 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.644818 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.544342 s
+
+### nproc: 2
+./span -t 2 -- 0 1000000 4000000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=7985389
+ count=7976049
+ count=7974656
+ count=7977597
+ count=7977512
+Best time used on TRAVERSE2 is 0.766252 s
+Best time used on DFS is 0.349706 s
+Best time used on SV is 0.792198 s
+Best time used on CRCW_spinlock is 0.465563 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.350531 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.296330 s
+
+### nproc: 4
+./span -t 4 -- 0 1000000 4000000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=7993296
+ count=7993974
+ count=7992019
+ count=7991232
+ count=7995212
+Best time used on TRAVERSE2 is 0.413126 s
+Best time used on DFS is 0.177071 s
+Best time used on SV is 0.426331 s
+Best time used on CRCW_spinlock is 0.247794 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.196413 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.209041 s
+
+### nproc: 8
+./span -t 8 -- 0 1000000 4000000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8000201
+ count=7999798
+ count=7997337
+ count=8000561
+ count=8001157
+Best time used on TRAVERSE2 is 0.192444 s
+Best time used on DFS is 0.086409 s
+Best time used on SV is 0.228378 s
+Best time used on CRCW_spinlock is 0.130033 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.133171 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.234356 s
+
+### nproc: 16
+./span -t 16 -- 0 1000000 4000000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8007595
+ count=8008786
+ count=8007860
+ count=8007956
+ count=8008178
+Best time used on TRAVERSE2 is 0.101995 s
+Best time used on DFS is 0.050867 s
+Best time used on SV is 0.120971 s
+Best time used on CRCW_spinlock is 0.072423 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.175844 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 0.505537 s
+
+### nproc: 32
+./span -t 32 -- 0 1000000 4000000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8064307
+ count=8064211
+ count=8064178
+ count=8064177
+ count=8064189
+Best time used on TRAVERSE2 is 0.098124 s
+Best time used on DFS is 0.047023 s
+Best time used on SV is 0.077500 s
+Best time used on CRCW_spinlock is 0.045375 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.409368 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 1.425694 s
+
+### nproc: 64
+./span -t 64 -- 0 1000000 4000000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+n_edges=4000000
+ count=8470761
+ count=8518036
+ count=8517669
+ count=8519169
+ count=8458293
+Best time used on TRAVERSE2 is 0.157613 s
+Best time used on DFS is 0.075873 s
+Best time used on SV is 0.135646 s
+Best time used on CRCW_spinlock is 0.047585 s
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Takes 342 iterations
+Best time used on BFS is 0.512225 s
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+there are 342 levels
+Best time used on BFS_localq is 1.435375 s
+
+
+
+## Size: 10000000
+
+### nproc: 1
+./span -t 1 -- 0 10000000 40000000
+THREADS: 1
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80006593
+ count=80006592
+ count=80006592
+ count=80003171
+ count=80006593
+Best time used on TRAVERSE2 is 23.839593 s
+Best time used on DFS is 15.311568 s
+Best time used on SV is 41.462137 s
+Best time used on CRCW_spinlock is 23.104108 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 14.649200 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 12.114185 s
+
+### nproc: 2
+./span -t 2 -- 0 10000000 40000000
+THREADS: 2
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79909275
+ count=79919013
+ count=79894001
+ count=79891615
+ count=79891187
+Best time used on TRAVERSE2 is 12.529409 s
+Best time used on DFS is 7.753545 s
+Best time used on SV is 21.327198 s
+Best time used on CRCW_spinlock is 13.051043 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 7.510333 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 6.364532 s
+
+### nproc: 4
+./span -t 4 -- 0 10000000 40000000
+THREADS: 4
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79994595
+ count=79995773
+ count=79987410
+ count=79986364
+ count=79993158
+Best time used on TRAVERSE2 is 6.476894 s
+Best time used on DFS is 3.639945 s
+Best time used on SV is 11.505313 s
+Best time used on CRCW_spinlock is 6.640021 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 3.777621 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 3.566215 s
+
+### nproc: 8
+./span -t 8 -- 0 10000000 40000000
+THREADS: 8
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79986316
+ count=79983712
+ count=79988820
+ count=79982354
+ count=79985281
+Best time used on TRAVERSE2 is 3.265272 s
+Best time used on DFS is 1.710938 s
+Best time used on SV is 5.842947 s
+Best time used on CRCW_spinlock is 2.988972 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 2.234157 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 3.055669 s
+
+### nproc: 16
+./span -t 16 -- 0 10000000 40000000
+THREADS: 16
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=79979658
+ count=79962591
+ count=80014132
+ count=79947375
+ count=79970480
+Best time used on TRAVERSE2 is 1.609676 s
+Best time used on DFS is 0.815965 s
+Best time used on SV is 2.918137 s
+Best time used on CRCW_spinlock is 1.445204 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 2.133238 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 5.328315 s
+
+### nproc: 32
+./span -t 32 -- 0 10000000 40000000
+THREADS: 32
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80064184
+ count=80064117
+ count=80069791
+ count=80063735
+ count=80069818
+Best time used on TRAVERSE2 is 0.811701 s
+Best time used on DFS is 0.415200 s
+Best time used on SV is 1.404147 s
+Best time used on CRCW_spinlock is 0.718219 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 4.083005 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 13.801010 s
+
+### nproc: 64
+./span -t 64 -- 0 10000000 40000000
+THREADS: 64
+METRICS: seed is 568 
+ number of edges got is 40000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 10000000
+checking done,tail is 3310
+making connected done
+n_edges=40000000
+ count=80522260
+ count=80521940
+ count=80521936
+ count=80521893
+ count=80521915
+Best time used on TRAVERSE2 is 0.686641 s
+Best time used on DFS is 0.284484 s
+Best time used on SV is 0.794022 s
+Best time used on CRCW_spinlock is 0.411209 s
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Takes 3311 iterations
+Best time used on BFS is 6.140612 s
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+there are 3311 levels
+Best time used on BFS_localq is 15.637012 s
+
+
+
+############################################################
+# End Time: 01/11/2008 - 06:52:46
+############################################################
