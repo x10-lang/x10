@@ -399,8 +399,8 @@ public class BFSRef {
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, root);
 				g.invoke(job);
 				long t = (System.nanoTime() - s);
-				double GEps = M/(double) t;
-				System.out.printf("N=%d t=%d ns %5.3f GE/s", N, t, GEps);
+				double MEps = (M*1000)/(double) t;
+				System.out.printf("N=%d t=%d ns %5.3f ME/s", N, t, MEps);
 				System.out.println();
 				if (! graph.verifyTraverse(root))
 					System.out.printf("Test fails. %b ", false);
