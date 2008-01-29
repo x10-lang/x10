@@ -52,11 +52,22 @@ public class SpanFTRO {
 				for (int k=0; k < node.neighbors.length; k++) {
 					final V v = node.neighbors[k];
 					if (UPDATER.get(v)==null && UPDATER.compareAndSet(v,null,node)) {
-						if (lastV != null) {
-							// async lastV.compute();
+						if (lastV !=null) {
 							w.pushFrame(lastV);
 						}
-						lastV =v;
+						lastV=v;
+						/*if (lastV != null) {
+							// async lastV.compute();
+							if (index % 3 ==0) {
+							  w.pushFrame(lastV);
+							  lastV=v;
+							} else {
+								w.pushFrame(v);
+							}
+						} else {
+						  lastV=v;
+						}*/
+						
 					}
 				}
 				if ((node=lastV)==null) break;
@@ -144,27 +155,39 @@ public class SpanFTRO {
 	
 	public void torusGraph (int k, final V [] graph){
 		System.out.println("Generating graph...");
-		int n = k*k,i,j,l,s;
+		int n = k*k;
 		int [] buff = new int [n];
   		V [][] adj = new V [n][4];//Java support arrays of arrays
-  		for(i=0;i<n;i++) buff[i]=i;
+  		for(int i=0;i<n;i++) buff[i]=i;
 
-  		for(i=0;i<n/2;i++){
-			l=(int)(Math.random()*n)%n;
- 			s=(int)(Math.random()*n)%n;
-			j=buff[l];
+  		for(int i=0;i<n/2;i++){
+			int l=(int)(Math.random()*n)%n;
+ 			int s=(int)(Math.random()*n)%n;
+			int j=buff[l];
 			buff[l]=buff[s];
 			buff[s]=j;
   		}
 	
-  		for(i=0;i<k;i++)
-      		for(j=0;j<k;j++)
-	 		adj[buff[i*k+j]] = new V[]{graph[buff[((k+i-1)%k)*k+j]], 
+  		for(int i=0;i<k;i++)
+      		for(int j=0;j<k;j++) {
+	 		V[] edges = new V[]{graph[buff[((k+i-1)%k)*k+j]], 
       				graph[buff[((i+1)%k)*k+j]],
 	  		                    graph[buff[i*k+((k+j-1)%k)]], 
 	  		                    graph[buff[i*k+((j+1)%k)]]};
+	 		int l=(int) (Math.random()*4)%4;
+	 		V temp  = edges[l];
+	 		edges[l] = edges[(l+1)%4];
+	 		edges[(l+1)%4] = temp;
+	 		l=(int) (Math.random()*4)%4;
+	 		temp  = edges[l];
+	 		edges[l] = edges[(l+1)%4];
+	 		edges[(l+1)%4] = temp;
+	 		
+	 		adj[buff[i*k+j]] = edges;
+      		}
+  		
 		
-   		for(i=0;i<n;i++){
+   		for(int i=0;i<n;i++){
 			// vj -- why is this? graph[i].parent=i;
         		graph[i].neighbors=adj[i];
    		}
