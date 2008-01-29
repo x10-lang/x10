@@ -137,10 +137,17 @@ public class Pool {
         Worker.workers = workers = new Worker[poolSize];
         barrier = new ActiveWorkerCount(new Runnable() { 
         	public void run() {
-        		if (currentJob != null && currentJob.requiresGlobalQuiescence()) {
-        			currentJob.completed();
+        		
+        		Job job = currentJob;
+        		//System.out.println();
+        		//System.out.println(Thread.currentThread() + " in barrier w/ " + job);
+        		currentJob=null;
+        		printStats();
+        		if (job != null && job.requiresGlobalQuiescence()) {
+        			job.completed();
         		}
-        		currentJob = null;
+        		
+        		
         	}
         });
         lock.lock();
@@ -361,6 +368,15 @@ public class Pool {
                 sum += t.stealAttempts;
         }
         return sum;
+    }
+    public void printStats() {
+    	long stealCount = getStealCount();
+    	
+    	System.out.print("stealCount=" + stealCount + " ");
+    	for (Worker w : workers) {
+    		//System.out.println(w + ".stealCount=" + w.stealCount ); 
+    		w.stealCount=0;
+    	}
     }
     
     public void initFrameGenerator(Worker.FrameGenerator fg) {
