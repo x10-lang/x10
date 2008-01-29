@@ -123,7 +123,7 @@ public class Worker extends Thread {
 		this.index = index;
 		this.lock = new ReentrantLock();
 		this.cache = new Cache(this);
-		this.nextCache = new Cache(this);
+		// this.nextCache = new Cache(this); // vj: must do this lazily, now that Cache is initializing stack on creation.
 		this.idleScanCount = 1;
 		setDaemon(true);
 		// Further initialization postponed to init()
@@ -208,11 +208,11 @@ public class Worker extends Thread {
 				
 			//	thief.checkinHistory.add(pool.time() + ": " + this + " invokes checkout " + s);
 				thief.checkOut(res);
-				if ( reporting) {
-//					String s= "1:: steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
+				if (  reporting) {
+					//String s= "1:: steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
 					//+ victim + " cache=" + victim.cache.dump();
-					String s= "1:: steals  closure from " + victim;
-					System.out.println(thief + s);
+					String s= "1:: steals  " + res + " from " + victim.index;
+					System.out.println(thief.index + s);
 				}
 				if (jobRequiresGlobalQuiescence)
 				  res.copyFrame(thief);
@@ -249,7 +249,7 @@ public class Worker extends Thread {
 					String s = "3:: steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
 					+ victim + " cache=" + victim.cache.dump();
 					thief.checkOutSteal(res, victim);
-					if (  reporting) {
+					if (  true || reporting) {
 						System.out.println(thief + s);
 					}
 				} finally {
@@ -302,8 +302,8 @@ public class Worker extends Thread {
 				if (  reporting) {
 //					String s = "4:: steals stack[" + (victim.cache.head()-1) + "]=  " + frame + " from "
 					//+ victim + " cache=" + victim.cache.dump();
-					String s= "1:: steals frame from " + victim;
-					System.out.println(thief + s);
+					String s= " 1:: steals " + frame + " from " + victim.index;
+					System.out.println(thief.index + s);
 				}
 				return frame;
 			}
@@ -622,7 +622,8 @@ public class Worker extends Thread {
     			pool.barrier.checkIn(this, phaseNum, false);
     		} else {
     			// do we have work for the next phase.
-    			nextPhaseHasWork=! nextCache.empty();
+    			//assert nextCache != null;
+    			nextPhaseHasWork= nextCache != null && ! nextCache.empty();
     			pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork);
     		}
     		// Note: nextPhaseHasWork reset by advancePhase();
@@ -755,7 +756,7 @@ public class Worker extends Thread {
 			} else {
 				int bNum = pool.barrier.phaseNum;
 				if (bNum > phaseNum) {
-					assert phaseNum+1 == bNum || nextCache.empty();
+					assert phaseNum+1 == bNum || (nextCache != null && nextCache.empty());
 					advancePhase(bNum);
 				} else {
 					// TODO: Check if this yields are needed.
@@ -802,6 +803,8 @@ public class Worker extends Thread {
 	public void pushFrameNext(Frame frame) {
 		if (reporting)
 			System.out.println(this + " pushes " + frame + " on next deque.");
+		if (nextCache==null)
+			nextCache=new Cache(this);
 		nextCache.pushFrame(frame);
 	}
 	/**
@@ -1012,6 +1015,7 @@ public class Worker extends Thread {
 	public Frame currentFrame() {
 		return cache.currentFrame();
 	}
+	public int count;
 }
 
 
