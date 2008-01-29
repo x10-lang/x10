@@ -12,7 +12,7 @@ package x10.runtime.cws;
  */
 class Cache {
 	public static final int MAXIMUM_CAPACITY = 1 << 30;
-	public static final int INITIAL_CAPACITY = 1 << 20; // too high??
+	public static final int INITIAL_CAPACITY = 1 << 22; // too high??
 	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
 	
 	public Frame[] stack;
@@ -20,7 +20,11 @@ class Cache {
 	private volatile int head, tail, exception;
 	
 	protected final Worker owner;
-	protected Cache(Worker w) {owner=w;}
+	protected Cache(Worker w) {
+		owner=w;
+		stack = new Frame[INITIAL_CAPACITY];
+	//S	System.out.println("Created stack for " + this + "(worker " + w+")");
+		}
 	public String toString() { return "Cache("+owner.index+")";}
 	 /**
      * Pushes a task. Called only by current thread.
