@@ -48,8 +48,9 @@ class ActiveWorkerCount {
 			// TODO: Why should this ever happen?
 			System.err.println(this + "::Invariant III violation at ACW" + this);
 			System.err.println(w + "calls CheckIn with phase " + inPhase + " on " + this);
-			System.err.println("cache: " + w.cache.dump() + "nextCache:" +
-					w.nextCache.dump());
+			System.err.println("cache: " + w.cache.dump() 
+					+ (w.nextCache != null ? "nextCache:" + w.nextCache.dump() : "")
+					);
 		//	System.err.println(w + "checkInHistory:");
 		//	for (String s : w.checkinHistory) System.err.println("  :" + s);
 			Worker.AdvancePhaseException z = new Worker.AdvancePhaseException();
@@ -65,6 +66,7 @@ class ActiveWorkerCount {
 		if (count == 0) {
 			if ( Worker.reporting)
 				System.out.println(Thread.currentThread() + " moves barrier up to " + this);
+			
 			/*int checkedInCount=0,nextCountCheck=0;
 			for (Worker worker : w.pool.workers) {
 				checkedInCount += worker.checkedIn?1:0;
@@ -112,7 +114,7 @@ class ActiveWorkerCount {
 			// TODO: Why should this ever happen?
 			System.err.println("Invariant II violation at ACW " + this);
 			System.err.println(w + "calls checkOut on " + this);
-			System.err.println("cache: " + w.cache.dump() + "nextCache:" + 	w.nextCache.dump());
+			System.err.println("cache: " + w.cache.dump() + (w.nextCache != null ? "nextCache:" + 	w.nextCache.dump() : ""));
 			
 			/** System.err.println(w + "checkInHistory:");
 			for (String s : w.checkinHistory) System.err.println("  :" + s);
