@@ -10,6 +10,9 @@
  * 
  * Iterative version of main loop. Uses the frame directly to represent tasks. Edges are
  * represented as references to vertices, not their indices.
+ * 
+ * 1/28/2008 vj (with Doug Lea)
+ * Trying to improve performance by batching.
  */
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -22,54 +25,56 @@ import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
 
 
 public class SpanFTROLev {
+
+    // Batch size to use when already at least pool-size tasks in
+    // Local queue. Actually, batch size can exceed this because only
+    // checked in between neighbor sets
+	static  int BATCH_SIZE=24;
 	
-	public class V  extends Frame {
+	public final class V  extends Frame {
 		public final int index;
 		public V parent;
 		public volatile int level;
+		public V next; // link for batching
 		public V [] neighbors;
 		public V(int i){index=i;}
-		volatile int PC=0;
+		//volatile int PC=0;
 		void makeRoot() {
 			level=1;
 			parent=this;
 		}
+		
 		@Override
 		public void compute(Worker w) throws StealAbort {
-			// An improperly nested frame is one which is not
-			// guaranteed to be at the bottom of the dequeue when its
-			// compute method terminates. For instance, such a frame
-			// may have pushed other frames onto the dequeue without
-			// transferring control to them.
-			
-			// Improperly nested frames may be executed a second time
-			// either becuase they are stolen or because the worker
-			// has just executed them. We use this technique to pop
-			// the frame off the dequeue.
-			if (PC==1) {
-				w.popFrame();
-				return;
-			}
-			PC=1;
-			V node = this;
+			w.popFrame();
+			V node = this, batch=null;
+			int nb=0;
+			final int BS=BATCH_SIZE;
 			for (;;) {
-				V lastV = null;
+				//System.out.println(w.index + " visits " + node);
 				for (V v : node.neighbors) {
 					if (v.level==0 && UPDATER.compareAndSet(v,0,1)) {
 						v.parent=node;
-						if (lastV != null) {
-							// async lastV.compute();
-							w.pushFrame(lastV);
+						v.next=batch;
+						batch=v;
+						if (++nb >= BS) {
+							w.pushFrame(batch);
+							batch=null;
+							nb=0;
 						}
-						lastV =v;
 					}
 				}
-				if ((node=lastV)==null) break;
+				V nxt = node.next;
+				if (nxt !=  null) {
+					node.next=null;
+					node=nxt;
+				} else if ((node=batch) != null) {
+					batch=null;
+					nb=0;
+				} else break;
 			}
-			// cannot call w.popFrame() because this frame may not be
-			// the current frame on the dequeue, since the task is not
-			// properly nested.
 		}
+		
 		public boolean verify(V root, boolean[] reachesRoot, int N) {
 			V p = parent, oldP=null;
 			int count=0;
@@ -94,20 +99,23 @@ public class SpanFTROLev {
 			}
 		}
 		public void reset() {
-			PC=0;
+			//PC=0;
 			level=0;
 			parent=null;
+			next=null;
 		}
-		@Override
+		String ij(int index) {
+			return "["+(index/20) + "," + (index % 20 ) + "]";
+		}
 		public String toString() {
-			String s="[" + (neighbors.length==0? "]" : "" + neighbors[0].index);
-			for (int i=1; i < neighbors.length; i++) s += ","+neighbors[i].index;
-			return "v(" + index +  ",parent=" + (parent==null? "null" :parent.index + "")
+			String s="[" + (neighbors.length==0? "]" : "" + ij(neighbors[0].index));
+			for (int i=1; i < neighbors.length; i++) s += ","+ ij(neighbors[i].index);
+			return "v(" + ij(index) +  ",parent=" + (parent==null? "null" : ij(parent.index) + "")
 			+ ",degree="+neighbors.length+ ",n=" + s+"])";
 		}
 	}
 	
-	class E{
+	final class E{
 		public int v1,v2;
 		public boolean in_tree;
 		public E(int u1, int u2){ v1=u1;v2=u2;in_tree=false;}
@@ -148,18 +156,19 @@ public class SpanFTROLev {
 			//rGraph(G,El);
 		}
 	}
-	
+	// buf[i*k+j] is the index of the (i,j)th vertex.
+	int[] buff;
 	public void torusGraph (int k, final V [] graph){
 		System.out.println("Generating graph...");
 		final int n = k*k;
-		int [] buff = new int [n]; for(int i=0;i<n;i++) buff[i]=i;
+		buff = new int [n]; for(int i=0;i<n;i++) buff[i]=i;
   		V [][] adj = new V [n][4];
-  		for(int i=0;i<n/2;i++){
+  	/*	for(int i=0;i<n/2;i++){
 			int l=(int)(Math.random()*n)%n, s=(int)(Math.random()*n)%n;
 			int j=buff[l];
 			buff[l]=buff[s];
 			buff[s]=j;
-  		}
+  		}*/
 	
   		for(int i=0;i<k;i++)
       		for(int j=0;j<k;j++)
@@ -397,6 +406,7 @@ public class SpanFTROLev {
 	static boolean reporting = true;
 	static final long NPS = (1000L * 1000 * 1000);
 	static boolean graphOnly =false;
+	static boolean verification=true;
 	public static void main(String[] args) {
 		int procs;
 		int num=-1;
@@ -410,6 +420,8 @@ public class SpanFTROLev {
 				if (s.equalsIgnoreCase("T")) {
 					graphType='T'; 
 				}
+				else if (s.equalsIgnoreCase("E"))
+					graphType='E'; 
 				else if (s.equalsIgnoreCase("R"))
 					graphType='R'; 
 				else if (s.equalsIgnoreCase("K"))
@@ -432,6 +444,15 @@ public class SpanFTROLev {
 			if (args.length > 5) {
 				boolean b = Boolean.parseBoolean(args[5]);
 				graphOnly=b;
+			}
+			if (args.length > 6) {
+				boolean b = Boolean.parseBoolean(args[6]);
+				verification=b;
+				System.out.println("verification=" + verification);
+			}
+			if (args.length > 7) {
+				BATCH_SIZE=Integer.parseInt(args[7]);
+				System.out.println("BATCH_SIZE=" + BATCH_SIZE);
 			}
 		}
 		catch (Exception e) {
@@ -458,25 +479,30 @@ public class SpanFTROLev {
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
-			for (int k=0; k < 19; ++k) {
+			for (int k=0; k <= 19; ++k) {
 				graph.setRoot();
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, graph.G[1]);
-				System.out.print("   " + Thread.currentThread() + " Starting timed section...");
 				long s = System.nanoTime();
+				/*GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, 
+						graph.new PreLoader(g,procs));*/
+				//System.out.print("   " + Thread.currentThread() + " Starting timed section...");
 				g.invoke(job);
 				long t = System.nanoTime() - s;
-				System.out.println(Thread.currentThread() + " ....done.");
+				//System.out.println(Thread.currentThread() + " ....done.");
 				double secs = ((double) t)/NPS;
 				double Meps = 1000*(M/(double)t);
 				System.out.printf("N=%d t=%5.4f s %5.4f MegaEdges/s", N, secs, Meps);
+				System.out.println();
 				long verificationTime = - System.nanoTime();
-				if (! graph.verifyTraverse(graph.G[1]))
-					System.out.println("false");
-				else {
-					verificationTime += System.nanoTime();
-					double vSecs = ((double) verificationTime)/NPS;
-					System.out.printf(" (verification %5.4f s)", vSecs );
-					System.out.println();
+				if (verification) {
+					if (! graph.verifyTraverse(graph.G[1]))
+						System.out.println("false");
+					else {
+						verificationTime += System.nanoTime();
+						double vSecs = ((double) verificationTime)/NPS;
+						System.out.printf(" (verification %5.4f s)", vSecs );
+						System.out.println();
+					}
 				}
 				graph.clearColor();
 				
