@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SymbolTable;
-import com.ibm.wala.ssa.ValueDecorator;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.debug.Assertions;
 
@@ -61,8 +60,8 @@ public class X10ArrayLoadByIndexInstruction extends X10ArrayReferenceByIndexInst
     }
 
     @Override
-    public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	return getValueString(symbolTable, d, result) + " = x10arrayLoadByIndex " + getValueString(symbolTable, d, getArrayRef()) + "[" + getIndexString(symbolTable, d) + "]";
+    public String toString(SymbolTable symbolTable) {
+	return getValueString(symbolTable, result) + " = x10arrayLoadByIndex " + getValueString(symbolTable, getArrayRef()) + "[" + getIndexString(symbolTable) + "]";
     }
 
     @Override

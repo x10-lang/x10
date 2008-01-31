@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SymbolTable;
-import com.ibm.wala.ssa.ValueDecorator;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.debug.Assertions;
 
@@ -57,8 +56,8 @@ public class X10ArrayLoadByPointInstruction extends X10ArrayReferenceByPointInst
     }
 
     @Override
-    public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	return getValueString(symbolTable, d, result) + " = x10arrayLoadByPoint " + getValueString(symbolTable, d, getArrayRef()) + "[" + getValueString(symbolTable, d, getPointIndex()) + "]";
+    public String toString(SymbolTable symbolTable) {
+	return getValueString(symbolTable, result) + " = x10arrayLoadByPoint " + getValueString(symbolTable, getArrayRef()) + "[" + getValueString(symbolTable, getPointIndex()) + "]";
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SymbolTable;
-import com.ibm.wala.ssa.ValueDecorator;
 
 public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
     private int placeExpr;
@@ -60,9 +59,9 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
     }
 
     @Override
-    public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	String sts = super.toString(symbolTable, d);
+    public String toString(SymbolTable symbolTable) {
+	String sts = super.toString(symbolTable);
 
-	return sts + "(place " + getValueString(symbolTable, d, placeExpr) + ")";
+	return sts + "(place " + getValueString(symbolTable, placeExpr) + ")";
     }
 }

@@ -5,7 +5,6 @@ import java.util.Collections;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SymbolTable;
-import com.ibm.wala.ssa.ValueDecorator;
 
 public class SSAHereInstruction extends SSAInstruction {
     private final int retValue;
@@ -18,8 +17,8 @@ public class SSAHereInstruction extends SSAInstruction {
 	return new SSAHereInstruction(defs != null ? defs[0] : retValue);
     }
 
-    public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	return getValueString(symbolTable, d, getDef()) + " = here()";
+    public String toString(SymbolTable symbolTable) {
+	return getValueString(symbolTable, getDef()) + " = here()";
     }
 
     public void visit(IVisitor v) {

@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SymbolTable;
-import com.ibm.wala.ssa.ValueDecorator;
 import com.ibm.wala.types.TypeReference;
 
 public class X10ArrayStoreByPointInstruction extends X10ArrayReferenceByPointInstruction {
@@ -35,8 +34,8 @@ public class X10ArrayStoreByPointInstruction extends X10ArrayReferenceByPointIns
     }
 
     @Override
-    public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	return "x10arrayStoreByPoint " + getValueString(symbolTable, d, getArrayRef()) + "[" + getValueString(symbolTable, d, getPointIndex()) + "] = " + getValueString(symbolTable, d, value);
+    public String toString(SymbolTable symbolTable) {
+	return "x10arrayStoreByPoint " + getValueString(symbolTable, getArrayRef()) + "[" + getValueString(symbolTable, getPointIndex()) + "] = " + getValueString(symbolTable, value);
     }
 
     @Override
