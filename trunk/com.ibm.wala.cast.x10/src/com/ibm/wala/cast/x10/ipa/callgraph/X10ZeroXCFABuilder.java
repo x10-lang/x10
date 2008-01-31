@@ -40,13 +40,4 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
         new X10ScopeMappingInstanceKeys(cha, this, 
           new ZeroXInstanceKeys(options, cha, contextInterpreter, instancePolicy)));
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.ibm.domo.ipa.callgraph.propagation.PropagationCallGraphBuilder#getDefaultDispatchBoundHeuristic()
-     */
-    protected byte getDefaultDispatchBoundHeuristic() {
-      return AnalysisOptions.NO_DISPATCH_BOUND;
-    }
 }
