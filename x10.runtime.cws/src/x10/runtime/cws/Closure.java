@@ -544,6 +544,10 @@ public class Closure  implements Executable {
 	public void accumulateResultInt(int x) { throw new UnsupportedOperationException();}
 	public int resultInt() { assert false; throw new UnsupportedOperationException();}
 	
+	public void setResultBoolean(boolean x) { throw new UnsupportedOperationException(); }
+	public void accumulateResultBolean(boolean x) { throw new UnsupportedOperationException();}
+	public boolean resultBoolean() { assert false; throw new UnsupportedOperationException();}
+	
 	public void setResultFloat(float x) {throw new UnsupportedOperationException();}
 	public void accumulateResultFloat(float x) { throw new UnsupportedOperationException();}
 	public float resultFloat() { throw new UnsupportedOperationException();}
