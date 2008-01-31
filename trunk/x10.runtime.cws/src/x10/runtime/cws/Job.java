@@ -227,4 +227,15 @@ public abstract class Job extends Closure implements Future {
         }
         return futureResult();
     }
+	/**
+	 * Each worker must call this method on the job each time the worker checks in (i.e.
+	 * goes looking for work). This permits the programmer to specify worker-specific 
+	 * finalization of application data-structures after each episode of computation.
+	 * 
+	 * @param w
+	 */
+	protected void onCheckIn(Worker w) {
+		assert Thread.currentThread()==w;
+		// no action.
+	}
 }
