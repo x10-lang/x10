@@ -405,7 +405,8 @@ public class BFSRef {
 			}
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java BFS <threads> [<Type> [<N> [<Degree> [[false|true] [false|true]]]]]");
+			System.out.println("Usage: java BFSRef <threads:nat> [<Type:T,E,K> [<N:nat> [<Degree:nat> [<reporting:boolean>" +
+			"[<graphonly:boolean> [<verification:boolean> [<batchSize:boolean]]]]]]]");
 			return;
 		}
 		
