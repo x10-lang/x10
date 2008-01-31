@@ -8,7 +8,7 @@ import com.ibm.wala.types.ClassLoaderReference;
 import java.util.*;
 
 public class X10AnalysisScope extends JavaSourceAnalysisScope {
-    private static final Set languages = new HashSet(2);
+    private static final Set<Language> languages = new HashSet<Language>(2);
 
     static {
       languages.add(Language.JAVA);
@@ -20,6 +20,7 @@ public class X10AnalysisScope extends JavaSourceAnalysisScope {
 
 	X10SourceLoaderImpl.X10SourceLoader.setParent(X10PrimordialClassLoader.X10Primordial);
 	X10PrimordialClassLoader.X10Primordial.setParent(ClassLoaderReference.Application);
+	getSyntheticLoader().setParent(X10SourceLoaderImpl.X10SourceLoader);
 
 	loadersByName.put(X10PrimordialClassLoader.X10PrimordialName, X10PrimordialClassLoader.X10Primordial);
 	loadersByName.put(X10SourceLoaderImpl.X10SourceLoaderName, X10SourceLoaderImpl.X10SourceLoader);
