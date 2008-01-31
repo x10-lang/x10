@@ -117,13 +117,14 @@ public class Worker extends Thread {
 
 	/**
 	 * Creates new Worker.
+TODO: Supposrt lazy initialization of nextCache.
 	 */
 	protected Worker(Pool pool, int index) {
 		this.pool = pool;
 		this.index = index;
 		this.lock = new ReentrantLock();
 		this.cache = new Cache(this);
-		// this.nextCache = new Cache(this); // vj: must do this lazily, now that Cache is initializing stack on creation.
+		this.nextCache = new Cache(this); // vj: must do this lazily, now that Cache is initializing stack on creation.
 		this.idleScanCount = 1;
 		setDaemon(true);
 		// Further initialization postponed to init()
@@ -211,8 +212,8 @@ public class Worker extends Thread {
 				if (  reporting) {
 					//String s= "1:: steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
 					//+ victim + " cache=" + victim.cache.dump();
-					String s= "1:: steals  " + res + " from " + victim.index;
-					System.out.println(thief.index + s);
+					String s= "1:: steals  " + res + " from " + victim;
+					System.out.println(thief + s);
 				}
 				if (jobRequiresGlobalQuiescence)
 				  res.copyFrame(thief);
@@ -249,7 +250,7 @@ public class Worker extends Thread {
 					String s = "3:: steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
 					+ victim + " cache=" + victim.cache.dump();
 					thief.checkOutSteal(res, victim);
-					if (  true || reporting) {
+					if (   reporting) {
 						System.out.println(thief + s);
 					}
 				} finally {
@@ -302,8 +303,8 @@ public class Worker extends Thread {
 				if (  reporting) {
 //					String s = "4:: steals stack[" + (victim.cache.head()-1) + "]=  " + frame + " from "
 					//+ victim + " cache=" + victim.cache.dump();
-					String s= " 1:: steals " + frame + " from " + victim.index;
-					System.out.println(thief.index + s);
+					String s= " 1:: steals " + frame + " from " + victim;
+					System.err.println(thief + s);
 				}
 				return frame;
 			}
@@ -569,6 +570,7 @@ public class Worker extends Thread {
 		}
 		return null;
 	}
+
 	private void setJob(Job currentJob) {
 		if (currentJob == null) currentJob = pool.currentJob;
 		if (currentJob==null) return;
@@ -613,6 +615,8 @@ public class Worker extends Thread {
   */
     boolean checkedIn = true, nextPhaseHasWork=false;
     void checkIn() throws AdvancePhaseException {
+    
+    	if (job !=null) job.onCheckIn(this);
     	if (!checkedIn) {
     		checkedIn = true;
     	//	checkinHistory.add(pool.time() + ":checkedIn false -> true. checkIn called on " + pool.barrier);
@@ -623,7 +627,7 @@ public class Worker extends Thread {
     		} else {
     			// do we have work for the next phase.
     			//assert nextCache != null;
-    			nextPhaseHasWork= nextCache != null && ! nextCache.empty();
+    			nextPhaseHasWork= ! nextCache.empty();
     			pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork);
     		}
     		// Note: nextPhaseHasWork reset by advancePhase();
@@ -639,15 +643,31 @@ public class Worker extends Thread {
      */
     void checkOut(Executable cl) throws AdvancePhaseException{
     	
-    	if (checkedIn) {
+    	//if (checkedIn) {
     		checkedIn = false;
     	//	checkinHistory.add(pool.time() + ":checkedIn true->fase. checkOut() called on " + pool.barrier);
     		pool.barrier.checkOut(this, phaseNum);
-    	}
+    	//}
     }
     void checkOutSteal(Executable cl, Worker victim) throws AdvancePhaseException {
     	assert victim.lockOwner==this;
-    	checkOut(cl);
+    
+    	// this may be a sleeper ... it may have not participated in the previous
+    	// job. So reset job information from victim.
+    	if (job != victim.job) {
+    		System.err.println(this + " switching jobs on steal...");
+    		job = victim.job;
+    		jobRequiresGlobalQuiescence = victim.jobRequiresGlobalQuiescence;
+    		assert (nextCache == null || nextCache.empty());
+    		phaseNum = victim.phaseNum;
+    	}
+    	if (phaseNum < victim.phaseNum) {
+    		assert (nextCache == null || nextCache.empty());
+    		System.err.println(this + " moving up to victim's phase...");
+    		phaseNum = victim.phaseNum;
+    	}
+    	checkedIn = false;
+    	pool.barrier.checkOut(this, phaseNum);
     }
     private void wakeup() {
         if (sleepStatus == SLEEPING && 
@@ -714,9 +734,11 @@ public class Worker extends Thread {
 				if ((reporting)) 
 					System.out.println(this + " has no closure. Trying to get one." );
 				try {
-					cl = getTask(true);
-					if ((reporting)) 
-						System.out.println(this + " found " + cl );
+					
+						cl = getTask(true);
+						if ((reporting)) 
+							System.out.println(this + " found " + cl );
+					
 				} catch (AdvancePhaseException z) {
 					cl=null;
 				}
@@ -756,7 +778,8 @@ public class Worker extends Thread {
 			} else {
 				int bNum = pool.barrier.phaseNum;
 				if (bNum > phaseNum) {
-					assert phaseNum+1 == bNum || (nextCache != null && nextCache.empty());
+					
+					assert phaseNum+1 == bNum || nextCache.empty();
 					advancePhase(bNum);
 				} else {
 					// TODO: Check if this yields are needed.
@@ -803,8 +826,6 @@ public class Worker extends Thread {
 	public void pushFrameNext(Frame frame) {
 		if (reporting)
 			System.out.println(this + " pushes " + frame + " on next deque.");
-		if (nextCache==null)
-			nextCache=new Cache(this);
 		nextCache.pushFrame(frame);
 	}
 	/**
@@ -815,7 +836,7 @@ public class Worker extends Thread {
 		cache.popFrame();
 	}
 	public String toString() {
-		return "Worker("+index+",phase=" + phaseNum+",checkedIn=" + checkedIn + ",nextPhaseHasWork=" + nextPhaseHasWork+")";
+		return "Worker("+index+",job=" + job + ",phase=" + phaseNum+",checkedIn=" + checkedIn + ",nextPhaseHasWork=" + nextPhaseHasWork+")";
 	}
 	public Closure bottom() {
 		return bottom;
