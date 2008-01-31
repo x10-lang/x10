@@ -507,7 +507,8 @@ public class SpanFTROLev {
 			}
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java SpanFTRO <threads> [<Type> [<N> [<Degree> [[false|true] [false|true]]]]]");
+			System.out.println("Usage: java SpanFTRO <threads:nat> [<Type:T,E,K> [<N:nat> [<Degree:nat> [<reporting:boolean>" +
+					"[<graphonly:boolean> [<verification:boolean> [<batchSize:boolean]]]]]]]");
 			return;
 		}
 		//System.out.print("Creating pool...");
