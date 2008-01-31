@@ -25,24 +25,8 @@ import java.lang.annotation.*;
 
 public class FibC  extends Closure {
   static final int ENTRY=0, LABEL_1=1, LABEL_2=2,LABEL_3=3;
-
-  public String toString() { 
-      return "FibC(#"+hashCode()  +",status="+status + "," + frame + ",result=" + result + ")";
-    }
-  public static int realfib(int n) {
-    if (n < 2) return n;
-    int y=0,x=1;
-    for (int i=0; i <= n-2; i++) {
-      int temp = x; x +=y; y=temp;
-    }
-    return x;
-  }
-  
-  
   @AllocateOnStack
   static class FibFrame extends Frame {
-//	  The label at which computation must be continued by the associated
-	  // closure.
 	  public volatile int PC;
 	  final int n;
 	  int x,y;
@@ -55,27 +39,15 @@ public class FibC  extends Closure {
 		  c.setOutlet((PC==LABEL_1) ?
 				  new Outlet() {
 			  public void run() {
-
 				  x = c.resultInt();
-				  final int xcheck = realfib(n-1);
-				  if (x != xcheck)
-					  System.out.println(Thread.currentThread() 
-							  + " fails when joining x=fib(" + (n-1) + ") yielding " + x + "(correct="+ xcheck+")");
 			  }
-			  public String toString() { return "OutletInto x from " + c;}
 		  } 
 		  : new Outlet() {
 			  public void run() {
 				  y = c.resultInt();
-				  final int ycheck = realfib(n-2);
-				  if (y != ycheck)
-					  System.out.println(Thread.currentThread() + " fails when joining y=fib(" + (n-2) + ") yielding " + y + "(correct="+ ycheck+")");
 			  }
-			  public String toString() { return "OutletInto y from " + c;}
 		  });
-
 	  }
-
 	  public Closure makeClosure() {
 		  return new FibC(this);
 	  }
@@ -92,11 +64,6 @@ public class FibC  extends Closure {
     // this thread will definitely execute fib(n-1), and
     // hence set the value in the frame.
     final int x = fib(w, n-1);
-    final int xcheck = realfib(n-1);
-    if (x != xcheck)
-    	System.out.println(w + " fails when evaluating x=fib(" + (n-1) + ") yielding " 
-    			+ x + "(correct="+ xcheck+")");
-    
     // Now need to figure out who is doing fib(n-2).
     // If frame has been stolen, then this thread wont do fib(n-2).
     // it should just return, and subsequent work will be done
@@ -111,11 +78,7 @@ public class FibC  extends Closure {
     // continuation pointer. 
     frame.x=x;
     frame.PC=LABEL_2;
-  
     final int y=fib(w, n-2);
-    final int ycheck = realfib(n-2);
-    if (y != ycheck)
-    	System.out.println(w + " fails when evaluating y=fib(" + (n-2) + ") yielding " + y + "(correct="+ ycheck+")");
     w.abortOnSteal(y);
   
     // Now there is nothing more to spawn -- so no need for the frame.
@@ -147,18 +110,12 @@ public class FibC  extends Closure {
     	}
     	f.PC=LABEL_1;
     	final int x = fib(w, n-1);
-    	 final int xcheck = realfib(n-1);
-    	 if (x != xcheck)
-    	    	System.out.println(w + " fails when evaluating x=fib(" + (n-1) + ") yielding " + x + "(correct="+ xcheck+")");
     	w.abortOnSteal(x);
     	f.x=x;
     	
     case LABEL_1: 
     	f.PC=LABEL_2;
     	final int y=fib(w,n-2);
-    	  final int ycheck = realfib(n-2);
-    	    if (y != ycheck)
-    	    	System.out.println(w + " fails when evaluating y=fib(" + (n-2) + ") yielding " + y + "(correct="+ ycheck+")");
     	w.abortOnSteal(y);
     	f.y=y;
     	
@@ -169,9 +126,6 @@ public class FibC  extends Closure {
     	}
     case LABEL_3:
     	result=f.x+f.y;
-    	  final int resultCheck = realfib(n);
-    	    if (result != resultCheck)
-    	    	System.out.println(w + " fails when evaluating slow fib(" + (n) + ") yielding " + result + "(correct="+ resultCheck+")");
     	setupReturn();
     }
     return;
@@ -196,22 +150,8 @@ public class FibC  extends Closure {
     long sc = 0, sa = 0;
     for (int i = 0; i < points.length; i++) {
       final int n = points[i];
-      /*Job job = new Job(g) { 
-    	  int result;
-    	  public void setResultInt(int x) { result = x;}
-    	  public int resultInt() { return result;}
-    	  public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n);}
-    	  public String toString() {
-    		  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ",frame="+ frame+")";
-    	  }};
-    	  
-    	  g.submit(job);
-		  int result = job.getInt();*/
       	  int result=0;
-		  
     	  long s = System.nanoTime();
-    	  
-    	  
     	  for (int j = 0; j < nReps; j++) {
     		  Job job = new Job(g) { 
     	    	  int result;
@@ -226,8 +166,7 @@ public class FibC  extends Closure {
     	  }
     	  
     	  long t = System.nanoTime();
-    	  System.out.println("VJCWS Fib(" + n +")"+"\t"+(t-s)/1000000/nReps  + " ms" +"\t" + 
-    			  (result==realfib(n)?"ok" : "fail")
+    	  System.out.println("VJCWS Fib(" + n +")"+"\t"+(t-s)/1000000/nReps  + " ms" +"\t" 
     			  + "\t" +"steals=" +((g.getStealCount()-sc)/nReps)
     			  + "\t"+"stealAttempts=" +((g.getStealAttempts()-sa)/nReps));
     	  //System.out.println(points[i] + " " + (t-s)/1000000/nReps  + "ms  " + result + " " + (result==realfib(n)?"ok" : "fail") );
