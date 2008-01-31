@@ -22,7 +22,7 @@ import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.TypeReference;
-import com.ibm.wala.util.Atom;
+import com.ibm.wala.util.strings.Atom;
 
 public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
     public static Atom X10SourceLoaderName= Atom.findOrCreateAsciiAtom("X10Source");

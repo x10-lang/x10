@@ -50,9 +50,9 @@ import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.Selector;
 import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
-import com.ibm.wala.util.Atom;
-import com.ibm.wala.util.IteratorPlusOne;
+import com.ibm.wala.util.collections.IteratorPlusOne;
 import com.ibm.wala.util.debug.Assertions;
+import com.ibm.wala.util.strings.Atom;
 
 public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, X10ExtensionInfo extInfo) {

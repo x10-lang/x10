@@ -7,7 +7,7 @@ import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.ClassLoaderReference;
-import com.ibm.wala.util.Atom;
+import com.ibm.wala.util.strings.Atom;
 
 public class X10PrimordialClassLoader extends ClassLoaderImpl {
     public static Atom X10PrimordialName= Atom.findOrCreateAsciiAtom("X10Primordial");
