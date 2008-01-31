@@ -46,7 +46,7 @@ class ActiveWorkerCount {
 	public boolean checkIn(Worker w, int inPhase, boolean haveWork) throws Worker.AdvancePhaseException{
 		if (inPhase !=phaseNum) {
 			// TODO: Why should this ever happen?
-			System.err.println(this + "::Invariant III violation at ACW" + this);
+			System.err.println("Invariant III violation at " + this);
 			System.err.println(w + "calls CheckIn with phase " + inPhase + " on " + this);
 			System.err.println("cache: " + w.cache.dump() 
 					+ (w.nextCache != null ? "nextCache:" + w.nextCache.dump() : "")
@@ -61,11 +61,10 @@ class ActiveWorkerCount {
 		//checkinHistory.add(w.pool.time() + ":" + w + " checks in with haveWork=" + haveWork);
 		if (haveWork) nextCountUpdater.getAndIncrement(this);
 		final int count = numCheckedOutUpdater.addAndGet(this,-1);
-		if ( Worker.reporting)
-			System.out.println(Thread.currentThread() + " checks in to " + this);
+		if (   Worker.reporting)
+			System.err.println(Thread.currentThread() + " checks in to " + this);
 		if (count == 0) {
-			if ( Worker.reporting)
-				System.out.println(Thread.currentThread() + " moves barrier up to " + this);
+			
 			
 			/*int checkedInCount=0,nextCountCheck=0;
 			for (Worker worker : w.pool.workers) {
@@ -89,6 +88,8 @@ class ActiveWorkerCount {
 				//checkinHistory.add(w.pool.time() + ":" + this + " starts new phase.");
 				// w.advancePhase(phaseNum);
 				// return true;
+				if (   Worker.reporting)
+					System.err.println(Thread.currentThread() + " moves barrier up to " + this);
 				throw new Worker.AdvancePhaseException();
 			} else { // Complete the job
 				phaseNum=0;
@@ -96,11 +97,12 @@ class ActiveWorkerCount {
 				//checkinHistory = new ArrayList<String>();
 				//checkinHistory.add(w.pool.time() + " Starting phase with numCheckedOut=" + numCheckedOut);
 				if ( Worker.reporting)
-					System.out.println(Thread.currentThread() + " completes job." );
+					System.err.println(Thread.currentThread() + " completes job." );
 				if (barrierAction != null) 	
 					barrierAction.run();
 				
 			}
+			
 		}
 		return false;
 	}
@@ -112,7 +114,7 @@ class ActiveWorkerCount {
 	public void checkOut(Worker w, int inPhase) throws Worker.AdvancePhaseException{
 		if (inPhase !=phaseNum) {
 			// TODO: Why should this ever happen?
-			System.err.println("Invariant II violation at ACW " + this);
+			System.err.println("Invariant II violation at " + this);
 			System.err.println(w + "calls checkOut on " + this);
 			System.err.println("cache: " + w.cache.dump() + (w.nextCache != null ? "nextCache:" + 	w.nextCache.dump() : ""));
 			
@@ -131,7 +133,7 @@ class ActiveWorkerCount {
 		numCheckedOutUpdater.addAndGet(this, 1);
 		//	checkinHistory.add(w.pool.time() + ": " + w + " has checksOuted from " + this);
 		if ( Worker.reporting)
-			System.out.println(Thread.currentThread() + " checks out of barrier " + this);
+			System.err.println(Thread.currentThread() + " checks out of barrier " + this);
 
 	}
 
