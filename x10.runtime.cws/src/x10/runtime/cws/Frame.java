@@ -70,12 +70,11 @@ public class Frame implements Cloneable, Executable {
 	 * with this frame for globally quiescent computations.
 	 * @param w
 	 */
-	public void compute(Worker w) throws StealAbort {
-		
-	}
+	public void compute(Worker w) throws StealAbort {}
 	/**
 	 * If the job is globally quiescent, closures are not needed.
 	 * In this case the frame will directly specify the work to be done.
+	 * Specialized from Closure.execute(Worker w).
 	 */
 	public final Executable execute(Worker w) {
 		Cache c = w.cache;

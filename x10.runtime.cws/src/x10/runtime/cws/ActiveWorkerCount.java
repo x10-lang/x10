@@ -1,7 +1,5 @@
 package x10.runtime.cws;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
@@ -100,9 +98,7 @@ class ActiveWorkerCount {
 					System.err.println(Thread.currentThread() + " completes job." );
 				if (barrierAction != null) 	
 					barrierAction.run();
-				
 			}
-			
 		}
 		return false;
 	}
@@ -120,7 +116,6 @@ class ActiveWorkerCount {
 			
 			/** System.err.println(w + "checkInHistory:");
 			for (String s : w.checkinHistory) System.err.println("  :" + s);
-			
 			System.err.println(this + " phaseHistory:");
 				for (String s : prevHistory) System.err.println("  prev::" + s);
 				for (String s : checkinHistory) System.err.println("  this::" + s);
@@ -131,11 +126,7 @@ class ActiveWorkerCount {
 			throw z;
 		}
 		numCheckedOutUpdater.addAndGet(this, 1);
-		//	checkinHistory.add(w.pool.time() + ": " + w + " has checksOuted from " + this);
 		if ( Worker.reporting)
 			System.err.println(Thread.currentThread() + " checks out of barrier " + this);
-
 	}
-
-
 }
