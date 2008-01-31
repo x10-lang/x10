@@ -8,7 +8,6 @@ import java.util.Collections;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SymbolTable;
-import com.ibm.wala.ssa.ValueDecorator;
 
 public class SSAFinishInstruction extends SSAInstruction {
     private final boolean isEnter;
@@ -21,9 +20,10 @@ public class SSAFinishInstruction extends SSAInstruction {
         new SSAFinishInstruction(isEnter);
     }
 
-    public String toString(SymbolTable symbolTable, ValueDecorator d) {
+    public String toString(SymbolTable symbolTable) {
       return isEnter ? "atomic enter" : "atomic exit";
     }
+
     /**
      * @see com.ibm.domo.ssa.SSAInstruction#visit(IVisitor)
      */

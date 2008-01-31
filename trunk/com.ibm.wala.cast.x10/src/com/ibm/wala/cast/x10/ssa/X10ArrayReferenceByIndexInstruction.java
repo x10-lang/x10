@@ -1,7 +1,6 @@
 package com.ibm.wala.cast.x10.ssa;
 
 import com.ibm.wala.ssa.SymbolTable;
-import com.ibm.wala.ssa.ValueDecorator;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.debug.Assertions;
 
@@ -40,12 +39,12 @@ public abstract class X10ArrayReferenceByIndexInstruction extends X10ArrayRefere
 	return result;
     }
 
-    protected StringBuffer getIndexString(SymbolTable symbolTable, ValueDecorator d) {
+    protected StringBuffer getIndexString(SymbolTable symbolTable) {
         StringBuffer indexBuff= new StringBuffer();
         int[] indices= getIndices();
         for(int i= 0; i < indices.length; i++) {
             if (i > 0) indexBuff.append(',');
-            indexBuff.append(getValueString(symbolTable, d, indices[i]));
+            indexBuff.append(getValueString(symbolTable, indices[i]));
         }
         return indexBuff;
     }
