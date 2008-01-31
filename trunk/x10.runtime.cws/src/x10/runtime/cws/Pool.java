@@ -142,7 +142,7 @@ public class Pool {
         		//System.out.println();
         		//System.out.println(Thread.currentThread() + " in barrier w/ " + job);
         		currentJob=null;
-        		printStats();
+        		//printStats();
         		if (job != null && job.requiresGlobalQuiescence()) {
         			job.completed();
         		}

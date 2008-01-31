@@ -16,15 +16,13 @@ class Cache {
 	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
 	
 	public Frame[] stack;
-	// these are indices into stack.
-	private volatile int head, tail, exception;
+	private volatile int head, tail, exception; // these are indices into stack.
 	
 	protected final Worker owner;
 	protected Cache(Worker w) {
 		owner=w;
 		stack = new Frame[INITIAL_CAPACITY];
-	//S	System.out.println("Created stack for " + this + "(worker " + w+")");
-		}
+	}
 	public String toString() { return "Cache("+owner.index+")";}
 	 /**
      * Pushes a task. Called only by current thread.
@@ -114,54 +112,34 @@ class Cache {
         stack = newArray;
         ++tail;
     }
-    
-    /**
-     * TODO: Check that the write to the volatile variable
-     * is visible to every other thread.
-     *
-     */
-    protected void signalImmediateException() {
-    	exception = EXCEPTION_INFINITY;
-    }
-    protected boolean atTopOfStack() {
-    	return head+1 == tail;
-    }
-   
-    protected Frame childFrame() {
-    	return stack[head+1];
-    }
-    protected Frame topFrame() {
-    	return stack[head];
-    }
-    public Frame currentFrame() {
-    	return stack[tail-1];
-    }
-    
+    protected void signalImmediateException() { exception = EXCEPTION_INFINITY; }
+    protected boolean atTopOfStack() { 	return head+1 == tail; }
+    protected Frame childFrame() { return stack[head+1];  }
+    protected Frame topFrame() {  	return stack[head];   }
+    public Frame currentFrame() { 	return stack[tail-1]; }
+    public void incHead() { ++head; }
+	public boolean exceptionOutstanding() { return head <= exception; }
+	public int head() { return head;}
+	public int tail() { return tail;}
+	public int exception() { return exception;}
     public Frame currentFrameIfStackExists() {
     	return (stack !=null && head  < tail)? stack[tail-1] : null;
     }
-   
-    protected void popFrame() {
-		--tail;
-	}
+	public boolean empty() { return head >=tail; }
+    protected void popFrame() { --tail; }
     /**
      * The victim's portion of Dekker.
      * @return true iff an exception has been posted against
      *              the current closure.
      */
-	protected boolean interrupted() {
-		return exception >= tail;
-	}
+	protected boolean interrupted() { return exception >= tail; }
+	
 	public String dump() {
 		return this.toString() + "(head=" + head + " tail=" + tail + " exception=" + exception + ")";
 	}
-	public boolean empty() {
-		return head >=tail;
-	}
+
 	
 	public void reset() {
-		int t = tail;
-		int h = head;
 		tail=0; // order is imp.
 		head=0;
 		exception=0;
@@ -170,21 +148,8 @@ class Cache {
 			stack[t]=null;
 			t--;
 		}*/
-		
-		
-		
 	}
-	public void incHead() {
-		++head;
-	}
-	public boolean exceptionOutstanding() {
-		return head <= exception;
-	}
-	public int head() { return head;}
-	public int tail() { return tail;}
-	public int exception() { return exception;}
 	
-
 	/**
 	 * Do the thief part of Dekker's protocol.  Return true upon success,
 	 * false otherwise.  The protocol fails when the victim already popped
@@ -193,11 +158,9 @@ class Cache {
 	 */
 	boolean dekker(Worker thief) {
 		assert thief !=owner;
-		if (exception != EXCEPTION_INFINITY)
-    		++exception;
+		if (exception != EXCEPTION_INFINITY) ++exception;
 		if ((head + 1) >= tail) {
-			if (exception != EXCEPTION_INFINITY)
-	    		--exception;
+			if (exception != EXCEPTION_INFINITY) --exception;
 			return false;
 		}
 		// so there must be at least two elements in the framestack for a theft.
@@ -228,11 +191,9 @@ class Cache {
 				exception=head;
 				w.unlock();
 			} 
-			
 			Frame f = stack[tail];
 			stack[tail]=null;
-			return f;
-			
+			return f;	
 		} finally {
 			assert (head >=0);
 			assert (tail >= 0);

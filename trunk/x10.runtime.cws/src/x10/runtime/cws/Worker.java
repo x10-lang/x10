@@ -296,15 +296,13 @@ TODO: Supposrt lazy initialization of nextCache.
 				assert frame !=null;
 				frame = frame.copy();
 				cache.incHead();
-//				I have work now, so checkout of the barrier.
+			//I have work now, so checkout of the barrier.
 				
 		//		thief.checkinHistory.add(pool.time() + ":" + this + " invokes checkout for " + s);
 				thief.checkOutSteal(frame, victim);
 				if (  reporting) {
-//					String s = "4:: steals stack[" + (victim.cache.head()-1) + "]=  " + frame + " from "
-					//+ victim + " cache=" + victim.cache.dump();
-					String s= " 1:: steals " + frame + " from " + victim;
-					System.err.println(thief + s);
+					String s= " 4:: steals " + frame + " from " + victim;
+					System.out.println(thief + s);
 				}
 				return frame;
 			}
@@ -655,7 +653,8 @@ TODO: Supposrt lazy initialization of nextCache.
     	// this may be a sleeper ... it may have not participated in the previous
     	// job. So reset job information from victim.
     	if (job != victim.job) {
-    		System.err.println(this + " switching jobs on steal...");
+    		if (reporting)
+    			System.out.println(this + " switching jobs on steal...");
     		job = victim.job;
     		jobRequiresGlobalQuiescence = victim.jobRequiresGlobalQuiescence;
     		assert (nextCache == null || nextCache.empty());
@@ -663,7 +662,8 @@ TODO: Supposrt lazy initialization of nextCache.
     	}
     	if (phaseNum < victim.phaseNum) {
     		assert (nextCache == null || nextCache.empty());
-    		System.err.println(this + " moving up to victim's phase...");
+    		if (reporting)
+    			System.out.println(this + " moving up to victim's phase...");
     		phaseNum = victim.phaseNum;
     	}
     	checkedIn = false;
@@ -702,11 +702,11 @@ TODO: Supposrt lazy initialization of nextCache.
 						// next statement is a customized Frame.execute(w), with no need
 						// to push frame on deque.
 						try {
-							if (false && reporting)
+							if (reporting)
 								System.out.println(this + " starts executing " + f);
 							// TODO: Check if cache.resetExceptionPointer() is needed. prolly!!
 							f.compute(this);
-							if (false && reporting)
+							if (reporting)
 								System.out.println(this + " finishes executing " + f + ".");
 							// do not pop this frame. We leave it up to the code in the 
 							// frame to pop off the frame.
@@ -812,7 +812,7 @@ TODO: Supposrt lazy initialization of nextCache.
 	 * @param frame -- the frame to be pushed.
 	 */
 	public void pushFrame(Frame frame) {
-		if (false && reporting)
+		if (reporting)
 			System.out.println(this + " pushes " + frame);
 		cache.pushFrame(frame);
 	}
