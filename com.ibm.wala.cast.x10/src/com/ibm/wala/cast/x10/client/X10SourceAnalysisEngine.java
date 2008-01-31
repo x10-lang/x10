@@ -1,18 +1,21 @@
 package com.ibm.wala.cast.x10.client;
 
+import java.io.IOException;
 import java.util.Set;
 
 import com.ibm.wala.cast.x10.loader.X10AnalysisScope;
-import com.ibm.wala.cast.x10.loader.X10Language;
 import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
 import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
-import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.classLoader.Module;
+import com.ibm.wala.ipa.callgraph.AnalysisCache;
+import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
+import com.ibm.wala.ipa.callgraph.CallGraphBuilder;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.util.collections.HashSetFactory;
 
 public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
@@ -27,7 +30,7 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
     private final Set<Module> x10SourceEntries = HashSetFactory.make();
 
     public X10SourceAnalysisEngine() {
-      setCallGraphBuilderFactory(new X10ZeroXCFACallGraphBuilderFactory());
+//    setCallGraphBuilderFactory(new X10ZeroXCFACallGraphBuilderFactory());
     }
 
     @Override
@@ -43,6 +46,11 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
     @Override
     protected AnalysisScope makeSourceAnalysisScope() {
         return new X10AnalysisScope();
+    }
+
+    @Override
+    protected CallGraphBuilder getCallGraphBuilder(IClassHierarchy cha, AnalysisOptions options, AnalysisCache cache) {
+        return new X10ZeroXCFACallGraphBuilderFactory().make(options, cache, cha, scope, false);
     }
 
     /**
@@ -64,7 +72,7 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
     }
 
     @Override
-    protected void buildAnalysisScope() {
+    protected void buildAnalysisScope() throws IOException {
         super.buildAnalysisScope();
 
         X10AnalysisScope x10Scope= (X10AnalysisScope) scope;
