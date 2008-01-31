@@ -3,7 +3,7 @@ package com.ibm.wala.cast.x10.loader;
 import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.classLoader.LanguageImpl;
 import com.ibm.wala.types.TypeReference;
-import com.ibm.wala.util.Atom;
+import com.ibm.wala.util.strings.Atom;
 
 public class X10Language extends LanguageImpl {
     /**
