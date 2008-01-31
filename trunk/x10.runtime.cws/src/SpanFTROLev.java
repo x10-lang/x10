@@ -16,8 +16,10 @@
  */
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import x10.runtime.cws.Frame;
+import x10.runtime.cws.Job;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
 import x10.runtime.cws.Worker;
@@ -30,6 +32,22 @@ public class SpanFTROLev {
     // Local queue. Actually, batch size can exceed this because only
     // checked in between neighbor sets
 	static  int BATCH_SIZE=24;
+
+	static class BooleanRef {
+		volatile boolean value=true;
+	}
+	public final class Verifier extends Frame {
+		final int start, end; // both inclusive
+		public Verifier(int s, int e) { start=s; end=e; }
+		public void compute(Worker w) {
+			w.popAndReturnFrame();
+			for (int i=start; i <= end; i++) 
+				if (! G[i].verify()) {
+					verificationResult.value=false;
+					return;
+				}
+		}
+	}
 	
 	public final class V  extends Frame {
 		public final int index;
@@ -51,7 +69,7 @@ public class SpanFTROLev {
 			int nb=0;
 			final int BS=BATCH_SIZE;
 			for (;;) {
-				//System.out.println(w.index + " visits " + node);
+				//System.err.println(w.index + " visits " + node);
 				for (V v : node.neighbors) {
 					if (v.level==0 && UPDATER.compareAndSet(v,0,1)) {
 						v.parent=node;
@@ -75,7 +93,34 @@ public class SpanFTROLev {
 			}
 		}
 		
-		public boolean verify(V root, boolean[] reachesRoot, int N) {
+	/*	public boolean verify() {
+			final V root = G[1];
+			V p = parent, oldP=null;
+			int count=0;
+			try { 
+				while (! (p==null || reachesRoot.get(p.index)==1 || p ==this || p == root || count == N)) {
+					oldP=p;
+					p = p.parent;
+					count++;
+				}
+				boolean result = (count < N && p != null && ( p==root || reachesRoot.get(p.index)==1));
+				reachesRoot.set(index, result?1:0);
+				return result;
+			} finally {
+				if (reporting) {
+					if (count > N-10) {
+						System.err.println(Thread.currentThread() + " finds possibly bad guy " + this +
+								"count=" + count + " p=" + p );
+					}
+					if (reachesRoot.get(index)==0)
+						System.err.println(Thread.currentThread() + " finds bad guy " + this +
+								"count=" + count + " p=" + p  + " oldP=" + oldP);
+				}
+			}
+		}*/
+		
+		public boolean verify() {
+			final V root = G[1];
 			V p = parent, oldP=null;
 			int count=0;
 			try { 
@@ -84,16 +129,17 @@ public class SpanFTROLev {
 					p = p.parent;
 					count++;
 				}
-				reachesRoot[index]=(count < N && p != null && ( p==root || reachesRoot[p.index]));
-				return reachesRoot[index];
+				boolean result = (count < N && p != null && ( p==root || reachesRoot[p.index]));
+				reachesRoot[index]=result;
+				return result;
 			} finally {
 				if (reporting) {
 					if (count > N-10) {
-						System.out.println(Thread.currentThread() + " finds possibly bad guy " + this +
+						System.err.println(Thread.currentThread() + " finds possibly bad guy " + this +
 								"count=" + count + " p=" + p );
 					}
 					if (! reachesRoot[index])
-						System.out.println(Thread.currentThread() + " finds bad guy " + this +
+						System.err.println(Thread.currentThread() + " finds bad guy " + this +
 								"count=" + count + " p=" + p  + " oldP=" + oldP);
 				}
 			}
@@ -105,7 +151,7 @@ public class SpanFTROLev {
 			next=null;
 		}
 		String ij(int index) {
-			return "["+(index/20) + "," + (index % 20 ) + "]";
+			return graphType=='T' ? "["+(index/20) + "," + (index % 20 ) + "]" : "" + index;
 		}
 		public String toString() {
 			String s="[" + (neighbors.length==0? "]" : "" + ij(neighbors[0].index));
@@ -120,7 +166,7 @@ public class SpanFTROLev {
 		public boolean in_tree;
 		public E(int u1, int u2){ v1=u1;v2=u2;in_tree=false;}
 	}
-	
+	boolean[] reachesRoot;
 	int m;
 	V[] G;
 	E[] El;
@@ -163,7 +209,7 @@ public class SpanFTROLev {
 		final int n = k*k;
 		buff = new int [n]; for(int i=0;i<n;i++) buff[i]=i;
   		V [][] adj = new V [n][4];
-  	/*	for(int i=0;i<n/2;i++){
+  		/*for(int i=0;i<n/2;i++){
 			int l=(int)(Math.random()*n)%n, s=(int)(Math.random()*n)%n;
 			int j=buff[l];
 			buff[l]=buff[s];
@@ -178,7 +224,7 @@ public class SpanFTROLev {
 	  		                    graph[buff[i*k+((j+1)%k)]]};
 		
    		for(int i=0;i<n;i++) graph[i].neighbors=adj[i];
-   		reachesRoot = new boolean[n];
+   		reachesRoot = new boolean[n]; rr = new boolean[n];
    		System.out.println("Graph generated.");
 	}
 
@@ -268,7 +314,7 @@ public class SpanFTROLev {
             			graph[i].neighbors[j]=graph[array[i][j]];
         		}
    		}
-   		reachesRoot = new boolean[n];
+   		reachesRoot = new boolean[n]; rr = new boolean[n];
   		System.out.println("generating graph done\n");
 	}
 
@@ -358,7 +404,7 @@ public class SpanFTROLev {
 		}
 		
 		//visited = new boolean[N];
-		reachesRoot = new boolean[N];
+		reachesRoot = new boolean[N]; rr=new boolean[N];
 		for(int i=0;i<N;i++) {
 			G[i].reset();
 			G[i].neighbors=new V [D[i]];
@@ -370,19 +416,23 @@ public class SpanFTROLev {
 				System.out.println("G[" + i + "]=" + G[i]);
 		}     
 	}
-	boolean[] reachesRoot;
-	public boolean verifyTraverse(V root) {
-		for (int i=0; i < reachesRoot.length; i++) reachesRoot[i]=false;
+
+	boolean[] rr;
+	final BooleanRef verificationResult = new BooleanRef();
+	/*public boolean verifyTraverse(V root) {
+		
+		for (int i=0; i < rr.length; i++) rr[i]=false;
 		int i=0;
 		boolean result = false;
 		try {
-			for (;i<N && G[i].verify(root, reachesRoot, N);i++) ;
+			for (;i<N && G[i].verifyRR();i++) ;
 			return result = (i==N);
 		} finally {
 			if (reporting && ! result)
 				System.out.println(Thread.currentThread() + " fails at " + G[i]);
 		}
-	}
+		
+	}*/
 	/*
 	boolean verifyTraverse(V root) {
 		V[] X = new V [N];
@@ -407,11 +457,12 @@ public class SpanFTROLev {
 	static final long NPS = (1000L * 1000 * 1000);
 	static boolean graphOnly =false;
 	static boolean verification=true;
+	static char graphType='E';
 	public static void main(String[] args) {
 		int procs;
 		int num=-1;
 		int D=4;
-		char graphType='E';
+		
 		try {
 			procs = Integer.parseInt(args[0]);
 			System.out.println("Number of procs=" + procs);
@@ -460,7 +511,7 @@ public class SpanFTROLev {
 			return;
 		}
 		//System.out.print("Creating pool...");
-		Pool g = new Pool(procs);
+		final Pool g = new Pool(procs);
 		//System.out.print("done.");
 		if (num >= 0) {
 			Ns = new int[] {num};
@@ -479,30 +530,43 @@ public class SpanFTROLev {
 			if (graphOnly) return;
 		
 			//System.out.printf("N:%8d ", N);
-			for (int k=0; k <= 19; ++k) {
+			for (int k=0; k < 20; ++k) {
 				graph.setRoot();
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, graph.G[1]);
 				long s = System.nanoTime();
-				/*GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, 
-						graph.new PreLoader(g,procs));*/
-				//System.out.print("   " + Thread.currentThread() + " Starting timed section...");
+				//System.err.print("   " + Thread.currentThread() + " Starting timed section...");
 				g.invoke(job);
 				long t = System.nanoTime() - s;
-				//System.out.println(Thread.currentThread() + " ....done.");
+				//System.err.println(Thread.currentThread() + " ....done.");
 				double secs = ((double) t)/NPS;
 				double Meps = 1000*(M/(double)t);
 				System.out.printf("N=%d t=%5.4f s %5.4f MegaEdges/s", N, secs, Meps);
 				System.out.println();
 				long verificationTime = - System.nanoTime();
 				if (verification) {
-					if (! graph.verifyTraverse(graph.G[1]))
-						System.out.println("false");
+					final SpanFTROLev gGraph = graph;
+					final int P = g.getPoolSize(), size = N/P;
+					graph.verificationResult.value=true;
+					for (int j=0; j < N; j++) graph.reachesRoot[j]=false;
+					 Job vJob = new GloballyQuiescentVoidJob(g, 
+							 new Frame() {
+						 @Override public void compute(Worker w) throws StealAbort {
+							 w.popAndReturnFrame();
+							 for (int j=0; j < P; j++) 
+									w.pushFrame(gGraph.new Verifier(j*size, (j+1)*size-1));
+							 
+						 }
+					 });
+		    		  g.invoke(vJob);
+					if (! graph.verificationResult.value)
+						System.out.println(" false! ");
 					else {
 						verificationTime += System.nanoTime();
 						double vSecs = ((double) verificationTime)/NPS;
 						System.out.printf(" (verification %5.4f s)", vSecs );
 						System.out.println();
 					}
+					//System.err.println("Standard check: " + graph.verifyTraverse(graph.G[1]));
 				}
 				graph.clearColor();
 				
@@ -517,7 +581,7 @@ public class SpanFTROLev {
 	}
 	void clearColor() {
 		for (V v : G) v.reset();
-		
 	}
+	
 }
 

@@ -8,9 +8,12 @@
  */
 
 
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
+ 
 import x10.runtime.cws.Frame;
+import x10.runtime.cws.Job;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
 import x10.runtime.cws.Worker;
@@ -18,34 +21,66 @@ import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
 
 
 public class BFSRef {
-	
+	public static int BATCH_SIZE=32;
 	public static final 
 	AtomicReferenceFieldUpdater<V,V> UPDATER = AtomicReferenceFieldUpdater.newUpdater(V.class, V.class, "parent");
-	public class V  extends Frame {
+	public final class V  extends Frame {
 		public final int index;
 		public volatile V parent;
 		public V [] neighbors;
+		public V next; // link for batching
 		public V(int i){index=i;}
 		volatile int PC=0;
 		public void compute(Worker w)  throws StealAbort {
-			if (PC==1) {
-				w.popAndReturnFrame(); // called intead of popFrame to insure victim's half of Dekker is executed.
-				return;
+			w.popAndReturnFrame();
+			V node=this; 
+			final int BS=BATCH_SIZE, pid = w.index;
+			int nb=0;
+			for (;;) {
+				for (V v : node.neighbors) {
+					if (UPDATER.get(v)==null && UPDATER.compareAndSet(v,null,this)) {
+						v.next = batch[pid];
+						batch[pid] = v;
+						if (++nb >= BS) {
+							w.pushFrameNext(batch[pid]);
+							batch[pid]=null;
+							nb=0;
+						}
+					}
+				}	
+				V nxt = node.next;
+				if (nxt == null) break;
+				node.next=null;
+				node=nxt;
 			}
-			PC=1;
-			if (Worker.reporting)
-				System.out.println(Thread.currentThread() + " visits " + this);
-						
-			for (int k=0; k < neighbors.length; k++) {
-				final V v = neighbors[k];
-				if (UPDATER.get(v)==null && UPDATER.compareAndSet(v,null,this)) {
-					w.pushFrameNext(v);
-				
+		}
+		public boolean verify() {
+			final V root = G[1];
+			V p = parent, oldP=null;
+			int count=0;
+			try { 
+				while (! (p==null || reachesRoot[p.index] || p ==this || p == root || count == N)) {
+					oldP=p;
+					p = p.parent;
+					count++;
 				}
-			}	
+				boolean result = (count < N && p != null && ( p==root || reachesRoot[p.index]));
+				reachesRoot[index]=result;
+				return result;
+			} finally {
+				if (reporting) {
+					if (count > N-10) {
+						System.err.println(Thread.currentThread() + " finds possibly bad guy " + this +
+								"count=" + count + " p=" + p );
+					}
+					if (! reachesRoot[index])
+						System.err.println(Thread.currentThread() + " finds bad guy " + this +
+								"count=" + count + " p=" + p  + " oldP=" + oldP);
+				}
+			}
 		}
 		
-		public boolean verify(V root) {
+		/*public boolean verify(V root) {
 			boolean result = false;
 			V p = parent;
 			try { if (p==null) return result;
@@ -55,7 +90,7 @@ public class BFSRef {
 				if (reporting && ! result)
 					System.out.println(Thread.currentThread() + " finds bad guy " + this);
 			}
-		}
+		}*/
 		@Override
 		public String toString() {
 			String s="[" + (neighbors.length==0? "]" : "" + neighbors[0].index);
@@ -108,13 +143,13 @@ public class BFSRef {
   		V [][] adj = new V [n][4];//Java support arrays of arrays
   		for(i=0;i<n;i++) buff[i]=i;
 
-  		for(i=0;i<n/2;i++){
+  	/*	for(i=0;i<n/2;i++){
 			l=(int)(Math.random()*n)%n;
  			s=(int)(Math.random()*n)%n;
 			j=buff[l];
 			buff[l]=buff[s];
 			buff[s]=j;
-  		}
+  		}*/
 	
   		for(i=0;i<k;i++)
       		for(j=0;j<k;j++)
@@ -127,7 +162,7 @@ public class BFSRef {
 			// vj -- why is this? graph[i].parent=i;
         		graph[i].neighbors=adj[i];
    		}
-   	
+   		reachesRoot = new boolean[n];
    		System.out.println("Graph generated.");
 	}
 
@@ -217,7 +252,7 @@ public class BFSRef {
             			graph[i].neighbors[j]=graph[array[i][j]];
         		}
    		}
-   		
+   		reachesRoot = new boolean[n];
   		System.out.println("generating graph done\n");
 	}
 
@@ -316,26 +351,14 @@ public class BFSRef {
 			if (reporting || graphOnly)
 				System.out.println("G[" + i + "]=" + G[i]);
 		}     
+		reachesRoot = new boolean[N];
 	}
-	
-	boolean verifyTraverse(V root) {
-		int i=0;
-		boolean result = true;
-		try {
-			for (;i<N  ;i++) {
-				if (! G[i].verify(root))
-					result = false;
-			}
-			return result;
-		}finally {
-			if ( ! result) ;
-				//System.out.println(Thread.currentThread() + " fails at " + G[i]);
-		}
-	}
+
+	boolean[] reachesRoot;
 	static BFSRef graph;
 	static boolean reporting = false;
 	static final long NPS = (1000L * 1000 * 1000);
-	static boolean graphOnly =false;
+	static boolean graphOnly =false, verification=true;
 	public static void main(String[] args) {
 		int procs;
 		int num=-1;
@@ -372,6 +395,14 @@ public class BFSRef {
 				boolean b = Boolean.parseBoolean(args[5]);
 				graphOnly=b;
 			}
+			if (args.length > 6) {
+				boolean b = Boolean.parseBoolean(args[6]);
+				verification=b;
+			}
+			if (args.length > 7) {
+				BATCH_SIZE=Integer.parseInt(args[7]);
+				System.out.println("BATCH_SIZE=" + BATCH_SIZE);
+			}
 		}
 		catch (Exception e) {
 			System.out.println("Usage: java BFS <threads> [<Type> [<N> [<Degree> [[false|true] [false|true]]]]]");
@@ -384,26 +415,66 @@ public class BFSRef {
 		}
 		for (int i=Ns.length-1; i >= 0; i--) {
 			
-			int N = Ns[i], M = D*N;
+			final int N = Ns[i], M = D*(graphType=='T'?N:1)*N;
 			// ensure the sole reference to the previous graph is nulled before gc.
 			graph = null;
 			System.gc();
 			graph = new BFSRef(N,M, graphType);
 			if (graphOnly) return;
-		
+		     graph.batch = new V[procs];
 			//System.out.printf("N:%8d ", N);
-			for (int k=0; k < 10; ++k) {
-				long s = System.nanoTime();
+			for (int k=0; k < 20; ++k) {
 				final V root = graph.G[1];
 				root.parent=root;
-				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, root);
+				final BFSRef GGraph = graph;
+				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, root) {
+					@Override 
+					protected void onCheckIn(Worker w) {
+						final int pid = w.index;
+						V node = GGraph.batch[pid];
+						if (node != null) {
+							w.pushFrameNext(node);
+							GGraph.batch[pid]=null;
+						}
+					}
+					
+				};
+				long s = System.nanoTime();
+				//for (int m=0; m < procs; m++) graph.batch[m]=null;
 				g.invoke(job);
 				long t = (System.nanoTime() - s);
-				double MEps = (M*1000)/(double) t;
-				System.out.printf("N=%d t=%d ns %5.3f ME/s", N, t, MEps);
+				double secs = ((double) t)/NPS;
+				double MEps = 1000 * (M/(double) t);
+				System.out.printf("N=%d t=%5.4f s %5.3f ME/s", N, secs, MEps);
 				System.out.println();
-				if (! graph.verifyTraverse(root))
-					System.out.printf("Test fails. %b ", false);
+				//if (! graph.verifyTraverse(root))
+				//	System.out.printf("Test fails.");
+				long verificationTime = - System.nanoTime();
+				if (verification) {
+					final BFSRef gGraph = graph;
+					final int P = g.getPoolSize(), size = N/P;
+					graph.verificationResult.value=true;
+					for (int j=0; j < N; j++) graph.reachesRoot[j]=false;
+					 Job vJob = new GloballyQuiescentVoidJob(g, 
+							 new Frame() {
+						 @Override public void compute(Worker w) throws StealAbort {
+							 w.popAndReturnFrame();
+							 for (int j=0; j < P; j++) 
+									w.pushFrame(gGraph.new Verifier(j*size, (j+1)*size-1));
+							 
+						 }
+					 });
+		    		  g.invoke(vJob);
+					if (! graph.verificationResult.value)
+						System.out.println(" false! ");
+					else {
+						verificationTime += System.nanoTime();
+						double vSecs = ((double) verificationTime)/NPS;
+						System.out.printf(" (verification %5.4f s)", vSecs );
+						System.out.println();
+					}
+					//System.err.println("Standard check: " + graph.verifyTraverse(graph.G[1]));
+				}
 				graph.clearColor();
 				
 			}
@@ -420,5 +491,24 @@ public class BFSRef {
 		}
 			
 	}
+	V[] batch;
+	static class BooleanRef {
+		volatile boolean value=true;
+	}
+	public final class Verifier extends Frame {
+		final int start, end; // both inclusive
+		public Verifier(int s, int e) { start=s; end=e; }
+		public void compute(Worker w) {
+			w.popAndReturnFrame();
+			for (int i=start; i <= end; i++) 
+				if (! G[i].verify()) {
+					verificationResult.value=false;
+					return;
+				}
+		}
+	}
+	final BooleanRef verificationResult = new BooleanRef();
+	
+	
 }
 

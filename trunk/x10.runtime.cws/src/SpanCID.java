@@ -12,7 +12,6 @@
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
-import x10.runtime.cws.Cache;
 import x10.runtime.cws.Closure;
 import x10.runtime.cws.Frame;
 import x10.runtime.cws.Pool;
@@ -174,11 +173,11 @@ public class SpanCID {
 			int index = u;
 			if (index >= 0) {
 				u=-1; // in case this frame gets stolen. -1 indicates no more work to do.
-				Cache cache = w.cache;
+				
 				for(;;) {
 					if (index >= 0) 
 						work(w, index);
-					Frame f = cache.popAndReturnFrame(w);
+					Frame f = w.popAndReturnFrame();
 					if (f == null) return;
 					index = ((TFrame) f).u;
 				}
