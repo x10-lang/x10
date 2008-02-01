@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: run.sh,v 1.1 2008-02-01 10:56:21 srkodali Exp $
+# $Id: run.sh,v 1.2 2008-02-01 11:02:56 srkodali Exp $
 #
 # Interactive script for benchmarking dfs.java.torus programs.
 #
@@ -37,6 +37,7 @@ do
 					printf "\n#<<<< BEGIN BATCHING >>>>\n" 2>&1| tee -a $OUT_FILE
 					for bsize in 1 10 20 30 40 50 60 70 80 90 100
 					do
+						printf "\n#### bsize: %d\n" $bsize 2>&1| tee -a $OUT_FILE
 						CMD="${_CMD_} $nproc T $size 4 false false true $bsize"
 						printf "${CMD}\n" 2>&1| tee -a $OUT_FILE
 						${CMD} 2>&1| tee -a $OUT_FILE
@@ -56,6 +57,7 @@ do
 					printf "\n#<<<< BEGIN BATCHING >>>>\n" 2>&1| tee -a $OUT_FILE
 					for bsize in 1 10 20 30 40 50 60 70 80 90 100
 					do
+						printf "\n#### bsize: %d\n" $bsize 2>&1| tee -a $OUT_FILE
 						CMD="${_CMD_} $nproc T $size 4 false false true $bsize"
 						printf "${CMD}\n" 2>&1| tee -a $OUT_FILE
 						${CMD} 2>&1| tee -a $OUT_FILE
