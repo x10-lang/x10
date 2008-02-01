@@ -1,0 +1,4252 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 02/01/2008 - 06:27:07
+############################################################
+#
+# Run: 1
+#
+
+## Size: 300
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 1 T 300 4 false false true
+Number of procs=1
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3235 s
+stealCount=0 N=300 t=0.0743 s 4.8425 MegaEdges/s
+stealCount=0  (verification 0.0686 s)
+stealCount=0 N=300 t=0.0356 s 10.1072 MegaEdges/s
+stealCount=0  (verification 0.0952 s)
+stealCount=0 N=300 t=0.0355 s 10.1371 MegaEdges/s
+stealCount=0  (verification 0.0264 s)
+stealCount=0 N=300 t=0.0354 s 10.1761 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0355 s 10.1412 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0361 s 9.9812 MegaEdges/s
+stealCount=0  (verification 0.0264 s)
+stealCount=0 N=300 t=0.0356 s 10.1259 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0364 s 9.8849 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0355 s 10.1361 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0355 s 10.1370 MegaEdges/s
+stealCount=0  (verification 0.0264 s)
+stealCount=0 N=300 t=0.0355 s 10.1445 MegaEdges/s
+stealCount=0  (verification 0.0265 s)
+stealCount=0 N=300 t=0.0358 s 10.0695 MegaEdges/s
+stealCount=0  (verification 0.0264 s)
+stealCount=0 N=300 t=0.0357 s 10.0898 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0356 s 10.1163 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0355 s 10.1318 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0355 s 10.1282 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0355 s 10.1421 MegaEdges/s
+stealCount=0  (verification 0.0266 s)
+stealCount=0 N=300 t=0.0354 s 10.1563 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+stealCount=0 N=300 t=0.0341 s 10.5694 MegaEdges/s
+stealCount=0  (verification 0.0264 s)
+stealCount=0 N=300 t=0.0341 s 10.5725 MegaEdges/s
+stealCount=0  (verification 0.0263 s)
+Completed iterations for N=300
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 2 T 300 4 false false true
+Number of procs=2
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3254 s
+stealCount=54 N=300 t=0.0562 s 6.4093 MegaEdges/s
+stealCount=0  (verification 0.0680 s)
+stealCount=66 N=300 t=0.0240 s 15.0238 MegaEdges/s
+stealCount=0  (verification 0.0306 s)
+stealCount=19 N=300 t=0.0200 s 18.0405 MegaEdges/s
+stealCount=1  (verification 0.0079 s)
+stealCount=9 N=300 t=0.0209 s 17.2019 MegaEdges/s
+stealCount=1  (verification 0.0024 s)
+stealCount=43 N=300 t=0.0246 s 14.6207 MegaEdges/s
+stealCount=1  (verification 0.0022 s)
+stealCount=69 N=300 t=0.0216 s 16.6579 MegaEdges/s
+stealCount=1  (verification 0.0081 s)
+stealCount=27 N=300 t=0.0193 s 18.6063 MegaEdges/s
+stealCount=1  (verification 0.0039 s)
+stealCount=63 N=300 t=0.0232 s 15.5338 MegaEdges/s
+stealCount=0  (verification 0.0032 s)
+stealCount=40 N=300 t=0.0239 s 15.0680 MegaEdges/s
+stealCount=1  (verification 0.0022 s)
+stealCount=42 N=300 t=0.0218 s 16.5011 MegaEdges/s
+stealCount=0  (verification 0.0032 s)
+stealCount=62 N=300 t=0.0236 s 15.2687 MegaEdges/s
+stealCount=1  (verification 0.0025 s)
+stealCount=31 N=300 t=0.0197 s 18.2362 MegaEdges/s
+stealCount=0  (verification 0.0215 s)
+stealCount=70 N=300 t=0.0246 s 14.6388 MegaEdges/s
+stealCount=1  (verification 0.0021 s)
+stealCount=22 N=300 t=0.0190 s 18.9692 MegaEdges/s
+stealCount=1  (verification 0.0048 s)
+stealCount=68 N=300 t=0.0237 s 15.1892 MegaEdges/s
+stealCount=0  (verification 0.0031 s)
+stealCount=75 N=300 t=0.0253 s 14.2515 MegaEdges/s
+stealCount=1  (verification 0.0021 s)
+stealCount=64 N=300 t=0.0210 s 17.1425 MegaEdges/s
+stealCount=1  (verification 0.0174 s)
+stealCount=35 N=300 t=0.0205 s 17.5519 MegaEdges/s
+stealCount=0  (verification 0.0201 s)
+stealCount=40 N=300 t=0.0188 s 19.1004 MegaEdges/s
+stealCount=1  (verification 0.0112 s)
+stealCount=63 N=300 t=0.0243 s 14.8127 MegaEdges/s
+stealCount=1  (verification 0.0021 s)
+Completed iterations for N=300
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 4 T 300 4 false false true
+Number of procs=4
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3311 s
+stealCount=25 N=300 t=0.0655 s 5.4976 MegaEdges/s
+stealCount=2  (verification 0.0469 s)
+stealCount=25 N=300 t=0.0101 s 35.5954 MegaEdges/s
+stealCount=2  (verification 0.0162 s)
+stealCount=69 N=300 t=0.0108 s 33.4122 MegaEdges/s
+stealCount=2  (verification 0.0029 s)
+stealCount=11 N=300 t=0.0095 s 37.7737 MegaEdges/s
+stealCount=2  (verification 0.0046 s)
+stealCount=43 N=300 t=0.0102 s 35.2697 MegaEdges/s
+stealCount=2  (verification 0.0024 s)
+stealCount=11 N=300 t=0.0104 s 34.4884 MegaEdges/s
+stealCount=0  (verification 0.0077 s)
+stealCount=22 N=300 t=0.0099 s 36.5401 MegaEdges/s
+stealCount=3  (verification 0.0010 s)
+stealCount=26 N=300 t=0.0099 s 36.5038 MegaEdges/s
+stealCount=2  (verification 0.0023 s)
+stealCount=43 N=300 t=0.0129 s 27.9072 MegaEdges/s
+stealCount=2  (verification 0.0027 s)
+stealCount=34 N=300 t=0.0099 s 36.3544 MegaEdges/s
+stealCount=2  (verification 0.0027 s)
+stealCount=40 N=300 t=0.0102 s 35.4415 MegaEdges/s
+stealCount=2  (verification 0.0031 s)
+stealCount=43 N=300 t=0.0105 s 34.3949 MegaEdges/s
+stealCount=3  (verification 0.0028 s)
+stealCount=58 N=300 t=0.0109 s 33.0462 MegaEdges/s
+stealCount=2  (verification 0.0028 s)
+stealCount=68 N=300 t=0.0104 s 34.6785 MegaEdges/s
+stealCount=2  (verification 0.0022 s)
+stealCount=25 N=300 t=0.0126 s 28.5463 MegaEdges/s
+stealCount=2  (verification 0.0034 s)
+stealCount=12 N=300 t=0.0097 s 36.9730 MegaEdges/s
+stealCount=2  (verification 0.0013 s)
+stealCount=111 N=300 t=0.0119 s 30.2241 MegaEdges/s
+stealCount=2  (verification 0.0016 s)
+stealCount=34 N=300 t=0.0100 s 35.9890 MegaEdges/s
+stealCount=2  (verification 0.0058 s)
+stealCount=18 N=300 t=0.0092 s 39.1313 MegaEdges/s
+stealCount=2  (verification 0.0026 s)
+stealCount=13 N=300 t=0.0093 s 38.5032 MegaEdges/s
+stealCount=2  (verification 0.0021 s)
+Completed iterations for N=300
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 8 T 300 4 false false true
+Number of procs=8
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3282 s
+stealCount=41 N=300 t=0.0403 s 8.9390 MegaEdges/s
+stealCount=5  (verification 0.0210 s)
+stealCount=81 N=300 t=0.0061 s 58.5525 MegaEdges/s
+stealCount=5  (verification 0.0015 s)
+stealCount=25 N=300 t=0.0058 s 61.8298 MegaEdges/s
+stealCount=5  (verification 0.0015 s)
+stealCount=30 N=300 t=0.0064 s 56.5451 MegaEdges/s
+stealCount=5  (verification 0.0019 s)
+stealCount=33 N=300 t=0.0059 s 60.7601 MegaEdges/s
+stealCount=5  (verification 0.0014 s)
+stealCount=43 N=300 t=0.0088 s 40.8748 MegaEdges/s
+stealCount=5  (verification 0.0013 s)
+stealCount=25 N=300 t=0.0060 s 60.0155 MegaEdges/s
+stealCount=5  (verification 0.0015 s)
+stealCount=49 N=300 t=0.0057 s 63.3834 MegaEdges/s
+stealCount=4  (verification 0.0016 s)
+stealCount=30 N=300 t=0.0057 s 62.8602 MegaEdges/s
+stealCount=3  (verification 0.0015 s)
+stealCount=41 N=300 t=0.0063 s 57.5303 MegaEdges/s
+stealCount=5  (verification 0.0023 s)
+stealCount=35 N=300 t=0.0063 s 57.5509 MegaEdges/s
+stealCount=5  (verification 0.0016 s)
+stealCount=60 N=300 t=0.0061 s 58.8159 MegaEdges/s
+stealCount=5  (verification 0.0010 s)
+stealCount=53 N=300 t=0.0063 s 57.3573 MegaEdges/s
+stealCount=5  (verification 0.0016 s)
+stealCount=39 N=300 t=0.0062 s 58.2932 MegaEdges/s
+stealCount=5  (verification 0.0015 s)
+stealCount=74 N=300 t=0.0070 s 51.5669 MegaEdges/s
+stealCount=4  (verification 0.0012 s)
+stealCount=88 N=300 t=0.0067 s 53.6703 MegaEdges/s
+stealCount=5  (verification 0.0018 s)
+stealCount=29 N=300 t=0.0058 s 62.3936 MegaEdges/s
+stealCount=4  (verification 0.0013 s)
+stealCount=58 N=300 t=0.0060 s 60.3274 MegaEdges/s
+stealCount=5  (verification 0.0017 s)
+stealCount=29 N=300 t=0.0063 s 56.9845 MegaEdges/s
+stealCount=4  (verification 0.0013 s)
+stealCount=32 N=300 t=0.0058 s 61.7207 MegaEdges/s
+stealCount=4  (verification 0.0019 s)
+Completed iterations for N=300
+
+### nproc: 16
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 16 T 300 4 false false true
+Number of procs=16
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3197 s
+stealCount=63 N=300 t=0.0354 s 10.1711 MegaEdges/s
+stealCount=13  (verification 0.0066 s)
+stealCount=99 N=300 t=0.0043 s 83.6783 MegaEdges/s
+stealCount=12  (verification 0.0045 s)
+stealCount=72 N=300 t=0.0042 s 85.3870 MegaEdges/s
+stealCount=14  (verification 0.0043 s)
+stealCount=47 N=300 t=0.0044 s 82.3822 MegaEdges/s
+stealCount=14  (verification 0.0046 s)
+stealCount=63 N=300 t=0.0049 s 73.3242 MegaEdges/s
+stealCount=14  (verification 0.0045 s)
+stealCount=62 N=300 t=0.0050 s 72.4933 MegaEdges/s
+stealCount=14  (verification 0.0045 s)
+stealCount=99 N=300 t=0.0046 s 77.7157 MegaEdges/s
+stealCount=14  (verification 0.0038 s)
+stealCount=73 N=300 t=0.0043 s 83.4881 MegaEdges/s
+stealCount=13  (verification 0.0040 s)
+stealCount=97 N=300 t=0.0046 s 77.4363 MegaEdges/s
+stealCount=13  (verification 0.0033 s)
+stealCount=59 N=300 t=0.0045 s 80.1121 MegaEdges/s
+stealCount=8  (verification 0.0029 s)
+stealCount=59 N=300 t=0.0042 s 85.2936 MegaEdges/s
+stealCount=9  (verification 0.0016 s)
+stealCount=72 N=300 t=0.0040 s 88.9534 MegaEdges/s
+stealCount=10  (verification 0.0011 s)
+stealCount=98 N=300 t=0.0041 s 87.0698 MegaEdges/s
+stealCount=11  (verification 0.0012 s)
+stealCount=78 N=300 t=0.0039 s 91.6482 MegaEdges/s
+stealCount=11  (verification 0.0012 s)
+stealCount=86 N=300 t=0.0040 s 89.5556 MegaEdges/s
+stealCount=11  (verification 0.0013 s)
+stealCount=127 N=300 t=0.0046 s 79.0842 MegaEdges/s
+stealCount=12  (verification 0.0012 s)
+stealCount=62 N=300 t=0.0038 s 93.8829 MegaEdges/s
+stealCount=12  (verification 0.0011 s)
+stealCount=137 N=300 t=0.0040 s 89.9446 MegaEdges/s
+stealCount=13  (verification 0.0009 s)
+stealCount=104 N=300 t=0.0040 s 90.6405 MegaEdges/s
+stealCount=12  (verification 0.0008 s)
+stealCount=75 N=300 t=0.0037 s 97.6916 MegaEdges/s
+stealCount=12  (verification 0.0025 s)
+Completed iterations for N=300
+
+### nproc: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 20 T 300 4 false false true
+Number of procs=20
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3178 s
+stealCount=145 N=300 t=0.0404 s 8.9084 MegaEdges/s
+stealCount=17  (verification 0.0056 s)
+stealCount=109 N=300 t=0.0043 s 83.3530 MegaEdges/s
+stealCount=17  (verification 0.0067 s)
+stealCount=84 N=300 t=0.0041 s 86.9822 MegaEdges/s
+stealCount=17  (verification 0.0051 s)
+stealCount=105 N=300 t=0.0045 s 79.8341 MegaEdges/s
+stealCount=17  (verification 0.0044 s)
+stealCount=99 N=300 t=0.0041 s 86.8911 MegaEdges/s
+stealCount=16  (verification 0.0041 s)
+stealCount=153 N=300 t=0.0054 s 66.8545 MegaEdges/s
+stealCount=16  (verification 0.0042 s)
+stealCount=118 N=300 t=0.0041 s 87.5608 MegaEdges/s
+stealCount=16  (verification 0.0032 s)
+stealCount=62 N=300 t=0.0064 s 56.5429 MegaEdges/s
+stealCount=16  (verification 0.0058 s)
+stealCount=90 N=300 t=0.0036 s 99.2867 MegaEdges/s
+stealCount=17  (verification 0.0047 s)
+stealCount=130 N=300 t=0.0039 s 92.8896 MegaEdges/s
+stealCount=17  (verification 0.0057 s)
+stealCount=98 N=300 t=0.0039 s 92.1658 MegaEdges/s
+stealCount=17  (verification 0.0037 s)
+stealCount=85 N=300 t=0.0038 s 95.2647 MegaEdges/s
+stealCount=17  (verification 0.0030 s)
+stealCount=109 N=300 t=0.0036 s 100.7523 MegaEdges/s
+stealCount=18  (verification 0.0035 s)
+stealCount=117 N=300 t=0.0035 s 102.2716 MegaEdges/s
+stealCount=17  (verification 0.0033 s)
+stealCount=101 N=300 t=0.0038 s 95.0755 MegaEdges/s
+stealCount=13  (verification 0.0010 s)
+stealCount=91 N=300 t=0.0036 s 99.1658 MegaEdges/s
+stealCount=14  (verification 0.0010 s)
+stealCount=88 N=300 t=0.0035 s 101.4407 MegaEdges/s
+stealCount=12  (verification 0.0012 s)
+stealCount=119 N=300 t=0.0037 s 97.1717 MegaEdges/s
+stealCount=13  (verification 0.0011 s)
+stealCount=81 N=300 t=0.0033 s 108.9409 MegaEdges/s
+stealCount=13  (verification 0.0011 s)
+stealCount=54 N=300 t=0.0031 s 114.3339 MegaEdges/s
+stealCount=9  (verification 0.0021 s)
+Completed iterations for N=300
+
+### nproc: 24
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 24 T 300 4 false false true
+Number of procs=24
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3195 s
+stealCount=128 N=300 t=0.0335 s 10.7344 MegaEdges/s
+stealCount=17  (verification 0.0061 s)
+stealCount=111 N=300 t=0.0041 s 86.7993 MegaEdges/s
+stealCount=20  (verification 0.0037 s)
+stealCount=122 N=300 t=0.0040 s 88.9994 MegaEdges/s
+stealCount=19  (verification 0.0032 s)
+stealCount=101 N=300 t=0.0043 s 83.9951 MegaEdges/s
+stealCount=19  (verification 0.0023 s)
+stealCount=93 N=300 t=0.0041 s 87.1451 MegaEdges/s
+stealCount=9  (verification 0.0015 s)
+stealCount=107 N=300 t=0.0048 s 75.5865 MegaEdges/s
+stealCount=13  (verification 0.0020 s)
+stealCount=145 N=300 t=0.0049 s 73.0587 MegaEdges/s
+stealCount=15  (verification 0.0017 s)
+Worker(23,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@ece65,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=101 N=300 t=0.0051 s 70.9607 MegaEdges/s
+stealCount=16  (verification 0.0019 s)
+stealCount=113 N=300 t=0.0038 s 94.9823 MegaEdges/s
+stealCount=14  (verification 0.0013 s)
+stealCount=114 N=300 t=0.0038 s 94.2173 MegaEdges/s
+stealCount=15  (verification 0.0029 s)
+stealCount=145 N=300 t=0.0042 s 85.4725 MegaEdges/s
+stealCount=15  (verification 0.0017 s)
+stealCount=118 N=300 t=0.0039 s 93.3142 MegaEdges/s
+stealCount=15  (verification 0.0014 s)
+stealCount=112 N=300 t=0.0041 s 86.8043 MegaEdges/s
+stealCount=14  (verification 0.0013 s)
+stealCount=90 N=300 t=0.0036 s 99.6847 MegaEdges/s
+stealCount=9  (verification 0.0012 s)
+stealCount=108 N=300 t=0.0036 s 100.4290 MegaEdges/s
+stealCount=16  (verification 0.0011 s)
+stealCount=118 N=300 t=0.0036 s 100.9578 MegaEdges/s
+stealCount=16  (verification 0.0011 s)
+stealCount=128 N=300 t=0.0035 s 104.0434 MegaEdges/s
+stealCount=23  (verification 0.0014 s)
+stealCount=126 N=300 t=0.0037 s 98.1565 MegaEdges/s
+stealCount=17  (verification 0.0011 s)
+stealCount=117 N=300 t=0.0033 s 107.8570 MegaEdges/s
+stealCount=17  (verification 0.0012 s)
+stealCount=124 N=300 t=0.0033 s 109.3945 MegaEdges/s
+stealCount=19  (verification 0.0024 s)
+Completed iterations for N=300
+
+### nproc: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3189 s
+stealCount=90 N=300 t=0.0330 s 10.9032 MegaEdges/s
+stealCount=25  (verification 0.0061 s)
+stealCount=113 N=300 t=0.0041 s 86.8125 MegaEdges/s
+stealCount=25  (verification 0.0043 s)
+stealCount=130 N=300 t=0.0041 s 87.6154 MegaEdges/s
+stealCount=24  (verification 0.0040 s)
+stealCount=101 N=300 t=0.0043 s 84.1123 MegaEdges/s
+stealCount=26  (verification 0.0047 s)
+stealCount=105 N=300 t=0.0039 s 91.8531 MegaEdges/s
+stealCount=24  (verification 0.0040 s)
+stealCount=108 N=300 t=0.0040 s 90.7442 MegaEdges/s
+stealCount=26  (verification 0.0037 s)
+stealCount=134 N=300 t=0.0048 s 74.9576 MegaEdges/s
+stealCount=22  (verification 0.0030 s)
+stealCount=124 N=300 t=0.0040 s 89.3172 MegaEdges/s
+stealCount=25  (verification 0.0052 s)
+stealCount=127 N=300 t=0.0036 s 100.5177 MegaEdges/s
+stealCount=25  (verification 0.0035 s)
+stealCount=130 N=300 t=0.0036 s 100.1127 MegaEdges/s
+stealCount=26  (verification 0.0057 s)
+stealCount=144 N=300 t=0.0035 s 103.5696 MegaEdges/s
+stealCount=25  (verification 0.0038 s)
+stealCount=134 N=300 t=0.0034 s 105.8036 MegaEdges/s
+stealCount=25  (verification 0.0036 s)
+stealCount=121 N=300 t=0.0036 s 98.9927 MegaEdges/s
+stealCount=27  (verification 0.0032 s)
+stealCount=125 N=300 t=0.0035 s 102.3413 MegaEdges/s
+stealCount=27  (verification 0.0031 s)
+stealCount=140 N=300 t=0.0033 s 108.2497 MegaEdges/s
+stealCount=17  (verification 0.0012 s)
+stealCount=104 N=300 t=0.0036 s 101.3721 MegaEdges/s
+stealCount=18  (verification 0.0015 s)
+stealCount=124 N=300 t=0.0033 s 109.1021 MegaEdges/s
+stealCount=18  (verification 0.0012 s)
+stealCount=139 N=300 t=0.0034 s 105.9136 MegaEdges/s
+stealCount=18  (verification 0.0011 s)
+stealCount=91 N=300 t=0.0035 s 101.5184 MegaEdges/s
+stealCount=20  (verification 0.0010 s)
+stealCount=136 N=300 t=0.0033 s 108.3466 MegaEdges/s
+stealCount=19  (verification 0.0028 s)
+Completed iterations for N=300
+
+#<<<< BEGIN BATCHING >>>>
+
+#### bsize: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 1
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=1
+Generating graph...
+Graph generated.
+Creation time:0.3247 s
+stealCount=3557 N=300 t=0.0935 s 3.8495 MegaEdges/s
+stealCount=24  (verification 0.0066 s)
+stealCount=600 N=300 t=0.0184 s 19.5291 MegaEdges/s
+stealCount=24  (verification 0.0030 s)
+stealCount=3212 N=300 t=0.0491 s 7.3328 MegaEdges/s
+stealCount=25  (verification 0.0020 s)
+stealCount=4152 N=300 t=0.0404 s 8.9044 MegaEdges/s
+stealCount=11  (verification 0.0011 s)
+stealCount=3683 N=300 t=0.0458 s 7.8637 MegaEdges/s
+stealCount=15  (verification 0.0012 s)
+stealCount=7428 N=300 t=0.0451 s 7.9818 MegaEdges/s
+stealCount=18  (verification 0.0012 s)
+stealCount=9058 N=300 t=0.0524 s 6.8687 MegaEdges/s
+stealCount=18  (verification 0.0011 s)
+stealCount=5428 N=300 t=0.0328 s 10.9738 MegaEdges/s
+stealCount=19  (verification 0.0010 s)
+stealCount=7082 N=300 t=0.0309 s 11.6669 MegaEdges/s
+stealCount=17  (verification 0.0010 s)
+stealCount=3620 N=300 t=0.0201 s 17.8680 MegaEdges/s
+stealCount=24  (verification 0.0026 s)
+stealCount=3907 N=300 t=0.0160 s 22.4904 MegaEdges/s
+stealCount=16  (verification 0.0014 s)
+stealCount=3774 N=300 t=0.0182 s 19.8237 MegaEdges/s
+stealCount=24  (verification 0.0014 s)
+stealCount=4442 N=300 t=0.0101 s 35.7416 MegaEdges/s
+stealCount=20  (verification 0.0012 s)
+stealCount=5639 N=300 t=0.0285 s 12.6169 MegaEdges/s
+stealCount=23  (verification 0.0009 s)
+stealCount=7160 N=300 t=0.0253 s 14.2139 MegaEdges/s
+stealCount=21  (verification 0.0008 s)
+stealCount=8069 N=300 t=0.0189 s 19.0795 MegaEdges/s
+stealCount=21  (verification 0.0009 s)
+stealCount=7548 N=300 t=0.0266 s 13.5375 MegaEdges/s
+stealCount=28  (verification 0.0009 s)
+stealCount=5622 N=300 t=0.0139 s 25.8079 MegaEdges/s
+stealCount=26  (verification 0.0007 s)
+stealCount=5736 N=300 t=0.0118 s 30.6210 MegaEdges/s
+stealCount=29  (verification 0.0009 s)
+stealCount=5155 N=300 t=0.0065 s 55.1631 MegaEdges/s
+stealCount=26  (verification 0.0028 s)
+Completed iterations for N=300
+
+#### bsize: 10
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 10
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=10
+Generating graph...
+Graph generated.
+Creation time:0.3211 s
+stealCount=709 N=300 t=0.0323 s 11.1302 MegaEdges/s
+stealCount=26  (verification 0.0056 s)
+stealCount=325 N=300 t=0.0098 s 36.5570 MegaEdges/s
+stealCount=24  (verification 0.0073 s)
+stealCount=396 N=300 t=0.0069 s 51.9927 MegaEdges/s
+stealCount=25  (verification 0.0081 s)
+stealCount=394 N=300 t=0.0079 s 45.7450 MegaEdges/s
+stealCount=24  (verification 0.0055 s)
+stealCount=364 N=300 t=0.0067 s 53.8151 MegaEdges/s
+stealCount=24  (verification 0.0061 s)
+stealCount=367 N=300 t=0.0066 s 54.1384 MegaEdges/s
+stealCount=25  (verification 0.0056 s)
+stealCount=437 N=300 t=0.0067 s 53.8963 MegaEdges/s
+stealCount=25  (verification 0.0034 s)
+stealCount=463 N=300 t=0.0072 s 49.9023 MegaEdges/s
+stealCount=21  (verification 0.0025 s)
+stealCount=429 N=300 t=0.0071 s 50.8647 MegaEdges/s
+stealCount=16  (verification 0.0018 s)
+stealCount=498 N=300 t=0.0084 s 43.0368 MegaEdges/s
+stealCount=17  (verification 0.0037 s)
+stealCount=517 N=300 t=0.0060 s 59.9020 MegaEdges/s
+stealCount=17  (verification 0.0017 s)
+stealCount=438 N=300 t=0.0062 s 57.9606 MegaEdges/s
+stealCount=19  (verification 0.0012 s)
+stealCount=577 N=300 t=0.0113 s 31.7540 MegaEdges/s
+stealCount=18  (verification 0.0013 s)
+stealCount=404 N=300 t=0.0048 s 75.2827 MegaEdges/s
+stealCount=18  (verification 0.0016 s)
+stealCount=403 N=300 t=0.0103 s 35.1174 MegaEdges/s
+stealCount=18  (verification 0.0020 s)
+stealCount=716 N=300 t=0.0049 s 73.9819 MegaEdges/s
+stealCount=21  (verification 0.0011 s)
+stealCount=662 N=300 t=0.0055 s 65.5311 MegaEdges/s
+stealCount=20  (verification 0.0012 s)
+stealCount=629 N=300 t=0.0043 s 82.8120 MegaEdges/s
+stealCount=22  (verification 0.0010 s)
+stealCount=666 N=300 t=0.0048 s 74.6542 MegaEdges/s
+stealCount=29  (verification 0.0012 s)
+Worker(23,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@18aaa1e,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=635 N=300 t=0.0049 s 73.8511 MegaEdges/s
+stealCount=24  (verification 0.0028 s)
+Completed iterations for N=300
+
+#### bsize: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 20
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=20
+Generating graph...
+Graph generated.
+Creation time:0.3218 s
+stealCount=159 N=300 t=0.0306 s 11.7592 MegaEdges/s
+stealCount=24  (verification 0.0058 s)
+stealCount=188 N=300 t=0.0046 s 78.8497 MegaEdges/s
+stealCount=25  (verification 0.0048 s)
+stealCount=155 N=300 t=0.0044 s 81.8585 MegaEdges/s
+stealCount=26  (verification 0.0045 s)
+stealCount=150 N=300 t=0.0043 s 83.9752 MegaEdges/s
+stealCount=26  (verification 0.0041 s)
+stealCount=147 N=300 t=0.0051 s 70.1910 MegaEdges/s
+stealCount=26  (verification 0.0042 s)
+stealCount=146 N=300 t=0.0043 s 84.3760 MegaEdges/s
+stealCount=26  (verification 0.0043 s)
+stealCount=200 N=300 t=0.0046 s 78.8173 MegaEdges/s
+stealCount=25  (verification 0.0039 s)
+stealCount=144 N=300 t=0.0043 s 84.1662 MegaEdges/s
+stealCount=16  (verification 0.0018 s)
+stealCount=169 N=300 t=0.0047 s 76.4326 MegaEdges/s
+stealCount=14  (verification 0.0015 s)
+stealCount=179 N=300 t=0.0044 s 81.2690 MegaEdges/s
+stealCount=9  (verification 0.0030 s)
+stealCount=186 N=300 t=0.0041 s 87.7746 MegaEdges/s
+stealCount=15  (verification 0.0019 s)
+stealCount=183 N=300 t=0.0042 s 85.2290 MegaEdges/s
+stealCount=15  (verification 0.0012 s)
+stealCount=187 N=300 t=0.0039 s 92.4985 MegaEdges/s
+stealCount=21  (verification 0.0012 s)
+stealCount=196 N=300 t=0.0037 s 97.4478 MegaEdges/s
+stealCount=22  (verification 0.0017 s)
+stealCount=202 N=300 t=0.0034 s 107.0920 MegaEdges/s
+stealCount=18  (verification 0.0012 s)
+stealCount=154 N=300 t=0.0031 s 115.2075 MegaEdges/s
+stealCount=19  (verification 0.0016 s)
+stealCount=157 N=300 t=0.0034 s 104.5090 MegaEdges/s
+stealCount=19  (verification 0.0012 s)
+stealCount=143 N=300 t=0.0035 s 101.4319 MegaEdges/s
+stealCount=21  (verification 0.0013 s)
+stealCount=174 N=300 t=0.0035 s 101.8925 MegaEdges/s
+stealCount=18  (verification 0.0010 s)
+stealCount=208 N=300 t=0.0037 s 96.8759 MegaEdges/s
+stealCount=13  (verification 0.0029 s)
+Completed iterations for N=300
+
+#### bsize: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 30
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=30
+Generating graph...
+Graph generated.
+Creation time:0.3210 s
+stealCount=49 N=300 t=0.0373 s 9.6606 MegaEdges/s
+stealCount=25  (verification 0.0074 s)
+stealCount=88 N=300 t=0.0037 s 96.6830 MegaEdges/s
+stealCount=25  (verification 0.0037 s)
+stealCount=60 N=300 t=0.0036 s 98.8283 MegaEdges/s
+stealCount=26  (verification 0.0024 s)
+stealCount=72 N=300 t=0.0034 s 104.9973 MegaEdges/s
+stealCount=24  (verification 0.0038 s)
+stealCount=71 N=300 t=0.0033 s 109.9706 MegaEdges/s
+stealCount=26  (verification 0.0029 s)
+stealCount=78 N=300 t=0.0032 s 110.8478 MegaEdges/s
+stealCount=27  (verification 0.0028 s)
+stealCount=79 N=300 t=0.0038 s 95.1101 MegaEdges/s
+stealCount=26  (verification 0.0030 s)
+stealCount=79 N=300 t=0.0035 s 103.2623 MegaEdges/s
+stealCount=26  (verification 0.0031 s)
+stealCount=77 N=300 t=0.0033 s 109.9407 MegaEdges/s
+stealCount=20  (verification 0.0014 s)
+stealCount=54 N=300 t=0.0037 s 97.9188 MegaEdges/s
+stealCount=15  (verification 0.0031 s)
+stealCount=86 N=300 t=0.0033 s 108.2726 MegaEdges/s
+stealCount=21  (verification 0.0015 s)
+stealCount=105 N=300 t=0.0034 s 104.5070 MegaEdges/s
+stealCount=21  (verification 0.0018 s)
+stealCount=60 N=300 t=0.0031 s 115.0788 MegaEdges/s
+stealCount=19  (verification 0.0012 s)
+stealCount=74 N=300 t=0.0036 s 100.7602 MegaEdges/s
+stealCount=22  (verification 0.0018 s)
+stealCount=76 N=300 t=0.0033 s 109.5539 MegaEdges/s
+stealCount=17  (verification 0.0014 s)
+stealCount=73 N=300 t=0.0038 s 94.4394 MegaEdges/s
+stealCount=16  (verification 0.0013 s)
+stealCount=77 N=300 t=0.0033 s 107.7728 MegaEdges/s
+stealCount=22  (verification 0.0019 s)
+stealCount=66 N=300 t=0.0032 s 112.1139 MegaEdges/s
+stealCount=19  (verification 0.0020 s)
+stealCount=60 N=300 t=0.0037 s 96.1852 MegaEdges/s
+stealCount=15  (verification 0.0011 s)
+stealCount=70 N=300 t=0.0033 s 107.7588 MegaEdges/s
+stealCount=12  (verification 0.0034 s)
+Completed iterations for N=300
+
+#### bsize: 40
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 40
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=40
+Generating graph...
+Graph generated.
+Creation time:0.3394 s
+stealCount=31 N=300 t=0.0418 s 8.6058 MegaEdges/s
+stealCount=24  (verification 0.0061 s)
+stealCount=42 N=300 t=0.0043 s 82.9334 MegaEdges/s
+stealCount=22  (verification 0.0029 s)
+stealCount=33 N=300 t=0.0038 s 93.5126 MegaEdges/s
+stealCount=21  (verification 0.0042 s)
+stealCount=35 N=300 t=0.0039 s 91.5544 MegaEdges/s
+stealCount=25  (verification 0.0037 s)
+stealCount=30 N=300 t=0.0038 s 95.7190 MegaEdges/s
+stealCount=14  (verification 0.0013 s)
+stealCount=64 N=300 t=0.0055 s 65.2497 MegaEdges/s
+stealCount=19  (verification 0.0016 s)
+stealCount=34 N=300 t=0.0039 s 91.3281 MegaEdges/s
+stealCount=20  (verification 0.0016 s)
+stealCount=36 N=300 t=0.0037 s 97.5150 MegaEdges/s
+stealCount=20  (verification 0.0011 s)
+stealCount=27 N=300 t=0.0036 s 100.2953 MegaEdges/s
+stealCount=14  (verification 0.0010 s)
+stealCount=34 N=300 t=0.0036 s 99.2238 MegaEdges/s
+stealCount=15  (verification 0.0029 s)
+stealCount=38 N=300 t=0.0044 s 80.9825 MegaEdges/s
+stealCount=14  (verification 0.0013 s)
+stealCount=33 N=300 t=0.0034 s 105.6889 MegaEdges/s
+stealCount=20  (verification 0.0013 s)
+stealCount=34 N=300 t=0.0036 s 99.4503 MegaEdges/s
+stealCount=20  (verification 0.0011 s)
+stealCount=39 N=300 t=0.0042 s 85.7397 MegaEdges/s
+stealCount=17  (verification 0.0012 s)
+stealCount=35 N=300 t=0.0037 s 98.3618 MegaEdges/s
+stealCount=17  (verification 0.0012 s)
+stealCount=37 N=300 t=0.0037 s 96.1595 MegaEdges/s
+stealCount=14  (verification 0.0014 s)
+stealCount=35 N=300 t=0.0037 s 96.5147 MegaEdges/s
+stealCount=14  (verification 0.0012 s)
+stealCount=42 N=300 t=0.0043 s 84.6108 MegaEdges/s
+stealCount=18  (verification 0.0017 s)
+stealCount=27 N=300 t=0.0037 s 97.3939 MegaEdges/s
+stealCount=17  (verification 0.0012 s)
+stealCount=36 N=300 t=0.0038 s 95.0733 MegaEdges/s
+stealCount=15  (verification 0.0032 s)
+Completed iterations for N=300
+
+#### bsize: 50
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 50
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=50
+Generating graph...
+Graph generated.
+Creation time:0.3225 s
+stealCount=21 N=300 t=0.0530 s 6.7877 MegaEdges/s
+Worker(3,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d04653,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=16  (verification 0.0055 s)
+stealCount=42 N=300 t=0.0114 s 31.4797 MegaEdges/s
+stealCount=25  (verification 0.0035 s)
+stealCount=58 N=300 t=0.0147 s 24.5189 MegaEdges/s
+stealCount=25  (verification 0.0032 s)
+stealCount=26 N=300 t=0.0046 s 78.6012 MegaEdges/s
+stealCount=24  (verification 0.0016 s)
+stealCount=20 N=300 t=0.0043 s 84.5113 MegaEdges/s
+stealCount=24  (verification 0.0019 s)
+stealCount=20 N=300 t=0.0051 s 71.0732 MegaEdges/s
+stealCount=24  (verification 0.0029 s)
+stealCount=26 N=300 t=0.0046 s 78.4554 MegaEdges/s
+stealCount=25  (verification 0.0031 s)
+stealCount=17 N=300 t=0.0055 s 65.7854 MegaEdges/s
+stealCount=24  (verification 0.0031 s)
+stealCount=27 N=300 t=0.0041 s 88.3684 MegaEdges/s
+stealCount=25  (verification 0.0016 s)
+stealCount=25 N=300 t=0.0044 s 82.0848 MegaEdges/s
+stealCount=0  (verification 0.0048 s)
+stealCount=26 N=300 t=0.0042 s 85.7244 MegaEdges/s
+stealCount=13  (verification 0.0014 s)
+stealCount=18 N=300 t=0.0045 s 80.6086 MegaEdges/s
+stealCount=13  (verification 0.0012 s)
+stealCount=23 N=300 t=0.0043 s 84.1793 MegaEdges/s
+stealCount=12  (verification 0.0010 s)
+stealCount=24 N=300 t=0.0045 s 79.3996 MegaEdges/s
+stealCount=15  (verification 0.0010 s)
+stealCount=19 N=300 t=0.0054 s 67.2097 MegaEdges/s
+stealCount=15  (verification 0.0012 s)
+stealCount=13 N=300 t=0.0063 s 57.3376 MegaEdges/s
+stealCount=18  (verification 0.0013 s)
+stealCount=28 N=300 t=0.0063 s 57.2543 MegaEdges/s
+stealCount=15  (verification 0.0010 s)
+stealCount=20 N=300 t=0.0044 s 81.0630 MegaEdges/s
+stealCount=10  (verification 0.0009 s)
+stealCount=18 N=300 t=0.0066 s 54.2991 MegaEdges/s
+stealCount=20  (verification 0.0016 s)
+stealCount=26 N=300 t=0.0059 s 60.7037 MegaEdges/s
+stealCount=13  (verification 0.0034 s)
+Completed iterations for N=300
+
+#### bsize: 60
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 60
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=60
+Generating graph...
+Graph generated.
+Creation time:0.3194 s
+stealCount=19 N=300 t=0.0479 s 7.5216 MegaEdges/s
+stealCount=23  (verification 0.0080 s)
+stealCount=18 N=300 t=0.0053 s 67.9324 MegaEdges/s
+stealCount=23  (verification 0.0034 s)
+stealCount=25 N=300 t=0.0065 s 55.4336 MegaEdges/s
+stealCount=16  (verification 0.0018 s)
+stealCount=28 N=300 t=0.0062 s 58.0418 MegaEdges/s
+stealCount=17  (verification 0.0017 s)
+stealCount=36 N=300 t=0.0080 s 45.2245 MegaEdges/s
+stealCount=18  (verification 0.0017 s)
+stealCount=24 N=300 t=0.0062 s 57.8292 MegaEdges/s
+stealCount=20  (verification 0.0020 s)
+stealCount=41 N=300 t=0.0075 s 48.1494 MegaEdges/s
+stealCount=19  (verification 0.0018 s)
+stealCount=5 N=300 t=0.0079 s 45.5956 MegaEdges/s
+stealCount=18  (verification 0.0017 s)
+stealCount=35 N=300 t=0.0072 s 49.7695 MegaEdges/s
+stealCount=19  (verification 0.0015 s)
+stealCount=13 N=300 t=0.0071 s 50.3618 MegaEdges/s
+stealCount=18  (verification 0.0030 s)
+stealCount=38 N=300 t=0.0078 s 46.2616 MegaEdges/s
+stealCount=22  (verification 0.0020 s)
+stealCount=30 N=300 t=0.0060 s 59.5859 MegaEdges/s
+stealCount=22  (verification 0.0020 s)
+stealCount=47 N=300 t=0.0076 s 47.3280 MegaEdges/s
+stealCount=21  (verification 0.0020 s)
+stealCount=27 N=300 t=0.0061 s 58.7887 MegaEdges/s
+stealCount=19  (verification 0.0012 s)
+stealCount=7 N=300 t=0.0067 s 53.9844 MegaEdges/s
+stealCount=17  (verification 0.0014 s)
+stealCount=9 N=300 t=0.0072 s 50.2111 MegaEdges/s
+stealCount=21  (verification 0.0017 s)
+stealCount=42 N=300 t=0.0080 s 45.0413 MegaEdges/s
+stealCount=23  (verification 0.0020 s)
+stealCount=35 N=300 t=0.0071 s 50.4084 MegaEdges/s
+stealCount=18  (verification 0.0013 s)
+stealCount=38 N=300 t=0.0080 s 45.1073 MegaEdges/s
+stealCount=18  (verification 0.0014 s)
+stealCount=47 N=300 t=0.0073 s 49.0771 MegaEdges/s
+stealCount=18  (verification 0.0026 s)
+Completed iterations for N=300
+
+#### bsize: 70
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 70
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=70
+Generating graph...
+Graph generated.
+Creation time:0.3262 s
+stealCount=17 N=300 t=0.0526 s 6.8478 MegaEdges/s
+stealCount=20  (verification 0.0098 s)
+stealCount=13 N=300 t=0.0058 s 61.8130 MegaEdges/s
+Worker(11,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0a5d9,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(23,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0a5d9,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(15,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0a5d9,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(21,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0a5d9,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(13,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0a5d9,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=27  (verification 0.0066 s)
+stealCount=16 N=300 t=0.0071 s 50.6126 MegaEdges/s
+stealCount=20  (verification 0.0013 s)
+stealCount=7 N=300 t=0.0068 s 52.8825 MegaEdges/s
+stealCount=18  (verification 0.0011 s)
+stealCount=19 N=300 t=0.0065 s 55.6028 MegaEdges/s
+stealCount=21  (verification 0.0012 s)
+stealCount=14 N=300 t=0.0061 s 59.0917 MegaEdges/s
+stealCount=18  (verification 0.0015 s)
+stealCount=23 N=300 t=0.0058 s 62.5335 MegaEdges/s
+stealCount=16  (verification 0.0012 s)
+stealCount=20 N=300 t=0.0064 s 55.8262 MegaEdges/s
+stealCount=18  (verification 0.0017 s)
+stealCount=20 N=300 t=0.0074 s 48.9448 MegaEdges/s
+stealCount=21  (verification 0.0014 s)
+stealCount=11 N=300 t=0.0072 s 50.3171 MegaEdges/s
+stealCount=16  (verification 0.0032 s)
+stealCount=35 N=300 t=0.0067 s 53.4766 MegaEdges/s
+stealCount=19  (verification 0.0017 s)
+stealCount=29 N=300 t=0.0071 s 50.7486 MegaEdges/s
+stealCount=17  (verification 0.0017 s)
+stealCount=30 N=300 t=0.0077 s 46.4912 MegaEdges/s
+stealCount=19  (verification 0.0012 s)
+stealCount=29 N=300 t=0.0066 s 54.8631 MegaEdges/s
+stealCount=23  (verification 0.0021 s)
+stealCount=28 N=300 t=0.0071 s 50.6354 MegaEdges/s
+stealCount=19  (verification 0.0013 s)
+stealCount=13 N=300 t=0.0075 s 48.1345 MegaEdges/s
+stealCount=22  (verification 0.0012 s)
+stealCount=18 N=300 t=0.0071 s 50.7052 MegaEdges/s
+stealCount=19  (verification 0.0017 s)
+stealCount=15 N=300 t=0.0073 s 49.5246 MegaEdges/s
+stealCount=19  (verification 0.0014 s)
+stealCount=13 N=300 t=0.0060 s 60.1275 MegaEdges/s
+stealCount=16  (verification 0.0012 s)
+stealCount=6 N=300 t=0.0073 s 49.1221 MegaEdges/s
+stealCount=19  (verification 0.0033 s)
+Completed iterations for N=300
+
+#### bsize: 80
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 80
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=80
+Generating graph...
+Graph generated.
+Creation time:0.3197 s
+stealCount=16 N=300 t=0.0681 s 5.2865 MegaEdges/s
+stealCount=16  (verification 0.0058 s)
+stealCount=8 N=300 t=0.0154 s 23.4388 MegaEdges/s
+stealCount=26  (verification 0.0038 s)
+stealCount=28 N=300 t=0.0122 s 29.5937 MegaEdges/s
+stealCount=25  (verification 0.0040 s)
+stealCount=8 N=300 t=0.0067 s 53.8632 MegaEdges/s
+stealCount=10  (verification 0.0010 s)
+stealCount=14 N=300 t=0.0066 s 54.7376 MegaEdges/s
+stealCount=16  (verification 0.0011 s)
+stealCount=12 N=300 t=0.0069 s 52.1324 MegaEdges/s
+stealCount=10  (verification 0.0008 s)
+stealCount=17 N=300 t=0.0075 s 48.2053 MegaEdges/s
+stealCount=12  (verification 0.0009 s)
+stealCount=22 N=300 t=0.0079 s 45.7275 MegaEdges/s
+stealCount=17  (verification 0.0015 s)
+stealCount=18 N=300 t=0.0077 s 46.8181 MegaEdges/s
+stealCount=19  (verification 0.0020 s)
+stealCount=18 N=300 t=0.0074 s 48.6277 MegaEdges/s
+stealCount=15  (verification 0.0025 s)
+stealCount=14 N=300 t=0.0072 s 49.9969 MegaEdges/s
+stealCount=12  (verification 0.0013 s)
+stealCount=17 N=300 t=0.0075 s 48.2479 MegaEdges/s
+stealCount=11  (verification 0.0008 s)
+stealCount=21 N=300 t=0.0081 s 44.5683 MegaEdges/s
+stealCount=18  (verification 0.0011 s)
+stealCount=23 N=300 t=0.0075 s 47.9773 MegaEdges/s
+stealCount=15  (verification 0.0013 s)
+stealCount=21 N=300 t=0.0075 s 47.8130 MegaEdges/s
+stealCount=11  (verification 0.0009 s)
+stealCount=22 N=300 t=0.0077 s 46.6031 MegaEdges/s
+stealCount=13  (verification 0.0012 s)
+stealCount=23 N=300 t=0.0081 s 44.5534 MegaEdges/s
+stealCount=22  (verification 0.0014 s)
+stealCount=22 N=300 t=0.0076 s 47.3890 MegaEdges/s
+stealCount=13  (verification 0.0013 s)
+stealCount=18 N=300 t=0.0077 s 46.5255 MegaEdges/s
+stealCount=11  (verification 0.0011 s)
+stealCount=18 N=300 t=0.0077 s 46.6165 MegaEdges/s
+stealCount=0  (verification 0.0026 s)
+Completed iterations for N=300
+
+#### bsize: 90
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 90
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=90
+Generating graph...
+Graph generated.
+Creation time:0.3219 s
+stealCount=11 N=300 t=0.0617 s 5.8384 MegaEdges/s
+stealCount=18  (verification 0.0063 s)
+stealCount=21 N=300 t=0.0111 s 32.4534 MegaEdges/s
+stealCount=21  (verification 0.0025 s)
+stealCount=8 N=300 t=0.0078 s 46.2018 MegaEdges/s
+stealCount=20  (verification 0.0013 s)
+stealCount=9 N=300 t=0.0083 s 43.5412 MegaEdges/s
+stealCount=15  (verification 0.0013 s)
+stealCount=22 N=300 t=0.0125 s 28.8846 MegaEdges/s
+stealCount=22  (verification 0.0019 s)
+stealCount=14 N=300 t=0.0083 s 43.4856 MegaEdges/s
+stealCount=18  (verification 0.0011 s)
+stealCount=11 N=300 t=0.0079 s 45.5249 MegaEdges/s
+stealCount=15  (verification 0.0011 s)
+stealCount=17 N=300 t=0.0076 s 47.2085 MegaEdges/s
+stealCount=8  (verification 0.0011 s)
+stealCount=14 N=300 t=0.0086 s 41.6739 MegaEdges/s
+stealCount=21  (verification 0.0012 s)
+stealCount=14 N=300 t=0.0076 s 47.1380 MegaEdges/s
+stealCount=10  (verification 0.0022 s)
+stealCount=10 N=300 t=0.0074 s 48.7777 MegaEdges/s
+stealCount=12  (verification 0.0014 s)
+stealCount=11 N=300 t=0.0072 s 49.6754 MegaEdges/s
+stealCount=14  (verification 0.0013 s)
+stealCount=10 N=300 t=0.0080 s 44.8963 MegaEdges/s
+stealCount=15  (verification 0.0015 s)
+stealCount=8 N=300 t=0.0078 s 46.0916 MegaEdges/s
+stealCount=13  (verification 0.0011 s)
+stealCount=11 N=300 t=0.0073 s 49.5225 MegaEdges/s
+stealCount=8  (verification 0.0009 s)
+stealCount=11 N=300 t=0.0083 s 43.5206 MegaEdges/s
+stealCount=10  (verification 0.0010 s)
+stealCount=11 N=300 t=0.0079 s 45.3419 MegaEdges/s
+stealCount=11  (verification 0.0010 s)
+stealCount=10 N=300 t=0.0080 s 44.8615 MegaEdges/s
+stealCount=12  (verification 0.0010 s)
+stealCount=10 N=300 t=0.0073 s 49.6193 MegaEdges/s
+stealCount=13  (verification 0.0010 s)
+stealCount=10 N=300 t=0.0073 s 49.2016 MegaEdges/s
+stealCount=8  (verification 0.0024 s)
+Completed iterations for N=300
+
+#### bsize: 100
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 100
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=100
+Generating graph...
+Graph generated.
+Creation time:0.3187 s
+stealCount=7 N=300 t=0.1300 s 2.7689 MegaEdges/s
+stealCount=22  (verification 0.0093 s)
+stealCount=15 N=300 t=0.0129 s 27.9244 MegaEdges/s
+stealCount=25  (verification 0.0034 s)
+stealCount=9 N=300 t=0.0083 s 43.1856 MegaEdges/s
+stealCount=25  (verification 0.0036 s)
+stealCount=18 N=300 t=0.0124 s 29.1158 MegaEdges/s
+stealCount=26  (verification 0.0033 s)
+stealCount=7 N=300 t=0.0084 s 43.0118 MegaEdges/s
+stealCount=25  (verification 0.0026 s)
+stealCount=14 N=300 t=0.0127 s 28.4121 MegaEdges/s
+stealCount=22  (verification 0.0022 s)
+stealCount=11 N=300 t=0.0089 s 40.5871 MegaEdges/s
+stealCount=20  (verification 0.0017 s)
+stealCount=7 N=300 t=0.0081 s 44.2192 MegaEdges/s
+stealCount=20  (verification 0.0012 s)
+stealCount=6 N=300 t=0.0086 s 41.7768 MegaEdges/s
+stealCount=19  (verification 0.0016 s)
+stealCount=3 N=300 t=0.0127 s 28.2574 MegaEdges/s
+stealCount=21  (verification 0.0035 s)
+stealCount=7 N=300 t=0.0088 s 41.1067 MegaEdges/s
+stealCount=20  (verification 0.0016 s)
+stealCount=8 N=300 t=0.0076 s 47.3216 MegaEdges/s
+stealCount=18  (verification 0.0011 s)
+stealCount=8 N=300 t=0.0084 s 42.7642 MegaEdges/s
+stealCount=19  (verification 0.0013 s)
+stealCount=7 N=300 t=0.0079 s 45.3435 MegaEdges/s
+stealCount=19  (verification 0.0013 s)
+stealCount=7 N=300 t=0.0085 s 42.4790 MegaEdges/s
+stealCount=21  (verification 0.0013 s)
+stealCount=2 N=300 t=0.0125 s 28.8099 MegaEdges/s
+stealCount=21  (verification 0.0016 s)
+stealCount=12 N=300 t=0.0100 s 36.1205 MegaEdges/s
+stealCount=18  (verification 0.0014 s)
+stealCount=7 N=300 t=0.0086 s 41.9779 MegaEdges/s
+stealCount=16  (verification 0.0014 s)
+stealCount=5 N=300 t=0.0087 s 41.2576 MegaEdges/s
+stealCount=19  (verification 0.0016 s)
+stealCount=3 N=300 t=0.0126 s 28.5181 MegaEdges/s
+stealCount=20  (verification 0.0034 s)
+Completed iterations for N=300
+
+#<<<< END BATCHING >>>>
+
+### nproc: 32
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 32 T 300 4 false false true
+Number of procs=32
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.3217 s
+stealCount=92 N=300 t=0.0340 s 10.5816 MegaEdges/s
+stealCount=28  (verification 0.0062 s)
+stealCount=167 N=300 t=0.0042 s 85.4410 MegaEdges/s
+stealCount=27  (verification 0.0037 s)
+stealCount=130 N=300 t=0.0038 s 93.8519 MegaEdges/s
+stealCount=29  (verification 0.0035 s)
+stealCount=117 N=300 t=0.0039 s 91.8635 MegaEdges/s
+stealCount=25  (verification 0.0024 s)
+stealCount=131 N=300 t=0.0036 s 100.9038 MegaEdges/s
+stealCount=17  (verification 0.0016 s)
+stealCount=154 N=300 t=0.0041 s 87.4757 MegaEdges/s
+stealCount=17  (verification 0.0021 s)
+stealCount=142 N=300 t=0.0034 s 107.3603 MegaEdges/s
+stealCount=25  (verification 0.0012 s)
+stealCount=174 N=300 t=0.0038 s 93.6964 MegaEdges/s
+stealCount=22  (verification 0.0018 s)
+stealCount=140 N=300 t=0.0033 s 107.7849 MegaEdges/s
+stealCount=31  (verification 0.0014 s)
+stealCount=145 N=300 t=0.0034 s 104.8836 MegaEdges/s
+stealCount=21  (verification 0.0026 s)
+stealCount=131 N=300 t=0.0035 s 101.8762 MegaEdges/s
+stealCount=22  (verification 0.0015 s)
+stealCount=154 N=300 t=0.0034 s 105.7701 MegaEdges/s
+stealCount=20  (verification 0.0010 s)
+stealCount=158 N=300 t=0.0038 s 95.6602 MegaEdges/s
+stealCount=25  (verification 0.0012 s)
+stealCount=153 N=300 t=0.0035 s 102.7848 MegaEdges/s
+stealCount=21  (verification 0.0013 s)
+stealCount=87 N=300 t=0.0036 s 98.6446 MegaEdges/s
+stealCount=26  (verification 0.0019 s)
+stealCount=131 N=300 t=0.0035 s 102.3504 MegaEdges/s
+stealCount=15  (verification 0.0010 s)
+stealCount=137 N=300 t=0.0037 s 97.9303 MegaEdges/s
+stealCount=20  (verification 0.0014 s)
+stealCount=94 N=300 t=0.0036 s 100.3162 MegaEdges/s
+stealCount=26  (verification 0.0013 s)
+stealCount=182 N=300 t=0.0037 s 96.5017 MegaEdges/s
+stealCount=19  (verification 0.0011 s)
+stealCount=141 N=300 t=0.0034 s 106.2927 MegaEdges/s
+stealCount=24  (verification 0.0029 s)
+Completed iterations for N=300
+
+## Size: 900
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 1 T 900 4 false false true
+Number of procs=1
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.2027 s
+stealCount=0 N=900 t=0.3733 s 8.6788 MegaEdges/s
+stealCount=0  (verification 0.1035 s)
+stealCount=0 N=900 t=0.3174 s 10.2071 MegaEdges/s
+stealCount=0  (verification 0.0942 s)
+stealCount=0 N=900 t=0.3015 s 10.7453 MegaEdges/s
+stealCount=0  (verification 0.0581 s)
+stealCount=0 N=900 t=0.2978 s 10.8810 MegaEdges/s
+stealCount=0  (verification 0.0578 s)
+stealCount=0 N=900 t=0.2977 s 10.8849 MegaEdges/s
+stealCount=0  (verification 0.0583 s)
+stealCount=0 N=900 t=0.2984 s 10.8591 MegaEdges/s
+stealCount=0  (verification 0.0577 s)
+stealCount=0 N=900 t=0.2974 s 10.8930 MegaEdges/s
+stealCount=0  (verification 0.0575 s)
+stealCount=0 N=900 t=0.2978 s 10.8788 MegaEdges/s
+stealCount=0  (verification 0.0577 s)
+stealCount=0 N=900 t=0.2972 s 10.9022 MegaEdges/s
+stealCount=0  (verification 0.0574 s)
+stealCount=0 N=900 t=0.2974 s 10.8948 MegaEdges/s
+stealCount=0  (verification 0.0581 s)
+stealCount=0 N=900 t=0.2977 s 10.8827 MegaEdges/s
+stealCount=0  (verification 0.0576 s)
+stealCount=0 N=900 t=0.2971 s 10.9040 MegaEdges/s
+stealCount=0  (verification 0.0577 s)
+stealCount=0 N=900 t=0.3001 s 10.7956 MegaEdges/s
+stealCount=0  (verification 0.0582 s)
+stealCount=0 N=900 t=0.2971 s 10.9067 MegaEdges/s
+stealCount=0  (verification 0.0573 s)
+stealCount=0 N=900 t=0.2986 s 10.8495 MegaEdges/s
+stealCount=0  (verification 0.0576 s)
+stealCount=0 N=900 t=0.2979 s 10.8750 MegaEdges/s
+stealCount=0  (verification 0.0566 s)
+stealCount=0 N=900 t=0.2978 s 10.8813 MegaEdges/s
+stealCount=0  (verification 0.0571 s)
+stealCount=0 N=900 t=0.2970 s 10.9075 MegaEdges/s
+stealCount=0  (verification 0.0574 s)
+stealCount=0 N=900 t=0.2978 s 10.8809 MegaEdges/s
+stealCount=0  (verification 0.0569 s)
+stealCount=0 N=900 t=0.2979 s 10.8755 MegaEdges/s
+stealCount=0  (verification 0.0565 s)
+Completed iterations for N=900
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 2 T 900 4 false false true
+Number of procs=2
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.1634 s
+stealCount=348 N=900 t=0.2206 s 14.6867 MegaEdges/s
+stealCount=0  (verification 0.3114 s)
+stealCount=300 N=900 t=0.1732 s 18.7019 MegaEdges/s
+stealCount=0  (verification 0.0854 s)
+stealCount=334 N=900 t=0.1687 s 19.2025 MegaEdges/s
+stealCount=1  (verification 0.0779 s)
+stealCount=320 N=900 t=0.1683 s 19.2551 MegaEdges/s
+stealCount=0  (verification 0.0860 s)
+stealCount=302 N=900 t=0.1627 s 19.9164 MegaEdges/s
+stealCount=1  (verification 0.0781 s)
+stealCount=5 N=900 t=0.1582 s 20.4743 MegaEdges/s
+stealCount=0  (verification 0.0804 s)
+stealCount=18 N=900 t=0.1537 s 21.0751 MegaEdges/s
+stealCount=0  (verification 0.0802 s)
+stealCount=300 N=900 t=0.1645 s 19.6925 MegaEdges/s
+stealCount=0  (verification 0.0855 s)
+stealCount=300 N=900 t=0.1627 s 19.9155 MegaEdges/s
+stealCount=0  (verification 0.0855 s)
+stealCount=350 N=900 t=0.1656 s 19.5607 MegaEdges/s
+stealCount=0  (verification 0.0859 s)
+stealCount=302 N=900 t=0.1623 s 19.9628 MegaEdges/s
+stealCount=0  (verification 0.0855 s)
+stealCount=301 N=900 t=0.1635 s 19.8165 MegaEdges/s
+stealCount=0  (verification 0.0856 s)
+stealCount=301 N=900 t=0.1639 s 19.7708 MegaEdges/s
+stealCount=1  (verification 0.0776 s)
+stealCount=301 N=900 t=0.1626 s 19.9275 MegaEdges/s
+stealCount=1  (verification 0.0776 s)
+stealCount=7 N=900 t=0.1549 s 20.9156 MegaEdges/s
+stealCount=0  (verification 0.0803 s)
+stealCount=300 N=900 t=0.1629 s 19.8845 MegaEdges/s
+stealCount=1  (verification 0.0782 s)
+stealCount=173 N=900 t=0.1573 s 20.5999 MegaEdges/s
+stealCount=0  (verification 0.0858 s)
+stealCount=355 N=900 t=0.1709 s 18.9561 MegaEdges/s
+stealCount=0  (verification 0.0855 s)
+stealCount=341 N=900 t=0.1662 s 19.4973 MegaEdges/s
+stealCount=0  (verification 0.0850 s)
+stealCount=339 N=900 t=0.1632 s 19.8569 MegaEdges/s
+stealCount=0  (verification 0.0865 s)
+Completed iterations for N=900
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 4 T 900 4 false false true
+Number of procs=4
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.1152 s
+stealCount=538 N=900 t=0.1347 s 24.0580 MegaEdges/s
+stealCount=2  (verification 0.0545 s)
+stealCount=839 N=900 t=0.1014 s 31.9581 MegaEdges/s
+stealCount=2  (verification 0.0521 s)
+stealCount=426 N=900 t=0.0870 s 37.2578 MegaEdges/s
+stealCount=2  (verification 0.0508 s)
+stealCount=377 N=900 t=0.0851 s 38.0843 MegaEdges/s
+stealCount=2  (verification 0.0225 s)
+stealCount=318 N=900 t=0.0859 s 37.7290 MegaEdges/s
+stealCount=2  (verification 0.0260 s)
+stealCount=953 N=900 t=0.0983 s 32.9759 MegaEdges/s
+stealCount=2  (verification 0.0237 s)
+stealCount=429 N=900 t=0.0898 s 36.0765 MegaEdges/s
+stealCount=2  (verification 0.0272 s)
+stealCount=434 N=900 t=0.0860 s 37.6920 MegaEdges/s
+stealCount=2  (verification 0.0401 s)
+stealCount=591 N=900 t=0.0890 s 36.4052 MegaEdges/s
+stealCount=2  (verification 0.0069 s)
+stealCount=255 N=900 t=0.0796 s 40.7000 MegaEdges/s
+stealCount=2  (verification 0.0088 s)
+stealCount=378 N=900 t=0.0852 s 38.0469 MegaEdges/s
+stealCount=2  (verification 0.0210 s)
+stealCount=738 N=900 t=0.0846 s 38.3074 MegaEdges/s
+stealCount=2  (verification 0.0729 s)
+stealCount=449 N=900 t=0.0793 s 40.8462 MegaEdges/s
+stealCount=2  (verification 0.0212 s)
+stealCount=1120 N=900 t=0.0827 s 39.1988 MegaEdges/s
+stealCount=2  (verification 0.0408 s)
+stealCount=1034 N=900 t=0.0797 s 40.6476 MegaEdges/s
+stealCount=2  (verification 0.0326 s)
+stealCount=735 N=900 t=0.0832 s 38.9396 MegaEdges/s
+stealCount=2  (verification 0.0259 s)
+stealCount=829 N=900 t=0.0817 s 39.6552 MegaEdges/s
+stealCount=2  (verification 0.0082 s)
+stealCount=798 N=900 t=0.0789 s 41.0881 MegaEdges/s
+stealCount=2  (verification 0.0349 s)
+stealCount=1016 N=900 t=0.0851 s 38.0660 MegaEdges/s
+stealCount=2  (verification 0.0052 s)
+stealCount=534 N=900 t=0.0809 s 40.0655 MegaEdges/s
+stealCount=2  (verification 0.0150 s)
+Completed iterations for N=900
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 8 T 900 4 false false true
+Number of procs=8
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.1071 s
+stealCount=663 N=900 t=0.0871 s 37.1973 MegaEdges/s
+stealCount=6  (verification 0.0532 s)
+stealCount=377 N=900 t=0.0508 s 63.7901 MegaEdges/s
+stealCount=6  (verification 0.0085 s)
+stealCount=534 N=900 t=0.0476 s 68.0839 MegaEdges/s
+stealCount=6  (verification 0.0080 s)
+stealCount=603 N=900 t=0.0522 s 62.0222 MegaEdges/s
+stealCount=5  (verification 0.0049 s)
+stealCount=657 N=900 t=0.0497 s 65.1959 MegaEdges/s
+stealCount=6  (verification 0.0059 s)
+stealCount=556 N=900 t=0.0483 s 67.0170 MegaEdges/s
+stealCount=6  (verification 0.0090 s)
+stealCount=491 N=900 t=0.0450 s 72.0473 MegaEdges/s
+stealCount=6  (verification 0.0061 s)
+stealCount=728 N=900 t=0.0450 s 71.9296 MegaEdges/s
+stealCount=6  (verification 0.0101 s)
+stealCount=1162 N=900 t=0.0439 s 73.7309 MegaEdges/s
+stealCount=3  (verification 0.0057 s)
+stealCount=1153 N=900 t=0.0430 s 75.4357 MegaEdges/s
+stealCount=5  (verification 0.0070 s)
+stealCount=985 N=900 t=0.0416 s 77.8790 MegaEdges/s
+stealCount=4  (verification 0.0056 s)
+stealCount=513 N=900 t=0.0424 s 76.3317 MegaEdges/s
+stealCount=4  (verification 0.0061 s)
+stealCount=1129 N=900 t=0.0419 s 77.2708 MegaEdges/s
+stealCount=6  (verification 0.0158 s)
+stealCount=832 N=900 t=0.0434 s 74.7170 MegaEdges/s
+stealCount=5  (verification 0.0099 s)
+stealCount=1005 N=900 t=0.0412 s 78.5926 MegaEdges/s
+stealCount=2  (verification 0.0075 s)
+stealCount=1004 N=900 t=0.0413 s 78.5302 MegaEdges/s
+stealCount=6  (verification 0.0163 s)
+stealCount=870 N=900 t=0.0403 s 80.3980 MegaEdges/s
+stealCount=2  (verification 0.0174 s)
+stealCount=803 N=900 t=0.0424 s 76.3935 MegaEdges/s
+stealCount=5  (verification 0.0092 s)
+stealCount=817 N=900 t=0.0414 s 78.2203 MegaEdges/s
+stealCount=6  (verification 0.0301 s)
+stealCount=1060 N=900 t=0.0418 s 77.5792 MegaEdges/s
+stealCount=6  (verification 0.0115 s)
+Completed iterations for N=900
+
+### nproc: 16
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 16 T 900 4 false false true
+Number of procs=16
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.1080 s
+stealCount=880 N=900 t=0.0776 s 41.7323 MegaEdges/s
+stealCount=14  (verification 0.0391 s)
+stealCount=587 N=900 t=0.0288 s 112.6173 MegaEdges/s
+stealCount=14  (verification 0.0076 s)
+stealCount=644 N=900 t=0.0302 s 107.1562 MegaEdges/s
+stealCount=14  (verification 0.0144 s)
+stealCount=987 N=900 t=0.0278 s 116.6408 MegaEdges/s
+stealCount=13  (verification 0.0040 s)
+stealCount=919 N=900 t=0.0313 s 103.6125 MegaEdges/s
+stealCount=13  (verification 0.0028 s)
+stealCount=1036 N=900 t=0.0258 s 125.5047 MegaEdges/s
+stealCount=13  (verification 0.0036 s)
+stealCount=1035 N=900 t=0.0241 s 134.3406 MegaEdges/s
+stealCount=14  (verification 0.0015 s)
+stealCount=1032 N=900 t=0.0242 s 133.8062 MegaEdges/s
+stealCount=14  (verification 0.0026 s)
+stealCount=709 N=900 t=0.0233 s 139.3484 MegaEdges/s
+stealCount=14  (verification 0.0028 s)
+stealCount=1134 N=900 t=0.0246 s 131.8903 MegaEdges/s
+stealCount=13  (verification 0.0046 s)
+stealCount=725 N=900 t=0.0237 s 136.5489 MegaEdges/s
+stealCount=13  (verification 0.0010 s)
+stealCount=1196 N=900 t=0.0234 s 138.5952 MegaEdges/s
+stealCount=13  (verification 0.0033 s)
+stealCount=1304 N=900 t=0.0232 s 139.8532 MegaEdges/s
+stealCount=14  (verification 0.0020 s)
+stealCount=1175 N=900 t=0.0228 s 141.9632 MegaEdges/s
+stealCount=13  (verification 0.0026 s)
+stealCount=1242 N=900 t=0.0230 s 141.0376 MegaEdges/s
+stealCount=13  (verification 0.0042 s)
+stealCount=1288 N=900 t=0.0225 s 144.0563 MegaEdges/s
+stealCount=14  (verification 0.0023 s)
+stealCount=1333 N=900 t=0.0232 s 139.5230 MegaEdges/s
+stealCount=13  (verification 0.0021 s)
+stealCount=1300 N=900 t=0.0231 s 139.9813 MegaEdges/s
+stealCount=13  (verification 0.0023 s)
+stealCount=1016 N=900 t=0.0229 s 141.6334 MegaEdges/s
+stealCount=13  (verification 0.0037 s)
+stealCount=951 N=900 t=0.0230 s 141.0465 MegaEdges/s
+stealCount=14  (verification 0.0031 s)
+Completed iterations for N=900
+
+### nproc: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 20 T 900 4 false false true
+Number of procs=20
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.1079 s
+stealCount=1159 N=900 t=0.0767 s 42.2503 MegaEdges/s
+stealCount=18  (verification 0.0295 s)
+stealCount=1168 N=900 t=0.0252 s 128.6106 MegaEdges/s
+stealCount=18  (verification 0.0087 s)
+stealCount=957 N=900 t=0.0242 s 134.0578 MegaEdges/s
+stealCount=18  (verification 0.0150 s)
+stealCount=949 N=900 t=0.0229 s 141.7826 MegaEdges/s
+stealCount=15  (verification 0.0037 s)
+stealCount=967 N=900 t=0.0218 s 148.8984 MegaEdges/s
+stealCount=17  (verification 0.0025 s)
+stealCount=1098 N=900 t=0.0216 s 149.9900 MegaEdges/s
+stealCount=17  (verification 0.0024 s)
+stealCount=878 N=900 t=0.0205 s 157.9706 MegaEdges/s
+stealCount=17  (verification 0.0047 s)
+stealCount=1145 N=900 t=0.0215 s 150.8348 MegaEdges/s
+stealCount=16  (verification 0.0025 s)
+stealCount=1188 N=900 t=0.0216 s 150.1232 MegaEdges/s
+stealCount=18  (verification 0.0042 s)
+stealCount=1143 N=900 t=0.0215 s 150.5138 MegaEdges/s
+stealCount=17  (verification 0.0040 s)
+stealCount=984 N=900 t=0.0202 s 160.0053 MegaEdges/s
+stealCount=18  (verification 0.0029 s)
+stealCount=1319 N=900 t=0.0207 s 156.8333 MegaEdges/s
+stealCount=17  (verification 0.0030 s)
+stealCount=1193 N=900 t=0.0199 s 162.8762 MegaEdges/s
+stealCount=17  (verification 0.0022 s)
+stealCount=1203 N=900 t=0.0201 s 161.1565 MegaEdges/s
+stealCount=17  (verification 0.0020 s)
+stealCount=1183 N=900 t=0.0198 s 163.5453 MegaEdges/s
+stealCount=18  (verification 0.0014 s)
+stealCount=1374 N=900 t=0.0201 s 160.8622 MegaEdges/s
+stealCount=17  (verification 0.0040 s)
+stealCount=1300 N=900 t=0.0200 s 162.2077 MegaEdges/s
+stealCount=17  (verification 0.0025 s)
+stealCount=1180 N=900 t=0.0202 s 160.3909 MegaEdges/s
+stealCount=17  (verification 0.0019 s)
+stealCount=1247 N=900 t=0.0204 s 158.7708 MegaEdges/s
+stealCount=17  (verification 0.0021 s)
+stealCount=1255 N=900 t=0.0203 s 159.7638 MegaEdges/s
+stealCount=17  (verification 0.0031 s)
+Completed iterations for N=900
+
+### nproc: 24
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 24 T 900 4 false false true
+Number of procs=24
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.0984 s
+stealCount=844 N=900 t=0.0609 s 53.2267 MegaEdges/s
+stealCount=22  (verification 0.0301 s)
+stealCount=1248 N=900 t=0.0218 s 148.4127 MegaEdges/s
+stealCount=22  (verification 0.0131 s)
+stealCount=1071 N=900 t=0.0213 s 151.8867 MegaEdges/s
+stealCount=22  (verification 0.0083 s)
+stealCount=883 N=900 t=0.0198 s 163.5627 MegaEdges/s
+stealCount=20  (verification 0.0036 s)
+stealCount=1020 N=900 t=0.0187 s 173.3678 MegaEdges/s
+stealCount=21  (verification 0.0028 s)
+stealCount=1219 N=900 t=0.0182 s 178.0679 MegaEdges/s
+stealCount=20  (verification 0.0019 s)
+stealCount=1593 N=900 t=0.0189 s 171.4699 MegaEdges/s
+stealCount=19  (verification 0.0021 s)
+stealCount=1429 N=900 t=0.0190 s 170.2838 MegaEdges/s
+stealCount=20  (verification 0.0028 s)
+stealCount=1185 N=900 t=0.0184 s 176.1597 MegaEdges/s
+stealCount=19  (verification 0.0028 s)
+stealCount=1218 N=900 t=0.0183 s 177.5007 MegaEdges/s
+stealCount=21  (verification 0.0040 s)
+stealCount=1312 N=900 t=0.0177 s 183.2523 MegaEdges/s
+stealCount=21  (verification 0.0022 s)
+stealCount=1416 N=900 t=0.0181 s 179.1597 MegaEdges/s
+stealCount=21  (verification 0.0019 s)
+stealCount=1239 N=900 t=0.0175 s 184.9921 MegaEdges/s
+stealCount=21  (verification 0.0018 s)
+stealCount=1419 N=900 t=0.0179 s 180.8328 MegaEdges/s
+stealCount=22  (verification 0.0028 s)
+stealCount=1329 N=900 t=0.0184 s 176.0591 MegaEdges/s
+stealCount=20  (verification 0.0024 s)
+stealCount=1411 N=900 t=0.0187 s 173.4661 MegaEdges/s
+stealCount=21  (verification 0.0026 s)
+stealCount=1180 N=900 t=0.0181 s 179.1968 MegaEdges/s
+stealCount=20  (verification 0.0021 s)
+stealCount=1421 N=900 t=0.0181 s 179.2148 MegaEdges/s
+stealCount=20  (verification 0.0032 s)
+stealCount=1159 N=900 t=0.0177 s 183.3810 MegaEdges/s
+stealCount=20  (verification 0.0018 s)
+stealCount=921 N=900 t=0.0175 s 185.2775 MegaEdges/s
+stealCount=18  (verification 0.0023 s)
+Completed iterations for N=900
+
+### nproc: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.1023 s
+stealCount=972 N=900 t=0.0604 s 53.6732 MegaEdges/s
+stealCount=27  (verification 0.0294 s)
+stealCount=1195 N=900 t=0.0188 s 172.3582 MegaEdges/s
+stealCount=28  (verification 0.0108 s)
+stealCount=1004 N=900 t=0.0181 s 178.8256 MegaEdges/s
+stealCount=28  (verification 0.0134 s)
+stealCount=1187 N=900 t=0.0181 s 179.4407 MegaEdges/s
+stealCount=24  (verification 0.0025 s)
+stealCount=1182 N=900 t=0.0163 s 198.7212 MegaEdges/s
+stealCount=26  (verification 0.0030 s)
+stealCount=1313 N=900 t=0.0169 s 192.1208 MegaEdges/s
+stealCount=27  (verification 0.0030 s)
+stealCount=1356 N=900 t=0.0158 s 204.9263 MegaEdges/s
+stealCount=26  (verification 0.0021 s)
+stealCount=1270 N=900 t=0.0163 s 199.1731 MegaEdges/s
+stealCount=26  (verification 0.0035 s)
+stealCount=1139 N=900 t=0.0164 s 197.6407 MegaEdges/s
+stealCount=24  (verification 0.0029 s)
+stealCount=1563 N=900 t=0.0155 s 208.4652 MegaEdges/s
+stealCount=25  (verification 0.0047 s)
+stealCount=1245 N=900 t=0.0157 s 206.7834 MegaEdges/s
+stealCount=25  (verification 0.0019 s)
+stealCount=1199 N=900 t=0.0159 s 204.1181 MegaEdges/s
+stealCount=26  (verification 0.0021 s)
+stealCount=1396 N=900 t=0.0156 s 207.6914 MegaEdges/s
+stealCount=25  (verification 0.0022 s)
+stealCount=1304 N=900 t=0.0153 s 211.3171 MegaEdges/s
+stealCount=27  (verification 0.0027 s)
+stealCount=1383 N=900 t=0.0157 s 206.8603 MegaEdges/s
+stealCount=26  (verification 0.0020 s)
+stealCount=1151 N=900 t=0.0153 s 211.2137 MegaEdges/s
+stealCount=25  (verification 0.0028 s)
+stealCount=1656 N=900 t=0.0154 s 210.4364 MegaEdges/s
+stealCount=26  (verification 0.0024 s)
+stealCount=1341 N=900 t=0.0154 s 210.3549 MegaEdges/s
+stealCount=23  (verification 0.0029 s)
+stealCount=1461 N=900 t=0.0152 s 213.6208 MegaEdges/s
+stealCount=25  (verification 0.0022 s)
+stealCount=1404 N=900 t=0.0152 s 212.9991 MegaEdges/s
+stealCount=24  (verification 0.0047 s)
+Completed iterations for N=900
+
+#<<<< BEGIN BATCHING >>>>
+
+#### bsize: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 1
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=1
+Generating graph...
+Graph generated.
+Creation time:1.1022 s
+stealCount=15601 N=900 t=0.3431 s 9.4436 MegaEdges/s
+stealCount=26  (verification 0.0165 s)
+stealCount=76045 N=900 t=0.2260 s 14.3361 MegaEdges/s
+stealCount=26  (verification 0.0019 s)
+stealCount=46961 N=900 t=0.1905 s 17.0051 MegaEdges/s
+stealCount=26  (verification 0.0014 s)
+stealCount=42258 N=900 t=0.0805 s 40.2617 MegaEdges/s
+stealCount=26  (verification 0.0022 s)
+stealCount=42926 N=900 t=0.0693 s 46.7747 MegaEdges/s
+stealCount=29  (verification 0.0019 s)
+stealCount=41272 N=900 t=0.1381 s 23.4534 MegaEdges/s
+stealCount=27  (verification 0.0016 s)
+stealCount=40858 N=900 t=0.1930 s 16.7859 MegaEdges/s
+stealCount=27  (verification 0.0018 s)
+stealCount=32885 N=900 t=0.0633 s 51.2012 MegaEdges/s
+stealCount=26  (verification 0.0017 s)
+stealCount=31632 N=900 t=0.0570 s 56.7940 MegaEdges/s
+stealCount=26  (verification 0.0022 s)
+stealCount=47421 N=900 t=0.0761 s 42.5890 MegaEdges/s
+stealCount=26  (verification 0.0038 s)
+stealCount=40829 N=900 t=0.1031 s 31.4135 MegaEdges/s
+stealCount=26  (verification 0.0017 s)
+stealCount=43773 N=900 t=0.0864 s 37.5014 MegaEdges/s
+stealCount=28  (verification 0.0018 s)
+stealCount=57510 N=900 t=0.1014 s 31.9517 MegaEdges/s
+stealCount=28  (verification 0.0017 s)
+stealCount=46801 N=900 t=0.0729 s 44.4480 MegaEdges/s
+stealCount=27  (verification 0.0018 s)
+stealCount=51535 N=900 t=0.1415 s 22.8966 MegaEdges/s
+stealCount=26  (verification 0.0016 s)
+stealCount=36566 N=900 t=0.0766 s 42.3206 MegaEdges/s
+stealCount=27  (verification 0.0016 s)
+stealCount=44369 N=900 t=0.1418 s 22.8439 MegaEdges/s
+stealCount=26  (verification 0.0017 s)
+stealCount=45628 N=900 t=0.1318 s 24.5834 MegaEdges/s
+stealCount=26  (verification 0.0016 s)
+stealCount=49984 N=900 t=0.1046 s 30.9735 MegaEdges/s
+stealCount=28  (verification 0.0014 s)
+stealCount=46031 N=900 t=0.0610 s 53.0883 MegaEdges/s
+stealCount=26  (verification 0.0035 s)
+Completed iterations for N=900
+
+#### bsize: 10
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 10
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=10
+Generating graph...
+Graph generated.
+Creation time:1.1077 s
+stealCount=2355 N=900 t=0.0923 s 35.1051 MegaEdges/s
+stealCount=27  (verification 0.0320 s)
+stealCount=3543 N=900 t=0.0277 s 116.9774 MegaEdges/s
+stealCount=28  (verification 0.0471 s)
+stealCount=4131 N=900 t=0.0273 s 118.8373 MegaEdges/s
+stealCount=28  (verification 0.0162 s)
+stealCount=3694 N=900 t=0.0201 s 160.9774 MegaEdges/s
+stealCount=24  (verification 0.0030 s)
+stealCount=4664 N=900 t=0.0204 s 158.7492 MegaEdges/s
+stealCount=26  (verification 0.0026 s)
+stealCount=5578 N=900 t=0.0197 s 164.7227 MegaEdges/s
+stealCount=26  (verification 0.0026 s)
+stealCount=5544 N=900 t=0.0183 s 177.2904 MegaEdges/s
+stealCount=25  (verification 0.0053 s)
+stealCount=5050 N=900 t=0.0176 s 183.8643 MegaEdges/s
+stealCount=26  (verification 0.0040 s)
+stealCount=6121 N=900 t=0.0197 s 164.2859 MegaEdges/s
+stealCount=26  (verification 0.0028 s)
+stealCount=5213 N=900 t=0.0180 s 179.7146 MegaEdges/s
+stealCount=24  (verification 0.0051 s)
+stealCount=5495 N=900 t=0.0187 s 173.5220 MegaEdges/s
+stealCount=26  (verification 0.0023 s)
+stealCount=5857 N=900 t=0.0181 s 179.1249 MegaEdges/s
+stealCount=20  (verification 0.0034 s)
+stealCount=4674 N=900 t=0.0181 s 179.1451 MegaEdges/s
+stealCount=26  (verification 0.0027 s)
+stealCount=5835 N=900 t=0.0202 s 160.1226 MegaEdges/s
+stealCount=25  (verification 0.0039 s)
+stealCount=4946 N=900 t=0.0182 s 177.5746 MegaEdges/s
+stealCount=25  (verification 0.0027 s)
+stealCount=5180 N=900 t=0.0177 s 183.2585 MegaEdges/s
+stealCount=26  (verification 0.0036 s)
+stealCount=5300 N=900 t=0.0188 s 172.1596 MegaEdges/s
+stealCount=26  (verification 0.0032 s)
+stealCount=4806 N=900 t=0.0181 s 179.4524 MegaEdges/s
+stealCount=22  (verification 0.0032 s)
+stealCount=5636 N=900 t=0.0180 s 180.4438 MegaEdges/s
+stealCount=26  (verification 0.0063 s)
+stealCount=5001 N=900 t=0.0173 s 187.0813 MegaEdges/s
+stealCount=25  (verification 0.0064 s)
+Completed iterations for N=900
+
+#### bsize: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 20
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=20
+Generating graph...
+Graph generated.
+Creation time:1.1029 s
+stealCount=1036 N=900 t=0.0674 s 48.0960 MegaEdges/s
+stealCount=27  (verification 0.0184 s)
+stealCount=1495 N=900 t=0.0223 s 145.6155 MegaEdges/s
+stealCount=28  (verification 0.0125 s)
+stealCount=1616 N=900 t=0.0204 s 158.4639 MegaEdges/s
+stealCount=28  (verification 0.0093 s)
+stealCount=1569 N=900 t=0.0165 s 196.4608 MegaEdges/s
+stealCount=26  (verification 0.0036 s)
+stealCount=1679 N=900 t=0.0167 s 193.9205 MegaEdges/s
+stealCount=22  (verification 0.0023 s)
+stealCount=2025 N=900 t=0.0170 s 190.3341 MegaEdges/s
+stealCount=26  (verification 0.0028 s)
+stealCount=1753 N=900 t=0.0168 s 193.3250 MegaEdges/s
+stealCount=24  (verification 0.0026 s)
+stealCount=2006 N=900 t=0.0165 s 196.0849 MegaEdges/s
+stealCount=26  (verification 0.0023 s)
+stealCount=1877 N=900 t=0.0159 s 203.8001 MegaEdges/s
+stealCount=25  (verification 0.0022 s)
+stealCount=1636 N=900 t=0.0155 s 208.4741 MegaEdges/s
+stealCount=24  (verification 0.0048 s)
+stealCount=2150 N=900 t=0.0158 s 205.0828 MegaEdges/s
+stealCount=26  (verification 0.0028 s)
+stealCount=2035 N=900 t=0.0155 s 208.7849 MegaEdges/s
+stealCount=23  (verification 0.0023 s)
+stealCount=1827 N=900 t=0.0153 s 211.0993 MegaEdges/s
+stealCount=26  (verification 0.0026 s)
+stealCount=1717 N=900 t=0.0152 s 212.7569 MegaEdges/s
+stealCount=27  (verification 0.0015 s)
+stealCount=1901 N=900 t=0.0157 s 205.9507 MegaEdges/s
+stealCount=25  (verification 0.0035 s)
+stealCount=1697 N=900 t=0.0154 s 210.4655 MegaEdges/s
+stealCount=27  (verification 0.0016 s)
+stealCount=2073 N=900 t=0.0156 s 207.3456 MegaEdges/s
+stealCount=26  (verification 0.0025 s)
+stealCount=1666 N=900 t=0.0153 s 211.3668 MegaEdges/s
+stealCount=26  (verification 0.0020 s)
+stealCount=1816 N=900 t=0.0155 s 208.6743 MegaEdges/s
+stealCount=24  (verification 0.0020 s)
+stealCount=1455 N=900 t=0.0158 s 205.2772 MegaEdges/s
+stealCount=27  (verification 0.0034 s)
+Completed iterations for N=900
+
+#### bsize: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 30
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=30
+Generating graph...
+Graph generated.
+Creation time:1.1039 s
+stealCount=720 N=900 t=0.0607 s 53.3674 MegaEdges/s
+stealCount=27  (verification 0.0270 s)
+stealCount=582 N=900 t=0.0174 s 185.7207 MegaEdges/s
+stealCount=28  (verification 0.0162 s)
+stealCount=757 N=900 t=0.0167 s 193.6831 MegaEdges/s
+stealCount=28  (verification 0.0104 s)
+stealCount=925 N=900 t=0.0175 s 185.1969 MegaEdges/s
+stealCount=23  (verification 0.0031 s)
+stealCount=865 N=900 t=0.0172 s 188.3951 MegaEdges/s
+stealCount=26  (verification 0.0019 s)
+stealCount=922 stealCount=923 N=900 t=0.0155 s 208.9511 MegaEdges/s
+stealCount=27  (verification 0.0015 s)
+stealCount=877 N=900 t=0.0156 s 207.8048 MegaEdges/s
+stealCount=27  (verification 0.0021 s)
+stealCount=816 N=900 t=0.0157 s 206.8135 MegaEdges/s
+stealCount=26  (verification 0.0024 s)
+stealCount=963 N=900 t=0.0150 s 215.4872 MegaEdges/s
+stealCount=26  (verification 0.0025 s)
+stealCount=877 N=900 t=0.0154 s 209.7881 MegaEdges/s
+stealCount=25  (verification 0.0043 s)
+stealCount=871 N=900 t=0.0154 s 210.7710 MegaEdges/s
+stealCount=26  (verification 0.0023 s)
+stealCount=835 N=900 t=0.0155 s 208.4057 MegaEdges/s
+stealCount=24  (verification 0.0019 s)
+stealCount=1039 N=900 t=0.0157 s 206.3572 MegaEdges/s
+stealCount=26  (verification 0.0017 s)
+stealCount=1020 N=900 t=0.0151 s 214.7439 MegaEdges/s
+stealCount=25  (verification 0.0020 s)
+stealCount=875 N=900 t=0.0151 s 214.7182 MegaEdges/s
+stealCount=26  (verification 0.0021 s)
+stealCount=980 N=900 t=0.0146 s 222.2753 MegaEdges/s
+stealCount=25  (verification 0.0022 s)
+stealCount=971 N=900 t=0.0148 s 219.6281 MegaEdges/s
+stealCount=22  (verification 0.0029 s)
+stealCount=767 N=900 t=0.0151 s 214.7277 MegaEdges/s
+stealCount=26  (verification 0.0016 s)
+stealCount=863 N=900 t=0.0149 s 217.2191 MegaEdges/s
+stealCount=26  (verification 0.0016 s)
+stealCount=1042 N=900 t=0.0162 s 199.4778 MegaEdges/s
+stealCount=26  (verification 0.0035 s)
+Completed iterations for N=900
+
+#### bsize: 40
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 40
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=40
+Generating graph...
+Graph generated.
+Creation time:1.0996 s
+stealCount=441 N=900 t=0.0617 s 52.5138 MegaEdges/s
+stealCount=26  (verification 0.0273 s)
+stealCount=432 N=900 t=0.0169 s 191.9233 MegaEdges/s
+stealCount=28  (verification 0.0098 s)
+stealCount=441 N=900 t=0.0165 s 195.7907 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=436 N=900 t=0.0165 s 195.8623 MegaEdges/s
+stealCount=24  (verification 0.0029 s)
+stealCount=440 N=900 t=0.0170 s 191.1287 MegaEdges/s
+stealCount=25  (verification 0.0025 s)
+stealCount=442 N=900 t=0.0165 s 196.1727 MegaEdges/s
+stealCount=21  (verification 0.0028 s)
+stealCount=488 N=900 t=0.0168 s 192.5434 MegaEdges/s
+stealCount=25  (verification 0.0022 s)
+stealCount=555 N=900 t=0.0166 s 195.3192 MegaEdges/s
+stealCount=24  (verification 0.0028 s)
+stealCount=376 N=900 t=0.0160 s 202.0932 MegaEdges/s
+stealCount=23  (verification 0.0019 s)
+stealCount=572 N=900 t=0.0170 s 190.5130 MegaEdges/s
+stealCount=26  (verification 0.0035 s)
+stealCount=565 N=900 t=0.0158 s 205.4978 MegaEdges/s
+stealCount=22  (verification 0.0022 s)
+stealCount=491 N=900 t=0.0156 s 207.5680 MegaEdges/s
+stealCount=23  (verification 0.0033 s)
+stealCount=506 N=900 t=0.0155 s 209.1981 MegaEdges/s
+stealCount=25  (verification 0.0020 s)
+stealCount=488 N=900 t=0.0164 s 198.0709 MegaEdges/s
+stealCount=24  (verification 0.0030 s)
+stealCount=559 N=900 t=0.0163 s 198.5655 MegaEdges/s
+stealCount=23  (verification 0.0015 s)
+stealCount=500 N=900 t=0.0171 s 190.0145 MegaEdges/s
+stealCount=25  (verification 0.0016 s)
+stealCount=533 N=900 t=0.0165 s 195.9212 MegaEdges/s
+stealCount=24  (verification 0.0032 s)
+stealCount=505 N=900 t=0.0168 s 193.3675 MegaEdges/s
+stealCount=23  (verification 0.0030 s)
+stealCount=435 N=900 t=0.0153 s 211.1262 MegaEdges/s
+stealCount=21  (verification 0.0027 s)
+stealCount=538 N=900 t=0.0161 s 201.8265 MegaEdges/s
+stealCount=25  (verification 0.0041 s)
+Completed iterations for N=900
+
+#### bsize: 50
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 50
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=50
+Generating graph...
+Graph generated.
+Creation time:1.0994 s
+stealCount=276 N=900 t=0.0554 s 58.4679 MegaEdges/s
+stealCount=27  (verification 0.0220 s)
+stealCount=337 N=900 t=0.0187 s 173.4780 MegaEdges/s
+stealCount=28  (verification 0.0150 s)
+stealCount=298 N=900 t=0.0176 s 184.4134 MegaEdges/s
+stealCount=28  (verification 0.0091 s)
+stealCount=328 N=900 t=0.0187 s 173.3826 MegaEdges/s
+stealCount=26  (verification 0.0022 s)
+stealCount=366 N=900 t=0.0175 s 185.1256 MegaEdges/s
+stealCount=20  (verification 0.0017 s)
+stealCount=303 N=900 t=0.0198 s 163.8554 MegaEdges/s
+stealCount=23  (verification 0.0023 s)
+stealCount=373 N=900 t=0.0186 s 174.0501 MegaEdges/s
+stealCount=22  (verification 0.0013 s)
+stealCount=305 N=900 t=0.0180 s 179.8722 MegaEdges/s
+stealCount=25  (verification 0.0029 s)
+stealCount=376 N=900 t=0.0210 s 154.0664 MegaEdges/s
+stealCount=18  (verification 0.0015 s)
+stealCount=292 N=900 t=0.0181 s 179.0468 MegaEdges/s
+stealCount=25  (verification 0.0040 s)
+stealCount=314 N=900 t=0.0166 s 195.6374 MegaEdges/s
+stealCount=24  (verification 0.0019 s)
+stealCount=291 N=900 t=0.0170 s 190.3326 MegaEdges/s
+stealCount=24  (verification 0.0024 s)
+stealCount=413 N=900 t=0.0177 s 183.4554 MegaEdges/s
+stealCount=22  (verification 0.0020 s)
+stealCount=334 N=900 t=0.0172 s 188.3824 MegaEdges/s
+stealCount=22  (verification 0.0019 s)
+stealCount=303 N=900 t=0.0211 s 153.3394 MegaEdges/s
+stealCount=24  (verification 0.0022 s)
+stealCount=315 N=900 t=0.0159 s 203.9866 MegaEdges/s
+stealCount=15  (verification 0.0016 s)
+stealCount=328 N=900 t=0.0192 s 168.3268 MegaEdges/s
+stealCount=25  (verification 0.0017 s)
+stealCount=321 N=900 t=0.0176 s 183.7969 MegaEdges/s
+stealCount=24  (verification 0.0026 s)
+stealCount=344 N=900 t=0.0165 s 196.8915 MegaEdges/s
+stealCount=21  (verification 0.0019 s)
+stealCount=391 N=900 t=0.0166 s 195.2553 MegaEdges/s
+stealCount=23  (verification 0.0031 s)
+Completed iterations for N=900
+
+#### bsize: 60
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 60
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=60
+Generating graph...
+Graph generated.
+Creation time:1.0995 s
+stealCount=191 N=900 t=0.0588 s 55.0700 MegaEdges/s
+stealCount=27  (verification 0.0294 s)
+stealCount=213 N=900 t=0.0219 s 147.8939 MegaEdges/s
+stealCount=28  (verification 0.0246 s)
+stealCount=285 N=900 t=0.0211 s 153.2004 MegaEdges/s
+stealCount=27  (verification 0.0140 s)
+stealCount=223 N=900 t=0.0189 s 171.4489 MegaEdges/s
+stealCount=25  (verification 0.0026 s)
+stealCount=257 N=900 t=0.0193 s 168.0650 MegaEdges/s
+stealCount=24  (verification 0.0029 s)
+stealCount=238 N=900 t=0.0217 s 149.3837 MegaEdges/s
+stealCount=25  (verification 0.0028 s)
+stealCount=183 N=900 t=0.0179 s 180.8825 MegaEdges/s
+stealCount=24  (verification 0.0025 s)
+stealCount=261 N=900 t=0.0195 s 165.8560 MegaEdges/s
+stealCount=24  (verification 0.0027 s)
+stealCount=193 N=900 t=0.0215 s 150.6075 MegaEdges/s
+stealCount=23  (verification 0.0024 s)
+stealCount=199 N=900 t=0.0175 s 184.8325 MegaEdges/s
+stealCount=24  (verification 0.0039 s)
+stealCount=252 N=900 t=0.0215 s 150.6219 MegaEdges/s
+stealCount=24  (verification 0.0037 s)
+stealCount=230 N=900 t=0.0189 s 171.1037 MegaEdges/s
+stealCount=26  (verification 0.0026 s)
+stealCount=156 N=900 t=0.0174 s 186.0707 MegaEdges/s
+stealCount=23  (verification 0.0022 s)
+stealCount=258 N=900 t=0.0196 s 165.4546 MegaEdges/s
+stealCount=24  (verification 0.0019 s)
+stealCount=207 N=900 t=0.0212 s 152.8953 MegaEdges/s
+stealCount=24  (verification 0.0025 s)
+stealCount=167 N=900 t=0.0179 s 180.9652 MegaEdges/s
+stealCount=25  (verification 0.0021 s)
+stealCount=175 N=900 t=0.0185 s 175.2754 MegaEdges/s
+stealCount=23  (verification 0.0025 s)
+stealCount=215 N=900 t=0.0213 s 152.1474 MegaEdges/s
+stealCount=23  (verification 0.0036 s)
+stealCount=190 N=900 t=0.0182 s 177.8505 MegaEdges/s
+stealCount=26  (verification 0.0022 s)
+stealCount=303 N=900 t=0.0188 s 171.9554 MegaEdges/s
+stealCount=25  (verification 0.0040 s)
+Completed iterations for N=900
+
+#### bsize: 70
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 70
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=70
+Generating graph...
+Graph generated.
+Creation time:1.0978 s
+stealCount=134 N=900 t=0.0663 s 48.9026 MegaEdges/s
+stealCount=26  (verification 0.0283 s)
+stealCount=96 N=900 t=0.0175 s 185.6600 MegaEdges/s
+stealCount=26  (verification 0.0188 s)
+stealCount=104 N=900 t=0.0186 s 174.1100 MegaEdges/s
+stealCount=27  (verification 0.0165 s)
+stealCount=155 N=900 t=0.0209 s 155.0264 MegaEdges/s
+stealCount=24  (verification 0.0023 s)
+stealCount=107 N=900 t=0.0176 s 184.3332 MegaEdges/s
+stealCount=24  (verification 0.0025 s)
+stealCount=162 N=900 t=0.0217 s 149.5965 MegaEdges/s
+stealCount=25  (verification 0.0028 s)
+stealCount=133 N=900 t=0.0190 s 170.6098 MegaEdges/s
+stealCount=25  (verification 0.0024 s)
+stealCount=133 N=900 t=0.0183 s 176.5736 MegaEdges/s
+stealCount=24  (verification 0.0027 s)
+stealCount=149 N=900 t=0.0219 s 147.8007 MegaEdges/s
+stealCount=23  (verification 0.0025 s)
+stealCount=105 N=900 t=0.0194 s 167.1604 MegaEdges/s
+stealCount=24  (verification 0.0042 s)
+stealCount=137 N=900 t=0.0224 s 144.9314 MegaEdges/s
+stealCount=24  (verification 0.0025 s)
+stealCount=94 N=900 t=0.0173 s 186.9912 MegaEdges/s
+stealCount=24  (verification 0.0023 s)
+stealCount=170 N=900 t=0.0182 s 178.3602 MegaEdges/s
+stealCount=24  (verification 0.0023 s)
+stealCount=205 N=900 t=0.0221 s 146.6205 MegaEdges/s
+stealCount=23  (verification 0.0026 s)
+stealCount=107 N=900 t=0.0187 s 173.6689 MegaEdges/s
+stealCount=25  (verification 0.0017 s)
+stealCount=200 N=900 t=0.0213 s 152.0287 MegaEdges/s
+stealCount=25  (verification 0.0026 s)
+stealCount=141 N=900 t=0.0210 s 153.9498 MegaEdges/s
+stealCount=25  (verification 0.0026 s)
+stealCount=202 N=900 t=0.0200 s 162.2181 MegaEdges/s
+stealCount=23  (verification 0.0025 s)
+stealCount=152 N=900 t=0.0211 s 153.9091 MegaEdges/s
+stealCount=24  (verification 0.0031 s)
+stealCount=125 N=900 t=0.0180 s 180.1047 MegaEdges/s
+stealCount=23  (verification 0.0038 s)
+Completed iterations for N=900
+
+#### bsize: 80
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 80
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=80
+Generating graph...
+Graph generated.
+Creation time:1.0999 s
+stealCount=77 N=900 t=0.0887 s 36.5447 MegaEdges/s
+stealCount=22  (verification 0.0114 s)
+stealCount=92 N=900 t=0.0336 s 96.3752 MegaEdges/s
+stealCount=27  (verification 0.0190 s)
+stealCount=147 N=900 t=0.0246 s 131.4524 MegaEdges/s
+stealCount=27  (verification 0.0134 s)
+stealCount=85 N=900 t=0.0226 s 143.5102 MegaEdges/s
+stealCount=27  (verification 0.0027 s)
+stealCount=102 N=900 t=0.0234 s 138.3117 MegaEdges/s
+stealCount=16  (verification 0.0014 s)
+stealCount=149 N=900 t=0.0234 s 138.4326 MegaEdges/s
+stealCount=21  (verification 0.0036 s)
+stealCount=122 N=900 t=0.0242 s 134.1339 MegaEdges/s
+stealCount=23  (verification 0.0025 s)
+stealCount=70 N=900 t=0.0219 s 148.0231 MegaEdges/s
+stealCount=18  (verification 0.0018 s)
+stealCount=69 N=900 t=0.0235 s 138.1663 MegaEdges/s
+stealCount=25  (verification 0.0024 s)
+stealCount=141 N=900 t=0.0217 s 149.5396 MegaEdges/s
+stealCount=16  (verification 0.0035 s)
+stealCount=106 N=900 t=0.0230 s 141.0344 MegaEdges/s
+stealCount=26  (verification 0.0032 s)
+stealCount=91 N=900 t=0.0236 s 137.5162 MegaEdges/s
+stealCount=18  (verification 0.0015 s)
+stealCount=116 N=900 t=0.0238 s 136.1060 MegaEdges/s
+stealCount=21  (verification 0.0020 s)
+stealCount=122 N=900 t=0.0240 s 134.9424 MegaEdges/s
+stealCount=21  (verification 0.0021 s)
+stealCount=121 N=900 t=0.0216 s 150.2634 MegaEdges/s
+stealCount=21  (verification 0.0017 s)
+stealCount=123 N=900 t=0.0258 s 125.6806 MegaEdges/s
+stealCount=19  (verification 0.0017 s)
+stealCount=85 N=900 t=0.0243 s 133.2648 MegaEdges/s
+stealCount=21  (verification 0.0019 s)
+stealCount=138 N=900 t=0.0243 s 133.1825 MegaEdges/s
+stealCount=23  (verification 0.0030 s)
+stealCount=109 N=900 t=0.0211 s 153.4601 MegaEdges/s
+stealCount=15  (verification 0.0015 s)
+stealCount=86 N=900 t=0.0245 s 132.4608 MegaEdges/s
+stealCount=14  (verification 0.0067 s)
+Completed iterations for N=900
+
+#### bsize: 90
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 90
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=90
+Generating graph...
+Graph generated.
+Creation time:1.1184 s
+stealCount=55 N=900 t=0.0707 s 45.8132 MegaEdges/s
+stealCount=25  (verification 0.0184 s)
+stealCount=77 N=900 t=0.0249 s 130.0126 MegaEdges/s
+stealCount=27  (verification 0.0168 s)
+stealCount=92 N=900 t=0.0226 s 143.4744 MegaEdges/s
+stealCount=27  (verification 0.0057 s)
+stealCount=70 N=900 t=0.0215 s 150.9770 MegaEdges/s
+stealCount=21  (verification 0.0017 s)
+stealCount=114 N=900 t=0.0222 s 145.6839 MegaEdges/s
+stealCount=18  (verification 0.0019 s)
+stealCount=91 N=900 t=0.0239 s 135.5370 MegaEdges/s
+stealCount=18  (verification 0.0020 s)
+stealCount=119 N=900 t=0.0225 s 144.1145 MegaEdges/s
+stealCount=23  (verification 0.0029 s)
+stealCount=78 N=900 t=0.0238 s 136.3192 MegaEdges/s
+stealCount=22  (verification 0.0027 s)
+stealCount=101 N=900 t=0.0222 s 146.0533 MegaEdges/s
+stealCount=16  (verification 0.0018 s)
+stealCount=90 N=900 t=0.0238 s 136.3827 MegaEdges/s
+stealCount=22  (verification 0.0051 s)
+stealCount=58 N=900 t=0.0224 s 144.3737 MegaEdges/s
+stealCount=19  (verification 0.0014 s)
+stealCount=73 N=900 t=0.0240 s 135.2037 MegaEdges/s
+stealCount=21  (verification 0.0013 s)
+stealCount=105 N=900 t=0.0259 s 125.2788 MegaEdges/s
+stealCount=21  (verification 0.0020 s)
+stealCount=100 N=900 t=0.0228 s 142.1953 MegaEdges/s
+stealCount=16  (verification 0.0015 s)
+stealCount=103 N=900 t=0.0212 s 153.1707 MegaEdges/s
+stealCount=17  (verification 0.0013 s)
+stealCount=75 N=900 t=0.0232 s 139.4685 MegaEdges/s
+stealCount=24  (verification 0.0019 s)
+stealCount=75 N=900 t=0.0227 s 142.5146 MegaEdges/s
+stealCount=15  (verification 0.0016 s)
+stealCount=74 N=900 t=0.0244 s 132.7936 MegaEdges/s
+stealCount=26  (verification 0.0023 s)
+stealCount=92 N=900 t=0.0234 s 138.2223 MegaEdges/s
+stealCount=23  (verification 0.0024 s)
+stealCount=106 N=900 t=0.0228 s 141.8345 MegaEdges/s
+stealCount=13  (verification 0.0034 s)
+Completed iterations for N=900
+
+#### bsize: 100
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 100
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=100
+Generating graph...
+Graph generated.
+Creation time:1.1000 s
+stealCount=48 N=900 t=0.0757 s 42.7993 MegaEdges/s
+stealCount=27  (verification 0.0243 s)
+stealCount=63 N=900 t=0.0261 s 124.1764 MegaEdges/s
+stealCount=28  (verification 0.0186 s)
+stealCount=68 N=900 t=0.0234 s 138.2525 MegaEdges/s
+stealCount=28  (verification 0.0122 s)
+stealCount=70 N=900 t=0.0240 s 134.8104 MegaEdges/s
+stealCount=25  (verification 0.0025 s)
+stealCount=66 N=900 t=0.0250 s 129.6477 MegaEdges/s
+stealCount=25  (verification 0.0020 s)
+stealCount=30 N=900 t=0.0248 s 130.8744 MegaEdges/s
+stealCount=25  (verification 0.0021 s)
+stealCount=72 N=900 t=0.0239 s 135.6085 MegaEdges/s
+stealCount=25  (verification 0.0021 s)
+stealCount=75 N=900 t=0.0237 s 136.8951 MegaEdges/s
+stealCount=25  (verification 0.0020 s)
+stealCount=58 N=900 t=0.0244 s 132.5157 MegaEdges/s
+stealCount=24  (verification 0.0022 s)
+stealCount=34 N=900 t=0.0250 s 129.7390 MegaEdges/s
+stealCount=25  (verification 0.0041 s)
+stealCount=48 N=900 t=0.0258 s 125.6428 MegaEdges/s
+stealCount=23  (verification 0.0027 s)
+stealCount=45 N=900 t=0.0257 s 125.9547 MegaEdges/s
+stealCount=24  (verification 0.0021 s)
+stealCount=62 N=900 t=0.0278 s 116.5648 MegaEdges/s
+stealCount=25  (verification 0.0024 s)
+stealCount=45 N=900 t=0.0250 s 129.4815 MegaEdges/s
+stealCount=24  (verification 0.0020 s)
+stealCount=41 N=900 t=0.0249 s 130.0844 MegaEdges/s
+stealCount=24  (verification 0.0023 s)
+stealCount=68 N=900 t=0.0247 s 131.2476 MegaEdges/s
+stealCount=24  (verification 0.0025 s)
+stealCount=72 N=900 t=0.0242 s 133.7768 MegaEdges/s
+stealCount=25  (verification 0.0026 s)
+stealCount=57 N=900 t=0.0242 s 134.0778 MegaEdges/s
+stealCount=25  (verification 0.0022 s)
+stealCount=53 N=900 t=0.0245 s 132.2586 MegaEdges/s
+stealCount=23  (verification 0.0021 s)
+stealCount=31 N=900 t=0.0248 s 130.7645 MegaEdges/s
+stealCount=24  (verification 0.0035 s)
+Completed iterations for N=900
+
+#<<<< END BATCHING >>>>
+
+### nproc: 32
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 32 T 900 4 false false true
+Number of procs=32
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.0906 s
+stealCount=831 N=900 t=0.0582 s 55.7069 MegaEdges/s
+stealCount=29  (verification 0.0230 s)
+stealCount=1001 N=900 t=0.0183 s 176.5863 MegaEdges/s
+stealCount=30  (verification 0.0203 s)
+stealCount=924 N=900 t=0.0179 s 180.6469 MegaEdges/s
+stealCount=29  (verification 0.0101 s)
+stealCount=1074 N=900 t=0.0179 s 181.3060 MegaEdges/s
+stealCount=26  (verification 0.0027 s)
+stealCount=1312 N=900 t=0.0174 s 186.1872 MegaEdges/s
+stealCount=31  (verification 0.0019 s)
+stealCount=1284 N=900 t=0.0159 s 203.3656 MegaEdges/s
+stealCount=26  (verification 0.0019 s)
+stealCount=1333 N=900 t=0.0160 s 202.9158 MegaEdges/s
+stealCount=28  (verification 0.0020 s)
+stealCount=1348 N=900 t=0.0161 s 201.6155 MegaEdges/s
+stealCount=27  (verification 0.0016 s)
+stealCount=1159 N=900 t=0.0186 s 174.2916 MegaEdges/s
+stealCount=27  (verification 0.0024 s)
+stealCount=1541 N=900 t=0.0154 s 209.9237 MegaEdges/s
+stealCount=27  (verification 0.0041 s)
+stealCount=1385 N=900 t=0.0162 s 200.3296 MegaEdges/s
+stealCount=28  (verification 0.0015 s)
+stealCount=1262 N=900 t=0.0156 s 207.8388 MegaEdges/s
+stealCount=27  (verification 0.0019 s)
+stealCount=1419 N=900 t=0.0154 s 210.9646 MegaEdges/s
+stealCount=27  (verification 0.0022 s)
+stealCount=1274 N=900 t=0.0151 s 214.0881 MegaEdges/s
+stealCount=28  (verification 0.0021 s)
+stealCount=1406 N=900 t=0.0152 s 213.4655 MegaEdges/s
+stealCount=28  (verification 0.0019 s)
+stealCount=1365 N=900 t=0.0153 s 212.1104 MegaEdges/s
+stealCount=27  (verification 0.0019 s)
+stealCount=1386 N=900 t=0.0151 s 214.2108 MegaEdges/s
+stealCount=26  (verification 0.0022 s)
+stealCount=1269 N=900 t=0.0154 s 210.2968 MegaEdges/s
+stealCount=28  (verification 0.0023 s)
+stealCount=1417 N=900 t=0.0150 s 216.0201 MegaEdges/s
+stealCount=29  (verification 0.0017 s)
+stealCount=1398 N=900 t=0.0150 s 216.4358 MegaEdges/s
+stealCount=27  (verification 0.0033 s)
+Completed iterations for N=900
+
+## Size: 2100
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 1 T 2100 4 false false true
+Number of procs=1
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:5.5926 s
+stealCount=0 N=2100 t=1.7441 s 10.1143 MegaEdges/s
+stealCount=0  (verification 0.5998 s)
+stealCount=0 N=2100 t=1.6453 s 10.7215 MegaEdges/s
+stealCount=0  (verification 0.5637 s)
+stealCount=0 N=2100 t=1.6429 s 10.7372 MegaEdges/s
+stealCount=0  (verification 0.5395 s)
+stealCount=0 N=2100 t=1.6435 s 10.7329 MegaEdges/s
+stealCount=0  (verification 0.5396 s)
+stealCount=0 N=2100 t=1.6458 s 10.7180 MegaEdges/s
+stealCount=0  (verification 0.5443 s)
+stealCount=0 N=2100 t=1.6357 s 10.7845 MegaEdges/s
+stealCount=0  (verification 0.5389 s)
+stealCount=0 N=2100 t=1.6440 s 10.7299 MegaEdges/s
+stealCount=0  (verification 0.5446 s)
+stealCount=0 N=2100 t=1.6349 s 10.7898 MegaEdges/s
+stealCount=0  (verification 0.5411 s)
+stealCount=0 N=2100 t=1.6436 s 10.7324 MegaEdges/s
+stealCount=0  (verification 0.5364 s)
+stealCount=0 N=2100 t=1.6395 s 10.7593 MegaEdges/s
+stealCount=0  (verification 0.5580 s)
+stealCount=0 N=2100 t=1.6406 s 10.7521 MegaEdges/s
+stealCount=0  (verification 0.5343 s)
+stealCount=0 N=2100 t=1.6442 s 10.7285 MegaEdges/s
+stealCount=0  (verification 0.5371 s)
+stealCount=0 N=2100 t=1.6408 s 10.7506 MegaEdges/s
+stealCount=0  (verification 0.5364 s)
+stealCount=0 N=2100 t=1.6345 s 10.7920 MegaEdges/s
+stealCount=0  (verification 0.5348 s)
+stealCount=0 N=2100 t=1.6418 s 10.7445 MegaEdges/s
+stealCount=0  (verification 0.5411 s)
+stealCount=0 N=2100 t=1.6371 s 10.7751 MegaEdges/s
+stealCount=0  (verification 0.5349 s)
+stealCount=0 N=2100 t=1.6415 s 10.7464 MegaEdges/s
+stealCount=0  (verification 0.5428 s)
+stealCount=0 N=2100 t=1.6412 s 10.7483 MegaEdges/s
+stealCount=0  (verification 0.5526 s)
+stealCount=0 N=2100 t=1.6411 s 10.7486 MegaEdges/s
+stealCount=0  (verification 0.5428 s)
+stealCount=0 N=2100 t=1.6391 s 10.7621 MegaEdges/s
+stealCount=0  (verification 0.5495 s)
+Completed iterations for N=2100
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 2 T 2100 4 false false true
+Number of procs=2
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:5.5708 s
+stealCount=1429 N=2100 t=0.9306 s 18.9558 MegaEdges/s
+stealCount=0  (verification 1.2823 s)
+stealCount=1030 N=2100 t=0.8646 s 20.4034 MegaEdges/s
+stealCount=0  (verification 0.2839 s)
+stealCount=138 N=2100 t=0.8479 s 20.8032 MegaEdges/s
+stealCount=0  (verification 0.3558 s)
+stealCount=440 N=2100 t=0.8414 s 20.9656 MegaEdges/s
+stealCount=0  (verification 0.3314 s)
+stealCount=1030 N=2100 t=0.8603 s 20.5038 MegaEdges/s
+stealCount=1  (verification 0.2546 s)
+stealCount=378 N=2100 t=0.8407 s 20.9822 MegaEdges/s
+stealCount=1  (verification 0.1204 s)
+stealCount=207 N=2100 t=0.8342 s 21.1458 MegaEdges/s
+stealCount=1  (verification 0.1903 s)
+stealCount=444 N=2100 t=0.8436 s 20.9111 MegaEdges/s
+stealCount=0  (verification 0.3298 s)
+stealCount=963 N=2100 t=0.8467 s 20.8343 MegaEdges/s
+stealCount=1  (verification 0.2780 s)
+stealCount=448 N=2100 t=0.8364 s 21.0898 MegaEdges/s
+stealCount=0  (verification 0.3302 s)
+stealCount=502 N=2100 t=0.8404 s 20.9902 MegaEdges/s
+stealCount=0  (verification 0.3284 s)
+stealCount=479 N=2100 t=0.8424 s 20.9404 MegaEdges/s
+stealCount=1  (verification 0.1891 s)
+stealCount=480 N=2100 t=0.8474 s 20.8178 MegaEdges/s
+stealCount=0  (verification 0.3281 s)
+stealCount=1643 N=2100 t=0.8539 s 20.6576 MegaEdges/s
+stealCount=0  (verification 0.3280 s)
+stealCount=1069 N=2100 t=0.8353 s 21.1175 MegaEdges/s
+stealCount=0  (verification 0.2872 s)
+stealCount=1977 N=2100 t=0.8315 s 21.2147 MegaEdges/s
+stealCount=0  (verification 0.3274 s)
+stealCount=483 N=2100 t=0.8321 s 21.1982 MegaEdges/s
+stealCount=0  (verification 0.3302 s)
+stealCount=481 N=2100 t=0.8289 s 21.2824 MegaEdges/s
+stealCount=0  (verification 0.3296 s)
+stealCount=473 N=2100 t=0.8375 s 21.0627 MegaEdges/s
+stealCount=0  (verification 0.3276 s)
+stealCount=1824 N=2100 t=0.8312 s 21.2217 MegaEdges/s
+stealCount=0  (verification 0.3289 s)
+Completed iterations for N=2100
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 4 T 2100 4 false false true
+Number of procs=4
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:6.8388 s
+stealCount=1597 N=2100 t=0.5143 s 34.3020 MegaEdges/s
+stealCount=2  (verification 0.1575 s)
+stealCount=3860 N=2100 t=0.5163 s 34.1670 MegaEdges/s
+stealCount=2  (verification 0.0772 s)
+stealCount=1371 N=2100 t=0.4625 s 38.1377 MegaEdges/s
+stealCount=2  (verification 0.0100 s)
+stealCount=3522 N=2100 t=0.4480 s 39.3721 MegaEdges/s
+stealCount=2  (verification 0.0681 s)
+stealCount=2222 N=2100 t=0.4439 s 39.7408 MegaEdges/s
+stealCount=2  (verification 0.0765 s)
+stealCount=3869 N=2100 t=0.4427 s 39.8436 MegaEdges/s
+stealCount=2  (verification 0.0732 s)
+stealCount=904 N=2100 t=0.4363 s 40.4342 MegaEdges/s
+stealCount=2  (verification 0.0569 s)
+stealCount=3422 N=2100 t=0.4427 s 39.8446 MegaEdges/s
+stealCount=2  (verification 0.1359 s)
+stealCount=3107 N=2100 t=0.4323 s 40.8066 MegaEdges/s
+stealCount=2  (verification 0.0147 s)
+stealCount=3790 N=2100 t=0.4401 s 40.0818 MegaEdges/s
+stealCount=2  (verification 0.1240 s)
+stealCount=1819 N=2100 t=0.4312 s 40.9067 MegaEdges/s
+stealCount=2  (verification 0.0809 s)
+stealCount=2657 N=2100 t=0.4394 s 40.1434 MegaEdges/s
+stealCount=2  (verification 0.0354 s)
+stealCount=2021 N=2100 t=0.4324 s 40.7919 MegaEdges/s
+stealCount=2  (verification 0.1346 s)
+stealCount=2542 N=2100 t=0.4360 s 40.4584 MegaEdges/s
+stealCount=2  (verification 0.1205 s)
+stealCount=3216 N=2100 t=0.4303 s 40.9978 MegaEdges/s
+stealCount=2  (verification 0.0812 s)
+stealCount=3322 N=2100 t=0.4327 s 40.7684 MegaEdges/s
+stealCount=2  (verification 0.0887 s)
+stealCount=2457 N=2100 t=0.4347 s 40.5785 MegaEdges/s
+stealCount=2  (verification 0.4699 s)
+stealCount=2248 N=2100 t=0.4296 s 41.0627 MegaEdges/s
+stealCount=2  (verification 0.0868 s)
+stealCount=2048 N=2100 t=0.4358 s 40.4776 MegaEdges/s
+stealCount=2  (verification 0.1295 s)
+stealCount=5671 N=2100 t=0.4414 s 39.9595 MegaEdges/s
+stealCount=1  (verification 0.0115 s)
+Completed iterations for N=2100
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 8 T 2100 4 false false true
+Number of procs=8
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:6.7672 s
+stealCount=2434 N=2100 t=0.3057 s 57.7059 MegaEdges/s
+stealCount=6  (verification 0.1130 s)
+stealCount=4360 N=2100 t=0.2833 s 62.2716 MegaEdges/s
+stealCount=6  (verification 0.0992 s)
+stealCount=3438 N=2100 t=0.2383 s 74.0373 MegaEdges/s
+stealCount=6  (verification 0.0282 s)
+stealCount=3833 N=2100 t=0.2299 s 76.7447 MegaEdges/s
+stealCount=5  (verification 0.0065 s)
+stealCount=3854 N=2100 t=0.2299 s 76.7307 MegaEdges/s
+stealCount=6  (verification 0.0452 s)
+stealCount=3752 N=2100 t=0.2290 s 77.0156 MegaEdges/s
+stealCount=6  (verification 0.0787 s)
+stealCount=2640 N=2100 t=0.2323 s 75.9522 MegaEdges/s
+stealCount=6  (verification 0.0548 s)
+stealCount=2960 N=2100 t=0.2324 s 75.9125 MegaEdges/s
+stealCount=6  (verification 0.0443 s)
+stealCount=5675 N=2100 t=0.2323 s 75.9461 MegaEdges/s
+stealCount=6  (verification 0.0381 s)
+stealCount=3615 N=2100 t=0.2289 s 77.0775 MegaEdges/s
+stealCount=6  (verification 0.0426 s)
+stealCount=3403 N=2100 t=0.2290 s 77.0426 MegaEdges/s
+stealCount=6  (verification 0.0333 s)
+stealCount=4005 N=2100 t=0.2289 s 77.0746 MegaEdges/s
+stealCount=6  (verification 0.0400 s)
+stealCount=5899 N=2100 t=0.2277 s 77.4543 MegaEdges/s
+stealCount=6  (verification 0.0313 s)
+stealCount=5500 N=2100 t=0.2272 s 77.6269 MegaEdges/s
+stealCount=5  (verification 0.0195 s)
+stealCount=3471 N=2100 t=0.2276 s 77.4885 MegaEdges/s
+stealCount=6  (verification 0.0367 s)
+stealCount=3605 N=2100 t=0.2337 s 75.4753 MegaEdges/s
+stealCount=6  (verification 0.0371 s)
+stealCount=2779 N=2100 t=0.2281 s 77.3395 MegaEdges/s
+stealCount=5  (verification 0.0296 s)
+stealCount=4378 N=2100 t=0.2290 s 77.0400 MegaEdges/s
+stealCount=6  (verification 0.1124 s)
+stealCount=3260 N=2100 t=0.2279 s 77.4091 MegaEdges/s
+stealCount=6  (verification 0.0351 s)
+stealCount=3949 N=2100 t=0.2314 s 76.2169 MegaEdges/s
+stealCount=6  (verification 0.0206 s)
+Completed iterations for N=2100
+
+### nproc: 16
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 16 T 2100 4 false false true
+Number of procs=16
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:5.1728 s
+stealCount=3530 N=2100 t=0.1991 s 88.5773 MegaEdges/s
+stealCount=14  (verification 0.1230 s)
+stealCount=5847 N=2100 t=0.1276 s 138.2047 MegaEdges/s
+stealCount=14  (verification 0.0920 s)
+stealCount=6831 N=2100 t=0.1293 s 136.4539 MegaEdges/s
+stealCount=14  (verification 0.0116 s)
+stealCount=5040 N=2100 t=0.1244 s 141.8573 MegaEdges/s
+stealCount=14  (verification 0.0081 s)
+stealCount=6133 N=2100 t=0.1272 s 138.6952 MegaEdges/s
+stealCount=14  (verification 0.0165 s)
+stealCount=4360 N=2100 t=0.1222 s 144.3367 MegaEdges/s
+stealCount=14  (verification 0.0148 s)
+stealCount=4013 N=2100 t=0.1222 s 144.3406 MegaEdges/s
+stealCount=14  (verification 0.0042 s)
+stealCount=6288 N=2100 t=0.1233 s 143.1078 MegaEdges/s
+stealCount=14  (verification 0.0178 s)
+stealCount=5449 N=2100 t=0.1223 s 144.1992 MegaEdges/s
+stealCount=14  (verification 0.0066 s)
+stealCount=4268 N=2100 t=0.1234 s 142.9360 MegaEdges/s
+stealCount=14  (verification 0.0049 s)
+stealCount=5327 N=2100 t=0.1228 s 143.6351 MegaEdges/s
+stealCount=14  (verification 0.0129 s)
+stealCount=5456 N=2100 t=0.1242 s 142.0816 MegaEdges/s
+stealCount=13  (verification 0.0087 s)
+stealCount=5762 N=2100 t=0.1212 s 145.5501 MegaEdges/s
+stealCount=12  (verification 0.0062 s)
+stealCount=4860 N=2100 t=0.1248 s 141.3271 MegaEdges/s
+stealCount=14  (verification 0.0127 s)
+stealCount=5610 N=2100 t=0.1223 s 144.1981 MegaEdges/s
+stealCount=14  (verification 0.0163 s)
+stealCount=4770 N=2100 t=0.1249 s 141.2622 MegaEdges/s
+stealCount=14  (verification 0.0104 s)
+stealCount=3541 N=2100 t=0.1238 s 142.4440 MegaEdges/s
+stealCount=13  (verification 0.0067 s)
+stealCount=4983 N=2100 t=0.1205 s 146.4313 MegaEdges/s
+stealCount=14  (verification 0.0109 s)
+stealCount=5585 N=2100 t=0.1209 s 145.8582 MegaEdges/s
+stealCount=14  (verification 0.0172 s)
+stealCount=4497 N=2100 t=0.1232 s 143.1652 MegaEdges/s
+stealCount=14  (verification 0.0103 s)
+Completed iterations for N=2100
+
+### nproc: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 20 T 2100 4 false false true
+Number of procs=20
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:5.0537 s
+stealCount=3984 N=2100 t=0.1844 s 95.6778 MegaEdges/s
+stealCount=18  (verification 0.1454 s)
+stealCount=3820 N=2100 t=0.1077 s 163.7884 MegaEdges/s
+stealCount=18  (verification 0.0830 s)
+stealCount=5083 N=2100 t=0.1131 s 156.0317 MegaEdges/s
+stealCount=17  (verification 0.0121 s)
+stealCount=5370 N=2100 t=0.1043 s 169.1009 MegaEdges/s
+stealCount=18  (verification 0.0075 s)
+stealCount=5497 N=2100 t=0.1054 s 167.3216 MegaEdges/s
+stealCount=18  (verification 0.0106 s)
+stealCount=6321 N=2100 t=0.1072 s 164.5538 MegaEdges/s
+stealCount=17  (verification 0.0160 s)
+stealCount=5282 N=2100 t=0.1054 s 167.4367 MegaEdges/s
+stealCount=18  (verification 0.0119 s)
+stealCount=4902 N=2100 t=0.1045 s 168.7762 MegaEdges/s
+stealCount=17  (verification 0.0249 s)
+stealCount=4935 N=2100 t=0.1056 s 166.9785 MegaEdges/s
+stealCount=17  (verification 0.0082 s)
+stealCount=5269 N=2100 t=0.1077 s 163.8123 MegaEdges/s
+stealCount=18  (verification 0.0100 s)
+stealCount=5938 N=2100 t=0.1085 s 162.5707 MegaEdges/s
+stealCount=18  (verification 0.0095 s)
+stealCount=6072 N=2100 t=0.1070 s 164.8897 MegaEdges/s
+stealCount=18  (verification 0.0076 s)
+stealCount=6237 N=2100 t=0.1048 s 168.2474 MegaEdges/s
+stealCount=18  (verification 0.0122 s)
+stealCount=4966 N=2100 t=0.1042 s 169.3441 MegaEdges/s
+stealCount=18  (verification 0.0057 s)
+stealCount=4953 N=2100 t=0.1056 s 167.0693 MegaEdges/s
+stealCount=18  (verification 0.0049 s)
+stealCount=5083 N=2100 t=0.1071 s 164.7716 MegaEdges/s
+stealCount=18  (verification 0.0072 s)
+stealCount=6082 N=2100 t=0.1075 s 164.0832 MegaEdges/s
+stealCount=18  (verification 0.0073 s)
+stealCount=5211 N=2100 t=0.1062 s 166.1794 MegaEdges/s
+stealCount=18  (verification 0.0066 s)
+stealCount=4650 N=2100 t=0.1053 s 167.5829 MegaEdges/s
+stealCount=16  (verification 0.0106 s)
+stealCount=5125 N=2100 t=0.1060 s 166.4389 MegaEdges/s
+stealCount=18  (verification 0.0054 s)
+Completed iterations for N=2100
+
+### nproc: 24
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 24 T 2100 4 false false true
+Number of procs=24
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:5.1127 s
+stealCount=4208 N=2100 t=0.1669 s 105.7101 MegaEdges/s
+stealCount=22  (verification 0.1245 s)
+stealCount=5783 N=2100 t=0.0972 s 181.4093 MegaEdges/s
+stealCount=22  (verification 0.1110 s)
+stealCount=5160 N=2100 t=0.0951 s 185.5161 MegaEdges/s
+stealCount=21  (verification 0.0125 s)
+stealCount=5847 N=2100 t=0.0919 s 191.9818 MegaEdges/s
+stealCount=21  (verification 0.0066 s)
+stealCount=5691 N=2100 t=0.0891 s 197.9195 MegaEdges/s
+stealCount=22  (verification 0.0064 s)
+stealCount=4531 N=2100 t=0.0882 s 199.9040 MegaEdges/s
+stealCount=21  (verification 0.0083 s)
+stealCount=5713 N=2100 t=0.0910 s 193.8781 MegaEdges/s
+stealCount=21  (verification 0.0103 s)
+stealCount=5092 N=2100 t=0.0894 s 197.2836 MegaEdges/s
+stealCount=22  (verification 0.0117 s)
+stealCount=7141 N=2100 t=0.0914 s 193.0567 MegaEdges/s
+stealCount=22  (verification 0.0133 s)
+stealCount=5954 N=2100 t=0.0901 s 195.8371 MegaEdges/s
+stealCount=20  (verification 0.0059 s)
+stealCount=5436 N=2100 t=0.0896 s 196.9339 MegaEdges/s
+stealCount=21  (verification 0.0035 s)
+stealCount=6113 N=2100 t=0.0885 s 199.4336 MegaEdges/s
+stealCount=21  (verification 0.0067 s)
+stealCount=5480 N=2100 t=0.0903 s 195.3119 MegaEdges/s
+stealCount=22  (verification 0.0045 s)
+stealCount=5619 N=2100 t=0.0897 s 196.7389 MegaEdges/s
+stealCount=21  (verification 0.0058 s)
+stealCount=5104 N=2100 t=0.0904 s 195.2036 MegaEdges/s
+stealCount=22  (verification 0.0048 s)
+stealCount=5459 N=2100 t=0.0895 s 197.0057 MegaEdges/s
+stealCount=21  (verification 0.0043 s)
+stealCount=5555 N=2100 t=0.0891 s 198.0494 MegaEdges/s
+stealCount=21  (verification 0.0087 s)
+stealCount=4741 N=2100 t=0.0885 s 199.2766 MegaEdges/s
+stealCount=21  (verification 0.0079 s)
+stealCount=5993 N=2100 t=0.0904 s 195.1632 MegaEdges/s
+stealCount=21  (verification 0.0117 s)
+stealCount=5295 N=2100 t=0.0892 s 197.7899 MegaEdges/s
+stealCount=20  (verification 0.0118 s)
+Completed iterations for N=2100
+
+### nproc: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:5.1127 s
+stealCount=4082 N=2100 t=0.1379 s 127.8764 MegaEdges/s
+stealCount=28  (verification 0.1976 s)
+stealCount=5440 N=2100 t=0.0888 s 198.5631 MegaEdges/s
+stealCount=27  (verification 0.0569 s)
+stealCount=6567 N=2100 t=0.0836 s 211.1300 MegaEdges/s
+stealCount=27  (verification 0.0083 s)
+stealCount=5831 N=2100 t=0.0840 s 209.9287 MegaEdges/s
+stealCount=26  (verification 0.0053 s)
+stealCount=5120 N=2100 t=0.0788 s 223.9560 MegaEdges/s
+stealCount=25  (verification 0.0027 s)
+stealCount=6397 N=2100 t=0.0781 s 225.8162 MegaEdges/s
+stealCount=26  (verification 0.0085 s)
+stealCount=6788 N=2100 t=0.0791 s 223.1485 MegaEdges/s
+stealCount=26  (verification 0.0066 s)
+stealCount=6031 N=2100 t=0.0803 s 219.6462 MegaEdges/s
+stealCount=27  (verification 0.0023 s)
+stealCount=6836 N=2100 t=0.0810 s 217.7435 MegaEdges/s
+stealCount=27  (verification 0.0039 s)
+stealCount=5485 N=2100 t=0.0787 s 224.1282 MegaEdges/s
+stealCount=27  (verification 0.0089 s)
+stealCount=6364 N=2100 t=0.0808 s 218.3778 MegaEdges/s
+stealCount=28  (verification 0.0023 s)
+stealCount=5548 N=2100 t=0.0779 s 226.3318 MegaEdges/s
+stealCount=26  (verification 0.0045 s)
+stealCount=6147 N=2100 t=0.0790 s 223.1946 MegaEdges/s
+stealCount=25  (verification 0.0049 s)
+stealCount=6369 N=2100 t=0.0795 s 221.9716 MegaEdges/s
+stealCount=27  (verification 0.0046 s)
+stealCount=5620 N=2100 t=0.0774 s 227.9495 MegaEdges/s
+stealCount=24  (verification 0.0056 s)
+stealCount=5792 N=2100 t=0.0796 s 221.7110 MegaEdges/s
+stealCount=25  (verification 0.0053 s)
+stealCount=6366 N=2100 t=0.0780 s 226.2455 MegaEdges/s
+stealCount=25  (verification 0.0013 s)
+stealCount=5602 N=2100 t=0.0773 s 228.2688 MegaEdges/s
+stealCount=26  (verification 0.0053 s)
+stealCount=6139 N=2100 t=0.0783 s 225.3826 MegaEdges/s
+stealCount=27  (verification 0.0140 s)
+stealCount=6793 N=2100 t=0.0798 s 221.1452 MegaEdges/s
+stealCount=27  (verification 0.0061 s)
+Completed iterations for N=2100
+
+#<<<< BEGIN BATCHING >>>>
+
+#### bsize: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 1
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=1
+Generating graph...
+Graph generated.
+Creation time:5.1152 s
+stealCount=206648 N=2100 t=1.3824 s 12.7601 MegaEdges/s
+stealCount=28  (verification 0.0093 s)
+stealCount=335346 N=2100 t=1.3004 s 13.5655 MegaEdges/s
+stealCount=28  (verification 0.0580 s)
+stealCount=282258 N=2100 t=1.0625 s 16.6031 MegaEdges/s
+stealCount=28  (verification 0.0045 s)
+stealCount=308882 N=2100 t=0.6935 s 25.4377 MegaEdges/s
+stealCount=27  (verification 0.0048 s)
+stealCount=316361 N=2100 t=0.6229 s 28.3178 MegaEdges/s
+stealCount=27  (verification 0.0045 s)
+stealCount=234705 N=2100 t=0.7086 s 24.8929 MegaEdges/s
+stealCount=27  (verification 0.0050 s)
+stealCount=335468 N=2100 t=1.1285 s 15.6318 MegaEdges/s
+stealCount=28  (verification 0.0058 s)
+stealCount=280211 N=2100 t=0.7811 s 22.5833 MegaEdges/s
+stealCount=27  (verification 0.0048 s)
+stealCount=388641 N=2100 t=1.0420 s 16.9288 MegaEdges/s
+stealCount=27  (verification 0.0054 s)
+stealCount=262696 N=2100 t=1.1050 s 15.9632 MegaEdges/s
+stealCount=27  (verification 0.0062 s)
+stealCount=275077 N=2100 t=0.9108 s 19.3671 MegaEdges/s
+stealCount=27  (verification 0.0051 s)
+stealCount=255106 N=2100 t=0.6156 s 28.6560 MegaEdges/s
+stealCount=27  (verification 0.0039 s)
+stealCount=307961 N=2100 t=0.6645 s 26.5454 MegaEdges/s
+stealCount=27  (verification 0.0041 s)
+stealCount=327988 N=2100 t=0.8334 s 21.1674 MegaEdges/s
+stealCount=27  (verification 0.0040 s)
+stealCount=273493 N=2100 t=1.1065 s 15.9417 MegaEdges/s
+stealCount=27  (verification 0.0044 s)
+stealCount=234852 N=2100 t=1.0717 s 16.4603 MegaEdges/s
+stealCount=27  (verification 0.0044 s)
+stealCount=227393 N=2100 t=0.7692 s 22.9342 MegaEdges/s
+stealCount=27  (verification 0.0047 s)
+stealCount=337005 N=2100 t=1.1788 s 14.9643 MegaEdges/s
+stealCount=26  (verification 0.0043 s)
+stealCount=200565 N=2100 t=0.4592 s 38.4130 MegaEdges/s
+stealCount=27  (verification 0.0047 s)
+stealCount=231248 N=2100 t=0.7683 s 22.9601 MegaEdges/s
+stealCount=26  (verification 0.0065 s)
+Completed iterations for N=2100
+
+#### bsize: 10
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 10
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=10
+Generating graph...
+Graph generated.
+Creation time:5.1006 s
+stealCount=11045 N=2100 t=0.2317 s 76.1433 MegaEdges/s
+stealCount=28  (verification 0.2561 s)
+stealCount=24658 N=2100 t=0.0997 s 176.8557 MegaEdges/s
+stealCount=28  (verification 0.1042 s)
+stealCount=25099 N=2100 t=0.1133 s 155.6494 MegaEdges/s
+stealCount=26  (verification 0.0105 s)
+stealCount=23370 N=2100 t=0.0916 s 192.4821 MegaEdges/s
+stealCount=27  (verification 0.0130 s)
+stealCount=21962 N=2100 t=0.0997 s 176.9396 MegaEdges/s
+stealCount=27  (verification 0.0256 s)
+stealCount=25958 N=2100 t=0.1047 s 168.4181 MegaEdges/s
+stealCount=27  (verification 0.0145 s)
+stealCount=21546 N=2100 t=0.0996 s 177.1222 MegaEdges/s
+stealCount=27  (verification 0.0118 s)
+stealCount=29134 N=2100 t=0.0939 s 187.9360 MegaEdges/s
+stealCount=26  (verification 0.0144 s)
+stealCount=21678 N=2100 t=0.1031 s 171.1334 MegaEdges/s
+stealCount=27  (verification 0.0089 s)
+stealCount=20969 N=2100 t=0.0957 s 184.3335 MegaEdges/s
+stealCount=27  (verification 0.0164 s)
+stealCount=25164 N=2100 t=0.0987 s 178.7558 MegaEdges/s
+stealCount=27  (verification 0.0135 s)
+stealCount=22441 N=2100 t=0.1072 s 164.5347 MegaEdges/s
+stealCount=27  (verification 0.0118 s)
+stealCount=22087 N=2100 t=0.0972 s 181.5173 MegaEdges/s
+stealCount=27  (verification 0.0120 s)
+stealCount=19784 N=2100 t=0.0948 s 186.1634 MegaEdges/s
+stealCount=26  (verification 0.0236 s)
+stealCount=19386 N=2100 t=0.0933 s 189.0027 MegaEdges/s
+stealCount=27  (verification 0.0153 s)
+stealCount=20730 N=2100 t=0.0979 s 180.1027 MegaEdges/s
+stealCount=27  (verification 0.0209 s)
+stealCount=21687 N=2100 t=0.1088 s 162.0743 MegaEdges/s
+stealCount=26  (verification 0.0159 s)
+stealCount=21828 N=2100 t=0.0951 s 185.5572 MegaEdges/s
+stealCount=27  (verification 0.0084 s)
+stealCount=24025 N=2100 t=0.1118 s 157.8371 MegaEdges/s
+stealCount=27  (verification 0.0081 s)
+stealCount=23600 N=2100 t=0.1013 s 174.2112 MegaEdges/s
+stealCount=26  (verification 0.0159 s)
+Completed iterations for N=2100
+
+#### bsize: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 20
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=20
+Generating graph...
+Graph generated.
+Creation time:5.1372 s
+stealCount=6528 N=2100 t=0.1864 s 94.6108 MegaEdges/s
+stealCount=28  (verification 0.0939 s)
+stealCount=9429 N=2100 t=0.0832 s 211.9338 MegaEdges/s
+stealCount=28  (verification 0.0845 s)
+stealCount=9098 N=2100 t=0.0806 s 218.9261 MegaEdges/s
+stealCount=28  (verification 0.0134 s)
+stealCount=8419 N=2100 t=0.0777 s 226.9687 MegaEdges/s
+stealCount=27  (verification 0.0103 s)
+stealCount=9264 N=2100 t=0.0808 s 218.2756 MegaEdges/s
+Worker(19,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@a6aeed,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(24,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@a6aeed,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=28  (verification 0.0050 s)
+stealCount=9341 N=2100 t=0.0858 s 205.4780 MegaEdges/s
+stealCount=28  (verification 0.0106 s)
+stealCount=8273 N=2100 t=0.0816 s 216.2246 MegaEdges/s
+stealCount=27  (verification 0.0074 s)
+stealCount=8891 N=2100 t=0.0786 s 224.5558 MegaEdges/s
+stealCount=25  (verification 0.0063 s)
+stealCount=7571 N=2100 t=0.0807 s 218.5108 MegaEdges/s
+stealCount=27  (verification 0.0061 s)
+stealCount=9517 N=2100 t=0.0782 s 225.7063 MegaEdges/s
+stealCount=27  (verification 0.0122 s)
+stealCount=8369 N=2100 t=0.0784 s 224.9627 MegaEdges/s
+stealCount=27  (verification 0.0041 s)
+stealCount=8430 N=2100 t=0.0783 s 225.2703 MegaEdges/s
+stealCount=26  (verification 0.0070 s)
+stealCount=7600 N=2100 t=0.0781 s 225.9800 MegaEdges/s
+stealCount=27  (verification 0.0067 s)
+stealCount=9159 N=2100 t=0.0785 s 224.8080 MegaEdges/s
+stealCount=27  (verification 0.0039 s)
+stealCount=7790 N=2100 t=0.0774 s 227.7802 MegaEdges/s
+stealCount=28  (verification 0.0046 s)
+stealCount=8799 N=2100 t=0.0793 s 222.3331 MegaEdges/s
+stealCount=27  (verification 0.0074 s)
+stealCount=8801 N=2100 t=0.0779 s 226.5892 MegaEdges/s
+stealCount=27  (verification 0.0064 s)
+stealCount=7430 N=2100 t=0.0788 s 223.8463 MegaEdges/s
+stealCount=27  (verification 0.0052 s)
+stealCount=8292 N=2100 t=0.0808 s 218.3024 MegaEdges/s
+stealCount=28  (verification 0.0021 s)
+stealCount=7859 N=2100 t=0.0799 s 220.7812 MegaEdges/s
+stealCount=26  (verification 0.0083 s)
+Completed iterations for N=2100
+
+#### bsize: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 30
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=30
+Generating graph...
+Graph generated.
+Creation time:5.1097 s
+stealCount=3257 N=2100 t=0.1329 s 132.7750 MegaEdges/s
+stealCount=28  (verification 0.0674 s)
+stealCount=4413 N=2100 t=0.0888 s 198.7499 MegaEdges/s
+stealCount=28  (verification 0.0701 s)
+stealCount=4759 N=2100 t=0.0792 s 222.7661 MegaEdges/s
+stealCount=28  (verification 0.0021 s)
+stealCount=3539 N=2100 t=0.0777 s 226.8877 MegaEdges/s
+stealCount=28  (verification 0.0038 s)
+stealCount=4133 N=2100 t=0.0759 s 232.5617 MegaEdges/s
+stealCount=28  (verification 0.0048 s)
+stealCount=4546 N=2100 t=0.0777 s 226.9390 MegaEdges/s
+stealCount=26  (verification 0.0050 s)
+stealCount=4183 N=2100 t=0.0778 s 226.6600 MegaEdges/s
+stealCount=27  (verification 0.0085 s)
+stealCount=4228 N=2100 t=0.0765 s 230.7192 MegaEdges/s
+stealCount=27  (verification 0.0062 s)
+stealCount=4225 N=2100 t=0.0760 s 232.0560 MegaEdges/s
+stealCount=28  (verification 0.0030 s)
+stealCount=4088 N=2100 t=0.0771 s 228.9415 MegaEdges/s
+stealCount=27  (verification 0.0066 s)
+stealCount=4409 N=2100 t=0.0766 s 230.1394 MegaEdges/s
+stealCount=27  (verification 0.0075 s)
+stealCount=4570 N=2100 t=0.0768 s 229.5491 MegaEdges/s
+stealCount=26  (verification 0.0075 s)
+stealCount=3838 N=2100 t=0.0772 s 228.6311 MegaEdges/s
+stealCount=27  (verification 0.0056 s)
+stealCount=4055 N=2100 t=0.0786 s 224.4358 MegaEdges/s
+stealCount=26  (verification 0.0062 s)
+stealCount=4213 N=2100 t=0.0774 s 228.0230 MegaEdges/s
+stealCount=27  (verification 0.0040 s)
+stealCount=4184 N=2100 t=0.0763 s 231.2632 MegaEdges/s
+stealCount=27  (verification 0.0053 s)
+stealCount=3416 N=2100 t=0.0756 s 233.2097 MegaEdges/s
+stealCount=28  (verification 0.0028 s)
+stealCount=4414 N=2100 t=0.0772 s 228.6377 MegaEdges/s
+stealCount=27  (verification 0.0094 s)
+stealCount=3913 N=2100 t=0.0773 s 228.1315 MegaEdges/s
+stealCount=28  (verification 0.0082 s)
+stealCount=4542 N=2100 t=0.0768 s 229.6405 MegaEdges/s
+stealCount=27  (verification 0.0082 s)
+Completed iterations for N=2100
+
+#### bsize: 40
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 40
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=40
+Generating graph...
+Graph generated.
+Creation time:5.0889 s
+stealCount=2330 N=2100 t=0.1345 s 131.1282 MegaEdges/s
+stealCount=28  (verification 0.0904 s)
+stealCount=2422 N=2100 t=0.0805 s 219.0675 MegaEdges/s
+stealCount=28  (verification 0.0655 s)
+stealCount=2678 N=2100 t=0.0778 s 226.6419 MegaEdges/s
+stealCount=27  (verification 0.0094 s)
+stealCount=2683 N=2100 t=0.0793 s 222.5365 MegaEdges/s
+stealCount=26  (verification 0.0142 s)
+stealCount=2451 N=2100 t=0.0762 s 231.5703 MegaEdges/s
+stealCount=25  (verification 0.0083 s)
+stealCount=2371 N=2100 t=0.0751 s 235.0170 MegaEdges/s
+stealCount=27  (verification 0.0098 s)
+stealCount=2689 N=2100 t=0.0748 s 235.7048 MegaEdges/s
+stealCount=27  (verification 0.0080 s)
+stealCount=2385 N=2100 t=0.0748 s 235.8349 MegaEdges/s
+stealCount=25  (verification 0.0132 s)
+stealCount=2740 N=2100 t=0.0749 s 235.5552 MegaEdges/s
+stealCount=25  (verification 0.0148 s)
+stealCount=2431 N=2100 t=0.0744 s 236.9535 MegaEdges/s
+stealCount=25  (verification 0.0175 s)
+stealCount=2528 N=2100 t=0.0754 s 233.8703 MegaEdges/s
+stealCount=25  (verification 0.0135 s)
+stealCount=2716 N=2100 t=0.0746 s 236.3960 MegaEdges/s
+stealCount=26  (verification 0.0094 s)
+stealCount=2725 N=2100 t=0.0749 s 235.6083 MegaEdges/s
+stealCount=27  (verification 0.0163 s)
+stealCount=2373 N=2100 t=0.0765 s 230.4924 MegaEdges/s
+stealCount=27  (verification 0.0151 s)
+stealCount=2560 N=2100 t=0.0746 s 236.4326 MegaEdges/s
+stealCount=26  (verification 0.0133 s)
+stealCount=2396 N=2100 t=0.0748 s 235.6999 MegaEdges/s
+stealCount=27  (verification 0.0101 s)
+stealCount=2228 N=2100 t=0.0748 s 235.9664 MegaEdges/s
+stealCount=27  (verification 0.0095 s)
+stealCount=2601 N=2100 t=0.0756 s 233.2863 MegaEdges/s
+stealCount=27  (verification 0.0109 s)
+stealCount=2512 N=2100 t=0.0747 s 236.2247 MegaEdges/s
+stealCount=27  (verification 0.0109 s)
+stealCount=2493 N=2100 t=0.0748 s 235.7535 MegaEdges/s
+stealCount=25  (verification 0.0248 s)
+Completed iterations for N=2100
+
+#### bsize: 50
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 50
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=50
+Generating graph...
+Graph generated.
+Creation time:5.0976 s
+stealCount=2099 N=2100 t=0.2828 s 62.3788 MegaEdges/s
+stealCount=28  (verification 0.0294 s)
+stealCount=1546 N=2100 t=0.0778 s 226.7525 MegaEdges/s
+stealCount=28  (verification 0.0325 s)
+stealCount=1983 N=2100 t=0.0814 s 216.6614 MegaEdges/s
+stealCount=28  (verification 0.0479 s)
+stealCount=1946 N=2100 t=0.0792 s 222.8138 MegaEdges/s
+stealCount=26  (verification 0.0086 s)
+stealCount=1619 N=2100 t=0.0823 s 214.4664 MegaEdges/s
+stealCount=26  (verification 0.0071 s)
+stealCount=1844 N=2100 t=0.0806 s 218.8239 MegaEdges/s
+stealCount=27  (verification 0.0107 s)
+stealCount=1958 N=2100 t=0.0748 s 235.7215 MegaEdges/s
+stealCount=27  (verification 0.0070 s)
+stealCount=2308 N=2100 t=0.0754 s 233.8195 MegaEdges/s
+stealCount=20  (verification 0.0042 s)
+stealCount=1789 N=2100 t=0.0773 s 228.2335 MegaEdges/s
+stealCount=27  (verification 0.0054 s)
+stealCount=2180 N=2100 t=0.0762 s 231.4925 MegaEdges/s
+stealCount=25  (verification 0.0062 s)
+stealCount=1947 N=2100 t=0.0780 s 226.2527 MegaEdges/s
+stealCount=23  (verification 0.0015 s)
+stealCount=1613 N=2100 t=0.0754 s 234.0577 MegaEdges/s
+stealCount=26  (verification 0.0013 s)
+stealCount=1557 N=2100 t=0.0770 s 229.0310 MegaEdges/s
+stealCount=26  (verification 0.0056 s)
+stealCount=1700 N=2100 t=0.0813 s 216.8979 MegaEdges/s
+stealCount=25  (verification 0.0060 s)
+stealCount=2177 N=2100 t=0.0777 s 226.9031 MegaEdges/s
+stealCount=26  (verification 0.0030 s)
+stealCount=1736 N=2100 t=0.0804 s 219.5289 MegaEdges/s
+stealCount=26  (verification 0.0108 s)
+stealCount=1901 N=2100 t=0.0778 s 226.7753 MegaEdges/s
+stealCount=27  (verification 0.0041 s)
+stealCount=2155 N=2100 t=0.0792 s 222.7518 MegaEdges/s
+stealCount=26  (verification 0.0051 s)
+stealCount=2122 N=2100 t=0.0757 s 232.9050 MegaEdges/s
+stealCount=26  (verification 0.0021 s)
+stealCount=1875 N=2100 t=0.0775 s 227.6729 MegaEdges/s
+stealCount=27  (verification 0.0033 s)
+Completed iterations for N=2100
+
+#### bsize: 60
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 60
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=60
+Generating graph...
+Graph generated.
+Creation time:5.1300 s
+stealCount=1147 N=2100 t=0.1238 s 142.4373 MegaEdges/s
+stealCount=28  (verification 0.1101 s)
+stealCount=1255 N=2100 t=0.0779 s 226.3056 MegaEdges/s
+stealCount=28  (verification 0.0823 s)
+stealCount=1053 N=2100 t=0.0771 s 228.6931 MegaEdges/s
+stealCount=26  (verification 0.0057 s)
+stealCount=1200 N=2100 t=0.0773 s 228.2974 MegaEdges/s
+stealCount=27  (verification 0.0162 s)
+stealCount=1367 N=2100 t=0.0751 s 235.0171 MegaEdges/s
+stealCount=27  (verification 0.0057 s)
+stealCount=1746 N=2100 t=0.0769 s 229.3267 MegaEdges/s
+stealCount=27  (verification 0.0064 s)
+stealCount=1249 N=2100 t=0.0770 s 229.0728 MegaEdges/s
+stealCount=26  (verification 0.0107 s)
+stealCount=1342 N=2100 t=0.0775 s 227.6399 MegaEdges/s
+stealCount=26  (verification 0.0080 s)
+stealCount=1419 N=2100 t=0.0777 s 226.9339 MegaEdges/s
+stealCount=27  (verification 0.0081 s)
+stealCount=1283 N=2100 t=0.0778 s 226.7021 MegaEdges/s
+stealCount=26  (verification 0.0210 s)
+stealCount=1579 N=2100 t=0.0792 s 222.6899 MegaEdges/s
+stealCount=27  (verification 0.0060 s)
+stealCount=1529 N=2100 t=0.0767 s 230.1341 MegaEdges/s
+stealCount=27  (verification 0.0035 s)
+stealCount=1524 N=2100 t=0.0798 s 221.1385 MegaEdges/s
+stealCount=27  (verification 0.0077 s)
+stealCount=1543 N=2100 t=0.0757 s 233.0577 MegaEdges/s
+stealCount=27  (verification 0.0115 s)
+stealCount=1600 N=2100 t=0.0769 s 229.5169 MegaEdges/s
+stealCount=28  (verification 0.0108 s)
+stealCount=1272 N=2100 t=0.0757 s 233.0539 MegaEdges/s
+stealCount=26  (verification 0.0095 s)
+stealCount=1496 N=2100 t=0.0789 s 223.5589 MegaEdges/s
+stealCount=27  (verification 0.0099 s)
+stealCount=1291 N=2100 t=0.0772 s 228.4548 MegaEdges/s
+stealCount=26  (verification 0.0111 s)
+stealCount=1784 N=2100 t=0.0799 s 220.9111 MegaEdges/s
+stealCount=27  (verification 0.0078 s)
+stealCount=1551 N=2100 t=0.0794 s 222.0696 MegaEdges/s
+stealCount=27  (verification 0.0115 s)
+Completed iterations for N=2100
+
+#### bsize: 70
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 70
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=70
+Generating graph...
+Graph generated.
+Creation time:5.0944 s
+stealCount=833 N=2100 t=0.1286 s 137.1998 MegaEdges/s
+stealCount=28  (verification 0.0988 s)
+stealCount=747 N=2100 t=0.0772 s 228.3777 MegaEdges/s
+stealCount=28  (verification 0.0500 s)
+stealCount=987 N=2100 t=0.0790 s 223.2906 MegaEdges/s
+stealCount=27  (verification 0.0102 s)
+stealCount=907 N=2100 t=0.0788 s 223.9139 MegaEdges/s
+stealCount=27  (verification 0.0091 s)
+stealCount=856 N=2100 t=0.0779 s 226.5893 MegaEdges/s
+stealCount=27  (verification 0.0086 s)
+stealCount=1023 N=2100 t=0.0795 s 221.7979 MegaEdges/s
+stealCount=28  (verification 0.0135 s)
+stealCount=992 N=2100 t=0.0758 s 232.7553 MegaEdges/s
+stealCount=26  (verification 0.0092 s)
+stealCount=863 N=2100 t=0.0789 s 223.4418 MegaEdges/s
+stealCount=27  (verification 0.0107 s)
+stealCount=801 N=2100 t=0.0777 s 227.1626 MegaEdges/s
+stealCount=26  (verification 0.0122 s)
+stealCount=845 N=2100 t=0.0788 s 223.7704 MegaEdges/s
+stealCount=26  (verification 0.0095 s)
+stealCount=1008 N=2100 t=0.0808 s 218.3409 MegaEdges/s
+stealCount=27  (verification 0.0188 s)
+stealCount=920 N=2100 t=0.0822 s 214.6473 MegaEdges/s
+stealCount=27  (verification 0.0121 s)
+stealCount=936 N=2100 t=0.0811 s 217.3774 MegaEdges/s
+stealCount=26  (verification 0.0101 s)
+stealCount=1002 N=2100 t=0.0800 s 220.5254 MegaEdges/s
+stealCount=26  (verification 0.0113 s)
+stealCount=880 N=2100 t=0.0791 s 223.1451 MegaEdges/s
+stealCount=27  (verification 0.0095 s)
+stealCount=854 N=2100 t=0.0805 s 219.0571 MegaEdges/s
+stealCount=27  (verification 0.0066 s)
+stealCount=973 N=2100 t=0.0812 s 217.1338 MegaEdges/s
+stealCount=26  (verification 0.0074 s)
+stealCount=957 N=2100 t=0.0798 s 220.9221 MegaEdges/s
+stealCount=26  (verification 0.0069 s)
+stealCount=1074 N=2100 t=0.0788 s 223.7521 MegaEdges/s
+stealCount=27  (verification 0.0093 s)
+stealCount=850 N=2100 t=0.0812 s 217.3526 MegaEdges/s
+stealCount=26  (verification 0.0085 s)
+Completed iterations for N=2100
+
+#### bsize: 80
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 80
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=80
+Generating graph...
+Graph generated.
+Creation time:5.1136 s
+stealCount=765 N=2100 t=0.2550 s 69.1900 MegaEdges/s
+stealCount=28  (verification 0.0211 s)
+stealCount=956 N=2100 t=0.0834 s 211.5557 MegaEdges/s
+stealCount=28  (verification 0.0621 s)
+stealCount=878 N=2100 t=0.0819 s 215.5060 MegaEdges/s
+stealCount=25  (verification 0.0061 s)
+stealCount=737 N=2100 t=0.0822 s 214.5734 MegaEdges/s
+stealCount=27  (verification 0.0077 s)
+stealCount=766 N=2100 t=0.0819 s 215.3821 MegaEdges/s
+stealCount=24  (verification 0.0083 s)
+stealCount=821 N=2100 t=0.0818 s 215.7180 MegaEdges/s
+stealCount=25  (verification 0.0062 s)
+stealCount=821 N=2100 t=0.0820 s 215.0698 MegaEdges/s
+stealCount=25  (verification 0.0022 s)
+stealCount=777 N=2100 t=0.0806 s 218.9339 MegaEdges/s
+stealCount=21  (verification 0.0040 s)
+stealCount=539 N=2100 t=0.0809 s 218.1129 MegaEdges/s
+stealCount=24  (verification 0.0030 s)
+stealCount=747 N=2100 t=0.0823 s 214.3193 MegaEdges/s
+stealCount=27  (verification 0.0088 s)
+stealCount=789 N=2100 t=0.0818 s 215.7427 MegaEdges/s
+stealCount=27  (verification 0.0063 s)
+stealCount=652 N=2100 t=0.0842 s 209.3985 MegaEdges/s
+stealCount=26  (verification 0.0056 s)
+stealCount=697 N=2100 t=0.0830 s 212.6451 MegaEdges/s
+stealCount=26  (verification 0.0066 s)
+stealCount=720 N=2100 t=0.0797 s 221.3571 MegaEdges/s
+stealCount=24  (verification 0.0045 s)
+stealCount=784 N=2100 t=0.0796 s 221.5909 MegaEdges/s
+stealCount=28  (verification 0.0071 s)
+stealCount=767 N=2100 t=0.0816 s 216.0741 MegaEdges/s
+stealCount=28  (verification 0.0115 s)
+stealCount=757 N=2100 t=0.0808 s 218.3780 MegaEdges/s
+stealCount=26  (verification 0.0013 s)
+stealCount=605 N=2100 t=0.0809 s 218.0819 MegaEdges/s
+stealCount=26  (verification 0.0162 s)
+stealCount=740 N=2100 t=0.0827 s 213.1828 MegaEdges/s
+stealCount=23  (verification 0.0025 s)
+stealCount=840 N=2100 t=0.0813 s 217.0561 MegaEdges/s
+stealCount=22  (verification 0.0039 s)
+Completed iterations for N=2100
+
+#### bsize: 90
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 90
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=90
+Generating graph...
+Graph generated.
+Creation time:5.1007 s
+stealCount=615 N=2100 t=0.1310 s 134.6734 MegaEdges/s
+stealCount=28  (verification 0.0748 s)
+stealCount=566 N=2100 t=0.0816 s 216.1965 MegaEdges/s
+stealCount=28  (verification 0.0775 s)
+stealCount=732 N=2100 t=0.0789 s 223.6982 MegaEdges/s
+stealCount=26  (verification 0.0076 s)
+stealCount=487 N=2100 t=0.0816 s 216.0818 MegaEdges/s
+stealCount=27  (verification 0.0117 s)
+stealCount=525 N=2100 t=0.0806 s 218.7435 MegaEdges/s
+stealCount=22  (verification 0.0035 s)
+stealCount=581 N=2100 t=0.0817 s 216.0060 MegaEdges/s
+stealCount=26  (verification 0.0084 s)
+stealCount=562 N=2100 t=0.0783 s 225.3931 MegaEdges/s
+stealCount=25  (verification 0.0066 s)
+stealCount=562 N=2100 t=0.0786 s 224.4319 MegaEdges/s
+stealCount=25  (verification 0.0032 s)
+stealCount=665 N=2100 t=0.0789 s 223.5041 MegaEdges/s
+stealCount=27  (verification 0.0047 s)
+stealCount=610 N=2100 t=0.0787 s 224.2388 MegaEdges/s
+stealCount=26  (verification 0.0091 s)
+stealCount=721 N=2100 t=0.0798 s 220.9169 MegaEdges/s
+stealCount=26  (verification 0.0062 s)
+stealCount=667 N=2100 t=0.0783 s 225.3661 MegaEdges/s
+stealCount=26  (verification 0.0095 s)
+stealCount=470 N=2100 t=0.0786 s 224.2864 MegaEdges/s
+stealCount=26  (verification 0.0032 s)
+stealCount=679 N=2100 t=0.0797 s 221.4449 MegaEdges/s
+stealCount=25  (verification 0.0047 s)
+stealCount=582 N=2100 t=0.0789 s 223.6524 MegaEdges/s
+stealCount=26  (verification 0.0081 s)
+stealCount=561 N=2100 t=0.0794 s 222.2190 MegaEdges/s
+stealCount=28  (verification 0.0072 s)
+stealCount=612 N=2100 t=0.0813 s 217.0175 MegaEdges/s
+stealCount=26  (verification 0.0096 s)
+stealCount=752 N=2100 t=0.0823 s 214.4148 MegaEdges/s
+stealCount=26  (verification 0.0057 s)
+stealCount=718 N=2100 t=0.0809 s 218.0381 MegaEdges/s
+stealCount=26  (verification 0.0055 s)
+stealCount=556 N=2100 t=0.0793 s 222.3125 MegaEdges/s
+stealCount=27  (verification 0.0068 s)
+Completed iterations for N=2100
+
+#### bsize: 100
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 100
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=100
+Generating graph...
+Graph generated.
+Creation time:5.1180 s
+stealCount=425 N=2100 t=0.1378 s 128.0499 MegaEdges/s
+stealCount=28  (verification 0.0975 s)
+stealCount=435 N=2100 t=0.0797 s 221.4590 MegaEdges/s
+stealCount=28  (verification 0.0483 s)
+stealCount=487 N=2100 t=0.0796 s 221.6924 MegaEdges/s
+stealCount=26  (verification 0.0087 s)
+stealCount=468 N=2100 t=0.0788 s 223.9256 MegaEdges/s
+stealCount=26  (verification 0.0062 s)
+stealCount=493 N=2100 t=0.0796 s 221.4788 MegaEdges/s
+stealCount=27  (verification 0.0105 s)
+stealCount=522 N=2100 t=0.0799 s 220.8124 MegaEdges/s
+stealCount=27  (verification 0.0072 s)
+stealCount=387 N=2100 t=0.0794 s 222.0887 MegaEdges/s
+stealCount=27  (verification 0.0120 s)
+stealCount=504 N=2100 t=0.0789 s 223.6592 MegaEdges/s
+stealCount=27  (verification 0.0081 s)
+stealCount=453 N=2100 t=0.0795 s 221.8857 MegaEdges/s
+stealCount=27  (verification 0.0088 s)
+stealCount=507 N=2100 t=0.0791 s 222.9992 MegaEdges/s
+stealCount=27  (verification 0.0118 s)
+stealCount=492 N=2100 t=0.0790 s 223.1953 MegaEdges/s
+stealCount=27  (verification 0.0062 s)
+stealCount=519 N=2100 t=0.0786 s 224.5151 MegaEdges/s
+stealCount=26  (verification 0.0077 s)
+stealCount=465 N=2100 t=0.0783 s 225.3033 MegaEdges/s
+stealCount=27  (verification 0.0065 s)
+stealCount=557 N=2100 t=0.0793 s 222.5527 MegaEdges/s
+stealCount=27  (verification 0.0123 s)
+stealCount=408 N=2100 t=0.0790 s 223.3571 MegaEdges/s
+stealCount=27  (verification 0.0107 s)
+stealCount=543 N=2100 t=0.0789 s 223.4626 MegaEdges/s
+stealCount=27  (verification 0.0079 s)
+stealCount=471 N=2100 t=0.0794 s 222.2356 MegaEdges/s
+stealCount=27  (verification 0.0107 s)
+stealCount=445 N=2100 t=0.0786 s 224.4595 MegaEdges/s
+stealCount=26  (verification 0.0069 s)
+stealCount=550 N=2100 t=0.0809 s 217.9860 MegaEdges/s
+stealCount=27  (verification 0.0104 s)
+stealCount=403 N=2100 t=0.0790 s 223.4083 MegaEdges/s
+stealCount=27  (verification 0.0093 s)
+Completed iterations for N=2100
+
+#<<<< END BATCHING >>>>
+
+### nproc: 32
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 32 T 2100 4 false false true
+Number of procs=32
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:5.2354 s
+stealCount=3748 N=2100 t=0.2135 s 82.6337 MegaEdges/s
+stealCount=30  (verification 0.0761 s)
+stealCount=4933 N=2100 t=0.0834 s 211.4670 MegaEdges/s
+stealCount=30  (verification 0.0741 s)
+stealCount=6366 N=2100 t=0.0814 s 216.6897 MegaEdges/s
+stealCount=28  (verification 0.0066 s)
+stealCount=5711 N=2100 t=0.0744 s 237.1205 MegaEdges/s
+stealCount=29  (verification 0.0053 s)
+stealCount=7041 N=2100 t=0.0760 s 232.1802 MegaEdges/s
+stealCount=28  (verification 0.0056 s)
+stealCount=5798 N=2100 t=0.0733 s 240.6165 MegaEdges/s
+stealCount=30  (verification 0.0060 s)
+stealCount=6366 N=2100 t=0.0736 s 239.5614 MegaEdges/s
+stealCount=29  (verification 0.0068 s)
+stealCount=6460 N=2100 t=0.0749 s 235.4647 MegaEdges/s
+stealCount=29  (verification 0.0074 s)
+stealCount=6003 N=2100 t=0.0751 s 234.8342 MegaEdges/s
+stealCount=29  (verification 0.0048 s)
+stealCount=7386 N=2100 t=0.0746 s 236.3284 MegaEdges/s
+stealCount=29  (verification 0.0117 s)
+stealCount=5762 N=2100 t=0.0751 s 234.7744 MegaEdges/s
+stealCount=27  (verification 0.0060 s)
+stealCount=5532 N=2100 t=0.0731 s 241.2421 MegaEdges/s
+stealCount=29  (verification 0.0077 s)
+stealCount=5635 N=2100 t=0.0734 s 240.4004 MegaEdges/s
+stealCount=29  (verification 0.0036 s)
+stealCount=5668 N=2100 t=0.0738 s 238.9966 MegaEdges/s
+stealCount=28  (verification 0.0061 s)
+stealCount=5644 N=2100 t=0.0743 s 237.2601 MegaEdges/s
+stealCount=29  (verification 0.0068 s)
+stealCount=6708 N=2100 t=0.0750 s 235.1762 MegaEdges/s
+stealCount=28  (verification 0.0068 s)
+stealCount=6206 N=2100 t=0.0734 s 240.3539 MegaEdges/s
+stealCount=29  (verification 0.0038 s)
+stealCount=5527 N=2100 t=0.0733 s 240.7439 MegaEdges/s
+stealCount=29  (verification 0.0077 s)
+stealCount=6409 N=2100 t=0.0734 s 240.4593 MegaEdges/s
+stealCount=29  (verification 0.0045 s)
+stealCount=6536 N=2100 t=0.0740 s 238.2200 MegaEdges/s
+stealCount=28  (verification 0.0060 s)
+Completed iterations for N=2100
+
+## Size: 2700
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 1 T 2700 4 false false true
+Number of procs=1
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:12.3105 s
+stealCount=0 N=2700 t=2.8921 s 10.0826 MegaEdges/s
+stealCount=0  (verification 0.7156 s)
+stealCount=0 N=2700 t=2.7839 s 10.4746 MegaEdges/s
+stealCount=0  (verification 0.6972 s)
+stealCount=0 N=2700 t=2.7842 s 10.4734 MegaEdges/s
+stealCount=0  (verification 0.6721 s)
+stealCount=0 N=2700 t=2.7862 s 10.4658 MegaEdges/s
+stealCount=0  (verification 0.6709 s)
+stealCount=0 N=2700 t=2.7831 s 10.4775 MegaEdges/s
+stealCount=0  (verification 0.6714 s)
+stealCount=0 N=2700 t=2.7896 s 10.4530 MegaEdges/s
+stealCount=0  (verification 0.6682 s)
+stealCount=0 N=2700 t=2.7835 s 10.4760 MegaEdges/s
+stealCount=0  (verification 0.6697 s)
+stealCount=0 N=2700 t=2.7854 s 10.4687 MegaEdges/s
+stealCount=0  (verification 0.6693 s)
+stealCount=0 N=2700 t=2.7812 s 10.4847 MegaEdges/s
+stealCount=0  (verification 0.6668 s)
+stealCount=0 N=2700 t=2.7855 s 10.4684 MegaEdges/s
+stealCount=0  (verification 0.6686 s)
+stealCount=0 N=2700 t=2.7790 s 10.4928 MegaEdges/s
+stealCount=0  (verification 0.6661 s)
+stealCount=0 N=2700 t=2.7781 s 10.4964 MegaEdges/s
+stealCount=0  (verification 0.6657 s)
+stealCount=0 N=2700 t=2.7879 s 10.4596 MegaEdges/s
+stealCount=0  (verification 0.6660 s)
+stealCount=0 N=2700 t=2.7893 s 10.4543 MegaEdges/s
+stealCount=0  (verification 0.6719 s)
+stealCount=0 N=2700 t=2.8003 s 10.4132 MegaEdges/s
+stealCount=0  (verification 0.6697 s)
+stealCount=0 N=2700 t=2.7776 s 10.4985 MegaEdges/s
+stealCount=0  (verification 0.6672 s)
+stealCount=0 N=2700 t=2.7824 s 10.4800 MegaEdges/s
+stealCount=0  (verification 0.6673 s)
+stealCount=0 N=2700 t=2.7911 s 10.4475 MegaEdges/s
+stealCount=0  (verification 0.6704 s)
+stealCount=0 N=2700 t=2.7809 s 10.4856 MegaEdges/s
+stealCount=0  (verification 0.6679 s)
+stealCount=0 N=2700 t=2.7926 s 10.4421 MegaEdges/s
+stealCount=0  (verification 0.6679 s)
+Completed iterations for N=2700
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 2 T 2700 4 false false true
+Number of procs=2
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:12.0833 s
+stealCount=464 N=2700 t=1.4802 s 19.6994 MegaEdges/s
+stealCount=0  (verification 3.3943 s)
+stealCount=65 N=2700 t=1.4121 s 20.6498 MegaEdges/s
+stealCount=0  (verification 0.3574 s)
+stealCount=1418 N=2700 t=1.4374 s 20.2864 MegaEdges/s
+stealCount=1  (verification 0.2716 s)
+stealCount=2296 N=2700 t=1.4701 s 19.8348 MegaEdges/s
+stealCount=1  (verification 0.2718 s)
+stealCount=1097 N=2700 t=1.4369 s 20.2935 MegaEdges/s
+stealCount=1  (verification 0.2713 s)
+stealCount=2208 N=2700 t=1.4347 s 20.3243 MegaEdges/s
+stealCount=0  (verification 0.3577 s)
+stealCount=1271 N=2700 t=1.4219 s 20.5073 MegaEdges/s
+stealCount=0  (verification 0.3550 s)
+stealCount=2169 N=2700 t=1.4276 s 20.4254 MegaEdges/s
+stealCount=0  (verification 0.3561 s)
+stealCount=2134 N=2700 t=1.4142 s 20.6198 MegaEdges/s
+stealCount=0  (verification 0.3559 s)
+stealCount=2011 N=2700 t=1.4137 s 20.6271 MegaEdges/s
+stealCount=0  (verification 0.3549 s)
+stealCount=3474 N=2700 t=1.4114 s 20.6603 MegaEdges/s
+stealCount=0  (verification 0.3556 s)
+stealCount=1527 N=2700 t=1.4045 s 20.7619 MegaEdges/s
+stealCount=1  (verification 0.2698 s)
+stealCount=2344 N=2700 t=1.4031 s 20.7819 MegaEdges/s
+stealCount=0  (verification 0.3554 s)
+stealCount=943 N=2700 t=1.4134 s 20.6313 MegaEdges/s
+stealCount=0  (verification 0.3546 s)
+stealCount=1029 N=2700 t=1.4137 s 20.6262 MegaEdges/s
+stealCount=1  (verification 0.2761 s)
+stealCount=2348 N=2700 t=1.4054 s 20.7481 MegaEdges/s
+stealCount=0  (verification 0.3553 s)
+stealCount=3476 N=2700 t=1.4187 s 20.5545 MegaEdges/s
+stealCount=0  (verification 0.3609 s)
+stealCount=1755 N=2700 t=1.4267 s 20.4390 MegaEdges/s
+stealCount=0  (verification 0.3552 s)
+stealCount=3914 N=2700 t=1.4234 s 20.4855 MegaEdges/s
+stealCount=1  (verification 0.2702 s)
+stealCount=2162 N=2700 t=1.4010 s 20.8138 MegaEdges/s
+stealCount=0  (verification 0.3546 s)
+Completed iterations for N=2700
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 4 T 2700 4 false false true
+Number of procs=4
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:11.7175 s
+stealCount=1965 N=2700 t=0.8269 s 35.2651 MegaEdges/s
+stealCount=2  (verification 0.4745 s)
+stealCount=3969 N=2700 t=0.8140 s 35.8245 MegaEdges/s
+stealCount=2  (verification 0.2502 s)
+stealCount=2925 N=2700 t=0.7422 s 39.2860 MegaEdges/s
+stealCount=2  (verification 0.1324 s)
+stealCount=4341 N=2700 t=0.7478 s 38.9948 MegaEdges/s
+stealCount=2  (verification 0.2721 s)
+stealCount=4575 N=2700 t=0.7457 s 39.1060 MegaEdges/s
+stealCount=2  (verification 0.2952 s)
+stealCount=3628 N=2700 t=0.7366 s 39.5892 MegaEdges/s
+stealCount=2  (verification 0.0479 s)
+stealCount=707 N=2700 t=0.7466 s 39.0577 MegaEdges/s
+stealCount=2  (verification 0.3161 s)
+stealCount=2840 N=2700 t=0.7342 s 39.7185 MegaEdges/s
+stealCount=2  (verification 0.1352 s)
+stealCount=4071 N=2700 t=0.7341 s 39.7227 MegaEdges/s
+stealCount=2  (verification 0.2895 s)
+stealCount=4467 N=2700 t=0.7311 s 39.8841 MegaEdges/s
+stealCount=2  (verification 0.2895 s)
+stealCount=2351 N=2700 t=0.7307 s 39.9086 MegaEdges/s
+stealCount=2  (verification 0.2711 s)
+stealCount=3250 N=2700 t=0.7259 s 40.1724 MegaEdges/s
+stealCount=2  (verification 0.0684 s)
+stealCount=5665 N=2700 t=0.7430 s 39.2483 MegaEdges/s
+stealCount=2  (verification 0.2149 s)
+stealCount=4743 N=2700 t=0.7334 s 39.7587 MegaEdges/s
+stealCount=2  (verification 0.2905 s)
+stealCount=4782 N=2700 t=0.7362 s 39.6073 MegaEdges/s
+stealCount=2  (verification 0.2871 s)
+stealCount=4399 N=2700 t=0.7351 s 39.6671 MegaEdges/s
+stealCount=2  (verification 0.1443 s)
+stealCount=3886 N=2700 t=0.7257 s 40.1834 MegaEdges/s
+stealCount=2  (verification 0.0319 s)
+stealCount=2927 N=2700 t=0.7412 s 39.3403 MegaEdges/s
+stealCount=2  (verification 0.3425 s)
+stealCount=2658 N=2700 t=0.7429 s 39.2495 MegaEdges/s
+stealCount=2  (verification 0.0868 s)
+stealCount=2535 N=2700 t=0.7262 s 40.1561 MegaEdges/s
+stealCount=2  (verification 0.0674 s)
+Completed iterations for N=2700
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 8 T 2700 4 false false true
+Number of procs=8
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:11.4985 s
+stealCount=1915 N=2700 t=0.4548 s 64.1210 MegaEdges/s
+stealCount=6  (verification 0.1387 s)
+stealCount=2155 N=2700 t=0.4248 s 68.6488 MegaEdges/s
+stealCount=6  (verification 0.1318 s)
+stealCount=6973 N=2700 t=0.3945 s 73.9255 MegaEdges/s
+stealCount=6  (verification 0.0595 s)
+stealCount=5128 N=2700 t=0.3868 s 75.3836 MegaEdges/s
+stealCount=6  (verification 0.0328 s)
+stealCount=2652 N=2700 t=0.3864 s 75.4564 MegaEdges/s
+stealCount=6  (verification 0.0406 s)
+stealCount=6528 N=2700 t=0.3828 s 76.1743 MegaEdges/s
+stealCount=6  (verification 0.0665 s)
+stealCount=8261 N=2700 t=0.3792 s 76.8995 MegaEdges/s
+stealCount=6  (verification 0.0133 s)
+stealCount=4156 N=2700 t=0.3812 s 76.4957 MegaEdges/s
+stealCount=6  (verification 0.0182 s)
+stealCount=5315 N=2700 t=0.3814 s 76.4616 MegaEdges/s
+stealCount=6  (verification 0.0576 s)
+stealCount=3445 N=2700 t=0.3857 s 75.6022 MegaEdges/s
+stealCount=6  (verification 0.0384 s)
+stealCount=6598 N=2700 t=0.3795 s 76.8314 MegaEdges/s
+stealCount=6  (verification 0.0402 s)
+stealCount=5720 N=2700 t=0.3771 s 77.3257 MegaEdges/s
+stealCount=5  (verification 0.0074 s)
+stealCount=4874 N=2700 t=0.3799 s 76.7580 MegaEdges/s
+stealCount=6  (verification 0.0208 s)
+stealCount=6321 N=2700 t=0.3812 s 76.4966 MegaEdges/s
+stealCount=6  (verification 0.1232 s)
+stealCount=3631 N=2700 t=0.3836 s 76.0131 MegaEdges/s
+stealCount=6  (verification 0.0443 s)
+stealCount=6893 N=2700 t=0.3880 s 75.1625 MegaEdges/s
+stealCount=6  (verification 0.0366 s)
+stealCount=3995 N=2700 t=0.3939 s 74.0243 MegaEdges/s
+stealCount=6  (verification 0.0354 s)
+stealCount=5753 N=2700 t=0.3917 s 74.4352 MegaEdges/s
+stealCount=6  (verification 0.0600 s)
+stealCount=7731 N=2700 t=0.3821 s 76.3141 MegaEdges/s
+stealCount=6  (verification 0.1492 s)
+stealCount=7391 N=2700 t=0.3873 s 75.2922 MegaEdges/s
+stealCount=6  (verification 0.0437 s)
+Completed iterations for N=2700
+
+### nproc: 16
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 16 T 2700 4 false false true
+Number of procs=16
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:30.1472 s
+stealCount=6379 N=2700 t=0.3305 s 88.2321 MegaEdges/s
+stealCount=14  (verification 0.1299 s)
+stealCount=6148 N=2700 t=0.2158 s 135.1141 MegaEdges/s
+stealCount=14  (verification 0.0982 s)
+stealCount=7436 N=2700 t=0.2162 s 134.9044 MegaEdges/s
+stealCount=14  (verification 0.0356 s)
+stealCount=5338 N=2700 t=0.2095 s 139.1912 MegaEdges/s
+stealCount=13  (verification 0.0189 s)
+stealCount=7112 N=2700 t=0.2090 s 139.5065 MegaEdges/s
+stealCount=14  (verification 0.0404 s)
+stealCount=7012 N=2700 t=0.2134 s 136.6704 MegaEdges/s
+stealCount=14  (verification 0.0211 s)
+stealCount=6919 N=2700 t=0.2111 s 138.1550 MegaEdges/s
+stealCount=14  (verification 0.0049 s)
+stealCount=6836 N=2700 t=0.2152 s 135.4905 MegaEdges/s
+stealCount=14  (verification 0.0119 s)
+stealCount=9092 N=2700 t=0.2128 s 137.0462 MegaEdges/s
+stealCount=14  (verification 0.0088 s)
+stealCount=8377 N=2700 t=0.2140 s 136.2469 MegaEdges/s
+stealCount=14  (verification 0.0269 s)
+stealCount=4974 N=2700 t=0.2129 s 136.9645 MegaEdges/s
+stealCount=14  (verification 0.0174 s)
+stealCount=6065 N=2700 t=0.2106 s 138.4553 MegaEdges/s
+stealCount=14  (verification 0.0208 s)
+stealCount=7720 N=2700 t=0.2141 s 136.1794 MegaEdges/s
+stealCount=14  (verification 0.0351 s)
+stealCount=6716 N=2700 t=0.2137 s 136.4226 MegaEdges/s
+stealCount=14  (verification 0.0213 s)
+stealCount=6459 N=2700 t=0.2100 s 138.8325 MegaEdges/s
+stealCount=14  (verification 0.0279 s)
+stealCount=7351 N=2700 t=0.2099 s 138.9379 MegaEdges/s
+stealCount=14  (verification 0.0173 s)
+stealCount=8380 N=2700 t=0.2181 s 133.7244 MegaEdges/s
+stealCount=14  (verification 0.0080 s)
+stealCount=8028 N=2700 t=0.2102 s 138.7216 MegaEdges/s
+stealCount=14  (verification 0.0132 s)
+stealCount=10548 N=2700 t=0.2218 s 131.4928 MegaEdges/s
+stealCount=14  (verification 0.0407 s)
+stealCount=7606 N=2700 t=0.2083 s 139.9594 MegaEdges/s
+stealCount=14  (verification 0.0268 s)
+Completed iterations for N=2700
+
+### nproc: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 20 T 2700 4 false false true
+Number of procs=20
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:32.2700 s
+stealCount=5405 N=2700 t=0.2642 s 110.3549 MegaEdges/s
+stealCount=18  (verification 0.1560 s)
+stealCount=5725 N=2700 t=0.1772 s 164.5363 MegaEdges/s
+stealCount=18  (verification 0.0646 s)
+stealCount=7621 N=2700 t=0.1822 s 160.0664 MegaEdges/s
+stealCount=17  (verification 0.0180 s)
+stealCount=8018 N=2700 t=0.1761 s 165.5861 MegaEdges/s
+stealCount=18  (verification 0.0103 s)
+stealCount=8197 N=2700 t=0.1729 s 168.6754 MegaEdges/s
+stealCount=17  (verification 0.0200 s)
+stealCount=9372 N=2700 t=0.1777 s 164.1254 MegaEdges/s
+stealCount=18  (verification 0.0154 s)
+stealCount=7154 N=2700 t=0.1763 s 165.4271 MegaEdges/s
+stealCount=18  (verification 0.0075 s)
+stealCount=9342 N=2700 t=0.1843 s 158.2302 MegaEdges/s
+stealCount=17  (verification 0.0276 s)
+stealCount=7587 N=2700 t=0.1749 s 166.7627 MegaEdges/s
+stealCount=18  (verification 0.0166 s)
+stealCount=8179 N=2700 t=0.1784 s 163.4361 MegaEdges/s
+stealCount=18  (verification 0.0222 s)
+stealCount=7410 N=2700 t=0.1715 s 170.0632 MegaEdges/s
+stealCount=18  (verification 0.0090 s)
+stealCount=8561 N=2700 t=0.1764 s 165.2940 MegaEdges/s
+stealCount=18  (verification 0.0079 s)
+stealCount=7371 N=2700 t=0.1728 s 168.7307 MegaEdges/s
+stealCount=17  (verification 0.0085 s)
+stealCount=8618 N=2700 t=0.1782 s 163.6573 MegaEdges/s
+stealCount=17  (verification 0.0128 s)
+stealCount=8614 N=2700 t=0.1742 s 167.3658 MegaEdges/s
+stealCount=18  (verification 0.0123 s)
+stealCount=7775 N=2700 t=0.1762 s 165.5376 MegaEdges/s
+stealCount=18  (verification 0.0165 s)
+stealCount=7758 N=2700 t=0.1724 s 169.1459 MegaEdges/s
+stealCount=18  (verification 0.0157 s)
+stealCount=8929 N=2700 t=0.1740 s 167.5845 MegaEdges/s
+stealCount=18  (verification 0.0238 s)
+stealCount=7690 N=2700 t=0.1752 s 166.4313 MegaEdges/s
+stealCount=18  (verification 0.0211 s)
+stealCount=5823 N=2700 t=0.1737 s 167.8405 MegaEdges/s
+stealCount=18  (verification 0.0219 s)
+Completed iterations for N=2700
+
+### nproc: 24
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 24 T 2700 4 false false true
+Number of procs=24
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:30.6389 s
+stealCount=5092 N=2700 t=0.2353 s 123.9388 MegaEdges/s
+stealCount=22  (verification 0.2188 s)
+stealCount=9300 N=2700 t=0.1619 s 180.0730 MegaEdges/s
+stealCount=22  (verification 0.0880 s)
+stealCount=9563 N=2700 t=0.1606 s 181.5461 MegaEdges/s
+stealCount=22  (verification 0.0189 s)
+stealCount=9499 N=2700 t=0.1608 s 181.3629 MegaEdges/s
+stealCount=21  (verification 0.0246 s)
+stealCount=9132 N=2700 t=0.1585 s 183.9490 MegaEdges/s
+stealCount=21  (verification 0.0091 s)
+stealCount=8387 N=2700 t=0.1606 s 181.5166 MegaEdges/s
+stealCount=21  (verification 0.0141 s)
+stealCount=9495 N=2700 t=0.1578 s 184.7845 MegaEdges/s
+stealCount=22  (verification 0.0179 s)
+stealCount=8744 N=2700 t=0.1580 s 184.5991 MegaEdges/s
+stealCount=22  (verification 0.0188 s)
+stealCount=9622 N=2700 t=0.1568 s 185.9238 MegaEdges/s
+stealCount=22  (verification 0.0321 s)
+stealCount=7396 N=2700 t=0.1572 s 185.5546 MegaEdges/s
+stealCount=22  (verification 0.0151 s)
+stealCount=8217 N=2700 t=0.1561 s 186.7507 MegaEdges/s
+stealCount=22  (verification 0.0184 s)
+stealCount=8153 N=2700 t=0.1562 s 186.7048 MegaEdges/s
+stealCount=22  (verification 0.0116 s)
+stealCount=8320 N=2700 t=0.1538 s 189.6322 MegaEdges/s
+stealCount=22  (verification 0.0114 s)
+stealCount=8112 N=2700 t=0.1577 s 184.8719 MegaEdges/s
+stealCount=21  (verification 0.0014 s)
+stealCount=7426 N=2700 t=0.1579 s 184.7003 MegaEdges/s
+stealCount=21  (verification 0.0075 s)
+stealCount=9789 N=2700 t=0.1591 s 183.3108 MegaEdges/s
+stealCount=22  (verification 0.0102 s)
+stealCount=7381 N=2700 t=0.1545 s 188.6827 MegaEdges/s
+stealCount=22  (verification 0.0162 s)
+stealCount=8458 N=2700 t=0.1570 s 185.7365 MegaEdges/s
+stealCount=22  (verification 0.0142 s)
+stealCount=9879 N=2700 t=0.1576 s 185.0249 MegaEdges/s
+stealCount=22  (verification 0.0112 s)
+stealCount=9727 N=2700 t=0.1588 s 183.6227 MegaEdges/s
+stealCount=22  (verification 0.0134 s)
+Completed iterations for N=2700
+
+### nproc: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:32.2699 s
+stealCount=6038 N=2700 t=0.2175 s 134.0694 MegaEdges/s
+stealCount=28  (verification 0.1100 s)
+stealCount=7789 N=2700 t=0.1355 s 215.1937 MegaEdges/s
+stealCount=28  (verification 0.1119 s)
+stealCount=10124 N=2700 t=0.1336 s 218.2689 MegaEdges/s
+stealCount=23  (verification 0.0078 s)
+stealCount=9639 N=2700 t=0.1302 s 224.0083 MegaEdges/s
+stealCount=27  (verification 0.0142 s)
+stealCount=9738 N=2700 t=0.1273 s 229.0738 MegaEdges/s
+stealCount=27  (verification 0.0065 s)
+stealCount=9284 N=2700 t=0.1272 s 229.2294 MegaEdges/s
+stealCount=24  (verification 0.0057 s)
+stealCount=9552 N=2700 t=0.1310 s 222.5164 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=9182 N=2700 t=0.1307 s 223.1652 MegaEdges/s
+stealCount=27  (verification 0.0097 s)
+stealCount=9806 N=2700 t=0.1301 s 224.1325 MegaEdges/s
+stealCount=27  (verification 0.0079 s)
+stealCount=10380 N=2700 t=0.1279 s 227.9791 MegaEdges/s
+stealCount=27  (verification 0.0137 s)
+stealCount=8110 N=2700 t=0.1286 s 226.7596 MegaEdges/s
+stealCount=27  (verification 0.0079 s)
+stealCount=9985 N=2700 t=0.1280 s 227.7725 MegaEdges/s
+stealCount=27  (verification 0.0190 s)
+stealCount=8436 N=2700 t=0.1263 s 230.8093 MegaEdges/s
+stealCount=27  (verification 0.0188 s)
+stealCount=9326 N=2700 t=0.1310 s 222.5706 MegaEdges/s
+stealCount=27  (verification 0.0194 s)
+stealCount=7700 N=2700 t=0.1270 s 229.5636 MegaEdges/s
+stealCount=27  (verification 0.0054 s)
+stealCount=11681 N=2700 t=0.1345 s 216.7715 MegaEdges/s
+stealCount=27  (verification 0.0134 s)
+stealCount=9973 N=2700 t=0.1290 s 226.1154 MegaEdges/s
+stealCount=27  (verification 0.0158 s)
+stealCount=8687 N=2700 t=0.1302 s 223.9677 MegaEdges/s
+stealCount=27  (verification 0.0126 s)
+stealCount=8629 N=2700 t=0.1307 s 223.0640 MegaEdges/s
+stealCount=27  (verification 0.0150 s)
+stealCount=7725 N=2700 t=0.1263 s 230.9638 MegaEdges/s
+stealCount=28  (verification 0.0042 s)
+Completed iterations for N=2700
+
+#<<<< BEGIN BATCHING >>>>
+
+#### bsize: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 1
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=1
+Generating graph...
+Graph generated.
+Creation time:32.5075 s
+stealCount=365101 N=2700 t=2.1315 s 13.6808 MegaEdges/s
+stealCount=28  (verification 0.0604 s)
+stealCount=810526 N=2700 t=2.1473 s 13.5798 MegaEdges/s
+stealCount=27  (verification 0.0090 s)
+stealCount=504476 N=2700 t=1.4539 s 20.0568 MegaEdges/s
+stealCount=27  (verification 0.0083 s)
+stealCount=333032 N=2700 t=0.8752 s 33.3167 MegaEdges/s
+stealCount=28  (verification 0.0079 s)
+stealCount=338213 N=2700 t=0.7380 s 39.5096 MegaEdges/s
+stealCount=27  (verification 0.0081 s)
+stealCount=419791 N=2700 t=1.1271 s 25.8709 MegaEdges/s
+stealCount=28  (verification 0.0081 s)
+stealCount=374280 N=2700 t=1.1007 s 26.4915 MegaEdges/s
+stealCount=27  (verification 0.0083 s)
+stealCount=387537 N=2700 t=1.3339 s 21.8614 MegaEdges/s
+stealCount=27  (verification 0.0078 s)
+stealCount=557201 N=2700 t=1.4317 s 20.3676 MegaEdges/s
+stealCount=28  (verification 0.0085 s)
+stealCount=362721 N=2700 t=1.3727 s 21.2421 MegaEdges/s
+stealCount=27  (verification 0.0100 s)
+stealCount=425020 N=2700 t=1.0760 s 27.1012 MegaEdges/s
+stealCount=27  (verification 0.0073 s)
+stealCount=491431 N=2700 t=1.4233 s 20.4869 MegaEdges/s
+stealCount=28  (verification 0.0075 s)
+stealCount=533125 N=2700 t=1.3970 s 20.8731 MegaEdges/s
+stealCount=28  (verification 0.0077 s)
+stealCount=599539 N=2700 t=1.0351 s 28.1717 MegaEdges/s
+stealCount=28  (verification 0.0072 s)
+stealCount=368350 N=2700 t=1.1705 s 24.9116 MegaEdges/s
+stealCount=28  (verification 0.0081 s)
+stealCount=405792 N=2700 t=1.6359 s 17.8249 MegaEdges/s
+stealCount=27  (verification 0.0084 s)
+stealCount=592365 N=2700 t=1.2275 s 23.7558 MegaEdges/s
+stealCount=28  (verification 0.0085 s)
+stealCount=490821 N=2700 t=1.2505 s 23.3195 MegaEdges/s
+stealCount=28  (verification 0.0081 s)
+stealCount=276989 N=2700 t=1.0483 s 27.8160 MegaEdges/s
+stealCount=27  (verification 0.0087 s)
+stealCount=475860 N=2700 t=1.0369 s 28.1212 MegaEdges/s
+stealCount=28  (verification 0.0100 s)
+Completed iterations for N=2700
+
+#### bsize: 10
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 10
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=10
+Generating graph...
+Graph generated.
+Creation time:32.3683 s
+stealCount=19851 N=2700 t=0.3871 s 75.3326 MegaEdges/s
+stealCount=28  (verification 0.1853 s)
+stealCount=40390 N=2700 t=0.1712 s 170.3029 MegaEdges/s
+stealCount=28  (verification 0.0738 s)
+stealCount=37456 N=2700 t=0.1738 s 167.7801 MegaEdges/s
+stealCount=28  (verification 0.0221 s)
+stealCount=33909 N=2700 t=0.1692 s 172.3078 MegaEdges/s
+stealCount=27  (verification 0.0260 s)
+stealCount=24496 N=2700 t=0.1600 s 182.2233 MegaEdges/s
+stealCount=27  (verification 0.0173 s)
+stealCount=34715 N=2700 t=0.1640 s 177.8074 MegaEdges/s
+stealCount=27  (verification 0.0198 s)
+stealCount=31496 N=2700 t=0.1558 s 187.1662 MegaEdges/s
+stealCount=27  (verification 0.0325 s)
+stealCount=42711 N=2700 t=0.1763 s 165.4149 MegaEdges/s
+stealCount=27  (verification 0.0383 s)
+stealCount=38583 N=2700 t=0.1748 s 166.8289 MegaEdges/s
+stealCount=27  (verification 0.0319 s)
+stealCount=35832 N=2700 t=0.1583 s 184.1977 MegaEdges/s
+stealCount=27  (verification 0.0238 s)
+stealCount=35839 N=2700 t=0.2010 s 145.0924 MegaEdges/s
+stealCount=27  (verification 0.0856 s)
+stealCount=38523 N=2700 t=0.1609 s 181.2681 MegaEdges/s
+stealCount=27  (verification 0.0299 s)
+stealCount=33060 N=2700 t=0.1530 s 190.6206 MegaEdges/s
+stealCount=27  (verification 0.0438 s)
+stealCount=28426 N=2700 t=0.1504 s 193.8484 MegaEdges/s
+stealCount=27  (verification 0.0587 s)
+stealCount=35671 N=2700 t=0.1579 s 184.6792 MegaEdges/s
+stealCount=27  (verification 0.0241 s)
+stealCount=38010 N=2700 t=0.1698 s 171.7436 MegaEdges/s
+stealCount=27  (verification 0.0505 s)
+stealCount=39788 N=2700 t=0.1813 s 160.8788 MegaEdges/s
+stealCount=27  (verification 0.0611 s)
+stealCount=36314 N=2700 t=0.1699 s 171.6406 MegaEdges/s
+stealCount=24  (verification 0.0705 s)
+stealCount=36469 N=2700 t=0.1717 s 169.8629 MegaEdges/s
+stealCount=27  (verification 0.0390 s)
+stealCount=34765 N=2700 t=0.1578 s 184.8216 MegaEdges/s
+stealCount=27  (verification 0.0236 s)
+Completed iterations for N=2700
+
+#### bsize: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 20
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=20
+Generating graph...
+Graph generated.
+Creation time:32.5168 s
+stealCount=11245 N=2700 t=0.3275 s 89.0404 MegaEdges/s
+stealCount=28  (verification 0.0820 s)
+stealCount=14253 N=2700 t=0.1366 s 213.4206 MegaEdges/s
+stealCount=28  (verification 0.1153 s)
+stealCount=11981 N=2700 t=0.1340 s 217.6552 MegaEdges/s
+stealCount=27  (verification 0.0119 s)
+stealCount=12299 N=2700 t=0.1342 s 217.3050 MegaEdges/s
+stealCount=27  (verification 0.0116 s)
+stealCount=12317 N=2700 t=0.1324 s 220.2581 MegaEdges/s
+stealCount=28  (verification 0.0098 s)
+stealCount=13224 N=2700 t=0.1368 s 213.2030 MegaEdges/s
+stealCount=28  (verification 0.0128 s)
+stealCount=12657 N=2700 t=0.1339 s 217.7796 MegaEdges/s
+stealCount=27  (verification 0.0135 s)
+stealCount=13523 N=2700 t=0.1311 s 222.3836 MegaEdges/s
+stealCount=28  (verification 0.0054 s)
+stealCount=12219 N=2700 t=0.1311 s 222.4859 MegaEdges/s
+stealCount=26  (verification 0.0090 s)
+stealCount=12212 N=2700 t=0.1319 s 221.0412 MegaEdges/s
+stealCount=27  (verification 0.0135 s)
+stealCount=12630 N=2700 t=0.1335 s 218.3955 MegaEdges/s
+stealCount=27  (verification 0.0106 s)
+stealCount=14367 N=2700 t=0.1310 s 222.5770 MegaEdges/s
+stealCount=28  (verification 0.0071 s)
+stealCount=12993 N=2700 t=0.1359 s 214.5592 MegaEdges/s
+stealCount=28  (verification 0.0048 s)
+stealCount=14651 N=2700 t=0.1375 s 212.0527 MegaEdges/s
+stealCount=28  (verification 0.0087 s)
+stealCount=14082 N=2700 t=0.1318 s 221.2592 MegaEdges/s
+stealCount=27  (verification 0.0109 s)
+stealCount=13316 N=2700 t=0.1313 s 222.0610 MegaEdges/s
+stealCount=27  (verification 0.0109 s)
+stealCount=10411 N=2700 t=0.1323 s 220.3787 MegaEdges/s
+stealCount=27  (verification 0.0100 s)
+stealCount=12883 N=2700 t=0.1321 s 220.7540 MegaEdges/s
+stealCount=27  (verification 0.0090 s)
+stealCount=11816 N=2700 t=0.1316 s 221.6224 MegaEdges/s
+stealCount=27  (verification 0.0143 s)
+stealCount=13944 N=2700 t=0.1355 s 215.1888 MegaEdges/s
+stealCount=27  (verification 0.0097 s)
+Completed iterations for N=2700
+
+#### bsize: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 30
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=30
+Generating graph...
+Graph generated.
+Creation time:32.2930 s
+stealCount=5290 N=2700 t=0.2045 s 142.5935 MegaEdges/s
+stealCount=28  (verification 0.1369 s)
+stealCount=5774 N=2700 t=0.1319 s 221.1184 MegaEdges/s
+stealCount=28  (verification 0.1029 s)
+stealCount=5646 N=2700 t=0.1294 s 225.4015 MegaEdges/s
+stealCount=26  (verification 0.0091 s)
+stealCount=6853 N=2700 t=0.1322 s 220.5676 MegaEdges/s
+stealCount=26  (verification 0.0111 s)
+stealCount=7168 N=2700 t=0.1285 s 227.0054 MegaEdges/s
+stealCount=27  (verification 0.0133 s)
+stealCount=6560 N=2700 t=0.1264 s 230.6508 MegaEdges/s
+stealCount=27  (verification 0.0059 s)
+stealCount=6564 N=2700 t=0.1276 s 228.5843 MegaEdges/s
+stealCount=26  (verification 0.0141 s)
+stealCount=5946 N=2700 t=0.1258 s 231.7437 MegaEdges/s
+stealCount=28  (verification 0.0075 s)
+stealCount=6549 N=2700 t=0.1286 s 226.7620 MegaEdges/s
+stealCount=28  (verification 0.0044 s)
+stealCount=7441 N=2700 t=0.1267 s 230.1007 MegaEdges/s
+stealCount=26  (verification 0.0241 s)
+stealCount=6639 N=2700 t=0.1273 s 229.0327 MegaEdges/s
+stealCount=26  (verification 0.0066 s)
+stealCount=7562 N=2700 t=0.1263 s 230.8819 MegaEdges/s
+stealCount=28  (verification 0.0187 s)
+stealCount=7462 N=2700 t=0.1267 s 230.2116 MegaEdges/s
+stealCount=27  (verification 0.0103 s)
+stealCount=6088 N=2700 t=0.1265 s 230.4957 MegaEdges/s
+stealCount=27  (verification 0.0110 s)
+stealCount=5607 N=2700 t=0.1252 s 232.9128 MegaEdges/s
+stealCount=27  (verification 0.0083 s)
+stealCount=6683 N=2700 t=0.1267 s 230.0973 MegaEdges/s
+stealCount=27  (verification 0.0132 s)
+stealCount=7271 N=2700 t=0.1264 s 230.6273 MegaEdges/s
+stealCount=27  (verification 0.0092 s)
+stealCount=5582 N=2700 t=0.1254 s 232.6032 MegaEdges/s
+stealCount=27  (verification 0.0091 s)
+stealCount=6483 N=2700 t=0.1256 s 232.1819 MegaEdges/s
+stealCount=27  (verification 0.0100 s)
+stealCount=6399 N=2700 t=0.1262 s 231.0682 MegaEdges/s
+stealCount=27  (verification 0.0106 s)
+Completed iterations for N=2700
+
+#### bsize: 40
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 40
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=40
+Generating graph...
+Graph generated.
+Creation time:32.4522 s
+stealCount=3137 N=2700 t=0.1922 s 151.7141 MegaEdges/s
+stealCount=28  (verification 0.0753 s)
+stealCount=3962 N=2700 t=0.1332 s 218.8476 MegaEdges/s
+stealCount=28  (verification 0.0639 s)
+stealCount=2953 N=2700 t=0.1261 s 231.3330 MegaEdges/s
+stealCount=27  (verification 0.0253 s)
+stealCount=3555 N=2700 t=0.1242 s 234.8731 MegaEdges/s
+stealCount=27  (verification 0.0324 s)
+stealCount=4140 N=2700 t=0.1255 s 232.2708 MegaEdges/s
+stealCount=26  (verification 0.0435 s)
+stealCount=4304 N=2700 t=0.1273 s 229.1223 MegaEdges/s
+stealCount=26  (verification 0.0292 s)
+stealCount=3891 N=2700 t=0.1233 s 236.4296 MegaEdges/s
+stealCount=26  (verification 0.0428 s)
+stealCount=4073 N=2700 t=0.1268 s 229.9628 MegaEdges/s
+stealCount=26  (verification 0.0265 s)
+stealCount=4877 N=2700 t=0.1252 s 232.8338 MegaEdges/s
+stealCount=27  (verification 0.0329 s)
+stealCount=4644 N=2700 t=0.1247 s 233.9211 MegaEdges/s
+stealCount=27  (verification 0.0327 s)
+stealCount=4054 N=2700 t=0.1237 s 235.8150 MegaEdges/s
+stealCount=27  (verification 0.0142 s)
+stealCount=4100 N=2700 t=0.1262 s 231.1048 MegaEdges/s
+stealCount=26  (verification 0.0472 s)
+stealCount=4511 N=2700 t=0.1271 s 229.4792 MegaEdges/s
+stealCount=27  (verification 0.0352 s)
+stealCount=3332 N=2700 t=0.1250 s 233.2567 MegaEdges/s
+stealCount=27  (verification 0.0110 s)
+stealCount=3984 N=2700 t=0.1253 s 232.6999 MegaEdges/s
+stealCount=27  (verification 0.0259 s)
+stealCount=3954 N=2700 t=0.1240 s 235.1546 MegaEdges/s
+stealCount=27  (verification 0.0230 s)
+stealCount=4327 N=2700 t=0.1235 s 236.1363 MegaEdges/s
+stealCount=27  (verification 0.0170 s)
+stealCount=3964 N=2700 t=0.1261 s 231.3258 MegaEdges/s
+stealCount=27  (verification 0.0344 s)
+stealCount=4252 N=2700 t=0.1249 s 233.4150 MegaEdges/s
+stealCount=27  (verification 0.0447 s)
+stealCount=3309 N=2700 t=0.1239 s 235.4236 MegaEdges/s
+stealCount=28  (verification 0.0265 s)
+Completed iterations for N=2700
+
+#### bsize: 50
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 50
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=50
+Generating graph...
+Graph generated.
+Creation time:32.2751 s
+stealCount=2987 N=2700 t=0.1799 s 162.0865 MegaEdges/s
+stealCount=28  (verification 0.0956 s)
+stealCount=2706 N=2700 t=0.1283 s 227.3178 MegaEdges/s
+stealCount=28  (verification 0.0179 s)
+stealCount=2622 N=2700 t=0.1261 s 231.2577 MegaEdges/s
+stealCount=26  (verification 0.0124 s)
+stealCount=2920 N=2700 t=0.1296 s 225.0792 MegaEdges/s
+stealCount=27  (verification 0.0244 s)
+stealCount=2942 N=2700 t=0.1294 s 225.3731 MegaEdges/s
+stealCount=23  (verification 0.0052 s)
+stealCount=2897 N=2700 t=0.1261 s 231.1669 MegaEdges/s
+stealCount=24  (verification 0.0057 s)
+stealCount=2934 N=2700 t=0.1273 s 229.0383 MegaEdges/s
+stealCount=25  (verification 0.0025 s)
+stealCount=3257 N=2700 t=0.1272 s 229.3093 MegaEdges/s
+stealCount=27  (verification 0.0198 s)
+stealCount=2925 N=2700 t=0.1259 s 231.6611 MegaEdges/s
+stealCount=26  (verification 0.0057 s)
+stealCount=2690 N=2700 t=0.1290 s 226.0817 MegaEdges/s
+stealCount=27  (verification 0.0122 s)
+stealCount=2375 N=2700 t=0.1310 s 222.5916 MegaEdges/s
+stealCount=26  (verification 0.0090 s)
+stealCount=2934 N=2700 t=0.1296 s 224.9935 MegaEdges/s
+stealCount=27  (verification 0.0094 s)
+stealCount=3197 N=2700 t=0.1273 s 229.0339 MegaEdges/s
+stealCount=25  (verification 0.0024 s)
+stealCount=3258 N=2700 t=0.1297 s 224.8229 MegaEdges/s
+stealCount=27  (verification 0.0196 s)
+stealCount=2958 N=2700 t=0.1272 s 229.2474 MegaEdges/s
+stealCount=27  (verification 0.0028 s)
+stealCount=2816 N=2700 t=0.1297 s 224.9093 MegaEdges/s
+stealCount=27  (verification 0.0077 s)
+stealCount=3499 N=2700 t=0.1330 s 219.2586 MegaEdges/s
+stealCount=27  (verification 0.0015 s)
+stealCount=2978 N=2700 t=0.1314 s 221.8644 MegaEdges/s
+stealCount=26  (verification 0.0126 s)
+stealCount=2815 N=2700 t=0.1309 s 222.7197 MegaEdges/s
+stealCount=27  (verification 0.0267 s)
+stealCount=2724 N=2700 t=0.1290 s 226.1226 MegaEdges/s
+stealCount=26  (verification 0.0030 s)
+Completed iterations for N=2700
+
+#### bsize: 60
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 60
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=60
+Generating graph...
+Graph generated.
+Creation time:32.3291 s
+stealCount=1750 N=2700 t=0.1768 s 164.9486 MegaEdges/s
+stealCount=28  (verification 0.0986 s)
+stealCount=1858 N=2700 t=0.1318 s 221.3130 MegaEdges/s
+stealCount=28  (verification 0.0566 s)
+stealCount=2146 N=2700 t=0.1294 s 225.3341 MegaEdges/s
+stealCount=27  (verification 0.0123 s)
+stealCount=2028 N=2700 t=0.1297 s 224.8441 MegaEdges/s
+stealCount=27  (verification 0.0131 s)
+stealCount=2009 N=2700 t=0.1253 s 232.6963 MegaEdges/s
+stealCount=27  (verification 0.0123 s)
+stealCount=2150 N=2700 t=0.1286 s 226.8285 MegaEdges/s
+stealCount=26  (verification 0.0217 s)
+stealCount=1901 N=2700 t=0.1245 s 234.1398 MegaEdges/s
+stealCount=27  (verification 0.0144 s)
+stealCount=2065 N=2700 t=0.1265 s 230.4658 MegaEdges/s
+stealCount=28  (verification 0.0143 s)
+stealCount=1920 N=2700 t=0.1222 s 238.5958 MegaEdges/s
+stealCount=26  (verification 0.0127 s)
+stealCount=2235 N=2700 t=0.1239 s 235.3434 MegaEdges/s
+stealCount=27  (verification 0.0082 s)
+stealCount=2058 N=2700 t=0.1256 s 232.0828 MegaEdges/s
+stealCount=27  (verification 0.0122 s)
+stealCount=1905 N=2700 t=0.1248 s 233.6237 MegaEdges/s
+stealCount=27  (verification 0.0144 s)
+stealCount=2201 N=2700 t=0.1247 s 233.7977 MegaEdges/s
+stealCount=27  (verification 0.0172 s)
+stealCount=2019 N=2700 t=0.1248 s 233.5773 MegaEdges/s
+stealCount=27  (verification 0.0087 s)
+stealCount=2095 N=2700 t=0.1252 s 232.9019 MegaEdges/s
+stealCount=27  (verification 0.0156 s)
+stealCount=1984 N=2700 t=0.1265 s 230.4360 MegaEdges/s
+stealCount=27  (verification 0.0170 s)
+stealCount=2077 N=2700 t=0.1259 s 231.5790 MegaEdges/s
+stealCount=28  (verification 0.0330 s)
+stealCount=2500 N=2700 t=0.1237 s 235.7374 MegaEdges/s
+stealCount=27  (verification 0.0115 s)
+stealCount=2035 N=2700 t=0.1242 s 234.7882 MegaEdges/s
+stealCount=27  (verification 0.0212 s)
+stealCount=2078 N=2700 t=0.1247 s 233.8965 MegaEdges/s
+stealCount=21  (verification 0.0144 s)
+Completed iterations for N=2700
+
+#### bsize: 70
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 70
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=70
+Generating graph...
+Graph generated.
+Creation time:32.6577 s
+stealCount=1362 N=2700 t=0.1735 s 168.0815 MegaEdges/s
+stealCount=28  (verification 0.1195 s)
+stealCount=1270 N=2700 t=0.1281 s 227.6714 MegaEdges/s
+stealCount=28  (verification 0.0514 s)
+stealCount=1252 N=2700 t=0.1227 s 237.6727 MegaEdges/s
+stealCount=26  (verification 0.0135 s)
+stealCount=1680 N=2700 t=0.1229 s 237.2212 MegaEdges/s
+stealCount=27  (verification 0.0208 s)
+stealCount=1540 N=2700 t=0.1232 s 236.6172 MegaEdges/s
+stealCount=27  (verification 0.0285 s)
+stealCount=1599 N=2700 t=0.1247 s 233.8550 MegaEdges/s
+stealCount=27  (verification 0.0249 s)
+stealCount=1209 N=2700 t=0.1219 s 239.1771 MegaEdges/s
+stealCount=27  (verification 0.0103 s)
+stealCount=1634 N=2700 t=0.1250 s 233.2408 MegaEdges/s
+stealCount=27  (verification 0.0154 s)
+stealCount=1262 N=2700 t=0.1224 s 238.1562 MegaEdges/s
+stealCount=28  (verification 0.0206 s)
+stealCount=1692 N=2700 t=0.1220 s 239.0287 MegaEdges/s
+stealCount=26  (verification 0.0217 s)
+stealCount=1571 N=2700 t=0.1220 s 239.1076 MegaEdges/s
+stealCount=27  (verification 0.0283 s)
+stealCount=1440 N=2700 t=0.1253 s 232.8124 MegaEdges/s
+stealCount=27  (verification 0.0130 s)
+stealCount=1640 N=2700 t=0.1247 s 233.7779 MegaEdges/s
+stealCount=27  (verification 0.0165 s)
+stealCount=1535 N=2700 t=0.1212 s 240.6750 MegaEdges/s
+stealCount=27  (verification 0.0393 s)
+stealCount=1397 N=2700 t=0.1240 s 235.0699 MegaEdges/s
+stealCount=27  (verification 0.0135 s)
+stealCount=1382 N=2700 t=0.1265 s 230.4687 MegaEdges/s
+stealCount=28  (verification 0.0203 s)
+stealCount=1464 N=2700 t=0.1260 s 231.4540 MegaEdges/s
+stealCount=27  (verification 0.0221 s)
+stealCount=1712 N=2700 t=0.1262 s 231.0002 MegaEdges/s
+stealCount=23  (verification 0.0222 s)
+stealCount=1441 N=2700 t=0.1254 s 232.5830 MegaEdges/s
+stealCount=27  (verification 0.0158 s)
+stealCount=1872 N=2700 t=0.1246 s 233.9489 MegaEdges/s
+stealCount=27  (verification 0.0189 s)
+Completed iterations for N=2700
+
+#### bsize: 80
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 80
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=80
+Generating graph...
+Graph generated.
+Creation time:32.7591 s
+stealCount=1186 N=2700 t=0.1739 s 167.6539 MegaEdges/s
+stealCount=28  (verification 0.1038 s)
+stealCount=1076 N=2700 t=0.1266 s 230.3364 MegaEdges/s
+stealCount=28  (verification 0.0398 s)
+stealCount=1410 N=2700 t=0.1312 s 222.2980 MegaEdges/s
+stealCount=25  (verification 0.0054 s)
+stealCount=1023 N=2700 t=0.1262 s 231.1123 MegaEdges/s
+stealCount=27  (verification 0.0036 s)
+stealCount=1140 N=2700 t=0.1254 s 232.4884 MegaEdges/s
+stealCount=27  (verification 0.0157 s)
+stealCount=1352 N=2700 t=0.1281 s 227.7162 MegaEdges/s
+stealCount=28  (verification 0.0205 s)
+stealCount=1204 N=2700 t=0.1264 s 230.7152 MegaEdges/s
+stealCount=27  (verification 0.0193 s)
+stealCount=1274 N=2700 t=0.1262 s 231.0205 MegaEdges/s
+stealCount=27  (verification 0.0245 s)
+stealCount=1340 N=2700 t=0.1281 s 227.6339 MegaEdges/s
+stealCount=24  (verification 0.0156 s)
+stealCount=1287 N=2700 t=0.1273 s 229.0289 MegaEdges/s
+stealCount=27  (verification 0.0192 s)
+stealCount=1376 N=2700 t=0.1261 s 231.2155 MegaEdges/s
+stealCount=26  (verification 0.0150 s)
+stealCount=1224 N=2700 t=0.1242 s 234.7416 MegaEdges/s
+stealCount=27  (verification 0.0071 s)
+stealCount=1378 N=2700 t=0.1253 s 232.7719 MegaEdges/s
+stealCount=27  (verification 0.0215 s)
+stealCount=1104 N=2700 t=0.1250 s 233.2884 MegaEdges/s
+stealCount=27  (verification 0.0026 s)
+stealCount=1223 N=2700 t=0.1268 s 230.0016 MegaEdges/s
+stealCount=27  (verification 0.0153 s)
+stealCount=1444 N=2700 t=0.1270 s 229.6132 MegaEdges/s
+stealCount=27  (verification 0.0173 s)
+stealCount=1234 N=2700 t=0.1264 s 230.7228 MegaEdges/s
+stealCount=28  (verification 0.0032 s)
+stealCount=1541 N=2700 t=0.1240 s 235.1916 MegaEdges/s
+stealCount=26  (verification 0.0016 s)
+stealCount=1366 N=2700 t=0.1239 s 235.4191 MegaEdges/s
+stealCount=28  (verification 0.0040 s)
+stealCount=1198 N=2700 t=0.1267 s 230.1978 MegaEdges/s
+stealCount=25  (verification 0.0192 s)
+Completed iterations for N=2700
+
+#### bsize: 90
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 90
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=90
+Generating graph...
+Graph generated.
+Creation time:32.2518 s
+stealCount=793 N=2700 t=0.1765 s 165.2251 MegaEdges/s
+stealCount=28  (verification 0.0336 s)
+stealCount=1051 N=2700 t=0.1312 s 222.3408 MegaEdges/s
+stealCount=28  (verification 0.1048 s)
+stealCount=1095 N=2700 t=0.1301 s 224.1005 MegaEdges/s
+stealCount=26  (verification 0.0091 s)
+stealCount=904 N=2700 t=0.1302 s 223.9248 MegaEdges/s
+stealCount=27  (verification 0.0083 s)
+stealCount=1122 N=2700 t=0.1301 s 224.1035 MegaEdges/s
+stealCount=27  (verification 0.0149 s)
+stealCount=961 N=2700 t=0.1281 s 227.6716 MegaEdges/s
+stealCount=26  (verification 0.0089 s)
+stealCount=973 N=2700 t=0.1292 s 225.6269 MegaEdges/s
+stealCount=27  (verification 0.0137 s)
+stealCount=859 N=2700 t=0.1289 s 226.2956 MegaEdges/s
+stealCount=27  (verification 0.0093 s)
+stealCount=1057 N=2700 t=0.1267 s 230.0653 MegaEdges/s
+stealCount=28  (verification 0.0078 s)
+stealCount=1063 N=2700 t=0.1301 s 224.1399 MegaEdges/s
+stealCount=28  (verification 0.0133 s)
+stealCount=1124 N=2700 t=0.1305 s 223.5133 MegaEdges/s
+stealCount=26  (verification 0.0163 s)
+stealCount=1039 N=2700 t=0.1307 s 223.1635 MegaEdges/s
+stealCount=24  (verification 0.0108 s)
+stealCount=895 N=2700 t=0.1282 s 227.5027 MegaEdges/s
+stealCount=24  (verification 0.0062 s)
+stealCount=918 N=2700 t=0.1326 s 219.9127 MegaEdges/s
+stealCount=27  (verification 0.0122 s)
+stealCount=880 N=2700 t=0.1298 s 224.5761 MegaEdges/s
+stealCount=27  (verification 0.0123 s)
+stealCount=966 N=2700 t=0.1292 s 225.6967 MegaEdges/s
+stealCount=27  (verification 0.0092 s)
+stealCount=989 N=2700 t=0.1287 s 226.5724 MegaEdges/s
+stealCount=28  (verification 0.0114 s)
+stealCount=1170 N=2700 t=0.1275 s 228.7077 MegaEdges/s
+stealCount=26  (verification 0.0018 s)
+stealCount=845 N=2700 t=0.1312 s 222.2168 MegaEdges/s
+stealCount=24  (verification 0.0185 s)
+stealCount=1008 N=2700 t=0.1313 s 222.0494 MegaEdges/s
+stealCount=27  (verification 0.0145 s)
+Completed iterations for N=2700
+
+#### bsize: 100
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 100
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=100
+Generating graph...
+Graph generated.
+Creation time:32.5588 s
+stealCount=821 N=2700 t=0.1967 s 148.2330 MegaEdges/s
+stealCount=28  (verification 0.0831 s)
+stealCount=644 N=2700 t=0.1357 s 214.8124 MegaEdges/s
+stealCount=28  (verification 0.0492 s)
+stealCount=833 N=2700 t=0.1372 s 212.4862 MegaEdges/s
+stealCount=27  (verification 0.0159 s)
+stealCount=697 N=2700 t=0.1364 s 213.7239 MegaEdges/s
+stealCount=27  (verification 0.0083 s)
+stealCount=714 N=2700 t=0.1344 s 216.8846 MegaEdges/s
+stealCount=28  (verification 0.0104 s)
+stealCount=763 N=2700 t=0.1336 s 218.2838 MegaEdges/s
+stealCount=27  (verification 0.0080 s)
+stealCount=995 N=2700 t=0.1329 s 219.4679 MegaEdges/s
+stealCount=27  (verification 0.0094 s)
+stealCount=673 N=2700 t=0.1322 s 220.5166 MegaEdges/s
+stealCount=27  (verification 0.0150 s)
+stealCount=744 N=2700 t=0.1329 s 219.4928 MegaEdges/s
+stealCount=27  (verification 0.0148 s)
+stealCount=790 N=2700 t=0.1334 s 218.5750 MegaEdges/s
+stealCount=27  (verification 0.0137 s)
+stealCount=731 N=2700 t=0.1326 s 219.9500 MegaEdges/s
+stealCount=27  (verification 0.0125 s)
+stealCount=754 N=2700 t=0.1331 s 219.0144 MegaEdges/s
+stealCount=27  (verification 0.0112 s)
+stealCount=748 N=2700 t=0.1334 s 218.6334 MegaEdges/s
+stealCount=27  (verification 0.0147 s)
+stealCount=742 N=2700 t=0.1341 s 217.5005 MegaEdges/s
+stealCount=27  (verification 0.0146 s)
+stealCount=717 N=2700 t=0.1330 s 219.1817 MegaEdges/s
+stealCount=29  (verification 0.0135 s)
+stealCount=651 N=2700 t=0.1352 s 215.6984 MegaEdges/s
+stealCount=27  (verification 0.0183 s)
+stealCount=869 N=2700 t=0.1340 s 217.6652 MegaEdges/s
+stealCount=27  (verification 0.0099 s)
+stealCount=768 N=2700 t=0.1366 s 213.5414 MegaEdges/s
+stealCount=27  (verification 0.0087 s)
+stealCount=925 N=2700 t=0.1368 s 213.1380 MegaEdges/s
+stealCount=27  (verification 0.0207 s)
+stealCount=690 N=2700 t=0.1341 s 217.4407 MegaEdges/s
+stealCount=27  (verification 0.0187 s)
+Completed iterations for N=2700
+
+#<<<< END BATCHING >>>>
+
+### nproc: 32
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 32 T 2700 4 false false true
+Number of procs=32
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:10.4501 s
+stealCount=7052 N=2700 t=0.2247 s 129.7540 MegaEdges/s
+stealCount=30  (verification 0.1296 s)
+stealCount=8229 N=2700 t=0.1318 s 221.2425 MegaEdges/s
+stealCount=30  (verification 0.1116 s)
+stealCount=8678 N=2700 t=0.1290 s 226.0370 MegaEdges/s
+stealCount=29  (verification 0.0076 s)
+stealCount=10513 N=2700 t=0.1321 s 220.8249 MegaEdges/s
+stealCount=29  (verification 0.0150 s)
+stealCount=8301 N=2700 t=0.1342 s 217.2546 MegaEdges/s
+stealCount=29  (verification 0.0403 s)
+stealCount=10096 N=2700 t=0.1347 s 216.4432 MegaEdges/s
+stealCount=29  (verification 0.0109 s)
+stealCount=8704 N=2700 t=0.1307 s 223.0458 MegaEdges/s
+stealCount=30  (verification 0.0080 s)
+stealCount=7788 N=2700 t=0.1313 s 222.0839 MegaEdges/s
+stealCount=30  (verification 0.0069 s)
+stealCount=9416 N=2700 t=0.1347 s 216.4708 MegaEdges/s
+stealCount=29  (verification 0.0053 s)
+stealCount=8554 N=2700 t=0.1288 s 226.3128 MegaEdges/s
+stealCount=29  (verification 0.0088 s)
+stealCount=10400 N=2700 t=0.1294 s 225.3132 MegaEdges/s
+stealCount=30  (verification 0.0097 s)
+stealCount=6930 N=2700 t=0.1310 s 222.5948 MegaEdges/s
+stealCount=29  (verification 0.0116 s)
+stealCount=9608 N=2700 t=0.1309 s 222.8369 MegaEdges/s
+stealCount=30  (verification 0.0039 s)
+stealCount=10098 N=2700 t=0.1358 s 214.7658 MegaEdges/s
+stealCount=28  (verification 0.0097 s)
+stealCount=9704 N=2700 t=0.1304 s 223.6627 MegaEdges/s
+stealCount=30  (verification 0.0080 s)
+stealCount=10125 N=2700 t=0.1322 s 220.5956 MegaEdges/s
+stealCount=29  (verification 0.0085 s)
+stealCount=9395 N=2700 t=0.1300 s 224.3806 MegaEdges/s
+stealCount=29  (verification 0.0089 s)
+stealCount=8415 N=2700 t=0.1296 s 225.0467 MegaEdges/s
+stealCount=28  (verification 0.0065 s)
+stealCount=9896 N=2700 t=0.1307 s 223.0900 MegaEdges/s
+stealCount=29  (verification 0.0133 s)
+stealCount=9643 N=2700 t=0.1326 s 219.8641 MegaEdges/s
+stealCount=29  (verification 0.0108 s)
+Completed iterations for N=2700
+
+############################################################
+# End Time: 02/01/2008 - 07:19:42
+############################################################
