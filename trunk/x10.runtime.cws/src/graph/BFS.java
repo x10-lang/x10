@@ -9,27 +9,32 @@ package graph;
  */
 
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
 import x10.runtime.cws.Worker;
 import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
 
 
-public class BFSRef {
+public class BFS {
 	public static int BATCH_SIZE=32;
+
 	public final class V  extends Vertex {
 		public V [] neighbors;
 		public V next; // link for batching
+		public V parent;
+		public V parent() { return this.parent;}
 		public V(int i){super(i);}
 		@Override
 		void makeRoot() {
 			level=1;
-			parent=index;
+			parent=this;
 		}
 		@Override
 		public void reset() {
 			level=0;
-			parent=index;
+			parent=null;
 			next=null;
 		}
 		@Override
@@ -48,7 +53,7 @@ public class BFSRef {
 			for (;;) {
 				for (V v : node.neighbors) {
 					if (v.tryLabeling()) {
-						v.parent=node.index;
+						v.parent=node;
 						v.next = batch[pid];
 						batch[pid] = v;
 						if (++nb >= BS) {
@@ -74,10 +79,9 @@ public class BFSRef {
 	V[] G;
 	static int[] Ns = new int[] {1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000, 5*1000*1000};
 	int N, M;
-	public BFSRef (int n, int m, char graphType){
-		N=n;
-		M=m;
-		if (graphType=='T') N=n*n;
+	public BFS (int n, int d, char graphType){
+		N=(graphType=='T')?n*n:n;
+		M=N*d;
 		G = new V[N]; for(int i=0;i<N;i++) G[i]=new V(i);
 		if (graphType=='E') {
 			GraphGenerator.randomEdgeGraph(M, G);
@@ -91,25 +95,29 @@ public class BFSRef {
 	public static void main(String[] args) {
 		Options O;
 		try {
-		 O = new Options("BFSRef", args);
+		 O = new Options("BFS", args);
 		} catch (Exception e) {
 			return;
 		}
 		Pool g = new Pool(O.P);
 		if (O.N >= 0) Ns = new int[] {O.N};
+		BATCH_SIZE=O.BATCH_SIZE;
 		for (int i=Ns.length-1; i >= 0; i--) {
-			
-			final int N =Ns[i], NN= (O.graphType=='T'?N:1)*N, M = O.D*N;
 			System.gc();
-			BFSRef graph = new BFSRef(N,M, O.graphType);
-			graph.reachesRoot=new boolean[NN];
-			if (graphOnly) return;
+			long creationTime = -System.nanoTime();
+			BFS graph = new BFS(Ns[i],O.D, O.graphType);
+			creationTime += System.nanoTime();
+			System.out.printf("Creation time:%5.4f s",((double) creationTime)/NPS);
+			System.out.println();
+			if (O.graphOnly) return;
+			graph.reachesRoot=new boolean[graph.G.length];
 		     graph.batch = new V[O.P];
 			//System.out.printf("N:%8d ", N);
+		    long sc = 0, sa = 0;
 			for (int k=0; k < 20; ++k) {
 				final V root = graph.G[1];
 				root.makeRoot();
-				final BFSRef GGraph = graph;
+				final BFS GGraph = graph;
 				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, root) {
 					@Override 
 					protected void onCheckIn(Worker w) {
@@ -125,14 +133,17 @@ public class BFSRef {
 				long t = -System.nanoTime();
 				g.invoke(job);
 				t += System.nanoTime();
+				long nsc  = g.getStealCount(), nsa = g.getStealAttempts();
 				double secs = ((double) t)/NPS, Meps = graph.M/(1000*1000*secs);
-				System.out.printf("M=%d t=%5.4f s %5.2f MegaEdges/s", graph.M, secs, Meps);
+				System.out.printf("M=%d t=%5.4f s %5.2f MegaEdges/s sc=%d sa=%d", graph.M, 
+						secs, Meps, nsc-sc, nsa-sa);
+				sa = nsa; sc = nsc;
 				System.out.println();
 				if (verification)
 					Verifier.verify(g, graph.G, graph.reachesRoot, graph.verificationResult);
 				for (V v : graph.G) v.reset();
 			}
-			System.out.printf("Completed iterations for N=%d", N);
+			System.out.printf("Completed iterations for N=%d", graph.N);
 			System.out.println();
 		}   
 		
