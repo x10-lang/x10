@@ -15,6 +15,7 @@ public final class Verifier extends Frame {
 			start=s; end=e; this.G=G;
 			this.reachesRoot=rr;
 			this.result=r;
+			//System.out.println("Created verifier " + s + " " + e);
 			}
 		public void compute(Worker w) {
 			w.popAndReturnFrame();
@@ -30,6 +31,7 @@ public final class Verifier extends Frame {
 			long verificationTime = - System.nanoTime();
 			int N = G.length;
 			final int P=g.getPoolSize(), size = N/P;
+			//System.out.println("verify: P=" + P + " N=" + N);
 			r.value=true;
 			for (int j=0; j < rr.length; j++) rr[j]=false;
 			Job vJob = new GloballyQuiescentVoidJob(g, 

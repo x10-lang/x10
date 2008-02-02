@@ -23,6 +23,7 @@ public class Options {
 					graphType='K'; 
 				
 			}
+			assert (graphType=='T' || graphType=='K' || graphType=='E');
 			if (args.length > 2) {
 				N = Integer.parseInt(args[2]);
 			}
