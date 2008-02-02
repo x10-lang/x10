@@ -124,7 +124,7 @@ TODO: Supposrt lazy initialization of nextCache.
 		this.index = index;
 		this.lock = new ReentrantLock();
 		this.cache = new Cache(this);
-		this.nextCache = new Cache(this); // vj: must do this lazily, now that Cache is initializing stack on creation.
+		//this.nextCache = new Cache(this); // vj: must do this lazily, now that Cache is initializing stack on creation.
 		this.idleScanCount = 1;
 		setDaemon(true);
 		// Further initialization postponed to init()
@@ -625,7 +625,7 @@ TODO: Supposrt lazy initialization of nextCache.
     		} else {
     			// do we have work for the next phase.
     			//assert nextCache != null;
-    			nextPhaseHasWork= ! nextCache.empty();
+    			nextPhaseHasWork= ! (nextCache == null || nextCache.empty());
     			pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork);
     		}
     		// Note: nextPhaseHasWork reset by advancePhase();
@@ -778,8 +778,7 @@ TODO: Supposrt lazy initialization of nextCache.
 			} else {
 				int bNum = pool.barrier.phaseNum;
 				if (bNum > phaseNum) {
-					
-					assert phaseNum+1 == bNum || nextCache.empty();
+					assert phaseNum+1 == bNum || nextCache == null || nextCache.empty();
 					advancePhase(bNum);
 				} else {
 					// TODO: Check if this yields are needed.
@@ -793,6 +792,7 @@ TODO: Supposrt lazy initialization of nextCache.
 		lock(this);
 		checkedIn= ! nextPhaseHasWork;
 		Cache temp = cache;
+		if (nextCache==null) nextCache = new Cache(this);
 		cache = nextCache;
 		nextCache = temp;
 		phaseNum=bNum;
@@ -826,6 +826,7 @@ TODO: Supposrt lazy initialization of nextCache.
 	public void pushFrameNext(Frame frame) {
 		if (reporting)
 			System.out.println(this + " pushes " + frame + " on next deque.");
+		if (nextCache == null) nextCache = new Cache(this);
 		nextCache.pushFrame(frame);
 	}
 	/**
