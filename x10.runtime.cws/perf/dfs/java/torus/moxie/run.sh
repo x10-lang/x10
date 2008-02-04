@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: run.sh,v 1.1 2008-02-01 12:25:53 srkodali Exp $
+# $Id: run.sh,v 1.2 2008-02-04 14:28:23 srkodali Exp $
 #
 # Interactive script for benchmarking dfs.java.torus programs.
 #
@@ -16,7 +16,7 @@ _CMD_="/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java"
 _CMD_="${_CMD_} -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar"
 _CMD_="${_CMD_} -cp ${TOP}/../xwsn.jar"
 _CMD_="${_CMD_} -Xms2G -Xmx3G"
-_CMD_="${_CMD_} SpanFTROLev"
+_CMD_="${_CMD_} graph.DFS"
 
 seq=1
 while [[ $seq -le $MAX_RUNS ]]
