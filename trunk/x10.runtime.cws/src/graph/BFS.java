@@ -52,7 +52,7 @@ public class BFS {
 			int nb=0;
 			for (;;) {
 				for (V v : node.neighbors) {
-					if (v.tryLabeling()) {
+					if (v.tryColor()) {
 						v.parent=node;
 						v.next = batch[pid];
 						batch[pid] = v;

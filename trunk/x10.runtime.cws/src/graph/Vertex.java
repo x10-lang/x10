@@ -20,7 +20,7 @@ public abstract class Vertex extends Frame {
 	//int parent;
 	abstract Vertex parent();
 	abstract void reset();
-	public final boolean tryLabeling() {
+	public final boolean tryColor() {
 		return level == 0 && UPDATER.compareAndSet(this,0,1);
 	}
 	
