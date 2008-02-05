@@ -174,6 +174,9 @@ class Cache {
 		assert w==owner;
 		exception=head;
 	}
+	public int queueSize() {
+		return tail - head;
+	}
 	/**
 	 * A fast way of determining whether the worker has been interrupted.
 	 * @param w
