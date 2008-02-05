@@ -1010,7 +1010,14 @@ TODO: Supposrt lazy initialization of nextCache.
 		}
 	}
 	
+	public static int getLocalQueueSize() {
+		Worker me = (Worker) Thread.currentThread();
+		return me.getQueueSize();
+	}
 	
+	public int getQueueSize() {
+		return cache.queueSize();
+	}
 	public void pushIntUpdatingInPlace( int x) {
 		cache.pushIntUpdatingInPlace(x);
 	}
