@@ -52,7 +52,7 @@ public class DFS {
 			final int BS=BATCH_SIZE;
 			for (;;) {
 				for (V v : node.neighbors) {
-					if (v.tryLabeling()) {
+					if (v.tryColor()) {
 						v.parent=node;
 						v.next=batch;
 						batch=v;
