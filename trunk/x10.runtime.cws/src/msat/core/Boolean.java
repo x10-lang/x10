@@ -1,7 +1,7 @@
-package msat;
+package msat.core;
 
 public class Boolean {
-	public final Boolean TRUE = new Boolean((char) 1), 
+	public static final Boolean TRUE = new Boolean((char) 1), 
 		FALSE = new Boolean((char)-1),
 		UNDEF = new Boolean((char) 0);
 	
