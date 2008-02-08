@@ -1,4 +1,4 @@
-package msat;
+package msat.core;
 
 public class Clause {
 	int sizeEtc;
@@ -36,7 +36,7 @@ public class Clause {
 			for (int j = 0; j < other.size(); j++)
 				if (c[i] == d[j])
 					break;
-				else if (ret == Lit.LIT_UNDEF && c[i] == ~d[j]){
+				else if (ret == Lit.LIT_UNDEF && c[i] == d[j].neg()){
 					ret = c[i];
 					break;
 				}
