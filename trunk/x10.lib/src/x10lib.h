@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.37 2008-01-21 11:31:16 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.38 2008-02-15 09:49:27 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -45,6 +45,9 @@
 #include <x10/point.h>
 #include <x10/local_array.h>
 #include <x10/dist_array.h>
+#include <x10/async_closure.h>
+#include <x10/xthreads.h>
+#include <x10/queue.h>
 #endif
 
 #include <x10/utility.h>

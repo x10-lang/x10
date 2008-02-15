@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.30 2008-01-21 11:31:16 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.31 2008-02-15 09:49:27 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -97,6 +97,7 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n)
 	ReduceInit();
 	ArrayInit();
 	ArrayCopyInit();
+        QueueInit();
 
 	LAPI_Gfence(__x10_hndl);
 

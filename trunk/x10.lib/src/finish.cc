@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: finish.cc,v 1.28 2008-01-21 11:31:16 ganeshvb Exp $
+ * $Id: finish.cc,v 1.29 2008-02-15 09:49:27 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -102,18 +102,18 @@ x10_err_t FinishInit()
 	ftree->parent = __x10_my_place;
 
 	ftree->children = NULL;
-
+	
 	if (__x10_my_place)
-		ftree->children = ftree->numPeers ? new int [ftree->numPeers] : NULL;
+	  ftree->children = ftree->numPeers ? new int [ftree->numPeers] : NULL;
 	else
-		// an over-estimated value
-		ftree->children = new int [__x10_num_places];
-
+	  // an over-estimated value
+	  ftree->children = new int [__x10_num_places];
+	
 	for (int i = 0; i < ftree->numPeers; i++) {
-		envstr = strchr(envstr, ':') + 1;
-		ftree->children[i] = atoi(envstr);
-		ftree->parent = ftree->parent < ftree->children[i] ?
-				ftree->parent : ftree->children[i];
+	  envstr = strchr(envstr, ':') + 1;
+	  ftree->children[i] = atoi(envstr);
+	  ftree->parent = ftree->parent < ftree->children[i] ?
+	    ftree->parent : ftree->children[i];
 	}
 	ftree->numChild = 0; //leaves have no children
 
