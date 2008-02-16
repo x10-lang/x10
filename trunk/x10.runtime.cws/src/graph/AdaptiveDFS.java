@@ -53,43 +53,57 @@ public class AdaptiveDFS {
          * newList and continue. Otherwise, whenever the length of
          * newList exceeds current number of tasks in work-stealing
          * queue, push list onto queue.
-         * @author dl
+         * @author dl 2/16/08
          */ 
+		
+		static final int LOG_MAX_BATCH_SIZE = 7;
 		@Override
-		public void compute(Worker w) throws StealAbort {
-			w.popFrame();
-			V oldList = this;
-            V newList = null;
-            int newLength = 0;
-            V v;
-            while ((v = oldList) != null) {
-                oldList = v.next;
-                if (oldList == null) {
-                    oldList = newList;
-                    newList = null;
-                    newLength = 0;
-                }
-                V[] nbrs = v.neighbors;
-                int nnbrs = nbrs.length;
-                for (int k = 0; k < nnbrs; ++k) {
-                    V nbr = nbrs[k];
-                    if (nbr != null && nbr.tryColor()) {
-                        nbr.parent = v;
-                        nbr.next = newList;
-                        if (newList == null && oldList == null)
-                            oldList = nbr;
-                        else if (++newLength <
-                                 Worker.getLocalQueueSize())
-                            newList = nbr;
-                        else {
-                            w.pushFrame(nbr);
-                            newList = null;
-                            newLength = 0;
-                        }
-                    }
-                }
-            } 
-		}
+        public void compute(Worker w) throws StealAbort {
+		            w.popFrame();
+		            int batchSize = 0; // computed lazily
+		            V newList = null;
+		            int newLength = 0;
+		            V oldList = this;
+		            V par = parent;
+		            do {
+		                V v = oldList;
+		                V[] edges = v.neighbors;
+		                oldList = v.next;
+		                int nedges = edges.length;
+		                for (int k = 0; k < nedges; ++k) {
+		                    V e = edges[k];
+		                    if (e != null && e.level == 0 &&
+		                        UPDATER.compareAndSet(e,0,1)) {
+		                        e.parent = par;
+		                        e.next = newList;
+		                        newList = e;
+		                        if (batchSize == 0) {
+		                            int s = w.getLocalQueueSize();
+		                            batchSize = ((s < 1)? 1 :
+		                                         ((s >= LOG_MAX_BATCH_SIZE)?
+		                                          (1 << LOG_MAX_BATCH_SIZE) :
+		                                          (1 << s)));
+		                        }
+		                        if (++newLength >= batchSize) {
+		                            newLength = 0;
+		                            batchSize = 0;
+		                            if (oldList == null)
+		                                oldList = newList;
+		                            else
+		                                w.pushFrame(newList);
+		                            newList = null;
+		                        }
+		                    }
+		                }
+		                if (oldList == null) {
+		                    oldList = newList;
+		                    newList = null;
+		                    newLength = 0;
+		                }
+		            } while (oldList != null);
+		        }
+        
+
 
 		@Override
 		public void reset() {
