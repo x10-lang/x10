@@ -117,7 +117,8 @@ public class AdaptiveDFS {
 		public String toString() {
 			String s="[" + (neighbors.length==0? "]" : "" + ij(neighbors[0].index));
 			for (int i=1; i < neighbors.length; i++) s += ","+ ij(neighbors[i].index);
-			return "v(" + ij(index) +  ",parent=" + parent.index
+			return "v(" + ij(index) +  ",parent=" 
+			+ (parent==null? "null" : "" + parent.index)
 			+ ",degree="+neighbors.length+ ",n=" + s+"])";
 		}
 	}
