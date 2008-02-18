@@ -1,12 +1,12 @@
 package graph;
 
 public class Options {
-	public final int BATCH_SIZE, N, P,D;
+	public final int BATCH_SIZE, N, P,D;  float MULTIPLIER;
 	public final boolean reporting, graphOnly, verification;
 	public final char graphType;
 	
 	public Options(String progName, String[] args) throws Exception {
-		int P=1, N=-1, D=4, BATCH_SIZE=1;
+		int P=1, N=-1, D=4, BATCH_SIZE=1; float MULTIPLIER=1;
 		boolean reporting=false, graphOnly=false, verification=true;
 		char graphType='E';
 		try {
@@ -47,6 +47,10 @@ public class Options {
 				BATCH_SIZE=Integer.parseInt(args[7]);
 				
 			}
+			if (args.length > 8) {
+				MULTIPLIER=Float.parseFloat(args[8]);
+				
+			}
 		}
 		catch (Exception e) {
 			System.out.println("Usage: java " + progName + " <threads:nat> [<Type:T,E,K> [<N:nat> [<Degree:nat> [<reporting:boolean>" +
@@ -58,9 +62,10 @@ public class Options {
 			this.N=N; System.out.println("N=" + N);
 			this.D=D;	System.out.println("D=" + D);
 			this.reporting=reporting;	System.out.println("reporting=" + reporting);
-			this.verification=verification;System.out.println("verification=" + verification);
 			this.graphOnly=graphOnly;System.out.println("graphOnly=" + graphOnly);
+			this.verification=verification;System.out.println("verification=" + verification);
 			this.BATCH_SIZE = BATCH_SIZE;System.out.println("BATCH_SIZE=" + BATCH_SIZE);
+			this.MULTIPLIER=MULTIPLIER; System.out.println("MULTIPLIER=" + MULTIPLIER);
 		}
 	}
 
