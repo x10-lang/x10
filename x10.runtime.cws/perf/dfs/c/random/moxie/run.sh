@@ -3,7 +3,7 @@
 #
 # (c) IBM Corportation 2008
 #
-# $Id: run.sh,v 1.1 2008-02-16 13:45:19 srkodali Exp $
+# $Id: run.sh,v 1.2 2008-02-18 12:33:28 srkodali Exp $
 # Interactive script for running span (traversal).
 #
 
@@ -11,7 +11,7 @@ TOP=../../../..
 prog_name=c.random
 . ${TOP}/config/run.header
 
-_CMD_=${TOP}/span.moxie
+_CMD_=${TOP}/span.sparcv9
 
 seq=1
 while [[ $seq -le $MAX_RUNS ]]
