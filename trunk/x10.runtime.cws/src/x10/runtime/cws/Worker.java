@@ -277,7 +277,18 @@ TODO: Supposrt lazy initialization of nextCache.
 	protected Executable stealFrame(Worker thief, boolean retry) throws AdvancePhaseException{
 		final Worker victim = this;
 		++stealAttempts;
-		lock(thief);
+		if (! retry) {
+			if (lock.tryLock()) {
+				this.lockOwner=thief;
+				// u have the lock, continue
+			} else {
+				// bail on first try -- the lock is contended.
+				return null;
+			}
+		} else {
+			// On subsequent tries, wait to grab this lock even if it is contended.
+			lock(thief);
+		}
 		try {
 			if (thief.phaseNum != phaseNum) {
 				// victim hasnt yet advanced to the next phase. Give up and try again.
