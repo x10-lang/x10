@@ -59,7 +59,7 @@ public class AdaptiveDFS {
 		static final int LOG_MAX_BATCH_SIZE = 7;
 		@Override
         public void compute(Worker w) throws StealAbort {
-		            w.popFrame();
+		            w.popAndReturnFrame();
 		            int batchSize = 0; // computed lazily
 		            V newList = null;
 		            int newLength = 0;
