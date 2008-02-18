@@ -611,25 +611,51 @@ TODO: Supposrt lazy initialization of nextCache.
   * 
   * A worker must check into the AWC only when it has first checked out.
   */
-    boolean checkedIn = true, nextPhaseHasWork=false;
-    void checkIn() throws AdvancePhaseException {
-    
+    protected int nextPhaseSize, lastPhaseSize;
+    public int lastPhaseSize() { return lastPhaseSize;}
+    public void addNextPhaseSize(int i) { 
+    	nextPhaseSize += i;
+    }
+    protected boolean checkedIn = true, nextPhaseHasWork=false;
+    public boolean checkedIn() { return checkedIn;}
+    public boolean nextPhaseHasWork() { return nextPhaseHasWork; }
+    /*void checkIn() throws AdvancePhaseException {
     	if (job !=null) job.onCheckIn(this);
     	if (!checkedIn) {
     		checkedIn = true;
     	//	checkinHistory.add(pool.time() + ":checkedIn false -> true. checkIn called on " + pool.barrier);
     		if (nextPhaseHasWork) {
-    			// if we have already communiated to AWC that this
+    		     // if we have already communicated to AWC that this
     			// worker has work for the next phase, we dont need to do this again.
-    			pool.barrier.checkIn(this, phaseNum, false);
+    			pool.barrier.checkIn(this, phaseNum, false, nextPhaseSize);
     		} else {
-    			// do we have work for the next phase.
-    			//assert nextCache != null;
-    			nextPhaseHasWork= ! (nextCache == null || nextCache.empty());
-    			pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork);
+    		  nextPhaseHasWork = ! (nextCache == null || nextCache.empty());
+    		  pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork, nextPhaseSize);
     		}
-    		// Note: nextPhaseHasWork reset by advancePhase();
-    	}
+    		
+    	} else 
+    		if (nextPhaseSize > 0) {
+    			pool.barrier.checkIn(this, phaseNum, false,nextPhaseSize);
+    		}
+    	nextPhaseSize=0;
+    	
+    }*/
+    void checkIn() throws AdvancePhaseException {
+    	if (job !=null) job.onCheckIn(this);
+    	if (!checkedIn) {
+    		checkedIn = true;
+    	//	checkinHistory.add(pool.time() + ":checkedIn false -> true. checkIn called on " + pool.barrier);
+    		if (nextPhaseHasWork) {
+    		     // if we have already communicated to AWC that this
+    			// worker has work for the next phase, we dont need to do this again.
+    			pool.barrier.checkIn(this, phaseNum, false, nextPhaseSize);
+    		} else {
+    		  nextPhaseHasWork = ! (nextCache == null || nextCache.empty());
+    		  pool.barrier.checkIn(this, phaseNum, nextPhaseHasWork, nextPhaseSize);
+    		}
+    		
+    	} 
+    	nextPhaseSize=0;
     	
     }
     /**
@@ -675,7 +701,7 @@ TODO: Supposrt lazy initialization of nextCache.
             LockSupport.unpark(this);
         }
     }
-    int phaseNum=0;
+    private int phaseNum=0;
    // List<String> checkinHistory = new ArrayList<String>();
 	@Override
 	public void run() {
@@ -779,7 +805,8 @@ TODO: Supposrt lazy initialization of nextCache.
 				int bNum = pool.barrier.phaseNum;
 				if (bNum > phaseNum) {
 					assert phaseNum+1 == bNum || nextCache == null || nextCache.empty();
-					advancePhase(bNum);
+					//assert ! nextPhaseHasWork;
+					advancePhase(bNum, pool.barrier.lastSize);
 				} else {
 					// TODO: Check if this yields are needed.
 					yields++;
@@ -788,7 +815,15 @@ TODO: Supposrt lazy initialization of nextCache.
 			}
 		}
 	}
-	void advancePhase(int bNum) {
+	public int phaseNum() { return phaseNum;}
+	/**
+	 * Invoked by worker when it discovers during its run cycle that the AWC has
+	 * advanced.
+	 * @param bNum
+	 * @param lastSize
+	 */
+	protected void advancePhase(int bNum, int lastSize) {
+
 		lock(this);
 		checkedIn= ! nextPhaseHasWork;
 		Cache temp = cache;
@@ -797,11 +832,14 @@ TODO: Supposrt lazy initialization of nextCache.
 		nextCache = temp;
 		phaseNum=bNum;
 		nextPhaseHasWork=false;
+		nextPhaseSize=0;
+		lastPhaseSize=lastSize;
 	//	checkinHistory = new ArrayList<String>();
 	//	checkinHistory.add(pool.time() + "phase " + phaseNum + " checkedIn=" + checkedIn);
 		
-		if ( reporting) 
-			System.out.println(this + " advances to phase " + phaseNum);
+		if (  reporting) 
+			System.out.println(this + " advances to phase "
+					+ phaseNum + " lastPhaseSize=" + lastPhaseSize);
 		unlock();
 	}
 	/**
@@ -837,7 +875,8 @@ TODO: Supposrt lazy initialization of nextCache.
 		cache.popFrame();
 	}
 	public String toString() {
-		return "Worker("+index+",job=" + job + ",phase=" + phaseNum+",checkedIn=" + checkedIn + ",nextPhaseHasWork=" + nextPhaseHasWork+")";
+		return "Worker("+index+",job=" + job + ",phase=" + phaseNum+",checkedIn=" 
+		+ checkedIn + ",nextPhaseSize=" + nextPhaseSize+")";
 	}
 	public Closure bottom() {
 		return bottom;

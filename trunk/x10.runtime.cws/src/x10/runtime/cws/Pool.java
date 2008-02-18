@@ -132,7 +132,18 @@ public class Pool {
      * Creates a ForkJoinPool with the indicated number
      * of Worker threads.
      */
+    public interface WorkerMaker {
+    	Worker makeWorker(Pool p, int index);
+    }
+    public static final WorkerMaker defaultMaker = new WorkerMaker() { 
+    	public Worker makeWorker(Pool p, int index) {
+    		return new Worker(p,index);
+    	}
+    };
     public Pool(int poolSize) {
+    	this(poolSize, defaultMaker);
+    }
+    public Pool(final int poolSize, final WorkerMaker m) {
         if (poolSize <= 0) throw new IllegalArgumentException();
         Worker.workers = workers = new Worker[poolSize];
         barrier = new ActiveWorkerCount(new Runnable() { 
@@ -149,13 +160,12 @@ public class Pool {
         		
         		
         	}
-        });
+        }, poolSize);
         lock.lock();
         try {
             for (int i = 0; i < poolSize; ++i) {
-                Worker r = new Worker(this, i);
+                Worker r = m.makeWorker(this, i);
                 workers[i] = r;
-               
             }
             for (int i = 0; i < poolSize; ++i) {
             	workers[i].start();

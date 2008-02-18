@@ -13,18 +13,21 @@ class ActiveWorkerCount {
 	volatile int numCheckedOut;
 	final AtomicIntegerFieldUpdater<ActiveWorkerCount> numCheckedOutUpdater;
 	final Runnable barrierAction;
-	volatile int nextCount=0;
-	final AtomicIntegerFieldUpdater<ActiveWorkerCount> nextCountUpdater;
+	volatile int nextCount=0, nextSize=0, lastSize=0;
+	final AtomicIntegerFieldUpdater<ActiveWorkerCount> nextCountUpdater, nextSizeUpdater;
 	volatile int phaseNum;
 	// List<String> checkinHistory = new ArrayList<String>(), prevHistory=checkinHistory;
-
-	public ActiveWorkerCount(final Runnable barrierAction) {
+	final int poolSize;
+	public ActiveWorkerCount(final Runnable barrierAction, int poolSize) {
 		super();
 		this.barrierAction = barrierAction;
+		this.poolSize=poolSize;
 		this.numCheckedOut = 0;
 		this.numCheckedOutUpdater = AtomicIntegerFieldUpdater.newUpdater(ActiveWorkerCount.class, "numCheckedOut");
 		this.nextCountUpdater = 
 			AtomicIntegerFieldUpdater.newUpdater(ActiveWorkerCount.class, "nextCount");
+		this.nextSizeUpdater = 
+			AtomicIntegerFieldUpdater.newUpdater(ActiveWorkerCount.class, "nextSize");
 	}
 	public String toString() {
 		return "AWC(phase=" + phaseNum+ ",nextCount="+nextCount + ",numCheckedOut="+numCheckedOut+")";
@@ -41,7 +44,9 @@ class ActiveWorkerCount {
 	 * @return true -- if this call causes the phase to advance. In this case the current thread's phase
 	 * is advanced.
 	 */
-	public boolean checkIn(Worker w, int inPhase, boolean haveWork) throws Worker.AdvancePhaseException{
+	public boolean checkIn(Worker w, int inPhase, boolean npHasWork, int workSize) 
+	throws Worker.AdvancePhaseException{
+		assert (! npHasWork) || workSize > 0;
 		if (inPhase !=phaseNum) {
 			// TODO: Why should this ever happen?
 			System.err.println("Invariant III violation at " + this);
@@ -57,10 +62,17 @@ class ActiveWorkerCount {
 		}
 		assert inPhase == phaseNum;
 		//checkinHistory.add(w.pool.time() + ":" + w + " checks in with haveWork=" + haveWork);
-		if (haveWork) nextCountUpdater.getAndIncrement(this);
+		if (npHasWork) 
+			nextCountUpdater.getAndIncrement(this);
+		assert nextCount <= poolSize;
+		/*if (workSize > 0) { 
+			nextSizeUpdater.getAndAdd(this, workSize);
+		}*/
 		final int count = numCheckedOutUpdater.addAndGet(this,-1);
-		if (   Worker.reporting)
-			System.err.println(Thread.currentThread() + " checks in to " + this);
+		if (  Worker.reporting)
+			System.out.println(Thread.currentThread() 
+					+ " with npHasWork=" + npHasWork + " workSize=" + workSize
+					+ " checks in to " + this);
 		if (count == 0) {
 			
 			
@@ -75,19 +87,22 @@ class ActiveWorkerCount {
 				//for (String s : checkinHistory) System.err.println(" this::" + s);
 				
 			}*/
-			
+			lastSize=w.nextPhaseSize;
+			//nextSize=0;
 			if (nextCount > 0) { // Advance the phase.
 				
 				numCheckedOutUpdater.getAndSet(this, nextCount);
+				assert numCheckedOut <= poolSize;
 				nextCount=0;
+				
 				phaseNum++;
 				//prevHistory = checkinHistory;
 				//checkinHistory = new ArrayList<String>();
 				//checkinHistory.add(w.pool.time() + ":" + this + " starts new phase.");
 				// w.advancePhase(phaseNum);
 				// return true;
-				if (   Worker.reporting)
-					System.err.println(Thread.currentThread() + " moves barrier up to " + this);
+				if (  Worker.reporting)
+					System.out.println(Thread.currentThread() + " moves barrier up to " + this);
 				throw new Worker.AdvancePhaseException();
 			} else { // Complete the job
 				phaseNum=0;
@@ -127,6 +142,6 @@ class ActiveWorkerCount {
 		}
 		numCheckedOutUpdater.addAndGet(this, 1);
 		if ( Worker.reporting)
-			System.err.println(Thread.currentThread() + " checks out of barrier " + this);
+			System.out.println(Thread.currentThread() + " checks out of barrier " + this);
 	}
 }
