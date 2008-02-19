@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.55 2008-01-21 11:31:15 ganeshvb Exp $
+# $Id: Makefile,v 1.56 2008-02-19 07:12:49 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -37,6 +37,7 @@ SRCS = aggregate.cc \
 	lock.cc \
 	order.cc \
 	progress.cc \
+        queue.cc\
 	reduce.cc \
 	register.cc \
 	rmc.cc \
@@ -47,7 +48,7 @@ SRCS = aggregate.cc \
 
 OBJS = aggregate.o \
        aggregate_single.o\
-	async.o \
+       async.o\
 	async_switch.o \
 	array_copy_switch.o \
 	gen_array_copy_switch.o \
@@ -60,6 +61,7 @@ OBJS = aggregate.o \
 	lock.o \
 	order.o \
 	progress.o \
+        queue.o\
 	reduce.o \
 	register.o \
 	rmc.o \
@@ -70,6 +72,7 @@ OBJS = aggregate.o \
 HEADERS = aggreate.h \
         aggregate_single.h\
 	async.h \
+        async_closure.h\
 	am.h \
 	broadcast.h \
 	clock.h \
@@ -81,6 +84,7 @@ HEADERS = aggreate.h \
 	lock.h \
 	order.h \
 	progress.h \
+        queue.h\
 	reduce.h \
 	register.h \
 	rmc.h \

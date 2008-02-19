@@ -52,6 +52,7 @@ __asm__ __volatile__ ("movl %%eax, %%esp" \
                        : "eax"(newsp));
 
 /* This is a better way to switch to X10LIB context */
+#ifdef X86
 #define x10_thread_async_spawn(place, handler, args, size) \
                 getcontext(&this->_libcall_ctxt);\
 		this->_libcall_ctxt.uc_stack.ss_sp = (void*) this->_caller_ctxt.uc_mcontext.gregs[REG_ESP] ;\
@@ -60,4 +61,14 @@ __asm__ __volatile__ ("movl %%eax, %%esp" \
              	this->_libcall_ctxt.uc_link = &this->_current_ctxt;\
 		makecontext (&this->_libcall_ctxt, (func) x10lib::AsyncSpawnInline, 4, place, handler, args, size);\
                 swapcontext (&this->_current_ctxt, &this->_libcall_ctxt);
+#else 
+#define x10_thread_async_spawn(place, handler, args, size) \
+                getcontext(&this->_libcall_ctxt);\
+		this->_libcall_ctxt.uc_stack.ss_sp = (void*) this->_caller_ctxt.uc_mcontext.jmp_context.  gpr[7] ;\
+		this->_libcall_ctxt.uc_stack.ss_size = this->_caller_ctxt.uc_stack.ss_size;\
+             	this->_libcall_ctxt.uc_stack.ss_flags = 0;\
+             	this->_libcall_ctxt.uc_link = &this->_current_ctxt;\
+		makecontext (&this->_libcall_ctxt, (func) x10lib::AsyncSpawnInline, 4, place, handler, args, size);\
+                swapcontext (&this->_current_ctxt, &this->_libcall_ctxt);
 
+#endif
