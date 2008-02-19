@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.16 2008-01-06 03:28:51 ganeshvb Exp $
+# $Id: Makefile,v 1.17 2008-02-19 07:12:50 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -77,7 +77,11 @@ TARGET14 = Test_transpose_iov
 SRCS14 = $(TARGET14).cc
 OBJS14 = $(TARGET14).o
 
-TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET9) $(TARGET10) $(TARGET11) $(TARGET12) $(TARGET13) $(TARGET14)
+TARGET15= Test_async_gen
+SRCS15 = $(TARGET15).cc
+OBJS15 = $(TARGET15).o
+
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET9) $(TARGET10) $(TARGET11) $(TARGET12) $(TARGET13) $(TARGET14) $(TARGET15)
 
 all: $(TARGETS)
 	rm *.o
@@ -193,6 +197,14 @@ $(TARGET14): $(OBJS14)
 	$(CXX) $(LINKFLAGS) $(OBJS14) -o $@ $(LIBDIRS) $(LIBS)
 
 $(TARGET14).o: $(TARGET14).cc
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
+
+$(TARGET15): $(OBJS15)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS15) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET15).o: $(TARGET15).cc
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) -w $(DEFS)   -DDEBUG -DWARN $(INCLUDES) -c $< -o $@
 

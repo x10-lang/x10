@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: queue.cc,v 1.1 2008-02-15 09:49:27 ganeshvb Exp $
+ * $Id: queue.cc,v 1.2 2008-02-19 07:12:49 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -82,7 +82,6 @@ namespace x10lib {
   void 
   CheckQueue (x10_async_queue_t q)
   {
-    
     for (volatile x10_async_queue_el_t cur = q->_head; cur != NULL; cur=cur->_next)
       {
 	if (cur->_closure->cond()) {
