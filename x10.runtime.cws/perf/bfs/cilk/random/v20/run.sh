@@ -3,12 +3,12 @@
 #
 # (c) IBM Corportation 2007
 #
-# $Id: run.sh,v 1.1 2008-02-22 12:03:42 srkodali Exp $
+# $Id: run.sh,v 1.2 2008-02-23 10:50:29 srkodali Exp $
 # Interactive script for running BFS Cilk.
 #
 
 TOP=../../../..
-prog_name=bfs.cilk.torus
+prog_name=bfs.cilk.random
 . ${TOP}/config/run.header
 
 _CMD_=${TOP}/BFSBlock.pwr5
