@@ -3,12 +3,12 @@
 #
 # (c) IBM Corportation 2007
 #
-# $Id: run.sh,v 1.1 2008-02-22 12:08:04 srkodali Exp $
+# $Id: run.sh,v 1.2 2008-02-23 11:13:32 srkodali Exp $
 # Interactive script for running SV Cilk.
 #
 
 TOP=../../../..
-prog_name=sv.cilk.torus
+prog_name=sv.cilk.kgraph
 . ${TOP}/config/run.header
 
 _CMD_=${TOP}/SVBlock.pwr5
