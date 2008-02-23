@@ -7,7 +7,7 @@
 ############################################################
 
 
-#    VERTICS      EDGES PROCS  TIME(Sec)  EDGES/Sec [Run: 1]
+#    VERTICS      EDGES PROCS  TIME(Sec) MEDGES/Sec [Run: 1]
 
 
 
@@ -39,7 +39,7 @@
      9000000   36000000     8   5.503082   6.541789
 
 
-#    VERTICS      EDGES PROCS  TIME(Sec)  EDGES/Sec [Run: 2]
+#    VERTICS      EDGES PROCS  TIME(Sec) MEDGES/Sec [Run: 2]
 
 
 
@@ -71,7 +71,7 @@
      9000000   36000000     8   5.498849   6.546825
 
 
-#    VERTICS      EDGES PROCS  TIME(Sec)  EDGES/Sec [Run: 3]
+#    VERTICS      EDGES PROCS  TIME(Sec) MEDGES/Sec [Run: 3]
 
 
 
