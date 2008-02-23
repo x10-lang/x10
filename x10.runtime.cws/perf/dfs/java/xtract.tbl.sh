@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: xtract.tbl.sh,v 1.2 2008-02-05 08:12:09 srkodali Exp $
+# $Id: xtract.tbl.sh,v 1.3 2008-02-23 13:18:27 srkodali Exp $
 #
 # Torus table extraction script for Java.
 #
@@ -47,7 +47,7 @@ printf "\n\n" >> $out_file
 tail -3 $in_file >> $out_file
 
 # extract batching information
-bout_file=`echo $in_file | sed -e 's;.dat;.btbl;'`
+bout_file=`echo $in_file | sed -e 's;.dat;.batch.tbl;'`
 sed -n '1,7p' $in_file > $bout_file
 sed -n -e '/^\#<<<< BEGIN/,/^\#<<<< END/p' \
 	-e '/^\# Run/p' -e '/^\## Size/p' $in_file | \
