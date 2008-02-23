@@ -6,7 +6,7 @@
 # Start Time: 02/17/2008 - 05:10:00
 ############################################################
 
-#   VERTICES      EDGES PROC Time(Secs) MEDGES/Sec
+#    VERTICS      EDGES PROC Time(Secs) MEDGES/Sec [Run: 1]
 
 
       250000    1000000    1   0.078977  12.661914
@@ -36,7 +36,7 @@
      9000000   36000000    6   2.783089  12.935267
      9000000   36000000    8   1.491303  24.139964
 
-#   VERTICES      EDGES PROC Time(Secs) MEDGES/Sec
+#    VERTICS      EDGES PROC Time(Secs) MEDGES/Sec [Run: 2]
 
 
       250000    1000000    1   0.098721  10.129557
@@ -66,7 +66,7 @@
      9000000   36000000    6   1.790048  20.111193
      9000000   36000000    8   2.796449  12.873469
 
-#   VERTICES      EDGES PROC Time(Secs) MEDGES/Sec
+#    VERTICS      EDGES PROC Time(Secs) MEDGES/Sec [Run: 3]
 
 
       250000    1000000    1   0.079839  12.525207
