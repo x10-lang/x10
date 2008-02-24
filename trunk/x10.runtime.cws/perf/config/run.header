@@ -1,7 +1,7 @@
 #
 # (c) IBM Corportation 2008
 #
-# $Id: run.header,v 1.1 2008-02-01 10:57:12 srkodali Exp $
+# $Id: run.header,v 1.2 2008-02-24 10:35:28 srkodali Exp $
 # Common header for running benchmarks on UltraSparc Machines.
 #
 
@@ -27,15 +27,14 @@ fi
 
 date_time=`date +"%m-%d-%Y.%H-%M-%S"`
 host_name=`hostname`
-if [ "$host_name" = "moxie" ]
-then
-	num_proc=32
-elif [ "$host_name" = "sunbird" ]
-then
-	num_proc=32
-else
-	num_proc=8
-fi
+case "${host_name}" in
+	moxie) num_proc=32 ;;
+	sunbird) num_proc=32 ;;
+	altair) num_proc=8 ;;
+	v20n*) num_proc=16 ;;
+	r28n*) num_proc=64 ;;
+	*) num_proc=8 ;;
+esac
 OUT_FILE=${DATA_DIR}/${prog_name}.`hostname`.${num_proc}.${date_time}.dat
 
 printf "############################################################\n" \
