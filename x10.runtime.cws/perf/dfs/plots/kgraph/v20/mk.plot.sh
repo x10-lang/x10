@@ -3,19 +3,20 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: mk.plot.sh,v 1.1 2008-02-24 14:27:59 srkodali Exp $
+# $Id: mk.plot.sh,v 1.2 2008-02-25 08:27:44 srkodali Exp $
 #
 # Script for generating plots from tables.
 #
 
-if [ $# -ne 2 ]
+if [ $# -ne 3 ]
 then
-	printf "Usage: mk.plot.sh java.tbl c.tbl\n"
+	printf "Usage: mk.plot.sh java.tbl c.tbl cilk.tbl\n"
 	exit 1
 fi
 
 java_tbl=$1
 c_tbl=$2
+cilk_tbl=$3
 
 out_file=`basename $java_tbl | sed -e 's;.tbl;;'`
 tmp_file=/tmp/mk.plot.gnu.$$
@@ -39,7 +40,9 @@ printf "set origin 0,0.5\n" >> $tmp_file
 printf "set size 0.5,0.5\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 0 using 3:5 title \"XWS-Adaptive DFS\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 0 using 3:5 title \"C-SpanT\"" >> $tmp_file
+printf "\"${c_tbl}\" index 0 using 3:5 title \"C-SpanT\", \\" >> $tmp_file
+printf "\n" >> $tmp_file
+printf "\"${cilk_tbl}\" index 0 using 3:5 title \"Cilk-ST\"" >> $tmp_file
 printf "\n" >> $tmp_file
 
 printf "set title \"DFS:KGraph [V20/1M]\"\n" >> $tmp_file
@@ -47,7 +50,9 @@ printf "set origin 0.5,0.5\n" >> $tmp_file
 printf "set size 0.5,0.5\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 1 using 3:5 title \"XWS-Adaptive DFS\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 1 using 3:5 title \"C-SpanT\"" >> $tmp_file
+printf "\"${c_tbl}\" index 1 using 3:5 title \"C-SpanT\", \\" >> $tmp_file
+printf "\n" >> $tmp_file
+printf "\"${cilk_tbl}\" index 1 using 3:5 title \"Cilk-ST\"" >> $tmp_file
 printf "\n" >> $tmp_file
 
 printf "set title \"DFS:KGraph [V20/4M]\"\n" >> $tmp_file
@@ -69,4 +74,4 @@ printf "\n" >> $tmp_file
 
 printf "unset multiplot\n" >> $tmp_file
 gnuplot $tmp_file
-#rm -f $tmp_file
+rm -f $tmp_file
