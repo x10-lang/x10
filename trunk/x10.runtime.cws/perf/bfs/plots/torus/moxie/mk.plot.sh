@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: mk.plot.sh,v 1.1 2008-02-25 12:18:53 srkodali Exp $
+# $Id: mk.plot.sh,v 1.2 2008-02-25 15:38:24 srkodali Exp $
 #
 # Script for generating plots from tables.
 #
@@ -35,30 +35,30 @@ printf "set xlabel \"Processes\"\n" >> $tmp_file
 printf "set xrange [1:32]\n" >> $tmp_file
 
 printf "set multiplot\n" >> $tmp_file
-printf "set title \"DFS:Torus [Moxie/500]\"\n" >> $tmp_file
+printf "set title \"BFS:Torus [Moxie/500]\"\n" >> $tmp_file
 printf "set origin 0,0.5\n" >> $tmp_file
 printf "set size 0.5,0.5\n" >> $tmp_file
-printf "plot \"${java_tbl}\" index 0 using 3:5 title \"XWS-Adaptive DFS\", \\" >> $tmp_file
+printf "plot \"${java_tbl}\" index 0 using 3:5 title \"XWS-Adaptive BFS\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
 printf "\"${c_tbl}\" index 0 using 3:5 title \"C-SpanT\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
 printf "\"${cilk_tbl}\" index 0 using 3:5 title \"Cilk-BFSBlock\"" >> $tmp_file
 printf "\n" >> $tmp_file
 
-printf "set title \"DFS:Torus [Moxie/1000]\"\n" >> $tmp_file
+printf "set title \"BFS:Torus [Moxie/1000]\"\n" >> $tmp_file
 printf "set origin 0.5,0.5\n" >> $tmp_file
 printf "set size 0.5,0.5\n" >> $tmp_file
-printf "plot \"${java_tbl}\" index 1 using 3:5 title \"XWS-Adaptive DFS\", \\" >> $tmp_file
+printf "plot \"${java_tbl}\" index 1 using 3:5 title \"XWS-Adaptive BFS\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
 printf "\"${c_tbl}\" index 1 using 3:5 title \"C-SpanT\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
 printf "\"${cilk_tbl}\" index 1 using 3:5 title \"Cilk-BFSBlock\"" >> $tmp_file
 printf "\n" >> $tmp_file
 
-printf "set title \"DFS:Torus [Moxie/2000]\"\n" >> $tmp_file
+printf "set title \"BFS:Torus [Moxie/2000]\"\n" >> $tmp_file
 printf "set origin 0,0\n" >> $tmp_file
 printf "set size 0.5,0.5\n" >> $tmp_file
-printf "plot \"${java_tbl}\" index 2 using 3:5 title \"XWS-Adaptive DFS\", \\" >> $tmp_file
+printf "plot \"${java_tbl}\" index 2 using 3:5 title \"XWS-Adaptive BFS\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
 printf "\"${c_tbl}\" index 2 using 3:5 title \"C-SpanT\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
@@ -66,10 +66,10 @@ printf "\"${cilk_tbl}\" index 2 using 3:5 title \"Cilk-BFSBlock\"" >> $tmp_file
 printf "\n" >> $tmp_file
 
 
-printf "set title \"DFS:Torus [Moxie/3000]\"\n" >> $tmp_file
+printf "set title \"BFS:Torus [Moxie/3000]\"\n" >> $tmp_file
 printf "set origin 0.5,0\n" >> $tmp_file
 printf "set size 0.5,0.5\n" >> $tmp_file
-printf "plot \"${java_tbl}\" index 3 using 3:5 title \"XWS-Adaptive DFS\", \\" >> $tmp_file
+printf "plot \"${java_tbl}\" index 3 using 3:5 title \"XWS-Adaptive BFS\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
 printf "\"${c_tbl}\" index 3 using 3:5 title \"C-SpanT\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
