@@ -145,10 +145,9 @@ public class AdaptiveBFS {
 		@Override public void advancePhase(int bNum, int lastSize) {
 			super.advancePhase(bNum, lastSize);
 			  int s =  (int) (lastPhaseSize()/(P*MULTIPLIER));
-	            maxBatchSize = ((s < 1)? MIN_BATCH_SIZE :s);
-	            	/*((s >= MAX_BATCH_SIZE)? 
+	            maxBatchSize = ((s < 1)? MIN_BATCH_SIZE :((s >= MAX_BATCH_SIZE)? 
 	            			(MAX_BATCH_SIZE) :
-	            				(s)));*/
+	            				(s)));
 	            int phase = phaseNum();
 	           if (false && index==0 && phase % 100==0) 
 	        	   System.out.println("In phase " + this.phaseNum() 
