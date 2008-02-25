@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 runtime
 Bundle-SymbolicName: x10.runtime
-Bundle-Version: 1.0.71
+Bundle-Version: 1.0.72
 Bundle-Localization: plugin
 Eclipse-AutoStart: true
 Export-Package: x10.array,
