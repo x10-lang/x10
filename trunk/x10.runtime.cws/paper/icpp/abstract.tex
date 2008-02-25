@@ -1,0 +1,44 @@
+
+\begin{abstract}
+
+Obtaining practical efficient implementations for large, irregular
+graph problems is challenging. Current software systems and commodity
+multiprocessors do not support fine-grained, irregular parallelism
+well. Implementing a custom framework for fine-grained parallelism for
+each new graph algorithm is impractical.
+
+We present \XWS{}, the \Xten{} Work Stealing framework.
+\XWS{} is intended as an open-source runtime for the programming
+language \Xten{}, a partitioned global address space language
+supporting dynamic fine-grained concurrency.  \XWS{} is also intended
+as a library to be used directly by application writers. \XWS{}
+extends the Cilk work-stealing framework with several features
+necessary to efficiently implement graph algorithms, viz., support for
+improperly nested procedures, worker-specific data-structures, global
+termination detection, and phased computation.
+
+We present simple elegant programs using \XWS{} for different spanning
+tree algortihms using a (pseudo-)depth first search, and breadth-first
+search.  We evaluate these programs on a 32-way Niagara (moxie), and
+an 8-way Opteron server (altair) and on three different bounded-degree
+graphs: (i) graphs with randomly selected edges and (a) no degree
+restrictions (b) fixed degree, and (ii) planar torus graphs.
+
+We show the performance of BFS and pseudo-DFS search depends crucially
+on the grannularity of parallel tasks. We show that the granularity
+natural to the algorithms -- the examination of a single edge ---
+leads to poor performance at scale. Instead, sets of of vertices must
+be grouped into {\em batches}. We show that a fixed-size batching
+scheme does not perform well. Instead we develop an adaptive batching
+scheme that is sensitive to the instantaneous size of the work queue.
+With this scheme, pseudo-DFS shows linear scaling on altair and moxie,
+achieving peak performance of over 220 Million edges/s on moxie.  These
+programs compare favorably with separate C and Cilk implementations.
+
+
+We conclude that a fine-grained concurrent language such as \Xten{}
+with a work-stealing based scheduler may provide an attractive
+framework for the implementation of graph algorithms.
+
+\end{abstract}
+
