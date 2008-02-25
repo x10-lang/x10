@@ -48,11 +48,11 @@ public abstract class Vertex extends Frame {
 		} finally {
 			if (true || reporting) {
 				if (count > N-10) {
-					System.err.println(Thread.currentThread() + " finds possibly bad guy " + this +
+					System.out.println(Thread.currentThread() + " finds possibly bad guy " + this +
 							"count=" + count + " p=" + p );
 				}
 				if (! reachesRoot[index()])
-					System.err.println(Thread.currentThread() + " finds bad guy " + this +
+					System.out.println(Thread.currentThread() + " finds bad guy " + this +
 							"count=" + count + " p=" + p  + " oldP=" + oldP);
 			}
 		}
