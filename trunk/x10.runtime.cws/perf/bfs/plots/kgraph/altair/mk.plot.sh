@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: mk.plot.sh,v 1.1 2008-02-25 10:49:19 srkodali Exp $
+# $Id: mk.plot.sh,v 1.2 2008-02-25 10:53:03 srkodali Exp $
 #
 # Script for generating plots from tables.
 #
@@ -73,7 +73,7 @@ printf "plot \"${java_tbl}\" index 3 using 3:5 title \"XWS-Adaptive BFS\", \\" >
 printf "\n" >> $tmp_file
 printf "\"${c_tbl}\" index 3 using 3:5 title \"C-SpanT\", \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 3 using 3:5 title \"Cilk-BFSBlock\"" >> $tmp_file
+printf "\"${cilk_tbl}\" index 3 using 3:5 title \"Cilk-BFSBlock\"" >> $tmp_file
 printf "\n" >> $tmp_file
 
 printf "unset multiplot\n" >> $tmp_file
