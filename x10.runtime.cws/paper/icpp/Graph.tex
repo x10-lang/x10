@@ -1,0 +1,20 @@
+\section{Graph algorithms in \XWS}\label{sec:Graph}
+
+We consider implementations of breadth-first and depth-first search.
+
+\subsection{\XWS implementation}
+
+The code for psuedo-DFS is straightforward. A job created from the root
+is submitted to the pool. This call returns only when all the 
+(concurrent) work associated with this job has terminated. 
+{\footnotesize
+\begin{verbatim}
+  pool.invoke(root.makeJob());
+\end{verbatim}
+}
+
+
+\subsection{SIMPLE implementation (C)}
+
+
+\subsection{Cilk implementation}
