@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: run.sh,v 1.2 2008-02-23 13:18:27 srkodali Exp $
+# $Id: run.sh,v 1.3 2008-02-25 09:44:49 srkodali Exp $
 #
 # Interactive script for benchmarking bfs.java.torus programs.
 #
@@ -14,8 +14,8 @@ prog_name=bfs.java.torus
 
 _CMD_="/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java"
 _CMD_="${_CMD_} -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar"
-_CMD_="${_CMD_} -cp ${TOP}/../xwsn.jar"
-_CMD_="${_CMD_} -Xmx3G"
+_CMD_="${_CMD_} -cp ${TOP}/../xwsn1.jar"
+_CMD_="${_CMD_} -Xms2G -Xmx3G"
 _CMD_="${_CMD_} graph.AdaptiveBFS"
 
 seq=1
@@ -30,7 +30,7 @@ do
 			for nproc in 1 2 4 8 16 20 24 30 32
 			do
 				printf "\n### nproc: %d\n" $nproc 2>&1| tee -a $OUT_FILE
-				CMD="${_CMD_} $nproc T $size 4 false false true 1 4"
+				CMD="${_CMD_} $nproc T $size 4 false false true 1"
 				printf "${CMD}\n" 2>&1| tee -a $OUT_FILE
 				${CMD} 2>&1| tee -a $OUT_FILE
 			done
@@ -38,7 +38,7 @@ do
 			for nproc in 1 2 4 6 8
 			do
 				printf "\n### nproc: %d\n" $nproc 2>&1| tee -a $OUT_FILE
-				CMD="${_CMD_} $nproc T $size 4 false false true 1 4"
+				CMD="${_CMD_} $nproc T $size 4 false false true 6"
 				printf "${CMD}\n" 2>&1| tee -a $OUT_FILE
 				${CMD} 2>&1| tee -a $OUT_FILE
 			done
