@@ -1,75 +1,13 @@
 \section{\Xten{} Work Stealing}\label{sec:XWS}
-\subsection{Cilk work-stealing}
-This section describes Cilk work stealing, as implemented in \XWS. It
-closely follows the description of the implementation of Cilk in
-\cite{frigo98implementation}.
-
-In summary, Cilk Work Stealing (CWS) is organized around a collection
-of cooperating threads called {\em workers}. Each worker maintains a
-double-ended queue (deque) of tasks. During execution as a worker
-creates more tasks it pushes them at the bottom of the queue. When it
-needs more tasks it retrieves the current task from the bottom of the
-deque. When a worker runs out of work (its deque is empty), it
-randomly chooses another worker (the {\em victim}) and attempts to
-steal a task by fetching it from the top of the deque. Program begins
-execution when the environment submits a task to a central task queue.
-
-One of the workers retrieves the task from the global queue and begins
-executing it. When a worker does not have tasks to execute it {\em steals}
-tasks available at other workers. Assuming the computation contains
-sufficient parallelism stealing happens infrequently. The design
-ensures that there are few overheads during normal execution, referred
-to as {\em the fast path}. The additional overheads incurred to load-balance
-the computation are proportional to the number of steals in the
-execution. The design of the worker for the the task types supported
-is discussed in subsequent sections.
-
-The normal execution corresponds to the depth-first sequential
-execution of the tasks spawned. Thus the execution corresponds to a
-sequential execution when there is only one worker.
-
-\subsection{Support for Properly Nested Tasks}
-Cilk requires {\em fully-strict} programs
-in which a task waits for all its descendents to complete before
-returning. Such tasks are also called properly nested tasks. 
-
-The \Xten{} runtime system is designed to leverage the Cilk design while
-supporting a larger class of programs. \Xten{} provides support for {\em
-strict} computations, in which a ancestor task need not wait for its
-descendent tasks to be completed. Such tasks are said to be {\em improperly
-nested}. 
-
-Each worker contains a {\em closure}. A closure is an  object used
-to return values from the spawned tasks to their parents in the
-presence of work stealing.  
-
-Each closure maintains a stack of frames. Frames corresponding to
-spawned tasks are pushed into the stack on entry, and popped on
-return. In the fast path, return values are propagated as they would
-be in a sequential program. The thief steals a closure together with
-the bottom-most available frame from its
-{\em victim}.
-
-When a thief steals a task, the descendants of the task in the
-victim's dequeue continue to execute.  In order to return values from
-the descendents to the parent, a new closure is created that on
-completion returns the result to the parent closure that was stolen.
-
-Thus the closures form a tree of return value propagation
-corresponding to the steal operation performed. Termination is
-detected when the closure corresponding to the task inserted by the
-driver thread returns. 
-
-The procedure executed by the workers to handle properly nested tasks
-is shown in Fig.~\ref{fig:worker-code}(a). On completing execution of
-a closure, a worker first attempts to obtain another closure from its
-local queue (method:{\java extractBottom()}). If no local closure is
-available to execute, the worker attempts to obtain a task either by
-stealing or from the global queue (method:{\java getTask()}). It then
-executes the slow version of the task obtained (method:{\java
-  execute()}). 
 
 \subsection{Support for Improperly Nested Tasks}
+Cilk requires {\em fully-strict} (properly nested) programs in which a
+task waits for all its descendents to complete before returning.
+
+The \Xten{} runtime system is designed to leverage the Cilk design
+while supporting a larger class of programs. \Xten{} provides support
+for {\em strict} ({\em improperly nested}) computations, in which an
+ancestor task need not wait for its descendent tasks to be completed.
 
 Properly nested tasks $t$ satisfy the property that at the moment when
 the slow version terminates (method:{\java compute()}) the frame at
@@ -82,120 +20,75 @@ the frame stack and the tasks being processed.
 
 \Xten{} permits improperly nested tasks. Such tasks $q$ are used, for
 instance, to implement the pseudo-depth-first search discussed in this
-paper. Such a task may add a task $r$ to the deque of its worker (say $w$)
-without necessarily transferring control to $r$. This has two
+paper. Such a task may add a task $r$ to the deque of its worker (say
+$w$) without necessarily transferring control to $r$. This has two
 consequences. First, recall that as soon as a worker's dequeue
 contains more than one task the worker may be the target of a
 theft. Therefore as soon as $q$ pushes $r$ onto $w$'s dequeue, $q$ is
-available to be stolen.  Therefore $q$'s compute method must record the
-fact that is computation has begun so that the stealing worker $z$ may
-do the right thing. For instance, if $q$'s compute method does not
-contain any internal suspension point then $z$ must immediately
-terminate execution of $q$ and pop $q$ off its deque. This can be
-accomplished by defining a volatile int PC field in $q$, and adding the
-following code at the beginning of $q$'s compute method
+available to be stolen.  Therefore $q$'s compute method must first pop
+$q$ off the deque before spawning new asyncs. (Hence the {\java
+w.popAndReturnFrame()} in the body of {\tt compute} in
+Example~\ref{example:dfs}.)
 
-Second for an improperly nested task when control returns from $g$'s
-compute method, it may not be the case that the last frame on the
-dequeue is $g$. Therefore a call to {\java popFrame()} at the end of
-$g$'s compute method would be incorrect. Instead, the compute method
-returns (without attempting to pop the last frame on the deque). Now
-whenever the task reaches the bottom of the dequeue, the worker will,
-as usual, invokes its compute method. However, the code sequence
-described above will execute, thereby popping the frame from the
-deque. Thus the code sequence above serves two purposes -- it does the
-cleanup necessary when the task is stolen as well as when it is
-completed.
-
-The changes to the basic worker code necessary to support improperly
-nested tasks are shown in Fig.~\ref{fig:worker-code}(b). With
-improperly nested tasks, a worker no long enjoys the property that
-when control returns to it from the invocation of an execute method on
-the top-level task, the deque is empty. Indeed, control may return to
-the scheduler leaving several tasks on the deque, including the task
-whose execute method has just returned. The scheduler must now enter a
-phase in which it executes the task at the bottom of the deque:
+With improperly nested tasks, a worker no long enjoys the property
+that when control returns to it from the invocation of an execute
+method on the top-level task, the deque is empty. Indeed, control may
+return to the scheduler leaving several tasks on the deque, including
+the task whose execute method has just returned. The scheduler must
+now enter a phase in which it executes the task at the bottom of the
+deque:
 
 \subsection{Global Quiescence}
 
-In fully-strict computations, i.e., those involving properly nested
-tasks, completion of the first task and the return of the
-corresponding Closure indicates computation termination.
+In fully-strict computations completion of the first task and the
+return of the corresponding closure indicates termination.
 Improperly-nested tasks that do not require a return call chain can do
 away with the closures. We have implemented a mechanism to efficiently
-identify termination without closures.
+identify termination without closures; in essence the mechanism detects
+the stable property ``all deques are empty.'' 
 
-The workers share a barrier. The barrier is used to determine when all
-workers are out of work. Every worker notifies the barrier of its
-state through two methods. {\java checkIn()} is used to enter the
-barrier barrier and notify that the worker is out of work. When such a
-worker steals work from a victim, it invokes {\java checkOut()} to
-leave the barrier. The barrier maintains a {\java checkoutCount} on
-the number of workers checked out. It is triggered when all the workers
-are in it. The action associated with the barrier is triggered and it
-signals that the computation has terminated.
+The workers share a barrier with count {\tt checkCount} -- this will
+measure the number of workers with non-empty deques.  Initially the
+count is $0$. Whenever a worker checks out a job from the submission
+queue, it increments the count. Whenever a worker finds its deque is
+empty and starts stealing, it decrements the count. Whenever it
+successfully steals, it increments the count before releasing the lock
+on the victim (thus ensuring that the count remains positive).
 
-The algorithm maintains the invariant:
-
-\[
-\mbox{{\texttt (\#workers - checkoutCount)}} = \mbox{\#(workers that know they don't
-  have work )}
-\]
-
-A worker knows it has no work if it stealing. Note that the
-checkoutCount is not always equal to the number of workers with work
-to do. In particular, consider a victim that finds the current frame
-as stolen. The victim cannot identify whether it has work without
-locking its deque. While it aborts, the thief has the stolen
-frame and could have invoked {\java checkOut()}. The barrier
-identifies both workers as having checked out even though there is one
-task between them. Note that allowing the victim to {\java
-  checkIn()} when it identifies a steal would lead to the barrier
-being incorrectly triggered while the thief still has the stolen task
-but it yet to invoke {\java checkOut()}.
-
+Note an important property of this mechanism. Suppose a worker $W_0$
+checks out a task from the submission queue. Its execution generates
+very few tasks which end up being executed by $W_0$. In this case the
+count will go up to $1$ and then down to $0$ when $W_0$'s queue is
+empty, and the job will be considered completed. This is the case even
+though $P-1$ workers have not participated in the barrier. Thus this
+mechanism does not require all workers to participate, only those that
+actually steal work.
 
 \subsection{Phased Computations}
-
 We also added support for phased computations in which tasks in this
-phase create tasks to be executed in the next phase. The
-implementation of the breadth-first search algorithm proceeds one
-level at a time. The nodes processed at this level are used to
-determine the nodes to be processed in the next level.
-
+phase create tasks to be executed in the next phase (cf BFS search).
 Phased computations are supported as a generalization of global
-quiescence. Each worker maintains two stacks of frames, referred to as
-caches. Depending on the phase specified when spawning tasks, a task
-can be added to the current cache or the next cache, the cache for the
-next phase. 
+quiescence. Each worker maintains two dequeues (the {\em now} deque and the
+{\em next} deque).  Depending on the phase specified when spawning
+tasks, a task can be added to the now deque or the next deque.
 
-When global quiescence is detected for this phase, the barrier action
-invokes {\java advancePhase()} that steps the computation into the
-next phase. When a worker runs out of tasks, it checks that the
-current phase of the worker is the same as the global phase of the
-computation. If the phase of the computation has advanced further, the
-workers updates its phase information and swaps the current and next
-task collections. 
+When global quiescence is detected for the current phase, the barrier
+action steps the computation to the next phase. Each worker keeps
+track of the phase number it thinks it is in. After each round of
+stealing, it checks to see if the barrier's phase is the same as its
+phase; if not, it advances the phase and swaps its next and now
+deques. When checking into the barrier, each worker specifies whether
+it has work to do in the next phase. When the barrier is advanced {\tt
+checkCount} is initialized with this number, thus maintaining the
+invariant associated with the barrier.  If this count is $0$, the job
+is terminated.
 
-Each worker specifies the number of tasks it has
-outstanding for the next phase when it invokes {\java
-  checkIn()}. This information is used to identify if the next phase
-has any tasks left to be processed. 
-
-Note that the global phase could have advanced much further than the
-phase operated on by this worker. This would happen when this worker
-has no work for current phase and has checked-in notifying that it has
-not tasks for the next phase. The other workers could then progress
-multiple phases before this worker observes the computation progress. 
-
-When global quiescence for this phase is triggered, the number of
-workers with tasks for the next phase is known. The computation is
-said to have terminated when the current phase has quiesced and no
-worker has any task for the next phase. 
-
-For a given phase, maintaining the invariant mentioned above for
-global quiescence is more involved with multiple phases. For example,
-consider a worker advancing its phase to match the global phase of the
-computation and its next cache is non-empty. Since the worker now has
-local tasks in this phase, it implicitly checks out of the barrier.
+Note that this design permits workers to {\em jump phases}. A worker
+$W_i$ may finish computation in phase $k$ and start searching for
+work. Meanwhile other workers may check into the barrier causing it to
+move to phase $k+1$. This phase may contain very little work, and the
+barrier may trip repeatedly reaching phase $k+m$, before $W_i$
+discovers the phase has advanced and updates its phase to $k+m$. (The
+algorithm design ensures that $W_i$ may skip phases only if its next
+deque is empty.) 
 
