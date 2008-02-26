@@ -17,10 +17,15 @@
 \usepackage{utils}
 \usepackage[pdftex]{graphicx}
 \usepackage{ifpdf}
+\newif\iflstworks
+\lstworksfalse
+\iflstworks
 \usepackage{listings}
+\fi
 
 \hfuzz=1pt
 
+\iflstworks
 \lstdefinelanguage{X10}%
   {morekeywords={abstract,break,case,catch,class,%
       const,continue,default,do,else,extends,false,final,%
@@ -37,9 +42,11 @@
    morestring=[b]",%
    morestring=[b]',%
   }
+\fi
 
 \newcommand\codestyle\tt
 
+\iflstworks
 \lstnewenvironment{displayxten}
   {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,mathescape=true,keepspaces=true,keywordstyle=}}
   {}
@@ -53,6 +60,11 @@
 
 \newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true,columns=flexible,breaklines,keywordstyle=]{#1}}}
 \newcommand{\tcd}[1]{{\codestyle{#1}}}
+
+\else
+\newcommand{\xcd}[1]{{\tt #1}}
+\newcommand{\tcd}[1]{{\tt #1}}
+\fi
 
 \pagestyle{plain}
 
@@ -109,6 +121,7 @@ Department~of~Computer~Science, University~of~Denver,
 \input{abstract}
 \end{abstract}
 
+\iflstworks
 \section{Introduction}\label{sec:intro}
 \input{intro}
 
@@ -131,6 +144,7 @@ Department~of~Computer~Science, University~of~Denver,
 \section{Conclusion and future work}\label{sec:future}\label{sec:conclusions}
 %\input{future}
 \input{conclusion}
+\fi
 
 \if 0
 \section*{Acknowledgments}
