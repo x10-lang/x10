@@ -22,7 +22,7 @@ public class BFS {
 
 	public final class V  extends Vertex {
 		public V [] neighbors;
-		public V next; // link for batching
+		//public V next; // link for batching
 		public V parent;
 		public V parent() { return this.parent;}
 		public V(int i){super(i);}
@@ -35,7 +35,7 @@ public class BFS {
 		public void reset() {
 			level=0;
 			parent=null;
-			next=null;
+			//next=null;
 		}
 		@Override
 		void initNeighbors(int k) { neighbors=new V[k];}
@@ -47,28 +47,14 @@ public class BFS {
 		}
 		public void compute(Worker w)  throws StealAbort {
 			w.popAndReturnFrame();
-			V node=this; 
-			final int BS=BATCH_SIZE, pid = w.index;
-			int nb=0;
-			for (;;) {
-				for (V v : node.neighbors) {
-					if (v.tryColor()) {
-						v.parent=node;
-						v.next = batch[pid];
-						batch[pid] = v;
-						if (++nb >= BS) {
-							w.pushFrameNext(batch[pid]);
-							batch[pid]=null;
-							nb=0;
-						}
-					}
-				}	
-				V nxt = node.next;
-				if (nxt == null) break;
-				node.next=null;
-				node=nxt;
+			for (V v : neighbors) {
+				if (v.tryColor()) {
+					v.parent=this;
+					w.pushFrameNext(v);
+
+				}
 			}
-		}
+		}	
 		@Override
 		public String toString() {
 			String s="[" + (neighbors.length==0? "]" : "" + neighbors[0].index);
@@ -118,18 +104,7 @@ public class BFS {
 				final V root = graph.G[1];
 				root.makeRoot();
 				final BFS GGraph = graph;
-				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, root) {
-					@Override 
-					protected void onCheckIn(Worker w) {
-						// each time the worker checks in, it empties the batch.
-						final int pid = w.index;
-						V node = GGraph.batch[pid];
-						if (node != null) {
-							w.pushFrameNext(node);
-							GGraph.batch[pid]=null;
-						}
-					}
-				};
+				GloballyQuiescentVoidJob job = new GloballyQuiescentVoidJob(g, root);
 				long t = -System.nanoTime();
 				g.invoke(job);
 				t += System.nanoTime();

@@ -24,7 +24,7 @@ public class DFS {
 	static int BATCH_SIZE;
 	
 	public final class V  extends Vertex {
-		public V next; // link for batching
+	//	public V next; // link for batching
 		public V [] neighbors;
 		public V parent;
 		public V parent() { return parent;}
@@ -47,30 +47,11 @@ public class DFS {
 		@Override
 		public void compute(Worker w) throws StealAbort {
 			w.popFrame();
-			V node = this, batch=null;
-			int nb=0;
-			final int BS=BATCH_SIZE;
-			for (;;) {
-				for (V v : node.neighbors) {
-					if (v.tryColor()) {
-						v.parent=node;
-						v.next=batch;
-						batch=v;
-						if (++nb >= BS) {
-							w.pushFrame(batch);
-							batch=null;
-							nb=0;
-						}
-					}
+			for (V v : neighbors) {
+				if (v.tryColor()) {
+					v.parent=this;
+					w.pushFrame(v);
 				}
-				V nxt = node.next;
-				if (nxt !=  null) {
-					node.next=null;
-					node=nxt;
-				} else if ((node=batch) != null) {
-					batch=null;
-					nb=0;
-				} else break;
 			}
 		}
 
@@ -78,7 +59,7 @@ public class DFS {
 		public void reset() {
 			level=0;
 			parent=null;
-			next=null;
+			//next=null;
 		}
 		String ij(int index) {
 			return graphType=='T' ? "["+(index/20) + "," + (index % 20 ) + "]" : "" + index;
