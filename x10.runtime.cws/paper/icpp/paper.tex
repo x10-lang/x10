@@ -105,25 +105,25 @@ Contact email: vsaraswa@us.ibm.com\\
 %\input x10graphdesign
 \input{XWS}
 \input{Graph}
-\input{Performance}
 %\input runtime
 %\input perf-eval
-%\input conclusion
+\input conclusion
 {\footnotesize
 \bibliographystyle{ieee}
 \bibliography{paper,parallel,main-new}
 }
-\onecolumn
+
 \begin{figure}
  \begin{tabular}{ccc}
- \includegraphics[width=10cm]{bfs-kgraph-altair-color.jpg} \\
- \includegraphics[width=10cm] {bfs-torus-altair-color.jpg} \\
-\includegraphics[width=10cm]{bfs-kgraph-moxie-color.jpg} \\
-\includegraphics[width=10cm]{bfs-torus-moxie-color.jpg}
+\includegraphics[width=10cm]{plots/bfs-kgraph-moxie-color.pdf} \\
+\includegraphics[width=10cm]{plots/bfs-torus-moxie-color.pdf} \\
+\includegraphics[width=10cm]{plots/dfs-kgraph-moxie-color.pdf}\\
+\includegraphics[width=10cm]{plots/dfs-torus-moxie-color.pdf}\\
+
  \end{tabular}
-\caption{BFS for Altair(Opteron) and Moxie(Niagara)}\label{DFS-altair}\label{BFS-altair}
+\caption{BFS and DFS for Niagara}\label{moxie}
 \end{figure}
-\twocolumn
+
 
 \end{document}
 
