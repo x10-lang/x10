@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_gen.cc,v 1.2 2008-02-19 07:13:00 ganeshvb Exp $ */
+/* $Id: Test_async_gen.cc,v 1.3 2008-02-26 12:27:21 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -14,7 +14,7 @@
 using namespace std;
 using namespace x10lib;
 
-char STACK[8192];
+char STACK[4*8192];
 
 int sum = 0;
 
@@ -36,23 +36,17 @@ struct __async_closure_0 : public AsyncClosure
      a = new int;
      *a = __x10_my_place;
 
-     cout << "point 0" << endl;
+     //cout << "point 0" << endl;
 
      x10_thread_yield;
 
-     //switch_stack is not a solution
+     //cout << "point 1" << endl;
 
-     //x10_switch_stack (this->_caller_ctxt.uc_mcontext.gregs[REG_ESP]);
-     //AsyncSpawnInline((__x10_my_place + 1) % __x10_num_places, h, a, sizeof(int));
-     //x10_switch_stack (this->_current_ctxt.uc_mcontext.gregs[REG_ESP]);
-
-     cout << "point 1" << endl;
-
-     x10_thread_async_spawn ((__x10_my_place+1)%__x10_num_places, h, a, sizeof(int));
+     x10_thread_libcall4 (x10lib::AsyncSpawnInline, (__x10_my_place+1)%__x10_num_places, h, a, sizeof(int));
 
      x10_thread_wait(0);    
       
-     cout << "point 2" << endl;
+     //cout << "point 2" << endl;
 
      sum++;
     
@@ -73,16 +67,14 @@ struct __async_closure_0 : public AsyncClosure
 
 void AsyncSwitch (x10_async_handler_t h, void* arg, int niter) 
 {
-  cout << "async Switch" << h << endl;
   int sp;
   x10_async_arg_t* args = (x10_async_arg_t*) arg;
   switch (h) {
    case 0: {
-     __async_closure_0* cl = new __async_closure_0(*args, STACK+2047, 2048);
-     cout << "here " << endl;
+     __async_closure_0* cl = new __async_closure_0(*args, STACK+8192, 8192);
      x10_thread_run(cl);
     // cl->run();
-     cout << "after run " << endl;
+    // cout << "after run " << endl;
      break;
     }
    case 1:
@@ -101,15 +93,18 @@ main (int argc, char* argv[])
     for (x10_place_t target = 0; target < __x10_num_places; target++)
        AsyncSpawnInline (target, 0, &a, sizeof(a));
 
-  x10lib::FlushQueue (ReadyQueue);
+  /* spawn depth is two for this program */
 
-  x10lib::CheckQueue (WaitQueue);
- 
-  x10lib::SyncGlobal (); 
+  for (int i = 0; i < 2; i++) {
+  	x10lib::FlushQueue (ReadyQueue);
+ 	x10lib::CheckQueue (WaitQueue);
+ 	x10lib::SyncGlobal (); 
+  }
+
 
   assert (sum == 2);
 
-  cout << "Test_async_gen PASSED" << endl;
+  cout << "Test_async_gen PASSED"  <<  endl;
 
   x10lib::Finalize();
 
