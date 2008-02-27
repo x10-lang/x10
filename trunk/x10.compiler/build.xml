@@ -4,7 +4,7 @@
     &buildfile;
     <property name="x10.home" value=".."/>
     <property name="lpg.location" value="${x10.home}/org.eclipse.imp.lpg.metatooling"/>
-    <property name="lpg.executable.location" location="${x10.home}/lpg.runtime.java/lpgexe"/>
+    <!--<property name="lpg.executable.location" location="${x10.home}/lpg.runtime.java"/>-->
     <property name="x10.common.location" value="${x10.home}/x10.common"/>
     <property name="x10.runtime.location" value="${x10.home}/x10.runtime"/>
     <property name="build" location="${basedir}/classes"/>
@@ -91,7 +91,8 @@
         <property name="include.dir" location="${lpg.location}/templates"/>
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
-        <property name="lpg.executable" location="${lpg.executable.location}/lpg-${platform}_${os.arch}"/>
+        <property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${os.arch}"/>
+        <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${os.arch}"/>
         <!--
         <echo message="OS: ${os.name} ${os.arch}"/>
         <echo message="Platform: ${platform}"/>
