@@ -50,6 +50,8 @@ EOF
     exit 1
 fi
 
+[ -z "$DEXT" ] && DEXT="x10"
+
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR="${TOP}${FILE_SEP}lib"
 
@@ -62,7 +64,7 @@ fi
 
 ext_cp=""
 if [ -z "$ext" ]; then
-    ext="x10"
+    ext="$DEXT"
 else
     ext_cp="${PATH_SEP}${LIB_DIR}${FILE_SEP}${ext}.jar"
 fi
