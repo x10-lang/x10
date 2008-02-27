@@ -23,7 +23,6 @@ import polyglot.ext.x10.ast.X10ArrayAccessUnary;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor.Template;
 import polyglot.types.Type;
 
 /**
