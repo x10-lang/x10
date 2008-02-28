@@ -34,6 +34,8 @@ public class SpecializedArrayFactory extends DefaultArrayFactory {
 	public DoubleReferenceArray DoubleArray(dist d, Operator.Pointwise init, boolean safe, boolean mutable, boolean ignored) {
 		if (d.region instanceof Region3D0Base)
 			return new DoubleArray3d_c(d, init, mutable, ignored);
+		if (d.region.rank() == 2)
+			return new DoubleArray2d_anybase_c (d, init, mutable, ignored);
 		if (d.region instanceof Region1D0Base)
 			return new DoubleArray1d_c(d, init, mutable, ignored);
 		return super.DoubleArray(d, init, safe, mutable, ignored);
