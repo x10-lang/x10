@@ -3,7 +3,7 @@
 --
 %Options fp=JavaKWLexer
 %options package=javaparser
-%options template=KeyWordTemplate.gi
+%options template=lpg.templates/KeyWordTemplate.gi
 
 %Globals
     /.import java.util.*;./

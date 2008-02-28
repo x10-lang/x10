@@ -4,7 +4,7 @@
 %Options list
 %Options fp=X10KWLexer
 %options package=x10.parser
-%options template=KeywordTemplate.gi
+%options template=lpg.templates/KeywordTemplate.gi
 
 %Notice
 /.
