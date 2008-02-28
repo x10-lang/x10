@@ -28,7 +28,7 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
         {
             curtok++;
             current_kind = (curtok > lasttok
-                                   ? Char_EOF
+                                   ? X10KWLexersym.Char_EOF
                                    : getKind(inputChars[curtok]));
         }
 

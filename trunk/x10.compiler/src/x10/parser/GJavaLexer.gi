@@ -5,11 +5,11 @@
 %Options fp=JavaLexer
 %options single_productions
 %options package=javaparser
-%options template=LexerTemplate.gi
+%options template=lpg.templates/LexerTemplate.gi
 %options filter=GJavaKWLexer.gi
 
 %Include
-    LexerBasicMap.gi
+    lpg.templates/LexerBasicMap.gi
 %End
 
 %Headers

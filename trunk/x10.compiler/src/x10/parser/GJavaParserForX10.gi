@@ -1,6 +1,6 @@
 %options fp=JavaParser
 %options package=javaparser
-%options template=btParserTemplate.gi
+%options template=lpg.templates/btParserTemplate.gi
 %options import_terminals=GJavaLexer.gi
 
 %Notice

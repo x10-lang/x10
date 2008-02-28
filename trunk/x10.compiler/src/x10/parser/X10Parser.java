@@ -821,7 +821,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 1: {
                 //#line 6 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 8 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 8 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -836,7 +836,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 2: {
                 //#line 16 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 Name PackageName = (Name) getRhsSym(1);
-                //#line 18 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 18 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -851,7 +851,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 3: {
                 //#line 26 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 28 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 28 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -866,7 +866,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 4: {
                 //#line 36 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 38 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 38 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -881,7 +881,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 5: {
                 //#line 46 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 Name PackageOrTypeName = (Name) getRhsSym(1);
-                //#line 48 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 48 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -896,7 +896,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 6: {
                 //#line 56 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 58 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 58 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -911,7 +911,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 7: {
                 //#line 66 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 68 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 68 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(), Primary,
                                       nf.Id(pos(getRightSpan()), "*")));
                 break;
@@ -922,7 +922,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 8: {
                 
-                //#line 74 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 74 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())),
                                       nf.Id(pos(getRightSpan()), "*")));
                 break;
@@ -936,7 +936,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name ClassName = (Name) getRhsSym(1);
                 //#line 78 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 80 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 80 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()),
                                       nf.Id(pos(getRightSpan()), "*")));
                 break;
@@ -950,7 +950,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Object MethodPrimaryPrefix = (Object) getRhsSym(1);
                 //#line 85 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 87 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 87 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodPrimaryPrefix)[1];
                 setResult(nf.Call(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
@@ -965,7 +965,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier MethodSuperPrefix = (polyglot.lex.Identifier) getRhsSym(1);
                 //#line 92 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 94 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 94 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 polyglot.lex.Identifier identifier = MethodSuperPrefix;
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
                 break;
@@ -979,7 +979,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Object MethodClassNameSuperPrefix = (Object) getRhsSym(1);
                 //#line 98 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 100 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 100 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Name ClassName = (Name) ((Object[]) MethodClassNameSuperPrefix)[0];
                 JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
@@ -995,7 +995,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Primary = (Expr) getRhsSym(1);
                 //#line 107 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 109 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 109 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Object[] a = new Object[2];
                 a[0] = Primary;
                 a[1] = id(getRhsFirstTokenIndex(3));
@@ -1009,7 +1009,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 14: {
                 //#line 115 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 117 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 117 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(id(getRhsFirstTokenIndex(3)));
                 break;
             }
@@ -1024,7 +1024,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 IToken sup = (IToken) getRhsIToken(3);
                 //#line 120 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(5);
-                //#line 122 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 122 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Object[] a = new Object[3];
                 a[0] = ClassName;
                 a[1] = pos(getRhsFirstTokenIndex(3));
@@ -1039,7 +1039,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 16: {
                 //#line 93 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 95 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 95 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                 break;
@@ -1050,7 +1050,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 19: {
                 
-                //#line 120 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 120 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Byte()));
                 break;
             }
@@ -1060,7 +1060,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 20: {
                 
-                //#line 125 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 125 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Char()));
                 break;
             }
@@ -1070,7 +1070,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 21: {
                 
-                //#line 130 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 130 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Short()));
                 break;
             }
@@ -1080,7 +1080,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 22: {
                 
-                //#line 135 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 135 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Int()));
                 break;
             }
@@ -1090,7 +1090,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 23: {
                 
-                //#line 140 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 140 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Long()));
                 break;
             }
@@ -1100,7 +1100,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 24: {
                 
-                //#line 146 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 146 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Float()));
                 break;
             }
@@ -1110,7 +1110,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 25: {
                 
-                //#line 151 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 151 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Double()));
                 break;
             }
@@ -1121,7 +1121,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 28: {
                 //#line 174 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 176 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 176 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1134,7 +1134,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name TypeName = (Name) getRhsSym(1);
                 //#line 179 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 181 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 181 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1151,7 +1151,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 193 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object Annotationsopt = (Object) getRhsSym(3);
-                //#line 195 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 195 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.array(Type, pos(), 1));
                 break;
             }
@@ -1162,7 +1162,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 32: {
                 //#line 239 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 241 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 241 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1175,7 +1175,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name PackageName = (Name) getRhsSym(1);
                 //#line 244 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 246 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 246 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1190,7 +1190,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 34: {
                 //#line 260 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 262 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 262 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1203,7 +1203,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name AmbiguousName = (Name) getRhsSym(1);
                 //#line 265 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 267 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 267 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1218,7 +1218,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 36: {
                 //#line 275 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 277 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 277 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1231,7 +1231,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name AmbiguousName = (Name) getRhsSym(1);
                 //#line 280 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 282 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 282 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1246,7 +1246,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 38: {
                 //#line 290 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 292 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 292 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1259,7 +1259,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name PackageOrTypeName = (Name) getRhsSym(1);
                 //#line 295 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 297 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 297 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1274,7 +1274,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 40: {
                 //#line 305 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 307 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 307 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1287,7 +1287,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name AmbiguousName = (Name) getRhsSym(1);
                 //#line 310 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 312 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 312 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1306,7 +1306,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ImportDeclarationsopt = (List) getRhsSym(2);
                 //#line 322 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 324 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 324 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // Add import x10.lang.* by default.
                 int token_pos = (ImportDeclarationsopt.size() == 0
                                      ? TypeDeclarationsopt.size() == 0
@@ -1327,7 +1327,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 43: {
                 //#line 338 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 340 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 340 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -1342,7 +1342,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ImportDeclarations = (List) getRhsSym(1);
                 //#line 345 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 347 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 347 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -1355,7 +1355,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 45: {
                 //#line 353 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 355 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 355 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -1371,7 +1371,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List TypeDeclarations = (List) getRhsSym(1);
                 //#line 361 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(2);
-                //#line 363 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 363 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -1384,7 +1384,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 49: {
                 //#line 376 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name TypeName = (Name) getRhsSym(2);
-                //#line 378 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 378 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, TypeName.toString()));
                 break;
             }
@@ -1395,7 +1395,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 50: {
                 //#line 382 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name PackageOrTypeName = (Name) getRhsSym(2);
-                //#line 384 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 384 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, PackageOrTypeName.toString()));
                 break;
             }
@@ -1405,7 +1405,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 53: {
                 
-                //#line 398 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 398 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(null);
                 break;
             }
@@ -1416,7 +1416,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 55: {
                 //#line 409 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 411 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 411 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(ClassModifier);
                 setResult(l);
@@ -1431,7 +1431,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClassModifiers = (List) getRhsSym(1);
                 //#line 416 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassModifier = (List) getRhsSym(2);
-                //#line 418 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 418 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ClassModifiers.addAll(ClassModifier);
                 break;
             }
@@ -1442,7 +1442,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 57: {
                 //#line 422 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 424 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 424 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -1452,7 +1452,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 58: {
                 
-                //#line 429 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 429 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -1462,7 +1462,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 59: {
                 
-                //#line 434 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 434 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -1472,7 +1472,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 60: {
                 
-                //#line 439 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 439 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -1482,7 +1482,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 61: {
                 
-                //#line 444 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 444 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.ABSTRACT));
                 break;
             }
@@ -1492,7 +1492,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 62: {
                 
-                //#line 449 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 449 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -1502,7 +1502,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 63: {
                 
-                //#line 454 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 454 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -1512,7 +1512,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 64: {
                 
-                //#line 459 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 459 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.STRICTFP));
                 break;
             }
@@ -1523,7 +1523,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 65: {
                 //#line 471 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 473 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 473 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ClassType);
                 break;
             }
@@ -1534,7 +1534,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 66: {
                 //#line 482 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 484 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 484 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(InterfaceTypeList);
                 break;
             }
@@ -1545,7 +1545,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 67: {
                 //#line 488 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(1);
-                //#line 490 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 490 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
                 setResult(l);
@@ -1560,7 +1560,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List InterfaceTypeList = (List) getRhsSym(1);
                 //#line 495 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
-                //#line 497 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 497 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 InterfaceTypeList.add(InterfaceType);
                 setResult(InterfaceTypeList);
                 break;
@@ -1572,7 +1572,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 69: {
                 //#line 507 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 509 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 509 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                 break;
             }
@@ -1585,7 +1585,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClassBodyDeclarations = (List) getRhsSym(1);
                 //#line 514 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 516 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 516 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                 break;
@@ -1597,7 +1597,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 73: {
                 //#line 522 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block InstanceInitializer = (Block) getRhsSym(1);
-                //#line 524 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 524 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(nf.Initializer(pos(), Flags.NONE, InstanceInitializer));
                 setResult(l);
@@ -1610,7 +1610,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 74: {
                 //#line 529 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block StaticInitializer = (Block) getRhsSym(1);
-                //#line 531 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 531 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(nf.Initializer(pos(), Flags.STATIC, StaticInitializer));
                 setResult(l);
@@ -1623,7 +1623,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 75: {
                 //#line 536 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 538 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 538 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -1636,7 +1636,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 77: {
                 //#line 545 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 MethodDecl MethodDeclaration = (MethodDecl) getRhsSym(1);
-                //#line 547 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 547 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -1649,7 +1649,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 78: {
                 //#line 552 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 554 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 554 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -1662,7 +1662,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 79: {
                 //#line 559 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 561 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 561 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -1674,7 +1674,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 80: {
                 
-                //#line 568 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 568 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                 break;
@@ -1686,7 +1686,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 81: {
                 //#line 576 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VarDeclarator VariableDeclarator = (VarDeclarator) getRhsSym(1);
-                //#line 578 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 578 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), X10VarDeclarator.class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -1701,7 +1701,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List VariableDeclarators = (List) getRhsSym(1);
                 //#line 583 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VarDeclarator VariableDeclarator = (VarDeclarator) getRhsSym(3);
-                //#line 585 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 585 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                 break;
@@ -1715,7 +1715,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(1);
                 //#line 591 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 593 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 593 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 VariableDeclaratorId.init = VariableInitializer;
                 VariableDeclaratorId.position(pos(((JPGPosition) VariableDeclaratorId.pos), ((JPGPosition) VariableInitializer.position())));
                 // setResult(VariableDeclaratorId);
@@ -1728,7 +1728,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 85: {
                 //#line 599 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 601 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 601 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new X10VarDeclarator(pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -1739,7 +1739,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 86: {
                 //#line 604 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator TraditionalVariableDeclaratorId = (X10VarDeclarator) getRhsSym(1);
-                //#line 606 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 606 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 TraditionalVariableDeclaratorId.dims++;
                 TraditionalVariableDeclaratorId.position(pos());
                 // setResult(a);
@@ -1754,7 +1754,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 //#line 613 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 615 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 615 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new X10VarDeclarator(pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()), IdentifierList));
                 break;
             }
@@ -1765,7 +1765,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 89: {
                 //#line 618 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 620 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 620 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new X10VarDeclarator(pos(), IdentifierList));
                 break;
             }
@@ -1776,7 +1776,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 92: {
                 //#line 627 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FieldModifier = (List) getRhsSym(1);
-                //#line 629 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 629 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(FieldModifier);
                 setResult(l);
@@ -1791,7 +1791,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List FieldModifiers = (List) getRhsSym(1);
                 //#line 634 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FieldModifier = (List) getRhsSym(2);
-                //#line 636 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 636 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 FieldModifiers.addAll(FieldModifier);
                 break;
             }
@@ -1802,7 +1802,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 94: {
                 //#line 640 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 642 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 642 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -1812,7 +1812,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 95: {
                 
-                //#line 647 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 647 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -1822,7 +1822,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 96: {
                 
-                //#line 652 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 652 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -1832,7 +1832,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 97: {
                 
-                //#line 657 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 657 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -1842,7 +1842,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 98: {
                 
-                //#line 662 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 662 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -1852,7 +1852,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 99: {
                 
-                //#line 667 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 667 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -1862,7 +1862,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 100: {
                 
-                //#line 672 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 672 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.TRANSIENT));
                 break;
             }
@@ -1872,7 +1872,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 102: {
                 
-                //#line 689 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 689 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Void()));
                 break;
             }
@@ -1883,7 +1883,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 103: {
                 //#line 709 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Formal LastFormalParameter = (Formal) getRhsSym(1);
-                //#line 711 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 711 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(LastFormalParameter);
                 setResult(l);
@@ -1898,7 +1898,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List FormalParameters = (List) getRhsSym(1);
                 //#line 716 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Formal LastFormalParameter = (Formal) getRhsSym(3);
-                //#line 718 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 718 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 FormalParameters.add(LastFormalParameter);
                 // setResult(FormalParameters);
                 break;
@@ -1910,7 +1910,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 105: {
                 //#line 723 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 725 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 725 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -1925,7 +1925,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List FormalParameters = (List) getRhsSym(1);
                 //#line 730 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 732 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 732 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 FormalParameters.add(FormalParameter);
                 // setResult(FormalParameters);
                 break;
@@ -1941,7 +1941,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 //#line 737 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(3);
-                //#line 739 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 739 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
             Formal f;
         if (VariableDeclaratorId != null)
                 f = nf.X10Formal(pos(), extractFlags(VariableModifiersopt), nf.array(Type, pos(getRhsFirstTokenIndex(2), getRhsLastTokenIndex(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names());
@@ -1958,7 +1958,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 108: {
                 //#line 749 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableModifier = (List) getRhsSym(1);
-                //#line 751 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 751 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(VariableModifier);
                 setResult(l);
@@ -1973,7 +1973,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List VariableModifiers = (List) getRhsSym(1);
                 //#line 756 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableModifier = (List) getRhsSym(2);
-                //#line 758 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 758 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 VariableModifiers.addAll(VariableModifier);
                 break;
             }
@@ -1983,7 +1983,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 110: {
                 
-                //#line 764 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 764 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -1994,7 +1994,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 111: {
                 //#line 767 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 769 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 769 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2011,7 +2011,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Object opt = (Object) getRhsSym(3);
                 //#line 773 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(4);
-                //#line 775 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 775 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 assert(opt == null);
                 Formal f = nf.X10Formal(pos(), extractFlags(VariableModifiersopt), nf.array(Type, pos(getRhsFirstTokenIndex(2), getRhsLastTokenIndex(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names());
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
@@ -2025,7 +2025,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 113: {
                 //#line 788 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List MethodModifier = (List) getRhsSym(1);
-                //#line 790 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 790 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(MethodModifier);
                 setResult(l);
@@ -2040,7 +2040,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List MethodModifiers = (List) getRhsSym(1);
                 //#line 795 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List MethodModifier = (List) getRhsSym(2);
-                //#line 797 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 797 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 MethodModifiers.addAll(MethodModifier);
                 break;
             }
@@ -2051,7 +2051,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 115: {
                 //#line 801 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 803 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 803 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2061,7 +2061,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 116: {
                 
-                //#line 808 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 808 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2071,7 +2071,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 117: {
                 
-                //#line 813 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 813 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -2081,7 +2081,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 118: {
                 
-                //#line 818 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 818 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -2091,7 +2091,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 119: {
                 
-                //#line 823 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 823 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.ABSTRACT));
                 break;
             }
@@ -2101,7 +2101,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 120: {
                 
-                //#line 828 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 828 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -2111,7 +2111,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 121: {
                 
-                //#line 833 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 833 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -2121,7 +2121,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 122: {
                 
-                //#line 843 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 843 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.NATIVE));
                 break;
             }
@@ -2131,7 +2131,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 123: {
                 
-                //#line 848 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 848 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.STRICTFP));
                 break;
             }
@@ -2142,7 +2142,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 124: {
                 //#line 852 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 854 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 854 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ExceptionTypeList);
                 break;
             }
@@ -2153,7 +2153,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 125: {
                 //#line 858 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 860 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 860 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -2168,7 +2168,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ExceptionTypeList = (List) getRhsSym(1);
                 //#line 865 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 867 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 867 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ExceptionTypeList.add(ExceptionType);
                 // setResult(ExceptionTypeList);
                 break;
@@ -2187,7 +2187,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 131: {
                 //#line 887 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 889 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 889 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Block);
                 break;
             }
@@ -2198,7 +2198,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 132: {
                 //#line 904 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 906 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 906 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -2209,7 +2209,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 133: {
                 //#line 910 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstructorModifier = (List) getRhsSym(1);
-                //#line 912 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 912 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(ConstructorModifier);
                 setResult(l);
@@ -2224,7 +2224,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ConstructorModifiers = (List) getRhsSym(1);
                 //#line 917 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstructorModifier = (List) getRhsSym(2);
-                //#line 919 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 919 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
                 break;
             }
@@ -2235,7 +2235,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 135: {
                 //#line 923 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 925 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 925 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2245,7 +2245,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 136: {
                 
-                //#line 930 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 930 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2255,7 +2255,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 137: {
                 
-                //#line 935 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 935 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -2265,7 +2265,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 138: {
                 
-                //#line 940 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 940 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -2278,7 +2278,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
                 //#line 944 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 946 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 946 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt == null)
@@ -2300,7 +2300,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 140: {
                 //#line 979 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 981 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 981 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ArgumentListopt);
                 break;
             }
@@ -2311,7 +2311,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 142: {
                 //#line 996 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceModifier = (List) getRhsSym(1);
-                //#line 998 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 998 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(InterfaceModifier);
                 setResult(l);
@@ -2326,7 +2326,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List InterfaceModifiers = (List) getRhsSym(1);
                 //#line 1003 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceModifier = (List) getRhsSym(2);
-                //#line 1005 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1005 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
                 break;
             }
@@ -2337,7 +2337,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 144: {
                 //#line 1009 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1011 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1011 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2347,7 +2347,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 145: {
                 
-                //#line 1016 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1016 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2357,7 +2357,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 146: {
                 
-                //#line 1021 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1021 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PROTECTED));
                 break;
             }
@@ -2367,7 +2367,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 147: {
                 
-                //#line 1026 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1026 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PRIVATE));
                 break;
             }
@@ -2377,7 +2377,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 148: {
                 
-                //#line 1031 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1031 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.ABSTRACT));
                 break;
             }
@@ -2387,7 +2387,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 149: {
                 
-                //#line 1036 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1036 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -2397,7 +2397,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 150: {
                 
-                //#line 1041 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1041 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.STRICTFP));
                 break;
             }
@@ -2408,7 +2408,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 151: {
                 //#line 1045 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(2);
-                //#line 1047 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1047 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
                 setResult(l);
@@ -2423,7 +2423,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ExtendsInterfaces = (List) getRhsSym(1);
                 //#line 1052 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
-                //#line 1054 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1054 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ExtendsInterfaces.add(InterfaceType);
                 // setResult(ExtendsInterfaces);
                 break;
@@ -2435,7 +2435,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 153: {
                 //#line 1064 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 1066 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1066 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                 break;
             }
@@ -2448,7 +2448,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
                 //#line 1071 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 1073 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1073 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                 break;
@@ -2460,7 +2460,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 157: {
                 //#line 1079 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 MethodDecl AbstractMethodDeclaration = (MethodDecl) getRhsSym(1);
-                //#line 1081 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1081 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(AbstractMethodDeclaration);
                 setResult(l);
@@ -2473,7 +2473,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 158: {
                 //#line 1086 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1088 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1088 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -2486,7 +2486,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 159: {
                 //#line 1093 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1095 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1095 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -2498,7 +2498,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 160: {
                 
-                //#line 1102 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1102 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -2513,7 +2513,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 //#line 1106 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 1108 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1108 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
                 {
@@ -2539,7 +2539,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 162: {
                 //#line 1127 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstantModifier = (List) getRhsSym(1);
-                //#line 1129 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1129 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(ConstantModifier);
                 setResult(l);
@@ -2554,7 +2554,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ConstantModifiers = (List) getRhsSym(1);
                 //#line 1134 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ConstantModifier = (List) getRhsSym(2);
-                //#line 1136 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1136 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ConstantModifiers.addAll(ConstantModifier);
                 break;
             }
@@ -2565,7 +2565,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 164: {
                 //#line 1140 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1142 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1142 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2575,7 +2575,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 165: {
                 
-                //#line 1147 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1147 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2585,7 +2585,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 166: {
                 
-                //#line 1152 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1152 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.STATIC));
                 break;
             }
@@ -2595,7 +2595,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 167: {
                 
-                //#line 1157 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1157 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.FINAL));
                 break;
             }
@@ -2606,7 +2606,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 168: {
                 //#line 1163 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List AbstractMethodModifier = (List) getRhsSym(1);
-                //#line 1165 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1165 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(AbstractMethodModifier);
                 setResult(l);
@@ -2621,7 +2621,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List AbstractMethodModifiers = (List) getRhsSym(1);
                 //#line 1170 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List AbstractMethodModifier = (List) getRhsSym(2);
-                //#line 1172 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1172 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 AbstractMethodModifiers.addAll(AbstractMethodModifier);
                 break;
             }
@@ -2632,7 +2632,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 170: {
                 //#line 1176 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1178 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1178 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -2642,7 +2642,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 171: {
                 
-                //#line 1183 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1183 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC));
                 break;
             }
@@ -2652,7 +2652,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 172: {
                 
-                //#line 1188 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1188 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.ABSTRACT));
                 break;
             }
@@ -2663,7 +2663,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 173: {
                 //#line 1221 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 1223 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1223 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -2678,7 +2678,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Annotations = (List) getRhsSym(1);
                 //#line 1228 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 1230 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1230 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Annotations.add(Annotation);
                 break;
             }
@@ -2689,7 +2689,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 175: {
                 //#line 1234 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(2);
-                //#line 1236 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1236 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.AnnotationNode(pos(), InterfaceType));
                 break;
             }
@@ -2700,7 +2700,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 176: {
                 //#line 1251 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1253 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1253 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -2713,7 +2713,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List VariableInitializersopt = (List) getRhsSym(2);
                 //#line 1280 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object opt = (Object) getRhsSym(3);
-                //#line 1282 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1282 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (VariableInitializersopt == null)
                      setResult(nf.ArrayInit(pos()));
                 else setResult(nf.ArrayInit(pos(), VariableInitializersopt));
@@ -2726,7 +2726,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 178: {
                 //#line 1288 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 1290 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1290 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -2741,7 +2741,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List VariableInitializers = (List) getRhsSym(1);
                 //#line 1295 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 1297 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1297 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                 break;
@@ -2753,7 +2753,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 180: {
                 //#line 1316 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 1318 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1318 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                 break;
             }
@@ -2764,7 +2764,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 181: {
                 //#line 1322 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 1324 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1324 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -2779,7 +2779,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List BlockStatements = (List) getRhsSym(1);
                 //#line 1329 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 1331 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1331 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                 break;
@@ -2791,7 +2791,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 184: {
                 //#line 1337 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1339 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1339 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -2804,7 +2804,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 185: {
                 //#line 1344 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 1346 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1346 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -2821,7 +2821,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 //#line 1354 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 1356 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1356 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                 List s = new TypedList(new LinkedList(), Stmt.class, false);
                 if (VariableDeclarators != null) {
@@ -2852,7 +2852,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1420 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1422 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1422 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                 break;
             }
@@ -2867,7 +2867,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 //#line 1426 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1428 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1428 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.If(pos(), Expression, StatementNoShortIf, Statement));
                 break;
             }
@@ -2882,7 +2882,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Stmt true_stmt = (Stmt) getRhsSym(5);
                 //#line 1432 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt false_stmt = (Stmt) getRhsSym(7);
-                //#line 1434 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1434 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.If(pos(), Expression, true_stmt, false_stmt));
                 break;
             }
@@ -2892,7 +2892,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 214: {
                 
-                //#line 1440 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1440 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Empty(pos()));
                 break;
             }
@@ -2905,7 +2905,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 //#line 1444 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1446 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1446 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Labeled(pos(), nf.Id(pos(getLeftSpan()), identifier.getIdentifier()), Statement));
                 break;
             }
@@ -2918,7 +2918,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 //#line 1450 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(3);
-                //#line 1452 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1452 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Labeled(pos(), nf.Id(pos(getLeftSpan()), identifier.getIdentifier()), StatementNoShortIf));
                 break;
             }
@@ -2929,7 +2929,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 217: {
                 //#line 1455 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1457 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1457 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Eval(pos(), StatementExpression));
                 break;
             }
@@ -2940,7 +2940,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 225: {
                 //#line 1478 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1480 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1480 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Assert(pos(), Expression));
                 break;
             }
@@ -2953,7 +2953,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr expr1 = (Expr) getRhsSym(2);
                 //#line 1483 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1485 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1485 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                 break;
             }
@@ -2966,7 +2966,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1489 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1491 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1491 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                 break;
             }
@@ -2979,7 +2979,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
                 //#line 1495 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1497 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1497 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                 break;
@@ -2993,7 +2993,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
                 //#line 1503 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1505 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1505 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                 break;
@@ -3007,7 +3007,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List SwitchLabels = (List) getRhsSym(1);
                 //#line 1510 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1512 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1512 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -3021,7 +3021,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 232: {
                 //#line 1519 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1521 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1521 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -3036,7 +3036,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List SwitchLabels = (List) getRhsSym(1);
                 //#line 1526 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1528 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1528 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                 break;
@@ -3048,7 +3048,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 234: {
                 //#line 1533 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1535 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1535 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                 break;
             }
@@ -3058,7 +3058,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 235: {
                 
-                //#line 1542 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1542 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Default(pos()));
                 break;
             }
@@ -3071,7 +3071,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1549 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1551 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1551 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                 break;
             }
@@ -3084,7 +3084,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1555 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1557 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1557 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.While(pos(), Expression, StatementNoShortIf));
                 break;
             }
@@ -3097,7 +3097,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Stmt Statement = (Stmt) getRhsSym(2);
                 //#line 1561 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1563 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1563 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                 break;
             }
@@ -3114,7 +3114,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ForUpdateopt = (List) getRhsSym(7);
                 //#line 1570 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1572 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1572 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                 break;
             }
@@ -3131,7 +3131,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ForUpdateopt = (List) getRhsSym(7);
                 //#line 1576 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(9);
-                //#line 1578 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1578 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, StatementNoShortIf));
                 break;
             }
@@ -3142,7 +3142,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 244: {
                 //#line 1583 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1585 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1585 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -3155,7 +3155,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 246: {
                 //#line 1593 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1595 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1595 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -3170,7 +3170,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List StatementExpressionList = (List) getRhsSym(1);
                 //#line 1600 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1602 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1602 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                 //setResult(StatementExpressionList);
                 break;
@@ -3182,7 +3182,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 248: {
                 //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name identifieropt = (Name) getRhsSym(2);
-                //#line 1612 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1612 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (identifieropt == null)
                      setResult(nf.Break(pos()));
                 else setResult(nf.Break(pos(), identifieropt.toString()));
@@ -3195,7 +3195,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 249: {
                 //#line 1618 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name identifieropt = (Name) getRhsSym(2);
-                //#line 1620 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1620 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (identifieropt == null)
                      setResult(nf.Continue(pos()));
                 else setResult(nf.Continue(pos(), identifieropt.toString()));
@@ -3208,7 +3208,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 250: {
                 //#line 1626 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1628 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1628 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                 break;
             }
@@ -3219,7 +3219,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 251: {
                 //#line 1632 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1634 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1634 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Throw(pos(), Expression));
                 break;
             }
@@ -3232,7 +3232,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Block Block = (Block) getRhsSym(2);
                 //#line 1644 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catches = (List) getRhsSym(3);
-                //#line 1646 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1646 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                 break;
             }
@@ -3247,7 +3247,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Catchesopt = (List) getRhsSym(3);
                 //#line 1649 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1651 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1651 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                 break;
             }
@@ -3258,7 +3258,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 254: {
                 //#line 1655 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1657 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1657 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -3273,7 +3273,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Catches = (List) getRhsSym(1);
                 //#line 1662 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1664 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1664 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                 break;
@@ -3287,7 +3287,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 //#line 1669 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1671 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1671 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                 break;
             }
@@ -3298,7 +3298,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 257: {
                 //#line 1675 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1677 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1677 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Block);
                 break;
             }
@@ -3309,7 +3309,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 261: {
                 //#line 1695 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1697 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1697 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (Type instanceof Name)
                 {
                     Name a = (Name) Type;
@@ -3333,7 +3333,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 262: {
                 
-                //#line 1716 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1716 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
                 break;
@@ -3344,7 +3344,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 263: {
                 
-                //#line 1722 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1722 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -3355,7 +3355,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 264: {
                 //#line 1725 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1727 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1727 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -3366,7 +3366,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 265: {
                 //#line 1730 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1732 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1732 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                 break;
             }
@@ -3377,7 +3377,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 270: {
                 //#line 1740 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
-                //#line 1742 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1742 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                 break;
@@ -3389,7 +3389,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 271: {
                 //#line 1746 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken LongLiteral = (IToken) getRhsIToken(1);
-                //#line 1748 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1748 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                 break;
@@ -3401,7 +3401,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 272: {
                 //#line 1752 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
-                //#line 1754 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1754 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                 break;
@@ -3413,7 +3413,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 273: {
                 //#line 1758 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
-                //#line 1760 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1760 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                 break;
@@ -3425,7 +3425,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 274: {
                 //#line 1764 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 1766 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1766 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                 break;
             }
@@ -3436,7 +3436,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 275: {
                 //#line 1769 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
-                //#line 1771 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1771 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                 break;
@@ -3448,7 +3448,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 276: {
                 //#line 1775 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 1777 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1777 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                 break;
@@ -3459,7 +3459,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 277: {
                 
-                //#line 1783 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1783 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.NullLit(pos()));
                 break;
             }
@@ -3470,7 +3470,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 278: {
                 //#line 1787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 1789 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1789 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3481,7 +3481,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 279: {
                 //#line 1792 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 1794 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1794 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3492,7 +3492,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 280: {
                 //#line 1807 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1809 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1809 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -3507,7 +3507,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ArgumentList = (List) getRhsSym(1);
                 //#line 1814 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1816 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1816 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ArgumentList.add(Expression);
                 //setResult(ArgumentList);
                 break;
@@ -3519,7 +3519,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 282: {
                 //#line 1850 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr DimExpr = (Expr) getRhsSym(1);
-                //#line 1852 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1852 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
                 setResult(l);
@@ -3534,7 +3534,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List DimExprs = (List) getRhsSym(1);
                 //#line 1857 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr DimExpr = (Expr) getRhsSym(2);
-                //#line 1859 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1859 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 DimExprs.add(DimExpr);
                 //setResult(DimExprs);
                 break;
@@ -3546,7 +3546,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 284: {
                 //#line 1864 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1866 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1866 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Expression.position(pos()));
                 break;
             }
@@ -3556,7 +3556,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 285: {
                 
-                //#line 1872 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1872 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Integer(1));
                 break;
             }
@@ -3567,7 +3567,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 286: {
                 //#line 1875 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Integer Dims = (Integer) getRhsSym(1);
-                //#line 1877 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1877 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Integer(Dims.intValue() + 1));
                 break;
             }
@@ -3580,7 +3580,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Primary = (Expr) getRhsSym(1);
                 //#line 1881 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1883 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1883 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
                 break;
             }
@@ -3591,7 +3591,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 288: {
                 //#line 1886 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1888 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1888 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
                 break;
             }
@@ -3606,7 +3606,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 IToken sup = (IToken) getRhsIToken(3);
                 //#line 1891 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1893 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1893 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
                 break;
             }
@@ -3619,7 +3619,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name MethodName = (Name) getRhsSym(1);
                 //#line 1897 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 1899 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1899 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, ArgumentListopt));
@@ -3632,7 +3632,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 292: {
                 //#line 1922 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1924 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1924 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -3643,7 +3643,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 295: {
                 //#line 1930 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 1932 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1932 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                 break;
             }
@@ -3654,7 +3654,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 296: {
                 //#line 1936 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 1938 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1938 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                 break;
             }
@@ -3665,7 +3665,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 299: {
                 //#line 1944 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1946 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1946 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpression));
                 break;
             }
@@ -3676,7 +3676,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 300: {
                 //#line 1949 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1951 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1951 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpression));
                 break;
             }
@@ -3687,7 +3687,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 302: {
                 //#line 1956 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1958 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1958 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpression));
                 break;
             }
@@ -3698,7 +3698,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 303: {
                 //#line 1962 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1964 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1964 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpression));
                 break;
             }
@@ -3709,7 +3709,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 305: {
                 //#line 1969 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1971 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1971 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                 break;
             }
@@ -3720,7 +3720,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 306: {
                 //#line 1974 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1976 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1976 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                 break;
             }
@@ -3733,7 +3733,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
                 //#line 1988 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1990 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1990 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                 break;
             }
@@ -3746,7 +3746,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
                 //#line 1993 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1995 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1995 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                 break;
             }
@@ -3759,7 +3759,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
                 //#line 1998 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 2000 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2000 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                 break;
             }
@@ -3772,7 +3772,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
                 //#line 2005 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 2007 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2007 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                 break;
             }
@@ -3785,7 +3785,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
                 //#line 2010 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 2012 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2012 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                 break;
             }
@@ -3798,7 +3798,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ShiftExpression = (Expr) getRhsSym(1);
                 //#line 2017 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 2019 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2019 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                 break;
             }
@@ -3811,7 +3811,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ShiftExpression = (Expr) getRhsSym(1);
                 //#line 2022 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(4);
-                //#line 2024 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2024 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                 break;
@@ -3825,7 +3825,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ShiftExpression = (Expr) getRhsSym(1);
                 //#line 2028 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(5);
-                //#line 2030 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2030 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                 break;
@@ -3839,7 +3839,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 //#line 2036 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 2038 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2038 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
                 break;
             }
@@ -3852,7 +3852,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 //#line 2041 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 2043 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2043 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
                 break;
             }
@@ -3865,7 +3865,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 //#line 2046 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 2048 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2048 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
                 break;
             }
@@ -3878,7 +3878,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 //#line 2051 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(4);
-                //#line 2053 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2053 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
                 break;
@@ -3892,7 +3892,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr EqualityExpression = (Expr) getRhsSym(1);
                 //#line 2067 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 2069 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2069 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                 break;
             }
@@ -3905,7 +3905,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr EqualityExpression = (Expr) getRhsSym(1);
                 //#line 2072 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 2074 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2074 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                 break;
             }
@@ -3918,7 +3918,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr AndExpression = (Expr) getRhsSym(1);
                 //#line 2079 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 2081 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2081 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                 break;
             }
@@ -3931,7 +3931,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
                 //#line 2086 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 2088 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2088 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                 break;
             }
@@ -3944,7 +3944,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
                 //#line 2093 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 2095 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2095 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                 break;
             }
@@ -3957,7 +3957,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
                 //#line 2100 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 2102 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2102 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                 break;
             }
@@ -3970,7 +3970,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
                 //#line 2107 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 2109 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2109 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                 break;
             }
@@ -3985,7 +3985,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 2114 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 2116 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2116 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                 break;
             }
@@ -4000,7 +4000,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
                 //#line 2123 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 2125 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2125 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                 break;
             }
@@ -4011,7 +4011,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 342: {
                 //#line 2129 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 2131 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2131 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -4021,7 +4021,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 345: {
                 
-                //#line 2139 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2139 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.ASSIGN);
                 break;
             }
@@ -4031,7 +4031,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 346: {
                 
-                //#line 2144 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2144 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.MUL_ASSIGN);
                 break;
             }
@@ -4041,7 +4041,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 347: {
                 
-                //#line 2149 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2149 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.DIV_ASSIGN);
                 break;
             }
@@ -4051,7 +4051,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 348: {
                 
-                //#line 2154 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2154 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.MOD_ASSIGN);
                 break;
             }
@@ -4061,7 +4061,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 349: {
                 
-                //#line 2159 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2159 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.ADD_ASSIGN);
                 break;
             }
@@ -4071,7 +4071,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 350: {
                 
-                //#line 2164 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2164 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.SUB_ASSIGN);
                 break;
             }
@@ -4081,7 +4081,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 351: {
                 
-                //#line 2169 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2169 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.SHL_ASSIGN);
                 break;
             }
@@ -4091,7 +4091,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 352: {
                 
-                //#line 2174 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2174 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.SHR_ASSIGN);
                 break;
@@ -4102,7 +4102,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 353: {
                 
-                //#line 2180 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2180 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.USHR_ASSIGN);
                 break;
@@ -4113,7 +4113,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 354: {
                 
-                //#line 2186 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2186 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                 break;
             }
@@ -4123,7 +4123,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 355: {
                 
-                //#line 2191 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2191 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                 break;
             }
@@ -4133,7 +4133,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 356: {
                 
-                //#line 2196 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2196 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                 break;
             }
@@ -4143,7 +4143,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 359: {
                 
-                //#line 2209 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2209 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Integer(0));
                 break;
             }
@@ -4153,7 +4153,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 361: {
                 
-                //#line 2216 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2216 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
@@ -4171,7 +4171,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 364: {
                 //#line 2223 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2225 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2225 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -4181,7 +4181,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 365: {
                 
-                //#line 2231 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2231 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                 break;
             }
@@ -4198,7 +4198,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 369: {
                 
-                //#line 2242 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2242 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                 break;
             }
@@ -4208,7 +4208,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 371: {
                 
-                //#line 2249 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2249 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                 break;
             }
@@ -4218,7 +4218,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 373: {
                 
-                //#line 2256 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2256 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                 break;
             }
@@ -4228,7 +4228,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 375: {
                 
-                //#line 2263 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2263 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4245,7 +4245,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 379: {
                 
-                //#line 2293 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2293 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4255,7 +4255,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 381: {
                 
-                //#line 2300 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2300 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4265,7 +4265,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 383: {
                 
-                //#line 2307 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2307 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -4275,7 +4275,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 385: {
                 
-                //#line 2314 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2314 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4285,7 +4285,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 387: {
                 
-                //#line 2321 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2321 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4302,7 +4302,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 391: {
                 
-                //#line 2332 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2332 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
@@ -4319,7 +4319,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 395: {
                 
-                //#line 2353 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2353 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
@@ -4329,7 +4329,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 397: {
                 
-                //#line 2360 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2360 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
@@ -4346,7 +4346,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 401: {
                 
-                //#line 2371 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2371 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4363,7 +4363,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 405: {
                 
-                //#line 2382 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2382 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
@@ -4373,7 +4373,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 407: {
                 
-                //#line 2389 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2389 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4383,7 +4383,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 409: {
                 
-                //#line 2396 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2396 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4393,7 +4393,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 411: {
                 
-                //#line 2403 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2403 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4403,7 +4403,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 413: {
                 
-                //#line 2410 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2410 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -4413,7 +4413,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 415: {
                 
-                //#line 2417 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2417 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4423,7 +4423,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 417: {
                 
-                //#line 2424 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2424 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                setResult(nf.TypeNodeFromQualifiedName(pos(), "x10.lang.Object"));
                 break;
             }
@@ -4433,7 +4433,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 419: {
                 
-                //#line 2435 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2435 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -4443,7 +4443,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 421: {
                 
-                //#line 2442 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2442 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                 break;
             }
@@ -4453,7 +4453,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 423: {
                 
-                //#line 2449 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2449 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
@@ -4463,7 +4463,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 425: {
                 
-                //#line 2456 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2456 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
@@ -4485,7 +4485,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
                 //#line 787 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 789 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 789 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                      setResult(DepParametersopt == null
                                ? TypeName.toType()
                                : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -4502,7 +4502,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
                 //#line 796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 798 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 798 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                  setResult(DepParametersopt == null
                                ? TypeName.toType()
                                : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -4515,7 +4515,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 431: {
                 //#line 804 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Name PackageName = (Name) getRhsSym(2);
-                //#line 806 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 806 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(PackageName.toPackage());
                 break;
             }
@@ -4536,7 +4536,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Interfacesopt = (List) getRhsSym(6);
                 //#line 810 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(7);
-                //#line 812 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 812 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
       checkTypeName(identifier);
       List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
                   : (List) PropertyListopt[0];
@@ -4559,7 +4559,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 433: {
                 //#line 828 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List X10ClassModifier = (List) getRhsSym(1);
-                //#line 830 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 830 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
        List l = new LinkedList();
        l.addAll(X10ClassModifier);
        setResult(l);
@@ -4574,7 +4574,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List X10ClassModifiers = (List) getRhsSym(1);
                 //#line 835 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List X10ClassModifier = (List) getRhsSym(2);
-                //#line 837 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 837 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
        X10ClassModifiers.addAll(X10ClassModifier);
                 break;
             }
@@ -4585,7 +4585,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 435: {
                 //#line 841 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 843 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 843 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // Done by extractFlags
                 // X10Flags.toX10Flags(ClassModifier));
                 setResult(ClassModifier);
@@ -4597,7 +4597,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 436: {
                 
-                //#line 850 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 850 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(X10Flags.SAFE));
                 break;
             }
@@ -4610,7 +4610,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Properties = (List) getRhsSym(2);
                 //#line 854 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(3);
-                //#line 856 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 856 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
    Object[] result = new Object[2];
    result[0] = Properties;
    result[1] = WhereClauseopt;
@@ -4623,7 +4623,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 438: {
                 //#line 861 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClause = (Expr) getRhsSym(2);
-                //#line 863 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 863 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
    Object[] result = new Object[2];
    result[0] = null;
    result[1] = WhereClause;
@@ -4636,7 +4636,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 439: {
                 //#line 870 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 872 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 872 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -4651,7 +4651,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Properties = (List) getRhsSym(1);
                 //#line 877 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 879 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 879 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Properties.add(Property);
                 // setResult(FormalParameters);
                 break;
@@ -4665,7 +4665,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 885 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(2);
-                //#line 887 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 887 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
     
                 setResult(nf.PropertyDecl(pos(), Flags.PUBLIC.Final(), Type,
                 nf.Id(identifier.getPosition(), identifier.getIdentifier())));
@@ -4689,7 +4689,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Throwsopt = (List) getRhsSym(5);
                 //#line 900 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(6);
-                //#line 902 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 902 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
       Name c = (MethodDeclarator != null) ? (Name) MethodDeclarator[0] : null;
       List d = (MethodDeclarator != null) ? (List) MethodDeclarator[1] : null;
       Integer e = (MethodDeclarator != null) ? (Integer) MethodDeclarator[2] : null;
@@ -4720,7 +4720,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 443: {
                 //#line 926 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 928 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 928 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ThisCall(pos(), ArgumentListopt));
                 break;
             }
@@ -4731,7 +4731,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 444: {
                 //#line 931 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 933 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 933 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.SuperCall(pos(), ArgumentListopt));
                 break;
             }
@@ -4744,7 +4744,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Primary = (Expr) getRhsSym(1);
                 //#line 936 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 938 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 938 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ThisCall(pos(), Primary, ArgumentListopt));
                 break;
             }
@@ -4757,7 +4757,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Primary = (Expr) getRhsSym(1);
                 //#line 941 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 943 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 943 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.SuperCall(pos(), Primary, ArgumentListopt));
                 break;
             }
@@ -4776,7 +4776,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ExtendsInterfacesopt = (List) getRhsSym(5);
                 //#line 947 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(6);
-                //#line 949 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 949 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
       checkTypeName(identifier);
       List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
                   : (List) PropertyListopt[0];
@@ -4808,7 +4808,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Object[] MethodDeclarator = (Object[]) getRhsSym(4);
                 //#line 966 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 968 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 968 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
      Name c = (Name) MethodDeclarator[0];
      List d = (List) MethodDeclarator[1];
      Integer e = (Integer) MethodDeclarator[2];
@@ -4844,7 +4844,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ArgumentListopt = (List) getRhsSym(4);
                 //#line 993 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(6);
-                //#line 995 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 995 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), ClassOrInterfaceType, ArgumentListopt));
                 else setResult(nf.New(pos(), ClassOrInterfaceType, ArgumentListopt, ClassBodyopt));
@@ -4863,7 +4863,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ArgumentListopt = (List) getRhsSym(6);
                 //#line 1000 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
-                //#line 1002 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1002 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Name b = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), Primary, b.toType(), ArgumentListopt));
@@ -4883,7 +4883,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ArgumentListopt = (List) getRhsSym(6);
                 //#line 1008 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
-                //#line 1010 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1010 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Name b = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), AmbiguousName.toExpr(), b.toType(), ArgumentListopt));
@@ -4901,7 +4901,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 //#line 1017 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1019 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1019 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), Primary, nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4914,7 +4914,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 //#line 1022 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1024 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1024 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4931,7 +4931,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
                 //#line 1027 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1029 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1029 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
                 break;
             }
@@ -4942,7 +4942,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 455: {
                 //#line 1034 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 1036 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1036 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.AssignPropertyCall(pos(),  ArgumentList));
                 break;
             }
@@ -4955,7 +4955,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 1049 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1051 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1051 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                 setResult(tn);
@@ -4970,7 +4970,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 1057 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1059 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1059 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 X10TypeNode t = nf.Nullable(pos(), Type);
                 setResult(DepParametersopt == null ? t 
                 : t.dep(null, DepParametersopt));
@@ -4984,7 +4984,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 461: {
                 //#line 1065 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1067 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1067 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.FutureNode(pos(), Type));
                 break;
             }
@@ -4997,7 +4997,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode NumericType = (TypeNode) getRhsSym(1);
                 //#line 1080 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1082 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1082 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
               //  System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
                 setResult(DepParametersopt == null
                                ? NumericType
@@ -5011,7 +5011,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 465: {
                 //#line 1088 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1090 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1090 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 X10TypeNode res = (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.Boolean());
                 setResult(DepParametersopt==null 
                            ? res 
@@ -5029,7 +5029,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
                 //#line 1102 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 1104 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1104 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
             X10TypeNode type;
             
             if (ts.isPrimitiveTypeName(TypeName.name.id())) {
@@ -5053,7 +5053,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 471: {
                 //#line 1121 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(2);
-                //#line 1123 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1123 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(DepParameterExpr);
                 break;
             }
@@ -5066,7 +5066,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ArgumentList = (List) getRhsSym(1);
                 //#line 1127 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(2);
-                //#line 1129 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1129 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.DepParameterExpr(pos(), ArgumentList, WhereClauseopt));
                 break;
             }
@@ -5077,7 +5077,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 473: {
                 //#line 1132 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClause = (Expr) getRhsSym(1);
-                //#line 1134 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1134 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.DepParameterExpr(pos(), Collections.EMPTY_LIST, WhereClause));
                 break;
             }
@@ -5088,7 +5088,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 474: {
                 //#line 1138 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(2);
-                //#line 1140 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1140 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstExpression);
                 break;
             }
@@ -5099,7 +5099,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 475: {
                 //#line 1145 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 polyglot.ast.Lit Literal = (polyglot.ast.Lit) getRhsSym(1);
-                //#line 1147 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1147 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Literal);
                 break;
             }
@@ -5110,7 +5110,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 476: {
                 //#line 1150 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1152 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1152 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (Type instanceof Name)
                 {
                     Name a = (Name) Type;
@@ -5134,7 +5134,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 477: {
                 
-                //#line 1171 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1171 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
                 break;
@@ -5145,7 +5145,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 478: {
                 
-                //#line 1177 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1177 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -5155,7 +5155,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 479: {
                 
-                //#line 1182 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1182 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Here(pos()));
                 break;
             }
@@ -5166,7 +5166,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 480: {
                 //#line 1185 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1187 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1187 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -5177,7 +5177,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 481: {
                 //#line 1190 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(2);
-                //#line 1192 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1192 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstExpression);
                 break;
             }
@@ -5187,7 +5187,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 483: {
                 
-                //#line 1198 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1198 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Self(pos()));
                 break;
             }
@@ -5198,7 +5198,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 484: {
                 //#line 1204 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstPrimary = (Expr) getRhsSym(1);
-                //#line 1206 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1206 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstPrimary);
                         break;
             }
@@ -5209,7 +5209,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 485: {
                 //#line 1209 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1211 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1211 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -5220,7 +5220,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 486: {
                 //#line 1214 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstPostfixExpression = (Expr) getRhsSym(1);
-                //#line 1216 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1216 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstPostfixExpression);
                         break;
             }
@@ -5231,7 +5231,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 487: {
                 //#line 1219 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1221 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1221 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.POS, ConstUnaryExpression));
                 break;
             }
@@ -5242,7 +5242,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 488: {
                 //#line 1224 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1226 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1226 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, ConstUnaryExpression));
                 break;
             }
@@ -5253,7 +5253,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 489: {
                 //#line 1229 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1231 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1231 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, ConstUnaryExpression));
                 break;
             }
@@ -5264,7 +5264,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 490: {
                 //#line 1235 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(1);
-                //#line 1237 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1237 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstUnaryExpression);
                 break;
             }
@@ -5277,7 +5277,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
                 //#line 1240 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1242 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1242 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MUL, ConstUnaryExpression));
                 break;
             }
@@ -5290,7 +5290,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
                 //#line 1245 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1247 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1247 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.DIV, ConstUnaryExpression));
                 break;
             }
@@ -5303,7 +5303,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
                 //#line 1250 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1252 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1252 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MOD, ConstUnaryExpression));
                 break;
             }
@@ -5314,7 +5314,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 494: {
                 //#line 1256 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1258 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1258 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstMultiplicativeExpression);
                 break;
             }
@@ -5327,7 +5327,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
                 //#line 1261 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1263 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1263 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.ADD, ConstMultiplicativeExpression));
                 break;
             }
@@ -5340,7 +5340,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
                 //#line 1266 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1268 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1268 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.SUB, ConstMultiplicativeExpression));
                 break;
             }
@@ -5351,7 +5351,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 497: {
                 //#line 1273 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1275 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1275 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstAdditiveExpression);
                 break;
             }
@@ -5364,7 +5364,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
                 //#line 1278 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1280 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1280 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LT, ConstAdditiveExpression));
                 break;
             }
@@ -5377,7 +5377,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
                 //#line 1283 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1285 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1285 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GT, ConstAdditiveExpression));
                 break;
             }
@@ -5390,7 +5390,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
                 //#line 1288 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1290 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1290 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LE, ConstAdditiveExpression));
                 break;
             }
@@ -5403,7 +5403,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
                 //#line 1293 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(4);
-                //#line 1295 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1295 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GE, ConstAdditiveExpression));
                 break;
             }
@@ -5414,7 +5414,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 502: {
                 //#line 1299 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1301 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1301 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstRelationalExpression);
                 break;
             }
@@ -5427,7 +5427,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
                 //#line 1304 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(3);
-                //#line 1306 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1306 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.EQ, ConstRelationalExpression));
                 break;
             }
@@ -5440,7 +5440,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
                 //#line 1309 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(3);
-                //#line 1311 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1311 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.NE, ConstRelationalExpression));
                 break;
             }
@@ -5451,7 +5451,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 505: {
                 //#line 1315 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1317 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1317 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstEqualityExpression);
                 break;
             }
@@ -5464,7 +5464,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstAndExpression = (Expr) getRhsSym(1);
                 //#line 1320 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(3);
-                //#line 1322 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1322 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstAndExpression, Binary.COND_AND, ConstEqualityExpression));
                 break;
             }
@@ -5475,7 +5475,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 507: {
                 //#line 1326 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAndExpression = (Expr) getRhsSym(1);
-                //#line 1328 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1328 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstAndExpression);
                 break;
             }
@@ -5488,7 +5488,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
                 //#line 1331 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAndExpression = (Expr) getRhsSym(3);
-                //#line 1333 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1333 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstExclusiveOrExpression, Binary.BIT_XOR, ConstAndExpression));
                 break;
             }
@@ -5499,7 +5499,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 509: {
                 //#line 1337 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1339 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1339 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstExclusiveOrExpression);
                 break;
             }
@@ -5512,7 +5512,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
                 //#line 1342 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 1344 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1344 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConstInclusiveOrExpression, Binary.COND_OR, ConstExclusiveOrExpression));
                 break;
             }
@@ -5523,7 +5523,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 511: {
                 //#line 1348 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1350 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1350 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ConstInclusiveOrExpression);
                 break;
             }
@@ -5538,7 +5538,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr first = (Expr) getRhsSym(3);
                 //#line 1353 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(5);
-                //#line 1355 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1355 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Conditional(pos(), ConstInclusiveOrExpression, first, ConstExpression));
                 break;
             }
@@ -5551,7 +5551,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr ConstPrimary = (Expr) getRhsSym(1);
                 //#line 1360 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1362 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1362 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(), ConstPrimary, nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5562,7 +5562,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 514: {
                 //#line 1365 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1367 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1367 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5577,7 +5577,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 IToken sup = (IToken) getRhsIToken(3);
                 //#line 1370 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1372 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1372 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -5588,7 +5588,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 517: {
                 //#line 1388 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1390 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1390 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
                 break;
             }
@@ -5599,7 +5599,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 518: {
                 //#line 1393 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1395 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1395 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, null));
                 break;
             }
@@ -5612,7 +5612,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 1398 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(3);
-                //#line 1400 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1400 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
                 break;
             }
@@ -5625,7 +5625,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 1403 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(4);
-                //#line 1405 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1405 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, DepParameterExpr));
                 break;
             }
@@ -5647,7 +5647,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 523: {
                 
-                //#line 1419 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1419 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(X10Flags.ATOMIC));
                 break;
             }
@@ -5657,7 +5657,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 524: {
                 
-                //#line 1424 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1424 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.NATIVE));
                 break;
             }
@@ -5667,7 +5667,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 525: {
                 
-                //#line 1429 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1429 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(X10Flags.SAFE));
                 break;
             }
@@ -5677,7 +5677,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 526: {
                 
-                //#line 1434 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1434 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(X10Flags.SEQUENTIAL));
                 break;
             }
@@ -5687,7 +5687,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 527: {
                 
-                //#line 1439 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1439 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(X10Flags.LOCAL));
                 break;
             }
@@ -5697,7 +5697,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 528: {
                 
-                //#line 1444 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1444 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(X10Flags.NON_BLOCKING));
                 break;
             }
@@ -5718,7 +5718,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Interfacesopt = (List) getRhsSym(6);
                 //#line 1450 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(7);
-                //#line 1452 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1452 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
     checkTypeName(identifier);
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
@@ -5746,7 +5746,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Interfacesopt = (List) getRhsSym(7);
                 //#line 1462 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(8);
-                //#line 1464 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1464 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 checkTypeName(identifier);
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
@@ -5770,7 +5770,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Throwsopt = (List) getRhsSym(3);
                 //#line 1475 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(4);
-                //#line 1477 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1477 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
      Name a = (Name) ConstructorDeclarator[1];
      DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
      List b = (List) ConstructorDeclarator[3];
@@ -5803,7 +5803,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List FormalParameterListopt = (List) getRhsSym(5);
                 //#line 1495 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(6);
-                //#line 1497 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1497 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
              Object[] a = new Object[6];
              a[1] = SimpleTypeName;
              a[2] = DepParametersopt;
@@ -5820,7 +5820,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 534: {
                 //#line 1506 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(2);
-                //#line 1508 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1508 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(DepParameters);
                 break;
             }
@@ -5831,7 +5831,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 535: {
                 //#line 1512 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode DataType = (TypeNode) getRhsSym(2);
-                //#line 1514 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1514 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(DataType);
                 break;
             }
@@ -5846,7 +5846,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List FormalParameterListopt = (List) getRhsSym(3);
                 //#line 1518 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(4);
-                //#line 1520 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1520 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
             //   System.out.println("Parsing methoddeclarator...");
                 Object[] a = new Object[5];
                a[0] = new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier()));
@@ -5864,7 +5864,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 537: {
                 //#line 1530 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Object[] MethodDeclarator = (Object[]) getRhsSym(1);
-                //#line 1532 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1532 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
                 // setResult(MethodDeclarator);
                break;
@@ -5882,7 +5882,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 1538 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(4);
-                //#line 1540 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1540 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 if (VariableDeclarators != null && VariableDeclarators.size() > 0) {
                     boolean gt1 = (VariableDeclarators.size() > 1);
@@ -5921,7 +5921,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Integer Dims = (Integer) getRhsSym(4);
                 //#line 1579 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 ArrayInit ArrayInitializer = (ArrayInit) getRhsSym(5);
-                //#line 1581 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1581 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 setResult(nf.NewArray(pos(), ArrayBaseType, Dims.intValue(), ArrayInitializer));
                 break;
@@ -5939,7 +5939,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr DimExpr = (Expr) getRhsSym(4);
                 //#line 1585 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Integer Dims = (Integer) getRhsSym(5);
-                //#line 1587 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1587 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 setResult(nf.NewArray(pos(), ArrayBaseType, Collections.singletonList(DimExpr), Dims.intValue()));
                 break;
@@ -5959,7 +5959,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List DimExprs = (List) getRhsSym(5);
                 //#line 1591 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Integer Dimsopt = (Integer) getRhsSym(6);
-                //#line 1593 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1593 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
@@ -5980,7 +5980,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Object Unsafeopt = (Object) getRhsSym(4);
                 //#line 1600 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(6);
-                //#line 1602 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1602 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, null));
                 break;
             }
@@ -5999,7 +5999,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr distr = (Expr) getRhsSym(6);
                 //#line 1605 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr initializer = (Expr) getRhsSym(8);
-                //#line 1607 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1607 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, distr, initializer));
                 break;
             }
@@ -6022,7 +6022,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 X10Formal FormalParameter = (X10Formal) getRhsSym(9);
                 //#line 1610 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1612 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1612 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // Expr initializer = makeInitializer( pos(getRhsFirstTokenIndex(8), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
                 List formals = new TypedList(new ArrayList(1), Formal.class, false);
                 formals.add(FormalParameter);
@@ -6043,7 +6043,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 546: {
                 
-                //#line 1624 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1624 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -6055,7 +6055,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 551: {
                 //#line 1633 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1635 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1635 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Type);
                 break;
             }
@@ -6068,7 +6068,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name ExpressionName = (Name) getRhsSym(1);
                 //#line 1639 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 1641 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1641 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (ArgumentList.size() == 1)
                      setResult(nf.X10ArrayAccess1(pos(), ExpressionName.toExpr(), (Expr) ArgumentList.get(0)));
                 else setResult(nf.X10ArrayAccess(pos(), ExpressionName.toExpr(), ArgumentList));
@@ -6083,7 +6083,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr PrimaryNoNewArray = (Expr) getRhsSym(1);
                 //#line 1646 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 1648 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1648 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (ArgumentList.size() == 1)
                      setResult(nf.X10ArrayAccess1(pos(), PrimaryNoNewArray, (Expr) ArgumentList.get(0)));
                 else setResult(nf.X10ArrayAccess(pos(), PrimaryNoNewArray, ArgumentList));
@@ -6098,7 +6098,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Clock = (Expr) getRhsSym(3);
                 //#line 1679 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1681 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1681 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
               setResult(nf.Now(pos(), Clock, Statement));
                 break;
             }
@@ -6109,7 +6109,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 574: {
                 //#line 1685 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1687 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1687 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(ClockList);
                 break;
             }
@@ -6124,7 +6124,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClockedClauseopt = (List) getRhsSym(3);
                 //#line 1691 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1693 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1693 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -6140,7 +6140,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 //#line 1701 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1703 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1703 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
                                                ? nf.Here(pos(getLeftSpan()))
                                                : PlaceExpressionSingleListopt), Statement));
@@ -6155,7 +6155,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1710 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1712 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1712 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.When(pos(), Expression, Statement));
                 break;
             }
@@ -6172,7 +6172,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(4);
                 //#line 1715 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1717 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1717 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                 break;
@@ -6190,7 +6190,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClockedClauseopt = (List) getRhsSym(7);
                 //#line 1722 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1724 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1724 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ForEach(pos(),
                               FormalParameter.flags(FormalParameter.flags().Final()),
                               Expression,
@@ -6211,7 +6211,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClockedClauseopt = (List) getRhsSym(7);
                 //#line 1732 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1734 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1734 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.AtEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6230,7 +6230,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(5);
                 //#line 1742 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1744 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1744 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ForLoop(pos(),
                         FormalParameter.flags(FormalParameter.flags().Final()),
                         Expression,
@@ -6244,7 +6244,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 582: {
                 //#line 1751 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1753 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1753 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
@@ -6257,7 +6257,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Annotations = (List) getRhsSym(1);
                 //#line 1758 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1760 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1760 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
                     Statement = (Stmt) ((X10Ext) Statement.ext()).annotations((List) Annotations);
                 }
@@ -6273,7 +6273,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Clock = (Expr) getRhsSym(3);
                 //#line 1768 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1770 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1770 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Now(pos(), Clock, StatementNoShortIf));
                 break;
             }
@@ -6288,7 +6288,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClockedClauseopt = (List) getRhsSym(3);
                 //#line 1774 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(4);
-                //#line 1776 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1776 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt),
@@ -6302,7 +6302,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 586: {
                 //#line 1783 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1785 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1785 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), StatementNoShortIf));
                 break;
             }
@@ -6315,7 +6315,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1789 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1791 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1791 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.When(pos(), Expression, StatementNoShortIf));
                 break;
             }
@@ -6332,7 +6332,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(4);
                 //#line 1794 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(6);
-                //#line 1796 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1796 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, StatementNoShortIf);
                 setResult(WhenStatement);
                 break;
@@ -6350,7 +6350,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClockedClauseopt = (List) getRhsSym(7);
                 //#line 1801 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
-                //#line 1803 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1803 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.ForEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6372,7 +6372,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClockedClauseopt = (List) getRhsSym(7);
                 //#line 1812 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
-                //#line 1814 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1814 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.AtEach(pos(),
                             FormalParameter.flags(FormalParameter.flags().Final()),
                             Expression,
@@ -6391,7 +6391,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(5);
                 //#line 1822 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(7);
-                //#line 1824 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1824 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                   setResult(nf.ForLoop(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6405,7 +6405,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 592: {
                 //#line 1831 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1833 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1833 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Finish(pos(), StatementNoShortIf));
                 break;
             }
@@ -6418,7 +6418,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Annotations = (List) getRhsSym(1);
                 //#line 1838 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1840 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1840 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 if (StatementNoShortIf.ext() instanceof X10Ext && Annotations instanceof List) {
                     StatementNoShortIf = (Stmt) ((X10Ext) StatementNoShortIf.ext()).annotations((List) Annotations);
                 }
@@ -6432,7 +6432,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 594: {
                 //#line 1848 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1850 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1850 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
               setResult(PlaceExpression);
                 break;
             }
@@ -6442,7 +6442,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 596: {
                 
-                //#line 1858 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1858 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Next(pos()));
                 break;
             }
@@ -6453,7 +6453,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 597: {
                 //#line 1862 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1864 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1864 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
@@ -6464,7 +6464,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 598: {
                 //#line 1868 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1870 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1870 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -6479,7 +6479,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ClockList = (List) getRhsSym(1);
                 //#line 1875 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1877 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1877 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ClockList.add(Clock);
                 setResult(ClockList);
                 break;
@@ -6491,7 +6491,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 600: {
                 //#line 1883 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1885 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1885 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
     setResult(Expression);
                 break;
             }
@@ -6504,7 +6504,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode PrimitiveType = (TypeNode) getRhsSym(2);
                 //#line 1897 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(4);
-                //#line 1899 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1899 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Cast(pos(), PrimitiveType, UnaryExpression));
                 break;
             }
@@ -6517,7 +6517,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode SpecialType = (TypeNode) getRhsSym(2);
                 //#line 1902 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1904 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1904 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Cast(pos(), SpecialType, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6530,7 +6530,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode ReferenceType = (TypeNode) getRhsSym(2);
                 //#line 1907 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1909 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1909 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Cast(pos(), ReferenceType, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6543,7 +6543,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1912 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(5);
-                //#line 1914 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1914 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6556,7 +6556,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode AnnotatedType = (TypeNode) getRhsSym(2);
                 //#line 1917 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(4);
-                //#line 1919 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1919 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Cast(pos(), AnnotatedType, UnaryExpression));
                 break;
             }
@@ -6569,7 +6569,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Annotations = (List) getRhsSym(2);
                 //#line 1922 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1924 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1924 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Expr e = UnaryExpressionNotPlusMinus;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -6584,7 +6584,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 //#line 1936 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1938 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1938 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                 break;
             }
@@ -6595,7 +6595,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 608: {
                 //#line 1944 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1946 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1946 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Name.class, false);
                 l.add(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 setResult(l);
@@ -6610,7 +6610,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List IdentifierList = (List) getRhsSym(1);
                 //#line 1951 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1953 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1953 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 IdentifierList.add(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 setResult(IdentifierList);
                 break;
@@ -6621,7 +6621,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 610: {
                 
-                //#line 1960 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1960 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(((X10NodeFactory) nf).Here(pos()));
 //
 // A "here" expression used to be treated as an ExpressionName instead
@@ -6643,7 +6643,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr expr1 = (Expr) getRhsSym(1);
                 //#line 1976 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1978 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1978 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 /*Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
 
@@ -6666,7 +6666,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 614: {
                 //#line 1994 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 1996 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1996 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -6681,7 +6681,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List RegionExpressionList = (List) getRhsSym(1);
                 //#line 2001 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 2003 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2003 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                 break;
@@ -6693,7 +6693,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 616: {
                 //#line 2008 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(2);
-                //#line 2010 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2010 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 Receiver x10LangPointFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.point.factory");
                 Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.region.factory");
                 Tuple tuple = nf.Tuple(pos(), x10LangPointFactory, x10LangRegionFactory, RegionExpressionList);
@@ -6709,7 +6709,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr expr1 = (Expr) getRhsSym(1);
                 //#line 2017 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 2019 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2019 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 ConstantDistMaker call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                 break;
@@ -6723,7 +6723,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 //#line 2024 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 2026 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2026 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt), Expression));
@@ -6735,7 +6735,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 619: {
                 
-                //#line 2034 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2034 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(X10Flags.MUTABLE));
                 break;
             }
@@ -6745,7 +6745,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 620: {
                 
-                //#line 2039 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2039 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL)));
                 break;
             }
@@ -6809,7 +6809,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 630: {
                 
-                //#line 2070 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2070 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"synchronized\" is an invalid X10 Method Modifier",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6822,7 +6822,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 631: {
                 
-                //#line 2079 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2079 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"volatile\" is an invalid X10 Field Modifier",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6838,7 +6838,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 2086 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 2088 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2088 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Synchronized Statement is invalid in X10",
                            getErrorPosition(getLeftSpan(), getRightSpan()));
@@ -6907,7 +6907,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 649: {
                 
-                //#line 2130 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2130 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
          setResult(Collections.singletonList(X10Flags.toX10Flags(Flags.NONE)));
                 break;
             }  
@@ -6923,7 +6923,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 652: {
                 
-                //#line 2138 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2138 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -6942,7 +6942,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 654: {
                 //#line 2145 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2147 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2147 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new Name(nf, ts, pos(), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
                 break;
             }
@@ -6952,7 +6952,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 655: {
                 
-                //#line 2153 "C:/workspace-3.2.2/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2153 "C:/workspace-3.2.2/x10.compiler/src/x10/parser/lpg.templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }

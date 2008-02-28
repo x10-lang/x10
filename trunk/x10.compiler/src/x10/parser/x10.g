@@ -5,7 +5,7 @@
 %options conflicts
 %options softkeywords
 %options package=x10.parser
-%options template=btParserTemplate.gi
+%options template=lpg.templates/btParserTemplate.gi
 %options import_terminals="x10Lexer.gi"
 
 %include

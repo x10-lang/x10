@@ -5,7 +5,7 @@
 %Options fp=X10Lexer
 %options single_productions
 %options package=x10.parser
-%options template=LexerTemplate.gi
+%options template=lpg.templates/LexerTemplate.gi
 %options filter=x10KWLexer.gi
 
 %Notice
