@@ -120,14 +120,14 @@ public final class DoubleArray2d_anybase_c extends DoubleArray_c {
 			if (d0 < i_origin || d1 < j_origin || d0 >= I+i_origin || d1 >= J+j_origin)
 				throw new ArrayIndexOutOfBoundsException("["+d0+","+d1+"," +"] is not in [" + (I-1) + ","+(J-1)+"]");
 		}
-		return arr_[ord(d0, d1)];
+		return arr_[(d1 - j_origin) + J * (d0 - i_origin)]; 
 	}
 
 	/**
 	 * WARNING: does not check array bounds!
 	 */
 	public double get(int d0, int d1) {
-		return arr_[ord(d0, d1)];
+		return arr_[(d1 - j_origin) + J * (d0 - i_origin)]; 
 	}
 
 	public double get(int d0, boolean chkPl, boolean chkAOB) {
@@ -148,7 +148,7 @@ public final class DoubleArray2d_anybase_c extends DoubleArray_c {
 			if (d0 < i_origin || d1 < j_origin  || d0 >= I+i_origin || d1 >= J+j_origin)
 				throw new ArrayIndexOutOfBoundsException();
 		}
-		return arr_[ord(d0, d1)] = v;
+		return arr_[(d1 - j_origin) + J * (d0 - i_origin)] = v;
 	}
 
 	public double set(double v, int d0, int d1) {
