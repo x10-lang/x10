@@ -76,4 +76,5 @@ abstract public class clock extends Object implements ValueType {
 	public void next() {
 		doNext();
 	}
+	
 }
