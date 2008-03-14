@@ -66,8 +66,8 @@ public abstract class Job extends Closure implements Future {
 				// Accumulate into result.
 				int old = resultInt();
 				accumulateResultInt(f.x);
-				//if (Worker.reporting)
-				//System.out.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
+				if (Worker.reporting)
+				System.err.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
 			}
 			setupGQReturn();
 		}
@@ -125,8 +125,8 @@ public abstract class Job extends Closure implements Future {
 			return null;
 		}
 		public void setOutletOn(final Closure c) {
-			c.setOutlet(
-					new Outlet() {
+			c.setOutlet(0);
+			/*		new Outlet() {
 						public void run() {
 							int v = c.resultInt();
 							x = v;
@@ -135,7 +135,7 @@ public abstract class Job extends Closure implements Future {
 										+ v + " to " + JobFrame.this +".x");
 						}
 						public String toString() { return "OutletInto x from " + c;}
-						});
+						});*/
 		}
 		public String toString() {
 			return "JobFrame(#" + hashCode() + ",x=" + x + ", PC=" + PC+")";
@@ -143,10 +143,16 @@ public abstract class Job extends Closure implements Future {
 	}
 	final Pool pool;
 	public Job(Pool pool) {
-		this(new JobFrame(), pool);
+		this(new JobFrame() { 
+			public void acceptInlet(int index, int value) { 
+				x=value;
+			}
+		},
+		pool);
+
 	}
 	
-	Job(Frame f, Pool pool) {
+	public Job(Frame f, Pool pool) {
 		super(f);
 		this.pool=pool;
 		parent = null;
