@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
 
- * $Id: point.h,v 1.11 2007-12-10 16:44:39 ganeshvb Exp $ 
+ * $Id: point.h,v 1.12 2008-03-14 07:19:40 ganeshvb Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -11,11 +11,39 @@
 #include <x10/xassert.h>
 #include <x10/gas.h>
 #include <iostream>
-//#include "__x10lib.h__"
+
 
 /* C++ Lang Interface */
+
+/* change the indices to x10_index_t */
+
 #ifdef __cplusplus
 namespace x10lib {
+
+  /*  template <>
+    class Point<-1> 
+    {  
+      Point (int rank, int* values) :
+	_rank (rank)
+	{ 
+	  assert (rank < X10_MAX_RANK);
+	  
+	  for (int i = 0; i < rank; ++i)
+	    _values[i] = values[i];	  
+	}
+      
+      
+      const int value (const int x) const
+	{
+	  assert (x < X10_MAX_RANK);
+	  return _values[x];
+	}
+      
+    private:
+      int _rank;
+      int _values [X10_MAX_RANK];
+      }; */
+  
 
   template<int RANK>
   class Point {
@@ -58,31 +86,31 @@ namespace x10lib {
   public:
       
     Point (const int i) : 
-      i_(i) 
+      _i(i) 
     { }
 
     Point (const int* values) 
-      :      i_ (values[0])
+      :      _i (values[0])
     {}
 
 
     Point (const Point<1>& other) :
-      i_(other.i_) {}
+      _i(other._i) {}
 	
     const int value (const int x) const
     {
       assert (x == 0);	  
-      return i_;
+      return _i;
     }
 
     const int valueI () const
     {
-      return i_;
+      return _i;
     }
 	
   private:
 	
-    const int i_;
+    const int _i;
   };
   
   template<>
@@ -91,41 +119,41 @@ namespace x10lib {
   public:
     
     Point (const int k) :
-      i_(k), j_(k) 
+      _i(k), _j(k) 
     {}
 
     Point (int i, int j) : 
-      i_(i),j_(j) 
+      _i(i),_j(j) 
     {}
 
     Point (const int* values) : 
-      i_(values[0]),
-      j_ (values[1])
+      _i(values[0]),
+      _j (values[1])
     {}
 
     Point (const Point<2>& other) :
-      i_(other.i_),
-      j_(other.j_) {}
+      _i(other._i),
+      _j(other._j) {}
     
     const int value (const int x) const
     {
       assert (x <= 1);
-      return x == 0 ? i_ : j_;
+      return x == 0 ? _i : _j;
     }
     
     const int valueI () const
     {
-      return i_;
+      return _i;
     }
     
     const int valueJ () const
     {
-      return j_;
+      return _j;
     }
     
   private:
-    const int i_;
-    const int j_;
+    const int _i;
+    const int _j;
   };
   
 
@@ -135,27 +163,27 @@ namespace x10lib {
   public:
 
     Point (const int k) :
-      i_(k), j_(k), k_(k)
+      _i(k), _j(k), _k(k)
     {}
 
-    Point (int i, int j, int k) : i_(i), j_(j), k_(k) {}
+    Point (int i, int j, int k) : _i(i), _j(j), _k(k) {}
 
     Point (const int* values) : 
-      i_(values[0]),
-      j_ (values[1]),
-      k_ (values[2])
+      _i(values[0]),
+      _j (values[1]),
+      _k (values[2])
     {}
    
     const int value (const int x) const
     {
       assert (x <= 2);
-      return x == 0 ? i_ : 
-	x == 1 ? j_ : k_;
+      return x == 0 ? _i : 
+	x == 1 ? _j : _k;
     }    
   private:
-    const int i_;
-    const int j_;
-    const int k_;
+    const int _i;
+    const int _j;
+    const int _k;
   };
 
   template <int RANK> 
@@ -166,8 +194,8 @@ namespace x10lib {
             return false;
       } 
       return true;
-   } 
-
+   }   
+  
 } /* closing brace for namespance x10lib */
 #endif
 

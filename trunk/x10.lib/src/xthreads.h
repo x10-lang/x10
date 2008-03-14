@@ -2,7 +2,7 @@
  *
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xthreads.h,v 1.3 2008-02-26 12:27:21 ganeshvb Exp $
+ * $Id: xthreads.h,v 1.4 2008-03-14 07:19:39 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -23,7 +23,6 @@
 */
 
 #include <iostream>
-#include <ucontext.h>
 #include <x10/queue.h>
 #include <x10/async_closure.h>
 
@@ -50,7 +49,7 @@ extern x10_async_queue_t WaitQueue;
 #define x10_thread_libcall5(fptr, arg0, arg1, ar2, ar3, arg4)
 
 #else
-
+#include <ucontext.h>
 #define x10_thread_create  \
 	do {\
 	     getcontext(&this->_current_ctxt); \
@@ -83,7 +82,7 @@ extern x10_async_queue_t WaitQueue;
 
 #ifdef X86 
 #define set_stack_ptr \
-		this->_libcall_ctxt.uc_mcontext.gregs[REG_ESP] =  this->_caller_ctxt.uc_mcontext.gregs[REG_ESP];
+		this->_libcall_ctxt.uc_mcontext.gregs[REG_ESP] =  this->_caller_ctxt.uc_mcontext.gregs[REG_ESP] + 4;
 #else 
 #define set_stack_ptr  \
 		this->_libcall_ctxt.uc_mcontext.jmp_context.gpr[1] =  this->_caller_ctxt.uc_mcontext.jmp_context.gpr[1];
@@ -141,6 +140,7 @@ extern x10_async_queue_t WaitQueue;
 	do {\
                 getcontext(&this->_libcall_ctxt);\
 		this->_libcall_ctxt.uc_stack.ss_sp = this->_caller_ctxt.uc_stack.ss_sp;\
+		this->_libcall_ctxt.uc_stack.ss_sp = (void*) this->_caller_ctxt.uc_mcontext.gregs[REG_ESP];\
 		this->_libcall_ctxt.uc_stack.ss_size = this->_caller_ctxt.uc_stack.ss_size;\
              	this->_libcall_ctxt.uc_stack.ss_flags = 0;\
              	this->_libcall_ctxt.uc_link = &this->_current_ctxt;\
@@ -149,6 +149,7 @@ extern x10_async_queue_t WaitQueue;
                 swapcontext (&this->_current_ctxt, &this->_libcall_ctxt); \
 	}while(0);
 
+		//set_stack_ptr; \
 #define x10_thread_libcall5(fptr, arg0, arg1, arg2, arg3, arg4)\
 	do {\
                 getcontext(&this->_libcall_ctxt);\
