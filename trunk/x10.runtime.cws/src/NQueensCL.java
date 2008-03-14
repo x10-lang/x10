@@ -59,26 +59,16 @@ public class NQueensCL extends Closure {
 	public static class NFrame extends Frame {
 //		 The label at which computation must be continued by the associated
 		// closure.
-		public volatile int PC;
+		public  int PC;
 		final long sofar;
 		final int row;
-		volatile int q;
+		 int q;
 		int sum;
-		@Override public void setOutletOn(final Closure c) {
-			c.setOutlet(
-					new Outlet() {
-						public void run() {
-							int value = c.resultInt();
-							sum += value;
-							
-							if ( Worker.reporting) {
-								Closure p = c.parent();
-								System.out.println(Thread.currentThread() + " " + c + " --> " + value
-										+ " into " + p);
-							}
-						}
-						public String toString() { return "OutletInto x from " + c;}
-					});
+		@Override
+		public void setOutletOn(final Closure c) {}
+		@Override
+		public void acceptInlet(int index, int value) {
+			sum +=value;
 		}
 		public Closure makeClosure() {
 			Closure c = new NQueensCL(this);

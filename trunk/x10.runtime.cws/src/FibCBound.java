@@ -55,24 +55,15 @@ public class FibCBound  extends Closure {
       super();
       this.n=n;
     }
-    @Override
-    public void setOutletOn(final Closure c) {
-      assert PC==LABEL_1 || PC == LABEL_2;
-      c.setOutlet((PC==LABEL_1) ?
-          new Outlet() {
-            public void run() {
-              x = c.resultInt();
-            }
-            public String toString() { return "OutletInto x from " + c;}
-            } 
-      : new Outlet() {
-        public void run() {
-          y = c.resultInt();
-        }
-        public String toString() { return "OutletInto y from " + c;}
-        });
-    
-    }
+    public void acceptInlet(int index, int value) {
+		  if (index==LABEL_1) { x=value;}
+		  else y=value;
+	  }
+	  @Override public void setOutletOn(final Closure c) {
+		  assert PC==LABEL_1 || PC == LABEL_2;
+		 // System.err.println(this + " setsOutlet on " + c + " to " + PC);
+		  c.setOutlet(PC);
+	  }
     public Closure makeClosure() {
       Closure c = new FibCBound(this);
       return c;

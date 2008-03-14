@@ -9,14 +9,19 @@ public class NQueensC extends Closure {
 	
 	public static final int[] expectedSolutions = new int[] {
 		0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,
-		73712, 365596, 2279184, 14772512};
+		73712, 
+		365596, 
+	    2279184,
+	    14772512};
 	
 	public static void main(String[] args) throws Exception {
-		int procs, nReps;
+		int procs, nReps, num;
 		try {
+			num = Integer.parseInt(args[2]);
 			procs = Integer.parseInt(args[0]);
 			nReps = Integer.parseInt(args[1]);
-			System.out.println("Number of procs=" + procs +" nReps="+nReps);
+			System.out.println("Number of procs=" + procs +" nReps="+nReps
+					+ " num=" + num);
 		}
 		catch (Exception e) {
 			System.out.println("Usage: java NQueensC <threads> <numRepeatation>");
@@ -24,21 +29,9 @@ public class NQueensC extends Closure {
 		}
 		Pool g = new Pool(procs);
 		long sc = 0, sa = 0;
-		for (int i = 1; i < 16; i++) {
-			boardSize = i;
-			/*Job job = new Job(g) {
-				int result;
-				public void setResultInt(int x) { result=x;}
-				public int resultInt() { return result;}
-				@Override
-				public int spawnTask(Worker ws) throws StealAbort { 
-					return nQueens(ws, new int[]{});
-				}
-				public String toString() { return "Job(NQ,#" + hashCode()+")";}
-			};
-						
-			g.submit(job);
-			int result = job.getInt();*/
+		int[] Ns = new int[] { num};
+		for (int i = 0; i < Ns.length; i++) {
+			boardSize = Ns[i];
 			int result = 0;
 			
 			long s = System.nanoTime();
@@ -54,17 +47,19 @@ public class NQueensC extends Closure {
 					}
 					public String toString() { return "Job(NQ,#" + hashCode()+")";}
 				};
-				
 				g.submit(job);
 				result = job.getInt();
 				
 			}
 			long t = System.nanoTime();
 			
-			System.out.println("VJCWS Queens(" + i +")"+"\t"+(t-s)/1000000/nReps  + " ms" + "\t" + 
-					(result==expectedSolutions[i]?"ok" : "fail")
-					+ "\t" + "steals=" +((g.getStealCount()-sc)/nReps)
-	    			+ "\t" + "stealAttempts=" +((g.getStealAttempts()-sa)/nReps));
+			System.out.println("VJXWS Queens(" + (Ns[i]) +")"+"\t"
+					+(t-s)/1000000/nReps  + " ms" + "\t" + 
+					(Ns[i] < expectedSolutions.length ? 
+							(result==expectedSolutions[Ns[i]]?"ok" : "fail") :"")
+					+"\t " + result
+					+ " " + "steals=" +((g.getStealCount()-sc)/nReps)
+	    			+ " " + "stealAttempts=" +((g.getStealAttempts()-sa)/nReps));
 	    	  
 	    	  sc=g.getStealCount();
 	    	  sa=g.getStealAttempts();
@@ -86,27 +81,16 @@ public class NQueensC extends Closure {
 	}
 	@AllocateOnStack
 	public static class NFrame extends Frame {
-//		 The label at which computation must be continued by the associated
-		// closure.
-		public volatile int PC;
+//		 The label at which computation must be continued by the associated closure.
+		public int PC;
 		final int[] sofar;
-		volatile int q;
+		int q;
 		int sum;
 		@Override
-		public void setOutletOn(final Closure c) {
-			c.setOutlet(
-					new Outlet() {
-						public void run() {
-							NFrame f = (NFrame) c.parentFrame();
-							int value = c.resultInt();
-							f.sum += value;
-							if (Worker.reporting) {
-								System.out.println(Thread.currentThread() + " --> " + value
-										+ " into " + c.parent() + " from " + c);
-							}
-						}
-						public String toString() { return "OutletInto x from " + c;}
-					});
+		public void setOutletOn(final Closure c) {}
+		@Override
+		public void acceptInlet(int index, int value) {
+			sum +=value;
 		}
 		public Closure makeClosure() {
 			Closure c = new NQueensC(this);
@@ -128,8 +112,10 @@ public class NQueensC extends Closure {
 	public int resultInt() { return result;}
 	
 	public static int nQueens(Worker w, int[] a) throws StealAbort {
+		final int bSize = boardSize;
+		//System.err.println("nqueens(" + w + " " + a.length);
 		final int row = a.length;
-		if (row >= boardSize) {
+		if (row >= bSize) {
 			return 1;
 		}
 		NFrame frame = new NFrame(a);
@@ -137,9 +123,9 @@ public class NQueensC extends Closure {
 		frame.sum=0;
 		frame.PC=LABEL_1;
 		w.pushFrame(frame);
-		int sum=0;
 		int q=0;
-		while (q < boardSize) {
+	
+		while (q < bSize) {
 			boolean attacked = false;
 			for (int i = 0; i < row && ! attacked; i++) {
 				int p = a[i];
@@ -147,30 +133,29 @@ public class NQueensC extends Closure {
 			}
 			if (!attacked) { 
 				int[] next = new int[row+1];
-				for (int k = 0; k < row; ++k) 
-					next[k] = a[k];
+				System.arraycopy(a, 0, next, 0, row);
 				next[row] = q;
 				
 				final int y = nQueens(w, next);
 				w.abortOnSteal(y);
-				sum +=y;
 				frame.sum +=y;
 			}
 			q++;
 			frame.q=q+1;
 		}
 		w.popFrame();
-		return sum;
+		return frame.sum;
 		
 	}
 	public void compute(Worker w, Frame frame) throws StealAbort {
+		final int bSize = boardSize;
 		NFrame f = (NFrame) frame;
 		final int[] a = f.sofar;
 		int row = a.length;
 		
 		switch (f.PC) {
 		case LABEL_0:
-			if (row >= boardSize) {
+			if (row >= bSize) {
 				result =1;
 				setupReturn();
 				return;
@@ -178,17 +163,16 @@ public class NQueensC extends Closure {
 		case LABEL_1: 
 			int q=f.q;
 			int sum=0;
-			while (q < boardSize) {
+			while (q < bSize) {
 				f.q =q+1;
 				boolean attacked = false;
-				for (int i = 0; i < row && ! attacked; i++) {
+				for (int i = 0; i < row && ! attacked; ++i) {
 					int p = a[i];
 					attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 				}
 				if (!attacked) { 
 					int[] next = new int[row+1];
-					for (int k = 0; k < row; ++k) 
-						next[k] = a[k];
+					System.arraycopy(a, 0, next, 0, row);
 					next[row] = q;
 					
 					int y= nQueens(w, next);

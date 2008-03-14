@@ -34,26 +34,21 @@ public class FibC  extends Closure {
 		  super();
 		  this.n=n;
 	  }
+	  public void acceptInlet(int index, int value) {
+		  if (index==LABEL_1) { x=value;}
+		  else y=value;
+	  }
 	  @Override public void setOutletOn(final Closure c) {
 		  assert PC==LABEL_1 || PC == LABEL_2;
-		  c.setOutlet((PC==LABEL_1) ?
-				  new Outlet() {
-			  public void run() {
-				  x = c.resultInt();
-			  }
-		  } 
-		  : new Outlet() {
-			  public void run() {
-				  y = c.resultInt();
-			  }
-		  });
+		 // System.err.println(this + " setsOutlet on " + c + " to " + PC);
+		  c.setOutlet(PC);
 	  }
 	  public Closure makeClosure() {
 		  return new FibC(this);
 	  }
 	  public String toString() { return "FibFrame(n="+n+",x="+x+",y="+y+",PC=" + PC + ")";}
   }
-
+ 
   
   static int fib(Worker w, int n) throws StealAbort { // fast mode
     if (n < 2) return n;
@@ -93,6 +88,14 @@ public class FibC  extends Closure {
     int result = x+y;
     return result;
   }
+  public static int realFib(int n) {
+	    if (n < 2) return n;
+	    int y=0,x=1;
+	    for (int i=0; i <= n-2; i++) {
+	      int temp = x; x +=y; y=temp;
+	    }
+	    return x;
+	  }
   public FibC(Frame frame) { super(frame);}
   
   @Override
@@ -133,19 +136,20 @@ public class FibC  extends Closure {
   
 
   public static void main(String[] args) throws Exception {
-    int procs, nReps;
+    int procs, nReps, num;
     try {
+    	num = Integer.parseInt(args[2]);
       procs = Integer.parseInt(args[0]);
       nReps = Integer.parseInt(args[1]);
-      System.out.println("Number of procs=" + procs + " nReps" + nReps);
-      if (args.length > 2) Worker.reporting = true;
+      System.out.println("Number of procs=" + procs + " nReps=" + nReps + " N=" + num);
+      
     } catch (Exception e) {
-      System.out.println("Usage: Fib <threads> <numRepeatations>");
+      System.out.println("Usage: FibC2 <threads> <numRepeatations>");
       return;
     }
     
     final Pool g = new Pool(procs);
-    final int[] points = new int[] { 1,5, 10, 15, 20, 25, 30, 35, 40, 45};
+    final int[] points = new int[] { num};//1,5, 10, 15, 20, 25, 30, 35, 40, 45};
     
     long sc = 0, sa = 0;
     for (int i = 0; i < points.length; i++) {
@@ -168,7 +172,9 @@ public class FibC  extends Closure {
     	  long t = System.nanoTime();
     	  System.out.println("VJCWS Fib(" + n +")"+"\t"+(t-s)/1000000/nReps  + " ms" +"\t" 
     			  + "\t" +"steals=" +((g.getStealCount()-sc)/nReps)
-    			  + "\t"+"stealAttempts=" +((g.getStealAttempts()-sa)/nReps));
+    			  + "\t"+"stealAttempts=" +((g.getStealAttempts()-sa)/nReps)
+    			  + "\t" + (result==realFib(n)));
+    	  
     	  //System.out.println(points[i] + " " + (t-s)/1000000/nReps  + "ms  " + result + " " + (result==realfib(n)?"ok" : "fail") );
     	  sc=g.getStealCount();
     	  sa=g.getStealAttempts();
