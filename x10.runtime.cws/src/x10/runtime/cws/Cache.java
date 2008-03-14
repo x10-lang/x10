@@ -23,7 +23,7 @@ class Cache {
 	/**
 	 * An estimate of tail-head. Not volatile. Not guaranteed to be completely accurate.
 	 */
-	private int qSizeEst;
+	
 	protected final Worker owner;
 	protected Cache(Worker w) {
 		owner=w;
@@ -44,7 +44,7 @@ class Cache {
     		
     		array[tail]=x;
     		++tail;
-    		++qSizeEst;
+    		
     		return;
     	}
     	growAndPushFrame(x);
@@ -62,7 +62,7 @@ class Cache {
     			array[tail] = f;
     			
     		}
-    		++tail; ++qSizeEst;
+    		++tail; 
     		return;
     	}
     	Worker w = (Worker) Thread.currentThread();
@@ -84,7 +84,7 @@ class Cache {
     			array[tail] = f;
     			
     		}
-    		++tail; ++qSizeEst;
+    		++tail; 
     		return;
     	}
     	Worker w = (Worker) Thread.currentThread();
@@ -117,14 +117,14 @@ class Cache {
         }
         newArray[tail] = x;
         stack = newArray;
-        ++tail; ++qSizeEst;
+        ++tail; 
     }
     protected void signalImmediateException() { exception = EXCEPTION_INFINITY; }
     protected boolean atTopOfStack() { 	return head+1 == tail; }
     protected Frame childFrame() { return stack[head+1];  }
     protected Frame topFrame() {  	return stack[head];   }
     public Frame currentFrame() { 	return stack[tail-1]; }
-    public void incHead() { ++head; --qSizeEst;}
+    public void incHead() { ++head; }
 	public boolean exceptionOutstanding() { return head <= exception; }
 	public int head() { return head;}
 	public int tail() { return tail;}
@@ -133,7 +133,7 @@ class Cache {
     	return (stack !=null && head  < tail)? stack[tail-1] : null;
     }
 	public boolean empty() { return head >=tail; }
-    protected void popFrame() { --tail; --qSizeEst; }
+    protected void popFrame() { --tail;  }
     /**
      * The victim's portion of Dekker.
      * @return true iff an exception has been posted against
@@ -150,7 +150,7 @@ class Cache {
 		tail=0; // order is imp.
 		head=0;
 		exception=0;
-		qSizeEst=0;
+		
 		
 		/*while (t >= 0) {
 			stack[t]=null;
@@ -184,7 +184,7 @@ class Cache {
 	}
 
 	public int queueSize() {
-		return qSizeEst;
+		return tail-head;
 	}
 	/**
 	 * A fast way of determining whether the worker has been interrupted.
@@ -194,14 +194,14 @@ class Cache {
 	public Frame popAndReturnFrame(Worker w) {
 		assert w==owner;
 		try {
-			if (head >= tail) { qSizeEst=0; return null;}
-			tail--; qSizeEst--;
+			if (head >= tail) { return null;}
+			tail--; 
 			if (interrupted()) { // there has been a theft -- rare case.
 				w.lock(w);
 				// need to lock to ensure that we get the right value for head.
 				// have to set exception so that the interrupt is acknowledged.
 				exception=head;
-				qSizeEst= 0;
+				
 				w.unlock();
 			} 
 			Frame f = stack[tail];
