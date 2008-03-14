@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async_closure.h,v 1.1 2008-02-15 09:49:27 ganeshvb Exp $
+ * $Id: async_closure.h,v 1.2 2008-03-14 07:19:39 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -48,7 +48,7 @@ namespace x10lib {
 	 _stack_sz (stack_sz),
 	 _done(false){}
 			
-    void* _stack;	 /* stack for this closure */
+    void* _stack;      /* stack for this closure */
 
     size_t _stack_sz; /* size of the stack */
 	
