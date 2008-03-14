@@ -91,6 +91,7 @@
         <property name="include.dir" location="${lpg.location}/templates"/>
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
+        <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
         <property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${os.arch}"/>
         <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${os.arch}"/>
         <!--
