@@ -87,8 +87,9 @@
         </copy>
     </target>
     <target name="grammar" depends="init">
-        <property name="grammar.file" location="${src}/x10/parser/x10.g"/>
-        <property name="include.dir" location="${lpg.location}/templates"/>
+        <property name="parser.dir" location="${src}/x10/parser"/>
+        <property name="grammar.file" location="${parser.dir}/x10.g"/>
+        <property name="include.dir" location="${parser.dir}"/>
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
         <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
