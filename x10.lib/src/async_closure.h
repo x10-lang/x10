@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async_closure.h,v 1.2 2008-03-14 07:19:39 ganeshvb Exp $
+ * $Id: async_closure.h,v 1.3 2008-03-14 14:57:39 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -10,13 +10,16 @@
 #ifndef __X10_ASYNC_CLOSURE_H
 #define __X10_ASYNC_CLOSURE_H
 
-#include <ucontext.h>
 
 #include <x10/types.h>
 #include <x10/xassert.h>
 
 /* C++ Lang Interface */
 #ifdef __cplusplus
+
+#ifndef CYGWIN
+#include <ucontext.h>
+#endif
 
 namespace x10lib {
 
@@ -56,16 +59,24 @@ namespace x10lib {
 
     int _cond_number; /* which condition to wait on */
 
+#ifndef CYGWIN
     ucontext_t _current_ctxt; /* context of this closure */
   
     ucontext_t _caller_ctxt; /*  context of the caller (generally x10lib or main thread) */
 
     ucontext_t _libcall_ctxt; /* context for X10LIB calls made "from" this closure */
+#else
+     void* _current_ctxt;
+ 
+     void* _caller_ctxt;
+ 
+     void* _libcall_ctxt;
+#endif
     /* may be removed */
 
     virtual bool cond() = 0;
-  };
 
+  };
 } /* closing brace for namespace x10lib */
 
 typedef struct x10lib::InlineClosure* x10_inline_closure_t;
