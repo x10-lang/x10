@@ -92,8 +92,11 @@
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
         <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
-        <property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${os.arch}"/>
-        <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${os.arch}"/>
+        <property name="arch" value="${os.arch}"/>
+        <!-- Work around Mac OS's Java reporting x86 as i386 -->
+        <condition property="arch" value="x86"><equals arg1="${os.arch}" arg2="i386"/></condition>
+        <property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${arch}"/>
+        <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${arch}"/>
         <!--
         <echo message="OS: ${os.name} ${os.arch}"/>
         <echo message="Platform: ${platform}"/>
