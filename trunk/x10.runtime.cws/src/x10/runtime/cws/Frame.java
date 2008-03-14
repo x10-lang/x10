@@ -46,6 +46,8 @@ public class Frame implements Cloneable, Executable {
 	  * @param c -- The closure whose outlet must be set.
 	  */
 	public  void setOutletOn(Closure c) {}
+	// should be overridden
+	public void acceptInlet(int index, int value) {}
 	
 	/**
 	 * To be implemented in subclasses to support in place update of frames

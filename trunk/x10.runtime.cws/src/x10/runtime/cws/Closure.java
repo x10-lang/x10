@@ -379,9 +379,11 @@ public class Closure  implements Executable {
 	 * to deposit its result.
 	 */
 	void executeAsInlet() {
-		if (outlet !=null) {
+		/*if (outlet !=null) {
 			outlet.run();
-		}
+		}*/
+		// TODOTODOTODO fix the above.
+		provideValue();
 	}
 //	=============== The methods intended to be called by client code =======
 //	=============== that subclasses Closure.========
@@ -430,6 +432,8 @@ public class Closure  implements Executable {
 			if (requiresGlobalQuiescence()) {
 				w.extractBottom(w);
 				// speed the result on its way.
+				if (Worker.reporting)
+					System.err.println(this + ".setupReturn(): speeding result on its way.");
 				if (parent != null)
 					w.currentJob().accumulateResultInt(resultInt());
 				return;
@@ -494,9 +498,17 @@ public class Closure  implements Executable {
 		}
 	}
 	
-	protected Outlet outlet;
-	public void setOutlet(Outlet o) { outlet=o;}
+	//protected Outlet outlet;
+	protected int outletIndex;
+	//public void setOutlet(Outlet o) { outlet=o;}
 	
+	public void setOutlet( int x) {  outletIndex=x;}
+	//override if you want to send in a different result.
+	public void provideValue() {
+		parentFrame().acceptInlet(outletIndex, resultInt());
+	  }
+
+
 	/** Replace the frame by a copy. 
 	 * 
 	 * <p> Called during
