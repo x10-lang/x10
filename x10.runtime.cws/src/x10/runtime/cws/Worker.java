@@ -162,7 +162,19 @@ TODO: Supposrt lazy initialization of nextCache.
 			return stealFrame(thief, retry);
 		assert !jobRequiresGlobalQuiescence;
 		final Worker victim = this;
-		lock(thief);
+		if (! retry) {
+			if (lock.tryLock()) {
+				this.lockOwner=thief;
+				// u have the lock, continue
+			} else {
+				// bail on first try -- the lock is contended.
+				return null;
+			}
+		} else {
+			// On subsequent tries, wait to grab this lock even if it is contended.
+			lock(thief);
+		}
+		
 		Closure cl=null;
 		try {
 			if (thief.phaseNum != phaseNum) {
@@ -209,11 +221,11 @@ TODO: Supposrt lazy initialization of nextCache.
 				
 			//	thief.checkinHistory.add(pool.time() + ": " + this + " invokes checkout " + s);
 				thief.checkOut(res);
-				if (  reporting) {
+				if ( reporting) {
 					//String s= "1:: steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
 					//+ victim + " cache=" + victim.cache.dump();
 					String s= "1:: steals  " + res + " from " + victim;
-					System.out.println(thief + s);
+					System.err.println(thief + s);
 				}
 				if (jobRequiresGlobalQuiescence)
 				  res.copyFrame(thief);
@@ -250,8 +262,8 @@ TODO: Supposrt lazy initialization of nextCache.
 					String s = "3:: steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
 					+ victim + " cache=" + victim.cache.dump();
 					thief.checkOutSteal(res, victim);
-					if (   reporting) {
-						System.out.println(thief + s);
+					if (  reporting) {
+						System.err.println(thief + s);
 					}
 				} finally {
 					unlock();
@@ -274,7 +286,19 @@ TODO: Supposrt lazy initialization of nextCache.
 		
 	}
 
-	protected Executable stealFrame(Worker thief, boolean retry) throws AdvancePhaseException{
+	/**
+	 * Try to grab the lock on the victim, first time using a tryLock, and the
+	 * second time waiting if necessary. Check if the thief is in the same phase
+	 * as the victim, if not, throw an AdvancePhaseException. Now try to execute
+	 * a dekker on the victim. On success, grab the top frame -- its now the thief's.
+	 * On failure, return null.
+	 * @param thief -- the worker executing this method.
+	 * @param retry -- false on first try, true on second try.
+	 * @return the Frame on top of the deque on success, null on failure.
+	 * @throws AdvancePhaseException
+	 */
+	protected Executable stealFrame(Worker thief, boolean retry) 
+	throws AdvancePhaseException{
 		final Worker victim = this;
 		++stealAttempts;
 		if (! retry) {
@@ -304,17 +328,21 @@ TODO: Supposrt lazy initialization of nextCache.
 				if (frame == null) {
 					System.out.println(thief + " error!! topFrame() is null for " + cache.dump());
 				}
+				Frame newFrame = frame.copy();
 				assert frame !=null;
-				frame = frame.copy();
+				if ( reporting) {
+					
+					String s= " 4:: steals " + frame + " from " + victim
+					+ " as " + newFrame + " cache=" + cache.dump() + 
+					" thief's cache = " + thief.cache.dump();
+					System.err.println(thief + s);
+					//new Error(thief.toString()).printStackTrace();
+				}
+				
+				frame = newFrame;
 				cache.incHead();
 			//I have work now, so checkout of the barrier.
-				
-		//		thief.checkinHistory.add(pool.time() + ":" + this + " invokes checkout for " + s);
 				thief.checkOutSteal(frame, victim);
-				if (  reporting) {
-					String s= " 4:: steals " + frame + " from " + victim;
-					System.out.println(thief + s);
-				}
 				return frame;
 			}
 		} catch (AdvancePhaseException z) { // rethrow
@@ -441,7 +469,6 @@ TODO: Supposrt lazy initialization of nextCache.
 			t.lock(this);
 			try { 
 				assert t.status==RUNNING;
-				
 				// In slow sync. Therefore must be the case
 				// that there is no frame on the stack.
 				// i.e. this worker has finished executing any children asyncs. 
@@ -480,10 +507,6 @@ TODO: Supposrt lazy initialization of nextCache.
 		return false;
 		
 	}
-	
-	
-	
-
 	/**
 	 * Tries to get a non-local task, stealing from other workers and/or the pool
 	 * submission queue.
@@ -861,7 +884,7 @@ TODO: Supposrt lazy initialization of nextCache.
 	 * @param frame -- the frame to be pushed.
 	 */
 	public void pushFrame(Frame frame) {
-		if (reporting)
+		if (false && reporting)
 			System.out.println(this + " pushes " + frame);
 		cache.pushFrame(frame);
 	}
@@ -882,16 +905,13 @@ TODO: Supposrt lazy initialization of nextCache.
 	 * Pop the last frame from the stack.
 	 *
 	 */
-	public void popFrame() {
-		cache.popFrame();
-	}
-	public String toString() {
+	public void popFrame() { cache.popFrame();	}
+	/*public String toString() {
 		return "Worker("+index+",job=" + job + ",phase=" + phaseNum+",checkedIn=" 
 		+ checkedIn + ",nextPhaseSize=" + nextPhaseSize+")";
-	}
-	public Closure bottom() {
-		return bottom;
-	}
+	}*/
+	public String toString() { return "Worker("+index+")";}
+	public Closure bottom() { return bottom; }
 	/**
 	 * Called by client code on return from a spawn async
 	 * invocation. Performs the victim end of Dekker.
@@ -909,16 +929,22 @@ TODO: Supposrt lazy initialization of nextCache.
 	 *            
 	 */
 	public Closure interruptCheck() {
-		if (! cache.interrupted()) 
-			// fast path
+		if (! cache.interrupted()) // fast path
 			return null;
 		Closure result = exceptionHandler();
-		if (reporting)
-			System.out.println(this + " at " + pool.time() 
+		if ( (  reporting)) 
+			/*System.out.println(this + " at " + pool.time() 
 					+ " interruptCheck: discovers a theft and returns " + result
+					+ " cache=" + cache.dump());*/
+			System.err.println(this + " at " + pool.time() 
+					+ " interruptCheck: discovers a theft on frame " + currentFrame()
 					+ " cache=" + cache.dump());
-		if (result !=null)
+		/*if (result !=null) {
+			System.err.println("vj debug before: " + cache.dump());
 			popFrame();
+			System.err.println("vj debug after: " + cache.dump());
+		}*/
+		if (result == null) result = job;
 		return result;
 	}
 	
@@ -1026,12 +1052,25 @@ TODO: Supposrt lazy initialization of nextCache.
 			throw StealAbort.abort;
 		}
 	}
+	/**
+	 * Invoked by victim after it discovers it has been mugged.
+	 * The victim waits until the thief has finished the mugging 
+	 * (by waiting to acquire its own lock). Then it resets
+	 * the exception pointer. If the cache is empty, 
+	 * it returns the current closure. Else it returns null.
+	 * @return
+	 */
 	protected Closure exceptionHandler() {
-		if (bottom==null) return null;
 		lock(this);
 		try {
 			Closure b = bottom;
-			assert b !=null;
+			if (b == null) {
+				// this can happen in the case of globally quiescent
+				// computations after a theft.
+				cache.resetExceptionPointer(this);
+				if (cache.empty()) return job;
+				return null;
+			}
 			b.lock(this);
 			try { 
 				/*b.pollInlets(this);
@@ -1046,6 +1085,7 @@ TODO: Supposrt lazy initialization of nextCache.
 				Status s = b.status;
 				assert s == Status.RUNNING || s == Status.RETURNING;
 				if (cache.empty()) {
+					
 					assert b.joinCount==0;
 					b.status = Status.RETURNING;
 					return b;
