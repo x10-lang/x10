@@ -79,6 +79,7 @@ public abstract class Job extends Closure implements Future {
 		}
 		@Override
 		protected void compute(Worker w, Frame frame) throws StealAbort {
+			
 			frame.compute(w);
 			// The completion of the job might leave behind work (frames).
 			// Do not pop the framestack.
