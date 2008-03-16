@@ -1,7 +1,11 @@
-
-
 import x10.runtime.cws.*;
 
+/**
+ * An NQueens program that
+ * -- sums up return values from procedure calls to obtain the total count
+ * @author vj
+ *
+ */
 public class NQueensC extends Closure {
 	
 	static int boardSize;
@@ -128,8 +132,8 @@ public class NQueensC extends Closure {
 		while (q < bSize) {
 			boolean attacked = false;
 			for (int i = 0; i < row && ! attacked; i++) {
-				int p = a[i];
-				attacked = (q == p || q == p - (row - i) || q == p + (row - i));
+				int p = q-a[i], delta=row-i;
+				attacked = (p == 0|| p == delta || p == -delta);
 			}
 			if (!attacked) { 
 				int[] next = new int[row+1];
