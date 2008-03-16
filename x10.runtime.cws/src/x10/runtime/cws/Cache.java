@@ -19,11 +19,6 @@ class Cache {
 	
 	public Frame[] stack;
 	private volatile int head, tail, exception; // these are indices into stack.
-	
-	/**
-	 * An estimate of tail-head. Not volatile. Not guaranteed to be completely accurate.
-	 */
-	
 	protected final Worker owner;
 	protected Cache(Worker w) {
 		owner=w;
@@ -41,10 +36,8 @@ class Cache {
     	assert x !=null;
     	Frame[] array = stack;
     	if (array != null && tail < array.length - 1) {
-    		
     		array[tail]=x;
     		++tail;
-    		
     		return;
     	}
     	growAndPushFrame(x);
@@ -132,26 +125,21 @@ class Cache {
     public Frame currentFrameIfStackExists() {
     	return (stack !=null && head  < tail)? stack[tail-1] : null;
     }
-	public boolean empty() { return head >=tail; }
-    protected void popFrame() { --tail;  }
+	public boolean empty()    { return head >=tail; }
+    protected void popFrame() { --tail; assert tail >=0; }
     /**
      * The victim's portion of Dekker.
      * @return true iff an exception has been posted against
      *              the current closure.
      */
 	protected boolean interrupted() { return exception >= tail; }
-	
 	public String dump() {
 		return this.toString() + "(head=" + head + " tail=" + tail + " exception=" + exception + ")";
 	}
-
-	
 	public void reset() {
 		tail=0; // order is imp.
 		head=0;
 		exception=0;
-		
-		
 		/*while (t >= 0) {
 			stack[t]=null;
 			t--;
@@ -188,7 +176,7 @@ class Cache {
 	}
 	/**
 	 * A fast way of determining whether the worker has been interrupted.
-	 * @param w
+	 * @param w -- the current worker, potentially a victim
 	 * @return
 	 */
 	public Frame popAndReturnFrame(Worker w) {
