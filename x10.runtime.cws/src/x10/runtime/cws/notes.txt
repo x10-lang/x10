@@ -1,3 +1,33 @@
+March 18, 2008
+
+Changed the way outlets work. For every steal, new Outlet objects were being created to 
+link the child Closure with the parent closure. Now objects are not created. Instead 
+indices are used to record in the frame with the child where the result is to go. 
+
+Also noticed that -Xincgc really helps performance. Otherwise full gcs are done 
+(e.g. for fib, nqueens) and these slow down the computation a lot.
+
+Also changed how interruptCheck works to take into account globally quiescent computations. Earlier, 
+
+Performance numbers: 
+While developing NQueensG2 I realized that I had a slightly inefficient processing for stealing. Have fixed that. Now the numbers I have on moxie (Niagara) are as follows (now an average of 5 repetitions in one VM instance for each test):
+
+java -cp xws-fib.jar -Xmx2G -Xms2G -Xss8192K -Xincgc <<program>> 32 5 15
+NQueensC  37.9 s
+NQueensG  34.7 s
+NQueensG2 34.4 s
+NQueensG3 34.1 s
+
+I use the Java7 system installed on Niagara.
+
+All use System.arraycopy to copy boards.
+C:  Uses the usual Cilk join network to sum up values from recursive calls.
+G:  (a) Uses an counter per worker, and a global atomic counter, updated by a worker when it quiesces, (b) pushes asyncs directly onto the worker's deque instead of descending into them. (c) Further, the board is constructed lazily at the next ply.
+G2: (a) as in G, (b) uses fast and slow procedures, and descends into asyncs rather than enqueuing them.
+G3: (a) as in G, (b) as in G2, (c) as in G. 
+
+AdaptiveDFS p=32 T N=2000 is at 258 MEPS.
+
 October 6, 2007
 
 We distinguish between proper and improperly nested frames (= tasks = Cilk's procedure invocation). 
