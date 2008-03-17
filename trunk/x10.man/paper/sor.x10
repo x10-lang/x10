@@ -8,8 +8,8 @@ void sor(double omega, final double[:rank==2] G, int iter)
         inner = outer & (outer-NORTH) & (outer+NORTH)
                       & (outer-WEST)  & (outer+WEST);
 
-    region d0 = inner.rank(0);
-    region d1 = inner.rank(1);
+    region d0 = inner.rank(0); // { i | (i,j) in inner }
+    region d1 = inner.rank(1); // { j | (i,j) in inner }
     
     if (d1.size() == 0) return;
     
