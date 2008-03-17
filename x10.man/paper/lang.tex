@@ -343,12 +343,21 @@ Constraints are conjunctions of equalities between
 constraint terms: properties, \xcd{final} variables,
 compile-time constants, and \xcd{self}:
 
+{\small
 \begin{tabular}{r@{\quad}rcl}
 \\
     (C Term) & \xcd{t} &{::=}& \xcd{x} \alt \xcd{this} \alt
     \xcd{self} \alt \xcd{t.f} \alt $n$ \\
-(Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true} \alt \xcd{t == t} \alt \xcd{c 
-&& c}\alt \xcd{T x; c} \\\\\end{tabular}
+(Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true} \alt \xcd{t ==
+t}
+\alt
+\xcd{c && c}
+%\alt
+\\ & & \alt &
+\xcd{T x; c} \\
+\\
+\end{tabular}
+}
 \noindent
 We use the syntax \xcd{T x; c} for the constraint obtained by existentially
 quantifying the variable \xcd{x} of type \xcd{T} in \xcd{c}.
@@ -379,25 +388,25 @@ propagate constraints
 to the operation result by introducing existentially quantified
 variables.  Consider the following assignment:
 \begin{displayxten}
-int(:self >= 0) product(int(:self >= 0) a, int(:self >= 0) b) {
+int(:self >= 0) product(int(:self >= 0) a,
+                        int(:self >= 0) b) {
     return a*b;
 }
 \end{displayxten}
 We would like this function to type-check.
 During type-checking, the type of \xcd{a*b} is
-\xcd{int(:int x; int y; self == x*y && x >= 0 && y >= 0)}.
+computed from the types of \xcd{a} and \xcd{b} to be
+\xcd{int(:int x; int y; self == x*y & x >= 0 & y >= 0)}.
 The constraint on this type is strong enough to establish the
-constraint on the return type.  If the new constraint cannot be
-represented by any installed constraint system, rather than
-report an error, the constraint is simply removed---in this
-case, the type of \xcd{a*b} becomes \xcd{int}.
-
+constraint on the return type.  If the computed constraint cannot be
+represented by any installed constraint system,
+the type of \xcd{a*b} is promoted to the unconstrained supertype \xcd{int}.
 
 \subsection{Query evaluation}
 
 Because object-oriented languages permit arbitrary mutual recursion between
 classes: classes \xcd{A} and \xcd{B} may have fields of type \xcd{B} and
-\xcd{A} respectively---the type/property graph may have loops. The nodes
+\xcd{A} respectively---the type/property graph may have cycles. The nodes
 in this graph are base types (class and interface names). There is an
 edge from node \xcd{A} to node \xcd{B} if \xcd{A} has a property whose
 base type is \xcd{B}.
@@ -416,12 +425,13 @@ for $\rc({\tt C(:c}[{\tt X}/\mbox{\xcd{self}}]))$.
 
 Consider a general class definition:
 \begin{displayxten}
-class C(C$_k$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c) extends D(:d) { ... }
+class C(C$_k$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c) extends D(:d)
+      { ... }
 \end{displayxten}
 
 \noindent From this, we get:
 
-$$\rc({\tt C},{\tt X}) ~~~ \iff
+$$\rc({\tt C},{\tt X}) ~~~ \iff \!\!\!\!
 \begin{array}{l}
 \quad  ({\tt c} \wedge {\tt d})[{\tt X}/\this]
 \;\wedge\; \rc({\tt D},{\tt X}) \;\wedge \\
@@ -443,7 +453,9 @@ is not clear however whether it is decidable. This is a direction for
 further work.
 
 The \Xten{} compiler is conservative and rejects
-programs with cyclic dependency graphs.
+programs with cyclic dependency graphs: programs where the real
+clause of the type
+of a property \tcd{p} ifself constrains \tcd{p}.
 %
 In practice, many data structures have non-cyclic dependency
 graphs. For such programs the real clause can be computed quickly and
