@@ -303,13 +303,11 @@ Dependent clauses are also form
 the basis of a general user-definable annotation framework we have
 implemented separately~\cite{ns07-x10anno}. 
 
-\eat{
 We claim the design is clean and modular. We present a simple core
 language \CFJ, extending \FJ{}~\cite{FJ} with constrained types on top
 of an arbitrary constraint system. We present rules for type-checking
 \CFJ{} programs that are parametric in the constraint system. 
 We establish subject reduction and progress theorems. 
-}
 
 %
 % XXX contrast with hybrid type checking.
@@ -321,7 +319,10 @@ constrained types (a formal semantics appears in the appendix).
 Section~\ref{sec:examples} works through a number of
 examples using a variety of constraint systems.
 The compiler implementation, including support for constraint
-system plugins, is  described Section~\ref{sec:impl}.
+system plugins, is described Section~\ref{sec:impl}.
+A formal semantics for core language with constrained types 
+is presented in Section~\ref{sec:semantics}, and a soundness
+proof is presented in the appendix.
 Section~\ref{sec:related} reviews related work.
 The paper concludes in Section~\ref{sec:future}
 with a discussion of future work.
