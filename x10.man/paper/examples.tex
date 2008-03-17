@@ -210,6 +210,11 @@ determined to be in the region over which the array is defined.
 Region constraints are subset constraints
 written as calls to the \xcd{contains}
 method of the \xcd{region} class.
+The constraint solver does not actually evaluate the calls to
+the \xcd{contains} method, rather it interprets these calls
+symbolically
+as subset constraints at compile time.
+
 Constraints have the following syntax:
 
 {
@@ -254,13 +259,25 @@ For example, the code in Figure~\ref{fig:sor} performs a successive
 over-relaxation~\cite{sor} of a matrix \xcd{G} with rank 2.
 The function declares a region variable \xcd{outer} as an alias for
 \xcd{G}'s region and a region variable \xcd{inner} to be 
-the subset of \xcd{outer} that excludes the boundary points.
+the subset of \xcd{outer} that excludes the boundary points,
+formed by intersecting the \xcd{outer} region with itself shifted up, down,
+left, and right by one).
+The function then declares two more regions \xcd{d0} and \xcd{d1},
+where ${\tt d}_i$ is set of points ${\tt x}_i$ where
+$({\tt x}_0, {\tt x}_1)$ is in \xcd{inner}.  The function
+iterates multiple times over points \xcd{i} in \xcd{d0}.
+The syntax \xcd{finish} \xcd{foreach} (line 20) tells the
+compiler to execute each loop iteration in parallel and to wait
+for all concurrent activities to terminate.
+The inner loop (line 22) iterates over a subregion of
+\xcd{inner}.
 %
-The type-checker establishes that the \xcd{region}
-property of the point \xcd{ij} (line 22) is
-\xcd{inner} \xcd{&}~\xcd{[i:i,d1min:d1max]}, and that this
-region is a subset of \xcd{outer}, the region of the array \xcd{G}
-accessed within the loop body.
+The type-checker establishes that the \xcd{region} property of
+the point \xcd{ij} (line 22) is \xcd{inner}
+\xcd{&}~\xcd{[i:i,d1min:d1max]}, and that this region is a
+subset of \xcd{outer}, the region of the array \xcd{G} accessed
+within the loop body, ensuring that the access to the array is
+within the bounds of the array.
 
 \eat{
 \subsection{AVL trees and red--black trees}
