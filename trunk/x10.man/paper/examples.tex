@@ -172,11 +172,12 @@ recursively, that the entire left subtree will be located at the same place.
 \subsection{Presburger constraints}
 
 Presburger constraints are linear integer inequalities.
-A constraint solver plugin was implemented using a port to Java of the
-Omega library.~\cite{omega,scale}  A separate implementation
-of a Presburger constraint solver was implemented using
-CVC3~\cite{cvc}. 
-
+%A constraint solver plugin was implemented using a port to Java of the
+%Omega library.~\cite{omega,scale}
+%A separate implementation
+%of a Presburger constraint solver was implemented using
+%CVC3~\cite{cvc}. 
+%
 Presburger constraints are particularly useful in a
 high-performance computing setting where array operations are
 pervasive.
@@ -184,6 +185,8 @@ Xi and Pfenning proposed using dependent types for eliminating
 array bounds checks~\cite{xi98array}.  A Presburger constraint
 system can be used to keep track of array dimensions and array
 indices to ensure bounds violations do not occur.
+
+A Presburger constraint solver plugin was implemented using CVC3~\cite{cvc}. 
 
 \subsection{Set constraints: region-based arrays}
 
@@ -198,7 +201,7 @@ collection of two-dimensional points \xcd{(i,j)} with \xcd{i}
 ranging from \xcd{0} to \xcd{200} and \xcd{j} ranging from
 \xcd{1} to \xcd{100}.
 
-Regions and points were modeled in CVC~\cite{cvc} to create a
+Regions and points were modeled in CVC3~\cite{cvc} to create a
 constraint solver than ensures array bounds
 violations do not occur:
 an array access type-checks if the index point can be statically
@@ -209,12 +212,15 @@ written as calls to the \xcd{contains}
 method of the \xcd{region} class.
 Constraints have the following syntax:
 
+{
+\small
 \begin{tabular}{r@{\quad}rcl}
 \\
   (Constraint)   &\xcd{c} &::=& \xcd{r.contains(r)} \bnf \dots \\
-  (Region) &\xcd{r} &::=& \xcd{t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$] \bnf
-           \xcd{r || r} \bnf \xcd{r && r} \bnf
-           \xcd{r - r}
+  (Region) &\xcd{r} &::=& \xcd{t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$]
+           \\
+           &        &  \bnf &
+           \xcd{r | r} \bnf \xcd{r & r} \bnf \xcd{r - r}
            \\
            &        &  \bnf &
            \xcd{r + p} \bnf \xcd{r - p} \\
@@ -222,13 +228,14 @@ Constraints have the following syntax:
 (Integer)&\xcd{b},\xcd{d} &::=& \xcd{t} \bnf \xcd{n} \\
 \\
 \end{tabular}
+}
 
 \noindent
 where \xcd{t} are constraint terms (properties and final variables)
 and \xcd{n} are integer literals.
 
 Regions used in constraints are either constraint terms \xcd{t},
-region constants, unions (\xcd{||}), intersections (\xcd{&&}),
+region constants, unions (\xcd{|}), intersections (\xcd{&}),
 or differences (\xcd{-}), or regions where each point is
 offset by another point \xcd{p} using \xcd{+} or \xcd{-}.
 
@@ -244,10 +251,14 @@ offset by another point \xcd{p} using \xcd{+} or \xcd{-}.
 \end{figure}
 
 For example, the code in Figure~\ref{fig:sor} performs a successive
-over-relaxation~\cite{sor} of an $n \times n$ matrix \xcd{G}.
+over-relaxation~\cite{sor} of a matrix \xcd{G} with rank 2.
+The function declares a region variable \xcd{outer} as an alias for
+\xcd{G}'s region and a region variable \xcd{inner} to be 
+the subset of \xcd{outer} that excludes the boundary points.
+%
 The type-checker establishes that the \xcd{region}
-property of the point \xcd{ij} (line 21) is
-\xcd{inner && [i:i,d1min:d1max]}, and that this
+property of the point \xcd{ij} (line 22) is
+\xcd{inner} \xcd{&}~\xcd{[i:i,d1min:d1max]}, and that this
 region is a subset of \xcd{outer}, the region of the array \xcd{G}
 accessed within the loop body.
 
@@ -390,6 +401,11 @@ void quicksort(T[] array, int left, int right : left <= right) {
 }
 
 
+\newif\ifowner
+\ownerfalse
+
+\ifowner
+
 \subsection{Ownership constraints}
 
 \begin{figure}[t]
@@ -402,8 +418,9 @@ Using a simple extension of \Xten{}'s built-in equality
 constraint system,
 constrained types can also be used to encode a form of ownership
 types~\cite{ownership-types,liskov-popl2003}.
-Shows a fragment of a \xcd{List} class with ownership types.
 
+Figure~\ref{fig:ownership} shows a fragment of a \xcd{List}
+class with ownership types.
 Each \xcd{Owned} object has an \xcd{owner} property.  Objects
 also have properties that are used as owner parameters.
 %
@@ -454,6 +471,8 @@ not valid because the \xcd{owner} property is bound to \xcd{xs}:
     final List(:owner==o & valOwner==o) xs;
     List(:owner==xs & valOwner==o) ys = xs.tail();
 \end{displayxten}
+
+\fi
 
 \if 0
 \subsection{Disequalities: non-null types}

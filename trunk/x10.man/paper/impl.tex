@@ -5,9 +5,10 @@
 
 The \Xten{} compiler provides a framework for writing and
 checking constrained types.  
-Constraints in \Xten{} are conjunctions of equalities over immutable
-side-effect-free expressions.  Compiler plugins may be installed
-that support other constraint languages and solvers.
+Constraints in the base \Xten{} language are conjunctions
+of equalities over immutable side-effect-free expressions.
+Compiler plugins may be installed
+to support other constraint languages and solvers.
 
 The \Xten{} compiler is implemented as an extension of
 Java using the Polyglot compiler framework~\cite{ncm03}.
@@ -24,8 +25,8 @@ If constraints cannot be solved, an error is reported.
 
 After type-checking a constraint as a boolean expression \xcd{e},
 the abstract syntax tree for
-the boolean expression is transformed into a list of conjuncts.
-\xcd{e1 \& ... \& ek}.  Each conjunct \xcd{ei} is given to 
+the boolean expression is transformed into a list of conjuncts,
+${\tt e}_1 \& \dots \& {\tt e}_k$.  Each conjunct \xcd{ei} is given to 
 the installed constraint system plugins, which symbolically
 evaluate the expression to create an internal representation of
 the conjunct.  If no
@@ -164,7 +165,7 @@ For examples, casts are translated as:
 \end{code}
 }
 \begin{code}
-  $\Lb$(C(:c) e$\Rb$ = 
+  $\Lb$(C(:c)) e$\Rb$ = 
     \textbf{new} Object() \{
       C cast(C self) \{
         \textbf{if} ($\Lb$c$\Rb$) \textbf{return} self;

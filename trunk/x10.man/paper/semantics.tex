@@ -18,12 +18,13 @@
 \def\RCast{\mbox{\sc R-Cast}}
 \def\RCCast{\mbox{\sc RC-Cast}}
 
-In this section we formalize a small fragment of \Xten{} to illustrate
-the basic concepts behind constrained type-checking.  In fact, a very
-tiny language is chosen---a small extension of Featherweight
-java (\FJ{})~\cite{FJ} with constrained
-types. 
-%
+In this section we formalize a small fragment of \Xten{}---an extension
+of Featherweight Java (\FJ{})~\cite{FJ} with constrained
+types---to illustrate
+the basic concepts behind constrained type-checking.
+A proof of
+soundness is given in the appendix.
+
 The language is functional in that assignment is not
 admitted. However, it is not difficult to introduce the notion of
 mutable fields, and assignment to such fields. Since constrained types
