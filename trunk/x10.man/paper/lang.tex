@@ -13,12 +13,11 @@ class definition. The class body may contain specifications of other
 fields; these fields are considered mutable.
 
 Properties may be of arbitrary type. For instance, the class
-\xcd{
-region} has an \xcd{int} property called \xcd{rank}. In turn, the
-class \xcd{dist} has a \xcd{region} property, called \xcd{region}, and
-also an \xcd{int} property \xcd{rank}.  The invariant for \xcd{dist}
-ensures that \xcd{rank == region.rank}. Similarly, an array has
-properties \xcd{dist}, \xcd{region}, and \xcd{rank}
+\tcd{region} has an \tcd{int} property called \tcd{rank}. In turn, the
+class \tcd{dist} has a \tcd{region} property, called \tcd{region}, and
+also an \tcd{int} property \tcd{rank}.  The invariant for \tcd{dist}
+ensures that \tcd{rank == region.rank}. Similarly, an array has
+properties \tcd{dist}, \tcd{region}, and \tcd{rank}
 and appropriate constraints ensuring that the statically available
 information about them is consistent.\footnote{All constraint
 languages used in constrained types permit object references, field
@@ -52,11 +51,12 @@ to \xcd{x}. The type \xcd{int(:self==v)} represents a ``singleton'' type, an
 \xcd{int} is of this type only if it has the same value as \xcd{v}.
 
 To be clear, \xcd{self} is not the same as \xcd{this}.  In the
-\xcd{List} example of Figure~\ref{fig:list-example}, a list
+\xcd{List} example of Figure~\ref{fig:list-example}, the
+\xcd{filter} method (line 22) returns
 a list with type
-\xcd{List(:self.n <= this.n)} is returned by the 
-\xcd{filter} method:  \xcd{self.n} is the length of
-the returned \xcd{List}; \xcd{this.n} is the length of the 
+\xcd{List(:self.n <= this.n)}; the term
+\xcd{self.n} is the length of
+the returned \xcd{List}; the term \xcd{this.n} is the length of the 
 receiver of the call to \xcd{filter}.
 
 Constraints are specified in terms of an underlying
@@ -164,11 +164,17 @@ The
 return type of a method may also contain expressions involving the
 arguments to the method.  Any argument used in this way must
 be declared \xcd{final},
-ensuring it is not mutated by the method body.  For instance:
+ensuring it is not mutated by the method body.  For instance,
+the following is a valid method declaration:
+\vfill
 \begin{displayxten}
-  List(arg.length-1) tail(final List arg : arg.length > 0) {...}
+List(arg.length-1)
+  tail(final List arg: arg.length > 0) {
+     ...
+}
 \end{displayxten}
-\noindent is a valid method declaration. It says that
+\noindent
+It says that
 \xcd{tail} must be passed a non-empty list, and it returns a list
 whose length is one less than its argument.
 
@@ -296,15 +302,15 @@ and type.
 
 The general form of a class declaration is now:
 \begin{displayxten}
-  class C(T1 x1, ..., Tk xk)
-        extends B(:c)
-        implements I1(:c1), ..., In(:cn) {...}
+class C(T$_1$ x$_1$, ..., T$_k$ x$_k$)
+      extends B(:c)
+      implements I$_1$(:c$_1$), ..., I$_n$(:c$_n$) {...}
 \end{displayxten}
 \noindent
 For such a declaration to type-check, it must be that the class
-invariant of \xcd{C} implies \inv(\xcd{Ii})\xcd{\ & ci}, where
-\inv(\xcd{Ii}) is the
-invariant associated with interface \xcd{Ii}.  Again, a constrained
+invariant of \xcd{C} implies \inv(${\tt I}_i$)\xcd{\ & c}$_i$, where
+\inv(${\tt I}_i$) is the
+invariant associated with interface \xcd{I}$_i$.  Again, a constrained
 class or interface \xcd{I} is taken as shorthand for \xcd{I(:true)}.
 Further, every method specified in the interface must have a
 corresponding method in the class with the same signature whose
@@ -351,7 +357,7 @@ compile-time constants, and \xcd{self}:
 (Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true} \alt \xcd{t ==
 t}
 \alt
-\xcd{c && c}
+\xcd{c & c}
 %\alt
 \\ & & \alt &
 \xcd{T x; c} \\
@@ -371,14 +377,14 @@ list returned by \xcd{filter} in Figure~\ref{fig:list-example} is existentially
 quantified.
 Existential quantification may also be introduced explicitly:
 the following function computes the greatest
-common divisor of two non-negative integers:\footnote{Checking this program
+common divisor of two integers:\footnote{Checking this program
 requires a constraint system capable of reasoning about integer
 multiplication and
 division.  We have not yet implemented such a system.}
 \begin{displayxten}
-int(:int(:self >= 0) x; int(:self >= 0) y;
-     a == x*self && b == y*self && self >= 0) 
-  gcd(final int(:self >= 0) a, final int(:self >= 0) b) {
+int(:int x; int y; a==x*self & b==y*self)
+  gcd(final int a, final int b)
+{
     if (b == 0) return a;
     else return gcd(b, a % b);
 }
@@ -397,7 +403,12 @@ int(:self >= 0) product(int(:self >= 0) a,
 We would like this function to type-check.
 During type-checking, the type of \xcd{a*b} is
 computed from the types of \xcd{a} and \xcd{b} to be
-\xcd{int(:int x; int y; self == x*y & x >= 0 & y >= 0)}.
+the type:
+\begin{displayxten}
+int(:int x; int y; self==x*y & x>=0 & y>=0)
+\end{displayxten}
+That is, there exist non-negative \tcd{int}s \tcd{x} and \tcd{y} 
+whose product is \tcd{self}.
 The constraint on this type is strong enough to establish the
 constraint on the return type.  If the computed constraint cannot be
 represented by any installed constraint system,
@@ -426,13 +437,13 @@ for $\rc({\tt C(:c}[{\tt X}/\mbox{\xcd{self}}]))$.
 
 Consider a general class definition:
 \begin{displayxten}
-class C(C$_k$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c) extends D(:d)
-      { ... }
+class C(C$_k$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c)
+  extends D(:d) { ... }
 \end{displayxten}
 
 \noindent From this, we get:
 
-$$\rc({\tt C},{\tt X}) ~~~ \iff \!\!\!\!
+$$\rc({\tt C},{\tt X}) ~ \iff \!\!\!\!\!\!\!\!\!\!
 \begin{array}{l}
 \quad  ({\tt c} \wedge {\tt d})[{\tt X}/\this]
 \;\wedge\; \rc({\tt D},{\tt X}) \;\wedge \\
@@ -456,7 +467,9 @@ further work.
 The \Xten{} compiler is conservative and rejects
 programs with cyclic dependency graphs: programs where the real
 clause of the type
-of a property \tcd{p} ifself constrains \tcd{p}.
+of a property \tcd{p} itself constrains \tcd{p}.
+%
+% XXX can such a program even be constructed
 %
 In practice, many data structures have non-cyclic dependency
 graphs. For such programs the real clause can be computed quickly and
@@ -467,7 +480,8 @@ generated during type-checking.
 \subsection{Existential types}
 
 The use of constraints makes existential types very natural.  Consider
-the return type of \xcd{filter} in Figure~\ref{fig:list-example}: it specifies that the list
+the return type of \xcd{filter} in Figure~\ref{fig:list-example}:
+it specifies that the list
 returned is of some unknown length, which is known
 to be bounded by \xcd{n}. Thus, constrained types naturally
 subsume existential dependent types. Indeed, every base type \xcd{C}
@@ -487,11 +501,11 @@ values to parameters.  A parametrically consistent type has the
 property that its extension will never be empty. 
 Types are required to be parametrically consistent.
 
-Consider  a variation of List from Figure~\ref{fig:list-example}:
+Consider a variation of List from Figure~\ref{fig:list-example}:
 \begin{displayxten}
 class List(int(:self >= 0) n) {
   Object head;
-  List(:self.n == this.n-1 & self != null) tail;
+  List(:self.n==this.n-1 & self!=null) tail;
   ...
 }
 \end{displayxten}

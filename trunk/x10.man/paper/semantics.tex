@@ -373,8 +373,10 @@ expression contains all the information that can be gleaned from the
 static types of the actuals by assigning them to the corresponding
 fields of the object being created.
 
-Let {\tt C} be a class declared as ${\tt \class\ C(\bar{\tt T}\
-\bar{\tt f}:c)\ extends\ D(:d)\{\bar{\tt M}\}}$. Let
+Let {\tt C} be a class declared as
+$${\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ extends\
+D(:d)\{\bar{\tt M}\}}.$$
+Let
 $\theta$ be a substitution and the type {\tt T} be based on {\tt C}.
 We define $\inv(T,\theta)$
 as the conjunction ${\tt c\theta,d\theta}$ and (recursively)
@@ -384,9 +386,9 @@ $\inv({\tt C},{\tt x})$ to mean $\inv({\tt C},[{\tt x}/\self])$.
 
 We add a single subtyping rule to the rules of \FJ{} to require
 that the subtype constraint entail the supertype constraint.
-(Whenever we state an assumption of the form ``{\tt x} is
+Whenever we state an assumption of the form ``{\tt x} is
 fresh'' in a rule we mean it is not free in the consequent of the
-rule.)
+rule.
 
 The operational semantics are essentially those of \FJ{}.
 

@@ -1,6 +1,9 @@
 Constraint-based type systems enjoy a long history.
-Mitchell~\cite{mitchell84} and Reynolds~\cite{reynolds85}
-developed the use of constraints for type inference and subtyping.
+The use of constraints for type inference and subtyping were
+developed by
+Mitchell~\cite{mitchell84}
+and
+Reynolds~\cite{reynolds85}.
 %
 Trifonov and Smith~\cite{trifonov96}
 proposed a type system where types are refined by subtyping
@@ -268,7 +271,7 @@ takes the route of an extension to \FJ. But there are several other
 crucial differences as well.
 
 \lstnewenvironment{displayml}
-  {\footnotesize\lstset{language=ML,basicstyle=\tt,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,keywordstyle=,keepspaces}}
+  {\lstset{language=ML,basicstyle=\tt,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,keywordstyle=,keepspaces}}
   {}
 
 First, \DML{} achieves its separation by not permitting program
@@ -279,18 +282,21 @@ lists is provided by:
 \begin{displayml}
 fun('a)
   append(nil, ys) = ys
-| append(cons(x, xs), ys) = cons(x, append(xs,ys))
+| append(cons(x, xs), ys)
+    = cons(x, append(xs,ys))
 where append <| {m:nat}{n:nat} 
-              'a list(m) * 'a list(n) -> 'a list(m+n)  
+    'a list(m) * 'a list(n) -> 'a list(m+n)  
 \end{displayml}
 \noindent in contrast with the direct embedded expression with constrained types:
 \begin{displayxten}
 class List(int(:self >= 0) n) {
-   Object item;
-   List(n-1) tail;
-   List(n+a.n) append(final List a) { 
-     return n==0 ? a : new List(item, tail.app(a)); }
-   ...
+  Object item;
+  List(n-1) tail;
+  List(n+a.n) append(final List a) { 
+    return n==0
+      ? a : new List(item, tail.app(a));
+  }
+  ...
 }
 \end{displayxten}
 
