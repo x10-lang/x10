@@ -287,7 +287,7 @@ discussed in Section~\ref{sec:impl}.
 
 The paper presents constrained types in the \Xten{} programming
 language.
-We claim that the design is natural, easy to use, useful. Many
+We claim that the design is natural, easy to use, and useful. Many
 example programs have been written using constrained types and are
 available at {\tt x10.sf.net}.
 
@@ -295,9 +295,10 @@ As in staged languages~\cite{nielson-multistage,ts97-multistage}, the
 design distinguishes between compile-time and run-time
 evaluation. Constrained types are checked (mostly) at compile-time.
 The compiler uses a constraint solver to perform universal reasoning
-(``for all possible values of method parameters'') for dependent
+(e.g., ``for all possible values of method parameters'') for dependent
 type-checking.  There is no run-time constraint-solving.  However,
-run-time casts to dependent types are permitted; these casts involve
+run-time casts and \xcd{instanceof} checks involving dependent types
+are permitted; these tests involve
 arithmetic, not algebra---the values of all parameters are known.
 
 The design supports separate compilation: a class needs to be
@@ -320,8 +321,8 @@ implemented separately~\cite{ns07-x10anno}.
 We claim the design is clean and modular. We present a simple core
 language \CFJ, extending \FJ{}~\cite{FJ} with constrained types on top
 of an arbitrary constraint system. We present rules for type-checking
-\CFJ{} programs that are parametric in the constraint system. 
-We establish subject reduction and progress theorems. 
+\CFJ{} programs that are parametric in the constraint system
+and establish subject reduction and progress theorems. 
 
 %
 % XXX contrast with hybrid type checking.
@@ -329,12 +330,12 @@ We establish subject reduction and progress theorems.
 \paragraph{Rest of this paper.}
 
 Section~\ref{sec:lang} describes the syntax and semantics of
-constrained types (a formal semantics appears in the appendix).
+constrained types.
 Section~\ref{sec:examples} works through a number of
 examples using a variety of constraint systems.
 The compiler implementation, including support for constraint
 system plugins, is described Section~\ref{sec:impl}.
-A formal semantics for core language with constrained types 
+A formal semantics for a core language with constrained types 
 is presented in Section~\ref{sec:semantics}, and a soundness
 proof is presented in the appendix.
 Section~\ref{sec:related} reviews related work.
