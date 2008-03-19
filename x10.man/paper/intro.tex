@@ -129,9 +129,9 @@ in time its head and tail might point to different structures.}
 \end{figure}
 
 We permit the definition of a class \xcd{C} to specify
-a list of typed parameters, or {\em properties},
-\tcd{(T1 x1, \ldots, Tk xk)} similar in syntactic structure to
-a method formal parameter list.
+a list of typed parameters or {\em properties},
+${\tt T}_1~{\tt x}_1, \dots, {\tt T}_k~{\tt x}_k$,
+similar in syntactic structure to a method formal parameter list.
 %
 Each property in this list is treated as  a \xcd{public} \xcd{final} instance field.
 %
@@ -149,7 +149,7 @@ property list with a ``\xcd{:}''.
 For instance, we may specify a class \xcd{List} with an
 \xcd{int length} property as follows:
 \begin{displayxten}
-    class List(int length: length >= 0) {...}
+class List(int length: length >= 0) {...}
 \end{displayxten}
 Given such a definition for a class \xcd{C}, types can be
 constructed by {\em constraining} the properties of \xcd{C}.  In
@@ -158,13 +158,16 @@ specifies a type: the type of all instances of the class
 satisfying the boolean expression. Thus, \xcd{List(:length ==
 3)}
 is a permissible type, as are \xcd{List(:length <= 42)} and
-even \xcd{List(:length * f() >= g())}.
-In practice, \xcd{e} is restricted by the particular constraint
-system in use.
+even \xcd{List(:length * f() >= g())} where \xcd{f} and \xcd{g}
+are functions on the immutable state of the \xcd{List} object
+and the variables in scope where the type appears.
+In practice, the constraint expression is restricted by the
+particular constraint system in use.
 
 In general, a {\em constrained type} is of the form \xcd{C(:e)},
 the name of a class or interface\footnote{In \Xten{}, primitive
-types such as \xcd{int} and \xcd{double} are object types.}
+types such as \xcd{int} and \xcd{double} are object types; thus,
+for example, \xcd{int(:self==0)} is a legal constrained type.}
 \xcd{C}, called the {\em base class}, followed
 by a {\em condition} \xcd{e},
 a boolean expression on the properties of the
@@ -175,11 +178,14 @@ condition \xcd{e}.
 
 For brevity, we write \xcd{C} as a type as well; it
 corresponds to the (vacuously) constrained type \xcd{C(:true)}.
-We also permit the syntax \tcd{C(e1,\ldots,ek)} for
-the type \tcd{C(:x1==e1 \& \ldots\ \& xk==ek)} (assuming that
-the property list for \xcd{C} specifies the \xcd{k} properties
-\xcd{x1}, \ldots, \xcd{xk}, and each term \xcd{ei} is of the correct
-type).
+We also permit the syntax
+\tcd{C(${\tt e}_1,\ldots,{\tt e}_k$)} for
+the type
+\tcd{C(${\tt x}_1$==${\tt e}_1,\ldots,{\tt x}_k$==${\tt e}_k$)},
+assuming that
+the property list for \xcd{C} specifies the $k$ properties
+${\tt x}_1,\ldots,{\tt x}_k$,
+and each term ${\tt e}_i$ is of the correct type.
 
 Constrained types may occur wherever normal types occur. In
 particular, they may be used to specify the types of properties,
@@ -191,9 +197,11 @@ Using the definitions above, \xcd{List(n)}, shown in
 Figure~\ref{fig:list-example}, is the type of all lists of
 length \xcd{n}.
 %
-Intuitively, this definition states that a \xcd{List} has a \xcd{int}
+Intuitively, this definition states that a \xcd{List} has an \xcd{int}
 property \xcd{n}, which must be non-negative.
-In a constraint, the name \xcd{self} refers to the type being constrained.
+In a constraint, the name \xcd{self} refers to the type being
+constrained (as opposed to \xcd{this}, which refers to
+an instance of the enclosing class).
 The class has two
 fields that hold the head and tail of the list.  The properties
 of the
@@ -216,8 +224,9 @@ a singleton list of length \xcd{1}; the third
 returns a list of length \xcd{m+1}, where \xcd{m} is
 the length of the second argument.
 
-In the third constructor, as well as 
-the \xcd{append} and \xcd{reverse} method, the return type
+In the third constructor (lines 7--11), as well as 
+the \xcd{append} (line 13) and \xcd{rev} (line 18) methods,
+the return type
 depends on properties of the formal parameters. 
 If an argument appears in a
 return type then the parameter must be declared \xcd{final},
@@ -227,7 +236,7 @@ the method or constructor body.  A parameter may also depend on
 another parameter in the argument list.
 
 The use of constraints makes existential types very natural.
-Consider the return type of \xcd{filter}: it specifies
+Consider the return type of \xcd{filter} (line 22): it specifies
 that the list returned is of some unknown length. The only thing
 known about it is that its size is bounded by \xcd{n}.
 Thus,
@@ -238,6 +247,10 @@ properties. Thus, code written with constrained types can
 interact seamlessly with legacy library code---using just base
 types wherever appropriate.
 
+The return type of \xcd{filter} also illustrates the difference
+between \xcd{self} and \xcd{this}.  Here, \xcd{self} refers to
+the \xcd{List} being returned by the method; \xcd{this} refers
+to the method's receiver.
 
 \subsection{Constraint system plugins}
 
@@ -262,9 +275,10 @@ consistency of the constraints.
 The \Xten{} compiler
 implements a simple
 equality-based constraint system.  Constraint solver plugins
-have been implemented for Presburger constraints using the Omega
-library~\cite{omega} and the CVC3 theorem prover~\cite{cvc}.  A
-separate set-based constraint system has been built using CVC3.
+have been implemented for inequality constraints, for
+Presburger constraints using
+the CVC3 theorem prover~\cite{cvc}, and for
+set-based constraints also using CVC3.
 These constraint systems are described in
 Section~\ref{sec:examples}; the implementation is
 discussed in Section~\ref{sec:impl}.
