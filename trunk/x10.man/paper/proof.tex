@@ -79,7 +79,7 @@ Straightforward.
 
 \begin{lemma}
 \label{lemmaone} % 1. 
-if   $\Gamma \vdash S \subtype T$,
+If   $\Gamma \vdash S \subtype T$,
 then $\fields(S,z)$ has $\fields(T,z)$ as a prefix.
 \end{lemma}
 
@@ -89,7 +89,7 @@ Immediate from the definition of $\fields$.
 
 \begin{lemma}
 \label{lemmatwo} % 2. 
-if   $S \subtype T$,
+If   $S \subtype T$,
 then $\mtype(S,m,z) = \mtype(T,m,z)$.
 \end{lemma}
 
@@ -100,7 +100,7 @@ Immediate from the definition of $\mtype$.
 \begin{lemma}
 \label{existential-subtyping}
 If   $\Gamma \vdash S \subtype T$,
-then $(S z; c_0)[x/\self] \vdash_{\cal C} (T z; c_0)[x/\self]$
+then $$(S~z;~c_0)[x/\self] \vdash_{\cal C} (T~z;~c_0)[x/\self]$$
 where $x$ is fresh.
 \end{lemma}
 
@@ -121,21 +121,21 @@ we must have $S = C(:c)$ and $T = D(:d)$
 where
 $C \subtype D$
 and
-$\sigma(\Gamma, C(:c) x) \vdash_{\cal C} d[x/\self]$
+$\sigma(\Gamma, C(:c)~x) \vdash_{\cal C} d[x/\self]$
 with $x$ fresh.
 From the definition of $\sigma(\cdot)$ we have
-    $\sigma(\Gamma,{\tt S}\ {\tt f}) = \sigma(\Gamma), c[f/\self], inv(C,f)$,
-and $\sigma(\Gamma,{\tt T}\ {\tt f}) = \sigma(\Gamma), d[f/\self], inv(D,f)$.
+    $$\sigma(\Gamma,{\tt S}\ {\tt f}) = \sigma(\Gamma), c[f/\self], inv(C,f)$$
+and $$\sigma(\Gamma,{\tt T}\ {\tt f}) = \sigma(\Gamma), d[f/\self], inv(D,f).$$
 From $\Gamma \vdash S \subtype T$ we have 
-$\sigma(\Gamma, C(:c) x) \vdash_{\cal C} d[f/\self]$.
+$\sigma(\Gamma, C(:c)~x) \vdash_{\cal C} d[f/\self]$.
 Additionally, from the definition of $inv(C,f)$ and
 from $C \subtype D$, 
 we have that $inv(C,F)$ is a constraint that has $inv(D,f)$ as a conjunct so 
 $inv(C,f) \vdash_{\cal C} inv(D,f)$.
 We conclude
-$\sigma(\Gamma,{\tt S}\ {\tt f}) \vdash_{\cal C} 
-\sigma(\Gamma,{\tt T}\ {\tt f})$.
-We have the $\vdash_{\cal C}$ is transitive so 
+$\sigma(\Gamma,{\tt S}\ {\tt f}) \vdash_{\cal C}
+\sigma(\Gamma,{\tt T}\ {\tt f}).$
+We have that $\vdash_{\cal C}$ is transitive so 
 from $\sigma(\Gamma,{\tt S}\ {\tt f}) \vdash_{\cal C}
 \sigma(\Gamma,{\tt T}\ {\tt f})$
 and
@@ -157,18 +157,18 @@ we must have $U = C(:c)$ and $U' = D(:d)$
 where
 $C \subtype D$
 and 
-$\sigma(\Gamma, {\tt T}\ {\tt f}, C(:c) x) \vdash_{\cal C} d[x/\self]$ 
+$$\sigma(\Gamma, {\tt T}\ {\tt f}, C(:c)~x) \vdash_{\cal C} d[x/\self]$$
 with $x$ fresh.
 From Lemma~\ref{lemmafour},
 $\Gamma \vdash S \subtype T$,
 and
-$\sigma(\Gamma, {\tt T}\ {\tt f}, C(:c) x) \vdash_{\cal C} d[x/\self]$,
+$$\sigma(\Gamma, {\tt T}\ {\tt f}, C(:c)~x) \vdash_{\cal C} d[x/\self],$$
 we have
-$\sigma(\Gamma, {\tt S}\ {\tt f}, C(:c) x) \vdash_{\cal C} d[x/\self]$.
+$$\sigma(\Gamma, {\tt S}\ {\tt f}, C(:c)~x) \vdash_{\cal C} d[x/\self].$$
 So we can use 
 $C \subtype D$
 and
-$\sigma(\Gamma, {\tt S}\ {\tt f}, C(:c) x) \vdash_{\cal C} d[x/\self]$
+$$\sigma(\Gamma, {\tt S}\ {\tt f}, C(:c)~x) \vdash_{\cal C} d[x/\self]$$
 to derive 
 $\Gamma, {\tt S}\ {\tt f} \vdash U \subtype U'$.
 \end{proof}
@@ -182,21 +182,21 @@ then $\Gamma \vdash E(S\ z; c_0) \subtype E(T\ z; c_0)$.
 \begin{proof}
 To prove the desired conclusion $E(S\ z; c_0) \subtype E(T\ z; c_0)$ 
 we need to show that
-$\sigma(\Gamma, E(:S\ z; c_0) x) \vdash_{\cal C} (T\ z; c_0)[x/\self]$.
-
+$$\sigma(\Gamma, E(:S\ z; c_0)~x) \vdash_{\cal C} (T\ z; c_0)[x/\self].$$
+%
 We have 
-$\sigma(\Gamma, E(:S\ z; c_0) x) = 
- \sigma(\Gamma), (S\ z; c_0)[x/\self], inv(E,x)$.
+$$\sigma(\Gamma, E(:S\ z; c_0)~x) = 
+ \sigma(\Gamma), (S\ z; c_0)[x/\self], inv(E,x).$$
 From Lemma~\ref{existential-subtyping} and
 $\Gamma \vdash S \subtype T$, 
 we have
-$(S z; c_0)[x/\self] \vdash_{\cal C} (T z; c_0)[x/\self]$.
-From $\sigma(\Gamma, E(:S\ z; c_0) x) =
- \sigma(\Gamma), (S\ z; c_0)[x/\self], inv(E,x)$
+$$(S~z; c_0)[x/\self] \vdash_{\cal C} (T~z; c_0)[x/\self].$$
+From $$\sigma(\Gamma, E(:S\ z; c_0)~x) =
+ \sigma(\Gamma), (S\ z; c_0)[x/\self], inv(E,x)$$
 and
-$(S z; c_0)[x/\self] \vdash_{\cal C} (T z; c_0)[x/\self]$,
+$$(S~z; c_0)[x/\self] \vdash_{\cal C} (T~z; c_0)[x/\self],$$
 we conclude 
-$\sigma(\Gamma, E(:S\ z; c_0) x) \vdash_{\cal C} (T\ z; c_0)[x/\self]$.
+$$\sigma(\Gamma, E(:S\ z; c_0)~x) \vdash_{\cal C} (T\ z; c_0)[x/\self].$$
 \end{proof}
 
 % \begin{lemma}
@@ -315,19 +315,19 @@ of $\Gamma \vdash T\ e$.
 \TCast: We have two subcases.
    \begin{itemize}
    \item
-   \RCast:  For the expression {\tt (T) o}, where 
+   \RCast:  For the expression {\tt (T)~o}, where 
             $o = {\tt \new\ {\tt C(\bar{\tt d})}}$,
             we have from \TCast\ that 
-            $\Gamma \vdash {\tt C(:\bar{U}\ \bar{\tt f}
-                {\tt ;\self.\bar{f}}=\bar{\tt f})\ o}$.
+            $$\Gamma \vdash {\tt C(:\bar{U}\ \bar{\tt f}
+                {\tt ;\self.\bar{f}}=\bar{\tt f})\ o}.$$
             Additionally, we have from \RCast\ that 
             $\vdash C \subtype T[o/\self]$.
             We now choose 
-            $S = {\tt C(:\bar{U}\ \bar{\tt f}
-                {\tt ;\self.\bar{f}}=\bar{\tt f}; \self=o)}$.
+            $$S = {\tt C(:\bar{U}\ \bar{\tt f}
+                {\tt ;\self.\bar{f}}=\bar{\tt f}; \self=o)}.$$
             From 
-            $\Gamma \vdash {\tt C(:\bar{U}\ \bar{\tt f}
-                {\tt ;\self.\bar{f}}=\bar{\tt f}) o}$ 
+            $$\Gamma \vdash {\tt C(:\bar{U}\ \bar{\tt f}
+                {\tt ;\self.\bar{f}}=\bar{\tt f})~o}$$
             we get
             $\Gamma \vdash S\ o$.
             From Lemma~\ref{weakening} and $\vdash C \subtype T[o/\self]$ 
@@ -337,7 +337,7 @@ of $\Gamma \vdash T\ e$.
             $\Gamma \vdash 
                 S \subtype T$.
    \item
-   \RCCast: For the expression {\tt (T) e}, we have from \TCast\ that
+   \RCCast: For the expression {\tt (T)~e}, we have from \TCast\ that
             $\Gamma \vdash {\tt U}\ {\tt e}$.
             Additionally, we have from \RCCast\ that
             ${\tt e} \derives {{\tt e}}'$.
@@ -345,7 +345,7 @@ of $\Gamma \vdash T\ e$.
             $\Gamma \vdash {\tt U}'\ e'$ and $\Gamma \vdash U' \subtype U$.
             We now choose $S=T$.
             From $\Gamma \vdash {\tt U}'\ e'$ and \TCast\ we derive
-            $\Gamma \vdash {\tt S}\ {\tt (T) e'}$.
+            $\Gamma \vdash {\tt S}\ {\tt (T)~e'}$.
             From $S=T$ and Lemma~\ref{subtyping}
             we have $\Gamma \vdash S \subtype T$.
    \end{itemize}
@@ -359,43 +359,46 @@ of $\Gamma \vdash T\ e$.
             $\theta=[\bar{\tt f}/\this.\bar{\tt f}]$,
             $\fields(C,\theta)=\bar{\tt Z}\ \bar{\tt f}$,
             $\Gamma, \bar{\tt T}\ \bar{\tt f} \vdash 
-                    \bar{\tt T} \subtype \bar{\tt Z}$, and 
+                    \bar{\tt T} \subtype \bar{\tt Z},$ and 
             $\sigma(\Gamma, \bar{\tt T}\ \bar{\tt f}) \vdash_{\cal C} 
-                    \inv({\tt C},\theta)$.
+                    \inv({\tt C},\theta).$
             Additionally, we have from \RCNewArg\ that
             ${\tt e}_i \derives {{\tt e}}_i'$.
             From the induction hypothesis, we have ${\tt S}_i$ such that
             $\Gamma \vdash {\tt S}_i\ {{\tt e}}_i'$ and 
             $\Gamma \vdash S_i \subtype T_i$.
+
             For all $j$ except $i$, define $S_j = T_j$ and $e_j' = e_j$.
             We have 
             $\Gamma \vdash \bar{\tt S}\ \bar{\tt e}'$ and
             $\Gamma \vdash \bar{S} \subtype \bar{T}$.
             From Lemma~\ref{lemmathree},
             $\Gamma, \bar{\tt T}\ \bar{\tt f} \vdash
-                    \bar{\tt T} \subtype \bar{\tt Z}$,
+                    \bar{\tt T} \subtype \bar{\tt Z},$
             and $\Gamma \vdash \bar{S} \subtype \bar{T}$, we have
             $\Gamma, \bar{\tt S}\ \bar{\tt f} \vdash
-                    \bar{\tt T} \subtype \bar{\tt Z}$.
+                    \bar{\tt T} \subtype \bar{\tt Z}.$
+
             From Lemma~\ref{weakening} and 
             $\Gamma \vdash \bar{S} \subtype \bar{T}$, 
             we have 
-            $\Gamma, \bar{\tt S}\ \bar{\tt f} \vdash \bar{S} \subtype \bar{T}$.
+            $\Gamma, \bar{\tt S}\ \bar{\tt f} \vdash \bar{S} \subtype \bar{T}.$
             From Lemma~\ref{subtyping},
-            $\Gamma, \bar{\tt S}\ \bar{\tt f} \vdash \bar{S} \subtype \bar{T}$,
+            $\Gamma, \bar{\tt S}\ \bar{\tt f} \vdash \bar{S} \subtype \bar{T},$
             and
             $\Gamma, \bar{\tt S}\ \bar{\tt f} \vdash
-                    \bar{\tt T} \subtype \bar{\tt Z}$, we have
-            $\Gamma, \bar{\tt S}\ \bar{\tt f} \vdash \bar{S} \subtype \bar{Z}$.
+                    \bar{\tt T} \subtype \bar{\tt Z},$ we have
+            $\Gamma, \bar{\tt S}\ \bar{\tt f} \vdash \bar{S} \subtype \bar{Z}.$
             From Lemma~\ref{lemmafour}, 
             $\Gamma \vdash \bar{S} \subtype \bar{T}$, and
             $\sigma(\Gamma, \bar{\tt T}\ \bar{\tt f}) \vdash_{\cal C}
-                    \inv({\tt C},\theta)$, 
+                    \inv({\tt C},\theta),$
             we have
             $\sigma(\Gamma, \bar{\tt S}\ \bar{\tt f}) \vdash_{\cal C}
-                    \inv({\tt C},\theta)$.
+                    \inv({\tt C},\theta).$
+
             We now choose 
-               $S=C(:\bar{S}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f})$.
+               $S=C(:\bar{S}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f}).$
             From 
             $\Gamma \vdash \bar{\tt S}\ \bar{\tt e}$,
             $\theta=[\bar{\tt f}/\this.\bar{\tt f}]$,
@@ -407,6 +410,7 @@ of $\Gamma \vdash T\ e$.
             $\Gamma \vdash {\tt S}\ {\tt new\ C(\bar{e}'}$.
             We have 
                $T=C(:\bar{T}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f})$.
+
             From Lemma~\ref{lemmafive} and
             $\Gamma \vdash \bar{S} \subtype \bar{T}$, we have
             $\Gamma \vdash S \subtype T$.
@@ -422,9 +426,10 @@ of $\Gamma \vdash T\ e$.
              ${\tt z}_0$ is fresh.
              Additionally, we have from \RField\ that
              $\fields(C)=\bar{C}\ \bar{f}$.
+
              We have 
              $T_0 = C(:\bar{T}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f})$
-             and, from \TNew, 
+             and from \TNew, 
              $\Gamma \vdash \bar{\tt T}\ \bar{\tt e}$,
              $\theta=[\bar{\tt f}/\this.\bar{\tt f}]$,
              $\fields(C,\theta)=\bar{\tt Z}\ \bar{\tt f}$,
@@ -432,12 +437,14 @@ of $\Gamma \vdash T\ e$.
                    \bar{\tt T} \subtype \bar{\tt Z}$, and
              $\sigma(\Gamma, \bar{\tt T}\ \bar{\tt f}) \vdash_{\cal C} 
                    \inv({\tt C},\theta)$.
+
              From $\Gamma \vdash \bar{\tt T}\ \bar{\tt e}$, we have
              $\Gamma \vdash {\tt T}_i\ {\tt e}_i$.
              We now choose $S = {\tt T}_i$.
              %%%% XXX (missing step)
-             Finally it is straightforward to show
-             $\Gamma \vdash S \subtype (T_0 z_0; z_0.f_i = \self; U_i)$.
+
+             Finally, it is straightforward to show
+             $$\Gamma \vdash S \subtype (T_0 z_0; z_0.f_i = \self; U_i).$$
    \item
    \RCField: For the expression ${\tt e.f}_i$, we have from \TField\ that
              $\Gamma \vdash {\tt T}_0\ {\tt e}$ and
@@ -447,12 +454,14 @@ of $\Gamma \vdash T\ e$.
              ${\tt e} \derives {{\tt e}}'$.
              From the induction hypothesis, we have $S_0$ such that 
              $\Gamma \vdash S_0\ e'$ and $\Gamma \vdash S_0 \subtype T_0$.
+
              We now choose 
              $S = 
                ({\tt S}_0\ {\tt z}_0; {\tt z}_0.{\tt f}_i=\self;{\tt U}_i)$.
              From $\Gamma \vdash S_0\ e'$, Lemma~\ref{lemmaone}, and
              \TField, we derive
              $\Gamma \vdash S {{\tt e}}'$.
+
              From $\Gamma \vdash S_0 \subtype T_0$ and 
              Lemma~\ref{lemmafive}, we have $\Gamma \vdash S \subtype T$.
    \end{itemize}
@@ -473,9 +482,11 @@ of $\Gamma \vdash T\ e$.
             where ${\tt z}_{0:n}$ is fresh, and
             $T_0 = C(\bar{A} \bar{f}; self.\bar{f} = \bar{f})$ and
             $\Gamma \vdash \bar{A} \bar{e}$.
+
             For simplicity, define $d_0 = (\new\ {\tt C}(\bar{\tt e}))$.
             Additionally, we have from \RInvk\ that
             ${\mathit{mbody}({\tt m},{\tt C})=\bar{x}. {\tt e}_0}$.
+
             From Lemma~\ref{body-type}, 
             $\mtype({\tt T}_0,{\tt m},{\tt z}_0) =
                \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt U}$, and
@@ -483,25 +494,31 @@ of $\Gamma \vdash T\ e$.
             we have $D,V$ such that $C \subtype D$, $V \subtype U$, and
             ${\tt Z}_{1:n}\ \bar{\tt z}_{1:n},{\tt D}\ \this \vdash 
                   {\tt V}\ {\tt e}$.
-            From Lemma~\ref{subtyping}, Lemma~\ref{weakening},
-            $T_0 = C(\bar{A} \bar{f}; self.\bar{f} = \bar{f})$, 
+
+            From Lemmas~\ref{subtyping} and \ref{weakening},
+            $T_0 = C(\bar{A} \bar{f}; \self.\bar{f} = \bar{f}),$ 
             $\Gamma \vdash T_0 \subtype C$ and
             $C \subtype D$, 
             we have
             $\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash T_0 \subtype D$.
+
             From Lemma~\ref{weakening} and
             ${\tt Z}_{1:n}\ \bar{\tt z}_{1:n},{\tt D}\ \this \vdash 
                   {\tt V}\ {\tt e}_0$, 
             we have
             $\Gamma, {\tt Z}_{1:n}\ \bar{\tt z}_{1:n},{\tt D}\ \this \vdash 
                   {\tt V}\ {\tt e}$.
-            From Lemma~\ref{substitution}, 
-            $\Gamma \vdash {\tt T}_{0:n} \ {\tt d}_{0:n}$,
-            $\Gamma,{\tt T}_{0:n}\ {\tt z}_{0:n} \vdash T_0 \subtype D$.
-            $\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash
-                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
-            $\Gamma, {\tt Z}_{1:n}\ \bar{\tt z}_{1:n},{\tt D}\ \this \vdash 
-                    {\tt V}\ {\tt e}_0$,
+
+            From Lemma~\ref{substitution} and
+            $$
+            \begin{array}{l}
+            \Gamma \vdash {\tt T}_{0:n} \ {\tt d}_{0:n}, \\
+            \Gamma,{\tt T}_{0:n}\ {\tt z}_{0:n} \vdash T_0 \subtype D, \\
+            \Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}, \mbox{and}\\
+            \Gamma, {\tt Z}_{1:n}\ \bar{\tt z}_{1:n},{\tt D}\ \this \vdash 
+                    {\tt V}\ {\tt e}_0, \\
+            \end{array}$$
             we have a type $S$ such that 
             $\Gamma \vdash {\tt S}\ 
                  {\tt e}_0[\bar{\tt d}/{\tt z}_{0:n},\new\ C(\bar{e})/\this]$ 
@@ -511,14 +528,19 @@ of $\Gamma \vdash T\ e$.
    \item
    \RCInvkRecv: For the expression ${\tt e_0.m(\bar{e})}$,
             we have from \TInvk\ that
-            $\Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}$,
-            $\mtype({\tt T}_0,{\tt m},{\tt z}_0) = 
-               \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt U}$,
-            $\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash 
-                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$, and
-            $\sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C}                          {\tt c}$, 
+            $$
+            \begin{array}{l}
+            \Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}, \\
+            \mtype({\tt T}_0,{\tt m},{\tt z}_0) = 
+               \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt U}, \\
+            \Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash 
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}, \mbox{and} \\
+            \sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n})
+                  \vdash_{\cal C} {\tt c} \\
+            \end{array}$$
             where ${\tt z}_{0:n}$ is fresh.
-            Additionally, we have from \RCInvkRecv\ that
+
+            Additionally, from \RCInvkRecv\ we have that
             ${\tt e}_0 \derives {{\tt e}}_0'$.
             From the induction hypothesis, we have ${\tt S}_0$ such that
             $\Gamma \vdash {\tt S}_0\ {{\tt e}}_0'$ and 
@@ -527,22 +549,26 @@ of $\Gamma \vdash T\ e$.
             We have 
             $\Gamma \vdash \bar{\tt S}\ \bar{\tt e}'$ and
             $\Gamma \vdash \bar{S} \subtype \bar{T}$.
+
             From Lemma~\ref{lemmatwo}
             and $\Gamma \vdash \bar{S} \subtype \bar{T}$, we have
-            $\mtype(S_0,m,z) = \mtype(T_0,m,z)$.
+            $$\mtype(S_0,m,z) = \mtype(T_0,m,z).$$
+
             From Lemma~\ref{lemmathree},
             $\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash
                   {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
             and $\Gamma \vdash \bar{S} \subtype \bar{T}$, we have
             $\Gamma, {\tt S}_{0:n}\ {\tt z}_{0:n} \vdash
                   {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
+
             From Lemma~\ref{lemmafour}, 
             $\Gamma \vdash \bar{S} \subtype \bar{T}$, and
             $\sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C}
                               {\tt c}$
             we have
             $\sigma(\Gamma, {\tt S}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C}
-                              {\tt c}$
+                              {\tt c}.$
+
             We now choose 
                $S=({\tt S}_{0:n}\ {\tt z}_{0:n}; U)$.
             From 
@@ -557,6 +583,7 @@ of $\Gamma \vdash T\ e$.
             $\Gamma \vdash {\tt S}\ {\tt e_0.m(e_{1:n}')}$.
             We have 
                $T=({\tt T}_{0:n}\ {\tt z}_{0:n}; U)$.
+
             From Lemma~\ref{lemmafive} and
             $\Gamma \vdash \bar{S} \subtype \bar{T}$, we have
             $\Gamma \vdash S \subtype T$.
@@ -570,7 +597,8 @@ of $\Gamma \vdash T\ e$.
                   {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$, and
             $\sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C}                          {\tt c}$, 
             where ${\tt z}_{0:n}$ is fresh.
-            Additionally, we have from \RCInvkArg\ that, for $i>0$,
+
+            Additionally, from \RCInvkArg\ we have that, for $i>0$,
             ${\tt e}_i \derives {{\tt e}}_i'$.
             From the induction hypothesis, we have ${\tt S}_i$ such that
             $\Gamma \vdash {\tt S}_i\ {{\tt e}}_i'$ and 
@@ -579,17 +607,20 @@ of $\Gamma \vdash T\ e$.
             We have 
             $\Gamma \vdash \bar{\tt S}\ \bar{\tt e}'$ and
             $\Gamma \vdash \bar{S} \subtype \bar{T}$.
+
             From Lemma~\ref{lemmathree},
             $\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash
                   {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
             and $\Gamma \vdash \bar{S} \subtype \bar{T}$, we have
             $\Gamma, {\tt S}_{0:n}\ {\tt z}_{0:n} \vdash
                   {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
+
             From Lemma~\ref{weakening} and 
             $\Gamma \vdash \bar{S} \subtype \bar{T}$, 
             we have 
             $\Gamma, {\tt S}_{0:n}\ {\tt z}_{0:n} \vdash 
                   \bar{S} \subtype \bar{T}$.
+
             From Lemma~\ref{subtyping},
             $\Gamma, {\tt S}_{0:n}\ {\tt z}_{0:n} \vdash 
                   \bar{S} \subtype \bar{T}$,
@@ -599,13 +630,15 @@ of $\Gamma \vdash T\ e$.
             we have
             $\Gamma, {\tt S}_{0:n}\ {\tt z}_{0:n} \vdash 
                   \bar{S} \subtype {\tt Z}_{1:n}$.
+
             From Lemma~\ref{lemmafour}, 
             $\Gamma \vdash \bar{S} \subtype \bar{T}$, and
             $\sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C}
                               {\tt c}$
             we have
             $\sigma(\Gamma, {\tt S}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C}
-                              {\tt c}$
+                              {\tt c}.$
+
             We now choose 
                $S=({\tt S}_{0:n}\ {\tt z}_{0:n}; U)$.
             From 
@@ -620,6 +653,7 @@ of $\Gamma \vdash T\ e$.
             $\Gamma \vdash {\tt S}\ {\tt e_0.m(e_{1:n}')}$.
             We have 
                $T=({\tt T}_{0:n}\ {\tt z}_{0:n}; U)$.
+
             From Lemma~\ref{lemmafive} and
             $\Gamma \vdash \bar{S} \subtype \bar{T}$, we have
             $\Gamma \vdash S \subtype T$.
@@ -636,7 +670,7 @@ Let the normal form of expressions be given by {\em values}
 If $\vdash {\tt T\ e}$, then one of the following conditions holds:
 \begin{enumerate}
 \item {\tt e} is a value {\tt v}, 
-\item {\tt e} contains a subexpression ${\tt (T)\new\ C(\bar{\tt
+\item {\tt e} contains a subexpression ${\tt (T)~\new\ C(\bar{\tt
 v})}$ such that
 $\not\vdash {\tt C} \subtype {\tt T}[{\tt \new\ C(\bar{\tt v})}/\self]$,
 \item there exists ${\tt e}'$ s.t. ${\tt e} \derives {\tt e}'$.
