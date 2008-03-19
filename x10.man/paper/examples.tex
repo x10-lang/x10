@@ -271,15 +271,16 @@ iterates multiple times over points \tcd{i} in \tcd{d0}.
 The syntax \tcd{finish} \tcd{foreach} (line 20) tells the
 compiler to execute each loop iteration in parallel and to wait
 for all concurrent activities to terminate.
-The inner loop (line 22) iterates over a subregion of
+The inner loop (lines 22--26) iterates over a subregion of
 \tcd{inner}.
-%
-The type-checker establishes that the \tcd{region} property of
+
+The type checker establishes that the \tcd{region} property of
 the point \tcd{ij} (line 22) is \tcd{inner}
 \xcd{&}~\xcd{[i:i,d1min:d1max]}, and that this region is a
-subset of \tcd{outer}, the region of the array \tcd{G} accessed
-within the loop body, ensuring that the access to the array is
-within the bounds of the array.
+subset of \tcd{inner}, which is in turn a subset of \tcd{outer},
+the region of the array \tcd{G}.
+Thus, the accesses to the array in the loop body
+do not violate the bounds of the array.
 
 \eat{
 \subsection{AVL trees and red--black trees}
