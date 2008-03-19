@@ -19,6 +19,7 @@
 \usepackage{pldefs}
 \usepackage{utils}
 \usepackage[pdftex]{graphicx}
+\usepackage{xspace}
 \usepackage{ifpdf}
 \newif\iflstworks
 \lstworkstrue
@@ -56,10 +57,9 @@
 \lstnewenvironment{xten}
   {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,keywordstyle=,numbers=left,numberstyle=\tiny}}
   {}
-\newcommand\inputxten[1]{\lstinputlisting[language=X10,basicstyle=\codestyle\footnotesize,columns=fullflexible,tabsize=4,captionpos=b,keepspaces,keywordstyle=,numbers=left,numberstyle=\tiny]{#1}}
+\newcommand\inputxten[1]{\begin{minipage}{\textwidth}\lstinputlisting[language=X10,basicstyle=\codestyle\footnotesize,columns=fullflexible,tabsize=4,captionpos=b,keepspaces,keywordstyle=,numbers=left,numberstyle=\tiny,xleftmargin=15pt]{#1}\end{minipage}}
 
 %\newenvironment{displayxten}{\begin{xten}}{\end{xten}}
-
 
 \newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true,columns=flexible,breaklines,keywordstyle=]{#1}}}
 \newcommand{\tcd}[1]{{\codestyle{#1}}}
