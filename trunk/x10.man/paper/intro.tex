@@ -22,14 +22,15 @@ imperative sequential $\mbox{Java}^{\mbox{\scriptsize\sc tm}}$
 core, \Xten{} introduces constructs for distribution and
 fine-grained concurrency (asynchrony, atomicity, ordering).
 
-\Xten{}, like most object-oriented languages is designed around
-the notion of objects as instances of {\em classes}. However, \Xten{}
-places equal emphasis on {\em arrays}, a central data-structure in
-high performance computing. In particular, \Xten{} supports dense,
+\Xten{}, like most object-oriented languages supports classes;
+however, it places
+equal emphasis on {\em arrays}, a central data structure in high
+performance computing.
+In particular, \Xten{} supports dense,
 distributed multi-dimensional arrays of value and reference types,
-built over index sets known as {\em regions}, and mappings from index
-sets to places, known as {\em distributions}.  \Xten{} supports a rich
-algebra of operations over regions, distributions and arrays.
+built over index sets known as {\em regions}.%, and mappings from index
+%sets to places, known as {\em distributions}.  \Xten{} supports a rich
+%algebra of operations over regions, distributions and arrays.
 
 A central design goal of \Xten{} is to rule out large classes of error
 by design. For instance, the possibility of indexing a 2-d array with 3-d
@@ -43,11 +44,11 @@ statically check that a method is being invoked by an activity that is
 registered with a given clock (i.e., dynamic barrier)~\cite{X10}.
 
 In this paper we describe {\Xten}'s support for {\em
-constrained types}.  
-Constrained types are a form of {\em dependent
+constrained types},
+a form of {\em dependent
 type}~\cite{dependent-types,xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter,calc-constructions}---types parametrized by values---defined 
-on top of predicates over the {\em immutable}
-state of objects. Such types statically capture many common invariants
+on predicates over the {\em immutable}
+state of objects. Constrained types statically capture many common invariants
 that naturally arise in code. For instance, typically the shape of an
 array (the number of dimensions (the rank) and the size of each dimension)
 is determined at
