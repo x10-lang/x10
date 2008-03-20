@@ -92,7 +92,7 @@ languages.
 \subsection{Constrained types}
 
 \begin{figure}[t]
-\begin{xten}
+\begin{xtenx}
 class List(int(:self >= 0) n) {
   Object head = null;
   List(n-1) tail = null;
@@ -106,12 +106,14 @@ class List(int(:self >= 0) n) {
   }
 
   List(n+arg.n) append(final List arg) {
-    return (n==0) ? arg : new List(head, tail.append(arg));
+    return n==0
+      ? arg : new List(head, tail.append(arg));
   }
 
   List(n) reverse() { return rev(new List()); }
   List(n+acc.n) rev(final List acc) {
-    return (n==0) ? acc : tail.rev(new List(head, acc));
+    return n==0
+      ? acc : tail.rev(new List(head, acc));
   }
 
   List(:self.n <= this.n) filter(Predicate f) {
@@ -120,7 +122,7 @@ class List(int(:self >= 0) n) {
     return (f.isTrue(head)) ? new List(head,l) : l;
   }
 }
-\end{xten}
+\end{xtenx}
 \caption{
 This program implements a mutable list of Objects. The size of a list
 does not change through its lifetime, even though at different points
@@ -175,17 +177,15 @@ base class and the \xcd{final} variables in scope at the type.
 Such a type represents a refinement of \xcd{C}: the set of all
 instances of \xcd{C} whose immutable state satisfies the
 condition \xcd{e}.
-
-For brevity, we write \xcd{C} as a type as well; it
-corresponds to the (vacuously) constrained type \xcd{C(:true)}.
-We also permit the syntax
+%
+We write \xcd{C} for the
+the vacuously constrained type \xcd{C(:true)}, and
+write
 \tcd{C(${\tt e}_1,\ldots,{\tt e}_k$)} for
 the type
-\tcd{C(${\tt x}_1$==${\tt e}_1,\ldots,{\tt x}_k$==${\tt e}_k$)},
-assuming that
-the property list for \xcd{C} specifies the $k$ properties
-${\tt x}_1,\ldots,{\tt x}_k$,
-and each term ${\tt e}_i$ is of the correct type.
+\tcd{C(${\tt x}_1$==${\tt e}_1,\ldots,{\tt x}_k$==${\tt e}_k$)}
+where \xcd{C} specifies the $k$ properties
+${\tt x}_1,\ldots,{\tt x}_k$.
 
 Constrained types may occur wherever normal types occur. In
 particular, they may be used to specify the types of properties,
@@ -225,7 +225,7 @@ returns a list of length \xcd{m+1}, where \xcd{m} is
 the length of the second argument.
 
 In the third constructor (lines 7--11), as well as 
-the \xcd{append} (line 13) and \xcd{rev} (line 18) methods,
+the \xcd{append} (line 13) and \xcd{rev} (line 20) methods,
 the return type
 depends on properties of the formal parameters. 
 If an argument appears in a
@@ -236,7 +236,7 @@ the method or constructor body.  A parameter may also depend on
 another parameter in the argument list.
 
 The use of constraints makes existential types very natural.
-Consider the return type of \xcd{filter} (line 22): it specifies
+Consider the return type of \xcd{filter} (line 24): it specifies
 that the list returned is of some unknown length. The only thing
 known about it is that its size is bounded by \xcd{n}.
 Thus,
