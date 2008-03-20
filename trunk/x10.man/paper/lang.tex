@@ -437,7 +437,7 @@ for $\rc({\tt C(:c}[{\tt X}/\mbox{\xcd{self}}]))$.
 
 Consider a general class definition:
 \begin{displayxten}
-class C(C$_k$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c)
+class C(C$_1$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c)
   extends D(:d) { ... }
 \end{displayxten}
 
@@ -493,13 +493,17 @@ types wherever appropriate.
 
 \subsection{Parametric consistency}
 
-Consider the set of final variables that are referenced in a
-type \xcd{T} = \xcd{C(:c)}. These are the {\em parameters} of
-the type. A type is said to be {\em parametrically consistent}
-if its where clause \xcd{c} is solvable for each possible assignment of
-values to parameters.  A parametrically consistent type has the
-property that its extension will never be empty. 
-Types are required to be parametrically consistent.
+Consider the set of final variables that are referenced in a type
+\xcd{T} = \xcd{C(:c)}. These are the {\em parameters} of the type. A
+type is said to be {\em parametrically consistent} if its where clause
+\xcd{c} is solvable for each possible assignment of values to
+parameters.  Types are required to be parametrically
+consistent. Parametric consistency is sufficient to ensure that the
+extension of a type is non-empty.\footnote{It is not necessary in that
+there may be programs whose types are not parametrically inconsistent
+but which never encounter empty types at runtime because of
+relationships in data values that are to complicated to be captured by
+the type system.}
 
 Consider a variation of List from Figure~\ref{fig:list-example}:
 \begin{displayxten}
