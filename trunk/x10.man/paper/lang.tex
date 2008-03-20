@@ -375,6 +375,7 @@ Constrained types subsume existential types.
 For example, the length of the
 list returned by \xcd{filter} in Figure~\ref{fig:list-example} is existentially
 quantified.
+\if 0
 Existential quantification may also be introduced explicitly:
 the following function computes the greatest
 common divisor of two integers:\footnote{Checking this program
@@ -389,18 +390,17 @@ int(:int x; int y; a==x*self & b==y*self)
     else return gcd(b, a % b);
 }
 \end{displayxten}
+\fi
 
 Operations on values of constrained type
 propagate constraints
 to the operation result by introducing existentially quantified
-variables.  Consider the following assignment:
+variables.  Consider the assignment to \tcd{c} below:
 \begin{displayxten}
-int(:self >= 0) product(int(:self >= 0) a,
-                        int(:self >= 0) b) {
-    return a*b;
-}
+int(:self >= 0) a = ...;
+int(:self >= 0) b = ...;
+int(:self >= 0) c = a*b;
 \end{displayxten}
-We would like this function to type-check.
 During type-checking, the type of \xcd{a*b} is
 computed from the types of \xcd{a} and \xcd{b} to be
 the type:

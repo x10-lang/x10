@@ -109,7 +109,7 @@ constraints include inequalities:
 Some code that iterates over an array (sugaring {\tt get} and {\tt set}):
 \begin{xten}
 double dot(double[] x, double[] y
-         : x.length = y.length) {
+         : x.length == y.length) {
   double r = 0.; 
   for (int(:self >= 0, self < x.length)
        i = 0; i < x.length; i++) {
@@ -178,7 +178,10 @@ Presburger constraints are linear integer inequalities.
 %A separate implementation
 %of a Presburger constraint solver was implemented using
 %CVC3~\cite{cvc}. 
-%
+A Presburger constraint solver plugin was implemented using
+CVC3~\cite{cvclite,cvc}.  The list example in
+Figure~\ref{fig:list-example} type-checks using this constraint system.
+
 Presburger constraints are particularly useful in a
 high-performance computing setting where array operations are
 pervasive.
@@ -186,9 +189,6 @@ Xi and Pfenning proposed using dependent types for eliminating
 array bounds checks~\cite{xi98array}.  A Presburger constraint
 system can be used to keep track of array dimensions and array
 indices to ensure bounds violations do not occur.
-
-A Presburger constraint solver plugin was implemented using
-CVC3~\cite{cvclite,cvc}. 
 
 \subsection{Set constraints: region-based arrays}
 
@@ -263,7 +263,7 @@ The function declares a region variable \tcd{outer} as an alias for
 \tcd{G}'s region and a region variable \tcd{inner} to be 
 the subset of \tcd{outer} that excludes the boundary points,
 formed by intersecting the \tcd{outer} region with itself shifted up, down,
-left, and right by one).
+left, and right by one.
 The function then declares two more regions \tcd{d0} and \tcd{d1},
 where ${\tt d}_i$ is set of points ${\tt x}_i$ where
 $({\tt x}_0, {\tt x}_1)$ is in \tcd{inner}.  The function
@@ -281,6 +281,13 @@ subset of \tcd{inner}, which is in turn a subset of \tcd{outer},
 the region of the array \tcd{G}.
 Thus, the accesses to the array in the loop body
 do not violate the bounds of the array.
+
+A key to making the program type-check is that the region
+intersection that defines \tcd{inner} (lines 8--9)
+is explicitly intersected with \tcd{outer} so that the 
+constraint solver can determine that
+the result is a subset of \tcd{outer}.
+
 
 \eat{
 \subsection{AVL trees and red--black trees}

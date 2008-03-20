@@ -25,8 +25,9 @@ If constraints cannot be solved, an error is reported.
 
 After type-checking a constraint as a boolean expression \xcd{e},
 the abstract syntax tree for
-the boolean expression is transformed into a list of conjuncts,
-${\tt e}_1 \& \dots \& {\tt e}_k$.  Each conjunct \xcd{ei} is given to 
+the boolean expression is transformed into a conjunction of
+predicates, \tcd{e$_1$\;\&\;$\dots$\;\&\;e$_k$}.
+Each conjunct \tcd{e$_i$} is given to 
 the installed constraint system plugins, which symbolically
 evaluate the expression to create an internal representation of
 the conjunct.  If no
