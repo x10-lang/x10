@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.cc,v 1.15 2008-01-19 18:20:18 ganeshvb Exp $
+ * $Id: array_copy.cc,v 1.16 2008-03-26 13:25:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -38,12 +38,14 @@ namespace x10lib {
   {          
     assert (closure->len + sizeof(Closure) - sizeof(size_t) >= 0 
 	    && closure->len + sizeof(Closure) - sizeof(size_t) < max_uhdr_sz);
-    
+ 
+   cout << "len " << closure->len << " " << len << " " << src  << " " << closure->handler << " " << target << endl;
+ 
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
 		      (void*) &(closure->handler),
-		      closure->len + sizeof(Closure) - sizeof(size_t),
+		      closure->len  - sizeof(size_t),
 		      src,
 		      len,
 		      NULL,
@@ -160,7 +162,7 @@ namespace x10lib {
     lapi_cntr_t origin_cntr;
     LRC (LAPI_Setcntr (__x10_hndl, &origin_cntr, 0));
     int tmp = -1;
-    
+   
     LRC (LAPI_Amsendv (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_GEN_ARRAY_COPY_HANDLER, 
@@ -190,12 +192,15 @@ namespace x10lib {
     lapi_cntr_t origin_cntr;
     LRC (LAPI_Setcntr (__x10_hndl, &origin_cntr, 0));
     int tmp = -1;
+    size_t aligned_size = closure->len % sizeof(long) == 0 ? closure->len :
+				 closure->len + sizeof(long) - closure->len % sizeof(long);
+   cout << "len " << closure->len << " " << len <<  " " << aligned_size << " " << src  << " " << closure->handler << " " << target << endl;
    
     LRC (LAPI_Amsend (__x10_hndl, 
 		      target,
 		      (void*) ASYNC_ARRAY_COPY_HANDLER, 
 		      (void*) &(closure->handler),
-		      closure->len + sizeof(Closure) - sizeof(size_t),
+		      aligned_size + sizeof(Closure) - sizeof(size_t),
 		      src,
 		      len,
 		      NULL,
@@ -252,8 +257,11 @@ static void* AsyncArrayCopyHandler (lapi_handle_t hndl, void* uhdr, uint* uhdr_l
   
   int handler = *((int*) uhdr);
   
+    cout << "Hello " << sizeof(x10lib::Closure) - sizeof(size_t) << endl;
+    cout << "Hello2 " << sizeof(x10lib::Closure) << endl;
+   cout << "hello "  << handler << endl; 
   if (ret_info->udata_one_pkt_ptr) {
-    
+
     memcpy ((char*) ArrayCopySwitch (handler, (char*) uhdr + sizeof (x10lib::Closure) - sizeof(size_t) ),
 	    ret_info->udata_one_pkt_ptr, *msg_len);
    
