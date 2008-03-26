@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xmacros.h,v 1.13 2008-01-09 16:02:21 surs Exp $
+ * $Id: xmacros.h,v 1.14 2008-03-26 13:25:38 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -18,6 +18,7 @@ do { \
 	int rc = statement; \
 	if (rc != LAPI_SUCCESS) { \
 		__x10_errno = rc; \
+		std::cout << "Error : " << X10_ERR_COM;\
 		return X10_ERR_COM; \
 	} \
 } while (0)

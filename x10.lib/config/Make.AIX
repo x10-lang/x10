@@ -1,7 +1,7 @@
 #
 # (c) IBM Coporation 2007
 #
-# $Id: Make.AIX,v 1.1 2007-12-07 14:59:12 srkodali Exp $
+# $Id: Make.AIX,v 1.2 2008-03-26 13:25:37 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -13,10 +13,10 @@ include $(TOP)/config/Make.defs
 # Build using XLC by default.
 ARCH = pwr5
 X10_DEVEL_HOME = /vol/x10
-CC = mpcc_r -q64 -qarch=$(ARCH)
-CFLAGS = -O3 -qtune=$(ARCH) -qinline -qhot
-CXX = mpCC_r -q64 -qarch=$(ARCH)
-CXXFLAGS = -O3 -qtune=$(ARCH) -qinline -qhot -qpath=ILbc:$(X10_DEVEL_HOME)/patches/xlC/070919/exe
+CC = mpcc_r -q64 #-qarch=$(ARCH)
+CFLAGS = -g -O3 -qtune=$(ARCH) -qinline -qhot
+CXX = mpCC_r -q64 #-qarch=$(ARCH)
+CXXFLAGS = -g #-O3 -qtune=$(ARCH) -qinline -qhot #-qpath=ILbc:$(X10_DEVEL_HOME)/patches/xlC/070919/exe
 X10CXX = $(X10_DEVEL_HOME)/x10/x10.backend/bin/x10c++
 X10CXXFLAGS =
 
