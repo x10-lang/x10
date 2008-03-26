@@ -24,6 +24,7 @@ import polyglot.ast.Local;
 import polyglot.ast.Receiver;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.SemanticError;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10LocalInstance_c;
@@ -999,7 +1000,7 @@ public class Constraint_c implements Constraint, Cloneable {
 	    	return result;
 	    }
 	    public static boolean rigid(Receiver arg) {
-	    	if (arg instanceof X10Type) {
+	    	if (arg instanceof X10Type || arg instanceof X10CanonicalTypeNode) {
 	    		return true;
 	    	}
 	    	if (arg instanceof Expr) {
