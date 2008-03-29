@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.ArrayAccess;
+import polyglot.ast.ArrayAccessAssign;
 import polyglot.ast.Assign;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
@@ -77,7 +78,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		// Used to have an X10ArrayAccess1 to the left, but it has now
 		// resolved into an ArrayAccess. So this node must resolve into an ArrayAccessAssign.
 		if (left instanceof ArrayAccess_c) {
-			ArrayAccessAssign_c n = new ArrayAccessAssign_c( position(), (ArrayAccess) left, op, right);
+			ArrayAccessAssign n = tc.nodeFactory().ArrayAccessAssign(position(), (ArrayAccess) left, op, right);
 			return n.del().typeCheck( tc );
 		}
 		 Type t = left.type();
