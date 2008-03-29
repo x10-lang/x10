@@ -45,8 +45,9 @@ public abstract /*value*/ class region extends Object
 	 */
 	/*property*/ public final boolean zeroBased;
 	/*property*/ public final boolean rail;
-	
-	public static final String propertyNames$ = " rank rect zeroBased  rail";
+	/*property*/ public final boolean colMajor;
+
+	public static final String propertyNames$ = " rank rect zeroBased rail colMajor ";
 
 	public static abstract /*value*/ class factory implements ValueType {
 		/**
@@ -145,11 +146,16 @@ public abstract /*value*/ class region extends Object
 	public static final factory factory = Runtime.factory.getRegionFactory();
 
 	protected region(/*nat long*/ int rank, boolean rect, boolean zeroB) {
+		this(rank, rect, zeroB, false);
+	}
+
+	protected region(/*nat long*/ int rank, boolean rect, boolean zeroB, boolean colMajor) {
 		assert rank >= 1;
 		this.rank = rank;
 		this.rect = rect;
 		this.zeroBased = zeroB;
 		rail = rank==1 && rect&&zeroBased;
+		this.colMajor = colMajor;
 	}
 
 	/**
