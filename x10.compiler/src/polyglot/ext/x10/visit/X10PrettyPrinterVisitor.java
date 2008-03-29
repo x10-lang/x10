@@ -258,7 +258,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			(dec.formals().size() == 1) &&
 			((Formal)dec.formals().get(0)).type().type().equals(ts.arrayOf(ts.String())))
 		{
-			new Template("Main", dec.formals().get(0), dec.body()).expand();
+			new Template("Main", new Object[] {
+					dec.flags().translate(),
+					new Join(",", dec.formals()),
+					dec.throwTypes().isEmpty() ? null :
+						new Join("", "throws", new Join(",", dec.throwTypes())),
+					dec.body()
+			}).expand();
 		} else
 			// WARNING: it's important to delegate to the appropriate visit() here!
 			visit((Node)dec);
