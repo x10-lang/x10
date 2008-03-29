@@ -22,5 +22,5 @@ public interface X10Runnable extends Runnable {
 	/**
 	 * Method implementation encapsulates user code to run as an X10 activity. 
 	 */
-	public void runX10Task();
+	public void runX10Task() throws Throwable;
 }
