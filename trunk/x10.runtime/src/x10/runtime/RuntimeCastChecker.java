@@ -28,9 +28,7 @@ public class RuntimeCastChecker {
 	 * Method used to do dynamic nullcheck when nullable is casted away.
 	 */
 	public static java.lang.Object checkCastToNonNullable(java.lang.Object o, Class c) {
-		return (o != null) ? 
-				(c.isAssignableFrom(o.getClass()) ? o : throwClassCastException(o,"Class " + c.toString() + " is not assignable to " + o.getClass().toString())) : 
-				throwClassCastException(o, "Cannot cast a null instance to a non nullable type");
+		return (o != null) ? o : throwClassCastException(o, "Cannot cast a null instance to a non nullable type");
 	}
 
 	private static void throwClassCastException(String errorMsg)  throws ClassCastException {
