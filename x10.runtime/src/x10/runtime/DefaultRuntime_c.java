@@ -35,6 +35,9 @@ import x10.lang.region;
  * Also call runBootAsync() instead of runAsync() for boot activity.
  */
 public class DefaultRuntime_c extends Runtime {
+	/* Pre-load the VMInterface class */
+	static { VMInterface foo = null; }
+
 	/**
 	 * The places of this X10 Runtime (for now a constant set).
 	 */
