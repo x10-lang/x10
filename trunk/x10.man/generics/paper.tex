@@ -344,12 +344,13 @@ In a class definition,
 a type property may be declared with a \emph{definition-site variance tag}, either \xcd{+} or
 \xcd{-}.  A \xcd{+} tag indicates that the class is covariant on
 the property; that is, given a definition
-\xcd{Cell[+T]}, if $\xcd{A} \subtype \xcd{B}$, then
-$\xcd{Cell[A]} \subtype \xcd{Cell[B]}$.
+\xcd{Cell[+T]},
+if \xcd{A} $\subtype$ \xcd{B}, then
+\xcd{Cell[A]} $\subtype$ \xcd{Cell[B]}.
 Similarly,
 \xcd{Cell[-T]} indicates that \xcd{T} is contravariant in \xcd{Cell};
-that is, if $\xcd{A} \subtype \xcd{B}$, then
-$\xcd{Cell[B]} \subtype \xcd{Cell[A]}$.
+that is, if \xcd{A} $\subtype$ \xcd{B}, then
+\xcd{Cell[B]} $\subtype$ \xcd{Cell[A]}.
 
 A definition-site variance tag changes the meaning of the
 syntactic sugar for the type \xcd{Cell[A]}.
