@@ -200,7 +200,7 @@ resolved.
 
 \section{Constrained types}
 
-\begin{figure}
+\begin{figure}[tp]
 \begin{center}
 \begin{tabular}{rcl}
 \emph{Constraint}     & ::=  & \emph{Expression} \\
@@ -881,99 +881,6 @@ Unlike virtual types, type properties can be refined contravariantly.
 For instance, one can write the type \xcd{List[-Integer]},
 and even \xcd{List\{Integer<=T, T<=Number\}}.
 
-
-\if 0
-\subsection{Definition-site variance}
-
-\begin{displayxten}
-class List[+T] {
-    def head(): T { ... }
-    def tail(): List[T] { ... }
-}
-\end{displayxten}
-
-Disadvantage is that \xcd{T} cannot appear in negative positions.
-Cannot write:
-
-\begin{displayxten}
-    def prepend(x: T): List[T] { return new List[T](x, this); }
-\end{displayxten}
-
-But we can have this:
-\begin{displayxten}
-    def prepend[S: S==T](x: S): List[T] { return new List[T](x, this); }
-\end{displayxten}
-
-Then:
-\begin{displayxten}
-xs: List[Number];   // same as List[:T<=Number]
-ys: List[Integer];  // same as List[:T<=Integer]
-xs = ys;            // ok since List[:T<=Number] >= List[:T<=Integer]
-xs = xs.prepend(1); // not ok; can't prove int <= xs.T
-\end{displayxten}
-
-We should probably disallow \xcd{prepend[S: S==T]} also.
-And disallow \xcd{prepend[S: S<=T]}.
-But allow \xcd{prepend[S: S>=T]}.
-
-When checking if a constraint is satisfiable, need to tag
-variance into account.
-
-So: 
-\begin{verbatim}
-T covariant, S==T |- S covariant
-\end{verbatim}
-
-Can we fold variance into the constraints?
-
-        If T is on the left of <= constraint, it's positive
-        and so should be restricted
-
-\begin{verbatim}
-T covariant means: Gamma = this : U, U <= List[T]
-T invariant means: Gamma = this : List[T]
-\end{verbatim}
-
-Can have covariant fields, too:
-
-\begin{displayxten}
-class C[+T] {
-    x: T;
-}
-
-a: C[Number] 
-b: C[Integer] 
-c: C[:T==Integer];
-a = b = c;
-a.x = 1; // fails!
-a.x;     // ok, with type Number
-c.x:     // ok, with type Integer
-c.x = 1: // ok!
-\end{displayxten}
-
-Now:
-
-\xcd{C[+T]} simply means that \xcd{C[X]} is sugar for \xcd{C[:T<=X]}.
-And we restrict the negative occurrences of the parameter; but
-this is redundant, since the methods cannot be invoked.
-
-\begin{displayxten}
-class C[T] {
-    T get();
-    set(T);
-    foo[U](U : T <= U);
-}
-
-C[T<=Number] a;
-C[T<=Integer] b;
-a = b; // ok since T<=Integer ==> T<=Number
-a.get(); // ok: type is Number
-a.set(1); // fail: T <= Number, 1 : Integer =/=> 1: T
-a.foo(1); // ok: foo[Number], T <= Number
-\end{displayxten}
-\fi
-
-
 \if 0
 \section{Introspection}
 
@@ -1140,48 +1047,48 @@ and to \xcd{b} respectively.
 This section describes a possible implementation approach that
 performs
 run-time instantiation of classes, similar to the implementation
-of parameterized classes in NextGen~\cite{allen03,allen04}.
+of parameterized classes in NextGen \cite{allen03,allen04}.
 We describe only the translation to Java; an obvious
-translation strategy for the C++ backend would use templates.
+translation strategy for the C++ backend would use templates,
+but the details have not been worked out.
 Another possible translation, 
 based on the implementation of PolyJ~\cite{polyj},
 uses \emph{adapter objects} to allow generic code to invoke
 methods of instances of the its type properties.
 
-Consider the following code:
+Consider the code in Figure~\ref{fig:translation1}.  It contains most of the 
+features of generics that have to be translated.
+\begin{figure*}[tp]
 \begin{displayxten}
 class C[T] {
     var x: T;
-    def this[T](x: T) { property[T](); this.x = x; }
+    def this[T](x: T) { this.x = x; }
     def set(x: T) { this.x = x; }
     def get(): T { return this.x; }
     def map[S](f: T => S): S { return f(this.x); }
     def d() { return new D[T](); }
     def t() { return new T(); }
     def isa(y: Object): boolean { return y instanceof T; }
-    static def isa2[S](y: Object): boolean { return y instanceof S; }
 }
 
 val x : C = new C[String]();
 val y : C[int] = new C[int]();
-val z : C[T <= Object] = new C[Array[int]]();
+val z : C{T <= Array} = new C[Array[int]]();
 x.map[int](f);
-C.isa2[int](3);
 new C[int{self==3}]() instanceof C[int{self<4}];
 \end{displayxten}
+\caption{Code to translate}
+\label{fig:translation1}
+\end{figure*}
 
 \subsection{Eliminating method type parameters}
 
-The first step in translation is to remove method parameters by
-introducing generic inner class for each generic method.
-Constructor type parameters are not changed.
-In addition, function type \xcd{T => S} is translated to \xcd{Fun1[T,S]}.
-This step produces the following code:
+\begin{figure*}[tp]
 \begin{displayxten}
 class C[T] where T has T() {
     var x: T;
 
-    def this[T](x: T) { property[T](); this.x = x; }
+    def this[T](x: T) { this.x = x; }
 
     def set(x: T) { this.x = x; }
     def get(): T { return this.x; }
@@ -1195,84 +1102,29 @@ class C[T] where T has T() {
     class map$[T,S] {
         def apply(c: C[T], f: Fun1[T,S]) { return f(c.x); }
     }
-
-    // Translation of isa2 to an inner class
-    static class isa2$[S] {
-        def apply(y: Object): boolean { return y instanceof S; }
-    }
 }
 
 val x : C = new C[String]();
 val y : C[int] = new C[int]();
-val z : C[T <= Object] = new C[Array[int]]();
+val z : C{T <= Array} = new C[Array[int]]();
 new map$[x.T,int]().apply(x,f);
-new C.isa2$[int]().apply(y);
 new C[int{self==3}]() instanceof C[int{self<4}];
 \end{displayxten}
+\caption{After removing method parameters}
+\label{fig:translation2}
+\end{figure*}
+
+The first step in translation is to remove method parameters by
+introducing generic inner class for each generic method.
+Constructor type parameters are not changed.
+In addition, function type \xcd{T => S} is translated to \xcd{Fun1[T,S]}.
+This step produces the code in Figure~\ref{fig:translation2}:
 At this point, the code consists only of generic classes.
 The remaining translation introduces a run-time representation
 for the type properties of these classes.
 
-\subsection{Run-time instantiation}
-
-In this translation the type properties are represented as
-instances of a \xcd{Type} class, analogous to \xcd{java.lang.Class}. 
-Each generic class has a \xcd{Type}-typed field for each of
-its type properties initialized by the class's constructor.
-The \xcd{Type} objects
-are used to implement {\tt instanceof} and cast operations.
+\begin{figure*}[tp]
 \begin{displayxten}
-interface Type {
-    boolean instanceof$(Object x);
-    <T> T cast$(Object x);
-}
-\end{displayxten}
-
-In this translation, which is partially based on the
-NextGen~\cite{allen03,allen04} translation,
-a generic class is translated into a \emph{base interface} and
-a \emph{template class} that implements the base interface.
-At runtime, the first time a generic class is instantiated
-a class loader loads \emph{template class}, rewriting the
-bytecode to instantiate the type properties as appropriate.
-
-For example, the 
-code for class {\tt C} above is translated into the following template class.
-When instantiating the template, the string ``{\tt \{0\}}'' is
-substituted with the name of the actual type
-property.\footnote{In a real implementation, the names would be
-mangled as appropriate.}
-Since methods of {\tt C} can be called in a context where the
-property instantiation is not known, 
-each method in the template class has to be implemented twice:
-once with an Object interface and once with an instantiated
-interface.
-
-\begin{displayxten}
-class C$Type implements Type {
-    static Type it = new C$Type();
-    boolean instanceof$(Object x) { return x instanceof C; }
-
-    static Map<Type,Type> instantiations;
-
-    static Type instantiate$(Type T) {
-        instantiations.get(T);
-    }
-}
-
-class C{0}$Type implements Type {
-    static Type it = new C{0}$Type();
-    boolean instanceof$(Object x) { return x instanceof C{0}; }
-}
-
-interface C {
-    void set$(Object x);
-    Object get$();
-    D d$();
-    Object t$();
-    boolean isa$(Object y);
-}
-
 class C{0} implements C {
     final Type T = {0}$Type.it;
     {0} x;
@@ -1308,18 +1160,9 @@ class C{0} implements C {
     class map${0}{1} implements map$ {
         final Type T = {0}$Type.it;
         final Type S = {1}$Type.it;
-        Object apply$(C c, Fun1 f) { return apply((C{0}) c, (Fun1{0}{1}) f); }
+        Object apply$(C c, Fun1 f)
+          { return apply((C{0}) c, (Fun1{0}{1}) f); }
         {1} apply(C{0} c, Fun1{0}{1} f) { return f(c.x); }
-    }
-
-    static interface isa2$ {
-        boolean apply$(Object y);
-    }
-
-    static class isa2${0} implements isa2$ {
-        final java.lang.Class S = {0}$Type.it;
-        boolean apply$(Object y) { return apply(y); }
-        boolean apply(Object y) { return S.instanceof$(y); }
     }
 }
 
@@ -1327,194 +1170,87 @@ C x = new C$String();
 C$int y = new C$int();
 C z = new C$Array$int();
 C.map$Type.instantiate$(x.T, int$Type.it).new$().apply$(x,f);
-C.isa2$int.apply(y);
 C$int$self$lt$4.instanceof$(new C$int$self$eqeq$3());
 \end{displayxten}
+
+\caption{Translation to Java}
+\label{fig:translation4}
+\end{figure*}
+
+\begin{figure*}[tp]
+\begin{displayxten}
+class C$Type implements Type {
+    static Type it = new C$Type();
+    boolean instanceof$(Object x) { return x instanceof C; }
+
+    static Map<Type,Type> instantiations;
+
+    static Type instantiate$(Type T) {
+        instantiations.get(T);
+    }
+}
+
+class C{0}$Type implements Type {
+    static Type it = new C{0}$Type();
+    boolean instanceof$(Object x) { return x instanceof C{0}; }
+}
+
+interface C {
+    void set$(Object x);
+    Object get$();
+    D d$();
+    Object t$();
+    boolean isa$(Object y);
+}
+\end{displayxten}
+
+\caption{Translation to Java}
+\label{fig:translation3}
+\end{figure*}
+
+\subsection{Run-time instantiation}
+
+In this translation the type properties are represented as
+instances of a \xcd{Type} class, analogous to \xcd{java.lang.Class}. 
+Each generic class has a \xcd{Type}-typed field for each of
+its type properties initialized by the class's constructor.
+The \xcd{Type} objects
+are used to implement {\tt instanceof} and cast operations.
+\begin{displayxten}
+interface Type {
+    boolean instanceof$(Object x);
+    <T> T cast$(Object x);
+}
+\end{displayxten}
+
+
+In this translation, which is partially based on the
+NextGen~\cite{allen03,allen04} translation,
+a generic class is translated into a \emph{base interface} and
+a \emph{template class} that implements the base interface.
+At runtime, the first time a generic class is instantiated
+a class loader loads \emph{template class}, rewriting the
+bytecode to instantiate the type properties as appropriate.
+
+For example, the 
+code for class {\tt C} above is translated into the template
+class in Figure~\ref{fig:translation4}
+with supporting classes Figure~\ref{fig:translation3}.
+When instantiating the template, the string ``{\tt \{0\}}'' is
+substituted with the name of the actual type
+property.\footnote{In a real implementation, the names would be
+mangled as appropriate.}
+Since methods of {\tt C} can be called in a context where the
+property instantiation is not known, 
+each method in the template class has to be implemented twice:
+once with an Object interface and once with an instantiated
+interface.
 
 We translate \xcd{instanceof} and cast operations to calls to
 methods of a \xcd{Type} because the actual implementation of
 the operation may require run-time constraint solving or other
 complex code that cannot be easily substituted in when rewriting
 the bytecode during instantiation.
-
-
-
-
-\if 0
-They support the following interface:
-
-In this translation the type properties are represented as
-instances of \xcd{Type} objects analogous to \xcd{java.lang.Class}.
-They support the following interface:
-
-\begin{displayxten}
-interface Type {
-    boolean subtype(Type t);
-    boolean equals(Type t);
-    boolean instanceof$(Object o);
-}
-\end{displayxten}
-The methods of this interface are needed to
-implement \xcd{instanceof} and cast operations.
-
-Each concrete type has a class that implements the \xcd{Type}
-interface.  These instances are passed into methods and
-constructors with type parameters and are assigned to the type
-properties of objects during construction.
-
-For example, the \xcd{Type} for \xcd{String} is:
-
-\begin{displayxten}
-class String$Type implements Type {
-    public boolean subtype(Type t) {
-        return 
-    }
-    public boolean equals(Type t) {
-        return this == t; // assuming we intern
-    }
-    public boolean instanceof$(Object o) {
-        return o instanceof String;
-    }
-}
-\end{displayxten}
-The methods of this interface are needed to
-
-\fi
-
-\if 0
-
-The \emph{adapter object} for a given instance
-of a generic class
-is responsible for allocating new
-objects whose type depends on the type property of the generic
-instance.  For instance, the adapter is responsible for
-allocating the \xcd{D[T]} in method \xcd{d} above and for
-allocating the \xcd{T} in method \xcd{t}.
-%
-Depending on the translation scheme, the adapter can also 
-implement run-time introspection 
-and dispatching for structural constraints.
-
-\subsection{Run-time instantiation}
-
-In this translation, the adapter for a given instantiation of a
-property is simply a factory for the type.
-
-For example, the adapter for \xcd{String}
-
-\begin{verbatim}
-need a run-time factory:
-
-        new D[T]() --> D$type.it.new$(T);
-
-class type {
-    abstract boolean instanceof$(Object x);
-}
-
-class int$type extends type {
-    boolean instanceof$(Object x) { return x instanceof Integer; }
-    int cast$(Object x) { return (Integer) x; }
-}
-
-class String$type extends type {
-    String new$() { return new String(); }
-    boolean instanceof$(Object x) { return x instanceof String; }
-    String cast$(Object x) { return (String) x; }
-}
-
-class D$type extends type {
-    D new$(type T) { return new D${T}(T); }
-}
-\end{verbatim}
-
-\subsection{Adapter object translation}
-
-Type properties are represented as \emph{adapter objects}.
-When an object is instantiated, an adapter is created for
-each type passed to the constructor.  Adapters can usually be
-implemented as singleton objects or cached in a hashtable to
-reduce space or allocation time.
-Adapters are also used to represent type parameters of methods.
-
-The adapter is an instance of an adapter class. 
-An abstract adapter class is created for each type property
-for a given class declaration based on the class's type
-constraints.  Each instantiation of \xcd{C[T]}
-creates a subclass of the adapter class for \xcd{C}.
-
-
-Adapter translation output:
-\begin{displayxten}
-class where$C$T {
-    type T();
-    boolean instanceof$(Object x);
-    static where$C$T adapt(type T) {
-        return new where$C${0}();
-    }
-}
-class where$C$int extends where$C$T {
-    type T() { return inttype; }
-    static where$C$int it = new where$C$int();
-    boolean instanceof$(Object x) { return T().instanceof$(x); }
-}
-class where$C$map$S {
-    boolean instanceof$(Object x);
-}
-class C(where$C$T T) {
-    Object x;
-    C(where$C$T T, Object x) { property(T); this.x = x; }
-    void set(Object x) { this.x = x; }
-    Object get() { return this.x; }
-    Object map(where$C$map$S S, f: Fun1) { return f(this.x); }
-    D d() { return new D(where$D$T.adapt(T)); }
-    T t() { return where$C$T.new$(); }
-    boolean isa(Object y) { return T.instanceof$(y); }
-    static boolean isa(where$C$isa$S S, Object y) { return S.instanceof$(y); }
-}
-new C(where$C$String.it);
-new C(where$C$int.it);
-new C(where$C$Array$int.it);
-\end{displayxten}
-
-Run-time instantiation translation output:
-\begin{displayxten}
-class where$C$T {
-    boolean instanceof$(Object x);
-}
-class where$C$int extends where$C$T {
-    static where$C$int it = new where$C$int();
-    boolean instanceof$(Object x) { return x instanceof Integer; }
-}
-interface Fun1${0}${1}(where$Fun1$Domain D, where$Fun1$Range R) {
-    abstract {1} apply({0} x);
-}
-class Fun1$T${1}(where$Fun1$Range R) {
-    abstract {1} apply(Object x);
-}
-interface Fun1${0}$T(where$Fun1$Domain D, where$Fun1$Range R) {
-    abstract {1} apply({0} x);
-}
-// Template class:
-class C${0} {
-    {0} x;
-    C({0} x) { this.x = x; }
-    void set({0} x) { this.x = x; }
-    {0} get() { return this.x; }
-    Object map(where$C$map$S S, f: Fun1$S${0}) { return f(this.x); }
-    boolean isa(Object y) { return T.instanceof$(y); }
-    static boolean isa(where$C$isa$S S, Object y) { return S.instanceof$(y); }
-}
-new C(where$C$String.it);
-new C(where$C$int.it);
-new C(where$C$Array$int.it);
-\end{displayxten}
-
-
-Need to widen permissions from package/protected to public in translation
-to allow cross-package calls.
-
-\fi
-
 
 
 \nocite{unifying-genericity}
@@ -1528,6 +1264,7 @@ to allow cross-package calls.
 \nocite{mp89-virtual-classes}
 \nocite{thorup97}
 
+\newpage
 
 \bibliographystyle{plain}
 \bibliography{master}
