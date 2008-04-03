@@ -63,6 +63,7 @@
 \newcommand\inputxten[1]{\begin{minipage}{\textwidth}\lstinputlisting[language=X10,basicstyle=\codestyle\footnotesize,columns=fullflexible,tabsize=4,captionpos=b,keepspaces,keywordstyle=,numbers=left,numberstyle=\tiny,xleftmargin=15pt]{#1}\end{minipage}}
 
 \newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=false,columns=flexible,breaklines,keywordstyle=]{#1}}}
+\newcommand{\xcdmath}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true,columns=flexible,breaklines,keywordstyle=]{#1}}}
 \newcommand{\tcd}[1]{{\codestyle{#1}}}
 
 \else
@@ -132,7 +133,16 @@ We describe a design for generic types in the programming language X10.
 
 \section{Introduction}
 
-X10 provides \emph{constrained types}, a form of dependent type
+X10 is a modern statically typed object-oriented language 
+designed for high performance computing.
+The language extends a class-based sequential core
+with constructs for distribution and find-grained
+concurrency.  The syntax is based on Scala's; the sequential semantics are 
+based on Java's.
+
+X10 provides \emph{constrained types} to rule out large classes
+of errors by design.
+Constrained types are a form of dependent type
 defined on predicates over the immutable state of
 objects~\cite{x10,constrained-types}.
 %
@@ -169,11 +179,13 @@ The following code declares a class \tcd{Cell} with a type property \xcd{T}.
 \begin{displayxten}
 class Cell[T] {
     var x: T;
-    def this[T](y: T) { property[T](); x = y; }
+    def this[T](x: T) { property[T](); this.x = x; }
     def get(): T = x;
-    def set(val y: T) = { x = y: }
+    def set(val x: T) = { this.x = x: }
 }
 \end{displayxten}
+The class has a mutable field \xcd{x}, a constructor that
+initializes \xcd{x}, a getter method, and a setter method.
 
 Type properties are types in their own right: 
 they may be used in any context a type may be used,
@@ -188,15 +200,8 @@ resolved.
 
 \section{Constrained types}
 
-In general, the syntax of a constrained type is
-\xcd{C\{c\}}, where \xcd{C} is a base class and
-\xcd{c} is a predicate on the properties of \xcd{C}.
-Type constraints are type equality and subtyping predicates.
-For (slight) brevity, the constraint \xcd{c1 && c2} can be written
-\xcd{c1, c2}.
-
-\medskip
-
+\begin{figure}
+\begin{center}
 \begin{tabular}{rcl}
 \emph{Constraint}     & ::=  & \emph{Expression} \\
                       & \bnf & \emph{Type}~\xcd{==} \emph{Type} \\
@@ -212,24 +217,38 @@ For (slight) brevity, the constraint \xcd{c1 && c2} can be written
                       & \bnf & \emph{ConstructorSignature} \\
                       & \bnf & \emph{PropertySignature} \\
 \emph{MethodSignature}& ::=  &
-                [\xcd{static}]~\xcd{def}~\emph{Identifier}\xcd{(}\emph{TypesOrFormals}\xcd{)} \xcd{:}~\emph{Type} \\
+                [\xcd{static}]~\xcd{def}~\emph{Identifier}~\xcd{(}~[\emph{TypesOrFormals}]~\xcd{)} \xcd{:}~\emph{Type} \\
 \emph{ConstructorSignature}& ::=  &
-                \xcd{def}~\xcd{this}~\xcd{(}~\emph{TypesOrFormals}~\xcd{)} \xcd{:}~\emph{Type} \\
+                \xcd{def}~\xcd{this}~\xcd{(}~[\emph{TypesOrFormals}]~\xcd{)} \xcd{:}~\emph{Type} \\
 \emph{PropertySignature}& ::=  &
                 [\xcd{val}]~\emph{Identifier}\xcd{:}~\emph{Type} \\
+\emph{TypesOrFormals} & ::=  & \emph{TypeOrFormal} \\
+                      & \bnf & \emph{TypeOrFormals}~\xcd{,}~\emph{TypeOrFormal} \\
+\emph{TypesOrFormal}  & ::=  & \emph{Type} \\
+                      & \bnf & \emph{Formal} \\
 \fi
 \end{tabular}
+\end{center}
+\caption{Constraint grammar}
+\label{fig:constraints}
+\end{figure}
 
-\medskip
-
-\noindent
-The following, then, are legal types:
+In general, the syntax of a constrained type is
+\xcd{C\{c\}}, where \xcd{C} is a base class and
+\xcd{c} is a predicate on the properties of \xcd{C}.
+Type constraints are type equality and subtyping predicates.
+For (slight) brevity, the constraint
+\xcd{c1}~\xcd{&&}~\xcd{c2} can be written
+\xcd{c1,}~\xcd{c2}.  The grammar for constraints is shown in
+Figure~\ref{fig:constraints}.
+%
+The following are legal types:
 \begin{itemize}
 \item \xcd{Cell}.  This type has no constraints on \tcd{T}.
 Any type that constraints \tcd{T}, including the three below,
 is a subtype of \tcd{Cell}.  The type \xcd{Cell} is equivalent to
 \xcd{Cell\{true\}}.
-
+%
 For a \xcd{Cell} \xcd{c}, the return type of the \xcd{get} method 
 is \xcd{c.T}.  
 Since the property \xcd{T} is unconstrained,  
@@ -286,7 +305,7 @@ constraints.
 \fi
 \end{itemize}
 
-For brevity, the constraint may be omitted and will be
+For brevity, the constraint may be omitted and
 interpreted as \tcd{true}.
 The syntax 
 \xcd{C[T1,...,Tm](e1,...,en)} is sugar for
@@ -476,11 +495,55 @@ the call to \xcd{xs.append} is allowed and the result type is \xcd{List[Number]}
 the call to \xcd{ys.append} is not allowed because the caller cannot show that
 ${\tt Number} \subtype {\tt Double}$.
 
+\section{Constructor definitions}
+
+A constructor is defined with the following syntax:
+
+\medskip
+
+\begin{tabular}{rcl}
+\emph{ConstructorDef}& ::=  &
+                \xcd{def}~\xcd{this}~\xcd{(}~[\emph{Formals}]~\xcd{)}
+                [\xcd{:}~\emph{Type}] \\
+                & & \quad \xcd{where}~\emph{Constraint}~\xcd{=}~\emph{ConstructorBlockOrExpression} \\
+\end{tabular}
+
+\medskip
+
+Constructors must ensure that the class invariants of the given
+class and its superclasses and superinterfaces hold.
+For instance, the
+constructor for \xcd{Cell} ensures that the type property
+\xcd{T} is bound.
+\begin{displayxten}
+    def this[T](x: T) { property[T](); this.x = x; }
+\end{displayxten}
+The \xcd{property} statement is used to set all the properties
+of the new object simultaneously; the syntax is similar to a \xcd{super}
+constructor call.  
+
+If the \xcd{property} statement is omitted, the compiler implicitly
+initailizes the properties from the formal type and value parameters
+of the constructor.  The property statement for \xcd{Cell}'s constructor,
+for example, could have been omitted.
+
+Constructors have ``return
+types'' that can specify an invariant satisfied by the object being
+constructed.  The compiler verifies that the
+constructor return type and the class invariant are implied by the
+\xcd{property} statement and any \xcd{super}
+or \xcd{this} calls in the constructor body.
+
+Classes that do not declare a constructor 
+have a default constructor with a type parameter for each
+type property and a value parameter for each value property.
+
+
 \section{Type inference}
 
-X10 performs (or will perform) type inference of local variable
-types and of type arguments for method and constructor calls
-\footnote{We describe the results the type
+X10 performs type inference of local variable
+types and of type arguments for method and constructor calls.%
+\footnote{We describe here the results that the type
 inference algorithm should produce, but not the algorithm itself since
 we have not derived it yet.}
 
@@ -495,7 +558,7 @@ Consider the following method from \cite{adding-wildcards}:
 \begin{displayxten}
 def choose[T](a: T, b: T): T { ... }
 \end{displayxten}
-
+%
 In the following snippet, we should infer the type
 \xcd{Collection} for \xcd{x}.
 \begin{displayxten}
@@ -503,7 +566,7 @@ intSet: Set[int];
 stringList: List[String];
 val x = choose(intSet, stringList);
 \end{displayxten}
-
+%
 And in this snippet, we should infer the type
 \xcd{Collection[int]} for \xcd{y}.
 \begin{displayxten}
@@ -511,7 +574,7 @@ intSet: Set[int];
 intList: List[int];
 val y = choose(intSet, intList);
 \end{displayxten}
-
+%
 Finally, in this snippet, we should infer the type
 \xcd{Collection\{T <= Number\}} for \xcd{z}.
 \begin{displayxten}
@@ -521,10 +584,30 @@ val z = choose(intSet, numList);
 \end{displayxten}
 
 The inference algorithm for Java 5 produces analogous results.
-Another possible algorithm to base this on use is the inference algorithm
+Another possible algorithm on which to base our inference algorithm
+is the one
 for C\# described by Bierman et al.~\cite{csharp3}.
 A key difference is that X10 supports where clauses that
-constraint method type arguments (and value arguments).
+constrain the method type and value arguments.
+
+Now, consider the following example:
+\begin{displayxten}
+def union[T](a: Set[T], b: Set[T]) : Set[T];
+\end{displayxten}
+The union method cannot be called with just arguments of type \xcd{Set}.
+\begin{displayxten}
+set1: Set;
+set2: Set;
+val a = union(set1, set2);
+\end{displayxten}
+This is illegal because the type system cannot demonstrate that
+\xcd{set1.T} and \xcd{set2.T} are equal.
+The following, however, is acceptable:
+\begin{displayxten}
+set1: Set;
+set2: Set[set1.T];
+val a = union(set1, set2);
+\end{displayxten}
 
 As another example from \cite{adding-wildcards}, consider
 the following method signature:
@@ -534,36 +617,68 @@ def unmodifiableSet[T](set: Set[T]): Set[T];
 
 In Java, this method could be called with an argument of
 type \xcd{Set<?>}.
-This instantiates the method on \xcd{?}: the
+This instantiates the method on \xcd{?}; that is, the
 wildcard is captured by the call, since any element type will be
 safe.  A type variable can capture only one wildcard.
 
 In X10, the method can be called with just a \xcd{Set} because there
-are no constraints on \xcd{T}.  The method is equivalent to: 
+are no constraints on \xcd{T}.  Using desugared syntax, the method is
+equivalent to: 
 \begin{displayxten}
 def unmodifiableSet[T](set: Set{self.T==T}): Set{self.T==T};
 \end{displayxten}
-Any \xcd{Set} can be passed in: for argument \xcd{e}, the method
+Any \xcd{Set} can be passed in: for an argument \xcd{e}, the method
 is instantiated on \xcd{e.T}.
 %
-The method could also be defined as:
+Note that if this method were defined as:
 \begin{displayxten}
-def unmodifiableSet(Set set): Set;
+def unmodifiableSet(set: Set): Set;
 \end{displayxten}
-However, this breaks the connection between the element types of the
-argument type and of the return type.
-
-Now, consider:
+then the connection between the element types of the
+argument and of the return types would be broken.
+However, in X10, one could write use the following signature to keep the
+connection:
 \begin{displayxten}
-def union[T](a: Set[T], b: Set[T]) : Set[T];
+def unmodifiableSet(set: Set): Set[set.T];
 \end{displayxten}
-This cannot be called with two different expressions \xcd{x} and
-\xcd{y} of type \xcd{Set}, since 
-\xcd{x.T} is not necessarily equal to \xcd{y.T}.
-However, the call \xcd{union(x,y)} would be allowed if
-\xcd{y} had type \xcd{Set\{T==y.T\}}.
 
-\section{Discussion: Wildcards}
+\section{Discussion}
+
+\subsection{Type properties versus type parameters}
+
+Type properties are similar, but not identical to type parameters.  The
+differences may potentially confuse programmers used to Java generics or C++
+templates.  The key difference is that type properties are instance members and
+are thus accessible through access paths: \xcd{e.T} is a legal type.
+
+Type properties, unlike type parameters, are inherited.
+For example, in the following code, \xcd{T} is defined in \xcd{List}
+and inherited into \xcd{Cons}.  The property need not be
+declared by the \xcd{Cons} class.
+\begin{displayxten}
+class List[T] { }
+class Cons extends List {
+    def head(): T = { ... }
+    def tail(): List[T] = { ... }
+}
+\end{displayxten}
+The analogous code for \xcd{Cons} using type parameters would be:
+\begin{displayxten}
+class Cons[T] extends List[T] {
+    def head(): T = { ... }
+    def tail(): List[T] = { ... }
+}
+\end{displayxten}
+% This code is perfectly acceptable in X10 as well, but introduces a redundant
+% type property \xcd{T} equal to the \xcd{T} inherited from \xcd{List}.
+
+We can make the type system behave as if type properties were
+type parameters very simply.  We need only make the syntax \xcd{e.T}
+illegal and permit type properties to be accessible only
+from within the body of their class definition via the implicit \xcd{this}
+qualifier.
+
+\subsection{Wildcards}
 
 Wildcards in Java~\cite{Java3,adding-wildcards} were motivated
 by the following example (rewritten in X10 syntax)
@@ -703,7 +818,7 @@ the method parameter cannot be omitted: declaring a parameterless version
 of shuffle requires delegating to a private parameterized version that 
 ``opens up'' the parameter.
 
-\section{Discussion: Virtual types}
+\subsection{Virtual types}
 
 Type properties share many similarities with virtual types~\cite{mp89-virtual-classes,beta}, particularly 
 with sound formulations of virtual types using path-dependent types,
@@ -881,51 +996,68 @@ class SortedList[T] where T { int compare(T) } {
 The where clause states that the type parameter \xcd{T} must have a
 method \xcd{compare} with the given signatures.
 
-Using a value property with a function type, the sorted list can be written in
-X10 as follows:
+To support this, X10 provides structural constraints on types.
+The analogous X10 code for \xcd{SortedList} is:
 \begin{displayxten}
-class SortedList[T](compare: (T,T) => int) {
-    def this[S](cmp: (T,T) => int) = { property[S](cmp); }
-    def add(x: T) = { ...  compare(x,y) ... }
+class SortedList[T] where T has compare(T): int {
+    def add(x: T) = { ... x.compare(y) ... }
 }
 \end{displayxten}
-
-Unlike in PolyJ, where the \xcd{compare} method must be provided by \xcd{T},
-in X10 the \xcd{compare} function can be external to \xcd{T}.
-This permits 
-\xcd{SortedList} to be instantiated using different compare functions:
-\begin{displayxten}
-val unixFiles    = new SortedList[String](String.compareTo.(String));
-val windowsFiles = new SortedList[String](String.compareToIgnoreCase.(String));
-\end{displayxten}
-
-But, a problem with this approach is that the compare function must be
-provided to the constructor at each instantiation of \xcd{SortedList}.
-The problem can be resolved by introducing explicit structural constraints
-into X10:
-\begin{displayxten}
-class SortedList[T](compare: (T,T) => int) {
-    def this[S]() where S has compareTo(S): int = { this[S](S.compareTo.(S)); }
-    def this[S](cmp: (T,T) => int) = { property[S](cmp); }
-    def add(x: T) = { ...  compare(x,y) ... }
-}
-\end{displayxten}
-Now, \xcd{SortedList} can be instantiated with any type that has a compareTo
-method without expliclty specifying the method at each constructor call.
 
 A structural constraint is of the form \emph{Type}~\xcd{has}~\emph{Signature}.
 A constraint is satisfied if the type has a member of the appropriate name
-and with a compatible type.  For example,
-the constraint \xcd{X has f(T1): T2}
+and with a compatible type.  
+The constraint \xcd{X has f(T1): T2}
 is satisfied by a type \xcd{T} if it has a method \xcd{f}
 whose type is a subtype of \xcd{(T1 => T2)}$[{\tt T}/{\tt X}]$.
-The constraint \xcd{X has equals(X): boolean}
+As an example,
+the constraint \xcd{X has equals(X): boolean}
 is satisfied by all three of the following classes:
 \begin{displayxten}
 class C { def equals(x: C): boolean; }
 class D extends C { }
 class E { def equals(x: Object): boolean; }
 \end{displayxten}
+
+By using function types and where clauses on constructors,
+X10 can go further than PolyJ.
+Unlike in PolyJ, where the \xcd{compare} method must be provided by \xcd{T},
+in X10 the \xcd{compare} function can be external to \xcd{T}.
+This is achieved as follows:
+\begin{displayxten}
+class SortedList[T] {
+    val compare: (T,T) => int;
+    def this(cmp: (T,T) => int) = { compare = cmp; }
+    def add(x: T) = { ... compare(x,y) ... }
+}
+\end{displayxten}
+
+This permits 
+\xcd{SortedList} to be instantiated using different compare functions:
+\begin{displayxten}
+val unixFiles    = new SortedList[String]
+                        (String.compareTo.(String));
+val windowsFiles = new SortedList[String]
+                        (String.compareToIgnoreCase.(String));
+\end{displayxten}
+
+But, a problem with this approach is that the compare function must be
+provided to the constructor at each instantiation of \xcd{SortedList}.
+The problem can be resolved by using constructors with different
+structural constraints:
+\begin{displayxten}
+class SortedList[T] {
+    val compare: (T,T) => int;
+    def this[T]() where T has compareTo(T): int = {
+        this[T](T.compareTo.(S));
+    }
+    def this[T](cmp: (T,T) => int) = { compare = cmp; }
+    def add(x: T) = { ... compare(x,y) ... }
+}
+\end{displayxten}
+Now, \xcd{SortedList} can be instantiated with any type that has
+a \xcd{compareTo}
+method without expliclty specifying the method at each constructor call.
 
 \section{Type definitions}
 
