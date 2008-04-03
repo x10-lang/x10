@@ -60,15 +60,7 @@
 \lstnewenvironment{displayxten}
   {\lstset{language=X10,basicstyle=\codestyle,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,mathescape=false,keepspaces=true,keywordstyle=}}
   {}
-\lstnewenvironment{xten}
-  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,keywordstyle=,numbers=left,numberstyle=\tiny}}
-  {}
-\lstnewenvironment{xtenx}
-  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,keywordstyle=,numbers=left,numberstyle=\tiny,xleftmargin=15pt}}
-  {}
 \newcommand\inputxten[1]{\begin{minipage}{\textwidth}\lstinputlisting[language=X10,basicstyle=\codestyle\footnotesize,columns=fullflexible,tabsize=4,captionpos=b,keepspaces,keywordstyle=,numbers=left,numberstyle=\tiny,xleftmargin=15pt]{#1}\end{minipage}}
-
-%\newenvironment{displayxten}{\begin{xten}}{\end{xten}}
 
 \newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=false,columns=flexible,breaklines,keywordstyle=]{#1}}}
 \newcommand{\tcd}[1]{{\codestyle{#1}}}
@@ -142,7 +134,7 @@ We describe a design for generic types in the programming language X10.
 
 X10 provides \emph{constrained types}, a form of dependent type
 defined on predicates over the immutable state of
-objects~\cite{x10}.
+objects~\cite{x10,constrained-types}.
 %
 The immutable state of an object is captured by its
 \emph{properties}: public final fields of the object. 
@@ -361,9 +353,44 @@ is sugar for \xcd{Cell\{T>=A\}}.
 Otherwise, the property is invariant and \xcd{Cell[A]}
 is sugar for \xcd{Cell\{T==A\}}.
 
-It is illegal to use a covariant property in a negative position
+The compiler should issue a warning if 
+a covariant property is used in a negative position
 in its class definition,
-or to a contravariant property in a positive position.
+or if a contravariant property is used in a positive position.
+Without these restrictions, methods or fields with types
+dependent on the property would be safe, but not be accessible 
+using the default instantiation (e.g., \xcd{Cell[int]}).
+
+\if 0
+More formally, a type property cannot be used in a position
+where its actual variance differs from its declared variance.
+
+\infrule{
+\vdash_{+} T
+\vdash_{-} T
+}{
+var x : T = e
+}
+
+\infrule{
+\vdash_{+} T
+}{
+val x : T = e
+}
+
+\infrule{
+\vdash_{-} T1
+\vdash_{+} T2
+\vdash_{-} c
+}{
+def f(x: T1) : T2 where c = e
+}
+
+\infrule{
+\vdash_{+}
+}{}
+\fi
+
 %
 A type appears in a negative position if:
 \begin{itemize}
@@ -404,7 +431,6 @@ class List[T] {
 }
 \end{displayxten}
 
-Method parameters (both type and value) may be constrained by where clauses.
 
 A parameterized method may is invoked by giving type arguments before the 
 expression arguments.  For example:
@@ -413,10 +439,11 @@ xs: List[String] = ...;
 ys: List[int] = xs.map[int]((x: String) => x.length());
 \end{displayxten}
 
-Method parameters can be constrained with where clauses.
+Method parameters and properties of the enclosing class
+can be constrained with a where clause on the method.
 This feature is similar to the generlized constraints proposed for
 C\#~\cite{emir06}.
-
+%
 In the following code, the \xcd{T} parameter is covariant
 and so the \xcd{append} methods below are illegal:
 \begin{displayxten}
@@ -425,7 +452,7 @@ class List[+T] {
    def append(other: List[T]): List[T] = { ... }  // illegal
 }
 \end{displayxten}
-
+%
 However, one can introduce a method parameter and then constrain
 the parameter from below by the class's parameter:
 For example, in the following code,
@@ -445,74 +472,86 @@ xs = ys; // ok
 xs.append(1.0); // legal
 ys.append(1.0); // illegal
 \end{displayxten}
-the call to \xcd{xs.append} is allowed and the resulting type has \xcd{List[Number]}, but
-the call to \xcd{ys.append} is not allowed since the caller cannot show that
+the call to \xcd{xs.append} is allowed and the result type is \xcd{List[Number]}, but
+the call to \xcd{ys.append} is not allowed because the caller cannot show that
 ${\tt Number} \subtype {\tt Double}$.
 
 \section{Type inference}
 
-Type arguments used in method and constructor calls may be omitted
-and inferred.
-The following examples are from \cite{adding-wildcards}.
+X10 performs (or will perform) type inference of local variable
+types and of type arguments for method and constructor calls
+\footnote{We describe the results the type
+inference algorithm should produce, but not the algorithm itself since
+we have not derived it yet.}
 
+The algorithm infers a type for a local variable by
+type-checking the variable initializer and assigning
+that type to the variable.
+When checking calls with omitted type arguments,
+the algorithm attempts to find an instantiation of the type
+parameters for which the call will type check.
+
+Consider the following method from \cite{adding-wildcards}:
 \begin{displayxten}
 def choose[T](a: T, b: T): T { ... }
+\end{displayxten}
+
+In the following snippet, we should infer the type
+\xcd{Collection} for \xcd{x}.
+\begin{displayxten}
 intSet: Set[int];
 stringList: List[String];
 val x = choose(intSet, stringList);
 \end{displayxten}
-We should infer the type \xcd{Collection} for \xcd{x}.
-GJ infers \xcd{Object}.
-Java infers \xcd{Collection<?>}.
 
+And in this snippet, we should infer the type
+\xcd{Collection[int]} for \xcd{y}.
 \begin{displayxten}
-def choose[T](a: T, b: T): T { ... }
 intSet: Set[int];
 intList: List[int];
-val x = choose(intSet, intList);
+val y = choose(intSet, intList);
 \end{displayxten}
-We should infer the type \xcd{Collection[int]} for \xcd{x}.
-GJ infers \xcd{Object}.
-Java infers \xcd{Collection<int>}.
 
+Finally, in this snippet, we should infer the type
+\xcd{Collection\{T <= Number\}} for \xcd{z}.
 \begin{displayxten}
-def choose[T](a: T, b: T): T { ... }
 intSet: Set[int];
 numList: List{T <= Number};
-val x = choose(intSet, numList);
+val z = choose(intSet, numList);
 \end{displayxten}
-We should infer the type \xcd{Collection\{T <= Number\}} for \xcd{x}.
-GJ infers \xcd{Object}.
-Java infers \xcd{Collection<? extends Number>}.
 
-\subsection{Wildcard capture}
+The inference algorithm for Java 5 produces analogous results.
+Another possible algorithm to base this on use is the inference algorithm
+for C\# described by Bierman et al.~\cite{csharp3}.
+A key difference is that X10 supports where clauses that
+constraint method type arguments (and value arguments).
 
-Consider:
-
+As another example from \cite{adding-wildcards}, consider
+the following method signature:
 \begin{displayxten}
 def unmodifiableSet[T](set: Set[T]): Set[T];
 \end{displayxten}
 
-In Java, this can be called with just a \xcd{Set<?>}.
+In Java, this method could be called with an argument of
+type \xcd{Set<?>}.
 This instantiates the method on \xcd{?}: the
 wildcard is captured by the call, since any element type will be
 safe.  A type variable can capture only one wildcard.
 
-In X10, this can be called with just a \xcd{Set} because there
+In X10, the method can be called with just a \xcd{Set} because there
 are no constraints on \xcd{T}.  The method is equivalent to: 
 \begin{displayxten}
 def unmodifiableSet[T](set: Set{self.T==T}): Set{self.T==T};
 \end{displayxten}
-
-Any \xcd{Set} can be passed in: for argument \xcd{x}, the method
-is instantiated on \xcd{x.T}.
-
+Any \xcd{Set} can be passed in: for argument \xcd{e}, the method
+is instantiated on \xcd{e.T}.
+%
 The method could also be defined as:
 \begin{displayxten}
 def unmodifiableSet(Set set): Set;
 \end{displayxten}
-However, this breaks the connection between the element type of the
-argument and of the return type.
+However, this breaks the connection between the element types of the
+argument type and of the return type.
 
 Now, consider:
 \begin{displayxten}
@@ -523,7 +562,6 @@ This cannot be called with two different expressions \xcd{x} and
 \xcd{x.T} is not necessarily equal to \xcd{y.T}.
 However, the call \xcd{union(x,y)} would be allowed if
 \xcd{y} had type \xcd{Set\{T==y.T\}}.
-
 
 \section{Discussion: Wildcards}
 
@@ -821,11 +859,13 @@ a.foo(1); // ok: foo[Number], T <= Number
 \fi
 
 
+\if 0
 \section{Introspection}
 
 \xcd{Cell[Cell[T<=A]]}
 
 If not invariant, need run-time constraint solving.
+\fi
 
 \section{Structural constraints}
 \label{sec:structural}
@@ -850,8 +890,8 @@ class SortedList[T](compare: (T,T) => int) {
 }
 \end{displayxten}
 
-However, while in PolyJ, the \xcd{compare} method must be provided by \xcd{T},
-in X10, the \xcd{compare} function can be external to \xcd{T}.
+Unlike in PolyJ, where the \xcd{compare} method must be provided by \xcd{T},
+in X10 the \xcd{compare} function can be external to \xcd{T}.
 This permits 
 \xcd{SortedList} to be instantiated using different compare functions:
 \begin{displayxten}
@@ -859,10 +899,9 @@ val unixFiles    = new SortedList[String](String.compareTo.(String));
 val windowsFiles = new SortedList[String](String.compareToIgnoreCase.(String));
 \end{displayxten}
 
-However, one problem with this approach is that the compare function must be
+But, a problem with this approach is that the compare function must be
 provided to the constructor at each instantiation of \xcd{SortedList}.
-
-The problem can be resolved by introducing explicitly structural constraints
+The problem can be resolved by introducing explicit structural constraints
 into X10:
 \begin{displayxten}
 class SortedList[T](compare: (T,T) => int) {
@@ -910,9 +949,11 @@ X10 supports type definitions with the following syntax:
 \\
 \end{tabular}
 
+\medskip
+
 A type definition can be thought of as a type-valued function.
 Type definitions may be parameterized on types and on values.
-
+%
 The following examples are legal type definitions:
 \begin{displayxten}
 type Variable = int;
@@ -934,8 +975,8 @@ type A = int;
 type B = String;
 type C = String;
 a: A = 3;
-b: B = new C();
-c: C = b + "";
+b: B = new C("Hi");
+c: C = b + ", Mom!";
 \end{displayxten}
 A type defined by a type definition 
 has the same constructors as its defining type.
@@ -958,73 +999,58 @@ indicate that the tagged type is a subtype or supertype of the
 untagged type, thus allowing the assignments to \xcd{c}
 and to \xcd{b} respectively.
 
-\if 0
+\section{Semantics}
 
-\section{Run-time representation}
+\input{semantics}
 
-Type properties are represented as \emph{adapter objects}.
-When an object is instantiated, an adapter is created for
-each type passed to the constructor.
-Adapters are also used to represent type parameters of methods.
+\section{Implementation}
 
-The adapter object is an instance of an adapter class. 
-An abstract adapter class is created for each type property
-for a given class declaration based on the class's type
-constraints.
+This section describes a possible implementation approach that
+performs
+run-time instantiation of classes, similar to the implementation
+of parameterized classes in NextGen~\cite{allen03,allen04}.
+We describe only the translation to Java; an obvious
+translation strategy for the C++ backend would use templates.
+Another possible translation, 
+based on the implementation of PolyJ~\cite{polyj},
+uses \emph{adapter objects} to allow generic code to invoke
+methods of instances of the its type properties.
 
-The translation is somewhat as follows:
-
-\begin{verbatim}
-T <= A |- [[ T ]] = A
-T == A |- [[ T ]] = A
-T >= A |- [[ T ]] = Object
-
-e : T
------------------------------------------
-T has m() |- [[ e.m() ]] = T$adapter.m(e)
-
-T <= A |- [[ new T() ]] = T$adapter.alloc$()
-T >= A |- [[ new T() ]] = T$adapter.alloc$()
-T == A |- [[ new T() ]] = new A()
-
-[[ x instanceof T ]] = T$adapter.instanceof$(x)
-[[ (T) x ]] = T$adapter.cast$(x)
-
-[[ new List[T]() ]] = new List(T$adapter);
-
-e : T
-T.m = m[U](x: U)
---------------------------------
-[[ e.m(u) ]] = e.m(U$adapter, u)
-\end{verbatim}
-
-\section{Translation}
-
-Input:
+Consider the following code:
 \begin{displayxten}
 class C[T] {
     var x: T;
-    C[T](x: T) { property[T](); this.x = x; }
+    def this[T](x: T) { property[T](); this.x = x; }
     def set(x: T) { this.x = x; }
     def get(): T { return this.x; }
     def map[S](f: T => S): S { return f(this.x); }
     def d() { return new D[T](); }
     def t() { return new T(); }
     def isa(y: Object): boolean { return y instanceof T; }
-    static def isa[S](y: Object): boolean { return y instanceof S; }
+    static def isa2[S](y: Object): boolean { return y instanceof S; }
 }
-new C[String]();
-new C[int]();
-new C[Array[int]]();
+
+val x : C = new C[String]();
+val y : C[int] = new C[int]();
+val z : C[T <= Object] = new C[Array[int]]();
 x.map[int](f);
-C.isa[int](3);
+C.isa2[int](3);
+new C[int{self==3}]() instanceof C[int{self<4}];
 \end{displayxten}
 
-Removing method parameters:
+\subsection{Eliminating method type parameters}
+
+The first step in translation is to remove method parameters by
+introducing generic inner class for each generic method.
+Constructor type parameters are not changed.
+In addition, function type \xcd{T => S} is translated to \xcd{Fun1[T,S]}.
+This step produces the following code:
 \begin{displayxten}
-class C[T] {
+class C[T] where T has T() {
     var x: T;
-    C[T](x: T) { property[T](); this.x = x; }
+
+    def this[T](x: T) { property[T](); this.x = x; }
+
     def set(x: T) { this.x = x; }
     def get(): T { return this.x; }
 
@@ -1032,23 +1058,217 @@ class C[T] {
     def t() { return new T(); }
 
     def isa(y: Object): boolean { return y instanceof T; }
-}
 
+    // Translation of map to an inner class
     class map$[T,S] {
         def apply(c: C[T], f: Fun1[T,S]) { return f(c.x); }
     }
 
-    class isa$[S] {
+    // Translation of isa2 to an inner class
+    static class isa2$[S] {
         def apply(y: Object): boolean { return y instanceof S; }
     }
+}
 
-new C[String]();
-new C[int]();
-new C[Array[int]]();
+val x : C = new C[String]();
+val y : C[int] = new C[int]();
+val z : C[T <= Object] = new C[Array[int]]();
 new map$[x.T,int]().apply(x,f);
-new isa$[int]().apply(y);
+new C.isa2$[int]().apply(y);
+new C[int{self==3}]() instanceof C[int{self<4}];
+\end{displayxten}
+At this point, the code consists only of generic classes.
+The remaining translation introduces a run-time representation
+for the type properties of these classes.
+
+\subsection{Run-time instantiation}
+
+In this translation the type properties are represented as
+instances of a \xcd{Type} class, analogous to \xcd{java.lang.Class}. 
+Each generic class has a \xcd{Type}-typed field for each of
+its type properties initialized by the class's constructor.
+The \xcd{Type} objects
+are used to implement {\tt instanceof} and cast operations.
+\begin{displayxten}
+interface Type {
+    boolean instanceof$(Object x);
+    <T> T cast$(Object x);
+}
 \end{displayxten}
 
+In this translation, which is partially based on the
+NextGen~\cite{allen03,allen04} translation,
+a generic class is translated into a \emph{base interface} and
+a \emph{template class} that implements the base interface.
+At runtime, the first time a generic class is instantiated
+a class loader loads \emph{template class}, rewriting the
+bytecode to instantiate the type properties as appropriate.
+
+For example, the 
+code for class {\tt C} above is translated into the following template class.
+When instantiating the template, the string ``{\tt \{0\}}'' is
+substituted with the name of the actual type
+property.\footnote{In a real implementation, the names would be
+mangled as appropriate.}
+Since methods of {\tt C} can be called in a context where the
+property instantiation is not known, 
+each method in the template class has to be implemented twice:
+once with an Object interface and once with an instantiated
+interface.
+
+\begin{displayxten}
+class C$Type implements Type {
+    static Type it = new C$Type();
+    boolean instanceof$(Object x) { return x instanceof C; }
+
+    static Map<Type,Type> instantiations;
+
+    static Type instantiate$(Type T) {
+        instantiations.get(T);
+    }
+}
+
+class C{0}$Type implements Type {
+    static Type it = new C{0}$Type();
+    boolean instanceof$(Object x) { return x instanceof C{0}; }
+}
+
+interface C {
+    void set$(Object x);
+    Object get$();
+    D d$();
+    Object t$();
+    boolean isa$(Object y);
+}
+
+class C{0} implements C {
+    final Type T = {0}$Type.it;
+    {0} x;
+    C{0}({0} x) { this.x = x; }
+
+    void set$(Object x) { set(({0}) x); }
+    void set({0} x) { this.x = x; }
+
+    Object get$() { return ({0}) get(); }
+    {0} get() { return this.x; }
+
+    D d$() { return d(); }
+    D{0} d() { return new D{0}(); }
+
+    Object t$() { return t(); }
+    {0} t() { return new {0}(); }
+
+    boolean isa(Object y) { return T.instanceof$(y); }
+
+    static class map$Type extends Type {
+        ...
+        static map$Type instantiate$(Type T, Type S) { ... }
+    }
+
+    static class map$Type{0}{1} extends Map$Type {
+        map$ new$() { return new map${0}{1}(); }
+    }
+    
+    interface map$ {
+        Object apply$(C c, Fun1 f);
+    }
+
+    class map${0}{1} implements map$ {
+        final Type T = {0}$Type.it;
+        final Type S = {1}$Type.it;
+        Object apply$(C c, Fun1 f) { return apply((C{0}) c, (Fun1{0}{1}) f); }
+        {1} apply(C{0} c, Fun1{0}{1} f) { return f(c.x); }
+    }
+
+    static interface isa2$ {
+        boolean apply$(Object y);
+    }
+
+    static class isa2${0} implements isa2$ {
+        final java.lang.Class S = {0}$Type.it;
+        boolean apply$(Object y) { return apply(y); }
+        boolean apply(Object y) { return S.instanceof$(y); }
+    }
+}
+
+C x = new C$String();
+C$int y = new C$int();
+C z = new C$Array$int();
+C.map$Type.instantiate$(x.T, int$Type.it).new$().apply$(x,f);
+C.isa2$int.apply(y);
+C$int$self$lt$4.instanceof$(new C$int$self$eqeq$3());
+\end{displayxten}
+
+We translate \xcd{instanceof} and cast operations to calls to
+methods of a \xcd{Type} because the actual implementation of
+the operation may require run-time constraint solving or other
+complex code that cannot be easily substituted in when rewriting
+the bytecode during instantiation.
+
+
+
+
+\if 0
+They support the following interface:
+
+In this translation the type properties are represented as
+instances of \xcd{Type} objects analogous to \xcd{java.lang.Class}.
+They support the following interface:
+
+\begin{displayxten}
+interface Type {
+    boolean subtype(Type t);
+    boolean equals(Type t);
+    boolean instanceof$(Object o);
+}
+\end{displayxten}
+The methods of this interface are needed to
+implement \xcd{instanceof} and cast operations.
+
+Each concrete type has a class that implements the \xcd{Type}
+interface.  These instances are passed into methods and
+constructors with type parameters and are assigned to the type
+properties of objects during construction.
+
+For example, the \xcd{Type} for \xcd{String} is:
+
+\begin{displayxten}
+class String$Type implements Type {
+    public boolean subtype(Type t) {
+        return 
+    }
+    public boolean equals(Type t) {
+        return this == t; // assuming we intern
+    }
+    public boolean instanceof$(Object o) {
+        return o instanceof String;
+    }
+}
+\end{displayxten}
+The methods of this interface are needed to
+
+\fi
+
+\if 0
+
+The \emph{adapter object} for a given instance
+of a generic class
+is responsible for allocating new
+objects whose type depends on the type property of the generic
+instance.  For instance, the adapter is responsible for
+allocating the \xcd{D[T]} in method \xcd{d} above and for
+allocating the \xcd{T} in method \xcd{t}.
+%
+Depending on the translation scheme, the adapter can also 
+implement run-time introspection 
+and dispatching for structural constraints.
+
+\subsection{Run-time instantiation}
+
+In this translation, the adapter for a given instantiation of a
+property is simply a factory for the type.
+
+For example, the adapter for \xcd{String}
 
 \begin{verbatim}
 need a run-time factory:
@@ -1074,6 +1294,21 @@ class D$type extends type {
     D new$(type T) { return new D${T}(T); }
 }
 \end{verbatim}
+
+\subsection{Adapter object translation}
+
+Type properties are represented as \emph{adapter objects}.
+When an object is instantiated, an adapter is created for
+each type passed to the constructor.  Adapters can usually be
+implemented as singleton objects or cached in a hashtable to
+reduce space or allocation time.
+Adapters are also used to represent type parameters of methods.
+
+The adapter is an instance of an adapter class. 
+An abstract adapter class is created for each type property
+for a given class declaration based on the class's type
+constraints.  Each instantiation of \xcd{C[T]}
+creates a subclass of the adapter class for \xcd{C}.
 
 
 Adapter translation output:
@@ -1147,6 +1382,7 @@ Need to widen permissions from package/protected to public in translation
 to allow cross-package calls.
 
 \fi
+
 
 
 \nocite{unifying-genericity}
