@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async_closure.h,v 1.4 2008-04-09 15:31:51 ipeshansky Exp $
+ * $Id: async_closure.h,v 1.5 2008-04-11 16:13:34 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -16,7 +16,11 @@
 /* C++ Lang Interface */
 #ifdef __cplusplus
 
-#ifndef __CYGWIN__
+#ifdef __CYGWIN__
+#define NOUCONTEXT
+#endif
+
+#ifndef NOUCONTEXT
 #include <ucontext.h>
 #endif
 
