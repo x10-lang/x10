@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: async_closure.h,v 1.5 2008-04-11 16:13:34 ipeshansky Exp $
+ * $Id: async_closure.h,v 1.6 2008-04-11 19:11:44 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -62,7 +62,7 @@ namespace x10lib {
 
     int _cond_number; /* which condition to wait on */
 
-#ifndef __CYGWIN__
+#ifndef NOUCONTEXT
     ucontext_t _current_ctxt; /* context of this closure */
 
     ucontext_t _caller_ctxt; /*  context of the caller (generally x10lib or main thread) */
