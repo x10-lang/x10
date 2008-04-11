@@ -2,7 +2,7 @@
  *
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xthreads.h,v 1.5 2008-04-09 15:32:09 ipeshansky Exp $
+ * $Id: xthreads.h,v 1.6 2008-04-11 16:13:34 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -34,7 +34,7 @@ extern x10_async_queue_t ReadyQueue;
 extern x10_async_queue_t WaitQueue;
 
 /* provide an alternate impl. for Cygwin */
-#ifdef __CYGWIN__
+#ifdef NOUCONTEXT
 
 #define x10_thread_create
 #define x10_thread_run(closure)
