@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_gen.cc,v 1.3 2008-02-26 12:27:21 ganeshvb Exp $ */
+/* $Id: Test_async_gen.cc,v 1.4 2008-04-19 06:12:17 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -14,7 +14,7 @@
 using namespace std;
 using namespace x10lib;
 
-char STACK[4*8192];
+char STACK[8192];
 
 int sum = 0;
 
@@ -71,7 +71,7 @@ void AsyncSwitch (x10_async_handler_t h, void* arg, int niter)
   x10_async_arg_t* args = (x10_async_arg_t*) arg;
   switch (h) {
    case 0: {
-     __async_closure_0* cl = new __async_closure_0(*args, STACK+8192, 8192);
+     __async_closure_0* cl = new __async_closure_0(*args, STACK, 8192);
      x10_thread_run(cl);
     // cl->run();
     // cout << "after run " << endl;

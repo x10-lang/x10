@@ -2,7 +2,7 @@
  *
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: xthreads.h,v 1.6 2008-04-11 16:13:34 ipeshansky Exp $
+ * $Id: xthreads.h,v 1.7 2008-04-19 06:12:16 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -149,7 +149,6 @@ extern x10_async_queue_t WaitQueue;
 		swapcontext (&this->_current_ctxt, &this->_libcall_ctxt); \
 	} while(0)
 
-		//set_stack_ptr; \
 #define x10_thread_libcall5(fptr, arg0, arg1, arg2, arg3, arg4)\
 	do {\
 		getcontext(&this->_libcall_ctxt);\

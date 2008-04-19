@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.38 2008-02-15 09:49:27 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.39 2008-04-19 06:12:16 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -84,9 +84,6 @@ x10_err_t Init(x10_async_handler_t *hndlrs, int n);
 	
 /* Termination */
 x10_err_t Finalize();
-
-/* Cleanup */
-void Cleanup();
 
 } /* closing brace for namespace x10lib */
 #endif
