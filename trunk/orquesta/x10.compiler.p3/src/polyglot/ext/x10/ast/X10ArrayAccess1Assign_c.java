@@ -77,6 +77,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 	/** Type check the expression. */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
 		// Used to have an X10ArrayAccess1 to the left, but it has now
 		// resolved into an ArrayAccess. So this node must resolve into an ArrayAccessAssign.
 		if (left instanceof ArrayAccess_c) {
@@ -233,11 +234,13 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
         Expr array = ((X10ArrayAccess1) left).array();
         Expr index = ((X10ArrayAccess1) left).index();
           X10Type pt = ( X10Type) type;
-          if (X10TypeMixin.isParametric(pt)) {
-              Type result = (Type) pt.typeParameters().get(0);
-              w.write("(");
-              print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED,Types.ref(result)), w, tr);
-              w.write(")");
+          if (pt.isConstrained()) {
+              Type result = X10TypeMixin.getParameterType(pt, "T");
+              if (result != null) {
+            	  w.write("(");
+            	  print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED,Types.ref(result)), w, tr);
+            	  w.write(")");
+              }
           }
           printSubExpr(array, w, tr);
           w.write ("." + opString(op) + "(");

@@ -10,31 +10,21 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
-import polyglot.frontend.GoalSet;
-import polyglot.main.Report;
 import polyglot.types.Context;
-import polyglot.types.LazyRef;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
@@ -91,7 +81,7 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	        X10Type t = (X10Type) tn.type();
 
 	        if (dep != null) {
-	            t = X10TypeMixin.depClause(t, dep.constraint());
+	            t = t.depClause(dep.constraint());
 	        }
 	        
 	        Expr e = (Expr) n.visitChild(n.expr, childtc);

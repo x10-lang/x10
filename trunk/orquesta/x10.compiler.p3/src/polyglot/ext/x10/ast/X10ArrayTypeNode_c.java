@@ -12,7 +12,6 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -20,25 +19,20 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10NamedType;
-import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.frontend.GoalSet;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.frontend.SetResolverGoal;
 import polyglot.types.Context;
 import polyglot.types.LazyRef;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -55,7 +49,7 @@ X10ArrayTypeNode {
 	protected TypeNode base;
 	protected boolean isValueType;
 	protected DepParameterExpr dep;
-	
+
 	/**
 	 * @param pos
 	 * @param base
@@ -140,7 +134,7 @@ X10ArrayTypeNode {
 	}
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.dep) {
-                    Type t = type.get(GoalSet.EMPTY);
+                    Type t = type.getCached();
                     c = ((X10Context) c).pushDepType(type);
 		}
 		return super.enterChildScope(child, c);
@@ -152,11 +146,12 @@ X10ArrayTypeNode {
 		return reconstruct(base, indexedSet);
 	}
 	
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
-		return typeRef( Types.lazyRef(ts.array( base.type(), isValueType, distribution() ), tb.goal() ));
-	}
-	
+    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    	  X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+    	  LazyRef<Type> sym = Types.<Type>lazyRef(ts.unknownType(position()), new SetResolverGoal(tb.job()));
+    	  return typeRef(sym);
+      }
+
 	    public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
 	        // Override to disambiguate the base type and rebuild the node before type checking the dep clause.
 
@@ -170,26 +165,35 @@ X10ArrayTypeNode {
 	        TypeNode tn = (TypeNode) n.visitChild(n.base, childtc);
 	        n = (X10ArrayTypeNode_c) n.base(tn);
 	        
+	        LazyRef<Type> sym = (LazyRef<Type>) n.type;
+
 	        if (tn.type() instanceof UnknownType) {
 	            // Mark the type resolved to prevent us from trying to resolve this again and again.
-	            LazyRef<Type> sym = (LazyRef<Type>) n.type;
 	            sym.update(ts.unknownType(position()));
 	            return n;
 	        }
+
+	        X10Type t = (X10Type) ts.array( tn.type(), isValueType, distribution() );
+	        sym.update(t);
 	        
 	        DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
 	        n = (X10ArrayTypeNode_c) n.dep(dep);
 	        
-	        X10Type t = (X10Type) ts.array( tn.type(), isValueType, distribution() );
-
 	        if (dep != null) {
-	            t = X10TypeMixin.depClause(t, dep.constraint());
+	        	if (t.isConstrained()) {
+	        		Constraint c = t.depClause();
+	        		c = c.copy();
+	        		c.addIn(dep.constraint().get());
+	        		t = t.depClause(c);
+	        	}
+	        	else {
+	        		t = t.depClause(dep.constraint());
+	        	}
 	        }
 
-	        LazyRef<Type> sym = (LazyRef<Type>) n.type;
 	        sym.update(t);
 
-	        return nf.CanonicalTypeNode(position(), t);
+	        return nf.CanonicalTypeNode(position(), sym);
 	    }
 	
 	public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {

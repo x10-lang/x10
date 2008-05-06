@@ -22,6 +22,7 @@ import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.SemanticException;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 
@@ -46,7 +47,7 @@ public class X10BooleanLit_c extends BooleanLit_c {
 		 
 			C_Lit literal = value ? xts.TRUE() : xts.FALSE();
 			Constraint c = Constraint_c.addSelfBinding(literal,null,xts);
-		  X10Type newType  = X10TypeMixin.makeDepVariant(Boolean, c);
+		  X10Type newType = Boolean.depClause(Types.ref(c));
 	    return type(newType);
 	  }
 }

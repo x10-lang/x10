@@ -75,9 +75,6 @@ public class FutureNode_c extends TypeNode_c implements FutureNode {
     public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
         NodeFactory nf = ar.nodeFactory();
-        if (base.type() instanceof UnknownType) {
-            return nf.CanonicalTypeNode(position(), base.type());
-        }
         return nf.CanonicalTypeNode(position(),
                                     ts.createFutureType(position(), (Ref<? extends X10NamedType>) base.typeRef()));
     }

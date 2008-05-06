@@ -9,8 +9,11 @@ package polyglot.ext.x10.visit;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
@@ -34,6 +37,7 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
@@ -51,9 +55,15 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Field;
 import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Local;
+import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Type;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
@@ -104,9 +114,9 @@ public class X10Caster extends AscriptionVisitor {
 		Position p = e.position();
 		if ((e instanceof Cast) || (e instanceof Instanceof)) {
 			TypeBuilder tb = new TypeBuilder(job, ts, nf);
-			TypeChecker tc = new TypeChecker(job, ts, nf);
+			TypeChecker tc = new TypeChecker(job, ts, nf, new HashMap<Node,Node>());
 			tb = tb.pushClass(context().currentClassScope());
-			tb = tb.pushCode(context().currentCode(), Globals.currentGoal());
+			tb = tb.pushCode(context().currentCode());
 			tc = (TypeChecker) tc.context(context());
 			
 			X10CastInfo cast = (X10CastInfo) ret_notype;
@@ -292,7 +302,7 @@ public class X10Caster extends AscriptionVisitor {
 			Expr constraintCheckExpr = this.constraintBuilder.buildConstraint(
 					((X10NodeFactory) nf).ParExpr(p,exprToCheck),
 					this.getConstraintsToCheck(checkingConstrainedType),
-					((X10DepCastInfo) castOrInstanceof).depParameterExpr());			
+					((X10DepCastInfo) castOrInstanceof).getTypeNode());			
 
 			// now that we have the deptype constraint checking, we may want 
 			// additional checks as regard to nullable.
@@ -381,7 +391,7 @@ public class X10Caster extends AscriptionVisitor {
 			checkingCall = nf.Call(p, newAnonClass, nf.Id(p, CHECK_CAST_MTH_NAME), incomingExpr);
 
 			// needed to set type builder's flag before visiting the anonymous class.
-			tb = tb.pushCode(context().currentCode(), Globals.currentGoal()); // ###
+			tb = tb.pushCode(context().currentCode()); // ###
 
 			// we build types, disambiguate and typecheck.
 			runtimeCheckingNode = 
@@ -633,7 +643,7 @@ public class X10Caster extends AscriptionVisitor {
 		Expr constraintCheckExpr = this.constraintBuilder.buildConstraint(
 				((X10NodeFactory) nf).ParExpr(p,exprToCheck),
 				this.getConstraintsToCheck(checkingConstrainedType),
-				((X10DepCastInfo) castOrInstanceof).depParameterExpr());			
+				((X10DepCastInfo) castOrInstanceof).getTypeNode());			
 
 		// now that we have the deptype constraint checking, we may want 
 		// additional checks as regard to nullable.
@@ -658,7 +668,7 @@ public class X10Caster extends AscriptionVisitor {
 					destType); // Cast's targeted type
 		
 		// needed to set type builder's flag before visiting the anonymous class.
-		tb = tb.pushCode(context().currentCode(), Globals.currentGoal());
+		tb = tb.pushCode(context().currentCode());
 
 		runtimeCheckingNode = 
 			this.checkExpression(nullableCheckExpr);
@@ -856,6 +866,27 @@ public class X10Caster extends AscriptionVisitor {
 
 		public ConstraintBuilder() {			
 		}
+		
+		public Expr exprFromConstraint(Constraint c) throws SemanticException {
+			HashMap result = c.constraints();
+			Expr e = null;
+			for (Iterator it = result.entrySet().iterator(); it.hasNext();) {
+				Map.Entry entry = (Map.Entry) it.next();
+				C_Term v1 = (C_Term) entry.getKey();
+				C_Term v2 = (C_Term) entry.getValue();
+				Expr e1 = constraintToExpr(v1, c.position());
+				Expr e2 = constraintToExpr(v2, c.position());
+				Expr ei = Globals.NF().Binary(c.position(), e1, Binary.EQ, e2);
+				ei = ei.type(Globals.TS().Boolean());
+				if (e == null)
+					e = ei;
+				else {
+					e = Globals.NF().Binary(c.position(), e, Binary.COND_AND, ei);
+					e = e.type(Globals.TS().Boolean());
+				}
+			}
+			return e;
+		}
 
 		/**
 		 * Builds the constraint runtime checking expression. 
@@ -867,9 +898,11 @@ public class X10Caster extends AscriptionVisitor {
 		 * @return A clause checking 'self' meet constraint requirements.
 		 * @throws SemanticException
 		 */
-		public Expr buildConstraint(Expr self, Constraint declaredConstraint, DepParameterExpr expr) throws SemanticException {
+		public Expr buildConstraint(Expr self, Constraint declaredConstraint, TypeNode tn) throws SemanticException {
 			this.declaredConstraint = declaredConstraint;
-			Expr constraintExpr = expr.condition();
+			X10Type t = (X10Type) tn.type();
+			Constraint c = t.depClause();
+			Expr constraintExpr = exprFromConstraint(c);
 			this.self = self;
 			assert self != null;
 			
@@ -1024,29 +1057,55 @@ public class X10Caster extends AscriptionVisitor {
 			if (term instanceof C_Lit) {
 				C_Lit lit = (C_Lit) term;
 				if (lit.type().isInt()) {
-					return nf.IntLit(p, IntLit.INT, ((Number) lit.val())
+					res = nf.IntLit(p, IntLit.INT, ((Number) lit.val())
 							.intValue());
 				}
 				if (lit.type().isLong()) {
-					return nf.IntLit(p, IntLit.LONG, ((Number) lit.val())
+					res = nf.IntLit(p, IntLit.LONG, ((Number) lit.val())
 							.longValue());
 				}
 				if (lit.type().isDouble()) {
-					return nf.FloatLit(p, FloatLit.DOUBLE, ((Number) lit.val())
+					res = nf.FloatLit(p, FloatLit.DOUBLE, ((Number) lit.val())
 							.doubleValue());
 				}
 				if (lit.type().isFloat()) {
-					return nf.FloatLit(p, FloatLit.FLOAT, ((Number) lit.val())
+					res = nf.FloatLit(p, FloatLit.FLOAT, ((Number) lit.val())
 							.floatValue());
 				}
 				if (lit.type().isBoolean()) {
-					return nf.BooleanLit(p, ((Boolean) lit.val())
+					res = nf.BooleanLit(p, ((Boolean) lit.val())
 							.booleanValue());
 				}
+				if (lit.val() == null) {
+					res = nf.NullLit(p);
+				}
+			}
+			
+			if (term instanceof C_Local) {
+				C_Local l = (C_Local) term;
+				return nf.Local(p, nf.Id(p, l.name()));
+			}
+			
+			if (term instanceof C_Field) {
+				C_Field l = (C_Field) term;
+				Receiver r;
+				if (l.receiver() instanceof C_Type) {
+					r = nf.CanonicalTypeNode(p, l.receiver().type());
+				}
+				else {
+					r = constraintToExpr(l.receiver(), p);
+				}
+				return nf.Field(p, r, nf.Id(p, l.name()));
 			}
 
-			throw new SemanticException("Unsupported runtime constraint "
-					+ term);
+			if (res == null) {
+				throw new SemanticException("Unsupported runtime constraint "
+						+ term);
+			}
+			
+			res = res.type(term.type());
+
+			return res;
 		}
 	}
 	

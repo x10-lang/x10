@@ -46,7 +46,7 @@ public class X10FloatLit_c extends FloatLit_c {
 		  X10Type Type = (X10Type) (kind==FLOAT ? xts.Float() : xts.Double());
 			C_Lit_c literal = new C_Lit_c(constantValue(), Type);
 			Constraint c = Constraint_c.addSelfBinding(literal,null,xts);
-		  X10Type newType  = X10TypeMixin.makeDepVariant(Type, c);
+		  X10Type newType  = Type.depClause(c);
 	    return type(newType);
 	  }
 

@@ -8,76 +8,39 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
-import polyglot.ast.ArrayInit;
-import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
-import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
-import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.ast.ClassDecl_c;
-import polyglot.ast.FieldDecl_c;
 import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler.ClassInvariantDef;
-import polyglot.ext.x10.extension.X10Ext;
-import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassDef_c;
-import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.ext.x10.types.X10ParsedClassType_c;
-import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.types.constr.Promise;
-import polyglot.ext.x10.types.constr.BindingConstraintSystem;
 import polyglot.frontend.Globals;
-import polyglot.frontend.Goal;
-import polyglot.frontend.Scheduler;
-import polyglot.frontend.JLScheduler.SignatureDef;
-import polyglot.frontend.JLScheduler.SupertypeDef;
-import polyglot.main.Report;
 import polyglot.types.ClassDef;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
-import polyglot.types.Def;
 import polyglot.types.FieldDef;
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-import polyglot.types.LazyRef;
-import polyglot.types.ParsedClassType;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
-import polyglot.util.TypedList;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 /**
@@ -243,10 +206,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
         
         X10Scheduler scheduler = (X10Scheduler) Globals.Scheduler();
         
-        Goal g = scheduler.ClassInvariantDef(tb.job(), def);
-        TypeBuilder tb2 = tb.pushGoal(g);
-
-        DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, tb2);
+        DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, tb);
 
         if (ci != null) {
             def.setClassInvariant(ci.constraint());
@@ -255,47 +215,34 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
 
         return n;
     }
-    
-    public List<Goal> pregoals(TypeChecker tc, Def def) {
-        X10Scheduler scheduler = (X10Scheduler) Globals.Scheduler();
-        List<Goal> goals = Arrays.asList(new Goal[] {
-                                                     scheduler.SupertypeDef(tc.job(), def),
-                                                     scheduler.TypeCheckDef(tc.job(), def),
-                                                     // do the class invariant LAST
-                                                     scheduler.ClassInvariantDef(tc.job(), (X10ClassDef) def)
-        });
-        return goals;
-    }
-    
+
     public Node typeCheckClassInvariant(Node parent, TypeChecker tc, TypeChecker childtc) throws SemanticException {
         X10ClassDecl_c n = this;
-        
         DepParameterExpr classInvariant = (DepParameterExpr) n.visitChild(n.classInvariant, childtc);
-
-        // Lookup the node again in case another pass ran
-        n = (X10ClassDecl_c) tc.getFragment(type).node();
-
         n = (X10ClassDecl_c) n.classInvariant(classInvariant);
-        
         return n;
     }
     
-    @Override
-    protected Node typeCheckCurrentRoot(Node parent, TypeChecker tc, TypeChecker childtc, Goal goal) throws SemanticException {
-        X10ClassDecl_c n = this;
-        
-        if (goal instanceof ClassInvariantDef) {
-            n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
-        }
-        else {
-            n = (X10ClassDecl_c) super.typeCheckCurrentRoot(parent, tc, childtc, goal);
-        }
-        
-        return n;
+    public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+    	X10ClassDecl_c n = this;
+    	
+    	NodeVisitor v = tc.enter(parent, n);
+    	
+    	if (v instanceof PruningVisitor) {
+    		return this;
+    	}
+    	
+    	TypeChecker childtc = (TypeChecker) v;
+    	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
+    	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
+    	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
+    	
+    	return n;
     }
 
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
+
     	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
     	X10ParsedClassType ct = (X10ParsedClassType) this.type.asType();

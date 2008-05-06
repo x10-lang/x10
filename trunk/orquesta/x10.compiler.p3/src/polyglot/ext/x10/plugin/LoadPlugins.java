@@ -7,15 +7,11 @@ import java.util.StringTokenizer;
 
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.frontend.AbstractGoal_c;
-import polyglot.frontend.AbstractPass;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
-import polyglot.frontend.Goal;
 import polyglot.frontend.Parser;
 import polyglot.frontend.ParserlessJLExtensionInfo;
-import polyglot.frontend.Pass;
 import polyglot.frontend.Source;
 import polyglot.frontend.SourceLoader;
 import polyglot.util.ErrorInfo;
@@ -25,45 +21,42 @@ import polyglot.util.QuotedStringTokenizer;
 
 public class LoadPlugins extends AbstractGoal_c {
 
-	protected static final class LoadPluginsPass extends AbstractPass {
-		private final ExtensionInfo extInfo;
+	private final ExtensionInfo extInfo;
+	
+	public LoadPlugins(ExtensionInfo extInfo) {
+		super("LoadPlugins");
+		this.extInfo = extInfo;
+	}
 
-		protected LoadPluginsPass(Goal goal, ExtensionInfo extInfo) {
-			super(goal);
-			this.extInfo = extInfo;
+	public boolean run() {
+		// Handle some hard-coded plugins
+		String xmlProcessor = Configuration.XML_PROCESSOR;
+		boolean exportXML = Configuration.EXTERNALIZE_ASTS;
+
+		if (xmlProcessor != null && ! xmlProcessor.equals("")) {
+			exportXML = true;
 		}
 
-		public boolean run() {
-			// Handle some hard-coded plugins
-			String xmlProcessor = Configuration.XML_PROCESSOR;
-			boolean exportXML = Configuration.EXTERNALIZE_ASTS;
-			
-			if (xmlProcessor != null && ! xmlProcessor.equals("")) {
-				exportXML = true;
-			}
-			
-			if (exportXML) {
-				loadPlugin(extInfo, "polyglot.ext.x10.dom.ExternalizerPlugin");
-			}
-			
-			String compilerPlugins = Configuration.PLUGINS;
-			
-			if (compilerPlugins != null && ! compilerPlugins.equals("")) {
-				loadPluginsFromConfigString(compilerPlugins);
-			}
-			
-			return true;
+		if (exportXML) {
+			loadPlugin(extInfo, "polyglot.ext.x10.dom.ExternalizerPlugin");
 		}
 
-		private void loadPluginsFromConfigString(String compilerPlugins) {
-			for (StringTokenizer st = new StringTokenizer(compilerPlugins, ",; \t\n"); st.hasMoreTokens(); ) {
-				String pluginName = st.nextToken();
-				if (pluginName.length() > 0) {
-					loadPlugin(extInfo, pluginName);
-				}
-			}
+		String compilerPlugins = Configuration.PLUGINS;
+
+		if (compilerPlugins != null && ! compilerPlugins.equals("")) {
+			loadPluginsFromConfigString(compilerPlugins);
 		}
 
+		return true;
+	}
+
+	private void loadPluginsFromConfigString(String compilerPlugins) {
+		for (StringTokenizer st = new StringTokenizer(compilerPlugins, ",; \t\n"); st.hasMoreTokens(); ) {
+			String pluginName = st.nextToken();
+			if (pluginName.length() > 0) {
+				loadPlugin(extInfo, pluginName);
+			}
+		}
 	}
 
 	public static void loadPlugin(ExtensionInfo extInfo, String pluginName) {
@@ -265,20 +258,4 @@ public class LoadPlugins extends AbstractGoal_c {
 			}
 		}
 	}
-	
-	public LoadPlugins() {
-		super("LoadPlugins");
-	}
-	
-	@Override
-	public Pass createPass() {
-		return new LoadPluginsPass(this, (polyglot.ext.x10.ExtensionInfo) Globals.Extension());
-	}
-	
-//	public Collection prerequisiteGoals(Scheduler scheduler) {
-//	X10Scheduler x10Sched = (X10Scheduler) scheduler;
-//	List<Goal> l = new ArrayList<Goal>();
-//	l.addAll(super.prerequisiteGoals(scheduler));
-//	return l;
-//	}
 }

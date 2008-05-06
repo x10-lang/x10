@@ -34,27 +34,18 @@ import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
-import polyglot.frontend.FragmentGoal;
 import polyglot.frontend.Goal;
-import polyglot.frontend.GoalSet;
 import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
-import polyglot.frontend.OutputPass;
+import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Parser;
-import polyglot.frontend.Pass;
-import polyglot.frontend.RuleBasedGoalSet;
 import polyglot.frontend.Scheduler;
-import polyglot.frontend.SourceGoal_c;
 import polyglot.frontend.VisitorGoal;
-import polyglot.frontend.VisitorPass;
 import polyglot.main.Options;
 import polyglot.main.Report;
-import polyglot.types.ClassDef;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.visit.PruningVisitor;
-import polyglot.visit.Translator;
-import polyglot.visit.TypeChecker;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
@@ -174,6 +165,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (job.source() != null && job.source().path().endsWith(XML_FILE_DOT_EXTENSION)) {
                goals.add(X10MLTypeChecked(job));
            }
+           
+           goals.add(CastRewritten(job));
 
            // Do not include LoadPlugins in list.  It would cause prereqs to be added 
 //           goals.add(LoadPlugins());
@@ -181,14 +174,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(LoadJobPlugins(job));
            goals.add(RegisterPlugins(job));
            
-           goals.add(FragmentAST(job));
+           goals.add(PreTypeCheck(job));
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
-
            
            goals.add(X10Boxed(job));
            goals.add(X10Casted(job));
-           goals.add(X10ExprFlattened(job));
            
            goals.add(ReachabilityChecked(job));
            goals.add(ExceptionsChecked(job));
@@ -207,7 +198,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return goals;
        }
        public Goal LoadPlugins() {
-           return new LoadPlugins().intern(this);
+           return new LoadPlugins((ExtensionInfo) extInfo).intern(this);
        }
 
        public Goal LoadJobPlugins(Job job) {
@@ -229,39 +220,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        
        public Goal CodeGenerated(Job job) {
-           return new SourceGoal_c("CodeGenerated", job) {
-               public Pass createPass() {
-                   TypeSystem ts = extInfo.typeSystem();
-                   NodeFactory nf = extInfo.nodeFactory();
-                   return new OutputPass(this, job, new X10Translator(job, ts, nf, extInfo.targetFactory()));
-               }
-           }.intern(this);
+    	   TypeSystem ts = extInfo.typeSystem();
+    	   NodeFactory nf = extInfo.nodeFactory();
+    	   return new OutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory()));
        }
 
-       public Goal ClassInvariantDef(Job job, ClassDef def) {
-           return new ClassInvariantDef("ClassInvariantDef", job, def).intern(this);
-       }
-       
-       public static class ClassInvariantDef extends FragmentGoal {
-           public ClassInvariantDef(String name, Job job, ClassDef def) {
-               super(name, job, def, new TypeChecker(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory(), def));
-           }
-
-           @Override
-           public GoalSet createRequiredView() {
-               return new RuleBasedGoalSet() {
-                   public boolean contains(Goal g) {
-                       return ClassInvariantDef.super.defaultRequiredView().contains(g) ||
-                       g instanceof LookupGlobalType ||
-                       g instanceof LookupGlobalTypeDefAndSetFlags ||
-                       g instanceof FieldConstantsChecked;
-                   }
-
-                   public String toString() { return "DefGoalRuleSet(" + ClassInvariantDef.this + ")"; }
-               };
-           }
-       }
-       
        public Goal X10MLTypeChecked(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();

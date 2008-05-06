@@ -95,38 +95,34 @@ public class X10Field_c extends Field_c {
 						" on node of type " + target.getClass().getName() + ".",
 						position());
 			}
-			boolean inTypeElaboration = false; // tc instanceof TypeElaborator;
 			X10Field_c result = this;
 			Type type = fi.type();
 			if (type instanceof UnknownType) {
 			    throw new SemanticException();
 			}
 			X10Type retType = (X10Type) type;
-			if (! inTypeElaboration) {
-				// Fix up the type of the field instance with the name of the field.
-				X10Type thisType = (X10Type) tType;
-				Constraint rc = retType.realClause();
-				if (rc != null ) {
-					C_Var var= X10TypeMixin.selfVar(thisType);
-					if (var == null) 
-						var = rc.genEQV(thisType, true);
-					Constraint newRC = rc.substitute(var, C_Special.This);
-					retType = X10TypeMixin.makeVariant(retType, newRC, null);
-					fi = fi.type(retType);
-				}
-				// FIXME: [IP] HACK!
-				if (xts.typeEquals(fi.container(), xts.distribution()) && fi.name().equals("UNIQUE")) {
-					X10ParsedClassType ud = (X10ParsedClassType) fi.type();
-					ud = ud.setUniqueDist();
-					fi = fi.type(ud);
-					retType = (X10Type) fi.type();
-				}
+			// Fix up the type of the field instance with the name of the field.
+			X10Type thisType = (X10Type) tType;
+			Constraint rc = retType.realClause();
+			if (rc != null ) {
+				C_Var var= thisType.selfVar();
+				if (var == null) 
+					var = rc.genEQV(thisType, true);
+				Constraint newRC = rc.substitute(var, C_Special.This);
+				retType = X10TypeMixin.depClauseDeref(retType, newRC);
+				fi = fi.type(retType);
+			}
+			// FIXME: [IP] HACK!
+			if (xts.typeEquals(fi.container(), xts.distribution()) && fi.name().equals("UNIQUE")) {
+				X10ParsedClassType ud = (X10ParsedClassType) fi.type();
+				ud = ud.setUniqueDist();
+				fi = fi.type(ud);
+				retType = (X10Type) fi.type();
 			}
 			result = (X10Field_c)fieldInstance(fi).type(retType);  
 			result.checkConsistency(c);
 			
-			if (! inTypeElaboration)
-				checkFieldAccessesInDepClausesAreFinal(result, tc);
+			checkFieldAccessesInDepClausesAreFinal(result, tc);
 			
 			result = checkArrayFields(result);
 			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
@@ -203,7 +199,7 @@ public class X10Field_c extends Field_c {
 					C_Field f = new C_Field_c(result.fieldInstance(), me);
 					Constraint myC = type.depClause().copy();
 					myC.setSelfVar(f);
-					type = X10TypeMixin.depClauseDeref(type, myC);
+					type = (X10ParsedClassType) type.depClause(Types.ref(myC));
 				}
 			}
 			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
@@ -232,10 +228,10 @@ public class X10Field_c extends Field_c {
 		}
 		return result;
 	}
-
-	public boolean equals(Object o) {
-		if (!(o instanceof Field_c)) return false;
-		Field_c other = (Field_c) o;
-		return target.equals(other.target()) && name().equals(other.name());
-	}
+//
+//	public boolean equals(Object o) {
+//		if (!(o instanceof Field_c)) return false;
+//		Field_c other = (Field_c) o;
+//		return target.equals(other.target()) && name().equals(other.name());
+//	}
 }

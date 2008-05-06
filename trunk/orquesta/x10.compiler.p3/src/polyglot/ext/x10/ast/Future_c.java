@@ -153,6 +153,7 @@ public class Future_c extends Expr_c
     public Node typeCheck( TypeChecker tc ) throws SemanticException {
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+
     	Type placeType = place.type();
     	Expr newPlace = place;
     	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());

@@ -48,15 +48,15 @@ public class X10Special_c extends Special_c implements X10Special {
 		return self;
 	}
 	public boolean isSelf() { return isSelf;}
-	public boolean equals(Object other) {
-		if (! (other instanceof X10Special_c)) return false;
-		X10Special_c o = (X10Special_c) other;
-		return isSelf == o.isSelf && kind.equals(o.kind) && 
-		(qualifier == null ? o.qualifier==null : qualifier.equals(o.qualifier));
-	}
-	public int hashCode() {
-		return kind.hashCode();
-	}
+//	public boolean equals(Object other) {
+//		if (! (other instanceof X10Special_c)) return false;
+//		X10Special_c o = (X10Special_c) other;
+//		return isSelf == o.isSelf && kind.equals(o.kind) && 
+//		(qualifier == null ? o.qualifier==null : qualifier.equals(o.qualifier));
+//	}
+//	public int hashCode() {
+//		return kind.hashCode();
+//	}
 	 /** Type check the expression. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
@@ -75,7 +75,7 @@ public class X10Special_c extends Special_c implements X10Special {
         	// The type of self should not include a dep clause; otherwise
         	// self in C(:c) could have type C(:c), causing an infinite regress
         	// later in type checking.
-        	tt = (X10NamedType) X10TypeMixin.makeNoClauseVariant(tt);
+        	tt = (X10NamedType) tt.makeNoClauseVariant();
     	
         	assert tt != null;
         	return type(tt);

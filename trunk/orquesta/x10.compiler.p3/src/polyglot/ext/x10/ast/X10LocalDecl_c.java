@@ -14,6 +14,7 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.types.Context;
+import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.TypeSystem;
@@ -37,12 +38,12 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	}
 
 	public Context enterChildScope(Node child, Context c) {
-		X10Context cxt = (X10Context) c;
 		if (child == this.type) {
-			TypeSystem ts = c.typeSystem();
+			X10Context xc = (X10Context) c.pushBlock();
 			LocalDef li = localDef();
-			cxt.addVariable(li.asInstance());
-			cxt.setVarWhoseTypeIsBeingElaborated(li);
+			xc.addVariable(li.asInstance());
+			xc.setVarWhoseTypeIsBeingElaborated(li);
+			c = xc;
 		}
 		Context cc = super.enterChildScope(child, c);
 		return cc;

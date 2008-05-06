@@ -42,7 +42,7 @@ public class X10StringLit_c extends StringLit_c {
 		 
 			C_Lit_c literal = new C_Lit_c(value, Type);
 			Constraint c = Constraint_c.addSelfBinding(literal,null,xts);
-		  X10Type newType  = X10TypeMixin.makeDepVariant(Type, c);
+		  X10Type newType  = Type.depClause(c);
 	    return type(newType);
 	  }
 

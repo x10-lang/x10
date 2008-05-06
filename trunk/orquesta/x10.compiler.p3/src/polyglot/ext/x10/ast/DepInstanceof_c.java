@@ -11,29 +11,21 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
-import polyglot.ast.Instanceof;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
-import polyglot.ast.TypeNode_c;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.frontend.Globals;
-import polyglot.frontend.GoalSet;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
-import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
-import x10.runtime.Report;
 
 /**
  * @author vj
@@ -74,7 +66,7 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
         public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
             // Override to disambiguate the base type and rebuild the node before type checking the dep clause.
 
-            TypeSystem ts = tc.typeSystem();
+            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
             NodeFactory nf = tc.nodeFactory();
 
             DepInstanceof_c n = this;
@@ -97,7 +89,7 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
             X10Type t = (X10Type) tn.type();
 
             if (dep != null) {
-                t = X10TypeMixin.depClause(t, dep.constraint());
+                t = t.depClause(dep.constraint());
             }
 
             n.depTypeCheckingNeeded = false;
@@ -106,16 +98,14 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
             n = (DepInstanceof_c) n.superTypeCheck(tc);
 
             // cast is either statically valid or requires a runtime check
-            Type toType = n.compareType.type();
-            Type fromType = n.expr.type();
-            X10Type x10ToType = (X10Type) toType;
-            X10Type x10FromType = (X10Type) fromType;
-            X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-
-            // if toType is nullable and is constrained then expr must be not null
-            this.notNullRequired = this.isToTypeNullable() && xts.isTypeConstrained(toType);
+            X10Type fromType = (X10Type) n.expr.type();
+            X10Type toType = (X10Type) n.compareType.type();
+            toType = X10TypeMixin.depClause(toType, n.dep.constraint());
             
-            n.depTypeCheckingNeeded = xts.isTypeConstrained(toType) && !xts.isTypeConstrained(fromType);
+            // if toType is nullable and is constrained then expr must be not null
+            n.notNullRequired = n.isToTypeNullable() && ts.isTypeConstrained(toType);
+            
+            n.depTypeCheckingNeeded = ts.isTypeConstrained(toType) && !ts.isTypeConstrained(fromType);
             
             return n;
         }

@@ -157,7 +157,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	ClosureType closureType = (ClosureType) targetType;
 	
 	X10TypeSystem x10ts = (X10TypeSystem) tc.typeSystem();
-	
+
 	ClosureDef cd = x10ts.closureDef(position(), null, null, closureType.returnType(), closureType.argumentTypes(), closureType.throwTypes());
 	ClosureInstance ci = x10ts.createClosureInstance(position(), Types.ref(cd));
 
@@ -166,7 +166,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    actualTypes.add(ei.type());
 	}
 
-	if (! ci.callValid(actualTypes)) {
+	if (! ci.callValid(targetType, actualTypes)) {
 	    throw new SemanticException("Invalid closure call.", position());
 	}
 

@@ -21,6 +21,7 @@ import polyglot.ext.x10.ast.DepCast;
 import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10Cast;
+import polyglot.ext.x10.ast.X10CastInfo;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
@@ -80,7 +81,7 @@ public class X10CastExt_c extends X10Ext_c {
 
 			y = (Call) y.type(mi.returnType());
 			Node rewrittenNode = y.methodInstance(mi);
-			if (c instanceof DepCast) {
+			if (c instanceof X10CastInfo && ((X10CastInfo) c).isDepTypeCheckingNeeded()) {
 				// Keep the DepCast since the condition needs to be checked.
 				rewrittenNode = c.expr((Expr) rewrittenNode);
 			}

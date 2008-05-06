@@ -67,6 +67,7 @@ public class X10Boxer extends AscriptionVisitor
 					call_n = (Call) call_n.type(xts.X10Object()); // set the type to object to avoid a type error when flattening
 					ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
 				} else {
+					call_n = (Call) call_n.type(xts.X10Object()); // set the type to object to avoid a type error when flattening
 					ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
 				}
 				return ret_notype.type(fromType);

@@ -55,7 +55,8 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        RectRegionMaker_c n = (RectRegionMaker_c) super.typeCheck(tc);
+
+    	RectRegionMaker_c n = (RectRegionMaker_c) super.typeCheck(tc);
        // Report.report(1, "Tuple_c.typecheck result had type " + n.type());
 		X10ParsedClassType type = (X10ParsedClassType) n.type();
 		type = type.setRank(new C_Lit_c(new Integer(arguments.size()), xts.Int()));
