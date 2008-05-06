@@ -1,0 +1,148 @@
+% First page
+
+\thispagestyle{empty}
+
+% \todo{"another" report?}
+
+\title{Report on the Experimental Language \Xten \\
+\large Version \integerversion}
+\author{Please send comments to \\
+Vijay Saraswat at \texttt{vsaraswa@us.ibm.com}}
+\date\today
+\maketitle
+
+\if 0
+\topnewpage[{
+\begin{center}   
+{\huge\bf Report on the Experimental Language \Xten{}}
+\vskip 1ex
+$$
+\begin{tabular}{l@{\extracolsep{.5in}}lll}
+\multicolumn{4}{c}{\sc Version \integerversion}\\
+\multicolumn{4}{c}{\sc Please send comments to 
+Vijay Saraswat at 
+{\tt vsaraswa@us.ibm.com}}\\
+%\multicolumn{4}{c}{({\sc IBM Confidential})}
+
+%\ldots
+\end{tabular}
+$$
+\vskip 2ex
+% {\it Dedicated to the Memory of APL} % vj
+{\bf \today}
+\vskip 2.6ex
+\end{center}
+
+
+}]
+\fi
+
+\newcommand\authorsc[1]{#1}
+%\newcommand\authorsc[1]{\textsc{#1}}
+
+
+\chapter*{Summary}
+This draft report provides an initial description of the programming
+language \Xten. \Xten{} is a single-inheritance class-based object-oriented
+(OO) programming language designed for high-performance, high-productivity
+computing on high-end computers supporting $\approx 10^5$ hardware threads
+and $\approx 10^{15}$ operations per second. 
+
+{}\Xten{} is based on state-of-the-art object-oriented programming
+languages and deviates from them only as necessary to support its
+design goals. The language is intended to have a simple and clear
+semantics and be readily accessible to mainstream OO programmers. It
+is intended to support a wide variety of concurrent programming
+idioms.
+%, incuding data parallelism, task parallelism, pipelining.
+%producer/consumer and divide and conquer.
+
+%We expect to revise this document in the light of experience gained in implementing
+%and using this language.
+
+The \Xten{} design team consists of
+\authorsc{David Bacon}, 
+\authorsc{Raj Barik}, 
+\authorsc{Ganesh Bikshandi}, 
+\authorsc{Bob Blainey}, 
+\authorsc{Philippe Charles}, 
+\authorsc{Perry Cheng}, 
+\authorsc{Christopher Donawa}, 
+\authorsc{Julian Dolby}, 
+\authorsc{Kemal Ebcio\u{g}lu},
+\authorsc{Robert Fuhrer},
+\authorsc{Patrick Gallop}, 
+\authorsc{Christian Grothoff}, 
+\authorsc{Allan Kielstra}, 
+\authorsc{Sreedhar Kodali}, 
+\authorsc{Sriram Krishnamoorthy}, 
+\authorsc{Nathaniel Nystrom}, 
+\authorsc{Igor Peshansky}, 
+\authorsc{Vijay Saraswat} (contact author), 
+\authorsc{Vivek Sarkar},
+\authorsc{Armando Solar-Lezama},  
+\authorsc{S. Alexander Spoon}, 
+\authorsc{Sayantan Sur}, 
+\authorsc{Christoph von Praun},
+\authorsc{Pradeep Varma},
+\authorsc{Krishna Venkata},
+\authorsc{Jan Vitek}, and
+\authorsc{Tong Wen}.
+
+For extended discussions and support we would like to thank: 
+Robert Callahan, Calin
+Cascaval, Norman Cohen, Elmootaz Elnozahy, John Field, Bob Fuhrer,
+Orren Krieger, Doug Lea, John McCalpin, Paul McKenney, Ram Rajamony,
+R.K.~Shyamasundar, Filip Pizlo, V.T.~Rajan, Frank Tip, and Mandana Vaziri.
+
+We thank Jonathan Rhees and William Clinger with help in obtaining the
+\LaTeX{} style file and macros used in producing the Scheme report,
+on which this document is based. We acknowledge the influence of
+the $\mbox{\Java}^{\mbox{\authorsc{\small tm}}}$ Language
+Specification \cite{jls2}.
+%document, as evidenced by the numerous citations in the text.
+
+This document revises Version 1.1 of the Report, released in
+June 2007. It documents the language corresponding to the second
+revision of the first version of the implementation.  This
+revision was done by
+\authorsc{Raj Barik}, 
+\authorsc{Philippe Charles}, 
+\authorsc{Christopher Donawa}, 
+\authorsc{Robert Fuhrer},
+\authorsc{Nathaniel Nystrom},  
+\authorsc{Vijay Saraswat},
+\authorsc{Vivek Sarkar},
+\authorsc{Pradeep Varma}, and
+\authorsc{Krishna Venkata}.
+(Earlier implementations benefited from significant contributions by
+\authorsc{Christian Grothoff} and 
+\authorsc{Christoph von Praun}.)
+\authorsc{Tong Wen} has written many application programs
+in \Xten{}. \authorsc{Guojing Cong} has helped in the
+development of many applications.
+
+
+%\vfill
+%\begin{center}
+%{\large \bf
+%*** DRAFT*** \\
+%%August 31, 1989
+%\today
+%}\end{center}
+
+\vfill
+\eject
+
+
+\chapter*{Contents}
+\addvspace{3.5pt}                  % don't shrink this gap
+\renewcommand{\tocshrink}{-3.5pt}  % value determined experimentally
+{\footnotesize
+\tableofcontents
+}
+
+\vfill
+\eject
+
+

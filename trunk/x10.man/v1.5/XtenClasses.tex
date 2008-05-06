@@ -1,0 +1,234 @@
+\chapter{Classes}
+\label{XtenClasses}\index{class}
+
+{}\Xten{} classes are essentially the same as \java{} classes \cite[\S
+8]{jls2}. Classes are structured in a single-inheritance code
+hierarchy, may implement multiple interfaces, may have static and
+instance fields, may have static and instance methods, may have
+constructors, may have static and instance initializers, may have
+static and instance inner classes and interfaces. \Xten{} does not
+permit mutable static state, so the role of static methods and
+initializers is quite limited. Instead programmers should use
+singleton classes to carry mutable static state.
+
+Method signatures may specify checked exceptions. Method definitions
+may be overridden by subclasses; the overriding definition may have a
+declared return type that is a subclass of the return type of the
+definition being overridden. Multiple methods with the same name but
+different signatures may be provided on a class (ad hoc
+polymorphism). The public/private/protected/package-protected access
+modification framework may be used.
+
+\todo{Add the new rule for preventing leakage of this from a constructor.}
+
+Because of its different concurrency model, \Xten{} does not support
+\xcd"transient" and \xcd"volatile" field modifiers.
+
+\todo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
+
+\section{Reference classes}\index{class!reference class}\label{ReferenceClasses}
+A reference class is declared with the optional keyword \xcd"reference" preceding \xcd"class" in a class declaration. Reference
+class declarations may be used to construct reference types
+(\S~\ref{ReferenceTypes}). Reference classes may have mutable
+fields. Instances of a reference class are always created in a fixed
+place and in \XtenCurrVer{} stay there for the lifetime of the
+object. (Future versions of \Xten{} may support object migration.)
+Variables declared at a reference type always store a reference to the
+object, regardless of whether the object is local or remote.
+
+\section{Value classes}\index{class!value class}\label{ValueClasses}
+
+{}\Xten{} singles out a certain set of classes for additional
+support. A class is said to be {\em stateless} if all of its fields
+are declared to be \xcd"final" (\S~\ref{FinalVariable}), otherwise it
+is {\em stateful}. (\Xten{} has syntax for specifying an array class
+with final fields, unlike \java{}.) A {\em stateless (stateful)
+object} is an instance of a stateless (stateful) class.
+
+{}\Xten{} allows the programmer to signify that a class (and all its
+descendents) are stateless. Such a class is called a {\em value
+class}.  The programmer specifies a value class by prefixing the
+modifier \xcd"value" before the keyword \xcd"class" in a class
+declaration.  (A class not declared to be a value class will be called
+a {\em reference class}.)  Each instance field of a value class is
+treated as \xcd"final". It is legal (but neither required nor recommended)
+for fields in a value class to be declared final. For brevity, the \Xten{}
+compiler allows the programmer to omit the keyword \xcd"class" after
+\xcd" value" in a value class declaration.
+
+\begin{verbatim}
+447  ClassDeclaration ::= ValueClassDeclaration
+448  ValueClassDeclaration ::= 
+       ClassModifiersopt value identifier Superopt 
+          Interfacesopt ClassBody
+449  | ClassModifiersopt value class identifier 
+          Superopt Interfacesopt ClassBody
+\end{verbatim}
+
+The \xcd"nullable" type-constructor (\S~\ref{NullableTypeConstructor}) can
+be used to declare variables whose value may be \xcd"null" or a value
+type.
+
+\cbstart
+Stable equality for value types is defined through a deep walk,
+bottoming out in fields of reference types (\S~\ref{StableEquality}).
+\cbend
+
+\paragraph{Static semantics.}
+It is a compile-time error for a value class to inherit from a
+stateful class or for a reference class to inherit from a value
+class. All fields of a value class are implicitly declared \xcd"final".
+
+\subsection{Representation}
+
+Since value objects do not contain any updatable locations, they can
+be freely copied from place to place. An implementation may use
+copying techniques even within a place to implement value types,
+rather than references. This is transparent to the programmer.
+
+More explicitly, \Xten{} guarantees that an implementation must always
+behave as if a variable of a reference type takes up as much space as
+needed to store a reference that is either null or is bound to an
+object allocated on the (appropriate) heap. However, \Xten{} makes no
+such guarantees about the representation of a variable of value
+type. The implementation is free to behave as if the value is stored
+``inline'', allocated on the heap (and a reference stored in the
+variable) or use any other scheme (such as structure-sharing) it may
+deem appropriate. Indeed, an implementation may even dynamically
+change the representation of an object of a value type, or dynamically
+use different representations for different instances (that is,
+implement automatic box/unboxing of values).
+
+Implementations are strongly encouraged to implement value types as
+space-efficiently as possible (e.g.{} inlining them or passing them in
+registers, as appropriate).  Implementations are expected to cache
+values of remote final value variables by default. If a value is
+large, the programmer may wish to consider spawning a remote activity
+(at the place the value was created) rather than referencing the
+containing variable (thus forcing it to be cached).
+
+\todo{ Need to figure out whether we should let the programmer be
+aware of lazy pull vs full-value push of value objects. This is the
+idea of introducing a *-annotation. Need to make a decision on
+this. Could leave this for 0.7.}
+
+\subsection{Example}
+\cbstart
+
+A functional \xcd"LinkedList" program may be written as follows:
+
+\cbend
+
+\begin{xten}
+value LinkedList { 
+  val first: Object;
+  val rest: nullable[LinkedList];
+  public def this(first: Object) {
+     this(first, null);
+  }
+  public def this(first: Object, rest: nullable[LinkedList]) {
+    this.first = first;
+    this.rest = rest;
+  }
+  public def first(): Object {
+    return first;
+  }
+  public def rest(): nullable[LinkedList] {
+    return rest;
+  } 
+  public def append(l: LinkedList): LinkedList {
+    return (this.rest == null) 
+        ? new LinkedList(this.first, l) 
+        : this.rest.append(l);
+  }
+}
+\end{xten}
+
+Similarly, a \xcd"Complex" class may be implemented as follows:
+\begin{xten}
+value Complex { 
+  re: double;
+  im: double;
+  public def this(re: double, im: double) {
+     this.re=re;
+     this.im=im;
+  }
+  public def add(other: Complex): Complex {
+    return new Complex(this.re+other.re,
+                       this.im+other.im);
+  }
+  public def mult(other: Complex): Complex {
+    return new Complex(this.re^2-other.re^2,
+                       2*this.im*other.im);
+  }
+  ...
+}
+\end{xten}
+
+
+\section{Method annotations}
+
+\subsection{\Xcd{atomic} annotation}
+A method may be declared \xcd"atomic".
+\begin{verbatim}
+445   MethodModifier ::= atomic  
+\end{verbatim}
+
+Such a method is treated as if the statement in its body is wrapped 
+implicitly in an \xcd"atomic" statement.
+
+\notfouro{
+\subsection{\Xcd{local} annotation}\label{LocalAnnotation}\index{local!\xcd"local"}
+A method may be declared \xcd"local".
+\begin{verbatim}
+445   MethodModifier ::= local
+\end{verbatim}
+
+By declaring a method \xcd"local" the programmer asserts that while
+executing this method an activity will only access local memory.
+
+The compiler implements the following rules to guarantee this property.
+
+Let \xcd"o" be any expression occurring in the body of the
+method. Assume its static datatype is \xcd"F". 
+
+\begin{itemize}
+\item Local methods can only be overridden by local methods. 
+
+\item If the body of the method contains any field access \xcd"o.e", then
+the static placetype of \xcd"o" must be \xcd"here". 
+
+The programmer can always ensure that this condition is satisfied
+(albeit at the risk of introducing a runtime exception) by replacing
+each field access \xcd"o.e" with \xcd"((F!here) o).e".
+
+\item If the body of the method contains any assignments to fields
+(e.g. \xcd"o.e Op= t", or \xcd"Op o.e" or \xcd"o.e Op") then the
+static placetype of \xcd"o" must be \xcd"here".
+
+The programmer can always ensure that this condition is satisfied by
+replacing \xcd"o.e Op= t" by \xcd"o1.e Op=t" and preceding it (in the
+same basic block) with the local variable declaration \xcd"o1: F!here = o as F!here" (for some new local variable \xcd"o1"). Similarly for
+\xcd"Op o.e" and \xcd"o.e Op".
+
+\item Recall that the static placetype of an array access \xcd"o(e)"
+is \xcd"o.distribution(e)". Therefore, any read/write array access
+\xcd"o(e)" must be guarded by the condition \xcd"o.distribution(e) == here".  (Since  \xcd"e" may have side-effects, the compiler must
+ensure that the place check uses the value returned by the same
+expression evaluation that is used to access the array element.)
+
+\item If the body of the method contains any method invocation
+\xcd"o.m(t1,...,tk)" then the method invoked must be local. Additionally,
+the static place type of \xcd"o" must be \xcd"here". 
+As above, the programmer can always ensure the second
+condition is satisfied by writing such a method invocation
+as \xcd"(o as F!here).m(t1,...,tk)".
+\end{itemize}
+
+Note that reads/writes to local variables or method parameters are
+always local, hence the compiler does not have to check any extra
+conditions.
+
+A method declared \xcd"atomic" is automatically declared
+to be \xcd"local".
+}
