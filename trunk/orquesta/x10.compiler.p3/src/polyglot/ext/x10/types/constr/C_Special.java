@@ -32,7 +32,6 @@ public interface C_Special extends C_Root {
     
     // Type is null for SELF. The type that this constraint is attached to
 	// is the type of self. This helps avoid cyclic equality checks.
-    // BUT causes all sorts of other problems.
 	public static final C_Special Self = new C_Special_c(X10Special.SELF, null);
 	public static final C_Special This = new C_Special_c(X10Special.THIS, null);
 	

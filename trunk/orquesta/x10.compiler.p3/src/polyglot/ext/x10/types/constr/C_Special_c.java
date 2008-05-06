@@ -7,12 +7,11 @@
  */
 package polyglot.ext.x10.types.constr;
 
-import java.util.HashSet;
-import java.util.List;
-
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10Special;
+import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.types.Type;
 
 public class C_Special_c extends C_Var_c implements C_Special {
@@ -22,38 +21,26 @@ public class C_Special_c extends C_Var_c implements C_Special {
 	public final C_Kind kind;
 	
 	public C_Special_c(X10Special t) {
-		super(t.type(), t.kind().equals(Special.THIS), t.kind().equals(X10Special.SELF));
-		kind= C_Special.C_Kind.trans(t.kind());
-		TypeNode tn = t.qualifier();
-		qualifier = tn==null? null : tn.type();
+		this(t.type(), t.qualifier() == null ? null : t.qualifier().type(), C_Special.C_Kind.trans(t.kind()));
+//		super(t.type(), t.kind().equals(Special.THIS), t.kind().equals(Special.SUPER));
+//		kind= C_Special.C_Kind.trans(t.kind());
+//		TypeNode tn = t.qualifier();
+//		qualifier = tn==null? null : tn.type();
 	}
 	
 	public C_Special_c(X10Special.Kind k, Type t) {
-		super(t);
-		kind= C_Special.C_Kind.trans(k);
-		qualifier=null;
+		this(t, null, C_Special.C_Kind.trans(k));
+//		super(t);
+//		kind= C_Special.C_Kind.trans(k);
+//		qualifier=null;
 	}
 	
 	public C_Special_c(Type t, Type qualifier, C_Kind kind) {
-		super(t, kind == THIS, kind == SELF);
+		super(t instanceof X10Type ? X10TypeMixin.<X10Type>makeNoClauseVariant((X10Type) t) : t, kind == THIS, kind == SUPER);
 		this.qualifier = qualifier;
 		this.kind = kind;
 	}
 	
-	public C_Term copy() {
-	    return new C_Special_c(type, qualifier, kind);
-	}
-	
-        public C_Term substitute(C_Var y, C_Root x, boolean propagate, HashSet<C_Term> visited) throws Failure {
-            if (x.equals(this)) {
-                return y;
-            }
-            else if (propagate) {
-                return new C_Special_c(substituteType(y, x, propagate, visited), qualifier, kind);
-            }
-            return this;
-        }
-        
 	public C_Var rootVar() {
 		return this;
 	}

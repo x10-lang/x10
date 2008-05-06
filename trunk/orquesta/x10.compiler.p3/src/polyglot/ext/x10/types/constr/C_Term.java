@@ -8,9 +8,6 @@
 package polyglot.ext.x10.types.constr;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 
 import polyglot.ast.Variable;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -44,10 +41,4 @@ public interface C_Term extends Serializable {
 	 */
 	boolean prefixes(C_Term term);
 
-	void collectVars(List<C_Var> accum);
-
-    C_Term substitute(C_Var y, C_Root x, boolean propagate, HashSet<C_Term> visited) throws Failure;
-
-
-    C_Term copy();
 }

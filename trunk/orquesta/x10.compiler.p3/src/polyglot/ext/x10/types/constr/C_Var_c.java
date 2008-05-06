@@ -7,8 +7,6 @@
  */
 package polyglot.ext.x10.types.constr;
 
-import java.util.List;
-
 import polyglot.types.Type;
 
 public abstract class C_Var_c extends C_Term_c implements C_Var {
@@ -34,8 +32,4 @@ public abstract class C_Var_c extends C_Term_c implements C_Var {
 		 return equals(var) ? value : this;
 		}
 	
-	public void collectVars(List<C_Var> accum) {
-	    accum.add(this);
-	}
-
 }
