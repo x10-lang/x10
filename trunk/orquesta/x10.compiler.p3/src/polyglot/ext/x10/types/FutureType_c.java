@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
@@ -195,7 +196,7 @@ public class FutureType_c extends ReferenceType_c implements FutureType {
 
 		FutureType target = toType.toFuture();
 		if (target != null) {
-			boolean result = base().isImplicitCastValid( target.base() );
+			boolean result = base().isImplicitCastValid(target.base());
 			if (Report.should_report("debug", 5)) {
 				Report.report(5, "[FutureType_c] ..." + result);
 			}
@@ -215,8 +216,8 @@ public class FutureType_c extends ReferenceType_c implements FutureType {
 			Report.report(5, "[FutureType_c] |" + this + "|.isCastValidImpl(|" + origType +"|):");
 		}
 
-                if (X10TypeMixin.eitherIsDependent(this, (X10Type) origType))
-                    return X10TypeMixin.isCastValid(this, (X10Type) origType);
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) origType))
+			return X10TypeMixin.isCastValid(this, (X10Type) origType);
 
 		X10Type toType = (X10Type) origType;
 		NullableType nullType = toType.toNullable();
@@ -242,38 +243,38 @@ public class FutureType_c extends ReferenceType_c implements FutureType {
 	}
 
 
-	    public boolean equalsImpl(TypeObject t) {
-	        if (t instanceof FutureType_c) {
-	            FutureType_c a = (FutureType_c) t;
-	            return base.equals(a.base);
-	        }
-	        return false;
-	    }
+	public boolean equalsImpl(TypeObject t) {
+		if (t instanceof FutureType_c) {
+			FutureType_c a = (FutureType_c) t;
+			return base.equals(a.base);
+		}
+		return false;
+	}
 
-	    public boolean typeEquals(Type t) {
-	        if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
-                    return X10TypeMixin.typeEquals(this, (X10Type) t);
-            
-	        if (t instanceof FutureType) {
-	            FutureType a = (FutureType) t;
-	            return ts.typeEquals(base(), a.base());
-	        }
-	        return false;
-	    }
-	    
-	        public boolean descendsFrom(Type t) {
-                    if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
-                        return X10TypeMixin.descendsFrom(this, (X10Type) t);
+	public boolean typeEquals(Type t) {
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
+			return X10TypeMixin.typeEquals(this, (X10Type) t);
 
-                    return super.descendsFrom(t);
-	        }
-	        
-	        public boolean isSubtype(Type t) {
-	            if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
-	                return X10TypeMixin.isSubtype(this, (X10Type) t);
+		if (t instanceof FutureType) {
+			FutureType a = (FutureType) t;
+			return ts.typeEquals(base(), a.base());
+		}
+		return false;
+	}
 
-	            return super.isSubtype(t);
-	        }
+	public boolean descendsFrom(Type t) {
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
+			return X10TypeMixin.descendsFrom(this, (X10Type) t);
+
+		return super.descendsFrom(t);
+	}
+
+	public boolean isSubtype(Type t) {
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
+			return X10TypeMixin.isSubtype(this, (X10Type) t);
+
+		return super.isSubtype(t);
+	}
 
 	public int hashCode() {
 	    return base.hashCode();
@@ -318,9 +319,19 @@ public class FutureType_c extends ReferenceType_c implements FutureType {
 	        this.typeParams = l;
 	    }
 	    
+	    public C_Var selfVar() { return X10TypeMixin.selfVar(this); }
+	    public X10Type makeNoClauseVariant() { return X10TypeMixin.makeNoClauseVariant(this); }
+	    public X10Type makeVariant(Constraint c, List<Type> l) { return X10TypeMixin.makeVariant(this, c, l); }
+	    public boolean isConstrained() { return X10TypeMixin.isConstrained(this); }
+	    public boolean isParametric() { return X10TypeMixin.isParametric(this); }
+
 	    public Constraint depClause() { return X10TypeMixin.depClause(this); }
 	    public List<Type> typeParameters() { return X10TypeMixin.typeParameters(this); }
 	    public Constraint realClause() { return X10TypeMixin.realClause(this); }
+
+	    public X10Type depClause(Constraint c) { return X10TypeMixin.depClause(this, Types.ref(c)); }
+	    public X10Type depClause(Ref<? extends Constraint> c) { return X10TypeMixin.depClause(this, c); }
+	    public X10Type typeParams(List<Ref<? extends Type>> l) { return X10TypeMixin.typeParams(this, l); }
 
 	    public Constraint getRootClause() {
 	        return new Constraint_c((X10TypeSystem) ts);

@@ -14,6 +14,7 @@ import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Failure;
 import polyglot.main.Report;
 import polyglot.types.Flags;
@@ -84,8 +85,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
 	
     public String signature() {
-        return returnType.toString() + " " + container.toString() + "."
-        + name + "(" + X10TypeSystem_c.listToString(formalTypes) + 
+        return name + "(" + X10TypeSystem_c.listToString(formalTypes) + 
         (whereClause != null ? ": " + whereClause.toString() : "") + ")";
     }
 
@@ -97,23 +97,40 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return asInstance;
     }
     
-
-    public X10MethodInstance instantiateForThis(ReferenceType t) throws SemanticException {
-        X10MethodInstance_c proto = (X10MethodInstance_c) asInstance();
+    public X10MethodInstance instantiateForThis(ReferenceType t, List<Type> argTypes) throws SemanticException {
         X10Type thisType = (X10Type) t;
+        
+        if (thisType.selfVar() == null) {
+        	Constraint c = thisType.depClause();
+        	if (c == null)
+        		c = new Constraint_c((X10TypeSystem) ts);
+        	else
+        		c = c.copy();
+        	C_Var self = c.genEQV(t, true);
+        	c.setSelfVar(self);
+        	thisType = thisType.depClause(c);
+        }
         
         boolean needed = false;
         Type rt = Types.get(returnType());
         if (rt instanceof UnknownType) throw new SemanticException();
         X10Type retType = (X10Type) rt;
         X10Type newRetType = retType;
-        Constraint rc = X10TypeMixin.realClause(retType);
+        Constraint rc = retType.realClause();
         C_Special THIS = C_Special_c.This;
-        C_Var selfVar = X10TypeMixin.selfVar(thisType);
+        C_Var selfVar = thisType.selfVar();
 
         for (Ref<? extends Type> tref : formalTypes()) {
             X10Type type = (X10Type) tref.get();
-            rc = X10TypeMixin.realClause(type);
+            if (type instanceof PathType) {
+            	PathType pt = (PathType) type;
+            	C_Var path = pt.base();
+            	if (path instanceof C_Special && ((C_Special) path).kind() == C_Special.THIS) {
+            		needed = true;
+            		break;
+            	}
+            }
+            rc = type.realClause();
             if (rc != null)
                 needed = rc.hasVar(THIS);
             if (needed) break;
@@ -126,33 +143,26 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         if (assertionsEnabled) {
             for (Ref<? extends Type> tref : throwTypes()) {
                 X10Type type = (X10Type) tref.get();
-                rc = X10TypeMixin.realClause(type);
+                rc = type.realClause();
                 assert ! rc.hasVar(THIS);
             }
         }
 
+        X10MethodInstance_c proto = (X10MethodInstance_c) asInstance();
+
         if (!needed)
             return proto;
         
+        // TODO: instantiate x.T when x is another formal
+        // TODO: refactor and generalize this method and X10New_c.instantiateType
         List<Type> newFormalTypes = new ArrayList<Type>(formalTypes.size());
         for (Ref<? extends Type> tref : formalTypes()) {
             X10Type type = (X10Type) tref.get();
-            rc = X10TypeMixin.realClause(type);
-            Type newType = type;
-            if (rc!=null && rc.hasVar(THIS)) {
-                C_Var myVar = selfVar;
-                if (myVar == null)
-                    myVar = rc.genEQV(thisType, true); // not thisType for the args.
-                try {
-                    Constraint rc2 = rc.substitute(myVar, THIS, false, new HashSet<C_Term>());
-                    newType = X10TypeMixin.depClauseDeref(type, rc2);
-                }
-                catch (Failure f) {
-                    throw new SemanticException("Could not instantiate constraint " + rc + " on receiver type " + thisType + ".");
-                }
-            }
+    	    Type newType = instantiateThis(type, thisType, THIS, selfVar);
             newFormalTypes.add(newType);
         }
+        
+        newRetType = (X10Type) instantiateThis(newRetType, thisType, THIS, selfVar);
         
         X10MethodInstance result = (X10MethodInstance) proto.copy();
         result = (X10MethodInstance) result.returnType(newRetType);
@@ -160,4 +170,47 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         result = (X10MethodInstance) result.container(t);
         return result;
     }
+
+	private X10Type instantiateThis(X10Type type, X10Type thisType,
+			C_Special THIS, C_Var selfVar) throws SemanticException {
+		Constraint rc;
+		if (type instanceof PathType) {
+			PathType pt = (PathType) type;
+			C_Var path = pt.base();
+			X10Type receiverType = thisType;
+			if (path instanceof C_Special && ((C_Special) path).kind() == C_Special.THIS && ((C_Special) path).qualifier() == null) {
+				Type tp = X10TypeMixin.lookupTypeProperty(receiverType.depClause(), pt.property());
+//				tp = null; // XXX###
+				if (tp != null) {
+					type = (X10Type) tp;
+				}
+				else {
+					X10TypeSystem xts = (X10TypeSystem) pt.typeSystem();
+					C_Var targetPath = thisType.selfVar();
+					if (targetPath != null) {
+						type = pt.base((C_Var) targetPath);
+					}
+					else {
+						type = (X10Type) xts.X10Object();
+					}
+				}
+			}
+		}
+
+		rc = type.realClause();
+		X10Type newType = type;
+		if (rc!=null && rc.hasVar(THIS)) {
+		    C_Var myVar = selfVar;
+		    if (myVar == null)
+		        myVar = rc.genEQV(thisType, true); // not thisType for the args.
+		    try {
+		        Constraint rc2 = rc.substitute(myVar, THIS, false);
+		        newType = type.depClause(rc2);
+		    }
+		    catch (Failure f) {
+		        throw new SemanticException("Could not instantiate constraint " + rc + " on receiver type " + thisType + ".");
+		    }
+		}
+		return newType;
+	}
 }

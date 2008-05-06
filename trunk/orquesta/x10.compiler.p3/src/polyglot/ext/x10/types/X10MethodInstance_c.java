@@ -10,22 +10,18 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ext.x10.ast.X10New_c;
 import polyglot.ext.x10.types.constr.C_Root;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Failure;
 import polyglot.main.Report;
+import polyglot.types.ArrayType;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
@@ -35,6 +31,7 @@ import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -48,10 +45,28 @@ import polyglot.util.TransformingList;
 public class X10MethodInstance_c extends MethodInstance_c implements X10MethodInstance {
 
 	public static class NoClauseVariant implements Transformation<Type, Type> {
-        public Type transform(Type o) {
-            return X10TypeMixin.makeNoClauseVariant((X10Type) o);
-        }
-    }
+		public Type transform(Type o) {
+			if (o instanceof ArrayType) {
+				ArrayType at = (ArrayType) o;
+				return at.base(Types.ref(transform(at.base())));
+			}
+			if (o instanceof PathType) {
+				PathType pt = (PathType) o;
+				C_Var base = pt.base();
+				Type baseType = base.type();
+				if (baseType instanceof X10Type) {
+					X10Type xt = (X10Type) baseType;
+					X10TypeSystem xts = (X10TypeSystem) xt.typeSystem();
+					Type t = X10TypeMixin.lookupTypeProperty(xt.depClause(), pt.property());
+					if (t != null)
+						o = t;
+					else
+						o = xts.X10Object();
+				}
+			}
+			return X10TypeMixin.makeNoClauseVariant((X10Type) o);
+		}
+	}
     public Object copy() { 
 		return super.copy();
 	}
@@ -147,12 +162,12 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	   * TODO: Take into account the deptype in the parameter list of the method.
 	   */
 	@Override
-	public boolean callValid(List<Type> argTypes) {
-		return X10MethodInstance_c.callValidImpl(this, argTypes);
+	public boolean callValid(Type thisType, List<Type> argTypes) {
+		return X10MethodInstance_c.callValidImpl(this, thisType, argTypes);
 	}
 	
-	public static boolean callValidImpl(final X10ProcedureInstance me, final List<Type> args) {
-	    boolean result = me.callValidNoClauses(args);
+	public static boolean callValidImpl(X10ProcedureInstance me, Type thisType, final List<Type> args) {
+	    boolean result = me.callValidNoClauses(thisType, args);
 	    if (!result) return result;
 	    final List<Type> formals = me.formalTypes();
 	    final int n = formals.size();
@@ -160,7 +175,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    boolean typesNotDep = true;
 	    for (int i=0; typesNotDep && i < n; i++) {
 	        X10Type ti = (X10Type) formals.get(i);
-	        Constraint d = X10TypeMixin.realClause(ti);
+	        if (ti instanceof PathType) { typesNotDep = false; break; }
+	        Constraint d = ti.realClause();
 	        typesNotDep = d==null || d.valid();
 	    }
 	    if (typesNotDep) return true;
@@ -172,7 +188,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    for (int i=0; i < n; i++) {
 	        X10Type type = (X10Type) formals.get(i);
 	        X10Type aType = (X10Type) args.get(i);
-	        Constraint yc = X10TypeMixin.realClause(aType);
+	        Constraint yc = aType.realClause();
 	        if (yc != null) {
 	            y[i] = yc.selfVar();
 	        }
@@ -181,7 +197,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	            // the dep clauses of downstream y[i]'s.
 	            y[i] = env.genEQV(aType, false, false);
 	        }
-	        Constraint fc = X10TypeMixin.realClause(type);
+	        Constraint fc = type.realClause();
 	        if (fc != null && fc.selfVar() instanceof C_Root) {
 	            x[i] = (C_Root) fc.selfVar();
 	        }
@@ -199,11 +215,11 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    }
 	    for (int i=0; result && (i < n); i++) {
 	        X10Type ti = (X10Type) formals.get(i);
-	        Constraint query = X10TypeMixin.realClause(ti);
+	        Constraint query = ti.realClause();
 	        if (query != null && ! query.valid()) {
 	            try {
-	                Constraint query2 = query.substitute(y, x, false, new HashSet<C_Term>());
-	                Constraint query3 = query2.substitute(y[i], C_Special_c.Self, false, new HashSet<C_Term>());
+	                Constraint query2 = query.substitute(y, x, false);
+	                Constraint query3 = query2.substitute(y[i], C_Special_c.Self, false);
 	                result = env.entails(query3);
 	            }
 	            catch (Failure f) {
@@ -215,13 +231,15 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    return result;
 	}
 
-	public boolean callValidNoClauses(List<Type> argTypes) {
+	public boolean callValidNoClauses(Type thisType, List<Type> argTypes) {
 	    X10MethodInstance_c me = (X10MethodInstance_c) this.formalTypes(new TransformingList<Type,Type>(this.formalTypes(), new X10MethodInstance_c.NoClauseVariant()));
-	    return me.superCallValid(new TransformingList<Type,Type>(argTypes, new X10MethodInstance_c.NoClauseVariant()));
+	    
+	    
+	    return me.superCallValid(thisType, new TransformingList<Type,Type>(argTypes, new X10MethodInstance_c.NoClauseVariant()));
 	}
 
-	protected boolean superCallValid(List<Type> argTypes) {
-	    return super.callValid(argTypes);
+	protected boolean superCallValid(Type thisType, List<Type> argTypes) {
+	    return super.callValid(thisType, argTypes);
 	}
 
 
@@ -241,6 +259,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public X10MethodDef x10Def() {
         return (X10MethodDef) def();
+    }
+    
+    @Override
+    public MethodInstance instantiate(ReferenceType receiverType,
+    		List<Type> argumentTypes) throws SemanticException {
+    	
+    	return x10Def().instantiateForThis(receiverType, argumentTypes);
     }
 	
 }

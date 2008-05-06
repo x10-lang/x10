@@ -13,6 +13,8 @@ package polyglot.ext.x10.types;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Unary;
@@ -25,6 +27,7 @@ import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Type;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
@@ -95,7 +98,7 @@ public class X10TypeMixin {
                 return typeParams(t, null);
         }
         assert l != null;
-        return typeParams(t, new TransformingList<Type, Ref<? extends Type>>(l, new Transformation<Type, Ref<? extends Type>>() {
+        return X10TypeMixin.<T>typeParams(t, new TransformingList<Type, Ref<? extends Type>>(l, new Transformation<Type, Ref<? extends Type>>() {
             public Ref<? extends Type> transform(Type o) {
                 return Types.ref(o);
             }
@@ -109,7 +112,7 @@ public class X10TypeMixin {
     }
     
     public static <T extends X10Type> T typeParams(T t, List<Ref<? extends Type>> l) {
-        assert l != null;
+//        assert l != null;
         T t2 = (T) t.copy();
         t2.setTypeParams(l);
         return t2;
@@ -223,7 +226,16 @@ public class X10TypeMixin {
     // ...
     
     public static boolean eitherIsDependent(X10Type t1, X10Type t2) {
-        return isConstrained(t1) || isConstrained(t2) ||  isParametric(t1) || isParametric(t2);
+    	return isDependentOrDependentPath(t1) || isDependentOrDependentPath(t2);
+    }
+    
+    public static boolean isDependentOrDependentPath(X10Type t) {
+    	if (t instanceof PathType) {
+    		C_Var base = ((PathType) t).base();
+    		if (isDependentOrDependentPath((X10Type) base.type()))
+    			return true;
+    	}
+    	return isConstrained(t) || isParametric(t);
     }
 
     public static boolean equalsIgnoreClause(X10Type t1, X10Type t2) {
@@ -237,6 +249,36 @@ public class X10TypeMixin {
     public static boolean typeEquals(X10Type t, X10Type o) {
         if (t == o) 
             return true;
+
+        // If
+        //   x: C(:T==S)
+        // need to compare x.T against S also
+
+        if (t instanceof PathType) {
+        	PathType pt = (PathType) t;
+        	C_Var base = pt.base();
+        	TypeProperty prop = pt.property();
+        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
+        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
+        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
+        		if (S != null && S.typeEquals(o)) {
+        			return true;
+        		}
+        	}
+        }
+        
+        if (o instanceof PathType) {
+        	PathType pt = (PathType) o;
+        	C_Var base = pt.base();
+        	TypeProperty prop = pt.property();
+        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
+        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
+        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
+        		if (S != null && t.typeEquals(S)) {
+        			return true;
+        		}
+        	}
+        }
 
         if (isConstrained(t) && isConstrained(o)) {
             if (! depClause(t).equals(depClause(o)))
@@ -254,6 +296,39 @@ public class X10TypeMixin {
 
     public static boolean isCastValid(X10Type fromType, X10Type toType) {
         X10TypeSystem xts = (X10TypeSystem) fromType.typeSystem();
+
+        X10Type t = fromType;
+        X10Type o = toType;
+
+        // If
+        //   x: C(:T==S)
+        // need to compare x.T against S also
+
+        if (t instanceof PathType) {
+        	PathType pt = (PathType) t;
+        	C_Var base = pt.base();
+        	TypeProperty prop = pt.property();
+        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
+        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
+        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
+        		if (S != null && S.isCastValid(o)) {
+        			return true;
+        		}
+        	}
+        }
+        
+        if (o instanceof PathType) {
+        	PathType pt = (PathType) o;
+        	C_Var base = pt.base();
+        	TypeProperty prop = pt.property();
+        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
+        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
+        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
+        		if (S != null && t.isCastValid(S)) {
+        			return true;
+        		}
+        	}
+        }
 
         if (!makeNoClauseVariant(fromType).isCastValid(makeNoClauseVariant(toType)))
             return false;
@@ -286,7 +361,40 @@ public class X10TypeMixin {
     
     public static boolean isImplicitCastValid(X10Type fromType, X10Type toType) {
         X10TypeSystem xts = (X10TypeSystem) fromType.typeSystem();
+       
+        X10Type t = fromType;
+        X10Type o = toType;
+
+        // If
+        //   x: C(:T==S)
+        // need to compare x.T against S also
+
+        if (t instanceof PathType) {
+        	PathType pt = (PathType) t;
+        	C_Var base = pt.base();
+        	TypeProperty prop = pt.property();
+        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
+        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
+        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
+        		if (S != null && S.isImplicitCastValid(o)) {
+        			return true;
+        		}
+        	}
+        }
         
+        if (o instanceof PathType) {
+        	PathType pt = (PathType) o;
+        	C_Var base = pt.base();
+        	TypeProperty prop = pt.property();
+        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
+        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
+        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
+        		if (S != null && t.isImplicitCastValid(S)) {
+        			return true;
+        		}
+        	}
+        }
+
         if (!makeNoClauseVariant(fromType).isImplicitCastValid(makeNoClauseVariant(toType)))
             return false;
 
@@ -312,7 +420,40 @@ public class X10TypeMixin {
     
     public static boolean isSubtype(X10Type fromType, X10Type toType) {
         X10TypeSystem xts = (X10TypeSystem) fromType.typeSystem();
+
+        X10Type t = fromType;
+        X10Type o = toType;
+
+        // If
+        //   x: C(:T==S)
+        // need to compare x.T against S also
+
+        if (t instanceof PathType) {
+        	PathType pt = (PathType) t;
+        	C_Var base = pt.base();
+        	TypeProperty prop = pt.property();
+        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
+        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
+        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
+        		if (S != null && S.isSubtype(o)) {
+        			return true;
+        		}
+        	}
+        }
         
+        if (o instanceof PathType) {
+        	PathType pt = (PathType) o;
+        	C_Var base = pt.base();
+        	TypeProperty prop = pt.property();
+        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
+        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
+        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
+        		if (S != null && t.isSubtype(S)) {
+        			return true;
+        		}
+        	}
+        }
+
         if (!makeNoClauseVariant(fromType).isSubtype(makeNoClauseVariant(toType)))
             return false;
         
@@ -374,4 +515,35 @@ public class X10TypeMixin {
             return null;
         return c1.binaryOp(op, c2);
     }
+
+	public static Type lookupTypeProperty(Constraint c, TypeProperty p) {
+		for (Map.Entry<C_Var, C_Var> e : c.constraints().entrySet()) {
+			C_Var v1 = e.getKey();
+			C_Var v2 = e.getValue();
+			if (v1.equals(p.asVar()) && v2 instanceof C_Type) {
+				return ((C_Type) v2).type();
+			}
+			if (v2.equals(p.asVar()) && v1 instanceof C_Type) {
+				return ((C_Type) v1).type();
+			}
+		}
+		return null;
+	}
+
+	public static Type getParameterType(X10Type theType, String prop) {
+		if (theType instanceof X10ClassType) {
+			X10ClassType xct = (X10ClassType) theType;
+			if (X10TypeMixin.isConstrained(xct)) {
+				Constraint c = xct.depClause();
+				X10ClassDef def = (X10ClassDef) xct.def();
+				for (TypeProperty p : def.typeProperties()) {
+					if (p.name().equals(prop)) {
+						Type S = X10TypeMixin.lookupTypeProperty(c, p);
+						return S;
+					}
+				}
+			}
+		}
+		return null;
+	}
 }

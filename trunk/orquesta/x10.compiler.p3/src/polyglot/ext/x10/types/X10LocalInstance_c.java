@@ -61,8 +61,8 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         if (flags.isFinal()) {
             X10Type t = (X10Type) super.type();
             try {
-                Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(x10Def()), X10TypeMixin.depClause(t), (X10TypeSystem) ts);
-                return X10TypeMixin.depClauseDeref(t, c);
+                Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(t, x10Def().asInstance()), t.depClause(), (X10TypeSystem) ts);
+                return t.depClause(c);
             }
             catch (Failure f) {
                 throw new InternalCompilerError("Could not add self binding.", f);

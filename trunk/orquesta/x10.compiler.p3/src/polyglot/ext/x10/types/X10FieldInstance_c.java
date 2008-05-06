@@ -71,7 +71,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
         Flags flags = flags();
 
         if (flags.isFinal()) {
-            Constraint rc = X10TypeMixin.depClause((X10Type) t);
+            Constraint rc = ((X10Type) t).depClause();
             if (rc == null) rc = new Constraint_c(xts);
 
             try {

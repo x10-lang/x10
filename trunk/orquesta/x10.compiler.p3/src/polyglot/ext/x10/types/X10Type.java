@@ -72,6 +72,16 @@ public interface X10Type extends Type, X10TypeObject {
     public List<Type> typeParameters();
     public Constraint realClause();
 
+    public C_Var selfVar();
+    public X10Type makeNoClauseVariant();
+    public X10Type makeVariant(Constraint c, List<Type> l);
+    public boolean isConstrained();
+    public boolean isParametric();
+
+    public X10Type depClause(Constraint c);
+    public X10Type depClause(Ref<? extends Constraint> c);
+    public X10Type typeParams(List<Ref<? extends Type>> l);
+
     // Get the clause of the root type.  (:) for anything other than classes.
     public Constraint getRootClause();
     public void checkRealClause() throws SemanticException;  

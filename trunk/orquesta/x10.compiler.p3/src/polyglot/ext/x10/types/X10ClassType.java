@@ -46,4 +46,6 @@ public interface X10ClassType extends ClassType, X10Type, X10Use<X10ClassDef> {
      * @return
      */
     List<FieldInstance> definedProperties();
+    
+    List<PathType> typeProperties();
 }

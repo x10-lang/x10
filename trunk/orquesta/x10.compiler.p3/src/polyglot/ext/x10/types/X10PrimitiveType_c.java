@@ -20,18 +20,17 @@ import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Failure;
-import polyglot.ext.x10.types.constr.Promise;
-import polyglot.frontend.JLScheduler.SupertypeDef;
 import polyglot.types.PrimitiveType;
 import polyglot.types.PrimitiveType_c;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 
 /** X10 has no primitive types. Types such as int etc are all value class types. 
@@ -75,9 +74,19 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	        this.typeParams = l;
 	    }
 	    
+	    public C_Var selfVar() { return X10TypeMixin.selfVar(this); }
+	    public X10Type makeNoClauseVariant() { return X10TypeMixin.makeNoClauseVariant(this); }
+	    public X10Type makeVariant(Constraint c, List<Type> l) { return X10TypeMixin.makeVariant(this, c, l); }
+	    public boolean isConstrained() { return X10TypeMixin.isConstrained(this); }
+	    public boolean isParametric() { return X10TypeMixin.isParametric(this); }
+
 	    public Constraint depClause() { return X10TypeMixin.depClause(this); }
 	    public List<Type> typeParameters() { return X10TypeMixin.typeParameters(this); }
 	    public Constraint realClause() { return X10TypeMixin.realClause(this); }
+	   
+	    public X10Type depClause(Constraint c) { return X10TypeMixin.depClause(this, Types.ref(c)); }
+	    public X10Type depClause(Ref<? extends Constraint> c) { return X10TypeMixin.depClause(this, c); }
+	    public X10Type typeParams(List<Ref<? extends Type>> l) { return X10TypeMixin.typeParams(this, l); }
 
 	    public Constraint getRootClause() {
 	        return new Constraint_c((X10TypeSystem) ts);
@@ -97,7 +106,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	        return X10TypeMixin.makeNoClauseVariant(this);
 	    }
 	    
-	    public boolean equalsWithoutClauseImpl(X10Type o) {
+	    public boolean equalsWithoutClauseImpl(Type o) {
 	        return X10TypeMixin.equalsIgnoreClause(this, (X10Type) o);
 	    }
 	    // END DEPENDENT TYPE MIXIN
@@ -116,8 +125,18 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 
 	/** Return true if this type can be assigned to <code>toType</code>. */
 	public boolean isImplicitCastValid(Type toType) {
+		if (toType instanceof NullableType) {
+			NullableType nt = (NullableType) toType;
+			return isImplicitCastValid(nt.base());
+		}
+
             if (X10TypeMixin.eitherIsDependent(this, (X10Type) toType))
                 return X10TypeMixin.isImplicitCastValid(this, (X10Type) toType);
+            
+            if (toType instanceof NullableType) {
+            	NullableType nt = (NullableType) toType;
+            	return isImplicitCastValid(nt.base());
+            }
             
             X10Type targetType = (X10Type) toType;
 
@@ -125,10 +144,6 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
                 return false;
 
             if (ts.isSubtype(this, targetType))
-                return true;
-
-            NullableType realTarget = targetType.toNullable();
-            if (realTarget != null && ts.isSubtype(this, realTarget.base()))
                 return true;
 
             return super.isImplicitCastValid(toType); 
@@ -178,8 +193,13 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	 * Note that a cast from int to x10.compilergenerated.BoxedInteger is valid.
 	 * */
 	public boolean isCastValid(Type toType) {
-            if (X10TypeMixin.eitherIsDependent(this, (X10Type) toType))
-                return X10TypeMixin.isCastValid(this, (X10Type) toType);
+		if (toType instanceof NullableType) {
+			NullableType nt = (NullableType) toType;
+			return isCastValid(nt.base());
+		}
+
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) toType))
+			return X10TypeMixin.isCastValid(this, (X10Type) toType);
             
 	    X10TypeSystem xts = (X10TypeSystem) ts;
 
@@ -193,11 +213,6 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	    
 	    if (xts.isBoxedType(toType)) {
 	        return isCastValid(xts.boxedTypeToPrimitiveType(toType));
-	    }
-	    
-	    if (toType instanceof NullableType) {
-	        NullableType nt = (NullableType) toType;
-	        return isCastValid(nt.base());
 	    }
 	    
 	    if (super.isCastValid(toType)) {
@@ -239,10 +254,6 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	/** All primitive types are safe. */
 	
 	public boolean safe() { return true; }
-
-	public boolean equalsWithoutClauseImpl(Type other) {
-            return X10TypeMixin.equalsIgnoreClause(this, (X10Type) other);
-	}
 
 	public boolean isFuture() {
 	    return false;
