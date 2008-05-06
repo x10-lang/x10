@@ -7,35 +7,30 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
-import polyglot.ast.Lit;
-import polyglot.ast.Local_c;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.types.X10ProcedureInstance;
-import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorInstance;
-import polyglot.ext.x10.types.X10LocalInstance;
-import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10ProcedureInstance;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Lit;
-import polyglot.ext.x10.types.constr.C_Local;
+import polyglot.ext.x10.types.constr.C_EQV_c;
 import polyglot.ext.x10.types.constr.C_Root;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
@@ -43,17 +38,12 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Failure;
-import polyglot.ext.x10.types.constr.Promise;
-import polyglot.ext.x10.types.constr.BindingConstraintSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.ParsedClassType;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
@@ -196,8 +186,9 @@ public class X10New_c extends New_c {
     	if (body != null) {
     		// If creating an anonymous class, we need to adjust the return type
     		// to be based on anonType rather than on the supertype.
-    		ClassDef anonType = anonType();
-    		type = X10TypeMixin.makeVariant((X10Type) anonType.asType(), type.depClause(), type.typeParameters());
+    		ClassDef anonTypeDef = anonType();
+    		X10Type anonType = (X10Type) anonTypeDef.asType();
+			type = anonType.depClause(type.depClause());
     	}
     	
     	X10ClassType retType = (X10ClassType) instantiateType(xci, type, arguments);
@@ -237,13 +228,30 @@ public class X10New_c extends New_c {
    public static X10Type instantiateType(X10ProcedureInstance xpi, X10Type formalReturnType, Receiver target, 
 		   List<Expr> arguments) throws SemanticException {
 	   //Report.report(1, "X10new_c: instantiatetype "  + formalReturnType + "args=" + arguments);
+	    if (formalReturnType instanceof PathType) {
+	    	PathType pt = (PathType) formalReturnType;
+	    	C_Var path = pt.base();
+	    	X10Type receiverType = (X10Type) target.type();
+	    	if (path instanceof C_Special && ((C_Special) path).kind() == C_Special.THIS && ((C_Special) path).qualifier() == null) {
+	    		Type t = X10TypeMixin.lookupTypeProperty(receiverType.depClause(), pt.property());
+	    		if (t != null) {
+	    			return (X10Type) t;
+	    		}
+	    		X10TypeSystem xts = (X10TypeSystem) pt.typeSystem();
+				C_Term targetPath = xts.typeTranslator().trans(target);
+				if (targetPath instanceof C_Var) {
+					return pt.base((C_Var) targetPath);
+				}
+	    		return (X10Type) xts.X10Object();
+	    	}
+	    }
     	X10Type retType = formalReturnType;
     	Constraint rc = formalReturnType.realClause();
     	if (rc == null) return retType;
     	Constraint newRC = instantiateConstraint(xpi, rc, target, arguments);
 
     	if (newRC != rc) {
-    		retType = X10TypeMixin.makeDepVariant(formalReturnType, newRC);
+    		retType = formalReturnType.depClause(newRC);
     	}
 	    return retType;
    }
@@ -312,7 +320,8 @@ public class X10New_c extends New_c {
 		        ti = rc.genEQV(ei.type(), true, true);
 		    }
 
-		    C_Var Li = X10TypeMixin.selfVar((X10Type) pi.formalTypes().get(i));
+		    X10Type tyi = (X10Type) pi.formalTypes().get(i);
+			C_Var Li = tyi.selfVar();
 		    if (Li instanceof C_Root) {
 		        subs.put((C_Root) Li, (C_Var) ti);
 		    }

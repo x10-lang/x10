@@ -1,33 +1,23 @@
 package polyglot.ext.x10.plugin;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
-import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
-import polyglot.frontend.Pass;
-import polyglot.frontend.Scheduler;
-import polyglot.frontend.SourceGoal_c;
 import polyglot.frontend.VisitorGoal;
-import polyglot.frontend.VisitorPass;
 import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.ReachChecker;
 
 public class LoadJobPlugins extends VisitorGoal {
 	public static class LoadJobPluginsVisitor extends NodeVisitor {

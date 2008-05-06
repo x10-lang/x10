@@ -56,22 +56,21 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         }
 
         public Node typeCheck(TypeChecker tc) throws SemanticException {
-            Type toType = castType.type();
-            Type fromType = expr.type();
-        	X10Type x10ToType = (X10Type) toType;
-        	X10Type x10FromType = (X10Type) fromType;
-            TypeSystem ts = tc.typeSystem();
-            X10TypeSystem xts = (X10TypeSystem) x10ToType.typeSystem();
+        	X10Cast_c n = (X10Cast_c) copy();
 
-            this.primitiveType = false;
-            this.toTypeNullable = false;
-            this.notNullRequired = false;
+        	X10Type toType = (X10Type) n.castType.type();
+            X10Type fromType = (X10Type) n.expr.type();
+        	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            
+        	n.primitiveType = false;
+            n.toTypeNullable = false;
+            n.notNullRequired = false;
             
            if (Report.should_report("debug", 5)) {
-                    Report.report(5, "[Cast_c] |" + this + "|.typeCheck(...):");
+                    Report.report(5, "[Cast_c] |" + n + "|.typeCheck(...):");
                     Report.report(5, "[Cast_c] ...type=|" +  type+"|.");
            }
-           Expr result = type(toType);
+           Expr result = n.type(toType);
            if (Report.should_report("debug", 5)) {
            	Report.report(5, "[Cast_c] ...returning=|" +  result+"| of type=|" + result.type() + "|.");
            }
@@ -87,32 +86,31 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         	   // the cast may requires runtime checking. For example ((T) java.lang.Object)
 
         	   // if target type is a primitive
-	           if ((this.primitiveType = toType.isPrimitive())) {
+	           if ((n.primitiveType = toType.isPrimitive())) {
 	        	   // if target type is a primitive, then we should not try to check
 	        	   // whether the expr is null or not.
-	        	   this.primitiveType = true;
+	        	   n.primitiveType = true;
 	           }
 
 	           // if ToType is nullable then casting the null value is legal
-	           if (xts.isNullable(x10ToType)) {
-	        	   this.toTypeNullable = true;
-	        	   this.notNullRequired = false;
+	           if (ts.isNullable(toType)) {
+	        	   n.toTypeNullable = true;
+	        	   n.notNullRequired = false;
 	        	   // to type is nullable, hence we don't want 
 	        	   // to handle runtime checking with primitive 
-	        	   this.primitiveType = false;
+	        	   n.primitiveType = false;
 	           } else {
-	        	   this.toTypeNullable = false;
+	        	   n.toTypeNullable = false;
 	        	   // Handle isNullable additionnal constraint 
 		    	   // Such cast ((T1) nullable T2), should checks at runtime 
 		    	   // the expression to cast is not null
-		           if (xts.isNullable(x10FromType)) {
-		        	   this.notNullRequired = true;
+		           if (ts.isNullable(fromType)) {
+		        	   n.notNullRequired = true;
 		           }
 	           }
-	           
-
             }
-            	return type(toType);
+           
+           return n.type(toType);
         }
         
 		public boolean isDepTypeCheckingNeeded() {
@@ -134,7 +132,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 		public TypeNode getTypeNode() {
 	    	return (TypeNode) this.castType().copy();
 	    }
-
 
 		public void setToTypeNullable(boolean b) {
 			this.toTypeNullable = b;

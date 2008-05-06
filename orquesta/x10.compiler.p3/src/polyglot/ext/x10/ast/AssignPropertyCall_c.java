@@ -86,6 +86,23 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	    return arguments;
 	}
 	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("property(");
+		boolean first = true;
+		for (Expr e : arguments) {
+			if (first) {
+				first = false;
+			}
+			else {
+				sb.append(", ");
+			}
+			sb.append(e);
+		}
+		sb.append(");");
+		return sb.toString();
+	}
+	
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		TypeSystem ts = tc.typeSystem();
 		Context ctx = tc.context();
@@ -105,18 +122,15 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		int aSize = arguments.size();
 		if (aSize != pSize) {
 			throw new SemanticException("The statement property(...) must have the same " 
-					+ " numer of arguments as properties for the class.",
+					+ " number of arguments as properties for the class.",
 					position());
 		}
 		List<Stmt> s = new ArrayList<Stmt>(pSize);
 		
 		for (int i=0; i < aSize; i++) {
 			Expr l = nf.Field(pos,nf.This(pos), nf.Id(pos, definedProperties.get(i).name()));
+			l = (Expr) this.visitChild(l, tc);
 			
-			AmbiguityRemover ar = new AmbiguityRemover(job, ts, nf);
-			ar = (AmbiguityRemover) ar.context(tc.context());
-			l = (Expr) l.visit(ar);
-			l = (Expr) l.visit(tc);
 //			 We fudge typechecking of the generating code as follows.
 			// X10 Typechecking of the assignment statement is problematic since 	
 			// the type of the field may have references to other fields, hence may use this,
@@ -126,7 +140,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 			Expr as = nf.Assign(pos, l, Assign.ASSIGN, arg);
 			as = (Expr) as.type(arg.type()); // Fake the type.
 			Stmt a = (Stmt) nf.Eval(pos, as);
-			a = (Stmt) a.visit(ar);
+			a = (Stmt) a.disambiguate(new AmbiguityRemover(tc));
 			// a = (Stmt) a.visit(tc); Do not typecheck the statement a.
 			s.add(a);
 		}

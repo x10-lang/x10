@@ -10,17 +10,16 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
-import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10NamedType;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.frontend.GoalSet;
+import polyglot.frontend.SetResolverGoal;
 import polyglot.types.Context;
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
@@ -36,6 +35,7 @@ import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
 
@@ -107,13 +107,11 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         DepParameterExpr dep = (DepParameterExpr) visitChild(this.dep, v);
         return reconstruct(tn, gen, dep);
     }
-      
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
-        TypeSystem ts = tb.typeSystem();
-        LazyRef<? extends Type> sym = Types.lazyRef(ts.unknownType(position()), tb.goal());
-        return typeRef(sym);
+    
+    public String toString() {
+    	return base.toString() + (dep != null ? "(:" + dep + ")" : "");
     }
-
+      
     public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
         // Override to disambiguate the base type and rebuild the node before type checking the dep clause.
 
@@ -126,13 +124,20 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         
         TypeNode tn = (TypeNode) n.visitChild(n.base, childtc);
         n = (AmbDepTypeNode_c) n.base(tn);
+
+        LazyRef<Type> sym = (LazyRef<Type>) n.type;
         
         if (tn.type() instanceof UnknownType) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
-            LazyRef<Type> sym = (LazyRef<Type>) n.type;
             sym.update(ts.unknownType(position()));
             return n;
         }
+        
+        X10Type t = (X10Type) tn.type();
+
+        // Update the symbol with the base type so that if we try to get the type while checking the constraint, we don't get a cyclic
+        // dependency error, but instead get a less precise type.
+        sym.update(t);
         
         DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
         n = (AmbDepTypeNode_c) n.dep(dep);
@@ -140,27 +145,21 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         GenParameterExpr gen = (GenParameterExpr) n.visitChild(n.gen, childtc);
         n = (AmbDepTypeNode_c) n.gen(gen);
     
-        X10Type t = (X10Type) tn.type();
-
         if (dep != null) {
-            t = X10TypeMixin.depClause(t, dep.constraint());
-            if (t instanceof X10ParsedClassType) {
-            	X10ParsedClassType ct = (X10ParsedClassType) t;
-            	C_Var x = ct.rank();
-            }
+            t = t.depClause(dep.constraint());
         }
+
         if (gen != null) {
             List<Ref<? extends Type>> args = new ArrayList(gen.args().size());
             for (TypeNode arg : gen.args()) {
                 args.add(arg.typeRef());
             }
-            t = X10TypeMixin.typeParams(t, args);
+            t = t.typeParams(args);
         }
 
-        LazyRef<Type> sym = (LazyRef<Type>) n.type;
         sym.update(t);
 
-        return nf.CanonicalTypeNode(position(), t);
+        return nf.CanonicalTypeNode(position(), sym);
     }
     
     public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {

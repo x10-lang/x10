@@ -7,14 +7,9 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -22,22 +17,14 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
-import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.BindingConstraintSystem;
 import polyglot.types.Context;
-import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
@@ -69,6 +56,7 @@ public class X10Call_c extends Call_c {
     	
         X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+
         if (this.target != null && this.target.type().isPrimitive() &&
                 name().equals("getLocation") && arguments().isEmpty())
         {
@@ -134,9 +122,9 @@ public class X10Call_c extends Call_c {
                         xts.isSubtype(((Expr) arguments.get(0)).type(), xts.String()))
                 {
                     try {
-                        MethodInstance new_mi = xts.findMethod(java_io_PrintStream, "printf",
-                                Arrays.asList(new Type[] { xts.String(), xts.arrayOf(xts.Object()) }),
-                                tc.context().currentClassScope());
+                        MethodInstance new_mi = xts.findMethod(java_io_PrintStream,
+                                "printf",
+                                Arrays.asList(new Type[] { xts.String(), xts.arrayOf(xts.Object()) }), tc.context().currentClassScope());
                         return (X10Call_c)this.methodInstance(new_mi).type(new_mi.returnType());
                     } catch (NoMemberException f) {
                         // For Java 1.4, we need to emulate this method

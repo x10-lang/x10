@@ -123,7 +123,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	            Expr lo = args.get(0);
 	            Expr hi = args.get(1);
 	            if (lo.type().isIntOrLess() && hi.type().isIntOrLess()) {
-	                Constraint c = X10TypeMixin.depClause((X10Type) formal.type().type());
+	                X10Type t = (X10Type) formal.type().type();
+					Constraint c = t.depClause();
 	                if (c == null) c = new Constraint_c(ts);
 	                else c = c.copy();
 
@@ -144,7 +145,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	                catch (SemanticException e) {
 	                }
 	                
-	                Type newType = X10TypeMixin.depClauseDeref((X10Type) formal.type().type(), c);
+	                Type newType = t.depClause(c);
 	                formal.localDef().setType(Types.ref(newType));
 	                return formal.type(nf.CanonicalTypeNode(formal.type().position(), Types.ref(newType)));
 	            }

@@ -60,12 +60,12 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
  
     /** Type check the expression. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
-        Instanceof n = (Instanceof) node();
+        X10Instanceof_c n = (X10Instanceof_c) copy();
         Type toType = n.compareType().type();
         Type fromType = n.expr().type();
 
-        this.toTypeNullable = false;
-        this.notNullRequired = false;
+        n.toTypeNullable = false;
+        n.notNullRequired = false;
         
         if (! tc.typeSystem().isCastValid(fromType, toType)) {
             throw new SemanticException(
@@ -73,12 +73,15 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
                       + "the right operand " + toType + ".");
         }
         
-        this.toTypeNullable = ((X10TypeSystem) tc.typeSystem()).isNullable(this.compareType.type());
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        
+        n.toTypeNullable = xts.isNullable(n.compareType.type());
 
         // is conversion from a nullable type to a non nullable one.        
         // not Null is required if toType is notNullable or toType is nullable but has constraints
-        this.notNullRequired = !toTypeNullable;  
-    	return n.type(tc.typeSystem().Boolean());
+        n.notNullRequired = !n.toTypeNullable;
+
+        return n.type(tc.typeSystem().Boolean());
 	}
 
     public boolean isDepTypeCheckingNeeded() {

@@ -69,8 +69,7 @@ public class AssignPropertyChecker extends DataFlow {
 	
 	public boolean needsProperty() {
 	    X10ConstructorInstance xci = (X10ConstructorInstance) cd.constructorDef().asInstance();
-	    return X10TypeMixin.isConstrained((X10Type) xci.container())
-	    || X10TypeMixin.isConstrained((X10Type) xci.returnType());
+	    return ((X10Type) xci.container()).isConstrained() || ((X10Type) xci.returnType()).isConstrained();
 	}
 		
 	protected static class DataFlowItem extends Item {

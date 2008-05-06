@@ -16,15 +16,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import polyglot.ast.BooleanLit;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.Node_c;
+import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.frontend.SetResolverGoal;
 import polyglot.types.Context;
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
@@ -38,6 +40,7 @@ import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
 /** An immutable representation of the parameter list of a parameteric type.
@@ -155,18 +158,30 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
         return reconstruct(formals, arguments, condition);
     }
     
-    public Node buildTypes(TypeBuilder tb) {
-        DepParameterExpr_c n = (DepParameterExpr_c) copy();
-        n.constraint = Types.<Constraint>lazyRef(new Constraint_c((X10TypeSystem) tb.typeSystem()), tb.goal());
-        return n;
-    }
+    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    	DepParameterExpr_c n = (DepParameterExpr_c) copy();
+    	n.constraint = Types.<Constraint>lazyRef(new Constraint_c((X10TypeSystem) tb.typeSystem()), new SetResolverGoal(tb.job()));
+    	return n;
+      }
+
+      public void setResolver(Node parent, final TypeCheckPreparer v) {
+    	  TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+    	  tc = (TypeChecker) tc.context(v.context().freeze());
+    	  LazyRef<Constraint> r = (LazyRef<Constraint>) constraint;
+    	  if (r == null) {
+    		  System.out.println("constraint is null for " + this);
+    	  }
+    	  r.setResolver(new TypeCheckFragmentGoal(parent, this, tc, r));
+      }
     
     @Override
     public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
     	DepParameterExpr_c n = (DepParameterExpr_c) super.disambiguate(ar);
     	
     	if (((X10Context) ar.context()).inAnnotation() && condition == null) {
-    		return n.condition(ar.nodeFactory().BooleanLit(position(), true));
+    		Expr lit = ar.nodeFactory().BooleanLit(position(), true);
+    		lit = (Expr) this.visitChild(lit, ar.typeChecker());
+			return n.condition(lit);
     	}
     	
     	return n;
@@ -180,9 +195,11 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
       //Report.report(1, "DepParameterExpr: Typechecking " + this + this.getClass() + " " + condition);
         
         if (condition == null) {
-        	throw new SemanticError("The condition of a dependent type clause must be non-empty.", 
-        			position());
+        	return this;
+//        	throw new SemanticError("The condition of a dependent type clause must be non-empty.", 
+//        			position());
         }
+        
         Type t = condition.type();
         
         if (! t.isBoolean())

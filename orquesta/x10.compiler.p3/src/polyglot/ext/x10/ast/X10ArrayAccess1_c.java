@@ -130,6 +130,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+
 		Type type = array.type();
 		if (type instanceof NullableType_c) {
 			type = ((NullableType_c)type).base();
@@ -155,11 +156,11 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		List args = new LinkedList();
 		args.add(index);
         X10Type pt = (X10Type) type;
-		if (X10TypeMixin.isParametric(pt)) {
-            List params = pt.typeParameters();
-            Type param = (Type) params.get(0);
-            return type(param);
-		}
+        if (pt.isConstrained()) {
+            Type param = X10TypeMixin.getParameterType(pt, "T");
+            if (param != null)
+            	return type(param);
+        }
         // find the return type by finding the return type of the get(index) method on type.
         
 		   X10ClassType refType 
@@ -195,9 +196,11 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 	public String toString() {
 	    Type pt = type;
 	    String result = "";
-	    if (pt instanceof X10Type && X10TypeMixin.isParametric((X10Type) pt)) {
-	        Type type = (Type) ((X10Type) pt).typeParameters().get(0);
-	        result = "(" + type + ")";
+	    if (pt instanceof X10Type) {
+	        Type type = (Type) X10TypeMixin.getParameterType((X10Type) pt, "T");
+	        if (type != null) {
+	        	result = "(" + type + ")";
+	        }
 	    }
 	    return  result + array + ".get("  + index + ")";
 	}
@@ -207,17 +210,17 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		assert false;
         X10Type at = (X10Type) array.type();
-        if (X10TypeMixin.isParametric(at)) {
-            Type result = (Type) at.typeParameters().get(0);
-            w.write("((");
-            print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED,Types.ref(result)), w, tr);
-            w.write(")");
+        Type result = X10TypeMixin.getParameterType(at, "T");
+        if (result != null) {
+        	w.write("((");
+        	print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED,Types.ref(result)), w, tr);
+        	w.write(")");
         }
         printSubExpr(array, w, tr);
         w.write(".get(");
         printBlock(index, w, tr);
         w.write (")");
-        if (X10TypeMixin.isParametric(at)) {
+        if (result != null) {
         	w.write(")");
         }
 	}

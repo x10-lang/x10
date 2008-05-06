@@ -39,4 +39,6 @@ public interface X10ArrayTypeNode extends TypeNode, Ambiguous {
 	Expr distribution();
 	
 	DepParameterExpr indexedSet();
+	DepParameterExpr dep();
+	X10ArrayTypeNode dep(DepParameterExpr dep);
 }

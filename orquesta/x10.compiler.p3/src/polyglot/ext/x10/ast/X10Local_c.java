@@ -97,7 +97,7 @@ public class X10Local_c extends Local_c {
         			dep.selfVar(result);
         			dep.addIn(c);
         			
-        			t = X10TypeMixin.makeDepVariant(t, dep);
+        			t = t.depClause(dep);
         			
 					return result.type(t);
 				}

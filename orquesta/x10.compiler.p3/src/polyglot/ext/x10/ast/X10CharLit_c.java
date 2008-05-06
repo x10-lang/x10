@@ -20,6 +20,7 @@ import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 
@@ -43,7 +44,7 @@ public class X10CharLit_c extends CharLit_c {
 		 
 			C_Lit_c literal = new C_Lit_c(new Character((char) value), charType);
 			Constraint c = Constraint_c.addSelfBinding(literal,null,(X10TypeSystem) tc.typeSystem());
-		  X10Type newType  = X10TypeMixin.makeDepVariant(charType, c);
+		  X10Type newType  = charType.depClause(Types.ref(c));
 		  //Report.report(1, "X10CharLit: type for " + this + " is " + newType+".");
 	    return type(newType);
 	  }

@@ -125,6 +125,7 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 	 * */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
 		Type type = array.type();
 		if (type.isArray())
 			throw new SemanticException(
@@ -148,10 +149,10 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
         List<Expr> args = new LinkedList();
         args.addAll(index);
        
-        if (X10TypeMixin.isParametric(target)) {
-            List<Type> params = target.typeParameters();
-            Type param = (Type) params.get(0);
-            return type(param);
+        if (target.isConstrained()) {
+            Type param = X10TypeMixin.getParameterType(target, "T");
+            if (param != null)
+            	return type(param);
         }
         // find the return type by finding the return type of the get(index) method on type.
         
@@ -196,20 +197,20 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		assert false;
         X10Type at = ( X10Type) array.type();
-    
-        if (X10TypeMixin.isParametric(at)) {
-            Type result = (Type) at.typeParameters().get(0);
-            w.write("((");
-            print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED, Types.ref(result)), w, tr);
-            w.write(")");
+
+        Type result = X10TypeMixin.getParameterType(at, "T");
+        if (result != null) {
+        	w.write("((");
+        	print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED, Types.ref(result)), w, tr);
+        	w.write(")");
         }
         printSubExpr(array, w, tr);
         w.write (".get(");
         w.begin(0);
-        
+
         for(Iterator i = index.iterator(); i.hasNext();) {
-            Expr e = (Expr) i.next();
-            print(e, w, tr);
+        	Expr e = (Expr) i.next();
+        	print(e, w, tr);
             
             if (i.hasNext()) {
                 w.write(",");
@@ -220,7 +221,7 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
         w.end();
        
         w.write (")");
-        if (X10TypeMixin.isParametric(at)) { w.write (")");}
+        if (result != null) { w.write (")");}
         
 		
 	}

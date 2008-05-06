@@ -33,8 +33,6 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_BinaryTerm;
 import polyglot.ext.x10.types.constr.C_BinaryTerm_c;
-import polyglot.ext.x10.types.constr.C_EQV;
-import polyglot.ext.x10.types.constr.C_EQV_c;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Local;
 import polyglot.ext.x10.types.constr.C_Local_c;
@@ -42,9 +40,9 @@ import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.BindingConstraintSystem;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.ExprFlattener.Flattener;
@@ -168,6 +166,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	 */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+
 		X10Type l = (X10Type) left.type();
 		X10Type r = (X10Type) right.type();
 		//Report.report(1, "X10Binary_c: l=" + l + " r=" + r + " op=" + op);
@@ -217,11 +216,21 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			}
 			X10ParsedClassType t = (X10ParsedClassType) checkRanks(l,r, (X10ParsedClassType) ts.region());
 			X10Binary_c b = (X10Binary_c) type(t);
-			C_Term v = xts.typeTranslator().trans(b);
-			Constraint c = t.depClause().copy();
-			c.setSelfVar(null);
-			c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, xts.region()), v, xts.Boolean())); // complicated self binding
-			t = X10TypeMixin.depClauseDeref(t, c);
+			if (t.depClause() != null) {
+				try {
+				C_Term v = xts.typeTranslator().trans(b);
+				Constraint c = t.depClause().copy();
+				c.setSelfVar(null);
+				try {
+					c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, xts.region()), v, xts.Boolean())); // complicated self binding
+					t = (X10ParsedClassType) t.depClause(Types.ref(c));
+				}
+				catch (Failure f) {
+					// cannot translate the constraint; ignore
+				}
+				}
+				catch (SemanticException e) {}
+			}
 			return b.type(t);
 		}
 		if (op == COND_OR && xts.isDistribution(l)) { // || distribution.union(distribution r)
@@ -239,11 +248,21 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			}
 			X10ParsedClassType t = (X10ParsedClassType) checkRanks(l,r, (X10ParsedClassType) ts.region());
 			X10Binary_c b = (X10Binary_c) type(t);
-			C_Term v = xts.typeTranslator().trans(b);
-			Constraint c = t.depClause().copy();
-			c.setSelfVar(null);
-			c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, xts.region()), v, xts.Boolean())); // complicated self binding
-			t = X10TypeMixin.depClauseDeref(t, c);
+			if (t.depClause() != null) {
+				try {
+				C_Term v = xts.typeTranslator().trans(b);
+				Constraint c = t.depClause().copy();
+				c.setSelfVar(null);
+				try {
+					c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, xts.region()), v, xts.Boolean())); // complicated self binding
+					t = (X10ParsedClassType) t.depClause(Types.ref(c));
+				}
+				catch (Failure f) {
+					// cannot translate the constraint; ignore
+				}
+				}
+				catch (SemanticException e) {}
+			}
 			return b.type(t);
 		}
 		if (op == COND_AND && xts.isDistribution(l)) { 
@@ -313,11 +332,22 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		if ((op == ADD || op == SUB) && xts.isRegion(l) && xts.isPoint(r)) {
 			X10ParsedClassType t = (X10ParsedClassType) checkRanks(l,r, (X10ParsedClassType) ts.region());
 			X10Binary_c b = (X10Binary_c) type(t);
-			C_Term v = xts.typeTranslator().trans(b);
-			Constraint c = t.depClause().copy();
-			c.setSelfVar(null);
-			c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, xts.region()), v, xts.Boolean())); // complicated self binding
-			t = X10TypeMixin.depClauseDeref(t, c);
+			if (t.depClause() != null) {
+				try {
+				C_Term v = xts.typeTranslator().trans(b);
+				Constraint c = t.depClause().copy();
+				c.setSelfVar(null);
+				try {
+					c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, xts.region()), v, xts.Boolean())); // complicated self binding
+					t = X10TypeMixin.depClauseDeref(t, c);
+					
+				}
+				catch (Failure f) {
+					// cannot translate the constraint; ignore
+				}
+				}
+				catch (SemanticException e) {}
+			}
 			return b.type(t);
 		}
 		if (op == SUB && xts.isRegion(l)) { // region.difference(region r)
@@ -327,11 +357,21 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			}
 			X10ParsedClassType t = (X10ParsedClassType) checkRanks(l,r, (X10ParsedClassType) ts.region());
 			X10Binary_c b = (X10Binary_c) type(t);
-			C_Term v = xts.typeTranslator().trans(b);
-			Constraint c = t.depClause().copy();
-			c.setSelfVar(null);
-			c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, xts.region()), v, xts.Boolean())); // complicated self binding
-			t = X10TypeMixin.depClauseDeref(t, c);
+			if (t.depClause() != null) {
+				try {
+					C_Term v = xts.typeTranslator().trans(b);
+				Constraint c = t.depClause().copy();
+				c.setSelfVar(null);
+				try {
+					c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, xts.region()), v, xts.Boolean())); // complicated self binding
+					t = (X10ParsedClassType) t.depClause(Types.ref(c));
+				}
+				catch (Failure f) {
+					// cannot translate the constraint; ignore
+				}
+				}
+				catch (SemanticException e) {}
+				}
 			return b.type(t);
 		}
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
@@ -378,7 +418,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		return n;
 	}
 	
-	
 	public X10Type checkRanks(X10Type l, X10Type r, X10ParsedClassType result) throws SemanticException {
 		result = (X10ParsedClassType) result;
 		X10ParsedClassType lType = (X10ParsedClassType) l;
@@ -415,7 +454,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 				if (rRank != null) {
 					Constraint c = result.depClause().copy();
 					c.addTerm(new C_BinaryTerm_c("==", new C_Special_c(X10Special.SELF, l), rRank, xts.Boolean())); // complicated self binding
-					result = X10TypeMixin.depClauseDeref(result, c);
+					result = (X10ParsedClassType) result.depClause(Types.ref(c));
 				}
 
 				//Report.report(1, "X10Binary_c: exiting lRank=" + lRank + " rRank=" + rRank);

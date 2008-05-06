@@ -89,6 +89,7 @@ implements X10ArrayAccessAssign {
 	
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		TypeSystem ts = tc.typeSystem();
+
 		 Type t = left.type();
 		 Type s = right.type();
 		if (op == ASSIGN) {
@@ -202,11 +203,13 @@ implements X10ArrayAccessAssign {
       Expr array = ((X10ArrayAccess) left).array();
       List indices = ((X10ArrayAccess) left).index();
         X10Type pt = ( X10Type) type;
-        if (X10TypeMixin.isParametric(pt)) {
-            Type result = (Type) pt.typeParameters().get(0);
-            w.write("(");
-            print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED,Types.ref(result)), w, tr);
-            w.write(")");
+        if (pt.isConstrained()) {
+        	Type result = X10TypeMixin.getParameterType(pt, "T");
+        	if (result != null) {
+        		w.write("(");
+        		print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED,Types.ref(result)), w, tr);
+        		w.write(")");
+        	}
         }
         printSubExpr(array, w, tr);
         w.write ("." + opString(op) + "(");

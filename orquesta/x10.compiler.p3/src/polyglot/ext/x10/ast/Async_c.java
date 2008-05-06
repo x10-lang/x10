@@ -151,6 +151,7 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+
 		Type placeType = place.type();
 		Expr newPlace = place;
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
@@ -240,8 +241,8 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
 	public List acceptCFG(CFGBuilder v, List succs) {
 		
                 if (place != null) {
-                    v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body, ENTRY,
-                                      FlowGraph.EDGE_KEY_FALSE, this, EXIT);
+                    v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body,
+                                      ENTRY, FlowGraph.EDGE_KEY_FALSE, this, EXIT);
                 }
 		
 		if (clocks() == null || clocks().isEmpty()) {

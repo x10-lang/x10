@@ -13,11 +13,15 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
@@ -41,9 +45,20 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     }
     
     public DepParameterExpr thisClause() {
-        
         return thisClause;
     }
+
+	public Context enterChildScope(Node child, Context c) {
+		if (child == this.type) {
+			X10Context xc = (X10Context) c.pushBlock();
+			FieldDef fi = fieldDef();
+			xc.addVariable(fi.asInstance());
+			xc.setVarWhoseTypeIsBeingElaborated(fi);
+			c = xc;
+		}
+		Context cc = super.enterChildScope(child, c);
+		return cc;
+	}
 
     public X10FieldDecl thisClause(DepParameterExpr thisClause) {
         if (thisClause == this.thisClause)

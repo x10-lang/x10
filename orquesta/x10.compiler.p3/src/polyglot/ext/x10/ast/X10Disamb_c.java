@@ -19,17 +19,25 @@ import polyglot.ast.Prefix;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Disamb_c;
+import polyglot.ast.VarInit;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalInstance;
+import polyglot.types.Named;
+import polyglot.types.NoClassException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.Types;
+import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.parser.X10Parser;
@@ -45,20 +53,47 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
 	protected Node disambiguateNoPrefix() throws SemanticException {
 	    X10Context c = (X10Context) this.c;
 	    if (c.inDepType()) {
-	        X10NamedType t = c.currentDepType();
-	        if (exprOK()) {
-	            if (t instanceof ReferenceType) {
-	                try {
-	                    FieldInstance fi = ts.findField((ReferenceType) t, this.name.id(), c.currentClassScope());
-	                    Field f = nf.Field(pos, makeMissingPropertyTarget(fi), this.name);
-	                    f = f.fieldInstance(fi);
-	                    f = (Field) f.type(fi.type());
-	                    return f;
-	                }
-	                catch (SemanticException e) {
-	                }
-	            }
-	        }
+	    	X10NamedType t = c.currentDepType();
+	    	
+	    	if (exprOK()) {
+	    		// First try local variables.
+	    		VarInstance<?> vi = c.findVariableSilent(name.id());
+	    		
+	    		if (vi != null && vi.def() == c.varWhoseTypeIsBeingElaborated()) {
+	                Expr e = ((X10NodeFactory) nf).Self(pos); 
+	                e = e.type(t);
+	                return e;
+	    		}
+	    		
+	    		if (vi instanceof LocalInstance) {
+	    			Node n = disambiguateVarInstance(vi);
+	    			if (n != null) return n;
+	    		}
+
+	    		// Now try properties.
+	    		if (t instanceof ReferenceType) {
+	    			try {
+	    				FieldInstance fi = ts.findField((ReferenceType) t, this.name.id(), c.currentClassScope());
+	    				if (fi instanceof X10FieldInstance) {
+	    					X10FieldInstance xfi = (X10FieldInstance) fi;
+	    					if (xfi.isProperty()) {
+	    						Field f = nf.Field(pos, makeMissingPropertyTarget(fi), this.name);
+	    						f = f.fieldInstance(fi);
+	    						f = (Field) f.type(fi.type());
+	    						return f;
+	    					}
+	    				}
+	    			}
+	    			catch (SemanticException e) {
+	    			}
+	    		}
+	    		
+	    		if (vi != null) {
+	    			Node n = disambiguateVarInstance(vi);
+	    			if (n != null) return n;
+	    		}
+	    	}
+	    	
 	        if (typeOK()) {
 	            if (t instanceof ClassType) {
 	                try {
@@ -68,8 +103,9 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
 	                catch (SemanticException e) {
 	                }
 	            }
-                }
+	        }
 	    }
+	    
 	    return super.disambiguateNoPrefix();
 	}
 	

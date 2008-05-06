@@ -56,8 +56,8 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
 		v.visitCFG(formal, domain, ENTRY);
-		v.visitCFG(domain, FlowGraph.EDGE_KEY_TRUE, body, ENTRY,
-						   FlowGraph.EDGE_KEY_FALSE, this, EXIT);
+		v.visitCFG(domain, FlowGraph.EDGE_KEY_TRUE, body,
+						   ENTRY, FlowGraph.EDGE_KEY_FALSE, this, EXIT);
 		v.push(this).visitCFG(body, continueTarget(), ENTRY);
 		return succs;
 	}

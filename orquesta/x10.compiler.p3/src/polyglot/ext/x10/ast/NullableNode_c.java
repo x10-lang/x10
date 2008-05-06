@@ -10,24 +10,15 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.Collections;
-
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
-import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
-import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.BindingConstraintSystem;
-import polyglot.main.Report;
-import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
@@ -36,7 +27,6 @@ import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
-import polyglot.visit.TypeChecker;
 
 /**
  * A NullableNode is an TypeNode that has been marked with a nullable
@@ -80,9 +70,6 @@ public class NullableNode_c extends TypeNode_c implements NullableNode {
 	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
 	    NodeFactory nf = ar.nodeFactory();
-	    if (base.type() instanceof UnknownType) {
-	        return nf.CanonicalTypeNode(position(), base.type());
-	    }
 	    return nf.CanonicalTypeNode(position(),
 	                                ts.createNullableType(position(), (Ref<? extends X10NamedType>) base.typeRef()));
 	}

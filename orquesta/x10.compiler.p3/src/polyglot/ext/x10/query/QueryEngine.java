@@ -24,6 +24,7 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.visit.X10PrettyPrinterVisitor.Template;
+import polyglot.types.ArrayType;
 import polyglot.types.Type;
 
 /**
@@ -93,19 +94,39 @@ public class QueryEngine {
 	}
 
 	public boolean needsHereCheck(X10ArrayAccess1Assign a) {
-		return needsHereCheck(((X10ArrayAccess1)a.left()).array().type());
+		Type lt = a.left().type();
+		if (lt instanceof ArrayType) {
+			ArrayType at = (ArrayType) lt;
+			return needsHereCheck(at.base());
+		}
+		return false;
 	}
 
 	public boolean needsHereCheck(X10ArrayAccessAssign a) {
-		return needsHereCheck(((X10ArrayAccess)a.left()).array().type());
+		Type lt = a.left().type();
+		if (lt instanceof ArrayType) {
+			ArrayType at = (ArrayType) lt;
+			return needsHereCheck(at.base());
+		}
+		return false;
 	}
 
 	public boolean needsHereCheck(X10ArrayAccess1Unary a) {
-		return needsHereCheck(((X10ArrayAccess1)a.expr()).array().type());
+		Type lt = a.expr().type();
+		if (lt instanceof ArrayType) {
+			ArrayType at = (ArrayType) lt;
+			return needsHereCheck(at.base());
+		}
+		return false;
 	}
 
 	public boolean needsHereCheck(X10ArrayAccessUnary a) {
-		return needsHereCheck(((X10ArrayAccess)a.expr()).array().type());
+		Type lt = a.expr().type();
+		if (lt instanceof ArrayType) {
+			ArrayType at = (ArrayType) lt;
+			return needsHereCheck(at.base());
+		}
+		return false;
 	}
 }
 

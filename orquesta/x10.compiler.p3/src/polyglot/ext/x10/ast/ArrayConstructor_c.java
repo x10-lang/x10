@@ -300,26 +300,26 @@ implements ArrayConstructor {
 		//		+ " to " + t);
 		C_Var self = distType.self();
 		if (self != null) {
-			t.setDistribution(self);
+			t = t.setDistribution(self);
 		}
 		C_Var onePlace = distType.onePlace();
 		if (onePlace !=null) {
-			t.setOnePlace(onePlace);
+			t = t.setOnePlace(onePlace);
 			//Report.report(1, "Setting oneplace result is "  + t);
 		}
 		boolean isRect = distType.isRect();
-		if (isRect) t.setRect();
+		if (isRect) t = t.setRect();
 		boolean zeroBased = distType.isZeroBased();
 		//Report.report(1, "ArrayConstructor zeroBased? "  + zeroBased);
 		if (zeroBased){
-			t.setZeroBased();
+			t = t.setZeroBased();
 		}
 		C_Var rank = distType.rank();
-		if (rank !=null) t.setRank(rank);
+		if (rank !=null) t = t.setRank(rank);
 		if (t.hasLocalProperty() && zeroBased && isRect && ((X10TypeSystem) t.typeSystem()).ONE().equals(rank)) 
-			t.setRail();
+			t = t.setRail();
 		C_Var region = distType.region();
-		if (region != null) t.setRegion(region);
+		if (region != null) t = t.setRegion(region);
 		//Report.report(1, "t is now " + t);
 		return t;
 	}

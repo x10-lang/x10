@@ -7,25 +7,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.CodeBlock;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Formal;
-import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ClosureDef;
-import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.frontend.Globals;
-import polyglot.frontend.Goal;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -36,9 +31,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Symbol;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
@@ -46,7 +39,6 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.SubtypeSet;
 import polyglot.util.TypedList;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -190,11 +182,10 @@ public class Closure_c extends Expr_c implements Closure {
         
         ClosureDef mi = ts.closureDef(position(), Types.ref(ct.asType()), Types.ref(code.asInstance()), returnType.typeRef(),
                                          Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
-        Symbol<ClosureDef> sym = Types.<ClosureDef>symbol(mi);
 
         // Unlike methods and constructors, do not create new goals for resolving the signature and body separately;
         // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
-        TypeBuilder tb2 = tb.pushCode(mi, tb.goal());
+        TypeBuilder tb2 = tb.pushCode(mi);
 
         Closure_c n = (Closure_c) this.visitChildren(tb2);
         
@@ -226,6 +217,7 @@ public class Closure_c extends Expr_c implements Closure {
     @Override
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         X10TypeSystem x10ts = (X10TypeSystem) tc.typeSystem();
+
         Context c = tc.context();
         Closure closure = this;
 

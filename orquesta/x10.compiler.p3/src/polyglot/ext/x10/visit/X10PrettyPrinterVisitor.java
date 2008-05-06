@@ -564,10 +564,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	private TypeNode getParameterType(X10Type at) {
-		if (X10TypeMixin.isParametric(at)) {
+		if (at.isConstrained()) {
 			NodeFactory nf = tr.nodeFactory();
-			return nf.CanonicalTypeNode(Position.COMPILER_GENERATED,
-										(Type)at.typeParameters().get(0));
+			Type parameterType = X10TypeMixin.getParameterType(at, "T");
+			if (parameterType != null)
+				return nf.CanonicalTypeNode(Position.COMPILER_GENERATED,
+						parameterType);
 		}
 		return null;
 	}
@@ -606,11 +608,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 			else
 				// Some other kind of array e.g., distribution ==> use general template
-				template = new Template("array_get", a.array(), a.index());
+				template = new Template("array_get", a.array(), a.index(), a.type().translate(null));
 		}
 		else {
 			// Use general template
-			template = new Template("array_get", a.array(), a.index());
+			template = new Template("array_get", a.array(), a.index(), a.type().translate(null));
 		}
 
 		TypeNode elt_type = getParameterType((X10Type)a.array().type());
@@ -625,7 +627,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		assert index.size() > 1;
 		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
 						  ? "array_get" : "array_get"; //"array_get_noplacecheck";
-		Template template = new Template(tmpl, a.array(), new Join(",", index));
+		Template template = new Template(tmpl, a.array(), new Join(",", index), a.type().translate(null));
 		TypeNode elt_type = getParameterType((X10Type)a.array().type());
 		if (elt_type != null)
 			template = new Template("parametric", elt_type, template);
@@ -814,7 +816,61 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //			w.write("[]");
 //		} else
 //			w.write(t.toString());
-		type.print(w);
+		
+		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+		
+		String s = null;
+
+		if (xts.isSubtype(type, xts.array())) {
+			Type T = X10TypeMixin.getParameterType((X10Type) type, "T");
+			if (T == null) {
+				s = "x10.lang.genericArray";
+			} else if (T.isBoolean()) {
+				s = "x10.lang.booleanArray";
+			} else if (T.isByte()) {
+				s = "x10.lang.byteArray";
+			} else if (T.isShort()) {
+				s = "x10.lang.shortArray";
+			} else if (T.isChar()) {
+				s = "x10.lang.charArray";
+			} else if (T.isInt()) {
+				s = "x10.lang.intArray";
+			} else if (T.isLong()) {
+				s = "x10.lang.longArray";
+			} else if (T.isFloat()) {
+				s = "x10.lang.floatArray";
+			} else if (T.isDouble()) {
+				s = "x10.lang.doubleArray";
+			}
+		}
+		
+		if (xts.isSubtype(type, xts.Array())) {
+			Type T = X10TypeMixin.getParameterType((X10Type) type, "T");
+			if (T == null) {
+				s = "x10.lang.GenericReferenceArray";
+			} else if (T.isBoolean()) {
+				s = "x10.lang.BooleanReferenceArray";
+			} else if (T.isByte()) {
+				s = "x10.lang.ByteReferenceArray";
+			} else if (T.isShort()) {
+				s = "x10.lang.ShortReferenceArray";
+			} else if (T.isChar()) {
+				s = "x10.lang.CharReferenceArray";
+			} else if (T.isInt()) {
+				s = "x10.lang.IntReferenceArray";
+			} else if (T.isLong()) {
+				s = "x10.lang.LongReferenceArray";
+			} else if (T.isFloat()) {
+				s = "x10.lang.FloatReferenceArray";
+			} else if (T.isDouble()) {
+				s = "x10.lang.DoubleReferenceArray";
+			}
+		}
+		
+		if (s != null)
+			w.write(s);
+		else
+			type.print(w);
 	}
 
 	public void visit(NullableNode_c n) {
@@ -929,8 +985,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Type rType = right.type();
 		try {
 			try {
-				MethodInstance mi = xts.findMethod(lType, name,
-						Collections.singletonList(rType), xts.Object().def());
+				MethodInstance mi = xts.findMethod(lType,
+						name, Collections.singletonList(rType), xts.Object().def());
 				tr.print(null, nf.Call(pos, left, nf.Id(pos, name), right).methodInstance(mi).type(mi.returnType()), w);
 //				printSubExpr(left, true, w, tr);
 //				w.write(".");
@@ -939,8 +995,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //				printSubExpr(right, false, w, tr);
 //				w.write(")");
 			} catch (NoMemberException e) {
-				MethodInstance mi = xts.findMethod(xts.ArrayOperations(), name,
-						Arrays.asList(new Type[] {lType, rType}), xts.Object().def());
+				MethodInstance mi = xts.findMethod(xts.ArrayOperations(),
+						name, Arrays.asList(new Type[] {lType, rType}), xts.Object().def());
 				tr.print(null, nf.Call(pos, nf.CanonicalTypeNode(pos, xts.ArrayOperations()),
 						nf.Id(pos, name), left, right).methodInstance(mi), w);
 //				w.write("x10.lang.ArrayOperations.");
