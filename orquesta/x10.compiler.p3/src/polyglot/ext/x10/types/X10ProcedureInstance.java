@@ -16,7 +16,7 @@ import polyglot.types.TypeSystem;
  *
  */
 public interface X10ProcedureInstance<T extends ProcedureDef> extends X10TypeObject, ProcedureInstance<T> {
-    boolean callValidNoClauses(List<Type> argTypes);
+    boolean callValidNoClauses(Type thisType, List<Type> argTypes);
 
     /**
      * Return the constraint on the formal parameters, if any.

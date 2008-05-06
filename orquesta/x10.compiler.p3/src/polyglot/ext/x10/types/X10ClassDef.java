@@ -18,4 +18,7 @@ public interface X10ClassDef extends X10Def, ClassDef {
     
     /** Properties defined in the class.  Subset of fields(). */
     List<FieldDef> properties();
+    
+    List<TypeProperty> typeProperties();
+    void addTypeProperty(TypeProperty p);
 }

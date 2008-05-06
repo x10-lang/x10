@@ -18,7 +18,6 @@ import polyglot.ast.Unary;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.ConstraintSystem;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -309,8 +308,6 @@ public interface X10TypeSystem extends TypeSystem {
    VarDef createSelf(X10Type t);
    
    TypeTranslator typeTranslator();
-   List<ConstraintSystem> constraintSystems();
-   void addConstraintSystem(ConstraintSystem sys);
 
    boolean equivClause(X10Type m, X10Type o);
    boolean equivClause(Constraint m, Constraint o);

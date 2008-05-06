@@ -2,14 +2,17 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.ArrayType_c;
+import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
+import polyglot.types.Types;
 import polyglot.util.Position;
 
 public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
@@ -42,9 +45,19 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
         this.typeParams = l;
     }
     
+    public C_Var selfVar() { return X10TypeMixin.selfVar(this); }
+    public X10Type makeNoClauseVariant() { return X10TypeMixin.makeNoClauseVariant(this); }
+    public X10Type makeVariant(Constraint c, List<Type> l) { return X10TypeMixin.makeVariant(this, c, l); }
+    public boolean isConstrained() { return X10TypeMixin.isConstrained(this); }
+    public boolean isParametric() { return X10TypeMixin.isParametric(this); }
+
     public Constraint depClause() { return X10TypeMixin.depClause(this); }
     public List<Type> typeParameters() { return X10TypeMixin.typeParameters(this); }
     public Constraint realClause() { return X10TypeMixin.realClause(this); }
+
+    public X10Type depClause(Constraint c) { return X10TypeMixin.depClause(this, Types.ref(c)); }
+    public X10Type depClause(Ref<? extends Constraint> c) { return X10TypeMixin.depClause(this, c); }
+    public X10Type typeParams(List<Ref<? extends Type>> l) { return X10TypeMixin.typeParams(this, l); }
 
     public Constraint getRootClause() {
         return new Constraint_c((X10TypeSystem) ts);
@@ -98,6 +111,9 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
             return X10TypeMixin.descendsFrom(this, (X10Type) ancestor);
         return super.descendsFrom(ancestor);
     }
+    
+    public String name() { return ((Named) base).name();}
+    public String fullName() { return ((Named) base).fullName();}
 
     public boolean isFuture() {
         return false;

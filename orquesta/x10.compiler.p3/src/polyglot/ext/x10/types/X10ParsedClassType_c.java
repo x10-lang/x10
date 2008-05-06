@@ -12,8 +12,6 @@ package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -21,7 +19,6 @@ import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.constr.C_BinaryTerm_c;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
-import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
@@ -29,20 +26,16 @@ import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Failure;
 import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
 import polyglot.types.FieldAsTypeTransform;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.ParsedClassType_c;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.util.FilteringList;
 import polyglot.util.Position;
-import polyglot.util.Predicate;
 import polyglot.util.TransformingList;
 
 /** 6/2006 Modified so that every type is now potentially generic and dependent.
@@ -50,9 +43,7 @@ import polyglot.util.TransformingList;
  */
 public class X10ParsedClassType_c extends ParsedClassType_c
 implements X10ParsedClassType
-{    
-    protected Ref<? extends Constraint> classInvariant;
-    
+{
     public X10ParsedClassType_c(ClassDef def) {
         super(def);
     }
@@ -110,9 +101,19 @@ implements X10ParsedClassType
         this.typeParams = l;
     }
     
+    public C_Var selfVar() { return X10TypeMixin.selfVar(this); }
+    public X10Type makeNoClauseVariant() { return X10TypeMixin.makeNoClauseVariant(this); }
+    public X10Type makeVariant(Constraint c, List<Type> l) { return X10TypeMixin.makeVariant(this, c, l); }
+    public boolean isConstrained() { return X10TypeMixin.isConstrained(this); }
+    public boolean isParametric() { return X10TypeMixin.isParametric(this); }
+
     public Constraint depClause() { return X10TypeMixin.depClause(this); }
     public List<Type> typeParameters() { return X10TypeMixin.typeParameters(this); }
     public Constraint realClause() { return X10TypeMixin.realClause(this); }
+
+    public X10Type depClause(Constraint c) { return X10TypeMixin.depClause(this, Types.ref(c)); }
+    public X10Type depClause(Ref<? extends Constraint> c) { return X10TypeMixin.depClause(this, c); }
+    public X10Type typeParams(List<Ref<? extends Type>> l) { return X10TypeMixin.typeParams(this, l); }
 
     public void checkRealClause() throws SemanticException {
         if (realClause == null) {
@@ -156,6 +157,13 @@ implements X10ParsedClassType
 		return X10Flags.toX10Flags(flags()).isSafe();
 	}
 	
+	public boolean typeEquals(Type toType) {
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) toType))
+			return X10TypeMixin.typeEquals(this, (X10Type) toType);
+		
+		return super.typeEquals(toType);
+	}
+	
 	public boolean isSubtype(Type ancestor) {     
 	    if (X10TypeMixin.eitherIsDependent(this, (X10Type) ancestor))
 	        return X10TypeMixin.isSubtype(this, (X10Type) ancestor);
@@ -169,12 +177,24 @@ implements X10ParsedClassType
 	}
 
 	public boolean isCastValid(Type toType) {
+		if (toType instanceof NullableType) {
+			NullableType nt = (NullableType) toType;
+			return isCastValid(nt.base());
+		}
+		
 	    if (X10TypeMixin.eitherIsDependent(this, (X10Type) toType))
 	        return X10TypeMixin.isCastValid(this, (X10Type) toType);
 
+	    X10TypeSystem xts = (X10TypeSystem) typeSystem();
+	    
+	    if (xts.isBoxedType(toType) || toType instanceof polyglot.types.PrimitiveType) {
+	    	if (typeEquals(xts.Object()) || typeEquals(xts.X10Object()))
+	    		return true;
+	    }
+	    
 	    if (toType instanceof NullableType) {
-	        NullableType nt = (NullableType) toType;
-	        return isCastValid(nt.base());
+	    	NullableType nt = (NullableType) toType;
+	    	return isCastValid(nt.base());
 	    }
 	    
 	    if (toType instanceof FutureType) {
@@ -185,13 +205,22 @@ implements X10ParsedClassType
 	}
 
 	public boolean isImplicitCastValid(Type toType) {
-	    if (X10TypeMixin.eitherIsDependent(this, (X10Type) toType))
+		// Check if toType is nullable before stripping off the constraints.
+		// Otherwise; we'll compare C <= nullable<C(:c)> rather than
+		// C(:c) <= nullable<C(:c)>.
+		if (toType instanceof NullableType) {
+			NullableType nt = (NullableType) toType;
+			return isImplicitCastValid(nt.base());
+		}
+
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) toType))
 	        return X10TypeMixin.isImplicitCastValid(this, (X10Type) toType);
 
-	    if (toType instanceof NullableType) {
-	        NullableType nt = (NullableType) toType;
-	        return isImplicitCastValid(nt.base());
-	    }
+		if (toType instanceof NullableType) {
+			NullableType nt = (NullableType) toType;
+			return isImplicitCastValid(nt.base());
+		}
+
 	    return super.isImplicitCastValid(toType);
 	}
 	
@@ -209,6 +238,10 @@ implements X10ParsedClassType
 	        return l2;
 	    }
 	    return definedProperties();
+	}
+	
+	public List<PathType> typeProperties() {
+	    return new TransformingList<TypeProperty, PathType>(x10Def().typeProperties(), new TypePropertyAsPathTypeTransform());
 	}
 
 	public Constraint classInvariant() {
@@ -249,12 +282,14 @@ implements X10ParsedClassType
 	    }
 	    
 	    protected X10ParsedClassType setProperty(String propName, C_Term val) {
+	    	if (val == null) return this;
 	        X10FieldInstance fi = getProperty(propName);
 	        if (fi != null) {
 	            C_Var var = new C_Field_c(fi, new C_Special_c(X10Special.SELF, this));
 	            if (val instanceof C_Var) {
-	            return (X10ParsedClassType) addBinding(var, (C_Var) val);
-	            } else {
+	            	return (X10ParsedClassType) addBinding(var, (C_Var) val);
+	            }
+	            else {
 	            	try {
 	            		X10TypeSystem xts = (X10TypeSystem) ts;
 	            		Constraint c = new Constraint_c(xts);

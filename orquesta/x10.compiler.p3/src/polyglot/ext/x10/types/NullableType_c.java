@@ -13,6 +13,7 @@ package polyglot.ext.x10.types;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.ArrayType;
@@ -210,14 +211,14 @@ public class NullableType_c extends ReferenceType_c implements NullableType {
         }
         
         public boolean isSubtype(Type t) {
+        	if (t instanceof NullableType) {
+        		NullableType nt = (NullableType) t;
+        		return base().isSubtype(nt.base());
+        	}
+        	
             if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
                 return X10TypeMixin.isSubtype(this, (X10Type) t);
 
-            if (t instanceof NullableType) {
-                NullableType nt = (NullableType) t;
-                return base().isSubtype(nt.base());
-            }
-            
             return super.isSubtype(t);
         }
 
@@ -307,9 +308,19 @@ public class NullableType_c extends ReferenceType_c implements NullableType {
         this.typeParams = l;
     }
     
+    public C_Var selfVar() { return X10TypeMixin.selfVar(this); }
+    public X10Type makeNoClauseVariant() { return X10TypeMixin.makeNoClauseVariant(this); }
+    public X10Type makeVariant(Constraint c, List<Type> l) { return X10TypeMixin.makeVariant(this, c, l); }
+    public boolean isConstrained() { return X10TypeMixin.isConstrained(this); }
+    public boolean isParametric() { return X10TypeMixin.isParametric(this); }
+
     public Constraint depClause() { return X10TypeMixin.depClause(this); }
     public List<Type> typeParameters() { return X10TypeMixin.typeParameters(this); }
     public Constraint realClause() { return X10TypeMixin.realClause(this); }
+
+    public X10Type depClause(Constraint c) { return X10TypeMixin.depClause(this, Types.ref(c)); }
+    public X10Type depClause(Ref<? extends Constraint> c) { return X10TypeMixin.depClause(this, c); }
+    public X10Type typeParams(List<Ref<? extends Type>> l) { return X10TypeMixin.typeParams(this, l); }
 
     public Constraint getRootClause() {
         return new Constraint_c((X10TypeSystem) ts);

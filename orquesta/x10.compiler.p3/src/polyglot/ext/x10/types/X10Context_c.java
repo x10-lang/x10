@@ -44,6 +44,7 @@ package polyglot.ext.x10.types;
 import java.util.Collection;
 import java.util.List;
 
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -70,6 +71,10 @@ public class X10Context_c extends Context_c implements X10Context {
 	public X10Context_c(TypeSystem ts) {
 		super(ts);
 	}
+	
+	protected Constraint currentConstraint;
+	public Constraint currentConstraint() { return currentConstraint; }
+	public void setCurrentConstraint(Constraint c) { currentConstraint = c; }
 
 	// Set if we are in a supertype declaration of this type.
 	protected X10ClassDef inSuperOf = null;
@@ -107,7 +112,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected Context_c push() {
 		X10Context_c v = (X10Context_c) super.push();
 		v.depType = null;
-		v.varWhoseTypeIsBeingElaborated = null;
+//		v.varWhoseTypeIsBeingElaborated = null;
 		// Do not set the inXXXCode attributes to false, inherit them from parent.
 		return v;
 	}

@@ -3,20 +3,14 @@ package polyglot.ext.x10.types;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.frontend.GoalSet;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Def_c;
-import polyglot.types.DerefTransform;
-import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
-import polyglot.types.Symbol;
 import polyglot.types.Type;
-import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 
 public class ClosureDef_c extends Def_c implements ClosureDef {
@@ -135,20 +129,5 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 
      public String toString() {
          return designator() + " " + this.returnType() + " " + signature();
-     }
-
-     public void setSymbol(Symbol<? extends TypeObject> sym) {
-         // TODO Auto-generated method stub
-
-     }
-
-     public <T extends TypeObject> Symbol<T> symbol() {
-         // TODO Auto-generated method stub
-         return null;
-     }
-
-     public void complete(GoalSet phase) {
-         // TODO Auto-generated method stub
-
      }
 }

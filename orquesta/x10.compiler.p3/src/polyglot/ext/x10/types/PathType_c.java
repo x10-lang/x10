@@ -1,52 +1,53 @@
-/*
- *
- * (C) Copyright IBM Corporation 2006
- *
- *  This file is part of X10 Language.
- *
- */
-/*
- * Created on Nov 28, 2004
- *
+/**
+ * 
  */
 package polyglot.ext.x10.types;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import polyglot.types.NullType_c;
-import polyglot.ast.Expr;
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.GenParameterExpr;
-import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.types.constr.Failure;
-import polyglot.types.NullType;
 import polyglot.types.Ref;
+import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.types.Type_c;
 import polyglot.types.Types;
-import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 
-/** Every X10 term must have a type. This is the type of the X10 term null.
- * Note that there is no X10 type called Null; only the term null.
- * @author vj
- *
- */
-public class X10NullType_c extends NullType_c implements X10NullType {
-    public X10NullType_c( TypeSystem ts ) {super(ts);}
-    
-    public String name() { return "NULL_TYPE";}
-    public String fullName() { return "NULL_TYPE";}
-    
+public class PathType_c extends Type_c implements PathType {
+	C_Var base;
+	TypeProperty prop;
+	
+	PathType_c(TypeSystem ts, Position pos, C_Var base, TypeProperty prop) {
+		super(ts, pos);
+		this.base = base;
+		this.prop = prop;
+	}
+	
+	public C_Var base() {
+		return base;
+	}
+	
+	public TypeProperty property() {
+		return prop;
+	}
+
+	public PathType base(C_Var base) {
+		PathType_c t = (PathType_c) copy();
+		t.base = base;
+		return t;
+	}
+	
+	public PathType property(TypeProperty prop) {
+		PathType_c t = (PathType_c) copy();
+		t.prop = prop;
+		return t;
+	}
+	
     // BEGIN DEPENDENT TYPE MIXIN
     protected Ref<? extends Constraint> depClause;
     protected List<Ref<? extends Type>> typeParams; // should be folded into depClause as constraint on type properties
@@ -109,58 +110,55 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     }
     // END DEPENDENT TYPE MIXIN
     
-    public boolean typeEquals(Type o) {
-        return o instanceof NullType;
-    }
-    
-    /**
-     * This is different from the definition of jl.Nullable. X10 does not 
-     * assume that every reference type contains null. The type must be nullable
-     * for it to contain null.
-     * TODO: Check if the result should be just: targetType.isNullable().
-     */
-    public boolean isImplicitCastValid(Type toType) {
-    	return toType.isNull() || toType instanceof NullableType;
-    }	
-
-    /** 
-     * TODO: vj -- check if this implementation is correct.
-     * The definition of descendsFrom in TypeSystem is
-     * Returns true iff child is not ancestor, but child descends from ancestor. 
-     * In the X10 type system, the Null type should not descend from any type.
-     */
-    public boolean descendsFrom(Type ancestor) {
-        return false;
-    }
-
-    /**
-     * Same as isImplicitCastValidImpl.
-     **/
-    public boolean isCastValid(Type toType) {
-    	X10Type targetType = (X10Type) toType;
-        return toType.isNull() || ((X10TypeSystem) ts).isNullable(targetType);
-    }
-
-    public boolean safe() { return true;}
-
-    public String toStringForDisplay() { 
-    	return "null";
-    }
-    
-    public NullableType toNullable() {
-        return null;
-    }
-    
-    public FutureType toFuture() {
-        return null;
-    }
-    
-    public boolean isNullable() {
-        return false;
-    }
-    
-    public boolean isFuture() {
-        return false;
-    }
+	public String translate(Resolver c) {
+		// should be the property bound
+		return "java.lang.Object";
+	}
 	
+	public boolean isFuture() {
+		return false;
+	}
+	public boolean isNullable() {
+		return false;
+	}
+	public boolean safe() {
+		return true;
+	}
+	public FutureType toFuture() {
+		return null;
+	}
+	public NullableType toNullable() {
+		return null;
+	}
+
+	public String toString() {
+	    return toStringForDisplay();
+	}
+	
+	public String toStringForDisplay() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(base + "." + prop.name());
+		sb.append(X10TypeMixin.clauseToString(this));
+		return sb.toString();
+	}
+	
+	public boolean typeEquals(Type t) {
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
+			return X10TypeMixin.typeEquals(this, (X10Type) t);
+		if (t instanceof PathType_c) {
+			PathType_c pt = (PathType_c) t;
+			return base.equals(pt.base) && prop.equals(pt.prop);
+		}
+		return false;
+	}
+	
+	public boolean isSubtype(Type t) {
+		if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
+			return X10TypeMixin.isSubtype(this, (X10Type) t);
+		if (t instanceof PathType_c) {
+			PathType_c pt = (PathType_c) t;
+			return base.equals(pt.base) && prop.equals(pt.prop);
+		}
+		return false;
+	}
 }

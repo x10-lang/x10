@@ -31,11 +31,11 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     }
 
     public boolean closureCallValid(List<Type> actualTypes) {
-        return callValid(actualTypes);
+        return callValid(type(), actualTypes);
     }
     
-    public boolean callValid(List<Type> actualTypes) {
-        return X10MethodInstance_c.callValidImpl(this, actualTypes);
+    public boolean callValid(Type thisType, List<Type> actualTypes) {
+        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
     }
 
     public String signature() {
@@ -65,9 +65,9 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return (ClosureInstance) super.throwTypes(throwTypes);
     }
 
-    public boolean callValidNoClauses(List<Type> argTypes) {
+    public boolean callValidNoClauses(Type thisType, List<Type> argTypes) {
         ClosureInstance me = this.formalTypes(new TransformingList<Type,Type>(this.formalTypes(), new NoClauseVariant()));
-        return me.callValid(new TransformingList<Type,Type>(argTypes, new NoClauseVariant()));
+        return me.callValid(thisType, new TransformingList<Type,Type>(argTypes, new NoClauseVariant()));
     }
 
     Constraint whereClause;

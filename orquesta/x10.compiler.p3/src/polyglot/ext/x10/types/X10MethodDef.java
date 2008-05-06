@@ -17,8 +17,9 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
      * type T of an argument replaced by selfVar of thisType or an EQV
      * at T, with no propagation.
      * @param thisType
+     * @param argTypes TODO
      * @return
      * @throws SemanticException 
      */
-    X10MethodInstance instantiateForThis(ReferenceType thisType) throws SemanticException;
+    X10MethodInstance instantiateForThis(ReferenceType thisType, List<Type> argTypes) throws SemanticException;
 }

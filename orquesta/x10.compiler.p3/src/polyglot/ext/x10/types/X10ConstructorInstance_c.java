@@ -43,7 +43,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     /* (non-Javadoc)
      * @see polyglot.ext.x10.types.X10ConstructorInstance#depClause()
      */
-    public Constraint constraint() { return X10TypeMixin.realClause(returnType()); }
+    public Constraint constraint() { return returnType().realClause(); }
 
     public X10ClassType returnType;
     
@@ -80,17 +80,17 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         return n;
     }
 
-    public boolean callValidNoClauses(List<Type> argTypes) {
+    public boolean callValidNoClauses(Type thisType, List<Type> argTypes) {
         X10ConstructorInstance_c me = (X10ConstructorInstance_c) this.formalTypes(new TransformingList<Type,Type>(this.formalTypes(), new X10MethodInstance_c.NoClauseVariant()));
-        return me.superCallValid(new TransformingList<Type,Type>(argTypes, new X10MethodInstance_c.NoClauseVariant()));
+        return me.superCallValid(thisType, new TransformingList<Type,Type>(argTypes, new X10MethodInstance_c.NoClauseVariant()));
     }
     
-    protected boolean superCallValid(List<Type> argTypes) {
-        return super.callValid(argTypes);
+    protected boolean superCallValid(Type thisType, List<Type> argTypes) {
+        return super.callValid(thisType, argTypes);
     }
     
     @Override
-    public boolean callValid(List<Type> argTypes) {
-        return X10MethodInstance_c.callValidImpl(this, argTypes);
+    public boolean callValid(Type thisType, List<Type> argTypes) {
+        return X10MethodInstance_c.callValidImpl(this, thisType, argTypes);
     }
 }
