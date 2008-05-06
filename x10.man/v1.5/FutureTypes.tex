@@ -1,0 +1,13 @@
+\section{Future type constructor}
+For any type \xcd"T", \xcd"future[T]" is a type:
+\begin{verbatim}
+424   Type ::=   future [ Type ] 
+\end{verbatim}
+The type  represents a value which when forced will return a value of type
+\xcd"T". Thus the type makes available the following methods:
+
+\begin{xten}
+  public def force(): T;
+\end{xten}
+
+%% Nothing to say about future/nullable yet.
