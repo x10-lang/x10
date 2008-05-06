@@ -81,7 +81,6 @@ public class Promise_c implements Promise, Serializable {
 				Map.Entry<String,Promise> entry = it.next();
 				String key = entry.getKey();
 				Promise p = entry.getValue();
-				assert p != this;
 				FieldInstance f = ((C_Field) p.term()).fieldInstance();
 				p.setTerm(new C_Field_c(f, term));
 			}
@@ -105,24 +104,24 @@ public class Promise_c implements Promise, Serializable {
 		return result;
 	}
 	public Promise cloneRecursively(HashMap<Promise, Promise> env) {
-		Promise q = env.get(this);
-		if (q != null)
-			return q;
+        Promise q = env.get(this);
+        if (q != null)
+                return q;
 		Promise_c clone = clone();
 		env.put(this, clone);
-		if (this.value != null) {
-			Promise valueClone = value.cloneRecursively(env);
-			clone.value = valueClone;
-		}
+        if (this.value != null) {
+            Promise valueClone = value.cloneRecursively(env);
+            clone.value = valueClone;
+        }
 		if ( this.fields != null) {
 			HashMap<String, Promise> cloneFields = new HashMap<String, Promise>();
 			for (Iterator<Map.Entry<String,Promise>> it = fields.entrySet().iterator(); 
 			it.hasNext();) {
 				Map.Entry<String,Promise> entry = it.next();
-				String key = entry.getKey();
-				Promise p = entry.getValue();
-				Promise cloneP = p.cloneRecursively(env);
-				cloneFields.put(key, cloneP);
+                String key = entry.getKey();
+                Promise p = entry.getValue();
+                Promise cloneP = p.cloneRecursively(env);
+                cloneFields.put(key, cloneP);
 			}
 			clone.fields = cloneFields;
 		}
@@ -189,7 +188,6 @@ public class Promise_c implements Promise, Serializable {
 	}
 	
 	public void addIn(String s, Promise orphan) throws Failure {
-	    assert orphan != this;
 		if (value !=null)
 			//	Alternative is to fwd it blindly, that would be correct, but i want to know
 			// if this is happening. It should not happen.
@@ -222,19 +220,21 @@ public class Promise_c implements Promise, Serializable {
 	}*/
 
 	public boolean bind(/*@nonnull*/Promise target) throws Failure {
-		if (forwarded())
-			throw new Failure("The promise " + this + " is already bound to "
-					+ value + "; cannot bind it to " + target + ".");
-		if (this==target) // nothing to do!
-			return false;
-		
-		// Check for cycles!
-		if (canReach(target) || target.canReach(this))
-			throw new Failure("Binding " + this + " to " + target + " creates a cycle.");
-		if (! term().prefersBeingBound() && target.term().prefersBeingBound()) {
+		if (! target.equals(value)) {
+			if (forwarded())
+				throw new InternalCompilerError("The promise " + this + " is already bound to "
+						+ value + "; cannot bind it to " + target + ".");
+			if (this==target) // nothing to do!
+				return false;
+
+			// Check for cycles!
+			if (canReach(target) || target.canReach(this))
+				throw new Failure("Binding " + this + " to " + target + " creates a cycle.");
+			if (! term().prefersBeingBound() && target.term().prefersBeingBound()) {
 				return target.bind(this);
+			}
+			value = target;
 		}
-		value = target;
 		if ( fields !=null) 
 			for (Iterator<Map.Entry<String,Promise>> it = fields.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<String,Promise> i =  it.next();
@@ -257,10 +257,10 @@ public class Promise_c implements Promise, Serializable {
 			}
 		return false;
 	}
-	public void dump(HashMap<C_Var, C_Var> result, C_Term prefix) {
+	public void dump(HashMap<C_Var,C_Var> result, C_Term prefix) {
 		dump(result, prefix, null, null);
 	}
-	public void  dump(HashMap<C_Var, C_Var> result, C_Term prefix, C_Var newSelf, C_Var newThis) {
+	public void  dump(HashMap<C_Var,C_Var> result, C_Term prefix, C_Var newSelf, C_Var newThis) {
 		if (value != null) {
 			C_Var t1 = term();
 			if (t1==null || t1.isEQV())  // nothing to dump!
@@ -290,7 +290,7 @@ public class Promise_c implements Promise, Serializable {
 	}
 	
 	public void replaceDescendant(Promise y, Promise x) {
-		var = var.substitute(y.term(), x.term());
+//        var = var.substitute(y.term(), x.term());
 		if (value!= null) {
 			if (value.equals(x)) {
 				value = y;
@@ -305,7 +305,7 @@ public class Promise_c implements Promise, Serializable {
 				String key = p.getKey();
 				Promise value = p.getValue();
 				if (value.equals(x)) {
-					p.setValue(y);
+                    p.setValue(y);
 				} else {
 					value.replaceDescendant(y,x);
 				}
@@ -314,5 +314,5 @@ public class Promise_c implements Promise, Serializable {
 	
 		
 	public Promise value() { return value;}
-	public HashMap<String, Promise> fields() { return fields;}
+	public HashMap<String,Promise> fields() { return fields;}
 }

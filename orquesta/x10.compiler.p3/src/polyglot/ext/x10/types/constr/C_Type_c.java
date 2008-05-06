@@ -4,8 +4,6 @@
 package polyglot.ext.x10.types.constr;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Type;
@@ -31,14 +29,6 @@ public class C_Type_c extends C_Term_c implements C_Type {
 		this(tn.type());
 	}
 	
-	public C_Term copy() {
-	    return new C_Type_c(type);
-	}
-	
-	public C_Term substitute(C_Var y, C_Root x, boolean propagate, HashSet<C_Term> visited) throws Failure {
-	    return new C_Type_c(substituteType(y, x, propagate, visited));
-	}
-
 	public String toString() {
 		
 		return type.toString();

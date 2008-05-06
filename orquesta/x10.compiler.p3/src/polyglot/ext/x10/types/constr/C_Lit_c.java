@@ -7,10 +7,7 @@
  */
 package polyglot.ext.x10.types.constr;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10Type;
@@ -21,9 +18,8 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 
 public class C_Lit_c extends C_Term_c implements C_Lit {
-	
-	
 	Object val;
+	
 	public C_Lit_c(boolean b, TypeSystem ts) {
 		super(ts.Boolean());
 		val = new Boolean(b);
@@ -37,16 +33,6 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 		return new C_Lit_c(val, t);
 	}
 	
-	public C_Term copy() {
-	    return new C_Lit_c(val, type);
-	}
-	
-	public C_Term substitute(C_Var y, C_Root x, boolean propagate, HashSet<C_Term> visited) throws Failure {
-	    if (!propagate)
-	        return this;
-	    return new C_Lit_c(val, substituteType(y, x, propagate, visited));
-	}
-
 	public Object val() {
 		return val;
 	}
@@ -54,7 +40,6 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
                 if (val == null) return "null";
                 if (type().isLong()) return val.toString() + "L";
                 if (type().isFloat()) return val.toString() + "F";
-                if (type().typeEquals(type().typeSystem().String())) return "\"" + val + "\"";
                 return val.toString();
         }
 	public int hashCode() {
@@ -62,7 +47,6 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	}
 	public C_Lit not() {
 		X10TypeSystem xts = (X10TypeSystem) type().typeSystem();
-		assert (type().typeEquals(xts.Boolean()));
 		return equals(xts.TRUE()) ? xts.FALSE() : xts.TRUE();
 	}
 	public C_Lit neg() {
@@ -153,11 +137,6 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public C_Var[] vars() {
 		return new C_Var[0];
 	}
-	
-	public void collectVars(List<C_Var> accum) {
-	    accum.add(this);
-	}
-
 	/** In case this is a field selection x.f1...fn, return x, else this. */
 	public C_Var rootVar() {
 		return this;

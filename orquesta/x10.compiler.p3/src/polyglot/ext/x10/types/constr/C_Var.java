@@ -7,8 +7,6 @@
  */
 package polyglot.ext.x10.types.constr;
 
-import java.util.List;
-
 public interface C_Var extends C_Term {
 	
 	/** The name of this variable. Only Localvars/specials have names, not field selections.*/

@@ -21,13 +21,7 @@ public class C_Here_c extends C_Lit_c implements Promise {
     	 * Clients should not call this constructor; you can instead obtain the singleton instance from the X10TypeSystem.
     	 */
 	public C_Here_c(X10TypeSystem x10ts) {
-	    this(x10ts.place());
-	}
-	public C_Here_c(Type t) {
-	    super(null, t);
-	}
-	public C_Term copy() {
-	    return new C_Here_c(type);
+		super(null, x10ts.place());
 	}
 	public String toString() { return "C_here"; }
 	public boolean equals(Object o) { 

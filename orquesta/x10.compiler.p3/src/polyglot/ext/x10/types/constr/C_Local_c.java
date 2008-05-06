@@ -7,11 +7,10 @@
  */
 package polyglot.ext.x10.types.constr;
 
-import java.util.HashSet;
-import java.util.List;
-
-import polyglot.ext.x10.types.X10LocalDef;
+import polyglot.ext.x10.types.X10LocalInstance;
+import polyglot.main.Report;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.Type;
 
 /**
@@ -20,36 +19,27 @@ import polyglot.types.Type;
  *
  */
 public class C_Local_c extends C_Var_c implements C_Local {
-	public final LocalDef li;
+	public final LocalInstance li;
 	public boolean isSelfVar;
 	public C_Local_c(LocalDef li) {
+		this(li.asInstance());
+	}
+	public C_Local_c(LocalInstance li) {
 		this(li, false);
 	}
-	public C_Local_c(LocalDef li, boolean isSelfVar) {
-		this(li.type().get(), li, isSelfVar);
+	public C_Local_c(LocalInstance li, boolean isSelfVar) {
+		this(li.type(), li, isSelfVar);
 	}
-	protected C_Local_c(Type t, LocalDef li, boolean isSelfVar) {
-	    super(t, false, false);
-	    this.li = li;
-	    this.isSelfVar=isSelfVar;
+	public C_Local_c(Type t, LocalInstance li, boolean isSelfVar) {
+		super(t, false, false);
+		this.li = li;
+		this.isSelfVar=isSelfVar;
 	}
-	public C_Term copy() {
-	    return new C_Local_c(type, li, isSelfVar);
+	public static final C_Local makeSelfVar(Type t, LocalInstance li) {
+		return new C_Local_c(t, li, true);
 	}
-	public C_Term substitute(C_Var y, C_Root x, boolean propagate, HashSet<C_Term> visited) throws Failure {
-            if (x.equals(this)) {
-                return y;
-            }
-            else if (propagate) {
-                return new C_Local_c(substituteType(y, x, propagate, visited), li, isSelfVar);
-            }
-            return this;
-        }
-	public static final C_Local makeSelfVar(LocalDef li) {
-		return new C_Local_c(li, true);
-	}
-	public X10LocalDef localDef() {
-		return (X10LocalDef) li;
+	public X10LocalInstance localInstance() {
+		return (X10LocalInstance) li;
 	}
 	protected Path path = new Path(new String[0]);
 	public Path path() {

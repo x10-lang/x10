@@ -7,9 +7,6 @@
  */
 package polyglot.ext.x10.types.constr;
 
-import java.util.HashSet;
-import java.util.List;
-
 import polyglot.ast.Field;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
@@ -19,7 +16,7 @@ public class C_Field_c extends C_Var_c implements C_Field {
 	public final String name;
 	public final FieldInstance fi;
 	public final C_Var r;
-	public  String name() { return name;}
+	public String name() { return name;}
 	public FieldInstance fieldInstance() { return fi;}
 	public C_Var receiver() { return r;}
 	
@@ -27,32 +24,15 @@ public class C_Field_c extends C_Var_c implements C_Field {
 		this(f.fieldInstance(), receiver);
 	}
 	public C_Field_c(FieldInstance fi, C_Var receiver) {
-	    this(fi.type(), fi, receiver);
+		this(fi.type(), fi, receiver);
 	}
-	
 	public C_Field_c(Type t, FieldInstance fi, C_Var receiver) {
 		super(t, receiver.rootVarIsThis(), receiver.rootVarIsSelf());
 		this.name = fi.name();
 		this.fi=fi;
 		this.r = receiver;
-		assert receiver.type() != null;
-		assert t != null;
 	}
 	
-	
-	public C_Term copy() {
-	    return new C_Field_c(type, fi, (C_Var) r.copy());
-	}
-	
-	public C_Term substitute(C_Var y, C_Root x, boolean propagate, HashSet<C_Term> visited) throws Failure {
-	    return new C_Field_c(substituteType(y, x, propagate, visited), fi, (C_Var) r.substitute(y, x, propagate, visited));
-	}
-	
-	public void collectVars(List<C_Var> accum) {
-	    r.collectVars(accum);
-	    accum.add(this);
-	}
-
 	public int hashCode() {
 		return ((name == null) ? 0 : name.hashCode()) + (r==null ?  0 : r.hashCode());
 	}
@@ -84,7 +64,7 @@ public class C_Field_c extends C_Var_c implements C_Field {
 	// memoize rootVar and path.
 	protected Path path;
 	protected C_Var[] vars;
-	public C_Var[] vars() {
+	public C_Var[] vars() { 
 		if (vars == null) initVars();
 		return vars;
 	}

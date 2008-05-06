@@ -7,7 +7,6 @@
  */
 package polyglot.ext.x10.types.constr;
 
-import polyglot.ext.x10.types.X10LocalDef;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.types.LocalInstance;
 
@@ -18,6 +17,6 @@ public interface C_Local extends C_Root{
 	 * @return
 	 */
 	 boolean isSelfVar();
-     X10LocalDef localDef();
+     X10LocalInstance localInstance();
 	
 }
