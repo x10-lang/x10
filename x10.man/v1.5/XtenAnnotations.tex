@@ -1,16 +1,15 @@
-\chapter{Annotations and Compiler
-Plugins}\label{XtenAnnotations}\index{annotations}
+\chapter{Annotations and compiler plugins}\label{XtenAnnotations}\index{annotations}
 
 
-X10 provides an 
+\Xten{} provides an 
 an annotation system and compiler plugin system for to allow the
 compiler to be extended with new static analyses and new
 transformations.
 
 Annotations are interface types that decorate the abstract syntax tree
-of an X10 program.  The X10 type-checker ensures that an annotation
+of an \Xten{} program.  The \Xten{} type-checker ensures that an annotation
 is a legal interface type.
-In X10, interfaces may declare
+In \Xten{}, interfaces may declare
 both methods and properties.  Therefore, like any interface type, an
 annotation may instantiate
 one or more of its interface's properties.
@@ -21,7 +20,7 @@ compile-time constants;
 however, a given compiler plugin
 may do additional checks to constrain the allowable
 initializer expressions.
-The X10 type-checker does not check that
+The \Xten{} type-checker does not check that
 all properties of an annotation are initialized,
 although this could be enforced by
 a compiler plugin.
@@ -130,17 +129,17 @@ must extend
 \section{Compiler plugins}
 \index{plugins}
 
-After the base X10 semantic checking is completed, 
+After the base \Xten{} semantic checking is completed, 
 compiler plugins are loaded and run.  Plugins may perform
 any number of compiler passes to implement
 additional semantic checking and code transformations, including
 transformations using the abstract syntax of the annotations
-themselves.  Plugins should output valid X10 abstract
+themselves.  Plugins should output valid \Xten{} abstract
 syntax trees.
 
 Plugins are implemented in \Java{} as
 Polyglot~\cite{ncm03} passes applied to the AST
-after normal base X10 type checking.
+after normal base \Xten{} type checking.
 Plugins to run are specified on the command-line.  The order of
 execution is determined by the Polyglot pass scheduler.
 \index{Polyglot}

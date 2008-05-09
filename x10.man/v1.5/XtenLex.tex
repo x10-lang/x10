@@ -1,5 +1,7 @@
 \chapter{Lexical structure}
 
+XXX Java
+
 In general, \Xten{} follows \java{} rules \cite[Chapter 3]{jls2} for
 lexical structure.
 
@@ -7,20 +9,26 @@ Lexically a program consists of a stream of white space, comments,
 identifiers, keywords, literals, separators and operators.
 
 \paragraph{Whitespace}
-Whitespace \index{whitespace} follows \java{} rules
-\cite[Chapter 3.6]{jls2}. ASCII space, horizontal tab (HT), form feed (FF) and line terminators constitute white space.
+% Whitespace \index{whitespace} follows \java{} rules \cite[Chapter 3.6]{jls2}.
+ASCII space, horizontal tab (HT), form feed (FF) and line terminators constitute white space.
 
 
 \paragraph{Comments}
-Comments \index{comments} follows \java{} rules
-\cite[Chapter 3.7]{jls2}. 
+% Comments \index{comments} follows \java{} rules
+% \cite[Chapter 3.7]{jls2}. 
 All text included within the ASCII characters ``\xcd"/*"'' and
 ``\xcd"*/"'' is
 considered a comment and ignored. All text from the ASCII character
 ``\xcd"//"'' to the end of line is considered a comment and is ignored.
 
 \paragraph{Identifiers}
+
 Identifiers \index{identifier} are defined as in \java.
+Identifiers consist of a single letter followed by zero or more
+letters or digits.
+Letters are defined as the characters for which the \java{}
+method \xcd"Character.isJavaIdentifierStart" returns true.
+Digits are defined as the ASCII characters \xcd"0" through \xcd"9".
 
 \paragraph{Keywords}
 \Xten{} reserves the following keywords:
@@ -46,6 +54,8 @@ The keyword \xcd{goto} is reserved, but not used.
 
 \paragraph{Literals}\label{Literals}\index{literals}
 
+Literals are either integers, floating point numbers, booleans,
+characters, strings, and \xcd"null".
 \XtenCurrVer{} defines literal syntax in the same way as \java{} does.
 
 \paragraph{Separators}

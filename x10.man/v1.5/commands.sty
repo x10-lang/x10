@@ -178,13 +178,14 @@
 % Grammar environment
 
 \newenvironment{grammar}{
-  \def\:{\goesto{}}
-  \def\|{$\vert$}
-  \cf \myobeycr
-  \begin{tabbing}
-    %\qquad\quad \= 
-    \qquad \= $\vert$ \= \kill
-  }{\unskip\end{tabbing}}
+  \def\:{& \goesto{} &}
+  \def\|{& $\vert$& }
+  \def\opt{$^?$\ }
+  \def\star{$^*$\ }
+  \def\plus{$^+$\ }
+  \em
+  \begin{tabular}{rcl}
+  }{\unskip\end{tabular}}
 
 %\newcommand{\unsection}{\unskip}
 \newcommand{\unsection}{{\vskip -2ex}}
@@ -193,7 +194,7 @@
 \newcommand{\arbno}[1]{#1\hbox{\rm*}}  
 \newcommand{\atleastone}[1]{#1\hbox{$^+$}}
 
-\newcommand{\goesto}{$\longrightarrow$}
+\newcommand{\goesto}{{\normalfont{::=}}}
 
 % mark modifications (for the grammar) From Igor Pechtchanski/Watson/IBM@IBMUS
 \newlength{\modwidth}\setlength{\modwidth}{0.005in}
@@ -241,12 +242,17 @@
 \def\indexspace{\par \vskip 10pt plus 5pt minus 3pt\relax}
 
 \makeatother
-\newcommand{\Xten}{{\sf X10}}
-\newcommand{\XtenCurrVer}{{\sf X10 v1.5}}
-\newcommand{\java}{{\sf Java}}
-\newcommand{\Java}{{\sf Java}}
-\newcommand{\notfouro}[1]{}
-\newcommand{\notinfouro}[1]{}
+
+%\newcommand{\Xten}{{\sf X10}}
+%\newcommand{\XtenCurrVer}{{\sf X10 v1.7}}
+%\newcommand{\java}{{\sf Java}}
+%\newcommand{\Java}{{\sf Java}}
+
+\newcommand{\Xten}{X10}
+\newcommand{\XtenCurrVer}{\Xten{} v1.7}
+\newcommand{\Java}{Java}
+\newcommand{\java}{\Java{}}
+
 \newcommand{\futureext}[1]{{\em \paragraph{Future Extensions.}#1}}
 \newcommand{\tbd}{} % marker for things to be done later.
 \newcommand{\limitation}[1]{{\em Limitation: #1}} % marker for things to be done later.
@@ -267,10 +273,10 @@
 \egroup}
 
 \newenvironment{staticrule*}{%
-\bgroup\noindent{\sc Static Semantics Rule:}\space}{%
+\bgroup\noindent{\textsc{Static Semantics Rule:}\space}}{%
 \egroup}
 
 \newenvironment{staticrule}[1]{%
-\bgroup\noindent{\sc Static Semantics Rule (#1):}\space}{%
+\bgroup\noindent{\textsc{Static Semantics Rule} (#1):\space}}{%
 \egroup}
 

@@ -19,3 +19,42 @@ current place (no communication with other places). Similarly,
 behavioral properties of the method as they relate to the usage of
 clocks of the current activity may be specified.
 
+\section{Interfaces with properties}\label{DepType:Interface}
+
+\Xten{} permits interfaces to have properties and specify an interface
+invariant. This is necessary so that programmers can build dependent
+types on top of interfaces and not just classes.
+
+\begin{verbatim}
+NormalInterfaceDeclaration ::= 
+     InterfaceModifiersopt interface identifier 
+        PropertyListopt ExtendsInterfacesopt InterfaceBody
+PropertyList     ::= ( Properties WhereClauseopt )
+Properties       ::= Property
+                    | Properties , Property
+Property         ::= Type identifier    
+PropertyListopt  ::= null | PropertyList
+\end{verbatim}
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+\begin{staticrule*}
+   The compiler declares an error if this constraint
+   is not consistent (\S~\ref{DepType:Consistency}).  
+\end{staticrule*}
+
+Each interface implicitly defines a nullary getter method \xcd"T p()" for
+each property \xcd"T p". 
+
+\begin{staticrule*}
+   The compiler issues a warning if the programmer
+   explicitly defines a method with this signature for an interface.
+\end{staticrule*}
+
+A class \xcd"C" (with properties) is said to implement an interface \xcd"I" if
+\begin{itemize}
+  \item its properties contains all the properties of I,
+\item its class invariant, i(C), implies i(I)
+\end{itemize}
+

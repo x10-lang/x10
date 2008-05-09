@@ -17,5 +17,13 @@ automatically considered to be annotated with \xcd"final".
 \label{LexicalConventionForFinals}\index{Upper case convention}
 
 
+\begin{grammar}
+TypeName   \: Identifier \\
+        \| TypeName \xcd"." Identifier \\
+        \| PackageName \xcd"." Identifier \\
+PackageName   \: Identifier \\
+        \| PackageName \xcd"." Identifier \\
+\end{grammar}
+
 
 %% \Xten{} also supports \java{} 1.5 static imports \cite{jsr201}.

@@ -25,12 +25,15 @@ We focus on the expressions in \Xten{} which have a different
 semantics.
 
 \subsection{The cast operator}\label{ClassCast}\index{classcast}
+
 The cast operation may be used to cast an expression to a given type:
 \begin{verbatim}
 306 UnaryExpressionNotPlusMinus ::= 
       CastExpression
 506 CastExpression ::= 
       UnaryExpressionNotPlusMinus as Type
+506 CastExpression ::= 
+      UnaryExpressionNotPlusMinus to Type
 \end{verbatim}
 
 The result of this operation is a value of the given type if the cast
@@ -50,16 +53,27 @@ computational overhead at runtime.
 
 \subsection{\Xcd{instanceof} operator}\label{instanceOf}\index{instanceof@\xcd"instanceof"}
 
-This operator takes two arguments; the first should be a
-\grammarrule{RelationalExpression} and the second a
-\grammarrule{Type}. At run time, the result of this operator is
+\Xten{} permits types to be used in an in instanceof expression
+to determine whether an object is an instance of the given type:
+
+\begin{grammar}
+RelationalExpression \: RelationalExpression \xcd"instanceof" Type
+\end{grammar}
+
+In the above expression, \grammarrule{Type} is any type including
+constrained types and value types. 
+At run time, the result of this operator is
 \xcd"true" if the \grammarrule{RelationalExpression} can be cast
 to \grammarrule{Type} without a \xcd" ClassCastException" being
-thrown. Otherwise the result is \xcd"false".
+thrown.  Otherwise the result is \xcd"false".
+This determination may involve checking
+that the
+constraint, if any, associated with the type is true for the
+given expression.
+
 
 \subsection{Stable equality.}\label{StableEquality}\index{==}\index{!=}
 
-\cbstart
 Reference equality (\xcd"==", \xcd"!=") is replaced in \Xten{} by the
 notion of {\em stable equality} so that it can apply uniformly to value and
 reference types.
@@ -86,4 +100,3 @@ arguments if and only if the predicate \xcd"==" returns \xcd"false"
 The predicates \xcd"==" and \xcd"!=" may not be overridden by the
 programmer.
 
-\cbend

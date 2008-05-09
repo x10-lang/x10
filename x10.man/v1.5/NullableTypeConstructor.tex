@@ -1,4 +1,4 @@
-\section{The Nullable Type Constructor}
+\section{The \Xcd{nullable} type constructor}
 \label{NullableTypeConstructor}\index{nullable@{\tt nullable}}
 
 \Xten{} supports the type constructor, \xcd"nullable[T]".  For any
@@ -109,8 +109,8 @@ one would think of nullable as a disjoint sum type constructor that
 adds a value \xcd"null" to the interpretation of its argument type
 even if it already has that value. Thus \xcd"nullable[nullable[T]]" is
 distinct from \xcd"nullable T" because it has one more \xcd"null"
-value. Explicit injection and projection functions of signature \Xcd{T =>
-nullable[T]} and \xcd"nullable[T] => T", respectively,
+value. Explicit injection and projection functions of signature
+\xcd"T => nullable[T]" and \xcd"nullable[T] => T", respectively,
 would need to be provided.
 
 The designers of \Xten{} felt that while such a definition might be

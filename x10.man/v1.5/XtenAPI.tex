@@ -1,0 +1,150 @@
+\chapter{API}\label{XtenAPI}
+
+The \Xten{} API consists of several classes in the package \xcd"x10.lang".
+
+\begin{xten}
+package x10.lang;
+
+public class Object(location: place) { }
+
+public type boolean(x: boolean) = boolean{self == x};
+
+public type byte(x: byte)       = byte{self == x};
+public type short(x: short)       = short{self == x};
+public type char(x: char)       = char{self == x};
+public type int(x: int)       = int{self == x};
+public type long(x: long)       = long{self == x};
+public type float(x: float)       = float{self == x};
+public type double(x: double)       = double{self == x};
+
+public type String(x: String)       = String{self == x};
+
+public type byte(lo: byte, hi: byte)       = byte{lo <= self, self <= hi};
+public type short(lo: short, hi: short)       = short{lo <= self, self <= hi};
+public type char(lo: char, hi: char)       = char{lo <= self, self <= hi};
+public type int(lo: int, hi: int)       = int{lo <= self, self <= hi};
+public type long(lo: long, hi: long)       = long{lo <= self, self <= hi};
+public type float(lo: float, hi: float)       = float{lo <= self, self <= hi};
+public type double(lo: double, hi: double)       = double{lo <= self, self <= hi};
+
+public value class boolean { }
+public value class byte { }
+public value class short { }
+public value class char { }
+public value class int { }
+public value class long { }
+public value class float { }
+public value class double { }
+
+public value class String { }
+public class StringBuffer { }
+
+public class Array[T](dist: dist) {
+        property region = dist.region;
+        property rank = region.rank;
+        property zeroBased = region.zeroBased;
+        property rail = region.rail;
+        property rect = region.rect;
+        property onePlace = dist.onePlace;
+}
+public value class valarray[T](dist: dist) { }
+
+public value class point(rank: int) { }
+
+public value class region(rank: int{self > 0},
+                          zeroBased: boolean,
+                          rect: boolean) {
+}
+public value class dist(region: region, onePlace: box[place]) {
+        property rank = region.rank;
+        property zeroBased = region.zeroBased;
+        property rect = region.rect;
+        property rail = zeroBased && rect && onePlace != null;
+}
+
+public value class clock { }
+public value class place { }
+\end{xten}
+
+\section{Array types}
+
+\begin{grammar}
+ArrayType \: \xcd"Array" \xcd"[" Type \xcd"]" \\
+          \| \xcd"array" \xcd"[" Type \xcd"]" \\
+\end{grammar}
+
+\Xten{} has the following built in types:
+
+\begin{xten}
+value class point(rank: int{rank>=0}) {...}
+\end{xten}
+\begin{xten}
+value class region(rank: int{rank>=0},
+   // region is a product of rank-1 convex regions.
+   rect: boolean,  
+   rail: boolean,
+   // on each dim, the low bound is 0. 
+   lowZero: boolean
+  ) { ...}
+\end{xten}
+\begin{xten}
+value class dist(rank: int{rank>=0},
+   rect: boolean,
+   rail: boolean,
+   lowZero: boolean,
+   region: region{self.rank==rank
+               && self.rect==rect
+               && self.lowZero==lowZero},
+   onePlace: place 
+   )  { ...}
+\end{xten}
+\begin{xten}
+class Array[T](rank: int{rank>=0},
+   rect: boolean,
+   rail: boolean,
+   lowZero: boolean,
+   onePlace: place,
+   region: region,
+   dist: dist{self.rank==rank
+           && self.rect=rect
+           && self.lowZero==lowZero
+           && self.region==region
+           && self.onePlace==onePlace}
+      ) {...}
+\end{xten}
+\begin{xten}
+value class array[T](rank: int{rank>=0},
+   rect: boolean,
+   rail: boolean,
+   lowZero: boolean,
+   onePlace: place,
+   region: region,
+   dist: dist{self.rank==rank
+           && self.rect=rect
+           && self.lowZero==lowZero
+           && self.region==region
+           && self.onePlace==onePlace}
+      ) {...}
+\end{xten}
+
+For \xcd"R" is a reference type, the type \xcd"array[T](R{c}!current)" is interpreted as the
+type of all arrays which are such that the value at a point \xcd"p" in its
+region has the type \xcd"R{c}!self.dist(p)". (Recall that in \Xten{} a
+distribution is itself a value array that maps a point to a place.)
+
+\begin{example}
+  The type \xcd"Array[double]{rail}" is the Java type \xcd"double[]".
+  The type \xcd"Array[Array[double]{rail}]{rail}" is the Java type \xcd"double[][]".
+
+  The type \xcd"Array[double]{rank==N}" is the type of all N-dimensional arrays of
+  \xcd"double"s.
+
+  The type \xcd"Array[double]{rank==N&&onePlace==here}" is the
+  type of all \xcd"N"-dimensional
+  arrays of \xcd"double"s that are local (mapped to one place).  
+\end{example}
+
+\begin{verbatim}
+FUTURE: array[T] implements point => T
+\end{verbatim}
+

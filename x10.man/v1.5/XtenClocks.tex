@@ -1,5 +1,5 @@
 \chapter{Clocks}\label{XtenClocks}\index{clocks}
-\cbstart
+
 The standard library for \Xten{}, \xcd"x10.lang" defines a \xcd"final value class", \xcd"clock" intended for repeated quiescence detection
 of arbitrary, data-dependent collection of activities. Clocks are a
 generalization of {\em barriers}. They permit dynamically created
@@ -147,13 +147,14 @@ clause),
 % or invoke \xcd"now" 
 until it terminates, drops \xcd"c" or executes a \xcd"next". 
 
-\notinfouro{\paragraph{Static semantics.} 
+\begin{staticrule*}
 The compiler should issue an error if any activity has a potentially
 live execution path from a \xcd"resume" statement on a clock \xcd"c"
 to a \xcd"now" or async spawn statement (which registers the new
 activity on \xcd"c") unless the path goes through a \xcd"next"
 statement. (A \xcd"c.drop()" following a \xcd"c.resume()" is legal,
-as is \xcd"c.resume()" following a \xcd"c.resume()".)}
+as is \xcd"c.resume()" following a \xcd"c.resume()".)
+\end{staticrule*}
 
 \subsection{Advancing clocks}\index{clock!next}\label{sec:clock:next}
 An activity may execute the statement
@@ -190,7 +191,7 @@ clock.  A \xcd"ClockUseException" is thrown if the activity has
 already dropped \xcd"c".
 
 
-\notinfouro{\input{clock/now.tex}}
+%\input{clock/now.tex}
 
 \subsection{Program equivalences}
 From the discussion above it should be clear that the following
@@ -206,8 +207,7 @@ Note that \xcd"next; next;" is not the same as \xcd"next;". The
 first will wait for clocks to advance twice, and the second
 once.  
 
-\cbend
-\notinfouro{\input{clock/imp-notes.tex}}
-\notinfouro{\input{clock/clocked-types.tex}}
-\notinfouro{\input{clock/examples.tex}}
+%\notinfouro{\input{clock/imp-notes.tex}}
+%\notinfouro{\input{clock/clocked-types.tex}}
+%\notinfouro{\input{clock/examples.tex}}
 

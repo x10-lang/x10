@@ -107,17 +107,23 @@ deadlock. Clocks are also integrated into the \Xten{} type system,
 permitting variables to be declared so that they are \xcd"final" in each
 phase of a clock.
 
-\section{Interfaces and Classes}
-Programmers write \Xten{} code by writing \emph{generic interfaces}
-(\S~\ref{XtenInterfaces}) and \emph{generic classes}
-(\S~\ref{XtenClasses}). Generic interfaces and classes may be
-defined over a collection of \emph{type parameters}. Instances can be
-created only from \emph{concrete} classes; such a class has all its
-type parameters (if any) instantiated with concrete classes and
-concrete interfaces.
+\section{Records}
 
+XXX TODO
+
+\section{Interfaces and classes}
+Programmers write \Xten{} code by writing \emph{constrained interfaces}
+(\S~\ref{XtenInterfaces}) and \emph{constrained classes}
+(\S~\ref{XtenClasses}). Interfaces and classes may be
+defined over \emph{value properties} and \emph{type properties}.
+Instances can be
+created only from \emph{concrete} classes; such a class has all its
+properties (if any) bound.  Types may be defined by constraining a class or interface's properties with boolean predicates.
 
 \section{Scalar classes}
+
+XXX TODO
+
 An \Xten{} scalar class (\S~\ref{XtenClasses}) has fields, methods and
 inner types (interfaces, classes), subclasses another class, and
 implements one or more interfaces. Thus \Xten{} classes live in a
@@ -148,7 +154,7 @@ efficiently. Methods may be invoked on such an object from any place.
 additional arithmetic value classes using the facilities of the
 language.
 
-\section{Arrays, Regions and Distributions}
+\section{Arrays, regions and distributions}
 An \Xten{} array is a function from a \emph{distribution}
 (\S~\ref{XtenDistributions}) to a base type (which may itself be an
 array type).
@@ -191,13 +197,12 @@ constructor returns a new type which adds a special value \xcd"null"
 to the set of values of its argument type, unless the argument type
 already has this value.
 
-TODO: NonNull
-
 \section{Annotations}
 
 \Xten{} supports annotations on classes and interfaces, methods
 and constructors,
 variables, types, expressions and statements.
+These annotations may be processed by compiler plugins.
 
 \section{Statements and expressions}
 
@@ -207,7 +212,9 @@ method invocation, exception raising/catching) etc.
 
 \paragraph{Closures}
 \Xten{} provides closures to allow code to be used
-as values.  TODO: More verbiage.
+as values.  The body of a closure may capture variables in the closure's
+environment.  Closures are used implicitly in asyncs, futures, and array
+initializers.
 
 \paragraph{Place casts}
 The programmer may use the standard class cast mechanism

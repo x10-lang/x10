@@ -1,0 +1,40 @@
+\section{Conversions and Promotions}\label{XtenConversions}\label{XtenPromotions}\index{conversions}\index{promotions}
+
+XXX this is out of date.  Olivier...
+
+\XtenCurrVer{} supports the following conversions and
+promotions:
+\begin{itemize}
+\item A subtype may be implicitly coerced to any supertype.
+\item A numeric type may be implicitly converted to any wider
+numeric type if there is no loss of precision.
+\item String conversion.  Any object that is an operand of the binary
+\xcd"+" operator may
+be converted to \xcd"String" if the other operand is a \xcd"String".
+\item Narrowing coercion.  A compile-time constant of type \xcd"int" may be
+implicitly coerced to a \xcd"byte", \xcd"short", or \xcd"char"
+if the compiler can show that the value can be represented at
+the target type.
+\item Narrowing coercion.  A compile-time constant of type
+\xcd"long" may be
+implicitly coerced to a \xcd"byte", \xcd"short", \xcd"char",
+or \xcd"int"
+if the compiler can show that the value can be represented at
+the target type.
+\end{itemize}
+
+XXX Java
+XXX Coercions
+
+{}\XtenCurrVer{} supports \java's conversions and promotions
+(identity, widening, narrowing, value set, assignment, method
+invocation, string, casting conversions and numeric promotions)
+appropriately modified to support \Xten's built-in numeric classes
+rather than \java's primitive numeric types.
+
+This decision may be revisited in a future version of the language in
+favor of a streamlined proposal for allowing user-defined
+specification of conversions and promotions for value types, as part
+of the syntax for user-defined operators.
+
+
