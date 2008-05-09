@@ -37,11 +37,10 @@ all sites hosting \xcd{D}.
 
 \section{Point and region construction}\label{point-syntax}\index{[] syntax}
 \Xten{} specifies a simple syntax for the construction of points and regions.
-\begin{verbatim}
-281   ArgumentList ::= Expression
-282      | ArgumentList , Expression
-512   Primary ::= [ ArgumentList ]
-\end{verbatim}
+\begin{grammar}
+ArgumentList \: Expression ( \xcd"," Expression )\star \\
+Primary \: \xcd"Point" \xcd"(" ArgumentList \xcd")"
+\end{grammar}
 Each element in the argument list must be either of type \xcd{int} or 
 of type \xcd{region}. In the former case the expression 
 \xcd{(a1,..., ak)} is treated as syntactic shorthand for
@@ -58,11 +57,11 @@ region.factory.region(a1,..., ak)
 \Xten{} permits a richer form of specification for variable
 declarators in method arguments, local variables and loop variables
 (the ``exploded'' or {\em destructuring} syntax).
-\begin{verbatim}
-81    VariableDeclaratorId ::= 
-           identifier [ IdentifierList ]
-82       | [ IdentifierList ]
-\end{verbatim}
+\begin{grammar}
+VariableDeclaratorId \:
+           Identifier \xcd"(" IdentifierList \xcd")" \\
+           \| \xcd"(" IdentifierList \xcd")" \\
+\end{grammar}
 In \XtenCurrVer{} the \grammarrule{VariableDeclaratorId} must be declared at
 type \xcd{x10.lang.point}. Intuitively, this syntax allows a
 point to be ``destructured'' into its corresponding \xcd{int} 

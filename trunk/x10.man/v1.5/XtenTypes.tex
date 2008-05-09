@@ -1,7 +1,9 @@
 \chapter{Types}
 \label{XtenTypes}\index{types}
 
-XXX Olivier
+XXX Olivier: type system is not unified; there are values
+(records) and references.
+Object is the superclass of all reference types.
 
 {}\Xten{} is a {\em strongly typed} object-oriented language: every variable
 and expression has a type that is known at compile-time. Further,
@@ -161,6 +163,18 @@ is a class type in which all fields of the class are immutable.
 
 Values classes are specified via {\em value class declarations}
 (\S~\ref{XtenClasses}).
+
+Variables of value class type may not be \xcd"null".
+There is no subtyping relationship between different value
+classes.
+
+\section{Boxed types}
+
+For a value type \xcd"T", the type constructor \xcd"Box[T]"
+defines an class with the same members as \xcd"T". 
+Like \xcd"T", all fields of \xcd"Box[T]" are final.
+
+Unlike value classes, variables of \xcd"Box" type may be \xcd"null".
 
 \section{Interface types}\label{InterfaceTypes}
 
@@ -341,6 +355,53 @@ class Function$_{k,n}$ {
 }
 \end{xtenmath}
 
+\section{Type definitions}
+
+Because
+the syntax for constrained types can often be verbose,
+\Xten{} supports {\em type definitions}
+to allow types to be written more succinctly.
+Type definitions have the following syntax:
+
+\begin{grammar}
+TypeDefinition \: 
+                \xcd"type"~Identifier
+                        ( \xcd"[" TypeParameters \xcd"]" )\opt
+                        ( \xcd"(" Formals \xcd")" )\opt?
+                        WhereClause\opt \xcd"=" Type \\
+\end{grammar}
+
+\noindent
+A type definition can be thought of as a type-valued function.
+Type definitions may be parameterized on both types and values.
+%
+The following examples are legal type definitions:
+\begin{xten}
+type StringSet = Set[String];
+type MapToList[K,V] = Map[K,List[V]];
+type int(x: int) = int{self==x};
+type int(lo: int, hi: int) = int{lo <= self, self <= hi};
+\end{xten}
+
+Type definitions may appear as class members or in the body of a
+method, constructor, or initializer.  Type definitions that are
+members of a class are \xcd"static"; type properties can be used
+for non-static type definitions.
+
+Type definitions are applicative, not generative; that is, they
+are define aliases for types and do not introduce new types.
+Thus, the following code is legal:
+\begin{xten}
+type A = int;
+type B = String;
+type C = String;
+a: A = 3;
+b: B = new C("Hi");
+c: C = b + ", Mom!";
+\end{xten}
+A type defined by a type definition
+has the same constructors as its defining type.
+
 \section{Path types}
 
 Path types of the form \xcd"p.X" consist of a final access path,
@@ -357,8 +418,6 @@ path \xcd"p".
 If an identifier \xcd"X" resolves to a type member or property
 of an enclosing class or interface \xcd"T", then \xcd"X" is equivalent to
 the path type \xcd"T.this.X".
-
-%\input{NullableTypeConstructor.tex}
 
 \section{Constraints}\label{DepTypes}\index{dependent types}
 
@@ -474,7 +533,7 @@ The package \xcd"x10.lang" provides a number of built-in class and
 interface declarations that can be used to construct types.
 
 \subsection{The class \Xcd{Object}}\label{Object}\index{Object}
-The class \xcd"x10.lang.Object" is a superclass of all other classes.
+The class \xcd"x10.lang.Object" is a superclass of all other reference classes.
 A variable of this type can hold a reference to an instance of any
 scalar or array type.
 
@@ -482,8 +541,8 @@ scalar or array type.
 package x10.lang;
 public class Object {
   def toString(): String {...}
-  def equals(o: Object): boolean {...}
-  def hashCode(): int {...}
+  def equals(o: Object): Boolean {...}
+  def hashCode(): Int {...}
 }
 \end{xten}
 
@@ -545,38 +604,10 @@ hardware operations (e.g., along the lines of
 to specify new syntax for literals.
 }
 
-\subsection{Places, distributions, regions, clocks}
-\Xten{} defines several other classes in the \xcd"x10.lang"
-package. Please consult the API documentation for more details.
-
-\if 0
-XXX this is out of date
-
-\subsection{Java utility classes}
-\XtenCurrVer{} programmers may import and use \java{} packages such as
-\xcd"java.util", e.g., \xcd"java.util.Set", \xcd"java.lang.System".
-\Xten{} programs should not invoke methods
-that use the \xcd"wait"/\xcd"notify"/\xcd"notifyAll" methods on such objects,
-since this may interfere with \Xten{} synchronization. The
-implementation does not make imported \java{} classes
-automatically extend \xcd"x10.lang.Object". 
-
-\futureext{
-The above represents an {\em ad hoc} integration of \java{} libraries
-into \Xten{}. It has the unfortunate consequence that not every run-time
-value in an \Xten{} program execution is an instance of a subclass of
-\xcd"x10.lang.Object". }
-
-In the future a more principled and robust scheme will be worked
-out. Such a scheme will need to attend to the integration of the
-\java{} and \Xten{} type systems, and develop a notion of place for 
-\java{} objects.
-\fi
-
 \input{FutureTypes}
 \input{ArrayTypes}
 
-\section{Type definition}\label{DepType:Class}
+\section{Class and interface declarations}\label{DepType:Class}
 
 A class declaration 
 
@@ -754,6 +785,25 @@ is consistent.
 %%   }
 
 \section{Subtyping and type equivalence}\label{DepType:Equivalence}\label{deptype,equivalence}
+
+Subtyping is relation between types.  It is the
+reflexive, transitive 
+closure of the {\em direct subtyping} relation, defined as
+follows.
+
+\subsection{Class types}
+
+\subsection{Interface types}
+
+\subsection{Function types}
+
+
+
+A class type \xcd"C" is a direct subtype of another class type \xcd"D" if
+\xcd"C" is declared to extend
+One class type is a direct subtype of another if 
+
+One base class type is a subtype of another if it exp
 
 Two dependent types \xcd"C{c}" and \xcd"C{d}" are said to be {\em equivalent} if 
 \xcd"c" is true whenever \xcd"d" is, and vice versa. Thus, 

@@ -27,14 +27,11 @@ semantics.
 \subsection{The cast operator}\label{ClassCast}\index{classcast}
 
 The cast operation may be used to cast an expression to a given type:
-\begin{verbatim}
-306 UnaryExpressionNotPlusMinus ::= 
-      CastExpression
-506 CastExpression ::= 
-      UnaryExpressionNotPlusMinus as Type
-506 CastExpression ::= 
-      UnaryExpressionNotPlusMinus to Type
-\end{verbatim}
+\begin{grammar}
+UnaryExpressionNotPlusMinus \: CastExpression \\
+CastExpression \: UnaryExpressionNotPlusMinus \xcd"as" Type \\
+\| UnaryExpressionNotPlusMinus \xcd"to" Type \\
+\end{grammar}
 
 The result of this operation is a value of the given type if the cast
 is permissible at runtime. Both the data type and place type of the

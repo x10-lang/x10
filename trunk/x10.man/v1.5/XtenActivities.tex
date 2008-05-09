@@ -92,20 +92,12 @@ are better suited for supporting scalability than synchronous
 operations.)
 
 An activity is created by executing the statement:
-\begin{verbatim}
-463 Statement ::= AsyncStatement
-473 StatementNoShortIf ::= AsyncStatementNoShortIf
-481 AsyncStatement ::= 
-      async PlaceExpressionSingleListopt Statement
-491 AsyncStatementNoShortIf ::= 
-      async PlaceExpressionSingleListopt 
-         StatementNoShortIf
-524   PlaceExpressionSingleListopt ::=
-525       | PlaceExpressionSingleList
-499   PlaceExpressionSingleList ::= 
-         ( PlaceExpression )
-500   PlaceExpression ::= Expression
-\end{verbatim} 
+\begin{grammar}
+Statement \: AsyncStatement \\
+AsyncStatement \: \xcd"async" PlaceExpressionSingleList\opt Statement \\
+PlaceExpressionSingleList \: \xcd"(" PlaceExpression \xcd")" \\
+PlaceExpression \: Expression \\
+\end{grammar} 
 
 The place expression \xcd"e" is expected to be of type \xcd"place",
 e.g.{} \xcd"here" or \xcd"place.FIRST_PLACE" or \xcd"d[p]" for some
@@ -166,14 +158,10 @@ variables, \S~\ref{XtenClocks}) provided that such variables are
 \section{Finish}\index{finish}\label{finish}
 The statement \xcd"finish S" converts global termination to local
 termination and introduces a root activity. 
-\begin{verbatim}
-468 Statement ::= FinishStatement
-478 StatementNoShortif ::= 
-      FinishStatementNoShortIf
-488 FinishStatement ::= finish Statement
-498 FinishStatementNoShortIf ::= 
-      finish StatementNoShortIf
-\end{verbatim}
+\begin{grammar}
+Statement \: FinishStatement \\
+FinishStatement \: \xcd"finish" Statement \\
+\end{grammar}
 
 An activity $A$ executes \xcd"finish S" by executing \xcd"S".  The
 execution of \xcd"S" may spawn other asynchronous activities (here or
@@ -242,12 +230,11 @@ placs.)
 
 \Xten{} provides syntactic support for {\em asynchronous expressions}, also
 known as futures:
-\begin{verbatim}
-511   Primary ::= FutureExpression
-515   FutureExpression ::= 
-        future PlaceExpressionSingleListopt 
-           { Expression }
-\end{verbatim} 
+\begin{grammar}
+Primary \: FutureExpression \\
+FutureExpression \:
+  \xcd"future" PlaceExpressionSingleList\opt \xcd"=>" Expression
+\end{grammar} 
 Intuitively such an expression evaluates its body asynchronously at
 the given place. The resulting value may be obtained from the future
 returned by this expression, by using the \xcd"force" operation.
@@ -264,7 +251,7 @@ type \xcd"future[T]" is defined as if by:
 \begin{xten}
 public interface future[T] {
   def force(): T;
-  def forced(): boolean;
+  def forced(): Boolean;
 }
 \end{xten}
 
@@ -318,15 +305,11 @@ simultaneously by multiple activities running in the same place.
 The simplest form of an atomic block is the {\em unconditional
 atomic block}:
 
-\begin{verbatim}
-461 Statement ::= AtomicStatement
-474 StatementNoShortIf ::= 
-       AtomicStatementNoShortIf
-482 AtomicStatement ::= atomic  Statement
-492 AtomicStatementNoShortIf ::= 
-       atomic StatementNoShortIf
-445 MethodModifier ::= atomic
-\end{verbatim}
+\begin{grammar}
+Statement \: AtomicStatement \\
+AtomicStatement \: \xcd"atomic"  Statement \\
+MethodModifier \: \xcd"atomic" \\
+\end{grammar}
 
 For the sake of efficient implementation \XtenCurrVer{} requires
 that the atomic block be {\em analyzable}, that is, the set of
@@ -401,7 +384,7 @@ The following class method implements a (generic) compare and swap (CAS) operati
 
 \begin{xten}
 // target defined in lexically enclosing environment.
-public atomic def CAS(old: Object, new: Object): boolean {
+public atomic def CAS(old: Object, new: Object): Boolean {
    if (target.equals(old)) {
      target = new;
      return true;
@@ -413,17 +396,14 @@ public atomic def CAS(old: Object, new: Object): boolean {
 \subsection{Conditional atomic blocks}
 
 Conditional atomic blocks are of the form:
-\begin{verbatim}
-465 Statement ::= WhenStatement
-475 StatementNoShortIf ::= WhenStatementNoShortIf
-483 WhenStatement ::= 
-          when ( Expression ) Statement
-484     | WhenStatement 
-          or ( Expression ) Statement
-\end{verbatim}
+\begin{grammar}
+Statement \:  WhenStatement \\
+WhenStatement \:  \xcd"when" \xcd"(" Expression \xcd")" Statement \\
+            \| WhenStatement \xcd"or" \xcd"(" Expression \xcd")" Statement \\
+\end{grammar}
 
 In such a statement the one or more expressions are called {\em
-guards} and must be \xcd"boolean" expressions. The statements are the
+guards} and must be \xcd"Boolean" expressions. The statements are the
 corresponding {\em guarded statements}. The first pair of expression
 and statement is called the {\em main clause} and the additional pairs
 are called {\em auxiliary clauses}. A statement must have a main
@@ -512,8 +492,8 @@ receiver.
 
 \begin{xten}
 class OneBuffer {
-  datum: nullable[Object] = null;
-  filled: boolean = false;
+  datum: Object = null;
+  filled: Boolean = false;
   public def send(v: Object) {
     when (!filled) {
       this.datum = v;
@@ -546,22 +526,22 @@ any attempt to read the latch. Otherwise the normal value is returned.
 
 \begin{xten}
 public interface future[T] {
-   def forced(): boolean;
+   def forced(): Boolean;
    def force(): T;
 }
 public class Latch implements future {
-  protected var forced: boolean = false;
-  protected var result: nullable[T] = null;
-  protected var z: nullable[Exception] = null;
+  protected var forced: Boolean = false;
+  protected var result: Box[T] = null;
+  protected var z: Box[Exception] = null;
 
-  public atomic def setValue(val: nullable[Object]): boolean {
+  public atomic def setValue(val: T): Boolean {
     return setValue(val, null);
   }
-  public atomic def setValue(z: nullable[Exception]): boolean {
+  public atomic def setValue(z: Exception): Boolean {
     return setValue(null, z);
   }
-  public atomic def setValue(val: nullable[Object],
-                             z: nullable[Exception]): boolean {
+  public atomic def setValue(val: T,
+                             z: Exception): Boolean {
     if (forced) return false;
     // these assignment happens only once.
     this.result = val;
@@ -569,24 +549,23 @@ public class Latch implements future {
     this.forced = true;
     return true;
   }
-  public atomic def forced(): boolean {
+  public atomic def forced(): Boolean {
     return forced;
   }
   public def force(): T {
     when (forced) {
       if (z != null) throw z;
-      return result;
+      return result to T;
     }
   }
 }
 \end{xten}
 
 Latches, \xcd"aync" operations and \xcd"finish" operations may be used
-to implement futures as follows. The expression \xcd"future(P) {e}"
+to implement futures as follows. The expression \xcd"future(P) => e"
 can be translated to:
 \begin{xten}
-new RunnableLatch() {
-  public def run(): Latch {
+(=> {
     L: Latch = new Latch();
     async (P) {
       X: Object;
@@ -603,8 +582,7 @@ new RunnableLatch() {
       }
     }
     return L;
-  }
-}.run()
+  })()
 \end{xten}
 
 Here we assume that \xcd"RunnableLatch" is an interface defined by:
@@ -636,7 +614,7 @@ activities spawned by \xcd"x=e". The exception will be caught by the
 
 \paragraph{A future to execute a statement.}
 Consider an expression \xcd"onFinish {S}". This should return
-a \xcd"boolean" latch which should be forced when \xcd"S" has terminated
+a \xcd"Boolean" latch which should be forced when \xcd"S" has terminated
 globally. Unlike \xcd"finish S", the evaluation of \xcd"onFinish {S}"
 should locally terminate immediately, returning a latch. The
 latch may be passed around in method invocations and stored in
@@ -646,8 +624,7 @@ has terminated.
 
 Such an expression can be written as:
 \begin{xten}
-new RunnableLatch() {
-  public def run(): Latch {
+(=> {
     L: Latch = new Latch();
     async (here) {
       try {
@@ -660,7 +637,7 @@ new RunnableLatch() {
     }
     return L;
   }
-}.run()
+)()
 \end{xten}
 
 %\input{rmi.tex}
@@ -671,29 +648,17 @@ new RunnableLatch() {
 We introduce  $k$-dimensional versions of iteration operations \xcd"for" and 
 \xcd"foreach":
 
-\begin{verbatim}
-189 Statement ::= ForStatement
-206 StatementNoShortIf ::= 
-      ForStatementNoShortIf
-236 ForStatement ::= EnhancedForStatement
-239 ForStatementNoShortIf ::= 
-      EnhancedForStatementNoShortIf
-466 Statement ::= ForEachStatement
-476 StatementNoShortIf ::= 
-      ForEachStatementNoShortIf
-487 EnhancedForStatement ::= 
-       for ( FormalParameter : Expression ) 
-         Statement
-487 EnhancedForStatementNoShortIf ::= 
-       for ( FormalParameter : Expression ) 
-           StatementNoShortIf
-485  ForEachStatement ::= 
-       foreach ( FormalParameter : Expression ) 
-           Statement
-495  ForEachStatementNoShortIf ::= 
-        foreach ( FormalParameter : Expression ) 
-          StatementNoShortIf
-\end{verbatim}
+\begin{grammar}
+Statement \: ForStatement \\
+ForStatement \: EnhancedForStatement \\
+Statement \: ForEachStatement \\
+EnhancedForStatement \: 
+      \xcd"for" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
+        Statement \\
+ForEachStatement \: 
+      \xcd"foreach" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
+          Statement \\
+\end{grammar}
 
 In both statements, the expression is intended to be of type
 \xcd"region".  Expressions \xcd"e" of type \xcd"distribution" and
@@ -720,17 +685,12 @@ throws an exception, though exceptions thrown by the spawned
 activities are propagated through to the root activity.
 
 In a similar fashion we introduce the syntax:\index{ateach@\xcd"ateach"}
-\begin{verbatim}
-467 Statement ::= AtEachStatement
-477 StatementNoShortIf ::= 
-      AtEachStatementNoShortIf
-486 AtEachStatement ::= 
-      ateach ( FormalParameter : Expression ) 
-         Statement
-496 AtEachStatementNoShortIf ::= 
-      ateach ( FormalParameter : Expression ) 
-          StatementNoShortIf
-\end{verbatim}
+\begin{grammar}
+Statement \: AtEachStatement \\
+AtEachStatement \:
+      \xcd"ateach" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
+         Statement \\
+\end{grammar}
 
 Here the expression is intended to be of type \xcd"distribution".
 Expressions \xcd"e" of type \xcd"array" are also accepted, and treated

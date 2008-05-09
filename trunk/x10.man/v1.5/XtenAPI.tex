@@ -1,138 +1,126 @@
 \chapter{API}\label{XtenAPI}
 
-The \Xten{} API consists of several classes in the package \xcd"x10.lang".
+The \Xten{} implementation is required to implement a number of
+classes in the package \xcd"x10.lang".
+
+\section{Primitive types}
 
 \begin{xten}
 package x10.lang;
 
 public class Object(location: place) { }
 
-public type boolean(x: boolean) = boolean{self == x};
+public value Boolean { }
+public value Byte    { }
+public value Short   { }
+public value Char    { }
+public value Int     { }
+public value Long    { }
+public value Float   { }
+public value Double  { }
 
-public type byte(x: byte)       = byte{self == x};
-public type short(x: short)       = short{self == x};
-public type char(x: char)       = char{self == x};
-public type int(x: int)       = int{self == x};
-public type long(x: long)       = long{self == x};
-public type float(x: float)       = float{self == x};
-public type double(x: double)       = double{self == x};
+public type Boolean(x: Boolean) = Boolean{self == x};
+public type Byte   (x: Byte)    = Byte   {self == x};
+public type Short  (x: Short)   = Short  {self == x};
+public type Char   (x: Char)    = Char   {self == x};
+public type Int    (x: Int)     = Int    {self == x};
+public type Long   (x: Long)    = Long   {self == x};
+public type Float  (x: Float)   = Float  {self == x};
+public type Double (x: Double)  = Double {self == x};
 
-public type String(x: String)       = String{self == x};
+public type Byte  (lo: Byte,   hi: Byte)   = Byte  {lo <= self, self <= hi};
+public type Short (lo: Short,  hi: Short)  = Short {lo <= self, self <= hi};
+public type Char  (lo: Char,   hi: Char)   = Char  {lo <= self, self <= hi};
+public type Int   (lo: Int,    hi: Int)    = Int   {lo <= self, self <= hi};
+public type Long  (lo: Long,   hi: Long)   = Long  {lo <= self, self <= hi};
+public type Float (lo: Float,  hi: Float)  = Float {lo <= self, self <= hi};
+public type Double(lo: Double, hi: Double) = Double{lo <= self, self <= hi};
 
-public type byte(lo: byte, hi: byte)       = byte{lo <= self, self <= hi};
-public type short(lo: short, hi: short)       = short{lo <= self, self <= hi};
-public type char(lo: char, hi: char)       = char{lo <= self, self <= hi};
-public type int(lo: int, hi: int)       = int{lo <= self, self <= hi};
-public type long(lo: long, hi: long)       = long{lo <= self, self <= hi};
-public type float(lo: float, hi: float)       = float{lo <= self, self <= hi};
-public type double(lo: double, hi: double)       = double{lo <= self, self <= hi};
+public value Complex(x: Double, y: Double) { }
+public type Complex(x: Complex  = Complex{self == x};
+\end{xten}
 
-public value class boolean { }
-public value class byte { }
-public value class short { }
-public value class char { }
-public value class int { }
-public value class long { }
-public value class float { }
-public value class double { }
+\section{String}
 
-public value class String { }
+\begin{xten}
+public value String  { }
+
+public type String (x: String)  = String {self == x};
+
 public class StringBuffer { }
+\end{xten}
 
-public class Array[T](dist: dist) {
-        property region = dist.region;
-        property rank = region.rank;
-        property zeroBased = region.zeroBased;
-        property rail = region.rail;
-        property rect = region.rect;
-        property onePlace = dist.onePlace;
-}
-public value class valarray[T](dist: dist) { }
+\section{Points, regions, distributions}
 
-public value class point(rank: int) { }
-
-public value class region(rank: int{self > 0},
-                          zeroBased: boolean,
-                          rect: boolean) {
-}
-public value class dist(region: region, onePlace: box[place]) {
-        property rank = region.rank;
-        property zeroBased = region.zeroBased;
-        property rect = region.rect;
-        property rail = zeroBased && rect && onePlace != null;
+\begin{xten}
+public value Point(rank: Int{self >= 0}) {
 }
 
-public value class clock { }
-public value class place { }
+public value Region(rank: Int{self >= 0},
+                    zeroBased: Boolean,
+                    rect: Boolean) {
+}
+
+public value Dist(region: Region, onePlace: Box[Place]) extends ValArray[Place](region) {
+    property rank = region.rank;
+    property zeroBased = region.zeroBased;
+    property rect = region.rect;
+    property rail = zeroBased && rect && onePlace != null;
+}
 \end{xten}
 
-\section{Array types}
-
-\begin{grammar}
-ArrayType \: \xcd"Array" \xcd"[" Type \xcd"]" \\
-          \| \xcd"array" \xcd"[" Type \xcd"]" \\
-\end{grammar}
-
-\Xten{} has the following built in types:
+\section{Clocks}
 
 \begin{xten}
-value class point(rank: int{rank>=0}) {...}
-\end{xten}
-\begin{xten}
-value class region(rank: int{rank>=0},
-   // region is a product of rank-1 convex regions.
-   rect: boolean,  
-   rail: boolean,
-   // on each dim, the low bound is 0. 
-   lowZero: boolean
-  ) { ...}
-\end{xten}
-\begin{xten}
-value class dist(rank: int{rank>=0},
-   rect: boolean,
-   rail: boolean,
-   lowZero: boolean,
-   region: region{self.rank==rank
-               && self.rect==rect
-               && self.lowZero==lowZero},
-   onePlace: place 
-   )  { ...}
-\end{xten}
-\begin{xten}
-class Array[T](rank: int{rank>=0},
-   rect: boolean,
-   rail: boolean,
-   lowZero: boolean,
-   onePlace: place,
-   region: region,
-   dist: dist{self.rank==rank
-           && self.rect=rect
-           && self.lowZero==lowZero
-           && self.region==region
-           && self.onePlace==onePlace}
-      ) {...}
-\end{xten}
-\begin{xten}
-value class array[T](rank: int{rank>=0},
-   rect: boolean,
-   rail: boolean,
-   lowZero: boolean,
-   onePlace: place,
-   region: region,
-   dist: dist{self.rank==rank
-           && self.rect=rect
-           && self.lowZero==lowZero
-           && self.region==region
-           && self.onePlace==onePlace}
-      ) {...}
+public value Clock { }
 \end{xten}
 
-For \xcd"R" is a reference type, the type \xcd"array[T](R{c}!current)" is interpreted as the
-type of all arrays which are such that the value at a point \xcd"p" in its
-region has the type \xcd"R{c}!self.dist(p)". (Recall that in \Xten{} a
-distribution is itself a value array that maps a point to a place.)
+\section{Places}
 
-\begin{example}
+\begin{xten}
+public value Place { }
+\end{xten}
+
+\section{Arrays}
+
+\begin{xten}
+public class Array[T](dist: Dist) {
+    property region = dist.region;
+    property rank = region.rank;
+    property zeroBased = region.zeroBased;
+    property rail = region.rail;
+    property rect = region.rect;
+    property onePlace = dist.onePlace;
+
+    def this[T](dist: Dist, init: Point{self in dist.region} => T);
+    def this[T](n: Int, init: Point{self in dist.region} => T) = {
+        this[T](0..n-1 -> here, init);
+    }
+
+    def get(p: Point{self in region}): T;
+    def set(p: Point{self in region}, v: T): T;
+}
+\end{xten}
+
+\begin{xten}
+public value ValArray[T](region: Region)
+    implements Fun_0_1[Point{self in region},T] {
+
+    property rank = region.rank;
+    property zeroBased = region.zeroBased;
+    property rail = region.rail;
+    property rect = region.rect;
+
+    def this[T](dist: Dist);
+
+    def get(p: Point{self in region}): T;
+
+    def add(a: Array[T](region)){T has add: (T,T) => T};
+    def sub(a: Array[T](region)){T has sub: (T,T) => T};
+    ...
+}
+\end{xten}
+
   The type \xcd"Array[double]{rail}" is the Java type \xcd"double[]".
   The type \xcd"Array[Array[double]{rail}]{rail}" is the Java type \xcd"double[][]".
 
@@ -142,9 +130,16 @@ distribution is itself a value array that maps a point to a place.)
   The type \xcd"Array[double]{rank==N&&onePlace==here}" is the
   type of all \xcd"N"-dimensional
   arrays of \xcd"double"s that are local (mapped to one place).  
-\end{example}
 
-\begin{verbatim}
-FUTURE: array[T] implements point => T
-\end{verbatim}
+\section{Function types}
 
+The library contains the following family of interfaces.
+
+\begin{xtenmath}
+public interface Fun_$k$_$n$[X$_1$, $\dots$, X$_k$] {
+    def __apply__(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): T;
+}
+\end{xtenmath}
+
+A closure call \xcd"e1(e2)" is equivalent to 
+the method call \xcd"e1.__apply__(e2)".

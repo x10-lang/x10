@@ -25,16 +25,15 @@ clocks of the current activity may be specified.
 invariant. This is necessary so that programmers can build dependent
 types on top of interfaces and not just classes.
 
-\begin{verbatim}
-NormalInterfaceDeclaration ::= 
-     InterfaceModifiersopt interface identifier 
-        PropertyListopt ExtendsInterfacesopt InterfaceBody
-PropertyList     ::= ( Properties WhereClauseopt )
-Properties       ::= Property
-                    | Properties , Property
-Property         ::= Type identifier    
-PropertyListopt  ::= null | PropertyList
-\end{verbatim}
+\begin{grammar}
+NormalInterfaceDeclaration \:
+      InterfaceModifiers\opt \xcd"interface" Identifier  \\
+   && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
+   && ExtendsInterfaces\opt InterfaceBody \\
+PropertyList     \: \xcd"(" Properties WhereClauseopt \xcd")" \\
+Properties       \: Property ( \xcd"," Property )\star \\
+Property         \: Identifier \xcd":" Type \\
+\end{grammar}
 The invariant associated with an interface is the conjunction of the
 invariants associated with its superinterfaces and the invariant
 defined at the interface. 

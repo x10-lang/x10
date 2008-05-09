@@ -107,10 +107,6 @@ deadlock. Clocks are also integrated into the \Xten{} type system,
 permitting variables to be declared so that they are \xcd"final" in each
 phase of a clock.
 
-\section{Records}
-
-XXX TODO
-
 \section{Interfaces and classes}
 Programmers write \Xten{} code by writing \emph{constrained interfaces}
 (\S~\ref{XtenInterfaces}) and \emph{constrained classes}
@@ -120,11 +116,11 @@ Instances can be
 created only from \emph{concrete} classes; such a class has all its
 properties (if any) bound.  Types may be defined by constraining a class or interface's properties with boolean predicates.
 
-\section{Scalar classes}
+\section{Classes}
 
 XXX TODO
 
-An \Xten{} scalar class (\S~\ref{XtenClasses}) has fields, methods and
+An \Xten{} class (\S~\ref{XtenClasses}) has fields, methods and
 inner types (interfaces, classes), subclasses another class, and
 implements one or more interfaces. Thus \Xten{} classes live in a
 single-inheritance code hierarchy.  
@@ -132,7 +128,7 @@ single-inheritance code hierarchy.
 %% define literals for classes, and overload infix/prefix/postfix
 %% operators.
 
-There are two kinds of scalar classes: \emph{reference} classes
+There are two kinds of classes: \emph{reference} classes
 (\S~\ref{ReferenceClasses}) and \emph{value} classes
 (\S~\ref{ValueClasses}).
 
@@ -148,21 +144,22 @@ be freely copied from place to place, and may be implemented very
 efficiently. Methods may be invoked on such an object from any place.
 
 \Xten{} has no primitive classes. However, the standard library
-\xcd"x10.lang" supplies (final) value classes \xcd"boolean", \xcd"byte",
-\xcd"short", \xcd"char", \xcd"int", \xcd"long", \xcd"float",
-\xcd"double", \xcd"complex" and \xcd"String". The user may defined
+\xcd"x10.lang" supplies (final) value classes \xcd"Boolean", \xcd"Byte",
+\xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float",
+\xcd"Double", \xcd"Complex" and \xcd"String". The user may defined
 additional arithmetic value classes using the facilities of the
 language.
 
 \section{Arrays, regions and distributions}
+
 An \Xten{} array is a function from a \emph{distribution}
 (\S~\ref{XtenDistributions}) to a base type (which may itself be an
 array type).
 
 A distribution is a map from a \emph{region} (\S~\ref{XtenRegions}) to a
 subset of places.  A region is a collection of \emph{points} or
-\emph{indices}. For instance, the region \xcd"[0:200,1:100]" specifies
-a collection of two-dimensional points \xcd"(i,j)" with 
+\emph{indices}. For instance, the region \xcd"Region(0..200,1..100)" specifies
+a collection of two-dimensional points \xcd"Point(i,j)" with 
 \xcd"i" ranging from \xcd"0" to \xcd"200" and \xcd"j" ranging
 from \xcd"1" to \xcd"100". Points are used in array index expressions
 to pick out a particular array element.
@@ -188,14 +185,6 @@ region. Such a constructor may spawn activities at multiple places.
 
 \emph{In future versions of the language, a programmer may specify new
 distributions, and new operations on distributions.}
-
-\section{Nullable type constructor}
-
-\Xten{} has a \xcd"nullable" type constructor which can be applied
-uniformly to scalar (value or reference) and array types. This type
-constructor returns a new type which adds a special value \xcd"null"
-to the set of values of its argument type, unless the argument type
-already has this value.
 
 \section{Annotations}
 

@@ -28,13 +28,9 @@ a compiler plugin.
 \section{Annotation syntax}
 
 The annotation syntax consists of an ``\texttt{@}'' followed by an interface type.
-\begin{verbatim}
-532   Annotation ::= @ InterfaceType
-533   Annotations ::= Annotation
-534     | Annotations Annotation
-535   Annotationsopt ::=
-536     | Annotations
-\end{verbatim}
+\begin{grammar}
+Annotation \: \xcd"@" InterfaceType \\
+\end{grammar}
 Annotations can be applied to most syntactic constructs in the language
 including class declarations, constructors, methods, field declarations,
 local variable declarations and formal parameters, statements,
@@ -42,22 +38,22 @@ expressions, and types.
 Multiple occurrences of the same annotation (i.e., multiple
 annotations with the same interface type) on the same entity are permitted.
 
-\begin{verbatim}
-537   ClassModifier ::= Annotation
-538   InterfaceModifier ::= Annotation
-539   FieldModifier ::= Annotation
-540   MethodModifier ::= Annotation
-541   VariableModifier ::= Annotation
-542   ConstructorModifier ::= Annotation
-543   AbstractMethodModifier ::= Annotation
-544   ConstantModifier ::= Annotation
-545   Type ::= AnnotatedType
-546   AnnotatedType ::= Type Annotations
-547   Statement ::= AnnotatedStatement
-548   AnnotatedStatement ::= Annotation Statement
-549   Expression ::= AnnotatedExpression
-550   AnnotatedExpression ::= Expression : Annotation
-\end{verbatim}
+\begin{grammar}
+ClassModifier \: Annotation \\
+InterfaceModifier \: Annotation \\
+FieldModifier \: Annotation \\
+MethodModifier \: Annotation \\
+VariableModifier \: Annotation \\
+ConstructorModifier \: Annotation \\
+AbstractMethodModifier \: Annotation \\
+ConstantModifier \: Annotation \\
+Type \: AnnotatedType \\
+AnnotatedType \: Type Annotation\plus \\
+Statement \: AnnotatedStatement \\
+AnnotatedStatement \: Annotation Statement \\
+Expression \: AnnotatedExpression \\
+AnnotatedExpression \: Expression : Annotation \\
+\end{grammar}
 \noindent
 Recall that interface types may have dependent parameters.
 
