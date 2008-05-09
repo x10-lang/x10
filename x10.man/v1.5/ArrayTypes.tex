@@ -7,57 +7,43 @@ class types. Instead arrays are created as instances of array types
 constructed through the application of {\em array type constructors}
 (\S~\ref{XtenArrays}).
 
+XXX 
+Arrays are defined via the \xcd"Array" and \xcd"ValArray"
+classes in the standard library.
+
 The array type constructor takes as argument a type (the {\em base
 type}), an optional distribution (\S~\ref{XtenDistributions}), and
 optionally the keyword \xcd"value":
-\begin{verbatim}
-439   ArrayType ::= array [ Type ]
-441     | value array [ Type ]
-442     | array [ Type ] ( Expression )
-444     | value array [ Type ] ( Expression )
-\end{verbatim}
+\begin{grammar}
+  ArrayType \: \xcd"Array" \xcd"[" Type \xcd"]" ( \xcd"(" Expression \xcd")" )\opt \\
+     \| \xcd"ValArray" \xcd"[" Type \xcd"]" ( \xcd"(" Expression \xcd")" )\opt
+\end{grammar}
 
-The array type \xcd"array[T]" is the type of all
+The array type \xcd"Array[T]" is the type of all
 reference arrays of base type \xcd"T". Such an array can take on any
 distribution, over any region. 
 
-The qualifier \xcd"value" specifies that the array
-is a \xcd"value" array. The array elements of a \xcd"value" array are
-all \xcd"final".\footnote{Note that the base type of a \xcd"value" array can be a value class or a reference class, just as the 
+The array type \xcd"ValArray[T]" specifies the type of all
+values arrays of base type \xcd"T".
+The array elements of a \xcd"ValArray" are
+all \xcd"final".\footnote{Note that the base type of a
+\xcd"ValArray" can be a value class or a reference class, just as the 
 type of a \xcd"final" variable can be a value class or a reference class.}
-If the qualifier is not specified, the array is a reference array.
 
 \XtenCurrVer{} also allows a distribution to be specified 
 as a property initializer on the array type.
 The distribution must be an expression of type
-\xcd"distribution" (e.g., a \xcd"final" variable) whose
+\xcd"Dist" whose
 value does not depend on the value of any mutable variable.
 
 \Xten{} also supports dependent types for arrays,
 e.g.,
-\xcd"array[double]{rank==3}" is the type of all arrays of 
-\xcd"double" of rank \xcd"3".
+\xcd"Array[Double]{rank==3}" is the type of all arrays of 
+\xcd"Double" of rank \xcd"3".
 
 The array type
-\xcd"array[T](n)" and its synonym
-\xcd"array[T]([0:n-1]->here)" corresponds to a local
+\xcd"Array[T](n)" and its synonym
+\xcd"Array[T](Region(0..n-1)->here)" corresponds to a local
 zero-indexed array, such as in Java.
 % \xcd"array[T]{rank==1,dist==0:self.length-1->here,region==0:self.length-1"}
 % corresponds to a Java array.
-
-\if 0
-
-Arrays are as if defined by the following class:
-\begin{xten}
-class array[T](dist: distribution, region: region, rank: int, zeroBased: boolean, onePlace: boolean, rail: boolean)
-\end{array}
-
-Array constructors:
-\begin{xten}
-type array[T](D: distribution) = array[T]{dist=D, region=D.region, zeroBased=???, onePlace=???, rail=???}
-type array[T](R: region) = array[T]{dist=D, region=D.region, zeroBased=D.region.zeroBased, onePlace=D.onePlace, rail=R.rail}
-type array[T](n: int) = array[T]([0:n]->here);
-\end{xten}
-
-\fi
-

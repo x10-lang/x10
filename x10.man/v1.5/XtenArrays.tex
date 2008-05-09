@@ -15,33 +15,15 @@ the field \xcd"a.distribution".
 \input{XtenDistributions}
 \section{Array initializer}\label{ArrayInitializer}\label{array!creation}
 
-\begin{verbatim}
-450 ArrayCreationExpression ::= 
-       new ArrayBaseType Unsafeopt [] 
-         ArrayInitializer
-451  | new ArrayBaseType Unsafeopt 
-       [ Expression ]
-452  | new ArrayBaseType Unsafeopt 
-       [ Expression ] Expression
-453  | new ArrayBaseType Unsafeopt 
-       [ Expression ] 
-       (FormalParameter) MethodBody
-454  | new ArrayBaseType value Unsafeopt 
-       [ Expression ]
-455  | new ArrayBaseType value Unsafeopt 
-       [ Expression ] Expression
-456  | new ArrayBaseType value Unsafeopt 
-       [ Expression ] 
-       ( FormalParameter ) MethodBody
-457 ArrayBaseType ::= PrimitiveType
-458  | ClassOrInterfaceType
-530 Unsafeopt ::=
-531  | unsafe
-\end{verbatim}
+Arrays are instantiated by invoking the constructor for the
+classes
+\xcd"Array" or \xcd"ValArray".
 
-An array may be declared \xcd"unsafe" if it is intended to be
+An array instantiation may be annotated
+\xcd"unsafe"
+if it is intended to be
 allocated in an unmanaged region (e.g.{} for communication with native
-code). A \xcd"value" array is an immutable array. An array creation
+code). A value array is an immutable array. An array creation
 must take either an int as an argument or a distribution. In the first
 case an array is created over the distribution \xcd"[0:N-1]-> here";
 in the second over the given distribution. 
@@ -57,12 +39,10 @@ distribution).
 
 For instance:
 \begin{xten}
-val data : array[int]
-    = new array[int](1000->here)
-        (p[i]: point => i);
-val data2 : array[int]
-    = new value array[int]([1:1000,1:1000]->here)
-        (p[i,j]: point => i*j);
+val data : Array[Int]
+    = new Array[Int](1000->here, Point(i) => i);
+val data2 : Array[Int]
+    = new ValArray[Int]([1:1000,1:1000]->here, Point(i,j) => i*j);
 \end{xten}
 
 {}\noindent 

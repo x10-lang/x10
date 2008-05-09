@@ -61,17 +61,11 @@ in the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}
 The special statements introduced for clock operations are listed below.
 %%479 NowStatement ::= 
 %%      now ( Clock ) Statement
-\begin{verbatim}
-462 Statement ::= ClockedStatement
-472 StatementNoShortIf ::= 
-      ClockedStatementNoShortIf
-480 ClockedStatement ::= 
-      clocked ( ClockList ) Statement
-490 ClockedStatementNoShortIf ::= 
-      clocked ( ClockList ) 
-         StatementNoShortIf
-501 NextStatement ::= next ;
-\end{verbatim}
+\begin{grammar}
+Statement \: ClockedStatement \\
+ClockedStatement \: \xcd"clocked" \xcd"(" ClockList \xcd")" Statement \\
+NextStatement \: next \xcd";" \\
+\end{grammar}
 
 Note that \xcd"x10.lang.clock" provides several useful methods on
 clocks (e.g. \xcd"drop").

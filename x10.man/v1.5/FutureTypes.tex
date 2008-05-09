@@ -1,14 +1,15 @@
-\subsection{Future types}
+\section{Future types}
 
-For any type \xcd"T", \xcd"future[T]" is a type:
-\begin{verbatim}
-424   Type ::=   future [ Type ] 
-\end{verbatim}
-The type  represents a value which when forced will return a value of type
+The value class \xcd"Future[T]"
+is the type of all \xcd"future" expressions.
+The type represents a value which when forced will return a value of type
 \xcd"T". Thus the type makes available the following methods:
 
 \begin{xten}
+package x10.lang;
+public class Future[T] {
   public def force(): T;
+  public def forced(): Boolean;
+}
 \end{xten}
-
-%% Nothing to say about future/nullable yet.
+  
