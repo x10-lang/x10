@@ -1,6 +1,6 @@
 \chapter{Introduction}
 \subsection*{Background}
-Bigger computational problems need bigger computers capable of
+Larger computational problems need more powerful computers capable of
 performing a larger number of operations per second. The era of
 increasing performance by simply increasing clocking frequency now
 seems to be behind us. It is becoming increasingly difficult
@@ -64,8 +64,8 @@ problems. \Xten{} takes advantage of several years of research (e.g.,{}
 in the context of the Java Grande forum,
 \cite{moreira00java,kava}) on how to adapt such languages to the context of
 high-performance numerical computing. Thus \Xten{} provides support
-for user-defined {\em value types} (such as {\tt int}, {\tt float},
-{\tt complex} etc), supports a very
+for user-defined {\em value types} (such as \xcd"int", \xcd"float",
+\xcd"complex" etc), supports a very
 flexible form of multi-dimensional arrays (based on ideas in ZPL
 \cite{zpl}) and supports IEEE-standard floating point arithmetic.
 Some limited operator overloading is provided for a few ``built in''
@@ -99,9 +99,12 @@ system tracks which memory accesses are local. The programmer may
 introduce placecasts which verify the access is local at runtime.
 Linking with native code is supported.
 
-{}\XtenCurrVer{} adds to Version~1.1 the following features. The
-dependent type system is extended to support genericity through
-constraints on type properties.  Closures are supported.
+{}\XtenCurrVer{} adds to Version~1.1 the following features:
+The syntax of the language is more concise.
+The dependent type system is extended to support genericity through
+constraints on type properties.  Type definitions and local type inference are
+supported.  Arrays and futures are defined in the language library, rather than
+as type constructors.  Closures and function types are supported.
 
 {}\Xten{} is an experimental language.  Several representative
 concurrent idioms have already found pleasant expression in \Xten. We
@@ -111,6 +114,7 @@ this experience. Future versions of the language are expected to
 support user-definable operators and permit the specification of
 generic classes and methods.
 
+XXX There are more papers.
 Two papers have been published on \Xten{}. \cite{X10-concur05}
 presents a formal semantics for the concurrency and distributed
 aspects of \Xten{}. \cite{xten} presents some case studies, and

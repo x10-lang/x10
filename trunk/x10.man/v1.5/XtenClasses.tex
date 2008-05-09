@@ -1,8 +1,95 @@
 \chapter{Classes}
 \label{XtenClasses}\index{class}
 
-{}\Xten{} classes are essentially the same as \java{} classes \cite[\S
-8]{jls2}. Classes are structured in a single-inheritance code
+The {\em class declaration} takes
+as argument a reference class (the {\em extended class}), one or more
+interfaces (the {\em implemented interfaces}), the definition of
+fields, methods and inner types, and returns a class of the named type
+(\S~\ref{ReferenceClasses}). Each such declaration introduces a data
+type. Semantically, the data type is the set of all objects which are
+instances of (subclasses of) the class.
+
+\begin{grammar}
+NormalClassDeclaration \:
+      ClassModifiers\opt \xcd"class" Identifier  \\
+   && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
+   && Super\opt Interfaces\opt ClassBody \\
+\end{grammar}
+
+
+XXXXXXXXXXXXXX
+
+\begin{grammar}
+TypePropertyList     \:  \xcd"[" TypeProperties \xcd"]" \\
+TypeProperties       \:  TypeProperty
+                     ( \xcd"," TypeProperty )\star \\
+TypeProperty         \:  Identifier     \\
+PropertyList     \:  \xcd"(" Properties \xcd")" \\
+Properties       \:  Property ( \xcd"," Property )\star \\
+Property         \:  Identifier \xcd":" Type \\
+\end{grammar}
+
+A type property has a name.
+A value property has a name and a type. The declaration of a type (class or
+interface) introduces a sequence of defined properties for the type. 
+
+\begin{staticrule*}
+It is a compile-time error for a class
+defining a value property \xcd"x: T" to have an ancestor class that defines
+a value property with the name \xcd"x".  
+It is a compile-time error for a class
+defining a type property \xcd"X" to have an ancestor class that defines
+a type property with the name \xcd"X".   
+\end{staticrule*}
+
+Each class \xcd"C" defining a property \xcd"x: T" implicitly has a field
+
+\begin{xten}
+public val x : T;
+\end{xten} 
+
+\noindent and a getter method
+
+\begin{xten}
+public final def x(): T { return x; }
+\end{xten}
+
+\noindent Each interface \xcd"I" defining a property \xcd"x: T"
+implicitly has a getter method
+
+\begin{xten}
+public def x(): T;
+\end{xten}
+
+\begin{staticrule*}
+It is a compile-time error for a class or
+interface defining a property \xcd"x :T" to have an existing method with
+the signature \xcd"x(): T".
+\end{staticrule*}
+
+
+Properties are used to build dependent types from classes, as
+described below (\S~\ref{DepType:DepType}).
+
+The \xcd"WhereClause" in a class or interface declaration specifies an
+explicit condition on the properties of the type, and is discussed further
+below (\S~\ref{DepType:Class}, \ref{DepType:Interface}).
+
+\begin{staticrule*}
+     Every constructor for a class defining
+   properties \xcdmath"x$_1$: T$_1$, $\ldots$, x$_n$: T$_n$" must ensure that each of the fields
+   corresponding to the properties is definitely initialized
+   (cf. requirement on initialization of final fields in Java) before the
+   constructor returns.
+\end{staticrule*}
+
+Type properties are used to define generic classes and
+interfaces.
+
+XXXXXXXXXXXXXX
+
+
+{}\Xten{} classes are essentially the same as \java{} classes \cite[\S 8]{jls2}. Classes are structured in a single-inheritance code
 hierarchy, may implement multiple interfaces, may have static and
 instance fields, may have static and instance methods, may have
 constructors, may have static and instance initializers, may have
@@ -56,23 +143,21 @@ for fields in a value class to be declared final. For brevity, the \Xten{}
 compiler allows the programmer to omit the keyword \xcd"class" after
 \xcd" value" in a value class declaration.
 
-\begin{verbatim}
-447  ClassDeclaration ::= ValueClassDeclaration
-448  ValueClassDeclaration ::= 
-       ClassModifiersopt value identifier Superopt 
-          Interfacesopt ClassBody
-449  | ClassModifiersopt value class identifier 
-          Superopt Interfacesopt ClassBody
-\end{verbatim}
+
+\begin{grammar}
+ValueClassDeclaration \:
+      ClassModifiers\opt \xcd"value" \xcd"class"\opt Identifier  \\
+   && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
+   && Super\opt Interfaces\opt ValueClassBody \\
+\end{grammar}
+
 
 The \xcd"nullable" type-constructor (\S~\ref{NullableTypeConstructor}) can
 be used to declare variables whose value may be \xcd"null" or a value
 type.
 
-\cbstart
 Stable equality for value types is defined through a deep walk,
 bottoming out in fields of reference types (\S~\ref{StableEquality}).
-\cbend
 
 \paragraph{Static semantics.}
 It is a compile-time error for a value class to inherit from a
@@ -113,11 +198,9 @@ idea of introducing a *-annotation. Need to make a decision on
 this. Could leave this for 0.7.}
 
 \subsection{Example}
-\cbstart
 
 A functional \xcd"LinkedList" program may be written as follows:
 
-\cbend
 
 \begin{xten}
 value LinkedList { 
@@ -165,24 +248,546 @@ value Complex {
 }
 \end{xten}
 
+\section{Where clauses}\label{DepType:WhereClauses}\index{where clauses}
 
-\section{Method annotations}
+There is a general recipe for constructing a list of parameters or
+properties \xcdmath"x$_1$: T$_1${c$_1$}, $\dots$, x$_k$: T$_k${c$_k$}" that must satisfy a given
+(satisfiable) constraint \xcd"c". 
 
-\subsection{\Xcd{atomic} annotation}
-A method may be declared \xcd"atomic".
+\begin{xtenmath}
+class Foo(x$_1$: T1{x$_2$: T$_2$; ...; x$_k$: T$_k$; c},
+          x$_2$: T2{x$_3$: T$_3$; ...; x$_k$: T$_k$; c},
+          $\dots$
+          x$_k$: T$_k${c}) {
+  $\dots$
+}
+\end{xtenmath}
+
+The first type \xcdmath"x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}" is consistent iff
+\xcdmath"$\exists$x$_1$: T$_1$, x$_2$: T$_2$, $\dots$, x$_k$: T$_k$. c" is consistent. The second is
+consistent iff
+\begin{xtenmath}
+$\forall$x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}
+$\exists$x$_2$: T$_2$. $\exists$x$_3$: T$_3$, $\dots$, x$_k$: T$_k$. c
+\end{xtenmath}
+\noindent But this is always true. Similarly for the conditions for the other
+properties.
+
+Thus logically every satisfiable constraint \xcd"c" on a list of parameters
+\xcdmath"x$_1$", \dots, \xcdmath"x$_k$"
+can be expressed using the dependent types of 
+\xcdmath"x$_i$", provided
+that the constraint language is rich enough to permit existential
+quantifiers.
+
+Nevertheless we will find it convenient to permit the programmer to
+explicitly specify a depclause after the list of properties, thus:
+\begin{xten}
+class Point(i: int, j: int) { ... }
+class Line(start: Point, end: Point) where (end != start)
+  { ... }
+class Triangle (a: Line, b: Line, c: Line) where
+        (a.end == b.start && b.end == c.start &&
+         c.end == a.start) { ... }
+class SolvableQuad(a: int, b: int, c: int) where 
+                   (a*x*x+b*x+c==0)  { ... }
+class Circle (r: int, x: int, y: int) where
+              (r > 0 && r*r==x*x+y*y){ ... }
+class NonEmptyList extends List{n > 0} {...}
+\end{xten}
+
+Consider the definition of the class \xcd"Line". This may be thought of as
+saying: the class \xcd"Line" has two fields, \xcd"start: Point" and
+\xcd"end: Point".
+Further, every instance of \xcd"Line" must satisfy the constraint that
+\xcd"end != start". Similarly for the other class definitions. 
+
+In the general case, the production for \xcd"NormalClassDeclaration"
+specifies that the list of properties may be followed by a \xcd"WhereClause":
+
 \begin{verbatim}
-445   MethodModifier ::= atomic  
+NormalClassDeclaration ::= 
+   ClassModifiersopt class Identifier 
+   TypePropertyListopt PropertyListopt WhereClauseopt
+   Superopt Interfacesopt ClassBody
+
+NormalInterfaceDeclaration ::= 
+   InterfaceModifiersopt interface Identifier 
+   TypePropertyListopt PropertyListopt WhereClauseopt
+   ExtendsInterfacesopt InterfaceBody
 \end{verbatim}
+
+All the properties in the list, together with inherited properties,
+may appear in the \xcd"WhereClause". A where clause \xcd"c" with
+type property list \xcd"X1, ...., Xk"
+and value property list \xcd"x1: T1, ...., xn: Tn"
+for a class \xcd"Foo" is said to be consistent if each of the \xcd"Ti" are
+consistent and the constraint
+\begin{xtenmath}
+$\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: Foo. c
+\end{xtenmath}
+\noindent is valid (always true).
+
+\section{Class definitions}
+
+Consider a class definition
+\begin{xten}
+ClassModifiersopt 
+ class C (P1 x1,..., Pn xn)  extends D(:d) 
+   implements I1(:c1),..., Ik(:ck)
+ ClassBody  
+\end{xten}
+
+Each of the following static semantics rules must be satisfied:
+
+\begin{staticrule}{Int-implements}
+The type invariant \xcd"i(C)" of \xcd"C" must entail
+\xcd"ci[this/self]" for each \xcd"i" in \xcd"1:k".  
+\end{staticrule}
+
+\begin{staticrule}{Super-extends}
+The return type \xcd"c" of each constructor in \xcd"ClassBody"
+must entail \xcd"d".
+\end{staticrule}
+
+\section{Constructor definitions}
+
+A constructor for a class \xcd"C" is guaranteed to return an object of the
+class on successful termination. This object must satisfy i(C), the
+class invariant associated with \xcd"C" (\S~\ref{DepType:TypeInvariant}). However,
+often the objects returned by a constructor may satisfy {\em stronger}
+properties than the class invariant. \Xten{}'s dependent type system
+permits these extra properties to be asserted with the constructor in
+the form of a deptype (the ``return type'' of the constructor):
+
+\begin{grammar}
+ConstructorDeclarator \:
+  \xcd"def" \xcd"this" TypeParameterList\opt \xcd"(" FormalParameterList\opt \xcd")" \\
+  && ReturnType\opt WhereClause\opt Throws\opt \\
+ReturnType    \: \xcd":" Type \\
+WhereClause   \: \xcd"where" DepExpression \\
+Throws    \: \xcd"throws" ExceptionType  ( \xcd"," ExceptionType )\star \\
+ExceptionType \: ClassBaseType Annotation\star \\
+\end{grammar}
+
+As with method declarations, the parameter list for the constructor
+may specify a where clause that is to be satisfied by the parameters
+to the list.
+
+\begin{example}
+Here is another example.
+\begin{xten}
+public class List[T](n: int{n >= 0}) {
+ protected head: nullable[T];
+ protected tail: nullable[List[T](n-1)];
+ public def this(o: T, t: List[T]) : List[T](t.n+1) = {
+     n = t.n+1;
+     tail = t;
+     head = o;
+ }
+ public def this() : List[T](0) = {
+     n = 0;
+     head = null;
+     tail = null;
+ }
+ ...
+}
+\end{xten}
+The second constructor returns a \xcd"List" that is guaranteed to have \xcd"n==0";
+the first constructor is guaranteed to return a List with \xcd"n>0"
+(in fact, \xcd"n==t.n+1", where the argument to the constructor is \xcd"t"). 
+This is recorded by the programmer in the deptype associated with the
+constructor.
+\end{example}
+
+\begin{staticrule}{Super-invoke}
+   Let \xcd"C" be a class with properties \xcd"p1: P1, ..., pn: Pn", invariant \xcd"c"
+   extending the deptype \xcd"D{d}" (where \xcd"D" is the name of a class).
+
+   For every constructor in \xcd"C" the compiler checks that the call to
+   super invokes a constructor for D whose return type is strong enough
+   to entail d. Specifically, if the call to super is of the form 
+     \xcd"     super(e1, ..., ek)"
+   and the static type of each expression ei is Si, and the invocation
+   is statically resolved to a constructor
+\xcd"def this(x1: T1,..., xk: Tk): D{d1} where c"
+   then it must be the case that 
+\begin{xten}
+x1: S1, ..., xi: Si |- xi: Ti  (for i in 1:k)
+x1: S1, ..., xk: Sk |- c  
+d1[a/self] && x1: S1 ... && xk: Sk |- d[a/self]      
+\end{xten}
+\noindent   where \xcd"a" is a constant that does not appear in 
+\xcd"x1: S1 && ... && xk: Sk".
+  
+\end{staticrule}
+
+\begin{staticrule}{Constructor return}
+   The compiler checks that every constructor for \xcd"C" ensures that
+   the properties \xcd"p1,..., pn" are initialized with values which satisfy
+   \xcd"t(C)", and its own return type \xcd"c'" as follows.  In each constructor, the
+   compiler checks that the static types \xcd"Ti" of the expressions \xcd"ei"
+   assigned to pi are such that the following is true
+\begin{xten}
+p1: T1, ...., pn: Tn |- t(C) && c'     
+\end{xten}
+\end{staticrule}
+(Note that for the assignment of ei to pi to be type-correct it must be the
+    case that pi: Ti |- pi: Pi.) 
+
+
+\begin{staticrule}{Constructor invocation}
+The compiler must check that every invocation \xcd"C(e1,..., en)" to a
+constructor is type correct: each argument \xcd"ei" must have a static type
+that is a subtype of the declared type \xcd"Ti" for the \xcd"i"th argument of the
+constructor, and the conjunction of static types of the argument must
+entail the \xcd"WhereClause" in the parameter-list of the constructor.
+\end{staticrule}
+
+\section{Field definitions}
+
+Not every instance of a class needs to have every field defined on the
+class. In Java-like languages this is ensured by conditionally setting
+fields to a default value, such as \xcd"null", in those instances where the
+fields are not needed.  
+
+Consider the class \xcd"List" used earlier.  Here all instances of \xcd"List"
+returned by the second constructor do not need the fields \xcd"value" and
+\xcd"tail"; their value is set to null.
+
+\Xten{} permits a much cleaner solution that does not require default
+values such as null to be stored in such fields. \Xten{} permits fields to
+be {\em guarded}, that is defined only if a certain constraint on the
+properties of the class, called the \xcd"guard" of that field, is true.
+
+\begin{grammar}
+FieldDeclaration  \:
+   FieldModifiers\opt \xcd"val" VariableDeclarators \xcd";" \\
+   \|
+   FieldModifiers\opt \xcd"var" VariableDeclarators \xcd";" \\
+VariableDeclarators \:
+   Identifier ( \xcd":" Type )\opt ( \xcd"=" Expression )\opt \\
+\end{grammar}
+
+It is illegal for code to access a guarded field through a reference
+whose static type does not satisfy the associated guard, even
+implicitly (i.e.{} through an implicit \xcd"this"). Rather the source
+program should contain an explict cast, e.g.{} \xcd"me: C{c} = this as C{c}".
+
+\begin{staticrule*}
+Let \xcd"f" be a field defined in class
+\xcd"C" with guard \xcd"c".  The compiler declares an error if
+field \xcd"f" is accessed through a reference \xcd"o" whose static
+type is not a subtype of \xcd"C{c}".
+\end{staticrule*}
+
+\begin{example}
+
+We may now rewrite the List example:
+\begin{xten}
+public class List(n: int{n >=0}) {
+  protected val head: Object where n>0;
+  protected val tail: List(n-1) where n>0;
+  public def this(o: Object, t: List): List(t.n+1) {
+     property(t.n+1);
+     head=o;
+     tail=t;
+  }
+  public def this(): List(0) {
+     property(0);
+  }
+  ...
+}
+\end{xten}
+
+The fields \xcd"value" and \xcd"tail" do not exist for instances of the class
+\xcd"List(0)".
+\end{example}
+
+It is a compile-time error for a class to have two fields of the same
+name, even if their \xcd"ThisClauses" are different. A class \xcd"C" with a field
+named \xcd"f" is said to {\em hide} a field in a superclass named \xcd"f".
+
+\begin{staticrule*}
+     A class may not declare two fields with the same name.
+\end{staticrule*}
+
+\subsection{Field hiding}
+
+The definition of field hiding does not take \xcd"ThisClauses" in
+account. Suppose a class \xcd"C" has a field
+
+\begin{xten}
+var f: Foo where c;
+\end{xten}
+\noindent and a subclass \xcd"D" of \xcd"C" has a field
+\begin{xten}
+var f: Fum where d;
+\end{xten}
+
+We will say that \xcd"D.f" hides \xcd"C.f", {\em regardless} of the
+constraints \xcd"c" and \xcd"d". This is in keeping with \Java, and
+permits a naive implementation which always allocates space for a
+conditional field.
+
+\begin{rationale}
+It might seem attractive to require that \xcd"D.f"
+hides \xcd"C.f" only if \xcd"d" entails \xcd"c". This would seem
+to necessitate a rather complex implementation structure for classes,
+requiring some kind of a heterogenous translation for deptypes of \xcd"C"
+and \xcd"D". This bears further investigation.
+\end{rationale}
+
+\section{Method definitions}
+
+\Xten{} permits guarded method definitions, similar to guarded
+field definitions. Additionally, the parameter list for a method may
+contain a WhereClause.
+
+\begin{grammar}
+MethodHeader \:  
+  MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \xcd"("
+  FormalParameterList\opt \xcd")" \\
+  && ReturnType\opt WhereClause\opt Throws\opt
+\end{grammar}
+
+The guard (specified by \xcd"ThisClause") speciifes a constraint \xcd"c" on the
+properties of the class \xcd"C" on which the method is being defined. The
+method exists only for those instances of \xcd"C" which satisfy \xcd"c".  It is
+illegal for code to invoke the method on objects whose static type is
+not a subtype of \xcd"C{c}".
+
+We relax the rules of lexical visibility and finality for variable
+references in deptypes for method parameters.  Method
+parameters not necessarily declared to be final are permitted to occur
+in the types of parameters that occur after them in textual
+order. Method parameters may also occur in the ReturnType for the
+method, as long as they are declared final. (Even though the ReturnType
+occurs lexically before the parameter list, it is considered to lie in
+the scope of the declarations in the parameter list.)
+
+\begin{staticrule*}
+    The compiler checks that every method invocation \xcd"o.m(e1,..., en)"
+    for a method is type correct. Each each argument ei must have a
+    static type Si that is a subtype of the declared type Ti for the ith
+    argument of the method, and the conjunction of static types
+    of the arguments must entail the WhereClause in the parameter-list
+    of the method.
+
+    The compiler checks that in every method invocation \xcd"o.m(e1, ..., en)"
+    the static type of o, S, is a subtype of \xcd"C{c}", where the method
+    is defined in class C and the ThisClause for m is equivalent to
+    \xcd"c".
+
+    Finally, if the declared return type of the method is D{d}, the
+    return type computed for the call is
+    \xcd"D{a: S; x1: S1; ...; xn: Sn; d[a/this]}", where a is a new
+    variable that does not occur in
+    \xcd"d, S, S1, ..., Sn", and \xcd"x1,...,xn" are the formal
+    parameters of the method.
+\end{staticrule*}
+
+\begin{example}
+Consider the program:
+\begin{xten}
+public class List(n: int{n >=0}) {
+  protected val head: Object where n>0;
+  protected val tail: List(n-1) where n>0;
+  public def this(o: Object, t: List): List(t.n+1) {
+     property(t.n+1);
+     head=o;
+     tail=t;
+  }
+  public def this(): List(0) {
+     property(0);
+  }
+  public def append(l: List): List{self.n==this.n+l.n} {
+      return (n==0)? l
+         : new List(head, tail.append(l)); 
+  }
+  public def nth(k: int{k >= 1 && k <= n}): Object
+    where n > 0 {
+      return k==1 ? head : tail.nth(k-1);
+  }
+}
+\end{xten}
+
+The following code fragment
+\begin{xten}
+List{self.n==3} u = ...
+List{self.n==x} t = ...;
+List{self.n==x+3} s = t.append(u);
+\end{xten}
+\noindent will typecheck. The type of the expression \xcd"t.append(u)" is 
+\begin{xten}
+List{a: List{self.n==x}; 
+     l: List{self.n==3}; self.n==a.n+l.n}  
+\end{xten}
+\noindent and this simplifies to
+\begin{xten}
+List{a: List{self.n==x}; 
+     l: List{self.n==3}; self.n==x+3}  
+\end{xten}
+\noindent which, after dropping unused local variables, reduces to:
+\begin{xten}
+List{self.n==x+3}
+\end{xten}
+\end{example}
+
+\subsection{Method overloading, overriding, hiding, shadowing and obscuring}
+
+The definitions of method overloading, overriding, hiding, shadowing
+and obscuring in \Xten{} are the same as in \Java, modulo the following
+considerations motivated by dependent types.
+
+The definition of a method declaration \xcd"m1" ``having the same signature
+as'' a method declaration \xcd"m2" involves identity of types. Two \Xten{} types
+are defined to be identical iff they are equivalent (\S~\ref{DepType:Equivalence}).
+Two methods are said to have {\em the same signature} if (a)
+they have the same number of formal parameters, (b) for each parameter
+their types are equivalent, and (c) the constraints associated with
+their ThisTypes are equivalent. It is a compile-time error for there
+to be two methods with the same name and same signature in a class
+(either defined in that class or in a superclass).
+
+\begin{staticrule*}
+  A class \xcd"C" may not have two declarations for a method named \xcd"m"---either
+  defined at \xcd"C" or inherited:
+\begin{xten}
+def m(v1: T1{t1},..., vn: Tn{tn}): T where tc {...}
+def m(v1: S1{s1},..., vn: Sn{sn}): S where sc {...}
+\end{xten}
+\noindent
+if it is the case that the types \xcd"C{tc}", \xcd"T1{t1}",
+\dots, \xcd"Tn{tn}" are
+equivalent to the types \xcd"C{sc}, S1{t1}, ...., Tn{tn}"
+respectively.
+\end{staticrule*}
+
+A class \xcd"C" inherits from its direct superclass and superinterfaces all
+their methods visible according to the access restriction modifiers
+public/private/protected/(package) of the superclass/superinterfaces
+that are not hidden or overridden. A method \xcd"M1" in a class \xcd"C" overrides
+a method \xcd"M2" in a superclass \xcd"D" if \xcd"M1" and \xcd"M2" have the same signature.
+Methods are overriden on a signature-by-signature basis.
+
+A method invocation \xcd"o.m(e1,..., en)" is said to have the {\em static
+signature} \xcd"<T, T1,...,Tn>" where \xcd"T" is the static type of \xcd"o", and
+\xcd"T1,..., Tn" are the static types of \xcd"e1,..., en" respectively.  As in
+\Java, it must be the case that the compiler can determine a single
+method defined on \xcd"T" with argument type \xcd"T1,..., Tn", otherwise a
+compile-time error is declared. However, unlike \Java, the \Xten{} type \xcd"T"
+may be a dependent type \xcd"C{c}". Therefore, given a class definition for
+\xcd"C" we must determine which methods of \xcd"C" are available at a type
+\xcd"C{c}". But the answer to this question is clear: exactly those methods
+defined on \xcd"C" are available at the type \xcd"C{c}"
+whose guard \xcd"d" is implied by \xcd"c".
+
+
+\begin{example}
+  Consider the definitions:
+\begin{xten}
+class Point(i: int, j: int) {...}
+class Line(s: Point, e: Point{self != i}) {
+  // m1: Both points lie in the right half of the plane
+  def draw() where (s.i>= 0 && e.i >= 0) {...}
+  // m2: Both points lie on the y-axis
+  def draw() where (s.i== 0 && e.i == 0) {...}
+  // m3: Both points lie in the top half of the plane
+  def draw() where (s.j>= 0 && e.j >= 0) {...}
+  // m4: The general method
+  def draw() {...}
+} 
+\end{xten} 
+\noindent  Three different implementations are given for the draw method, one
+  for the case in which the line lies in the right half of the plane,
+  one for the case that the line lies on the y-axis and the third for
+  the case that the line lies in the top half of the plane.
+
+
+\noindent  Consider the invocation
+\begin{xten}
+m: Line{s.i < 0} = ...
+m.draw();
+\end{xten}
+
+\noindent  This generates a compile time error because there is no applicable
+  method definition.
+
+\noindent  Consider the invocation
+
+\begin{xten}
+m: Line{s.i>=0 && s.j>=0 && e.i>=0 && e.j>=0} = ...
+m.draw();
+\end{xten}
+
+\noindent  This generates a compile time error because both
+\xcd"m1" and \xcd"m3" are applicable.
+
+\noindent  Consider the invocation
+\begin{xten}
+m: Line{s.i>=0 && s.j>=0 && e.i>=0} = ...
+m.draw();
+\end{xten}
+  This does not generate any compile-time error since only m1 is
+  applicable. 
+\end{example}
+
+
+In the last example, notice that at runtime \xcd"m1" will be invoked
+(assuming \xcd"m" contains an instance of the \xcd"Line" class, and not some
+subclass of \xcd"Line" that overrides this method). This will be the case
+even if \xcd"m" satisfies at runtime the stronger conditions for \xcd"m2" (i.e.,
+\xcd"s.i==0 && e.i==0"). That is, dynamic method lookup will not take into
+account the  ``strongest'' constraint that the receiver may satisfy, i.e.{}
+its ``strongest deptype''. 
+
+\begin{rationale}
+  The design decision that dynamic method lookup should ignore
+  dependent type information was made to keep the design and the
+  implementation simple and to ensure that serious errors such as
+  method invocation errors are captured at compile-time.
+ 
+  Consider the above example and the invocation
+\begin{xten}
+m: Line = ...
+m.draw();    
+\end{xten}
+
+
+   Statically the compiler will not report an error because m4 is the
+   only method that is applicable. However, if dynamic method lookup
+   were to use deptypes then we would face the problem that if m is a
+   line that lives in the upper right quadrant then both \xcd"m2"
+   and \xcd"m3"
+   are applicable and one does not override the other. Hence we must
+   report an error dynamically.
+
+   As discussed above, the programmer can write code with \xcd"instanceof"
+   and classcasts that perform any application-appropriate
+   discrimination.  
+\end{rationale}
+
+\subsection{Method annotations}
+
+\subsubsection{\Xcd{atomic} annotation}
+
+A method may be declared \xcd"atomic".
+
+\begin{grammar}
+  MethodModifier \: \xcd"atomic"  
+\end{grammar}
 
 Such a method is treated as if the statement in its body is wrapped 
 implicitly in an \xcd"atomic" statement.
 
-\notfouro{
-\subsection{\Xcd{local} annotation}\label{LocalAnnotation}\index{local!\xcd"local"}
+\subsubsection{\Xcd{local} annotation}\label{LocalAnnotation}\index{local!\xcd"local"}
+
 A method may be declared \xcd"local".
-\begin{verbatim}
-445   MethodModifier ::= local
-\end{verbatim}
+
+\begin{grammar}
+  MethodModifier \: \xcd"local"  
+\end{grammar}
 
 By declaring a method \xcd"local" the programmer asserts that while
 executing this method an activity will only access local memory.
@@ -200,7 +805,7 @@ the static placetype of \xcd"o" must be \xcd"here".
 
 The programmer can always ensure that this condition is satisfied
 (albeit at the risk of introducing a runtime exception) by replacing
-each field access \xcd"o.e" with \xcd"((F!here) o).e".
+each field access \xcd"o.e" with \xcd"(o as F!here).e".
 
 \item If the body of the method contains any assignments to fields
 (e.g. \xcd"o.e Op= t", or \xcd"Op o.e" or \xcd"o.e Op") then the
@@ -231,4 +836,3 @@ conditions.
 
 A method declared \xcd"atomic" is automatically declared
 to be \xcd"local".
-}

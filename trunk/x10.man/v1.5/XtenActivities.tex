@@ -194,7 +194,6 @@ Note that repeatedly \xcd"finish"ing a statement has no effect after
 the first \xcd"finish": \xcd"finish finish S" is indistinguishable
 from \xcd"finish S".
 
-\cbstart 
 \paragraph{Interaction with clocks.}\label{sec:finish:clock-rule}
 \xcd"finish S" interacts with clocks (\S~\ref{XtenClocks}). 
 
@@ -208,7 +207,6 @@ In \XtenCurrVer{} this condition is checked dynamically; future
 versions of the language will introduce type qualifiers which permit
 this condition to be checked statically.
 
-\cbend
 \futureext{
 The semantics of \xcd"finish S" is conjunctive; it terminates when all
 the activities created during the execution of \xcd"S" (recursively)
@@ -240,7 +238,7 @@ placs.)
 
 %% Say something about configuration information? 
 
-\section{Asynchronous Expression and Futures}\label{XtenFutures}
+\section{Asynchronous expression and futures}\label{XtenFutures}
 
 \Xten{} provides syntactic support for {\em asynchronous expressions}, also
 known as futures:
@@ -379,12 +377,12 @@ All locations accessed in an atomic block must reside \xcd"here"
 \xcd"BadPlaceException"\index{place!BadPlaceException} is thrown
 if (and when) this condition is violated.
 
-\notfouro{All locations accessed in an atomic block must statically satisfy the
+All locations accessed in an atomic block must statically satisfy the
 {\em locality condition}: they must belong to the place of the current
 activity.\index{locality condition}\label{LocalityCondition} The
 compiler checks for this condition by checking whether the statement
 could be the body of a \xcd"void" method annotated with \xcd"local" at
-that point in the code (\S~\ref{LocalAnnotation}).}
+that point in the code (\S~\ref{LocalAnnotation}).
 
 \paragraph{Consequences.}
 Note an important property of an (unconditonal) atomic block:
@@ -665,7 +663,7 @@ new RunnableLatch() {
 }.run()
 \end{xten}
 
-\notinfouro{\input{rmi.tex}}
+%\input{rmi.tex}
 
 \section{Iteration}\index{foreach@\xcd"foreach"}\label{ForLoop}
 \index{for@\xcd"for"}\label{ForAllLoop}

@@ -104,7 +104,6 @@ If \xcd"D" is a distribution and \xcd"P" a place expression, the term
 \xcd"D | P" denotes the sub-distribution of \xcd"D" defined over all the
 points in the domain of \xcd"D" mapped to \xcd"P".
 
-\cbstart
 Note that \xcd"D | here" does not necessarily contain adjacent points
 in \xcd"D.region". For instance, if \xcd"D" is a cyclic distribution,
 \xcd"D | here" will typically contain points that are \xcd"P" apart,
@@ -112,7 +111,6 @@ where \xcd"P" is the number of places. An implementation may find a
 way to still represent them in contiguous memory, e.g.{} using a
 complex arithmetic function to map from the region index to an index
 into the array.
-\cbend
 
 \subsection{User-defined distributions}\index{distribution!user-defined}
 
@@ -126,7 +124,7 @@ given distribution is a subdistribution. But may need to provide methods that th
 
 Postpone to 0.7.}
 
-\subsection{Operations on Distributions}
+\subsection{Operations on distributions}
 
 A {\em sub-distribution}\index{sub-distribution} of \xcd"D" is any
 distribution \xcd"E" defined on some subset of the domain of \xcd"D",

@@ -1,0 +1,68 @@
+\section{Place constraints}\label{PlaceTypes}\index{place types}
+\label{DepType:PlaceType}\index{placetype}
+
+Recall that an \Xten{} computation spans multiple places
+(\S~\ref{XtenPlaces}). Each place constains data and activities that
+operate on that data.  \XtenCurrVer{} does not permit the dynamic
+creation of a place. Each \Xten{} computation is initiated with a
+fixed number of places, as determined by a configuration parameter.
+In this section we discuss how the programmer may supply place type
+information, thereby allowing the compiler to check data locality,
+i.e., that data items being accessed in an atomic section are local.
+
+\begin{grammar}
+PlaceConstraint     \: \xcd"!" Place\opt \\
+Place              \:  \xcd"any" \\
+                        \| \xcd"current" \\
+                        \| Expression \\
+\end{grammar}
+
+Because of the importance of places in the \Xten{} design, special
+syntactic support is provided for constrained types involving places.
+
+All \Xten{} reference classes extend the class
+\xcd"x10.lang.Object", which defines a property
+\xcd"location" of type
+\xcd"place".
+
+\begin{xten}
+package x10.lang;
+public class Object(location: place) { ... }  
+\end{xten}
+
+If a constrained reference type \xcd"T" has an \xcd"!p" suffix,
+the constraint for \xcd"T" is implicitly assumed to contain the clause
+\xcd"self.location==p"; that is,
+\xcd"C{c}!p" is equivalent to \xcd"C{self.location==p && c}".
+
+If the place \xcd"p" is ommitted, \xcd"here" is assumed; that is,
+\xcd"C{c}!" is equivalent to \xcd"C{self.location==here && c}".
+
+The place specifier \xcd"any" specifies that the object can be
+located anywhere.  Thus, the location is unconstrained; that is,
+\xcd"C{c}!any" is equivalent to \xcd"C{c}".
+
+The place specifier \xcd"current" on the type of an object
+member specifies that an object with that type is located at the
+same place as the member's container.
+Thus, for example, the field declaration:
+\begin{xten}
+    C{c}!current x;
+\end{xten}
+
+\noindent
+is equivalent to the declaration:
+\begin{xten}
+    C{c}!this.location x;
+\end{xten}
+
+\noindent
+The array type \xcd"Array[T!current]"
+specifies that the elements of the Array are located at the same
+place as the array object itself.
+
+\begin{staticrule*}
+  It is a compile time error for the \xcd"!"-annotation to
+  be used for value types.
+\end{staticrule*}
+

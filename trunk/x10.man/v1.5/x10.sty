@@ -21,11 +21,11 @@
       self,property,%
       has,as,var,val,def,where,in,%
       next,placelocal,reference,value,or,await,current,activitylocal},%
-   basicstyle=\ttfamily\color{Red},%
-   keywordstyle=\ttfamily\color{OliveGreen},%
-   commentstyle=\ttfamily\color{Gray},%
-   identifierstyle=\ttfamily\color{Red},%
-   stringstyle=\ttfamily,%
+   basicstyle=\normalfont\ttfamily\color{Red},%
+   keywordstyle=\normalfont\ttfamily\color{OliveGreen},%
+   commentstyle=\normalfont\ttfamily\color{Gray},%
+   identifierstyle=\normalfont\ttfamily\color{Red},%
+   stringstyle=\normalfont\ttfamily,%
    tabsize=4,%
    showstringspaces=false,%
    sensitive,%
@@ -38,6 +38,7 @@
    keepspaces=true,%
    showlines=false,%
    breaklines=true,%
+   prebreak={},%
   }
 
 \newcommand\codestyle\tt
@@ -58,24 +59,29 @@
 
 \newcommand\inputxten[1]{\begin{minipage}{\textwidth}\lstinputlisting[language=X10,breaklines=false,captionpos=b,numbers=left,numberstyle=\tiny,xleftmargin=15pt]{#1}\end{minipage}}
 
-\lstset{language=X10}
+\lstset{language=X10,flexiblecolumns}
 
-\newcommand\xcd{%
+\let\xcd\lstinline
+\newcommand\xcdmath{\xcd[mathescape=true]}
+
+\if 0
+\newcommand\xcd[1][]{%
     \leavevmode\bgroup % \hbox\bgroup --> \bgroup
       \def\lst@boxpos{b}%
-      \lsthk@PreSet\lstset{flexiblecolumns,language=X10}%
+      \lsthk@PreSet\lstset{flexiblecolumns,language=X10,#1}%
       \lsthk@TextStyle
       \@ifnextchar\bgroup{\afterassignment\lst@InlineG \let\@let@token}%
                          \lstinline@}
 
-\newcommand\xcdmath{%
+\newcommand\xcdmath[1][]{%
     \leavevmode\bgroup % \hbox\bgroup --> \bgroup
       \def\lst@boxpos{b}%
-      \lsthk@PreSet\lstset{flexiblecolumns,language=X10,mathescape=true}%
+      \lsthk@PreSet\lstset{flexiblecolumns,language=X10,mathescape=true,#1}%
       \lsthk@TextStyle
       \@ifnextchar\bgroup{\afterassignment\lst@InlineG \let\@let@token}%
                          \lstinline@}
+\fi
 
-\newcommand{\Xcd}[1]{{\lstinline[language=X10]"#1"}}
-\newcommand{\Xcdmath}[1]{{\lstinline[language=X10,mathescape=true]"#1"}}
+\newcommand{\Xcd}[1]{{\xcd"#1"}}
+\newcommand{\Xcdmath}[1]{{\xcdmath"#1"}}
 
