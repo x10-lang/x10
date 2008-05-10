@@ -185,7 +185,7 @@ use different representations for different instances (that is,
 implement automatic box/unboxing of values).
 
 Implementations are strongly encouraged to implement value types as
-space-efficiently as possible (e.g.{} inlining them or passing them in
+space-efficiently as possible (e.g., inlining them or passing them in
 registers, as appropriate).  Implementations are expected to cache
 values of remote final value variables by default. If a value is
 large, the programmer may wish to consider spawning a remote activity
@@ -473,8 +473,8 @@ VariableDeclarators \:
 
 It is illegal for code to access a guarded field through a reference
 whose static type does not satisfy the associated guard, even
-implicitly (i.e.{} through an implicit \xcd"this"). Rather the source
-program should contain an explict cast, e.g.{} \xcd"me: C{c} = this as C{c}".
+implicitly (i.e., through an implicit \xcd"this"). Rather the source
+program should contain an explict cast, e.g., \xcd"me: C{c} = this as C{c}".
 
 \begin{staticrule*}
 Let \xcd"f" be a field defined in class
@@ -741,7 +741,8 @@ In the last example, notice that at runtime \xcd"m1" will be invoked
 subclass of \xcd"Line" that overrides this method). This will be the case
 even if \xcd"m" satisfies at runtime the stronger conditions for \xcd"m2" (i.e.,
 \xcd"s.i==0 && e.i==0"). That is, dynamic method lookup will not take into
-account the  ``strongest'' constraint that the receiver may satisfy, i.e.{}
+account the  ``strongest'' constraint that the receiver may
+satisfy, i.e.,
 its ``strongest deptype''. 
 
 \begin{rationale}

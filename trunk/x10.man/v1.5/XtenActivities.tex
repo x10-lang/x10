@@ -100,7 +100,7 @@ PlaceExpression \: Expression \\
 \end{grammar} 
 
 The place expression \xcd"e" is expected to be of type \xcd"place",
-e.g.{} \xcd"here" or \xcd"place.FIRST_PLACE" or \xcd"d[p]" for some
+e.g., \xcd"here" or \xcd"place.FIRST_PLACE" or \xcd"d[p]" for some
 distribution \xcd"d" and point \xcd"p" (\S~\ref{XtenPlaces}).  
 If not, the compiler replaces
 \xcd"e" with \xcd"e.location". (Recall that every expression in
@@ -198,7 +198,7 @@ this condition to be checked statically.
 \futureext{
 The semantics of \xcd"finish S" is conjunctive; it terminates when all
 the activities created during the execution of \xcd"S" (recursively)
-terminate. In many situations (e.g.{} nondeterministic search) it is
+terminate. In many situations (e.g., nondeterministic search) it is
 natural to require a statement to terminate when any {\em one} of the
 activities it has spawned succeeds. The other activities may then be
 safely aborted. Future versions of the language may introduce a
@@ -350,7 +350,7 @@ non-blocking concurrent algorithms.
 In \xcd"atomic S", \xcd"S" may include method calls, conditionals etc.
 It may {\em not} include an \xcd"async" activity.
 It may {\em not} include any statement that may potentially block at
-runtime (e.g.{} \xcd"when", \xcd"force" operations, \xcd"next"
+runtime (e.g., \xcd"when", \xcd"force" operations, \xcd"next"
 operations on clocks, \xcd"finish").
 
 \limitation{Not checked in the current implementation.}
@@ -421,7 +421,7 @@ will execute if its condition holds only intermmitently. For, based on
 the vagaries of the scheduler, the precise instant at which a
 condition holds may be missed. Therefore the programmer is advised to
 ensure that conditions being tested by conditional atomic blocks are
-eventually stable, i.e.{} they will continue to hold until the block
+eventually stable, i.e., they will continue to hold until the block
 executes (the action in the body of the block may cause the condition
 to not hold any more).
 
@@ -593,7 +593,7 @@ public interface RunnableLatch {
 \end{xten}
 
 We use the standard \java{} idiom of wrapping the core translation
-inside an inner class definition/method invocation pair (i.e.{}
+inside an inner class definition/method invocation pair (i.e.,
 \xcd"new RunnableLatch() {....}.run()") so as to keep the resulting
 expression completely self-contained, while executing statements
 inside the evaluation of an expression.

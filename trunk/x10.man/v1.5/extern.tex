@@ -32,7 +32,8 @@ communicated to native code must be created as an {\tt unsafe} array:
 531     | unsafe
 \end{x10}
 Unsafe arrays can be of any dimension. However, \XtenCurrVer{}
-requires that unsafe arrays be of a primitive type, and local (i.e.{}
+requires that unsafe arrays be of a primitive type, and local
+(i.e.,
 with an underlying distribution that maps all elements in its region
 to {\tt here}).
 
@@ -49,7 +50,7 @@ Such a method must have the statement ``{\tt ;}'' as its body.
 \XtenCurrVer{} requires that the method be {\tt static}; this
 restriction is likely to be lifted in the future.  Primitive types in
 the method argument are translated to their corresponding JNI type
-(e.g.{} {\tt float} is translated to {\tt jfloat}, {\tt double} to
+(e.g., {\tt float} is translated to {\tt jfloat}, {\tt double} to
 {\tt jdouble} etc).  The only non-primitive type permitted in an {\tt
 extern} method is an (unsafe) array. This is passed at type {\tt
 jlong} as an eight byte address into the unsafe region which contains
@@ -78,7 +79,7 @@ using the methods in the {\tt C} stub file to call the actual native
 method.  The programmer must compile these files and link them into a
 dynamically linked library (DLL).  Note that the {\tt jni.h} header file
 must be in the include path.  The programmer must ensure this library
-is loaded by the program before the method is called e.g.{} add a {\tt
+is loaded by the program before the method is called e.g., add a {\tt
 System.loadlibrary} call (in a static initializer of the
 \Xten{} class).
 
