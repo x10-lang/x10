@@ -1,19 +1,21 @@
 \subsection{Array types}
 \label{ArrayTypeConstructors}\index{array types}
 
-{}\XtenCurrVer{} does not have array class declarations
-(\S~\ref{XtenArrays}). This means that user cannot define new array
-class types. Instead arrays are created as instances of array types
-constructed through the application of {\em array type constructors}
-(\S~\ref{XtenArrays}).
-
-XXX 
-Arrays are defined via the \xcd"Array" and \xcd"ValArray"
+Arrays in \Xten are instances of the 
+\xcd"Array" and \xcd"ValArray"
 classes in the standard library.
+Because of the importance of arrays in \Xten{}, the language
+supports more concise syntax for accessing array elements and
+performing operations on arrays.
 
-The array type constructor takes as argument a type (the {\em base
-type}), an optional distribution (\S~\ref{XtenDistributions}), and
-optionally the keyword \xcd"value":
+Both array classes implement the \xcdmath"Fun_$_1$_$_1$[Point]"
+interface; they are thus subtypes of
+\xcd"Point => T"
+
+% The array type constructor takes as argument a type (the {\em base
+% type}), an optional distribution (\S~\ref{XtenDistributions}), and
+% optionally the keyword \xcd"value":
+
 \begin{grammar}
   ArrayType \: \xcd"Array" \xcd"[" Type \xcd"]" ( \xcd"(" Expression \xcd")" )\opt \\
      \| \xcd"ValArray" \xcd"[" Type \xcd"]" ( \xcd"(" Expression \xcd")" )\opt
