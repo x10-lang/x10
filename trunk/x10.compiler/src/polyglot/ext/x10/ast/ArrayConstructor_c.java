@@ -250,7 +250,10 @@ implements ArrayConstructor {
 			boolean distributionIsRegion = ts.isImplicitCastValid(distType, ts.region());
 			if (distributionIsRegion) {
 				// convert this region to a distribution.
-				newDistribution = (Expr) nf.Call(position(), distribution, nf.Id(position(), "toDistribution")).typeCheck(tc);
+				ConstantDistMaker newDist = nf.ConstantDistMaker(position(), distribution, (Expr) nf.Here(position()).del().typeCheck(tc));
+				// FIXME: [IP] HACK! HACK! HACK!
+				newDistribution = newDist.target((Expr) nf.Field(position(), (Receiver) nf.CanonicalTypeNode(position(), (Type) ts.forName("x10.lang.dist")).del().typeCheck(tc), (Id) nf.Id(position(), "factory").del().typeCheck(tc)).del().typeCheck(tc));
+				newDistribution = (Expr) newDistribution.del().typeCheck(tc);
 			} else {
 				// it must be a distribution.
 				boolean distributionIsDist = ts.isImplicitCastValid(distType, ts.distribution());
