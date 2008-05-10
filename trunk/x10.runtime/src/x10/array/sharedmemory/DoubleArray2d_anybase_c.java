@@ -52,7 +52,8 @@ public final class DoubleArray2d_anybase_c extends DoubleArray_c {
 		J = d.region.rank(1).high() - d.region.rank(1).low() +1;
 		i_origin = d.region.rank(0).low();
 		j_origin = d.region.rank(1).low();
-		scan (this, c);
+
+		if(c != null) scan (this, c); /* at this time I & J are initialized and scan can use them */
 		
 	}
 
