@@ -389,11 +389,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 		   return super.createPass(extInfo);
 	   }
    }
-    static class X10CodeGenerated extends CodeGenerated {
+    protected static class X10CodeGenerated extends CodeGenerated {
     	public static Goal create(Scheduler scheduler, Job job) {
     		return scheduler.internGoal(new X10CodeGenerated(job));
     	}
-    	private X10CodeGenerated(Job job) {
+    	protected X10CodeGenerated(Job job) {
     		super(job);
     	}
     	public Collection prerequisiteGoals(Scheduler scheduler) {
