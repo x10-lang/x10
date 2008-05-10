@@ -1,26 +1,40 @@
-\section{Conversions and promotions}\label{XtenConversions}\label{XtenPromotions}\index{conversions}\index{promotions}
+\section{Coercions and conversions}
+\label{XtenConversions}\label{XtenPromotions}
+\index{conversions}\index{coercions}
 
-XXX this is out of date.  Olivier...
+\XtenCurrVer{} supports the following coercions and conversions
 
-\XtenCurrVer{} supports the following conversions
-promotions.
+\subsection{Coercions}
 
 A {\em coercion} does not change object identity;
 a coerced object may be explicitly coerced back to its original
 type through a cast.
 
-A {\em conversion} may change object identity.  A
-
 \paragraph{Subtype coercion.}
 A subtype may be implicitly coerced to any supertype.
+\index{coercions!subtype coercion}
 
-\paragraph{Boxing conversion.}
-A type \xcd"T" may be implicitly converted to the
-boxed type \xcd"Box[T]".
+\paragraph{Explicit coercion (casting with \xcd"as")}
+A reference type may be explicitly coerced to any other
+reference type using the \xcd"as" operation.
+If the value coerced is not an instance of the target type,
+a \xcd"ClassCastException" is thrown.  Casting to a constrained
+type may require a run-time check that the constraint is
+satisfied.
+\index{coercions!explicit coercion}
+\index{casting}
+\index{\Xcd{as}}
 
-\paragraph{Unboxing conversion.}
-A boxed type \xcd"T" may be implicitly converted to the
-type \xcd"T".
+\subsection{Conversions}
+
+A {\em conversion} may change object identity if the type being
+converted to is not the same as the type converted from.
+
+\paragraph{Narrowing conversion.}
+A value class may be explicitly converted to any superclass
+using the \xcd"to" operation.
+
+\index{conversions!narrowing conversions}
 
 \paragraph{Widening numeric conversion.}
 A numeric type may be implicitly converted to a wider
@@ -32,9 +46,32 @@ Byte < Short < Int < Long < Float < Double
 Byte < Char < Int
 \end{xten}
 
-\paragraph{Narrowing conversion.}
-A value class may be explicitly converted to any superclass.
-This is a {\em narrowing conversion}.
+\index{conversions!widening conversions}
+\index{conversions!numeric conversions}
+
+\paragraph{Boxing conversion.}
+A type \xcd"T" may be implicitly converted to the
+boxed type \xcd"Box[T]".
+
+\index{conversions!boxing conversions}
+\index{autoboxing}
+\index{boxing}
+
+\paragraph{Unboxing conversion.}
+A value type \xcd"T" may be implicitly converted to the
+type \xcd"T".
+
+\index{conversions!unboxing conversions}
+\index{autoboxing}
+\index{unboxing}
+
+\paragraph{Explicit conversion (casting with \xcd"to")}
+A type may be explicitly converted to any type to which it can be
+implicitly converted or implicitly or explicitly coerced.
+
+\index{conversions!explicit conversion}
+\index{casting}
+\index{\Xcd{to}}
 
 \paragraph{String conversion.}
 Any object that is an operand of the binary
@@ -43,4 +80,5 @@ be converted to \xcd"String" if the other operand is a \xcd"String".
 A conversion to \xcd"String" by invoking the \xcd"toString()"
 method of the object.
 
+\index{conversions!string conversion}
 

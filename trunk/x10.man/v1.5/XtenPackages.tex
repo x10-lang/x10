@@ -7,15 +7,12 @@ XXX Java-derived
 6,\S 7]{jls2}, including \xcd"public", \xcd"protected", \xcd"private"
 and package-specific access control. 
 
-
-\Xten{} supports the following naming conventions. Names of
-\xcd"value" classes should start with a lower-case leter, and
-those of \xcd"reference" classes with an upper-case letter. \Xten{} also 
-supports the convention that fields, local variable names
-and method parameter names that start with an uppercase letter are
-automatically considered to be annotated with \xcd"final".
-\label{LexicalConventionForFinals}\index{Upper case convention}
-
+Classes in the \Xten{} library support the following naming conventions.
+Names of methods, fields, value properties, and packages are in camelCase and begin with a lowercase letter.
+Names of types---including classes, type properties, type
+parameters, and type specified by type definitions---are in CamelCase and begin with an uppercase letter.
+Names of \xcd"const" fields are in all uppercase with words
+separated by an ``\xcd"_"''.
 
 \begin{grammar}
 TypeName   \: Identifier \\
@@ -25,5 +22,3 @@ PackageName   \: Identifier \\
         \| PackageName \xcd"." Identifier \\
 \end{grammar}
 
-
-%% \Xten{} also supports \java{} 1.5 static imports \cite{jsr201}.
