@@ -173,7 +173,8 @@ public class X10New_c extends New_c {
     		X10ParsedClassType anonType = (X10ParsedClassType) anonType();
     		type = anonType.makeDepVariant(type.depClause(), type.typeParameters());
     	}
-    	
+
+    	// FIXME: if the constructor has a depclause, make sure it propagates to the instance
     	X10Type retType = instantiateType(type, arguments);
     	if (type != retType) {
     		xci.setReturnType(retType);
