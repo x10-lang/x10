@@ -22,21 +22,6 @@ from place to place. Either reference or value objects may be
 {\em scalar} (instances of a non-array class) or {\em aggregate} (instances
 of arrays).
 
-An \Xten{} type consists of a {\em base type}, which is a set of
-objects, and a boolean {\em constraint} on the immutable state of
-the objects.
-The constraint also
-specifies the places at which the object resides.
-
-\index{type constructors}\label{TypeConstructors}
-Types are constructed through the application of {\em type constructors}.
-Every class and interface definition in \Xten{} defines a type with
-the same name. Additionally, {}\Xten{} supports {\em function
-types}
-and {\em path types}.
-We discuss these type constructors and constrained typess in detail
-in the sections that follow.
-
 Types are used in variable declarations, casts, object creation, array
 creation, class literals and \xcd"instanceof" expressions.\footnote{In
 order to allow this version of the language to focus on the core new
@@ -44,13 +29,141 @@ ideas, \XtenCurrVer{} does not have user-definable classloaders,
 though there is no technical reason why they could not have been
 added.}
 
+\section{Type definitions and type constructors}
 
-%% Final variables play an 
-%% important role in \Xten{}, as we shall discuss below. For this reason,
-%% \Xten{} enforces the lexical restriction that all variables whose name
-%% starts with an upper case letter are implicitly declare final. (It is
-%% not an error to also explicitly declare such variables as
-%% final.)\index{Upper-case Convention}
+Types in \Xten{} are specified through declarations and through
+type constructors:
+
+\paragraph{Class types.}
+\label{ReferenceTypes}
+
+        A {\em class declaration} (\S~\ref{XtenClasses})
+        introduces a 
+        {\em (reference) class type}
+\index{class!reference class}\index{reference class type}
+        containing all instances of the class.
+
+        Class instances are created via
+        constructor calls.  Class instances have fields and
+        methods, type members, and value and type properties bound at
+        construction time.  In addition, classes have static
+        members: constant fields, type definitions, and member
+        classes and member interfaces.
+
+\Xten{} does
+not
+permit mutable static state, so the role of static methods and
+initializers is quite limited. Instead programmers should use
+singleton classes to carry mutable static state.
+        
+        Reference classes are structured in a
+        single-inheritance hierarchy; that is,
+        classes are declared to extend a single
+        superclass (except for \xcd"x10.lang.Object", the root
+        of the class hierarchy, which extends no other class),
+        and zero or more interfaces.
+
+\paragraph{Value class types.}
+
+A {\em value class type}\index{class!value class}\index{value class type}
+is a class type in which all fields of the class are immutable.
+
+Values classes are specified via {\em value class declarations}
+(\S~\ref{XtenClasses}).
+
+Variables of value class type may not be \xcd"null".
+There is no subtyping relationship between different value
+classes.
+
+\paragraph{Interface types.}
+        An {\em interface declaration} (\S~\ref{XtenInterfaces})
+        defines an {\em interface type}, which specifies a set of
+        methods, type members, and properties to be implemented by any class
+        declared to implement the interface.  Interfaces also
+        have static members: constant fields, type definitions,
+        and member classes and interfaces.
+
+
+        An interface may extend multiple interfaces.
+
+Classes may be declared to implement 
+multiple interfaces. 
+Semantically, the interface type is the set of all objects that are
+instances of (value or reference) classes that implement the
+interface. A class implements an interface if it is declared to if
+it implements all the methods defined in the interface.
+        
+\paragraph{Type properties.}
+        Classes and interface have {\em type properties}, bound
+        to concrete types on object creation.
+        A class or interface type
+        with one or more type properties is called a {\em
+        generic type}.
+
+        Type properties introduce {\em path types}.
+        Given an object
+        denoted by expression \xcd"e", if \xcd"e" has a 
+        type property \xcd"X", then \xcd"e.X" is a type.
+        To ensure soundness, the expression \xcd"e"
+        must be a final access path.  
+
+\paragraph{Type parameters.}
+        A method, constructor, or closure may have type parameters, which
+        introduces a type whose scope is the parameterized method or
+        constructor. 
+        Type parameters may be constrained by a {\em where
+        clause} on the method.
+        The type parameters must be bound to
+        concrete types at invocation.
+
+\paragraph{Type definitions.}
+        Types may be defined through {\em type definitions}.
+        A type definition is a type alias or a type-valued function
+        that maps value and type parameters to another type.
+        A type definition may appear as a class or interface
+        member or in statement block.
+
+        For instance type members, given an object
+        denoted by expression \xcd"e", if \xcd"e" has a 
+        type definition \xcd"X", then \xcd"e.X" is a type.
+
+        Given a class or interface \xcd"C", with static type
+        member \xcd"X", \xcd"C.X" is a type.
+
+        A local type declaration for type \xcd"X" defines a type
+        named \xcd"X" within the scope of the declaration.
+
+\paragraph{Function types.}
+        Function types are defined via the \xcd"=>" type
+        constructor.  The type
+  \xcdmath"[X$_1$, $\dots$, X$_k$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => T"
+        is the type of functions that take type parameters
+        \xcdmath"X$_i$"
+        and value parameters
+        \xcdmath"x$_i$"
+        of types
+        \xcdmath"T$_i$"
+        and returns a value of type \xcd"T".
+
+\paragraph{Constrained types.}
+        Given a type \xcd"T", a {\em constrained type}
+        \xcd"T{e}" may be
+        constructed by constraining its properties with a
+        boolean predicate \xcd"e".
+
+        \xcd"T{e}" is a {\em dependent type}, that is, a type
+        dependent on values.
+        The type \xcd"T" is called the
+        {\em base type} and \xcd"e" is called the {\em constraint}.
+        For reference types, the constraint may
+        specify the places at which the object resides.
+
+        A {\em generic type} is a class or interface type
+        declared with one or more type properties.  Generic
+        types can be instantiated by constraining the type
+        properties of the base type.
+
+
 
 \begin{grammar}
 Type \: FunctionType \\
@@ -87,111 +200,6 @@ ClassBaseType \: TypeName \\
 InterfaceBaseType \: TypeName \\
 PrimitiveBaseType \: TypeName \\
 \end{grammar}
-
-\section{Properties}\label{DepType:Properties}\index{properties}
-
-Types in \Xten{} consist of a base type, instantiated through one of
-the type constructors described below and a constraint on the
-properties of the base type.
-A {\em constrained type}, or dependent type (deptype),
-is of the form \xcd"T{c}" where \xcd"T" is a base type (class,
-interface, function, array)
-and \xcd"c" is a {\em constraint}.  \xcd"T" is said to be 
-{\em the base type} of the deptype, and \xcd"c" the {\em constraint}
-of the deptype.
-Constraints are boolean expressions 
-defined over the properties of the base type and immutable
-variables in scope at the type.
-
-Properties may be either value properties or type
-properties.
-\index{properties!value properties}
-The immutable state of an object is captured by its
-\emph{value properties}: public final fields of the object.
-For instance, the following class declares a two-dimensional
-point with \xcd"float" properties \xcd"x" and \xcd"y":
-\begin{xten}
-class Point(x: float, y: float) { }
-\end{xten}
-A constrained type is a type \xcd"C{e}", where \xcd"C" is a
-class and \xcd"e" is a boolean predicate on the properties of
-\xcd"C" and the final variables in scope at the type.
-For example, given the above class definition,
-the type \xcd"Point{x*x+y*y==1}" is the type of all
-points on the unit circle.
-
-\index{properties!type properties}
-{\em Type properties} are used to define generic classes and
-interfaces.
-Like a value property, a type property is an instance member.
-The type properties of an object are bound to concrete types
-when the object is
-created.
-Types may be defined by constraining the type properties as
-well as the value properties of a class.
-
-
-\section{Class types}\label{ReferenceTypes}
-
-A class type consists of the name of a class
-and an
-associated constraint on the properties of the class.
-Semantically, the class type is the set of all objects which are
-instances of (subclasses of) the class for which the constraint
-holds.
-A {\em class declaration} (\S~\ref{XtenClasses})
-introduces a class type containing all instances of the class.
-
-Classes are structured in a
-single-inheritance code
-hierarchy, may implement multiple interfaces, may have static
-and
-instance fields, may have static and instance methods, may have
-constructors, may have static and instance initializers, may
-have
-static and instance inner classes and interfaces. \Xten{} does
-not
-permit mutable static state, so the role of static methods and
-initializers is quite limited. Instead programmers should use
-singleton classes to carry mutable static state.
-
-
-\section{Value class types}\index{class!value class}\index{value class type}
-
-A {\em value class type}\index{class!value class}\index{value class type}
-is a class type in which all fields of the class are immutable.
-
-Values classes are specified via {\em value class declarations}
-(\S~\ref{XtenClasses}).
-
-Variables of value class type may not be \xcd"null".
-There is no subtyping relationship between different value
-classes.
-
-\section{Boxed types}
-
-For a value type \xcd"T", the type constructor \xcd"Box[T]"
-defines an class with the same members as \xcd"T". 
-Like \xcd"T", all fields of \xcd"Box[T]" are final.
-
-Unlike value classes, variables of \xcd"Box" type may be \xcd"null".
-
-\section{Interface types}\label{InterfaceTypes}
-
-Interfaces are defines via {\em interface declarations}
-(\S~\ref{XtenInterfaces}),
-which specifies a name, a list of extended
-interfaces, properties,
-constants, and
-method signatures associated. Each interface
-declaration introduces a type with the same name as the declaration.
-
-Classes may be declared to implement 
-one or more interfaces.  
-Semantically, the interface type is the set of all objects that are
-instances of (value or reference) classes that implement the
-interface. A class implements an interface if it is declared to if
-it implements all the methods defined in the interface.
 
 \section{Generic types}
 
@@ -351,7 +359,7 @@ may be considered equivalent to the class type defined by:
 \begin{xtenmath}
 package x10.lang;
 class Function$_{k,n}$ {
-    def __apply__[X$_1$, $\dots$, X$_k$](x$_1$: T$_1$ $\dots$, x$_n$: T$_n$): S
+    def __apply__[X$_1$, $\dots$, X$_k$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): S
 }
 \end{xtenmath}
 
@@ -791,19 +799,28 @@ reflexive, transitive
 closure of the {\em direct subtyping} relation, defined as
 follows.
 
-\subsection{Class types}
+\paragraph{Class types.}  A class type is a direct subtype of
+any
+class it is declared to extend.  A class type is direct subtype
+of any interfaces it is declared to implement.
 
-\subsection{Interface types}
+\paragraph{Interface types.}  An interface type is a direct
+subtype of any interfaces it is declared to extend.
 
-\subsection{Function types}
+\paragraph{Function types.}
 
+The subtyping rules for function types follow directly from the
+interpretation of a function type as an interface type
+\xcdmath"Fun_$_k$_$_n$".
+For instance,
+a function type
+\xcd"S1 => T1" 
+is a subtype of another function type
+\xcd"S2 => T2" 
+if \xcd"S2" is a subtype of \xcd"S1"
+and \xcd"T1" is a subtype of \xcd"T2".
 
-
-A class type \xcd"C" is a direct subtype of another class type \xcd"D" if
-\xcd"C" is declared to extend
-One class type is a direct subtype of another if 
-
-One base class type is a subtype of another if it exp
+\paragraph{Constrained types.}
 
 Two dependent types \xcd"C{c}" and \xcd"C{d}" are said to be {\em equivalent} if 
 \xcd"c" is true whenever \xcd"d" is, and vice versa. Thus, 
@@ -823,6 +840,7 @@ $\LL{\mbox{\Xcd{C\{c\}}}}$ is a
 subset of $\LL{\mbox{\Xcd{C\{d\}}}}$. All dependent types defined on \xcd"C" refine
 \xcd"C" since \xcd"C" is equivalent to \xcd"C{true}".
 
+\paragraph{Path types.}
 
 A path type \xcd"p.X" is a subtype of a type \xcd"T" if
 \xcd"p" has type \xcd"C{c}" (where \xcd"C" has a type property
@@ -843,8 +861,6 @@ distributions. We envision this as a major step towards removing most
 (if not all) dynamic array bounds and places check from \Xten{}.
 
 %\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
-
-
 
 
 \input{Coercions}

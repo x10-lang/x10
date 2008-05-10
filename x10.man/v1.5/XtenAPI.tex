@@ -103,7 +103,7 @@ public class Array[T](dist: Dist) {
 \end{xten}
 
 \begin{xten}
-public value ValArray[T](region: Region)
+public class ValArray[T](region: Region)
     implements Fun_0_1[Point{self in region},T] {
 
     property rank = region.rank;
@@ -130,6 +130,12 @@ public value ValArray[T](region: Region)
   The type \xcd"Array[double]{rank==N&&onePlace==here}" is the
   type of all \xcd"N"-dimensional
   arrays of \xcd"double"s that are local (mapped to one place).  
+
+\section{Boxed types}
+
+\begin{xten}
+public class Box[T](value: T) { }
+\end{xten}
 
 \section{Function types}
 

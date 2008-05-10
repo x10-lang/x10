@@ -26,7 +26,7 @@ of fields, each of which has a distinct name. A scalar object is
 located at a single place and stays at that place throughout its
 lifetime.  An \emph{aggregate} object has many fields (the number may
 be known only when the object is created), uniformly accessed through
-an index (e.g.{} an integer) and may be distributed across many
+an index (e.g., an integer) and may be distributed across many
 places. The distribution of an aggregate object remains unchanged
 throughout the computation. \Xten{} assumes an underlying garbage
 collector will dispose of (scalar and aggregate) objects and reclaim
@@ -227,7 +227,7 @@ between two processes in order to enable one to read and write the
 other's values, (b)~permitting the use of high-level atomic blocks
 within a process to obtain mutual exclusion between multiple
 activities running in the same node (c)~permitting the use of multiple
-clocks to combine the expression of different physics (e.g.{}
+clocks to combine the expression of different physics (e.g.,
 computations modeling blood coagulation together with computations
 involving the flow of blood), (d)~not requiring an SPMD style of
 computation.

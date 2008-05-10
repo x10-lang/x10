@@ -64,24 +64,6 @@
 \let\xcd\lstinline
 \newcommand\xcdmath{\xcd[mathescape=true]}
 
-\if 0
-\newcommand\xcd[1][]{%
-    \leavevmode\bgroup % \hbox\bgroup --> \bgroup
-      \def\lst@boxpos{b}%
-      \lsthk@PreSet\lstset{flexiblecolumns,language=X10,#1}%
-      \lsthk@TextStyle
-      \@ifnextchar\bgroup{\afterassignment\lst@InlineG \let\@let@token}%
-                         \lstinline@}
-
-\newcommand\xcdmath[1][]{%
-    \leavevmode\bgroup % \hbox\bgroup --> \bgroup
-      \def\lst@boxpos{b}%
-      \lsthk@PreSet\lstset{flexiblecolumns,language=X10,mathescape=true,#1}%
-      \lsthk@TextStyle
-      \@ifnextchar\bgroup{\afterassignment\lst@InlineG \let\@let@token}%
-                         \lstinline@}
-\fi
-
 \newcommand{\Xcd}[1]{{\xcd"#1"}}
 \newcommand{\Xcdmath}[1]{{\xcdmath"#1"}}
 
