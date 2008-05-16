@@ -24,12 +24,11 @@
 \usepackage{listings}
 \usepackage{x10}
 
-\newif\ifhas
-\hastrue
+\newif\ifsemantics
+%\semanticsfalse
+\semanticstrue
 
 \hfuzz=1pt
-
-\newcommand{\tcd}[1]{{\codestyle{#1}}}
 
 \pagestyle{plain}
 
@@ -125,12 +124,12 @@ Our design
 does not require primitives be boxed.
 
 The design of generics in X10 and is based on its existing
-dependent type system~\cite{x10,constrained-types}.
+dependent type system~\cite{X10,constrained-types}.
 To rule out large classes of errors statically, 
 X10 provides \emph{constrained types}.
 Constrained types are a form of dependent type
 defined on predicates over the immutable state of
-objects~\cite{x10,constrained-types}.
+objects~\cite{X10,constrained-types}.
 %
 The immutable state of an object is captured by its
 \emph{properties}: public final fields of the object. 
@@ -228,13 +227,6 @@ using the name \xcd"this" for constructors.
 In X10, constructors have a return type, which constrains
 the properties of the new object.
 
-A subset of the grammar for X10 is shown in
-Figure~\ref{fig:constraints}.  We elide features of the language
-not relevant to this paper.  In the grammar $[ \alpha ]$ denotes
-an optional occurrence of the sequence of symbols $\alpha$,
-$\alpha^*$ denotes zero or more occurrences of $\alpha$, and
-$\alpha^+$ denotes one or more occurrences of $\alpha$.
-
 \begin{figure}[tp]
 \begin{center}
 \begin{tabular}{rcl}
@@ -268,7 +260,7 @@ $\alpha^+$ denotes one or more occurrences of $\alpha$.
                         [ \xcd"where"~\emph{Constraint} ]
                         \xcd"="~\emph{Expression}~\xcd";" \\
 \emph{FieldDef}& ::=  &
-                [\xcd"val" |
+                [\xcd"val" \bnf
                 \xcd"var"]~\emph{Identifier}\xcd":"~\emph{Type} 
 \\ & & \quad
                         [ \xcd"where"~\emph{Constraint} ]
@@ -276,37 +268,49 @@ $\alpha^+$ denotes one or more occurrences of $\alpha$.
 \emph{TypeDef}& ::=  &
                 \xcd"type"~\emph{Identifier}
                         [ \xcd"["~\emph{TypeParameters}~\xcd"]" ]
-                        \xcd"("~[\emph{Formals}]~\xcd")"~\xcd"="~\emph{Type}
+                        [ \xcd"("~\emph{Formals}~\xcd")" ]~\xcd"="~\emph{Type}
                 \\
 \emph{Constraint}     & ::=  & \emph{Expression} \\
                       & \bnf & \emph{Type}~\xcd"==" \emph{Type} \\
                       & \bnf & \emph{Type}~\xcd"<:" \emph{Type} \\
                       & \bnf & \emph{Type}~\xcd":>" \emph{Type} \\
-\ifhas
-                      & \bnf & \emph{Type}~\xcd"has"~\emph{Signature} \\
-\fi
                       & \bnf & \emph{Constraint}~\xcd","~\emph{Constraint} \\
                       & \bnf & \xcd"true" \\
-\ifhas
-\emph{Signature}      & ::=  & \emph{MethodSignature} \\
-                      & \bnf & \emph{ConstructorSignature} \\
-                      & \bnf & \emph{PropertySignature} \\
-\emph{MethodSignature}& ::=  &
-                [\xcd"static"]~\xcd"def"~\emph{Identifier}~\xcd"("~[\emph{TypesOrFormals}]~\xcd")" \xcd":"~\emph{Type} \\
-\emph{ConstructorSignature}& ::=  &
-                \xcd"def"~\xcd"this"~\xcd"("~[\emph{TypesOrFormals}]~\xcd")" \xcd":"~\emph{Type} \\
-\emph{PropertySignature}& ::=  &
-                [\xcd"val"]~\emph{Identifier}\xcd":"~\emph{Type} \\
-\emph{TypesOrFormals} & ::=  & \emph{TypeOrFormal} \\
-                      & \bnf & \emph{TypeOrFormals}~\xcd","~\emph{TypeOrFormal} \\
-\emph{TypesOrFormal}  & ::=  & \emph{Type} \\
-                      & \bnf & \emph{Formal} \\
-\fi
+\emph{Formals}        & ::=  & \emph{Formal} \\
+                      & \bnf & \emph{Formals}~\xcd","~\emph{Formal} \\
+\emph{Formal}         & ::=  & 
+                [\xcd"val" \bnf \xcd"var"]~\emph{Identifier}\xcd":"~\emph{Type} \\
+\emph{Type}           & ::=  & 
+                        \emph{ClassName}
+                        [ \xcd"["~\emph{Types}~\xcd"]" ]
+                        [ \xcd"("~\emph{Expressions}~\xcd")" ]
+                        [ \xcd"{"~\emph{Constraint}~\xcd"}" ]
+                        \\
+                      & \bnf &
+                \xcd"(" \emph{Types} \xcd")" \xcd"=>" \emph{Type}
+                        \\
+\emph{Types}        & ::=  & \emph{Type} \\
+                      & \bnf & \emph{Types}~\xcd","~\emph{Type} \\
+\emph{Expressions}        & ::=  & \emph{Expression} \\
+                      & \bnf &
+                      \emph{Expressions}~\xcd","~\emph{Expression} \\
+\emph{Expression}     & ::=  & \emph{Closure}  \\
+                      & \bnf & \dots \\
+\emph{Closure}        & ::=  & 
+                \xcd"(" \emph{Formals} \xcd")" \xcd"=>" \emph{Expression}
+                        \\
 \end{tabular}
 \end{center}
-\caption{Constraint grammar}
-\label{fig:constraints}
+\caption{X10 grammar}
+\label{fig:grammar}
 \end{figure}
+
+A subset of the grammar for X10 is shown in
+Figure~\ref{fig:grammar}.  We elide features of the language
+not relevant to this paper.  In the grammar $[ \alpha ]$ denotes
+an optional occurrence of the sequence of symbols $\alpha$,
+$\alpha^*$ denotes zero or more occurrences of $\alpha$, and
+$\alpha^+$ denotes one or more occurrences of $\alpha$.
 
 \section{Constrained types}
 
@@ -314,15 +318,18 @@ In general, the syntax of a constrained type is
 \xcd"C{c}", where \xcd"C" is a base class and
 \xcd"c" is a predicate on the properties of \xcd"C".
 Type constraints are type equality and subtyping predicates.
-For (slight) brevity, the constraint
+For (slight) brevity, a constraint can be written as
+a comma-separated list of conjuncts; that is, the constraint
 \xcd"c1"~\xcd"&&"~\xcd"c2" can be written
-\xcd"c1,"~\xcd"c2".  The grammar for constraints is shown in
-Figure~\ref{fig:constraints}.
-%
+\xcd"c1,"~\xcd"c2".
+
+We consider here only constraints on type properties. 
+See Saraswat et al.~\cite{constrained-types} for a more thorough
+presentation of constrained types in X10.
 The following are legal types:
 \begin{itemize}
 \item \xcd"Cell".  This type has no constraints on \xcd"T".
-Any type that constraints \xcd"T", including the three below,
+Any type that constrains \xcd"T", including the three below,
 is a subtype of \xcd"Cell".  The type \xcd"Cell" is equivalent to
 \xcd"Cell{true}".
 %
@@ -341,49 +348,42 @@ c.set(y); // illegal
 \end{xten}
 
 \item \xcd"Cell{T==float}".
-The type property \tcd{T} is bound to \tcd{float}.
-Assuming \tcd{c} has this type, the following code is legal:
+The type property \xcd"T" is bound to \xcd"float".
+Assuming \xcd"c" has this type, the following code is legal:
 \begin{xten}
 val x: float = c.get();
 c.set(1.0);
 \end{xten}
 The type of \xcd"c.get()" is \xcd"c.T", which is equivalent to
 \xcd"float".
-Similarly, the \tcd{set} method takes a \xcd"float" as argument.
+Similarly, the \xcd"set" method takes a \xcd"float" as argument.
 
 \item \xcd"Cell{T<:int}".
 This type constrains \xcd"T" to be a subtype of \xcd"int".
-All instances of this type must bind \xcd"T" to a subtype of \tcd{int}.
+All instances of this type must bind \xcd"T" to a subtype of \xcd"int".
 The following expressions have this type:
 \begin{xten}
 new Cell[int](1);
 new Cell[int{self==3}](3);
 \end{xten}
-The cell in the first expression may contain any \tcd{int}.
-The cell in the second expression may contain only \tcd{3}.
+The cell in the first expression may contain any \xcd"int".
+The cell in the second expression may contain only \xcd"3".
 %
-If \tcd{c} has the type \xcd"Cell{T<:int}",
+If \xcd"c" has the type \xcd"Cell{T<:int}",
 then \xcd"c.get()" has type \xcd"c.T", which is an unknown but
-fixed subtype of \tcd{int}.  The \xcd"set" method of \tcd{c} can
+fixed subtype of \xcd"int".  The \xcd"set" method of \xcd"c" can
 only be called with an object of type \xcd"c.T".
 
 \item \xcd"Cell{T:>String}".  This type bounds the type property
-\tcd{T}
+\xcd"T"
 from below.  The \xcd"set" method may be called with any
-supertype of \tcd{String}; the return type of the \xcd"get"
+supertype of \xcd"String"; the return type of the \xcd"get"
 method is known to be a
-supertype of \tcd{String} (and implicitly a subtype of \tcd{Object}).
-
-\ifhas
-\item \xcd"Cell{T has equals(T):boolean}".  Instances of this type can
-only be instantiated on types with an \tcd{equals} method.
-See Section~\ref{sec:structural} for more details on structural
-constraints.
-\fi
+supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
 \end{itemize}
 
 For brevity, the constraint may be omitted and
-interpreted as \tcd{true}.
+interpreted as \xcd"true".
 The syntax 
 \xcd"C[T1,...,Tm](e1,...,en)" is sugar for
 \xcd"C{X1==T1,...,Xm==Tm,x1==e1,...,xn==en}"
@@ -391,9 +391,9 @@ where \xcd"Xi" are the type properties and \xcd"xi" are the
 value properties of \xcd"C".  
 If either list of properties is empty, it may be omitted.
 
-In this shortened syntax, a type \tcd{T} used may also be annotated
+In this shortened syntax, a type \xcd"T" used may also be annotated
 with
-a \emph{use-site variance tag}, either \tcd{+} or \tcd{-}:
+a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
 if \xcd"X" is a type property, then
 the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
 \xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
@@ -419,12 +419,12 @@ value properties.  These properties can be constrained with a
 a predicate on the properties of any instance of the class.
 %
 The general form of a class definition is:
-\begin{xten}
+\begin{xtenmath}
 class C[X$_1$, $\dots$, X$_p$](x$_1$: T$_1$, $\dots$, x$_k$: T$_k$)
       where c
       extends B{c$_0$}
       implements I$_1${c$_1$}, $\dots$, I$_n${c$_n$} {$\dots$}
-\end{xten}
+\end{xtenmath}
 
 \subsection{Definition-site variance}
 
@@ -442,17 +442,19 @@ that is, if \xcd"A" $\subtype$ \xcd"B", then
 
 A definition-site variance tag changes the meaning of the
 syntactic sugar for the type \xcd"Cell[A]".
-If the property is covariant (\xcd"+T"), \xcd"Cell[A]"
+If the property is covariant (i.e., is declared as \xcd"+T"), \xcd"Cell[A]"
 is sugar for \xcd"Cell{T<:A}".
-If the property is contravariant (\xcd"-T"), \xcd"Cell[A]"
+If the property is contravariant (\xcd"-T"), then \xcd"Cell[A]"
 is sugar for \xcd"Cell{T:>A}".
 Otherwise, the property is invariant and \xcd"Cell[A]"
 is sugar for \xcd"Cell{T==A}".
 
 The compiler should issue a warning if 
-a covariant property is used in a negative position
+a covariant property is used in a negative position (e.g., in a
+method parameter type)
 in its class definition,
-or if a contravariant property is used in a positive position.
+or if a contravariant property is used in a positive position
+(e.g., in a method return type).
 Without these restrictions, methods or fields with types
 dependent on the property would be safe, but not be accessible 
 using the default instantiation (e.g., \xcd"Cell[int]").
@@ -487,6 +489,7 @@ def f(x: T1) : T2 where c = e
 }{}
 \fi
 
+\if 0
 %
 A type appears in a negative position if:
 \begin{itemize}
@@ -500,20 +503,22 @@ and the constraint bounds it from below.
 %
 A type appears in a positive position if:
 \begin{itemize}
-\item it is the type of a immutable field; or,
+\item it is the type of a mutable field; or,
 \item it is a method return type; or,
 \item it appears in a constraint on a type that is in a negative position 
 and the constraint bounds it from below; or,
 \item it appears in a constraint on a type that is in a positive position 
 and the constraint bounds it from above.
 \end{itemize}
+\fi
 
 \section{Method parameters}
 
 Methods and constructors may have type parameters.
-For instance, the following class defines a \xcd"map"
-function for a list that maps each element of the list
-to a value of another type, constructing a new list.
+For instance, the \xcd"List" class below defines a \xcd"map"
+method that maps each element of a list of \xcd"T"
+to a value of another type \xcd"S", constructing a new list of
+\xcd"S".
 \begin{xten}
 class List[T] {
     val array: Array[T];
@@ -528,16 +533,22 @@ class List[T] {
 \end{xten}
 
 
-A parameterized method may is invoked by giving type arguments before the 
-expression arguments.  For example:
+A parameterized method can is invoked by giving type arguments before the 
+expression arguments.  For example, the following code takes a
+list of \xcd"String"s and returns a list of string lengths of
+type \xcd"int"
 \begin{xten}
 xs: List[String] = ...;
 ys: List[int] = xs.map[int]((x: String) => x.length());
 \end{xten}
 
-Method parameters and properties of the enclosing class
-can be constrained with a where clause on the method.
-This feature is similar to the generlized constraints proposed for
+\section{Where clauses}
+
+Method and constructor parameters, both value parameters and
+type parameters, 
+can be constrained with a \xcd"where" clause on the method.
+For type parameters,
+this feature is similar to generalized constraints proposed for
 C\#~\cite{emir06}.
 %
 In the following code, the \xcd"T" parameter is covariant
@@ -574,30 +585,36 @@ ${\tt Number} \subtype {\tt Double}$.
 
 \section{Constructor definitions}
 
-A constructor is defined with the following syntax:
+Constructors are defined using the syntax \xcd"def this":
 
 \medskip
 
 \begin{tabular}{rcl}
 \emph{ConstructorDef}& ::=  &
-                \xcd"def"~\xcd"this"~\xcd"("~[\emph{Formals}]~\xcd")"
-                [\xcd":"~\emph{Type}] \\
-                & & \quad \xcd"where"~\emph{Constraint}~\xcd"="~\emph{ConstructorBlockOrExpression} \\
+                \xcd"def"~\xcd"this"
+                        [ \xcd"["~\emph{TypeParameters}~\xcd"]" ]
+                        \xcd"("~[\emph{Formals}]~\xcd")"
+                        [ \xcd":"~\emph{Type} ]
+\\ & & \quad
+                        [ \xcd"where"~\emph{Constraint} ]
+                        \xcd"="~\emph{Expression}~\xcd";" \\
 \end{tabular}
 
 \medskip
 
-Constructors must ensure that the class invariants of the given
+Constructors must ensure that all properties of the new object
+are initialized and that the class invariants of the object's
 class and its superclasses and superinterfaces hold.
+
+Properties are initialized with a \xcd"property" statement.
 For instance, the
-constructor for \xcd"Cell" ensures that the type property
-\xcd"T" is bound.
+constructor for \xcd"Cell" ensures that the type property \xcd"T" is bound.
 \begin{xten}
-    def this[T](x: T) { property[T](); this.x = x; }
+    def this[T](x: T) = { property[T](); this.x = x; }
 \end{xten}
 The \xcd"property" statement is used to set all the properties
 of the new object simultaneously; the syntax is similar to a \xcd"super"
-constructor call.  
+constructor call.
 
 If the \xcd"property" statement is omitted, the compiler implicitly
 initailizes the properties from the formal type and value parameters
@@ -859,15 +876,47 @@ and even \xcd"List{Integer<:T, T<:Number}".
 \section{Structural constraints}
 \label{sec:structural}
 
+\begin{figure}[tp]
+\begin{center}
+\begin{tabular}{rcl}
+\emph{Constraint}     & ::=  & \dots \\
+                      & \bnf & \emph{Type}~\xcd"has"~\emph{Signature} \\
+\emph{Signature}      & ::=  & \emph{MethodSignature} \\
+                      & \bnf & \emph{ConstructorSignature} \\
+                      & \bnf & \emph{PropertySignature} \\
+\emph{MethodSignature}& ::=  &
+                [\xcd"static"]~\xcd"def"~\emph{Identifier}~\xcd"("~[\emph{TypesOrFormals}]~\xcd")" \xcd":"~\emph{Type} \\
+\emph{ConstructorSignature}& ::=  &
+                \xcd"def"~\xcd"this"~\xcd"("~[\emph{TypesOrFormals}]~\xcd")" \xcd":"~\emph{Type} \\
+\emph{PropertySignature}& ::=  &
+                [\xcd"val"]~\emph{Identifier}\xcd":"~\emph{Type} \\
+\emph{TypesOrFormals} & ::=  & \emph{TypeOrFormal} \\
+                      & \bnf & \emph{TypesOrFormals}~\xcd","~\emph{TypeOrFormal} \\
+\emph{TypeOrFormal}  & ::=  & \emph{Type} \\
+                      & \bnf & \emph{Formal} \\
+\end{tabular}
+\end{center}
+\caption{Grammar for structural constraints}
+\label{fig:structural}
+\end{figure}
+
 The type system is general enough to support not only subtyping
 constraints, but also structural constraints on types.  The type
 system need not change except by extending the constraint
-system.
+system.  The syntax for structural constraints is shown in
+Figure~\ref{fig:structural}.
 
-XXX ML has structural types too
-
+Structural constraints on types are found in many languages.
+Haskell~\cite{haskell} supports type classes.
+%ML's module system allows modules to be constrained by
+%structural signatures~\cite{ml}. 
+In Modula-3, type equivalence and subtyping are structural
+rather than nominal as in object-oriented languages of the C
+family such as C++, Java, Scala, and X10.
+%
 The language PolyJ~\cite{polyj} allows type parameters to be bounded using
-structural where clauses.
+structural where clauses, a form of F-bounded
+polymorphism~\cite{fbounds}.
 For example, a sorted list class in PolyJ can be written as follows:
 \begin{xten}
 class SortedList[T] where T { int compare(T) } {
@@ -943,46 +992,38 @@ method without expliclty specifying the method at each constructor call.
 
 \section{Type definitions}
 
-XXX motivation.  Onerous to write down long types.  Type
-definitions let you shorten the types.
+The syntax for constrained types can often be verbose.
+X10 supports type definitions
+to allow types to be written more succinctly.
 
-X10 supports type definitions with the following syntax:
-
+Type definitions have the following syntax:
 \medskip
 
 \begin{tabular}{rcl}
-\emph{TypeDef}     & ::=  &
-        \xcd"type"
-        \emph{Identifier}
-        \xcd"["
-        \emph{TypeParameters}
-        \xcd"]"
-        \xcd"("
-        \emph{FormalParameters}
-        \xcd")"
-        \xcd"="
-        \emph{Type}
-        \xcd";"
-\\
+\emph{TypeDef}& ::=  &
+                \xcd"type"~\emph{Identifier}
+                        [ \xcd"["~\emph{TypeParameters}~\xcd"]" ]
+                        [ \xcd"("~\emph{Formals}~\xcd")" ]~\xcd"="~\emph{Type}
 \end{tabular}
 
 \medskip
 
+\noindent
 A type definition can be thought of as a type-valued function.
-Type definitions may be parameterized on types and on values.
+Type definitions may be parameterized on both types and values.
 %
 The following examples are legal type definitions:
 \begin{xten}
-type Variable = int;
-type int(x: int) = int{self==3};
-type int(lo: int, hi: int) = int{lo <= self, self <= hi};
 type StringSet = Set[String];
-type ListMap[K,V] = Map[K,List[V]];
+type MapToList[K,V] = Map[K,List[V]];
+type int(x: int) = int{self==x};
+type int(lo: int, hi: int) = int{lo <= self, self <= hi};
 \end{xten}
 
-Type definitions may appear as class members or in the body of a method, constructor, or initializer.
-Type definitions that are members of a class are \xcd"static"; type properties
-can be used for non-static type definitions.
+Type definitions may appear as class members or in the body of a
+method, constructor, or initializer.  Type definitions that are
+members of a class are \xcd"static"; type properties can be used
+for non-static type definitions.
 
 Type definitions are applicative, not generative; that is, they
 are define aliases for types and do not introduce new types.
@@ -1022,37 +1063,35 @@ and to \xcd"b" respectively.
 
 \section{Type inference}
 
-XXX Writing types down can be onerous.  Type inference wanted.
-The following are some thoughts.  We're working on an algorithm
-based on generalizing either Java 5's or C\#'s.
-Another possible algorithm on which to base our inference algorithm
-is the one
+Another way to reduce the annotation burden is to infer types,
+allowing type annotations to be omitted or simplified.
+A type inference algorithm for X10 has not yet been defined,
+however, we believe one can be produced by
+based on the inference algorithm 
 for C\# described by Bierman et al.~\cite{csharp3}.
 A key difference is that X10 supports where clauses that
-constrain the method type and value arguments.
+constrain method and constructor type and value arguments.
+The algorithm should infer not only the base type of a
+constrained type, but also the type and value constraints.
 
-XXX Want to infer value constraints also.
-
-
-X10 performs type inference of local variable
+X10 should perform type inference of local variable
 types and of type arguments for method and constructor calls.%
-\footnote{We describe here the results that the type
-inference algorithm should produce, but not the algorithm itself since
-we have not derived it yet.}
 
+\if 0
 The algorithm infers a type for a local variable by
 type-checking the variable initializer and assigning
 that type to the variable.
 When checking calls with omitted type arguments,
 the algorithm attempts to find an instantiation of the type
 parameters for which the call will type check.
+\fi
 
 Consider the following method from \cite{adding-wildcards}:
 \begin{xten}
 def choose[T](a: T, b: T): T { ... }
 \end{xten}
 %
-In the following snippet, we should infer the type
+In the following snippet, the algorithm should infer the type
 \xcd"Collection" for \xcd"x".
 \begin{xten}
 intSet: Set[int];
@@ -1060,7 +1099,7 @@ stringList: List[String];
 val x = choose(intSet, stringList);
 \end{xten}
 %
-And in this snippet, we should infer the type
+And in this snippet, the algorithm should infer the type
 \xcd"Collection[int]" for \xcd"y".
 \begin{xten}
 intSet: Set[int];
@@ -1068,7 +1107,7 @@ intList: List[int];
 val y = choose(intSet, intList);
 \end{xten}
 %
-Finally, in this snippet, we should infer the type
+Finally, in this snippet, the algorithm should infer the type
 \xcd"Collection{T <: Number}" for \xcd"z".
 \begin{xten}
 intSet: Set[int];
@@ -1137,9 +1176,12 @@ def unmodifiableSet(set: Set): Set[set.T];
 If not invariant, need run-time constraint solving.
 \fi
 
-\section{Semantics}
+\ifsemantics
 
+\section{Semantics}
 \input{semantics}
+
+\fi
 
 \section{Implementation}
 
@@ -1154,6 +1196,10 @@ Another possible translation,
 based on the implementation of PolyJ~\cite{polyj},
 uses \emph{adapter objects} to allow generic code to invoke
 methods of instances of the its type properties.
+
+The translation is described by example.  A more thorough and complete
+description will be given after some experience with the actual
+implementation.
 
 Consider the code in Figure~\ref{fig:translation1}.  It contains most of the 
 features of generics that have to be translated.
@@ -1351,6 +1397,17 @@ the operation may require run-time constraint solving or other
 complex code that cannot be easily substituted in when rewriting
 the bytecode during instantiation.
 
+\section{Conclusions}
+
+We have presented a preliminary design for supporting genericity
+in X10 using type properties.  This type system generalizes the
+existing X10 type system.  The use of constraints on type
+properties allows
+the design to capture many features of generics in languages
+like Java 5 and C\# and then to extend these features with new
+more expressive power.
+We expect that the design admits an efficient
+implementation and intend to implement the design shortly.
 
 \nocite{unifying-genericity}
 \nocite{adding-wildcards}
