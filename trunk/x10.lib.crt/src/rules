@@ -1,0 +1,6 @@
+Rules : 
+
+1. Reentrancy is a must 
+   * only exception is when the x10lib calls call non-reentrant functions
+
+2. 
