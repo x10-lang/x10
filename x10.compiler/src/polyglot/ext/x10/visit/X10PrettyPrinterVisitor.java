@@ -519,7 +519,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			runtimeName += "3d";
 		}
 		if (Configuration.ARRAY_OPTIMIZATIONS && runtimeName.equals("DoubleArray") 
-				&& (type.isRail() || (type.isRect() && type.isRankOne() && type.isZeroBased()))) {
+				&& (type.isRail() || (type.isRect() && type.isRankOne()))) {
 			runtimeName += "1d";
 		}
 		
