@@ -64,6 +64,7 @@ public final class DoubleArray3d_c extends DoubleArray_c {
 	 * @param c
 	 */
 	public DoubleArray3d_c(dist d, double c, boolean mutable) {
+		// FIXME: initialization needs to use the field values
 		super(d, c, mutable);
 		if (d.rank != 3)
 			throw new RankMismatchException(d, 3);

@@ -64,6 +64,7 @@ public final class DoubleArray2d_anybase_c extends DoubleArray_c {
 	 * @param c
 	 */
 	public DoubleArray2d_anybase_c(dist d, double c, boolean mutable) {
+		// FIXME: initialization needs to use the field values
 		super(d, c, mutable);
 		if (d.rank != 2)
 			throw new RankMismatchException(d, 2);
