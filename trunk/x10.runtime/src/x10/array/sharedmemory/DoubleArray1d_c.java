@@ -22,17 +22,19 @@ import x10.lang.region;
 import x10.runtime.Configuration;
 
 /**
-* Intended to implement a dense 3d array [0:I].
+* Intended to implement a dense 1d array [B:I+B].
 * The underlying region must be a MultiDim region over 1d.
 * A single 1-d array is allocated in the VM. Portions of
 * this array logically belong to different places, as
 * specified by the distribution.
+* This array is NOT zero-based.
 *
-*Note: the region underlying the distribution may be empty. 
+* Note: the region underlying the distribution may be empty. 
 * @author vj
 */
 public final class DoubleArray1d_c extends DoubleArray_c {
 
+	protected final int B;
 	protected final int I;
 
 	/**
@@ -44,15 +46,9 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		this(d, c, mutable);
 	}
 	private DoubleArray1d_c(dist d, Operator.Pointwise c, boolean mutable) {
-		super(d, c, mutable);
-		if (d.rank != 1)
-			throw new RankMismatchException(d, 1);
-		// assert d.region instanceof Region3D0Base;
-		//Region3D0Base r = (Region3D0Base) d.region;
-		region r = d.region;
-		if (r.size() > 0 && r.rank(0).low() != 0)
-			throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
-		I = r.size()==0? -1: d.region.rank(0).high()+1;
+		this(d, mutable, null);
+		if (c != null)
+			scan(this, c);
 	}
 
 	/**
@@ -62,25 +58,23 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 	 * @param c
 	 */
 	public DoubleArray1d_c(dist d, double c, boolean mutable) {
-		super(d, c, mutable);
-		
-		if (d.rank != 1)
-			throw new RankMismatchException(d, 1);
-		// assert d.region instanceof Region3D0Base;
-		region r = d.region;
-		if (r.size() > 0 && r.rank(0).low() != 0 )
-			throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
-		I = r.size()==0? -1: d.region.rank(0).high()+1;
+		this(d, mutable, null);
+		if (c != 0.0) // optimization
+			scan(this, new Constant(c));
 	}
 
 	private DoubleArray1d_c(dist d, double[] a, boolean mutable) {
-		super(d, a, mutable);
+		this(d, mutable, a);
+	}
+
+	private DoubleArray1d_c(dist d, boolean mutable, double[] a) {
+		super(d, mutable, a);
 		if (d.rank != 1)
 			throw new RankMismatchException(d, 1);
-		//assert d.region instanceof Region3D0Base;
 		region r = d.region;
-		if (r.size() > 0 && r.rank(0).low() != 0 )
-			throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
+		B = r.rank(0).low();
+		//if (r.size() > 0 && B != 0)
+		//	throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
 		I = r.size()==0? -1: d.region.rank(0).high()+1;
 	}
 
@@ -91,7 +85,7 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 	 * @param mutable
 	 * @return
 	 */
-	public static DoubleArray1d_c DoubleArray3d_c(double[] a, boolean mutable) {
+	public static DoubleArray1d_c DoubleArray1d_c(double[] a, boolean mutable) {
 		dist d = Runtime.factory.getDistributionFactory().local(a.length);
 		return new DoubleArray1d_c(d, a, mutable);
 	}
@@ -117,17 +111,17 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0));
 		if (chkAOB) {
-			if (d0 < 0 || d0 >= I )
-				throw new ArrayIndexOutOfBoundsException("["+d0 + "] is not in [" + (I-1) +"]");
+			if (d0 < B || d0 >= I+B )
+				throw new ArrayIndexOutOfBoundsException("["+d0 + "] is not in [" + B + ":" + (I+B-1) +"]");
 		}
-		return arr_[d0];
+		return arr_[d0-B];
 	}
 
 	/**
 	 * WARNING: does not check array bounds!
 	 */
 	public double get(int d0) {
-		return arr_[d0];
+		return arr_[d0-B];
 	}
 
 	public double get(int d0, int d1, int d2, boolean chkPl, boolean chkAOB) {
@@ -158,10 +152,10 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0));
 		if (chkAOB) {
-			if (d0 < 0  || d0 >= I )
+			if (d0 < B  || d0 >= I+B )
 				throw new ArrayIndexOutOfBoundsException();
 		}
-		return arr_[d0] = v;
+		return arr_[d0-B] = v;
 	}
 
 	public double set(double v, int d0) {
@@ -197,7 +191,7 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 	public int ord(int i, int j, int k) { return i; }
 	public int[] coord(int p) {
 		int[] r = new int[1];
-		 r[0]=p;
+		r[0]=p;
 		return r;
 	}
 
@@ -205,12 +199,12 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		assert (region.contains(d.region));
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
-			for (int i=0; i<I; i++)
-				 {
-						place pl = distribution.get(i);
-						x10.lang.Runtime.runtime.setCurrentPlace(pl);
-						set(d.get(i), i);
-					}
+			// FIXME: iterate over d's region
+			for (int i=B; i<I+B; i++) {
+				place pl = distribution.get(i);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				set(d.get(i), i);
+			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
@@ -221,11 +215,11 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		DoubleArray result = newInstance(distribution);
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
-			for (int i=0; i<I; i++) {
-						place pl = distribution.get(i);
-						x10.lang.Runtime.runtime.setCurrentPlace(pl);
-						result.set(op.apply(this.get(i), arg.get(i)), i);
-					}
+			for (int i=B; i<I+B; i++) {
+				place pl = distribution.get(i);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result.set(op.apply(this.get(i), arg.get(i)), i);
+			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
@@ -236,12 +230,11 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		DoubleArray result = newInstance(distribution);
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
-			for (int i=0; i<I; i++)
-				 {
-						place pl = distribution.get(i);
-						x10.lang.Runtime.runtime.setCurrentPlace(pl);
-						result.set(op.apply(this.get(i)), i);
-					}
+			for (int i=B; i<I+B; i++) {
+				place pl = distribution.get(i);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result.set(op.apply(this.get(i)), i);
+			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
@@ -252,11 +245,12 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		double result = unit;
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
-			for (int i=0; i<I; i++) {
-						place pl = distribution.get(i);
-						x10.lang.Runtime.runtime.setCurrentPlace(pl);
-						result = op.apply(this.get(i), result);
-					}
+			// FIXME: iterate over r
+			for (int i=B; i<I+B; i++) {
+				place pl = distribution.get(i);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result = op.apply(this.get(i), result);
+			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
@@ -268,13 +262,12 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		DoubleArray result = newInstance(distribution);
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
-			for (int i=0; i<I; i++)
-				 {
-						place pl = distribution.get(i);
-						x10.lang.Runtime.runtime.setCurrentPlace(pl);
-						temp = op.apply(this.get(i), temp);
-						result.set(temp, i);
-					}
+			for (int i=B; i<I+B; i++) {
+				place pl = distribution.get(i);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				temp = op.apply(this.get(i), temp);
+				result.set(temp, i);
+			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
