@@ -36,7 +36,7 @@ public class SpecializedArrayFactory extends DefaultArrayFactory {
 			return new DoubleArray3d_c(d, init, mutable, ignored);
 		if (d.region.rank() == 2)
 			return new DoubleArray2d_anybase_c (d, init, mutable, ignored);
-		if (d.region instanceof Region1D0Base)
+		if (d.region instanceof Region1D0Base) // FIXME: this is too strict
 			return new DoubleArray1d_c(d, init, mutable, ignored);
 		return super.DoubleArray(d, init, safe, mutable, ignored);
 	}
@@ -51,7 +51,7 @@ public class SpecializedArrayFactory extends DefaultArrayFactory {
 	 * @see x10.array.sharedmemory.DefaultArrayFactory#IntArray(x10.lang.dist, x10.array.Operator.Pointwise, boolean, boolean, boolean)
 	 */
 	public IntReferenceArray IntArray(dist d, Pointwise init, boolean safe, boolean mutable, boolean ignored) {
-		if (d.region instanceof Region0Base)
+		if (d.region instanceof Region0Base && d.rank == 1)
 			return new ZeroBasedIntArray_c(d, init, mutable, ignored);
 		return super.IntArray(d, init, safe, mutable, ignored);
 	}
