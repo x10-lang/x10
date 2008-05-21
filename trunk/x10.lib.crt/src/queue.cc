@@ -1,11 +1,9 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: queue.cc,v 1.1.1.1 2008-05-20 13:46:46 ganeshvb Exp $
+ * $Id: queue.cc,v 1.2 2008-05-21 12:44:37 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
-
-/** Implementation file for X10Lib's AsyncQueue interface. **/
 
 #include <assert.h>
 #include <stdio.h>

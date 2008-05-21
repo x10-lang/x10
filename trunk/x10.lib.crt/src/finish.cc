@@ -172,7 +172,6 @@ x10_finish_begin_global (x10_finish_record_t* frecord, void* multi_ex_buf, int* 
   return X10_OK;
 }
 
-
 x10_err_t
 x10_finish_end(const x10_finish_record_t* frecord, int* num_exceptions)
 {  
@@ -185,6 +184,8 @@ x10_finish_end(const x10_finish_record_t* frecord, int* num_exceptions)
 	cnt++;
     x10_probe();
   }while (cnt != X10_MAX_PLACES) ;
+  
+  __upcrt_distr_fence(0);
   
   return X10_OK;
 }

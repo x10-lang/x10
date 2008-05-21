@@ -21,7 +21,7 @@ x10_finalize();
 
 /**
  * \brief spawn an async on given target (NON-BLOCKING).
- *         x10lib assumes SPMD programming model; code is replicated everywhere 
+ *         x10lib assumes that code (atleast the __x10_callback_asynswitch) is replicated everywhere 
  
  * \param tgt 			target place
  * \param closure               pointer to async closure (see x10_types.h)
@@ -35,8 +35,7 @@ x10_finalize();
 
 EXTERN x10_comm_handle_t
 x10_async_spawn(const x10_place_t tgt, const x10_async_closure_t* closure, const size_t cl_size, 
-		const x10_finish_record_t* frecord, const x10_clock_t* clocks, 
-		const int num_clocks);
+		const x10_finish_record_t* frecord, const x10_clock_t* clocks, const int num_clocks);
 
 /**
  * \brief wait for the async_spawn to complete locally  (BLOCKING)
@@ -58,11 +57,31 @@ EXTERN x10_err_t
 x10_probe();
 
 /**
- * Performs x10_probe infinitely, until a termination message is received (BLOCKING)
+ * \brief performs x10_probe infinitely, until a termination message is received(BLOCKING)
  */
-
 EXTERN x10_err_t
 x10_infinite_poll();
+
+/**
+ * \brief  array put(NON-BLOCKING)
+ */
+EXTERN x10_comm_handle_t
+x10_array_put(const x10_addr_t src, 
+	      const x10_addr_t dst, const size_t offset, const size_t nbytes);
+
+/**
+ * \brief array get(NON-BLOCKING)
+ */
+EXTERN x10_comm_handle_t
+x10_array_get(const x10_addr_t dst, 
+	      const x10_addr_t src, const size_t offset, const size_t nbytes);
+
+/**
+ * \brief async array put(NON-BLOCKING)
+ */
+EXTERN x10_comm_handle_t
+x10_async_array_put(const x10_place_t tgt, const x10_addr_t src, const size_t nbytes,
+		    const x10_async_closure_t* dst_closure, const size_t dst_cl_size);
 
 ///finish
 
@@ -140,24 +159,27 @@ x10_next_all();
  * \brief serialize a reference (local or remote)
  */
 EXTERN x10_remote_ref_t 
-x10_serialize_ref(void* ref);
+x10_serialize_ref(x10_addr_t ref);
 
 /**
  * \brief deserialize a remote reference
  */
-EXTERN void* 
+EXTERN x10_addr_t
 x10_deserialize_ref(x10_remote_ref_t ref);
 
 /**
  *\ brief get the location of a reference
  */
-EXTERN int 
-x10_get_loc(void* ref);
+EXTERN x10_place_t
+x10_get_loc(x10_addr_t ref);
 
 /**
  * \brief check if the reference is local
  */
 EXTERN bool
-x10_is_localref (void* ref);
+x10_is_localref (x10_addr_t ref);
 
+
+EXTERN x10_addr_t
+x10_get_addr (x10_addr_t ref);
 #endif
