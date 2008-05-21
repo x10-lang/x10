@@ -13,6 +13,8 @@
 #define bool char
 #endif
 
+typedef unsigned char* x10_addr_t;
+
 /*	place 		*/
 typedef unsigned 	x10_place_t;
 
@@ -47,7 +49,7 @@ typedef struct
 typedef struct
 {
   x10_place_t loc;
-  void* addr;
+  x10_addr_t addr;
 } x10_proxy_t;
 
 typedef x10_proxy_t x10_remote_ref_t;

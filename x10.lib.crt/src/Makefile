@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1.1.1 2008-05-20 13:46:46 ganeshvb Exp $
+# $Id: Makefile,v 1.2 2008-05-21 12:44:37 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -18,14 +18,16 @@ X10LIB_MINOR = 6
 LIBTARGET = lib$(LIBNAME).a
 ARRAY_A = $(SUBDIR1)/array.a
 
-SRCS = async.cc\
+SRCS = array_copy.cc\
+	async.cc\
        finish.cc\
        init.cc \
        queue.cc\
        refs.cc
 
 
-OBJS = async.o \
+OBJS = array_copy.o\
+	async.o \
        finish.o \
        init.o \
        queue.o\
