@@ -6,7 +6,7 @@
 
 bool x10_is_localref(x10_addr_t ref)
 {
-  return (((int)ref) & ADDRMASK==0);
+  return (((long)ref) & ADDRMASK==0);
 }
 
 x10_remote_ref_t x10_serialize_ref (x10_addr_t ref) 
@@ -19,8 +19,8 @@ x10_remote_ref_t x10_serialize_ref (x10_addr_t ref)
     remote_ref.loc = __x10_here; 
     remote_ref.addr = ref;
   } else {
-    remote_ref.loc = ((x10_proxy_t*) (((int) ref) ^ ADDRMASK))->loc;
-    remote_ref.addr =(x10_addr_t) (((x10_proxy_t*) (((int) ref) ^ ADDRMASK))->addr);
+    remote_ref.loc = ((x10_proxy_t*) (((long) ref) ^ ADDRMASK))->loc;
+    remote_ref.addr =(x10_addr_t) (((x10_proxy_t*) (((long) ref) ^ ADDRMASK))->addr);
   }
   
   return remote_ref;
@@ -52,6 +52,6 @@ x10_addr_t x10_get_addr(x10_addr_t ref)
   if (loc_mask == 0) { //check local or remote
     return ref;
   } else {    
-    return ((x10_proxy_t*) (((int) ref) ^ ADDRMASK))->addr;
+    return ((x10_proxy_t*) (((long) ref) ^ ADDRMASK))->addr;
   }
 }

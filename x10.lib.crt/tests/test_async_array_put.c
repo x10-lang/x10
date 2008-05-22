@@ -8,14 +8,14 @@ typedef struct my_closure_t
   x10_async_closure_t base;
 } my_closure_t;
 
-void __x10_callback_asyncswitch (x10_async_closure_t* closure, x10_finish_record_t* frecord, x10_clock_t* clocks, int num_clocks)
+void __x10_callback_asyncswitch(x10_async_closure_t* closure, x10_finish_record_t* frecord, x10_clock_t* clocks, int num_clocks)
 {
   
 }
 
 x10_addr_t __x10_callback_array_copy_switch(x10_async_closure_t* closure)
 {
-  switch (closure->base.handler==1) {
+  switch (closure->handler==1) {
   case 1 :
     return (x10_addr_t) a;
   }
@@ -31,7 +31,7 @@ int main()
   
   if (__x10_here == 0) {
     
-    my_async_closure_t closure;
+    my_closure_t closure;
 
     closure.base.handler = 1;
    
@@ -39,10 +39,10 @@ int main()
 
     for (i = 0; i < 100; i++) a[i] = i;
     
-    x10_comm_handle_t req = x10_async_array_copy(1, (x10_addr_t) a, 
-						 100 * sizeof(x10_addr_t), 
+    x10_comm_handle_t req = x10_async_array_put(1, (x10_addr_t) a, 
+						 100 * sizeof(int),
 						 (x10_async_closure_t*) &closure, 
-						 sizeof(my_async_closure_t));    
+						 sizeof(my_closure_t));    
     x10_async_spawn_wait (req);
     
   } else {

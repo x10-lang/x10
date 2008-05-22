@@ -30,6 +30,8 @@ x10_array_put(const x10_addr_t src,
 {
   x10_comm_handle_t handle;
   
+  printf ("%d\n", x10_get_loc(dst));
+  printf ("%x\n", x10_get_addr(dst));
   handle.rts_handle = __upcrt_distr_direct_put_post (0,
 						     x10_get_loc(dst),
 						     x10_get_addr(dst),
@@ -48,6 +50,9 @@ x10_array_get(const x10_addr_t dst,
 	      const size_t nbytes)
 {
   x10_comm_handle_t handle;
+
+  printf ("%d\n", x10_get_loc(src));
+  printf ("%d\n", x10_get_addr(src));
   
   handle.rts_handle =   __upcrt_distr_direct_get_post (0,
 						       x10_get_loc(src),

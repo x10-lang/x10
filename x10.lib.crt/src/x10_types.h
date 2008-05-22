@@ -43,7 +43,7 @@ typedef struct
 /*	clock	*/
 typedef struct
 {
-   //not defined yet
+   /* not defined yet */
 } x10_clock_t;
 
 typedef struct
