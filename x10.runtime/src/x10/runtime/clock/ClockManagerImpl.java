@@ -150,7 +150,8 @@ public class ClockManagerImpl implements ClockManager {
 				Report.report(3, PoolRunner.logString() + " " + activity
 						+ ".doNext() on " + this.singleClock);
 			}
-			this.singleClock.resume();
+// Olivier 05-22-08: moved implicit resume to doNext in x10.runtime.Clock
+//			this.singleClock.resume();
 			this.singleClock.doNext();
 		} else {
 			if (Report.should_report(Report.ACTIVITY, 3)) {
@@ -158,12 +159,13 @@ public class ClockManagerImpl implements ClockManager {
 						+ ".doNext() on " + this.clockList);
 			}
 			Iterator it = this.clockList.iterator();
-			while (it.hasNext()) {
-				Clock c = (Clock) it.next();
-				c.resume();
-			}
-	
-			it = this.clockList.iterator();
+// Olivier 05-22-08: moved implicit resume to doNext in x10.runtime.Clock
+//			while (it.hasNext()) {
+//				Clock c = (Clock) it.next();
+//				c.resume();
+//			}
+//	
+//			it = this.clockList.iterator();
 			while (it.hasNext()) {
 				Clock c = (Clock) it.next();
 				c.doNext();
