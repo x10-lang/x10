@@ -431,6 +431,9 @@ public /* final */ class Clock extends clock {
 			Report.report(5, PoolRunner.logString() + " " + this+".doNext(" + a + ") called.");
 		}
 
+// Olivier 05-22-08: moved implicit resume from next in x10.runtime.clock.ClockManagerImpl	
+		this.resume(a);
+		
 		synchronized (this) {
 			assert activities_.contains(a);
 			assert nextResumed_.contains(a) || resumed_.contains(a);
