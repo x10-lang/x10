@@ -9,7 +9,7 @@ extern x10_place_t __x10_here;
 
 extern unsigned int __x10_numplaces;
 
-/// init/finalize
+/* init/finalize */
 
 EXTERN x10_err_t
 x10_init();
@@ -17,7 +17,7 @@ x10_init();
 EXTERN x10_err_t
 x10_finalize();
 
-/// asyncs
+/* async */
 
 /**
  * \brief spawn an async on given target (NON-BLOCKING).
@@ -83,7 +83,7 @@ EXTERN x10_comm_handle_t
 x10_async_array_put(const x10_place_t tgt, const x10_addr_t src, const size_t nbytes,
 		    const x10_async_closure_t* dst_closure, const size_t dst_cl_size);
 
-///finish
+/* finish */
 
 /**
  * \brief start the finish_scope (called by root activity only)
@@ -121,7 +121,7 @@ x10_finish_end(const x10_finish_record_t* finish_record, int* num_exceptions);
 EXTERN x10_err_t
 x10_finish_child(const x10_finish_record_t* frecord, void* ex_buf, int ex_buf_size);
 
-///clocks 
+/* clocks  */
 
 /**
  * \brief initialize a clock c (see x10_types.h for x10_clock_t)
@@ -153,7 +153,7 @@ x10_next(x10_clock_t* c);
 EXTERN x10_err_t
 x10_next_all();
 
-///remote reference
+/* remote reference  */
 
 /**
  * \brief serialize a reference (local or remote)
