@@ -1,13 +1,13 @@
-\section{\Xten{} Work Stealing}\label{sec:XWS}
+\section{\Xten{} work stealing}\label{sec:XWS}
 
-\subsection{Support for Improperly Nested Tasks}
+\subsection{Support for improperly nested tasks}
 Cilk requires {\em fully-strict} (properly nested) programs in which a
-task waits for all its descendents to complete before returning.
+task waits for all its descendants to complete before returning.
 
 The \Xten{} runtime system is designed to leverage the Cilk design
 while supporting a larger class of programs. \Xten{} provides support
-for {\em strict} ({\em improperly nested}) computations, in which an
-ancestor task need not wait for its descendent tasks to be completed.
+for {\em strict} ({improperly nested}) computations, in which an
+ancestor task need not wait for its descendant tasks to be completed.
 
 Properly nested tasks $t$ satisfy the property that at the moment when
 the slow version terminates (method:{\java compute()}) the frame at
@@ -22,26 +22,26 @@ the frame stack and the tasks being processed.
 instance, to implement the pseudo-depth-first search discussed in this
 paper. Such a task may add a task $r$ to the deque of its worker (say
 $w$) without necessarily transferring control to $r$. This has two
-consequences. First, recall that as soon as a worker's dequeue
+consequences. Firstly, recall that as soon as a worker's dequeue
 contains more than one task the worker may be the target of a
 theft. Therefore as soon as $q$ pushes $r$ onto $w$'s dequeue, $q$ is
 available to be stolen.  Therefore $q$'s compute method must first pop
-$q$ off the deque before spawning new asyncs. (Hence the {\java
+$q$ off the deque before spawning new asynchronous tasks. (Hence the {\java
 w.popAndReturnFrame()} in the body of {\tt compute} in
 Example~\ref{example:dfs}.)
 
-With improperly nested tasks, a worker no long enjoys the property
-that when control returns to it from the invocation of an execute
+Secondly, with improperly nested tasks, a worker no long enjoys the property
+that when control returns to it from the invocation of a {\tt compute}
 method on the top-level task, the deque is empty. Indeed, control may
 return to the scheduler leaving several tasks on the deque, including
-the task whose execute method has just returned. The scheduler must
+the task whose {\tt compute} method has just returned. The scheduler must
 now enter a phase in which it executes the task at the bottom of the
-deque:
+deque until it is empty.
 
-\subsection{Global Quiescence}
+\subsection{Global quiescence}
 
 In fully-strict computations completion of the first task and the
-return of the corresponding closure indicates termination.
+return of the corresponding {\em closure} indicates termination. A closure is implemented as an object describing the current state of a task and used to return values in the occurrence of stealing. There is a one-to-one correspondence between a frame and a task, but there may be multiple closures associated with a task. Each time a task is stolen, a closure is created. 
 Improperly-nested tasks that do not require a return call chain can do
 away with the closures. We have implemented a mechanism to efficiently
 identify termination without closures; in essence the mechanism detects
@@ -64,12 +64,12 @@ though $P-1$ workers have not participated in the barrier. Thus this
 mechanism does not require all workers to participate, only those that
 actually steal work.
 
-\subsection{Phased Computations}
+\subsection{Phased computations}
 We also added support for phased computations in which tasks in this
 phase create tasks to be executed in the next phase (cf BFS search).
 Phased computations are supported as a generalization of global
-quiescence. Each worker maintains two dequeues (the {\em now} deque and the
-{\em next} deque).  Depending on the phase specified when spawning
+quiescence. Each worker maintains two dequeues (the now deque and the
+next deque).  Depending on the phase specified when spawning
 tasks, a task can be added to the now deque or the next deque.
 
 When global quiescence is detected for the current phase, the barrier
@@ -79,7 +79,7 @@ stealing, it checks to see if the barrier's phase is the same as its
 phase; if not, it advances the phase and swaps its next and now
 deques. When checking into the barrier, each worker specifies whether
 it has work to do in the next phase. When the barrier is advanced {\tt
-checkCount} is initialized with this number, thus maintaining the
+checkCount} is initialized with the number of workers with work to do in this phase, thus maintaining the
 invariant associated with the barrier.  If this count is $0$, the job
 is terminated.
 
