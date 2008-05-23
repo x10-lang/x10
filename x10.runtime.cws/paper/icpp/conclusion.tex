@@ -1,5 +1,5 @@
-\section{Conclusion and Related work}\label{sec:concl}
-\paragraph{Related work}
+\section{Related work}\label{sec:related}
+%\paragraph{Related work}
 Adaptive batching bears some similarities to the steal-half algorithm
 of Shavit et al, and its variants. Both approaches attempt to cope
 with non-hierarchical workloads for graph problems. In the steal-half
@@ -21,20 +21,20 @@ ability of others to find and steal new work.  Additionally, by
 relating batching rules to sequential processing thresholds needed for
 any work-stealing program, our approach supports simpler empirically
 guided performance tuning.
-
-\paragraph{Conclusion}
+\section{Conclusion}\label{sec:concl}
+%\paragraph{Conclusion}
 In this paper we have shown how several graph algorithms can be
 expressed concisely and elegantly in \Xten. These algorithms rely
 heavily on support for fine-grained concurrency. The \Xten{} runtime
-(\XWS) implements fine-grained concurrency through an ehanced
+(\XWS) implements fine-grained concurrency through an enhanced
 work-stealing scheduler. Specifically the scheduler supports
 improperly nested tasks, detection of global termination, and phased
 work-stealing.  We measure the performance of spanning tree algorithms
 implemented with pseudo-depth-first search and breadth-first search on
-two multicore systems. We show that the \XWS{} programs scale and
+two multicore systems. We also present a strategy to adaptively control the granularity of parallel tasks in the work-stealing scheme. We show that the \XWS{} programs scale and
 exhibit performance comparable with hand-written C programs.
 
-\paragraph{Acknowledgements.} 
+\paragraph{Acknowledgements} 
 We thank Raj Barik for his contributions to the implementation of the
 C++ version of \XWS. We thank the rest of the \Xten{} team for many
 discussions of these issues. This material is based upon work
