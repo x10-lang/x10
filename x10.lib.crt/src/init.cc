@@ -6,7 +6,7 @@
 
 x10_place_t __x10_here;
 
-unsigned int __x10_numplaces;
+x10_place_t __x10_numplaces;
 
 bool __x10_terminate_program = 0;
 
@@ -34,7 +34,7 @@ x10_init ()
   
   __x10_async_init();
 
-  __upcrt_distr_setup(0, &__x10_here, &__x10_numplaces);
+  __upcrt_distr_setup(0, (unsigned int*) &__x10_here, (unsigned int*) &__x10_numplaces);
 
   return X10_OK;
 }
@@ -74,4 +74,16 @@ x10_infinite_poll()
     x10_probe();
   
   return X10_OK;
+}
+
+x10_place_t
+x10_nplaces()
+{
+  return __x10_numplaces;
+}
+
+x10_place_t
+x10_here()
+{
+  return __x10_here;
 }

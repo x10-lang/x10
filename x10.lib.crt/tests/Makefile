@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.3 2008-05-22 10:38:47 ganeshvb Exp $
+# $Id: Makefile,v 1.4 2008-05-23 12:30:05 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -11,7 +11,7 @@ X10_DEVEL_HOME =
 CC = mpcc_r -I ../src -g -q64
 CFLAGS = -O3
 CXX = mpCC_r -q64
-LIBS = -L ../src -lx10 -L /vol/x10/ibm.upc/src/rts/src/hybrid/lapi -lupcrts_lapi  -lpthread 
+LIBS = -L ../src -lx10 -L /home/bikshand/upc/src/rts/src/hybrid/lapi -lupcrts_lapi -lpthread  -L/home/bikshand/libs/rsct/lapi/linux/lapi32/ -llapi standalone.o
 
 AR = ar
 ARFLAGS = -r

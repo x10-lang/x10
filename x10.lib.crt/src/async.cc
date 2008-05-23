@@ -7,7 +7,7 @@
 
 extern x10_place_t __x10_here;
 
-extern unsigned int __x10_numplaces;
+extern x10_place_t __x10_numplaces;
 
 static x10_finish_record_t __x10_global_frecord = {0, 0};
 

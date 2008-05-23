@@ -2,13 +2,72 @@
 #define __X10_ACTS_H__
 
 #include <stdio.h>
+#include <sys/types.h>
+#include <stdint.h>
 
-#include "x10_types.h"
 
-extern x10_place_t __x10_here;
+#ifdef __cplusplus
+#define EXTERN extern "C"
+#else
+#define EXTERN 
+#endif
 
-extern unsigned int __x10_numplaces;
+#ifndef __cplusplus
+#define bool char
+#endif
 
+
+typedef bool     x10_boolean_t;
+typedef int8_t   x10_byte_t;
+typedef uint16_t x10_char_t;
+typedef int16_t  x10_short_t;
+typedef int32_t  x10_int_t;
+typedef int64_t  x10_long_t;
+typedef float    x10_float_t;
+typedef double   x10_double_t;
+
+typedef unsigned char* x10_addr_t;
+
+/*	place 		*/
+typedef x10_long_t	x10_place_t;
+
+typedef enum { X10_OK, X10_NOT_OK} x10_err_t;
+
+typedef struct
+{
+  x10_long_t finish_id; /* a dynamic UNIQUE number for every finish scope */
+  x10_place_t finish_root; /* root of the async */
+} x10_finish_record_t;
+
+typedef struct
+{
+  x10_long_t handler;
+} x10_async_closure_t;
+
+typedef struct
+{
+  void* rts_handle;
+  void* header_buf;
+} x10_comm_handle_t;
+
+/*	clock	*/
+typedef struct
+{
+   /* not defined yet */
+} x10_clock_t;
+
+typedef struct
+{
+  x10_place_t loc;
+  x10_addr_t addr;
+} x10_proxy_t;
+
+typedef x10_proxy_t x10_remote_ref_t;
+
+/*	condition variables	*/
+typedef  unsigned 	x10_condition_t;
+
+  
 /* init/finalize */
 
 EXTERN x10_err_t
@@ -16,6 +75,12 @@ x10_init();
 
 EXTERN x10_err_t
 x10_finalize();
+
+EXTERN x10_place_t
+x10_nplaces();
+
+EXTERN x10_place_t
+x10_here();
 
 /* async */
 
@@ -182,4 +247,96 @@ x10_is_localref (x10_addr_t ref);
 
 EXTERN x10_addr_t
 x10_get_addr (x10_addr_t ref);
+
+
+#if defined(__cplusplus) 
+
+namespace X10 { 
+  
+  typedef x10_addr_t Addr;
+  
+  typedef x10_err_t Err;
+  
+  typedef x10_async_closure_t AsyncClosure;
+  
+  typedef x10_finish_record_t FinishRecord;
+  
+  typedef x10_comm_handle_t CommHandle;
+  
+  typedef x10_clock_t Clock;
+  
+  typedef x10_proxy_t Proxy;
+  
+  typedef x10_remote_ref_t RemoteRef;
+  
+  typedef x10_condition_t Condition;  
+
+  class Place;
+
+  class Acts;
+  
+  Err Init();
+  
+  Err Finalize();
+  
+  RemoteRef SerializeRef(Addr ref);
+  
+  Addr DeserializeRef(RemoteRef);
+  
+  Place GetLoc(Addr ref);
+  
+  Place IsLocalRef(Addr ref);
+
+  Place GetAddr(Addr ref);
+  
+  bool IsEqual(Addr ref1, Addr ref2);
+
+  class Place
+    {      
+
+    public:
+      
+      Place(x10_place_t id);
+      
+      operator x10_place_t() const;      
+      
+      Place(const Place& p);
+      
+      const Place& operator=(const Place& p);
+      
+      const bool operator== (const Place& p);
+
+    private:      
+
+      x10_place_t __id;      
+
+    };
+
+  static x10_place_t Nplaces();
+      
+  static Place Here();      
+
+  class Acts
+    {
+
+    public:
+      
+      static CommHandle AsyncSpawn(Place tgt, AsyncClosure* closure, size_t cl_size, FinishRecord* frecord, Clock* clocks, int numClocks);
+      
+      static Err AsyncSpawnWait(CommHandle handle);
+
+      /* 
+	 static FinishBegin(...);
+      
+      static FinishEnd(...);
+      
+      static FinishBeginGlobal(...);
+      
+      static FinishChild(...);
+      */
+    };  
+}
+
+#endif
+
 #endif

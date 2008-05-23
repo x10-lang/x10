@@ -38,18 +38,18 @@ int main()
 {
   x10_init();
   
-  printf ("hello world: %d %d \n", __x10_here, __x10_numplaces);
+  printf ("hello world: %d %d \n", x10_here(), x10_nplaces());
   
-  if (__x10_here ==0) {
+  if (x10_here() ==0) {
     
     foo* foo_local = (foo*) malloc(sizeof(foo));
     
     foo_local->a = 1;
     foo_local->b = 'a';
     
-    assert (x10_get_loc(foo_local) == __x10_here);
+    assert (x10_get_loc((x10_addr_t) foo_local) == x10_here());
     
-    x10_remote_ref_t foo_ref = x10_serialize_ref (foo_local);
+    x10_remote_ref_t foo_ref = x10_serialize_ref ((x10_addr_t) foo_local);
 
     printf ("foo_ref : %d %x\n", foo_ref.loc, foo_ref.addr);
 

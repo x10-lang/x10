@@ -11,7 +11,7 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure, x10_finish_record
   my_closure_t* my_closure = (my_closure_t*) closure;
   switch (my_closure->base.handler) {
   case 1:
-    printf ("hello world (%d)\n", __x10_here);
+    printf ("hello world (%d)\n", x10_here());
     break;
   }
 }
@@ -22,9 +22,9 @@ int main()
 {
   x10_init();
 
-  printf ("hello world: %d %d \n", __x10_here, __x10_numplaces);
+  printf ("hello world: %d %d \n", x10_here(), x10_nplaces());
 
-  if (__x10_here == 0) {
+  if (x10_here() == 0) {
      my_closure_t closure;
      closure.base.handler = 1;
      x10_finish_record_t frecord = {0,0};

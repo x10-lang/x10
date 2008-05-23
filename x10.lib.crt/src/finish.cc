@@ -4,8 +4,6 @@
 
 #include "x10.h"
 
-#include "x10_types.h"
-
 #define X10_MAX_FINISH_ID 100
 
 #define X10_MAX_PLACES 1024

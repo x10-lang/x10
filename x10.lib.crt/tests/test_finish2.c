@@ -18,7 +18,7 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure,
   
   my_closure_t* my_closure = (my_closure_t*) closure;
   
-  if (__x10_here == 0) 
+  if (x10_here() == 0) 
     {
       val += my_closure->magic_number;
       x10_finish_child(frecord, NULL, 0);
@@ -33,7 +33,7 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure,
 
     for (i = 0; i < 10; i++) {    
       
-      x10_comm_handle_t req = x10_async_spawn((__x10_here + 1) % __x10_numplaces, closure, 
+      x10_comm_handle_t req = x10_async_spawn((x10_here() + 1) % x10_nplaces(), closure, 
 					      sizeof(my_closure_t), frecord, NULL, 0);   
       
       x10_async_spawn_wait(req);    
@@ -52,9 +52,9 @@ int main()
 {
   x10_init();
 
-  printf ("hello world: %d %d \n", __x10_here, __x10_numplaces);
+  printf ("hello world: %d %d \n", x10_here(), x10_nplaces());
 
-  if (__x10_here == 0) {
+  if (x10_here() == 0) {
     
     my_closure_t closure;
     closure.base.handler = 1;

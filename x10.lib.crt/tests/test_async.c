@@ -22,9 +22,9 @@ int main()
 {
   x10_init();
 
-  printf ("hello world: %d %d \n", __x10_here, __x10_numplaces);
+  printf ("hello world: %d %d \n", x10_here(), x10_nplaces());
 
-  if (__x10_here == 0) {
+  if (x10_here() == 0) {
      my_closure_t closure;
      closure.base.handler = 1;
      closure.magic_number = 1729;
