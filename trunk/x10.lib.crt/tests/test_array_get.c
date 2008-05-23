@@ -26,33 +26,28 @@ int main()
 {
   x10_init();
 
-  printf ("hello world: %d %d %x\n", x10_here(), x10_nplaces(), (void*) a);
+  printf ("hello world: %d %d\n", x10_here(), x10_nplaces());
   
   if (x10_here() == 0) {
     
     int i;
-    for (i = 0; i < 100; i++) a[i] = i;
 
     x10_remote_ref_t proxy = {1, (x10_addr_t) a};
 
     x10_addr_t ref = x10_deserialize_ref(proxy);
 
-    printf ("%d %x\n", x10_get_loc(ref), (void*) x10_get_addr(ref));
+    x10_comm_handle_t req = x10_array_get ((x10_addr_t) a, ref, 0, 100 * sizeof(int));
 
-    x10_comm_handle_t req = x10_array_put ((x10_addr_t) a, ref, 0, 100 * sizeof(int));
-
-    printf ("here 0\n");    
     x10_async_spawn_wait (req);
-    printf ("here 1\n");    
-    
-  } else {
-    x10_infinite_poll();
-    int i;
     for (i= 0; i < 100; i++)
       assert (a[i] == i);
+    
+  } else {
+    int i;
+    for (i = 0; i < 100; i++) a[i] = i;
+    x10_infinite_poll();
   }
   
-    printf ("here 2\n");    
   x10_finalize();
 
   return 0;

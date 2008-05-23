@@ -1,14 +1,14 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.3 2008-05-22 10:38:46 ganeshvb Exp $
+# $Id: Makefile,v 1.4 2008-05-23 12:30:04 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Makefile for X10Lib src subdir.
 
 TOP = ..
-include $(TOP)/config/Make.AIX
+include $(TOP)/config/Make.LINUX
 
 LIBNAME = x10
 X10LIB_MAJOR = 0

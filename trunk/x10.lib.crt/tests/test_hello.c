@@ -17,7 +17,7 @@ int main()
 {
   x10_init();
 
-  printf ("hello world: %d %d \n", __x10_here, __x10_numplaces);
+  printf ("hello world: %d %d \n", x10_here(), x10_nplaces());
 
   x10_finalize();
   return 0;

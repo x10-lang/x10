@@ -4,6 +4,10 @@
 
 #define ADDRMASK 0x01
 
+extern x10_place_t __x10_here;
+
+extern unsigned int __x10_numplaces;
+
 bool x10_is_localref(x10_addr_t ref)
 {
   return (((long)ref) & ADDRMASK==0);
