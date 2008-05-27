@@ -1,4 +1,4 @@
-\documentclass[nocopyrightspace,10pt]{sigplanconf}
+\documentclass[10pt]{sigplanconf}
 
 \newif\iflncs
 \lncsfalse
@@ -116,12 +116,12 @@
 \title{Constrained Types for Object-Oriented Languages}
 \titlerunning{Constrained Types}
 
-\author{Vijay Saraswat\inst{1} \and Nathaniel Nystrom\inst{1}
+\author{Nathaniel Nystrom\inst{1} \and Vijay Saraswat\inst{1}
 \and Jens Palsberg\inst{2} \and Christian Grothoff\inst{3}}
 \authorrunning{Vijay Saraswat et al.}
 
 \institute{IBM T.~J. Watson Research~Center, P.O.~Box~704, Yorktown~Heights NY 10598 USA,
-\email{\{vsaraswa,nystrom\}@us.ibm.com}
+\email{\{nystrom,vsaraswa\}@us.ibm.com}
 \and
 UCLA~Computer~Science~Department,
 Boelter~Hall, Los~Angeles CA 90095 USA,
@@ -134,11 +134,11 @@ Department~of~Computer~Science, University~of~Denver,
 \else
 
 \title{Constrained Types for Object-Oriented Languages}
-\authorinfo{Vijay Saraswat\titlenote{IBM T.~J. Watson Research
+\authorinfo{Nathaniel Nystrom\titlenote{IBM T.~J. Watson Research
 Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
-  {vsaraswa@us.ibm.com}
-\authorinfo{Nathaniel Nystrom$^{\;*}$}{}
   {nystrom@us.ibm.com}
+\authorinfo{Vijay Saraswat$^{\;*}$}{}
+  {vsaraswa@us.ibm.com}
 %\authorinfo{Radha Jagadeesan\titlenote{School of CTI, DePaul
 %University, 243 S. Wabash Avenue, Chicago IL 60604 USA}}{}
   %{rjagadeesan@cs.depaul.edu}
@@ -151,9 +151,10 @@ Department of Computer Science, University of Denver,
 Green Hall, Room 214, Denver CO, 80208 USA}}{}
   {christian@grothoff.org}
 
-% \conferenceinfo{POPL'08}{XXX}
-% \copyrightyear{2008}
-% \copyrightdata{[to be supplied]}
+\conferenceinfo{OOSPLA'08}
+               {Oct. XX--XX, 2008, Nashville, Tennessee, USA.}
+\copyrightyear{2008}
+\copyrightdata{[to be supplied]}
 
 \fi
 
@@ -162,6 +163,14 @@ Green Hall, Room 214, Denver CO, 80208 USA}}{}
 \begin{abstract}
 \input{abstract}
 \end{abstract}
+
+\iflncs
+\else
+\category{D.3.2}{Language Classifications}{Object-oriented languages}
+\category{D.3.3}{Language Constructs and Features}{Classes and objects, XXX}
+\terms{Languages}
+\keywords{Object-oriented programming languages, dependent types}
+\fi
 
 \iflstworks
 \section{Introduction}\label{sec:intro}
