@@ -1,4 +1,4 @@
-\chapter{Statements and expressions}\label{XtenStatements}\index{statements}
+\chapter{Statements}\label{XtenStatements}\index{statements}
 
 \Xten{} inherits all the standard statements of \Java{}, with the expected semantics:
 
@@ -12,7 +12,151 @@ ReturnStatement     ThrowStatement
 TryStatement
 \end{verbatim}
 
-We focus on the new statements in \Xten. 
+\section{Empty statement}
+
+The empty statement \xcd";" does nothing.  It is useful when a
+loop header is evaluated for its side effects.  For example,
+the following code sums the elements of an array.
+\begin{xten}
+var sum: Int = 0;
+for (i: Int = 0; i < a.length; i++, sum += a[i])
+    ;
+\end{xten}
+
+\section{Expression statement}
+
+The expression statement evaluates an expression, ignoring the
+result.  The expression must be either an assignment, an
+allocation, or a call.
+
+\section{Labeled statement}
+
+Statements may be labeled.  The label may be used as the target
+of a break or continue statement.  The scope of a label is the
+statement labeled.
+
+\section{Break statement}
+
+An unlabeled break statement exits the currently enclosing loop
+or switch statement.
+
+An labeled break statement exits the enclosing loop
+or switch statement with the given label.
+
+It is illegal to break out of a loop not defined in the current
+method, constructor, initializer, or closure.
+
+The following code searches for an element of a two-dimensional
+array and breaks out of the loop when found:
+
+\begin{xten}
+var found: Boolean = false;
+for (i: Int = 0; i < a.length; i++)
+    for (j: Int = 0; j < a(i).length; j++)
+        if (a(i)(j) == v) {
+            found = true;
+            break;
+        }
+\end{xten}
+
+\section{Continue statement}
+
+An unlabeled continue statement branches to the top of the
+currently enclosing loop.
+
+An labeled break statement branches to the top of the enclosing loop
+with the given label.
+
+It is illegal to continue a loop not defined in the current
+method, constructor, initializer, or closure.
+
+\section{If statement}
+
+An if statement comes in two forms: with and without an else
+clause.
+
+The if-then statement evaluates a condition expression and 
+evaluates the consequent expression if the condition is
+\xcd"true".  If the 
+condition is \xcd"false",
+the if-then statement completes normally.
+
+The if-then-else statement evaluates a condition expression and 
+evaluates the consequent expression if the condition is
+\xcd"true"; otherwise, the alternative statement is evaluated.
+
+The condition must be of type \xcd"Boolean".
+
+\section{Switch statement}
+
+A switch statement evaluates an index expression and then branches to
+a case whose value equal to the value of the index expression.
+If no such case exists, the switch branches to the 
+\xcd"default" case, if any.
+
+Statements in each case branch evaluated in sequence.  At the
+end of the branch, normal control-flow falls through to the next case, if
+any.  To prevent fall-through, a case branch may be exited using a \xcd"break",
+\xcd"continue", \xcd"return", or \xcd"throw" statement.
+
+The index expression must be of type \xcd"Int".
+
+Case labels must be of type \xcd"Int" and must be compile-time
+constants.  Case labels cannot be duplicated within the
+\xcd"switch" statement.
+
+\section{While statement}
+
+A while statement evaluates a condition and executes a loop body
+if \xcd"true".  If the loop body completes normally (either by reaching
+the end or via a \xcd"continue" statement with the loop header
+as target), the condition is reevaluated and the loop repeats if
+\xcd"true".  If the condition is \xcd"false", the loop
+exits.
+
+The condition must be of type \xcd"Boolean".
+
+\section{Do--while statement}
+
+A do-while statement executes a loop body, and then evaluates a
+condition expression.  If \xcd"true", the loop repeats.
+Otherwise, the loop exits.
+
+The condition must be of type \xcd"Boolean".
+
+\section{For statement}
+
+A for statement consists of an initializer, a condition, an
+iterator, and a body.  First, the initializer is evaluated.
+The initializer may introduce local variables that are in scope
+throughout the for statement.  An empty initializer is
+permitted.
+Next, the condition is evaluated.  If \xcd"true", the loop body
+is executed; otherwise, the loop exits.
+The condition may be omitted, in which case the condition is
+considered \xcd"true".
+If the loop completes normally (either by reaching the end
+or via a \xcd"continue" statement with the loop header as
+target),
+the iterator is evaluated and then the condition is reevaluated
+and the loop repeats if
+\xcd"true".  If the condition is \xcd"false", the loop
+exits.
+
+The condition must be of type \xcd"Boolean".
+The initializer and iterator are statements, not expressions
+and so do not have types.
+
+\section{Throw statement}
+
+The \xcd"throw" statement throws an exception.  The exception
+must be of type \xcd"x10.lang.Throwable".  If the exception is
+\xcd"null", a \xcd"NullPointerException" is thrown.
+
+\section{Try--catch statement}
+
+
+
 
 \section{Assignment}\index{assignment}\label{AssignmentStatement}
 
@@ -26,12 +170,12 @@ We focus on the new statements in \Xten.
 %once. The \Xten{} compiler may issue a warning if it detects code 
 %that uses \xcd"=" assignment statements on \xcd"mutable" variables.
 
-{}\Xten{} supports assignment \xcd{l = r} to array variables. In this
-case \xcd{r} must have the same distribution \xcd{D} as \xcd{l}. This
+{}\Xten{} supports assignment \xcd"l = r" to array variables. In this
+case \xcd"r" must have the same distribution \xcd"D" as \xcd"l". This
 statement involves control communication between the sites hosting
-\xcd{D}. Each site performs the assignment(s) of array components
+\xcd"D". Each site performs the assignment(s) of array components
 locally. The assignment terminates when assignment has terminated at
-all sites hosting \xcd{D}.
+all sites hosting \xcd"D".
 
 %% TODO: Sectional assignment??
 
@@ -41,15 +185,15 @@ all sites hosting \xcd{D}.
 ArgumentList \: Expression ( \xcd"," Expression )\star \\
 Primary \: \xcd"Point" \xcd"(" ArgumentList \xcd")"
 \end{grammar}
-Each element in the argument list must be either of type \xcd{int} or 
-of type \xcd{region}. In the former case the expression 
-\xcd{(a1,..., ak)} is treated as syntactic shorthand for
-\begin{xten}
-point.factory.point(a1,..., ak)
-\end{xten}
+Each element in the argument list must be either of type \xcd"int" or 
+of type \xcd"region". In the former case the expression 
+\xcdmath"(a$_1$, $\dots$, a$_k$)" is treated as syntactic shorthand for
+\begin{xtenmath}
+point.factory.point(a$_1$, $\dots$, a$_k$)
+\end{xtenmath}
 \noindent and in the latter case as shorthand for
 \begin{xten}
-region.factory.region(a1,..., ak)
+region.factory.region(a$_1$, $\dots$, a$_k$)
 \end{xten}
 
 \section{Exploded variable declarations}\label{exploded-syntax}\index{variable declarator!exploded}
@@ -110,8 +254,6 @@ public class Array1Exploded {
   }
 }
 \end{xten}
-
-\input{XtenExpressions} \par  % empty
 
 
 

@@ -8,16 +8,16 @@ Object is the superclass of all reference types.
 {}\Xten{} is a {\em strongly typed} object-oriented language: every variable
 and expression has a type that is known at compile-time. Further,
 \Xten{} has a {\em unified} type system: all data items created at
-runtime are {\em objects} (\S~\ref{XtenObjects}. Types limit the
+runtime are {\em objects} (\Sref{XtenObjects}. Types limit the
 values that variables can hold and specify the places at which these
 values lie.
 
 {}\Xten{} supports two kinds of objects, {\em reference objects} and
 {\em value objects}.  Reference objects are instances of {\em
-reference classes} (\S~\ref{ReferenceClasses}). They may contain
+reference classes} (\Sref{ReferenceClasses}). They may contain
 mutable fields and must stay resident in the place in which they were
 created. Value objects are instances of {\em value classes}
-(\S~\ref{ValueClasses}). They are immutable and may be freely copied
+(\Sref{ValueClasses}). They are immutable and may be freely copied
 from place to place. Either reference or value objects may be 
 {\em scalar} (instances of a non-array class) or {\em aggregate} (instances
 of arrays).
@@ -43,7 +43,7 @@ type constructors:
 \index{class declaration}
 \index{declaration!class declaration}
 
-        A {\em class declaration} (\S~\ref{XtenClasses})
+        A {\em class declaration} (\Sref{XtenClasses})
         introduces a 
         {\em (reference) class type}
 \index{class!reference class}\index{reference class type}
@@ -82,7 +82,7 @@ A {\em value class type}\index{class!value class}\index{value class type}
 is a class type in which all fields of the class are immutable.
 
 Values classes are specified via {\em value class declarations}
-(\S~\ref{XtenClasses}).
+(\Sref{XtenClasses}).
 
 Variables of value class type may not be \xcd"null".
 There is no subtyping relationship between different value
@@ -95,7 +95,7 @@ classes.
 \index{interface declaration}
 \index{declaration!interface declaration}
 
-        An {\em interface declaration} (\S~\ref{XtenInterfaces})
+        An {\em interface declaration} (\Sref{XtenInterfaces})
         defines an {\em interface type}, which specifies a set of
         methods, type members, and properties to be implemented by any class
         declared to implement the interface.  Interfaces also
@@ -240,6 +240,7 @@ PrimitiveBaseType \: TypeName \\
 \end{grammar}
 
 \section{Generic types}
+\label{Generics}
 
 A {\em generic type} is a class or interface type declared with
 one or more type properties.
@@ -429,6 +430,7 @@ of an enclosing class or interface \xcd"T", then \xcd"X" is equivalent to
 the path type \xcd"T.this.X".
 
 \section{Constrained types}
+\label{DepType:DepType}
 \label{DepTypes}\index{dependent types}
         
         Given a type \xcd"T", a {\em constrained type}
@@ -545,6 +547,7 @@ objects that belong to \xcd"C{c}".
 \input{PlaceTypes}
 
 \subsection{Type invariants}\label{DepType:TypeInvariant}\index{Type invariant}
+\label{DepType:Where}
 
 A class or interface declaration may specify a
 \grammarrule{WhereClause}, an invariant on all
@@ -635,7 +638,7 @@ We say that \xcd"T" = \xcd"C{c}" is {\em parametrically consistent} (in brief:
 
 \noindent
 where \xcdmath"$\mathit{inv}$(C)" is the invariant associated
-with the type \xcd"C" (\S~\ref{DepType:TypeInvariant}).  Note by
+with the type \xcd"C" (\Sref{DepType:TypeInvariant}).  Note by
 definition of \xcd"S" the formula on the above has no free
 variables.
 
@@ -814,7 +817,7 @@ public class Object extends Any {
 
 The method \xcd"equals" and \xcd"hashCode" are useful in hashtables,
 and are defined as in \java. The default implementation of \xcd"equals"
-is stable equality, \S~\ref{StableEquality}. This method may be overridden
+is stable equality, \Sref{StableEquality}. This method may be overridden
 in a (value or reference) subclass.
 
 \subsection{The class \Xcd{String}}
@@ -854,7 +857,7 @@ public value class Double extends Number { native def this(); }
 
 A program may contain literals
 that stand for specific instances of these classes. The syntax
-for literals is the same as for \java{} (\S~\ref{Literals}).
+for literals is the same as for \java{} (\Sref{Literals}).
 
 Binary and unary operations produce new instances of these
 classes.
@@ -873,5 +876,26 @@ to specify new syntax for literals.
 \input{ArrayTypes}
 \input{FutureTypes}
 
+\section{Box types}
+\label{BoxType}
 
+The class \xcd"Box" allows a value type to be used at a
+reference type.
+
+\begin{xten}
+package x10.lang;
+public class Box[T](unbox: T) { }
+\end{xten}
+
+The \xcd"to" expression may be used to convert to and from a
+boxed type:
+
+\begin{xten}
+val x = new Box[Int](0); // box using constructor call
+val y = x to Int;        // unbox using to-operation
+val z = y to Box;        // box using to-operation
+\end{xten}
+
+Assignment of a value type into a variable of reference type
+automatically boxes the value.
 

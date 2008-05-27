@@ -2,29 +2,24 @@
 
 % Macros for R^nRS.
 
+\def\@makechapterhead#1{%
+  \vspace*{50\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+        \huge\bfseries \thechapter \space\space\space
+        \nobreak
+    \fi
+    \interlinepenalty\@M
+    \Huge \bfseries #1\par\nobreak
+    \vskip 40\p@
+  }}
+
+
 \makeatletter
 
 \newcommand{\topnewpage}{\@topnewpage}
 
 % Chapters, sections, etc.
-
-\newcommand{\extrapart}[1]{
- % \chapter{#1}
-  \chapter*{#1}
-  \markboth{#1}{#1}
-  \vskip 1ex
-  \addcontentsline{toc}{chapter}{#1}}
-
-\newcommand{\clearchapterstar}[1]{
-  \clearpage
-  \topnewpage[
-    \centerline{\large\bf\uppercase{#1}}
-    \bigskip]}
-
-\newcommand{\clearextrapart}[1]{
-  \clearchapterstar{#1}
-  \markboth{#1}{#1}
-  \addcontentsline{toc}{chapter}{#1}}
 
 \newcommand{\vest}{}
 \newcommand{\dotsfoo}{$\ldots\,$}
@@ -280,3 +275,9 @@
 \bgroup\noindent{\textsc{Static Semantics Rule} (#1):\space}}{%
 \egroup}
 
+\newcommand\Sref[1]{\S\ref{#1}}
+\newcommand\figref[1]{Figure~\ref{#1}}
+\newcommand\tabref[1]{Table~\ref{#1}}
+\newcommand\exref[1]{Example~\ref{#1}}
+
+\newcommand\eat[1]{}
