@@ -1,9 +1,9 @@
 \chapter{Objects}\label{XtenObjects}\index{Object}
 
 An object is an instance of a scalar class or an array type.  It is
-created by using a class instance creation expression
-(\S~\ref{ClassCreation}) or an array creation
-(\S~\ref{ArrayInitializer}) expression, such as an array
+created by using a allocation expression
+(\Sref{ClassCreation}) or an array creation
+(\Sref{ArrayInitializer}) expression, such as an array
 initializer. An object that is an instance of a reference (value) type
 is called a {\em reference} ({\em value}) {\em object}.
 
@@ -13,7 +13,7 @@ This class has one \xcd"const" field \xcd"location" of type
 are located (have a place). However, \Xten{} permits value objects to
 be freely copied from place to place because they contain no mutable
 state.  It is permissible for a read of the \xcd"location" field of
-such a value to always return \xcd"here" (\S~\ref{Here});
+such a value to always return \xcd"here" (\Sref{Here});
 therefore no space needs to be allocated in the object representation
 for such a field.
 
@@ -28,17 +28,17 @@ collected.
 a lock) associated with them. Thus the methods on \xcd"java.lang.Object"
 for waiting, synchronizing, notifying etc., are not
 available in \Xten. Instead the programmer should use atomic blocks
-(\S~\ref{AtomicBlocks}) for mutual exclusion and clocks
-(\S~\ref{XtenClocks}) for sequencing multiple parallel operations.
+(\Sref{AtomicBlocks}) for mutual exclusion and clocks
+(\Sref{XtenClocks}) for sequencing multiple parallel operations.
 
 A reference object may have many references, stored in fields of
 objects or components of arrays. A change to an object made through
 one reference is visible through another reference. \Xten{} mandates
 that all accesses to mutable objects shared between multiple
-activities must occur in an atomic section (\S\ref{AtomicBlocks}).
+activities must occur in an atomic section (\Sref{AtomicBlocks}).
 
 Note that the creation of a remote async activity
-(\S~\ref{AsyncActivity}) \xcd"A" at \xcd"P" may cause the automatic creation of
+(\Sref{AsyncActivity}) \xcd"A" at \xcd"P" may cause the automatic creation of
 references to remote objects at \xcd"P". (A reference to a remote
 object is called a {\em remote object reference}, to a local object a
 {\em local object reference}.)  For instance \xcd"A" may be created
@@ -63,7 +63,7 @@ performed on the bound object, as indicated below. The operations on
 objects and object references include:
 \begin{itemize}
 
-{}\item Field access (\S~\ref{FieldAccess}). An activity holding a
+{}\item Field access (\Sref{FieldAccess}). An activity holding a
 reference to a reference object may perform this operation only if the
 object is local.  An activity holding a reference to a value object
 may perform this operation regardless of the location of the object
@@ -73,7 +73,7 @@ from the place where the object was created to the referencing place
 will be incurred at most once per referencing place, according to the
 rule for final fields discussed above.
 
-\item Method invocation (\S~\ref{MethodInvocation}).  An activity
+\item Method invocation (\Sref{MethodInvocation}).  An activity
 holding a reference to a reference object may perform this operation
 only if the object is local.  An activity holding a reference to a
 value object may perform this operation regardless of the location of
@@ -82,18 +82,18 @@ implementation must attempt to ensure that the cost of copying enough
 relevant state of the value object to enable this method invocation to
 succeed is incurred at most once for each value object per place.
 
-{}\item Casting (\S~\ref{ClassCast}).  An activity can perform this
+{}\item Casting (\Sref{ClassCast}).  An activity can perform this
 operation on local or remote objects, and should not incur
 communication costs (to bring over type information) more than once
 per place.
 
-{}\item \xcd"instanceof" operator (\S~\ref{instanceOf}).  An activity
+{}\item \xcd"instanceof" operator (\Sref{instanceOf}).  An activity
 can perform this operation on local or remote objects, and should not
 incur communication costs (to bring over type information) more than
 once per place.
 
 \item The stable equality operator \xcd"==" and \xcd"!="
-(\S~\ref{StableEquality}). An activity can perform these operations on
+(\Sref{StableEquality}). An activity can perform these operations on
 local or remote objects, and should not incur communication costs
 (to bring over relevant information) more than once per place.
 

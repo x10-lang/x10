@@ -54,7 +54,7 @@ clocks will have been resumed. But this implies that all activities
 blocked on \xcd"next" may continue and the configuration is not stuck.
 The only other possibility is that an activity may be stuck on
 \xcd"finish". But the interaction rule between \xcd"finish" and clocks
-(\S~\ref{sec:finish:clock-rule}) guarantees that this cannot cause a cycle
+(\Sref{sec:finish:clock-rule}) guarantees that this cannot cause a cycle
 in the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}.
 
 \section{Clock operations}\label{sec:clock}
@@ -100,7 +100,7 @@ The programmer may specify which clocks a new activity is to be
 registered with using the \xcd"clocked" clause.
 
 An activity may transmit only those clocks that is registered with and
-has not quiesced on (\S~\ref{resume}). 
+has not quiesced on (\Sref{resume}). 
 A \xcd"ClockUseException"\index{clock!ClockUseException} is
 thrown if (and when) this condition is violated.
 
@@ -132,7 +132,7 @@ c.resume();
 \end{xten}
 
 An activity may invoke this method only on a clock it is registered
-with, and has not yet dropped (\S~\ref{sec:clock:drop}). A \xcd"ClockUseException"\index{clock!ClockUseException} is thrown if (and
+with, and has not yet dropped (\Sref{sec:clock:drop}). A \xcd"ClockUseException"\index{clock!ClockUseException} is thrown if (and
 when) this condition is violated.  Nothing happens if the activity has
 already invoked a \xcd"resume" on this clock in the current phase.
 Otherwise execution of this statement indicates that the activity will

@@ -6,7 +6,7 @@ interfaces \cite[\S 9]{jls2}. An interface primarily specifies
 signatures for public methods. It may extend multiple interfaces. 
 %The
 %need for magic constants in interfaces is lessened with the
-%introduction of {\tt enum} (\S~\ref{XtenEnums}).
+%introduction of {\tt enum} (\Sref{XtenEnums}).
 
 
 Future version of \Xten{} will introduce additional structure in
@@ -40,11 +40,11 @@ defined at the interface.
 
 \begin{staticrule*}
    The compiler declares an error if this constraint
-   is not consistent (\S~\ref{DepType:Consistency}).  
+   is not consistent (\Sref{DepType:Consistency}).  
 \end{staticrule*}
 
-Each interface implicitly defines a nullary getter method \xcd"T p()" for
-each property \xcd"T p". 
+Each interface implicitly defines a nullary getter method
+\xcd"def p(): T" for each property \xcd"p: T". 
 
 \begin{staticrule*}
    The compiler issues a warning if the programmer
@@ -53,7 +53,9 @@ each property \xcd"T p".
 
 A class \xcd"C" (with properties) is said to implement an interface \xcd"I" if
 \begin{itemize}
-  \item its properties contains all the properties of I,
-\item its class invariant, i(C), implies i(I)
+  \item its properties contains all the properties of \xcd"I",
+\item its class invariant
+$\mathit{inv}($\xcd"C"$)$ implies
+$\mathit{inv}($\xcd"I"$)$.
 \end{itemize}
 

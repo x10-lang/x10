@@ -1,37 +1,49 @@
 \chapter{Classes}
 \label{XtenClasses}\index{class}
 
-The {\em class declaration} takes
-as argument a reference class (the {\em extended class}), one or more
-interfaces (the {\em implemented interfaces}), the definition of
-fields, methods and inner types, and returns a class of the named type
-(\S~\ref{ReferenceClasses}). Each such declaration introduces a data
-type. Semantically, the data type is the set of all objects which are
-instances of (subclasses of) the class.
+The {\em class declaration} has
+a list of type properties, value properties, 
+a  constraint (the {\em class invariant}, a single superclass,
+one or more interfaces, and a class body containing the
+the definition of
+fields, methods, and member types.
+Each such declaration introduces a class
+type (\Sref{ReferenceTypes}).
 
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
    && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
    && Super\opt Interfaces\opt ClassBody \\
-\end{grammar}
-
-
-XXXXXXXXXXXXXX
-
-\begin{grammar}
+\\
 TypePropertyList     \:  \xcd"[" TypeProperties \xcd"]" \\
-TypeProperties       \:  TypeProperty
-                     ( \xcd"," TypeProperty )\star \\
-TypeProperty         \:  Identifier     \\
+TypeProperties       \:  TypeProperty ( \xcd"," TypeProperty )\star \\
+TypeProperty         \:  Annotation\star Identifier     \\
+\\
 PropertyList     \:  \xcd"(" Properties \xcd")" \\
 Properties       \:  Property ( \xcd"," Property )\star \\
-Property         \:  Identifier \xcd":" Type \\
+Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
+\\
+Super \: \xcd"extends" ClassType \\
+Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
+\\
+ClassBody \: ClassMember\star \\
+ClassMember \: ClassDeclaration \\
+            \| InterfaceDeclaration \\
+            \| FieldDeclaration \\
+            \| MethodDeclaration \\
+            \| ConstructorDeclaration \\
 \end{grammar}
 
-A type property has a name.
-A value property has a name and a type. The declaration of a type (class or
-interface) introduces a sequence of defined properties for the type. 
+A type property declaration is given simply by an identifier.
+The type property is an instance member of the class; given
+an instance \xcd"e" of the class, \xcd"e.T" is a type.
+A type property must be
+bound to a concrete type when the instance is created.
+
+A value property has a name and a type.   Value properties
+are accessible in the same way as \xcd"public" \xcd"final"
+fields.
 
 \begin{staticrule*}
 It is a compile-time error for a class
@@ -67,13 +79,12 @@ interface defining a property \xcd"x :T" to have an existing method with
 the signature \xcd"x(): T".
 \end{staticrule*}
 
-
 Properties are used to build dependent types from classes, as
-described below (\S~\ref{DepType:DepType}).
+described in \Sref{DepType:DepType}.
 
 The \grammarrule{WhereClause} in a class or interface declaration specifies an
 explicit condition on the properties of the type, and is discussed further
-below (\S~\ref{DepType:Class}, \ref{DepType:Interface}).
+in \Sref{DepType:Where}.
 
 \begin{staticrule*}
      Every constructor for a class defining
@@ -84,12 +95,9 @@ below (\S~\ref{DepType:Class}, \ref{DepType:Interface}).
 \end{staticrule*}
 
 Type properties are used to define generic classes and
-interfaces.
+interfaces, as described in \Sref{Generics}.
 
-XXXXXXXXXXXXXX
-
-
-{}\Xten{} classes are essentially the same as \java{} classes \cite[\S 8]{jls2}. Classes are structured in a single-inheritance code
+Classes are structured in a single-inheritance code
 hierarchy, may implement multiple interfaces, may have static and
 instance fields, may have static and instance methods, may have
 constructors, may have static and instance initializers, may have
@@ -116,7 +124,7 @@ Because of its different concurrency model, \Xten{} does not support
 \section{Reference classes}\index{class!reference class}\label{ReferenceClasses}
 A reference class is declared with the optional keyword \xcd"reference" preceding \xcd"class" in a class declaration. Reference
 class declarations may be used to construct reference types
-(\S~\ref{ReferenceTypes}). Reference classes may have mutable
+(\Sref{ReferenceTypes}). Reference classes may have mutable
 fields. Instances of a reference class are always created in a fixed
 place and in \XtenCurrVer{} stay there for the lifetime of the
 object. (Future versions of \Xten{} may support object migration.)
@@ -127,7 +135,7 @@ object, regardless of whether the object is local or remote.
 
 {}\Xten{} singles out a certain set of classes for additional
 support. A class is said to be {\em stateless} if all of its fields
-are declared to be \xcd"final" (\S~\ref{FinalVariable}), otherwise it
+are declared to be \xcd"final" (\Sref{FinalVariable}), otherwise it
 is {\em stateful}. (\Xten{} has syntax for specifying an array class
 with final fields, unlike \java{}.) A {\em stateless (stateful)
 object} is an instance of a stateless (stateful) class.
@@ -152,12 +160,12 @@ ValueClassDeclaration \:
 \end{grammar}
 
 
-The \xcd"Box" type constructor (\S~\ref{BoxTypeConstructor}) can
+The \xcd"Box" type constructor (\Sref{BoxType}) can
 be used to declare variables whose value may be \xcd"null" or a value
 type.
 
 Stable equality for value types is defined through a deep walk,
-bottoming out in fields of reference types (\S~\ref{StableEquality}).
+bottoming out in fields of reference types (\Sref{StableEquality}).
 
 \paragraph{Static semantics.}
 It is a compile-time error for a value class to inherit from a
@@ -248,7 +256,9 @@ value Complex {
 }
 \end{xten}
 
-\section{Where clauses}\label{DepType:WhereClauses}\index{where clauses}
+\section{Type invariants}\label{DepType:WhereClauses}
+\index{type invariants}
+\index{where clauses}
 
 There is a general recipe for constructing a list of parameters or
 properties \xcdmath"x$_1$: T$_1${c$_1$}, $\dots$, x$_k$: T$_k${c$_k$}" that must satisfy a given
@@ -355,7 +365,7 @@ must entail \xcd"d".
 
 A constructor for a class \xcd"C" is guaranteed to return an object of the
 class on successful termination. This object must satisfy i(C), the
-class invariant associated with \xcd"C" (\S~\ref{DepType:TypeInvariant}). However,
+class invariant associated with \xcd"C" (\Sref{DepType:TypeInvariant}). However,
 often the objects returned by a constructor may satisfy {\em stronger}
 properties than the class invariant. \Xten{}'s dependent type system
 permits these extra properties to be asserted with the constructor in
@@ -644,7 +654,7 @@ considerations motivated by dependent types.
 
 The definition of a method declaration \xcd"m1" ``having the same signature
 as'' a method declaration \xcd"m2" involves identity of types. Two \Xten{} types
-are defined to be identical iff they are equivalent (\S~\ref{DepType:Equivalence}).
+are defined to be identical iff they are equivalent (\Sref{DepType:Equivalence}).
 Two methods are said to have {\em the same signature} if (a)
 they have the same number of formal parameters, (b) for each parameter
 their types are equivalent, and (c) the constraints associated with
@@ -767,7 +777,7 @@ m.draw();
    report an error dynamically.
 
    As discussed above, the programmer can write code with \xcd"instanceof"
-   and classcasts that perform any application-appropriate
+   and class casts that perform any application-appropriate
    discrimination.  
 \end{rationale}
 
@@ -820,8 +830,8 @@ same basic block) with the local variable declaration \xcd"o1: F!here = o as F!h
 \xcd"Op o.e" and \xcd"o.e Op".
 
 \item Recall that the static placetype of an array access \xcd"o(e)"
-is \xcd"o.distribution(e)". Therefore, any read/write array access
-\xcd"o(e)" must be guarded by the condition \xcd"o.distribution(e) == here".  (Since  \xcd"e" may have side-effects, the compiler must
+is \xcd"o.dist(e)". Therefore, any read/write array access
+\xcd"o(e)" must be guarded by the condition \xcd"o.dist(e) == here".  (Since  \xcd"e" may have side-effects, the compiler must
 ensure that the place check uses the value returned by the same
 expression evaluation that is used to access the array element.)
 

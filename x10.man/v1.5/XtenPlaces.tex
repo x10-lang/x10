@@ -25,13 +25,13 @@ distributions.
 The set of all places in a running instance of an \Xten{} program may
 be obtained through the \xcd"const" field \xcd"place.places".  (This
 set may be used to define distributions, for instance,
-\S~\ref{XtenDistributions}.) 
+\Sref{XtenDistributions}.) 
 
 
 The set of all places is totally ordered.  The first place may be
 obtained by reading \xcd"place.FIRST_PLACE". The initial activity for
 an \Xten{} computation starts in this place
-(\S~\ref{initial-computation}). For any place, the operation \xcd"next()"
+(\Sref{initial-computation}). For any place, the operation \xcd"next()"
 returns the next place in the total order (wrapping around at the
 end). Further details on the methods and fields available on this
 class may be obtained by consulting the API documentation.
@@ -51,11 +51,11 @@ at which the current object lives), \xcd"place.FIRST_PLACE"
 
 Place expressions are used in the following contexts: 
 \begin{itemize}
-%\item As a  place type in a type (\S~\ref{PlaceTypes}).
+%\item As a  place type in a type (\Sref{PlaceTypes}).
 \item As a target for an \xcd"async" activity or a future
-(\S~\ref{AsyncActivity}).
-\item In a class cast expression  (\S~\ref{ClassCast}).
-\item In an \xcd"instanceof" expression (\S~\ref{instanceOf}).
+(\Sref{AsyncActivity}).
+\item In a class cast expression  (\Sref{ClassCast}).
+\item In an \xcd"instanceof" expression (\Sref{instanceOf}).
 \item In stable equality comparisons, at type \xcd"place".
 \end{itemize}
 

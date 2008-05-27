@@ -1,26 +1,163 @@
 \chapter{Overview of \Xten}
 
-\Xten{} may be thought of as (generic) \java{} less concurrency,
-arrays and built-in types, plus \emph{places},
-\emph{activities}, \emph{
-clocks}, (distributed, multi-dimensional) \emph{arrays} and
-\emph{value}
+\Xten{} is a statically typed object-oriented language, extending a
+sequential core language with 
+\emph{places},
+\emph{activities}, \emph{clocks},
+(distributed, multi-dimensional) \emph{arrays} and \emph{value}
 types. All these changes are motivated by the desire to use the new
 language for high-end, high-performance, high-productivity computing.
+
+\section{Object-oriented features}
+
+The sequential core of \Xten{} is a class-based object-oriented language
+similar to \java{} or Scala.
+Programmers write \Xten{} code by writing \emph{interfaces}
+(\Sref{XtenInterfaces}) and \emph{classes}
+(\Sref{XtenClasses}).
+
+An \Xten{} class (\Sref{XtenClasses}) has fields, methods and
+inner types (interfaces, classes), subclasses another class, and
+implements one or more interfaces. Thus \Xten{} classes live in a
+single-inheritance code hierarchy.
+%% \Xten{} allows the programmer to
+%% define literals for classes, and overload infix/prefix/postfix
+%% operators.
+
+\paragraph{Generic and dependent types}
+Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
+Types may be defined by constraining a
+class or interface's properties with boolean predicates.
+\emph{Type properties} enable the definition of \emph{generic types};
+\emph{value properties} enable the definition of \emph{dependent types}.
+
+For example, the following code declares a class for a two-dimensional 
+\xcd"Point" class with an \xcd"add" method.
+\begin{xten}
+class Point(x: Int, y: Int) {
+    def add(p: Point): Point { return new Point(x+p.x,y+p.y); }
+}
+\end{xten}
+The class has integer value properties \xcd"x" and \xcd"y".
+The \xcd"add" method creates and returns a new point by
+element-wise addition.
+The dependent type \xcd"Point{x==0}" is the type of all points 
+with \xcd"x" property \xcd"0"; that is, all points along the $y$-axis.
+
+As another example,
+the following code declares a simple \xcd"List" class with a
+type property \xcd"T".
+\begin{xten}
+class List[T] {
+    var head: T;
+    var tail: List[T];
+    def this(h: T, t: List[T]) { head = h; tail = t; }
+    def append(x: T) {
+        if (this.tail == null)
+                this.tail = new List(x, null);
+          else
+                this.tail.add(x);
+    }
+}
+\end{xten}
+The constructor (\xcd"def this") initializes the fields of the new object.
+The \xcd"add" method appends an element to the list.
+\xcd"List" is a generic type.  When  instances of \xcd"List" are
+allocated, the type property \xcd"T" must be bound to a concrete
+type.  \xcd"List[Int]" is the type of lists of element type
+\xcd"Int", \xcd"List[String]" is the type of lists of element
+type \xcd"String".
+
+There are two kinds of classes: \emph{reference} classes
+(\Sref{ReferenceClasses}) and \emph{value} classes
+(\Sref{ValueClasses}).
+A reference class typically has updatable fields. Objects of such a
+class may not be freely copied from place to place. Methods may be
+invoked on such an object only by an activity in the same place.
+
+A value class (\Sref{ValueClasses}) has no updatable fields (defined
+directly or through inheritance), and allows no reference
+subclasses. (Fields may be typed at reference classes, so may contain
+references to objects with mutable state.) Objects of such a class may
+be freely copied from place to place, and may be implemented very
+efficiently. Methods may be invoked on such an object from any place.
+
+\Xten{} has no primitive classes. However, the standard library
+\xcd"x10.lang" supplies (final) value classes \xcd"Boolean", \xcd"Byte",
+\xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float",
+\xcd"Double", \xcd"Complex" and \xcd"String". The user may defined
+additional arithmetic value classes using the facilities of the
+language.
+
+\section{The sequential core}
+
+\paragraph{Control flow.}  \Xten{} supports standard sequential control flow
+constructs: \xcd"if" statements, \xcd"while" loops, \xcd"for" loops,
+\xcd"switch" statements, etc.  \Xten{} also supports exceptions: exceptions are
+raised by \xcd"throw" statements and are handled by \xcd"try"--\xcd"catch"
+statements.
+
+\paragraph{Primitive operations.}  The language provides syntax for performing
+binary and unary operations on values of types defined in the standard library.
+
+\paragraph{Closures.}
+\Xten{} provides closures to allow code to be used
+as values.  The body of a closure may capture variables in the closure's
+environment.  Closures are used implicitly in asyncs, futures, and array
+initializers.
+
+The following method uses a closure to increment elements of an array.
+\begin{xten}
+def incr(A: Array[Int]) {
+    val increment = x: Int => x+1; // e.g., increment(1) == 2
+    return A.lift(increment);
+}
+\end{xten}
+
+\paragraph{Allocation.}
+Objects are allocated with the \xcd"new" operator, which takes
+a class name and type and value arguments to pass to the class's
+constructor.  The constructor must ensure that all properties of
+the class and its superclasses are bound.
+
+\paragraph{Coercions and conversions}
+\Xten{} supports implicit and explicit coercions. 
+
+Values of one type can be converted to another type using the
+\xcd"to" operation:
+\begin{xten}
+val x: Int = 65535;
+val y: Byte = x to Byte; // convert to Byte, retaining the lower 8 bits
+\end{xten}
+The \xcd"to" operation does not necessarily preserve equality
+and for numeric values may 
+result in a loss of precision.
+
+References may be coerced to another type, preserving object
+identity.  A run-time check is performed to ensure the reference
+is to an object of the target type.  If not,
+\xcd"ClassCastException" is thrown.
+\begin{xten}
+// C and D are immediate subclasses of B.
+val x: B = new C();
+val y: C = x as C; // run-time check succeeds
+val z: D = x as D; // run-time check fails
+\end{xten}
+For reference types \xcd"to" behaves identically to \xcd"as".
 
 \section{Places and activities}
 An \Xten{} program is intended to run on a wide range of computers,
 from uniprocessors to large clusters of parallel processors supporting
 millions of concurrent operations. To support this scale, \Xten{}
-introduces the central concept of \emph{place} (\S~\ref{XtenPlaces}).
+introduces the central concept of \emph{place} (\Sref{XtenPlaces}).
 Conceptually, a place is a ``virtual shared-memory multi-processor'':
 a computational unit with a finite (though perhaps changing) number of
 hardware threads and a bounded amount of shared memory, uniformly
 accessible by all threads.
 
 An \Xten{} computation acts on \emph{data
-objects}(\S~\ref{XtenObjects}) through the execution of lightweight
-threads called \emph{activities}(\S~\ref{XtenActivities}).  Objects are
+objects}(\Sref{XtenObjects}) through the execution of lightweight
+threads called \emph{activities}(\Sref{XtenActivities}).  Objects are
 of two kinds. A \emph{scalar} object has a small, statically fixed set
 of fields, each of which has a distinct name. A scalar object is
 located at a single place and stays at that place throughout its
@@ -41,15 +178,21 @@ However, an activity may synchronously access data items only in the
 current place (the place in which the activity is running). It may
 atomically update one or more data items, but only in the current
 place.  To read a remote location, an activity must spawn another
-activitiy \emph{asynchronously} (\S~\ref{AsynchronousActivity}). This
+activitiy \emph{asynchronously} (\Sref{AsynchronousActivity}). This
 operation returns immediately, leaving the spawning activity with a
-\emph{future} (\S~\ref{XtenFutures}) for the result. Similarly, remote
+\emph{future} (\Sref{XtenFutures}) for the result. Similarly, remote
 location can be written into only by asynchronously spawning an
 activity to run at that location.
 
 Throughout its lifetime an activity executes at the same place. An
 activity may dynamically spawn activities in the current or remote
 places.
+
+\paragraph{Place casts}
+The programmer may use the standard class cast mechanism
+(\Sref{ClassCast}) to cast a value to a located type. A
+\xcd"BadPlaceException" is thrown if the value is not of the given
+type. This is the only language construct that throws a \xcd"BadPlaceException".
 
 \paragraph{Atomic blocks}
 
@@ -81,7 +224,7 @@ The MPI style of coordinating the activity of multiple processes with
 a single barrier is not suitable for the dynamic network of (possibly
 diverse) activities in an \Xten{} computation. Instead, it becomes
 necessary to allow a computation to use multiple barriers. \Xten{}
-\emph{clocks} (\S~\ref{XtenClocks}) are designed to offer the
+\emph{clocks} (\Sref{XtenClocks}) are designed to offer the
 functionality of multiple barriers in a dynamic context while still
 supporting determinate, deadlock-free parallel computation.
 
@@ -107,56 +250,13 @@ deadlock. Clocks are also integrated into the \Xten{} type system,
 permitting variables to be declared so that they are \xcd"final" in each
 phase of a clock.
 
-\section{Interfaces and classes}
-Programmers write \Xten{} code by writing \emph{constrained interfaces}
-(\S~\ref{XtenInterfaces}) and \emph{constrained classes}
-(\S~\ref{XtenClasses}). Interfaces and classes may be
-defined over \emph{value properties} and \emph{type properties}.
-Instances can be
-created only from \emph{concrete} classes; such a class has all its
-properties (if any) bound.  Types may be defined by constraining a class or interface's properties with boolean predicates.
-
-\section{Classes}
-
-XXX TODO
-
-An \Xten{} class (\S~\ref{XtenClasses}) has fields, methods and
-inner types (interfaces, classes), subclasses another class, and
-implements one or more interfaces. Thus \Xten{} classes live in a
-single-inheritance code hierarchy.  
-%% \Xten{} allows the programmer to
-%% define literals for classes, and overload infix/prefix/postfix
-%% operators.
-
-There are two kinds of classes: \emph{reference} classes
-(\S~\ref{ReferenceClasses}) and \emph{value} classes
-(\S~\ref{ValueClasses}).
-
-A reference class typically has updatable fields. Objects of such a
-class may not be freely copied from place to place. Methods may be
-invoked on such an object only by an activity in the same place.
-
-A value class (\S~\ref{ValueClasses}) has no updatable fields (defined
-directly or through inheritance), and allows no reference
-subclasses. (Fields may be typed at reference classes, so may contain
-references to objects with mutable state.) Objects of such a class may
-be freely copied from place to place, and may be implemented very
-efficiently. Methods may be invoked on such an object from any place.
-
-\Xten{} has no primitive classes. However, the standard library
-\xcd"x10.lang" supplies (final) value classes \xcd"Boolean", \xcd"Byte",
-\xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float",
-\xcd"Double", \xcd"Complex" and \xcd"String". The user may defined
-additional arithmetic value classes using the facilities of the
-language.
-
 \section{Arrays, regions and distributions}
 
 An \Xten{} array is a function from a \emph{distribution}
-(\S~\ref{XtenDistributions}) to a base type (which may itself be an
+(\Sref{XtenDistributions}) to a base type (which may itself be an
 array type).
 
-A distribution is a map from a \emph{region} (\S~\ref{XtenRegions}) to a
+A distribution is a map from a \emph{region} (\Sref{XtenRegions}) to a
 subset of places.  A region is a collection of \emph{points} or
 \emph{indices}. For instance, the region \xcd"Region(0..200,1..100)" specifies
 a collection of two-dimensional points \xcd"Point(i,j)" with 
@@ -192,24 +292,6 @@ distributions, and new operations on distributions.}
 and constructors,
 variables, types, expressions and statements.
 These annotations may be processed by compiler plugins.
-
-\section{Statements and expressions}
-
-\Xten{} supports the standard set of primitive operations (assignment,
-classcasts) and sequential control constructs (conditionals, looping,
-method invocation, exception raising/catching) etc.
-
-\paragraph{Closures}
-\Xten{} provides closures to allow code to be used
-as values.  The body of a closure may capture variables in the closure's
-environment.  Closures are used implicitly in asyncs, futures, and array
-initializers.
-
-\paragraph{Place casts}
-The programmer may use the standard class cast mechanism
-(\S~\ref{ClassCast}) to cast a value to a located type. A
-\xcd"BadPlaceException" is thrown if the value is not of the given
-type. This is the only language construct that throws a \xcd"BadPlaceException".
 
 \section{Translating MPI programs to \Xten{}}
 
@@ -291,7 +373,7 @@ libraries and tools.
 We believe that \Xten{}, like \java{}, will be able to support a large
 number of libraries and tools. An area where we expect future versions
 of \Xten{} to improve on \java{} like languages is \emph{native
-integration} (\S~\ref{extern}). Specifically, \Xten{} will permit
+integration} (\Sref{extern}). Specifically, \Xten{} will permit
 permit multi-dimensional local arrays to be operated on natively by
 native code.
 

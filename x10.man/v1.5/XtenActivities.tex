@@ -14,7 +14,7 @@ its lifetime.  An activity may be {\em running}, {\em blocked} on some
 condition or {\em terminated}. When the statement associated with an
 activity terminates normally, the activity terminates normally; when
 it terminates abruptly with some reason $R$, the activity terminates
-with the same reason (\S~\ref{ExceptionModel}).
+with the same reason (\Sref{ExceptionModel}).
 
 An activity may be long-running and may invoke recursive methods (thus
 may have a stack associated with it). On the other hand, an activity
@@ -43,7 +43,7 @@ terminates when (and only when) this activity globally
 terminates. Thus \Xten{} does not permit the creation of so called
 ``daemon threads''---threads that outlive the lifetime of the root
 activity. We say that an \Xten{} computation is {\em rooted}
-(\S~\ref{initial-computation}).
+(\Sref{initial-computation}).
 
 \futureext{ We may permit the initial activity to be a daemon activity
 to permit reactive computations, such as webservers, that may not
@@ -63,7 +63,7 @@ The presence of a root activity permits \Xten{} to adopt a different
 model.  In any state of the computation, say that an activity $A$ is
 {\em a root of} an activity $B$ if $A$ is an ancestor of $B$ and $A$
 is suspended at a statement (such as the \xcd"finish" statement
-\S~\ref{finish}) awaiting the termination of $B$ (and possibly other
+\Sref{finish}) awaiting the termination of $B$ (and possibly other
 activities). For every \Xten{} computation, the
 \emph{root-of} relation
 is guaranteed to be a tree. The root of the tree is the root activity
@@ -92,6 +92,7 @@ are better suited for supporting scalability than synchronous
 operations.)
 
 An activity is created by executing the statement:
+
 \begin{grammar}
 Statement \: AsyncStatement \\
 AsyncStatement \: \xcd"async" PlaceExpressionSingleList\opt Statement \\
@@ -101,7 +102,7 @@ PlaceExpression \: Expression \\
 
 The place expression \xcd"e" is expected to be of type \xcd"place",
 e.g., \xcd"here" or \xcd"place.FIRST_PLACE" or \xcd"d[p]" for some
-distribution \xcd"d" and point \xcd"p" (\S~\ref{XtenPlaces}).  
+distribution \xcd"d" and point \xcd"p" (\Sref{XtenPlaces}).  
 If not, the compiler replaces
 \xcd"e" with \xcd"e.location". (Recall that every expression in
 \Xten{} has a type; this type is a subtype of the root class
@@ -111,10 +112,10 @@ the documentation for \xcd"x10.lang.Object".)
 
 Note specifically that the expression \xcd"a[i]" when used as a place
 expression will evaluate to \xcd"a[i].location", which may not be
-the same place as \xcd"a.distribution[i]". The programmer must be 
+the same place as \xcd"a.dist[i]". The programmer must be 
 careful to choose the right expression, appropriate for the statement.
 Accesses to \xcd"a[i]" within \grammarrule{Statement} should typically be guarded 
-by the place expression \xcd"a.distribution[i]".
+by the place expression \xcd"a.dist[i]".
 
 In many cases the compiler may infer the unique place at which the
 statement is to be executed by an analysis of the types of the
@@ -131,7 +132,7 @@ launched.  The activation path for $B$ is that of $A$, augmented with
 information about the line number at which $B$ was spawned.  $B$
 terminates normally when $S$ terminates normally.  It terminates
 abruptly if $S$ throws an (uncaught) exception. The exception is
-propagated to $A$ if $A$ is a root activity (see \S~\ref{finish}),
+propagated to $A$ if $A$ is a root activity (see \Sref{finish}),
 otherwise through $A$ to $A$'s root activity. Note that while an
 activity is running, exceptions thrown by activities it has already
 generated may propagate through it up to its root activity.
@@ -152,12 +153,13 @@ restriction that it must be acceptable as the body of a \xcd"void"
 method for an anoymous inner class declared at that point in the code,
 which throws no checked exceptions. As such, it may reference
 variables in lexically enclosing scopes (including \xcd"clock"
-variables, \S~\ref{XtenClocks}) provided that such variables are
+variables, \Sref{XtenClocks}) provided that such variables are
 (implicitly or explicitly) \xcd"final".
 
 \section{Finish}\index{finish}\label{finish}
 The statement \xcd"finish S" converts global termination to local
 termination and introduces a root activity. 
+
 \begin{grammar}
 Statement \: FinishStatement \\
 FinishStatement \: \xcd"finish" Statement \\
@@ -183,7 +185,7 @@ the first \xcd"finish": \xcd"finish finish S" is indistinguishable
 from \xcd"finish S".
 
 \paragraph{Interaction with clocks.}\label{sec:finish:clock-rule}
-\xcd"finish S" interacts with clocks (\S~\ref{XtenClocks}). 
+\xcd"finish S" interacts with clocks (\Sref{XtenClocks}). 
 
 While executing \xcd"S", an activity must not spawn any \xcd"clocked"
 asyncs. (Asyncs spawned during the execution of \xcd"S" may spawn
@@ -221,7 +223,7 @@ finish async (place.FIRST_PLACE) {
 \end{xten} 
 \noindent is executed where \xcd"s" is an array of strings created
 from command line arguments. This single activity is the root activity
-for the entire computation. (See \S~\ref{XtenPlaces} for a discussion of
+for the entire computation. (See \Sref{XtenPlaces} for a discussion of
 placs.)
 
 %% Say something about configuration information? 
@@ -230,11 +232,13 @@ placs.)
 
 \Xten{} provides syntactic support for {\em asynchronous expressions}, also
 known as futures:
+
 \begin{grammar}
 Primary \: FutureExpression \\
 FutureExpression \:
   \xcd"future" PlaceExpressionSingleList\opt \xcd"=>" Expression
 \end{grammar} 
+
 Intuitively such an expression evaluates its body asynchronously at
 the given place. The resulting value may be obtained from the future
 returned by this expression, by using the \xcd"force" operation.
@@ -282,14 +286,14 @@ evaluation are stored in the future \xcd"f" and used to respond to all
 
 \begin{xten}
 promise: future[T]
-  = future(a.distribution(3)) { a(3) };
+  = future(a.dist(3)) { a(3) };
 value: T = promise.force();
 \end{xten}
 
 \subsection{Implementation notes}
 Futures are provided in \Xten{} for convenience; they may be
 programmed using latches, \xcd"async" and \xcd"finish" as
-described in \S~\ref{future-imp}.
+described in \Sref{future-imp}.
 
 \section{Atomic blocks}\label{AtomicBlocks}\index{atomic blocks}
 Languages such as \java{} use low-level synchronization locks to allow
@@ -356,7 +360,7 @@ operations on clocks, \xcd"finish").
 \limitation{Not checked in the current implementation.}
 
 All locations accessed in an atomic block must reside \xcd"here"
-(\S~\ref{Here}). A
+(\Sref{Here}). A
 \xcd"BadPlaceException"\index{place!BadPlaceException} is thrown
 if (and when) this condition is violated.
 
@@ -365,7 +369,7 @@ All locations accessed in an atomic block must statically satisfy the
 activity.\index{locality condition}\label{LocalityCondition} The
 compiler checks for this condition by checking whether the statement
 could be the body of a \xcd"void" method annotated with \xcd"local" at
-that point in the code (\S~\ref{LocalAnnotation}).
+that point in the code (\Sref{LocalAnnotation}).
 
 \paragraph{Consequences.}
 Note an important property of an (unconditonal) atomic block:
@@ -396,6 +400,7 @@ public atomic def CAS(old: Object, new: Object): Boolean {
 \subsection{Conditional atomic blocks}
 
 Conditional atomic blocks are of the form:
+
 \begin{grammar}
 Statement \:  WhenStatement \\
 WhenStatement \:  \xcd"when" \xcd"(" Expression \xcd")" Statement \\
@@ -511,6 +516,7 @@ class OneBuffer {
 }
 \end{xten}
 
+\eat{
 \paragraph{Implementing a future with a latch.}\label{future-imp}
 The following class shows how to implement a {\em latch}. A latch is
 an object that is initially created in a state called the {\em
@@ -639,6 +645,7 @@ Such an expression can be written as:
   }
 )()
 \end{xten}
+}
 
 %\input{rmi.tex}
 
@@ -661,12 +668,12 @@ ForEachStatement \:
 \end{grammar}
 
 In both statements, the expression is intended to be of type
-\xcd"region".  Expressions \xcd"e" of type \xcd"distribution" and
+\xcd"region".  Expressions \xcd"e" of type \xcd"Dist" and
 \xcd"array" are also accepted, and treated as if they were \xcd"e.region".
 The compiler throws a type error in all other cases.
 
 The formal parameter must be of type \xcd"point". Exploded syntax may
-be used (\S~\ref{exploded-syntax}). The parameter is considered
+be used (\Sref{exploded-syntax}). The parameter is considered
 implicitly final, as are all the exploded variables. 
 
 An activity executes a \xcd"for" statement by enumerating the points
@@ -685,6 +692,7 @@ throws an exception, though exceptions thrown by the spawned
 activities are propagated through to the root activity.
 
 In a similar fashion we introduce the syntax:\index{ateach@\xcd"ateach"}
+
 \begin{grammar}
 Statement \: AtEachStatement \\
 AtEachStatement \:
@@ -692,9 +700,9 @@ AtEachStatement \:
          Statement \\
 \end{grammar}
 
-Here the expression is intended to be of type \xcd"distribution".
+Here the expression is intended to be of type \xcd"Dist".
 Expressions \xcd"e" of type \xcd"array" are also accepted, and treated
-as if they were \xcd"e.distribution". The compiler throws a type error
+as if they were \xcd"e.dist". The compiler throws a type error
 in all other cases. This statement differs from \xcd"foreach" only in
 that each activity is spawned at the place specified by the
 distribution for the point. That is, 
@@ -702,6 +710,6 @@ distribution for the point. That is,
 be thought of as standing for:
 \begin{xten}
 foreach (p(i1,...,ik): point in A) 
-  async (A.distribution(p)) {S}
+  async (A.dist(p)) {S}
 \end{xten}
 

@@ -4,12 +4,12 @@ An array is a mapping from a distribution to a range data
 type. Multiple arrays may be declared with the same underlying
 distribution. 
 
-Each array has a field \xcd"a.distribution" which may be used to
+Each array has a field \xcd"a.dist" which may be used to
 obtain the underlying
 distribution.\index{arrays!distribution@{\tt distribution}}
 
 The distribution underlying an array \xcd"a" may be obtained through
-the field \xcd"a.distribution".
+the field \xcd"a.dist".
 
 \input{XtenRegions}
 \input{XtenDistributions}
@@ -31,7 +31,7 @@ in the second over the given distribution.
 An array creation operation may also specify an initializer using the
 abbreviated formalparameter/methodbody functional syntax. The formal
 parameter may contain exploded parameters
-(Section~\ref{exploded-syntax}). The function is applied in parallel
+(\Sref{exploded-syntax}). The function is applied in parallel
 at all points in the domain of the distribution. The array
 construction operation terminates locally only when the array has been
 fully created and initialized (at all places in the range of the
@@ -93,7 +93,7 @@ Let \xcd"D1" be a sub-distribution of \xcd"D". Then \xcd"a | D1"
 represents the sub-array of \xcd"a" with the distribution \xcd"D1".
 
 Recall that a rich set of operators are available on distributions
-(\S~\ref{XtenDistributions}) to obtain sub-distributions
+(\Sref{XtenDistributions}) to obtain sub-distributions
 (e.g. restricting to a sub-region, to a specific place etc).
 
 \subsection{Assembling an array}

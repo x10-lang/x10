@@ -1,0 +1,329 @@
+\Xten{} provides first-class, typed closures.  Variables
+referenced within closures need not be final.  Methods and
+operators may be viewed as closures.
+
+We introduce a new expression. For types \xcd"T",
+\xcdmath"T$_1$", \dots
+\xcdmath"T$_n$", then the following are closure expressions:
+
+\begin{xtenmath}
+(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): T throws (U$_1$, $\dots$, U$_k$) => { s }
+(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => { s }
+\end{xtenmath}
+
+In the first form, the terminal expression \xcd"e" in
+xcd"s", if any, is thought of as shorthand for the statement
+\xcd"return e". 
+
+In particular, \xcd"return" statements in \xcd"s", if any,
+\xcd"return" from the function
+being defined, and not any enclosing function. Similarly,
+\xcd"continue" and
+\xcd"break" statements may occur in \xcd"s" only if the target
+lies within \xcd"s". That
+is, a closure cannot be used to exit a lexically enclosing block on
+invocation.
+
+\subsection{Functions are objects}
+
+Functions are objects, just as arrays are objects. Functions are not
+instances of classes. In particular, if this occurs in the body of a
+closure, it refers to the enclosing class (if in a non-static context),
+not to the closure itself.
+
+\subsection{Example}
+
+\begin{xten}
+def find[T](f: T => Boolean, xs: List[T]): T {
+  for (x: T in xs)
+    if (f(x)) return x;
+  null
+}
+\end{xten}
+
+\eat{
+Design Note: The syntax has been chosen to be similar to a method
+definition with missing qualifiers and no name. As discussed below we
+will in fact be able to reconceptualize methods as qualified, named
+functions.
+}
+
+XXX
+The expression void(T1 x1,..., Tk xk) { s } is treated in a similar
+fashion, except that a terminal e is not replaced by return e;.
+
+If the return type is omitted, the type of the terminal
+expression is used. In
+this case, it is a static error if the block does not either return
+normally or end with a terminal expression, or if the inferred type
+cannot be uniquely determined.
+
+As with a normal method, the closure may have a throws clause. It is a
+static error if a checked exception is thrown that is not declared in
+the throws clause.
+
+Design Note: We could omit throws clauses and turn uncaught checked
+exceptions into unchecked exceptions. Or, we could not require checked
+exceptions at all in X10, but that affects Java compatibility.
+
+
+\subsection{Closures in initailizers}
+
+In variable initailizers, blocks may be used for closures:
+
+\begin{xten}
+val f(x: Int): Int = { x + 1 };
+\end{xten}
+
+is equivalent to
+
+\begin{xten}
+val f: Int => Int = (x: Int) => { x + 1 };
+\end{xten}
+
+The scope of \xcd"x" above is just the block on the
+right-hand-side. In a
+subsequent assignment to it, the value may not refer to \xcd"x".
+
+\subsection{ Outer variable access}
+
+The body \xcd"s" in a function
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => { s }"
+may access fields
+of enclosing classes and local variable declared in an outer scope.
+
+Recall that languages such as \java{} require that methods may
+access only those local variables declared in an enclosing scope
+("outer variables") which are final. This is valuable in
+preventing accidental races between multiple closures reading
+and writing the same outer variable. At the same time, it is
+desirable to support the following common idiom of expression:
+
+\begin{xten}
+def allPositive(c: Collection): Boolean {
+  result: Boolean = true;
+  c.applyToAll((x: Int) => { if (x < result) atomic {result=false;}});
+  return result;
+}
+\end{xten}
+
+This motivates the following rule:
+
+\begin{staticrule*}
+In an expression
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => { s }",
+any non-final outer local variable accessed by \xcd"s" must be (declared
+as) \xcd"@shared".
+\end{staticrule*}
+
+A shared local variable is thought of as being accessible by any spawned
+activity in its lexical scope. (A final qualifier on a variable implies
+a shared qualifier.) An implementation may consider boxing shared outer
+variables and making a reference to the boxed value available to the
+closure. Note that \xcd"s" may access fields of enclosing classes. In such a
+case a reference to the instance whose field is being accessed is made
+available to the closure.
+
+\begin{note}
+The main activity may run in parallel with any
+closures it creates. Hence even the read of an outer variable by the
+body of a closure may result in a race condition, Since closures are
+first-class, the analysis of whether a closure may execute in parallel
+with the activity that created it is very difficult.
+\end{note}
+
+\begin{note}
+The rule for accessing outer variables from closure bodies
+should be the same as the rule for accessing outer variables from local
+or anonymous classes.
+\end{note}
+
+\subsection{ Function application}
+
+A variable \xcd"m" of type
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => T",
+can be applied thus:
+\xcdmath"m(e$_1$, $\dots$, e$_n$)".
+
+It is a static error if a call is may resolve to both a closure call or
+to a method call.
+
+\eat{
+\subsection{ Implicit coercions}
+
+Many Java idioms that called for interfaces with a single method, e.g.
+Runnable, Callable etc may now be replaced with idioms that use an
+argument of an appropriate function type.
+
+A value of a function type may be coerced to an interface containing a
+single method with a compatible type.
+}
+
+\subsection{ Fields of function type}
+
+To avoid an ambiguity, it is a static error for a class to declare a
+field with a function type whose erased signature is the same as a
+method of the same class.
+
+
+\section{ Methods as functions}
+
+
+      XXX Syntax
+
+
+As discussed above, a function is identified by its type and body.
+Methods are named functions associated with classes, and subject to
+inheritance.
+
+The syntax and semantics of method definition, inheritance and
+overriding remains unchanged. However, we now think of a method definition:
+
+\begin{verbatim}
+Modifiers RetType MethodName ( FormalParameterListopt ) { Stmt }
+\end{verbatim}
+
+as binding the function
+
+\begin{verbatim}
+RetType ( FormalParameterListopt ) { Stmt }
+\end{verbatim}
+
+to the (MethodName, list of argument types) pair, together with the
+information in Modifiers. That is, underlying every method is a function.
+
+\begin{note}
+Because of overloading, a method name is not sufficient to
+uniquely identify a function for a given class (in Java-like languages).
+One needs the argument type information as well.
+\end{note}
+
+\begin{note}
+Could allow parameter types to be dropped if unambiguous.
+\end{note}
+
+If the method is an instance method its body may reference the variables
+this and super (and Type.this and Type.super in case the method is
+defined on a nested class); these are implicitly declared in the lexical
+scope surrounding the body. One should think of an instance method as
+binding a function to a (name, list of types) pair for each instance of
+a class. The state associated with the instance is accessible within the
+body of the function in the usual way (using this, super etc).
+
+This motivates us to introduce the instance function selector. For a
+type (class or interface) T, a list of types (T1,..., Tn), a method name
+m and an expression e of type T, e.m.(T1,..., Tn) denotes the function,
+if any, bound to the instance method named m at type T whose argument
+type is (T1,..., Tn) for the value v obtained by evaluating e. The
+return type of the function is specified in the method declaration.
+
+The expression
+
+\begin{xtenmath}
+e.m.(T$_1$, $\dots$, T$_n$)
+\end{xtenmath}
+
+evaluates to
+
+\begin{xtenmath}
+(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e.m(x$_1$, $\dots$, x$_n$)
+\end{xtenmath}
+
+\begin{note}
+The selector syntax (dot) is used to distinguish e.m() (a
+method invocation on e of method named m with no arguments) from e.m.()
+(the function bound to the said method). One should think of
+e.m.(T1,..., Tn) as: given e, select the family of methods named m (for
+e), and from that select the method with argtypes (T1,..., Tn).
+\end{note}
+
+A static method provides a binding from a name to a function that is
+independent of any instance of a class; rather it is associated with the
+class itself. The static function selector T.m.(T1,..., Tn) denotes the
+function bound to the static method named m, with argument types
+(T1,..., Tn) for the type T. The return type of the function is
+specified by the declaration of T.m.
+
+Users of a function type do not care whether a function was defined
+directly (using the closure syntax), or obtained via (static or
+instance) function selectors.
+
+\begin{note}
+Design note: The function selector syntax is consistent with the
+reinterpretation of the usual method invocation syntax e.m(e1,..., en)
+into a function specifier, e.m, applied to a tuple of arguments (e1,...,
+en). Note that the receiver is not treated as "an extra argument" to the
+function. That would break the above approach.
+\end{note}
+
+
+\section{ Operators as functions}
+
+Every operator (e.g +, -, *, /, ...) has a family of functions, one for
+each type for which the operator is defined. The function can be
+selected using the "." syntax:
+
+\begin{grammar}
+Primary \: TypeName \xcd"." Operator \xcd"(" TypesOrFormals \xcd")" \\
+        \| TypeName \xcd"." Operator \\
+\end{grammar}
+
+Additionally, for every expression \xcd"e" of a type \xcd"T" at which a binary
+operator \xcd"OP" is defined, the expression \xcd"e.OP" or
+\xcd"e.OP(T)" represents the function
+defined by:
+
+\begin{xten}
+(x: T): T => { e OP x }
+\end{xten}
+
+\begin{grammar}
+Primary \: Expr \xcd"." Operator \xcd"(" TypesOrFormals \xcd")" \\
+        \| Expr \xcd"." Operator \\
+\end{grammar}
+
+For every expression \xcd"e" of a type \xcd"T" at which a unary
+operator \xcd"OP" is defined, the expression \xcd"e."OP\xcd"()" represents the function
+defined by:
+
+\begin{xten}
+(x: T): T => { OP x }
+\end{xten}
+
+Questions:
+
+\begin{verbatim}
+    * What about binary promotion? int + int : int, int + double :
+      double. Could just have T.+ have type T(T,T). Or have selector
+      syntax: int.+(int,int). But this is verbose.
+    * What about unary operators? int.-/1 vs. int.-/2. Selector syntax
+      solves this: int.-(int) vs. int.-(int,int)
+    * Should return type be dependent? int(:self==3).+ : T(:self==3+x)(T x)
+    * Need union types?
+          o Issue with garbage collection? Representation of int union C? 
+    * Consider just dropping this? 
+\end{verbatim}
+
+
+For example,
+one may write an expression that adds one to each member of a list in a
+list of lists xss by:
+
+\begin{xten}
+xss.map(List.this.map(1.+))
+\end{xten}
+
+X10's async, future, foreach, ateach can be defined as syntactic
+abbreviation for the invocation of a static method on Object:
+
+\begin{xten}
+static native def async(() => Void, clocks: Set);
+static native def future(P: Place, b: => T): future[T];
+static native def foreach(r: Region, s: Point => Void);
+static native def ateach(d: Dist, s: Point => Void);
+\end{xten}
+
+Similarly an initializer for an array of base type \xcd"T" is thought of as
+taking an argument closure of type \xcd"Point => T".
+
+
