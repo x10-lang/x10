@@ -47,7 +47,7 @@ int main()
     
   } else {
   
-    x10_infinite_poll();
+    x10_wait();
     int i;
     for (i= 0; i < 100; i++)
       assert (a[i] == i);
