@@ -45,7 +45,7 @@ int main()
   } else {
     int i;
     for (i = 0; i < 100; i++) a[i] = i;
-    x10_infinite_poll();
+    x10_wait();
   }
   
   x10_finalize();

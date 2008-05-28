@@ -16,13 +16,12 @@
 #define bool char
 #endif
 
-
 typedef bool     x10_boolean_t;
 typedef int8_t   x10_byte_t;
 typedef uint16_t x10_char_t;
 typedef int16_t  x10_short_t;
 typedef int32_t  x10_int_t;
-typedef int64_t  x10_long_t;
+typedef long     x10_long_t;
 typedef float    x10_float_t;
 typedef double   x10_double_t;
 
@@ -125,7 +124,7 @@ x10_probe();
  * \brief performs x10_probe infinitely, until a termination message is received(BLOCKING)
  */
 EXTERN x10_err_t
-x10_infinite_poll();
+x10_wait();
 
 /**
  * \brief  array put(NON-BLOCKING)
@@ -248,6 +247,8 @@ x10_is_localref (x10_addr_t ref);
 EXTERN x10_addr_t
 x10_get_addr (x10_addr_t ref);
 
+EXTERN bool
+x10_is_equal(x10_addr_t ref1, x10_addr_t ref2);
 
 #if defined(__cplusplus) 
 
@@ -266,10 +267,10 @@ namespace X10 {
   typedef x10_clock_t Clock;
   
   typedef x10_proxy_t Proxy;
-  
-  typedef x10_remote_ref_t RemoteRef;
-  
+    
   typedef x10_condition_t Condition;  
+
+  class RemoteRef;
 
   class Place;
 
@@ -285,12 +286,36 @@ namespace X10 {
   
   Place GetLoc(Addr ref);
   
-  Place IsLocalRef(Addr ref);
+  bool IsLocalRef(Addr ref);
 
-  Place GetAddr(Addr ref);
+  Addr GetAddr(Addr ref);
   
   bool IsEqual(Addr ref1, Addr ref2);
+  
+  class RemoteRef
+    {     
+    public:
+      
+      RemoteRef();
 
+      RemoteRef(x10_remote_ref_t ref);
+      
+      operator x10_remote_ref_t() const;
+
+      RemoteRef(const RemoteRef& ret);
+      
+      Addr GetAddr() const;
+      
+      Place GetLoc() const;
+      
+      void SetLoc (Place p);
+
+      void SetAddr (Addr a);
+    private:
+      
+      x10_remote_ref_t __ref;
+    };
+  
   class Place
     {      
 
@@ -299,41 +324,45 @@ namespace X10 {
       Place(x10_place_t id);
       
       operator x10_place_t() const;      
-      
+  
+      operator x10_place_t() ;
+    
       Place(const Place& p);
       
       const Place& operator=(const Place& p);
       
-      const bool operator== (const Place& p);
-
-    private:      
-
-      x10_place_t __id;      
-
-    };
-
-  static x10_place_t Nplaces();
+      const bool operator== (const Place& p) const;
       
+    private:      
+      
+      x10_place_t __id;      
+      
+    };
+  
+  static x10_place_t Nplaces();
+  
   static Place Here();      
-
+  
   class Acts
     {
-
+      
     public:
       
-      static CommHandle AsyncSpawn(Place tgt, AsyncClosure* closure, size_t cl_size, FinishRecord* frecord, Clock* clocks, int numClocks);
-      
-      static Err AsyncSpawnWait(CommHandle handle);
+      static Err Probe();
 
-      /* 
-	 static FinishBegin(...);
+      static Err Wait();	    
       
-      static FinishEnd(...);
+      static CommHandle AsyncSpawn(const Place tgt, const AsyncClosure* closure, const size_t cl_size, const FinishRecord* frecord, const Clock* clocks, const int numClocks);
       
-      static FinishBeginGlobal(...);
+      static Err AsyncSpawnWait(const CommHandle handle);
       
-      static FinishChild(...);
-      */
+      static Err FinishChild(const x10_finish_record_t* frecord, void* ex_buf, int ex_buf_size);
+      
+      static Err FinishBegin(x10_finish_record_t* frecord, void* multi_ex_buf, int* ex_offsets, int max_ex_buf_size, int max_num_exceptions);
+      
+      static Err FinishBeginGlobal(x10_finish_record_t* frecord, void* multi_ex_buf, int* ex_offsets, int max_ex_buf_size, int max_num_exceptions);
+      
+      static Err  FinishEnd(const x10_finish_record_t* frecord, int* num_exceptions);	 
     };  
 }
 

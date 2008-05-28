@@ -18,7 +18,8 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure,
 				 x10_finish_record_t* frecord, 
 				 x10_clock_t* clocks, 
 				 int num_clocks){
-  
+
+   printf ("here %d\n", x10_here());  
   switch (closure->handler) {
     
   case 1: {
@@ -65,7 +66,7 @@ int main()
 
   } else {
     
-    x10_infinite_poll();
+    x10_wait();
   }
   
   x10_finalize();

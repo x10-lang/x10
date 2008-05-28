@@ -68,7 +68,7 @@ int main()
     
   } else {
     
-    x10_infinite_poll();
+    x10_wait();
   }
 
   x10_finalize();
