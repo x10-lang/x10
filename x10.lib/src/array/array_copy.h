@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy.h,v 1.9 2008-01-06 03:28:51 ganeshvb Exp $
+ * $Id: array_copy.h,v 1.10 2008-06-02 16:07:23 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -99,7 +99,7 @@ namespace x10lib {
                      int target,
                      x10_switch_t c=NULL);
  
- } /* closing brace for namespace x10lib */
+ } /* namespace x10lib */
 #endif
 
 
@@ -113,7 +113,8 @@ extern "C" {
 
   x10_err_t x10_async_array_copy_raw (void* src, x10_closure_t args, size_t len, int target,x10_switch_t c);
 
-  void* ArrayCopySwitch (int handler, void* args);
+  /* Expected to be defined in the user code */
+  void* ArrayCopySwitch (x10_async_handler_t handler, void* args);
 #ifdef __cplusplus
 }
 #endif 

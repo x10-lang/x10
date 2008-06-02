@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: array_copy_switch.cc,v 1.3 2008-01-06 03:28:51 ganeshvb Exp $
+ * $Id: array_copy_switch.cc,v 1.4 2008-06-02 16:07:23 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,7 +12,7 @@ using namespace std;
 
 extern "C"
 void*
-ArrayCopySwitch (int handler, void* args)
+ArrayCopySwitch (x10_async_handler_t handler, void* args)
 {
    cout << "!!ArrayCopySwitch should be overridden!!\n";
    exit(-1);
