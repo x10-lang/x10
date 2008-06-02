@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: closure.h,v 1.3 2007-12-09 11:34:01 srkodali Exp $
+ * $Id: closure.h,v 1.4 2008-06-02 16:07:34 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -21,7 +21,7 @@ namespace x10lib {
 	struct Closure
 	{
 		Closure () : len(0), handler(0) {}
-		Closure (int _len, int _handler) :
+		Closure (int _len, x10_async_handler_t _handler) :
 			len(_len), handler(_handler) {}
 
 		size_t len;
