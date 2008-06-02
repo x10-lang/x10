@@ -179,17 +179,22 @@ all sites hosting \xcd"D".
 
 %% TODO: Sectional assignment??
 
+
 \section{Point and region construction}\label{point-syntax}\index{[] syntax}
 \Xten{} specifies a simple syntax for the construction of points and regions.
+
+XXX
+
 \begin{grammar}
 ArgumentList \: Expression ( \xcd"," Expression )\star \\
 Primary \: \xcd"Point" \xcd"(" ArgumentList \xcd")"
 \end{grammar}
+
 Each element in the argument list must be either of type \xcd"int" or 
 of type \xcd"region". In the former case the expression 
 \xcdmath"(a$_1$, $\dots$, a$_k$)" is treated as syntactic shorthand for
 \begin{xtenmath}
-point.factory.point(a$_1$, $\dots$, a$_k$)
+Point.factory.Point(a$_1$, $\dots$, a$_k$)
 \end{xtenmath}
 \noindent and in the latter case as shorthand for
 \begin{xten}
@@ -198,16 +203,20 @@ region.factory.region(a$_1$, $\dots$, a$_k$)
 
 \section{Exploded variable declarations}\label{exploded-syntax}\index{variable declarator!exploded}
 
+XXX
+
 \Xten{} permits a richer form of specification for variable
 declarators in method arguments, local variables and loop variables
 (the ``exploded'' or {\em destructuring} syntax).
+
 \begin{grammar}
 VariableDeclaratorId \:
            Identifier \xcd"(" IdentifierList \xcd")" \\
            \| \xcd"(" IdentifierList \xcd")" \\
 \end{grammar}
+
 In \XtenCurrVer{} the \grammarrule{VariableDeclaratorId} must be declared at
-type \xcd{x10.lang.point}. Intuitively, this syntax allows a
+type \xcd{x10.lang.Point}. Intuitively, this syntax allows a
 point to be ``destructured'' into its corresponding \xcd{int} 
 indices in a pattern-matching style.
 The $k$th identifier in the \grammarrule{
@@ -223,18 +232,18 @@ value classes.
 The following example succeeds when executed.
 \begin{xten}
 public class Array1Exploded {
-  public def select(p(i,j): point, (k,l): point): int {
+  public def select(p(i,j): Point, (k,l): Point): int {
       return i+k;
   }
   public def run(): boolean {
-    d: distribution = [1:10, 1:10] -> here;
-    ia: array[int] = new array[int](d);
-    for (p(i,j): point in [1:10,1:10]) {
+    d: Dist = new Region(1..10, 1..10) -> here;
+    ia: Array[int] = new array[int](d);
+    for (p(i,j): Point in new Region(1..10,1..10)) {
         if (ia(p) != 0) return false;
         ia(p) = i+j;
     }
-    for (p(i,j): point in d) {
-      q1: point = (i,j);
+    for (p(i,j): Point in d) {
+      q1: Point = (i,j);
       if (i != q1(0)) return false;
       if (j != q1(1)) return false;
       if(ia(i,j) != i+j) return false;

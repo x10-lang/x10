@@ -81,11 +81,10 @@ in \Xten{}.
 \subsection{Constant promotion}\label{ConstantArray}\index{arrays!constant promotion}
 
 For a distribution \xcd"D" and a constant or final variable \xcd"v" of
-type \xcd"T" the expression \xcd"new array[T](D, p: point => v)"
-\xcd"D v" denotes the mutable array with
-distribution \xcd"D" and base type \xcd"T" initialized with \xcd"v".
-
-XXX fix D v syntax: v as D?
+type \xcd"T" the expression \xcd"new Array[T](D, (p: Point) => v)"
+denotes the mutable array with
+distribution \xcd"D" and base type \xcd"T" initialized with \xcd"v"
+at every point.
 
 \subsection{Restriction of an array}\index{array!restriction}
 
@@ -126,10 +125,10 @@ with the result of \xcd"a1.overlay(a2)".
 \todo{Extending an array in a given direction.}
 
 \subsection{Global operations }
+
 \paragraph{Pointwise operations}\label{ArrayPointwise}\index{array!pointwise operations}
-Suppose that \xcd"m" is an operation defined on type \xcd"T" that
-takes an argument of type \xcd"S" and returns a value of type
-\xcd"R". Such an operation can be lifted pointwise to operate on a \xcd"T"
+Suppose that \xcd"f" is a function of type \xcd"(S,T) => R".
+Such an operation can be lifted pointwise to operate on a \xcd"T"
 array and an \xcd"S" array defined over the same distribution \xcd"D"
 to return an \xcd"R" array defined over \xcd"D", using the
 \xcd"lift" operation, \xcd"a.lift(f, b)".
@@ -137,11 +136,14 @@ to return an \xcd"R" array defined over \xcd"D", using the
 
 \paragraph{Reductions}\label{ArrayReductions}\index{array!reductions}
 
-Let \xcd"f" be a \xcd"binaryOp" defined on type \xcd"T" (e.g., see
-the specification of the classes \xcd"x10.lang.intArray").  Let
-\xcd"a" be a value or reference array over base type \xcd"T". Then the
-operation \xcd"a.reduce(f)" returns a value of type \xcd"T" obtained
-by performing \xcd"m" on all points in \xcd"a" in some order, and in
+XXX do we need the initlai value x?
+
+Let \xcd"f" be a function of type \xcd"(T,T)=>T".  Let
+\xcd"a" be a value or reference array over base type \xcd"T".
+Let \xcd"x" be a value of type \xcd"T".
+Then the
+operation \xcd"a.reduce(f, x)" returns a value of type \xcd"T" obtained
+by performing \xcd"f" on all points in \xcd"a" in some order, and in
 parallel.
 
 This operation involves communication between the places over which
@@ -151,16 +153,16 @@ this reduction process.
 
 \paragraph{Scans}\label{ArrayScans}\index{array!scans}
 
-Let \xcd"m" be a reduction operator defined on type \xcd"T". Let
+Let \xcd"f" be a reduction operator defined on type \xcd"T". Let
 \xcd"a" be a value or reference array over base type \xcd"T" and
-distribution \xcd"D". Then the operation \xcd"a||m()" returns an array
-of base type \xcd"T" and distribution \xcd"D" whose \xcd"i"th element
-(in canonical order) is obtained by performing the reduction \xcd"m"
-on the first \xcd"i" elements of \xcd"a" (in canonical order).
+distribution \xcd"D". Then the operation \xcd"a||f()" returns an array
+of base type \xcd"T" and distribution \xcd"D" whose $i$th element
+(in canonical order) is obtained by performing the reduction \xcd"f"
+on the first $i$ elements of \xcd"a" (in canonical order).
 
 This operation involves communication between the places over which
 the array is distributed. The \Xten{} implementation will endeavour to
 minimize the communication between places to implement this operation.
 
-Other operations on arrays may be found in \xcd"x10.lang.intArray" and
+Other operations on arrays may be found in \xcd"x10.lang.Array" and
 other related classes.

@@ -8,7 +8,7 @@ classes in the package \xcd"x10.lang".
 \begin{xten}
 package x10.lang;
 
-public class Object(location: place) { }
+public class Object(location: Place) { }
 
 public value Boolean { }
 public value Byte    { }
@@ -37,7 +37,7 @@ public type Float (lo: Float,  hi: Float)  = Float {lo <= self, self <= hi};
 public type Double(lo: Double, hi: Double) = Double{lo <= self, self <= hi};
 
 public value Complex(x: Double, y: Double) { }
-public type Complex(x: Complex  = Complex{self == x};
+public type Complex(x: Complex) = Complex{self == x};
 \end{xten}
 
 \section{String}

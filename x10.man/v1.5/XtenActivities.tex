@@ -21,7 +21,7 @@ may have a stack associated with it). On the other hand, an activity
 may be short-running, involving a fine-grained operation such as a
 single read or write.
 
-An activity may have an {\em activitylocal} heap accessible only
+% An activity may have an {\em activitylocal} heap accessible only
 to the activity. 
 
 An activity may asynchronously and in parallel launch activities at
@@ -236,36 +236,31 @@ known as futures:
 \begin{grammar}
 Primary \: FutureExpression \\
 FutureExpression \:
-  \xcd"future" PlaceExpressionSingleList\opt \xcd"=>" Expression
+  \xcd"future" PlaceExpressionSingleList\opt Expression
 \end{grammar} 
 
 Intuitively such an expression evaluates its body asynchronously at
 the given place. The resulting value may be obtained from the future
 returned by this expression, by using the \xcd"force" operation.
 
-In more detail, in an expression \xcd"future(Q){e}", the place
+In more detail, in an expression \xcd"future (Q) e", the place
 expression \xcd"Q" is treated as in an \xcd"async" statement. \xcd"e"
 is an expression of some type \xcd"T". \xcd"e" may reference only
 those variables in the enclosing lexical environment which are
 declared to be \xcd"final".
 
 If the type of \xcd"e" is \xcd"T" then the type of
-\xcd"future (Q){e}" is \xcd"future[T]".  This 
-type \xcd"future[T]" is defined as if by:
+\xcd"future (Q) e" is \xcd"future[T]".  This 
+type \xcd"Future[T]" is defined as if by:
 \begin{xten}
-public interface future[T] {
-  def force(): T;
+package x10.lang;
+public interface Future[T] implements () => T {
   def forced(): Boolean;
 }
 \end{xten}
 
-(Here we use the syntax for generic classes. \XtenCurrVer{} does not support
-generic classes in their full generality. In particular, the user may
-not define generic classes. This is reserved for future extensions to the
-language.)
-
-Evaluation of \xcd"future (Q){e}" terminates locally with the creation
-of a value \xcd"f" of type \xcd"future[T]".  This value may be
+Evaluation of \xcd"future (Q) e" terminates locally with the creation
+of a value \xcd"f" of type \xcd"Future[T]".  This value may be
 stored in objects, passed as arguments to methods, returned from
 method invocation etc. 
 
@@ -274,21 +269,23 @@ method returns without blocking, with the value \xcd"true" if the
 asynchronous evaluation of \xcd"e" has terminated globally and with
 the value \xcd"false" if it has not.
 
-The method invocation \xcd"force" on \xcd"f" blocks until the
+\xcd"Future[T]" is a subtype of the function type \xcd"() => T".
+Invoking---\emph{forcing}---the future \xcd"f" blocks until the
 asynchronous evaluation of \xcd"e" has terminated globally. If the
 evaluation terminates successfully with value \xcd"v", then the method
 invocation returns \xcd"v". If the evaluation terminates abruptly with
 exception \xcd"z", then the method throws exception \xcd"z". Multiple
-invocations of \xcd"force" (by this or any other activity) do not
+invocations of the function (by this or any other activity) do not
 result in multiple evaluations of \xcd"e". The results of the first
 evaluation are stored in the future \xcd"f" and used to respond to all
-\xcd"force" queries.
+queries.
 
+\begin{example}
 \begin{xten}
-promise: future[T]
-  = future(a.dist(3)) { a(3) };
-value: T = promise.force();
+promise: Future[T] = future (a.dist(3)) a(3);
+value: T = promise();
 \end{xten}
+\end{example}
 
 \subsection{Implementation notes}
 Futures are provided in \Xten{} for convenience; they may be
@@ -531,9 +528,9 @@ value was specified when the latch was set, that value is thrown on
 any attempt to read the latch. Otherwise the normal value is returned.
 
 \begin{xten}
-public interface future[T] {
+public interface Future[T] {
    def forced(): Boolean;
-   def force(): T;
+   def apply(): T;
 }
 public class Latch implements future {
   protected var forced: Boolean = false;
@@ -558,7 +555,7 @@ public class Latch implements future {
   public atomic def forced(): Boolean {
     return forced;
   }
-  public def force(): T {
+  public def apply(): T {
     when (forced) {
       if (z != null) throw z;
       return result to T;

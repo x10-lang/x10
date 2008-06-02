@@ -151,19 +151,36 @@ it implements all the methods defined in the interface.
         Types may be defined through {\em type definitions}.
         A type definition is a type alias or a type-valued function
         that maps value and type parameters to another type.
-        A type definition may appear as a class or interface
+        A type definition may appear as a static or instance
+        class or interface
         member or in statement block.
+
+\eat{
+\begin{xten}
+class Foo {
+    int x;
+    class C { }
+    type T(y) = Bar{p==x};
+}
+\end{xten}
+}
 
         For instance type members, type definitions define path
         types: Given an object
-        denoted by expression \xcd"e", if \xcd"e" has a 
-        type definition \xcd"X", then \xcd"e.X" is a type.
+        denoted by expression \xcd"e", if \xcd"e" has an
+        instance
+        type member \xcd"X" (possibly with parameters, e.g.,
+        \xcd"X[Y](z: T)"), then \xcd"e.X" (and also \xcd"[Y](z)")
+        is a type.
 
         Given a class or interface \xcd"C", with static type
         member \xcd"X", \xcd"C.X" is a type.
 
         A local type declaration for type \xcd"X" defines a type
         named \xcd"X" within the scope of the declaration.
+
+        Type definitions may be parameterized on both types and
+        values.
 
 \paragraph{Function types.}
 \index{types!function types}
@@ -303,7 +320,9 @@ Since the property \xcd"T" is unconstrained,
 the caller can only assign the return value of \xcd"get"
 to a variable of type \xcd"c.T" or of type \xcd"Object".
 In the following code, \xcd"y" cannot be passed to the \xcd"set" method
-because it is not known if \xcd"Object" is a subtype of \xcd"c.T".
+because, since \xcd"T" is not bounded,
+it cannot be determined statically if \xcd"Object" is a
+subtype of \xcd"c.T".
 \begin{xten}
 val x: c.T = c.get();
 val y: Object = c.get();
@@ -389,9 +408,16 @@ The following examples are legal type definitions:
 \begin{xten}
 type StringSet = Set[String];
 type MapToList[K,V] = Map[K,List[V]];
+type Nat = Int{self>=0};
 type Int(x: Int) = Int{self==x};
 type Int(lo: Int, hi: Int) = Int{lo <= self, self <= hi};
 \end{xten}
+
+As the two definitions of \xcd"Int" demonstrate, type definitions may 
+be overloaded: a type definition with a different number of type
+parameters or with different types of value
+parameters---according to the method overloading rules
+(\Sref{MethodOverload}) define distinct types.
 
 Type definitions may appear as class members or in the body of a
 method, constructor, or initializer.  Type definitions that are
@@ -410,7 +436,17 @@ b: B = new C("Hi");
 c: C = b + ", Mom!";
 \end{xten}
 A type defined by a type definition
-has the same constructors as its defining type.
+has the same constructors as its defining type; however, a
+constructor may not be invoked using a given type definition
+name if the constructor return type is not a subtype of the
+defined type.
+
+All type definitions are members of their enclosing package or
+class.  A compilation unit may have one or more type definitions
+or class or interface declarations with the same name, as long
+as the types are unique by overloading.
+
+XXX constructors!!!
 
 \section{Path types}
 
@@ -484,16 +520,18 @@ final fields visible at \xcd"T"'s lexical place in the source program.
 
 \begin{staticrule}{Restrictions on \xcd"this"}
   The special variable \xcd"this" may be used in a depclause for a type \xcd"T"
-  only if (a)~it occurs in a property declaration for a class, (b)~it
-  occurs in an instance method, (c)~it occurs in an instance field, (d)~it
+  only if (a)~\xcd"T" occurs in a property declaration for a
+  class, (b)~\xcd"T"
+  occurs in an instance method, (c)~\xcd"T" occurs in an
+  instance field, (d)~\xcd"T"
   occurs in an instance initializer.
-\end{staticrule}
 
-In particular it may not be used in types that occur in a static
-context, or in the arguments, body or return type of a constructor or
-in the extends or implements clauses of class and interface
-definitions.  In these contexts the object that \xcd"this" would
-correspond to has either not been formed or is not well defined.
+  In particular, \xcd"this" may not be used in types that occur in a static
+  context, or in the arguments, body or return type of a constructor or
+  in the extends or implements clauses of class and interface
+  definitions.  In these contexts, the object that \xcd"this" would
+  correspond to is not defined.
+\end{staticrule}
 
 \begin{staticrule}{Variable visibility}
   If a type \xcd"T" occurs in a field, method or constructor
@@ -510,14 +548,16 @@ list of \xcd"T", and the body of \xcd"T".
 
 \end{staticrule}
 
-In general local variables/parameters/properties/fields are visible at
+In general, variables (i.e., local variables, parameters,
+properties, fields) are visible at
 \xcd"T" if they are defined before \xcd"T" in the program. This rule applies to
 types in property lists as well as parameter lists (for methods and
-constructors).  An exception is made for the return type of a method:
-all the arguments to the method are considered to be visible, even
-though they occur lexically after the return type (given the \Java{}
-syntactic convention that the return type for a method precedes the
-argument list for the method).
+constructors).
+A formal parameter is visible in the types of all other formal
+parameters of the same method, constructor, or type definition.
+A property is visible in the types of all other properties
+of the same class or interface.
+XXX
 
 We permit variable declarations \xcd"v: T" where \xcd"T" is obtained
 from a dependent type \xcd"C{c}" by replacing one or more occurrences
@@ -615,15 +655,15 @@ by parameters to the contraint (if any). Formally, consider a type
 \xcd"T" = \xcd"C{c}", with the variables
 \xcdmath"f$_1$: F$_1$, $\dots$, f$_k$: F$_k$"
 free in \xcd"c".  Let 
-\xcdmath"S = {f$_1$: F$_1$, $\dots$, f$_k$: F$_k$, f$_{k+1}$: F$_{k+1}$, $\dots$, f$_n$: F$_n$}"
+\xcdmath"$S$ = {f$_1$: F$_1$, $\dots$, f$_k$: F$_k$, f$_{k+1}$: F$_{k+1}$, $\dots$, f$_n$: F$_n$}"
 be the smallest set of
 declarations containing
 \xcdmath"f$_1$: F$_1$, $\dots$, f$_k$: F$_k$"
 and closed under the rule:
-\xcd"f: F" in \xcd"S" if a reference to variable \xcd"f" (which
-is declared as \xcd"f: F") occurs in a type in \xcd"S".
+\xcd"f: F" in $S$ if a reference to variable \xcd"f" (which
+is declared as \xcd"f: F") occurs in a type in $S$.
 
-(NOTE: The syntax rules for the language ensure that \xcd"S" is always
+(NOTE: The syntax rules for the language ensure that $S$ is always
 finite. The type for a variable \xcd"v" cannot reference a variable whose
 type depends on \xcd"v".)
 
@@ -633,14 +673,13 @@ We say that \xcd"T" = \xcd"C{c}" is {\em parametrically consistent} (in brief:
 \begin{itemize}
 \item Each type \xcdmath"F$_1$, $\dots$, F$_n$" is (recursively) parametrically consistent, and
 \item It can be established that
-\xcdmath"$\forall$ f$_1$: F$_1$, $\dots$, f$_n$: F$_n$. $\exists$ self: C. c && $\mathit{inv}$(C)".
+\xcdmath"$\forall$f$_1$: F$_1$, $\dots$, f$_n$: F$_n$. $\exists$self: C. c && $\mathit{inv}$(C)".
 \end{itemize}
 
 \noindent
 where \xcdmath"$\mathit{inv}$(C)" is the invariant associated
 with the type \xcd"C" (\Sref{DepType:TypeInvariant}).  Note by
-definition of \xcd"S" the formula on the above has no free
-variables.
+definition of $S$ the formula above has no free variables.
 
 \begin{staticrule*}
 For a declaration \xcd"v: T" to be type-correct, \xcd"T" must be parametrically
@@ -651,9 +690,10 @@ the type is parametrically consistent.
 \begin{example}
 
 A class that represents a line has two distinct points:
+
 \begin{xten}
-class Array(rank: Int, 
-            region: region{rank==this.rank}) {...}  
+class Line(start: Point, 
+           end: Point{self != this.start}) {...}      
 \end{xten}
 \end{example}
 
@@ -663,9 +703,6 @@ One can use deptypes to define other closed geometric figures as well.
 Here is an example:
 \begin{xten}
 class Point(x: Int, y: Int) {...}
-class Line(start: Point, 
-          end: Point{self != this.start}) 
-{...}      
 \end{xten}
 \end{example}
 
@@ -673,7 +710,7 @@ class Line(start: Point,
 To see that the declaration \xcd"end: Point{self != start}" is
 parametrically consistent, note that the following formula is valid:
 \begin{xtenmath}
-$\forall$ this: Line. $\exists$ self: Point. self != this.start  
+$\forall$this: Line. $\exists$self: Point. self != this.start  
 \end{xtenmath}
 \noindent since the set of all \xcd"Point"s has more than one element.
 
@@ -771,8 +808,10 @@ constraint-based equivalence.
 A dependent type \xcd"C{c}" is a subtype of a type \xcd"C{d}" if
 \xcd"c" implies \xcd"d".  In such a case we have
 $\LL{\mbox{\Xcd{C\{c\}}}}$ is a
-subset of $\LL{\mbox{\Xcd{C\{d\}}}}$. All dependent types defined on \xcd"C" refine
-\xcd"C" since \xcd"C" is equivalent to \xcd"C{true}".
+subset of $\LL{\mbox{\Xcd{C\{d\}}}}$. All dependent types
+defined on a class \xcd"C"
+refine the unconstrained class type \xcd"C"; \xcd"C" is
+equivalent to \xcd"C{true}".
 
 \paragraph{Path types.}
 
@@ -845,14 +884,14 @@ public abstract value class Number
     provides Byte, Short, Int, Char, Long, Float, Double { }
 public abstract value class Integer extends Number { }
 
-public value class Byte extends Integer  { native def this(); }
-public value class Short extends Integer { native def this(); }
-public value class Int extends Integer   { native def this(); }
-public value class Char extends Integer  { native def this(); }
-public value class Long extends Integer  { native def this(); }
+public value class Byte extends Integer  { }
+public value class Short extends Integer { }
+public value class Int extends Integer   { }
+public value class Char extends Integer  { }
+public value class Long extends Integer  { }
 
-public value class Float extends Number  { native def this(); }
-public value class Double extends Number { native def this(); }
+public value class Float extends Number  { }
+public value class Double extends Number { }
 \end{xten}
 
 A program may contain literals
