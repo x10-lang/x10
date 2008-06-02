@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: err.h,v 1.6 2007-06-27 17:23:57 srkodali Exp $
+ * $Id: err.h,v 1.7 2008-06-02 16:07:45 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -15,7 +15,7 @@ typedef enum {
 	X10_ERR_INIT, /* X10Lib not initialized */
 	X10_ERR_RET_PTR_NULL, /* Return value ptr is NULL */
 	X10_ERR_RET_VAL, /* Return value ptr is not valid */
-	X10_ERR_QUERY_TYPE, /* Not a vaild query */
+	X10_ERR_QUERY_TYPE, /* Not a valid query */
 	X10_ERR_SET_VAL, /* Not within valid range */
 	X10_ERR_PLACE, /* Not a valid place */
 	X10_ERR_REM_ADDR_NULL, /* Remote address is NULL */
@@ -51,7 +51,7 @@ extern "C" {
 x10_err_t x10_err_msg(x10_err_t err_code, char *buf, int len);
 
 #ifdef __cplusplus
-} /* closing brace for extern "C" */
+} /* extern "C" */
 #endif
 
 
