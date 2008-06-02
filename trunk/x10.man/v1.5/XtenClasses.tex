@@ -213,18 +213,18 @@ A functional \xcd"LinkedList" program may be written as follows:
 \begin{xten}
 value LinkedList { 
   val first: Object;
-  val rest: nullable[LinkedList];
+  val rest: LinkedList;
   public def this(first: Object) {
      this(first, null);
   }
-  public def this(first: Object, rest: nullable[LinkedList]) {
+  public def this(first: Object, rest: LinkedList) {
     this.first = first;
     this.rest = rest;
   }
   public def first(): Object {
     return first;
   }
-  public def rest(): nullable[LinkedList] {
+  public def rest(): LinkedList {
     return rest;
   } 
   public def append(l: LinkedList): LinkedList {
@@ -413,47 +413,51 @@ constructor.
 \end{example}
 
 \begin{staticrule}{Super-invoke}
-   Let \xcd"C" be a class with properties \xcd"p1: P1, ..., pn: Pn", invariant \xcd"c"
+   Let \xcd"C" be a class with properties
+   \xcdmath"p$_1$: P$_1$, $\dots$, p$_n$: P$_n$", invariant \xcd"c"
    extending the deptype \xcd"D{d}" (where \xcd"D" is the name of a class).
 
    For every constructor in \xcd"C" the compiler checks that the call to
-   super invokes a constructor for D whose return type is strong enough
-   to entail d. Specifically, if the call to super is of the form 
-     \xcd"     super(e1, ..., ek)"
-   and the static type of each expression ei is Si, and the invocation
+   super invokes a constructor for \xcd"D" whose return type is strong enough
+   to entail \xcd"d". Specifically, if the call to super is of the form 
+     \xcdmath"super(e$_1$, $\dots$, e$_k$)"
+   and the static type of each expression \xcdmath"e$_i$" is
+   \xcdmath"S$_i$", and the invocation
    is statically resolved to a constructor
-\xcd"def this(x1: T1,..., xk: Tk): D{d1} where c"
+\xcdmath"def this(x$_1$: T$_1$, $\dots$, x$_k$: T$_k$){c}: D{d$_1$}"
    then it must be the case that 
-\begin{xten}
-x1: S1, ..., xi: Si |- xi: Ti  (for i in 1:k)
-x1: S1, ..., xk: Sk |- c  
-d1[a/self] && x1: S1 ... && xk: Sk |- d[a/self]      
-\end{xten}
-\noindent   where \xcd"a" is a constant that does not appear in 
-\xcd"x1: S1 && ... && xk: Sk".
+\begin{xtenmath}
+x$_1$: S$_1$, $\dots$, x$_i$: S$_i$ $\vdash$ x$_i$: T$_i$  (for $i \in \{1, \dots, k\}$)
+x$_1$: S$_1$, $\dots$, x$_k$: S$_k$ $\vdash$ c  
+d$_1$[a/self] && x$_1$: S$_1$ ... && x$_k$: S$_k$ $\vdash$ d[a/self]      
+\end{xtenmath}
+\noindent where \xcd"a" is a constant that does not appear in 
+\xcdmath"x$_1$: S$_1$ $\wedge$ ... $\wedge$ x$_k$: S$_k$".
   
 \end{staticrule}
 
 \begin{staticrule}{Constructor return}
    The compiler checks that every constructor for \xcd"C" ensures that
-   the properties \xcd"p1,..., pn" are initialized with values which satisfy
-   \xcd"t(C)", and its own return type \xcd"c'" as follows.  In each constructor, the
-   compiler checks that the static types \xcd"Ti" of the expressions \xcd"ei"
-   assigned to pi are such that the following is true
-\begin{xten}
-p1: T1, ...., pn: Tn |- t(C) && c'     
-\end{xten}
+   the properties \xcdmath"p$_1$,..., p$_n$" are initialized with values which satisfy
+   \xcdmath"t(C)", and its own return type \xcd"c'" as follows.  In each constructor, the
+   compiler checks that the static types \xcdmath"T$_i$" of the expressions \xcdmath"e$_i$"
+   assigned to \xcdmath"p$_i$" are such that the following is
+   true:
+\begin{xtenmath}
+p$_1$: T$_1$, $\dots$, p$_n$: T$_n$ $\vdash$ t(C) $\wedge$ c'     
+\end{xtenmath}
 \end{staticrule}
 (Note that for the assignment of ei to pi to be type-correct it must be the
-    case that pi: Ti |- pi: Pi.) 
+    case that \xcdmath"p$_i$: T$_i$ $\wedge$ p$_i$: P$_i$".) 
 
 
 \begin{staticrule}{Constructor invocation}
-The compiler must check that every invocation \xcd"C(e1,..., en)" to a
-constructor is type correct: each argument \xcd"ei" must have a static type
-that is a subtype of the declared type \xcd"Ti" for the \xcd"i"th argument of the
+The compiler must check that every invocation \xcdmath"C(e$_1$,..., e$_n$)" to a
+constructor is type correct: each argument \xcdmath"e$_i$" must have a static type
+that is a subtype of the declared type \xcdmath"T$_i$" for the $i$th
+argument of the
 constructor, and the conjunction of static types of the argument must
-entail the \xcd"WhereClause" in the parameter-list of the constructor.
+entail the \grammarrule{WhereClause} in the parameter list of the constructor.
 \end{staticrule}
 
 \section{Field definitions}
@@ -478,7 +482,9 @@ FieldDeclaration  \:
    \|
    FieldModifiers\opt \xcd"var" VariableDeclarators \xcd";" \\
 VariableDeclarators \:
-   Identifier ( \xcd":" Type )\opt ( \xcd"=" Expression )\opt \\
+        VariableDeclarator ( \xcd"," VariableDeclarator )\star \\
+VariableDeclarator \:
+   Identifier ( Constraint )\opt ( \xcd":" Type )\opt ( \xcd"=" Expression )\opt \\
 \end{grammar}
 
 It is illegal for code to access a guarded field through a reference
@@ -497,9 +503,9 @@ type is not a subtype of \xcd"C{c}".
 
 We may now rewrite the List example:
 \begin{xten}
-public class List(n: int{n >=0}) {
-  protected val head: Object where n>0;
-  protected val tail: List(n-1) where n>0;
+public class List(n: Int{n>=0}) {
+  protected val head{n>0}: Object;
+  protected val tail{n>0}: List(n-1);
   public def this(o: Object, t: List): List(t.n+1) {
      property(t.n+1);
      head=o;
@@ -517,7 +523,7 @@ The fields \xcd"value" and \xcd"tail" do not exist for instances of the class
 \end{example}
 
 It is a compile-time error for a class to have two fields of the same
-name, even if their \xcd"ThisClauses" are different. A class \xcd"C" with a field
+name, even if their where clauses are different. A class \xcd"C" with a field
 named \xcd"f" is said to {\em hide} a field in a superclass named \xcd"f".
 
 \begin{staticrule*}
@@ -526,15 +532,22 @@ named \xcd"f" is said to {\em hide} a field in a superclass named \xcd"f".
 
 \subsection{Field hiding}
 
-The definition of field hiding does not take \xcd"ThisClauses" in
+A subclass that defines a field \xcd"f" hides any field \xcd"f"
+declared in a superclass, regardless of their types.  The
+superclass field \xcd"f" may be accessed within the body of
+the subclass via the reference \xcd"super.f".
+
+\eat{
+The definition of field hiding does not take
+\grammar{WhereClauses} into
 account. Suppose a class \xcd"C" has a field
 
 \begin{xten}
-var f: Foo where c;
+var f{c}: Foo;
 \end{xten}
 \noindent and a subclass \xcd"D" of \xcd"C" has a field
 \begin{xten}
-var f: Fum where d;
+var f{d}: Fum;
 \end{xten}
 
 We will say that \xcd"D.f" hides \xcd"C.f", {\em regardless} of the
@@ -549,62 +562,66 @@ to necessitate a rather complex implementation structure for classes,
 requiring some kind of a heterogenous translation for deptypes of \xcd"C"
 and \xcd"D". This bears further investigation.
 \end{rationale}
+}
 
 \section{Method definitions}
 
 \Xten{} permits guarded method definitions, similar to guarded
 field definitions. Additionally, the parameter list for a method may
-contain a WhereClause.
+contain a \grammarrule{WhereClause}.
 
 \begin{grammar}
 MethodHeader \:  
   MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \xcd"("
-  FormalParameterList\opt \xcd")" \\
-  && ReturnType\opt WhereClause\opt Throws\opt
+  FormalParameterList\opt \xcd")" WhereClause\opt \\
+  && ReturnType\opt Throws\opt
 \end{grammar}
 
-The guard (specified by \xcd"ThisClause") speciifes a constraint \xcd"c" on the
+In the formal parameter list, variables may be declared with
+\xcd"val" or \xcd"var".  If neither is specified, the variable
+is \xcd"val".
+
+The guard (specified by \grammarrule{WhereClause})
+specifies a constraint \xcd"c" on the
 properties of the class \xcd"C" on which the method is being defined. The
 method exists only for those instances of \xcd"C" which satisfy \xcd"c".  It is
 illegal for code to invoke the method on objects whose static type is
 not a subtype of \xcd"C{c}".
 
-We relax the rules of lexical visibility and finality for variable
-references in deptypes for method parameters.  Method
-parameters not necessarily declared to be final are permitted to occur
-in the types of parameters that occur after them in textual
-order. Method parameters may also occur in the ReturnType for the
-method, as long as they are declared final. (Even though the ReturnType
-occurs lexically before the parameter list, it is considered to lie in
-the scope of the declarations in the parameter list.)
-
 \begin{staticrule*}
-    The compiler checks that every method invocation \xcd"o.m(e1,..., en)"
-    for a method is type correct. Each each argument ei must have a
-    static type Si that is a subtype of the declared type Ti for the ith
+    The compiler checks that every method invocation
+    \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+    for a method is type correct. Each each argument
+    \xcdmath"e$_i$" must have a
+    static type \xcdmath"S$_i$" that is a subtype of the declared type
+    \xcdmath"T$_i$" for the $i$th
     argument of the method, and the conjunction of static types
-    of the arguments must entail the WhereClause in the parameter-list
+    of the arguments must entail the guard in the parameter list
     of the method.
 
-    The compiler checks that in every method invocation \xcd"o.m(e1, ..., en)"
-    the static type of o, S, is a subtype of \xcd"C{c}", where the method
-    is defined in class C and the ThisClause for m is equivalent to
+    The compiler checks that in every method invocation
+    \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+    the static type of \xcd"o", \xcd"S", is a subtype of \xcd"C{c}", where the method
+    is defined in class \xcd"C" and the guard for \xcd"m" is equivalent to
     \xcd"c".
 
-    Finally, if the declared return type of the method is D{d}, the
+    Finally, if the declared return type of the method is
+    \xcd"D{d}", the
     return type computed for the call is
-    \xcd"D{a: S; x1: S1; ...; xn: Sn; d[a/this]}", where a is a new
+    \xcdmath"D{a: S; x$_1$: S$_1$; $\dots$; x$_n$: S$_n$; d[a/this]}",
+    where \xcd"a" is a new
     variable that does not occur in
-    \xcd"d, S, S1, ..., Sn", and \xcd"x1,...,xn" are the formal
+    \xcdmath"d, S, S$_1$, $\dots$, S$_n$", and
+    \xcdmath"x$_1$, $\dots$, x$_n$" are the formal
     parameters of the method.
 \end{staticrule*}
 
 \begin{example}
 Consider the program:
 \begin{xten}
-public class List(n: int{n >=0}) {
-  protected val head: Object where n>0;
-  protected val tail: List(n-1) where n>0;
+public class List(n: int{n>=0}) {
+  protected val head{n>0}: Object;
+  protected val tail{n>0}: List(n-1);
   public def this(o: Object, t: List): List(t.n+1) {
      property(t.n+1);
      head=o;
@@ -617,7 +634,7 @@ public class List(n: int{n >=0}) {
       return (n==0)? l
          : new List(head, tail.append(l)); 
   }
-  public def nth(k: int{k >= 1 && k <= n}): Object
+  public def nth(k: int{1 <= k && k <= n}): Object
     where n > 0 {
       return k==1 ? head : tail.nth(k-1);
   }
@@ -635,12 +652,7 @@ List{self.n==x+3} s = t.append(u);
 List{a: List{self.n==x}; 
      l: List{self.n==3}; self.n==a.n+l.n}  
 \end{xten}
-\noindent and this simplifies to
-\begin{xten}
-List{a: List{self.n==x}; 
-     l: List{self.n==3}; self.n==x+3}  
-\end{xten}
-\noindent which, after dropping unused local variables, reduces to:
+\noindent which is equivalent to:
 \begin{xten}
 List{self.n==x+3}
 \end{xten}
@@ -652,8 +664,8 @@ The definitions of method overloading, overriding, hiding, shadowing
 and obscuring in \Xten{} are the same as in \Java, modulo the following
 considerations motivated by dependent types.
 
-The definition of a method declaration \xcd"m1" ``having the same signature
-as'' a method declaration \xcd"m2" involves identity of types. Two \Xten{} types
+The definition of a method declaration \xcdmath"m$_1$" ``having the same signature
+as'' a method declaration \xcdmath"m$_2$" involves identity of types. Two \Xten{} types
 are defined to be identical iff they are equivalent (\Sref{DepType:Equivalence}).
 Two methods are said to have {\em the same signature} if (a)
 they have the same number of formal parameters, (b) for each parameter
@@ -665,29 +677,38 @@ to be two methods with the same name and same signature in a class
 \begin{staticrule*}
   A class \xcd"C" may not have two declarations for a method named \xcd"m"---either
   defined at \xcd"C" or inherited:
-\begin{xten}
-def m(v1: T1{t1},..., vn: Tn{tn}): T where tc {...}
-def m(v1: S1{s1},..., vn: Sn{sn}): S where sc {...}
-\end{xten}
+\begin{xtenmath}
+def m(v$_1$: T$_1${t$_1$}, $\dots$, v$_n$: T$_n${t$_n$}){tc}: T {...}
+def m(v$_1$: S$_1${s$_1$}, $\dots$, v$_n$: S$_n${s$_n$}){sc}: S {...}
+\end{xtenmath}
 \noindent
-if it is the case that the types \xcd"C{tc}", \xcd"T1{t1}",
-\dots, \xcd"Tn{tn}" are
-equivalent to the types \xcd"C{sc}, S1{t1}, ...., Tn{tn}"
+if it is the case that the types \xcd"C{tc}", \xcdmath"T$_1${t$_1$}",
+\dots, \xcdmath"T$_n${t$_n$}" are
+equivalent to the types \xcdmath"C{sc}, S$_1${t$_1$}, ...., T$_n${t$_n$}"
 respectively.
 \end{staticrule*}
 
 A class \xcd"C" inherits from its direct superclass and superinterfaces all
 their methods visible according to the access restriction modifiers
 public/private/protected/(package) of the superclass/superinterfaces
-that are not hidden or overridden. A method \xcd"M1" in a class \xcd"C" overrides
-a method \xcd"M2" in a superclass \xcd"D" if \xcd"M1" and \xcd"M2" have the same signature.
+that are not hidden or overridden. A method \xcdmath"M$_1$" in a class
+\xcd"C" overrides
+a method \xcdmath"M$_2$" in a superclass \xcd"D" if
+\xcdmath"M$_1$" and \xcdmath"M$_2$" have the same signature.
 Methods are overriden on a signature-by-signature basis.
 
-A method invocation \xcd"o.m(e1,..., en)" is said to have the {\em static
-signature} \xcd"<T, T1,...,Tn>" where \xcd"T" is the static type of \xcd"o", and
-\xcd"T1,..., Tn" are the static types of \xcd"e1,..., en" respectively.  As in
+A method invocation \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+is said to have the {\em static signature}
+\xcdmath"<T, T$_1$, $\dots$, T$_n$>" where \xcd"T" is the static type of
+\xcd"o", and
+\xcdmath"T$_1$",
+\dots,
+\xcdmath"T$_n$"
+are the static types of \xcdmath"e$_1$", \dots, \xcdmath"e$_n$",
+respectively.  As in
 \Java, it must be the case that the compiler can determine a single
-method defined on \xcd"T" with argument type \xcd"T1,..., Tn", otherwise a
+method defined on \xcd"T" with argument type
+\xcdmath"T$_1$", \dots \xcdmath"T$_n$"; otherwise, a
 compile-time error is declared. However, unlike \Java, the \Xten{} type \xcd"T"
 may be a dependent type \xcd"C{c}". Therefore, given a class definition for
 \xcd"C" we must determine which methods of \xcd"C" are available at a type
@@ -702,16 +723,17 @@ whose guard \xcd"d" is implied by \xcd"c".
 class Point(i: int, j: int) {...}
 class Line(s: Point, e: Point{self != i}) {
   // m1: Both points lie in the right half of the plane
-  def draw() where (s.i>= 0 && e.i >= 0) {...}
+  def draw(){s.i>= 0 && e.i >= 0} = {...}
   // m2: Both points lie on the y-axis
-  def draw() where (s.i== 0 && e.i == 0) {...}
+  def draw(){s.i== 0 && e.i == 0} = {...}
   // m3: Both points lie in the top half of the plane
-  def draw() where (s.j>= 0 && e.j >= 0) {...}
+  def draw(){s.j>= 0 && e.j >= 0} = {...}
   // m4: The general method
-  def draw() {...}
+  def draw() = {...}
 } 
 \end{xten} 
-\noindent  Three different implementations are given for the draw method, one
+\noindent  Three different implementations are given for the
+\xcd"draw" method, one
   for the case in which the line lies in the right half of the plane,
   one for the case that the line lies on the y-axis and the third for
   the case that the line lies in the top half of the plane.

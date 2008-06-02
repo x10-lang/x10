@@ -12,17 +12,18 @@ language for high-end, high-performance, high-productivity computing.
 
 The sequential core of \Xten{} is a class-based object-oriented language
 similar to \java{} or Scala.
-Programmers write \Xten{} code by writing \emph{interfaces}
-(\Sref{XtenInterfaces}) and \emph{classes}
-(\Sref{XtenClasses}).
+Programmers write \Xten{} code by writing
+\emph{classes}
+(\Sref{XtenClasses}) and
+\emph{interfaces}
+(\Sref{XtenInterfaces}).
 
-An \Xten{} class (\Sref{XtenClasses}) has fields, methods and
+An \Xten{} class has fields, methods and
 inner types (interfaces, classes), subclasses another class, and
 implements one or more interfaces. Thus \Xten{} classes live in a
-single-inheritance code hierarchy.
-%% \Xten{} allows the programmer to
-%% define literals for classes, and overload infix/prefix/postfix
-%% operators.
+single-inheritance code hierarchy.  An interface specifies a set
+of methods, constant fields, and inner types.  Interfaces are
+multiply inherited.
 
 \paragraph{Generic and dependent types}
 Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
@@ -349,8 +350,9 @@ every location is initialized at runtime before it is read,
 and every value read from a location has previously been written into
 that location. 
 
-Pointer safety guarantees that a null pointer exception cannot be
-thrown by an operation on a value of a non-nullable type.
+%XXX
+%Pointer safety guarantees that a null pointer exception cannot be
+%thrown by an operation on a value of a non-nullable type.
 
 Because places are reflected in the type system, static type safety
 also implies \emph{place safety}: a location may contain references to only

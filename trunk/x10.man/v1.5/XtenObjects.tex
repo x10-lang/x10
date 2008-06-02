@@ -8,8 +8,8 @@ initializer. An object that is an instance of a reference (value) type
 is called a {\em reference} ({\em value}) {\em object}.
 
 All value and reference classes subclass from \xcd"x10.lang.Object".
-This class has one \xcd"const" field \xcd"location" of type
-\xcd"x10.lang.place". \index{place.location} Thus all objects in \Xten{}
+This class has one property \xcd"location" of type
+\xcd"x10.lang.Place". \index{place.location} Thus all objects in \Xten{}
 are located (have a place). However, \Xten{} permits value objects to
 be freely copied from place to place because they contain no mutable
 state.  It is permissible for a read of the \xcd"location" field of
@@ -20,14 +20,14 @@ for such a field.
 In \XtenCurrVer{} a reference object stays resident at the place at
 which it was created for its entire lifetime.
 
-{}\Xten{} has no operation to dispose of a reference.  Instead the
+{}\Xten{} has no operation to dispose of a reference.  Instead, the
 collection of all objects across all places is globally garbage
 collected.
 
+Unlike \java{},
 {}\Xten{} objects do not have any synchronization information (e.g.,
-a lock) associated with them. Thus the methods on \xcd"java.lang.Object"
-for waiting, synchronizing, notifying etc., are not
-available in \Xten. Instead the programmer should use atomic blocks
+a lock) associated with them. 
+Instead, programmers should use atomic blocks
 (\Sref{AtomicBlocks}) for mutual exclusion and clocks
 (\Sref{XtenClocks}) for sequencing multiple parallel operations.
 

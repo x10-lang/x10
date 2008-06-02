@@ -66,9 +66,11 @@ to methods, returned from methods, stored in fields etc.
 \Xten{} supports a special indexical constant\footnote{
 An indexical constant is one whose value depends on its context
 of use.} \xcd"here":
+
 \begin{grammar}
 ExpressionName \: \xcd"here" \\
 \end{grammar}
+
 The constant evaluates to the place at which the current activity is
 running. Unlike other place expressions, this constant cannot be 
 used as the placetype of fields, since the type of a field 
@@ -86,8 +88,7 @@ public class F {
     }
   }
   public static void main(s: array[String]) {
-    new F().m(future(place.FIRST_PLACE.next())
-              { new F() }.force());
+    new F().m( (future(place.FIRST_PLACE.next()) new F())() );
   }
 }  
 \end{xten}

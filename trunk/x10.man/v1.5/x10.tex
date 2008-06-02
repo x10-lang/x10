@@ -1,3 +1,4 @@
+%\documentclass[10pt,twoside,twocolumn,notitlepage]{report}
 \documentclass[12pt,twoside,notitlepage]{report}
 \usepackage{x10}
 \usepackage{tenv}
@@ -44,8 +45,28 @@
                                 % \parskip, added above and below list and
                                 % paragraphing environments.
 
+
+\newif\iftwocolumn
+
+\makeatletter
+\twocolumnfalse
+\if@twocolumn
+\twocolumntrue
+\fi
+\makeatother
+
+\iftwocolumn
+
+\oddsidemargin  0in    % Left margin on odd-numbered pages.
+\evensidemargin 0in    % Left margin on even-numbered pages.
+
+\else
+
 \oddsidemargin  .5in    % Left margin on odd-numbered pages.
 \evensidemargin .5in    % Left margin on even-numbered pages.
+
+\fi
+
 
 \newtenv{example}{Example}[section]
 

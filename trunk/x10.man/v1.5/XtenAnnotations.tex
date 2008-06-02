@@ -28,9 +28,11 @@ a compiler plugin.
 \section{Annotation syntax}
 
 The annotation syntax consists of an ``\texttt{@}'' followed by an interface type.
+
 \begin{grammar}
 Annotation \: \xcd"@" InterfaceType \\
 \end{grammar}
+
 Annotations can be applied to most syntactic constructs in the language
 including class declarations, constructors, methods, field declarations,
 local variable declarations and formal parameters, statements,
@@ -54,6 +56,7 @@ AnnotatedStatement \: Annotation Statement \\
 Expression \: AnnotatedExpression \\
 AnnotatedExpression \: Expression : Annotation \\
 \end{grammar}
+
 \noindent
 Recall that interface types may have dependent parameters.
 
