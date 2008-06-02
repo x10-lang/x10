@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: reduce.h,v 1.13 2008-01-06 03:28:51 ganeshvb Exp $
+ * $Id: reduce.h,v 1.14 2008-06-02 16:07:50 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -28,23 +28,18 @@
 /* C++ Lang Interface */
 #ifdef __cplusplus
 namespace x10lib {
-  extern int __x10_inited;
-  extern lapi_handle_t __x10_hndl;
-  extern lapi_thread_func_t __x10_tf;
-  extern lapi_cntr_t __x10_wait_cntr;
   extern int __x10_num_places;
   extern int __x10_my_place;
-  extern int __x10_addr_hndl;
-  extern int __x10_addrtbl_sz;
-  extern int __x10_max_agg_size;
-  
-  /** reduction variables **/
-  extern lapi_cntr_t reduce_cntr;
-  extern void **reduce_cntr_list;
-  extern void *scratch;
-  extern void **reduce_list;
-extern void *inbuf[];
- extern int reduceCount;
+
+  extern void ReduceCounterInit();
+  extern void ReduceCounterWait(int depth);
+  extern void ReduceTransferData(int low, size_t size, int depth, void *values);
+  extern void ReduceDataEnqueue(void *var, size_t size);
+  extern void *ReduceDataRetrieve(int index);
+  extern int ReduceDataGetCount();
+  extern int ReduceDataInitCount();
+  extern void ReduceTempStorageInit(size_t size);
+  extern void *ReduceTempStorageGet(size_t size, int i, int j);
  
  /*
   * Recursively reduce the sum.
@@ -54,29 +49,27 @@ extern void *inbuf[];
  
  template <typename T, void F (T&, const T&)>
    static x10_err_t
-   CommutativeReduce(T *values, int low, int high, int depth)
+   CommutativeReduce(T *values, int total, int low, int high, int depth)
    {
      X10_DEBUG(1, "Entry");
      int src = low + ((high - low) / 2);
      int i;
      
 	if (depth > 0) {
-	  CommutativeReduce<T,F> (values, low, src, (depth - 1));
-	  CommutativeReduce<T,F> (values, src, high, (depth - 1));
+	  CommutativeReduce<T,F> (values, total, low, src, (depth - 1));
+	  CommutativeReduce<T,F> (values, total, src, high, (depth - 1));
 	}
 	
 	if (__x10_my_place == src && __x10_num_places > 1) {
-	  x10lib::LAPIStyleWaitcntr(&reduce_cntr, depth, NULL);
+	  ReduceCounterWait(depth);
 	  
 	  for (i = 0; i < depth; i++) {
-	    for (int j = 0; j < reduceCount; j++)
-				F(values[j],((T*)scratch)[reduceCount * i + j]);
+	    for (int j = 0; j < total; j++)
+	      F(values[j],
+	        *((T*) x10lib::ReduceTempStorageGet(sizeof(T), i, j)));
 	  }
 	  
-	  x10lib::LAPIStylePut(low, reduceCount * sizeof(T),
-			       (char *)reduce_list[low] + reduceCount * depth * sizeof(T),
-			       values, (lapi_cntr_t *)reduce_cntr_list[low],
-			       NULL, NULL);
+	  x10lib::ReduceTransferData(low, sizeof(T), depth, values);
 	}
 	X10_DEBUG(1, "Exit");
 	return X10_OK;
@@ -93,10 +86,7 @@ template <typename T>
   void Reduce(T *var)
   {
     X10_DEBUG(1, "Entry");
-	assert(sizeof(T) <= X10_MAX_REDUCE_OBJECT_SIZE);
-	assert(reduceCount < X10_MAX_REDUCE_OPS_INFLIGHT);
-	inbuf[reduceCount] = var;
-	reduceCount++;
+	x10lib::ReduceDataEnqueue(var, sizeof(T));
 	X10_DEBUG(1, "Exit");
 }
  
@@ -110,36 +100,37 @@ template <typename T>
    {
      X10_DEBUG(1, "Entry");
 	int i;
+	int reduceCount = x10lib::ReduceDataGetCount();
 	
 	T *values = new T [reduceCount];
 	
 	//Accumulate all of the sum arrays onto the root process. 
 	for (int i = 0; i < reduceCount; i++)
-	  values[i] = *((T*) inbuf[i]);
+	  values[i] = *((T*) ReduceDataRetrieve(i));
 	
 	//Set the counter to zero. 
-	x10lib::LAPIStyleSetcntr(&reduce_cntr, 0);
+	x10lib::ReduceCounterInit();
 	
 	//Zero out the reduce. 
-	memset(scratch, 0, reduceCount * sizeof(T) *
-	       LOG2(__x10_num_places));
+	x10lib::ReduceTempStorageInit(sizeof(T));
 
 	x10lib::SyncGlobal();
 	
 	//Call commutative reduce.
-	CommutativeReduce<T,F> (values, 0, __x10_num_places,
+	CommutativeReduce<T,F> (values, reduceCount, 0, __x10_num_places,
 		LOG2(__x10_num_places) - 1);
 	
 	if (__x10_my_place == 0) {
-	  x10lib::LAPIStyleWaitcntr(&reduce_cntr, LOG2(__x10_num_places), NULL);
+	  ReduceCounterWait(LOG2(__x10_num_places));
 	  for (i = 0; i < LOG2(__x10_num_places); i++) {
 	    for (int j = 0; j < reduceCount; j++) {
-	      F(*((T*)(inbuf[j])), ((T*)scratch)[reduceCount * i + j]);
+	      F(*((T*) x10lib::ReduceDataRetrieve(j)),
+	        *((T*) x10lib::ReduceTempStorageGet(sizeof(T), i, j)));
 	    }
 	  }
 	}
 	delete [] values;
-	reduceCount = 0;
+	ReduceDataInitCount();
 	X10_DEBUG(1, "Exit");
    }
  
