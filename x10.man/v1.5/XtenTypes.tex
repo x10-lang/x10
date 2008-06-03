@@ -1,10 +1,6 @@
 \chapter{Types}
 \label{XtenTypes}\index{types}
 
-XXX Olivier: type system is not unified; there are values
-(records) and references.
-Object is the superclass of all reference types.
-
 {}\Xten{} is a {\em strongly typed} object-oriented language: every variable
 and expression has a type that is known at compile-time. Further,
 \Xten{} has a {\em unified} type system: all data items created at
@@ -21,6 +17,7 @@ created. Value objects are instances of {\em value classes}
 from place to place. Either reference or value objects may be 
 {\em scalar} (instances of a non-array class) or {\em aggregate} (instances
 of arrays).
+Only variables of reference types may be assigned \xcd"null".
 
 Types are used in variable declarations, casts, object creation, array
 creation, class literals and \xcd"instanceof" expressions.\footnote{In
@@ -169,12 +166,12 @@ class Foo {
         types: Given an object
         denoted by expression \xcd"e", if \xcd"e" has an
         instance
-        type member \xcd"X" (possibly with parameters, e.g.,
-        \xcd"X[Y](z: T)"), then \xcd"e.X" (and also \xcd"[Y](z)")
+        type member \xcd"X", possibly with parameters, e.g.,
+        \xcd"X[Y](z: T)", then \xcd"e.X" (and also \xcd"e.X[Y](z)")
         is a type.
 
-        Given a class or interface \xcd"C", with static type
-        member \xcd"X", \xcd"C.X" is a type.
+        If \xcd"C" is a class or interface with static type
+        member \xcd"X", then \xcd"C.X" is a type.
 
         A local type declaration for type \xcd"X" defines a type
         named \xcd"X" within the scope of the declaration.
@@ -222,8 +219,8 @@ class Foo {
 Type \: FunctionType \\
     \| ConstrainedType  \\
 
-FunctionType \: TypeParameters\opt \xcd"(" TypesOrFormals\opt \xcd")" \xcd"=>" Type  \\
-             \| TypeParameters\opt TypesOrFormal\opt \xcd"=>" Type  \\
+FunctionType \: TypeParameters\opt \xcd"(" TypesOrFormals\opt
+\xcd")" Constraint\opt \xcd"=>" Type  \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
 TypeParameter \: Identifier \\
 TypesOrFormals \: TypeOrFormal ( \xcd"," TypeOrFormal )\star \\
@@ -233,8 +230,7 @@ TypeOrFormal   \: Type \\
 ConstrainedType \: BaseType Constraint\opt PlaceConstraint\opt
 Annotation\star \\
 
-BaseType \: PrimitiveBaseType \\
-     \| ClassBaseType \\
+BaseType \: ClassBaseType \\
      \| InterfaceBaseType \\
      \| PathType \\
      \| \xcd"(" Type \xcd")" \\
@@ -243,8 +239,6 @@ ClassType \: ClassBaseType Constraint\opt PlaceConstraint\opt
 Annotation\star \\
 InterfaceType \: InterfaceBaseType Constraint\opt
 PlaceConstraint\opt Annotation\star \\
-PrimitiveType \: PrimitiveBaseType Constraint\opt
-Annotation\star \\
 
 PathType \: Expression \xcd"." Identifier \\
 
@@ -253,7 +247,6 @@ Annotation \: \xcd"@" InterfaceBaseType Constraint\opt \\
 ClassOrInterfaceType \: ClassType \\ \| InterfaceType \\
 ClassBaseType \: TypeName \\
 InterfaceBaseType \: TypeName \\
-PrimitiveBaseType \: TypeName \\
 \end{grammar}
 
 \section{Generic types}
@@ -446,8 +439,6 @@ class.  A compilation unit may have one or more type definitions
 or class or interface declarations with the same name, as long
 as the types are unique by overloading.
 
-XXX constructors!!!
-
 \section{Path types}
 
 Path types of the form \xcd"p.X" consist of a final access path,
@@ -554,10 +545,16 @@ properties, fields) are visible at
 types in property lists as well as parameter lists (for methods and
 constructors).
 A formal parameter is visible in the types of all other formal
-parameters of the same method, constructor, or type definition.
-A property is visible in the types of all other properties
-of the same class or interface.
-XXX
+parameters of the same method, constructor, or type definition,
+as well as in the method or constructor body itself.
+Properties are accessible via their containing object--\xcd"this"
+within the body of their class declaration.  The special
+variable \xcd"this" is in scope at each property
+declaration, constructor signatures and bodies, instance method signatures
+and bodies,
+and instance field signatures and initializers, but not in scope
+at \xcd"static" method or field declarations or \xcd"static"
+initializers.  
 
 We permit variable declarations \xcd"v: T" where \xcd"T" is obtained
 from a dependent type \xcd"C{c}" by replacing one or more occurrences
@@ -860,10 +857,9 @@ is stable equality, \Sref{StableEquality}. This method may be overridden
 in a (value or reference) subclass.
 
 \subsection{The class \Xcd{String}}
+
 \Xten{} supports strings as in \java{}. A string object is immutable,
 and has a concatenation operator (\xcd"+")  available on it.
-
-XXX
 
 \xcd"x10.lang.String" is a value class.
 
@@ -874,24 +870,22 @@ Several value types are provided that encapsulate
 abstractions (such as fixed point and floating point arithmetic)
 commonly implemented in hardware by modern computers.
 
-These are defined by the following value class declarations:
 \begin{xten}
 package x10.lang;
 
-public value class Boolean { native def this(); }
+public value Boolean { }
 
-public abstract value class Number
-    provides Byte, Short, Int, Char, Long, Float, Double { }
-public abstract value class Integer extends Number { }
+public abstract value Number { }
+public abstract value Integer extends Number { }
 
-public value class Byte extends Integer  { }
-public value class Short extends Integer { }
-public value class Int extends Integer   { }
-public value class Char extends Integer  { }
-public value class Long extends Integer  { }
+public value Byte extends Integer  { }
+public value Short extends Integer { }
+public value Int extends Integer   { }
+public value Char extends Integer  { }
+public value Long extends Integer  { }
 
-public value class Float extends Number  { }
-public value class Double extends Number { }
+public value Float extends Number  { }
+public value Double extends Number { }
 \end{xten}
 
 A program may contain literals
@@ -937,4 +931,38 @@ val z = y to Box;        // box using to-operation
 
 Assignment of a value type into a variable of reference type
 automatically boxes the value.
+
+\section{Type inference}
+
+\XtenCurrVer{} supports limited local type inference.
+
+The type of a variable declaration can be omitted if the
+declaration has an initializer.  The inferred type of the
+variable is the computed type of the initializer.
+
+The return type of a method can be omitted if the method has a
+body (i.e., is not \xcd"abstract" or \xcd"extern").  The
+inferred return type is the computed type of the body.
+
+The return type of a closure can be omitted.
+The inferred return type is the computed type of the body.
+
+The return type of a constructor can be omitted if the
+constructor has a body (i.e., is not \xcd"extern").
+The inferred return type if the enclosing class type with
+properties bound to the arguments in the constructor's \xcd"property"
+statement, if any, or to the unconstrained class type.
+
+The inferred type of a method or closure body is the least common ancestor
+of the types of the expressions in \xcd"return" statements
+in the body.  If the method does not return a value, the
+inferred type is \xcd"Void".
+
+A call to a polymorphic method, closure, or constructor may omit the
+explicit type arguments.  If the method has a type parameter
+\xcd"T", the type argument corresponding to \xcd"T" is inferred
+to be the least common ancestor of the types of any formal
+parameters of type \xcd"T".
+
+
 

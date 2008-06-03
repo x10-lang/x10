@@ -386,3 +386,116 @@ that the
 constraint, if any, associated with the type is true for the
 given expression.
 
+\section{Rail constructors}
+
+The rail constructor \xcdmath"{ a$_1$, $\dots$, a$_k$ }"
+is creates an instance of \xcd"valrail" with distribution
+\xcdmath"(0..$k$-1)->here" where the $i$th element is
+\xcdmath"a$_{i+1}$".  The element type of the array (\xcd"T") is
+bound to the least common ancestor of the types of the
+\xcdmath"a$_i$".  Since arrays are subtypes of \xcd"point => T",
+rail constructors can be passed into the \xcd"Array" and
+\xcd"valarray" constructors as initializer functions.
+
+\section{Point construction}\label{point-syntax}\index{point syntax}
+
+\Xten{} specifies a simple syntax for the construction of points.
+
+\begin{grammar}
+ArgumentList \: Expression ( \xcd"," Expression )\star \\
+Primary \: \xcd"Point" \xcd"(" ArgumentList \xcd")"
+\end{grammar}
+
+Each element in the argument list must be of type
+\xcd"Int" or \xcd"Long".  The expression
+\xcdmath"Point(a$_1$, $\dots$, a$_k$)" is treated as syntactic shorthand for
+\begin{xtenmath}
+new Point({ a$_1$, $\dots$, a$_k$ })
+\end{xtenmath}
+
+\section{Region construction}\label{region-syntax}\index{region syntax}
+
+\Xten{} specifies a simple syntax for the construction of regions.
+
+\begin{grammar}
+Primary \: Expression \xcd".." Expression \\
+Primary \: Expression \xcd"*" Expression \\
+\end{grammar}
+
+The expression \xcdmath"a$_1$..a$_2$"
+is shorthand for the rectangular, rank-1 region
+\begin{xten}
+new Region(a$_1$, a$_2$)
+\end{xten}
+Each subexpression of \xcdmath"a$_i$" must be of type \xcd"Int".
+
+The expression \xcdmath"r$_1$ * r$_2$" is shorthand for the
+cross-product region formed by pairing each point in \xcdmath"r$_1$"
+with every the point in \xcdmath"r$_2$".  Thus, \xcd"(1..2) * (3..4)"
+is the region \xcd"(1,3), (1,4), (2,3), (2,4)".
+
+\section{Exploded variable declarations}\label{exploded-syntax}\index{variable declarator!exploded}
+
+XXX
+
+\Xten{} permits a richer form of specification for variable
+declarators in method arguments, local variables and loop variables
+(the ``exploded'' or {\em destructuring} syntax).
+
+\begin{grammar}
+VariableDeclaratorId \:
+           Identifier \xcd"(" IdentifierList \xcd")" \\
+           \| \xcd"(" IdentifierList \xcd")" \\
+\end{grammar}
+
+In \XtenCurrVer{} the \grammarrule{VariableDeclaratorId} must be declared at
+type \xcd{x10.lang.Point}. Intuitively, this syntax allows a
+point to be ``destructured'' into its corresponding \xcd{int} 
+indices in a pattern-matching style.
+The $k$th identifier in the \grammarrule{
+IdentifierList} is treated as a \xcd{final} variable of type \xcd{int}
+that is initialized with the value of the $k$th index of the point. 
+The second form of the syntax (Rule 82) permits the specification of only
+the index variables.
+
+Future versions of the language may allow destructuring syntax for all
+value classes.
+
+\paragraph{Example.}
+The following example succeeds when executed.
+\begin{xten}
+public class Array1Exploded {
+  public def select(p(i,j): Point, (k,l): Point): int {
+      return i+k;
+  }
+  public def run(): boolean {
+    d: Dist = new Region(1..10, 1..10) -> here;
+    ia: Array[int] = new array[int](d);
+    for (p(i,j): Point in new Region(1..10,1..10)) {
+        if (ia(p) != 0) return false;
+        ia(p) = i+j;
+    }
+    for (p(i,j): Point in d) {
+      q1: Point = (i,j);
+      if (i != q1(0)) return false;
+      if (j != q1(1)) return false;
+      if(ia(i,j) != i+j) return false;
+      if(ia(i,j) != ia(p)) return false;
+      if(ia(q1)  != ia(p)) return false;
+    }
+    if (! (4 == select([1,2],[3,4]))) return false;
+    return true;
+  }
+        
+  public static def main(args: array[String]) {
+     b: boolean = (new Array1Exploded()).run();
+     System.out.println("++++++ "
+                        + (b ? "Test succeeded."
+                             : "Test failed."));
+     System.exit(b ? 0 : 1);
+  }
+}
+\end{xten}
+
+
+

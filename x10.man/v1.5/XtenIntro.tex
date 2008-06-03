@@ -65,8 +65,8 @@ problems. \Xten{} takes advantage of several years of research (e.g.,{}
 in the context of the Java Grande forum,
 \cite{moreira00java,kava}) on how to adapt such languages to the context of
 high-performance numerical computing. Thus \Xten{} provides support
-for user-defined {\em value types} (such as \xcd"int", \xcd"float",
-\xcd"complex" etc), supports a very
+for user-defined {\em value types} (such as \xcd"Int", \xcd"Float",
+\xcd"Complex" etc), supports a very
 flexible form of multi-dimensional arrays (based on ideas in ZPL
 \cite{zpl}) and supports IEEE-standard floating point arithmetic.
 Some limited operator overloading is provided for a few ``built in''
@@ -92,7 +92,7 @@ inter-place data access, enabling applications to scale.  {\em
 Immutable} data needs no consistency management and may be freely
 copied by the implementation between places.  One or more {\em clocks}
 may be used to order activities running in multiple
-places. (Multi-dimensional) Arrays may be distributed across multiple
+places.  Arrays may be distributed across multiple
 places. Arrays support parallel collective operations. A novel
 exception flow model ensures that exceptions thrown by asynchronous
 activities can be caught at a suitable parent activity.  The type
@@ -115,8 +115,10 @@ this experience. Future versions of the language are expected to
 support user-definable operators and permit the specification of
 generic classes and methods.
 
+\eat{
 XXX There are more papers.
 Two papers have been published on \Xten{}. \cite{X10-concur05}
 presents a formal semantics for the concurrency and distributed
 aspects of \Xten{}. \cite{xten} presents some case studies, and
 discusses some \Xten{} programming idioms.
+}

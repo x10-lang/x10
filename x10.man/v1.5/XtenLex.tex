@@ -1,7 +1,5 @@
 \chapter{Lexical structure}
 
-XXX Java
-
 In general, \Xten{} follows \java{} rules \cite[Chapter 3]{jls2} for
 lexical structure.
 
@@ -10,15 +8,16 @@ identifiers, keywords, literals, separators and operators.
 
 \paragraph{Whitespace}
 % Whitespace \index{whitespace} follows \java{} rules \cite[Chapter 3.6]{jls2}.
-ASCII space, horizontal tab (HT), form feed (FF) and line terminators constitute white space.
-
+ASCII space, horizontal tab (HT), form feed (FF) and line
+terminators constitute white space.
 
 \paragraph{Comments}
 % Comments \index{comments} follows \java{} rules
 % \cite[Chapter 3.7]{jls2}. 
 All text included within the ASCII characters ``\xcd"/*"'' and
 ``\xcd"*/"'' is
-considered a comment and ignored. All text from the ASCII character
+considered a comment and ignored; nested comments are not
+allowed.  All text from the ASCII characters
 ``\xcd"//"'' to the end of line is considered a comment and is ignored.
 
 \paragraph{Identifiers}
@@ -45,9 +44,9 @@ instanceof      interface       native          new
 next            or              package         private
 protected       public          return          self
 static          super           switch          this
-throw           throws          try             type
-val             value           var             when
-while
+throw           throws          to              try
+type            val             value           var
+when            while
 \end{xten}
 Note that the primitive types are not considered keywords.
 The keyword \xcd{goto} is reserved, but not used.
@@ -67,11 +66,16 @@ characters, strings, and \xcd"null".
 \paragraph{Operators}
 \Xten{} has the following operators:
 \begin{xten}
-=>  <    !   ~   ?   :   ==  <=  
->=  !=   &&  ||  ++  --  +   - 
-*   /    &   |   ^   %   <<  >> 
->>> +=   -=  *=  /=  &=  |=  ^=  
-%=  <<=  >>= >>> =   ->  @
+==  !=  <   >   <=  >=
+&&  ||  &   |   ^
+<<  >>  >>>
++   -   *   /   %
+++  --  !   ~
+&=  |=  ^=
+<<= >>= >>>
++=  -=  *=  /=  %=
+=   ?   :   =>  ->
+<:  :>  @
 \end{xten}
 
 

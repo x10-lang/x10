@@ -1,49 +1,47 @@
 
 \chapter{Variables}\label{XtenVariables}\index{variables}
 
-A variable is a storage location (\Sref{XtenVariables}). All
+A variable is a storage location. All
 variables are initialized with a value and cannot be observed
 without
 a value.
 
 Variables whose value may not be changed after initialization
 are called {\em final variables} (or sometimes {\em constants}).
-The programmer indicates that a variable is final by using the
-annotation \xcd"final" in the variable declaration.
+The programmer indicates that a variable is final by declaring
+it with the \xcd"val" keyword rather than the \xcd"var" keyword.
+Variables that are annotated neither \xcd"val" nor \xcd"var"
+are considered final.
 
-
-A variable of a reference data type \xcd"R" where \xcd"R" is the name
+A variable of a reference data type \xcd"T" where \xcd"T" is the name
 of a reference class (possibly with type arguments) always holds a
-reference to an instance of the class \xcd"R" or a class that is a
-subclass of \xcd"R". 
+reference to an instance of the class \xcd"T" or a class that is a
+subclass of \xcd"T", or a \xcd"null" reference.
 
-A variable of a reference array data type \xcd"array[R](D)" is always an
+A variable of a reference array type \xcd"Array[T](D)" is always an
 array which has as many variables as the size of the region underlying
 the distribution \xcd"D". These variables are distributed across
-places as specified by \xcd"D" and have the type \xcd"R".
+places as specified by \xcd"D" and have the type \xcd"T".
 
 %XXX
 %A variable of a nullable (reference or value) data type \xcd"nullable[T]"
 %always holds either the value (named by) \xcd"null" or a value of
 %type \xcd"T" (these cases are not mutually exclusive).
 
-XXX value interfaces!!!  value I?
+A variable of an interface type \xcd"I" always holds either a
+reference to a reference class implementing \xcd"I", or a reference to a
+boxed value class that implements \xcd"I", or a \xcd"null"
+reference.
 
-A variable of a value data type \xcd"value R" where \xcd"R" is the
-name of an interface (possibly with type arguments) always holds
-either a reference to an instance of a class implementing \xcd"R" or
-an instance of a class implementing \xcd"R". No program can
-distinguish between the two cases.
-
-A variable of a value data type \xcd"R" where \xcd"R" is the name of a
-value class always holds a reference to an instance of \xcd"R" (or a
-class that is a subclass of \xcd"R") or to an instance of \xcd"R" (or a
-class that is a subclass of \xcd"R"). No program can distinguish
+A variable of a value data type \xcd"T" where \xcd"T" is the name of a
+value class always holds a reference to an instance of \xcd"T" (or a
+class that is a subclass of \xcd"T") or to an instance of \xcd"T" (or a
+class that is a subclass of \xcd"T"). No program can distinguish
 between the two cases.
 
-A variable of a value array data type \xcd"ValArray[V](R)" is always an
+A variable of a value array data type \xcd"ValArray[T](R)" is always an
 array which has as many variables as the size of the region \xcd"R".
-Each of these variables is immutable and has the type \xcd"V".
+Each of these variables is immutable and has the type \xcd"T".
 
 \Xten{} supports seven kinds of variables: constant {\em class
 variables} (static variables), {\em instance variables} (the instance

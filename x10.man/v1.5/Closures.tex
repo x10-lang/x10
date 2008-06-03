@@ -85,7 +85,7 @@ The scope of \xcd"x" above is just the block on the
 right-hand-side. In a
 subsequent assignment to it, the value may not refer to \xcd"x".
 
-\subsection{ Outer variable access}
+\subsection{Outer variable access}
 
 The body \xcd"s" in a function
 \xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => { s }"
@@ -138,7 +138,7 @@ should be the same as the rule for accessing outer variables from local
 or anonymous classes.
 \end{note}
 
-\subsection{ Function application}
+\subsection{Function application}
 
 A variable \xcd"m" of type
 \xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => T",
@@ -149,7 +149,7 @@ It is a static error if a call is may resolve to both a closure call or
 to a method call.
 
 \eat{
-\subsection{ Implicit coercions}
+\subsection{Implicit coercions}
 
 Many Java idioms that called for interfaces with a single method, e.g.
 Runnable, Callable etc may now be replaced with idioms that use an
@@ -159,14 +159,14 @@ A value of a function type may be coerced to an interface containing a
 single method with a compatible type.
 }
 
-\subsection{ Fields of function type}
+\subsection{Fields of function type}
 
 To avoid an ambiguity, it is a static error for a class to declare a
 field with a function type whose erased signature is the same as a
 method of the same class.
 
 
-\section{ Methods as functions}
+\section{Methods as functions}
 
 
       XXX Syntax
@@ -257,7 +257,7 @@ function. That would break the above approach.
 \end{note}
 
 
-\section{ Operators as functions}
+\section{Operators as functions}
 
 Every operator (e.g +, -, *, /, ...) has a family of functions, one for
 each type for which the operator is defined. The function can be
@@ -313,17 +313,18 @@ list of lists xss by:
 xss.map(List.this.map(1.+))
 \end{xten}
 
-X10's async, future, foreach, ateach can be defined as syntactic
-abbreviation for the invocation of a static method on Object:
+X10's \xcd"async", \xcd"future", \xcd"foreach", \xcd"ateach"
+can be defined as syntactic
+abbreviation for the invocation of the following static methods:
 
 \begin{xten}
 static native def async(() => Void, clocks: Set);
-static native def future(P: Place, b: => T): future[T];
-static native def foreach(r: Region, s: Point => Void);
-static native def ateach(d: Dist, s: Point => Void);
+static native def future(p: Place, b: => T): Future[T];
+static native def foreach(r: Region, s: (Point) => Void);
+static native def ateach(d: Dist, s: (Point) => Void);
 \end{xten}
 
 Similarly an initializer for an array of base type \xcd"T" is thought of as
-taking an argument closure of type \xcd"Point => T".
+taking an argument closure of type \xcd"(Point) => T".
 
 
