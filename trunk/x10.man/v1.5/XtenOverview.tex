@@ -211,11 +211,12 @@ where \xcd"P" is a place expression and \xcd"S" is a statement.  Such
 a statement is executed by spawning an activity at the place
 designated by \xcd"P" to execute statement \xcd"S".
 
-An asynchronous expression of type \xcd"future[T]" has the form
-\xcd"future (P) E" where \xcd"E" is an expression of type \xcd"T".  \xcd"E"
+An asynchronous expression of type \xcd"Future[T]" has the form
+\xcd"future (p) e" where \xcd"e" is an expression of type
+\xcd"T".  The expression \xcd"e"
 may reference \xcd"final" variables declared in the lexically
-enclosing environment.  It executes the expression \xcd"E" at the
-place \xcd"P" as an asynchronous activity, immediately returning with
+enclosing environment.  It executes the expression \xcd"e" at the
+place \xcd"p" as an asynchronous activity, immediately returning with
 a future. The future may later be forced causing the activity to be
 blocked until the return value has been computed by the asynchronous
 activity.

@@ -7,10 +7,14 @@
 \usepackage{times}
 \usepackage{txtt}
 \usepackage{ifpdf}
+\usepackage{tocloft}
+
 \pagestyle{headings}
 \showboxdepth=0
 \makeindex
+
 \usepackage{commands}
+
 
 \ifpdf
           \pdfinfo {
@@ -21,7 +25,7 @@
               /Creator  (TeX)
               /Producer (PDFLaTeX)
           }
-      \fi
+\fi
 
 \def\headertitle{The \XtenCurrVer{} Report }
 \def\integerversion{1.7}
@@ -80,6 +84,10 @@
 \input{first} 
 
 {\parskip 0pt
+\addtolength{\cftsecnumwidth}{0.5em}
+\addtolength{\cftsubsecnumwidth}{0.5em}
+%\addtolength{\cftsecindent}{0.5em}
+\addtolength{\cftsubsecindent}{0.5em}
 \tableofcontents
 }
 

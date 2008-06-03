@@ -9,15 +9,36 @@ classes in the package \xcd"x10.lang".
 package x10.lang;
 
 public class Object(location: Place) { }
+public value Value extends Object { }
 
-public value Boolean { }
-public value Byte    { }
-public value Short   { }
-public value Char    { }
-public value Int     { }
-public value Long    { }
-public value Float   { }
-public value Double  { }
+public value Boolean extends Value { }
+
+public value Number  extends Value { }
+
+public value Byte    extends Number { }
+public value Short   extends Number { }
+public value Char    extends Number { }
+public value Int     extends Number { }
+public value Long    extends Number { }
+public value Float   extends Number { }
+public value Double  extends Number { }
+
+// Type aliases
+public type boolean = Boolean;
+public type byte = Byte;
+public type short = Short;
+public type char = Char;
+public type int = Int;
+public type long = Long;
+public type float = Float;
+public type double = Double;
+
+public type Int8    = Byte;
+public type Int16   = Short;
+public type Int32   = Int;
+public type Int64   = Long;
+public type Float32 = Float;
+public type Float64 = Double;
 
 public type Boolean(x: Boolean) = Boolean{self == x};
 public type Byte   (x: Byte)    = Byte   {self == x};
@@ -28,13 +49,20 @@ public type Long   (x: Long)    = Long   {self == x};
 public type Float  (x: Float)   = Float  {self == x};
 public type Double (x: Double)  = Double {self == x};
 
-public type Byte  (lo: Byte,   hi: Byte)   = Byte  {lo <= self, self <= hi};
-public type Short (lo: Short,  hi: Short)  = Short {lo <= self, self <= hi};
-public type Char  (lo: Char,   hi: Char)   = Char  {lo <= self, self <= hi};
-public type Int   (lo: Int,    hi: Int)    = Int   {lo <= self, self <= hi};
-public type Long  (lo: Long,   hi: Long)   = Long  {lo <= self, self <= hi};
-public type Float (lo: Float,  hi: Float)  = Float {lo <= self, self <= hi};
-public type Double(lo: Double, hi: Double) = Double{lo <= self, self <= hi};
+public type Byte  (lo: Byte,   hi: Byte)  
+          = Byte  {lo <= self, self <= hi};
+public type Short (lo: Short,  hi: Short) 
+          = Short {lo <= self, self <= hi};
+public type Char  (lo: Char,   hi: Char)  
+          = Char  {lo <= self, self <= hi};
+public type Int   (lo: Int,    hi: Int)   
+          = Int   {lo <= self, self <= hi};
+public type Long  (lo: Long,   hi: Long)  
+          = Long  {lo <= self, self <= hi};
+public type Float (lo: Float,  hi: Float) 
+          = Float {lo <= self, self <= hi};
+public type Double(lo: Double, hi: Double)
+          = Double{lo <= self, self <= hi};
 
 public value Complex(x: Double, y: Double) { }
 public type Complex(x: Complex) = Complex{self == x};
@@ -43,11 +71,17 @@ public type Complex(x: Complex) = Complex{self == x};
 \section{String}
 
 \begin{xten}
-public value String  { }
+public value String  {
+    // methods of java.lang.String
+}
 
-public type String (x: String)  = String {self == x};
+public type String (x: String) = String {self == x};
 
-public class StringBuffer { }
+public type string = String;
+
+public class StringBuffer {
+    // methods of java.lang.StringBuilder
+}
 \end{xten}
 
 \section{Points, regions, distributions}

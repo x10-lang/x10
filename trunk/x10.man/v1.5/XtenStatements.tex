@@ -1,17 +1,5 @@
 \chapter{Statements}\label{XtenStatements}\index{statements}
 
-\Xten{} inherits all the standard statements of \Java{}, with the expected semantics:
-
-\begin{verbatim}
-EmptyStatement      LabeledStatement  
-ExpressionStatement IfStatement
-SwitchStatement     WhileDo
-DoWhile             ForLoop           
-BreakStatement      ContinueStatement  
-ReturnStatement     ThrowStatement
-TryStatement
-\end{verbatim}
-
 \section{Empty statement}
 
 The empty statement \xcd";" does nothing.  It is useful when a
@@ -153,10 +141,36 @@ The \xcd"throw" statement throws an exception.  The exception
 must be of type \xcd"x10.lang.Throwable".  If the exception is
 \xcd"null", a \xcd"NullPointerException" is thrown.
 
-\section{Try--catch statement}
+\begin{example}
+\begin{xten}
+if (i < 0) 
+    throw new IllegalArgumentException("Index " + i + " out of bounds.");
+\end{xten}
+\end{example}
 
+\section{Try statement}
 
+Exceptions are handled with a \xcd"try" statement.
+A \xcd"try" statement consists of a \xcd"try" block, zero or more
+\xcd"catch" blocks, and an optional \xcd"finally" block.
 
+First, the \xcd"try" block is evaluated.  If the block throws an
+exception, control transfers to the first matching \xcd"catch"
+block, if any.  A \xcd"catch" matches if the value of the
+exception thrown is a subclass of the \xcd"catch" block's formal
+parameter type.
+
+If the \xcd"try" block completes normally
+or via a \xcd"return", a \xcd"break", or a
+\xcd"continue" statement, 
+the \xcd"finally"
+block, if any, is evaluated, and then control flow resumes at
+the end of the \xcd"try" statement, at the branch target, or at
+the caller as appropriate.
+If the \xcd"try" block completes
+exceptionally, the \xcd"finally" block is evaluated (after any
+matching \xcd"catch" block, if any), and then the
+exception is rethrown.
 
 \section{Assignment}\index{assignment}\label{AssignmentStatement}
 
@@ -170,8 +184,25 @@ must be of type \xcd"x10.lang.Throwable".  If the exception is
 %once. The \Xten{} compiler may issue a warning if it detects code 
 %that uses \xcd"=" assignment statements on \xcd"mutable" variables.
 
-{}\Xten{} supports assignment \xcd"l = r" to array variables. In this
-case \xcd"r" must have the same distribution \xcd"D" as \xcd"l". This
+The assignment expression \xcd"x = e" assigns a value given by
+expression \xcd"e"
+to a mutable variable \xcd"x".  There are three forms of
+assignment: \xcd"x" may be a local variable, it may be a field
+\xcd"y.f", or it may be location given by the expression \xcd"a(i)".
+In the last case, \xcd"a" must have a method \xcd"set" with the
+following signature:
+\begin{xten}
+def set[S,T](i: S, v: T): T;
+\end{xten}
+
+\noindent where \xcd"S" and \xcd"T" are instantiated on the
+types of \xcd"i" and \xcd"e", respectively.
+The assignment \xcd"a(i) = e" is equivalent to the call
+\xcd"a.set(i, e)".
+
+For array variables, the right-hand-side
+expression \xcd"e" 
+must have the same distribution \xcd"a(i)". This
 statement involves control communication between the sites hosting
 \xcd"D". Each site performs the assignment(s) of array components
 locally. The assignment terminates when assignment has terminated at
@@ -179,90 +210,69 @@ all sites hosting \xcd"D".
 
 %% TODO: Sectional assignment??
 
+%\input{rmi.tex}
 
-\section{Point and region construction}\label{point-syntax}\index{[] syntax}
-\Xten{} specifies a simple syntax for the construction of points and regions.
+\section{Iteration}\index{foreach@\xcd"foreach"}\label{ForLoop}
+\index{for@\xcd"for"}\label{ForAllLoop}
 
-XXX
-
-\begin{grammar}
-ArgumentList \: Expression ( \xcd"," Expression )\star \\
-Primary \: \xcd"Point" \xcd"(" ArgumentList \xcd")"
-\end{grammar}
-
-Each element in the argument list must be either of type \xcd"int" or 
-of type \xcd"region". In the former case the expression 
-\xcdmath"(a$_1$, $\dots$, a$_k$)" is treated as syntactic shorthand for
-\begin{xtenmath}
-Point.factory.Point(a$_1$, $\dots$, a$_k$)
-\end{xtenmath}
-\noindent and in the latter case as shorthand for
-\begin{xten}
-region.factory.region(a$_1$, $\dots$, a$_k$)
-\end{xten}
-
-\section{Exploded variable declarations}\label{exploded-syntax}\index{variable declarator!exploded}
-
-XXX
-
-\Xten{} permits a richer form of specification for variable
-declarators in method arguments, local variables and loop variables
-(the ``exploded'' or {\em destructuring} syntax).
+We introduce $k$-dimensional versions of iteration operations \xcd"for" and 
+\xcd"foreach":
 
 \begin{grammar}
-VariableDeclaratorId \:
-           Identifier \xcd"(" IdentifierList \xcd")" \\
-           \| \xcd"(" IdentifierList \xcd")" \\
+Statement \: ForStatement \\
+ForStatement \: EnhancedForStatement \\
+Statement \: ForEachStatement \\
+EnhancedForStatement \: 
+      \xcd"for" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
+        Statement \\
+ForEachStatement \: 
+      \xcd"foreach" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
+          Statement \\
 \end{grammar}
 
-In \XtenCurrVer{} the \grammarrule{VariableDeclaratorId} must be declared at
-type \xcd{x10.lang.Point}. Intuitively, this syntax allows a
-point to be ``destructured'' into its corresponding \xcd{int} 
-indices in a pattern-matching style.
-The $k$th identifier in the \grammarrule{
-IdentifierList} is treated as a \xcd{final} variable of type \xcd{int}
-that is initialized with the value of the $k$th index of the point. 
-The second form of the syntax (Rule 82) permits the specification of only
-the index variables.
+In both statements, the expression is intended to be of type
+\xcd"Region".  Expressions \xcd"e" of type \xcd"Dist" and
+\xcd"array" are also accepted, and treated as if they were \xcd"e.region".
+The compiler throws a type error in all other cases.
 
-Future versions of the language may allow destructuring syntax for all
-value classes.
+The formal parameter must be of type \xcd"point". Exploded syntax may
+be used (\Sref{exploded-syntax}). The parameter is considered
+implicitly final, as are all the exploded variables. 
 
-\paragraph{Example.}
-The following example succeeds when executed.
+An activity executes a \xcd"for" statement by enumerating the points
+in the region in canonical order. The activity executes the body of
+the loop with the formal parameter(s) bound to the given point. If the
+body locally terminates successfully, the activity continues with the
+next iteration, terminating successfully when all points have been
+visited. If an iteration throws an exception then the for statement
+throws an exception and terminats abruptly.
+
+An activity executes a \xcd"foreach" statement in a similar fashion
+except that separate \xcd"async" activities are launched in parallel
+in the local place for each point in the region. The statement
+terminates locally when all the activities have been spawned. It never
+throws an exception, though exceptions thrown by the spawned
+activities are propagated through to the root activity.
+
+In a similar fashion we introduce the syntax:\index{ateach@\xcd"ateach"}
+
+\begin{grammar}
+Statement \: AtEachStatement \\
+AtEachStatement \:
+      \xcd"ateach" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
+         Statement \\
+\end{grammar}
+
+Here the expression is intended to be of type \xcd"Dist".
+Expressions \xcd"e" of type \xcd"array" are also accepted, and treated
+as if they were \xcd"e.dist". The compiler throws a type error
+in all other cases. This statement differs from \xcd"foreach" only in
+that each activity is spawned at the place specified by the
+distribution for the point. That is, 
+\xcd"ateach(p(i1,...,ik): point in A) S" may
+be thought of as standing for:
 \begin{xten}
-public class Array1Exploded {
-  public def select(p(i,j): Point, (k,l): Point): int {
-      return i+k;
-  }
-  public def run(): boolean {
-    d: Dist = new Region(1..10, 1..10) -> here;
-    ia: Array[int] = new array[int](d);
-    for (p(i,j): Point in new Region(1..10,1..10)) {
-        if (ia(p) != 0) return false;
-        ia(p) = i+j;
-    }
-    for (p(i,j): Point in d) {
-      q1: Point = (i,j);
-      if (i != q1(0)) return false;
-      if (j != q1(1)) return false;
-      if(ia(i,j) != i+j) return false;
-      if(ia(i,j) != ia(p)) return false;
-      if(ia(q1)  != ia(p)) return false;
-    }
-    if (! (4 == select([1,2],[3,4]))) return false;
-    return true;
-  }
-        
-  public static def main(args: array[String]) {
-     b: boolean = (new Array1Exploded()).run();
-     System.out.println("++++++ "
-                        + (b ? "Test succeeded."
-                             : "Test failed."));
-     System.exit(b ? 0 : 1);
-  }
-}
+foreach (p(i1,...,ik): point in A) 
+  async (A.dist(p)) {S}
 \end{xten}
-
-
 

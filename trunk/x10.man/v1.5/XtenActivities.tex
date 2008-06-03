@@ -532,7 +532,7 @@ public interface Future[T] {
    def forced(): Boolean;
    def apply(): T;
 }
-public class Latch implements future {
+public class Latch implements Future {
   protected var forced: Boolean = false;
   protected var result: Box[T] = null;
   protected var z: Box[Exception] = null;
@@ -565,7 +565,7 @@ public class Latch implements future {
 \end{xten}
 
 Latches, \xcd"aync" operations and \xcd"finish" operations may be used
-to implement futures as follows. The expression \xcd"future(P) => e"
+to implement futures as follows. The expression \xcd"future(P) e"
 can be translated to:
 \begin{xten}
 (=> {
@@ -601,7 +601,7 @@ inside an inner class definition/method invocation pair (i.e.,
 expression completely self-contained, while executing statements
 inside the evaluation of an expression.
 
-Execution of a \xcd"future(P) {e}" causes a new latch to be created,
+Execution of a \xcd"future(P) e" causes a new latch to be created,
 and an \xcd"async" activity spawned at \xcd"P". The activity attempts
 to \xcd"finish" the assigned \xcd"x = e", where \xcd"x" is a local
 variable.  This may cause new activities to be spawned, based on
@@ -643,70 +643,3 @@ Such an expression can be written as:
 )()
 \end{xten}
 }
-
-%\input{rmi.tex}
-
-\section{Iteration}\index{foreach@\xcd"foreach"}\label{ForLoop}
-\index{for@\xcd"for"}\label{ForAllLoop}
-
-We introduce  $k$-dimensional versions of iteration operations \xcd"for" and 
-\xcd"foreach":
-
-\begin{grammar}
-Statement \: ForStatement \\
-ForStatement \: EnhancedForStatement \\
-Statement \: ForEachStatement \\
-EnhancedForStatement \: 
-      \xcd"for" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
-        Statement \\
-ForEachStatement \: 
-      \xcd"foreach" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
-          Statement \\
-\end{grammar}
-
-In both statements, the expression is intended to be of type
-\xcd"region".  Expressions \xcd"e" of type \xcd"Dist" and
-\xcd"array" are also accepted, and treated as if they were \xcd"e.region".
-The compiler throws a type error in all other cases.
-
-The formal parameter must be of type \xcd"point". Exploded syntax may
-be used (\Sref{exploded-syntax}). The parameter is considered
-implicitly final, as are all the exploded variables. 
-
-An activity executes a \xcd"for" statement by enumerating the points
-in the region in canonical order. The activity executes the body of
-the loop with the formal parameter(s) bound to the given point. If the
-body locally terminates successfully, the activity continues with the
-next iteration, terminating successfully when all points have been
-visited. If an iteration throws an exception then the for statement
-throws an exception and terminats abruptly.
-
-An activity executes a \xcd"foreach" statement in a similar fashion
-except that separate \xcd"async" activities are launched in parallel
-in the local place for each point in the region. The statement
-terminates locally when all the activities have been spawned. It never
-throws an exception, though exceptions thrown by the spawned
-activities are propagated through to the root activity.
-
-In a similar fashion we introduce the syntax:\index{ateach@\xcd"ateach"}
-
-\begin{grammar}
-Statement \: AtEachStatement \\
-AtEachStatement \:
-      \xcd"ateach" \xcd"(" FormalParameter \xcd"in" Expression \xcd")"
-         Statement \\
-\end{grammar}
-
-Here the expression is intended to be of type \xcd"Dist".
-Expressions \xcd"e" of type \xcd"array" are also accepted, and treated
-as if they were \xcd"e.dist". The compiler throws a type error
-in all other cases. This statement differs from \xcd"foreach" only in
-that each activity is spawned at the place specified by the
-distribution for the point. That is, 
-\xcd"ateach(p(i1,...,ik): point in A) S" may
-be thought of as standing for:
-\begin{xten}
-foreach (p(i1,...,ik): point in A) 
-  async (A.dist(p)) {S}
-\end{xten}
-

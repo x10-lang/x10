@@ -3,14 +3,7 @@
 
 \Xten{} supports \java's mechanisms for names and packages \cite[\S
 6,\S 7]{jls2}, including \xcd"public", \xcd"protected", \xcd"private"
-and package-specific access control. 
-
-Classes in the \Xten{} library support the following naming conventions.
-Names of methods, fields, value properties, and packages are in camelCase and begin with a lowercase letter.
-Names of types---including classes, type properties, type
-parameters, and type specified by type definitions---are in CamelCase and begin with an uppercase letter.
-Names of \xcd"const" fields are in all uppercase with words
-separated by an ``\xcd"_"''.
+and package-specific access control.
 
 \begin{grammar}
 TypeName   \: Identifier \\
@@ -19,4 +12,16 @@ TypeName   \: Identifier \\
 PackageName   \: Identifier \\
         \| PackageName \xcd"." Identifier \\
 \end{grammar}
+
+While not enforced by the compiler, classes and interfaces
+in the \Xten{} library support the following naming conventions.
+Names of types---including classes, type properties, type
+parameters, and type specified by type definitions---are in
+CamelCase and begin with an uppercase letter.  For backward
+compatability with languages such as C and \java{}, type
+definitions are provided to allow primitive value types
+such as \xcd"int" and \xcd"boolean" to be written in lowercase.
+Names of methods, fields, value properties, and packages are in camelCase and begin with a lowercase letter.
+Names of \xcd"const" fields are in all uppercase with words
+separated by an ``\xcd"_"''.
 
