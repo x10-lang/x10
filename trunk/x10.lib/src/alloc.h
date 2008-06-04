@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: alloc.h,v 1.13 2007-12-10 14:11:17 srkodali Exp $
+ * $Id: alloc.h,v 1.14 2008-06-04 12:15:08 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -13,7 +13,7 @@
 #include <x10/xassert.h>
 
 namespace x10lib {
-	extern __x10_num_places;
+	extern int __x10_num_places;
 
 	class Allocator {
 		private:
