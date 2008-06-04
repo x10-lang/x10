@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: reduce.h,v 1.14 2008-06-02 16:07:50 ipeshansky Exp $
+ * $Id: reduce.h,v 1.15 2008-06-04 12:15:17 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -37,7 +37,7 @@ namespace x10lib {
   extern void ReduceDataEnqueue(void *var, size_t size);
   extern void *ReduceDataRetrieve(int index);
   extern int ReduceDataGetCount();
-  extern int ReduceDataInitCount();
+  extern void ReduceDataInitCount();
   extern void ReduceTempStorageInit(size_t size);
   extern void *ReduceTempStorageGet(size_t size, int i, int j);
  

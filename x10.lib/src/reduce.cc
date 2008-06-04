@@ -1,6 +1,6 @@
 /*
  * (c) Copyright IBM Corporation 2007
- * $Id: reduce.cc,v 1.11 2008-06-02 16:07:50 ipeshansky Exp $ 
+ * $Id: reduce.cc,v 1.12 2008-06-04 12:15:17 ipeshansky Exp $ 
  * This file is part of X10 Runtime System.
  */
 
@@ -99,7 +99,7 @@ int ReduceDataGetCount() {
 }
 
 /* Initialize Count of Enqueued Reduction Data */
-int ReduceDataInitCount() {
+void ReduceDataInitCount() {
 	x10lib::reduceCount = 0;
 }
 
