@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.40 2008-06-02 16:08:09 ipeshansky Exp $
+ * $Id: x10lib.h,v 1.41 2008-06-04 12:15:25 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -39,6 +39,7 @@
 #include <x10/async_closure.h>
 #include <x10/xthreads.h>
 #include <x10/queue.h>
+#include <x10/reduce.h>
 #endif
 
 #ifdef __cplusplus
