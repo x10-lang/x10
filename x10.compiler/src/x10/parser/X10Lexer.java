@@ -829,8 +829,9 @@ assert(new_file != null);
             IToken token = getPrsStream().getIToken(index);
             if (token.getKind() == TK_DoubleLiteral && getInputChars()[token.getEndOffset()] == '.')
             {
+            	int oldEndOffset = token.getEndOffset();
                 token.setEndOffset(token.getEndOffset() - 1);
-                getPrsStream().makeToken(token.getEndOffset(), token.getEndOffset(), TK_DOT);
+                getPrsStream().makeToken(oldEndOffset, oldEndOffset, TK_DOT);
             }
         }
         prsStream.makeToken(startLoc, endLoc, kind);
