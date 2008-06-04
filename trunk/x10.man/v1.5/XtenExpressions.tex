@@ -114,6 +114,9 @@ the expressions
 \xcdmath"$v$+1" or \xcdmath"$v$-1", as appropriate.
 
 \section{Numeric promotion}
+\label{XtenPromotions}
+\index{promotion}
+\index{numeric promotion}
 
 The unary and binary operators promote their operands as
 follows.
@@ -388,19 +391,37 @@ given expression.
 
 \section{Rail constructors}
 
-The rail constructor \xcdmath"{ a$_1$, $\dots$, a$_k$ }"
-is creates an instance of \xcd"valrail" with distribution
-\xcdmath"(0..$k$-1)->here" where the $i$th element is
-\xcdmath"a$_{i+1}$".  The element type of the array (\xcd"T") is
+The rail constructor \xcdmath"#(a$_0$, $\dots$, a$_{k-1}$)"
+creates an instance of \xcd"ValRail" with region
+\xcdmath"(0..$k$-1)" where the $i$th element is
+\xcdmath"a$_i$".  The element type of the array (\xcd"T") is
 bound to the least common ancestor of the types of the
-\xcdmath"a$_i$".  Since arrays are subtypes of \xcd"point => T",
+\xcdmath"a$_i$".  Since arrays are subtypes of \xcd"Point => T",
 rail constructors can be passed into the \xcd"Array" and
-\xcd"valarray" constructors as initializer functions.
+\xcd"ValArray" constructors as initializer functions.
 
 \section{Point construction}\label{point-syntax}\index{point syntax}
 
 \Xten{} specifies a simple syntax for the construction of points.
+A rail constructor for a \xcd"ValRail[int]" or
+\xcd"ValRail[long]" array of length $k$
+can be implicitly coerced to a \xcd"Point" of rank $k$.  For
+example, the following code initializes \xcd"p" to a point of
+rank two:
 
+\begin{xten}
+p: Point = #(1,2);
+\end{xten}
+
+The \xcd"Point" constructor can take a rail constructor as
+argument.  The assignment above can be written, without
+implicit coercion, as:
+
+\begin{xten}
+p: Point = new Point(#(1,2));
+\end{xten}
+
+\eat{
 \begin{grammar}
 ArgumentList \: Expression ( \xcd"," Expression )\star \\
 Primary \: \xcd"Point" \xcd"(" ArgumentList \xcd")"
@@ -412,6 +433,7 @@ Each element in the argument list must be of type
 \begin{xtenmath}
 new Point({ a$_1$, $\dots$, a$_k$ })
 \end{xtenmath}
+}
 
 \section{Region construction}\label{region-syntax}\index{region syntax}
 
@@ -424,78 +446,27 @@ Primary \: Expression \xcd"*" Expression \\
 
 The expression \xcdmath"a$_1$..a$_2$"
 is shorthand for the rectangular, rank-1 region
-\begin{xten}
+\begin{xtenmath}
 new Region(a$_1$, a$_2$)
-\end{xten}
+\end{xtenmath}
 Each subexpression of \xcdmath"a$_i$" must be of type \xcd"Int".
 
 The expression \xcdmath"r$_1$ * r$_2$" is shorthand for the
 cross-product region formed by pairing each point in \xcdmath"r$_1$"
-with every the point in \xcdmath"r$_2$".  Thus, \xcd"(1..2) * (3..4)"
-is the region \xcd"(1,3), (1,4), (2,3), (2,4)".
-
-\section{Exploded variable declarations}\label{exploded-syntax}\index{variable declarator!exploded}
-
-XXX
-
-\Xten{} permits a richer form of specification for variable
-declarators in method arguments, local variables and loop variables
-(the ``exploded'' or {\em destructuring} syntax).
-
-\begin{grammar}
-VariableDeclaratorId \:
-           Identifier \xcd"(" IdentifierList \xcd")" \\
-           \| \xcd"(" IdentifierList \xcd")" \\
-\end{grammar}
-
-In \XtenCurrVer{} the \grammarrule{VariableDeclaratorId} must be declared at
-type \xcd{x10.lang.Point}. Intuitively, this syntax allows a
-point to be ``destructured'' into its corresponding \xcd{int} 
-indices in a pattern-matching style.
-The $k$th identifier in the \grammarrule{
-IdentifierList} is treated as a \xcd{final} variable of type \xcd{int}
-that is initialized with the value of the $k$th index of the point. 
-The second form of the syntax (Rule 82) permits the specification of only
-the index variables.
-
-Future versions of the language may allow destructuring syntax for all
-value classes.
-
-\paragraph{Example.}
-The following example succeeds when executed.
-\begin{xten}
-public class Array1Exploded {
-  public def select(p(i,j): Point, (k,l): Point): int {
-      return i+k;
-  }
-  public def run(): boolean {
-    d: Dist = new Region(1..10, 1..10) -> here;
-    ia: Array[int] = new array[int](d);
-    for (p(i,j): Point in new Region(1..10,1..10)) {
-        if (ia(p) != 0) return false;
-        ia(p) = i+j;
-    }
-    for (p(i,j): Point in d) {
-      q1: Point = (i,j);
-      if (i != q1(0)) return false;
-      if (j != q1(1)) return false;
-      if(ia(i,j) != i+j) return false;
-      if(ia(i,j) != ia(p)) return false;
-      if(ia(q1)  != ia(p)) return false;
-    }
-    if (! (4 == select([1,2],[3,4]))) return false;
-    return true;
-  }
-        
-  public static def main(args: array[String]) {
-     b: boolean = (new Array1Exploded()).run();
-     System.out.println("++++++ "
-                        + (b ? "Test succeeded."
-                             : "Test failed."));
-     System.exit(b ? 0 : 1);
-  }
-}
-\end{xten}
-
-
+with every the point in \xcdmath"r$_2$".
+Thus, \xcd"(1..2) * (3..4)"
+is the region $\{$\xcd"(1,3)", \xcd"(1,4)", \xcd"(2,3)",
+\xcd"(2,4)"$\}$,
+and \xcd"(1..2) * (3..4) * (5..6)"
+is the region
+$\{$%
+\xcd"(1,3,5)",
+\xcd"(1,3,6)",
+\xcd"(1,4,5)",
+\xcd"(1,4,6)",
+\xcd"(2,3,5)",
+\xcd"(2,3,6)",
+\xcd"(2,4,5)",
+\xcd"(2,4,6)"%
+$\}$.
 

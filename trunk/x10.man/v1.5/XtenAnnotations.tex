@@ -30,7 +30,7 @@ a compiler plugin.
 The annotation syntax consists of an ``\texttt{@}'' followed by an interface type.
 
 \begin{grammar}
-Annotation \: \xcd"@" InterfaceType \\
+Annotation \: \xcd"@" InterfaceBaseType Constraints\opt \\
 \end{grammar}
 
 Annotations can be applied to most syntactic constructs in the language
@@ -50,11 +50,11 @@ ConstructorModifier \: Annotation \\
 AbstractMethodModifier \: Annotation \\
 ConstantModifier \: Annotation \\
 Type \: AnnotatedType \\
-AnnotatedType \: Type Annotation\plus \\
+AnnotatedType \: Annotation\plus Type \\
 Statement \: AnnotatedStatement \\
 AnnotatedStatement \: Annotation Statement \\
 Expression \: AnnotatedExpression \\
-AnnotatedExpression \: Expression : Annotation \\
+AnnotatedExpression \: Annotation Expression \\
 \end{grammar}
 
 \noindent

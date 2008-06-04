@@ -28,9 +28,9 @@ D: distribution = distribution.factory.random(R);
 Let \xcd"D" be a distribution. \xcd"D.region" denotes the underlying
 region. \xcd"D.places" is the set of places constituting the range of
 \xcd"D" (viewed as a function). Given a point \xcd"p", the expression
-\xcd"D[p]" represents the application of \xcd"D" to \xcd"p", that is,
+\xcd"D(p)" represents the application of \xcd"D" to \xcd"p", that is,
 the place that \xcd"p" is mapped to by \xcd"D". The evaluation of the
-expression \xcd"D[p]" throws an \xcd"ArrayIndexOutofBoundsException"
+expression \xcd"D(p)" throws an \xcd"ArrayIndexOutofBoundsException"
 if \xcd"p" does not lie in the underlying region.
 
 When operated on as a distribution, a region \xcd"R" implicitly
@@ -120,8 +120,9 @@ a way that supports static reasoning.
 \todo{TBD. Make distribution a value type. What is the API? Return a
 set of indices. For each index point, return the place. A method to
 return a subdistribution given a subregion. A method to check if a
-given distribution is a subdistribution. But may need to provide methods that the compiler can use to reason about the distribution.
-
+given distribution is a subdistribution. But may need to provide
+methods that the compiler can use to reason about the
+distribution. \\
 Postpone to 0.7.}
 
 \subsection{Operations on distributions}

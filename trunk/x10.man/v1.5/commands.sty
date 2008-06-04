@@ -87,8 +87,12 @@
 
 \newcommand{\domain}[1]{#1}
 \newcommand{\nodomain}[1]{}
-%\newcommand{\todo}[1]{{\rm$[\![$!!~#1$]\!]$}}
+
+\ifdraft
+\newcommand{\todo}[1]{{\rm$[\![$\textbf{todo:} \emph{#1}$]\!]$}}
+\else
 \newcommand{\todo}[1]{}
+\fi
 
 % \frobq will make quote and backquote look nicer.
 \def\frobqcats{%\catcode`\'=13 %\catcode`\{=13{}\catcode`\}=13{}
