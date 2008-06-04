@@ -147,7 +147,7 @@ clocks and \xcd"finish" to obtain the desired effect.  Further, the
 though every implementation should make a best faith effort to ensure
 that every activity eventually gets a chance to make forward progress.
 
-\paragraph{Static semantics.}
+\begin{staticrule*}
 The statement in the body of an \xcd"async" is subject to the
 restriction that it must be acceptable as the body of a \xcd"void"
 method for an anoymous inner class declared at that point in the code,
@@ -155,6 +155,7 @@ which throws no checked exceptions. As such, it may reference
 variables in lexically enclosing scopes (including \xcd"clock"
 variables, \Sref{XtenClocks}) provided that such variables are
 (implicitly or explicitly) \xcd"final".
+\end{staticrule*}
 
 \section{Finish}\index{finish}\label{finish}
 The statement \xcd"finish S" converts global termination to local
@@ -347,14 +348,17 @@ Atomic blocks are closely related to non-blocking synchronization
 constructs \cite{herlihy91waitfree}, and can be used to implement 
 non-blocking concurrent algorithms.
 
-\paragraph{Static semantics and dynamic checks.}
-In \xcd"atomic S", \xcd"S" may include method calls, conditionals etc.
+\begin{staticrule*}
+In \xcd"atomic S", \xcd"S" may include method calls,
+conditionals, etc.
 It may {\em not} include an \xcd"async" activity.
 It may {\em not} include any statement that may potentially block at
 runtime (e.g., \xcd"when", \xcd"force" operations, \xcd"next"
 operations on clocks, \xcd"finish").
 
 \limitation{Not checked in the current implementation.}
+\end{staticrule*}
+
 
 All locations accessed in an atomic block must reside \xcd"here"
 (\Sref{Here}). A
@@ -454,10 +458,11 @@ statement with multiple branches is behaviorally identical to a
 the condition of each branch, and whose body contains an
 \xcd"if"/\xcd"then"/\xcd"else" checking each of the branch conditions.
 
-\paragraph{Static semantics.}
+\begin{staticrule*}
 For the sake of efficient implementation certain restrictions are
 placed on the guards and statements in a conditional atomic
 block. 
+\end{staticrule*}
 
 Guards are required not to have side-effects, not to spawn
 asynchronous activities and to have a statically determinable upper
@@ -613,7 +618,7 @@ activities spawned by \xcd"x=e". The exception will be caught by the
 \xcd"catch" clause and stored with the latch. 
 
 
-\todo{Conditional atomic blocks should be powerful enough to implement clocks as well.}
+\oldtodo{Conditional atomic blocks should be powerful enough to implement clocks as well.}
 
 \paragraph{A future to execute a statement.}
 Consider an expression \xcd"onFinish {S}". This should return

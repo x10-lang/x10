@@ -36,12 +36,15 @@ returns the next place in the total order (wrapping around at the
 end). Further details on the methods and fields available on this
 class may be obtained by consulting the API documentation.
 
-{\em Note: Future versions of the language may permit user-definable
-places, and the ability to dynamically create places. }
+\begin{note}
+Future versions of the language may permit user-definable
+places, and the ability to dynamically create places.
+\end{note}
 
-\paragraph{Static semantics.}
+\begin{staticrule*}
 Variables of type \xcd"place" must be initialized and are implicitly
 \xcd"final".  
+\end{staticrule*}
 
 \section{Place expressions}
 Any expression of type \xcd"place" is called a place expression. 

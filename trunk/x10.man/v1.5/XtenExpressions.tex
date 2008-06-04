@@ -88,13 +88,38 @@ the current context.
 It is illegal to access a non-static field
 through a static field access expression.
 
+\section{Closures}
+\label{Closures}
+\input{Closures}
+
 \section{Calls}
 \label{MethodInvocation}
 \label{MethodInvocationSubstitution}
 
-\section{Closures}
-\label{Closures}
-\input{Closures}
+\todo{Remove Java dependence}
+
+\todo{Type arguments}
+
+\begin{grammar}
+MethodCall \: TypeName \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+           \| \xcd"super" \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+           \| ClassName \xcd"." \xcd"super" \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+Call \: Primary TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+TypeArguments \: \xcd"[" Type ( \xcd"," Type )\star \xcd"]" \\
+\end{grammar}
+
+A \grammarrule{MethodCall} may be to either \xcd"static" or to instance methods.
+A \grammarrule{Call} may to either a method or a closure.  The syntax is ambiguous; the target must be type-checked to determine if it is the name of a method or if it refers to a closure.
+
+A closure call \xcdmath"e($\dots$)" is shorthand for a method call \xcdmath"e.apply($\dots$)".
+
+Method selection rules are similar to that of \java{}.
+
+Type arguments may be omitted and inferred, as described in
+\Sref{TypeInference}.
+
+If is a static error if a methods \grammarrule{WhereClause} is not satisfied by the caller.
+
 
 \section{Increment and decrement}
 
@@ -259,13 +284,13 @@ The relational operations apply binary numeric promotion
 to their operands. The operands must be of numeric type.
 The type of the result is \xcd"Boolean".
 
-The \xcd"<" operator evalutates to \xcd"true" if the left operand is
+The \xcd"<" operator evaluates to \xcd"true" if the left operand is
 less than the right.
-The \xcd"<=" operator evalutates to \xcd"true" if the left operand is
+The \xcd"<=" operator evaluates to \xcd"true" if the left operand is
 less than or equal to the right.
-The \xcd">" operator evalutates to \xcd"true" if the left operand is
+The \xcd">" operator evaluates to \xcd"true" if the left operand is
 greater than the right.
-The \xcd">=" operator evalutates to \xcd"true" if the left operand is
+The \xcd">=" operator evaluates to \xcd"true" if the left operand is
 greater than or equal to the right.
 
 Floating point comparison is determined by the IEEE 754
@@ -311,9 +336,9 @@ programmer.
 \label{ClassCreation}
 
 \begin{grammar}
-NewExpression \: \xcd"new" ClassName TypeArguments\opt ValueArguments
+NewExpression \: \xcd"new" ClassName TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")"
         ClassBody\opt \\
-  \| \xcd"new" InterfaceName TypeArguments\opt ValueArguments
+  \| \xcd"new" InterfaceName TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")"
         ClassBody
 \end{grammar}
 
@@ -349,13 +374,13 @@ the allocation expression.
 The cast operation may be used to cast an expression to a given type:
 
 \begin{grammar}
-UnaryExpressionNotPlusMinus \: CastExpression \\
-CastExpression \: UnaryExpressionNotPlusMinus \xcd"as" Type \\
-\| UnaryExpressionNotPlusMinus \xcd"to" Type \\
+UnaryExpression \: CastExpression \\
+CastExpression \: UnaryExpression \xcd"as" Type \\
+\| UnaryExpression \xcd"to" Type \\
 \end{grammar}
 
 The result of this operation is a value of the given type if the cast
-is permissible at runtime. Both the data type and place type of the
+is permissible at run time. Both the data type and place type of the
 value are checked. Data type conversion is checked according to the
 rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}). If the
 value cannot be cast to the appropriate data type, a
@@ -367,7 +392,7 @@ Any attempt to cast an expression of a reference type to a value type
 (or vice versa) results in a compile-time error. Some casts---such as
 those that seek to cast a value of a subtype to a supertype---are
 known to succeed at compile-time. Such casts should not cause extra
-computational overhead at runtime.
+computational overhead at run time.
 
 \section{\Xcd{instanceof}}\label{instanceOf}\index{instanceof@\xcd"instanceof"}
 
@@ -390,6 +415,9 @@ constraint, if any, associated with the type is true for the
 given expression.
 
 \section{Rail constructors}
+\label{RailConstructors}
+
+\todo{Update syntax}
 
 The rail constructor \xcdmath"#(a$_0$, $\dots$, a$_{k-1}$)"
 creates an instance of \xcd"ValRail" with region
@@ -401,6 +429,8 @@ rail constructors can be passed into the \xcd"Array" and
 \xcd"ValArray" constructors as initializer functions.
 
 \section{Point construction}\label{point-syntax}\index{point syntax}
+
+\todo{Update syntax}
 
 \Xten{} specifies a simple syntax for the construction of points.
 A rail constructor for a \xcd"ValRail[int]" or
@@ -436,6 +466,8 @@ new Point({ a$_1$, $\dots$, a$_k$ })
 }
 
 \section{Region construction}\label{region-syntax}\index{region syntax}
+
+\todo{Update syntax}
 
 \Xten{} specifies a simple syntax for the construction of regions.
 

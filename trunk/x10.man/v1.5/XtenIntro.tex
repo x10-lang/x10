@@ -26,7 +26,7 @@ relatively language-neutral message-passing format such as MPI
 \cite{mpi}. This model has enjoyed some success: several
 high-performance applications have been written in this
 style. Unfortunately, this model leads to a {\em loss of programmer
-productivity}: the mesage-passing format is integrated into the host
+productivity}: the message-passing format is integrated into the host
 language by means of an application-programming interface (API), the
 programmer must explicitly represent and manage the interaction
 between multiple processes and choreograph their data exchange; large
@@ -97,7 +97,7 @@ places. Arrays support parallel collective operations. A novel
 exception flow model ensures that exceptions thrown by asynchronous
 activities can be caught at a suitable parent activity.  The type
 system tracks which memory accesses are local. The programmer may
-introduce placecasts which verify the access is local at runtime.
+introduce place casts which verify the access is local at run time.
 Linking with native code is supported.
 
 {}\XtenCurrVer{} adds to Version~1.1 the following features:
@@ -107,6 +107,12 @@ constraints on type properties.  Type definitions and local type inference are
 supported.  Arrays and futures are defined in the language library, rather than
 as type constructors.  Closures and function types are supported.
 
+\XtenCurrVer{} is a transitional version.  Previous versions
+of the language were based on Java.  Future versions of the language will 
+diverge more and more from the Java specification.
+However, when ambiguous and when appropriate, this specification document
+appeals to the Java Language Specification to resolve ambiguities.
+
 {}\Xten{} is an experimental language.  Several representative
 concurrent idioms have already found pleasant expression in \Xten. We
 intend to develop several full-scale applications to get better
@@ -114,6 +120,7 @@ experience with the language, and revisit the design in the light of
 this experience. Future versions of the language are expected to
 support user-definable operators and permit the specification of
 generic classes and methods.
+
 
 \eat{
 XXX There are more papers.

@@ -13,7 +13,7 @@ We introduce a new expression. For types \xcd"T",
 
 In the first form, the terminal expression \xcd"e" in
 xcd"s", if any, is thought of as shorthand for the statement
-\xcd"return e". 
+\xcd"return e".
 
 In particular, \xcd"return" statements in \xcd"s", if any,
 \xcd"return" from the function
@@ -52,19 +52,13 @@ exceptions at all in X10, but that affects Java compatibility.
 
 Functions in \Xten{} are objects.  In particular they are
 instances of anonymous classes that implement the appropriate
-\xcd"Fun" interface.  As objects, closure body may refer to
+\xcd"Fun" interface, as described in \Sref{FunctionTypes}.
+As objects, closure body may refer to
 \xcd"this", and use it to invoke the closure recursively.
 
-\eat{
-Design Note: The syntax has been chosen to be similar to a method
-definition with missing qualifiers and no name. As discussed below we
-will in fact be able to reconceptualize methods as qualified, named
-functions.
-}
+\subsection{Closures in initializers}
 
-\subsection{Closures in initailizers}
-
-In variable initailizers, blocks may be used for closures:
+In variable initializers, blocks may be used for closures:
 
 \begin{xten}
 val f(x: Int): Int = { x + 1 };
