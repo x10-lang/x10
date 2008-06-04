@@ -4,7 +4,7 @@
 {}\Xten{} is a {\em strongly typed} object-oriented language: every variable
 and expression has a type that is known at compile-time. Further,
 \Xten{} has a {\em unified} type system: all data items created at
-runtime are {\em objects} (\Sref{XtenObjects}. Types limit the
+run time are {\em objects} (\Sref{XtenObjects}. Types limit the
 values that variables can hold and specify the places at which these
 values lie.
 
@@ -22,7 +22,7 @@ Only variables of reference types may be assigned \xcd"null".
 Types are used in variable declarations, casts, object creation, array
 creation, class literals and \xcd"instanceof" expressions.\footnote{In
 order to allow this version of the language to focus on the core new
-ideas, \XtenCurrVer{} does not have user-definable classloaders,
+ideas, \XtenCurrVer{} does not have user-definable class loaders,
 though there is no technical reason why they could not have been
 added.}
 
@@ -132,7 +132,7 @@ it implements all the methods defined in the interface.
 \index{types!type parameters}
 
         A method, constructor, or closure may have type parameters, which
-        introduces a type whose scope is the parameterized method or
+        introduces a type whose scope is the parametrized method or
         constructor. 
         Type parameters may be constrained by a {\em where
         clause} on the method.
@@ -175,7 +175,7 @@ class Foo {
         A local type declaration for type \xcd"X" defines a type
         named \xcd"X" within the scope of the declaration.
 
-        Type definitions may be parameterized on both types and
+        Type definitions may be parametrized on both types and
         values.
 
 \paragraph{Function types.}
@@ -501,7 +501,7 @@ WhereClause        \: \xcd"{" Expression \xcd"}" \\
 \end{grammar}
 
 \begin{staticrule}{Variable Occurrence}
-In a deptype \xcd"T" = \xcd"C{c}", the only variables that may
+In a dependent type \xcd"T" = \xcd"C{c}", the only variables that may
 occur in \xcd"c" are (a)
 \xcd"self", (b) properties visible at \xcd"T", (c) final local variables, final
 method parameters or final constructor parameters visible at \xcd"T", (d)
@@ -509,7 +509,7 @@ final fields visible at \xcd"T"'s lexical place in the source program.
 \end{staticrule}
 
 \begin{staticrule}{Restrictions on \xcd"this"}
-  The special variable \xcd"this" may be used in a depclause for a type \xcd"T"
+  The special variable \xcd"this" may be used in a dependent clause for a type \xcd"T"
   only if (a)~\xcd"T" occurs in a property declaration for a
   class, (b)~\xcd"T"
   occurs in an instance method, (c)~\xcd"T" occurs in an
@@ -560,7 +560,7 @@ from a dependent type \xcd"C{c}" by replacing one or more occurrences
 of \xcd"self" in \xcd"c" by \xcd"v". (If such a declaration \xcd"v: T"
 is type-correct, it must be the case that the variable \xcd"v" is not
 visible at the type \xcd"T". Hence we can always recover the
-underlying deptype \xcd"C{c}" by replacing all occurrences of \xcd"v"
+underlying dependent type \xcd"C{c}" by replacing all occurrences of \xcd"v"
 in the constraint of \xcd"T" by \xcd"self".)
 
 For instance, \xcd"v: Int{v > 0}" is shorthand for \xcd"v: Int{self > 0}".
@@ -569,7 +569,7 @@ For instance, \xcd"v: Int{v > 0}" is shorthand for \xcd"v: Int{self > 0}".
   The type of a constraint \xcd"c" must be \xcd"Boolean".  
 \end{staticrule}
 
-A variable occuring in the constraint \xcd"c" of a deptype, other than
+A variable occurring in the constraint \xcd"c" of a dependent type, other than
 \xcd"self" or a property of \xcd"self", is said to be a {\em
 parameter} of \xcd"c".\label{DepType:Parameter} \index{parameter}
 
@@ -641,13 +641,13 @@ $\mathit{inv}(\mbox{\xcd"T"}[\mbox{\xcd"o"}/\mbox{\xcd"this"}])
 
 %% XXX check parens
 
-\subsection{Consistency of deptypes}\label{DepType:Consistency}\index{deptype,consistency}
+\subsection{Consistency of dependent type}\label{DepType:Consistency}\index{dependent type,consistency}
 
 A dependent type \xcd"C{c}" may contain zero or more parameters. We require
 that a type never be empty---so that it is possible for a variable of
 the type to contain a value. This is accomplished by requiring that
 the constraint \xcd"c" must be satisfiable {\em regardless} of the value assumed
-by parameters to the contraint (if any). Formally, consider a type
+by parameters to the constraint (if any). Formally, consider a type
 \xcd"T" = \xcd"C{c}", with the variables
 \xcdmath"f$_1$: F$_1$, $\dots$, f$_k$: F$_k$"
 free in \xcd"c".  Let 
@@ -693,7 +693,7 @@ class Line(start: Point,
 \end{xten}
 \end{example}
 
-One can use deptypes to define other closed geometric figures as well.
+One can use dependent type to define other closed geometric figures as well.
 
 \begin{example}
 Here is an example:
@@ -754,12 +754,14 @@ constants, and existential quantification over typed variables.
 
 The constraint system can be extended via compiler plugins.
 
-Subsquent implementations are intended to support boolean algebra,
+Subsequent implementations are intended to support boolean algebra,
 arithmetic, relational algebra etc to permit types over regions and
 distributions. We envision this as a major step towards removing most
 (if not all) dynamic array bounds and places check from \Xten{}.
 
-\section{Subtyping and type equivalence}\label{DepType:Equivalence}\label{deptype,equivalence}
+\section{Subtyping and type equivalence}\label{DepType:Equivalence}
+\index{type equivalence}
+\index{subtyping}
 
 Subtyping is relation between types.  It is the
 reflexive, transitive 
@@ -781,9 +783,9 @@ interpretation of a function type as an interface type
 \xcdmath"Fun_$_k$_$_n$".
 For instance,
 a function type
-\xcd"S1 => T1" 
+\xcd"(S1) => T1" 
 is a subtype of another function type
-\xcd"S2 => T2" 
+\xcd"(S2) => T2" 
 if \xcd"S2" is a subtype of \xcd"S1"
 and \xcd"T1" is a subtype of \xcd"T2".
 
@@ -793,7 +795,7 @@ Two dependent types \xcd"C{c}" and \xcd"C{d}" are said to be {\em equivalent} if
 \xcd"c" is true whenever \xcd"d" is, and vice versa. Thus, 
 $\LL{\mbox{\Xcd{C\{c\}}}} = \LL{\mbox{\Xcd{C\{d\}}}}$.
 
-Note that two deptypes that are syntactically different may be
+Note that two dependent type that are syntactically different may be
 equivalent. For instance, \xcd"Int{self >= 0}" and
 \xcd"Int{self == 0 || self > 0}" are equivalent though they are syntactically
 distinct. The \Java{} type system is essentially a nominal system---two
@@ -850,7 +852,7 @@ public class Object extends Any {
 }
 \end{xten}
 
-The method \xcd"equals" and \xcd"hashCode" are useful in hashtables,
+The method \xcd"equals" and \xcd"hashCode" are useful in hash tables,
 and are defined as in \java. The default implementation of \xcd"equals"
 is stable equality, \Sref{StableEquality}. This method may be overridden
 in a (value or reference) subclass.
@@ -961,9 +963,13 @@ variable types and return types to be elided.
 It is a static error if an omitted type cannot be inferred or
 uniquely determined.
 
+\subsection{Variable type declarations}
+
 The type of a variable declaration can be omitted if the
 declaration has an initializer.  The inferred type of the
 variable is the computed type of the initializer.
+
+\subsection{Return type inference}
 
 The return type of a method can be omitted if the method has a
 body (i.e., is not \xcd"abstract" or \xcd"extern").  The
@@ -983,9 +989,87 @@ of the types of the expressions in \xcd"return" statements
 in the body.  If the method does not return a value, the
 inferred type is \xcd"Void".
 
+\subsection{Type argument inference}
+
 A call to a polymorphic method, closure, or constructor may omit the
 explicit type arguments.  If the method has a type parameter
 \xcd"T", the type argument corresponding to \xcd"T" is inferred
 to be the least common ancestor of the types of any formal
 parameters of type \xcd"T".
 
+Consider the following method:
+\begin{xten}
+def choose[T](a: T, b: T): T { ... }
+\end{xten}
+%
+Given \xcd"Set[T] <: Collection[T]"
+and \xcd"List[T] <: Collection[T]",
+in the following snippet, the algorithm should infer the type
+\xcd"Collection" for \xcd"x".
+\begin{xten}
+intSet: Set[int];
+stringList: List[String];
+val x = choose(intSet, stringList);
+\end{xten}
+%
+And in this snippet, the algorithm should infer the type
+\xcd"Collection[int]" for \xcd"y".
+\begin{xten}
+intSet: Set[int];
+intList: List[int];
+val y = choose(intSet, intList);
+\end{xten}
+%
+Finally, in this snippet, the algorithm should infer the type
+\xcd"Collection{T <: Number}" for \xcd"z".
+\begin{xten}
+intSet: Set[int];
+numList: List{T <: Number};
+val z = choose(intSet, numList);
+\end{xten}
+
+Now, consider the following example:
+\begin{xten}
+def union[T](a: Set[T], b: Set[T]) : Set[T];
+\end{xten}
+The union method cannot be called with just arguments of type \xcd"Set".
+\begin{xten}
+set1: Set;
+set2: Set;
+val a = union(set1, set2);
+\end{xten}
+This is illegal because the type system cannot demonstrate that
+\xcd"set1.T" and \xcd"set2.T" are equal.
+The following, however, is acceptable:
+\begin{xten}
+set1: Set;
+set2: Set[set1.T];
+val a = union(set1, set2);
+\end{xten}
+
+However, unlike \xcd"union" above,
+the following method can be called with an argument of type \xcd"Set"
+because there are no constraints on \xcd"T":
+\begin{xten}
+def unmodifiableSet[T](set: Set[T]): Set[T];
+\end{xten}
+
+Using desugared syntax, the method is
+equivalent to: 
+\begin{xten}
+def unmodifiableSet[T](set: Set{self.T==T}): Set{self.T==T};
+\end{xten}
+Any \xcd"Set" can be passed in: for an argument \xcd"e", the method
+is instantiated on \xcd"e.T".
+%
+Note that if this method were defined as:
+\begin{xten}
+def unmodifiableSet(set: Set): Set;
+\end{xten}
+then the connection between the element types of the
+argument and of the return types would be broken.
+However, one could use the following signature to keep the
+connection, without introducing a method type parameter. 
+\begin{xten}
+def unmodifiableSet(set: Set): Set[set.T];
+\end{xten}

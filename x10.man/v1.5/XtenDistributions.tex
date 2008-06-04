@@ -18,7 +18,7 @@ The {\em rank} of a distribution is the rank of the underlying region.
 
 
 \begin{xten}
-R: region = [1:100];
+R: region = 1..100;
 D: distribution = distribtion.factory.block(R);
 D: distribution = distribution.factory.cyclic(R);
 D: distribution = R -> here;
@@ -39,7 +39,7 @@ behaves as the distribution mapping each item in \xcd"R" to \xcd"here"
 expecting a region, a distribution \xcd"D" should be thought of as
 standing for \xcd"D.region".
 
-{}\todo{Allan: We do not specify how the values of an array at a place
+{}\oldtodo{Allan: We do not specify how the values of an array at a place
 are stored, e.g. in row-major or column major order. Need to work this
 out.}
 
@@ -68,7 +68,7 @@ size $p$.
 The distribution \xcd"block(R)" is the same distribution as {\cf
 block(R, place.places)}.
 
-\todo{Check into block distributions per dimension.}
+\oldtodo{Check into block distributions per dimension.}
 \paragraph{Cyclic distributions.} \index{distribution!cyclic}
 The distribution \xcd"cyclic(R, Q)" distributes the points in \xcd"R"
 cyclically across places in \xcd"Q" in order.
@@ -89,7 +89,7 @@ The distribution \xcd"arbitrary(R,Q)" arbitrarily allocates points in {\cf
 R} to \xcd"Q". As above, \xcd"arbitrary(R)" is the same distribution as
 \xcd"arbitrary(R, place.places)".
 
-\todo{Determine which other built-in distributions to provide.}
+\oldtodo{Determine which other built-in distributions to provide.}
 
 \paragraph{Domain Restriction.} \index{distribution!restriction!domain}
 
@@ -117,7 +117,7 @@ into the array.
 Future versions of \Xten{} may provide user-defined distributions, in
 a way that supports static reasoning.
 
-\todo{TBD. Make distribution a value type. What is the API? Return a
+\oldtodo{TBD. Make distribution a value type. What is the API? Return a
 set of indices. For each index point, return the place. A method to
 return a subdistribution given a subregion. A method to check if a
 given distribution is a subdistribution. But may need to provide

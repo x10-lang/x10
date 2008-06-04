@@ -179,7 +179,7 @@ However, an activity may synchronously access data items only in the
 current place (the place in which the activity is running). It may
 atomically update one or more data items, but only in the current
 place.  To read a remote location, an activity must spawn another
-activitiy \emph{asynchronously} (\Sref{AsynchronousActivity}). This
+activity \emph{asynchronously} (\Sref{AsynchronousActivity}). This
 operation returns immediately, leaving the spawning activity with a
 \emph{future} (\Sref{XtenFutures}) for the result. Similarly, remote
 location can be written into only by asynchronously spawning an
@@ -324,7 +324,7 @@ computation.
 access only multiple locations in the current place. Unconditional
 atomic blocks are statically guaranteed to be non-blocking, and may
 be implemented using non-blocking techniques that avoid mutual
-exclusion bottlenecks. Dataflow synchronization permits point-to-point
+exclusion bottlenecks. Data-flow synchronization permits point-to-point
 coordination between reader/writer activities, obviating the need for
 barrier-based or lock-based synchronization in many cases.
 
@@ -335,9 +335,9 @@ barrier-based or lock-based synchronization in many cases.
 Programs written in \Xten{} are guaranteed to be statically
 \emph{type
 safe}, \emph{memory safe} and \emph{pointer safe}. Static type safety
-guarantees that at runtime a location contains only those values who's
+guarantees that at run time a location contains only those values who's
 dynamic type satisfies the constraints imposed by the location's
-static type and every runtime operation performed on the value in a
+static type and every run-time operation performed on the value in a
 location is permitted by the static type of the location.
 
 Memory safety guarantees that an object may only access memory within
@@ -347,7 +347,7 @@ dynamically if necessary. \Xten{} uses dynamic garbage collection to
 collect objects no longer referenced by the computation. \Xten{}
 guarantees that no object can retain a reference to an object
 whose memory has been reclaimed.  Further, \Xten{} guarantees that
-every location is initialized at runtime before it is read, 
+every location is initialized at run time before it is read, 
 and every value read from a location has previously been written into
 that location. 
 

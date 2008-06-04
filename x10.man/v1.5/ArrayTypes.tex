@@ -8,9 +8,8 @@ Because of the importance of arrays in \Xten{}, the language
 supports more concise syntax for accessing array elements and
 performing operations on arrays.
 
-Both array classes implement the \xcdmath"Fun_$_1$_$_1$[Point]"
-interface; they are thus subtypes of
-\xcd"Point => T"
+Both array classes are subtypes of
+\xcd"(Point) => T".
 
 % The array type constructor takes as argument a type (the {\em base
 % type}), an optional distribution (\Sref{XtenDistributions}), and
@@ -43,9 +42,13 @@ e.g.,
 \xcd"Array[Double]{rank==3}" is the type of all arrays of 
 \xcd"Double" of rank \xcd"3".
 
-The array type
-\xcd"Array[T](n)" and its synonym
-\xcd"Array[T](Region(0..n-1)->here)" corresponds to a local
-zero-indexed array, such as in Java.
-% \xcd"array[T]{rank==1,dist==0:self.length-1->here,region==0:self.length-1"}
-% corresponds to a Java array.
+\subsection{Rails}
+
+A \emph{rail} is a 1-dimensional, zero-based, local array. 
+The type \xcd"Rail[T](n)" is an alias of the mutable array type
+\xcd"Array[T](Region(0..n-1)->here)".
+The type \xcd"ValRail[T](n)" is an alias of the mutable array type
+\xcd"ValArray[T](Region(0..n-1)->here)".
+
+\Xten{} supports shorthand syntax for rail construction
+(\Sref{RailConstructors}).

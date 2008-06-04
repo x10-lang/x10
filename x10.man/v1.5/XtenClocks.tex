@@ -113,14 +113,15 @@ c.registered()
 \noindent This call returns the \xcd"boolean" value \xcd"true" iff the
 activity is registered on \xcd"c"; otherwise it returns \xcd"false".
 
-\paragraph{Note.} 
+\begin{note}
 \Xten{} does not contain a ``register'' statement that would allow an
 activity to discover a clock in a datastructure and register itself on
 it. Therefore, while clocks may be stored in a datastructure by one
 activity and read from that by another, the new activity cannot
 ``use'' the clock unless it is already registered with it.
+\end{note}
 
-\todo{Add text on arrays of clocks.}
+\oldtodo{Add text on arrays of clocks.}
 
 \subsection{Resuming clocks}\index{clock!resume}\label{resume}\label{sec:clock:resume}
 \Xten{} permits {\em split phase} clocks. An activity may wish
