@@ -29,8 +29,8 @@ places as specified by \xcd"D" and have the type \xcd"T".
 %type \xcd"T" (these cases are not mutually exclusive).
 
 A variable of an interface type \xcd"I" always holds either a
-reference to a reference class implementing \xcd"I", or a reference to a
-boxed value class that implements \xcd"I", or a \xcd"null"
+reference to a reference class implementing \xcd"I" (including possibly
+a boxed value class that implements \xcd"I"), or a \xcd"null"
 reference.
 
 A variable of a value data type \xcd"T" where \xcd"T" is the name of a

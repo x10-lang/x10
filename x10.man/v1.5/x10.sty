@@ -1,4 +1,5 @@
 \usepackage{listings}
+\usepackage{lstpatch}
 %k\usepackage[keywords]{lstpatch}
 \usepackage{color}
 
@@ -38,7 +39,11 @@
    keepspaces=true,%
    showlines=false,%
    breaklines=true,%
-   prebreak={},%
+   breakatwhitespace=true,%
+   postbreak={},%
+   %breakautoindent=true,%
+   %breakindent=0pt,%
+   %prebreak={},%
   }
 
 \lstnewenvironment{xtenmath}

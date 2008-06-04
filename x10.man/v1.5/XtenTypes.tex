@@ -99,7 +99,6 @@ classes.
         have static members: constant fields, type definitions,
         and member classes and interfaces.
 
-
         An interface may extend multiple interfaces.
 
 Classes may be declared to implement 
@@ -912,13 +911,17 @@ to specify new syntax for literals.
 \section{Box types}
 \label{BoxType}
 
-The class \xcd"Box" allows a value type to be used at a
+The reference class \xcd"x10.lang.Box" allows a value type to be used at a
 reference type.
 
-\begin{xten}
-package x10.lang;
-public class Box[T](unbox: T) { }
-\end{xten}
+Fields and methods of \xcd"T" may be accessed through an
+expression of type \xcd"Box[T]".
+If \xcd"T" implements an interface \xcd"I", then
+\xcd"Box[T]" also implements \xcd"I". 
+Note that if \xcd"T" is a subtype of \xcd"S",
+then \xcd"Box[T]" and \xcd"Box[S]" are unrelated.
+
+% The type \xcd"Box[T]" is a subtype of \xcd"T".
 
 The \xcd"to" expression may be used to convert to and from a
 boxed type:
@@ -929,12 +932,34 @@ val y = x to Int;        // unbox using to-operation
 val z = y to Box;        // box using to-operation
 \end{xten}
 
-Assignment of a value type into a variable of reference type
-automatically boxes the value.
+Assignment of a value type \xcd"T" into a variable of compatible reference type
+(either \xcd"Box[T]", \xcd"Object", or an interface that is
+implemented by \xcd"T")
+automatically boxes the value.  Assignment of a boxed type
+\xcd"Box[T]" into
+a variable of value type \xcd"T" automatically unboxes the value.
+
+\eat{
+Access to a field of a value of boxed type
+automatically unboxes the value and accesses the field
+of the unboxed value; that is, if \xcd"x: Box[T]",
+then \xcd"x.f" is equivalent to \xcd"(x to T).f".
+
+A method invocation on a value of boxed type
+automatically unboxes the value and 
+invokes the method on the unboxed value; that is, if \xcd"x: Box[T]",
+then \xcd"x.m()" is equivalent to \xcd"(x to T).m()".
+}
 
 \section{Type inference}
+\label{TypeInference}
+\index{types!inference}
+\index{type inference}
 
-\XtenCurrVer{} supports limited local type inference.
+\XtenCurrVer{} supports limited local type inference, permitting
+variable types and return types to be elided.
+It is a static error if an omitted type cannot be inferred or
+uniquely determined.
 
 The type of a variable declaration can be omitted if the
 declaration has an initializer.  The inferred type of the
@@ -963,6 +988,4 @@ explicit type arguments.  If the method has a type parameter
 \xcd"T", the type argument corresponding to \xcd"T" is inferred
 to be the least common ancestor of the types of any formal
 parameters of type \xcd"T".
-
-
 

@@ -24,15 +24,7 @@ lies within \xcd"s". That
 is, a closure cannot be used to exit a lexically enclosing block on
 invocation.
 
-\subsection{Functions are objects}
-
-Functions are objects, just as arrays are objects. Functions are not
-instances of classes. In particular, if this occurs in the body of a
-closure, it refers to the enclosing class (if in a non-static context),
-not to the closure itself.
-
-\subsection{Example}
-
+\begin{example}
 \begin{xten}
 def find[T](f: T => Boolean, xs: List[T]): T {
   for (x: T in xs)
@@ -40,6 +32,28 @@ def find[T](f: T => Boolean, xs: List[T]): T {
   null
 }
 \end{xten}
+\end{example}
+
+If the return type is omitted, it is inferred, as described in
+\Sref{TypeInference}.
+It is a static error if the return type cannot be inferred.
+
+As with a normal method, the closure may have a \xcd"throws" clause. It is a
+static error if a checked exception is thrown that is not declared in
+the \xcd"throws" clause.
+
+\begin{note}
+We could omit throws clauses and turn uncaught checked
+exceptions into unchecked exceptions. Or, we could not require checked
+exceptions at all in X10, but that affects Java compatibility.
+\end{note}
+
+\subsection{Functions are objects}
+
+Functions in \Xten{} are objects.  In particular they are
+instances of anonymous classes that implement the appropriate
+\xcd"Fun" interface.  As objects, closure body may refer to
+\xcd"this", and use it to invoke the closure recursively.
 
 \eat{
 Design Note: The syntax has been chosen to be similar to a method
@@ -47,25 +61,6 @@ definition with missing qualifiers and no name. As discussed below we
 will in fact be able to reconceptualize methods as qualified, named
 functions.
 }
-
-XXX
-The expression void(T1 x1,..., Tk xk) { s } is treated in a similar
-fashion, except that a terminal e is not replaced by return e;.
-
-If the return type is omitted, the type of the terminal
-expression is used. In
-this case, it is a static error if the block does not either return
-normally or end with a terminal expression, or if the inferred type
-cannot be uniquely determined.
-
-As with a normal method, the closure may have a throws clause. It is a
-static error if a checked exception is thrown that is not declared in
-the throws clause.
-
-Design Note: We could omit throws clauses and turn uncaught checked
-exceptions into unchecked exceptions. Or, we could not require checked
-exceptions at all in X10, but that affects Java compatibility.
-
 
 \subsection{Closures in initailizers}
 
@@ -165,12 +160,7 @@ To avoid an ambiguity, it is a static error for a class to declare a
 field with a function type whose erased signature is the same as a
 method of the same class.
 
-
 \section{Methods as functions}
-
-
-      XXX Syntax
-
 
 As discussed above, a function is identified by its type and body.
 Methods are named functions associated with classes, and subject to
@@ -179,18 +169,18 @@ inheritance.
 The syntax and semantics of method definition, inheritance and
 overriding remains unchanged. However, we now think of a method definition:
 
-\begin{verbatim}
-Modifiers RetType MethodName ( FormalParameterListopt ) { Stmt }
-\end{verbatim}
+\begin{grammar}
+def m[X](x: T): U = { S }
+\end{grammar}
 
 as binding the function
 
-\begin{verbatim}
-RetType ( FormalParameterListopt ) { Stmt }
-\end{verbatim}
+\begin{xten}
+[X](x: T): U => { S }
+\end{xten}
 
-to the (MethodName, list of argument types) pair, together with the
-information in Modifiers. That is, underlying every method is a function.
+to the method-name--argument-list tuple (\xcd"m", \xcd"X",
+\xcd"x: T").  That is, underlying every method is a function.
 
 \begin{note}
 Because of overloading, a method name is not sufficient to
@@ -198,10 +188,7 @@ uniquely identify a function for a given class (in Java-like languages).
 One needs the argument type information as well.
 \end{note}
 
-\begin{note}
-Could allow parameter types to be dropped if unambiguous.
-\end{note}
-
+\eat{
 If the method is an instance method its body may reference the variables
 this and super (and Type.this and Type.super in case the method is
 defined on a nested class); these are implicitly declared in the lexical
@@ -209,15 +196,24 @@ scope surrounding the body. One should think of an instance method as
 binding a function to a (name, list of types) pair for each instance of
 a class. The state associated with the instance is accessible within the
 body of the function in the usual way (using this, super etc).
+}
 
 This motivates us to introduce the instance function selector. For a
-type (class or interface) T, a list of types (T1,..., Tn), a method name
-m and an expression e of type T, e.m.(T1,..., Tn) denotes the function,
-if any, bound to the instance method named m at type T whose argument
-type is (T1,..., Tn) for the value v obtained by evaluating e. The
+type \xcd"T", a list of types
+(\xcdmath"T$_1$", \dots,
+\xcdmath"T$_n$"), 
+a method name
+\xcd"m" and an expression \xcd"e" of type \xcd"T",
+\xcdmath"e.m.(T$_1$, $\dots$, T$_n$)" denotes the function,
+if any, bound to the instance method named \xcd"m" at type
+\xcd"T" whose argument
+type is
+\xcdmath"(T$_1$, $\dots$, T$_n$), with \xcd"this" in the method
+body bound to the value obtained
+by evaluating \xcd"e". The
 return type of the function is specified in the method declaration.
 
-The expression
+Thus, the expression
 
 \begin{xtenmath}
 e.m.(T$_1$, $\dots$, T$_n$)
@@ -230,19 +226,19 @@ evaluates to
 \end{xtenmath}
 
 \begin{note}
-The selector syntax (dot) is used to distinguish e.m() (a
-method invocation on e of method named m with no arguments) from e.m.()
-(the function bound to the said method). One should think of
-e.m.(T1,..., Tn) as: given e, select the family of methods named m (for
-e), and from that select the method with argtypes (T1,..., Tn).
+The selector syntax (dot) is used to distinguish \xcd"e.m()" (a
+method invocation on \xcd"e" of method named \xcd"m" with no arguments)
+from \xcd"e.m.()"
+(the function bound to the method). 
 \end{note}
 
 A static method provides a binding from a name to a function that is
 independent of any instance of a class; rather it is associated with the
-class itself. The static function selector T.m.(T1,..., Tn) denotes the
-function bound to the static method named m, with argument types
-(T1,..., Tn) for the type T. The return type of the function is
-specified by the declaration of T.m.
+class itself. The static function selector
+\xcdmath"T.m.(T$_1$, $\dots$, T$_n$)" denotes the
+function bound to the static method named \xcd"m", with argument types
+\xcdmath"(T$_1$, $\dots$, T$_n$) for the type \xcd"T". The return type
+of the function is specified by the declaration of \xcd"T.m".
 
 Users of a function type do not care whether a function was defined
 directly (using the closure syntax), or obtained via (static or
@@ -250,23 +246,52 @@ instance) function selectors.
 
 \begin{note}
 Design note: The function selector syntax is consistent with the
-reinterpretation of the usual method invocation syntax e.m(e1,..., en)
-into a function specifier, e.m, applied to a tuple of arguments (e1,...,
-en). Note that the receiver is not treated as "an extra argument" to the
+reinterpretation of the usual method invocation syntax
+\xcdmath"e.m(e$_1$,..., e$_n$)"
+into a function specifier, \xcd"e.m", applied to a tuple of arguments
+\xcdmath"(e$_1$,..., e$_n$)". Note that the receiver is not
+treated as ``an extra argument'' to the
 function. That would break the above approach.
 \end{note}
 
 
 \section{Operators as functions}
 
-Every operator (e.g +, -, *, /, ...) has a family of functions, one for
-each type for which the operator is defined. The function can be
+Every operator (e.g.,
+\xcd"+",
+\xcd"-",
+\xcd"*",
+\xcd"/",
+\dots) has a family of functions, one for
+each type on which the operator is defined. The function can be
 selected using the "." syntax:
 
 \begin{grammar}
-Primary \: TypeName \xcd"." Operator \xcd"(" TypesOrFormals \xcd")" \\
+Primary \: TypeName \xcd"." Operator \xcd"(" TypesOrFormals\opt \xcd")" \\
         \| TypeName \xcd"." Operator \\
 \end{grammar}
+
+If an operator has more than one arity (e.g., unary and binary
+\xcd"-"), the appropriate version may be selected by giving the
+formal parameter types.  The binary version is selected by
+default.
+For example, the following equivalences hold:
+
+\begin{xtenmath}
+String.+             $\equiv$ (x: String, y: String): String => x + y
+Long.-               $\equiv$ (x: Long, y: Long): Int => x - y
+Float.-(Float,Float) $\equiv$ (x: Float, y: Float): Int => x - y
+Int.-(Int)           $\equiv$ (x: Int): Int => -x
+Boolean.&            $\equiv$ (x: Boolean, y: Boolean): Boolean => x & y
+Boolean.!            $\equiv$ (x: Boolean): Boolean => !x
+Int.<(Int,Int)       $\equiv$ (x: Int, y: Int): Boolean => x < y
+Dist.|(Place)        $\equiv$ (d: Dist, p: Place): Dist => d | p
+\end{xtenmath}
+
+Unary and binary promotion (\Sref{XtenPromotions}) is not performed
+when invoking these
+operations; instead, the operands are coerced individually via implicit
+coercions (\Sref{XtenConversions}), as appropriate.
 
 Additionally, for every expression \xcd"e" of a type \xcd"T" at which a binary
 operator \xcd"OP" is defined, the expression \xcd"e.OP" or
@@ -278,41 +303,27 @@ defined by:
 \end{xten}
 
 \begin{grammar}
-Primary \: Expr \xcd"." Operator \xcd"(" TypesOrFormals \xcd")" \\
+Primary \: Expr \xcd"." Operator \xcd"(" TypesOrFormals\opt \xcd")" \\
         \| Expr \xcd"." Operator \\
 \end{grammar}
 
 For every expression \xcd"e" of a type \xcd"T" at which a unary
-operator \xcd"OP" is defined, the expression \xcd"e."OP\xcd"()" represents the function
+operator \xcd"OP" is defined, the expression \xcd"e.OP()" represents the function
 defined by:
 
 \begin{xten}
 (x: T): T => { OP x }
 \end{xten}
 
-Questions:
-
-\begin{verbatim}
-    * What about binary promotion? int + int : int, int + double :
-      double. Could just have T.+ have type T(T,T). Or have selector
-      syntax: int.+(int,int). But this is verbose.
-    * What about unary operators? int.-/1 vs. int.-/2. Selector syntax
-      solves this: int.-(int) vs. int.-(int,int)
-    * Should return type be dependent? int(:self==3).+ : T(:self==3+x)(T x)
-    * Need union types?
-          o Issue with garbage collection? Representation of int union C? 
-    * Consider just dropping this? 
-\end{verbatim}
-
 
 For example,
-one may write an expression that adds one to each member of a list in a
-list of lists xss by:
+one may write an expression that adds one to each member of a list \xcd"xs" by:
 
 \begin{xten}
-xss.map(List.this.map(1.+))
+xs.map(1.+)
 \end{xten}
 
+\eat{
 X10's \xcd"async", \xcd"future", \xcd"foreach", \xcd"ateach"
 can be defined as syntactic
 abbreviation for the invocation of the following static methods:
@@ -326,5 +337,6 @@ static native def ateach(d: Dist, s: (Point) => Void);
 
 Similarly an initializer for an array of base type \xcd"T" is thought of as
 taking an argument closure of type \xcd"(Point) => T".
+}
 
 
