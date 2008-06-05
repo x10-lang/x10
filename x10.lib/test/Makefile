@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.17 2008-02-19 07:12:50 ganeshvb Exp $
+# $Id: Makefile,v 1.18 2008-06-05 11:03:24 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -9,7 +9,7 @@
 
 .SUFFIXES: .cc .cxx .cpp .C .c .o .h
 
-MAKE = make
+MAKE = gmake
 CXX = mpCC_r -q64 -qarch=pwr5
 CXXFLAGS = -qtune=pwr5 -O3 -qhot
 CC = mpcc_r -q64 -qarch=pwr5
