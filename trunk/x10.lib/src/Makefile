@@ -1,14 +1,14 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.56 2008-02-19 07:12:49 ganeshvb Exp $
+# $Id: Makefile,v 1.57 2008-06-05 04:52:14 ipeshansky Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Makefile for X10Lib src subdir.
 
 TOP = ..
-include $(TOP)/config/Make.AIX
+include $(TOP)/config/Make.$(shell uname -s | sed 's/_..\(-[0-9]*\.[0-9]*\)\?$$//')
 
 SUBDIR1 = array
 SUBDIR2 = sched
