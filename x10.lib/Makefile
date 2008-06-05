@@ -1,13 +1,12 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.5 2008-06-05 11:03:22 srkodali Exp $
+# $Id: Makefile,v 1.6 2008-06-05 13:37:37 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Toplevel Makefile for X10Lib.
 
-MAKE = gmake
 SUBDIRS = src doc examples test benchmarks
 LIBDIR = lib
 INCDIR = include

@@ -1,7 +1,7 @@
 #
 # (c) IBM Coporation 2007
 #
-# $Id: Make.defs,v 1.2 2008-06-05 11:03:23 srkodali Exp $
+# $Id: Make.defs,v 1.3 2008-06-05 13:37:38 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -9,7 +9,7 @@
 #MAKE = make
 
 # uncomment the following for GNU Make
-MAKE = gmake
+#MAKE = gmake
 DEFS = -DNDEBUG -DX10_DLEVEL=0
 INCLUDES = -I. -I$(TOP)/include
 LIBDIR = $(TOP)/lib
