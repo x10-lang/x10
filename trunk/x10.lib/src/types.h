@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.26 2008-06-02 16:08:00 ipeshansky Exp $
+ * $Id: types.h,v 1.27 2008-06-05 04:52:21 ipeshansky Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -17,7 +17,7 @@
  * previously part of x10lang.h
  */
 #ifndef __cplusplus
-typedef int bool;
+typedef enum { false = 0, true } bool;
 #endif
 typedef bool x10_boolean;
 typedef int8_t x10_byte;
