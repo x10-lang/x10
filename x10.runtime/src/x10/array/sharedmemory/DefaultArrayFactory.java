@@ -16,7 +16,6 @@ package x10.array.sharedmemory;
 import x10.array.ArrayFactory;
 import x10.array.Operator;
 import x10.array.Region3D0Base;
-import x10.compilergenerated.Parameter1;
 import x10.lang.BooleanReferenceArray;
 import x10.lang.ByteReferenceArray;
 import x10.lang.CharReferenceArray;
