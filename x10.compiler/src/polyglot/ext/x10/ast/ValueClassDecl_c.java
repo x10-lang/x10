@@ -27,10 +27,12 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
+import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 /**
@@ -102,6 +104,12 @@ public class ValueClassDecl_c extends ClassDecl_c implements ValueClassDecl {
 		super(pos, flags, name, superClass, interfaces, body);
 	}
       
+	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+		X10ParsedClassType type = (X10ParsedClassType) tb.currentClass();
+		type.value(true);
+		return super.buildTypes(tb);
+	}
+
         public Node typeCheck(TypeChecker tc) throws SemanticException {
         	ValueClassDecl_c result = (ValueClassDecl_c) super.typeCheck(tc);
         	

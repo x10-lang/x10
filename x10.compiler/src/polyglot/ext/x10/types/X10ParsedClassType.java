@@ -131,4 +131,6 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	void setZeroBasedRectRankOne();
 	
 	Constraint classInvariant();
+
+	void value(boolean v);
 }

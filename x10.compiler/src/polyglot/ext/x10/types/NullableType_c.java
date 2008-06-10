@@ -237,5 +237,9 @@ public Object copy() {
     public NullableType toNullable() { return this;}
     public FutureType toFuture() { return X10Type_c.toFuture(this);}
     public boolean safe() { return base.safe();}
+
+    public boolean isValue() {
+    	return base.isValue();
+    }
 }
 

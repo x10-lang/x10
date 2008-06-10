@@ -158,4 +158,9 @@ public interface X10Type extends Type, X10TypeObject {
      */
     String toStringForDisplay();
 
+    /**
+     * Is this is a value type?
+     * @return true if this is a value type
+     */
+    boolean isValue();
 }

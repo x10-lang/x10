@@ -231,4 +231,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     	return "null";
     }
 	
+    public boolean isValue() {
+    	return true;
+    }
 }

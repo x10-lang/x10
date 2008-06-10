@@ -226,5 +226,8 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	public String toStringForDisplay() {
 		return toString();
 	}
-	
+
+	public boolean isValue() {
+		return false;
+	}
 }

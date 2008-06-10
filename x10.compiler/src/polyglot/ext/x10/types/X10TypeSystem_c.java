@@ -233,7 +233,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 			Report.report(3, "X10TypeSystem_c: Creating Class fromSource =|" + fromSource + "|");
 		return new X10ParsedClassType_c(this, init, fromSource);
 	}
-	
+
 	/******************** Primitive types as Objects ******************/
 	
 	private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
@@ -456,8 +456,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public ClassType booleanArray(Expr distribution) {
 		if (booleanArrayType_ == null)
 			booleanArrayType_ = (X10ParsedClassType) load("x10.lang.booleanArray"); // java file
-		
-		
 		return booleanArrayType_;
 	}
 	
@@ -468,7 +466,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	protected ClassType booleanValueArrayType_;
 	// see the TODO for intValueArray.
 	private ClassType booleanValueArray(Expr distribution) {
-		return booleanArray(distribution);
+		if (booleanValueArrayType_ == null) {
+			booleanValueArrayType_ = booleanArray(distribution);
+			((X10ParsedClassType_c) booleanValueArrayType_).value(true);
+		}
+		return booleanValueArrayType_;
 	}
 	
 	private ClassType BooleanReferenceArray() {
@@ -496,7 +498,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public ClassType charArray(Expr distribution) {
 		if (charArrayType_ == null)
 			charArrayType_ = (X10ParsedClassType) load("x10.lang.charArray"); // java file
-		
 		return charArrayType_;
 	}
 	
@@ -507,7 +508,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	protected ClassType charValueArrayType_;
 	// see the TODO for intValueArray.
 	private ClassType charValueArray(Expr distribution) {
-		return charArray(distribution);
+		if (charValueArrayType_ == null) {
+			charValueArrayType_ = charArray(distribution);
+			((X10ParsedClassType_c) charValueArrayType_).value(true);
+		}
+		return charValueArrayType_;
 	}
 	
 	private ClassType CharReferenceArray() {
@@ -518,8 +523,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	private ClassType CharReferenceArray(Expr distribution) {
 		if (charReferenceArrayType_ == null)
 			charReferenceArrayType_ = (X10ParsedClassType) load("x10.lang.CharReferenceArray"); // java file
-		
-		
 		return charReferenceArrayType_;
 	}
 	
@@ -537,7 +540,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public ClassType byteArray(Expr distribution) {
 		if (byteArrayType_ == null)
 			byteArrayType_ = (X10ParsedClassType) load("x10.lang.byteArray"); // java file
-		
 		return byteArrayType_;
 	}
 	
@@ -548,7 +550,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	protected ClassType byteValueArrayType_;
 	// see the TODO for intValueArray.
 	private ClassType byteValueArray(Expr distribution) {
-		return byteArray(distribution);
+		if (byteValueArrayType_ == null) {
+			byteValueArrayType_ = byteArray(distribution);
+			((X10ParsedClassType_c) byteValueArrayType_).value(true);
+		}
+		return byteValueArrayType_;
 	}
 	
 	private ClassType ByteReferenceArray() {
@@ -576,9 +582,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public ClassType shortArray(Expr distribution) {
 		if (shortArrayType_ == null)
 			shortArrayType_ = (X10ParsedClassType) load("x10.lang.shortArray"); // java file
-		
-		
-		
 		return shortArrayType_;
 	}
 	
@@ -589,7 +592,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	protected ClassType shortValueArrayType_;
 	// see the TODO for intValueArray.
 	private ClassType shortValueArray(Expr distribution) {
-		return shortArray(distribution);
+		if (shortValueArrayType_ == null) {
+			shortValueArrayType_ = shortArray(distribution);
+			((X10ParsedClassType_c) shortValueArrayType_).value(true);
+		}
+		return shortValueArrayType_;
 	}
 	
 	private ClassType ShortReferenceArray() {
@@ -634,7 +641,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		// This hack will need to be fixed once the compiler starts checking that
 		// value classes can only be extended by value classes.
 		// [IP] FIXME
-		return intArray(distribution);
+		if (intValueArrayType_ == null) {
+			intValueArrayType_ = intArray(distribution);
+			((X10ParsedClassType_c) intValueArrayType_).value(true);
+		}
+		return intValueArrayType_;
 	}
 	
 	private ClassType IntReferenceArray() {
@@ -655,7 +666,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		if (longArrayPointwiseOpType_ == null)
 			longArrayPointwiseOpType_ = (X10ParsedClassType) load("x10.lang.longArray$pointwiseOp"); // java file
 		X10ClassType result = longArrayPointwiseOpType_;
-		
 		return result;
 	}
 	
@@ -682,8 +692,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return longValueArray(null);
 	}
 	
+	ClassType longValueArrayType_;
 	private ClassType longValueArray(Expr distribution) {
-		return longArray(distribution);
+		if (longValueArrayType_ == null) {
+			longValueArrayType_ = longArray(distribution);
+			((X10ParsedClassType_c) longValueArrayType_).value(true);
+		}
+		return longValueArrayType_;
 	}
 	
 	private ClassType LongReferenceArray() {
@@ -743,18 +758,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return genericValueArray(null, new LinkedList<Type>());
 	}
 	
+	ClassType genericValueArrayType_;
 	private ClassType genericValueArray(Expr distribution, List<Type> types) {
-		return genericArray(distribution, types);
+		if (genericValueArrayType_ == null) {
+			genericValueArrayType_ = genericArray(distribution, types);
+			((X10ParsedClassType_c) genericValueArrayType_).value(true);
+		}
+		return genericValueArrayType_;
 	}
 	
 	private ClassType GenericReferenceArray() {
-		
 		return GenericReferenceArray(null, new LinkedList<Type>());
 	}
 	
 	protected X10ParsedClassType genericReferenceArrayType_;
 	private ClassType GenericReferenceArray(Expr distribution, List<Type> typeParams) {
-		
 		if (genericReferenceArrayType_ == null) {
 			genericReferenceArrayType_ = (X10ParsedClassType) load("x10.lang.GenericReferenceArray"); // java file
 		}
@@ -793,7 +811,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	protected ClassType floatValueArrayType_;
 	// see the TODO for intValueArray.
 	private ClassType floatValueArray(Expr distribution) {
-		return floatArray(distribution);
+		if (floatValueArrayType_ == null) {
+			floatValueArrayType_ = floatArray(distribution);
+			((X10ParsedClassType_c) floatValueArrayType_).value(true);
+		}
+		return floatValueArrayType_;
 	}
 	
 	private ClassType FloatReferenceArray() {
@@ -836,10 +858,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return doubleValueArray(null);
 	}
 	
-	protected X10ClassType doubleValueArrayType_;
+	protected ClassType doubleValueArrayType_;
 	// see the todo for intValueArray.
 	private ClassType doubleValueArray(Expr distribution) {
-		return doubleArray(distribution);
+		if (doubleValueArrayType_ == null) {
+			doubleValueArrayType_ = doubleArray(distribution);
+			((X10ParsedClassType_c) doubleValueArrayType_).value(true);
+		}
+		return doubleValueArrayType_;
 	}
 	
 	private ClassType DoubleReferenceArray() {
@@ -1165,8 +1191,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public  boolean isDistributedArray(Type me) {
 		return isX10Array(me);
 	}
-	public  boolean isValueType( Type me) {
-		return isX10BaseSubtype((X10Type) me,value());
+	public boolean isValueType(Type me) {
+		return ((X10Type) me).isValue();
 	}
 	public Type baseType(Type theType) {
 		Type me = theType;

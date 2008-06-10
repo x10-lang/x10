@@ -136,7 +136,6 @@ public abstract class X10Type_c extends Type_c implements X10Type {
     public boolean isPlace() {return xts.isPlace(this);}
     public boolean isRegion() {return xts.isRegion(this);}
     public boolean isDistribution() {return xts.isDistribution(this);}
-    public boolean isValueType() {return xts.isValueType(this);}
   // public boolean isSubtypeImpl(Type other) {return xts.isSubtypeImpl(this, other);}
 	
 	
