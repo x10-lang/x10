@@ -5,7 +5,7 @@ package x10.lang;
  A rail is an array over the distribution 0..n-1 -> here.
  An Rail is a (mutable) rail of Ts.
  
- This is Tended to be implemented natively. 
+ This is intended to be implemented natively. 
  
  @author vj 06/09/08
  
@@ -13,9 +13,9 @@ package x10.lang;
 
 @Rail.T
 public class Rail(int length) { // implements Array {
-	 public static interface T extends Parameter(:x==1){}
+	public static interface T extends Parameter(:x==1){}
 	public Rail(T x0) {property(1); }
-	public Rail(T x0, T x10) { property(2); }
+	public Rail(T x0, T x1) { property(2); }
 	public Rail(T x0, T x1, T x2) { property(3); }
 	public Rail(T x0, T x1, T x2, T x3) { property(4);}
 	public Rail(T x0, T x1, T x2, T x3, T x4) { property(5);}
@@ -29,21 +29,29 @@ public class Rail(int length) { // implements Array {
 	}
 	public static abstract class BinaryOp {
 		public abstract T apply(T x, T y);
+		
+		@Extends((T) T.zero(), (Arithmetic) T.zero()) 
 		const BinaryOp add = new BinaryOp() {
 			public T apply(T x, T y) {
 				return x.add(y);
 			}
 		};
+		
+		@Extends((T) T.zero(), (Arithmetic) T.zero()) 
 		const BinaryOp mul= new BinaryOp() {
 			public T apply(T x, T y) {
 				return x.mul(y);
 			}
 		};
+		
+		@Extends((T) T.zero(), (Arithmetic) T.zero()) 
 		const BinaryOp sub = new BinaryOp() {
 			public T apply(T x, T y) {
 				return x.sub(y);
 			}
 		};
+		
+		@Extends((T) T.zero(), (Arithmetic) T.zero()) 
 		const BinaryOp div= new BinaryOp() {
 			public T apply(T x, T y) {
 				return x.div(y);
@@ -53,14 +61,16 @@ public class Rail(int length) { // implements Array {
 	public static abstract class UnaryOp {
 		public abstract T apply(T x);
 	
-		@Extends((T) 0, (Arithmetic) 0) public	static UnaryOp add(final T c) {
+		@Extends((T) T.zero(), (Arithmetic) T.zero()) 
+		public	static UnaryOp add(final T c) {
 			return new UnaryOp() {
 				public T apply(T x) {
 					return x.add(c);
 				}
 			};
 		}
-		@Extends((T) 0, (Arithmetic) 0) public static UnaryOp sub(final T c) {
+		@Extends((T) T.zero(), (Arithmetic) T.zero()) 
+		public static UnaryOp sub(final T c) {
 			return new UnaryOp() {
 				public T apply(T x) {
 					return x-c;
@@ -74,7 +84,8 @@ public class Rail(int length) { // implements Array {
 				}
 			};
 		}
-		@Extends((T) 0, (Arithmetic) 0)  public static UnaryOp div(final T c) {
+		@Extends((T) T.zero(), (Arithmetic) T.zero())  
+		public static UnaryOp div(final T c) {
 			return new UnaryOp() {
 				public T apply(T x) {
 					return x/c;
@@ -82,7 +93,8 @@ public class Rail(int length) { // implements Array {
 			};
 		}
    
-		@Extends((T) 0, (Arithmetic) 0) public static UnaryOp cosub(final T c) {
+		@Extends((T) T.zero(), (Arithmetic) T.zero()) 
+		public static UnaryOp cosub(final T c) {
 			return new UnaryOp() {
 				public T apply(T x) {
 					return c-x;
@@ -91,7 +103,7 @@ public class Rail(int length) { // implements Array {
 		}
 		@Extends((T) T.zero(), (Arithmetic) T.zero()) const UnaryOp negInv = cosub(T.zero());
 		@Extends((T) T.one(), (Arithmetic) T.one()) const UnaryOp mulInv = codiv(T.unit());
-		@Extends((T) 0, (Arithmetic) 0) public static UnaryOp codiv(final T c) {
+		@Extends((T) T.zero(), (Arithmetic) T.zero()) public static UnaryOp codiv(final T c) {
 			return new UnaryOp() {
 				public T apply(T x) {
 					return c/x;
