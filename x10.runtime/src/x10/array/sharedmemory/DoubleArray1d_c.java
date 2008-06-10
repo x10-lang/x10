@@ -249,7 +249,7 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 			for (int i=B; i<I+B; i++) {
 				place pl = distribution.get(i);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				result = op.apply(this.get(i), result);
+				result = op.apply(result, this.get(i));
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);

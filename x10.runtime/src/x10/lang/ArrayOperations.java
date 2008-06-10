@@ -308,7 +308,7 @@ public final class ArrayOperations {
 				point p = (point) it.next();
 				place pl = ((x10Array)a).distribution.get(p);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				result = op.apply(a.get(p), result);
+				result = op.apply(result, a.get(p));
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);

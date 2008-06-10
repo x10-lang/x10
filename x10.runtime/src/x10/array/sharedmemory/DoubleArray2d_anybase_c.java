@@ -240,7 +240,7 @@ public final class DoubleArray2d_anybase_c extends DoubleArray_c {
 				for (int j=j_origin; j<J; j++) {
 						place pl = distribution.get(i, j);
 						x10.lang.Runtime.runtime.setCurrentPlace(pl);
-						result = op.apply(this.get(i, j), result);
+						result = op.apply(result, this.get(i, j));
 				}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);

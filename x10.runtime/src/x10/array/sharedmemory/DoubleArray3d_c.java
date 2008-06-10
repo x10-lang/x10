@@ -268,7 +268,7 @@ public final class DoubleArray3d_c extends DoubleArray_c {
 					for (int k=0; k<K; k++) {
 						place pl = distribution.get(i, j, k);
 						x10.lang.Runtime.runtime.setCurrentPlace(pl);
-						result = op.apply(this.get(i, j, k), result);
+						result = op.apply(result, this.get(i, j, k));
 					}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);

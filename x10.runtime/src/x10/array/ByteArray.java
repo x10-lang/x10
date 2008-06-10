@@ -323,7 +323,7 @@ public abstract class ByteArray extends ByteReferenceArray {
 				point p = (point) it.next();
 				place pl = distribution.get(p);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				result = op.apply(this.get(p), result);
+				result = op.apply(result, this.get(p));
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
