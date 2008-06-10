@@ -2,7 +2,7 @@ package x10.lang;
 
 
 @ValRail.T
-public class ValRail(int length) implements Array(:rank==1) {
+public value class ValRail(int length) implements Array(:rank==1) {
 	public static interface T extends Parameter(:x==1) {}
 	public ValRail(T x0) {
 		this(new Rail(x0));
