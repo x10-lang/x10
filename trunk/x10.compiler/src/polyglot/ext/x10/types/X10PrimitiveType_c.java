@@ -359,7 +359,6 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	 * int is a subtype of nullable int as well as x10.lang.X10Object.
 	 */
 	public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
-	public boolean isValueType() { return ((X10TypeSystem) typeSystem()).isValueType(this); }
 	public List<FieldInstance> properties() { return Collections.EMPTY_LIST;}
 	public List<FieldInstance> definedProperties() { return Collections.EMPTY_LIST;}
 	public NullableType toNullable() { return X10Type_c.toNullable(this);}
@@ -368,5 +367,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	/** All primitive types are safe. */
 	
 	public boolean safe() { return true; }
+
+	public boolean isValue() { return true; }
 	// ----------------------------- end manual mixin code from X10Type_c
 }

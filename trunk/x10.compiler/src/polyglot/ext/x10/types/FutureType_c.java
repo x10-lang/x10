@@ -230,9 +230,6 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 		return base().isCanonical();
 	}
 
-	public boolean isValueType() {
-		return true;
-	}
 	/**
 	 * future<T> has no properties.
 	 */
@@ -247,6 +244,10 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	}
 	public boolean safe() {
 		return false;
+	}
+
+	public boolean isValue() {
+		return true;
 	}
 }
 

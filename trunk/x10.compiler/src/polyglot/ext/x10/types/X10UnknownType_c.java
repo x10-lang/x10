@@ -188,4 +188,6 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
      */
     public boolean safe() { return false;}
     public String toStringForDisplay() { return "UnknownType!";}
+
+    public boolean isValue() { return false; }
 }

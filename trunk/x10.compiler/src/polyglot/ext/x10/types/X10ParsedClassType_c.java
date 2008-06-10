@@ -76,6 +76,7 @@ implements X10ParsedClassType
 {
 	
 	protected transient DepParameterExpr dep;
+	protected boolean value;
 	
 	/** Build a variant of the root type, with the constraint expression. */
 	public X10Type dep(DepParameterExpr dep) {
@@ -236,8 +237,6 @@ implements X10ParsedClassType
 		}
 		return l;
 	}
-	
-	public X10ParsedClassType_c() { super();}
 	
 	/**
 	 * @param ts
@@ -1410,6 +1409,12 @@ implements X10ParsedClassType
 		this.realClauseSet = true;
 	}
 	
-	
+	public void value(boolean flag) {
+		value = flag;
+	}
+
+	public boolean isValue() {
+		return value;
+	}
 }
 
