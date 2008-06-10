@@ -234,6 +234,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return new X10ParsedClassType_c(this, init, fromSource);
 	}
 
+	private void adjustValue(ClassType ct) {
+		if (ct.descendsFrom(value()))
+			((X10ParsedClassType_c) ct).value(true);
+	}
+
 	/******************** Primitive types as Objects ******************/
 	
 	private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
@@ -259,22 +264,28 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	
 	protected ClassType placeType_;
 	public ClassType place() {
-		if (placeType_ == null)
+		if (placeType_ == null) {
 			placeType_ = load("x10.lang.place"); // java file
+			adjustValue(placeType_);
+		}
 		return placeType_;
 	}
 
 	protected ClassType regionType_;
 	public ClassType region() {
-		if (regionType_ == null)
+		if (regionType_ == null) {
 			regionType_ = load("x10.lang.region"); // java file
+			adjustValue(regionType_);
+		}
 		return regionType_;
 	}
 	
 	protected ClassType pointType_;
 	public ClassType point() {
-		if (pointType_ == null)
+		if (pointType_ == null) {
 			pointType_ = load("x10.lang.point"); // java file
+			adjustValue(pointType_);
+		}
 		return pointType_;
 	}
 	
@@ -287,8 +298,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	
 	protected ClassType distributionType_;
 	public ClassType distribution() {
-		if (distributionType_ == null)
+		if (distributionType_ == null) {
 			distributionType_ = load("x10.lang.dist"); // java file
+			adjustValue(distributionType_);
+		}
 		return distributionType_;
 	}
 	
@@ -315,15 +328,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	
 	protected ClassType clockType_;
 	public ClassType clock() {
-		if (clockType_ == null)
+		if (clockType_ == null) {
 			clockType_ = load("x10.lang.clock"); // java file
+			adjustValue(clockType_);
+		}
 		return clockType_;
 	}
 	
 	protected ClassType runtimeType_;
 	public ClassType Runtime() {
-		if (runtimeType_ == null)
+		if (runtimeType_ == null) {
 			runtimeType_ = load("x10.lang.Runtime"); // java file
+			adjustValue(runtimeType_);
+		}
 		return runtimeType_;
 	}
 	
@@ -758,12 +775,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return genericValueArray(null, new LinkedList<Type>());
 	}
 	
-	ClassType genericValueArrayType_;
 	private ClassType genericValueArray(Expr distribution, List<Type> types) {
-		if (genericValueArrayType_ == null) {
-			genericValueArrayType_ = genericArray(distribution, types);
-			((X10ParsedClassType_c) genericValueArrayType_).value(true);
-		}
+		ClassType genericValueArrayType_ = genericArray(distribution, types);
+		((X10ParsedClassType_c) genericValueArrayType_).value(true);
 		return genericValueArrayType_;
 	}
 	
