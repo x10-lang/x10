@@ -1,0 +1,9 @@
+Wed Jun 11 15:27:58 2008
+
+Besides int all other basic types are to be defined here as well:
+
+int, long, float, double, char, byte, short etc
+
+TODO: 
+  dist
+  Array
