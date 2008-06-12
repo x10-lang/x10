@@ -8,6 +8,6 @@ package x10.lang;
 
  */
 
-public interface Settable[T](region base) {
-    void set(point{self in base} p, T v);
+public interface Settable[T]( base: region) {
+    void set(p: point{self in base}, v: T);
 }
