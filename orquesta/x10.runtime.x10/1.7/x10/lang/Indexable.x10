@@ -1,4 +1,5 @@
 package x10.lang;
+import static TypeDefs.*;
 /**
 
    The compiler accepts the syntax f(p) for f a variable of type S if

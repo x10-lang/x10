@@ -19,6 +19,11 @@ ValRail[T] if they are available on T.
         Arithmetic[ValRail[T](length), ValRail[T](length)],
         Arithmetic[ValRail[T](length), T] ...
 
+//  vj: CHECK: Below, I am using the notation T.add(T) for
+//  (x:T,y:T)=>x.add(y)). The notation T.add.(T) should be used (for a
+//  class T) to refer to the static method on T with a single arg T.
+//  Is this too subtle?
+
  */
 
 import static TypeDefs.*;
@@ -57,21 +62,21 @@ public value class ValRail[T](length: nat)
     public def mapRail(o: ValRail[T](length), op:(T,T)=>T) = 
         map((i: nat(length-1), x:T) => op(x,o(i)));
 
-    public def reduce(z: S, op: (T,T)=>S):S = {
+    public def reduce(z: S, op: (T,T)=>S) = {
 	var v = z;
 	for (val w in r) v = op(v,w);
 	v
     }
-    public def andReduce(op: (T)=>boolean):boolean = {
+    public def andReduce(op: (T)=>boolean) = {
 	for (val w in r) if (! op(w)) return false;
 	true
     }
-    public def andReduce(op: (nat(0,length-1))=>boolean):boolean = {
-	for (val p[i] in r.region) if (! op(i)) return false;
+    public def andReduce(op: (nat(0,length-1))=>boolean) = {
+	for (val p(i) in r.region) if (! op(i)) return false;
 	true
     }
-    public def andReduceRail(o:ValRail[T](length), op: (T,T)=>boolean):boolean = {
-	for (val p[i] in r.region) if (! op(r(i),o(i))) return false;
+    public def andReduceRail(o:ValRail[T](length), op: (T,T)=>boolean) = {
+	for (val p(i) in r.region) if (! op(r(i),o(i))) return false;
 	true
     }
 
@@ -81,46 +86,32 @@ public value class ValRail[T](length: nat)
     }
 
     public def isK(k:T):boolean = andReduce(x:T => x==k);
-    public def add(o: ValRail[T](length)){T <: Arithmetic[T]}: ValRail[T](length) =
-        mapRail(o,T.add.(T));
-    public def mul(o: ValRail[T](length)){T <: Arithmetic[T]}: ValRail[T](length) =
-        mapRail(o,T.mul.(T));
-    public def div(o: ValRail[T](length)){T <: Arithmetic[T]}: ValRail[T](length) =
-        mapRail(o,T.div.(T));
-    public def sub(o: ValRail[T](length)){T <: Arithmetic[T]}: ValRail[T](length) =
-        mapRail(o,T.sub.(T));
-    public def cosub(o: ValRail[T](length)){T <: Arithmetic[T]}: ValRail[T](length) =
-        mapRail(o,T.cosub.(T));
-    public def codiv(o: ValRail[T](length)){T <: Arithmetic[T]}: ValRail[T](length) =
-        mapRail(o,T.codiv.(T));
-    public def neginv(){T <: Arithmetic[T]}{T <: Arithmetic[T]}: ValRail[T](length) = 
-        map(T.neginv.());
-    public def mulinv(){T <: Arithmetic[T]}{T <: Arithmetic[T]}: ValRail[T](length) =  
-        map(T.mulinv.());
-    public def eq(o: ValRail[T](length)){T <: Arithmetic[T]}:boolean = 
-       andReduceRail(o, T.eq.(T));
-    public def lt(o: ValRail[T](length)){T <: Arithmetic[T]}:boolean = 
-       andReduceRail(o, T.lt.(T));
-    public def gt(o: ValRail[T](length)){T <: Arithmetic[T]}:boolean = 
-       andReduceRail(o, T.gt.(T));
-    public def le(o: ValRail[T](length)){T <: Arithmetic[T]}:boolean = 
-       andReduceRail(o, T.le.(T));
-    public def ge(o: ValRail[T](length)){T <: Arithmetic[T]}:boolean = 
-       andReduceRail(o, T.ge.(T));
-    public def ne(o: ValRail[T](length)){T <: Arithmetic[T]}:boolean = 
-       andReduceRail(o, T.ne.(T));
+    public def add(o: ValRail[T](length)){T <: Arithmetic[T]}  = mapRail(o,(x:T,y:T)=>x.add(y));
+    public def mul(o: ValRail[T](length)){T <: Arithmetic[T]}  = mapRail(o,T.mul.(T));
+    public def div(o: ValRail[T](length)){T <: Arithmetic[T]}  = mapRail(o,T.div.(T));
+    public def sub(o: ValRail[T](length)){T <: Arithmetic[T]}  = mapRail(o,T.sub.(T));
+    public def cosub(o: ValRail[T](length)){T <: Arithmetic[T]}= mapRail(o,T.cosub.(T));
+    public def codiv(o: ValRail[T](length)){T <: Arithmetic[T]}= mapRail(o,T.codiv.(T));
+    public def neginv(){T <: Arithmetic[T]}                    = map(T.neginv.());
+    public def mulinv(){T <: Arithmetic[T]}                    = map(T.mulinv.());
+    public def eq(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.eq.(T));
+    public def lt(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.lt.(T));
+    public def gt(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.gt.(T));
+    public def le(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.le.(T));
+    public def ge(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.ge.(T));
+    public def ne(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.ne.(T));
 
     // custom versions of the above for the case in which the other rail is a constant.
-    public def add(c: T){T <: Arithmetic[T]}: ValRail[T](length) = map((x:int) => x.add(c));
-    public def mul(c: T){T <: Arithmetic[T]}: ValRail[T](length) = map((x:int) => x.mul(c));
-    public def div(c: T){T <: Arithmetic[T]}: ValRail[T](length) = map((x:int) => x.div(c));
-    public def codiv(c: T){T <: Arithmetic[T]}: ValRail[T](length) = map((x:int) => x.codiv(c));
-    public def sub(c: T){T <: Arithmetic[T]}: ValRail[T](length) = map((x:int) => x.sub(c));
-    public def cosub(c: T){T <: Arithmetic[T]}: ValRail[T](length) = map((x:int) => x.cosub(c));
-    public def eq(c: T){T <: Arithmetic[T]}:boolean = andReduce(x:T=> x.eq(c));
-    public def lt(c: T){T <: Arithmetic[T]}:boolean = andReduce(x:T=> x.lt(c));
-    public def gt(c: T){T <: Arithmetic[T]}:boolean = andReduce(x:T=> x.gt(c));
-    public def ge(c: T){T <: Arithmetic[T]}:boolean = andReduce(x:T=> x.ge(c));
-    public def le(c: T){T <: Arithmetic[T]}:boolean = andReduce(x:T=> x.le(c));
-    public def ne(c: T){T <: Arithmetic[T]}:boolean = andReduce(x:T=> x.ne(c));
+    public def add(c: T){T <: Arithmetic[T]}   = map((x:int) => x.add(c));
+    public def mul(c: T){T <: Arithmetic[T]}   = map((x:int) => x.mul(c));
+    public def div(c: T){T <: Arithmetic[T]}   = map((x:int) => x.div(c));
+    public def codiv(c: T){T <: Arithmetic[T]} = map((x:int) => x.codiv(c));
+    public def sub(c: T){T <: Arithmetic[T]}   = map((x:int) => x.sub(c));
+    public def cosub(c: T){T <: Arithmetic[T]} = map((x:int) => x.cosub(c));
+    public def eq(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.eq(c));
+    public def lt(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.lt(c));
+    public def gt(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.gt(c));
+    public def ge(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.ge(c));
+    public def le(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.le(c));
+    public def ne(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.ne(c));
 }
