@@ -396,7 +396,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						 l.formal().type(),
 						 l.formal().name(),
 						 l.domain(),
-						 new Join("\n", new Join("\n", l.locals()), l.body()),
+						 l.body(),
 						 processClocks(l),
 						 new Join("\n", l.locals())
 					 }).expand(tr2);
