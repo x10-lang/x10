@@ -18,37 +18,38 @@ region} and has rank \xcd"0".
 
 Here are several examples of region declarations:
 \begin{xten}
-Null: region = new Region();  // Empty 0-dimensional region          
-R1: region = 1..100; // 1-dim region with extent 1..100.
-R1: region = (1..100); // Same as above.
-R2: region = (0..99) * (-1..MAX_HEIGHT);   
-R3: region = region.factory.upperTriangular(N);
-R4: region = region.factory.banded(N, K);
-   // A square region.
-R5: region = E * E;           
-   // Same as: region above.
-R6: region = (100, 100);       
-   // Represents the intersection of two regions
-AandB: region = A && B;       
-  // represents the union of two regions
-AOrB: region = A || B;        
+Null: Region = new Region();  // Empty 0-dimensional region          
+R1: Region = 1..100; // 1-dim region with extent 1..100
+R2: Region = [1..100]; // same as R1
+R3: Region = (0..99) * (-1..MAX_HEIGHT);   
+R4: Region = [0..99, -1..MAX_HEIGHT]; // same as R3  
+R5: Region = Region.factory.upperTriangular(N);
+R6: Region = Region.factory.banded(N, K);
+R7: Region = R4 && R5; // intersection of two regions
+R8: Region = R4 || R5; // union of two regions
 \end{xten}
 
-A region may be constructed using a comma-separated list of regions
-(\Sref{point-syntax}) within square brackets, as above and represents
-the Cartesian product of each of the arguments.  The bound of a
-dimension may be any final variable of a fixed-point numeric
-type. \XtenCurrVer{} does not support hierarchical regions.
+A region may be constructed by converting from a rail of
+regions or a rail of points, typically using the rail constructor
+(e.g., \xcd"R4" above)
+The region constructed from a rail of points represents the
+region containing just those points.
+The region constructed from a rail of regions
+represents
+the Cartesian product of each of the arguments.
+\XtenCurrVer{} does not support hierarchical regions.
+
+\index{region!upperTriangular}
+\index{region!lowerTriangular}\index{region!banded}
 
 Various built-in regions are provided through  factory
-methods on {\tt region}.  For instance:\index{region!upperTriangular}
-\index{region!lowerTriangular}\index{region!banded}
+methods on \xcd"Region".  For instance:
 \begin{itemize}
-{}\item \xcd"region.factory.upperTriangular(N)" returns a region corresponding
+\item \xcd"Region.upperTriangular(N)" returns a region corresponding
 to the non-zero indices in an upper-triangular \xcd"N x N" matrix.
-{}\item \xcd"region.factory.lowerTriangular(N)" returns a region corresponding
+\item \xcd"Region.lowerTriangular(N)" returns a region corresponding
 to the non-zero indices in a lower-triangular \xcd"N x N" matrix.
-{}\item \xcd"region.banded(N, K)" returns a region corresponding to
+\item \xcd"Region.banded(N, K)" returns a region corresponding to
 the non-zero indices in a banded \xcd"N x N" matrix where the width of
 the band is \xcd"K"
 \end{itemize}
@@ -68,7 +69,7 @@ the form \xcdmath"(T$_1$ * $\cdots$ * T$_k$)" for some set of enumerations
 region satisfies the property that if two points $p_1$ and $p_3$ are
 in the region, then so is every point $p_2$ between them. (Note that
 \xcd"||" may produce non-convex regions from convex regions, e.g.,
-\xcd"(1,1) || (3,3)" is a non-convex region.)
+\xcd"[1,1] || [3,3]" is a non-convex region.)
 
 For each region \xcd"R", the {\em convex closure} of \xcd"R" is the
 smallest convex region enclosing \xcd"R".  For each integer \xcd"i"
@@ -92,7 +93,7 @@ Let \xcd"R1" and \xcd"R2" be two regions.
 
 \xcd"R1 - R2" is the set difference of \xcd"R1" and \xcd"R2".\index{region!set difference}
 
-Two regions are equal ({\tt ==}) if they represent the same set of
+Two regions are equal (\xcd"==") if they represent the same set of
 points.\index{region!==}
 
 

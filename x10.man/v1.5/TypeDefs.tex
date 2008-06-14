@@ -4,7 +4,8 @@
 With value arguments, type arguments, and constraints, the
 syntax for \Xten{} types can often be verbose;
 \Xten{} therefore provides {\em type definitions}
-to allow aliases to be defined for types.
+to allow users to define new type constructors.
+
 Type definitions have the following syntax:
 
 \begin{grammar}
@@ -29,18 +30,16 @@ type Int(lo: Int, hi: Int) = Int{lo <= self, self <= hi};
 \end{xten}
 
 As the two definitions of \xcd"Int" demonstrate, type definitions may 
-be overloaded: a type definition with a different number of type
+be overloaded: two type definitions with different numbers of type
 parameters or with different types of value
-parameters---according to the method overloading rules
-(\Sref{MethodOverload}) define distinct types.
+parameters, according to the method overloading rules
+(\Sref{MethodOverload}), define distinct types.
 
 Type definitions may appear as class members or in the body of a
-method, constructor, or initializer.  Type definitions that are
-members of a class are \xcd"static"; type properties can be used
-for non-static type definitions.
+method, constructor, or initializer.
 
 Type definitions are applicative, not generative; that is, they
-are define aliases for types and do not introduce new types.
+define aliases for types and do not introduce new types.
 Thus, the following code is legal:
 \begin{xten}
 type A = Int;
@@ -50,14 +49,21 @@ a: A = 3;
 b: B = new C("Hi");
 c: C = b + ", Mom!";
 \end{xten}
-A type defined by a type definition
-has the same constructors as its defining type; however, a
-constructor may not be invoked using a given type definition
+An instance of a defined type with no type parameters and no
+value parameters may 
+A \xcd"new" expression may be used to instantiate an instance
+of a type with a defining class type
+by a type definition.
+The type
+has the same constructors with the same signature as its defining type;
+however, a
+constructor may not be invoked using a given defined type 
 name if the constructor return type is not a subtype of the
 defined type.
 
 All type definitions are members of their enclosing package or
 class.  A compilation unit may have one or more type definitions
 or class or interface declarations with the same name, as long
-as the types are unique by overloading.
+as the definitions have distinct parameters according to the
+method overloading rules (\Sref{MethodOverload}).
 

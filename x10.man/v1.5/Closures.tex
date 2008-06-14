@@ -1,10 +1,24 @@
-\Xten{} provides first-class, typed closures.  Variables
-referenced within closures need not be final.  Methods and
-operators may be viewed as closures.
+\begin{grammar}
+ClosureExpression \:
+        TypeParameters\opt
+        \xcd"("
+        Formals\opt
+        \xcd")"
+        Throws\opt
+        \xcd":" Type
+        \xcd"=>" ClosureBody \\
+ClosureBody \:
+        Expression \\
+        \| \xcd"{" Statement\star Expression \xcd"}" \\
+\end{grammar}
+
+
+\Xten{} provides first-class, typed closures.
+Methods and operators may be viewed as closures.
 
 We introduce a new expression. For types \xcd"T",
 \xcdmath"T$_1$", \dots
-\xcdmath"T$_n$", then the following are closure expressions:
+\xcdmath"T$_n$", the following are closure expressions:
 
 \begin{xtenmath}
 (x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): T throws (U$_1$, $\dots$, U$_k$) => { s }
@@ -12,7 +26,7 @@ We introduce a new expression. For types \xcd"T",
 \end{xtenmath}
 
 In the first form, the terminal expression \xcd"e" in
-xcd"s", if any, is thought of as shorthand for the statement
+\xcd"s", if any, is thought of as shorthand for the statement
 \xcd"return e".
 
 In particular, \xcd"return" statements in \xcd"s", if any,
@@ -50,13 +64,31 @@ exceptions at all in X10, but that affects Java compatibility.
 
 \subsection{Functions are objects}
 
-Functions in \Xten{} are objects.  In particular they are
-instances of anonymous classes that implement the appropriate
-\xcd"Fun" interface, as described in \Sref{FunctionTypes}.
+Functions in \Xten{} are objects.  In particular, they are
+instances of anonymous classes that implement an interface
+corresponding to the appropriate instantiation of the
+type constructor \xcd"=>"
+as described in \Sref{FunctionTypes}.
 As objects, closure body may refer to
-\xcd"this", and use it to invoke the closure recursively.
+\xcd"this", which is a reference to the current function,
+and use it to invoke the closure recursively.
 
-\subsection{Closures in initializers}
+\eat{
+\subsection{Closures in variable initializers}
+
+XXX conflicts with exploded syntax
+
+\begin{xten}
+val p(x: Int): Point = ...;   # exploded point
+val f(x: Int): Point = ...;   # closure
+\end{xten}
+
+\begin{grammar}
+VariableDeclarator \:
+        Identifier TypeParameters\opt \xcd"(" Formals\opt \xcd")"
+                \xcd":" Type Throws\opt \xcd"=" ClosureBody
+        \\
+\end{grammar}
 
 In variable initializers, blocks may be used for closures:
 
@@ -72,7 +104,8 @@ val f: Int => Int = (x: Int) => { x + 1 };
 
 The scope of \xcd"x" above is just the block on the
 right-hand-side. In a
-subsequent assignment to it, the value may not refer to \xcd"x".
+subsequent assignment to \xcd"x", the value may not refer to \xcd"x".
+}
 
 \subsection{Outer variable access}
 
@@ -90,7 +123,7 @@ desirable to support the following common idiom of expression:
 
 \begin{xten}
 def allPositive(c: Collection): Boolean {
-  result: Boolean = true;
+  shared var result: Boolean = true;
   c.applyToAll((x: Int) => { if (x < result) atomic {result=false;}});
   return result;
 }
@@ -101,8 +134,9 @@ This motivates the following rule:
 \begin{staticrule*}
 In an expression
 \xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => { s }",
-any non-final outer local variable accessed by \xcd"s" must be (declared
-as) \xcd"@shared".
+any outer local variable accessed by \xcd"s" must be final or
+must be declared
+as \xcd"shared".
 \end{staticrule*}
 
 A shared local variable is thought of as being accessible by any spawned
