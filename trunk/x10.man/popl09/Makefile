@@ -5,7 +5,7 @@ SHELL = /bin/sh
 #
 # change this line to contain the name of the document without extension
 
-TARGETS = paper.pdf
+TARGETS = generics.pdf
 #
 # TARGETS could be $(DOC).dvi instead, if there are no figures
 
@@ -35,6 +35,9 @@ X10TEXS = $(X10_FILES:.x10=.tex)
 .SUFFIXES: .x10
 
 default: $(TARGETS)
+
+generics.pdf: paper.pdf
+	-cp paper.pdf generics.pdf
 
 BIBFILE = master.bib
 #
