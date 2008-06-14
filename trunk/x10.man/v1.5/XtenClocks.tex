@@ -1,6 +1,7 @@
 \chapter{Clocks}\label{XtenClocks}\index{clocks}
 
-The standard library for \Xten{}, \xcd"x10.lang" defines a \xcd"final value class", \xcd"clock" intended for repeated quiescence detection
+The standard library for \Xten{}, \xcd"x10.lang" defines a
+final value class", \xcd"Clock" intended for repeated quiescence detection
 of arbitrary, data-dependent collection of activities. Clocks are a
 generalization of {\em barriers}. They permit dynamically created
 activities to register and deregister. An activity may be registered
@@ -12,7 +13,7 @@ deadlock cannot be introduced by using clock operations, and that
 clock operations do not introduce any races.
 
 This chapter describes the syntax and semantics of clocks and
-statements in the language that have parameters of type \xcd"clock". 
+statements in the language that have parameters of type \xcd"Clock". 
 
 The key invariants associated with clocks are as follows.  At any
 stage of the computation, a clock has zero or more {\em registered}
@@ -24,9 +25,9 @@ are exactly those that it creates. In particular it is not possible
 for an activity to register itself with a clock it discovers by
 reading a data-structure.
 
-An activity may perform the following operations on a clock {\cf
-c}. It may {\em unregister} with \xcd"c" by executing {\cf
-c.drop();}. After this, it may perform no further actions on \xcd"c"
+An activity may perform the following operations on a clock \xcd"c".
+It may {\em unregister} with \xcd"c" by executing \xcd"c.drop();".
+After this, it may perform no further actions on \xcd"c"
 for its lifetime. It may {\em check} to see if it is unregistered on a
 clock. It may {\em register} a newly forked activity with \xcd"c".
 %% It may {\em post} a statement \xcd"S" for completion in the current phase
@@ -68,19 +69,19 @@ ClockedStatement \: \xcd"clocked" \xcd"(" ClockList \xcd")" Statement \\
 NextStatement \: next \xcd";" \\
 \end{grammar}
 
-Note that \xcd"x10.lang.clock" provides several useful methods on
+Note that \xcd"x10.lang.Clock" provides several useful methods on
 clocks (e.g. \xcd"drop").
 
 \subsection{Creating new clocks}\index{clock!creation}\label{sec:clock:create}
-Clocks are created using the nullary constructor for {\cf
-x10.lang.clock} via a factory method:
+
+Clocks are created using the nullary constructor for \xcd"x10.lang.Clock":
 
 \begin{xten}
-timeSynchronizer: clock = clock.factory.clock();
+timeSynchronizer: Clock = new Clock();
 \end{xten}
 
 All clocked variables are implicitly final. The initializer for a
-local variable declaration of type \xcd"clock" must be a new clock
+local variable declaration of type \xcd"Clock" must be a new clock
 expression. Thus \Xten{} does not permit aliasing of clocks.
 Clocks are created in the place global heap and hence outlive the
 lifetime of the creating activity.  Clocks are instances of value
@@ -90,7 +91,7 @@ that maintains the current state of the clock.)
 
 The current activity is automatically registered with the newly
 created clock.  It may deregister using the \xcd"drop" method on
-clocks (see the documentation of \xcd"x10.lang.clock"). All activities
+clocks (see the documentation of \xcd"x10.lang.Clock"). All activities
 are automatically deregistered from all clocks they are registered
 with on termination (normal or abrupt).
 
@@ -164,8 +165,8 @@ activity is registered with (if any) have advanced. (The activity
 implicitly issues a \xcd"resume" on all clocks it is registered
 with before suspending.)
 
-An \Xten{} computation is said to be {\em quiescent} on a clock {\cf
-c} if each activity registered with \xcd"c" has resumed \xcd"c".
+An \Xten{} computation is said to be {\em quiescent} on a clock
+\xcd"c" if each activity registered with \xcd"c" has resumed \xcd"c".
 Note that once a computation is quiescent on \xcd"c", it will remain
 quiescent on \xcd"c" forever (unless the system takes some action),
 since no other activity can become registered with \xcd"c".  That is,

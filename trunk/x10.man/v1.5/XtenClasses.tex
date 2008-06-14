@@ -575,10 +575,12 @@ field definitions. Additionally, the parameter list for a method may
 contain a \grammarrule{WhereClause}.
 
 \begin{grammar}
+MethodDeclaration \: MethodHeader \xcd";" \\
+                  \| MethodHeader \xcd"=" ClosureBody \\
 MethodHeader \:  
   MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \xcd"("
   FormalParameterList\opt \xcd")" WhereClause\opt \\
-  && ReturnType\opt Throws\opt
+  && ReturnType\opt Throws\opt \\
 \end{grammar}
 
 In the formal parameter list, variables may be declared with
@@ -662,11 +664,19 @@ List{self.n==x+3}
 \end{xten}
 \end{example}
 
+The method body is either an expression, a block of statements,
+or a block ending with an expression.
+
+
 \subsection{Method overloading, overriding, hiding, shadowing and obscuring}
 
 The definitions of method overloading, overriding, hiding, shadowing
 and obscuring in \Xten{} are the same as in \Java, modulo the following
-considerations motivated by dependent types.
+considerations motivated by type parameters and dependent types.
+
+Two or more methods of a class or interface may have the same
+name if they have a different number of type parameters, or
+they have value parameters of different types.
 
 The definition of a method declaration \xcdmath"m$_1$" ``having the same signature
 as'' a method declaration \xcdmath"m$_2$" involves identity of types. Two \Xten{} types

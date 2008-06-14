@@ -13,9 +13,9 @@ distributed \Xten{} arrays.
 
 The interface consists of two parts. First, an array intended to be
 communicated to native code must be created as an unsafe array
-via the \xcd"@unsafe" annotation.
+via the \xcd"unsafe" annotation.
 \begin{xten}
-new @unsafe Array[T](dist)
+new unsafe Array[T](dist)
 \end{xten}
 Unsafe arrays can be of any dimension. However, \XtenCurrVer{}
 requires that unsafe arrays be of a primitive type, and local
@@ -73,12 +73,12 @@ adding a
 \Xten{} class).
 
 \begin{example}
-The following class illustrates the use of \xcd"@unsafe" and native
+The following class illustrates the use of \xcd"unsafe" and native
 linking. 
 \begin{xten}
 public class IntArrayExternUnsafe {
   public static extern 
-      def process(yy: @unsafe Rail[int], size: int);
+      def process(yy: unsafe Rail[int], size: int);
   static { System.loadLibrary("IntArrayExternUnsafe"); }
   public static def main(args: Rail[String]) {
      val b = (new IntArrayExternUnsafe()).run();
@@ -89,7 +89,7 @@ public class IntArrayExternUnsafe {
   public def run() : Boolean {
     val high = 10;
     val d = (0..high) -> here;
-    val y: Array[int] = new @unsafe Array[int](d);
+    val y: Array[int] = new unsafe Array[int](d);
     for (val (j) in y.region) {
         y(j) = j;
     process(y,high);

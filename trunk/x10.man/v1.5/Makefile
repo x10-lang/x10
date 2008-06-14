@@ -5,7 +5,7 @@ DOC = x10
 #
 # change this line to contain the name of the document without extension
 
-TARGETS = $(DOC).pdf
+TARGETS = spec.pdf
 #
 # TARGETS could be $(DOC).dvi instead, if there are no figures
 
@@ -27,6 +27,8 @@ include commondefs
 # /usr/local/public/include/make/commondefs unless you have some better idea.
 
 default: $(TARGETS)
+
+spec.pdf: $(DOC).pdf
 	cp $(DOC).pdf spec.pdf
 
 BIBFILE = master.bib

@@ -63,13 +63,9 @@ may be processed by compiler plugins.
 Type \: FunctionType \\
     \| ConstrainedType  \\
 
-FunctionType \: TypeParameters\opt \xcd"(" TypesOrFormals\opt
-\xcd")" Constraint\opt \xcd"=>" Type Throws\opt \\
+FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")" Constraint\opt \xcd"=>" Type Throws\opt \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
 TypeParameter \: Identifier \\
-TypesOrFormals \: TypeOrFormal ( \xcd"," TypeOrFormal )\star \\
-TypeOrFormal   \: Type \\
-               \| Formal \\
 Throws \: \xcd"throws" ( TypeName \xcd"," TypeName )\star \\
 
 ConstrainedType \: Annotation\star BaseType Constraint\opt
@@ -817,6 +813,8 @@ is consistent.
 \section{Function types}
 \label{FunctionTypes}
 
+
+
 \index{types!function types}
 
         Function types are defined via the \xcd"=>" type
@@ -838,20 +836,27 @@ is consistent.
         and returns a value of type \xcd"T" or throws
         exceptions of 
         types S$_i$.
-%
-The value parameters may
-optionally be named; these names are in scope in the subsequent
+
+The type and value parameters
+are in scope throughout the function signature---they may be
+used
+in the types of other formal parameters and in the return type.
 value parameter types and in the return type.
+The value parameters names (but not types) may be omitted if
+they are not used. 
 Like other types, function types may be constrained.
 
 \begin{grammar}
-FunctionType \: TypeParameters\opt \xcd"(" TypesOrFormals\opt \xcd")" \xcd"=>" Type  \\
-             \| TypeParameters\opt TypesOrFormal\opt \xcd"=>" Type  \\
-TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
+FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
+\xcd"=>" Type Throws\opt \\
+TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter
+)\star \xcd"]" \\
 TypeParameter \: Identifier \\
-TypesOrFormals \: TypeOrFormal ( \xcd"," TypeOrFormal )\star \\
-TypeOrFormal   \: Type \\
-               \| Formal \\
+Formals \: Formal ( \xcd"," Formal )\star \\
+Formal \: Annotation\star \xcd"var" Identifier \xcd":" Type \\
+       \| Annotation\star \xcd"val" Identifier \xcd":" Type \\
+       \| Annotation\star Identifier \xcd":" Type \\
+       \| Type \\
 \end{grammar}
 
 The function type

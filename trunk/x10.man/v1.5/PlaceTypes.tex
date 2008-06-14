@@ -12,8 +12,8 @@ i.e., that data items being accessed in an atomic section are local.
 
 \begin{grammar}
 PlaceConstraint     \: \xcd"!" Place\opt \\
-Place              \:  \xcd"any" \\
-                        \| \xcd"current" \\
+Place              \:  \xcd"current" \\
+                        % \| \xcd"any" \\
                         \| Expression \\
 \end{grammar}
 
@@ -38,28 +38,16 @@ the constraint for \xcd"T" is implicitly assumed to contain the clause
 If the place \xcd"p" is ommitted, \xcd"here" is assumed; that is,
 \xcd"C{c}!" is equivalent to \xcd"C{self.location==here && c}".
 
-The place specifier \xcd"any" specifies that the object can be
-located anywhere.  Thus, the location is unconstrained; that is,
-\xcd"C{c}!any" is equivalent to \xcd"C{c}".
+% The place specifier \xcd"any" specifies that the object can be
+% located anywhere.  Thus, the location is unconstrained; that is,
+% \xcd"C{c}!any" is equivalent to \xcd"C{c}".
 
-The place specifier \xcd"current" on the type of an object
-member specifies that an object with that type is located at the
-same place as the member's container.
-Thus, for example, the field declaration:
-\begin{xten}
-    C{c}!current x;
-\end{xten}
-
-\noindent
-is equivalent to the declaration:
-\begin{xten}
-    C{c}!this.location x;
-\end{xten}
-
-\noindent
-The array type \xcd"Array[T!current]"
-specifies that the elements of the Array are located at the same
-place as the array object itself.
+% XXX ARRAY
+The place specifier \xcd"current" on an array base type
+specifies that an object with that type at point \xcd"p"
+in the array 
+is located at \xcd"dist(p)".  The \xcd"current" specifier can be
+used only with array types.
 
 \begin{staticrule*}
   It is a compile time error for the \xcd"!"-annotation to
