@@ -10,15 +10,15 @@ A {\em coercion} does not change object identity;
 a coerced object may be explicitly coerced back to its original
 type through a cast.
 
-\paragraph{Subtype coercion.}
+\paragraph{Subsumption coercion.}
 A subtype may be implicitly coerced to any supertype.
-\index{coercions!subtype coercion}
+\index{coercions!subsumption coercion}
 
 \paragraph{Explicit coercion (casting with \xcd"as")}
 A reference type may be explicitly coerced to any other
 reference type using the \xcd"as" operation.
 If the value coerced is not an instance of the target type,
-a \xcd"ClassCastException" is thrown.  Casting to a constrained
+a \xcd"TypeCastException" is thrown.  Casting to a constrained
 type may require a run-time check that the constraint is
 satisfied.
 \index{coercions!explicit coercion}
@@ -77,7 +77,7 @@ implicitly converted or implicitly or explicitly coerced.
 Any object that is an operand of the binary
 \xcd"+" operator may
 be converted to \xcd"String" if the other operand is a \xcd"String".
-A conversion to \xcd"String" by invoking the \xcd"toString()"
+A conversion to \xcd"String" is performed by invoking the \xcd"toString()"
 method of the object.
 
 \index{conversions!string conversion}

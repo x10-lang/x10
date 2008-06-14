@@ -28,9 +28,9 @@ types on top of interfaces and not just classes.
 \begin{grammar}
 NormalInterfaceDeclaration \:
       InterfaceModifiers\opt \xcd"interface" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
+   && TypePropertyList\opt PropertyList\opt Constraint\opt \\
    && ExtendsInterfaces\opt InterfaceBody \\
-PropertyList     \: \xcd"(" Properties WhereClauseopt \xcd")" \\
+PropertyList     \: \xcd"(" Properties \xcd")" \\
 Properties       \: Property ( \xcd"," Property )\star \\
 Property         \: Identifier \xcd":" Type \\
 \end{grammar}

@@ -1,24 +1,19 @@
 \subsection{Array types}
 \label{ArrayTypeConstructors}\index{array types}
+\index{\Xcd{Array}}
+\index{\Xcd{ValArray}}
+\index{\Xcd{x10.lang.Array}}
+\index{\Xcd{x10.lang.ValArray}}
 
-Arrays in \Xten are instances of the 
-\xcd"Array" and \xcd"ValArray"
-classes in the standard library.
+Arrays in \Xten{} are instances of the value classes
+\xcd"x10.lang.Array" and \xcd"x10.lang.ValArray".
 Because of the importance of arrays in \Xten{}, the language
 supports more concise syntax for accessing array elements and
 performing operations on arrays.
 
-Both array classes are subtypes of
-\xcd"(Point) => T".
-
 % The array type constructor takes as argument a type (the {\em base
 % type}), an optional distribution (\Sref{XtenDistributions}), and
 % optionally the keyword \xcd"value":
-
-\begin{grammar}
-  ArrayType \: \xcd"Array" \xcd"[" Type \xcd"]" ( \xcd"(" Expression \xcd")" )\opt \\
-     \| \xcd"ValArray" \xcd"[" Type \xcd"]" ( \xcd"(" Expression \xcd")" )\opt
-\end{grammar}
 
 The array type \xcd"Array[T]" is the type of all
 reference arrays of base type \xcd"T". Such an array can take on any
@@ -27,9 +22,17 @@ distribution, over any region.
 The array type \xcd"ValArray[T]" specifies the type of all
 values arrays of base type \xcd"T".
 The array elements of a \xcd"ValArray" are
-all \xcd"final".\footnote{Note that the base type of a
+all final.\footnote{Note that the base type of a
 \xcd"ValArray" can be a value class or a reference class, just as the 
-type of a \xcd"final" variable can be a value class or a reference class.}
+type of a final variable can be a value class or a reference class.}
+
+Both array classes implement the function type
+\xcd"(Point) => T"; the element of array \xcd"A" at point
+\xcd"p" may be accessed using the 
+syntax \xcd"A(p)".  The \xcd"Array" class 
+also implements the \xcd"Settable[Point,T]" interface 
+permitting assignment to an array element using the syntax
+\xcd"A(p) = v".
 
 \XtenCurrVer{} also allows a distribution to be specified 
 as a property initializer on the array type.
@@ -50,5 +53,14 @@ The type \xcd"Rail[T](n)" is an alias of the mutable array type
 The type \xcd"ValRail[T](n)" is an alias of the mutable array type
 \xcd"ValArray[T](Region(0..n-1)->here)".
 
+\begin{xten}
+package x10.lang;
+type Rail = Array{rail};
+type Rail[T] = Array[T]{rail};
+type Rail[T](n: Int) = Array[T]{rail, region==[0..n-1]);
+type Rail[T](n: Int) = Array[T]{rail, region==[0..n-1]);
+\end{xten}
+
 \Xten{} supports shorthand syntax for rail construction
 (\Sref{RailConstructors}).
+

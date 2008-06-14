@@ -295,15 +295,15 @@ Nevertheless we will find it convenient to permit the programmer to
 explicitly specify a depclause after the list of properties, thus:
 \begin{xten}
 class Point(i: int, j: int) { ... }
-class Line(start: Point, end: Point) where (end != start)
-  { ... }
-class Triangle (a: Line, b: Line, c: Line) where
-        (a.end == b.start && b.end == c.start &&
-         c.end == a.start) { ... }
-class SolvableQuad(a: int, b: int, c: int) where 
-                   (a*x*x+b*x+c==0)  { ... }
+class Line(start: Point, end: Point){end != start}
+  = { ... }
+class Triangle (a: Line, b: Line, c: Line)
+        {a.end == b.start && b.end == c.start &&
+         c.end == a.start} = { ... }
+class SolvableQuad(a: int, b: int, c: int)
+                   {a*x*x+b*x+c==0} = { ... }
 class Circle (r: int, x: int, y: int) where
-              (r > 0 && r*r==x*x+y*y){ ... }
+              {r > 0 && r*r==x*x+y*y} = { ... }
 class NonEmptyList extends List{n > 0} {...}
 \end{xten}
 
@@ -378,7 +378,7 @@ ConstructorDeclarator \:
   \xcd"def" \xcd"this" TypeParameterList\opt \xcd"(" FormalParameterList\opt \xcd")" \\
   && ReturnType\opt WhereClause\opt Throws\opt \\
 ReturnType    \: \xcd":" Type \\
-WhereClause   \: \xcd"where" DepExpression \\
+WhereClause   \: "{" DepExpression "}" \\
 Throws    \: \xcd"throws" ExceptionType  ( \xcd"," ExceptionType )\star \\
 ExceptionType \: ClassBaseType Annotation\star \\
 \end{grammar}
