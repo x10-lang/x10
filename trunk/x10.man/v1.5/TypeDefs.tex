@@ -1,0 +1,63 @@
+
+\section{Type definitions}
+
+With value arguments, type arguments, and constraints, the
+syntax for \Xten{} types can often be verbose;
+\Xten{} therefore provides {\em type definitions}
+to allow aliases to be defined for types.
+Type definitions have the following syntax:
+
+\begin{grammar}
+TypeDefinition \: 
+                \xcd"type"~Identifier
+                           ( \xcd"[" TypeParameters \xcd"]" )\opt \\
+                        && ( \xcd"(" Formals \xcd")" )\opt
+                            Constraint\opt \xcd"=" Type \\
+\end{grammar}
+
+\noindent
+A type definition can be thought of as a type-valued function,
+mapping type parameters and value parameters to a concrete type.
+%
+The following examples are legal type definitions:
+\begin{xten}
+type StringSet = Set[String];
+type MapToList[K,V] = Map[K,List[V]];
+type Nat = Int{self>=0};
+type Int(x: Int) = Int{self==x};
+type Int(lo: Int, hi: Int) = Int{lo <= self, self <= hi};
+\end{xten}
+
+As the two definitions of \xcd"Int" demonstrate, type definitions may 
+be overloaded: a type definition with a different number of type
+parameters or with different types of value
+parameters---according to the method overloading rules
+(\Sref{MethodOverload}) define distinct types.
+
+Type definitions may appear as class members or in the body of a
+method, constructor, or initializer.  Type definitions that are
+members of a class are \xcd"static"; type properties can be used
+for non-static type definitions.
+
+Type definitions are applicative, not generative; that is, they
+are define aliases for types and do not introduce new types.
+Thus, the following code is legal:
+\begin{xten}
+type A = Int;
+type B = String;
+type C = String;
+a: A = 3;
+b: B = new C("Hi");
+c: C = b + ", Mom!";
+\end{xten}
+A type defined by a type definition
+has the same constructors as its defining type; however, a
+constructor may not be invoked using a given type definition
+name if the constructor return type is not a subtype of the
+defined type.
+
+All type definitions are members of their enclosing package or
+class.  A compilation unit may have one or more type definitions
+or class or interface declarations with the same name, as long
+as the types are unique by overloading.
+
