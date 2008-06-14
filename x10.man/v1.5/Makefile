@@ -27,6 +27,7 @@ include commondefs
 # /usr/local/public/include/make/commondefs unless you have some better idea.
 
 default: $(TARGETS)
+	cp $(DOC).pdf spec.pdf
 
 BIBFILE = master.bib
 #

@@ -13,10 +13,10 @@ language for high-end, high-performance, high-productivity computing.
 The sequential core of \Xten{} is a class-based object-oriented language
 similar to \java{} or Scala.
 Programmers write \Xten{} code by writing
-\emph{classes}
-(\Sref{XtenClasses}) and
 \emph{interfaces}
-(\Sref{XtenInterfaces}).
+(\Sref{XtenInterfaces}) and
+\emph{classes}
+(\Sref{XtenClasses}).
 
 An \Xten{} class has fields, methods and
 inner types (interfaces, classes), subclasses another class, and
@@ -28,7 +28,7 @@ multiply inherited.
 \paragraph{Generic and dependent types}
 Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
 Types may be defined by constraining a
-class or interface's properties with boolean predicates.
+class or interface's properties.
 \emph{Type properties} enable the definition of \emph{generic types};
 \emph{value properties} enable the definition of \emph{dependent types}.
 
@@ -43,7 +43,7 @@ The class has integer value properties \xcd"x" and \xcd"y".
 The \xcd"add" method creates and returns a new point by
 element-wise addition.
 The dependent type \xcd"Point{x==0}" is the type of all points 
-with \xcd"x" property \xcd"0"; that is, all points along the $y$-axis.
+with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
 
 As another example,
 the following code declares a simple \xcd"List" class with a
@@ -72,9 +72,11 @@ type \xcd"String".
 There are two kinds of classes: \emph{reference} classes
 (\Sref{ReferenceClasses}) and \emph{value} classes
 (\Sref{ValueClasses}).
-A reference class typically has updatable fields. Objects of such a
+A reference class typically has updatable fields.
+Objects of such a
 class may not be freely copied from place to place. Methods may be
 invoked on such an object only by an activity in the same place.
+The \xcd"null" reference is a value of any reference type.
 
 A value class (\Sref{ValueClasses}) has no updatable fields (defined
 directly or through inheritance), and allows no reference
@@ -102,33 +104,37 @@ statements.
 binary and unary operations on values of types defined in the standard library.
 
 \paragraph{Closures.}
-\Xten{} provides closures to allow code to be used
+\Xten{} provides closures (\Sref{Closures}) to allow code to be used
 as values.  The body of a closure may capture variables in the closure's
 environment.  Closures are used implicitly in asyncs, futures, and array
 initializers.
-
-The following method uses a closure to increment elements of an array.
+%
+For example, the following method uses a closure to increment
+elements of an array.
 \begin{xten}
-def incr(A: Array[Int]) {
-    val increment = x: Int => x+1; // e.g., increment(1) == 2
-    return A.lift(increment);
+def incr(A: Array[Int]): Array[Int] = {
+    val f = (x: Int) => x+1; // e.g., f(1) == 2
+    return A.lift(f);
 }
 \end{xten}
 
 \paragraph{Allocation.}
-Objects are allocated with the \xcd"new" operator, which takes
+Objects are allocated with the \xcd"new" operator
+(\Sref{ClassCreation}), which takes
 a class name and type and value arguments to pass to the class's
 constructor.  The constructor must ensure that all properties of
 the class and its superclasses are bound.
 
 \paragraph{Coercions and conversions}
-\Xten{} supports implicit and explicit coercions. 
+\Xten{} supports implicit and explicit coercions and
+conversions (\Sref{XtenConversions}).
 
 Values of one type can be converted to another type using the
 \xcd"to" operation:
 \begin{xten}
 val x: Int = 65535;
-val y: Byte = x to Byte; // convert to Byte, retaining the lower 8 bits
+val y: Byte = x to Byte; // convert to Byte,
+                         // retaining the lower 8 bits
 \end{xten}
 The \xcd"to" operation does not necessarily preserve equality
 and for numeric values may 
@@ -137,14 +143,15 @@ result in a loss of precision.
 References may be coerced to another type, preserving object
 identity.  A run-time check is performed to ensure the reference
 is to an object of the target type.  If not,
-\xcd"ClassCastException" is thrown.
+a \xcd"TypeCastException" is thrown.
 \begin{xten}
 // C and D are immediate subclasses of B.
 val x: B = new C();
 val y: C = x as C; // run-time check succeeds
 val z: D = x as D; // run-time check fails
 \end{xten}
-For reference types \xcd"to" behaves identically to \xcd"as".
+For reference types a \xcd"to" conversion behaves identically to
+an \xcd"as" coercion.
 
 \section{Places and activities}
 An \Xten{} program is intended to run on a wide range of computers,
@@ -189,13 +196,13 @@ Throughout its lifetime an activity executes at the same place. An
 activity may dynamically spawn activities in the current or remote
 places.
 
-\paragraph{Place casts}
-The programmer may use the standard class cast mechanism
+\paragraph{Place casts.}
+The programmer may use the standard type cast mechanism
 (\Sref{ClassCast}) to cast a value to a located type. A
 \xcd"BadPlaceException" is thrown if the value is not of the given
 type. This is the only language construct that throws a \xcd"BadPlaceException".
 
-\paragraph{Atomic blocks}
+\paragraph{Atomic blocks.}
 
 \Xten{} introduces statements of the form \xcd"atomic S" where \xcd"S"
 is a statement.  The type system ensures that such a statement will
@@ -204,7 +211,7 @@ a \xcd"BadPlaceException"---but only because of a failed place cast.)
 Such a statement is executed by the activity as if in a single step
 during which all other activities are frozen.
 
-\paragraph{Asynchronous activities}
+\paragraph{Asynchronous activities.}
 
 An asynchronous activity is created by a statement \xcd"async (P) S"
 where \xcd"P" is a place expression and \xcd"S" is a statement.  Such
@@ -214,7 +221,7 @@ designated by \xcd"P" to execute statement \xcd"S".
 An asynchronous expression of type \xcd"Future[T]" has the form
 \xcd"future (p) e" where \xcd"e" is an expression of type
 \xcd"T".  The expression \xcd"e"
-may reference \xcd"final" variables declared in the lexically
+may reference final and shared variables declared in the lexically
 enclosing environment.  It executes the expression \xcd"e" at the
 place \xcd"p" as an asynchronous activity, immediately returning with
 a future. The future may later be forced causing the activity to be
@@ -240,28 +247,31 @@ statement (possibly involving execution of new async activities) be
 executed to completion before the clock can advance.  At any given
 step of the execution a clock is in a given phase. It advances to the
 next phase only when all its registered activities have \emph{quiesced}
-(by executing a \xcd"continue" operation on the clock), and all
-statements scheduled for execution in this phase have terminated.
+(by executing a \xcd"next" operation on the clock).
 When a clock advances, all its activities may now resume execution.
 
 Thus clocks act as \emph{barriers} for a dynamically varying collection
 of activities. They generalize the barriers found in MPI style program
 in that an activity may use multiple clocks simultaneously. Yet
 programs using clocks are guaranteed not to suffer from
-deadlock. Clocks are also integrated into the \Xten{} type system,
-permitting variables to be declared so that they are \xcd"final" in each
-phase of a clock.
+deadlock.
+
+\emph{In future versions of the language,
+clocks will be integrated into the \Xten{} type system,
+permitting variables to be declared so that they are final in each
+phase of a clock.}
 
 \section{Arrays, regions and distributions}
 
-An \Xten{} array is a function from a \emph{distribution}
-(\Sref{XtenDistributions}) to a base type (which may itself be an
-array type).
+An \Xten{} array type is a map from a \emph{distribution}
+(\Sref{XtenDistributions}) to a type, which may itself be an
+array type.
 
-A distribution is a map from a \emph{region} (\Sref{XtenRegions}) to a
-subset of places.  A region is a collection of \emph{points} or
-\emph{indices}. For instance, the region \xcd"Region(0..200,1..100)" specifies
-a collection of two-dimensional points \xcd"Point(i,j)" with 
+% POINT REGION
+A distribution is a map from a \emph{region} (\Sref{XtenRegions}) to
+places.  A region is a collection of \emph{points} or
+\emph{indices}. For instance, the region \xcd"[0..200,1..100]" specifies
+a collection of two-dimensional points \xcd"[i,j]" with 
 \xcd"i" ranging from \xcd"0" to \xcd"200" and \xcd"j" ranging
 from \xcd"1" to \xcd"100". Points are used in array index expressions
 to pick out a particular array element.
@@ -272,10 +282,11 @@ disjunction and set difference are available for regions.
 
 A primitive set of distributions is provided, together with operations
 on distributions. A \emph{sub-distribution} of a distribution is one
-which is defined on a smaller region and agrees with the distribution
+defined on a smaller region and agrees with the distribution
 at all points.  The standard operations on regions are extended to
 distributions.
 
+% XXX views
 
 A new array can be created by restricting an existing array to a
 sub-distribution, by combining multiple arrays, and by performing

@@ -118,7 +118,7 @@ Method selection rules are similar to that of \java{}.
 Type arguments may be omitted and inferred, as described in
 \Sref{TypeInference}.
 
-If is a static error if a methods \grammarrule{WhereClause} is not satisfied by the caller.
+It is a static error if a method's \grammarrule{WhereClause} is not satisfied by the caller.
 
 
 \section{Increment and decrement}
@@ -380,19 +380,28 @@ CastExpression \: UnaryExpression \xcd"as" Type \\
 \end{grammar}
 
 The result of this operation is a value of the given type if the cast
-is permissible at run time. Both the data type and place type of the
-value are checked. Data type conversion is checked according to the
-rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}). If the
-value cannot be cast to the appropriate data type, a
-\xcd"ClassCastException"
-is thrown. Otherwise, if the value cannot be cast to the
+is permissible at run time.
+
+The \xcd"as" operation checks if the value being coerced is of
+the given type.  Object identity is preserved; that is,
+\xcd"e == e as T".
+The \xcd"to" operation converts the value to the given type. 
+Object identity need not be preserved by the conversion.
+Type conversion is checked according to the
+rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}).
+For constrained types, both the base
+type and the constraint are checked.
+If the
+value cannot be cast to the appropriate type, a
+\xcd"TypeCastException"
+is thrown. If the value cannot be cast to the
 appropriate place type a \xcd"BadPlaceException" is thrown. 
 
-Any attempt to cast an expression of a reference type to a value type
-(or vice versa) results in a compile-time error. Some casts---such as
-those that seek to cast a value of a subtype to a supertype---are
-known to succeed at compile-time. Such casts should not cause extra
-computational overhead at run time.
+% Any attempt to cast an expression of a reference type to a value type
+% (or vice versa) results in a compile-time error. Some casts---such as
+% those that seek to cast a value of a subtype to a supertype---are
+% known to succeed at compile-time. Such casts should not cause extra
+% computational overhead at run time.
 
 \section{\Xcd{instanceof}}\label{instanceOf}\index{instanceof@\xcd"instanceof"}
 
@@ -406,8 +415,9 @@ RelationalExpression \: RelationalExpression \xcd"instanceof" Type
 In the above expression, \grammarrule{Type} is any type including
 constrained types and value types. 
 At run time, the result of this operator is
-\xcd"true" if the \grammarrule{RelationalExpression} can be cast
-to \grammarrule{Type} without a \xcd" ClassCastException" being
+\xcd"true" if the \grammarrule{RelationalExpression} can be
+coerced
+to \grammarrule{Type} without a \xcd"TypeCastException" being
 thrown.  Otherwise the result is \xcd"false".
 This determination may involve checking
 that the
