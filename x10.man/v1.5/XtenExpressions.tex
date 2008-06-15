@@ -281,8 +281,8 @@ second.
 
 Floating point operations are determined by the IEEE 754
 standard. 
-
-
+The integer \xcd"/" and \xcd"%" throw a \xcd"DivideByZeroException"
+if the right operand is zero.
 
 \section{Binary shift operations}
 
@@ -531,7 +531,7 @@ The expression \xcdmath"T$_1$ :> T$_2$"
                          subtyping constraints for generic
                          types.
 
-\section{Contains expression}
+\section{Contains expressions}
 
 \begin{grammar}
 ContainsExpression \: Expression \xcd"in" Expression \\
