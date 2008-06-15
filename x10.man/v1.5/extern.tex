@@ -1,5 +1,63 @@
+\chapter{Linking with Java code}
+\label{JavaLink}
+
+On some platforms,
+\XtenCurrVer{} allows \java{} code to be called directly from
+\Xten{} code.  \java{} classes and packages are in the same namespace as
+\Xten{} classes and packages.  When a \java{} class is loaded by
+the \Xten{} run-time system, types are mapped from \java{} types
+to \Xten{} types as follows.
+
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{\bf \java{} types} &
+\multicolumn{1}{|c|}{\bf \Xten{} type} \\
+\hline
+\hline
+\xcd"java.lang.Object" & \xcd"x10.lang.Object" \\
+\hline
+\xcd"java.lang.String" & \xcd"x10.lang.String" \\
+\hline
+\xcd"boolean", \xcd"java.lang.Boolean" & \xcd"x10.lang.Boolean" \\
+\hline
+\xcd"byte", \xcd"java.lang.Byte" & \xcd"x10.lang.Byte" \\
+\hline
+\xcd"short", \xcd"java.lang.Short" & \xcd"x10.lang.Short" \\
+\hline
+\xcd"char", \xcd"java.lang.Character" & \xcd"x10.lang.Char" \\
+\hline
+\xcd"int", \xcd"java.lang.Integer" & \xcd"x10.lang.Int" \\
+\hline
+\xcd"long", \xcd"java.lang.Long" & \xcd"x10.lang.Long" \\
+\hline
+\xcd"float", \xcd"java.lang.Float" & \xcd"x10.lang.Float" \\
+\hline
+\xcd"double", \xcd"java.lang.Double" & \xcd"x10.lang.Double" \\
+\hline
+\xcd"void" & \xcd"x10.lang.Void" \\
+\hline
+\xcd"T[]" & \xcd"x10.lang.NativeRail[T]" \\
+\hline
+\end{tabular}
+
+This mapping allows \Xten{} objects
+to be stored in fields of \java{} objects or in \java{} arrays.
+\Xten{} objects are treated as subtypes of \xcd"java.lang.Object"
+by \java{} code
+
+%XXX TODO
+
+\java{} objects imported into \Xten{} are augmented with a \xcd"location" field.
+Java code can determine the location of an object by
+invoking the static method
+\xcd"x10java.Place.getLocation(java.lang.Object)".
+
+\java{} generics are not supported.
+\java{}'s threading and synchronization are not supported.
+
 \chapter{Linking with native code}\label{extern}\index{extern}
 
+On some platforms,
 \XtenCurrVer{} supports a simple facility to permit the efficient
 intra-thread communication of an array of primitive type to code
 written in the language {\tt C}.  The array must be a ``local''

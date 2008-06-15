@@ -63,7 +63,8 @@ may be processed by compiler plugins.
 Type \: FunctionType \\
     \| ConstrainedType  \\
 
-FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")" Constraint\opt \xcd"=>" Type Throws\opt \\
+FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
+Constraint\opt Throws\opt \xcd"=>" Type \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
 TypeParameter \: Identifier \\
 Throws \: \xcd"throws" ( TypeName \xcd"," TypeName )\star \\
@@ -216,7 +217,6 @@ class Point(x: Int, y: Int) {
 \index{types!type properties}
 \index{properties!type properties}
 \index{types!path types}
-\index{final access path}
 
         Classes and interfaces may have {\em type properties}, bound
         to concrete types on object creation.
@@ -247,25 +247,33 @@ However, the key semantic distinction between type properties
 and type parameters is that type properties are instance
 members.
 %
-        Type properties introduce {\em path types}
-        (\Sref{PathTypes}).
+        Type properties introduce {\em path types}.
         Given an object
         denoted by an expression \xcd"e" of type \xcd"T",
         if \xcd"T" is a class or interface type declared with
         a type property \xcd"X", then \xcd"e.X" is a type.
 Thus, for an expression \xcd"e" of type \xcd"Cell", \xcd"e.X" is a type
 and \xcd"e.get()" returns a value of that type.
-%
-        To ensure soundness, the expression \xcd"e"
-        must be a \emph{final access path}, either a final
-        local variable or parameter (including the special variables
-        \xcd"this" and \xcd"self"), or a final field or value
-        property of a final access path.
+
+The path type \xcd"e.X" is equivalent to a type \xcd"T" to which
+the type property \xcd"X" was bound when \xcd"e" was
+instantiated.
 
 Within the body of a class, a property name \xcd"X" resolves
 to \xcd"this.X" (or to \xcd"C.this.X" if \xcd"X" is a property of
 an enclosing class \xcd"C"), just as value property names are
 resolved.
+
+\subsection{Final access paths}
+\label{FinalAccessPath}
+\index{final access path}
+
+        To ensure soundness of the type system, an expression
+        used in a type
+        must be a \emph{final access path}, either a final
+        local variable or foraml parameter (including the special variables
+        \xcd"this" and \xcd"self"), or a final field or value
+        property of a final access path.
 
 \section{Type parameters}
 \label{TypeParameters}
@@ -853,12 +861,12 @@ TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter
 )\star \xcd"]" \\
 TypeParameter \: Identifier \\
 Formals \: Formal ( \xcd"," Formal )\star \\
-Formal \: Annotation\star \xcd"var" Identifier \xcd":" Type \\
-       \| Annotation\star \xcd"val" Identifier \xcd":" Type \\
-       \| Annotation\star Identifier \xcd":" Type \\
-       \| Type \\
 \end{grammar}
 
+\subsection{Functions are objects}
+\label{FunctionsAreObjects}
+
+Functions in \Xten{} are objects.  
 The function type
 \xcdmath"[X$_1$, $\dots$, X$_k$](x$_1$: T$_1$ $\dots$, x$_n$: T$_n$) => S"
 may be considered equivalent to an interface type
@@ -871,6 +879,10 @@ by defining the \xcd"apply" method.  Since each function type is
 anonymous, a class or interface may implement or extend
 more than one function type as long as the \xcd"apply" methods
 do not have the same signature.
+
+As objects, closure body may refer to
+\xcd"this", which is a reference to the current function,
+and use it to invoke the closure recursively.
 
 \section{Boxed types}
 \label{BoxedTypes}
@@ -966,6 +978,10 @@ of any interfaces it is declared to implement.
 \paragraph{Interface types.}  An interface type is a direct
 subtype of any interfaces it is declared to extend.
 
+\paragraph{Boxed types.}
+The type \xcd"Box[T]" is a subtype of any interface implemented
+by \xcd"T".
+
 \paragraph{Function types.}
 
 The subtyping rules for function types follow directly from the
@@ -1007,27 +1023,35 @@ A path type \xcd"p.X" is a subtype of a type \xcd"T" if
 \xcd"p" has type \xcd"C{c}" (where \xcd"C" has a type property
 \xcd"X") and \xcd"c" implies that \xcd"self.X" is a subtype of \xcd"T".
 
+
+\section{Least common ancestor of types}
+\label{LCA}
+
+To compute the type of conditional expressions
+(\Sref{Conditional)},
+and of rail constructors
+(\Sref{RailConstructors)}, the least common ancestor of types
+must be computed.
+
+The least common ancestor of two  types
+\xcd"T$_1$" and \xcd"T$_2$"
+is the
+unique most-specific type
+that is a supertype of both
+\xcd"T$_1$" and \xcd"T$_2$".
+
+If the most-specific interface is not unique, the
+least common ancestor type is \xcd"x10.lang.Object".
+
 \input{Coercions}
 
 %\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
+
 
 \section{Built-in types}
 
 The package \xcd"x10.lang" provides a number of built-in class and
 interface declarations that can be used to construct types.
-
-\eat{
-\subsection{The value class \Xcd{Any}}\label{Any}\index{\Xcd{Any}}
-
-The value class \xcd"x10.lang.Any" is the superclass of all
-value and reference classes.  All \Xten{} types are subtypes of
-\xcd"Any".  \xcd"Any" has no members.
-
-\begin{xten}
-package x10.lang;
-public class Any { }
-\end{xten}
-}
 
 \subsection{The class \Xcd{Object}}
 \label{Object}\index{\Xcd{Object}}\index{\Xcd{x10.lang.Object}}
@@ -1039,7 +1063,7 @@ reference type, including boxed value types.
 
 \begin{xten}
 package x10.lang;
-public class Object extends Any {
+public class Object {
   def toString(): String {...}
   def equals(o: Object): Boolean {...}
   def hashCode(): Int {...}

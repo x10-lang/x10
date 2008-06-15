@@ -22,7 +22,7 @@ may be short-running, involving a fine-grained operation such as a
 single read or write.
 
 % An activity may have an {\em activitylocal} heap accessible only
-to the activity. 
+%to the activity. 
 
 An activity may asynchronously and in parallel launch activities at
 other places.
@@ -291,7 +291,7 @@ known as futures:
 \begin{grammar}
 Primary \: FutureExpression \\
 FutureExpression \:
-  \xcd"future" PlaceExpressionSingleList\opt Expression
+  \xcd"future" PlaceExpressionSingleList\opt ClosureBody
 \end{grammar} 
 
 Intuitively such an expression evaluates its body asynchronously at
@@ -356,6 +356,16 @@ Expression \: \xcd"at" \xcd"(" Expression \xcd")" Expression
 
 An at expression evaluates an expression synchronously at a given place.
 The expression \xcd"at (p) e" is equivalent to \xcd"future (p) e).force()".
+
+\section{Shared variables}
+\label{Shared}
+
+A shared local variable is declared with the annotation
+\xcd"shared".  It may be thought of as being accessible by any spawned
+activity in its lexical scope.  Final variables are implicitly
+shared.  An implementation may consider boxing shared 
+variables and making a reference to the boxed value available to
+any closures that use the variable.
 
 \section{Atomic blocks}\label{AtomicBlocks}\index{atomic blocks}
 Languages such as \java{} use low-level synchronization locks to allow
@@ -554,9 +564,7 @@ condition may be disabled in a guarded statement guarded by the
 condition. This will ensure forward progress, given the weak-fairness
 guarantee.
 
-\subsection{Examples}
-
-\paragraph{Bounded buffer.}
+\begin{example}
 The following class shows how to implement a bounded buffer of size
 $1$ in \Xten{} for repeated communication between a sender and a
 receiver.
@@ -581,6 +589,7 @@ class OneBuffer {
   }
 }
 \end{xten}
+\end{example}
 
 \eat{
 \paragraph{Implementing a future with a latch.}\label{future-imp}

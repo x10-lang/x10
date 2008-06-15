@@ -11,6 +11,32 @@ distribution.\index{arrays!distribution@{\tt distribution}}
 The distribution underlying an array \xcd"a" may be obtained through
 the field \xcd"a.dist".
 
+\section{Points}\label{point-syntax}\index{point syntax}
+
+Arrays are indexed by points--$n$-dimensional tuples of
+integers, implemented by the value class \xcd"x10.lang.Point".
+\Xten{} specifies a simple syntax for the construction of points.
+A rail constructor (\Sref{RailConstructors}) of a \xcd"ValRail[Int]" or
+\xcd"ValRail[Long]" array of length $n$
+can be implicitly coerced to a \xcd"Point" of rank $n$.  For
+example, the following code initializes \xcd"p" to a point of
+rank two using a rail constructor:
+
+\begin{xten}
+p: Point = [1,2];
+\end{xten}
+
+The \xcd"Point" constructor can take a rail constructor as
+argument.  The assignment above can be written, without
+implicit coercion, as:
+
+\begin{xten}
+p: Point = new Point([1,2]);
+\end{xten}
+
+Points implement the function type \xcd"Int => Int"; thus, the
+\xcd"i"the element of a point \xcd"p" may be accessed as \xcd"p(i)".
+
 \input{XtenRegions}
 \input{XtenDistributions}
 \section{Array initializer}\label{ArrayInitializer}\label{array!creation}
@@ -24,14 +50,13 @@ An array instantiation may be annotated
 if it is intended to be
 allocated in an unmanaged region (e.g., for communication with native
 code). A value array is an immutable array. An array creation
-must take either an int as an argument or a distribution. In the first
-case an array is created over the distribution \xcd"[0:N-1]-> here";
+must take either an \xcd"Int" as an argument or a \xcd"Dist". In the first
+case an array is created over the distribution \xcd"[0:N-1]->here";
 in the second over the given distribution. 
 
-An array creation operation may also specify an initializer using the
-abbreviated formalparameter/methodbody functional syntax. The formal
-parameter may contain exploded parameters
-(\Sref{exploded-syntax}). The function is applied in parallel
+An array creation operation may also specify an initializer
+function.
+The function is applied in parallel
 at all points in the domain of the distribution. The array
 construction operation terminates locally only when the array has been
 fully created and initialized (at all places in the range of the
@@ -57,13 +82,12 @@ the array initializer function.
 
 Other examples:
 \begin{xten}
-val data : array[int]
-    = new array[int](1000)
-        ([i]: point => i*i);
-val d : array[float](D)
-   = new array[float](D) ([i]: point) => 10.0*i);
-val result : array[float](D)
-   = new array[float](D) ([i,j]: point) => i+j);
+val data : Array[Int]
+    = new Array[Int](1000) ((i): Point => i*i);
+val d : Array[Float](D)
+   = new Array[Float](D) ((i): point) => 10.0*i);
+val result : Array[Float](D)
+   = new Array[Float](D) ((i,j): point) => i+j);
 \end{xten}
 
 \section{Operations on arrays}
@@ -77,6 +101,14 @@ obtained by using the indexing operation \xcd"a(p)". This operation
 may be used on the left hand side of an assignment operation to update
 the value. The operator assignments \xcd"a(i) op= e" are also available
 in \Xten{}.
+
+For array variables, the right-hand-side of an assignment must
+have the same distribution \xcd"D" as an array being assigned. This
+assignment involves
+control communication between the sites hosting \xcd"D". Each
+site performs the assignment(s) of array components locally. The
+assignment terminates when assignment has terminated at all
+sites hosting \xcd"D".
 
 \subsection{Constant promotion}\label{ConstantArray}\index{arrays!constant promotion}
 
@@ -128,12 +160,24 @@ with the result of \xcd"a1.overlay(a2)".
 \subsection{Global operations }
 
 \paragraph{Pointwise operations}\label{ArrayPointwise}\index{array!pointwise operations}
-Suppose that \xcd"f" is a function of type \xcd"(S,T) => R".
-Such an operation can be lifted pointwise to operate on a \xcd"T"
-array and an \xcd"S" array defined over the same distribution \xcd"D"
-to return an \xcd"R" array defined over \xcd"D", using the
-\xcd"lift" operation, \xcd"a.lift(f, b)".
+The unary \xcd"lift" operation applies a function to each element of
+an array, returning a new array with the same distribution.
+The \xcd"lift" operation is implemented by the following method
+in \xcd"Array[T]":
+\begin{xten}
+def lift[S](f: (T) => S): Array[S](dist);
+\end{xten}
 
+The binary \xcd"lift" operation takes a binary function and
+another
+array over the same distribution and applies the function
+pointwise to corresponding elements of the two arrays, returning
+a new array with the same distribution.
+The \xcd"lift" operation is implemented by the following method
+in \xcd"Array[T]":
+\begin{xten}
+def lift[S,R](f: (T,S) => R, Array[S](dist)): Array[R](dist);
+\end{xten}
 
 \paragraph{Reductions}\label{ArrayReductions}\index{array!reductions}
 

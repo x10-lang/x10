@@ -19,7 +19,24 @@ for (i: Int = 0; i < a.length; i++, sum += a[i])
     ;
 \end{xten}
 
+\section{Local variable declaration}
+
+\begin{grammar}
+Statement \: LocalVariableDeclarationStatement \\
+             LocalVariableDeclarationStatement \:
+             LocalVariableDeclaration \xcd";" \\
+\end{grammar}
+
+The syntax of local variables declarations is described in
+\Sref{VariableDeclarations}.
+
+Local variables may be declared only within a block statement
+(\Sref{Blocks}).
+The scope of a local variable declaration is the 
+statement itself and the subsequent statements in the block.
+
 \section{Block statement}
+\label{Blocks}
 
 \begin{grammar}
 Statement \: BlockStatement \\
@@ -141,8 +158,8 @@ If no such case exists, the switch branches to the
 
 Statements in each case branch evaluated in sequence.  At the
 end of the branch, normal control-flow falls through to the next case, if
-any.  To prevent fall-through, a case branch may be exited using a \xcd"break",
-\xcd"continue", \xcd"return", or \xcd"throw" statement.
+any.  To prevent fall-through, a case branch may be exited using
+a \xcd"break" statement.
 
 The index expression must be of type \xcd"Int".
 
@@ -255,6 +272,7 @@ enumerates the points in the region in canonical order.
 
 
 \section{Throw statement}
+\index{throw}
 
 \begin{grammar}
 Statement \: ThrowStatement \\
@@ -262,17 +280,21 @@ ThrowStatement \: \xcd"throw" Expression \xcd";"
 \end{grammar}
 
 The \xcd"throw" statement throws an exception.  The exception
-must be of type \xcd"x10.lang.Throwable".  If the exception is
-\xcd"null", a \xcd"NullPointerException" is thrown.
+must be a subclass of the value class \xcd"x10.lang.Throwable". 
+% null not allowed since a value class;
+% If the exception is
+% \xcd"null", a \xcd"NullPointerException" is thrown.
 
 \begin{example}
+The following statement checks if an index is in range and
+throws an exception if not.
 \begin{xten}
-if (i < 0) 
-    throw new IllegalArgumentException("Index " + i + " out of bounds.");
+if (i < 0 || i > x.length)
+    throw new IndexOutOfBoundsException();
 \end{xten}
 \end{example}
 
-\section{Try statement}
+\section{Try--catch statement}
 
 \begin{grammar}
 Statement \: TryStatement \\
@@ -292,16 +314,18 @@ block, if any.  A \xcd"catch" matches if the value of the
 exception thrown is a subclass of the \xcd"catch" block's formal
 parameter type.
 
+The \xcd"finally" block, if present, is evaluated on all normal
+and exceptional control-flow paths from the \xcd"try" block.
 If the \xcd"try" block completes normally
 or via a \xcd"return", a \xcd"break", or a
 \xcd"continue" statement, 
 the \xcd"finally"
-block, if any, is evaluated, and then control flow resumes at
-the end of the \xcd"try" statement, at the branch target, or at
+block is evaluated, and then control resumes at
+the statement following the \xcd"try" statement, at the branch target, or at
 the caller as appropriate.
 If the \xcd"try" block completes
-exceptionally, the \xcd"finally" block is evaluated (after any
-matching \xcd"catch" block, if any), and then the
+exceptionally, the \xcd"finally" block is evaluated after the
+matching \xcd"catch" block, if any, and then the
 exception is rethrown.
 
 \section{Return statement}

@@ -1,16 +1,18 @@
 \section{Regions}\label{XtenRegions}\index{region}
 
-\todo{Update syntax}
-
-A region is a set of indices (called {\em points}).  {}\Xten{}
-provides a built-in value class, {\tt x10.lang.region}, to allow the
+A region is a set of points.  {}\Xten{}
+provides a built-in value class, \xcd"x10.lang.Region", to allow the
 creation of new regions and to perform operations on regions. This
 class is {\tt final} in {}\XtenCurrVer; future versions of the
-language may permit user-definable regions. Since regions play a dual
-role (values as well as types), variables of type \xcd"region" must be
-initialized and are implicitly {\tt final}. Regions are first-class
+language may permit user-definable regions.
+% Since regions play a dual
+% role (values as well as types), variables of type \xcd"Region" must be
+% initialized and are implicitly final.
+Regions are first-class
 objects---they may be stored in fields of objects, passed as
 arguments to methods, returned from methods etc.
+
+
 
 Each region \xcd"R" has a constant rank, \xcd"R.rank", which is a
 non-negative integer. The literal \xcd"[]" represents the {\em empty
@@ -29,9 +31,17 @@ R7: Region = R4 && R5; // intersection of two regions
 R8: Region = R4 || R5; // union of two regions
 \end{xten}
 
+The expression \xcdmath"a$_1$..a$_2$"
+is shorthand for the rectangular, rank-1 region
+\begin{xtenmath}
+new Region(a$_1$, a$_2$)
+\end{xtenmath}
+Each subexpression of \xcdmath"a$_i$" must be of type \xcd"Int".
+
 A region may be constructed by converting from a rail of
-regions or a rail of points, typically using the rail constructor
-(e.g., \xcd"R4" above)
+regions or a rail of points, typically using a rail constructor
+(\Sref{RailConstructors})
+(e.g., \xcd"R4" above).
 The region constructed from a rail of points represents the
 region containing just those points.
 The region constructed from a rail of regions
@@ -85,15 +95,26 @@ well as dense regions.
 Let \xcd"R" be a region. A subset of \xcd"R" is also called a
 {\em sub-region}.\index{region!sub-region}
 
-Let \xcd"R1" and \xcd"R2" be two regions.
+Let \xcdmath"R$_1$" and \xcdmath"R$_2$" be two regions.
 
-\xcd"R1 && R2" is the intersection of \xcd"R1" and \xcd"R2".\index{region!intersection}
+\xcdmath"R$_1$ && R$_2$" is the intersection of \xcdmath"R$_1$" and
+\xcdmath"R$_2$".\index{region!intersection}
 
-\xcd"R1 || R2" is the union of the \xcd"R1" and \xcd"R2".\index{region!union}
+\xcdmath"R$_1$ || R$_2$" is the union of the \xcdmath"R$_1$" and
+\xcdmath"R$_2$".\index{region!union}
 
-\xcd"R1 - R2" is the set difference of \xcd"R1" and \xcd"R2".\index{region!set difference}
+\xcdmath"R$_1$ - R$_2$" is the set difference of \xcdmath"R$_1$" and
+\xcdmath"R$_2$".\index{region!set difference}
+
+\xcdmath"R$_1$ * R$_2$" is the Cartesian product of \xcdmath"R$_1$" and
+\xcdmath"R$_2$", 
+formed by pairing each point in \xcdmath"R$_1$"
+with every the point in \xcdmath"R$_2$".
+\index{region!product}
+Thus, \xcd"(1..2) * (3..4)"
+is the region consisting of the points
+$\{$\xcd"(1,3)", \xcd"(1,4)", \xcd"(2,3)", \xcd"(2,4)"$\}$.
 
 Two regions are equal (\xcd"==") if they represent the same set of
 points.\index{region!==}
-
 
