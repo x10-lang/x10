@@ -18,11 +18,11 @@ The {\em rank} of a distribution is the rank of the underlying region.
 
 
 \begin{xten}
-R: region = 1..100;
-D: distribution = distribtion.factory.block(R);
-D: distribution = distribution.factory.cyclic(R);
-D: distribution = R -> here;
-D: distribution = distribution.factory.random(R);
+R: Region = 1..100;
+D: Dist = Dist.block(R);
+D: Dist = Dist.cyclic(R);
+D: Dist = R -> here;
+D: Dist = Dist.random(R);
 \end{xten}
 
 Let \xcd"D" be a distribution. \xcd"D.region" denotes the underlying
@@ -91,18 +91,18 @@ R} to \xcd"Q". As above, \xcd"arbitrary(R)" is the same distribution as
 
 \oldtodo{Determine which other built-in distributions to provide.}
 
-\paragraph{Domain Restriction.} \index{distribution!restriction!domain}
+\paragraph{Domain Restriction.} \index{distribution!restriction!region}
 
 If \xcd"D" is a distribution and \xcd"R" is a sub-region of {\cf
-D.domain}, then \xcd"D | R" represents the restriction of \xcd"D" to
+D.region}, then \xcd"D | R" represents the restriction of \xcd"D" to
 \xcd"R".  The compiler throws an error if it cannot determine that
-\xcd"R" is a sub-region of \xcd"D.domain".
+\xcd"R" is a sub-region of \xcd"D.region".
 
 \paragraph{Range Restriction.}\index{distribution!restriction!range}
 
 If \xcd"D" is a distribution and \xcd"P" a place expression, the term
 \xcd"D | P" denotes the sub-distribution of \xcd"D" defined over all the
-points in the domain of \xcd"D" mapped to \xcd"P".
+points in the region of \xcd"D" mapped to \xcd"P".
 
 Note that \xcd"D | here" does not necessarily contain adjacent points
 in \xcd"D.region". For instance, if \xcd"D" is a cyclic distribution,
@@ -127,44 +127,51 @@ Postpone to 0.7.}
 
 \subsection{Operations on distributions}
 
-A {\em sub-distribution}\index{sub-distribution} of \xcd"D" is any
-distribution \xcd"E" defined on some subset of the domain of \xcd"D",
-which agrees with \xcd"D" on all points in its domain. We also say
-that \xcd"D" is a {\em super-distribution} of \xcd"E". A distribution
-\xcd"D1" {\em is larger than} \xcd"D2" if \xcd"D1" is a
-super-distribution of \xcd"D2".
+A {\em sub-distribution}\index{sub-distribution} of \xcd"D" is
+any distribution \xcd"E" defined on some subset of the region of
+\xcd"D", which agrees with \xcd"D" on all points in its region.
+We also say that \xcd"D" is a {\em super-distribution} of
+\xcd"E". A distribution \xcdmath"D$_1$" {\em is larger than}
+\xcdmath"D$_2$" if \xcdmath"D$_1$" is a super-distribution of
+\xcdmath"D$_2$".
 
-Let \xcd"D1" and \xcd"D2" be two distributions.  
+Let \xcdmath"D$_1$" and \xcdmath"D$_2$" be two distributions.  
 
 
 \paragraph{Intersection of distributions.}\index{distribution!intersection}
-\xcd"D1 && D2", the intersection of \xcd"D1" and \xcd"D2", is the
-largest common sub-distribution of \xcd"D1" and \xcd"D2".
+\xcdmath"D$_1$ && D$_2$", the intersection of \xcdmath"D$_1$"
+and \xcdmath"D$_2$", is the largest common sub-distribution of
+\xcdmath"D$_1$" and \xcdmath"D$_2$".
 
 \paragraph{Asymmetric union of distributions.}\index{distribution!union!asymmetric}
-\xcd"D1.overlay(D2", the asymmetric union of \xcd"D1" and \xcd"D2", is the
-distribution whose domain is the union of the regions of \xcd"D1" and
-\xcd"D2", and whose value at each point \xcd"p" in its domain is \xcd"D2[p]"
-if \xcd"p" lies in \xcd"D.domain" otherwise it is \xcd"D1[p]". (\xcd"D1" provides the defaults.)
+\xcdmath"D$_1$.overlay(D$_2$", the asymmetric union of
+\xcdmath"D$_1$" and \xcdmath"D$_2$", is the distribution whose
+region is the union of the regions of \xcdmath"D$_1$" and
+\xcdmath"D$_2$", and whose value at each point \xcd"p" in its
+region is \xcdmath"D$_2$(p)" if \xcdmath"p" lies in
+\xcdmath"D.region" otherwise it is \xcdmath"D$_1$(p)".
+(\xcdmath"D$_1$" provides the defaults.)
 
 \paragraph{Disjoint union of distributions.}\index{distribution!union!disjoint}
-\xcd"D1 || D2", the disjoint union of \xcd"D1" and \xcd"D2", is
-defined only if the domains of \xcd"D1" and \xcd"D2" are disjoint. Its
-value is \xcd"D1.overlay(D2)" (or equivalently \xcd"D2.overlay(D1)".
-(It is the least super-distribution of \xcd"D1" and \xcd"D2".)
+\xcdmath"D$_1$ || D$_2$", the disjoint union of \xcdmath"D$_1$"
+and \xcdmath"D$_2$", is defined only if the regions of
+\xcdmath"D$_1$" and \xcdmath"D$_2$" are disjoint. Its value is
+\xcdmath"D$_1$.overlay(D$_2$)" (or equivalently
+\xcdmath"D$_2$.overlay(D$_1$)".  (It is the least
+super-distribution of \xcdmath"D$_1$" and \xcdmath"D$_2$".)
 
 \paragraph{Difference of distributions.}\index{distribution!difference}
-\xcd"D1 - D2" is the largest sub-distribution of \xcd"D1" whose domain is
-disjoint from that of \xcd"D2".
+\xcdmath"D$_1$ - D$_2$" is the largest sub-distribution of
+\xcdmath"D$_1$" whose region is disjoint from that of
+\xcdmath"D$_2$".
 
 
 \subsection{Example}
 \begin{xten}
-def dotProduct(a: array[T](D), b: array[T](D)): array[double](D) {
-  return (new array[T]([1:D.places]) (j: point) => (
-      (new array[T](D | here) (i: point) => a[i]*b[i]).sum();
-  )).sum();
-}
+def dotProduct(a: Array[T](D), b: Array[T](D)): Array[Double](D) =
+  (new Array[T]([1:D.places],
+      (Point) => (new Array[T](D | here,
+                    (i): Point) => a(i)*b(i)).sum())).sum();
 \end{xten}
 
 This code returns the inner product of two \xcd"T" vectors defined

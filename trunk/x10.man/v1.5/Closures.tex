@@ -1,44 +1,46 @@
+\section{Closures}
+\label{Closures}
+
+\Xten{} provides first-class, typed functions, including
+\emph{closures},
+\emph{operator functions},
+and \emph{method selectors}.
+
 \begin{grammar}
 ClosureExpression \:
         TypeParameters\opt
         \xcd"("
         Formals\opt
         \xcd")"
+        ReturnType\opt
         Throws\opt
-        \xcd":" Type
         \xcd"=>" ClosureBody \\
 ClosureBody \:
         Expression \\
+        \| \xcd"{" Statement\star \xcd"}" \\
         \| \xcd"{" Statement\star Expression \xcd"}" \\
 \end{grammar}
 
+Closure expressions have zero or more type parameters,
+zero or more formal parameters, an an optional return type and
+optional set of exceptions throws by the closure body.  The
+closure body has the same syntax as a method body; it may be
+either an expression, a block of statements, or a block
+terminated by an expression to return.
 
-\Xten{} provides first-class, typed closures.
-Methods and operators may be viewed as closures.
+The body of the closure is evaluated with the closure is
+invoked by a call expression (\Sref{Call}).
 
-We introduce a new expression. For types \xcd"T",
-\xcdmath"T$_1$", \dots
-\xcdmath"T$_n$", the following are closure expressions:
-
-\begin{xtenmath}
-(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): T throws (U$_1$, $\dots$, U$_k$) => { s }
-(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => { s }
-\end{xtenmath}
-
-In the first form, the terminal expression \xcd"e" in
-\xcd"s", if any, is thought of as shorthand for the statement
-\xcd"return e".
-
-In particular, \xcd"return" statements in \xcd"s", if any,
-\xcd"return" from the function
-being defined, and not any enclosing function. Similarly,
-\xcd"continue" and
-\xcd"break" statements may occur in \xcd"s" only if the target
-lies within \xcd"s". That
-is, a closure cannot be used to exit a lexically enclosing block on
-invocation.
+As with methods, a closure with return type \xcd"Void" cannot
+have a terminating expression. 
+If the return type is omitted, it is inferred, as described in
+\Sref{TypeInference}.
+It is a static error if the return type cannot be inferred.
 
 \begin{example}
+The following method takes a function parameter and uses it to
+test each element of the list, returning the first matching
+element.
 \begin{xten}
 def find[T](f: T => Boolean, xs: List[T]): T {
   for (x: T in xs)
@@ -46,66 +48,42 @@ def find[T](f: T => Boolean, xs: List[T]): T {
   null
 }
 \end{xten}
-\end{example}
 
-If the return type is omitted, it is inferred, as described in
-\Sref{TypeInference}.
-It is a static error if the return type cannot be inferred.
+The method may be invoked with a closure:
+\begin{xten}
+xs: List[Int] = ...;
+x: Int = find((x: Int) => (x>0), xs);
+\end{xten}
+\end{example}
 
 As with a normal method, the closure may have a \xcd"throws" clause. It is a
 static error if a checked exception is thrown that is not declared in
 the \xcd"throws" clause.
 
-\begin{note}
-We could omit throws clauses and turn uncaught checked
-exceptions into unchecked exceptions. Or, we could not require checked
-exceptions at all in X10, but that affects Java compatibility.
-\end{note}
+\subsection{Closures are objects}
 
-\subsection{Functions are objects}
-
-Functions in \Xten{} are objects.  In particular, they are
-instances of anonymous classes that implement an interface
-corresponding to the appropriate instantiation of the
-type constructor \xcd"=>"
-as described in \Sref{FunctionTypes}.
-As objects, closure body may refer to
+Closures, like all first-class functions in \Xten{} are
+objects
+(\Sref{FunctionsAreObjects}).
+As objects, the closure body may refer to
 \xcd"this", which is a reference to the current function,
 and use it to invoke the closure recursively.
 
-\eat{
-\subsection{Closures in variable initializers}
-
-XXX conflicts with exploded syntax
-
+\begin{example}
+The following method uses a closure to compute the $n$th
+Fibonacci number.
 \begin{xten}
-val p(x: Int): Point = ...;   # exploded point
-val f(x: Int): Point = ...;   # closure
-\end{xten}
-
-\begin{grammar}
-VariableDeclarator \:
-        Identifier TypeParameters\opt \xcd"(" Formals\opt \xcd")"
-                \xcd":" Type Throws\opt \xcd"=" ClosureBody
-        \\
-\end{grammar}
-
-In variable initializers, blocks may be used for closures:
-
-\begin{xten}
-val f(x: Int): Int = { x + 1 };
-\end{xten}
-
-is equivalent to
-
-\begin{xten}
-val f: Int => Int = (x: Int) => { x + 1 };
-\end{xten}
-
-The scope of \xcd"x" above is just the block on the
-right-hand-side. In a
-subsequent assignment to \xcd"x", the value may not refer to \xcd"x".
+def fib(n: Int): Int {
+    val f = (n: Int) : Point {
+        if (n < 1) return new Point(1,0);
+        val (n,n1): Point = this(n-1);
+        new Point(n+n1,n)
+    }
+    val (n,n1): Point = f(n);
+    n
 }
+\end{xten}
+\end{example}
 
 \subsection{Outer variable access}
 
@@ -133,19 +111,15 @@ This motivates the following rule:
 
 \begin{staticrule*}
 In an expression
-\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => { s }",
-any outer local variable accessed by \xcd"s" must be final or
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e",
+any outer local variable accessed by \xcd"e" must be final or
 must be declared
-as \xcd"shared".
+as \xcd"shared" (\Sref{Shared}).
 \end{staticrule*}
 
-A shared local variable is thought of as being accessible by any spawned
-activity in its lexical scope. (A final qualifier on a variable implies
-a shared qualifier.) An implementation may consider boxing shared outer
-variables and making a reference to the boxed value available to the
-closure. Note that \xcd"s" may access fields of enclosing classes. In such a
-case a reference to the instance whose field is being accessed is made
-available to the closure.
+The closure body may refer to instances of enclosing classes using
+the syntax \xcd"C.this", where \xcd"C" is the name of the
+enclosing class.
 
 \begin{note}
 The main activity may run in parallel with any
@@ -161,75 +135,45 @@ should be the same as the rule for accessing outer variables from local
 or anonymous classes.
 \end{note}
 
-\subsection{Function application}
+\section{Methods selectors}
+\label{MethodSelectors}
 
-A variable \xcd"m" of type
-\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => T",
-can be applied thus:
-\xcdmath"m(e$_1$, $\dots$, e$_n$)".
-
-It is a static error if a call is may resolve to both a closure call or
-to a method call.
-
+A method selector expression allows a method to be used as a
+first-class function.
 \eat{
-\subsection{Implicit coercions}
+We can think of a method definition:
 
-Many Java idioms that called for interfaces with a single method, e.g.
-Runnable, Callable etc may now be replaced with idioms that use an
-argument of an appropriate function type.
+\begin{xtenmath}
+def m[X$_1$, $\dots$, X$_2$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): U = e
+\end{xtenmath}
 
-A value of a function type may be coerced to an interface containing a
-single method with a compatible type.
-}
+as binding the closure
 
-\subsection{Fields of function type}
-
-To avoid an ambiguity, it is a static error for a class to declare a
-field with a function type whose erased signature is the same as a
-method of the same class.
-
-\section{Methods as functions}
-
-As discussed above, a function is identified by its type and body.
-Methods are named functions associated with classes, and subject to
-inheritance.
-
-The syntax and semantics of method definition, inheritance and
-overriding remains unchanged. However, we now think of a method definition:
-
-\begin{grammar}
-def m[X](x: T): U = { S }
-\end{grammar}
-
-as binding the function
-
-\begin{xten}
-[X](x: T): U => { S }
-\end{xten}
+\begin{xtenmath}
+[X$_1$, $\dots$, X$_2$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): U => e
+\end{xtenmath}
 
 to the method-name--argument-list tuple (\xcd"m", \xcd"X",
 \xcd"x: T").  That is, underlying every method is a function.
 
-\begin{note}
-Because of overloading, a method name is not sufficient to
-uniquely identify a function for a given class (in Java-like languages).
-One needs the argument type information as well.
-\end{note}
-
-\eat{
-If the method is an instance method its body may reference the variables
-this and super (and Type.this and Type.super in case the method is
-defined on a nested class); these are implicitly declared in the lexical
-scope surrounding the body. One should think of an instance method as
-binding a function to a (name, list of types) pair for each instance of
-a class. The state associated with the instance is accessible within the
-body of the function in the usual way (using this, super etc).
+This motivates us to introduce the \emph{method selector}
+expression.
 }
 
-This motivates us to introduce the instance function selector. For a
+\begin{grammar}
+MethodSelector \:
+        Primary \xcd"."
+        MethodName \xcd"."
+                TypeParameters\opt \xcd"(" Formals\opt \xcd")" \\
+      \|
+        TypeName \xcd"."
+        MethodName \xcd"."
+                TypeParameters\opt \xcd"(" Formals\opt \xcd")" \\
+\end{grammar}
+
+For a
 type \xcd"T", a list of types
-(\xcdmath"T$_1$", \dots,
-\xcdmath"T$_n$"), 
+(\xcdmath"T$_1$", \dots, \xcdmath"T$_n$"), 
 a method name
 \xcd"m" and an expression \xcd"e" of type \xcd"T",
 \xcdmath"e.m.(T$_1$, $\dots$, T$_n$)" denotes the function,
@@ -241,19 +185,22 @@ body bound to the value obtained
 by evaluating \xcd"e". The
 return type of the function is specified in the method declaration.
 
-Thus, the expression
+Thus, the method selector
 
 \begin{xtenmath}
-e.m.(T$_1$, $\dots$, T$_n$)
+e.m.[X$_1$, $\dots$, X$_m$](T$_1$, $\dots$, T$_n$)
 \end{xtenmath}
 
-evaluates to
+behaves as if it were the closure
 
 \begin{xtenmath}
-(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e.m(x$_1$, $\dots$, x$_n$)
+(X$_1$, $\dots$, X$_m$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e.m[X$_1$, $\dots$, X$_m$](x$_1$, $\dots$, x$_n$)
 \end{xtenmath}
 
 \begin{note}
+Because of overloading, a method name is not sufficient to
+uniquely identify a function for a given class (in Java-like languages).
+One needs the argument type information as well.
 The selector syntax (dot) is used to distinguish \xcd"e.m()" (a
 method invocation on \xcd"e" of method named \xcd"m" with no arguments)
 from \xcd"e.m.()"
@@ -283,7 +230,7 @@ function. That would break the above approach.
 \end{note}
 
 
-\section{Operators as functions}
+\section{Operator functions}
 
 Every operator (e.g.,
 \xcd"+",
@@ -295,7 +242,8 @@ each type on which the operator is defined. The function can be
 selected using the "." syntax:
 
 \begin{grammar}
-Primary \: TypeName \xcd"." Operator \xcd"(" TypesOrFormals\opt \xcd")" \\
+OperatorFunction
+        \: TypeName \xcd"." Operator \xcd"(" Formals\opt \xcd")" \\
         \| TypeName \xcd"." Operator \\
 \end{grammar}
 
@@ -331,40 +279,24 @@ defined by:
 \end{xten}
 
 \begin{grammar}
-Primary \: Expr \xcd"." Operator \xcd"(" TypesOrFormals\opt \xcd")" \\
+Primary \: Expr \xcd"." Operator \xcd"(" Formals\opt \xcd")" \\
         \| Expr \xcd"." Operator \\
 \end{grammar}
 
 For every expression \xcd"e" of a type \xcd"T" at which a unary
-operator \xcd"OP" is defined, the expression \xcd"e.OP()" represents the function
-defined by:
+operator \xcd"OP" is defined, the expression \xcd"e.OP()"
+represents the function defined by:
 
 \begin{xten}
-(x: T): T => { OP x }
+(): T => { OP e }
 \end{xten}
 
-
 For example,
-one may write an expression that adds one to each member of a list \xcd"xs" by:
+one may write an expression that adds one to each member of a
+list \xcd"xs" by:
 
 \begin{xten}
 xs.map(1.+)
 \end{xten}
-
-\eat{
-X10's \xcd"async", \xcd"future", \xcd"foreach", \xcd"ateach"
-can be defined as syntactic
-abbreviation for the invocation of the following static methods:
-
-\begin{xten}
-static native def async(() => Void, clocks: Set);
-static native def future(p: Place, b: => T): Future[T];
-static native def foreach(r: Region, s: (Point) => Void);
-static native def ateach(d: Dist, s: (Point) => Void);
-\end{xten}
-
-Similarly an initializer for an array of base type \xcd"T" is thought of as
-taking an argument closure of type \xcd"(Point) => T".
-}
 
 

@@ -8,9 +8,9 @@ fields, properties, and local variables.
 \begin{grammar}
 VarDeclaratorWithType \: VarDeclaratorId ResultType \\
 VarDeclarator \: VarDeclaratorId ResultType\opt \\
-VarDeclaratorId \: Identifier \\
-              \| Identifier \xcd"(" VarDeclaratorList \xcd")" \\
-              \| \xcd"(" VarDeclaratorList \xcd")" \\
+VarDeclaratorId \: Annotation\star Identifier \\
+              \| Annotation\star Identifier \xcd"(" VarDeclaratorList \xcd")" \\
+              \| Annotation\star \xcd"(" VarDeclaratorList \xcd")" \\
 VarDeclaratorList \: VarDeclarator ( \xcd"," VarDeclarator )\star \\
 ResultType \: \xcd":" Type \\
 \end{grammar}
@@ -52,10 +52,12 @@ scope of the declaration.
 
 \begin{grammar}
 Formal
-        \: \xcd"var" VarDeclaratorWithType \\
-        \| \xcd"val" VarDeclaratorWithType \\
-        \| VarDeclaratorWithType \\
+        \: FormalModifier\star \xcd"var" VarDeclaratorWithType \\
+        \| FormalModifier\star \xcd"val" VarDeclaratorWithType \\
+        \| FormalModifier\star VarDeclaratorWithType \\
         \| Type \\
+FormalModifier \: Annotation \\
+              \| \xcd"shared" \\
 \end{grammar}
 
 \paragraph{Local variables.}
@@ -68,9 +70,9 @@ inferred from the initializer type (\Sref{TypeInference}).
 
 \begin{grammar}
 LocalDeclaration
-        \: \xcd"var" LocalDeclaratorsWithType ( \xcd"," LocalDeclaratorsWithType )\star \\
-        \| \xcd"val" LocalDeclarators ( \xcd"," LocalDeclarators )\star \\
-        \| LocalDeclaratorsWithType ( \xcd"," LocalDeclaratorsWithType )\star \\
+        \: LocalModifier\star \xcd"var" LocalDeclaratorsWithType ( \xcd"," LocalDeclaratorsWithType )\star \\
+        \| LocalModifier\star \xcd"val" LocalDeclarators ( \xcd"," LocalDeclarators )\star \\
+        \| LocalModifier\star LocalDeclaratorsWithType ( \xcd"," LocalDeclaratorsWithType )\star \\
 LocalDeclarators
         \: LocalDeclaratorsWithType \\
         \: LocalDeclaratorWithInit \\
@@ -79,6 +81,8 @@ LocalDeclaratorWithInit
 LocalDeclaratorsWithType
         \: VarDeclaratorId
                 ( \xcd"," VarDeclaratorId )\star ResultType \\
+LocalModifier \: Annotation \\
+              \| \xcd"shared" \\
 Init \: \xcd"=" Expression \\
 \end{grammar}
 
@@ -100,20 +104,22 @@ object.
 
 \begin{grammar}
 FieldDeclaration
-        \: \xcd"var" FieldDeclaratorsWithType ( \xcd"," FieldDeclaratorsWithType )\star \\
-        \| \xcd"const" FieldDeclarators ( \xcd"," FieldDeclarators )\star \\
-        \| \xcd"val" FieldDeclarators ( \xcd"," FieldDeclarators )\star \\
-        \| FieldDeclaratorsWithType ( \xcd"," FieldDeclaratorsWithType )\star \\
+        \: FieldModifier\star \xcd"var" FieldDeclaratorsWithType ( \xcd"," FieldDeclaratorsWithType )\star \\
+        \| FieldModifier\star \xcd"const" FieldDeclarators ( \xcd"," FieldDeclarators )\star \\
+        \| FieldModifier\star \xcd"val" FieldDeclarators ( \xcd"," FieldDeclarators )\star \\
+        \| FieldModifier\star FieldDeclaratorsWithType ( \xcd"," FieldDeclaratorsWithType )\star \\
 FieldDeclarators
         \: FieldDeclaratorsWithType \\
         \: FieldDeclaratorWithInit \\
+FieldDeclaratorId
+        \: Identifier WhereClause\opt \\
 FieldDeclaratorWithInit
-        \: Identifier WhereClause\opt Init \\
-        \| Identifier WhereClause\opt ResultType Init \\
+        \: FieldDeclaratorId Init \\
+        \| FieldDeclaratorId ResultType Init \\
 FieldDeclaratorsWithType
-        \: Identifier WhereClause\opt
-                ( \xcd"," Identifier WhereClause\opt )\star ResultType \\
-Init \: \xcd"=" Expression \\
+        \: FieldDeclaratorId ( \xcd"," FieldDeclaratorId )\star ResultType \\
+FieldModifier \: Annotation \\
+                \| \xcd"static" \\
 \end{grammar}
 
 \paragraph{Properties.}
@@ -122,6 +128,7 @@ always final (either declared \xcd"val" or by default).
 
 \begin{grammar}
 Property
-        \: \xcd"val" Identifier ResultType \\
-        \| Identifier ResultType \\
+        \: PropertyModifier\star \xcd"val" Identifier ResultType \\
+        \| PropertyModifier\star Identifier ResultType \\
+PropertyModifier \: Annotation \\
 \end{grammar}

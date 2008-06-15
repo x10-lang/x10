@@ -533,6 +533,10 @@ named \xcd"f" is said to {\em hide} a field in a superclass named \xcd"f".
      A class may not declare two fields with the same name.
 \end{staticrule*}
 
+To avoid an ambiguity, it is a static error for a class to
+declare a field with a function type (\Sref{FunctionTypes}) with
+the same name and signature  as a method of the same class.
+
 \subsection{Field hiding}
 
 A subclass that defines a field \xcd"f" hides any field \xcd"f"

@@ -74,8 +74,8 @@ with a field access expression.
 
 The type of the access is the declared type of the field with the
 actual target substituted for \xcd"this" in the type.  If the actual
-target is not a final access path, an anonymous path is
-substituted for \xcd"this".
+target is not a final access path (\Sref{FinalAccessPath}),
+an anonymous path is substituted for \xcd"this".
 
 The field accessed is selected from the fields and value properties
 of the static type of the target and its superclasses.
@@ -95,17 +95,11 @@ the current context.
 It is illegal to access a non-static field
 through a static field access expression.
 
-\section{Closures}
-\label{Closures}
 \input{Closures}
 
 \section{Calls}
 \label{MethodInvocation}
 \label{MethodInvocationSubstitution}
-
-\todo{Remove Java dependence}
-
-\todo{Type arguments}
 
 \begin{grammar}
 MethodCall \: TypeName \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
@@ -115,8 +109,14 @@ Call \: Primary TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
 TypeArguments \: \xcd"[" Type ( \xcd"," Type )\star \xcd"]" \\
 \end{grammar}
 
-A \grammarrule{MethodCall} may be to either \xcd"static" or to instance methods.
-A \grammarrule{Call} may to either a method or a closure.  The syntax is ambiguous; the target must be type-checked to determine if it is the name of a method or if it refers to a closure.
+A \grammarrule{MethodCall} may be to either \xcd"static" or to
+instance methods.  A \grammarrule{Call} may to either a method
+or a closure.  The syntax is ambiguous; the target must be
+type-checked to determine if it is the name of a method or if it
+refers to a closure.
+
+It is a static error if a call may resolve to both a closure
+call or to a method call.  
 
 A closure call \xcdmath"e($\dots$)" is shorthand for a method call \xcdmath"e.apply($\dots$)".
 
@@ -179,6 +179,7 @@ types of \xcd"i" and \xcd"e", respectively.
 The assignment \xcd"a(i) = e" is equivalent to the call
 \xcd"a.set(i, e)".
 
+\eat{
 For array variables, the right-hand-side
 expression \xcd"e" 
 must have the same distribution \xcd"a(i)". This
@@ -186,6 +187,7 @@ statement involves control communication between the sites hosting
 \xcd"D". Each site performs the assignment(s) of array components
 locally. The assignment terminates when assignment has terminated at
 all sites hosting \xcd"D".
+}
 
 For a binary operator
 $\mathit{op}$,
@@ -356,9 +358,24 @@ The \xcd"|" operator  evaluates to \xcd"false" if both of its
 operands evaluate to \xcd"false"; otherwise, the operator
 evaluates to \xcd"true".
 
-The \xcd"^" operator  evaluates to \xcd"false" if both of its
-operands are equal; otherwise, the operator
+\section{Boolean conditional operations}
+
+Operands of the binary boolean conditional operators must be of type \xcd"Boolean".
+The type of the result is \xcd"Boolean"
+
+The \xcd"&&" operator  evaluates to \xcd"true" if both of its
+operands evaluate to \xcd"true"; otherwise, the operator
+evaluates to \xcd"false".
+Unlike the logical operator \xcd"&",
+if the first operand is \xcd"false",
+the second operand is not evaluated.
+
+The \xcd"||" operator  evaluates to \xcd"false" if both of its
+operands evaluate to \xcd"false"; otherwise, the operator
 evaluates to \xcd"true".
+Unlike the logical operator \xcd"||",
+if the first operand is \xcd"true",
+the second operand is not evaluated.
 
 \section{Relational operations} 
 
@@ -382,9 +399,33 @@ Negative zero and positive zero are considered to be equal.
 All finite values are less than positive infinity and greater
 than negative infinity.
 
+\section{Conditional expressions}
+
+\begin{grammar}
+ConditionalExpression \: Expression
+                \xcd"?" Expression
+                \xcd":" Expression \\
+\end{grammar}
+
+A conditional expression evaluates its first subexpression (the
+condition); if \xcd"true"
+the second subexpression (the consequent) is evaluated; otherwise,
+the third subexpression (the alternative) is evaluated.
+
+The type of the condition must be \xcd"Boolean".
+The type of the conditional expression is the least common
+ancestor (\Sref{LCA}) of the types of the consequent and the alternative.
+
 \section{Stable equality}\label{StableEquality}\index{==}\index{!=}
 
-The \xcd"==" and \xcd"!=" operators provide \emph{stable equality}.
+\begin{grammar}
+EqualityExpression \: Expression \xcd"==" Expression \\
+\| Expression \xcd"!=" Expression \\
+\end{grammar}
+
+The \xcd"==" and \xcd"!=" operators provide \emph{stable
+equality}; that is, the result of the equality operation is not affected
+by the mutable state of the program.
 
 Two operands may be compared with the infix predicate \xcd"==".
 The operation
@@ -431,7 +472,7 @@ NewExpression \: \xcd"new" ClassName TypeArguments\opt \xcd"(" ArgumentList\opt 
 An allocation expression creates a new instance of a class and
 invokes a constructor of the class.
 The expression designates the class name and passes
-type and value arguments to be constructor.
+type and value arguments to the constructor.
 
 The allocation expression may have an optional class body.
 In this case, an anonymous subclass of the given class is
@@ -440,7 +481,7 @@ single super-interface rather than a superclass; the superclass
 of the anonymous class is \xcd"x10.lang.Object".
 
 If the class is anonymous---that is, if a class body is
-provided---in the constructor is selected from the superclass.
+provided---then the constructor is selected from the superclass.
 The constructor to invoke is selected using the same rules as
 for method invocation (\Sref{MethodInvocation}).
 
@@ -515,6 +556,7 @@ given expression.
 \begin{grammar}
 SubtypingExpression \: Expression \xcd"<:" Expression \\
                     \| Expression \xcd":>" Expression \\
+                    \| Expression \xcd"==" Expression \\
 \end{grammar}
 
 The subtyping expression \xcdmath"T$_1$ <: T$_2$"
@@ -522,7 +564,19 @@ evaluates to  \xcd"true"
                          \xcdmath"T$_1$"
                          is a subtype of
                          \xcdmath"T$_2$".
+
 The expression \xcdmath"T$_1$ :> T$_2$"
+evaluates to  \xcd"true"  
+                         \xcdmath"T$_2$"
+                         is a subtype of
+                         \xcdmath"T$_1$".
+
+The expression \xcdmath"T$_1$ == T$_2$"
+evaluates to  \xcd"true"  
+                         \xcdmath"T$_1$"
+                         is a subtype of
+                         \xcdmath"T$_2$"
+                         and if
                          \xcdmath"T$_2$"
                          is a subtype of
                          \xcdmath"T$_1$".
@@ -556,7 +610,7 @@ creates an instance of \xcd"ValRail" with region
 \xcdmath"(0..$k$-1)" where the $i$th element is
 \xcdmath"a$_i$".  The element type of the array (\xcd"T") is
 bound to the least common ancestor of the types of the
-\xcdmath"a$_i$"
+\xcdmath"a$_i$" (\Sref{LCA}).
 
 Since arrays are subtypes of \xcd"Point => T",
 rail constructors can be passed into the \xcd"Array" and
@@ -566,50 +620,4 @@ Rail constructors of type \xcd"ValRail[Int]" and length \xcd"n"
 may be implicitly converted to type \xcd"Point{rank==n}".
 Rail constructors of type \xcd"ValRail[Region]" and length \xcd"n" 
 may be implicitly converted to type \xcd"Region{rank==n}".
-
-\section{Point construction}\label{point-syntax}\index{point syntax}
-
-\todo{Update syntax}
-
-\Xten{} specifies a simple syntax for the construction of points.
-A rail constructor for a \xcd"ValRail[int]" or
-\xcd"ValRail[long]" array of length $k$
-can be implicitly coerced to a \xcd"Point" of rank $k$.  For
-example, the following code initializes \xcd"p" to a point of
-rank two using a rail constructor:
-
-\begin{xten}
-p: Point = [1,2];
-\end{xten}
-
-The \xcd"Point" constructor can take a rail constructor as
-argument.  The assignment above can be written, without
-implicit coercion, as:
-
-\begin{xten}
-p: Point = new Point([1,2]);
-\end{xten}
-
-\section{Region construction}\label{region-syntax}\index{region syntax}
-
-\Xten{} specifies a simple syntax for the construction of regions.
-
-\begin{grammar}
-RegionExpression \: Expression \xcd".." Expression \\
-RegionExpression \: Expression \xcd"*" Expression \\
-\end{grammar}
-
-The expression \xcdmath"a$_1$..a$_2$"
-is shorthand for the rectangular, rank-1 region
-\begin{xtenmath}
-new Region(a$_1$, a$_2$)
-\end{xtenmath}
-Each subexpression of \xcdmath"a$_i$" must be of type \xcd"Int".
-
-The expression \xcdmath"r$_1$ * r$_2$" is shorthand for the
-cross-product region formed by pairing each point in \xcdmath"r$_1$"
-with every the point in \xcdmath"r$_2$".
-Thus, \xcd"(1..2) * (3..4)"
-is the region consistent of the points $\{$\xcd"(1,3)",
-\xcd"(1,4)", \xcd"(2,3)", \xcd"(2,4)"$\}$.
 
