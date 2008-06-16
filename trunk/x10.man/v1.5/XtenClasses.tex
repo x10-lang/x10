@@ -686,9 +686,9 @@ The definition of a method declaration \xcdmath"m$_1$" ``having the same signatu
 as'' a method declaration \xcdmath"m$_2$" involves identity of types. Two \Xten{} types
 are defined to be identical iff they are equivalent (\Sref{DepType:Equivalence}).
 Two methods are said to have {\em the same signature} if (a)
-they have the same number of formal parameters, (b) for each parameter
-their types are equivalent, and (c) the constraints associated with
-their ThisTypes are equivalent. It is a compile-time error for there
+they have the same number of type parameters, (b) they have the
+same number of formal (value) parameters, and (c) for each formal parameter
+their types are equivalent. It is a compile-time error for there
 to be two methods with the same name and same signature in a class
 (either defined in that class or in a superclass).
 
@@ -696,14 +696,25 @@ to be two methods with the same name and same signature in a class
   A class \xcd"C" may not have two declarations for a method named \xcd"m"---either
   defined at \xcd"C" or inherited:
 \begin{xtenmath}
-def m(v$_1$: T$_1${t$_1$}, $\dots$, v$_n$: T$_n${t$_n$}){tc}: T {...}
-def m(v$_1$: S$_1${s$_1$}, $\dots$, v$_n$: S$_n${s$_n$}){sc}: S {...}
+def m[X$_1$, $\dots$, X$_m$](v$_1$: T$_1${t$_1$}, $\dots$, v$_n$: T$_n${t$_n$}){tc}: T {...}
+def m[X$_1$, $\dots$, X$_m$](v$_1$: S$_1${s$_1$}, $\dots$, v$_n$: S$_n${s$_n$}){sc}: S {...}
 \end{xtenmath}
 \noindent
 if it is the case that the types \xcd"C{tc}", \xcdmath"T$_1${t$_1$}",
 \dots, \xcdmath"T$_n${t$_n$}" are
 equivalent to the types \xcdmath"C{sc}, S$_1${t$_1$}, $\dots$, T$_n${t$_n$}"
 respectively.
+\end{staticrule*}
+
+In addition, the where clause of a overriding method must be 
+no stronger than the where clause of the overridden method.   This
+ensures that any virtual call to the method
+satisfies the where clause of the callee.
+
+\begin{staticrule*}
+  If a class \xcd"C" overrides a method of a class or interface
+  \xcd"B", the where clause of the method in \xcd"B" must entail
+  the where clause of the method in \xcd"C".
 \end{staticrule*}
 
 A class \xcd"C" inherits from its direct superclass and superinterfaces all
