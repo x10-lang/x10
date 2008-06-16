@@ -3,28 +3,91 @@
 The \Xten{} implementation is required to implement a number of
 classes in the package \xcd"x10.lang".
 
-\todo{To be filled in.}
-
-\section{Primitive types}
-
+\section{Base types}
 
 \begin{xten}
 package x10.lang;
 
-public class Object(location: Place) { }
-public value Value extends Object { }
+/** The top of the type hierarchy. */
+public class Object {
+    public def equals(o: Object) = (this == o);
+    public native def hashCode();
+    public def toString() = "x10.lang.Object";
+}
 
-public value Boolean extends Value { }
+/**
+ * Base class of all value classes; implemented by any class
+ * declared value; a Ref class cannot implement Value.
+ */
+public interface Value { }
 
-public value Number  extends Value { }
+/** Base class of all reference classes, except Object. */
+public value Ref(location: Place) extends Object {
+    public def this() { property(here); }
+    public def toString() = "x10.lang.Ref(" + location + ")";
+}
+\end{xten}
 
-public value Byte    extends Number { }
-public value Short   extends Number { }
-public value Char    extends Number { }
-public value Int     extends Number { }
-public value Long    extends Number { }
-public value Float   extends Number { }
-public value Double  extends Number { }
+\section{Boolean}
+
+\begin{xten}
+package x10.lang;
+
+public value Boolean { }
+\end{xten}
+
+\section{Arithmetic}
+
+\begin{xten}
+public interface Arithmetic[T] {
+    add(x: T): T;
+    sub(x: T): T;
+    mul(x: T): T;
+    div(x: T): T;
+    mod(x: T): T;
+    cosub(x: T): T;
+    codiv(x: T): T;
+    neginv(): T;
+    mulinv(): T;
+}
+
+public interface Zero[T] { static def zero(): T; }
+public interface Unit[T] { static def unit(): T; }
+\end{xten}
+
+
+\section{Comparable}
+
+\begin{xten}
+public interface Comparable[T] {
+    eq(x: T): Boolean;
+    lt(x: T): Boolean;
+    gt(x: T): Boolean;
+    le(x: T): Boolean;
+    ge(x: T): Boolean;
+    ne(x: T): Boolean;
+}
+\end{xten}
+
+\section{Numeric values types}
+
+\begin{xten}
+package x10.lang;
+
+public value Number { }
+public value Integer { }
+
+public value Byte    extends Integer { }
+public value Short   extends Integer { }
+public value Char    extends Integer { }
+public value Int     extends Integer implements
+    Arithmetic[Int], Zero[Int], Unit[Int]{ }
+public value Long    extends Integer implements
+    Arithmetic[Long], Zero[Long], Unit[Long] { }
+public value Float   extends Number  implements
+    Arithmetic[Float], Zero[Float], Unit[Float] { }
+public value Double  extends Number  implements
+    Arithmetic[Double], Zero[Double], Unit[Double] { }
 
 // Type aliases
 public type boolean = Boolean;
@@ -67,85 +130,123 @@ public type Float (lo: Float,  hi: Float)
 public type Double(lo: Double, hi: Double)
           = Double{lo <= self, self <= hi};
 
-public value Complex(x: Double, y: Double) { }
-public type Complex(x: Complex) = Complex{self == x};
+public type Nat = Int{self >= 0};
+public type Nat(x: Int) = Nat{self >= 0 && self == x};
+public type Nat(lo: Int, hi: Int) = Nat{self >= 0 && 0 <= self && self <= hi};
+public type nat = Nat;
 \end{xten}
 
 \section{String}
 
 \begin{xten}
-public value String  {
+package x10.lang;
+
+public value String implements (Int) => Char {
     // methods of java.lang.String
+    def apply(i: Int) = charAt(i);
 }
 
 public type String (x: String) = String {self == x};
 
 public type string = String;
 
-public class StringBuffer {
+public class StringBuffer implements (Int) => Char {
     // methods of java.lang.StringBuilder
+    def apply(i: Int) = charAt(i);
 }
 \end{xten}
+
+\section{Native rails}
+
+\begin{xten}
+package x10.lang;
+
+public interface Indexable[T](base: Region) extends (Point(base)) => T { } 
+
+public interface Settable[T](base: Region) extends (Point(base)) => T {
+    public def set(p: Point(base), v: T): Void;
+} 
+
+interface NativeRail[T](length: Nat) extends Indexable[T](0..length-1) { }
+
+interface NativeValRail[T](length: Nat) extends NativeRail[T](length) { }
+
+interface NativeVarRail[T](length: Nat) extends NativeRail[T](length),
+    Settable[T](0..length-1) { }
+\end{xten}
+
+\section{Rails}
+
+
+A rail is an array over the distribution \xcd"[0..n-1]-> here".
+A \xcd"ValRail" is an immutable rail of \xcd"T"s.
+A \xcd"Rail" is a mutable rail of \xcd"T"s.
+
+\begin{xten}
+public value Rail[T](length: Nat) 
+    implements Array[T], Arithmetic[Rail[T](length)]{T <: Arithmetic[T]}
+{
+}
+\end{xten}
+
+
 
 \section{Arrays}
 
 \begin{xten}
-public class Array[T](dist: Dist) {
-    property region = dist.region;
-    property rank = region.rank;
-    property zeroBased = region.zeroBased;
-    property rail = region.rail;
-    property rect = region.rect;
-    property onePlace = dist.onePlace;
+abstract class AbstractArray[T,R](dist: Dist){R <: NativeRail[T]]
+    implements Indexable[T](dist.region)
+{
+    def this[T,R](dist: Dist, init: (Point(dist.region)) => T):
+        AbstractArray[T,R](dist);
 
-    def this[T](dist: Dist, init: Point{self in dist.region} => T);
-    def this[T](n: Int, init: Point{self in dist.region} => T) = {
-        this[T](0..n-1 -> here, init);
-    }
+    def get(p: Point(dist.region)): T;
+    def apply(p: Point(dist.region)) = get(p);
 
-    def get(p: Point{self in region}): T;
-    def set(p: Point{self in region}, v: T): T;
+    def map[S](op: (T) => S): ValArray[S](dist);
+    def map[S,U](b: Array[S](dist), op: (T,S) => U): ValArray[U](dist);
+    def map[S,U](b: ValArray[S](dist), op: (T,S) => U): ValArray[U](dist);
+
+    def reduce(z: S, op: (T,T) => S): S;
+
+    def andReduce(op: (T) => Boolean): Boolean;
+    def andReducePoint(op: (Point(base)) => Boolean): Boolean;
+
+    def orReduce(op: (T) => Boolean): Boolean;
+    def orReducePoint(op: (Point(base)) => Boolean): Boolean;
+}
+        
+public class ValArray[T](dist: Dist) extends AbstractArray[T,NativeValRail[T]]
+    implements Arithmetic[ValArray[T]]
+{
+    def this[T](dist: Dist, init: (Point(dist.region)) => T):
+        ValArray[T](dist);
+    def this[T](n: Int, init: (Int) => T):
+        ValArray[T]([0..n-1]->here);
+
+    def add(x: ValArray[T]){T <: Arithmetic[T]}: ValArray[T];
+}
+
+public class Array[T](dist: Dist) extends AbstractArray[T,NativeVarRail[T]]
+    implements Arithmetic[ValArray[T]], Settable[T](dist.region)
+{
+    def this[T](dist: Dist, init: (Point(dist.region)) => T):
+        ValArray[T](dist);
+    def this[T](n: Int, init: (Int) => T):
+        ValArray[T]([0..n-1]->here);
+
+    def set(p: Point(dist.region), x: T);
 }
 \end{xten}
-
-\begin{xten}
-public class ValArray[T](region: Region)
-    implements Fun_0_1[Point{self in region},T] {
-
-    property rank = region.rank;
-    property zeroBased = region.zeroBased;
-    property rail = region.rail;
-    property rect = region.rect;
-
-    def this[T](dist: Dist);
-
-    def get(p: Point{self in region}): T;
-
-    def add(a: Array[T](region)){T has add: (T,T) => T};
-    def sub(a: Array[T](region)){T has sub: (T,T) => T};
-    ...
-}
-\end{xten}
-
-  The type \xcd"Array[double]{rail}" is the Java type \xcd"double[]".
-  The type \xcd"Array[Array[double]{rail}]{rail}" is the Java type \xcd"double[][]".
-
-  The type \xcd"Array[double]{rank==N}" is the type of all N-dimensional arrays of
-  \xcd"double"s.
-
-  The type \xcd"Array[double]{rank==N&&onePlace==here}" is the
-  type of all \xcd"N"-dimensional
-  arrays of \xcd"double"s that are local (mapped to one place).  
-
 
 \section{Points, regions, distributions}
 
 \begin{xten}
-public value Point(rank: Int{self >= 0}) {
-}
+public value Point(rank: Int{self >= 0}) implements
+    (Int{0 <= self, self < rank}) => Int
+{ }
 
 public value Region(rank: Int{self >= 0},
-                    zeroBased: Boolean,
                     rect: Boolean) {
 }
 
