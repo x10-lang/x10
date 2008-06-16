@@ -33,10 +33,11 @@ R8: Region = R4 || R5; // union of two regions
 
 The expression \xcdmath"a$_1$..a$_2$"
 is shorthand for the rectangular, rank-1 region
-\begin{xtenmath}
-new Region(a$_1$, a$_2$)
-\end{xtenmath}
+consisting of the points
+$\{$\xcdmath"[a$_1$]", \dots, \xcdmath"[a$_2$]"$\}$.
 Each subexpression of \xcdmath"a$_i$" must be of type \xcd"Int".
+If \xcdmath"a$_1$"
+is greater than \xcdmath"a$_2$", the region is empty.
 
 A region may be constructed by converting from a rail of
 regions or a rail of points, typically using a rail constructor
