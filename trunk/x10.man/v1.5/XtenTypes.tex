@@ -132,11 +132,24 @@ singleton classes to carry mutable static state.
 
         Classes
         are structured in a
-        single-inheritance hierarchy; that is,
+        single-inheritance hierarchy;
+         rooted at \xcd"x10.lang.Object"; that is,
         classes are declared to extend a single
-        superclass (except for \xcd"x10.lang.Object", the root
-        of the class hierarchy, which extends no other class),
+        superclass (except for \xcd"Object", which extends no other class),
         and zero or more interfaces.
+
+\xcd"Object" has the following signature:
+
+\begin{xten}
+package x10.lang;
+
+public class Object {
+    public def toString(): String;
+    public def equals(Object): Boolean;
+    public def hashCode(): Int;
+}
+\end{xten}
+
 
 \index{class!reference class}
 \index{reference class type}
@@ -157,9 +170,38 @@ is a class type in which all fields of the class are final.
 Variables of reference class type may be \xcd"null"; 
 variables of value class type may not be \xcd"null".
 %
-        All reference classes implicitly implement the
-        \xcd"x10.lang.Ref" interface; all value classes
+        All reference classes extend the
+        \xcd"x10.lang.Ref" class; all value classes
         implement the \xcd"x10.lang.Value" interface.
+
+        It is a static error if a value class extends
+        \xcd"Ref" (or any subclass of \xcd"Ref").
+        It is a static error if a reference class implements
+        \xcd"Value".
+
+\xcd"Ref" and \xcd"Value" have the following signatures:
+
+\begin{xten}
+package x10.lang;
+
+public class Ref(location: Place) {
+    public Ref() { property(here); }
+}
+
+public interface Value { }
+\end{xten}
+
+
+\index{class!reference class}
+\index{reference class type}
+\index{types!value class types}
+\index{class!value class}
+\index{value class declaration}
+\index{declaration!value class declaration}
+\index{\Xcd{Ref}}
+\index{\Xcd{x10.lang.Ref}}
+\index{\Xcd{Value}}
+\index{\Xcd{x10.lang.Value}}
 
 \subsection{Interface types}
 \label{InterfaceTypes}
