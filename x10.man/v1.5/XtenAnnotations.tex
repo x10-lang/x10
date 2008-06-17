@@ -72,7 +72,7 @@ The following examples illustrate the syntax:
 
   // method annotation
   @PreCondition(0 <= i && i < this.size)
-  public def get(i: int): Object { ... }
+  public def get(i: Int): Object { ... }
 
   // constructor annotation
   @Where(x != null)
@@ -88,9 +88,9 @@ The following examples illustrate the syntax:
 \begin{xtennoindent}
   List@Nonempty
 
-  int@Range(1,4)
+  Int@Range(1,4)
 
-  array[array[double]]@Size(n * n)
+  Array[Array[Double]]@Size(n * n)
 \end{xtennoindent}
 \item Expression annotations:
 \begin{xtennoindent}
@@ -102,7 +102,7 @@ The following examples illustrate the syntax:
 
   @MinIterations(0)
   @MaxIterations(n)
-  for (i: int = 0; i < n; i++) { ... }
+  for (i: Int = 0; i < n; i++) { ... }
 
   // An annotated empty statement ;
   @Assert(x < y);

@@ -1242,23 +1242,23 @@ and \xcd"List[T] <: Collection[T]",
 in the following snippet, the algorithm should infer the type
 \xcd"Collection" for \xcd"x".
 \begin{xten}
-intSet: Set[int];
+intSet: Set[Int];
 stringList: List[String];
 val x = choose(intSet, stringList);
 \end{xten}
 %
 And in this snippet, the algorithm should infer the type
-\xcd"Collection[int]" for \xcd"y".
+\xcd"Collection[Int]" for \xcd"y".
 \begin{xten}
-intSet: Set[int];
-intList: List[int];
+intSet: Set[Int];
+intList: List[Int];
 val y = choose(intSet, intList);
 \end{xten}
 %
 Finally, in this snippet, the algorithm should infer the type
 \xcd"Collection{T <: Number}" for \xcd"z".
 \begin{xten}
-intSet: Set[int];
+intSet: Set[Int];
 numList: List{T <: Number};
 val z = choose(intSet, numList);
 \end{xten}

@@ -13,7 +13,7 @@ places are instances of this class.  This class is \xcd"final" in
 In \XtenCurrVer{}, the set of places available to a computation is
 determined at the time that the program is run and remains fixed
 through the run of the program. The number of places available 
-may be determined by reading (\xcd"place.MAX_PLACES"). (This number
+may be determined by reading (\xcd"Place.MAX_PLACES"). (This number
 is specified from the command line/configuration information; 
 see associated {\tt README} documentation.)
 
@@ -23,13 +23,13 @@ objects (arrays) may be distributed across multiple places using
 distributions.
 
 The set of all places in a running instance of an \Xten{} program may
-be obtained through the \xcd"const" field \xcd"place.places".  (This
+be obtained through the \xcd"const" field \xcd"Place.places".  (This
 set may be used to define distributions, for instance,
 \Sref{XtenDistributions}.) 
 
 
 The set of all places is totally ordered.  The first place may be
-obtained by reading \xcd"place.FIRST_PLACE". The initial activity for
+obtained by reading \xcd"Place.FIRST_PLACE". The initial activity for
 an \Xten{} computation starts in this place
 (\Sref{initial-computation}). For any place, the operation \xcd"next()"
 returns the next place in the total order (wrapping around at the
@@ -42,14 +42,14 @@ places, and the ability to dynamically create places.
 \end{note}
 
 \begin{staticrule*}
-Variables of type \xcd"place" must be initialized and are implicitly
+Variables of type \xcd"Place" must be initialized and are implicitly
 \xcd"final".  
 \end{staticrule*}
 
 \section{Place expressions}
-Any expression of type \xcd"place" is called a place expression. 
+Any expression of type \xcd"Place" is called a place expression. 
 Examples of place expressions are \xcd"this.location" (the place
-at which the current object lives), \xcd"place.FIRST_PLACE"
+at which the current object lives), \xcd"Place.FIRST_PLACE"
 (the first place in the system in canonical order). 
 
 Place expressions are used in the following contexts: 
@@ -59,7 +59,7 @@ Place expressions are used in the following contexts:
 (\Sref{AsyncActivity}).
 \item In a cast expression (\Sref{ClassCast}).
 \item In an \xcd"instanceof" expression (\Sref{instanceOf}).
-\item In stable equality comparisons, at type \xcd"place".
+\item In stable equality comparisons, at type \xcd"Place".
 \end{itemize}
 
 Like values of any other type, places may be passed as arguments
@@ -91,7 +91,7 @@ public class F {
     }
   }
   public static void main(s: array[String]) {
-    new F().m( (future(place.FIRST_PLACE.next()) new F())() );
+    new F().m( (future(Place.FIRST_PLACE.next()) new F())() );
   }
 }  
 \end{xten}
