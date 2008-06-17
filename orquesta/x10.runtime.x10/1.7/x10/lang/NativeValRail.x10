@@ -3,12 +3,12 @@ package x10.lang;
 import x10.lang.annotations.*;
 
 /**
-The interface satisfied by native value rails. 
+<p> The interface satisfied by native value rails. 
 
-x10c compiling x10 code to Java "knows" that NativeValRail[T] will be
+<p x10c compiling x10 code to Java "knows" that NativeValRail[T] will be
 implemented by Java's T[].
 
-Note: This interface is package protected -- so only code in this
+<p> Note: This interface is package protected -- so only code in this
 package can reference it.
 
 @see NativeRailMaker
@@ -16,4 +16,5 @@ package can reference it.
 @author vj 06/10/08
 */
 
-interface NativeValRail(length: int) extends Indexable[T](0..length) {}
+interface NativeValRail[T](length: int) extends NativeAbsRail[T](length), Value {
+}

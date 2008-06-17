@@ -4,7 +4,7 @@ import static TypeDefs.*;
 
    The compiler accepts the syntax f(p) for f a variable of type S if
    S implements Indexable[T](R) and it can establish that p is in the
-   range R.
+   region R.
 
    TODO: It would be really neat if we had some way of specifying that 
    you could take an object o of type Indexable[T](r) and
@@ -12,4 +12,14 @@ import static TypeDefs.*;
    that r is of rank k.
  */
 
-public interface Indexable[T](base :region) extends Fun[point(base),T] {}
+public interface Indexable[T](base :region) extends point(base)=>T {}
+
+
+
+
+
+
+
+
+
+

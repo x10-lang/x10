@@ -4,7 +4,7 @@ package x10.lang;
 import x10.lang.annotations.*;
 
 /**
-The interface satisfied by native rails. 
+The interface satisfied by mutable native rails. 
 
 x10c compiling x10 code to Java "knows" that NativeRail[T] will be
 implemented by a class (say NativeRail_c) wrapping Java's T[] (in a
@@ -40,11 +40,8 @@ TODO: Perhaps we really do need parameter-specific compilation of classes?
 
 Note: This interface is package protected. 
 
-@see NativeRailMaker
-
 @author vj 06/10/08
 */
 import static TypeDefs.*;
 
-interface NativeRail[T](length:int)  
-    extends Indexable[T](0..length-1), Settable[T](0..length-1) {}
+interface NativeRail[T](length:int) extends NativeAbsRail[T](length), Settable[T](0..length-1) {}
