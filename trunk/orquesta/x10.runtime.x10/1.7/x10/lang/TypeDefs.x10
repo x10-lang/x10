@@ -2,6 +2,24 @@ package x10.lang;
 
 abstract class TypeDefs {
 
+    static type boolean = Boolean;
+    static type byte = Byte;
+    static type short = Short;
+    static type char = Char;
+    static type int = Int;
+    static type long = Long;
+    static type float = Float;
+    static type double = Double;
+    
+    static type int8 = byte;
+    static type nat7 = byte{self>=0};
+    static type int16 = short;
+    static type nat15 = short{self>=0};
+    static type int32 = int;
+    static type nat31 = int{self>=0};
+    static type int64 = long;
+    static type nat63 = long{self>=0};
+
     static type true = boolean{self==true};
     static type false = boolean{self==false};
 

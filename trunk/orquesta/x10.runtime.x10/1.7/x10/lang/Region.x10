@@ -27,7 +27,7 @@ geq zero and leq diagonal (if any).
 */
 
 public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boolean, 
-			     colMajor:boolean) {
+			     colMajor:boolean) implements Iterable[point], Contains[point], ContainsAll[region{self.rank==this.rank}] {
 
     public region(_rank: nat, _rect: boolean, _zeroBased: boolean, _rail: boolean, 
 		  _colMajor: boolean): region{rank==_rank, zeroBased=_zeroBased, rail==_rail,
@@ -74,13 +74,13 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
 
     /**
        Return the minimum point in this region, if there is one.
-       If there isnt, throw an UnsupportedOperationException.
+       If there isn't, throw an UnsupportedOperationException.
      */
     public abstract def min() throws UnsupportedOperationException;
 
     /**
        Return the minimum point in this region, if there is one.
-       If there isnt, throw an UnsupportedOperationException.
+       If there isn't, throw an UnsupportedOperationException.
      */
     public abstract def max() throws UnsupportedOperationException;
 
@@ -112,11 +112,18 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
 	product(r)
     }
 
+    /**
+    Does this region contain point p?
+	Intended to be overridden by subclasses representing non-full regions. 
+    */
+    public abstract def contains(p :point{rank==this.rank}):boolean;
+
     /** 
 	Does every point in r lie in this region? 
 	Intended to be overridden by subclasses representing non-full regions. 
     */
-    public abstract def contains(r :region{rank==this.rank}):boolean;
+    public def contains(r :region{rank==this.rank}):boolean = containsAll(r);
+    public abstract def containsAll(r :region{rank==this.rank}):boolean;
 
     /**
      * Returns true iff the set of points in r and this are equal.
@@ -139,7 +146,7 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
      * @return Iterator that yields the individual points of a region in
      * lexicographical order.
      */
-    public abstract def iterator(): Iterator;
+    public abstract def iterator(): Iterator[Point];
 
     // define equals and hashcode.
     // look into tiled regions, breaking a region up into tiles.
@@ -152,7 +159,7 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
        Make an empty region of the given rank.
      */
     public static def makeEmptyRegion(rank: nat) = Runtime.makeEmptyRegion(rank);
-
+    
     /**
        Make the unique unit region.
      */

@@ -10,5 +10,5 @@ package x10.lang;
 public class Object {
 
     // should be overridden by subclasses.
-    public toString() = "";
+    public def toString() = "x10.lang.Object";
 }

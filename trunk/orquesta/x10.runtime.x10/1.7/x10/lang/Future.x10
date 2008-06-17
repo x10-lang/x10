@@ -1,8 +1,9 @@
 public x10.lang;
 
-public value class Future[T] {
-    public abstract start():void;
-    public abstract started():boolean;
-    public abstract force():T;
-    public abstract forced(): boolean;
+public abstract value class Future[T] implements () => T {
+    public abstract def start(): void;
+    public abstract def started(): boolean;
+    public abstract def force(): T;
+    public abstract def forced(): boolean;
+    public def apply() = force();
 }
