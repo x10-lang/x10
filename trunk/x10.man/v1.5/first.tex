@@ -48,41 +48,58 @@ idioms.
 %and using this language.
 
 The \Xten{} design team consists of
+\authorsc{Ganesh Bikshandi}, 
+\authorsc{Robert Fuhrer},
+\authorsc{Sreedhar Kodali}, 
+\authorsc{Bruce Lucas},
+\authorsc{Nathaniel Nystrom},
+\authorsc{Igor Peshansky}, 
+\authorsc{Vijay Saraswat},
+\authorsc{Sayantan Sur}, 
+\authorsc{Olivier Tardieu},
+\authorsc{Pradeep Varma}, and
+\authorsc{Krishna Nandivada Venkata}.
+
+Past members include
 \authorsc{David Bacon}, 
 \authorsc{Raj Barik}, 
-\authorsc{Ganesh Bikshandi}, 
 \authorsc{Bob Blainey}, 
 \authorsc{Philippe Charles}, 
 \authorsc{Perry Cheng}, 
 \authorsc{Christopher Donawa}, 
 \authorsc{Julian Dolby}, 
 \authorsc{Kemal Ebcio\u{g}lu},
-\authorsc{Robert Fuhrer},
 \authorsc{Patrick Gallop}, 
 \authorsc{Christian Grothoff}, 
 \authorsc{Allan Kielstra}, 
-\authorsc{Sreedhar Kodali}, 
 \authorsc{Sriram Krishnamoorthy}, 
-\authorsc{Nathaniel Nystrom},
-\authorsc{Igor Peshansky}, 
-\authorsc{Vijay Saraswat},
 \authorsc{Vivek Sarkar},
 \authorsc{Armando Solar-Lezama},  
 \authorsc{S. Alexander Spoon}, 
-\authorsc{Sayantan Sur}, 
-\authorsc{Olivier Tardieu},
 \authorsc{Christoph von Praun},
-\authorsc{Pradeep Varma},
-\authorsc{Krishna Nandivada Venkata},
 \authorsc{Jan Vitek}, and
 \authorsc{Tong Wen}.
 
 For extended discussions and support we would like to thank: 
-Robert Callahan, Calin
-Cascaval, Norman Cohen, Elmootaz Elnozahy, John Field,
-Orren Krieger, Doug Lea, John McCalpin, Paul McKenney, Andrew Myers,
+Gheorghe Almasi,
+Robert Blackmore,
+Robert Callahan, 
+Calin Cascaval, 
+Norman Cohen, 
+Elmootaz Elnozahy, 
+John Field,
+Kevin Gildea,
+Chulho Kim,
+Orren Krieger, 
+Doug Lea, 
+John McCalpin, 
+Paul McKenney, 
+Andrew Myers,
 Ram Rajamony,
-R.K.~Shyamasundar, Filip Pizlo, V.T.~Rajan, Frank Tip, and Mandana Vaziri.
+R.K.~Shyamasundar, 
+Filip Pizlo, 
+V.T.~Rajan, 
+Frank Tip, Mandana Vaziri, and Hanhong Xue.
 
 We thank Jonathan Rhees and William Clinger with help in obtaining the
 \LaTeX{} style file and macros used in producing the Scheme report,
@@ -91,24 +108,23 @@ the $\mbox{\Java}^{\mbox{\textsc{tm}}}$ Language
 Specification \cite{jls2}.
 %document, as evidenced by the numerous citations in the text.
 
-XXX Insert new credits here!
-
-This document revises Version 1.1 of the Report, released in
+This document revises Version 1.5 of the Report, released in
 June 2007.  It documents the language corresponding to Version
-1.7 of the implementation, which was done by
+1.7 of the implementation, which is currently under development.
+
+Earlier implementations benefited from significant contributions by
 \authorsc{Raj Barik}, 
-\authorsc{Nathaniel Nystrom},  
-\authorsc{Igor Peshansky},  
-\authorsc{Vijay Saraswat},
-\authorsc{Olivier Tardieu},  
-\authorsc{Pradeep Varma}, and
-\authorsc{Krishna Venkata}.
-(Earlier implementations benefited from significant contributions by
 \authorsc{Philippe Charles}, 
 \authorsc{Christopher Donawa}, 
 \authorsc{Robert Fuhrer},
 \authorsc{Christian Grothoff},
-\authorsc{Vivek Sarkar}, and
+\authorsc{Nathaniel Nystrom},  
+\authorsc{Igor Peshansky},  
+\authorsc{Vijay Saraswat},
+\authorsc{Vivek Sarkar}, 
+\authorsc{Olivier Tardieu},  
+\authorsc{Pradeep Varma}, 
+\authorsc{Krishna Nandivada Venkata}, and
 \authorsc{Christoph von Praun}.)
 \authorsc{Tong Wen} has written many application programs
 in \Xten{}. \authorsc{Guojing Cong} has helped in the
