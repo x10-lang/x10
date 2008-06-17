@@ -181,15 +181,15 @@ def lift[S,R](f: (T,S) => R, Array[S](dist)): Array[R](dist);
 
 \paragraph{Reductions}\label{ArrayReductions}\index{array!reductions}
 
-XXX do we need the initial value x?
-
 Let \xcd"f" be a function of type \xcd"(T,T)=>T".  Let
 \xcd"a" be a value or reference array over base type \xcd"T".
-Let \xcd"x" be a value of type \xcd"T".
+Let \xcd"unit" be a value of type \xcd"T".
 Then the
-operation \xcd"a.reduce(f, x)" returns a value of type \xcd"T" obtained
+operation \xcd"a.reduce(f, unit)" returns a value of type \xcd"T" obtained
 by performing \xcd"f" on all points in \xcd"a" in some order, and in
-parallel.
+parallel.  The function \xcd"f" must be associative and
+commutative.  The value \xcd"unit" should satisfy
+\xcd"f(unit,x)" \xcd"==" \xcd"x" \xcd"==" \xcd"f(x,unit)".
 
 This operation involves communication between the places over which
 the array is distributed. The \Xten{} implementation guarantees that
