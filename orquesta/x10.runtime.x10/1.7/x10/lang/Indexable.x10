@@ -12,7 +12,7 @@ import static TypeDefs.*;
    that r is of rank k.
  */
 
-public interface Indexable[T](base :region) extends point(base)=>T {}
+public interface Indexable[T](base: region) extends point(base)=>T {}
 
 
 

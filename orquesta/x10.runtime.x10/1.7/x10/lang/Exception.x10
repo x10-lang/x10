@@ -1,7 +1,10 @@
 package x10.lang;
 
-public value class Exception {
-    val s:String;
-    public this(_s: String) { s=_s;}
-    public this() { this("");}
+public value class Exception extends Throwable {
+    val s: String;
+    
+    public def this() = this("");
+    public def this(s: String) = { this.s = s; }
+    
+    public def getMessage() = s;
 }
