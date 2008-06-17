@@ -383,8 +383,10 @@ Throws    \: \xcd"throws" ExceptionType  ( \xcd"," ExceptionType )\star \\
 ExceptionType \: ClassBaseType Annotation\star \\
 \end{grammar}
 
-As with method declarations, the parameter list for the constructor
-may specify a where clause that is to be satisfied by the parameters
+\label{ConstructorWhereClause}
+
+The parameter list for the constructor
+may specify a \emph{where clause} that is to be satisfied by the parameters
 to the list.
 
 \begin{example}
@@ -474,10 +476,12 @@ Consider the class \xcd"List" used earlier.  Here all instances of \xcd"List"
 returned by the second constructor do not need the fields \xcd"value" and
 \xcd"tail"; their value is set to null.
 
+\label{FieldWhereClause}
+
 \Xten{} permits a much cleaner solution that does not require default
 values such as null to be stored in such fields. \Xten{} permits fields to
-be {\em guarded}, that is defined only if a certain constraint on the
-properties of the class, called the \xcd"guard" of that field, is true.
+be {\em guarded} with a \emph{where clause}, that is defined only if a certain constraint on the
+properties of the class, called the \emph{guard} of that field, is true.
 
 \begin{grammar}
 FieldDeclaration  \:
@@ -591,6 +595,8 @@ In the formal parameter list, variables may be declared with
 \xcd"val" or \xcd"var".  If neither is specified, the variable
 is \xcd"val".
 
+\label{MethodWhereClause}
+
 The guard (specified by \grammarrule{WhereClause})
 specifies a constraint \xcd"c" on the
 properties of the class \xcd"C" on which the method is being defined. The
@@ -673,6 +679,7 @@ or a block ending with an expression.
 
 
 \subsection{Method overloading, overriding, hiding, shadowing and obscuring}
+\label{MethodOverload}
 
 The definitions of method overloading, overriding, hiding, shadowing
 and obscuring in \Xten{} are the same as in \Java, modulo the following

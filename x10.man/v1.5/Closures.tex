@@ -12,6 +12,7 @@ ClosureExpression \:
         \xcd"("
         Formals\opt
         \xcd")"
+        WhereClause\opt
         ReturnType\opt
         Throws\opt
         \xcd"=>" ClosureBody \\
@@ -28,8 +29,14 @@ closure body has the same syntax as a method body; it may be
 either an expression, a block of statements, or a block
 terminated by an expression to return.
 
-The body of the closure is evaluated with the closure is
-invoked by a call expression (\Sref{Call}).
+\label{ClosureWhereClause}
+
+As with methods, a closure may declare a where clause to
+constraint the actual parameters with which it may be invoked.
+
+The body of the closure is evaluated when the closure is
+invoked by a call expression (\Sref{Call}), not at the closure's
+place in the program text.
 
 As with methods, a closure with return type \xcd"Void" cannot
 have a terminating expression. 

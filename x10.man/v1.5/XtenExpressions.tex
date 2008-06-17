@@ -98,6 +98,7 @@ through a static field access expression.
 \input{Closures}
 
 \section{Calls}
+\label{Call}
 \label{MethodInvocation}
 \label{MethodInvocationSubstitution}
 
@@ -400,6 +401,7 @@ All finite values are less than positive infinity and greater
 than negative infinity.
 
 \section{Conditional expressions}
+\label{Conditional}
 
 \begin{grammar}
 ConditionalExpression \: Expression
@@ -449,7 +451,7 @@ If one operand is of reference type and the other is of value type,
 the result is \xcd"false".
 
 If the operands both have numeric type, binary promotion
-(\Sref{Promotion}) is performed on the operands before the
+(\Sref{XtenPromotions}) is performed on the operands before the
 comparison.
 
 The predicate \xcd"!=" returns \xcd"true" (\xcd"false") on two

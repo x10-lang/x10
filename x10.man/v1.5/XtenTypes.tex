@@ -43,7 +43,7 @@ are instance members and introduce \emph{path types}
 (\Sref{PathTypes}).
 A class or interface with one or more type properties is a
 \emph{generic class} or \emph{generic interface}
-(\Sref{GenericClasses}).
+(\Sref{Generics}).
 \item New type constructors may be defined with \emph{type
 definitions} (\Sref{TypeDefs}).
 \item Methods, constructors, closures, and type definitions may
@@ -258,7 +258,6 @@ class Point(x: Int, y: Int) {
 
 \index{types!type properties}
 \index{properties!type properties}
-\index{types!path types}
 
         Classes and interfaces may have {\em type properties}, bound
         to concrete types on object creation.
@@ -285,6 +284,9 @@ Type properties are types in their own right:
 they may be used in any context a type may be used,
 including in \xcd"instanceof" and cast expressions.
 
+\label{PathTypes}
+\index{types!path types}
+
 However, the key semantic distinction between type properties
 and type parameters is that type properties are instance
 members.
@@ -297,7 +299,7 @@ members.
 Thus, for an expression \xcd"e" of type \xcd"Cell", \xcd"e.X" is a type
 and \xcd"e.get()" returns a value of that type.
 
-The path type \xcd"e.X" is equivalent to a type \xcd"T" to which
+The path type \xcd"e.X" is equivalent to the type \xcd"T" to which
 the type property \xcd"X" was bound when \xcd"e" was
 instantiated.
 
@@ -334,7 +336,8 @@ resolved.
         of the declaring method, constructor, closure, or type
         definition.
         Type parameters may be constrained by a {\em where
-        clause} on the declaration (\Sref{WhereClause}).
+        clause} on the declaration
+        (\Sref{TypeDefWhereClause},\Sref{ConstructorWhereClause},\Sref{MethodWhereClause},\Sref{ClosureWhereClause}).
         The type parameters of methods, constructors, and
         closures, must be bound to
         concrete types at invocation.
@@ -372,6 +375,7 @@ are the value parameters of \xcd"X" with types
 \xcdmath"T$_1$", \dots, \xcdmath"T$_n$".
 The constraint \xcd"c" is called the \emph{where clause} of
 \xcd"X".  Finally, \xcd"U" is the defining type of \xcd"X".
+\label{TypeDefWhereClause}
 
         For
         type arguments 
@@ -1070,9 +1074,9 @@ A path type \xcd"p.X" is a subtype of a type \xcd"T" if
 \label{LCA}
 
 To compute the type of conditional expressions
-(\Sref{Conditional)},
+(\Sref{Conditional}),
 and of rail constructors
-(\Sref{RailConstructors)}, the least common ancestor of types
+(\Sref{RailConstructors}), the least common ancestor of types
 must be computed.
 
 The least common ancestor of two  types
