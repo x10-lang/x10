@@ -1,3 +1,4 @@
+\if 0
 \chapter{Linking with Java code}
 \label{JavaLink}
 
@@ -55,6 +56,8 @@ invoking the static method
 \java{} generics are not supported.
 \java{}'s threading and synchronization are not supported.
 
+\fi
+
 \chapter{Linking with native code}\label{extern}\index{extern}
 
 On some platforms,
@@ -96,8 +99,8 @@ Such a method must be declared \xcd"static" and may not have a
 method body.\footnote{This
 restriction is likely to be lifted in the future.}  Primitive types in
 the method argument are translated to their corresponding JNI type
-(e.g., {\tt float} is translated to {\tt jfloat}, {\tt double} to
-{\tt jdouble} etc).  The only non-primitive type permitted in an
+(e.g., {\tt Float} is translated to {\tt jfloat}, {\tt Double} to
+{\tt jdouble}, etc.).  The only non-primitive type permitted in an
 \xcd"extern" method is an unsafe array. This is passed at type
 \xcd"jlong" as an eight-byte address into the unsafe region that contains
 the data for the array.  Note that {\tt jlong} is not the same as {\tt long} on
@@ -136,7 +139,7 @@ linking.
 \begin{xten}
 public class IntArrayExternUnsafe {
   public static extern 
-      def process(yy: unsafe Rail[int], size: int);
+      def process(yy: unsafe Rail[Int], size: Int);
   static { System.loadLibrary("IntArrayExternUnsafe"); }
   public static def main(args: Rail[String]) {
      val b = (new IntArrayExternUnsafe()).run();
@@ -147,7 +150,7 @@ public class IntArrayExternUnsafe {
   public def run() : Boolean {
     val high = 10;
     val d = (0..high) -> here;
-    val y: Array[int] = new unsafe Array[int](d);
+    val y: Array[Int] = new unsafe Array[Int](d);
     for (val (j) in y.region) {
         y(j) = j;
     process(y,high);

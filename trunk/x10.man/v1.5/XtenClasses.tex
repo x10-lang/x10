@@ -238,9 +238,9 @@ value LinkedList {
 Similarly, a \xcd"Complex" class may be implemented as follows:
 \begin{xten}
 value Complex { 
-  re: double;
-  im: double;
-  public def this(re: double, im: double) {
+  re: Double;
+  im: Double;
+  public def this(re: Double, im: Double) {
      this.re=re;
      this.im=im;
   }
@@ -294,15 +294,15 @@ quantifiers.
 Nevertheless we will find it convenient to permit the programmer to
 explicitly specify a depclause after the list of properties, thus:
 \begin{xten}
-class Point(i: int, j: int) { ... }
+class Point(i: Int, j: Int) { ... }
 class Line(start: Point, end: Point){end != start}
   = { ... }
 class Triangle (a: Line, b: Line, c: Line)
         {a.end == b.start && b.end == c.start &&
          c.end == a.start} = { ... }
-class SolvableQuad(a: int, b: int, c: int)
+class SolvableQuad(a: Int, b: Int, c: Int)
                    {a*x*x+b*x+c==0} = { ... }
-class Circle (r: int, x: int, y: int) where
+class Circle (r: Int, x: Int, y: Int) where
               {r > 0 && r*r==x*x+y*y} = { ... }
 class NonEmptyList extends List{n > 0} {...}
 \end{xten}
@@ -392,7 +392,7 @@ to the list.
 \begin{example}
 Here is another example.
 \begin{xten}
-public class List[T](n: int{n >= 0}) {
+public class List[T](n: Int{n >= 0}) {
     protected head: Box[T];
     protected tail: List[T](n-1);
     public def this(o: T, t: List[T]) : List[T](t.n+1) = {
@@ -635,7 +635,7 @@ not a subtype of \xcd"C{c}".
 \begin{example}
 Consider the program:
 \begin{xten}
-public class List(n: int{n>=0}) {
+public class List(n: Int{n>=0}) {
   protected val head{n>0}: Object;
   protected val tail{n>0}: List(n-1);
   public def this(o: Object, t: List): List(t.n+1) {
@@ -650,7 +650,7 @@ public class List(n: int{n>=0}) {
       return (n==0)? l
          : new List(head, tail.append(l)); 
   }
-  public def nth(k: int{1 <= k && k <= n}): Object
+  public def nth(k: Int{1 <= k && k <= n}): Object
     where n > 0 {
       return k==1 ? head : tail.nth(k-1);
   }
@@ -756,7 +756,7 @@ whose guard \xcd"d" is implied by \xcd"c".
 \begin{example}
   Consider the definitions:
 \begin{xten}
-class Point(i: int, j: int) {...}
+class Point(i: Int, j: Int) {...}
 class Line(s: Point, e: Point{self != i}) {
   // m1: Both points lie in the right half of the plane
   def draw(){s.i>= 0 && e.i >= 0} = {...}

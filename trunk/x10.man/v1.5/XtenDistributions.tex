@@ -12,7 +12,7 @@ be initialized and are implicitly \xcd"final".
 The {\em rank} of a distribution is the rank of the underlying region.
 
 %Recall that each program runs in a fixed number of places, determined
-%by runtime parameters. The static constant place.MAX_PLACES specifies
+%by runtime parameters. The static constant Place.MAX_PLACES specifies
 %the maximum number of places. The collection of places is assumed to
 %be totally ordered.
 
@@ -66,18 +66,18 @@ successive blocks of size $(p+1)$ and the remaining places get blocks of
 size $p$.
 
 The distribution \xcd"block(R)" is the same distribution as {\cf
-block(R, place.places)}.
+block(R, Place.places)}.
 
 \oldtodo{Check into block distributions per dimension.}
 \paragraph{Cyclic distributions.} \index{distribution!cyclic}
 The distribution \xcd"cyclic(R, Q)" distributes the points in \xcd"R"
 cyclically across places in \xcd"Q" in order.
 
-The distribution \xcd"cyclic(R)" is the same distribution as \xcd"cyclic(R, place.places)".
+The distribution \xcd"cyclic(R)" is the same distribution as \xcd"cyclic(R, Place.places)".
 
-Thus the distribution \xcd"cyclic(place.MAX_PLACES)" provides a 1--1
-mapping from the region \xcd"place.MAX_PLACES" to the set of all
-places and is the same as the distribution \xcd"unique(place.places)".
+Thus the distribution \xcd"cyclic(Place.MAX_PLACES)" provides a 1--1
+mapping from the region \xcd"Place.MAX_PLACES" to the set of all
+places and is the same as the distribution \xcd"unique(Place.places)".
 
 \paragraph{Block cyclic distributions.}\index{distribution!block cyclic}
 The distribution \xcd"blockCyclic(R, N, Q)" distributes the elements
@@ -87,7 +87,7 @@ of \xcd"R" cyclically over the set of places \xcd"Q" in blocks of size
 \paragraph{Arbitrary distributions.} \index{distribution!arbitrary}
 The distribution \xcd"arbitrary(R,Q)" arbitrarily allocates points in {\cf
 R} to \xcd"Q". As above, \xcd"arbitrary(R)" is the same distribution as
-\xcd"arbitrary(R, place.places)".
+\xcd"arbitrary(R, Place.places)".
 
 \oldtodo{Determine which other built-in distributions to provide.}
 

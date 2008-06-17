@@ -1,4 +1,10 @@
 \usepackage{listings}
+
+\newif\ifcolor
+\colorfalse
+
+\ifcolor
+
 \usepackage{color}
 
 \definecolor{Brown}{cmyk}{0,0.49,0.71,0.37}
@@ -7,6 +13,12 @@
 \definecolor{Red}{cmyk}{0,0.80,0.80,0.10}
 \definecolor{Gray}{cmyk}{0.2,0.2,0.2,0.2}
 \definecolor{Black}{cmyk}{0,0,0,1}
+
+\else
+
+\newcommand\color[1]{}
+
+\fi
 
 \lstdefinelanguage{X10}%
   {morekeywords={abstract,break,case,catch,class,%

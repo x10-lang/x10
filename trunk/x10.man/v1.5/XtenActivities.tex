@@ -100,14 +100,14 @@ PlaceExpressionSingleList \: \xcd"(" PlaceExpression \xcd")" \\
 PlaceExpression \: Expression \\
 \end{grammar} 
 
-The place expression \xcd"e" is expected to be of type \xcd"place",
-e.g., \xcd"here" or \xcd"place.FIRST_PLACE" or \xcd"d[p]" for some
+The place expression \xcd"e" is expected to be of type \xcd"Place",
+e.g., \xcd"here" or \xcd"Place.FIRST_PLACE" or \xcd"d[p]" for some
 distribution \xcd"d" and point \xcd"p" (\Sref{XtenPlaces}).  
 If not, the compiler replaces
 \xcd"e" with \xcd"e.location". (Recall that every expression in
 \Xten{} has a type; this type is a subtype of the root class
 \xcd"x10.lang.Object".  This class has a field \xcd"location" of
-type \xcd"place" recording the place at which the value resides. See
+type \xcd"Place" recording the place at which the value resides. See
 the documentation for \xcd"x10.lang.Object".)
 
 Note specifically that the expression \xcd"a[i]" when used as a place
