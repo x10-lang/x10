@@ -15,7 +15,7 @@ ValRail[T] if they are available on T.
 // Arithmetic[ValRail[T]].
 
 // vj: Look into making Arithmetic take two arguments, and then being able to say here:
-   value class ValRail[T](length: nat) implements 
+   value class ValRail[T](length: Nat) implements 
         Arithmetic[ValRail[T](length), ValRail[T](length)],
         Arithmetic[ValRail[T](length), T] ...
 
@@ -24,94 +24,58 @@ ValRail[T] if they are available on T.
 //  class T) to refer to the static method on T with a single arg T.
 //  Is this too subtle?
 
+// vj: There is an interesting issue about representing filtered
+// ValRails. Suppose I want to apply a filter to obtain a subarray.
+// The only reasonable way to do this is to allocate an array A of
+// size length and then add to it only those elements which pass the
+// filter. Now we have to be able to either (a) "drop" the space for
+// the remaining elements of A and return the trimmed A, or (b) if
+// there are k live elements, allocate another ValArray of k elements
+// and copy the live elements into it, and drop A, or (c) just return
+// A but now have the notion that the space allocated for a ValRail is
+// actually more than the size of the ValRail.
+
+Implements AbsRail[T, NativeAbsRail[T](length)] rather than AbsRail[T,
+NativeValRail[T](length)], permitting thereby the underlying memory to
+be a NativeRail[T](length).
+
  */
 
 import static TypeDefs.*;
 
-public value class ValRail[T](length: nat) 
-    implements Array[T](0..length-1->here),
-	       Arithmetic[ValRail[T](length)] if T <: Arithmetic[T]  {
-    val r: NativeValRail[T](length);
-    def this(x0:T) {
-	property(1);
-	this.r = NativeRalMaker[T].make(1, (i:nat(0)=> x0));
+public value class ValRail extends AbsRail{Mem==NativeValRail[Base]} { 
+
+    def this[T](x0:T): ValRail{Base==T,length==1} {
+	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](1, (i:Nat(0)=> x0));
     }
-    def this(x0:T, x1:T) {
-	property(2);
-	this.r = NativeRalMaker[T].make(2, (i:nat(0)=> i==0? x0:x1));
+    def this[T](x0:T, x1:T): ValRail{Base==T,length==2} {
+	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](2, (i:Nat(1)=> i==0? x0:x1));
     }
-    def this(x0:T, x1:T, x2: T) {
-	property(3);
-	this.r = NativeRalMaker[T].make(3, (i:nat(0)=> i==0? x0: i==1? x1:x2));
+    def this[T](x0:T, x1:T, x2: T): ValRail{Base==T,length==3} {
+	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](3, (i:Nat(2)=> i==0? x0: i==1? x1:x2));
     }
 
-    def this( _length: nat, init: nat(_length)=>T) {
-	property(_length);
-	this.r= NativeRailMaker[T].make(_length, init);
+    def this[T]( l: Nat, init: Nat(l)=>T) {
+	super[T,NativeValRail[T]](makeNativeValRail(l, init));
     }
-    public static def allK(length : nat, v:T) = new ValRail[T](length, x:nat(length-1)=>v);
-    public static def allZero(length : nat){T <: Arithmetic[T]} = allK(length, T.zero());
-
-    public def apply(p:point(0..length-1)):T = r(p);
-    public def ValRail[T](length) clone() = new ValRail[T](length, (i :nat(length-1))=> r(i));
-    public def map(b: (x:T)=>T) = new ValRail[T](length, (i: nat(length-1))=>b(r(i)));
-
-    public def map(b: (i: nat(length-1), x:T)=>T) = 
-	new ValRail[T](length, (i: nat(length-1))=>b(i, r(i)));
-
-    public def mapRail(o: ValRail[T](length), op:(T,T)=>T) = 
-        map((i: nat(length-1), x:T) => op(x,o(i)));
-
-    public def reduce(z: S, op: (T,T)=>S) = {
-	var v = z;
-	for (val w in r) v = op(v,w);
-	v
+    def this[T]( r: NativeValRail[T]) {
+	super[T,NativeValRail[T]](r);
     }
-    public def andReduce(op: (T)=>boolean) = {
-	for (val w in r) if (! op(w)) return false;
-	true
-    }
-    public def andReduce(op: (nat(0,length-1))=>boolean) = {
-	for (val p(i) in r.region) if (! op(i)) return false;
-	true
-    }
-    public def andReduceRail(o:ValRail[T](length), op: (T,T)=>boolean) = {
-	for (val p(i) in r.region) if (! op(r(i),o(i))) return false;
-	true
-    }
+    public static def allK[Base](length: Nat, v: Base) = new ValRail[Base](length, x:Nat(length-1)=>v);
+    public static def allZero[Base](length: Nat){Base <: Arithmetic[Base]} = allK(length, T.zero());
 
-    public def append(o: ValRail[T]): ValRail[T](length+o.length) = {
-	val l = length+o.length;
-	new ValRail[T](l, (i: nat(l-1)) => i<length-1? r(i) : other.r(i-length))
-    }
+    /**
+       Create a copy of this object.
+     */
+    @Override
+    public def clone()= new ValRail[Base](length, (i :Nat(length-1))=> r(i));
+    @Override
+    protected def clone(l: Nat, init: (Nat(l))=>T) =	new ValRail[Base](l, init);
+    @Override
+    protected def clone[T](_r: NativeValRail[T]) = new ValRail[T](_r);
+    @Override
+	public makeNativeRail(n :Nat, f:(Nat(n-1))=>Base):NativeAbsRail[Base](n) 
+	= Runtime.runtime.makeNativeValRail[Base](n, f);
 
-    public def isK(k:T):boolean = andReduce(x:T => x==k);
-    public def add(o: ValRail[T](length)){T <: Arithmetic[T]}  = mapRail(o,(x:T,y:T)=>x.add(y));
-    public def mul(o: ValRail[T](length)){T <: Arithmetic[T]}  = mapRail(o,T.mul.(T));
-    public def div(o: ValRail[T](length)){T <: Arithmetic[T]}  = mapRail(o,T.div.(T));
-    public def sub(o: ValRail[T](length)){T <: Arithmetic[T]}  = mapRail(o,T.sub.(T));
-    public def cosub(o: ValRail[T](length)){T <: Arithmetic[T]}= mapRail(o,T.cosub.(T));
-    public def codiv(o: ValRail[T](length)){T <: Arithmetic[T]}= mapRail(o,T.codiv.(T));
-    public def neginv(){T <: Arithmetic[T]}                    = map(T.neginv.());
-    public def mulinv(){T <: Arithmetic[T]}                    = map(T.mulinv.());
-    public def eq(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.eq.(T));
-    public def lt(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.lt.(T));
-    public def gt(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.gt.(T));
-    public def le(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.le.(T));
-    public def ge(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.ge.(T));
-    public def ne(o: ValRail[T](length)){T <: Arithmetic[T]}   = andReduceRail(o, T.ne.(T));
 
-    // custom versions of the above for the case in which the other rail is a constant.
-    public def add(c: T){T <: Arithmetic[T]}   = map((x:int) => x.add(c));
-    public def mul(c: T){T <: Arithmetic[T]}   = map((x:int) => x.mul(c));
-    public def div(c: T){T <: Arithmetic[T]}   = map((x:int) => x.div(c));
-    public def codiv(c: T){T <: Arithmetic[T]} = map((x:int) => x.codiv(c));
-    public def sub(c: T){T <: Arithmetic[T]}   = map((x:int) => x.sub(c));
-    public def cosub(c: T){T <: Arithmetic[T]} = map((x:int) => x.cosub(c));
-    public def eq(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.eq(c));
-    public def lt(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.lt(c));
-    public def gt(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.gt(c));
-    public def ge(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.ge(c));
-    public def le(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.le(c));
-    public def ne(c: T){T <: Arithmetic[T]}    = andReduce(x:T=> x.ne(c));
 }

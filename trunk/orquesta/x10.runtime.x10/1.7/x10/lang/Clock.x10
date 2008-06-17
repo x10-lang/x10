@@ -29,18 +29,18 @@ public value clock {
      * considered de-registered from the clock after this method
      * returns.
      */
-    abstract public def drop():void;
+    abstract public def drop(): void;
 
     /**
      * An activity may call this method to determine whether it is
      * registered with this clock or not.
      */
-    abstract public def registered():boolean;
+    abstract public def registered(): boolean;
     
     /** Returns true iff this activity was registered on this clock
      * and has since dropped it.
      */
-    abstract public def dropped():boolean;
+    abstract public def dropped(): boolean;
 
     /**
      * Warning: Unsafe with a possibility of deadlock!
@@ -49,6 +49,6 @@ public value clock {
      * all registered clocks).
      * @see doNext
      */
-    public abstract def next():void; 
+    public abstract def next(): void; 
     
 }
