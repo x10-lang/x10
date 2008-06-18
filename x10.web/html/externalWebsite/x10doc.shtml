@@ -88,6 +88,10 @@
             <td class="left-nav" colspan="2"><a class="left-nav"
  href="x10faq.shtml">FAQ</a></td>
           </tr>
+          <tr>
+            <td class="left-nav" colspan="2"><a class="left-nav"
+ href="http://sf.net/projects/x10">SourceForge project page</a></td>
+          </tr>
           <tr class="left-nav-last">
             <td width="14"><img src="//www.ibm.com/i/c.gif" alt=""
  class="display-img" height="1" width="14"></td>
@@ -146,10 +150,14 @@ Research</a></td>
           <tr valign="top">
             <td width="10">&nbsp;</td>
             <td id="content" width="610"> <br>
-            <img src="//www.ibm.com/i/v14/icons/pdf.gif" alt=""
+            <!--<img src="//www.ibm.com/i/v14/icons/pdf.gif" alt=""
  align="middle" border="0" height="16" width="16"> <a
  href="docs/x10-101.pdf">X10 Language reference version
-1.01</a> <br>
+1.01</a> <br>-->
+            <img src="//www.ibm.com/i/v14/icons/pdf.gif" alt=""
+ align="middle" border="0" height="16" width="16"> <a
+ href="docs/x10-170.pdf">X10 Language reference version
+1.7</a> <br>
             <img src="//www.ibm.com/i/v14/icons/dn.gif" alt=""
  align="middle" border="0" height="16" width="16"> <a
  href="docs/ExternSetup.txt">Using the extern keyword</a> <br>
