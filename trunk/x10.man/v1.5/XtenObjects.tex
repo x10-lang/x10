@@ -7,16 +7,17 @@ created by using a allocation expression
 initializer. An object that is an instance of a reference (value) type
 is called a {\em reference} ({\em value}) {\em object}.
 
-All value and reference classes subclass from \xcd"x10.lang.Object".
-This class has one property \xcd"location" of type
-\xcd"x10.lang.Place". \index{place.location} Thus all objects in \Xten{}
-are located (have a place). However, \Xten{} permits value objects to
-be freely copied from place to place because they contain no mutable
-state.  It is permissible for a read of the \xcd"location" field of
-such a value to always return \xcd"here" (\Sref{Here});
-therefore no space needs to be allocated in the object representation
-for such a field.
-
+All reference classes subclass from \xcd"x10.lang.Ref".
+This class has one property \xcd"loc" of type
+\xcd"x10.lang.Place". \index{place.loc} Thus all reference objects in \Xten{}
+are located (have a place). 
+%However, \Xten{} permits value objects to
+%be freely copied from place to place because they contain no mutable
+%state.  It is permissible for a read of the \xcd"location" field of
+%such a value to always return \xcd"here" (\Sref{Here});
+%therefore no space needs to be allocated in the object representation
+%for such a field.
+%
 In \XtenCurrVer{} a reference object stays resident at the place at
 which it was created for its entire lifetime.
 
