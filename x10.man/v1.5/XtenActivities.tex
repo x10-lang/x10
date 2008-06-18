@@ -101,29 +101,28 @@ PlaceExpression \: Expression \\
 \end{grammar} 
 
 The place expression \xcd"e" is expected to be of type \xcd"Place",
-e.g., \xcd"here" or \xcd"Place.FIRST_PLACE" or \xcd"d[p]" for some
+e.g., \xcd"here" or \xcd"d(p)" for some
 distribution \xcd"d" and point \xcd"p" (\Sref{XtenPlaces}).  
 If not, the compiler replaces
-\xcd"e" with \xcd"e.location". (Recall that every expression in
-\Xten{} has a type; this type is a subtype of the root class
-\xcd"x10.lang.Object".  This class has a field \xcd"location" of
-type \xcd"Place" recording the place at which the value resides. See
-the documentation for \xcd"x10.lang.Object".)
+\xcd"e" with \xcd"e.loc" if
+\xcd"e" is of type \xcd"x10.lang.Ref". Otherwise the compiler reports a type error. 
 
-Note specifically that the expression \xcd"a[i]" when used as a place
-expression will evaluate to \xcd"a[i].location", which may not be
-the same place as \xcd"a.dist[i]". The programmer must be 
+Note specifically that the expression \xcd"a(i)" when used as a place
+expression may evaluate to \xcd"a(i).loc", which may not be
+the same place as \xcd"a.dist(i)". The programmer must be 
 careful to choose the right expression, appropriate for the statement.
-Accesses to \xcd"a[i]" within \grammarrule{Statement} should typically be guarded 
-by the place expression \xcd"a.dist[i]".
+Accesses to \xcd"a(i)" within \grammarrule{Statement} should typically be guarded 
+by the place expression \xcd"a.dist(i)".
 
 In many cases the compiler may infer the unique place at which the
 statement is to be executed by an analysis of the types of the
 variables occuring in the statement. (The place must be such that the
-statement can be executed safetly, without generating a \xcd"BadPlaceException".) In such cases the programmer may omit the place
-designator; the compiler will throw an error if it cannot 
-determine the unique designated place.\footnote{\XtenCurrVer{} does 
-not specify a particular algorithm; this will be fixed in future versions.}
+statement can be executed safely, without generating a
+\xcd"BadPlaceException".) In such cases the programmer may omit the
+place designator; the compiler will throw an error if it cannot
+determine the unique designated place.\footnote{\XtenCurrVer{} does
+not specify a particular algorithm; this will be fixed in future
+versions.}
 
 An activity $A$ executes the statement \xcd"async (P) S" by launching
 a new activity $B$ at the designated place, to execute the specified

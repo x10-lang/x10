@@ -21,22 +21,22 @@ Because of the importance of places in the \Xten{} design, special
 syntactic support is provided for constrained types involving places.
 
 All \Xten{} reference classes extend the class
-\xcd"x10.lang.Object", which defines a property
-\xcd"location" of type
+\xcd"x10.lang.Ref", which defines a property
+\xcd"loc" of type
 \xcd"Place".
 
 \begin{xten}
 package x10.lang;
-public class Object(location: place) { ... }  
+public class Ref(loc: place) { ... }  
 \end{xten}
 
 If a constrained reference type \xcd"T" has an \xcd"!p" suffix,
 the constraint for \xcd"T" is implicitly assumed to contain the clause
-\xcd"self.location==p"; that is,
-\xcd"C{c}!p" is equivalent to \xcd"C{self.location==p && c}".
+\xcd"self.loc==p"; that is,
+\xcd"C{c}!p" is equivalent to \xcd"C{self.loc==p && c}".
 
 If the place \xcd"p" is ommitted, \xcd"here" is assumed; that is,
-\xcd"C{c}!" is equivalent to \xcd"C{self.location==here && c}".
+\xcd"C{c}!" is equivalent to \xcd"C{self.loc==here && c}".
 
 % The place specifier \xcd"any" specifies that the object can be
 % located anywhere.  Thus, the location is unconstrained; that is,

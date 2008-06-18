@@ -168,15 +168,18 @@ The assignment expression \xcd"x = e" assigns a value given by
 expression \xcd"e"
 to a mutable variable \xcd"x".  There are three forms of
 assignment: \xcd"x" may be a local variable, it may be a field
-\xcd"y.f", or it may be location given by the expression \xcd"a(i)".
-In the last case, \xcd"a" must have a method \xcd"set" with the
-following signature:
-\begin{xten}
-def set[S,T](i: S, v: T): T;
-\end{xten}
+\xcd"y.f", or it may be the variable obtained by evaluating the expression \xcd"a(i)".
+In the last case, \xcd"a" must be an instance of a class implementing the interface
+ \xcd"x10.lang.Settable[S,T]", where 
+\xcd"S" and \xcd"T" are the types of \xcd"i" and \xcd"e", respectively.
 
-\noindent where \xcd"S" and \xcd"T" are instantiated on the
-types of \xcd"i" and \xcd"e", respectively.
+This interface is defined thus:
+\begin{xten}
+package x10.lang;
+public interface Settable[S,T] {
+    def set[S,T](i: S, v: T): T;
+}
+\end{xten}
 The assignment \xcd"a(i) = e" is equivalent to the call
 \xcd"a.set(i, e)".
 
@@ -190,11 +193,12 @@ locally. The assignment terminates when assignment has terminated at
 all sites hosting \xcd"D".
 }
 
+%% vj: fix. Use some other word for a mutable memory location, not ``location''. 
 For a binary operator
 $\mathit{op}$,
 the
 $\mathit{op}$-assignment expression \xcdmath"x $\mathit{op}$= e"
-evaluates \xcd"x" to a location, then evaluates \xcd"e",
+evaluates \xcd"x" to a memory location, then evaluates \xcd"e",
 applies the operation \xcdmath"x \mathit{op} e", and assigns the
 result into the location computed for \xcd"x".
 The expression is equivalent to \xcdmath"x = x $\mathit{op}$ e"

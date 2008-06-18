@@ -290,18 +290,17 @@ including in \xcd"instanceof" and cast expressions.
 However, the key semantic distinction between type properties
 and type parameters is that type properties are instance
 members.
-%
+% vj: fixed the text that follows Wed Jun 18 02:01:11 2008
         Type properties introduce {\em path types}.
-        Given an object
-        denoted by an expression \xcd"e" of type \xcd"T",
-        if \xcd"T" is a class or interface type declared with
-        a type property \xcd"X", then \xcd"e.X" is a type.
-Thus, for an expression \xcd"e" of type \xcd"Cell", \xcd"e.X" is a type
-and \xcd"e.get()" returns a value of that type.
-
-The path type \xcd"e.X" is equivalent to the type \xcd"T" to which
-the type property \xcd"X" was bound when \xcd"e" was
-instantiated.
+        Let \xcd"o" be the object obtained by evaluating an expression
+	\xcd"e" of type \xcd"T", where 
+        \xcd"T" is a class or interface type declared with
+        a type property \xcd"X". Then \xcd"e.X" is an expression
+	which evaluates to the type \xcd"T" that \xcd"X" was bound to when 
+	\xcd"o" was created. 
+Thus, for an expression \xcd"e" of type \xcd"Cell" (\xcd"e" must be a
+final access path, see below), \xcd"e.X" is a type and \xcd"e.get()"
+returns a value of that type.
 
 Within the body of a class, a property name \xcd"X" resolves
 to \xcd"this.X" (or to \xcd"C.this.X" if \xcd"X" is a property of
@@ -312,12 +311,11 @@ resolved.
 \label{FinalAccessPath}
 \index{final access path}
 
-        To ensure soundness of the type system, an expression
-        used in a type
-        must be a \emph{final access path}, either a final
-        local variable or foraml parameter (including the special variables
-        \xcd"this" and \xcd"self"), or a final field or value
-        property of a final access path.
+        To ensure soundness of the type system, the expression \xcd"e"
+	used in a path type \xcd"e.X" must be a \emph{final access
+	path}, either a final local variable or formal parameter
+	(including the special variables \xcd"this" and \xcd"self"),
+	or a final field or value property of a final access path.
 
 \section{Type parameters}
 \label{TypeParameters}
@@ -330,11 +328,12 @@ resolved.
 \index{parametrized constructors}
 \index{parametrized closures}
 
-        A method, constructor, closure, or type definition
-        may have type parameters, which
-        introduces a type whose scope is the signatures and body
-        of the declaring method, constructor, closure, or type
+        A method, constructor, or closure may have type parameters
+        whose scope is the signature and body of the declaring method,
+        constructor or closure. Similarly, a type definition may have
+        type parameters that scope over the body of the type
         definition.
+
         Type parameters may be constrained by a {\em where
         clause} on the declaration
         (\Sref{TypeDefWhereClause},\Sref{ConstructorWhereClause},\Sref{MethodWhereClause},\Sref{ClosureWhereClause}).
@@ -352,13 +351,12 @@ resolved.
 \index{declarations!type definitions}
 \index{types!path types}
 
-        Types may be defined through {\em type definitions}
-        (\Sref{TypeDefs}).
+        Types may be defined through {\em type definitions}.
         A type definition is a type alias or a type-valued function
         that maps value and type parameters to another type.
         A type definition may appear as a static or instance
         class or interface
-        member or in statement block.
+        member or in a statement block.
 
         Type definitions may have zero or more type parameters
         and value parameters.
@@ -377,21 +375,16 @@ The constraint \xcd"c" is called the \emph{where clause} of
 \xcd"X".  Finally, \xcd"U" is the defining type of \xcd"X".
 \label{TypeDefWhereClause}
 
-        For
-        type arguments 
-\xcdmath"S$_1$", \dots, \xcdmath"S$_m$"
-and value arguments
-\xcdmath"e$_1$", \dots, \xcdmath"e$_n$"
-with types
-\xcdmath"T$_1$", \dots, \xcdmath"T$_n$"
-such that the where clause \xcd"c" holds, then
-\xcdmath"X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
-is a type.
-The type defined by a type definition is equivalent to 
+The expresion \xcdmath"X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
+denotes a type whenever 
+\xcdmath"S$_1$", \dots, \xcdmath"S$_m$" are type arguments and 
+\xcdmath"e$_1$", \dots, \xcdmath"e$_n$" are value arguments with
+types \xcdmath"T$_1$", \dots, \xcdmath"T$_n$"
+such that the where clause \xcd"c" holds. The type denoted is
 the defining type \xcd"U" with the appropriate substitutions applied:
 \xcdmath"U[S$_1$/Y$_1$,$\dots$,S$_m$/Y$_m$,e$_1$/x$_1$,$\dots$,e$_n$/x$_n$)".
 
-        If a type definition 
+        If the type definition 
         is a static member of a class or
         interface \xcd"C", then the type definition
         defines the type constructor \xcd"C.X"
@@ -399,18 +392,17 @@ and
 \xcdmath"C.X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
 is a type.
 
-        If a type definition 
+        If the type definition 
         is an instance member of a class or
-        interface \xcd"C", then, for an expression of type
-        \xcd"e", the type definition
+        interface \xcd"C", then, for a final access path expression \xcd"e" of type \xcd"C",
+        the type definition
         defines the type constructor \xcd"e.X"
 and
 \xcdmath"e.X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
 is a type.
 
-        If a type definition 
-        appears in a statement block, then
-        the type definition
+        If the type definition 
+        appears in a statement block, then it
         defines the type constructor \xcd"X", visible in the
         remainder of the block,
 and
@@ -719,12 +711,8 @@ $\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
 
 With every defined class or interface \xcd"T" we associate a {\em type
 invariant} $\mathit{inv}($\xcd"T"$)$ as follows. The type
-invariant associated with \xcd"x10.lang.Object" is the
-proposition:
-
-\begin{xten}
-self.location: Place
-\end{xten}
+invariant associated with \xcd"x10.lang.Object" is 
+\xcd"true".
 
 The type invariant associated with any interface \xcd"I" that extends
 interfaces \xcdmath"I$_1$, $\dots$, I$_k$" and defines properties
@@ -948,8 +936,13 @@ Fields and methods of \xcd"T" may be accessed through an
 expression of type \xcd"Box[T]".
 If \xcd"T" implements an interface \xcd"I", then
 \xcd"Box[T]" also implements \xcd"I". 
-Note that if \xcd"T" is a subtype of \xcd"S",
-then \xcd"Box[T]" and \xcd"Box[S]" are unrelated.
+%% It used to say 
+%% Note that if \xcd"T" is a subtype of \xcd"S",
+%% then \xcd"Box[T]" and \xcd"Box[S]" are unrelated
+%% But what have we said before that would allow the reader to infer this?
+
+If \xcd"T" is a subtype of \xcd"S", then \xcd"Box[T]" and \xcd"Box[S]"
+are unrelated.
 
 There are implicit coercions from value objects to boxed value
 objects (\Sref{XtenConversions}).
@@ -966,7 +959,7 @@ val z = y to Box;        // box using to-operation
 \end{xten}
 
 Assignment of a value type \xcd"T" into a variable of compatible reference type
-(either \xcd"Box[T]", \xcd"Object", or an interface that is
+(either \xcd"Box[T]", \xcd"Ref", \xcd"Object", or an interface that is
 implemented by \xcd"T")
 automatically boxes the value.  Assignment of a boxed type
 \xcd"Box[T]" into
