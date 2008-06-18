@@ -87,6 +87,10 @@
             <td class="left-nav" colspan="2"><a class="left-nav"
  href="x10faq.shtml">FAQ</a></td>
           </tr>
+          <tr>
+            <td class="left-nav" colspan="2"><a class="left-nav"
+ href="http://sf.net/projects/x10">SourceForge project page</a></td>
+          </tr>
           <tr class="left-nav-last">
             <td width="14"><img src="//www.ibm.com/i/c.gif" alt=""
  class="display-img" height="1" width="14"></td>
