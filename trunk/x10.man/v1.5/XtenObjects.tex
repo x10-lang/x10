@@ -34,9 +34,11 @@ Instead, programmers should use atomic blocks
 
 A reference object may have many references, stored in fields of
 objects or components of arrays. A change to an object made through
-one reference is visible through another reference. \Xten{} mandates
+one reference is visible through another reference. 
+\eat{\Xten{} mandates
 that all accesses to mutable objects shared between multiple
 activities must occur in an atomic section (\Sref{AtomicBlocks}).
+}
 
 Note that the creation of a remote async activity
 (\Sref{AsyncActivity}) \xcd"A" at \xcd"P" may cause the automatic creation of

@@ -586,7 +586,8 @@ contain a \grammarrule{WhereClause}.
 MethodDeclaration \: MethodHeader \xcd";" \\
                   \| MethodHeader \xcd"=" ClosureBody \\
 MethodHeader \:  
-  MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \xcd"("
+  MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \\
+&& \xcd"(" 
   FormalParameterList\opt \xcd")" WhereClause\opt \\
   && ReturnType\opt Throws\opt \\
 \end{grammar}
