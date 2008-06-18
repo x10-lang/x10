@@ -71,9 +71,9 @@ inferred from the initializer type (\Sref{TypeInference}).
 
 \begin{grammar}
 LocalDeclaration
-        \: LocalModifier\star \xcd"var" LocalDeclaratorsWithType ( \xcd"," LocalDeclaratorsWithType )\star \\
-        \| LocalModifier\star \xcd"val" LocalDeclarators ( \xcd"," LocalDeclarators )\star \\
-        \| LocalModifier\star LocalDeclaratorsWithType ( \xcd"," LocalDeclaratorsWithType )\star \\
+        \: LocalModifier\star \xcd"var" LocalDeclaratorsWithType \\&& ( \xcd"," LocalDeclaratorsWithType )\star \\
+        \| LocalModifier\star \xcd"val" LocalDeclarators \\&& ( \xcd"," LocalDeclarators )\star \\
+        \| LocalModifier\star LocalDeclaratorsWithType \\&& ( \xcd"," LocalDeclaratorsWithType )\star \\
 LocalDeclarators
         \: LocalDeclaratorsWithType \\
         \: LocalDeclaratorWithInit \\
@@ -105,10 +105,10 @@ object.
 
 \begin{grammar}
 FieldDeclaration
-        \: FieldModifier\star \xcd"var" FieldDeclaratorsWithType ( \xcd"," FieldDeclaratorsWithType )\star \\
-        \| FieldModifier\star \xcd"const" FieldDeclarators ( \xcd"," FieldDeclarators )\star \\
-        \| FieldModifier\star \xcd"val" FieldDeclarators ( \xcd"," FieldDeclarators )\star \\
-        \| FieldModifier\star FieldDeclaratorsWithType ( \xcd"," FieldDeclaratorsWithType )\star \\
+        \: FieldModifier\star \xcd"var" FieldDeclaratorsWithType \\&& ( \xcd"," FieldDeclaratorsWithType )\star \\
+        \| FieldModifier\star \xcd"const" FieldDeclarators \\&& ( \xcd"," FieldDeclarators )\star \\
+        \| FieldModifier\star \xcd"val" FieldDeclarators \\&& ( \xcd"," FieldDeclarators )\star \\
+        \| FieldModifier\star FieldDeclaratorsWithType \\&& ( \xcd"," FieldDeclaratorsWithType )\star \\
 FieldDeclarators
         \: FieldDeclaratorsWithType \\
         \: FieldDeclaratorWithInit \\
