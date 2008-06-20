@@ -2,13 +2,14 @@
 
 #include "rts_messaging.h"
 
-#include "queue.h"
+#include "xqueue.h"
 
 #include "x10_internal.h"
 
 static x10_finish_record_t __x10_global_frecord = {0, 0};
 
-EXTERN void __x10_callback_asyncswitch(x10_async_closure_t* closure, x10_finish_record_t* frecord, x10_clock_t* clocks, int num_clocks);
+EXTERN void __x10_callback_asyncswitch(x10_async_closure_t* closure, x10_finish_record_t* frecord, 
+				       x10_clock_t* clocks, int num_clocks);
 
 x10_async_queue_t __x10_async_queue;
 
@@ -22,9 +23,7 @@ X10::Acts::AsyncSpawn(const Place tgt,
 		      const int num_clocks)
 {  
   assert(num_clocks == 0); //clocks not handled yet
-  
-  x10_comm_handle_t comm_handle;  
-  
+    
   size_t header_size;
   
   __upcrt_AMHeader_t* header;
@@ -67,24 +66,30 @@ X10::Acts::AsyncSpawn(const Place tgt,
       __x10::FinishBookeepingOutgoing (&__x10_global_frecord, tgt);  
     }
     
-  comm_handle.rts_handle =  __upcrt_distr_amsend_post (tgt,
-						       header,
-						       (__xlupc_local_addr_t) closure,
-						       cl_size);  
-  comm_handle.header_buf = (void*) header;
+  __x10::CommHandle* comm_handle = new __x10::CommHandle;  
+  
+  comm_handle->async_handle =  __upcrt_distr_amsend_post (tgt,
+							  header,
+							  (__xlupc_local_addr_t) closure,
+							  cl_size);  
+  
+  comm_handle->header_buf = (void*) header;
   
   return comm_handle;
 }
 
-
 X10::Err
 X10::Acts::AsyncSpawnWait (CommHandle req)
 {
-  __upcrt_distr_wait (req.rts_handle);
+  __x10::CommHandle* handle = (__x10::CommHandle*) req;
+
+  __upcrt_distr_wait (handle->async_handle);
   
-  if (req.header_buf)
-    free (req.header_buf);
+  if (handle->header_buf)
+    free (handle->header_buf);
   
+  free(req);
+
   return X10_OK;
 }
 
@@ -117,7 +122,7 @@ x10_async_spawn(const x10_place_t tgt,
 		const x10_clock_t* clocks, 
 		const int num_clocks)
 {
-  return X10::Acts::AsyncSpawn(tgt, closure, cl_size, frecord, clocks, num_clocks);
+  return X10::Acts::AsyncSpawn(tgt, (X10::AsyncClosure*) closure, cl_size, frecord, clocks, num_clocks);
 }
 
 x10_err_t
@@ -150,7 +155,7 @@ __xlupc_local_addr_t __x10::NormalAsyncHandler(const __upcrt_AMHeader_t* header,
 						 __upcrt_AMComplHandler_t** comp_h, 
 						 void** arg)  
 {
-  printf ("NORMAL async handler\n");
+  //  printf ("NORMAL async handler\n");
 
   __x10::AsyncDescr* async_descr = (__x10::AsyncDescr*) malloc (sizeof(__x10::AsyncDescr));
   
@@ -173,7 +178,7 @@ __xlupc_local_addr_t __x10::GlobalAsyncHandler(const __upcrt_AMHeader_t* header,
 						 __upcrt_AMComplHandler_t** comp_h,
 					       void** arg)
 {
-  printf ("GLOBAL async handler\n");
+  //  printf ("GLOBAL async handler\n");
   
   __x10::FinishBookeepingIncoming(&__x10_global_frecord);
   

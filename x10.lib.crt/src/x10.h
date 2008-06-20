@@ -5,7 +5,6 @@
 #include <sys/types.h>
 #include <stdint.h>
 
-
 #ifdef __cplusplus
 #define EXTERN extern "C"
 #else
@@ -16,6 +15,7 @@
 #define bool char
 #endif
 
+/* primitive types */
 typedef bool     x10_boolean_t;
 typedef int8_t   x10_byte_t;
 typedef uint16_t x10_char_t;
@@ -25,12 +25,14 @@ typedef long     x10_long_t;
 typedef float    x10_float_t;
 typedef double   x10_double_t;
 
+/* address type */
 typedef unsigned char* x10_addr_t;
 
-/*	place 		*/
+/*	place  type	*/
 typedef x10_long_t	x10_place_t;
 
-typedef enum { X10_OK, X10_NOT_OK} x10_err_t;
+/* error type */
+typedef enum {X10_OK, X10_NOT_OK} x10_err_t;
 
 typedef struct
 {
@@ -43,11 +45,7 @@ typedef struct
   x10_long_t handler;
 } x10_async_closure_t;
 
-typedef struct
-{
-  void* rts_handle;
-  void* header_buf;
-} x10_comm_handle_t;
+typedef void* x10_comm_handle_t;
 
 /*	clock	*/
 typedef struct
@@ -59,13 +57,10 @@ typedef struct
 {
   x10_place_t loc;
   x10_addr_t addr;
-} x10_proxy_t;
-
-typedef x10_proxy_t x10_remote_ref_t;
+} x10_remote_ref_t;
 
 /*	condition variables	*/
 typedef  unsigned 	x10_condition_t;
-
   
 /* init/finalize */
 
@@ -101,6 +96,10 @@ EXTERN x10_comm_handle_t
 x10_async_spawn(const x10_place_t tgt, const x10_async_closure_t* closure, const size_t cl_size, 
 		const x10_finish_record_t* frecord, const x10_clock_t* clocks, const int num_clocks);
 
+EXTERN x10_err_t
+x10_async_spawn_imm(const x10_place_t tgt, const x10_async_closure_t* closure, const size_t cl_size, 
+		const x10_finish_record_t* frecord, const x10_clock_t* clocks, const int num_clocks);
+
 /**
  * \brief wait for the async_spawn to complete locally  (BLOCKING)
  
@@ -111,7 +110,6 @@ x10_async_spawn(const x10_place_t tgt, const x10_async_closure_t* closure, const
 
 EXTERN x10_err_t
 x10_async_spawn_wait(x10_comm_handle_t handle);
-
 
 /**
  * \brief check for any asyncs in the internal async queue and execute them.
@@ -223,32 +221,32 @@ x10_next_all();
  * \brief serialize a reference (local or remote)
  */
 EXTERN x10_remote_ref_t 
-x10_serialize_ref(x10_addr_t ref);
+x10_ref_serialize(x10_addr_t ref);
 
 /**
  * \brief deserialize a remote reference
  */
 EXTERN x10_addr_t
-x10_deserialize_ref(x10_remote_ref_t ref);
+x10_ref_deserialize(x10_remote_ref_t ref);
 
 /**
- *\ brief get the location of a reference
+ *\brief get the location of a reference
  */
 EXTERN x10_place_t
-x10_get_loc(x10_addr_t ref);
+x10_ref_get_loc(x10_addr_t ref);
 
 /**
  * \brief check if the reference is local
  */
 EXTERN bool
-x10_is_localref (x10_addr_t ref);
+x10_ref_is_local (x10_addr_t ref);
 
 
 EXTERN x10_addr_t
-x10_get_addr (x10_addr_t ref);
+x10_ref_get_addr (x10_addr_t ref);
 
 EXTERN bool
-x10_is_equal(x10_addr_t ref1, x10_addr_t ref2);
+x10_ref_is_equal(x10_addr_t ref1, x10_addr_t ref2);
 
 #if defined(__cplusplus) 
 
@@ -258,16 +256,12 @@ namespace X10 {
   
   typedef x10_err_t Err;
   
-  typedef x10_async_closure_t AsyncClosure;
-  
   typedef x10_finish_record_t FinishRecord;
   
   typedef x10_comm_handle_t CommHandle;
   
   typedef x10_clock_t Clock;
-  
-  typedef x10_proxy_t Proxy;
-    
+      
   typedef x10_condition_t Condition;  
 
   class RemoteRef;
@@ -279,73 +273,95 @@ namespace X10 {
   Err Init();
   
   Err Finalize();
-  
-  RemoteRef SerializeRef(Addr ref);
-  
-  Addr DeserializeRef(RemoteRef);
-  
-  Place GetLoc(Addr ref);
-  
-  bool IsLocalRef(Addr ref);
+    
+  class AsyncClosure
+  {
 
-  Addr GetAddr(Addr ref);
-  
-  bool IsEqual(Addr ref1, Addr ref2);
-  
+  public:
+
+    AsyncClosure();
+    
+    AsyncClosure(x10_async_closure_t handler);
+    
+    operator x10_async_closure_t() const;    
+    
+    AsyncClosure(const AsyncClosure& closure);
+
+    x10_async_closure_t handler() const;
+    
+  private:
+    
+    x10_async_closure_t __handler;
+  };
+
   class RemoteRef
-    {     
-    public:
+  {         
+  public:
+    
+    RemoteRef();
+    
+    RemoteRef(x10_remote_ref_t ref);
+    
+    operator x10_remote_ref_t() const;
       
-      RemoteRef();
-
-      RemoteRef(x10_remote_ref_t ref);
+    RemoteRef(const RemoteRef& ret);
+    
+    Addr GetAddr() const;
+    
+    Place GetLoc() const;
+    
+    void SetLoc (Place p);
+    
+    void SetAddr (Addr a);
+    
+  private:
+    
+    x10_remote_ref_t __ref;
+    
+  public :
       
-      operator x10_remote_ref_t() const;
-
-      RemoteRef(const RemoteRef& ret);
-      
-      Addr GetAddr() const;
-      
-      Place GetLoc() const;
-      
-      void SetLoc (Place p);
-
-      void SetAddr (Addr a);
-    private:
-      
-      x10_remote_ref_t __ref;
-    };
+    static RemoteRef Serialize(Addr ref);
+    
+    static Addr Deserialize(RemoteRef);
+    
+    static Place GetLoc(Addr ref);
+    
+    static bool IsLocal(Addr ref);
+    
+    static Addr GetAddr(Addr ref);
+    
+    static bool IsEqual(Addr ref1, Addr ref2);
+  };
   
   class Place
-    {      
-
-    public:
-      
-      Place(x10_place_t id);
-      
-      operator x10_place_t() const;      
-  
-      operator x10_place_t() ;
+  {      
+  public:
     
-      Place(const Place& p);
-      
-      const Place& operator=(const Place& p);
-      
-      const bool operator== (const Place& p) const;
-      
-    private:      
-      
-      x10_place_t __id;      
-      
-    };
+    Place(x10_place_t id);
+    
+    operator x10_place_t() const;      
+    
+    operator x10_place_t() ;
+    
+    Place(const Place& p);
+    
+    const Place& operator=(const Place& p);
+    
+    const bool operator== (const Place& p) const;
+    
+  private:      
+    
+    x10_place_t __id;      
+    
+  };
   
   static x10_place_t Nplaces();
   
   static Place Here();      
   
   class Acts
-    {
-      
+    {      
+
     public:
       
       static Err Probe();
@@ -356,16 +372,19 @@ namespace X10 {
       
       static Err AsyncSpawnWait(const CommHandle handle);
       
-      static Err FinishChild(const x10_finish_record_t* frecord, void* ex_buf, int ex_buf_size);
+      static Err FinishChild(const FinishRecord* frecord, void* ex_buf, int ex_buf_size);
       
-      static Err FinishBegin(x10_finish_record_t* frecord, void* multi_ex_buf, int* ex_offsets, int max_ex_buf_size, int max_num_exceptions);
-      
-      static Err FinishBeginGlobal(x10_finish_record_t* frecord, void* multi_ex_buf, int* ex_offsets, int max_ex_buf_size, int max_num_exceptions);
-      
-      static Err  FinishEnd(const x10_finish_record_t* frecord, int* num_exceptions);	 
+      static Err FinishBegin(FinishRecord* frecord, void* multi_ex_buf, int* ex_offsets, int max_ex_buf_size, int max_num_exceptions);    
+
+      static Err FinishBeginGlobal(FinishRecord* frecord, void* multi_ex_buf, int* ex_offsets, int max_ex_buf_size, int max_num_exceptions);      
+      static Err  FinishEnd(const FinishRecord* frecord, int* num_exceptions);	 
     };  
 }
 
 #endif
 
 #endif
+
+// Local Variables:
+// mode: C++
+// End:
