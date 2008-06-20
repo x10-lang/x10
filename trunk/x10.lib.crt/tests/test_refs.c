@@ -24,10 +24,10 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure,
     
   case 1: {
     my_closure_t* cl = (my_closure_t*) closure;
-    void* ref = x10_deserialize_ref(cl->foo_local);
+    void* ref = x10_ref_deserialize(cl->foo_local);
     printf ("foo_remote_ref : %d %x\n", cl->foo_local.loc, cl->foo_local.addr);
     printf ("%x \n", ref);
-    printf ("%d\n", x10_get_loc(ref));
+    printf ("%d\n", x10_ref_get_loc(ref));
   }
     break;
   }
@@ -48,9 +48,9 @@ int main()
     foo_local->a = 1;
     foo_local->b = 'a';
     
-    assert (x10_get_loc((x10_addr_t) foo_local) == x10_here());
+    assert (x10_ref_get_loc((x10_addr_t) foo_local) == x10_here());
     
-    x10_remote_ref_t foo_ref = x10_serialize_ref ((x10_addr_t) foo_local);
+    x10_remote_ref_t foo_ref = x10_ref_serialize ((x10_addr_t) foo_local);
 
     printf ("foo_ref : %d %x\n", foo_ref.loc, foo_ref.addr);
 

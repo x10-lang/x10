@@ -1,3 +1,6 @@
+#include <assert.h>
+#include <math.h>
+
 #include "x10.h"
 
 typedef struct 
@@ -28,9 +31,9 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure,
   switch (my_closure->base.handler) {
     
   case 1: {
-
+    
     int i;
-
+    
     for (i = 0; i < 10; i++) {    
       
       x10_comm_handle_t req = x10_async_spawn((x10_here() + 1) % x10_nplaces(), closure, 
@@ -58,7 +61,7 @@ int main()
     
     my_closure_t closure;
     closure.base.handler = 1;
-    closure.magic_number = 1729;
+    closure.magic_number = 1;
     
     x10_finish_record_t frecord;
     
@@ -74,8 +77,11 @@ int main()
       }
     
     x10_finish_end(&frecord, &tmp);
+
+
+    //    printf ("val : %d\n", val);
     
-    printf ("val : %d\n", val);
+    assert (val == pow(10, (x10_nplaces())));
     
   } else {
     

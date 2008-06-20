@@ -35,9 +35,9 @@ int main()
 
     x10_remote_ref_t proxy = {1, (x10_addr_t) a};
 
-    x10_addr_t ref = x10_deserialize_ref(proxy);
+    x10_addr_t ref = x10_ref_deserialize(proxy);
 
-    printf ("%d %x\n", x10_get_loc(ref), (void*) x10_get_addr(ref));
+    printf ("%d %x\n", x10_ref_get_loc(ref), (void*) x10_ref_get_addr(ref));
 
     x10_comm_handle_t req = x10_array_put ((x10_addr_t) a, ref, 0, 100 * sizeof(int));
 

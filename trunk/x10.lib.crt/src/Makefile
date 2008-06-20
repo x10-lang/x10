@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.5 2008-05-28 13:56:48 ganeshvb Exp $
+# $Id: Makefile,v 1.6 2008-06-20 13:53:26 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -23,9 +23,8 @@ SRCS = array_copy.cc\
        finish.cc\
        init.cc \
 	place.cc\
-       queue.cc\
-       refs.cc\
-	remote_ref.cc
+       xqueue.cc\
+       refs.cc
 
 
 OBJS = array_copy.o\
@@ -33,9 +32,8 @@ OBJS = array_copy.o\
        finish.o \
 	place.o\
        init.o \
-       queue.o\
-       refs.o\
-	remote_ref.o
+       xqueue.o\
+       refs.o
 
 HEADERS = x10_acts.h \
           x10_types.h

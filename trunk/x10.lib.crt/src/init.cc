@@ -25,11 +25,13 @@ __xlupc_local_addr_t __x10::TerminationHandler (const __upcrt_AMHeader_t* header
 x10_err_t
 X10::Init()
 {
+  __upcrt_distr_setup(0, (unsigned int*) &__x10::here, (unsigned int*) &__x10::nplaces);
+
   __x10::FinishInit();
   
   __x10::AsyncInit();
 
-  __upcrt_distr_setup(0, (unsigned int*) &__x10::here, (unsigned int*) &__x10::nplaces);
+  __upcrt_distr_barrier(0, 1);
   
   return X10_OK;
 }

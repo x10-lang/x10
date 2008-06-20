@@ -1,7 +1,7 @@
 #
 # (c) IBM Coporation 2007
 #
-# $Id: Make.LINUX,v 1.1.1.1 2008-05-20 13:46:25 ganeshvb Exp $
+# $Id: Make.LINUX,v 1.2 2008-06-20 13:53:25 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -17,7 +17,7 @@ X10_DEVEL_HOME =
 CC = gcc -I /home/bikshand/libs/lapi/include -g
 CFLAGS = -O3 
 CXX = gcc 
-CXXFLAGS = -Wall -g -DSTANDALONE 
+CXXFLAGS = -Wall -g -O3 -DSTANDALONE 
 X10CXX = $(X10_DEVEL_HOME)/x10/x10.backend/bin/x10c++
 X10CXXFLAGS =
 
