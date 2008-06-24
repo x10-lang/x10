@@ -71,11 +71,11 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		this.type = type;
 	}
 
-	public Id id() {
+	public Id name() {
 		return this.id;
 	}
 
-	public TypeDecl id(Id id) {
+	public TypeDecl name(Id id) {
 		TypeDecl_c n = (TypeDecl_c) copy();
 		n.id = id;
 		return n;
@@ -154,7 +154,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	protected Node reconstruct(FlagsNode flags, Id name, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr where, TypeNode type) {
 		TypeDecl_c n = this;
 		n = (TypeDecl_c) n.flags(flags);
-		n = (TypeDecl_c) n.id(name);
+		n = (TypeDecl_c) n.name(name);
 		n = (TypeDecl_c) n.typeParameters(typeParams);
 		n = (TypeDecl_c) n.formals(formals);
 		n = (TypeDecl_c) n.whereClause(where);
@@ -193,7 +193,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 			}
 	        	Type t = X10TypeMixin.xclause(f.type().type(), c);
 	        	formalTypes.add(f.type().typeRef());
-	        	formalNames.add(f.id().id());
+	        	formalNames.add(f.name().id());
 	        }
 	        typeDef.setFormalTypes(formalTypes);
 	        typeDef.setFormalNames(formalNames);
@@ -234,7 +234,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		return succs;
 	}
 
-	public String name() {
+	public String nameString() {
 		return id.id();
 	}
 

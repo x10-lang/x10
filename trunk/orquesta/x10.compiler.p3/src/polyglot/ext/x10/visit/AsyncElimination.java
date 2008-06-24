@@ -69,7 +69,7 @@ public class AsyncElimination extends NodeVisitor {
             Call c = (Call) n;
             List args = c.arguments();
             Receiver r = c.target();
-            if (("force".equals(c.id().id()) || "apply".equals(c.id().id())) && args.size() == 0 && r instanceof Future) {
+            if (("force".equals(c.name().id()) || "apply".equals(c.name().id())) && args.size() == 0 && r instanceof Future) {
                 Future f = (Future) r;
                 Block f_block = f.body();
                 if (isOptimizableClosureBlock_(f_block)) {

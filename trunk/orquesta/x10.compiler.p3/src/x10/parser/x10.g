@@ -3593,7 +3593,8 @@
         ./
                  | ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
         /.$BeginJava
-                    setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
+                 //   setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
+                    setResult(nf.Assign(pos(), nf.X10ArrayAccessAssign(pos(), e1.toExpr(), ArgumentList), AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
     

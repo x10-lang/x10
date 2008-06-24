@@ -208,8 +208,8 @@ implements ArrayConstructor {
 					List<ClassMember> pointwise_members = new TypedList(new LinkedList(), ClassMember.class, false);
 
 					List<Formal> apply_formals = new TypedList(new LinkedList(), Formal.class, false);
-					Formal formal = nf.Formal(position(), nf.FlagsNode(position(), Flags.NONE), init_closure_formal.type(), init_closure_formal.id());
-					formal = formal.localDef(ts.localDef(position(), Flags.NONE, newBaseType, init_closure_formal.id().id()));
+					Formal formal = nf.Formal(position(), nf.FlagsNode(position(), Flags.NONE), init_closure_formal.type(), init_closure_formal.name());
+					formal = formal.localDef(ts.localDef(position(), Flags.NONE, newBaseType, init_closure_formal.name().id()));
 					
 					apply_formals.add(formal);
 
@@ -234,7 +234,7 @@ implements ArrayConstructor {
 					anon_type.kind(ClassDef.ANONYMOUS);
 					anon_type.position(position());
 					anon_type.outer(Types.ref(tc.context().currentClassDef()));
-					apply_method = apply_method.methodDef(ts.methodDef(position(), Types.ref(anon_type.asType()), apply_method.flags().flags(), apply_method.returnType().typeRef(), apply_method.name(), apply_arg_types, new ArrayList()));
+					apply_method = apply_method.methodDef(ts.methodDef(position(), Types.ref(anon_type.asType()), apply_method.flags().flags(), apply_method.returnType().typeRef(), apply_method.nameString(), apply_arg_types, new ArrayList()));
 					pointwise_members.add(apply_method);
 					ClassBody pointwise_body = nf.ClassBody(position(), pointwise_members);
 					TypeNode pointwise_type = nf.CanonicalTypeNode(position(), ts.OperatorPointwise());

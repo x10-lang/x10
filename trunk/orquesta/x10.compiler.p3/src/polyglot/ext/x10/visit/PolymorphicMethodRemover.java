@@ -56,7 +56,7 @@ public class PolymorphicMethodRemover extends ContextVisitor {
 						flags = flags.clearSafe();
 						flags = flags.clearSequential();
 
-						String newName = md.id().id();
+						String newName = md.name().id();
 
 						ClassBody newBody = nf.ClassBody(md.position(), Collections.<ClassMember>singletonList(md));
 						List<TypePropertyNode> typeProps = new TransformingList<TypeParamNode, TypePropertyNode>(md.typeParameters(), new Transformation<TypeParamNode, TypePropertyNode>() {
@@ -64,7 +64,7 @@ public class PolymorphicMethodRemover extends ContextVisitor {
 								return nf.TypePropertyNode(o.position(), o.id(), TypeProperty.Variance.INVARIANT);
 							}
 						});
-						X10ClassDecl cd = nf.X10ClassDecl(md.position(), md.flags().flags(flags), md.id(), typeProps, Collections.EMPTY_LIST, null, nf.CanonicalTypeNode(md.position(), Types.ref(ts.Object())), Collections.EMPTY_LIST, newBody);
+						X10ClassDecl cd = nf.X10ClassDecl(md.position(), md.flags().flags(flags), md.name(), typeProps, Collections.EMPTY_LIST, null, nf.CanonicalTypeNode(md.position(), Types.ref(ts.Object())), Collections.EMPTY_LIST, newBody);
 						members.add(cd);
 					}
 					else {

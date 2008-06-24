@@ -108,7 +108,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         ClassDef currentClass = tb.currentClass();
 
         // Set the constructor name to the short name of the class, to shut up the Java type-checker.
-	n = (X10ConstructorDecl_c) n.id(nf.Id(n.position(), currentClass.name()));
+	n = (X10ConstructorDecl_c) n.name(nf.Id(n.position(), currentClass.name()));
         
         X10ConstructorDef ci = (X10ConstructorDef) n.constructorDef();
         

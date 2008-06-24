@@ -186,7 +186,7 @@ public class X10Field_c extends Field_c {
 	protected X10Field_c checkArrayFields(X10Field_c result) {
 		Type aType = result.target.type();
 		X10TypeSystem xts = (X10TypeSystem) aType.typeSystem();
-		if (result.name().equals("distribution") && xts.isX10Array(aType)) {
+		if (result.nameString().equals("distribution") && xts.isX10Array(aType)) {
 			Type aType1 = aType;
 			Type type = result.type();
 			//Report.report(1, "X10Field_c aType1=" + aType1 + " " + aType1.getClass());
@@ -221,7 +221,7 @@ public class X10Field_c extends Field_c {
 			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
 			return result;
 		}
-		if (name().equals(X10TypeSystem.REGION_FIELD) && (xts.isX10Array(aType) || xts.isDistribution(aType)) ) {
+		if (nameString().equals(X10TypeSystem.REGION_FIELD) && (xts.isX10Array(aType) || xts.isDistribution(aType)) ) {
 			Type aType1 = (aType instanceof NullableType ? 
 					((NullableType) aType).base() : aType);
 			Type type = result.type();
