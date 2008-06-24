@@ -1,164 +1,213 @@
-/**
- * 
- */
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.MacroType_c.FormalToVarTransform;
+import polyglot.types.Def;
+import polyglot.types.DerefTransform;
+import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
+import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
+import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Type_c;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.TransformingList;
+import polyglot.util.TypedList;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XSelf;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
 
-public class PathType_c extends Type_c implements PathType {
-	C_Var base;
+public class PathType_c extends ParametrizedType_c implements PathType {
 	TypeProperty prop;
-	
-	PathType_c(TypeSystem ts, Position pos, C_Var base, TypeProperty prop) {
+	XVar base;
+	Type baseType;
+
+	public PathType_c(TypeSystem ts, Position pos, XVar base, Type baseType, TypeProperty prop) {
 		super(ts, pos);
-		this.base = base;
 		this.prop = prop;
+		this.base = base;
+		this.baseType = baseType;
+	}
+
+	@Override
+	public PathType container(ReferenceType container) {
+		return (PathType) super.container(container);
 	}
 	
-	public C_Var base() {
+	@Override
+	public PathType flags(Flags flags) {
+		return (PathType) super.flags(flags);
+	}
+	
+	public String name() {
+		if (this.name == null) { 
+			this.name = def().name();
+		}
+		return this.name;
+	}
+	
+	@Override
+	public PathType name(String name) {
+		return (PathType) super.name(name);
+	}
+	
+	@Override
+	public boolean equalsImpl(TypeObject t) {
+		if (t instanceof PathType) {
+			return super.equalsImpl(t);
+		}
+		return false;
+	}
+
+	public XVar base() {
 		return base;
 	}
 	
-	public TypeProperty property() {
-		return prop;
+	public Type baseType() {
+		return baseType;
 	}
-
-	public PathType base(C_Var base) {
+	
+	public PathType base(XVar base, Type baseType) {
 		PathType_c t = (PathType_c) copy();
 		t.base = base;
 		return t;
 	}
 	
-	public PathType property(TypeProperty prop) {
-		PathType_c t = (PathType_c) copy();
-		t.prop = prop;
+	public static XVar pathBase(Type t) {
+		t = X10TypeMixin.xclause(t, null);
+		if (t instanceof PathType) {
+			PathType pt = (PathType) t;
+			return pt.base();
+		}
+		return null;
+	}
+	
+	public static Type pathBase(Type t, XVar base, Type baseType) {
+		XConstraint c = X10TypeMixin.xclause(t);
+		t = X10TypeMixin.xclause(t, null);
+		if (t instanceof PathType) {
+			PathType pt = (PathType) t;
+			return X10TypeMixin.xclause(pt.base(base, baseType), c);
+		}
 		return t;
 	}
+
+	public TypeProperty def() {
+		return prop;
+	}
+
+	public TypeProperty property() {
+		return prop;
+	}
 	
-    // BEGIN DEPENDENT TYPE MIXIN
-    protected Ref<? extends Constraint> depClause;
-    protected List<Ref<? extends Type>> typeParams; // should be folded into depClause as constraint on type properties
-    
-    /** Cached real clause, computed from the depClause and the rootType's class invariant, if any. */
-    protected Constraint realClause;
-    protected SemanticException realClauseInvalid;
+	public ReferenceType container() {
+		return Types.get(prop.container());
+	}
 
-    public Constraint getRealClause() { return realClause; }
-    public void setRealClause(Constraint c, SemanticException error) {
-        this.realClause = c;
-        this.realClauseInvalid = error;
-    }
+	public List<Type> typeParams() {
+		return Collections.EMPTY_LIST;
+	}
 
-    public Ref<? extends Constraint> getDepClause() { return depClause; }
-    public void setDepClause(Ref<? extends Constraint> c) {
-        this.depClause = c;
-        this.realClause = null; // force recomputation
-        this.realClauseInvalid = null;
-    }
-    public List<Ref<? extends Type>> getTypeParams() { return typeParams; }
-    public void setTypeParams(List<Ref<? extends Type>> l) {
-        this.typeParams = l;
-    }
-    
-    public C_Var selfVar() { return X10TypeMixin.selfVar(this); }
-    public X10Type makeNoClauseVariant() { return X10TypeMixin.makeNoClauseVariant(this); }
-    public X10Type makeVariant(Constraint c, List<Type> l) { return X10TypeMixin.makeVariant(this, c, l); }
-    public boolean isConstrained() { return X10TypeMixin.isConstrained(this); }
-    public boolean isParametric() { return X10TypeMixin.isParametric(this); }
+	public List<XVar> formals() {
+		return Collections.<XVar>singletonList(base());
+	}
 
-    public Constraint depClause() { return X10TypeMixin.depClause(this); }
-    public List<Type> typeParameters() { return X10TypeMixin.typeParameters(this); }
-    public Constraint realClause() { return X10TypeMixin.realClause(this); }
+	public List<Type> formalTypes() {
+		return Collections.<Type>singletonList(baseType());
+	}
 
-    public X10Type depClause(Constraint c) { return X10TypeMixin.depClause(this, Types.ref(c)); }
-    public X10Type depClause(Ref<? extends Constraint> c) { return X10TypeMixin.depClause(this, c); }
-    public X10Type typeParams(List<Ref<? extends Type>> l) { return X10TypeMixin.typeParams(this, l); }
+	public XConstraint whereClause() {
+		return null;
+	}
+	
+	public PathType typeParams(List<Type> typeParams) {
+		assert typeParams.size() == 0;
+		return this;
+	}
 
-    public Constraint getRootClause() {
-        return new Constraint_c((X10TypeSystem) ts);
-    }
-    
-    public void checkRealClause() throws SemanticException {
-        if (realClause == null) {
-            Constraint c = X10TypeMixin.realClause(this);
-            assert c == realClause; // make sure the result got cached
-        }
-        if (realClauseInvalid != null) {
-            throw realClauseInvalid;
-        }
-    }
+	public PathType formals(List<XVar> formals) {
+		assert formals.size() == 1;
+		PathType_c t = (PathType_c) copy();
+		t.base = formals.get(0);
+		return t;
+	}
 
-    public X10Type rootType() {
-        return X10TypeMixin.makeNoClauseVariant(this);
-    }
-    
-    public boolean equalsWithoutClauseImpl(Type o) {
-        return X10TypeMixin.equalsIgnoreClause(this, (X10Type) o);
-    }
-    // END DEPENDENT TYPE MIXIN
-    
+	public PathType formalTypes(List<Type> formalTypes) {
+		assert formalTypes.size() == 1;
+		PathType_c t = (PathType_c) copy();
+		t.baseType = formalTypes.get(0);
+		return t;
+	}
+
+	
+	@Override
 	public String translate(Resolver c) {
-		// should be the property bound
-		return "java.lang.Object";
+		assert false : "Cannot translate " + this;
+		return "";
 	}
 	
-	public boolean isFuture() {
-		return false;
-	}
-	public boolean isNullable() {
-		return false;
-	}
-	public boolean safe() {
-		return true;
-	}
-	public FutureType toFuture() {
-		return null;
-	}
-	public NullableType toNullable() {
-		return null;
-	}
-
 	public String toString() {
-	    return toStringForDisplay();
-	}
-	
-	public String toStringForDisplay() {
 		StringBuffer sb = new StringBuffer();
-		sb.append(base + "." + prop.name());
-		sb.append(X10TypeMixin.clauseToString(this));
+		sb.append(base());
+		sb.append(".");
+		sb.append(name());
 		return sb.toString();
 	}
-	
-	public boolean typeEquals(Type t) {
-		if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
-			return X10TypeMixin.typeEquals(this, (X10Type) t);
-		if (t instanceof PathType_c) {
-			PathType_c pt = (PathType_c) t;
-			return base.equals(pt.base) && prop.equals(pt.prop);
+
+	@Override
+	public List<FieldInstance> fields() {
+		Type base = lowerBound();
+		if (base instanceof ReferenceType) {
+			return ((ReferenceType) base).fields();
 		}
-		return false;
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<Type> interfaces() {
+		Type base = lowerBound();
+		if (base instanceof ReferenceType) {
+			return ((ReferenceType) base).interfaces();
+		}
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<MethodInstance> methods() {
+		Type base = lowerBound();
+		if (base instanceof ReferenceType) {
+			return ((ReferenceType) base).methods();
+		}
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Type superType() {
+		Type base = lowerBound();
+		if (base instanceof ReferenceType) {
+			return ((ReferenceType) base).superType();
+		}
+		return null;
+	}
+
+	public Type lowerBound() {
+		return null;
 	}
 	
-	public boolean isSubtype(Type t) {
-		if (X10TypeMixin.eitherIsDependent(this, (X10Type) t))
-			return X10TypeMixin.isSubtype(this, (X10Type) t);
-		if (t instanceof PathType_c) {
-			PathType_c pt = (PathType_c) t;
-			return base.equals(pt.base) && prop.equals(pt.prop);
-		}
-		return false;
+	public Type upperBound() {
+		return null;
 	}
 }

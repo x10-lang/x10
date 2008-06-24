@@ -2,19 +2,18 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
-import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.types.ClassDef;
 import polyglot.types.FieldDef;
 import polyglot.types.Ref;
-import polyglot.types.Type;
+import x10.constraint.XConstraint;
 
 public interface X10ClassDef extends X10Def, ClassDef {
     /** Conjunction of the class invariant and property invariants. */
-    Constraint getRootClause();
+    XConstraint getRootXClause();
 
     /** The class invariant. */
-    Ref<? extends Constraint> classInvariant();
-    void setClassInvariant(Ref<? extends Constraint> classInvariant);
+    Ref<XConstraint> xclassInvariant();
+    void setXClassInvariant(Ref<XConstraint> classInvariant);
     
     /** Properties defined in the class.  Subset of fields(). */
     List<FieldDef> properties();

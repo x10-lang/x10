@@ -7,33 +7,15 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import polyglot.ast.Cast_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Cast_c;
-import polyglot.ast.Field_c;
-import polyglot.ast.Lit_c;
-import polyglot.ast.Local_c;
-import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.util.CodeWriter;
 import polyglot.util.Position;
-import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 
 /**
@@ -93,7 +75,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	           }
 
 	           // if ToType is nullable then casting the null value is legal
-	           if (ts.isNullable(toType)) {
+	           if (!ts.isValueType(toType)) {
 	        	   n.toTypeNullable = true;
 	        	   n.notNullRequired = false;
 	        	   // to type is nullable, hence we don't want 
@@ -104,7 +86,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        	   // Handle isNullable additionnal constraint 
 		    	   // Such cast ((T1) nullable T2), should checks at runtime 
 		    	   // the expression to cast is not null
-		           if (ts.isNullable(fromType)) {
+		           if (!ts.isValueType(fromType)) {
 		        	   n.notNullRequired = true;
 		           }
 	           }

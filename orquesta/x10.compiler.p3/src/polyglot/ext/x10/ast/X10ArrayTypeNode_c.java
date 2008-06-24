@@ -19,10 +19,11 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
+import polyglot.ext.x10.types.ConstrainedType;
+import polyglot.ext.x10.types.ConstrainedType_c;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.types.Context;
 import polyglot.types.LazyRef;
@@ -39,6 +40,8 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
 
 /** An immutable AST representation of an X10 array type.
  * @author vj Dec 9, 2004
@@ -116,10 +119,11 @@ X10ArrayTypeNode {
 	 * @see polyglot.ext.x10.ast.X10ArrayTypeNode#indexSet()
 	 */
 	public Expr distribution() {
-	    DepParameterExpr indexedSet = dep;
-	    List<Expr> args = indexedSet==null? null : indexedSet.args();
-	    Expr distribution = (args == null || args.size() < 1) ? null : (Expr) args.get(0); // pick out the distribution.
-	    return distribution;
+		return null;
+//	    DepParameterExpr indexedSet = dep;
+//	    List<Expr> args = indexedSet==null? null : indexedSet.args();
+//	    Expr distribution = (args == null || args.size() < 1) ? null : (Expr) args.get(0); // pick out the distribution.
+//	    return distribution;
 	}
 	
 	protected X10ArrayTypeNode_c reconstruct(TypeNode base,  DepParameterExpr indexedSet) {
@@ -173,25 +177,29 @@ X10ArrayTypeNode {
 	            return n;
 	        }
 
-	        X10Type t = (X10Type) ts.array( tn.type(), isValueType, distribution() );
+	        Type t = ts.array( tn.typeRef(), isValueType, distribution() );
 	        sym.update(t);
 	        
 	        DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
 	        n = (X10ArrayTypeNode_c) n.dep(dep);
-	        
+
 	        if (dep != null) {
-	        	if (t.isConstrained()) {
-	        		Constraint c = t.depClause();
-	        		c = c.copy();
-	        		c.addIn(dep.constraint().get());
-	        		t = t.depClause(c);
+	        	if (t instanceof ConstrainedType) {
+	        		ConstrainedType ct = (ConstrainedType) t;
+	        		XConstraint c = ct.constraint().get();
+	        		try {
+					c.addIn(dep.xconstraint().get());
+				}
+				catch (XFailure e) {
+					throw new SemanticException(e.getMessage(), position());
+				}
+	        		t = X10TypeMixin.xclause(t, c);
 	        	}
 	        	else {
-	        		t = t.depClause(dep.constraint());
+	        		t = new ConstrainedType_c(ts, position(), Types.ref(t), dep.xconstraint());
 	        	}
+	        	sym.update(t);
 	        }
-
-	        sym.update(t);
 
 	        return nf.CanonicalTypeNode(position(), sym);
 	    }

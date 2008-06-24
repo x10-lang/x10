@@ -7,36 +7,14 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import polyglot.ast.Call;
 import polyglot.ast.Expr;
-import polyglot.ast.Instanceof;
-import polyglot.ast.Node;
-import polyglot.ast.Precedence;
-import polyglot.ast.Term;
-import polyglot.ast.TypeNode;
-import polyglot.ast.Cast_c;
 import polyglot.ast.Instanceof_c;
-import polyglot.ext.x10.types.NullableType;
-import polyglot.ext.x10.types.X10Type;
+import polyglot.ast.Node;
+import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.util.CodeWriter;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
-import polyglot.visit.CFGBuilder;
-import polyglot.visit.NodeVisitor;
-import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 
 /**
@@ -75,7 +53,7 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
         
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         
-        n.toTypeNullable = xts.isNullable(n.compareType.type());
+        n.toTypeNullable = !xts.isValueType(n.compareType.type());
 
         // is conversion from a nullable type to a non nullable one.        
         // not Null is required if toType is notNullable or toType is nullable but has constraints

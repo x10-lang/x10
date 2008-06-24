@@ -1,15 +1,26 @@
 package polyglot.ext.x10.types;
 
-import polyglot.ext.x10.ast.X10Special;
-import polyglot.ext.x10.types.constr.C_Special_c;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Transformation;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XVar;
 
 public class TypePropertyAsPathTypeTransform implements
-		Transformation<TypeProperty, PathType> {
+		Transformation<TypeProperty, Type> {
 
-	public PathType transform(TypeProperty def) {
-		PathType p = (PathType) def.asType();
-		p = p.base(new C_Special_c(X10Special.THIS, p.base().type()));
-		return p;
+	public Type transform(TypeProperty def) {
+		X10TypeSystem xts = (X10TypeSystem) def.typeSystem();
+		try {
+			XVar this_ = xts.xtypeTranslator().transThis(def.container().get());
+			return PathType_c.pathBase(def.asType(), this_, Types.get(def.container()));
+		}
+		catch (SemanticException e) {
+			throw new InternalCompilerError(e);
+		}
 	}
 }

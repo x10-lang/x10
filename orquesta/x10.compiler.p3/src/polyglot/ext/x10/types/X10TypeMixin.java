@@ -10,199 +10,165 @@
  */
 package polyglot.ext.x10.types;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
-import polyglot.ext.x10.ast.X10Special;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Here_c;
-import polyglot.ext.x10.types.constr.C_Lit;
-import polyglot.ext.x10.types.constr.C_Lit_c;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.C_Type;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassType;
-import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
-import polyglot.types.PrimitiveType;
-import polyglot.types.Ref;
-import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c;
-import polyglot.types.Type_c;
 import polyglot.types.Types;
-import polyglot.util.CollectionUtil;
-import polyglot.util.Copy;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.Position;
-import polyglot.util.Transformation;
-import polyglot.util.TransformingList;
-import polyglot.util.TypedList;
-import polyglot.visit.Translator;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XEquals;
+import x10.constraint.XFailure;
+import x10.constraint.XLit;
+import x10.constraint.XNameWrapper;
+import x10.constraint.XPromise;
+import x10.constraint.XSelf;
+import x10.constraint.XTerm;
+import x10.constraint.XVar;
 
 /** 
  * An X10 dependent type.
  * @author nystrom
  */
 public class X10TypeMixin {
-    public static Constraint depClause(X10Type t) {
-        return Types.get(t.getDepClause());
-    }
+	public static XConstraint realX(Type t) {
+		if (t instanceof ConstrainedType) {
+			ConstrainedType	ct = (ConstrainedType) t;
+			XConstraint realClause = ct.getRealXClause();
 
-    public static List<Type> typeParameters(X10Type t) {
-        if (t.getTypeParams() == null) return null;
-        return new TransformingList<Ref<? extends Type>, Type>(t.getTypeParams(), new DerefTransform<Type>());
-    }
-    
-    public static List<Ref<? extends Type>> typeParamRefs(X10Type t) {
-        return t.getTypeParams();
-    }
-    
-    public static <T extends X10Type> T depClauseDeref(T t, Constraint c) {
-        return depClause(t, Types.ref(c));
-    }
-    
-    public static <T extends X10Type> T depClause(T t, Ref<? extends Constraint> c) {
-        T t2 = (T) t.copy();
-        t2.setDepClause(c);
-        return t2;
-    }
-    
-    public static <T extends X10Type> T makeDepVariant(T t, Constraint d) {
-        return depClauseDeref(t, d);
-    }
+			if (realClause == null) {
+				// Set the real clause to something invalid to detect recursion.
+				ct.setRealXClause(new XConstraint_c(), new SemanticException("The dependent clause is recursive.", ct.position()));
 
-    public static <T extends X10Type> T makeVariant(T t, Constraint c, List<Type> l) {
-        return depClauseDeref(typeParamsDeref(t, l), c);
+				// Now get the root clause and join it with the dep clause.
+				XConstraint rootClause;
+
+				if (ct.baseType().get() instanceof X10ClassType) {
+					X10ClassType xct = (X10ClassType) ct.baseType().get();
+					rootClause = xct.x10Def().getRootXClause();
+				}
+				else {
+					 rootClause = new XConstraint_c();
+				}
+				
+				assert rootClause != null;
+
+				XConstraint depClause = xclause(ct);
+
+				if (depClause == null) {
+					realClause = rootClause;
+				}
+				else {
+					realClause = rootClause.copy();
+
+					try {
+						realClause.addIn(depClause);
+					}
+					catch (XFailure f) {
+						realClause.setInconsistent();
+						SemanticException realClauseInvalid = new SemanticException("The dependent clause is inconsistent with respect to the class invariant and property constraints.", ct.position());
+						ct.setRealXClause(realClause, realClauseInvalid);
+						return realClause;
+					}
+				}
+
+				ct.setRealXClause(realClause, null);
+			}
+
+			return realClause;
+		}
+		else if (t instanceof X10ClassType) {
+			X10ClassType ct = (X10ClassType) t;
+			return ct.x10Def().getRootXClause();
+		}
+
+		return new XConstraint_c();
+	}
+	public static XConstraint xclause(Type t) {
+		if (t instanceof ConstrainedType) {
+			ConstrainedType  ct = (ConstrainedType) t;
+			return Types.get(ct.constraint());
+		}
+		return null;
+	}
+	public static Type xclause(Type t, XConstraint c) {
+		if (c == null || c.valid()) {
+			if (t instanceof ConstrainedType) {
+				ConstrainedType ct = (ConstrainedType) t;
+				t = Types.get(ct.baseType());
+				if (t instanceof ConstrainedType)
+					return xclause(t, null);
+			}
+			return t;
+		}
+		else {
+			if (t instanceof ConstrainedType) {
+				ConstrainedType ct = (ConstrainedType) t;
+				return xclause(Types.get(ct.baseType()), c);
+			}
+			return new ConstrainedType_c((X10TypeSystem) t.typeSystem(), t.position(), Types.ref(t), Types.ref(c));
+		}
+	}
+
+    public static boolean isConstrained(Type t) {
+	    return t instanceof ConstrainedType;
     }
     
-    public static <T extends X10Type> T typeParamsDeref(T t, List<Type> l) {
-        if (l == null) {
-            if (t.getTypeParams() == null)
-                return t;
-            else
-                return typeParams(t, null);
-        }
-        assert l != null;
-        return X10TypeMixin.<T>typeParams(t, new TransformingList<Type, Ref<? extends Type>>(l, new Transformation<Type, Ref<? extends Type>>() {
-            public Ref<? extends Type> transform(Type o) {
-                return Types.ref(o);
-            }
-        }));
-    }
-
-    public static <T extends X10Type> T rootType(T t) { return makeNoClauseVariant(t); }
-    
-    public static <T extends X10Type> T makeNoClauseVariant(T t) {
-        return makeVariant(t, new Constraint_c((X10TypeSystem) t.typeSystem()), Collections.EMPTY_LIST);
-    }
-    
-    public static <T extends X10Type> T typeParams(T t, List<Ref<? extends Type>> l) {
-//        assert l != null;
-        T t2 = (T) t.copy();
-        t2.setTypeParams(l);
-        return t2;
-    }
-
-    public static boolean isConstrained(X10Type t) {
-        Ref<? extends Constraint> c = t.getDepClause();
-        return c != null && Types.get(c) != null && ! Types.get(c).valid();
-    }
-    
-    public static boolean isParametric(X10Type t) {
-        List<Ref<? extends Type>> l = t.getTypeParams();
-        return l != null && ! l.isEmpty();
-    }
-    
-    /** The class invariant conjoined with the constraints on the class's properties. */
-    public static Constraint realClause(X10Type t) {
-        Constraint realClause = t.getRealClause();
-        
-        if (realClause == null) {
-            // Set the real clause to something invalid to detect recursion.
-            t.setRealClause(new Constraint_c((X10TypeSystem) t.typeSystem()), new SemanticException("The dependent clause is recursive.", t.position()));
-            
-            // Now get the root clause and join it with the dep clause.
-            Constraint rootClause = t.getRootClause();
-            assert rootClause != null;
-            
-            Constraint depClause = depClause(t);
-            
-            if (depClause == null) {
-                realClause = rootClause;
-            }
-            else {
-                realClause = rootClause.copy();
-                
-                try {
-                    realClause.addIn(depClause);
-                }
-                catch (Failure f) {
-                    realClause.setInconsistent();
-                    SemanticException realClauseInvalid = new SemanticException("The dependent clause is inconsistent with respect to the class invariant and property constraints.", t.position());
-                    t.setRealClause(realClause, realClauseInvalid);
-                    return realClause;
-                }
-            }
-
-            t.setRealClause(realClause, null);
-        }
-
-        return realClause;
-    }
-
-    public static <T extends X10Type> T addBinding(T t, C_Var t1, C_Var t2) {
+    public static Type addBinding(Type t, XVar t1, XVar t2) {
         try {
-            Constraint c = depClause(t);
+            XConstraint c = xclause(t);
             if (c == null) {
-                X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-                c = new Constraint_c(xts);
+                c = new XConstraint_c();
             }
-            Constraint c2 = c.addBinding(t1, t2);
-            return depClauseDeref(t, c2);
+            XConstraint c2 = c.addBinding(t1, t2);
+            return xclause(t, c2);
         }
-        catch (Failure f) {
+        catch (XFailure f) {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
 
     public static boolean consistent(X10Type t) {
-        Constraint c = depClause(t);
+	    XConstraint c = xclause(t);
         if (c == null) return true;
         return c.consistent();
     }
 
-    public static C_Var selfVar(X10Type t) {
-        Constraint c = depClause(t);
-        if (c == null) return null;
-        return c.selfVar();
+    public static XVar selfVar(Type thisType) {
+	    XConstraint c = xclause(thisType);
+	    return selfVar(c);
     }
 
-    public static <T extends X10Type> T setSelfVar(T t, C_Var v) {
-        Constraint c = depClause(t);
+    public static XVar selfVar(XConstraint c) {
+	    if (c == null) return null;
+	    return c.bindingForVar(XSelf.Self);
+    }
+
+    public static Type setSelfVar(Type t, XVar v) throws SemanticException {
+        XConstraint c = xclause(t);
         if (c == null) {
-            X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-            c = new Constraint_c(xts);
+            c = new XConstraint_c();
         }
         else {
             c = c.copy();
         }
-        c.setSelfVar(v);
-        return depClauseDeref(t, c);
+        try {
+		c.addSelfBinding(v);
+	}
+	catch (XFailure e) {
+		throw new SemanticException(e.getMessage(), t.position());
+	}
+        return xclause(t, c);
     }
 
     /**
@@ -212,10 +178,15 @@ public class X10TypeMixin {
      * @param name -- the name of the property.
      * @return null if there is no value associated with the property in the type.
      */
-    public static C_Term propVal(X10Type t, String name) {
-        Constraint c = depClause(t);
+    public static XTerm propVal(X10Type t, String name) {
+        XConstraint c = xclause(t);
         if (c == null) return null;
-        return c.find(name);
+        try {
+		return c.find(new XNameWrapper<String>(name));
+	}
+	catch (XFailure e) {
+		return null;
+	}
     }
     
     
@@ -229,321 +200,129 @@ public class X10TypeMixin {
     	return isDependentOrDependentPath(t1) || isDependentOrDependentPath(t2);
     }
     
-    public static boolean isDependentOrDependentPath(X10Type t) {
-    	if (t instanceof PathType) {
-    		C_Var base = ((PathType) t).base();
-    		if (isDependentOrDependentPath((X10Type) base.type()))
-    			return true;
-    	}
-    	return isConstrained(t) || isParametric(t);
+    public static boolean isDependentOrDependentPath(Type t) {
+    	return isConstrained(t);
     }
 
     public static boolean equalsIgnoreClause(X10Type t1, X10Type t2) {
-        return makeNoClauseVariant(t1).typeEquals(makeNoClauseVariant(t2));
+        return t1.typeEquals(t2);
     }
-    
-    public static boolean descendsFrom(X10Type t, X10Type o) {
-        return makeNoClauseVariant(t).descendsFrom(makeNoClauseVariant(o));
-    }
-
-    public static boolean typeEquals(X10Type t, X10Type o) {
-        if (t == o) 
-            return true;
-
-        // If
-        //   x: C(:T==S)
-        // need to compare x.T against S also
-
-        if (t instanceof PathType) {
-        	PathType pt = (PathType) t;
-        	C_Var base = pt.base();
-        	TypeProperty prop = pt.property();
-        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
-        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
-        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
-        		if (S != null && S.typeEquals(o)) {
-        			return true;
-        		}
-        	}
-        }
-        
-        if (o instanceof PathType) {
-        	PathType pt = (PathType) o;
-        	C_Var base = pt.base();
-        	TypeProperty prop = pt.property();
-        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
-        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
-        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
-        		if (S != null && t.typeEquals(S)) {
-        			return true;
-        		}
-        	}
-        }
-
-        if (isConstrained(t) && isConstrained(o)) {
-            if (! depClause(t).equals(depClause(o)))
-                return false;
-        }
-        
-        if (isParametric(t) && isParametric(o)) {
-            if (! CollectionUtil.equals(typeParameters(t), typeParameters(o), new TypeSystem_c.TypeEquals()))
-                return false;
-        }
-
-        return ! isConstrained(t) && ! isConstrained(o)
-            && ! isParametric(t) && ! isParametric(o);
-    }
-
-    public static boolean isCastValid(X10Type fromType, X10Type toType) {
-        X10TypeSystem xts = (X10TypeSystem) fromType.typeSystem();
-
-        X10Type t = fromType;
-        X10Type o = toType;
-
-        // If
-        //   x: C(:T==S)
-        // need to compare x.T against S also
-
-        if (t instanceof PathType) {
-        	PathType pt = (PathType) t;
-        	C_Var base = pt.base();
-        	TypeProperty prop = pt.property();
-        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
-        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
-        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
-        		if (S != null && S.isCastValid(o)) {
-        			return true;
-        		}
-        	}
-        }
-        
-        if (o instanceof PathType) {
-        	PathType pt = (PathType) o;
-        	C_Var base = pt.base();
-        	TypeProperty prop = pt.property();
-        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
-        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
-        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
-        		if (S != null && t.isCastValid(S)) {
-        			return true;
-        		}
-        	}
-        }
-
-        if (!makeNoClauseVariant(fromType).isCastValid(makeNoClauseVariant(toType)))
-            return false;
-
-        Constraint c1 = isConstrained(fromType) ? realClause(fromType) : new Constraint_c(xts);
-        Constraint c2 = isConstrained(toType) ? realClause(toType) : new Constraint_c(xts);
-        
-        if (fromType.isPrimitive() && toType.isPrimitive()) {
-            if (!xts.primitiveClausesConsistent(c1, c2))
-                return false;
-        }
-        else {
-            if (!xts.clausesConsistent(c1, c2))
-                return false;
-        }
-
-        if (isParametric(fromType) && isParametric(toType)) {
-            if (! CollectionUtil.equals(typeParameters(fromType), typeParameters(toType), new TypeSystem_c.TypeEquals()))
-                return false;
-        }
-        else if (isParametric(fromType)) {
-            return false;
-        }
-        else if (isParametric(toType)) {
-            return false;
-        }
-
-        return true;
-    }
-    
-    public static boolean isImplicitCastValid(X10Type fromType, X10Type toType) {
-        X10TypeSystem xts = (X10TypeSystem) fromType.typeSystem();
-       
-        X10Type t = fromType;
-        X10Type o = toType;
-
-        // If
-        //   x: C(:T==S)
-        // need to compare x.T against S also
-
-        if (t instanceof PathType) {
-        	PathType pt = (PathType) t;
-        	C_Var base = pt.base();
-        	TypeProperty prop = pt.property();
-        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
-        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
-        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
-        		if (S != null && S.isImplicitCastValid(o)) {
-        			return true;
-        		}
-        	}
-        }
-        
-        if (o instanceof PathType) {
-        	PathType pt = (PathType) o;
-        	C_Var base = pt.base();
-        	TypeProperty prop = pt.property();
-        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
-        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
-        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
-        		if (S != null && t.isImplicitCastValid(S)) {
-        			return true;
-        		}
-        	}
-        }
-
-        if (!makeNoClauseVariant(fromType).isImplicitCastValid(makeNoClauseVariant(toType)))
-            return false;
-
-        Constraint c1 = isConstrained(fromType) ? realClause(fromType) : new Constraint_c(xts);
-        Constraint c2 = isConstrained(toType) ? realClause(toType) : new Constraint_c(xts);
-
-        if (!xts.clauseImplicitCastValid(c1, c2))
-            return false;
-        
-        if (isParametric(fromType) && isParametric(toType)) {
-            if (! CollectionUtil.equals(typeParameters(fromType), typeParameters(toType), new TypeSystem_c.TypeEquals()))
-                return false;
-        }
-        else if (isParametric(fromType)) {
-            return false;
-        }
-        else if (isParametric(toType)) {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    public static boolean isSubtype(X10Type fromType, X10Type toType) {
-        X10TypeSystem xts = (X10TypeSystem) fromType.typeSystem();
-
-        X10Type t = fromType;
-        X10Type o = toType;
-
-        // If
-        //   x: C(:T==S)
-        // need to compare x.T against S also
-
-        if (t instanceof PathType) {
-        	PathType pt = (PathType) t;
-        	C_Var base = pt.base();
-        	TypeProperty prop = pt.property();
-        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
-        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
-        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
-        		if (S != null && S.isSubtype(o)) {
-        			return true;
-        		}
-        	}
-        }
-        
-        if (o instanceof PathType) {
-        	PathType pt = (PathType) o;
-        	C_Var base = pt.base();
-        	TypeProperty prop = pt.property();
-        	if (X10TypeMixin.isConstrained((X10Type) base.type())) {
-        		Constraint c = X10TypeMixin.depClause((X10Type) base.type());
-        		Type S = X10TypeMixin.lookupTypeProperty(c, prop);
-        		if (S != null && t.isSubtype(S)) {
-        			return true;
-        		}
-        	}
-        }
-
-        if (!makeNoClauseVariant(fromType).isSubtype(makeNoClauseVariant(toType)))
-            return false;
-        
-        Constraint c1 = isConstrained(fromType) ? realClause(fromType) : new Constraint_c(xts);
-        Constraint c2 = isConstrained(toType) ? realClause(toType) : new Constraint_c(xts);
-
-        if (!xts.clauseImplicitCastValid(c1, c2))
-            return false;
-        
-        if (isParametric(fromType) && isParametric(toType)) {
-            if (! CollectionUtil.equals(typeParameters(fromType), typeParameters(toType), new TypeSystem_c.TypeEquals()))
-                return false;
-        }
-        else if (isParametric(fromType)) {
-            return false;
-        }
-        else if (isParametric(toType)) {
-            return false;
-        }
-        
-        return true;
-    }
-
-    public static String clauseToString(X10Type t) {
-        StringBuffer sb = new StringBuffer();
-        if (t.getTypeParams() != null) {
-            String p = t.getTypeParams().toString();
-            if (p.length() >= 3) {
-                sb.append("<");
-                sb.append(p.substring(1,p.length()-1));
-                sb.append(">");
-            }
-        }
-        if (t.getDepClause() != null)
-            sb.append(t.getDepClause().toString());
-        return sb.toString();
-    }
-
     public static X10PrimitiveType promote(Unary.Operator op, X10PrimitiveType t) throws SemanticException {
         TypeSystem ts = t.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t);
-        return depClauseDeref((X10PrimitiveType) pt.rootType(), promoteClause(op, depClause(t)));
+        return (X10PrimitiveType) xclause(pt, promoteClause(op, xclause(t)));
     }
 
-    public static Constraint promoteClause(polyglot.ast.Unary.Operator op, Constraint c) {
+    public static XConstraint promoteClause(polyglot.ast.Unary.Operator op, XConstraint c) {
         if (c == null)
             return null;
-        return c.unaryOp(op);
+        X10TypeSystem ts = (X10TypeSystem) Globals.TS();
+        return ts.xtypeTranslator().unaryOp(op, c);
     }
 
     public static X10PrimitiveType promote(Binary.Operator op, X10PrimitiveType t1, X10PrimitiveType t2) throws SemanticException {
         TypeSystem ts = t1.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t1, t2);
-        return depClauseDeref((X10PrimitiveType) pt.rootType(), promoteClause(op, depClause(t1), depClause(t2)));
+        return (X10PrimitiveType) xclause(pt, promoteClause(op, xclause(t1), xclause(t2)));
     }
 
-    public static Constraint promoteClause(Operator op, Constraint c1, Constraint c2) {
+    public static XConstraint promoteClause(Operator op, XConstraint c1, XConstraint c2) {
         if (c1 == null || c2 == null)
             return null;
-        return c1.binaryOp(op, c2);
+        X10TypeSystem ts = (X10TypeSystem) Globals.TS();
+        return ts.xtypeTranslator().binaryOp(op, c1, c2);
     }
 
-	public static Type lookupTypeProperty(Constraint c, TypeProperty p) {
-		for (Map.Entry<C_Var, C_Var> e : c.constraints().entrySet()) {
-			C_Var v1 = e.getKey();
-			C_Var v2 = e.getValue();
-			if (v1.equals(p.asVar()) && v2 instanceof C_Type) {
-				return ((C_Type) v2).type();
-			}
-			if (v2.equals(p.asVar()) && v1 instanceof C_Type) {
-				return ((C_Type) v1).type();
-			}
+	public static Type lookupTypeProperty(XConstraint c, TypeProperty p) {
+		if (c == null)
+			return null;
+		try {
+			XPromise x = c.lookup(p.asVar());
+			if (x != null && x.term() instanceof XLit) return (Type) ((XLit) x.term()).val();
 		}
-		return null;
-	}
-
-	public static Type getParameterType(X10Type theType, String prop) {
-		if (theType instanceof X10ClassType) {
-			X10ClassType xct = (X10ClassType) theType;
-			if (X10TypeMixin.isConstrained(xct)) {
-				Constraint c = xct.depClause();
-				X10ClassDef def = (X10ClassDef) xct.def();
-				for (TypeProperty p : def.typeProperties()) {
-					if (p.name().equals(prop)) {
-						Type S = X10TypeMixin.lookupTypeProperty(c, p);
-						return S;
-					}
+		catch (XFailure e) {
+		}
+		for (XTerm t : c.constraints()) {
+			if (t instanceof XEquals) {
+				XEquals eq = (XEquals) t;
+				XTerm v1 = eq.left();
+				XTerm v2 = eq.right();
+				if (v1.equals(p.asVar()) && v2 instanceof XLit) {
+					return (Type) ((XLit) v2).val();
+				}
+				if (v2.equals(p.asVar()) && v1 instanceof XLit) {
+					return (Type) ((XLit) v1).val();
 				}
 			}
 		}
 		return null;
+	}
+	
+	public static Type getParameterType(Type theType, String prop) {
+		XConstraint c = realX(theType);
+		if (c == null)
+			return null;
+		return getParameterType(theType, c, prop);
+	}
+
+	private static Type getParameterType(Type theType, XConstraint c, String prop) {
+		ClassType ct = theType.toClass();
+		if (ct != null) {
+			X10ClassDef def = (X10ClassDef) ct.def();
+			for (TypeProperty p : def.typeProperties()) {
+				if (p.name().equals(prop)) {
+					Type S = X10TypeMixin.lookupTypeProperty(c, p);
+					return S;
+				}
+			}
+			Type sup = ct.superType();
+			if (sup != null)
+				return getParameterType(sup, c, prop);
+		}
+		return null;
+	}
+	
+	public static void checkRealClause(Type t) throws SemanticException {
+		if (t instanceof ConstrainedType) {
+			ConstrainedType ct = (ConstrainedType) t;
+			ct.checkRealClause();
+		}
+	}
+	public static List<FieldInstance> properties(Type t) {
+		if (t instanceof ConstrainedType) {
+			ConstrainedType ct = (ConstrainedType) t;
+			return properties(ct.baseType().get());
+		}
+		if (t instanceof MacroType) {
+			MacroType mt = (MacroType) t;
+			return properties(mt.definedType());
+		}
+		if (t instanceof X10ClassType) {
+			X10ClassType ct = (X10ClassType) t;
+			return ct.properties();
+		}
+		return Collections.EMPTY_LIST;
+	}
+	public static List<TypeProperty> typeProperties(Type t) {
+		if (t instanceof ConstrainedType) {
+			ConstrainedType ct = (ConstrainedType) t;
+			return typeProperties(ct.baseType().get());
+		}
+		if (t instanceof MacroType) {
+			MacroType mt = (MacroType) t;
+			return typeProperties(mt.definedType());
+		}
+		if (t instanceof X10ClassType) {
+			X10ClassType ct = (X10ClassType) t;
+			X10ClassDef def = ct.x10Def();
+			Type sup = Types.get(def.superType());
+			List<TypeProperty> ps = new ArrayList<TypeProperty>();
+			if (sup != null) {
+				ps.addAll(typeProperties(sup));
+			}
+			ps.addAll(ct.x10Def().typeProperties());
+			return ps;
+		}
+		return Collections.EMPTY_LIST;
 	}
 }

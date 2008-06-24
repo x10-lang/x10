@@ -7,40 +7,36 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.Collections;
-
 import polyglot.ast.Ambiguous;
-import polyglot.ast.Call;
+import polyglot.ast.Disamb_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
-import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
-import polyglot.ast.Disamb_c;
-import polyglot.ast.VarInit;
+import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del;
-import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.PathType;
+import polyglot.ext.x10.types.PathType_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
-import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10NamedType;
-import polyglot.main.Report;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassType;
-import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
-import polyglot.types.Named;
-import polyglot.types.NoClassException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.parser.X10Parser;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XTerm;
+import x10.constraint.XVar;
 
 public class X10Disamb_c extends Disamb_c implements X10Disamb {
 
@@ -73,7 +69,7 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
 	    		// Now try properties.
 	    		if (t instanceof ReferenceType) {
 	    			try {
-	    				FieldInstance fi = ts.findField((ReferenceType) t, this.name.id(), c.currentClassScope());
+	    				FieldInstance fi = ts.findField((ReferenceType) t, this.name.id(), c.currentClassDef());
 	    				if (fi instanceof X10FieldInstance) {
 	    					X10FieldInstance xfi = (X10FieldInstance) fi;
 	    					if (xfi.isProperty()) {
@@ -103,12 +99,88 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
 	                catch (SemanticException e) {
 	                }
 	            }
+
+	            if (t instanceof ClassType) {
+	        	    try {
+	        		    X10TypeSystem xts = (X10TypeSystem) ts;
+	        		    PathType pt = xts.findTypeProperty((ClassType) t, this.name.id(), c.currentClassDef());
+	        		    return nf.CanonicalTypeNode(pos, PathType_c.pathBase(pt, xts.xtypeTranslator().transThis((ClassType) t), t));
+	        	    }
+	        	    catch (SemanticException e) {
+	        	    }
+	            }
 	        }
 	    }
 	    
-	    return super.disambiguateNoPrefix();
+	    // TODO: typedef members
+	    // TODO: check outer members
+	    Node result = super.disambiguateNoPrefix();
+	    if (result != null)
+		    return result;
+
+	    if (typeOK()) {
+		    ClassType t = c.currentClass();
+		    if (t != null) {
+			    try {
+				    X10TypeSystem xts = (X10TypeSystem) ts;
+				    PathType pt = xts.findTypeProperty((ClassType) t, this.name.id(), c.currentClassDef());
+				    return nf.CanonicalTypeNode(pos, PathType_c.pathBase(pt, xts.xtypeTranslator().transThis((ClassType) t), t));
+			    }
+			    catch (SemanticException e) {
+			    }
+		    }
+	    }
+	    
+	    return null;
 	}
 	
+	@Override
+	protected Node disambiguateTypeNodePrefix(TypeNode tn) throws SemanticException {
+		// TODO: typedef members
+		return super.disambiguateTypeNodePrefix(tn);
+	}
+
+	@Override
+	protected Node disambiguatePackagePrefix(PackageNode pn) throws SemanticException {
+		// TODO: typedef members
+		return super.disambiguatePackagePrefix(pn);
+	}
+	
+	@Override
+	protected Node disambiguateExprPrefix(Expr e) throws SemanticException {
+		// TODO: typedef members
+
+		if (typeOK()) {
+			Type t = e.type();
+			if (t.isClass()) {
+				ClassType ct = t.toClass();
+				try {
+					X10TypeSystem xts = (X10TypeSystem) ts;
+					PathType pt = xts.findTypeProperty(ct, this.name.id(), c.currentClassDef());
+					XTerm term = null;
+					try {
+						term = xts.xtypeTranslator().trans(e);
+					}
+					catch (SemanticException ex) {
+					}
+					if (term == null) {
+						XConstraint c = new XConstraint_c();
+						term = xts.xtypeTranslator().genEQV(c, t, false);
+					}
+					
+					if (term instanceof XVar) {
+						XVar v = (XVar) term;
+						return nf.CanonicalTypeNode(pos, PathType_c.pathBase(pt, v, e.type()));
+					}
+				}
+				catch (SemanticException ex) {
+				}
+			}
+		}
+
+		return super.disambiguateExprPrefix(e);
+	}
+
 	@Override
 	public Node disambiguate(Ambiguous amb, ContextVisitor v, Position pos, Prefix prefix, Id name) throws SemanticException {
 		Node n = super.disambiguate(amb, v, pos, prefix, name);

@@ -31,6 +31,7 @@ import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
+import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -134,7 +135,7 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
         Report.report(3,"X10ArrayAccess_c: typeCheck type="  + type + " |" 
                 + type.getClass() + "|" + ts.isIndexable(type));
         
-		X10Type target = (X10Type) type;
+		Type target = type;
 		if (! ts.isIndexable(target)) {
 			throw new SemanticException(
 					"Multiple subscripts can only follow an array of rank > 1.", position());
@@ -149,15 +150,14 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
         List<Expr> args = new LinkedList();
         args.addAll(index);
        
-        if (target.isConstrained()) {
+        if (X10TypeMixin.isConstrained(target)) {
             Type param = X10TypeMixin.getParameterType(target, "T");
             if (param != null)
             	return type(param);
         }
         // find the return type by finding the return type of the get(index) method on type.
         
-        X10ClassType refType 
-        = (X10ClassType) (type instanceof NullableType ? ((NullableType) type).ultimateBase() : type);
+        ReferenceType refType = (ReferenceType) (type instanceof NullableType ? ((NullableType) type).ultimateBase() : type);
         		
         String name = "get";
         List argTypes = new LinkedList();
@@ -165,12 +165,10 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
             Expr item = (Expr) it.next();
             argTypes.add(item.type());
         }
-        // fake this since you know the method is public.
-        ClassType currType= refType; 
         
         // May throw a semantic exception. Should prolly be caught and rethrown 
         // as an InternalError.
-        MethodInstance m = ts.findMethod(refType, name, argTypes, tc.context().currentClassScope()); 
+        MethodInstance m = ts.findMethod(refType, name, argTypes, tc.context().currentClassDef()); 
         Type retType = m.returnType();
         return type(retType);
 	}

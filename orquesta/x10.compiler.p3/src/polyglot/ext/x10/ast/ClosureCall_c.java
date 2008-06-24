@@ -18,6 +18,7 @@ import polyglot.ast.Node;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.Receiver;
 import polyglot.ast.Term;
+import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ClosureInstance_c;
@@ -38,6 +39,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -46,14 +48,16 @@ import polyglot.visit.TypeChecker;
 
 public class ClosureCall_c extends Expr_c implements ClosureCall {
     protected Expr target;
+    protected List<TypeNode> typeArgs;
     protected List<Expr> arguments;
 
     protected ClosureInstance ci;
 
-    public ClosureCall_c(Position pos, Expr target, List<Expr> arguments) {
+    public ClosureCall_c(Position pos, Expr target, List<TypeNode> typeArgs, List<Expr> arguments) {
 	super(pos);
 	assert (target != null && arguments != null);
 	this.target= target;
+	this.typeArgs = TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
     }
 
@@ -61,21 +65,25 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	if (!(target instanceof Closure)) {
 	    return ((Term) target);
 	}
-	return listChild(arguments, null);
+	return listChild(typeArgs, listChild(arguments, null));
     }
 
     @Override
     public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+	List<Term> args = new ArrayList<Term>();
+	args.addAll(typeArgs);
+	args.addAll(arguments);
+	
 	if (!(target instanceof Closure)) { // Don't visit a literal closure here
 	    Term t = (Term) target;
-            if (arguments.isEmpty()) {
+            if (args.isEmpty()) {
                 v.visitCFG(t, this, EXIT);
             }
             else {
-                v.visitCFG(t, listChild(arguments, null), ENTRY);
+                v.visitCFG(t, listChild(args, null), ENTRY);
             }
 	}
-	v.visitCFGList(arguments, this, EXIT);
+	v.visitCFGList(args, this, EXIT);
 	return succs;
     }
 
@@ -118,12 +126,25 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	n.arguments= TypedList.copyAndCheck(arguments, Expr.class, true);
 	return n;
     }
+    
+    /** Get the actual arguments of the call. */
+    public List<TypeNode> typeArgs() {
+	    return this.typeArgs;
+    }
+    
+    /** Set the actual arguments of the call. */
+    public ProcedureCall typeArgs(List<TypeNode> typeArgs) {
+	    ClosureCall_c n= (ClosureCall_c) copy();
+	    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
+	    return n;
+    }
 
     /** Reconstruct the call. */
-    protected ClosureCall_c reconstruct(Expr target, List<Expr> arguments) {
-	if (target != this.target || !CollectionUtil.equals(arguments, this.arguments)) {
+    protected ClosureCall_c reconstruct(Expr target, List<TypeNode> typeArgs, List<Expr> arguments) {
+	if (target != this.target || !CollectionUtil.allEqual(typeArgs, this.typeArgs) || !CollectionUtil.allEqual(arguments, this.arguments)) {
 	    ClosureCall_c n= (ClosureCall_c) copy();
 	    n.target= target;
+	    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	    n.arguments= TypedList.copyAndCheck(arguments, Expr.class, true);
 	    return n;
 	}
@@ -133,8 +154,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     /** Visit the children of the call. */
     public Node visitChildren(NodeVisitor v) {
 	Expr target= (Expr) visitChild(this.target, v);
+	List typeArgs= visitList(this.typeArgs, v);
 	List arguments= visitList(this.arguments, v);
-	return reconstruct(target, arguments);
+	return reconstruct(target, typeArgs, arguments);
     }
 
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
@@ -145,7 +167,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	ClosureInstance ci = x10ts.createClosureInstance(position(), new ErrorRef_c<ClosureDef>(x10ts, position()));
 	return n.closureInstance(ci);
     }
-
+    
     @Override
     public Node typeCheck(TypeChecker tc) throws SemanticException {
 	Type targetType= target.type();
@@ -158,7 +180,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	
 	X10TypeSystem x10ts = (X10TypeSystem) tc.typeSystem();
 
-	ClosureDef cd = x10ts.closureDef(position(), null, null, closureType.returnType(), closureType.argumentTypes(), closureType.throwTypes());
+	ClosureDef cd = x10ts.closureDef(position(), null, null, closureType.returnType(), closureType.typeParameters(), closureType.argumentTypes(), closureType.whereClause(), closureType.throwTypes());
 	ClosureInstance ci = x10ts.createClosureInstance(position(), Types.ref(cd));
 
 	List<Type> actualTypes = new ArrayList<Type>();

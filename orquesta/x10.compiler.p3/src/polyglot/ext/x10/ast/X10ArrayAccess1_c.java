@@ -19,15 +19,13 @@ import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.NullableType;
-import polyglot.ext.x10.types.NullableType_c;
-import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
+import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -35,6 +33,7 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
@@ -122,7 +121,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		Expr index = (Expr) visitChild(this.index, v);
 		return reconstruct(array, index);
 	}
-
+	
 	/**
 	 * Type check the expression. Fork into an ArrayAccess if the underlying
 	 * array is a Java array, or if the index is an int and not a distribution.
@@ -132,9 +131,6 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
 		Type type = array.type();
-		if (type instanceof NullableType_c) {
-			type = ((NullableType_c)type).base();
-		}
 		
 		boolean isArray = type.isArray();
 		boolean isIndexable = ts.isIndexable(type);
@@ -155,28 +151,26 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
         
 		List args = new LinkedList();
 		args.add(index);
-        X10Type pt = (X10Type) type;
-        if (pt.isConstrained()) {
-            Type param = X10TypeMixin.getParameterType(pt, "T");
-            if (param != null)
-            	return type(param);
-        }
-        // find the return type by finding the return type of the get(index) method on type.
-        
-		   X10ClassType refType 
-	        = (X10ClassType) (type instanceof NullableType ? ((NullableType) type).base() : type);
-        String name = "get";
-        List argTypes = new LinkedList();
-        argTypes.add(index.type());
-        // fake this since you know the method is public.
-        ClassType currType= refType; 
-        
-        // May throw a semantic exception. Should prolly be caught and rethrown 
-        // as an InternalError.
-        MethodInstance m = ts.findMethod(refType, name, argTypes, tc.context().currentClassScope()); 
-        Type retType = m.returnType();
-        //Report.report(1, "X10ArrayAcces1 arraytype " + array.type() + "(" + array.type().getClass() + " for " + this);
-        return type(retType);
+
+		if (X10TypeMixin.isConstrained(type)) {
+		    Type param = X10TypeMixin.getParameterType(type, "T");
+		    if (param != null)
+			return type(param);
+		}
+		// find the return type by finding the return type of the get(index) method on type.
+
+		ReferenceType refType = (ReferenceType) (type instanceof NullableType ? ((NullableType) type).ultimateBase() : type);
+
+		String name = "get";
+		List argTypes = new LinkedList();
+		argTypes.add(index.type());
+
+		// May throw a semantic exception. Should prolly be caught and rethrown 
+		// as an InternalError.
+		MethodInstance m = ts.findMethod(refType, name, argTypes, tc.context().currentClassDef()); 
+		Type retType = m.returnType();
+		//Report.report(1, "X10ArrayAcces1 arraytype " + array.type() + "(" + array.type().getClass() + " for " + this);
+		return type(retType);
 	}
 
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {

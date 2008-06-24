@@ -5,15 +5,22 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
-import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.ConstructorInstance_c;
+import polyglot.types.DerefTransform;
+import polyglot.types.MethodInstance;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
+import polyglot.types.ReferenceType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TransformingList;
+import x10.constraint.XConstraint;
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
@@ -43,38 +50,38 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     /* (non-Javadoc)
      * @see polyglot.ext.x10.types.X10ConstructorInstance#depClause()
      */
-    public Constraint constraint() { return returnType().realClause(); }
+    public XConstraint constraint() { return X10TypeMixin.realX(returnType()); }
 
-    public X10ClassType returnType;
+    public Type returnType;
     
-    public X10Type returnType() { 
+    public Type returnType() { 
         if (returnType == null) {
-            returnType = (X10ClassType) x10Def().returnType().get();
+            returnType = x10Def().returnType().get();
         }
 	return returnType;
     }
     
-    public X10ConstructorInstance returnType(X10ClassType retType) {
+    public X10ConstructorInstance returnType(Type retType) {
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.returnType = retType;
         return n;
     }
 
     /** Constraint on superclass constructor call return type. */
-    public Constraint supClause() { 
+    public XConstraint supClause() { 
         return Types.get(x10Def().supClause());
         }
 
-    Constraint whereClause;
+    XConstraint whereClause;
     
     /** Constraint on formal parameters. */
-    public Constraint whereClause() {
+    public XConstraint whereClause() {
         if (whereClause == null) 
             whereClause = Types.get(x10Def().whereClause());
         return whereClause;
     }
 
-    public X10ConstructorInstance whereClause(Constraint c) {
+    public X10ConstructorInstance whereClause(XConstraint c) {
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.whereClause = c;
         return n;
@@ -92,5 +99,43 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     @Override
     public boolean callValid(Type thisType, List<Type> argTypes) {
         return X10MethodInstance_c.callValidImpl(this, thisType, argTypes);
+    }
+    
+    public List<Type> typeParameters;
+
+    public List<Type> typeParameters() {
+	    if (this.typeParameters == null) {
+		    this.typeParameters = new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
+	    }
+
+	    return typeParameters;
+    }
+
+    public X10ConstructorInstance typeParameters(List<Type> typeParameters) {
+	    X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
+	    n.typeParameters = typeParameters;
+	    return n;
+    }
+    
+    @Override
+    public ConstructorInstance instantiate(ReferenceType receiverType,
+    		List<Type> argumentTypes) throws SemanticException {
+
+	    return X10MethodInstance_c.instantiate(this, receiverType, argumentTypes);
+    }
+
+    public String toString() {
+	    String s = designator() + " " + flags().translate() + container() + "." + signature() + (whereClause() != null ? whereClause() : "") + ": " + returnType();
+	
+	    if (! throwTypes().isEmpty()) {
+		    s += " throws " + CollectionUtil.listToString(throwTypes());
+	    }
+	
+	    return s;
+    }
+    
+    public String signature() {
+	    X10ConstructorDef_c def = (X10ConstructorDef_c) def();
+	    return "this" + (typeParameters().isEmpty() ? "" : "[" + CollectionUtil.listToString(typeParameters()) + "]") + "(" + CollectionUtil.listToString(formalTypes()) + ")";
     }
 }

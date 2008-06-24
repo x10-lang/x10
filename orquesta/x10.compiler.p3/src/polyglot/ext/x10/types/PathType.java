@@ -1,15 +1,12 @@
-/**
- * 
- */
 package polyglot.ext.x10.types;
 
-import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.types.MemberInstance;
+import polyglot.types.Type;
+import x10.constraint.XVar;
 
-public interface PathType extends X10Type {
-	C_Var base();
-	PathType base(C_Var v);
-
+public interface PathType extends ParametrizedType, MemberInstance<TypeProperty> {
+	XVar base();
+	Type baseType();
+	PathType base(XVar base, Type baseType);
 	TypeProperty property();
-	PathType property(TypeProperty v);
 }

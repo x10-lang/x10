@@ -14,21 +14,11 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 
-import polyglot.ast.Call;
 import polyglot.ast.Expr;
-import polyglot.ast.IntLit;
+import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Term;
-import polyglot.ast.Expr_c;
-import polyglot.parse.Name;
-import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Lit_c;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.main.Report;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -50,13 +40,11 @@ import polyglot.visit.TypeChecker;
  * 
  */
 public class Tuple_c extends Expr_c implements Tuple {
-	protected List args;
+	protected List<Expr> args;
 	protected Receiver pointReceiver;
 	protected Receiver regionReceiver;
-	protected MethodInstance pointMI, regionMI;
 	
-	
-	public Tuple_c(Position pos, Receiver pointReceiver, Receiver regionReceiver, List args) {
+	public Tuple_c(Position pos, Receiver pointReceiver, Receiver regionReceiver, List<Expr> args) {
 		super(pos);
 		this.pointReceiver = pointReceiver;
 		this.regionReceiver = regionReceiver;
@@ -65,11 +53,9 @@ public class Tuple_c extends Expr_c implements Tuple {
 		//Report.report(1, "Tuple_c created:" + pointName + "| " + regionName + "| " + args);
 	}
 	
-	public List arguments() { return args; }
+	public List<Expr> arguments() { return args; }
 	public Receiver pointReceiver() { return pointReceiver; }
 	public Receiver regionReceiver() { return regionReceiver; }
-	public MethodInstance pointMI() { return pointMI; }
-	public MethodInstance regionMI() { return regionMI; }
 	
 	/** Type check the expression. Fork into an ArrayAccess if the underlying
 	 * array is a Java array, or if the index is an int and not a distribution.
@@ -104,13 +90,6 @@ public class Tuple_c extends Expr_c implements Tuple {
 		// So they are not visited during CFG construction.
 		v.visitCFGList(args, this, EXIT);
 		return succs;
-	}
-	
-	public Tuple_c methodInstance( MethodInstance p, MethodInstance r) {
-		Tuple_c n = (Tuple_c) copy();
-		n.pointMI = p;
-		n.regionMI = r;
-		return n;
 	}
 	public Tuple_c reconstruct(Receiver pointR, Receiver regionR, List args ) {
 		if (this.pointReceiver == pointR && this.regionReceiver == regionR && this.args == args)

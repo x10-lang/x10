@@ -49,14 +49,14 @@ import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.ForLoop_c;
-import polyglot.ext.x10.ast.FutureNode_c;
 import polyglot.ext.x10.ast.Future_c;
 import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.Now_c;
-import polyglot.ext.x10.ast.NullableNode_c;
 import polyglot.ext.x10.ast.PropertyDecl_c;
 import polyglot.ext.x10.ast.RemoteCall_c;
+import polyglot.ext.x10.ast.TypeParamNode;
+import polyglot.ext.x10.ast.TypePropertyNode;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1Unary_c;
@@ -65,18 +65,27 @@ import polyglot.ext.x10.ast.X10ArrayAccessAssign_c;
 import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
 import polyglot.ext.x10.ast.X10Binary_c;
+import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10Cast_c;
+import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
+import polyglot.ext.x10.ast.X10ConstructorDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
-import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.ConstrainedType;
+import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.ParameterType_c;
+import polyglot.ext.x10.types.PathType;
+import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoClassException;
@@ -85,10 +94,13 @@ import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
+import x10.constraint.XLocal;
+import x10.constraint.XTerms;
 
 
 /**
@@ -123,6 +135,147 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Node n) {
 		n.translate(w, tr);
 	}
+	
+	public void visit(X10ConstructorDecl_c n) {
+		w.begin(0);
+		
+		tr.print(n, n.flags(), w);
+		tr.print(n, n.id(), w);
+		w.write("(");
+		
+		w.begin(0);
+		
+		for (Iterator i = n.typeParameters().iterator(); i.hasNext(); ) {
+		    TypeParamNode p = (TypeParamNode) i.next();
+		    w.write("x10.runtime.Type ");
+		    n.print(p.id(), w, tr);
+		    
+		    if (i.hasNext() || n.formals().size() > 0) {
+			w.write(",");
+			w.allowBreak(0, " ");
+		    }
+		}
+		
+		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
+		    Formal f = (Formal) i.next();
+		    n.print(f, w, tr);
+		
+		    if (i.hasNext()) {
+		        w.write(",");
+		        w.allowBreak(0, " ");
+		    }
+		}
+		
+		w.end();
+		w.write(")");
+		
+		if (! n.throwTypes().isEmpty()) {
+		    w.allowBreak(6);
+		    w.write("throws ");
+		
+		    for (Iterator i = n.throwTypes().iterator(); i.hasNext(); ) {
+		        TypeNode tn = (TypeNode) i.next();
+		        n.print(tn, w, tr);
+		
+		        if (i.hasNext()) {
+		            w.write(",");
+		            w.allowBreak(4, " ");
+		        }
+		    }
+		}
+		
+		w.end();
+		
+		if (n.body() != null) {
+		    n.printSubStmt(n.body(), w, tr);
+		}
+		else {
+		    w.write(";");
+		}
+	}
+
+	public void visit(X10ClassDecl_c n) {
+		Flags flags = n.flags().flags();
+		
+		w.begin(0);
+		if (flags.isInterface()) {
+		    w.write(flags.clearInterface().clearAbstract().translate());
+		}
+		else {
+		    w.write(flags.translate());
+		}
+		
+		if (flags.isInterface()) {
+		    w.write("interface ");
+		}
+		else {
+		    w.write("class ");
+		}
+		
+		tr.print(n, n.id(), w);
+		
+		if (n.superClass() != null) {
+		    w.allowBreak(0);
+		    w.write("extends ");
+		    n.print(n.superClass(), w, tr);
+		}
+		
+		if (! n.interfaces().isEmpty()) {
+		    w.allowBreak(2);
+		    if (flags.isInterface()) {
+		        w.write("extends ");
+		    }
+		    else {
+		        w.write("implements ");
+		    }
+		
+		    w.begin(0);
+		    for (Iterator<TypeNode> i = n.interfaces().iterator(); i.hasNext(); ) {
+		        TypeNode tn = (TypeNode) i.next();
+		        n.print(tn, w, tr);
+		
+		        if (i.hasNext()) {
+		            w.write(",");
+		            w.allowBreak(0);
+		        }
+		    }
+		    w.end();
+		}
+		w.unifiedBreak(0);
+		w.end();
+		w.write("{");
+		int i = 0;
+		if (n.typeProperties().size() > 0) {
+			w.newline(4);
+			w.begin(0);
+			for (TypePropertyNode tp : n.typeProperties()) {
+				i++;
+				//			w.write("@TypeProperty(");
+				//			w.write("" + i);
+				//			w.write(") ");
+				//			w.allowBreak(0, " ");
+				w.write("public class ");
+				n.print(tp.id(), w, tr);
+				w.write(" { }");
+			}
+			w.newline();
+			for (TypePropertyNode tp : n.typeProperties()) {
+				i++;
+				//			w.write("@TypeProperty(");
+				//			w.write("" + i);
+				//			w.write(") ");
+				//			w.allowBreak(0, " ");
+				w.write("private final x10.runtime.Type ");
+				n.print(tp.id(), w, tr);
+				w.write(";");
+			}
+			w.newline();
+			w.end();
+		}
+		n.print(n.body(), w, tr);
+		w.write("}");
+		w.newline(0);
+	}
 
 	public void visit(X10Cast_c c) {
 		// [IP] FIXME: process type correctly
@@ -148,9 +301,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// TODO assert false - that is not implemented yet
 		throw new InternalCompilerError("not implemented", c.position());
 	}
-
-	public void visit(Call_c c) {
-		assert (!(c instanceof RemoteCall_c));
+	
+	public void visit(X10Call_c c) {
 		// add a check that verifies if the target of the call is in place 'here'
 		Receiver target = c.target();
 		Type t = target.type();
@@ -281,8 +433,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(MethodDecl_c dec) {
 		TypeSystem ts = tr.typeSystem();
 		if (dec.name().equals("main") &&
-			dec.flags().isPublic() &&
-			dec.flags().isStatic() &&
+			dec.flags().flags().isPublic() &&
+			dec.flags().flags().isStatic() &&
 			dec.returnType().type().isVoid() &&
 			(dec.formals().size() == 1) &&
 			((Formal)dec.formals().get(0)).type().type().typeEquals(ts.arrayOf(ts.String())))
@@ -344,7 +496,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(Future_c f) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template("Future", f.place(), f.stmt(), f.body()).expand(tr2);
+		new Template("Future", f.place(), f.returnType(), f.body()).expand(tr2);
 	}
 
 	public void visit(ForLoop_c f) {
@@ -374,9 +526,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				body = new Join("\n",
 								new Template("point-create",
 											 new Object[] {
-												 form.flags().translate(),
+												 form.flags(),
 												 form.type(),
-												 form.id().id(),
+												 form.id(),
 												 new Join(",", idxs)
 											 }),
 								body);
@@ -393,9 +545,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 							 body,
 							 new Template("forloop",
 								 new Object[] {
-									 form.flags().translate(),
+									 form.flags(),
 									 form.type(),
-									 form.id().id(),
+									 form.id(),
 									 regVar,
 									 new Join("\n", new Join("\n", f.locals()), f.body())
 								 })
@@ -403,9 +555,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		} else
 			new Template("forloop",
 						 new Object[] {
-							 form.flags().translate(),
+							 form.flags(),
 							 form.type(),
-							 form.id().id(),
+							 form.id(),
 							 f.domain(),
 							 new Join("\n", new Join("\n", f.locals()), f.body())
 						 }).expand();
@@ -415,9 +567,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		new Template(template,
 					 new Object[] {
-						 l.formal().flags().translate(),
+						 l.formal().flags(),
 						 l.formal().type(),
-						 l.formal().id().id(),
+						 l.formal().id(),
 						 l.domain(),
 						 new Join("\n", new Join("\n", l.locals()), l.body()),
 						 processClocks(l),
@@ -535,14 +687,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			throw new Error("Unknown array type.");
 		
 		// vj: Code illustrating type-driven dispatch
-		X10ParsedClassType type = (X10ParsedClassType) a.type();
+		Type type = a.type();
 		
 		if (runtimeName.equals("DoubleArray") 
-				&& ((type.isRect() && type.isRankThree() && type.isZeroBased()))) {
+				&& ((X10ArraysMixin.isRect(type) && X10ArraysMixin.isRankThree(type) && X10ArraysMixin.isZeroBased(type)))) {
 			runtimeName += "3d";
 		}
 		if (runtimeName.equals("DoubleArray") 
-				&& (type.isRail() || (type.isRect() && type.isRankOne() && type.isZeroBased()))) {
+				&& (X10ArraysMixin.isRail(type) || (X10ArraysMixin.isRect(type) && X10ArraysMixin.isRankOne(type) && X10ArraysMixin.isZeroBased(type)))) {
 			runtimeName += "1d";
 		}
 		
@@ -563,8 +715,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					 }).expand(tr2);
 	}
 
-	private TypeNode getParameterType(X10Type at) {
-		if (at.isConstrained()) {
+	private TypeNode getParameterType(Type at) {
+		if (X10TypeMixin.isConstrained(at)) {
 			NodeFactory nf = tr.nodeFactory();
 			Type parameterType = X10TypeMixin.getParameterType(at, "T");
 			if (parameterType != null)
@@ -594,8 +746,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// Array being accesses has isZeroBased = isRankOne = isRect = true, and array index is an int (not a point)
 			Type at = a.array().type();
 			X10TypeSystem xts = (X10TypeSystem) at.typeSystem();
-			if (xts.isNullable(at)) 
-				at = ((NullableType) at).base();
 			
 			if (xts.isPrimitiveTypeArray(at)) {
 				// Create template optimized for primitive base type with direct access to arr_ field
@@ -820,6 +970,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
 		
 		String s = null;
+		
+		if (type instanceof ConstrainedType) {
+			ConstrainedType ct = (ConstrainedType) type;
+			type = Types.get(ct.baseType());
+		}
+		
+		if (type instanceof ParameterType) {
+		    s = "java.lang.Object";
+		}
+		
+		if (type instanceof PathType) {
+			PathType pt = (PathType) type;
+			Type t = pt.baseType();
+			s = "java.lang.Object";
+		}
+		
+		if (type instanceof MacroType) {
+		    MacroType mt = (MacroType) type;
+		    printType(mt);
+		    return;
+		}
 
 		if (xts.isSubtype(type, xts.array())) {
 			Type T = X10TypeMixin.getParameterType((X10Type) type, "T");
@@ -871,26 +1042,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(s);
 		else
 			type.print(w);
-	}
-
-	public void visit(NullableNode_c n) {
-//		System.out.println("Pretty-printing nullable type node for "+n);
-		Type t = n.type();
-		if (t != null)
-			printType(t);
-		else
-			// WARNING: it's important to delegate to the appropriate visit() here!
-			visit((Node)n);
-	}
-
-	public void visit(FutureNode_c n) {
-//		System.out.println("Pretty-printing future type node for "+n);
-		Type t = n.type();
-		if (t != null)
-			printType(t);
-		else
-			// WARNING: it's important to delegate to the appropriate visit() here!
-			visit((Node)n);
 	}
 
 	public void visit(CanonicalTypeNode_c n) {

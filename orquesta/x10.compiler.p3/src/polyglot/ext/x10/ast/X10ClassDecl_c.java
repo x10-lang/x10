@@ -15,6 +15,7 @@ import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
@@ -25,11 +26,11 @@ import polyglot.ext.x10.types.X10ClassDef_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
-import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -50,7 +51,7 @@ import polyglot.visit.TypeChecker;
  * @author vj
  *
  */
-public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDecl {
+public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
    
     /**
      * If there are any properties, add the property instances to the body,
@@ -66,27 +67,40 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
      * @param body
      * @return
      */
-    public static TypeDecl make(Position pos, Flags flags, Id name, 
+    public static ClassDecl make(Position pos, FlagsNode flags, Id name, 
+		    List<TypePropertyNode> typeProperties,
             List<PropertyDecl> properties, DepParameterExpr tci,
             TypeNode superClass, List<TypeNode> interfaces, ClassBody body, X10NodeFactory nf, boolean valueClass) {
     	// Add the properties as fields in the class, together with a propertyName$ field
     	// encoding the fields that are properties.
-    	boolean isInterface = flags.isInterface();
-    	body = flags.isInterface() ? PropertyDecl_c.addGetters(properties, body, nf)
+    	boolean isInterface = flags.flags().isInterface();
+    	body = flags.flags().isInterface() ? PropertyDecl_c.addGetters(properties, body, nf)
                 : PropertyDecl_c.addProperties(properties, body, nf);
     	
-        TypeDecl result = valueClass 
-        ? new ValueClassDecl_c(pos, flags, name, tci, superClass, interfaces, body, nf)
-        : new X10ClassDecl_c(pos, flags, name, tci, superClass, interfaces, body);
+    	ClassDecl result = valueClass 
+        ? new ValueClassDecl_c(pos, flags, name, typeProperties, tci, superClass, interfaces, body, nf)
+        : new X10ClassDecl_c(pos, flags, name, typeProperties, tci, superClass, interfaces, body);
         return result;
+    }
+    
+    List<TypePropertyNode> typeProperties;
+
+    public List<TypePropertyNode> typeProperties() { return typeProperties; }
+    public X10ClassDecl typeProperties(List<TypePropertyNode> ps) {
+	    X10ClassDecl_c n = (X10ClassDecl_c) copy();
+    	n.typeProperties = new ArrayList<TypePropertyNode>(ps);
+    	return n;
     }
 	
     protected DepParameterExpr classInvariant;
-    protected X10ClassDecl_c(Position pos, Flags flags, Id name,
+    
+    protected X10ClassDecl_c(Position pos, FlagsNode flags, Id name,
+		    List<TypePropertyNode> typeProperties,
             DepParameterExpr tci,
-            TypeNode superClass, List interfaces, ClassBody body) {
+            TypeNode superClass, List<TypeNode> interfaces, ClassBody body) {
         super(pos, flags, name, superClass, interfaces, body);
         this.classInvariant = tci;
+        this.typeProperties = typeProperties;
     }
     
     public DepParameterExpr classInvariant() {
@@ -113,7 +127,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
   	  X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
   	  final Position pos = tn.position();
         FieldDecl f = new PropertyDecl_c(pos, 
-      		  Flags.PUBLIC.Static().Final(), tn, 
+      		  nf.FlagsNode(pos, Flags.PUBLIC.Static().Final()), tn, 
       		  nf.Id(pos, X10FieldInstance.MAGIC_CI_PROPERTY_NAME), nf.NullLit(pos), nf);
         body=body.addMember(f);
       return body;
@@ -143,7 +157,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
     public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
     	ClassDecl n = (ClassDecl) super.disambiguate(ar);
     	// Now we have successfully performed the base disambiguation.
-    	X10Flags xf = X10Flags.toX10Flags(n.flags());
+    	X10Flags xf = X10Flags.toX10Flags(n.flags().flags());
     	if (xf.isSafe()) {
     		ClassBody b = n.body();
     		List<ClassMember> m = b.members();
@@ -153,8 +167,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
     			ClassMember mem = m.get(i);
         		if (mem instanceof MethodDecl) {
         			MethodDecl decl = (MethodDecl) mem;
-        			X10Flags mxf = X10Flags.toX10Flags(decl.flags()).Safe();
-        			mem = decl.flags(mxf);
+        			X10Flags mxf = X10Flags.toX10Flags(decl.flags().flags()).Safe();
+        			mem = decl.flags(decl.flags().flags(mxf));
         		} 
         		newM.add(mem);
     		}
@@ -194,6 +208,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
     
     public Node visitSignature(NodeVisitor v) {
         X10ClassDecl_c n = (X10ClassDecl_c) super.visitSignature(v);
+        List<TypePropertyNode> ps = (List<TypePropertyNode>) visitList(this.typeProperties, v);
+        n = (X10ClassDecl_c) n.typeProperties(ps);
         DepParameterExpr ci = (DepParameterExpr) visitChild(this.classInvariant, v);
         return ci == this.classInvariant ? n : n.classInvariant(ci);
     }
@@ -204,13 +220,16 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
         
         X10ClassDef def = (X10ClassDef) n.type;
         
-        X10Scheduler scheduler = (X10Scheduler) Globals.Scheduler();
+        TypeBuilder childTb = tb.pushClass(def);
         
-        DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, tb);
+	List<TypePropertyNode> ps = (List<TypePropertyNode>) n.visitList(n.typeProperties, childTb);
+        n = (X10ClassDecl_c) n.typeProperties(ps);
+        
+        DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, childTb);
 
         if (ci != null) {
-            def.setClassInvariant(ci.constraint());
-            return n.classInvariant(ci);
+            def.setXClassInvariant(ci.xconstraint());
+            n = (X10ClassDecl_c) n.classInvariant(ci);
         }
 
         return n;
@@ -243,11 +262,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDec
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
 
-    	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-
-    	X10ParsedClassType ct = (X10ParsedClassType) this.type.asType();
-    	Constraint c = ct.realClause();
-    	ct.checkRealClause();
+    	ClassType ct = type.asType();
+    	X10TypeMixin.checkRealClause(ct);
     	
     	return result;
     }

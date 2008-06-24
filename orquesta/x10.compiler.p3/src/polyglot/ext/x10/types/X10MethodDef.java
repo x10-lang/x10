@@ -21,5 +21,5 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
      * @return
      * @throws SemanticException 
      */
-    X10MethodInstance instantiateForThis(ReferenceType thisType, List<Type> argTypes) throws SemanticException;
+//    X10MethodInstance instantiateForThis(ReferenceType thisType, List<Type> argTypes) throws SemanticException;
 }

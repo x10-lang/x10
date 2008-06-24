@@ -1,24 +1,18 @@
 package polyglot.ext.x10.types;
 
 
-import polyglot.ext.x10.ast.X10Special;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.types.ClassDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeObject;
 import polyglot.types.TypeObject_c;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.constraint.XSelf;
+import x10.constraint.XVar;
 
 public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 	String name;
@@ -41,21 +35,17 @@ public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 	
 	public Type asType() {
 		if (asType == null) {
-			C_Special_c self = new C_Special_c(X10Special.SELF, container.get());
-			asType = new PathType_c(ts, position, self, this);
+			asType = new PathType_c(ts, position, XSelf.Self, Types.get(container()), this);
 		}
 		return asType;
 	}
 	
-	C_Var asVar = null;
+	XVar asVar = null;
 	
-	public C_Var asVar() {
+	public XVar asVar() {
 		if (asVar == null) {
-			C_Special_c self = new C_Special_c(X10Special.SELF, container.get());
-			FieldInstance fi = ts.fieldDef(Position.COMPILER_GENERATED, container, Flags.PUBLIC.Final(), Types.ref(ts.Void()), name).asInstance();
-			((X10FieldDef) fi.def()).setProperty();
-			((X10FieldDef) fi.def()).setNotConstant();
-			asVar = new C_Field_c(fi, self);
+			X10TypeSystem xts = (X10TypeSystem) ts;
+			return xts.xtypeTranslator().transMacroType((ParametrizedType) asType());
 		}
 		return asVar;
 	}

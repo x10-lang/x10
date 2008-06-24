@@ -28,13 +28,10 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.types.X10TypeMixin;
-import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
-import polyglot.types.ParsedClassType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -47,6 +44,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XTerm;
 
 /** An immutable representation of an X10 array constructor.
  * @author vj Dec 9, 2004
@@ -210,12 +208,12 @@ implements ArrayConstructor {
 					List<ClassMember> pointwise_members = new TypedList(new LinkedList(), ClassMember.class, false);
 
 					List<Formal> apply_formals = new TypedList(new LinkedList(), Formal.class, false);
-					Formal formal = nf.Formal(position(), Flags.NONE, init_closure_formal.type(), init_closure_formal.id());
+					Formal formal = nf.Formal(position(), nf.FlagsNode(position(), Flags.NONE), init_closure_formal.type(), init_closure_formal.id());
 					formal = formal.localDef(ts.localDef(position(), Flags.NONE, newBaseType, init_closure_formal.id().id()));
 					
 					apply_formals.add(formal);
 
-					Formal dummy_formal = nf.Formal(position(), Flags.NONE, nf.CanonicalTypeNode(position(), newBaseType), nf.Id(position(), "__dummy__"));
+					Formal dummy_formal = nf.Formal(position(), nf.FlagsNode(position(), Flags.NONE), nf.CanonicalTypeNode(position(), newBaseType), nf.Id(position(), "__dummy__"));
 					dummy_formal = dummy_formal.localDef(ts.localDef(position(), Flags.NONE, newBaseType, "__dummy__"));
 					apply_formals.add(dummy_formal);
 
@@ -228,15 +226,15 @@ implements ArrayConstructor {
 					    body_with_index_vars = body_with_index_vars.prepend(index_init);
 					}
 
-					MethodDecl apply_method = nf.MethodDecl(position(), Flags.PUBLIC, newBase, nf.Id(position(), "apply"), apply_formals, new ArrayList(), body_with_index_vars);
+					MethodDecl apply_method = nf.MethodDecl(position(), nf.FlagsNode(position(), Flags.PUBLIC), newBase, nf.Id(position(), "apply"), apply_formals, new ArrayList(), body_with_index_vars);
 					List<Ref<? extends Type>> apply_arg_types = new TypedList(new LinkedList(), Ref.class, false);
 					apply_arg_types.add(newBaseType);
 
 					ClassDef anon_type = ts.createClassDef();
 					anon_type.kind(ClassDef.ANONYMOUS);
 					anon_type.position(position());
-					anon_type.outer(Types.ref(tc.context().currentClassScope()));
-					apply_method = apply_method.methodDef(ts.methodDef(position(), Types.ref(anon_type.asType()), apply_method.flags(), apply_method.returnType().typeRef(), apply_method.name(), apply_arg_types, new ArrayList()));
+					anon_type.outer(Types.ref(tc.context().currentClassDef()));
+					apply_method = apply_method.methodDef(ts.methodDef(position(), Types.ref(anon_type.asType()), apply_method.flags().flags(), apply_method.returnType().typeRef(), apply_method.name(), apply_arg_types, new ArrayList()));
 					pointwise_members.add(apply_method);
 					ClassBody pointwise_body = nf.ClassBody(position(), pointwise_members);
 					TypeNode pointwise_type = nf.CanonicalTypeNode(position(), ts.OperatorPointwise());
@@ -285,8 +283,8 @@ implements ArrayConstructor {
 		}
 		// Transfer the attributes from the dist to the array. This is in lieu of reading the
 		// dependent type for the constructor from an X10 source file.
-		X10ParsedClassType p = (X10ParsedClassType) ts.array(newBaseType, isValue);
-		X10ParsedClassType t = transferAttributes(p, (X10ParsedClassType) newDistribution.type());
+		Type p = ts.array(newBaseType, isValue);
+		Type t = transferAttributes(p, newDistribution.type());
 		// System.out.println("ArrayConstructor_c: t=" + t);
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
 		
@@ -294,32 +292,31 @@ implements ArrayConstructor {
 		
 	}
 	
-	private X10ParsedClassType transferAttributes(X10ParsedClassType t, 
-			X10ParsedClassType distType) {
+	private Type transferAttributes(Type t, Type distType) {
 		//Report.report(1, "ArrayConstructor: transferring attributes from " + distType
 		//		+ " to " + t);
-		C_Var self = distType.self();
+		XTerm self = X10ArraysMixin.self(distType);
 		if (self != null) {
-			t = t.setDistribution(self);
+			t = X10ArraysMixin.setDistribution(t, self);
 		}
-		C_Var onePlace = distType.onePlace();
+		XTerm onePlace = X10ArraysMixin.onePlace(distType);
 		if (onePlace !=null) {
-			t = t.setOnePlace(onePlace);
+			t = X10ArraysMixin.setOnePlace(t, onePlace);
 			//Report.report(1, "Setting oneplace result is "  + t);
 		}
-		boolean isRect = distType.isRect();
-		if (isRect) t = t.setRect();
-		boolean zeroBased = distType.isZeroBased();
+		boolean isRect = X10ArraysMixin.isRect(distType);
+		if (isRect) t = X10ArraysMixin.setRect(t);
+		boolean zeroBased = X10ArraysMixin.isZeroBased(distType);
 		//Report.report(1, "ArrayConstructor zeroBased? "  + zeroBased);
 		if (zeroBased){
-			t = t.setZeroBased();
+			t = X10ArraysMixin.setZeroBased(t);
 		}
-		C_Var rank = distType.rank();
-		if (rank !=null) t = t.setRank(rank);
-		if (t.hasLocalProperty() && zeroBased && isRect && ((X10TypeSystem) t.typeSystem()).ONE().equals(rank)) 
-			t = t.setRail();
-		C_Var region = distType.region();
-		if (region != null) t = t.setRegion(region);
+		XTerm rank = X10ArraysMixin.rank(distType);
+		if (rank !=null) t = X10ArraysMixin.setRank(t, rank);
+		if (X10ArraysMixin.hasLocalProperty(t) && zeroBased && isRect && ((X10TypeSystem) t.typeSystem()).ONE().equals(rank)) 
+			t = X10ArraysMixin.setRail(t);
+		XTerm region = X10ArraysMixin.region(distType);
+		if (region != null) t = X10ArraysMixin.setRegion(t, region);
 		//Report.report(1, "t is now " + t);
 		return t;
 	}

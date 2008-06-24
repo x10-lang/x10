@@ -44,7 +44,6 @@ package polyglot.ext.x10.types;
 import java.util.Collection;
 import java.util.List;
 
-import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -56,7 +55,6 @@ import polyglot.types.ImportTable;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
-import polyglot.types.ParsedClassType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -65,6 +63,7 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
+import x10.constraint.XConstraint;
 
 public class X10Context_c extends Context_c implements X10Context {
 
@@ -72,9 +71,9 @@ public class X10Context_c extends Context_c implements X10Context {
 		super(ts);
 	}
 	
-	protected Constraint currentConstraint;
-	public Constraint currentConstraint() { return currentConstraint; }
-	public void setCurrentConstraint(Constraint c) { currentConstraint = c; }
+	protected XConstraint currentConstraint;
+	public XConstraint currentConstraint() { return currentConstraint; }
+	public void setCurrentConstraint(XConstraint c) { currentConstraint = c; }
 
 	// Set if we are in a supertype declaration of this type.
 	protected X10ClassDef inSuperOf = null;
@@ -298,8 +297,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Gets current class scope
 	 */
-	public ClassDef currentClassScope() {
-		return depType == null ? super.currentClassScope() : pop().currentClassScope();
+	public ClassDef currentClassDef() {
+		return depType == null ? super.currentClassDef() : pop().currentClassDef();
 	}
 
 	/**
@@ -348,7 +347,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		try {
 			if (depType instanceof X10ClassType) {
 				X10ClassType dep = (X10ClassType) this.depType;
-				FieldInstance myVi = ts.findField(dep, name, currentClassScope());
+				FieldInstance myVi = ts.findField(dep, name, currentClassDef());
 				if (myVi != null) {
 					//if (name.equals("val")) Report.report(1, "X10Context_c: ==> " + myVi);
 					return myVi;

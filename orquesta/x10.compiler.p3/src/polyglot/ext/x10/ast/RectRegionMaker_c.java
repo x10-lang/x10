@@ -10,27 +10,28 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
-import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_BinaryTerm_c;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Lit_c;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XSelf;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 
 /**
  * This needs to be pulled out in a separate class because the typeCheck code
@@ -49,8 +50,8 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 	 * @param arguments
 	 */
 	public RectRegionMaker_c(Position pos, Receiver target, Id name,
-			List arguments) {
-		super(pos, target, name, arguments);
+			List<Expr> arguments) {
+		super(pos, target, name, Collections.EMPTY_LIST, arguments);
 		
 	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
@@ -58,8 +59,8 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 
     	RectRegionMaker_c n = (RectRegionMaker_c) super.typeCheck(tc);
        // Report.report(1, "Tuple_c.typecheck result had type " + n.type());
-		X10ParsedClassType type = (X10ParsedClassType) n.type();
-		type = type.setRank(new C_Lit_c(new Integer(arguments.size()), xts.Int()));
+    	Type type = n.type();
+		type = X10ArraysMixin.setRank(type, xts.xtypeTranslator().trans(arguments.size()));
 		boolean isZeroBased=true;
 		for (int i=0; i < arguments.size(); i++) {
 			Expr e = (Expr) arguments.get(i);
@@ -70,24 +71,28 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 				throw new SemanticException("The argument, " + e + ", should be of type region instead of " + t
 						+".", position());
 			}
-			X10ParsedClassType tp = (X10ParsedClassType) t;
-			C_Term rank = tp.rank();
+			Type tp = t;
+			XTerm rank = X10ArraysMixin.rank(tp);
 			if (! xts.ONE().equals(rank)) {
 				// Slow!
-				C_Special self = new C_Special_c(X10Special.SELF, t);
-				FieldInstance fi = xts.findField(tp, "rank", tc.context().currentClassScope());
-				Constraint c = new Constraint_c(xts);
-				c.addTerm(new C_BinaryTerm_c("==", xts.ONE(), new C_Field_c(fi, self), xts.Boolean()));
-				if (! tp.depClause().entails(c)) {
-					throw new SemanticException("The argument, " + e + ", should be of type region(:rank==1) instead of " + t
-							+".", position());
+				FieldInstance fi = X10ArraysMixin.getProperty(tp, "rank");
+				XConstraint c = new XConstraint_c();
+				try {
+					c.addTerm(XTerms.makeEquals(xts.ONE(), xts.xtypeTranslator().trans(XSelf.Self, fi)));
+					if (! X10TypeMixin.xclause(tp).entails(c)) {
+						throw new SemanticException("The argument, " + e + ", should be of type region{rank==1} instead of " + t
+						                            +".", position());
+					}
+				}
+				catch (XFailure e1) {
+					throw new SemanticException(e1.getMessage(), position());
 				}
 			}
-			isZeroBased &= tp.isZeroBased();
+			isZeroBased &= X10ArraysMixin.isZeroBased(tp);
 			
 		}
-		if (isZeroBased) type = type.setZeroBased();
-		type = type.setRect();
+		if (isZeroBased) type = X10ArraysMixin.setZeroBased(type);
+		type = X10ArraysMixin.setRect(type);
 		Node ret = n.type(type);
 		//Report.report(1, "RectRegionMaker: returning  " + ret + "(#" + hashCode() + ") with type "  + ((Call) ret).type());
 		return ret;

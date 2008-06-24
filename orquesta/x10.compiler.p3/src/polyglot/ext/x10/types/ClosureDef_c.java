@@ -1,5 +1,6 @@
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -10,30 +11,38 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.constraint.XConstraint;
 
 public class ClosureDef_c extends Def_c implements ClosureDef {
 
-    // ### should be CodeInstance
     protected Ref<? extends CodeInstance<?>> methodContainer;
     protected Ref<? extends ClassType> typeContainer;
-    Ref<? extends Type> returnType;
+    protected Ref<? extends Type> returnType;
+    protected List<Ref<? extends Type>> typeParameters;
     protected List<Ref<? extends Type>> formalTypes;
     protected List<Ref<? extends Type>> throwTypes;
+    protected Ref<? extends XConstraint> whereClause;
     protected CodeInstance<?> asInstance;
 
     public ClosureDef_c(TypeSystem ts, Position pos, 
             Ref<? extends ClassType> typeContainer,
             Ref<? extends CodeInstance<?>> methodContainer,
             Ref<? extends Type> returnType,
-            List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> throwTypes) {
+            List<Ref<? extends Type>> typeParams,
+            List<Ref<? extends Type>> formalTypes,
+            Ref<? extends XConstraint> whereClause,
+            List<Ref<? extends Type>> throwTypes) {
 
         super(ts, pos);
         this.typeContainer = typeContainer;
         this.methodContainer = methodContainer;
         this.returnType = returnType;
+        this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
+        this.whereClause = whereClause;
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
     }
 
@@ -72,6 +81,22 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         return typeContainer;
     }
 
+    public List<Ref<? extends Type>> typeParameters() {
+	        return Collections.unmodifiableList(typeParameters);
+    }
+
+    public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
+	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+    }
+
+    public Ref<? extends XConstraint> whereClause() {
+	    return whereClause;
+    }
+    
+    public void setWhereClause(Ref<? extends XConstraint> s) {
+	    this.whereClause = s;
+    }
+    
     /**
      * @param container The container to set.
      */
@@ -120,7 +145,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      }
 
      public String signature() {
-         return "(" + X10TypeSystem_c.listToString(formalTypes) + ")";
+         return "(" + CollectionUtil.listToString(formalTypes) + ")";
      }
 
      public String designator() {

@@ -202,9 +202,8 @@ implements X10ArrayAccessAssign {
 	  assert false;
       Expr array = ((X10ArrayAccess) left).array();
       List indices = ((X10ArrayAccess) left).index();
-        X10Type pt = ( X10Type) type;
-        if (pt.isConstrained()) {
-        	Type result = X10TypeMixin.getParameterType(pt, "T");
+      if (X10TypeMixin.isConstrained(type)) {
+        	Type result = X10TypeMixin.getParameterType(type, "T");
         	if (result != null) {
         		w.write("(");
         		print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED,Types.ref(result)), w, tr);

@@ -6,10 +6,17 @@ package polyglot.ext.x10.types;
 import java.util.List;
 
 import polyglot.ext.x10.types.X10MethodInstance_c.NoClauseVariant;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.types.*;
+import polyglot.types.ClassType;
+import polyglot.types.CodeInstance;
+import polyglot.types.DerefTransform;
+import polyglot.types.FunctionInstance_c;
+import polyglot.types.Ref;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.util.TransformingList;
+import x10.constraint.XConstraint;
 
 public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements ClosureInstance {
     private static final long serialVersionUID= 2804222307728697502L;
@@ -17,9 +24,18 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     public ClosureInstance_c(TypeSystem ts, Position pos, Ref<? extends ClosureDef> def) {
         super(ts, pos, def);
     }
+    
+    public ClosureDef x10Def() {
+	    return def();
+    }
+    
+    ClosureType type;
 
     public ClosureType type() {
-        return new ClosureType_c(ts, position(), def().returnType(), def().formalTypes(), def().throwTypes());
+	    X10TypeSystem xts = (X10TypeSystem) ts;
+	    if (type == null)
+		    type = xts.closure(position(), def().returnType(), def().typeParameters(), def().formalTypes(), def().whereClause(), def().throwTypes());
+	    return type;
     }
     
     public CodeInstance<?> methodContainer() {
@@ -70,16 +86,32 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return me.callValid(thisType, new TransformingList<Type,Type>(argTypes, new NoClauseVariant()));
     }
 
-    Constraint whereClause;
+    XConstraint whereClause;
     
-    public Constraint whereClause() {
+    public XConstraint whereClause() {
         return whereClause;
     }
     
-    public ClosureInstance whereClause(Constraint where) {
+    public ClosureInstance whereClause(XConstraint where) {
         ClosureInstance_c n = (ClosureInstance_c) copy();
         n.whereClause = where;
         return n;
+    }
+
+    public List<Type> typeParameters;
+
+    public List<Type> typeParameters() {
+	    if (this.typeParameters == null) {
+		    this.typeParameters = new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
+	    }
+
+	    return typeParameters;
+    }
+
+    public ClosureInstance typeParameters(List<Type> typeParameters) {
+	    ClosureInstance_c n = (ClosureInstance_c) copy();
+	    n.typeParameters = typeParameters;
+	    return n;
     }
 }
 

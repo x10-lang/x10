@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Id;
@@ -56,7 +57,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	protected List<Formal> vars;
 	boolean unnamed;
 
-	public X10Formal_c(Position pos, Flags flags, TypeNode type,
+	public X10Formal_c(Position pos, FlagsNode flags, TypeNode type,
 	                   Id name, List<Formal> vars)
 	{
 		super(pos, flags, type,
@@ -70,7 +71,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	public Node visitChildren(NodeVisitor v) {
 		X10Formal_c n = (X10Formal_c) super.visitChildren(v);
 		List l = visitList(vars, v);
-		if (! CollectionUtil.equals(l, this.vars)) {
+		if (! CollectionUtil.allEqual(l, this.vars)) {
 			if (n == this) n = (X10Formal_c) copy();
 			n.vars = TypedList.copyAndCheck(l, Formal.class, true);
 		}
@@ -183,7 +184,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @return
 	 */
 	protected static LocalDecl makeLocalDecl(NodeFactory nf, Position pos,
-											 Flags flags, TypeNode type,
+		FlagsNode flags, TypeNode type,
 											 Id name, LocalDef li,
 											 Expr init)
 	{
@@ -191,7 +192,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		// vj: disable until we have more support for declarative programming in X10.
 		Flags f = (false || allCapitals ? flags.set(Flags.FINAL) : flags);
 		 */
-		return nf.LocalDecl(pos, flags.set(Flags.FINAL), type, name, init)
+		return nf.LocalDecl(pos, flags.flags(flags.flags().set(Flags.FINAL)), type, name, init)
 					.localDef(li);
 	}
 
@@ -240,7 +241,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 */
 	private static List<Stmt> explode(NodeFactory nf, TypeSystem ts,
 										  Id name, Position pos,
-										  Flags flags, List<Formal> vars,
+										  FlagsNode flags, List<Formal> vars,
 										  LocalDef bli)
 	{
 		if (vars == null || vars.isEmpty()) return null;
@@ -294,7 +295,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 */
 	public static List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts,
 										 Id name, Position pos,
-										 Flags flags, List<Formal> vars)
+										 FlagsNode flags, List<Formal> vars)
 	{
 		return explode(nf, ts, name, pos, flags, vars, null);
 	}

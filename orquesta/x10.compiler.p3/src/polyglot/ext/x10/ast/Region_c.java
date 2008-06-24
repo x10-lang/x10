@@ -37,7 +37,7 @@ import polyglot.visit.CFGBuilder;
  * 
  */
 public class Region_c extends Expr_c implements Region {
-	List exprs;
+	List<Expr> exprs;
 	
 	/**
 	 * @param pos
@@ -86,7 +86,7 @@ public class Region_c extends Expr_c implements Region {
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.ast.Region#ranges()
 	 */
-	public List ranges() {
+	public List<Expr> ranges() {
 		// TODO Auto-generated method stub
 		return exprs;
 	}

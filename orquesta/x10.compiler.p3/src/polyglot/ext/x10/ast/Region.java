@@ -25,7 +25,7 @@ import polyglot.ast.Expr;
 public interface Region extends Expr {
 	int rank();
 	Expr index(int i);
-	List ranges();
+	List<Expr> ranges();
 	
 	// Do we really need updaters?
 

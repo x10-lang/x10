@@ -10,10 +10,8 @@ package polyglot.ext.x10.visit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
@@ -42,7 +40,6 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.DepCast;
-import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.X10Binary;
 import polyglot.ext.x10.ast.X10CastInfo;
@@ -51,22 +48,17 @@ import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Field;
-import polyglot.ext.x10.types.constr.C_Lit;
-import polyglot.ext.x10.types.constr.C_Local;
-import polyglot.ext.x10.types.constr.C_Local_c;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.C_Type;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
+import polyglot.types.FieldDef;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -75,6 +67,15 @@ import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XEquals;
+import x10.constraint.XFailure;
+import x10.constraint.XField;
+import x10.constraint.XLit;
+import x10.constraint.XLocal;
+import x10.constraint.XNameWrapper;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 
 /**
  * Visitor that inserts boxing and unboxing code into the AST.
@@ -115,7 +116,7 @@ public class X10Caster extends AscriptionVisitor {
 		if ((e instanceof Cast) || (e instanceof Instanceof)) {
 			TypeBuilder tb = new TypeBuilder(job, ts, nf);
 			TypeChecker tc = new TypeChecker(job, ts, nf, new HashMap<Node,Node>());
-			tb = tb.pushClass(context().currentClassScope());
+			tb = tb.pushClass(context().currentClassDef());
 			tb = tb.pushCode(context().currentCode());
 			tc = (TypeChecker) tc.context(context());
 			
@@ -217,10 +218,9 @@ public class X10Caster extends AscriptionVisitor {
 		 * @param toTypeNode type node to extract constraint from.
 		 * @return The dependent type constraint extrated from the type.
 		 */
-		protected Constraint getConstraintsToCheck(TypeNode toTypeNode) {
+		protected XConstraint getConstraintsToCheck(TypeNode toTypeNode) {
 			X10Type toType = (X10Type) toTypeNode.type();
-			return (toType instanceof NullableType) ? ((NullableType) toType)
-					.base().depClause() : toType.depClause();
+			return X10TypeMixin.xclause(toType);
 		}
 
 		/**
@@ -263,32 +263,12 @@ public class X10Caster extends AscriptionVisitor {
 			boolean notNullRequired = castOrInstanceof.notNullRequired();
 			boolean isToTypeNullable = castOrInstanceof.isToTypeNullable();
 
-			boolean isBoxedCode = 
-				((X10TypeSystem) ts).isBoxedType(this.checking.getToType(castOrInstanceof).type()); 
+			// ### check for boxing/unboxing
 
-			if (isBoxedCode) {
-				// this code handle either boxed integer runtime checking
-				// this code is needed when expr to cast's type is a primitive nullable.
-				X10Type incomingExprType = ((X10Type)incomingExpr.type()); 
-				if (xts.isNullable(incomingExprType)) {
-					NullableType nullType = (NullableType) incomingExprType;
-					if (nullType.base().isPrimitive()) {
-						nullType = nullType.base(Types.ref(xts.boxedType((X10PrimitiveType)nullType.base())));
-						// we change incomingExpr type from nullable<Primitive> to nullable<BoxedPrimitive>
-						incomingExpr =  incomingExpr.type(nullType);
-					}
-				}
-				// constraint checking is done using the primitive type, not the boxed one
-				checkingType = nf.CanonicalTypeNode(p, ((X10TypeSystem) ts).boxedTypeToPrimitiveType(destType.type()));
-
-				// Expression to check against deptype constraint is the unboxed primitive.
-				exprToCheck = nf.Call(p,castedExpr,nf.Id(p,((X10TypeSystem) ts).getGetterName(destType.type())));
-			} else {
-				// Constraint checking is done using cast's target type
-				checkingType = destType;
-				// Expression to check against deptype constraint is the casted expr
-				exprToCheck = castedExpr;
-			}
+			// Constraint checking is done using cast's target type
+			checkingType = destType;
+			// Expression to check against deptype constraint is the casted expr
+			exprToCheck = castedExpr;
 			
 			// expr to return is method's parameter (objToCast) with the incoming expr's type.
 			// Note: We need to set the type otherwise the newly created objToCast doesn't have one, 
@@ -354,7 +334,7 @@ public class X10Caster extends AscriptionVisitor {
 			
 			// building cast checking method formal parameters
 			List<Formal> paramFormalList = new LinkedList();
-			Formal mthParamFormal = nf.Formal(p, Flags.FINAL, paramType, nf.Id(p, OBJ_TO_CAST));
+			Formal mthParamFormal = nf.Formal(p, nf.FlagsNode(p, Flags.FINAL), paramType, nf.Id(p, OBJ_TO_CAST));
 			paramFormalList.add(mthParamFormal);
 
 			// building cast checking method declaration (will be inside the inner class)
@@ -362,7 +342,7 @@ public class X10Caster extends AscriptionVisitor {
 			// method return type is not cast target type as if we are dealing with
 			// an instanceof checking we have to return a boolean. 
 			MethodDecl checkCastMethod =   
-				nf.MethodDecl(p, Flags.PUBLIC, this.checking.getExprReturnType(castOrInstanceof), 
+				nf.MethodDecl(p, nf.FlagsNode(p, Flags.PUBLIC), this.checking.getExprReturnType(castOrInstanceof), 
 						nf.Id(p, CHECK_CAST_MTH_NAME), paramFormalList, Collections.EMPTY_LIST, methodBody);
 
 			// This method is part of an inner class body.
@@ -383,10 +363,6 @@ public class X10Caster extends AscriptionVisitor {
 			// inner class
 
 			Call checkingCall;
-			if (isBoxedCode) {
-				// this is a hack to get nullable<int> compliant with nullable<BoxedInteger>.
-				incomingExpr = nf.Cast(p, destType, incomingExpr);
-			}
 			
 			checkingCall = nf.Call(p, newAnonClass, nf.Id(p, CHECK_CAST_MTH_NAME), incomingExpr);
 
@@ -428,10 +404,10 @@ public class X10Caster extends AscriptionVisitor {
 		
 
 		public TypeNode getToTypeRootType(X10CastInfo castOrInstanceof) {
-			Type baseType = (((X10Type) castOrInstanceof.getTypeNode().type()).rootType());
-			if (((X10TypeSystem) ts).isNullable(baseType)) {
-				baseType = ((NullableType) baseType).base();
-			}
+			Type baseType = X10TypeMixin.xclause(castOrInstanceof.getTypeNode().type(), null);
+//			if (((X10TypeSystem) ts).isNullable(baseType)) {
+//				baseType = ((NullableType) baseType).base();
+//			}
 			return nf.CanonicalTypeNode(p,baseType);	
 		}
 		
@@ -615,7 +591,7 @@ public class X10Caster extends AscriptionVisitor {
 			// this code handle either boxed integer runtime checking
 			// this code is needed when expr to cast's type is a primitive nullable.
 			X10Type incomingExprType = ((X10Type)incomingExpr.type()); 
-			if (xts.isNullable(incomingExprType)) {
+			if (xts.isBox(incomingExprType)) {
 				NullableType nullType = (NullableType) incomingExprType;
 				if (nullType.base().isPrimitive()) {
 					nullType = nullType.base(Types.ref(xts.boxedType((X10PrimitiveType)nullType.base())));
@@ -748,6 +724,10 @@ public class X10Caster extends AscriptionVisitor {
 			return nf.TypeNodeFromQualifiedName(p, RUNTIME_CAST_CHECKER_CLASSNAME);
 		}
 	}
+	private TypeNode Nullable(Position pos, Type base) {
+		X10TypeSystem ts = (X10TypeSystem) this.ts;
+		return nf.CanonicalTypeNode(pos, ts.boxOf(pos, Types.<X10NamedType>ref((X10NamedType) base)));
+	}
 	
 	/**
 	 * NullableCheckCastBuilder is responsible to add all checks related to nullable
@@ -780,7 +760,7 @@ public class X10Caster extends AscriptionVisitor {
 				// (constraintExpr ? object : RuntimeCastChecker.throwClassCastException(object, "Constraint not meet"))
 				
 				Expr firstCondition = xnf.ParExpr(p,
-						nf.Binary(p, exprToReturn, Binary.NE, nf.Cast(p,xnf.Nullable(p,nf.CanonicalTypeNode(p,exprToReturn.type())),nf.NullLit(p)))); 
+						nf.Binary(p, exprToReturn, Binary.NE, nf.Cast(p,Nullable(p, exprToReturn.type()),nf.NullLit(p)))); 
 				Expr firstAlternative = nf.Cast(p, toType, this.throwClassCastExceptionExpr(p, exprToReturn, "Cannot cast a null instance to a non nullable type"));
 				return retExpr = xnf.ParExpr(p, nf.Conditional(p, firstCondition, nestedCondition, firstAlternative));
 				// (objToCast != null) ? nestedCondition : RuntimeCastChecker.throwClassCastException(object, "Target type is not nullable");
@@ -792,7 +772,7 @@ public class X10Caster extends AscriptionVisitor {
 			
 			if (toTypeIsNullable) {
 				Expr conditionLeft = xnf.ParExpr(p, nf.Binary(p, exprToReturn, Binary.EQ, 
-						nf.Cast(p, xnf.Nullable(p,nf.CanonicalTypeNode(p,exprToReturn.type())), nf.NullLit(p))));
+						nf.Cast(p, Nullable(p,exprToReturn.type()), nf.NullLit(p))));
 				Expr condition = xnf.ParExpr(p, nf.Binary(p,conditionLeft, Binary.COND_OR, constraintExpr)); 
 				// ((objToCast == null) || constraintExpr)
 				Expr alternative = xnf.ParExpr(p, nf.Cast(p, toType, this.throwClassCastExceptionExpr(p, exprToReturn, "Constraint not meet")));
@@ -837,7 +817,7 @@ public class X10Caster extends AscriptionVisitor {
 				// prepend not null check
 				
 				Expr isExprNotNull = xnf.ParExpr(p, nf.Binary(p,exprToReturn,Binary.NE, 
-						nf.Cast(p, xnf.Nullable(p,nf.CanonicalTypeNode(p,exprToReturn.type())), nf.NullLit(p))));
+						nf.Cast(p, Nullable(p,exprToReturn.type()), nf.NullLit(p))));
 				retExpr = nf.Binary(p, isExprNotNull, Binary.COND_AND, retExpr);
 				//  (objToCast != null) && (isAssignable) && (constraintCheck)
 			}
@@ -861,28 +841,31 @@ public class X10Caster extends AscriptionVisitor {
 	 *
 	 */
 	private class ConstraintBuilder {
-		private Constraint declaredConstraint;
+		private XConstraint declaredConstraint;
 		private Expr self;
 
 		public ConstraintBuilder() {			
 		}
 		
-		public Expr exprFromConstraint(Constraint c) throws SemanticException {
-			HashMap result = c.constraints();
+		public Expr exprFromConstraint(XConstraint c) throws SemanticException {
+			List<XTerm> result = c.constraints();
 			Expr e = null;
-			for (Iterator it = result.entrySet().iterator(); it.hasNext();) {
-				Map.Entry entry = (Map.Entry) it.next();
-				C_Term v1 = (C_Term) entry.getKey();
-				C_Term v2 = (C_Term) entry.getValue();
-				Expr e1 = constraintToExpr(v1, c.position());
-				Expr e2 = constraintToExpr(v2, c.position());
-				Expr ei = Globals.NF().Binary(c.position(), e1, Binary.EQ, e2);
+			for (XTerm ti : result) {
+				if (ti instanceof XEquals) {
+					XEquals eq = (XEquals) ti;
+					Position pos = Position.COMPILER_GENERATED;
+				XTerm v1 = eq.left();
+				XTerm v2 = eq.right();
+				Expr e1 = constraintToExpr(v1, pos);
+				Expr e2 = constraintToExpr(v2, pos);
+				Expr ei = Globals.NF().Binary(pos, e1, Binary.EQ, e2);
 				ei = ei.type(Globals.TS().Boolean());
 				if (e == null)
 					e = ei;
 				else {
-					e = Globals.NF().Binary(c.position(), e, Binary.COND_AND, ei);
+					e = Globals.NF().Binary(pos, e, Binary.COND_AND, ei);
 					e = e.type(Globals.TS().Boolean());
+				}
 				}
 			}
 			return e;
@@ -898,10 +881,10 @@ public class X10Caster extends AscriptionVisitor {
 		 * @return A clause checking 'self' meet constraint requirements.
 		 * @throws SemanticException
 		 */
-		public Expr buildConstraint(Expr self, Constraint declaredConstraint, TypeNode tn) throws SemanticException {
+		public Expr buildConstraint(Expr self, XConstraint declaredConstraint, TypeNode tn) throws SemanticException {
 			this.declaredConstraint = declaredConstraint;
 			X10Type t = (X10Type) tn.type();
-			Constraint c = t.depClause();
+			XConstraint c = X10TypeMixin.xclause(t);
 			Expr constraintExpr = exprFromConstraint(c);
 			this.self = self;
 			assert self != null;
@@ -954,11 +937,15 @@ public class X10Caster extends AscriptionVisitor {
 		 * @throws SemanticException
 		 */
 		private X10Binary makeBinary(Field f) throws SemanticException {
-
-			Expr constraintRightValue = 
-				this.constraintToExpr(declaredConstraint.find(f.name()),f.position());
+			try {
+				Expr constraintRightValue;
+				constraintRightValue = this.constraintToExpr(declaredConstraint.find(XTerms.makeName(f.fieldInstance().def(), f.name())), f.position());
+				return (X10Binary) ((X10NodeFactory)nf).Binary(f.position(),f, X10Binary.EQ, constraintRightValue);
+			}
+			catch (XFailure e) {
+				throw new SemanticException(e.getMessage(), f.position());
+			}
 			
-			return (X10Binary) ((X10NodeFactory)nf).Binary(f.position(),f, X10Binary.EQ, constraintRightValue);
 		}
 		
 		private X10Binary makeBinary(Expr expr) throws SemanticException {
@@ -1050,52 +1037,51 @@ public class X10Caster extends AscriptionVisitor {
 		 * @return
 		 * @throws SemanticException
 		 */
-		private Expr constraintToExpr(C_Term term, Position p) throws SemanticException {
+		private Expr constraintToExpr(XTerm term, Position p) throws SemanticException {
 			Expr res = null;
 
 			// LITTERALS
-			if (term instanceof C_Lit) {
-				C_Lit lit = (C_Lit) term;
-				if (lit.type().isInt()) {
-					res = nf.IntLit(p, IntLit.INT, ((Number) lit.val())
-							.intValue());
+			if (term instanceof XLit) {
+				XLit lit = (XLit) term;
+				Object val = lit.val();
+				if (val instanceof Integer) {
+					res = nf.IntLit(p, IntLit.INT, (Integer) val).type(ts.Int());
 				}
-				if (lit.type().isLong()) {
-					res = nf.IntLit(p, IntLit.LONG, ((Number) lit.val())
-							.longValue());
+				if (val instanceof Long) {
+					res = nf.IntLit(p, IntLit.LONG, (Long) val).type(ts.Long());
 				}
-				if (lit.type().isDouble()) {
-					res = nf.FloatLit(p, FloatLit.DOUBLE, ((Number) lit.val())
-							.doubleValue());
+				if (val instanceof Float) {
+					res = nf.FloatLit(p, FloatLit.FLOAT, (Float) val).type(ts.Float());
 				}
-				if (lit.type().isFloat()) {
-					res = nf.FloatLit(p, FloatLit.FLOAT, ((Number) lit.val())
-							.floatValue());
+				if (val instanceof Double) {
+					res = nf.FloatLit(p, FloatLit.DOUBLE, (Double) val).type(ts.Double());
 				}
-				if (lit.type().isBoolean()) {
-					res = nf.BooleanLit(p, ((Boolean) lit.val())
-							.booleanValue());
+				if (val instanceof Boolean) {
+					res = nf.BooleanLit(p, (Boolean) val).type(ts.Boolean());
 				}
 				if (lit.val() == null) {
-					res = nf.NullLit(p);
+					res = nf.NullLit(p).type(ts.Null());
 				}
 			}
 			
-			if (term instanceof C_Local) {
-				C_Local l = (C_Local) term;
-				return nf.Local(p, nf.Id(p, l.name()));
+			if (term instanceof XLocal) {
+				XLocal l = (XLocal) term;
+				LocalDef ld = ((XNameWrapper<LocalDef>) l.name()).val();
+				res = nf.Local(p, nf.Id(p, ld.name())).localInstance(ld.asInstance()).type(ld.asInstance().type());
 			}
 			
-			if (term instanceof C_Field) {
-				C_Field l = (C_Field) term;
+			if (term instanceof XField) {
+				XField l = (XField) term;
+				FieldDef ld = ((XNameWrapper<FieldDef>) l.field()).val();
 				Receiver r;
-				if (l.receiver() instanceof C_Type) {
-					r = nf.CanonicalTypeNode(p, l.receiver().type());
+				if (l.receiver() instanceof XLit) {
+					Type t = (Type) ((XLit) l.receiver()).val();
+					r = nf.CanonicalTypeNode(p, t);
 				}
 				else {
 					r = constraintToExpr(l.receiver(), p);
 				}
-				return nf.Field(p, r, nf.Id(p, l.name()));
+				res = nf.Field(p, r, nf.Id(p, ld.name())).fieldInstance(ld.asInstance()).type(ld.asInstance().type());
 			}
 
 			if (res == null) {
@@ -1103,8 +1089,6 @@ public class X10Caster extends AscriptionVisitor {
 						+ term);
 			}
 			
-			res = res.type(term.type());
-
 			return res;
 		}
 	}

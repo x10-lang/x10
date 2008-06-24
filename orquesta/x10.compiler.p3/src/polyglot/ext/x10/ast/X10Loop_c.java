@@ -28,8 +28,6 @@ import polyglot.ast.Term;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -42,6 +40,9 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
 
 /**
  * Captures the commonality of for, foreach and ateach loops in X10.
@@ -124,28 +125,26 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	            Expr hi = args.get(1);
 	            if (lo.type().isIntOrLess() && hi.type().isIntOrLess()) {
 	                X10Type t = (X10Type) formal.type().type();
-					Constraint c = t.depClause();
-	                if (c == null) c = new Constraint_c(ts);
+					XConstraint c = X10TypeMixin.xclause(t);
+	                if (c == null) c = new XConstraint_c();
 	                else c = c.copy();
 
 	                Expr lbound = nf.Binary(lo.position(), nf.Self(lo.position()).type(ts.Int()), Binary.GE, lo).type(ts.Boolean());
 	                Expr ubound = nf.Binary(hi.position(), nf.Self(hi.position()).type(ts.Int()), Binary.LE, hi).type(ts.Boolean());
 	                
 	                try {
-	                    Constraint lc = ts.typeTranslator().constraint(Collections.EMPTY_LIST, lbound);
+	                    XConstraint lc = ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, lbound);
 	                    c.addIn(lc);
-	                }
-	                catch (SemanticException e) {
-	                }
-	                
-	                try {
-	                    Constraint uc = ts.typeTranslator().constraint(Collections.EMPTY_LIST, ubound);
+
+	                    XConstraint uc = ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, ubound);
 	                    c.addIn(uc);
 	                }
 	                catch (SemanticException e) {
 	                }
+	                catch (XFailure e) {
+	                }
 	                
-	                Type newType = t.depClause(c);
+	                Type newType = X10TypeMixin.xclause(t, c);
 	                formal.localDef().setType(Types.ref(newType));
 	                return formal.type(nf.CanonicalTypeNode(formal.type().position(), Types.ref(newType)));
 	            }
@@ -295,10 +294,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 				if (n instanceof Formal) {
 					Formal f = (Formal) n;
 					LocalDef li = f.localDef();
-					Flags flags = f.flags();
+					Flags flags = f.flags().flags();
 					flags = flags.Final();
 					li.setFlags(flags);
-					return f.flags(flags).localDef(li);
+					return f.flags(f.flags().flags(flags)).localDef(li);
 				}
 				return n;
 			}

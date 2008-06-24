@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Node;
+import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Block;
 import polyglot.ast.Eval;
@@ -68,13 +69,13 @@ public class AsyncElimination extends NodeVisitor {
             Call c = (Call) n;
             List args = c.arguments();
             Receiver r = c.target();
-            if ("force".equals(c.id().id()) && args.size() == 0 && r instanceof Future) {
+            if (("force".equals(c.id().id()) || "apply".equals(c.id().id())) && args.size() == 0 && r instanceof Future) {
                 Future f = (Future) r;
-                Expr f_expr = f.body();
-                if (isOptimizableExpr_(f_expr)) {
+                Block f_block = f.body();
+                if (isOptimizableClosureBlock_(f_block)) {
                     if (DEBUG_)
                         System.out.println("AsyncElimination - for future=" + n);
-                    ret = f_expr;
+                    ret = getReturnExpr_(f_block);
                 }
             }
         }
@@ -115,6 +116,23 @@ public class AsyncElimination extends NodeVisitor {
         return ret;
     }
     
+    /**
+     * The closure block is optimizable if it is empty or just returns an optimizable expr.
+     */
+    private boolean isOptimizableClosureBlock_(Block b) {
+	    return getReturnExpr_(b) != null;
+    }
+    private Expr getReturnExpr_(Block b) {
+	    if (b.statements().size() == 1) {
+		    Stmt s = b.statements().get(0);
+		    if (s instanceof Return) {
+			    Return r = (Return) s;
+			    if (r.expr() != null)
+				    return r.expr();
+		    }
+	    }
+	    return null;
+    }
     /**
      * Traverses an expression and determines if it does not
      *  - invoke another method

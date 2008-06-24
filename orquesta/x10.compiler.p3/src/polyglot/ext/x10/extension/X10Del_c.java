@@ -95,7 +95,7 @@ public class X10Del_c extends JL_c implements X10Del {
 			return n;
 		}
 		List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, v);
-		if (! CollectionUtil.equals(oldAnnotations, newAnnotations)) {
+		if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
 			return ((X10Del) n.del()).annotations(newAnnotations);
 		}
 		return n;

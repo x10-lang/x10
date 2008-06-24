@@ -441,7 +441,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 */
 	private MethodDecl_c createNativeWrapper(MethodDecl_c nativeMethod, NodeFactory nf) {
         boolean trace = false;
-		nativeMethod = (MethodDecl_c)nativeMethod.flags(nativeMethod.flags().clearNative());
+		nativeMethod = (MethodDecl_c)nativeMethod.flags(nativeMethod.flags().flags(nativeMethod.flags().flags().clearNative()));
 		MethodDef mi = nativeMethod.methodDef();
 		Position pos = nativeMethod.position();
 		MethodDecl_c nativeWrapper = nativeMethod;
@@ -469,7 +469,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				arg= (Local) arg.type(parameter.declType());
 				// RMF 7/10/2006 - Make sure the Local has an associated LocalInstance;
 				// the InitChecker will need to see it...
-				arg= (Local) arg.localInstance(typeSystem.localDef(pos, parameter.flags(), Types.ref(arg.type()), arg.name()).asInstance());
+				arg= (Local) arg.localInstance(typeSystem.localDef(pos, parameter.flags().flags(), Types.ref(arg.type()), arg.name()).asInstance());
 				args.add(arg);
 			} else {
 				ClassType_c ct = (ClassType_c)parameter.declType().toClass();
@@ -531,7 +531,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				getAddrTarget= (Local) getAddrTarget.type(parameter.type().type());
 				// RMF 7/10/2006 - Make sure the Local has an associated LocalInstance;
 				// the InitChecker will need to see it...
-				getAddrTarget= (Local) getAddrTarget.localInstance(typeSystem.localDef(pos, parameter.flags(), 
+				getAddrTarget= (Local) getAddrTarget.localInstance(typeSystem.localDef(pos, parameter.flags().flags(), 
                                                                                                             Types.ref(getAddrTarget.type()), 
                                                                                                             getAddrTarget.name()).asInstance());
 				
@@ -628,7 +628,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 		newName = generateJNIName(nativeMethod, isOverloaded);
 
-		String parm = nativeMethod.flags().isStatic()
+		String parm = nativeMethod.flags().flags().isStatic()
 						? "jclass cls" : "jobject obj";
 
 		jniCall = "JNIEXPORT "

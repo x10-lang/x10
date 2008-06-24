@@ -28,7 +28,7 @@ public class LoadPlugins extends AbstractGoal_c {
 		this.extInfo = extInfo;
 	}
 
-	public boolean run() {
+	public boolean runTask() {
 		// Handle some hard-coded plugins
 		String xmlProcessor = Configuration.XML_PROCESSOR;
 		boolean exportXML = Configuration.EXTERNALIZE_ASTS;

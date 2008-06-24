@@ -10,19 +10,18 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Node;
 import polyglot.ast.CharLit_c;
+import polyglot.ast.Node;
 import polyglot.ext.x10.types.X10TypeMixin;
-import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Lit_c;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.main.Report;
 import polyglot.types.SemanticException;
-import polyglot.types.Types;
+import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
 
 /**
  * An immutable representation of a char lit, modified from JL 
@@ -40,12 +39,17 @@ public class X10CharLit_c extends CharLit_c {
 		super(pos, value);
 	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		  X10Type charType = (X10Type) tc.typeSystem().Char();
-		 
-			C_Lit_c literal = new C_Lit_c(new Character((char) value), charType);
-			Constraint c = Constraint_c.addSelfBinding(literal,null,(X10TypeSystem) tc.typeSystem());
-		  X10Type newType  = charType.depClause(Types.ref(c));
-		  //Report.report(1, "X10CharLit: type for " + this + " is " + newType+".");
+		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		Type charType = xts.Char();
+			 
+			  XConstraint c = new XConstraint_c();
+			  XTerm term = xts.xtypeTranslator().trans(this.type(charType));
+			  try {
+				  c.addSelfBinding(term);
+			  }
+			  catch (XFailure e) {
+			  }
+			  Type newType = X10TypeMixin.xclause(charType, c);
 	    return type(newType);
 	  }
 }

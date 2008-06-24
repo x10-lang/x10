@@ -24,6 +24,7 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
+import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -34,6 +35,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
@@ -45,6 +47,7 @@ import polyglot.visit.TypeChecker;
  */
 public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
+	List<TypeNode> typeArgs;
 	List<Expr> arguments;
 
 	
@@ -54,41 +57,61 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	 * @param name
 	 * @param arguments
 	 */
-	public AssignPropertyCall_c(Position pos, List<Expr> arguments) {
+	public AssignPropertyCall_c(Position pos, List<TypeNode> typeArgs, List<Expr> arguments) {
 		super(pos);
-		this.arguments = arguments;
+		this.typeArgs = TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
+		this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
 		
 	}
 	  public Term firstChild() {
-	        return listChild(arguments, null);
+		  return listChild(typeArgs,  listChild(arguments, null));
 	    }
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	  public List acceptCFG(CFGBuilder v, List succs) {
-	        v.visitCFGList(arguments, this, EXIT);
-	        return succs;
+		  if (! typeArgs.isEmpty())
+			  v.visitCFGList(typeArgs, listChild(arguments, this), ENTRY);
+		  v.visitCFGList(arguments, this, EXIT);
+		  return succs;
 	    }
 
+	  
+	  /** Return a copy of this node with this.expr equal to the given expr.
+	   * @see polyglot.ext.x10.ast.Await#expr(polyglot.ast.Expr)
+	   */
+	  public AssignPropertyCall args( List<Expr> args ) {
+		  if (args == arguments) return this;
+		  AssignPropertyCall_c n = (AssignPropertyCall_c) copy();
+		  n.arguments = TypedList.copyAndCheck(args, Expr.class, true);
+		  return n;
+	  }
+	  
+	  public List<Expr> args() {
+		  return arguments;
+	  }
 	
 	/** Return a copy of this node with this.expr equal to the given expr.
 	 * @see polyglot.ext.x10.ast.Await#expr(polyglot.ast.Expr)
 	 */
-	public AssignPropertyCall args( List<Expr> args ) {
-		if (args == arguments) return this;
-			AssignPropertyCall_c n = (AssignPropertyCall_c) copy();
-			n.arguments = args;
-			return n;
+	public AssignPropertyCall typeArgs( List<TypeNode> args ) {
+		if (args == typeArgs) return this;
+		AssignPropertyCall_c n = (AssignPropertyCall_c) copy();
+		n.typeArgs = TypedList.copyAndCheck(args, TypeNode.class, true);
+		return n;
 	}
 	
-	public List args() {
-	    return arguments;
+	public List<TypeNode> typeArgs() {
+	    return typeArgs;
 	}
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("property(");
+		sb.append("property");
+		if (! typeArgs.isEmpty())
+			sb.append(typeArgs);
+		sb.append("(");
 		boolean first = true;
 		for (Expr e : arguments) {
 			if (first) {
@@ -145,24 +168,15 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 			s.add(a);
 		}
 		Node n = ((X10NodeFactory) nf).AssignPropertyBody(pos,s, thisConstructor, definedProperties).del().typeCheck(tc);
-		
-		
 		return n;
 	}
-
-//	public Expr expr() {
-//		return null;
-//	}
-//
-//	public Return expr(Expr e) {
-//		return this;
-//	}
 	
 	/** Visit the children of the statement. */
 	
 	    public Node visitChildren(NodeVisitor v) {
+	        List<TypeNode> typeArgs = visitList(this.typeArgs, v);
 	        List<Expr> args = visitList(this.arguments, v);
-		return args(args);
+		return typeArgs(typeArgs).args(args);
 	    }
 	    
 	    Expr expr;

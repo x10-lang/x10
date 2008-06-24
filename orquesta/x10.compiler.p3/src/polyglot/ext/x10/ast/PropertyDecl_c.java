@@ -13,6 +13,7 @@ import java.util.List;
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
+import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
@@ -33,11 +34,11 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 	MethodDecl getter;
 	MethodDecl abstractGetter;
 	
-    public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
+    public PropertyDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, X10NodeFactory nf) {
         this(pos, flags, type, name, null, nf);
     }
-    public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
+    public PropertyDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init, X10NodeFactory nf) {
         super(pos, flags, type, name, init);
     }
@@ -113,7 +114,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         
         Stmt s = nf.Return(pos, e);
         Block body = nf.Block(pos, s);
-        getter = nf.MethodDecl(pos, flags, type, name, formals, throwTypes, body);
+        getter = nf.MethodDecl(pos, nf.FlagsNode(pos, flags), type, name, formals, throwTypes, body);
 
         return getter;
     }
@@ -135,7 +136,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * <RAJ> 
      */
     protected MethodDecl abstractGetter(X10NodeFactory nf) {
-      abstractGetter = nf.MethodDecl(Position.COMPILER_GENERATED, Flags.PUBLIC.Abstract(), type, name, 
+      abstractGetter = nf.MethodDecl(Position.COMPILER_GENERATED, nf.FlagsNode(Position.COMPILER_GENERATED, Flags.PUBLIC.Abstract()), type, name, 
                               Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
       return abstractGetter;
     }

@@ -36,12 +36,12 @@ public interface X10ArrayAccess extends Variable {
 	/**
 	 * Index into the array.
 	 */
-	List/*<Expr>*/ index();
+	List<Expr> index();
 	
 	/**
 	 * Set the index into the array.
 	 */
-	X10ArrayAccess index(List/*<Expr>*/ index);
+	X10ArrayAccess index(List<Expr> index);
 	
 
 

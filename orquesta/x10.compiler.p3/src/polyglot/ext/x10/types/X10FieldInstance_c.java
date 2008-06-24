@@ -7,30 +7,21 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ext.x10.ast.X10Special;
-import polyglot.ext.x10.types.constr.C_Field;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Type_c;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.types.constr.Failure;
-import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance_c;
 import polyglot.types.Flags;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.TransformingList;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
 
 /**
  * An implementation of PropertyInstance
@@ -67,33 +58,37 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
             return t;
         }
 
-        // If the local variable is final, replace T by T(:self==t). 
+        // If the field is final, replace T by T(:self==t). 
         Flags flags = flags();
 
         if (flags.isFinal()) {
-            Constraint rc = ((X10Type) t).depClause();
-            if (rc == null) rc = new Constraint_c(xts);
+        	XConstraint rc = X10TypeMixin.xclause(t);
+            if (rc == null) rc = new XConstraint_c();
 
             try {
-                C_Var receiver;
+                XTerm receiver;
                 
                 if (flags.isStatic()) {
-                    receiver = new C_Type_c((X10Type) container());
+                    receiver = xts.xtypeTranslator().trans(container());
                 }
                 else {
-                	receiver = new C_Special_c(X10Special.THIS, (X10Type) container());
+                	receiver = xts.xtypeTranslator().transThis(container());
                 }
                 
                 // ### pass in the type rather than letting C_Field call fi.type();
                 // otherwise, we'll get called recursively.
-                C_Field self = new C_Field_c(t, this, receiver);
+                XTerm self = xts.xtypeTranslator().trans(receiver, this, t);
 
-                Constraint c = Constraint_c.addSelfBinding(self, rc, xts);
+                XConstraint c = rc.copy();
+                c.addSelfBinding(self);
 
-                return X10TypeMixin.depClauseDeref((X10Type) t, c);
+                return X10TypeMixin.xclause(t, c);
             }
-            catch (Failure f) {
+            catch (XFailure f) {
                 throw new InternalCompilerError("Could not add self binding.", f);
+            }
+            catch (SemanticException f) {
+        	    throw new InternalCompilerError("Could not add self binding.", f);
             }
         }
         
@@ -101,9 +96,9 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
         
         // HACK!
         if (name().equals("UNIQUE") && container.typeEquals(xts.distribution()) && flags.isStatic()) {
-            X10ParsedClassType ud = (X10ParsedClassType) t;
-            ud = ud.setUniqueDist();
-            ud = ud.setRail();
+            Type ud = t;
+            ud = X10ArraysMixin.setUniqueDist(ud);
+            ud = X10ArraysMixin.setRail(ud);
             return ud;
         }        
 
