@@ -5411,7 +5411,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 3287 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ArgumentList.add(Expression);
-                //setResult(ArgumentList);
                 break;
             }
      
@@ -5419,11 +5418,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 431:  FieldAccess ::= Primary . Identifier
             //
             case 431: {
-                //#line 3292 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3291 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3292 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3291 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3294 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3293 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
                 break;
             }
@@ -5432,9 +5431,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 432:  FieldAccess ::= super . Identifier
             //
             case 432: {
-                //#line 3297 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3296 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3299 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3298 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
                 break;
             }
@@ -5443,13 +5442,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 433:  FieldAccess ::= ClassName . super$sup . Identifier
             //
             case 433: {
-                //#line 3302 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3301 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 3302 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3301 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3302 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3301 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3304 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3303 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                 break;
             }
@@ -5458,13 +5457,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 434:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
             case 434: {
-                //#line 3308 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3307 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name MethodName = (Name) getRhsSym(1);
-                //#line 3308 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3307 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3308 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3307 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3310 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3309 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
@@ -5475,15 +5474,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 435:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 435: {
-                //#line 3315 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3314 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3315 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3314 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3315 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3314 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3315 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3314 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3317 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3316 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -5492,13 +5491,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 436:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 436: {
-                //#line 3320 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3319 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3320 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3319 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3320 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3319 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3322 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3321 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -5507,17 +5506,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 437:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 437: {
-                //#line 3325 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3324 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 3325 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3324 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3325 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3324 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3325 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3324 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(6);
-                //#line 3325 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3324 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(8);
-                //#line 3327 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3326 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -5526,13 +5525,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 438:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
             case 438: {
-                //#line 3330 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3329 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3330 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3329 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3330 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3329 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3332 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3331 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.ClosureCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -5541,13 +5540,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 439:  MethodSelection ::= MethodName . TypeParametersopt ( FormalParameterListopt )
             //
             case 439: {
-                //#line 3336 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3335 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name MethodName = (Name) getRhsSym(1);
-                //#line 3336 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3335 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 3336 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3335 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(5);
-                //#line 3338 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3337 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -5564,15 +5563,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 440:  MethodSelection ::= Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 440: {
-                //#line 3349 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3348 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3349 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3348 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3349 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3348 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3349 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3348 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3351 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3350 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -5588,13 +5587,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 441:  MethodSelection ::= super . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 441: {
-                //#line 3361 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3360 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3361 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3360 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3361 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3360 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3363 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3362 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -5610,17 +5609,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 442:  MethodSelection ::= ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 442: {
-                //#line 3373 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3372 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 3373 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3372 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3373 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3372 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3373 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3372 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(7);
-                //#line 3373 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3372 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(9);
-                //#line 3375 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3374 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -5636,9 +5635,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 445:  PostfixExpression ::= ExpressionName
             //
             case 445: {
-                //#line 3388 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3387 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 3390 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3389 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -5647,9 +5646,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 448:  PostIncrementExpression ::= PostfixExpression ++
             //
             case 448: {
-                //#line 3396 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3395 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 3398 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3397 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                 break;
             }
@@ -5658,9 +5657,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 449:  PostDecrementExpression ::= PostfixExpression --
             //
             case 449: {
-                //#line 3402 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3401 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 3404 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3403 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                 break;
             }
@@ -5669,9 +5668,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 452:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
             case 452: {
-                //#line 3410 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3409 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3412 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3411 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -5680,9 +5679,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 453:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
             case 453: {
-                //#line 3415 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3414 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3417 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3416 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -5691,9 +5690,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 455:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
             case 455: {
-                //#line 3422 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3421 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3424 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3423 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -5702,9 +5701,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 456:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
             case 456: {
-                //#line 3428 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3427 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3430 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3429 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -5713,9 +5712,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 458:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
             case 458: {
-                //#line 3435 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3434 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3437 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3436 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                 break;
             }
@@ -5724,11 +5723,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 459:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
             //
             case 459: {
-                //#line 3440 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3439 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3440 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3439 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3442 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3441 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Expr e = UnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -5739,9 +5738,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 460:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
             case 460: {
-                //#line 3447 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3446 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3449 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3448 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                 break;
             }
@@ -5750,11 +5749,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 462:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
             case 462: {
-                //#line 3454 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3453 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3454 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3453 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3456 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3455 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                 break;
             }
@@ -5763,11 +5762,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 463:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
             case 463: {
-                //#line 3459 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3458 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3459 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3458 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3461 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3460 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                 break;
             }
@@ -5776,11 +5775,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 464:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
             case 464: {
-                //#line 3464 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3463 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3464 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3463 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3466 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3465 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                 break;
             }
@@ -5789,11 +5788,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 466:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 466: {
-                //#line 3471 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3470 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 3471 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3470 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 3473 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3472 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                 break;
             }
@@ -5802,11 +5801,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 467:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
             case 467: {
-                //#line 3476 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3475 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 3476 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3475 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 3478 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3477 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                 break;
             }
@@ -5815,11 +5814,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 469:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 469: {
-                //#line 3483 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3482 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3483 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3482 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3485 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3484 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                 break;
             }
@@ -5828,11 +5827,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 470:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
             case 470: {
-                //#line 3488 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3487 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3488 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3487 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3490 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3489 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                 break;
             }
@@ -5841,11 +5840,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 471:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
             case 471: {
-                //#line 3493 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3492 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3493 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3492 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3495 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3494 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                 break;
             }
@@ -5854,11 +5853,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 474:  RelationalExpression ::= RelationalExpression < ShiftExpression
             //
             case 474: {
-                //#line 3501 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3500 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3501 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3500 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3503 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3502 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
                 break;
             }
@@ -5867,11 +5866,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 475:  RelationalExpression ::= RelationalExpression > ShiftExpression
             //
             case 475: {
-                //#line 3506 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3505 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3506 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3505 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3508 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3507 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
                 break;
             }
@@ -5880,11 +5879,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 476:  RelationalExpression ::= RelationalExpression <= ShiftExpression
             //
             case 476: {
-                //#line 3511 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3510 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3511 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3510 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3513 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3512 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
                 break;
             }
@@ -5893,11 +5892,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 477:  RelationalExpression ::= RelationalExpression >= ShiftExpression
             //
             case 477: {
-                //#line 3516 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3515 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3516 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3515 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3518 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3517 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
                 break;
             }
@@ -5906,11 +5905,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 478:  RelationalExpression ::= RelationalExpression instanceof Type
             //
             case 478: {
-                //#line 3521 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3520 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3521 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3520 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3523 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3522 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                 break;
             }
@@ -5919,11 +5918,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 480:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
             case 480: {
-                //#line 3534 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3533 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 3534 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3533 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 3536 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3535 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                 break;
             }
@@ -5932,11 +5931,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 481:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 481: {
-                //#line 3539 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3538 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 3539 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3538 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 3541 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3540 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                 break;
             }
@@ -5945,11 +5944,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 483:  AndExpression ::= AndExpression & EqualityExpression
             //
             case 483: {
-                //#line 3546 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3545 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 3546 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3545 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 3548 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3547 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                 break;
             }
@@ -5958,11 +5957,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 485:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
             case 485: {
-                //#line 3553 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3552 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 3553 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3552 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 3555 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3554 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                 break;
             }
@@ -5971,11 +5970,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 487:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
             case 487: {
-                //#line 3560 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3559 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 3560 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3559 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 3562 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3561 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                 break;
             }
@@ -5984,11 +5983,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 489:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
             case 489: {
-                //#line 3567 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3566 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 3567 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3566 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 3569 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3568 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                 break;
             }
@@ -5997,11 +5996,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 491:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
             case 491: {
-                //#line 3574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3573 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 3574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3573 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 3576 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3575 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                 break;
             }
@@ -6010,13 +6009,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 493:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
             case 493: {
-                //#line 3581 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3580 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 3581 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3580 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 3581 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3580 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 3583 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3582 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                 break;
             }
@@ -6025,38 +6024,43 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 496:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
             case 496: {
-                //#line 3590 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3589 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 3590 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3589 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 3590 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3589 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 3592 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3591 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                 break;
             }
      
             //
-            // Rule 497:  LeftHandSide ::= ExpressionName
+            // Rule 497:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
             case 497: {
-                //#line 3596 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Name ExpressionName = (Name) getRhsSym(1);
-                //#line 3598 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(ExpressionName.toExpr());
+                //#line 3594 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Name e1 = (Name) getRhsSym(1);
+                //#line 3594 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentList = (List) getRhsSym(3);
+                //#line 3594 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
+                //#line 3594 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Expr AssignmentExpression = (Expr) getRhsSym(6);
+                //#line 3596 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+             //   setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
+                setResult(nf.Assign(pos(), nf.X10ArrayAccessAssign(pos(), e1.toExpr(), ArgumentList), AssignmentOperator, AssignmentExpression));
                 break;
             }
      
             //
-            // Rule 499:  LeftHandSide ::= ExpressionName$e1 ( Expression$e2 )
+            // Rule 498:  LeftHandSide ::= ExpressionName
             //
-            case 499: {
-                //#line 3602 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Name e1 = (Name) getRhsSym(1);
-                //#line 3602 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Expr e2 = (Expr) getRhsSym(3);
-                //#line 3604 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(nf.X10ArrayAccess1(pos(), e1.toExpr(), e2));
+            case 498: {
+                //#line 3601 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Name ExpressionName = (Name) getRhsSym(1);
+                //#line 3603 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(ExpressionName.toExpr());
                 break;
             }
      

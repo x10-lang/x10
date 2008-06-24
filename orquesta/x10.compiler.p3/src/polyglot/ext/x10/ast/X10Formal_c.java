@@ -153,7 +153,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		if (! vars.isEmpty()) {
 			sb.append("[");
 			for (int i = 0; i < vars.size(); i++)
-				sb.append(i > 0 ? "," : "").append(vars.get(i).id().id());
+				sb.append(i > 0 ? "," : "").append(vars.get(i).name().id());
 			sb.append("]");
 		}
 		return sb.toString();
@@ -204,7 +204,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @return
 	 */
 	public List<Stmt> explode(NodeFactory nf, TypeSystem ts) {
-		return explode(nf, ts, id(), position(), flags(), vars, localDef());
+		return explode(nf, ts, name(), position(), flags(), vars, localDef());
 	}
 
 	/* (non-Javadoc)
@@ -257,7 +257,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			Expr index = x10nf.IntLit(var.position(), IntLit.INT, i).type(ts.Int());
 			Expr init = x10nf.X10ArrayAccess1(var.position(), arrayBase, index).type(ts.Int());
 			LocalDef li = var.localDef();
-			Stmt d = makeLocalDecl(nf, var.position(), flags, intType, var.id(), li, init);
+			Stmt d = makeLocalDecl(nf, var.position(), flags, intType, var.name(), li, init);
 			stmts.add(d);
 		}
 		return stmts;

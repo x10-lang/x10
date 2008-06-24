@@ -71,7 +71,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		return "<X10LocalDecl_c #" + hashCode() 
 		// + " flags= |" + flags + "|"
 		+(type() == null ? "" : " <TypeNode #" + type().hashCode()+"type=" + type().type() + ">")
-		+ " name=|" + id().id() + "|"
+		+ " name=|" + name().id() + "|"
 		+ (init() == null ? "" : " <Expr #" + init().hashCode() +">")
 		+ (localDef() == null ? "" : " <LocalInstance #" + localDef().hashCode() +">")
 		+ ">";

@@ -78,7 +78,7 @@ public class X10Call_c extends Call_c implements X10Call {
        // Check if target.name is a field of function type; if so, convert to a closure call.
        X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
        X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
-       Field f = nf.Field(position(), target(), id());
+       Field f = nf.Field(position(), target(), name());
        try {
 	   Node n = f.del().disambiguate(ar);
 	   if (n instanceof Expr) {
@@ -108,7 +108,7 @@ public class X10Call_c extends Call_c implements X10Call {
         X10Context c = (X10Context) tc.context();
 
         if (this.target != null && this.target.type().isPrimitive() &&
-                name().equals("getLocation") && arguments().isEmpty())
+                nameString().equals("getLocation") && arguments().isEmpty())
         {
             return xnf.Here(position()).del().typeCheck(tc);
         }
@@ -182,7 +182,7 @@ public class X10Call_c extends Call_c implements X10Call {
             if (e.getKind() != NoMemberException.METHOD || this.target == null)
                 throw e;
             Type type = target.type();
-            String name = name();
+            String name = nameString();
             List arguments = arguments();
             ReferenceType java_io_PrintStream = (ReferenceType) xts.forName("java.io.PrintStream");
             if (xts.isX10Array(type)) {
@@ -266,7 +266,7 @@ public class X10Call_c extends Call_c implements X10Call {
     	}
     	final int argSize = arguments.size();
     	if (target instanceof Field && xts.equals(((Field) target).fieldInstance(), dist_factory) &&
-    			name().equals("block") && argSize <= 1)
+    			nameString().equals("block") && argSize <= 1)
     	{
     		// handles the method
     		// dist(:rank==a.rank,isZeroBased=a.isZeroBased,rect==a.rect) block(final region a)
@@ -282,7 +282,7 @@ public class X10Call_c extends Call_c implements X10Call {
     		}
     		return type(rType);
     	}
-    	else if (xts.isRegion(target.type()) && name().equals("toDistribution") && argSize == 0) {
+    	else if (xts.isRegion(target.type()) && nameString().equals("toDistribution") && argSize == 0) {
     		Type rType = type;
 			rType = X10ArraysMixin.transferRegionProperties(rType, target.type());
 //			try {
@@ -297,7 +297,7 @@ public class X10Call_c extends Call_c implements X10Call {
 //			}
 			return type(rType);
     	}
-    	else if (xts.isX10Array(target.type()) && name().equals("local") && argSize == 0) {
+    	else if (xts.isX10Array(target.type()) && nameString().equals("local") && argSize == 0) {
     		Type rType =  type;
     		rType = X10ArraysMixin.setRect(rType);
     		rType = X10ArraysMixin.setZeroBased(rType);

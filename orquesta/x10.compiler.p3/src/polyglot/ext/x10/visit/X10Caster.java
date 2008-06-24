@@ -939,7 +939,7 @@ public class X10Caster extends AscriptionVisitor {
 		private X10Binary makeBinary(Field f) throws SemanticException {
 			try {
 				Expr constraintRightValue;
-				constraintRightValue = this.constraintToExpr(declaredConstraint.find(XTerms.makeName(f.fieldInstance().def(), f.name())), f.position());
+				constraintRightValue = this.constraintToExpr(declaredConstraint.find(XTerms.makeName(f.fieldInstance().def(), f.nameString())), f.position());
 				return (X10Binary) ((X10NodeFactory)nf).Binary(f.position(),f, X10Binary.EQ, constraintRightValue);
 			}
 			catch (XFailure e) {
@@ -1000,7 +1000,7 @@ public class X10Caster extends AscriptionVisitor {
 		private Expr visit(Field field) throws SemanticException {
 			if ((field.target() instanceof X10Special)
 					&& (((X10Special) field.target()).kind() == X10Special.SELF)) {
-				return nf.Call(field.position(),this.self, field.id());
+				return nf.Call(field.position(),this.self, field.name());
 				// add a tag if the field is a right value the
 			} else if ((field.target() instanceof X10Special)
 					&& (((X10Special) field.target()).kind() == X10Special.THIS)) {
@@ -1009,7 +1009,7 @@ public class X10Caster extends AscriptionVisitor {
 				Special thisTarget = nf.This(field.position(), 
 						nf.TypeNodeFromQualifiedName(field.position(),
 								((X10ParsedClassType)field.fieldInstance().container()).name()));
-				return nf.Field(field.position(), thisTarget, field.id());
+				return nf.Field(field.position(), thisTarget, field.name());
 			} else {
 				return field;
 			}

@@ -42,14 +42,14 @@ Options in effect for /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:969:19:969:25:33484:33490: Error: The undeclared symbol "current" is assumed to be a terminal
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1208:19:1208:39:42930:42950: Error: The undeclared symbol "SynchronizedStatement" is assumed to be a terminal
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1774:23:1774:32:62019:62028: Error: The undeclared symbol "ObjectKind" is assumed to be a terminal
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3387:27:3387:42:129604:129619: Error: The undeclared symbol "ArrayInitailizer" is assumed to be a terminal
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3386:27:3386:42:129557:129572: Error: The undeclared symbol "ArrayInitailizer" is assumed to be a terminal
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:968:19:968:21:33462:33464: Warning: The terminal symbol "any" was not imported from X10Lexer.gi
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:969:19:969:25:33484:33490: Warning: The terminal symbol "current" was not imported from X10Lexer.gi
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1208:19:1208:39:42930:42950: Warning: The terminal symbol "SynchronizedStatement" was not imported from X10Lexer.gi
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1774:23:1774:32:62019:62028: Warning: The terminal symbol "ObjectKind" was not imported from X10Lexer.gi
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3387:27:3387:42:129604:129619: Warning: The terminal symbol "ArrayInitailizer" was not imported from X10Lexer.gi
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3915:16:3915:25:146849:146858: Warning: Duplicate specification of this type
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:4046:14:4046:29:151715:151730: Warning: Duplicate specification of this type
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3386:27:3386:42:129557:129572: Warning: The terminal symbol "ArrayInitailizer" was not imported from X10Lexer.gi
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3915:16:3915:25:147042:147051: Warning: Duplicate specification of this type
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:4046:14:4046:29:151908:151923: Warning: Duplicate specification of this type
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:938:14:938:25:32517:32528: Warning: No type specified for nonterminal "FunctionType". Object assumed.
 
 Predefined Macros:
@@ -900,9 +900,9 @@ Rules:
 494    AssignmentExpression ::= ClosureExpression
 495                           | Assignment
 496    Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
-497    LeftHandSide ::= ExpressionName
-498                   | FieldAccess
-499                   | ExpressionName $e1 ( Expression $e2 )
+497                 | ExpressionName $e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+498    LeftHandSide ::= ExpressionName
+499                   | FieldAccess
 500    AssignmentOperator ::= =
 501                         | *=
 502                         | /=
@@ -1499,10 +1499,10 @@ RANK RULE
 229  166   CastExpression ::= ConditionalExpression
 230  183   ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt DARROW ClosureBody
 231  184   ClosureExpression ::= CastExpression
-232  497   LeftHandSide ::= ExpressionName
-233  498   LeftHandSide ::= FieldAccess
-234  499   LeftHandSide ::= ExpressionName LPAREN Expression RPAREN
-235  496   Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+232  498   LeftHandSide ::= ExpressionName
+233  499   LeftHandSide ::= FieldAccess
+234  496   Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+235  497   Assignment ::= ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator AssignmentExpression
 236  182   AssignmentExpression ::= Expression ARROW Expression
 237  494   AssignmentExpression ::= ClosureExpression
 238  495   AssignmentExpression ::= Assignment
@@ -1872,7 +1872,7 @@ RANK RULE
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2792:30:2792:52:96572:96594: Warning: The nonterminal VariableInitializersopt is useless.
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2792:54:2792:57:96596:96599: Warning: The nonterminal ,opt is useless.
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2800:5:2800:24:96865:96884: Warning: The nonterminal VariableInitializers is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3336:5:3336:19:126000:126014: Warning: The nonterminal MethodSelection is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3335:5:3335:19:125953:125967: Warning: The nonterminal MethodSelection is useless.
 
 
  IBM LALR Parser Generator              1.00 (Dec  2 2007)
@@ -2373,7 +2373,6 @@ ExplicitConstructorInvocation ::= Primary DOT super TypeArgumentsopt  .LPAREN
                                   ArgumentListopt RPAREN SEMICOLON 
 ExplicitConstructorInvocation ::= Primary DOT this TypeArgumentsopt  .LPAREN 
                                   ArgumentListopt RPAREN SEMICOLON 
-LeftHandSide ::= ExpressionName LPAREN Expression  .RPAREN 
 ConstructorBlock ::= LBRACE ExplicitConstructorInvocationopt 
                      BlockStatementsopt  .RBRACE 
 ClosureBody ::= LBRACE BlockStatementsopt LastExpression  .RBRACE 
@@ -2399,6 +2398,8 @@ CatchClause ::= catch LPAREN FormalParameter  .RPAREN Block
 WhileStatement ::= while LPAREN Expression  .RPAREN Statement 
 SwitchStatement ::= switch LPAREN Expression  .RPAREN SwitchBlock 
 IfThenStatement ::= if LPAREN Expression  .RPAREN Statement 
+Assignment ::= ExpressionName LPAREN ArgumentList  .RPAREN AssignmentOperator 
+               AssignmentExpression 
 FutureExpression ::= future LBRACKET Type  .RBRACKET PlaceExpressionSingleList 
                      ClosureBody 
 EnhancedForStatement ::= for LPAREN FormalParameter  .in Expression RPAREN 
@@ -2542,8 +2543,8 @@ PackageDeclarationopt ::= . (574)
 
 
 STATE 13 -----------------------------------------------------------------------
-( 6 36 46 97 98 117 143 144 146 163 164 285 299 301 310 311 341 344 347 348 
-  355 393 396 399 420 429 433 451 452 487 506 530 546 )
+( 6 36 46 97 98 117 143 144 146 163 164 285 299 301 310 311 342 345 348 349 
+  356 395 398 401 422 431 436 454 455 490 509 533 549 )
 
 TypeName ::= TypeName  .DOT ErrorId 
 ClassOrInterfaceType ::= TypeName  .TypeArgumentsopt Argumentsopt 
@@ -3694,8 +3695,8 @@ Argumentsopt ::= . (540)
 
 STATE 36 -----------------------------------------------------------------------
 ( 13 36 46 63 74 81 97 98 117 128 143 144 146 163 164 203 207 249 285 299 301 
-  310 311 334 337 341 348 357 399 420 429 433 451 506 530 546 562 563 564 574 
-  575 )
+  310 311 334 337 342 349 358 401 422 431 436 454 509 533 549 565 566 567 577 
+  578 )
 
 TypeArguments ::= LBRACKET  .TypeArgumentList RBRACKET 
 
@@ -3986,9 +3987,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -4013,8 +4015,8 @@ TypeArgumentsopt ::= . (578)
 
 
 STATE 46 -----------------------------------------------------------------------
-( 36 46 97 98 117 143 144 146 163 164 285 299 301 310 311 341 348 399 420 429 
-  433 451 506 530 546 )
+( 36 46 97 98 117 143 144 146 163 164 285 299 301 310 311 342 349 401 422 431 
+  436 454 509 533 549 )
 
 ConstrainedType ::= LPAREN  .Type RPAREN 
 
@@ -4070,7 +4072,7 @@ PlaceTypeSpecifieropt ::= . (193)
 
 
 STATE 55 -----------------------------------------------------------------------
-( 42 116 178 179 185 188 284 290 534 539 544 )
+( 42 116 178 179 185 188 284 290 537 542 547 )
 
 DepParameters ::= LBRACE  .Conjunction RBRACE 
 DepParameters ::= LBRACE  .ExistentialList SEMICOLON Conjunction RBRACE 
@@ -4256,9 +4258,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
@@ -4296,10 +4299,10 @@ STATE 70 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 557 
-  558 559 566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  560 561 562 569 579 580 585 586 )
 
 FutureExpression ::= future  .ClosureBody 
 FutureExpression ::= future  .PlaceExpressionSingleList ClosureBody 
@@ -4503,8 +4506,8 @@ STATE 71 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 108 118 119 123 124 125 129 132 136 137 138 
   139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 170 
   171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 
-  318 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 415 
-  421 430 432 453 469 492 494 500 507 526 537 549 553 558 576 577 582 583 )
+  318 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 
+  417 423 432 434 456 472 495 497 503 510 529 540 552 556 561 579 580 585 586 )
 
 TypeName ::= Identifier . (214)
 ExpressionName ::= Identifier . (222)
@@ -5139,7 +5142,8 @@ ClassOrInterfaceType ::= .TypeName TypeArgumentsopt Argumentsopt
                          DepParametersopt PlaceTypeSpecifieropt 
 TypeName ::= Identifier . (214)
 ------------------------------------------------------------------------------
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 ExpressionName ::= Identifier . (222)
 
 *** Reduce/reduce conflict on "DOT" between rule 214 and 228
@@ -5192,8 +5196,8 @@ STATE 73 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 131 132 136 
   137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 
   162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 
-  315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 
-  421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 
+  416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 PostIncrementExpression ::= PostfixExpression  .PLUS_PLUS 
 PostDecrementExpression ::= PostfixExpression  .MINUS_MINUS 
@@ -5268,10 +5272,10 @@ STATE 74 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 558 
-  566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  561 569 579 580 585 586 )
 
 FieldAccess ::= Primary  .DOT ErrorId 
 MethodPrimaryPrefix ::= Primary  .DOT ErrorId 
@@ -5390,9 +5394,9 @@ PostfixExpression ::= Primary . (443)
 STATE 77 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 147 148 149 150 154 155 
   156 157 158 159 160 161 162 170 171 172 173 190 191 198 206 208 223 224 229 
-  248 265 277 278 305 313 315 317 319 320 328 333 338 359 361 364 381 386 388 
-  401 407 408 411 413 414 421 430 432 453 469 492 500 507 526 537 549 553 558 
-  576 577 582 583 )
+  248 265 277 278 305 313 315 317 319 320 328 333 338 360 362 365 382 387 389 
+  391 403 409 410 413 415 416 423 432 434 456 472 495 503 510 529 540 552 556 
+  561 579 580 585 586 )
 
 AdditiveExpression ::= AdditiveExpression  .PLUS MultiplicativeExpression 
 AdditiveExpression ::= AdditiveExpression  .MINUS MultiplicativeExpression 
@@ -5450,9 +5454,9 @@ ShiftExpression ::= AdditiveExpression . (468)
 STATE 78 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 147 148 149 150 151 152 
   153 154 155 156 157 158 159 160 161 162 170 171 172 173 190 191 198 206 208 
-  223 224 229 248 265 277 278 305 313 315 317 319 320 328 333 338 359 361 364 
-  381 386 388 401 407 408 411 413 414 421 430 432 453 469 492 500 507 526 537 
-  549 553 558 576 577 582 583 )
+  223 224 229 248 265 277 278 305 313 315 317 319 320 328 333 338 360 362 365 
+  382 387 389 391 403 409 410 413 415 416 423 432 434 456 472 495 503 510 529 
+  540 552 556 561 579 580 585 586 )
 
 MultiplicativeExpression ::= MultiplicativeExpression  .MULTIPLY 
                              UnaryExpression 
@@ -5537,8 +5541,8 @@ AdditiveExpression ::= MultiplicativeExpression . (465)
 STATE 79 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 129 131 132 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 
-  313 315 317 318 319 320 328 338 359 361 364 381 386 388 401 407 408 411 413 
-  414 421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  313 315 317 318 319 320 328 338 360 362 365 382 387 389 391 403 409 410 413 
+  415 416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ConstrainedType ::= LPAREN  .Type RPAREN 
 Primary ::= LPAREN  .Expression RPAREN 
@@ -5714,9 +5718,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -5741,8 +5746,8 @@ TypeArgumentsopt ::= . (578)
 STATE 82 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 154 157 158 159 160 161 
   162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 
-  315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 
-  421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 
+  416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 RelationalExpression ::= RelationalExpression  .LESS ShiftExpression 
 RelationalExpression ::= RelationalExpression  .GREATER ShiftExpression 
@@ -5872,8 +5877,9 @@ EqualityExpression ::= RelationalExpression . (479)
 STATE 83 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 154 155 156 157 158 159 
   160 161 162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 
-  305 313 315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 
-  413 414 421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  305 313 315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 
+  413 415 416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 
+  586 )
 
 ShiftExpression ::= ShiftExpression  .LEFT_SHIFT AdditiveExpression 
 ShiftExpression ::= ShiftExpression  .RIGHT_SHIFT AdditiveExpression 
@@ -5955,8 +5961,8 @@ RelationalExpression ::= ShiftExpression . (472)
 STATE 84 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 157 159 160 161 162 170 
   171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 
-  319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 
-  432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 
+  432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 AndExpression ::= AndExpression  .AND EqualityExpression 
 ExclusiveOrExpression ::= AndExpression . (484)
@@ -5990,8 +5996,8 @@ ExclusiveOrExpression ::= AndExpression . (484)
 STATE 85 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 157 158 159 160 161 162 
   170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 
-  317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 
-  430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 
+  423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 EqualityExpression ::= EqualityExpression  .EQUAL_EQUAL RelationalExpression 
 EqualityExpression ::= EqualityExpression  .NOT_EQUAL RelationalExpression 
@@ -6049,8 +6055,8 @@ AndExpression ::= EqualityExpression . (482)
 STATE 86 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 160 162 170 171 172 
   173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 
-  328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 
-  469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 
+  456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 InclusiveOrExpression ::= InclusiveOrExpression  .OR ExclusiveOrExpression 
 ConditionalAndExpression ::= InclusiveOrExpression . (488)
@@ -6084,8 +6090,8 @@ ConditionalAndExpression ::= InclusiveOrExpression . (488)
 STATE 87 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 160 161 162 170 171 
   172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 
-  320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 
-  453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 
+  434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ExclusiveOrExpression ::= ExclusiveOrExpression  .XOR AndExpression 
 InclusiveOrExpression ::= ExclusiveOrExpression . (486)
@@ -6119,8 +6125,8 @@ InclusiveOrExpression ::= ExclusiveOrExpression . (486)
 STATE 88 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 
   190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 
-  333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 
-  492 500 507 526 537 549 553 558 576 577 582 583 )
+  333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 
+  472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ConditionalOrExpression ::= ConditionalOrExpression  .OR_OR 
                             ConditionalAndExpression 
@@ -6182,8 +6188,8 @@ ConditionalExpression ::= ConditionalOrExpression . (492)
 STATE 89 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 
   190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 
-  333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 
-  492 500 507 526 537 549 553 558 576 577 582 583 )
+  333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 
+  472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ConditionalAndExpression ::= ConditionalAndExpression  .AND_AND 
                              InclusiveOrExpression 
@@ -6219,8 +6225,8 @@ ConditionalOrExpression ::= ConditionalAndExpression . (490)
 STATE 90 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 
   190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 
-  333 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 492 
-  500 507 526 537 549 553 558 576 577 582 583 )
+  333 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 472 
+  495 503 510 529 540 552 556 561 579 580 585 586 )
 
 CastExpression ::= ConditionalExpression  .as Type 
 CastExpression ::= ConditionalExpression  .to Type 
@@ -6302,8 +6308,8 @@ CastExpression ::= ConditionalExpression . (166)
 STATE 91 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 190 
   191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 333 
-  359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 492 500 
-  507 526 537 549 553 558 576 577 582 583 )
+  360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 472 495 
+  503 510 529 540 552 556 561 579 580 585 586 )
 
 TypeParameters ::= LBRACKET  .TypeParameterList RBRACKET 
 Primary ::= LBRACKET  .RegionExpressionList RBRACKET 
@@ -6489,9 +6495,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -6516,14 +6523,14 @@ TypeArgumentsopt ::= . (578)
 STATE 93 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 130 131 132 159 162 170 171 172 173 190 
   191 198 206 208 210 211 223 224 227 229 230 241 248 265 277 278 305 313 314 
-  315 317 318 319 320 328 331 359 361 364 366 381 388 407 408 410 411 412 413 
-  414 415 417 418 421 430 432 453 457 469 492 493 494 495 500 501 507 515 516 
-  523 526 535 537 549 553 556 558 566 576 577 582 583 )
+  315 317 318 319 320 328 331 360 362 365 367 382 389 391 409 410 412 413 414 
+  415 416 417 419 420 423 432 434 456 460 472 495 496 497 498 503 504 510 518 
+  519 526 529 538 540 552 556 559 561 569 579 580 585 586 )
 
 Primary ::= FieldAccess . (399)
-LeftHandSide ::= FieldAccess . (498)
+LeftHandSide ::= FieldAccess . (499)
 
-*** Reduce/reduce conflict on "EQUAL" between rule 399 and 498
+*** Reduce/reduce conflict on "EQUAL" between rule 399 and 499
 
 VariableDeclarator ::= Identifier  .ResultTypeopt EQUAL VariableInitializer 
 ResultTypeopt ::= .ResultType 
@@ -6561,7 +6568,7 @@ PostfixExpression ::= .Primary
 Primary ::= FieldAccess . (399)
 ------------------------------------------------------------------------------
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
-LeftHandSide ::= FieldAccess . (498)
+LeftHandSide ::= FieldAccess . (499)
 
 
 
@@ -6569,13 +6576,14 @@ LeftHandSide ::= FieldAccess . (498)
 STATE 94 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 130 131 132 159 162 170 171 172 173 190 
   191 198 206 208 210 211 223 224 227 229 230 241 248 265 277 278 305 313 314 
-  315 317 318 319 320 328 331 359 361 364 366 381 388 407 408 410 411 412 413 
-  414 415 417 418 421 430 432 453 457 469 492 493 494 495 500 501 507 515 516 
-  523 526 535 537 549 553 556 558 566 576 577 582 583 )
+  315 317 318 319 320 328 331 360 362 365 367 382 389 391 409 410 412 413 414 
+  415 416 417 419 420 423 432 434 456 460 472 495 496 497 498 503 504 510 518 
+  519 526 529 538 540 552 556 559 561 569 579 580 585 586 )
 
 PostfixExpression ::= ExpressionName . (445)
-LeftHandSide ::= ExpressionName . (497)
-LeftHandSide ::= ExpressionName  .LPAREN Expression RPAREN 
+Assignment ::= ExpressionName  .LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
+LeftHandSide ::= ExpressionName . (498)
 
 *** Shift/reduce conflict on "LPAREN" with rule 445
 
@@ -6608,7 +6616,7 @@ UnaryExpression ::= .UnaryExpressionNotPlusMinus
 UnaryExpressionNotPlusMinus ::= .PostfixExpression 
 PostfixExpression ::= ExpressionName . (445)
 
-*** Reduce/reduce conflict on "EQUAL" between rule 445 and 497
+*** Reduce/reduce conflict on "EQUAL" between rule 445 and 498
 
 VariableDeclarator ::= Identifier  .ResultTypeopt EQUAL VariableInitializer 
 ResultTypeopt ::= .ResultType 
@@ -6645,7 +6653,7 @@ UnaryExpressionNotPlusMinus ::= .PostfixExpression
 PostfixExpression ::= ExpressionName . (445)
 ------------------------------------------------------------------------------
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
-LeftHandSide ::= ExpressionName . (497)
+LeftHandSide ::= ExpressionName . (498)
 
 
 
@@ -6741,8 +6749,8 @@ VariableModifiersopt ::= . (528)
 
 
 STATE 100 ----------------------------------------------------------------------
-( 47 80 99 114 141 169 174 176 242 254 255 256 274 275 353 356 391 397 450 471 
-  474 488 527 538 550 )
+( 47 80 99 114 141 169 174 176 242 254 255 256 274 275 354 357 393 399 453 474 
+  477 491 530 541 553 )
 
 AnnotatedType ::= Type Annotations . (39)
 Annotations ::= Annotations  .Annotation 
@@ -6939,9 +6947,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -6992,7 +7001,7 @@ Annotations ::= Annotation . (364)
 
 
 STATE 117 ----------------------------------------------------------------------
-( 57 101 531 540 )
+( 57 101 534 543 )
 
 FormalParameters ::= LPAREN  .FormalParameterListopt RPAREN 
 FormalParameters ::= LPAREN  .FormalParameterList RPAREN 
@@ -7050,8 +7059,8 @@ VariableModifiersopt ::= . (528)
 
 STATE 118 ----------------------------------------------------------------------
 ( 58 59 60 61 62 75 76 130 136 137 138 139 140 147 148 149 150 151 152 153 210 
-  211 227 230 241 314 331 366 410 412 415 417 418 457 493 494 495 501 515 516 
-  523 535 556 557 559 566 )
+  211 227 230 241 314 331 367 412 414 417 419 420 460 496 497 498 504 518 519 
+  526 538 559 560 562 569 )
 
 Primary ::= LPAREN  .Expression RPAREN 
 
@@ -7226,9 +7235,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -7252,8 +7262,8 @@ TypeArgumentsopt ::= . (578)
 
 STATE 119 ----------------------------------------------------------------------
 ( 58 59 60 61 62 75 76 130 136 137 138 139 140 147 148 149 150 151 152 153 210 
-  211 227 230 241 314 331 366 410 412 415 417 418 457 493 494 495 501 515 516 
-  523 535 556 557 559 566 )
+  211 227 230 241 314 331 367 412 414 417 419 420 460 496 497 498 504 518 519 
+  526 538 559 560 562 569 )
 
 Primary ::= LBRACKET  .RegionExpressionList RBRACKET 
 
@@ -7432,9 +7442,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -8043,9 +8054,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -8247,9 +8259,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -8451,9 +8464,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -8674,7 +8688,7 @@ TypeParametersopt ::= . (564)
 
 
 STATE 130 ----------------------------------------------------------------------
-( 70 129 333 386 401 )
+( 70 129 333 387 403 )
 
 ClosureBody ::= LBRACE  .BlockStatementsopt LastExpression RBRACE 
 Block ::= LBRACE  .BlockStatementsopt RBRACE 
@@ -8891,9 +8905,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 BlockStatementsopt ::= . (544)
@@ -9202,9 +9217,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -9405,9 +9421,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -10510,9 +10527,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -11049,9 +11067,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -11281,7 +11300,8 @@ ClassOrInterfaceType ::= .TypeName TypeArgumentsopt Argumentsopt
                          DepParametersopt PlaceTypeSpecifieropt 
 TypeName ::= Identifier . (214)
 ------------------------------------------------------------------------------
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 ExpressionName ::= Identifier . (222)
 
 *** Reduce/reduce conflict on "DOT" between rule 214 and 228
@@ -11471,9 +11491,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -11498,7 +11519,8 @@ TypeParametersopt ::= . (564)
 STATE 171 ----------------------------------------------------------------------
 ( 94 )
 
-LeftHandSide ::= ExpressionName LPAREN  .Expression RPAREN 
+Assignment ::= ExpressionName LPAREN  .ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 
 TypeName ::= .TypeName DOT ErrorId 
 ExpressionName ::= .AmbiguousName DOT ErrorId 
@@ -11602,6 +11624,8 @@ Literal ::= .StringLiteral
 Literal ::= .null 
 BooleanLiteral ::= .true 
 BooleanLiteral ::= .false 
+ArgumentList ::= .Expression 
+ArgumentList ::= .ArgumentList COMMA Expression 
 FieldAccess ::= .Primary DOT Identifier 
 FieldAccess ::= .super DOT Identifier 
 FieldAccess ::= .ClassName DOT super DOT Identifier 
@@ -11671,20 +11695,15 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
 TypeArgumentsopt ::= . (578)
 TypeArgumentsopt ::= .TypeArguments 
-
-*** Shift/reduce conflict on "LPAREN" with rule 564
-
-ClosureExpression ::= .TypeParametersopt FormalParameters WhereClauseopt 
-                      ResultTypeopt Throwsopt DARROW ClosureBody 
-TypeParametersopt ::= . (564)
 
 *** Shift/reduce conflict on "LPAREN" with rule 578
 
@@ -11692,11 +11711,17 @@ FunctionType ::= .TypeArgumentsopt LPAREN FormalParameterListopt RPAREN
                  WhereClauseopt Throwsopt DARROW Type 
 TypeArgumentsopt ::= . (578)
 
+*** Shift/reduce conflict on "LPAREN" with rule 564
+
+ClosureExpression ::= .TypeParametersopt FormalParameters WhereClauseopt 
+                      ResultTypeopt Throwsopt DARROW ClosureBody 
+TypeParametersopt ::= . (564)
+
 
 
 
 STATE 172 ----------------------------------------------------------------------
-( 95 )
+( 95 281 )
 
 ArgumentList ::= ArgumentList COMMA  .Expression 
 
@@ -11871,9 +11896,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -11896,8 +11922,8 @@ TypeArgumentsopt ::= . (578)
 
 
 STATE 173 ----------------------------------------------------------------------
-( 96 110 142 168 189 244 270 273 279 281 282 283 295 307 309 322 324 329 339 
-  365 369 374 375 380 409 423 455 456 459 464 508 522 528 )
+( 96 110 142 168 189 244 270 273 279 282 283 295 307 309 322 324 329 339 366 
+  370 375 376 381 411 425 458 459 462 467 511 525 531 )
 
 AssignmentExpression ::= Expression ARROW  .Expression 
 
@@ -12072,9 +12098,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -12379,9 +12406,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -12588,9 +12616,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
@@ -12818,9 +12847,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -13070,9 +13100,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -13095,8 +13126,8 @@ TypeParametersopt ::= . (564)
 
 
 STATE 208 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AwaitStatement ::= await  .Expression SEMICOLON 
 
@@ -13271,9 +13302,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -13296,8 +13328,8 @@ TypeArgumentsopt ::= . (578)
 
 
 STATE 214 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 NonExpressionStatement ::= WhenStatement . (94)
 WhenStatement ::= WhenStatement  .or LPAREN Expression RPAREN Statement 
@@ -13329,8 +13361,8 @@ NonExpressionStatement ::= WhenStatement . (94)
 
 
 STATE 216 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AtomicStatement ::= atomic  .PlaceExpressionSingleListopt Statement 
 
@@ -13347,8 +13379,8 @@ PlaceExpressionSingleListopt ::= . (203)
 
 
 STATE 217 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AsyncStatement ::= async  .PlaceExpressionSingleListopt ClockedClauseopt 
                    Statement 
@@ -13367,8 +13399,8 @@ PlaceExpressionSingleListopt ::= . (203)
 
 
 STATE 223 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 ThrowStatement ::= throw  .Expression SEMICOLON 
 
@@ -13543,9 +13575,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -13568,8 +13601,8 @@ TypeArgumentsopt ::= . (578)
 
 
 STATE 224 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 ReturnStatement ::= return  .Expressionopt SEMICOLON 
 
@@ -13744,9 +13777,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 Expressionopt ::= . (520)
 Expressionopt ::= .Expression 
@@ -13771,8 +13805,8 @@ TypeParametersopt ::= . (564)
 
 
 STATE 229 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AssertStatement ::= assert  .Expression SEMICOLON 
 AssertStatement ::= assert  .Expression COLON Expression SEMICOLON 
@@ -13948,9 +13982,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -13973,8 +14008,8 @@ TypeArgumentsopt ::= . (578)
 
 
 STATE 232 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 LabeledStatement ::= Identifier  .COLON Statement 
 TypeName ::= Identifier . (214)
@@ -13984,7 +14019,8 @@ AmbiguousName ::= Identifier . (228)
 
 *** Reduce/reduce conflict on "LPAREN" between rule 222 and 224
 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 ExpressionName ::= Identifier . (222)
 ------------------------------------------------------------------------------
 MethodInvocation ::= .MethodName TypeArgumentsopt LPAREN ArgumentListopt RPAREN 
@@ -14002,7 +14038,7 @@ AmbiguousName ::= Identifier . (228)
 
 
 STATE 239 ----------------------------------------------------------------------
-( 130 230 241 501 523 556 566 )
+( 130 230 241 504 526 559 569 )
 
 ClassModifier ::= Annotation . (247)
 VariableModifier ::= Annotation . (304)
@@ -14031,7 +14067,7 @@ VariableModifier ::= Annotation . (304)
 
 
 STATE 241 ----------------------------------------------------------------------
-( 130 230 556 566 )
+( 130 230 559 569 )
 
 BlockStatements ::= BlockStatements  .BlockStatement 
 BlockStatementsopt ::= BlockStatements . (545)
@@ -14246,9 +14282,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 
@@ -14447,7 +14484,8 @@ MethodName ::= AmbiguousName DOT Identifier . (225)
 
 *** Reduce/reduce conflict on "LPAREN" between rule 223 and 225
 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 ExpressionName ::= AmbiguousName DOT Identifier . (223)
 ------------------------------------------------------------------------------
 MethodInvocation ::= .MethodName TypeArgumentsopt LPAREN ArgumentListopt RPAREN 
@@ -14535,7 +14573,8 @@ MethodName ::= AmbiguousName DOT ErrorId . (4)
 
 *** Reduce/reduce conflict on "LPAREN" between rule 3 and 4
 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 ExpressionName ::= AmbiguousName DOT ErrorId . (3)
 ------------------------------------------------------------------------------
 MethodInvocation ::= .MethodName TypeArgumentsopt LPAREN ArgumentListopt RPAREN 
@@ -14757,9 +14796,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -14784,7 +14824,7 @@ TypeArgumentsopt ::= . (578)
 
 
 STATE 249 ----------------------------------------------------------------------
-( 135 568 )
+( 135 571 )
 
 FieldAccess ::= Primary DOT Identifier . (431)
 MethodInvocation ::= Primary DOT Identifier  .TypeArgumentsopt LPAREN 
@@ -14814,7 +14854,7 @@ FieldAccess ::= Primary DOT Identifier . (431)
 
 
 STATE 251 ----------------------------------------------------------------------
-( 135 568 )
+( 135 571 )
 
 FieldAccess ::= Primary DOT ErrorId . (7)
 MethodPrimaryPrefix ::= Primary DOT ErrorId . (13)
@@ -15936,9 +15976,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -16673,9 +16714,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -16873,9 +16915,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -17040,7 +17083,7 @@ TypeArgumentsopt ::= . (578)
 
 
 STATE 301 ----------------------------------------------------------------------
-( 195 467 524 536 543 548 )
+( 195 470 527 539 546 551 )
 
 ResultType ::= COLON  .Type 
 
@@ -17251,9 +17294,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -17559,9 +17603,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -17760,9 +17805,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -17961,9 +18007,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -18123,9 +18170,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 ForInitopt ::= . (522)
 ForInitopt ::= .ForInit 
 VariableModifiersopt ::= . (528)
@@ -18328,9 +18376,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -18529,9 +18578,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -18729,9 +18779,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -19129,7 +19180,7 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 341 ----------------------------------------------------------------------
+STATE 342 ----------------------------------------------------------------------
 ( 286 )
 
 TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt 
@@ -19164,7 +19215,7 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 348 ----------------------------------------------------------------------
+STATE 349 ----------------------------------------------------------------------
 ( 292 )
 
 Property ::= Annotationsopt Identifier COLON  .Type 
@@ -19197,7 +19248,7 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 357 ----------------------------------------------------------------------
+STATE 358 ----------------------------------------------------------------------
 ( 303 )
 
 FieldAccess ::= ClassName DOT super DOT Identifier . (433)
@@ -19227,7 +19278,7 @@ FieldAccess ::= ClassName DOT super DOT Identifier . (433)
 
 
 
-STATE 358 ----------------------------------------------------------------------
+STATE 359 ----------------------------------------------------------------------
 ( 303 )
 
 FieldAccess ::= ClassName DOT super DOT ErrorId . (9)
@@ -19245,7 +19296,7 @@ MethodClassNameSuperPrefix ::= ClassName DOT super DOT ErrorId . (15)
 
 
 
-STATE 359 ----------------------------------------------------------------------
+STATE 360 ----------------------------------------------------------------------
 ( 304 )
 
 MethodInvocation ::= super DOT Identifier TypeArgumentsopt LPAREN  .
@@ -19424,9 +19475,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -19450,7 +19502,7 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 361 ----------------------------------------------------------------------
+STATE 362 ----------------------------------------------------------------------
 ( 308 )
 
 AssignPropertyCall ::= property TypeArgumentsopt LPAREN  .ArgumentListopt 
@@ -19629,9 +19681,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -19655,7 +19708,7 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 364 ----------------------------------------------------------------------
+STATE 365 ----------------------------------------------------------------------
 ( 312 )
 
 WhenStatement ::= WhenStatement or LPAREN  .Expression RPAREN Statement 
@@ -19831,9 +19884,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -19855,7 +19909,7 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 381 ----------------------------------------------------------------------
+STATE 382 ----------------------------------------------------------------------
 ( 329 )
 
 AssertStatement ::= assert Expression COLON  .Expression SEMICOLON 
@@ -20031,9 +20085,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -20055,7 +20110,7 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 386 ----------------------------------------------------------------------
+STATE 387 ----------------------------------------------------------------------
 ( 333 )
 
 FutureExpression ::= future LBRACKET Type RBRACKET PlaceExpressionSingleList  .
@@ -20252,7 +20307,7 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 388 ----------------------------------------------------------------------
+STATE 389 ----------------------------------------------------------------------
 ( 336 )
 
 MethodInvocation ::= Primary DOT Identifier TypeArgumentsopt LPAREN  .
@@ -20431,9 +20486,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -20457,8 +20513,210 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 399 ----------------------------------------------------------------------
-( 350 )
+STATE 391 ----------------------------------------------------------------------
+( 340 )
+
+Assignment ::= ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator  .
+               AssignmentExpression 
+
+TypeName ::= .TypeName DOT ErrorId 
+ExpressionName ::= .AmbiguousName DOT ErrorId 
+MethodName ::= .AmbiguousName DOT ErrorId 
+AmbiguousName ::= .AmbiguousName DOT ErrorId 
+FieldAccess ::= .Primary DOT ErrorId 
+FieldAccess ::= .super DOT ErrorId 
+FieldAccess ::= .ClassName DOT super DOT ErrorId 
+MethodInvocation ::= .MethodPrimaryPrefix LPAREN ArgumentListopt RPAREN 
+MethodInvocation ::= .MethodSuperPrefix LPAREN ArgumentListopt RPAREN 
+MethodInvocation ::= .MethodClassNameSuperPrefix LPAREN ArgumentListopt RPAREN 
+MethodPrimaryPrefix ::= .Primary DOT ErrorId 
+MethodSuperPrefix ::= .super DOT ErrorId 
+MethodClassNameSuperPrefix ::= .ClassName DOT super DOT ErrorId 
+ClassInstanceCreationExpression ::= .new TypeName TypeArgumentsopt LPAREN 
+                                    ArgumentListopt RPAREN ClassBodyopt 
+ClassInstanceCreationExpression ::= .Primary DOT new Identifier 
+                                    TypeArgumentsopt LPAREN ArgumentListopt 
+                                    RPAREN ClassBodyopt 
+ClassInstanceCreationExpression ::= .AmbiguousName DOT new Identifier 
+                                    TypeArgumentsopt LPAREN ArgumentListopt 
+                                    RPAREN ClassBodyopt 
+Type ::= .FunctionType 
+Type ::= .ConstrainedType 
+FunctionType ::= .TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
+                 WhereClauseopt Throwsopt DARROW Type 
+AnnotatedType ::= .Type Annotations 
+ConstrainedType ::= .ClassOrInterfaceType 
+ConstrainedType ::= .AnnotatedType 
+ConstrainedType ::= .LPAREN Type RPAREN 
+ClassOrInterfaceType ::= .TypeName TypeArgumentsopt Argumentsopt 
+                         DepParametersopt PlaceTypeSpecifieropt 
+TypeParameters ::= .LBRACKET TypeParameterList RBRACKET 
+SubtypeConstraint ::= .Type SUBTYPE Type 
+SubtypeConstraint ::= .Type SUPERTYPE Type 
+CastExpression ::= .ConditionalExpression as Type 
+CastExpression ::= .ConditionalExpression to Type 
+CastExpression ::= .ConditionalExpression NOT Expression 
+CastExpression ::= .ConditionalExpression 
+Primary ::= .here 
+Primary ::= .FutureExpression 
+Primary ::= .LBRACKET RegionExpressionList RBRACKET 
+AssignmentExpression ::= .Expression ARROW Expression 
+ClosureExpression ::= .TypeParametersopt FormalParameters WhereClauseopt 
+                      ResultTypeopt Throwsopt DARROW ClosureBody 
+ClosureExpression ::= .CastExpression 
+FutureExpression ::= .future ClosureBody 
+FutureExpression ::= .future PlaceExpressionSingleList ClosureBody 
+FutureExpression ::= .future LBRACKET Type RBRACKET ClosureBody 
+FutureExpression ::= .future LBRACKET Type RBRACKET PlaceExpressionSingleList 
+                     ClosureBody 
+identifier ::= .IDENTIFIER 
+TypeName ::= .Identifier 
+TypeName ::= .TypeName DOT Identifier 
+ClassName ::= .TypeName 
+TypeArguments ::= .LBRACKET TypeArgumentList RBRACKET 
+ExpressionName ::= .Identifier 
+ExpressionName ::= .AmbiguousName DOT Identifier 
+MethodName ::= .Identifier 
+MethodName ::= .AmbiguousName DOT Identifier 
+AmbiguousName ::= .Identifier 
+AmbiguousName ::= .AmbiguousName DOT Identifier 
+Annotations ::= .Annotation 
+Annotations ::= .Annotations Annotation 
+Annotation ::= .AT InterfaceType 
+Identifier ::= .identifier 
+Primary ::= .Literal 
+Primary ::= .TypeName DOT class 
+Primary ::= .self 
+Primary ::= .this 
+Primary ::= .ClassName DOT this 
+Primary ::= .LPAREN Expression RPAREN 
+Primary ::= .ClassInstanceCreationExpression 
+Primary ::= .FieldAccess 
+Primary ::= .MethodInvocation 
+Primary ::= .OperatorFunction 
+OperatorFunction ::= .TypeName DOT PLUS 
+OperatorFunction ::= .TypeName DOT MINUS 
+OperatorFunction ::= .TypeName DOT MULTIPLY 
+OperatorFunction ::= .TypeName DOT DIVIDE 
+OperatorFunction ::= .TypeName DOT REMAINDER 
+OperatorFunction ::= .TypeName DOT AND 
+OperatorFunction ::= .TypeName DOT OR 
+OperatorFunction ::= .TypeName DOT XOR 
+OperatorFunction ::= .TypeName DOT LEFT_SHIFT 
+OperatorFunction ::= .TypeName DOT RIGHT_SHIFT 
+OperatorFunction ::= .TypeName DOT UNSIGNED_RIGHT_SHIFT 
+OperatorFunction ::= .TypeName DOT LESS 
+OperatorFunction ::= .TypeName DOT LESS_EQUAL 
+OperatorFunction ::= .TypeName DOT GREATER_EQUAL 
+OperatorFunction ::= .TypeName DOT GREATER 
+OperatorFunction ::= .TypeName DOT EQUAL_EQUAL 
+OperatorFunction ::= .TypeName DOT NOT_EQUAL 
+Literal ::= .IntegerLiteral 
+Literal ::= .LongLiteral 
+Literal ::= .FloatingPointLiteral 
+Literal ::= .DoubleLiteral 
+Literal ::= .BooleanLiteral 
+Literal ::= .CharacterLiteral 
+Literal ::= .StringLiteral 
+Literal ::= .null 
+BooleanLiteral ::= .true 
+BooleanLiteral ::= .false 
+FieldAccess ::= .Primary DOT Identifier 
+FieldAccess ::= .super DOT Identifier 
+FieldAccess ::= .ClassName DOT super DOT Identifier 
+MethodInvocation ::= .MethodName TypeArgumentsopt LPAREN ArgumentListopt RPAREN 
+MethodInvocation ::= .Primary DOT Identifier TypeArgumentsopt LPAREN 
+                     ArgumentListopt RPAREN 
+MethodInvocation ::= .super DOT Identifier TypeArgumentsopt LPAREN 
+                     ArgumentListopt RPAREN 
+MethodInvocation ::= .ClassName DOT super DOT Identifier TypeArgumentsopt 
+                     LPAREN ArgumentListopt RPAREN 
+MethodInvocation ::= .Primary TypeArgumentsopt LPAREN ArgumentListopt RPAREN 
+PostfixExpression ::= .Primary 
+PostfixExpression ::= .ArrayInitailizer 
+PostfixExpression ::= .ExpressionName 
+PostfixExpression ::= .PostIncrementExpression 
+PostfixExpression ::= .PostDecrementExpression 
+PostIncrementExpression ::= .PostfixExpression PLUS_PLUS 
+PostDecrementExpression ::= .PostfixExpression MINUS_MINUS 
+UnaryExpression ::= .PreIncrementExpression 
+UnaryExpression ::= .PreDecrementExpression 
+UnaryExpression ::= .PLUS UnaryExpressionNotPlusMinus 
+UnaryExpression ::= .MINUS UnaryExpressionNotPlusMinus 
+UnaryExpression ::= .UnaryExpressionNotPlusMinus 
+PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
+PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
+UnaryExpressionNotPlusMinus ::= .PostfixExpression 
+UnaryExpressionNotPlusMinus ::= .TWIDDLE UnaryExpression 
+UnaryExpressionNotPlusMinus ::= .Annotations UnaryExpression 
+UnaryExpressionNotPlusMinus ::= .NOT UnaryExpression 
+MultiplicativeExpression ::= .UnaryExpression 
+MultiplicativeExpression ::= .MultiplicativeExpression MULTIPLY UnaryExpression 
+MultiplicativeExpression ::= .MultiplicativeExpression DIVIDE UnaryExpression 
+MultiplicativeExpression ::= .MultiplicativeExpression REMAINDER 
+                             UnaryExpression 
+AdditiveExpression ::= .MultiplicativeExpression 
+AdditiveExpression ::= .AdditiveExpression PLUS MultiplicativeExpression 
+AdditiveExpression ::= .AdditiveExpression MINUS MultiplicativeExpression 
+ShiftExpression ::= .AdditiveExpression 
+ShiftExpression ::= .ShiftExpression LEFT_SHIFT AdditiveExpression 
+ShiftExpression ::= .ShiftExpression RIGHT_SHIFT AdditiveExpression 
+ShiftExpression ::= .ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression 
+RelationalExpression ::= .ShiftExpression 
+RelationalExpression ::= .SubtypeConstraint 
+RelationalExpression ::= .RelationalExpression LESS ShiftExpression 
+RelationalExpression ::= .RelationalExpression GREATER ShiftExpression 
+RelationalExpression ::= .RelationalExpression LESS_EQUAL ShiftExpression 
+RelationalExpression ::= .RelationalExpression GREATER_EQUAL ShiftExpression 
+RelationalExpression ::= .RelationalExpression instanceof Type 
+EqualityExpression ::= .RelationalExpression 
+EqualityExpression ::= .EqualityExpression EQUAL_EQUAL RelationalExpression 
+EqualityExpression ::= .EqualityExpression NOT_EQUAL RelationalExpression 
+AndExpression ::= .EqualityExpression 
+AndExpression ::= .AndExpression AND EqualityExpression 
+ExclusiveOrExpression ::= .AndExpression 
+ExclusiveOrExpression ::= .ExclusiveOrExpression XOR AndExpression 
+InclusiveOrExpression ::= .ExclusiveOrExpression 
+InclusiveOrExpression ::= .InclusiveOrExpression OR ExclusiveOrExpression 
+ConditionalAndExpression ::= .InclusiveOrExpression 
+ConditionalAndExpression ::= .ConditionalAndExpression AND_AND 
+                             InclusiveOrExpression 
+ConditionalOrExpression ::= .ConditionalAndExpression 
+ConditionalOrExpression ::= .ConditionalOrExpression OR_OR 
+                            ConditionalAndExpression 
+ConditionalExpression ::= .ConditionalOrExpression 
+ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON 
+                          ConditionalExpression 
+AssignmentExpression ::= .ClosureExpression 
+AssignmentExpression ::= .Assignment 
+Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
+LeftHandSide ::= .ExpressionName 
+LeftHandSide ::= .FieldAccess 
+Expression ::= .AssignmentExpression 
+TypeParametersopt ::= . (564)
+TypeParametersopt ::= .TypeParameters 
+TypeArgumentsopt ::= . (578)
+TypeArgumentsopt ::= .TypeArguments 
+
+*** Shift/reduce conflict on "LPAREN" with rule 578
+
+FunctionType ::= .TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
+                 WhereClauseopt Throwsopt DARROW Type 
+TypeArgumentsopt ::= . (578)
+
+*** Shift/reduce conflict on "LPAREN" with rule 564
+
+ClosureExpression ::= .TypeParametersopt FormalParameters WhereClauseopt 
+                      ResultTypeopt Throwsopt DARROW ClosureBody 
+TypeParametersopt ::= . (564)
+
+
+
+
+STATE 401 ----------------------------------------------------------------------
+( 351 )
 
 FormalDeclarator ::= LPAREN IdentifierList RPAREN COLON  .Type 
 
@@ -20490,8 +20748,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 401 ----------------------------------------------------------------------
-( 354 )
+STATE 403 ----------------------------------------------------------------------
+( 355 )
 
 ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt 
                       ResultTypeopt Throwsopt DARROW  .ClosureBody 
@@ -20687,8 +20945,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 405 ----------------------------------------------------------------------
-( 360 )
+STATE 407 ----------------------------------------------------------------------
+( 361 )
 
 ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt LPAREN 
                                     ArgumentListopt RPAREN  .ClassBodyopt 
@@ -20770,8 +21028,8 @@ ClassBodyopt ::= . (538)
 
 
 
-STATE 407 ----------------------------------------------------------------------
-( 362 )
+STATE 409 ----------------------------------------------------------------------
+( 363 )
 
 AtEachStatement ::= ateach LPAREN FormalParameter in  .Expression RPAREN 
                     ClockedClauseopt Statement 
@@ -20947,9 +21205,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -20971,8 +21230,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 408 ----------------------------------------------------------------------
-( 363 )
+STATE 410 ----------------------------------------------------------------------
+( 364 )
 
 ForEachStatement ::= foreach LPAREN FormalParameter in  .Expression RPAREN 
                      ClockedClauseopt Statement 
@@ -21148,9 +21407,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -21172,8 +21432,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 411 ----------------------------------------------------------------------
-( 367 )
+STATE 413 ----------------------------------------------------------------------
+( 368 )
 
 ClockedClause ::= clocked LPAREN  .ClockList RPAREN 
 
@@ -21351,9 +21611,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -21375,8 +21636,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 413 ----------------------------------------------------------------------
-( 370 )
+STATE 415 ----------------------------------------------------------------------
+( 371 )
 
 EnhancedForStatement ::= for LPAREN FormalParameter in  .Expression RPAREN 
                          Statement 
@@ -21552,9 +21813,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -21576,8 +21838,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 414 ----------------------------------------------------------------------
-( 371 )
+STATE 416 ----------------------------------------------------------------------
+( 372 )
 
 BasicForStatement ::= for LPAREN ForInitopt SEMICOLON  .Expressionopt SEMICOLON 
                       ForUpdateopt RPAREN Statement 
@@ -21753,9 +22015,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 Expressionopt ::= . (520)
 Expressionopt ::= .Expression 
@@ -21779,8 +22042,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 420 ----------------------------------------------------------------------
-( 377 )
+STATE 422 ----------------------------------------------------------------------
+( 378 )
 
 CatchClause ::= catch LPAREN  .FormalParameter RPAREN Block 
 
@@ -21831,8 +22094,8 @@ VariableModifiersopt ::= . (528)
 
 
 
-STATE 421 ----------------------------------------------------------------------
-( 379 )
+STATE 423 ----------------------------------------------------------------------
+( 380 )
 
 DoStatement ::= do Statement while LPAREN  .Expression RPAREN SEMICOLON 
 
@@ -22007,9 +22270,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -22031,8 +22295,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 429 ----------------------------------------------------------------------
-( 385 )
+STATE 431 ----------------------------------------------------------------------
+( 386 )
 
 ResultType ::= COLON  .Type 
 FormalDeclarator ::= Identifier COLON  .Type 
@@ -22065,8 +22329,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 430 ----------------------------------------------------------------------
-( 387 )
+STATE 432 ----------------------------------------------------------------------
+( 388 )
 
 ClassInstanceCreationExpression ::= AmbiguousName DOT new Identifier 
                                     TypeArgumentsopt LPAREN  .ArgumentListopt 
@@ -22245,9 +22509,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -22271,8 +22536,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 432 ----------------------------------------------------------------------
-( 389 )
+STATE 434 ----------------------------------------------------------------------
+( 390 )
 
 ClassInstanceCreationExpression ::= Primary DOT new Identifier 
                                     TypeArgumentsopt LPAREN  .ArgumentListopt 
@@ -22451,9 +22716,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -22477,8 +22743,29 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 433 ----------------------------------------------------------------------
-( 390 )
+STATE 435 ----------------------------------------------------------------------
+( 391 )
+
+Assignment ::= ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression . (497)
+Expression ::= AssignmentExpression . (512)
+
+*** Reduce/reduce conflict on "ARROW" between rule 512 and 497
+
+AssignmentExpression ::= .Expression ARROW Expression 
+Expression ::= AssignmentExpression . (512)
+------------------------------------------------------------------------------
+AssignmentExpression ::= .Expression ARROW Expression 
+Expression ::= .AssignmentExpression 
+AssignmentExpression ::= .Assignment 
+Assignment ::= ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression . (497)
+
+
+
+
+STATE 436 ----------------------------------------------------------------------
+( 392 )
 
 FunctionType ::= TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
                  WhereClauseopt Throwsopt DARROW  .Type 
@@ -22511,8 +22798,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 435 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 438 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 ClassModifier ::= safe . (255)
 MethodModifier ::= safe . (318)
@@ -22610,8 +22897,8 @@ MethodModifier ::= safe . (318)
 
 
 
-STATE 436 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 439 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 ClassModifier ::= strictfp . (254)
 MethodModifier ::= strictfp . (315)
@@ -22780,8 +23067,8 @@ MethodModifier ::= strictfp . (315)
 
 
 
-STATE 437 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 440 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 ClassModifier ::= final . (253)
 MethodModifier ::= final . (313)
@@ -22879,8 +23166,8 @@ MethodModifier ::= final . (313)
 
 
 
-STATE 438 ----------------------------------------------------------------------
-( 392 446 )
+STATE 441 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= static . (252)
 MethodModifier ::= static . (312)
@@ -23049,8 +23336,8 @@ MethodModifier ::= static . (312)
 
 
 
-STATE 439 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 442 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 ClassModifier ::= abstract . (251)
 MethodModifier ::= abstract . (311)
@@ -23219,8 +23506,8 @@ MethodModifier ::= abstract . (311)
 
 
 
-STATE 440 ----------------------------------------------------------------------
-( 392 446 )
+STATE 443 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= private . (250)
 MethodModifier ::= private . (310)
@@ -23389,8 +23676,8 @@ MethodModifier ::= private . (310)
 
 
 
-STATE 441 ----------------------------------------------------------------------
-( 392 446 )
+STATE 444 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= protected . (249)
 MethodModifier ::= protected . (309)
@@ -23559,8 +23846,8 @@ MethodModifier ::= protected . (309)
 
 
 
-STATE 442 ----------------------------------------------------------------------
-( 392 446 )
+STATE 445 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= public . (248)
 MethodModifier ::= public . (308)
@@ -23729,8 +24016,8 @@ MethodModifier ::= public . (308)
 
 
 
-STATE 443 ----------------------------------------------------------------------
-( 392 446 )
+STATE 446 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= Annotation . (247)
 MethodModifier ::= Annotation . (307)
@@ -23899,8 +24186,8 @@ MethodModifier ::= Annotation . (307)
 
 
 
-STATE 451 ----------------------------------------------------------------------
-( 400 )
+STATE 454 ----------------------------------------------------------------------
+( 402 )
 
 FormalDeclarator ::= Identifier LPAREN IdentifierList RPAREN COLON  .Type 
 
@@ -23932,8 +24219,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 453 ----------------------------------------------------------------------
-( 403 )
+STATE 456 ----------------------------------------------------------------------
+( 405 )
 
 MethodInvocation ::= ClassName DOT super DOT Identifier TypeArgumentsopt 
                      LPAREN  .ArgumentListopt RPAREN 
@@ -24111,9 +24398,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -24137,8 +24425,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 462 ----------------------------------------------------------------------
-( 418 )
+STATE 465 ----------------------------------------------------------------------
+( 420 )
 
 IfThenStatement ::= if LPAREN Expression RPAREN Statement . (102)
 IfThenElseStatement ::= if LPAREN Expression RPAREN Statement  .else Statement 
@@ -24178,8 +24466,8 @@ IfThenStatement ::= if LPAREN Expression RPAREN Statement . (102)
 
 
 
-STATE 465 ----------------------------------------------------------------------
-( 422 )
+STATE 468 ----------------------------------------------------------------------
+( 424 )
 
 SwitchBlock ::= LBRACE  .SwitchBlockStatementGroupsopt SwitchLabelsopt RBRACE 
 
@@ -24207,8 +24495,8 @@ SwitchBlockStatementGroupsopt ::= . (526)
 
 
 
-STATE 469 ----------------------------------------------------------------------
-( 427 )
+STATE 472 ----------------------------------------------------------------------
+( 429 )
 
 VariableDeclarator ::= Identifier ResultTypeopt EQUAL  .VariableInitializer 
 
@@ -24385,9 +24673,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -24409,8 +24698,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 474 ----------------------------------------------------------------------
-( 433 )
+STATE 477 ----------------------------------------------------------------------
+( 436 )
 
 FunctionType ::= TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
                  WhereClauseopt Throwsopt DARROW Type . (36)
@@ -24430,8 +24719,8 @@ FunctionType ::= TypeArgumentsopt LPAREN FormalParameterListopt RPAREN
 
 
 
-STATE 481 ----------------------------------------------------------------------
-( 448 486 )
+STATE 484 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= static . (252)
 MethodModifier ::= static . (312)
@@ -24603,8 +24892,8 @@ MethodModifier ::= static . (312)
 
 
 
-STATE 482 ----------------------------------------------------------------------
-( 448 486 )
+STATE 485 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= private . (250)
 FieldModifier ::= private . (292)
@@ -24855,8 +25144,8 @@ FieldModifier ::= private . (292)
 
 
 
-STATE 483 ----------------------------------------------------------------------
-( 448 486 )
+STATE 486 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= protected . (249)
 FieldModifier ::= protected . (291)
@@ -25107,8 +25396,8 @@ FieldModifier ::= protected . (291)
 
 
 
-STATE 484 ----------------------------------------------------------------------
-( 448 486 )
+STATE 487 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= public . (248)
 FieldModifier ::= public . (290)
@@ -25359,8 +25648,8 @@ FieldModifier ::= public . (290)
 
 
 
-STATE 485 ----------------------------------------------------------------------
-( 448 486 )
+STATE 488 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= Annotation . (247)
 FieldModifier ::= Annotation . (289)
@@ -25611,8 +25900,8 @@ FieldModifier ::= Annotation . (289)
 
 
 
-STATE 492 ----------------------------------------------------------------------
-( 458 )
+STATE 495 ----------------------------------------------------------------------
+( 461 )
 
 ClockList ::= ClockList COMMA  .Clock 
 
@@ -25788,9 +26077,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -25812,8 +26102,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 500 ----------------------------------------------------------------------
-( 465 498 501 502 520 )
+STATE 503 ----------------------------------------------------------------------
+( 468 501 504 505 523 )
 
 SwitchLabel ::= case  .ConstantExpression COLON 
 
@@ -25988,9 +26278,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ConstantExpression ::= .Expression 
 TypeParametersopt ::= . (564)
@@ -26013,8 +26304,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 502 ----------------------------------------------------------------------
-( 465 )
+STATE 505 ----------------------------------------------------------------------
+( 468 )
 
 SwitchBlockStatementGroups ::= SwitchBlockStatementGroups  .
                                SwitchBlockStatementGroup 
@@ -26039,8 +26330,8 @@ SwitchBlockStatementGroupsopt ::= SwitchBlockStatementGroups . (527)
 
 
 
-STATE 506 ----------------------------------------------------------------------
-( 468 )
+STATE 509 ----------------------------------------------------------------------
+( 471 )
 
 ResultType ::= COLON  .Type 
 FormalDeclarator ::= LPAREN IdentifierList RPAREN COLON  .Type 
@@ -26073,8 +26364,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 507 ----------------------------------------------------------------------
-( 469 526 537 549 )
+STATE 510 ----------------------------------------------------------------------
+( 472 529 540 552 )
 
 VariableInitializer ::= EQUAL  .Expression 
 
@@ -26249,9 +26540,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -26273,8 +26565,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 510 ----------------------------------------------------------------------
-( 472 )
+STATE 513 ----------------------------------------------------------------------
+( 475 )
 
 ClassInstanceCreationExpression ::= AmbiguousName DOT new Identifier 
                                     TypeArgumentsopt LPAREN ArgumentListopt 
@@ -26358,8 +26650,8 @@ ClassBodyopt ::= . (538)
 
 
 
-STATE 511 ----------------------------------------------------------------------
-( 473 )
+STATE 514 ----------------------------------------------------------------------
+( 476 )
 
 ClassInstanceCreationExpression ::= Primary DOT new Identifier 
                                     TypeArgumentsopt LPAREN ArgumentListopt 
@@ -26443,8 +26735,8 @@ ClassBodyopt ::= . (538)
 
 
 
-STATE 526 ----------------------------------------------------------------------
-( 505 )
+STATE 529 ----------------------------------------------------------------------
+( 508 )
 
 VariableDeclarator ::= LPAREN IdentifierList RPAREN ResultTypeopt EQUAL  .
                        VariableInitializer 
@@ -26622,9 +26914,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -26646,8 +26939,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 530 ----------------------------------------------------------------------
-( 509 )
+STATE 533 ----------------------------------------------------------------------
+( 512 )
 
 ResultType ::= COLON  .Type 
 FormalDeclarator ::= Identifier LPAREN IdentifierList RPAREN COLON  .Type 
@@ -26680,8 +26973,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 537 ----------------------------------------------------------------------
-( 529 )
+STATE 540 ----------------------------------------------------------------------
+( 532 )
 
 VariableDeclarator ::= Identifier LPAREN IdentifierList RPAREN ResultTypeopt 
                        EQUAL  .VariableInitializer 
@@ -26859,9 +27152,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -26883,8 +27177,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 546 ----------------------------------------------------------------------
-( 542 )
+STATE 549 ----------------------------------------------------------------------
+( 545 )
 
 ResultType ::= COLON  .Type 
 FieldDeclarator ::= Identifier WhereClauseopt COLON  .Type 
@@ -26917,8 +27211,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 549 ----------------------------------------------------------------------
-( 545 )
+STATE 552 ----------------------------------------------------------------------
+( 548 )
 
 FieldDeclarator ::= Identifier WhereClauseopt ResultTypeopt EQUAL  .
                     VariableInitializer 
@@ -27096,9 +27390,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -27120,8 +27415,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 553 ----------------------------------------------------------------------
-( 551 )
+STATE 556 ----------------------------------------------------------------------
+( 554 )
 
 MethodBody ::= EQUAL  .LastExpression SEMICOLON 
 MethodBody ::= EQUAL  .LBRACE BlockStatementsopt LastExpression RBRACE 
@@ -27300,9 +27595,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -27324,8 +27620,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 556 ----------------------------------------------------------------------
-( 553 )
+STATE 559 ----------------------------------------------------------------------
+( 556 )
 
 MethodBody ::= EQUAL LBRACE  .BlockStatementsopt LastExpression RBRACE 
 Block ::= LBRACE  .BlockStatementsopt RBRACE 
@@ -27542,9 +27838,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 BlockStatementsopt ::= . (544)
@@ -27663,8 +27960,8 @@ BlockStatementsopt ::= . (544)
 
 
 
-STATE 558 ----------------------------------------------------------------------
-( 556 )
+STATE 561 ----------------------------------------------------------------------
+( 559 )
 
 MethodBody ::= EQUAL LBRACE BlockStatementsopt  .LastExpression RBRACE 
 Block ::= LBRACE BlockStatementsopt  .RBRACE 
@@ -27841,9 +28138,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -27865,8 +28163,8 @@ TypeParametersopt ::= . (564)
 
 
 
-STATE 559 ----------------------------------------------------------------------
-( 557 )
+STATE 562 ----------------------------------------------------------------------
+( 560 )
 
 ConstructorBlock ::= LBRACE  .ExplicitConstructorInvocationopt 
                      BlockStatementsopt RBRACE 
@@ -28078,8 +28376,8 @@ ExplicitConstructorInvocationopt ::= . (546)
 
 
 
-STATE 561 ----------------------------------------------------------------------
-( 557 559 )
+STATE 564 ----------------------------------------------------------------------
+( 560 562 )
 
 TypeName ::= Identifier . (214)
 MethodName ::= Identifier . (224)
@@ -28096,8 +28394,8 @@ AmbiguousName ::= Identifier . (228)
 
 
 
-STATE 564 ----------------------------------------------------------------------
-( 557 559 )
+STATE 567 ----------------------------------------------------------------------
+( 560 562 )
 
 ExplicitConstructorInvocation ::= this  .TypeArgumentsopt LPAREN 
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -28124,8 +28422,8 @@ Primary ::= this . (395)
 
 
 
-STATE 576 ----------------------------------------------------------------------
-( 569 )
+STATE 579 ----------------------------------------------------------------------
+( 572 )
 
 ExplicitConstructorInvocation ::= super TypeArgumentsopt LPAREN  .
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -28303,9 +28601,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -28329,8 +28628,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 577 ----------------------------------------------------------------------
-( 570 )
+STATE 580 ----------------------------------------------------------------------
+( 573 )
 
 ExplicitConstructorInvocation ::= this TypeArgumentsopt LPAREN  .
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -28508,9 +28807,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -28534,8 +28834,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 582 ----------------------------------------------------------------------
-( 578 )
+STATE 585 ----------------------------------------------------------------------
+( 581 )
 
 ExplicitConstructorInvocation ::= Primary DOT super TypeArgumentsopt LPAREN  .
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -28713,9 +29013,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -28739,8 +29040,8 @@ TypeArgumentsopt ::= . (578)
 
 
 
-STATE 583 ----------------------------------------------------------------------
-( 579 )
+STATE 586 ----------------------------------------------------------------------
+( 582 )
 
 ExplicitConstructorInvocation ::= Primary DOT this TypeArgumentsopt LPAREN  .
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -28918,9 +29219,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -28950,17 +29252,17 @@ TypeArgumentsopt ::= . (578)
 Number of Terminals: 144
 Number of Nonterminals: 248
 Number of Productions: 586
-Number of Items: 1778
+Number of Items: 1780
 Number of Scopes: 141
-Number of States: 589
+Number of States: 592
 Number of look-ahead states: 23
-Number of Shift actions: 2432
-Number of Goto actions: 3358
-Number of Shift/Reduce actions: 2252
-Number of Goto/Reduce actions: 3755
-Number of Reduce actions: 8947
-Number of Shift-Reduce conflicts: 382
-Number of Reduce-Reduce conflicts: 440
+Number of Shift actions: 2445
+Number of Goto actions: 3390
+Number of Shift/Reduce actions: 2277
+Number of Goto/Reduce actions: 3779
+Number of Reduce actions: 9061
+Number of Shift-Reduce conflicts: 384
+Number of Reduce-Reduce conflicts: 441
 Number of Keyword/Identifier Shift conflicts: 0
 Number of Keyword/Identifier Shift-Reduce conflicts: 0
 Number of Keyword/Identifier Reduce-Reduce conflicts: 0
@@ -29104,10 +29406,10 @@ STATE 6 ------------------------------------------------------------------------
   147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 169 170 171 
   172 173 174 176 180 184 190 191 198 206 208 210 211 223 224 227 229 230 241 
   242 248 254 255 256 265 274 275 277 278 285 293 305 310 311 313 314 315 317 
-  318 319 320 328 331 333 338 353 356 359 361 364 366 381 386 388 391 392 397 
-  401 407 408 410 411 412 413 414 417 418 420 421 430 432 444 446 448 450 453 
-  457 469 471 474 477 480 486 488 492 493 495 500 501 507 515 516 523 526 527 
-  535 537 538 549 550 553 556 558 566 576 577 582 583 )
+  318 319 320 328 331 333 338 354 357 360 362 365 367 382 387 389 391 393 394 
+  399 403 409 410 412 413 414 415 416 419 420 422 423 432 434 447 449 451 453 
+  456 460 472 474 477 480 483 489 491 495 496 498 503 504 510 518 519 526 529 
+  530 538 540 541 552 553 556 559 561 569 579 580 585 586 )
 
 Annotation ::= AT  .InterfaceType 
 
@@ -29352,8 +29654,8 @@ DOT          Shift  33
 
 
 STATE 13 -----------------------------------------------------------------------
-( 6 36 46 97 98 117 143 144 146 163 164 285 299 301 310 311 341 344 347 348 
-  355 393 396 399 420 429 433 451 452 487 506 530 546 )
+( 6 36 46 97 98 117 143 144 146 163 164 285 299 301 310 311 342 345 348 349 
+  356 395 398 401 422 431 436 454 455 490 509 533 549 )
 
 TypeName ::= TypeName  .DOT ErrorId 
 ClassOrInterfaceType ::= TypeName  .TypeArgumentsopt Argumentsopt 
@@ -29529,7 +29831,7 @@ type    Shift  37
 
 
 STATE 16 -----------------------------------------------------------------------
-( 8 28 392 446 448 486 )
+( 8 28 394 449 451 489 )
 
 NormalInterfaceDeclaration ::= InterfaceModifiersopt  .interface Identifier 
                                TypePropertiesopt Propertiesopt WhereClauseopt 
@@ -29540,7 +29842,7 @@ interface    Shift  38
 
 
 STATE 17 -----------------------------------------------------------------------
-( 8 28 392 446 448 486 )
+( 8 28 394 449 451 489 )
 
 InterfaceModifiers ::= InterfaceModifiers  .InterfaceModifier 
 InterfaceModifiersopt ::= InterfaceModifiers . (537)
@@ -29865,7 +30167,7 @@ Default reduction to rule  247
 
 
 STATE 26 -----------------------------------------------------------------------
-( 8 28 130 230 241 392 446 448 486 501 523 556 566 )
+( 8 28 130 230 241 394 449 451 489 504 526 559 569 )
 
 ClassModifiersopt ::= ClassModifiers . (206)
 ClassModifiers ::= ClassModifiers  .ClassModifier 
@@ -29901,7 +30203,7 @@ Default reduction to rule  206
 
 
 STATE 27 -----------------------------------------------------------------------
-( 8 28 130 230 241 392 446 448 486 501 523 556 566 )
+( 8 28 130 230 241 394 449 451 489 504 526 559 569 )
 
 NormalClassDeclaration ::= ClassModifiersopt  .class Identifier 
                            TypePropertiesopt Propertiesopt WhereClauseopt 
@@ -30238,8 +30540,8 @@ identifier    Gt/Rd  368
 
 STATE 36 -----------------------------------------------------------------------
 ( 13 36 46 63 74 81 97 98 117 128 143 144 146 163 164 203 207 249 285 299 301 
-  310 311 334 337 341 348 357 399 420 429 433 451 506 530 546 562 563 564 574 
-  575 )
+  310 311 334 337 342 349 358 401 422 431 436 454 509 533 549 565 566 567 577 
+  578 )
 
 TypeArguments ::= LBRACKET  .TypeArgumentList RBRACKET 
 
@@ -30685,9 +30987,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -30802,9 +31105,9 @@ STATE 45 -----------------------------------------------------------------------
 ( 36 43 46 55 70 79 91 97 98 108 117 118 119 123 124 125 129 131 132 143 144 
   146 154 155 156 157 158 159 160 161 162 163 164 170 171 172 173 190 191 198 
   206 208 223 224 229 248 265 277 278 285 299 301 305 310 311 313 315 317 318 
-  319 320 328 333 338 341 348 359 361 364 381 386 388 399 401 407 408 411 413 
-  414 420 421 429 430 432 433 451 453 469 492 500 506 507 526 530 537 546 549 
-  553 558 576 577 582 583 )
+  319 320 328 333 338 342 349 360 362 365 382 387 389 391 401 403 409 410 413 
+  415 416 422 423 431 432 434 436 454 456 472 495 503 509 510 529 533 540 549 
+  552 556 561 579 580 585 586 )
 
 FunctionType ::= TypeArgumentsopt  .LPAREN FormalParameterListopt RPAREN 
                  WhereClauseopt Throwsopt DARROW Type 
@@ -30814,8 +31117,8 @@ LPAREN    Shift  98
 
 
 STATE 46 -----------------------------------------------------------------------
-( 36 46 97 98 117 143 144 146 163 164 285 299 301 310 311 341 348 399 420 429 
-  433 451 506 530 546 )
+( 36 46 97 98 117 143 144 146 163 164 285 299 301 310 311 342 349 401 422 431 
+  436 454 509 533 549 )
 
 ConstrainedType ::= LPAREN  .Type RPAREN 
 
@@ -31132,7 +31435,7 @@ Default reduction to rule  193
 
 
 STATE 55 -----------------------------------------------------------------------
-( 42 116 178 179 185 188 284 290 534 539 544 )
+( 42 116 178 179 185 188 284 290 537 542 547 )
 
 DepParameters ::= LBRACE  .Conjunction RBRACE 
 DepParameters ::= LBRACE  .ExistentialList SEMICOLON Conjunction RBRACE 
@@ -31318,9 +31621,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
@@ -31439,8 +31743,8 @@ RPAREN    Sh/Rd  344
 STATE 57 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 
   190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 
-  333 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 492 
-  500 507 526 537 549 553 558 576 577 582 583 )
+  333 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 472 
+  495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ClosureExpression ::= TypeParametersopt  .FormalParameters WhereClauseopt 
                       ResultTypeopt Throwsopt DARROW ClosureBody 
@@ -31458,10 +31762,10 @@ STATE 58 -----------------------------------------------------------------------
 ( 43 55 60 61 62 70 79 91 108 118 119 123 124 125 129 130 131 132 136 137 138 
   139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 170 
   171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 248 265 277 
-  278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 366 381 386 
-  388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 457 469 492 
-  493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 558 566 576 577 
-  582 583 )
+  278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 367 382 387 
+  389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 456 460 472 
+  495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 561 569 579 
+  580 585 586 )
 
 PreIncrementExpression ::= PLUS_PLUS  .UnaryExpressionNotPlusMinus 
 
@@ -31622,10 +31926,10 @@ STATE 59 -----------------------------------------------------------------------
 ( 43 55 60 61 62 70 79 91 108 118 119 123 124 125 129 130 131 132 136 137 138 
   139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 170 
   171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 248 265 277 
-  278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 366 381 386 
-  388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 457 469 492 
-  493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 558 566 576 577 
-  582 583 )
+  278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 367 382 387 
+  389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 456 460 472 
+  495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 561 569 579 
+  580 585 586 )
 
 PreDecrementExpression ::= MINUS_MINUS  .UnaryExpressionNotPlusMinus 
 
@@ -31786,8 +32090,8 @@ STATE 60 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 131 132 136 
   137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 
   162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 
-  315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 
-  421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 
+  416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 UnaryExpressionNotPlusMinus ::= NOT  .UnaryExpression 
 
@@ -31962,8 +32266,8 @@ STATE 61 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 131 132 136 
   137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 
   162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 
-  315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 
-  421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 
+  416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 UnaryExpressionNotPlusMinus ::= TWIDDLE  .UnaryExpression 
 
@@ -32138,8 +32442,8 @@ STATE 62 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 131 132 136 
   137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 
   162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 
-  315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 
-  421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 
+  416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 Annotations ::= Annotations  .Annotation 
 UnaryExpressionNotPlusMinus ::= Annotations  .UnaryExpression 
@@ -32315,10 +32619,10 @@ STATE 63 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 557 
-  558 559 566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  560 561 562 569 579 580 585 586 )
 
 MethodInvocation ::= MethodName  .TypeArgumentsopt LPAREN ArgumentListopt 
                      RPAREN 
@@ -32341,10 +32645,10 @@ STATE 64 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 557 
-  558 559 566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  560 561 562 569 579 580 585 586 )
 
 MethodInvocation ::= MethodClassNameSuperPrefix  .LPAREN ArgumentListopt RPAREN 
 
@@ -32356,10 +32660,10 @@ STATE 65 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 557 
-  558 559 566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  560 561 562 569 579 580 585 586 )
 
 MethodInvocation ::= MethodSuperPrefix  .LPAREN ArgumentListopt RPAREN 
 
@@ -32371,10 +32675,10 @@ STATE 66 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 557 
-  558 559 566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  560 561 562 569 579 580 585 586 )
 
 MethodInvocation ::= MethodPrimaryPrefix  .LPAREN ArgumentListopt RPAREN 
 
@@ -32386,10 +32690,10 @@ STATE 67 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 557 
-  558 559 566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  560 561 562 569 579 580 585 586 )
 
 FieldAccess ::= ClassName  .DOT super DOT ErrorId 
 MethodClassNameSuperPrefix ::= ClassName  .DOT super DOT ErrorId 
@@ -32406,10 +32710,10 @@ STATE 68 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 558 
-  566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  561 569 579 580 585 586 )
 
 FieldAccess ::= super  .DOT ErrorId 
 MethodSuperPrefix ::= super  .DOT ErrorId 
@@ -32425,10 +32729,10 @@ STATE 69 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 557 
-  558 559 566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  560 561 562 569 579 580 585 586 )
 
 ClassInstanceCreationExpression ::= new  .TypeName TypeArgumentsopt LPAREN 
                                     ArgumentListopt RPAREN ClassBodyopt 
@@ -32451,10 +32755,10 @@ STATE 70 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 557 
-  558 559 566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  560 561 562 569 579 580 585 586 )
 
 FutureExpression ::= future  .ClosureBody 
 FutureExpression ::= future  .PlaceExpressionSingleList ClosureBody 
@@ -32729,8 +33033,8 @@ STATE 71 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 108 118 119 123 124 125 129 132 136 137 138 
   139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 170 
   171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 
-  318 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 415 
-  421 430 432 453 469 492 494 500 507 526 537 549 553 558 576 577 582 583 )
+  318 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 
+  417 423 432 434 456 472 495 497 503 510 529 540 552 556 561 579 580 585 586 )
 
 TypeName ::= Identifier . (214)
 ExpressionName ::= Identifier . (222)
@@ -32884,10 +33188,10 @@ STATE 72 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 558 
-  566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  561 569 579 580 585 586 )
 
 ExpressionName ::= AmbiguousName  .DOT ErrorId 
 MethodName ::= AmbiguousName  .DOT ErrorId 
@@ -32907,8 +33211,8 @@ STATE 73 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 131 132 136 
   137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 
   162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 
-  315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 
-  421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 
+  416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 PostIncrementExpression ::= PostfixExpression  .PLUS_PLUS 
 PostDecrementExpression ::= PostfixExpression  .MINUS_MINUS 
@@ -33036,10 +33340,10 @@ STATE 74 -----------------------------------------------------------------------
 ( 43 55 58 59 60 61 62 70 75 76 79 91 108 118 119 123 124 125 129 130 131 132 
   136 137 138 139 140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 210 211 223 224 227 229 230 241 
-  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 359 361 364 
-  366 381 386 388 401 407 408 410 411 412 413 414 415 417 418 421 430 432 453 
-  457 469 492 493 494 495 500 501 507 515 516 523 526 535 537 549 553 556 558 
-  566 576 577 582 583 )
+  248 265 277 278 305 313 314 315 317 318 319 320 328 331 333 338 360 362 365 
+  367 382 387 389 391 403 409 410 412 413 414 415 416 417 419 420 423 432 434 
+  456 460 472 495 496 497 498 503 504 510 518 519 526 529 538 540 552 556 559 
+  561 569 579 580 585 586 )
 
 FieldAccess ::= Primary  .DOT ErrorId 
 MethodPrimaryPrefix ::= Primary  .DOT ErrorId 
@@ -33182,8 +33486,8 @@ STATE 75 -----------------------------------------------------------------------
 ( 43 55 60 61 62 70 79 91 108 118 119 123 124 125 129 131 132 136 137 138 139 
   140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 170 171 
   172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 
-  320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 
-  453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 
+  434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 UnaryExpression ::= MINUS  .UnaryExpressionNotPlusMinus 
 
@@ -33344,8 +33648,8 @@ STATE 76 -----------------------------------------------------------------------
 ( 43 55 60 61 62 70 79 91 108 118 119 123 124 125 129 131 132 136 137 138 139 
   140 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 170 171 
   172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 
-  320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 
-  453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 
+  434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 UnaryExpression ::= PLUS  .UnaryExpressionNotPlusMinus 
 
@@ -33505,9 +33809,9 @@ Primary                            Goto   74
 STATE 77 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 147 148 149 150 154 155 
   156 157 158 159 160 161 162 170 171 172 173 190 191 198 206 208 223 224 229 
-  248 265 277 278 305 313 315 317 319 320 328 333 338 359 361 364 381 386 388 
-  401 407 408 411 413 414 421 430 432 453 469 492 500 507 526 537 549 553 558 
-  576 577 582 583 )
+  248 265 277 278 305 313 315 317 319 320 328 333 338 360 362 365 382 387 389 
+  391 403 409 410 413 415 416 423 432 434 456 472 495 503 510 529 540 552 556 
+  561 579 580 585 586 )
 
 AdditiveExpression ::= AdditiveExpression  .PLUS MultiplicativeExpression 
 AdditiveExpression ::= AdditiveExpression  .MINUS MultiplicativeExpression 
@@ -33634,9 +33938,9 @@ Default reduction to rule  468
 STATE 78 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 147 148 149 150 151 152 
   153 154 155 156 157 158 159 160 161 162 170 171 172 173 190 191 198 206 208 
-  223 224 229 248 265 277 278 305 313 315 317 319 320 328 333 338 359 361 364 
-  381 386 388 401 407 408 411 413 414 421 430 432 453 469 492 500 507 526 537 
-  549 553 558 576 577 582 583 )
+  223 224 229 248 265 277 278 305 313 315 317 319 320 328 333 338 360 362 365 
+  382 387 389 391 403 409 410 413 415 416 423 432 434 456 472 495 503 510 529 
+  540 552 556 561 579 580 585 586 )
 
 MultiplicativeExpression ::= MultiplicativeExpression  .MULTIPLY 
                              UnaryExpression 
@@ -33767,8 +34071,8 @@ Default reduction to rule  465
 STATE 79 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 129 131 132 154 155 156 157 158 159 160 
   161 162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 
-  313 315 317 318 319 320 328 338 359 361 364 381 386 388 401 407 408 411 413 
-  414 421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  313 315 317 318 319 320 328 338 360 362 365 382 387 389 391 403 409 410 413 
+  415 416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ConstrainedType ::= LPAREN  .Type RPAREN 
 Primary ::= LPAREN  .Expression RPAREN 
@@ -33944,9 +34248,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -34042,8 +34347,8 @@ Expression                         Goto   142
 STATE 80 -----------------------------------------------------------------------
 ( 43 70 108 118 119 123 124 125 129 154 155 156 157 158 159 160 161 162 170 
   171 172 173 190 198 206 208 223 224 229 248 277 278 305 313 315 317 319 320 
-  328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 
-  469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 
+  456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 AnnotatedType ::= Type  .Annotations 
 SubtypeConstraint ::= Type  .SUBTYPE Type 
@@ -34065,9 +34370,9 @@ Annotation     Gt/Rd  364
 STATE 81 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 154 155 156 157 158 159 
   160 161 162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 
-  305 313 315 317 318 319 320 328 333 338 359 361 364 381 386 388 401 407 408 
-  411 413 414 421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 
-  583 )
+  305 313 315 317 318 319 320 328 333 338 360 362 365 382 387 389 391 403 409 
+  410 413 415 416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 
+  585 586 )
 
 TypeName ::= TypeName  .DOT ErrorId 
 ClassOrInterfaceType ::= TypeName  .TypeArgumentsopt Argumentsopt 
@@ -34097,7 +34402,7 @@ TypeArguments ::= .LBRACKET TypeArgumentList RBRACKET
 TypeArgumentsopt ::= . (578)
 TypeArgumentsopt ::= .TypeArguments 
 
-DOT                 La/Sh  591
+DOT                 La/Sh  594
 LBRACKET            Shift  36
 
 TypeArgumentsopt    Goto   34
@@ -34121,8 +34426,8 @@ Default reduction to rule  578
 STATE 82 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 154 157 158 159 160 161 
   162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 
-  315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 
-  421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 
+  416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 RelationalExpression ::= RelationalExpression  .LESS ShiftExpression 
 RelationalExpression ::= RelationalExpression  .GREATER ShiftExpression 
@@ -34255,8 +34560,9 @@ Default reduction to rule  479
 STATE 83 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 154 155 156 157 158 159 
   160 161 162 170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 
-  305 313 315 317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 
-  413 414 421 430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  305 313 315 317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 
+  413 415 416 423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 
+  586 )
 
 ShiftExpression ::= ShiftExpression  .LEFT_SHIFT AdditiveExpression 
 ShiftExpression ::= ShiftExpression  .RIGHT_SHIFT AdditiveExpression 
@@ -34385,8 +34691,8 @@ Default reduction to rule  472
 STATE 84 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 157 159 160 161 162 170 
   171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 
-  319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 
-  432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 
+  432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 AndExpression ::= AndExpression  .AND EqualityExpression 
 ExclusiveOrExpression ::= AndExpression . (484)
@@ -34511,8 +34817,8 @@ Default reduction to rule  484
 STATE 85 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 157 158 159 160 161 162 
   170 171 172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 
-  317 319 320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 
-  430 432 453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  317 319 320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 
+  423 432 434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 EqualityExpression ::= EqualityExpression  .EQUAL_EQUAL RelationalExpression 
 EqualityExpression ::= EqualityExpression  .NOT_EQUAL RelationalExpression 
@@ -34639,8 +34945,8 @@ Default reduction to rule  482
 STATE 86 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 160 162 170 171 172 
   173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 
-  328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 
-  469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 
+  456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 InclusiveOrExpression ::= InclusiveOrExpression  .OR ExclusiveOrExpression 
 ConditionalAndExpression ::= InclusiveOrExpression . (488)
@@ -34765,8 +35071,8 @@ Default reduction to rule  488
 STATE 87 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 160 161 162 170 171 
   172 173 190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 
-  320 328 333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 
-  453 469 492 500 507 526 537 549 553 558 576 577 582 583 )
+  320 328 333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 
+  434 456 472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ExclusiveOrExpression ::= ExclusiveOrExpression  .XOR AndExpression 
 InclusiveOrExpression ::= ExclusiveOrExpression . (486)
@@ -34891,8 +35197,8 @@ Default reduction to rule  486
 STATE 88 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 
   190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 
-  333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 
-  492 500 507 526 537 549 553 558 576 577 582 583 )
+  333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 
+  472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ConditionalOrExpression ::= ConditionalOrExpression  .OR_OR 
                             ConditionalAndExpression 
@@ -35021,8 +35327,8 @@ Default reduction to rule  492
 STATE 89 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 
   190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 
-  333 338 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 
-  492 500 507 526 537 549 553 558 576 577 582 583 )
+  333 338 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 
+  472 495 503 510 529 540 552 556 561 579 580 585 586 )
 
 ConditionalAndExpression ::= ConditionalAndExpression  .AND_AND 
                              InclusiveOrExpression 
@@ -35148,8 +35454,8 @@ Default reduction to rule  490
 STATE 90 -----------------------------------------------------------------------
 ( 43 55 70 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 
   190 191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 
-  333 359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 492 
-  500 507 526 537 549 553 558 576 577 582 583 )
+  333 360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 472 
+  495 503 510 529 540 552 556 561 579 580 585 586 )
 
 CastExpression ::= ConditionalExpression  .as Type 
 CastExpression ::= ConditionalExpression  .to Type 
@@ -35278,8 +35584,8 @@ Default reduction to rule  166
 STATE 91 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 129 131 132 159 162 170 171 172 173 190 
   191 198 206 208 223 224 229 248 265 277 278 305 313 315 317 319 320 328 333 
-  359 361 364 381 386 388 401 407 408 411 413 414 421 430 432 453 469 492 500 
-  507 526 537 549 553 558 576 577 582 583 )
+  360 362 365 382 387 389 391 403 409 410 413 415 416 423 432 434 456 472 495 
+  503 510 529 540 552 556 561 579 580 585 586 )
 
 TypeParameters ::= LBRACKET  .TypeParameterList RBRACKET 
 Primary ::= LBRACKET  .RegionExpressionList RBRACKET 
@@ -35465,9 +35771,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -35568,9 +35875,9 @@ Type                               Goto   169
 STATE 92 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 130 131 132 159 162 170 171 172 173 190 
   191 198 206 208 210 211 223 224 227 229 230 241 248 265 277 278 305 313 314 
-  315 317 318 319 320 328 331 359 361 364 366 381 388 407 408 410 411 412 413 
-  414 415 417 418 421 430 432 453 457 469 492 493 494 495 500 501 507 515 516 
-  523 526 535 537 549 553 556 558 566 576 577 582 583 )
+  315 317 318 319 320 328 331 360 362 365 367 382 389 391 409 410 412 413 414 
+  415 416 417 419 420 423 432 434 456 460 472 495 496 497 498 503 504 510 518 
+  519 526 529 538 540 552 556 559 561 569 579 580 585 586 )
 
 Assignment ::= LeftHandSide  .AssignmentOperator AssignmentExpression 
 
@@ -35607,15 +35914,15 @@ AssignmentOperator            Goto   170
 STATE 93 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 130 131 132 159 162 170 171 172 173 190 
   191 198 206 208 210 211 223 224 227 229 230 241 248 265 277 278 305 313 314 
-  315 317 318 319 320 328 331 359 361 364 366 381 388 407 408 410 411 412 413 
-  414 415 417 418 421 430 432 453 457 469 492 493 494 495 500 501 507 515 516 
-  523 526 535 537 549 553 556 558 566 576 577 582 583 )
+  315 317 318 319 320 328 331 360 362 365 367 382 389 391 409 410 412 413 414 
+  415 416 417 419 420 423 432 434 456 460 472 495 496 497 498 503 504 510 518 
+  519 526 529 538 540 552 556 559 561 569 579 580 585 586 )
 
 Primary ::= FieldAccess . (399)
-LeftHandSide ::= FieldAccess . (498)
+LeftHandSide ::= FieldAccess . (499)
 
 EQUAL                         Reduce 399
-                              Reduce 498
+                              Reduce 499
 
 ArrayInitailizer              Reduce 399
 SynchronizedStatement         Reduce 399
@@ -35727,17 +36034,17 @@ DoubleLiteral                 Reduce 399
 FloatingPointLiteral          Reduce 399
 LongLiteral                   Reduce 399
 IntegerLiteral                Reduce 399
-MINUS_EQUAL                   Reduce 498
-UNSIGNED_RIGHT_SHIFT_EQUAL    Reduce 498
-RIGHT_SHIFT_EQUAL             Reduce 498
-LEFT_SHIFT_EQUAL              Reduce 498
-PLUS_EQUAL                    Reduce 498
-OR_EQUAL                      Reduce 498
-XOR_EQUAL                     Reduce 498
-DIVIDE_EQUAL                  Reduce 498
-MULTIPLY_EQUAL                Reduce 498
-AND_EQUAL                     Reduce 498
-REMAINDER_EQUAL               Reduce 498
+MINUS_EQUAL                   Reduce 499
+UNSIGNED_RIGHT_SHIFT_EQUAL    Reduce 499
+RIGHT_SHIFT_EQUAL             Reduce 499
+LEFT_SHIFT_EQUAL              Reduce 499
+PLUS_EQUAL                    Reduce 499
+OR_EQUAL                      Reduce 499
+XOR_EQUAL                     Reduce 499
+DIVIDE_EQUAL                  Reduce 499
+MULTIPLY_EQUAL                Reduce 499
+AND_EQUAL                     Reduce 499
+REMAINDER_EQUAL               Reduce 499
 
 Default reduction to rule  399
 
@@ -35745,18 +36052,19 @@ Default reduction to rule  399
 STATE 94 -----------------------------------------------------------------------
 ( 43 55 79 91 108 118 119 123 124 125 130 131 132 159 162 170 171 172 173 190 
   191 198 206 208 210 211 223 224 227 229 230 241 248 265 277 278 305 313 314 
-  315 317 318 319 320 328 331 359 361 364 366 381 388 407 408 410 411 412 413 
-  414 415 417 418 421 430 432 453 457 469 492 493 494 495 500 501 507 515 516 
-  523 526 535 537 549 553 556 558 566 576 577 582 583 )
+  315 317 318 319 320 328 331 360 362 365 367 382 389 391 409 410 412 413 414 
+  415 416 417 419 420 423 432 434 456 460 472 495 496 497 498 503 504 510 518 
+  519 526 529 538 540 552 556 559 561 569 579 580 585 586 )
 
 PostfixExpression ::= ExpressionName . (445)
-LeftHandSide ::= ExpressionName . (497)
-LeftHandSide ::= ExpressionName  .LPAREN Expression RPAREN 
+Assignment ::= ExpressionName  .LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
+LeftHandSide ::= ExpressionName . (498)
 
 LPAREN                        Reduce 445
                               Shift  171
 EQUAL                         Reduce 445
-                              Reduce 497
+                              Reduce 498
 
 ArrayInitailizer              Reduce 445
 SynchronizedStatement         Reduce 445
@@ -35867,23 +36175,23 @@ DoubleLiteral                 Reduce 445
 FloatingPointLiteral          Reduce 445
 LongLiteral                   Reduce 445
 IntegerLiteral                Reduce 445
-MINUS_EQUAL                   Reduce 497
-UNSIGNED_RIGHT_SHIFT_EQUAL    Reduce 497
-RIGHT_SHIFT_EQUAL             Reduce 497
-LEFT_SHIFT_EQUAL              Reduce 497
-PLUS_EQUAL                    Reduce 497
-OR_EQUAL                      Reduce 497
-XOR_EQUAL                     Reduce 497
-DIVIDE_EQUAL                  Reduce 497
-MULTIPLY_EQUAL                Reduce 497
-AND_EQUAL                     Reduce 497
-REMAINDER_EQUAL               Reduce 497
+MINUS_EQUAL                   Reduce 498
+UNSIGNED_RIGHT_SHIFT_EQUAL    Reduce 498
+RIGHT_SHIFT_EQUAL             Reduce 498
+LEFT_SHIFT_EQUAL              Reduce 498
+PLUS_EQUAL                    Reduce 498
+OR_EQUAL                      Reduce 498
+XOR_EQUAL                     Reduce 498
+DIVIDE_EQUAL                  Reduce 498
+MULTIPLY_EQUAL                Reduce 498
+AND_EQUAL                     Reduce 498
+REMAINDER_EQUAL               Reduce 498
 
 Default reduction to rule  445
 
 
 STATE 95 -----------------------------------------------------------------------
-( 43 123 124 125 198 248 305 359 361 388 430 432 453 576 577 582 583 )
+( 43 123 124 125 198 248 305 360 362 389 432 434 456 579 580 585 586 )
 
 ArgumentList ::= ArgumentList  .COMMA Expression 
 ArgumentListopt ::= ArgumentList . (543)
@@ -35896,7 +36204,7 @@ Default reduction to rule  543
 
 
 STATE 96 -----------------------------------------------------------------------
-( 43 123 124 125 198 248 305 359 361 388 430 432 453 576 577 582 583 )
+( 43 123 124 125 171 198 248 305 360 362 389 432 434 456 579 580 585 586 )
 
 AssignmentExpression ::= Expression  .ARROW Expression 
 ArgumentList ::= Expression . (429)
@@ -36041,8 +36349,8 @@ Annotation     Gt/Rd  364
 
 
 STATE 100 ----------------------------------------------------------------------
-( 47 80 99 114 141 169 174 176 242 254 255 256 274 275 353 356 391 397 450 471 
-  474 488 527 538 550 )
+( 47 80 99 114 141 169 174 176 242 254 255 256 274 275 354 357 393 399 453 474 
+  477 491 530 541 553 )
 
 AnnotatedType ::= Type Annotations . (39)
 Annotations ::= Annotations  .Annotation 
@@ -36194,7 +36502,7 @@ Default reduction to rule  566
 
 
 STATE 102 ----------------------------------------------------------------------
-( 48 512 532 )
+( 48 515 535 )
 
 TypeParameters ::= LBRACKET  .TypeParameterList RBRACKET 
 
@@ -36522,9 +36830,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -36666,7 +36975,7 @@ IDENTIFIER              Reduce 364
                         Reduce 304
 AT                      Reduce 364
                         Reduce 304
-LPAREN                  La/Sh  596
+LPAREN                  La/Sh  599
 
 var                     Reduce 304
 val                     Reduce 304
@@ -36698,7 +37007,7 @@ Default reduction to rule  364
 
 
 STATE 113 ----------------------------------------------------------------------
-( 55 98 117 130 191 230 241 285 310 311 318 420 501 523 556 566 )
+( 55 98 117 130 191 230 241 285 310 311 318 422 504 526 559 569 )
 
 VariableModifiers ::= VariableModifiers  .VariableModifier 
 VariableModifiersopt ::= VariableModifiers . (529)
@@ -36744,7 +37053,7 @@ Default reduction to rule  301
 
 
 STATE 115 ----------------------------------------------------------------------
-( 55 98 117 191 285 310 311 420 )
+( 55 98 117 191 285 310 311 422 )
 
 FormalParameter ::= VariableModifiersopt  .FormalDeclarator 
 FormalParameter ::= VariableModifiersopt  .VarKeyword FormalDeclarator 
@@ -36795,7 +37104,7 @@ Default reduction to rule  199
 
 
 STATE 117 ----------------------------------------------------------------------
-( 57 101 531 540 )
+( 57 101 534 543 )
 
 FormalParameters ::= LPAREN  .FormalParameterListopt RPAREN 
 FormalParameters ::= LPAREN  .FormalParameterList RPAREN 
@@ -36867,8 +37176,8 @@ Default reduction to rule  528
 
 STATE 118 ----------------------------------------------------------------------
 ( 58 59 60 61 62 75 76 130 136 137 138 139 140 147 148 149 150 151 152 153 210 
-  211 227 230 241 314 331 366 410 412 415 417 418 457 493 494 495 501 515 516 
-  523 535 556 557 559 566 )
+  211 227 230 241 314 331 367 412 414 417 419 420 460 496 497 498 504 518 519 
+  526 538 559 560 562 569 )
 
 Primary ::= LPAREN  .Expression RPAREN 
 
@@ -37043,9 +37352,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -37140,8 +37450,8 @@ Expression                         Goto   142
 
 STATE 119 ----------------------------------------------------------------------
 ( 58 59 60 61 62 75 76 130 136 137 138 139 140 147 148 149 150 151 152 153 210 
-  211 227 230 241 314 331 366 410 412 415 417 418 457 493 494 495 501 515 516 
-  523 535 556 557 559 566 )
+  211 227 230 241 314 331 367 412 414 417 419 420 460 496 497 498 504 518 519 
+  526 538 559 560 562 569 )
 
 Primary ::= LBRACKET  .RegionExpressionList RBRACKET 
 
@@ -37320,9 +37630,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -37419,8 +37730,8 @@ Expression                         Goto   168
 
 STATE 120 ----------------------------------------------------------------------
 ( 58 59 60 61 62 75 76 130 136 137 138 139 140 147 148 149 150 151 152 153 210 
-  211 227 230 241 314 331 366 410 412 415 417 418 457 493 494 495 501 515 516 
-  523 535 556 557 559 566 )
+  211 227 230 241 314 331 367 412 414 417 419 420 460 496 497 498 504 518 519 
+  526 538 559 560 562 569 )
 
 TypeName ::= TypeName  .DOT ErrorId 
 TypeName ::= TypeName  .DOT Identifier 
@@ -37444,7 +37755,7 @@ OperatorFunction ::= TypeName  .DOT GREATER
 OperatorFunction ::= TypeName  .DOT EQUAL_EQUAL 
 OperatorFunction ::= TypeName  .DOT NOT_EQUAL 
 
-DOT    La/Sh  598
+DOT    La/Sh  601
 
 
 
@@ -37747,9 +38058,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -38027,9 +38339,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -38307,9 +38620,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -38425,7 +38739,7 @@ super    Shift  202
 
 
 STATE 127 ----------------------------------------------------------------------
-( 68 563 )
+( 68 566 )
 
 FieldAccess ::= super DOT  .ErrorId 
 MethodSuperPrefix ::= super DOT  .ErrorId 
@@ -38734,7 +39048,7 @@ TypeParametersopt                  Goto   57
 
 
 STATE 130 ----------------------------------------------------------------------
-( 70 129 333 386 401 )
+( 70 129 333 387 403 )
 
 ClosureBody ::= LBRACE  .BlockStatementsopt LastExpression RBRACE 
 Block ::= LBRACE  .BlockStatementsopt RBRACE 
@@ -38951,9 +39265,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 BlockStatementsopt ::= . (544)
@@ -39313,9 +39628,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -39592,9 +39908,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -39714,7 +40031,7 @@ identifier    Gt/Rd  368
 
 
 STATE 134 ----------------------------------------------------------------------
-( 74 562 )
+( 74 565 )
 
 MethodInvocation ::= Primary TypeArgumentsopt  .LPAREN ArgumentListopt RPAREN 
 
@@ -40738,7 +41055,7 @@ TypeArgumentsopt        Goto   45
 
 
 STATE 145 ----------------------------------------------------------------------
-( 591 598 )
+( 594 601 )
 
 TypeName ::= TypeName DOT  .ErrorId 
 TypeName ::= TypeName DOT  .Identifier 
@@ -43419,9 +43736,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -44160,9 +44478,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -44650,9 +44969,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -44748,7 +45068,8 @@ AssignmentExpression               Goto   280
 STATE 171 ----------------------------------------------------------------------
 ( 94 )
 
-LeftHandSide ::= ExpressionName LPAREN  .Expression RPAREN 
+Assignment ::= ExpressionName LPAREN  .ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 
 TypeName ::= .TypeName DOT ErrorId 
 ExpressionName ::= .AmbiguousName DOT ErrorId 
@@ -44852,6 +45173,8 @@ Literal ::= .StringLiteral
 Literal ::= .null 
 BooleanLiteral ::= .true 
 BooleanLiteral ::= .false 
+ArgumentList ::= .Expression 
+ArgumentList ::= .ArgumentList COMMA Expression 
 FieldAccess ::= .Primary DOT Identifier 
 FieldAccess ::= .super DOT Identifier 
 FieldAccess ::= .ClassName DOT super DOT Identifier 
@@ -44921,9 +45244,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -44959,65 +45283,66 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-AssignmentExpression               Gt/Rd  512
-CastExpression                     Gt/Rd  184
-TypeParametersopt                  Goto   57
-UnaryExpression                    Gt/Rd  461
-Annotations                        Goto   62
-Annotation                         Gt/Rd  364
-OperatorFunction                   Gt/Rd  401
-MethodInvocation                   Gt/Rd  400
-ClassInstanceCreationExpression    Gt/Rd  398
-Literal                            Gt/Rd  392
-FutureExpression                   Gt/Rd  176
+ArgumentList                       Goto   281
+Assignment                         Gt/Rd  495
+ClosureExpression                  Gt/Rd  494
+Expression                         Goto   96
+LeftHandSide                       Goto   92
+TypeParameters                     Gt/Rd  565
+ConditionalExpression              Goto   90
+SubtypeConstraint                  Gt/Rd  473
+ConstrainedType                    Gt/Rd  35
+FunctionType                       Gt/Rd  34
+AnnotatedType                      Gt/Rd  41
+ClassOrInterfaceType               Gt/Rd  40
+TypeArguments                      Gt/Rd  579
+TypeArgumentsopt                   Goto   45
+Type                               Goto   80
+UnaryExpressionNotPlusMinus        Gt/Rd  454
+PreDecrementExpression             Gt/Rd  451
+PreIncrementExpression             Gt/Rd  450
+PostDecrementExpression            Gt/Rd  447
+PostIncrementExpression            Gt/Rd  446
+ExpressionName                     Goto   94
+BooleanLiteral                     Gt/Rd  423
+identifier                         Gt/Rd  368
 MethodName                         Goto   63
 MethodClassNameSuperPrefix         Goto   64
 MethodSuperPrefix                  Goto   65
 MethodPrimaryPrefix                Goto   66
-ClassName                          Goto   67
-identifier                         Gt/Rd  368
-BooleanLiteral                     Gt/Rd  423
 Identifier                         Goto   71
 AmbiguousName                      Goto   72
-PostfixExpression                  Goto   73
-PostDecrementExpression            Gt/Rd  447
-PostIncrementExpression            Gt/Rd  446
 Primary                            Goto   74
-UnaryExpressionNotPlusMinus        Gt/Rd  454
-PreDecrementExpression             Gt/Rd  451
-PreIncrementExpression             Gt/Rd  450
-AdditiveExpression                 Goto   77
-MultiplicativeExpression           Goto   78
-TypeArgumentsopt                   Goto   45
-TypeArguments                      Gt/Rd  579
-AnnotatedType                      Gt/Rd  41
-ClassOrInterfaceType               Gt/Rd  40
-Type                               Goto   80
-TypeName                           Goto   81
-ConstrainedType                    Gt/Rd  35
-FunctionType                       Gt/Rd  34
-RelationalExpression               Goto   82
-SubtypeConstraint                  Gt/Rd  473
-ShiftExpression                    Goto   83
-AndExpression                      Goto   84
-EqualityExpression                 Goto   85
-InclusiveOrExpression              Goto   86
-ExclusiveOrExpression              Goto   87
-ConditionalOrExpression            Goto   88
-ConditionalAndExpression           Goto   89
-ConditionalExpression              Goto   90
-TypeParameters                     Gt/Rd  565
-LeftHandSide                       Goto   92
+OperatorFunction                   Gt/Rd  401
+MethodInvocation                   Gt/Rd  400
 FieldAccess                        Goto   93
-ExpressionName                     Goto   94
-Assignment                         Gt/Rd  495
-ClosureExpression                  Gt/Rd  494
-Expression                         Goto   281
+ClassInstanceCreationExpression    Gt/Rd  398
+ClassName                          Goto   67
+TypeName                           Goto   81
+Literal                            Gt/Rd  392
+FutureExpression                   Gt/Rd  176
+Annotation                         Gt/Rd  364
+Annotations                        Goto   62
+PostfixExpression                  Goto   73
+MultiplicativeExpression           Goto   78
+UnaryExpression                    Gt/Rd  461
+ShiftExpression                    Goto   83
+AdditiveExpression                 Goto   77
+EqualityExpression                 Goto   85
+RelationalExpression               Goto   82
+ExclusiveOrExpression              Goto   87
+AndExpression                      Goto   84
+ConditionalAndExpression           Goto   89
+InclusiveOrExpression              Goto   86
+ConditionalOrExpression            Goto   88
+CastExpression                     Gt/Rd  184
+TypeParametersopt                  Goto   57
+AssignmentExpression               Gt/Rd  512
 
 
 
 STATE 172 ----------------------------------------------------------------------
-( 95 )
+( 95 281 )
 
 ArgumentList ::= ArgumentList COMMA  .Expression 
 
@@ -45192,9 +45517,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -45288,8 +45614,8 @@ Expression                         Goto   282
 
 
 STATE 173 ----------------------------------------------------------------------
-( 96 110 142 168 189 244 270 273 279 281 282 283 295 307 309 322 324 329 339 
-  365 369 374 375 380 409 423 455 456 459 464 508 522 528 )
+( 96 110 142 168 189 244 270 273 279 282 283 295 307 309 322 324 329 339 366 
+  370 375 376 381 411 425 458 459 462 467 511 525 531 )
 
 AssignmentExpression ::= Expression ARROW  .Expression 
 
@@ -45464,9 +45790,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -45591,7 +45918,7 @@ RPAREN    Shift  284
 
 
 STATE 176 ----------------------------------------------------------------------
-( 98 117 285 310 311 318 420 )
+( 98 117 285 310 311 318 422 )
 
 AnnotatedType ::= Type  .Annotations 
 FormalParameter ::= Type . (301)
@@ -46161,9 +46488,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -46441,9 +46769,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
@@ -46570,7 +46899,7 @@ identifier          Gt/Rd  368
 
 
 STATE 193 ----------------------------------------------------------------------
-( 115 192 373 425 )
+( 115 192 374 427 )
 
 FormalDeclarator ::= LPAREN  .IdentifierList RPAREN COLON Type 
 
@@ -46588,7 +46917,7 @@ identifier        Gt/Rd  368
 
 
 STATE 194 ----------------------------------------------------------------------
-( 115 192 373 425 )
+( 115 192 374 427 )
 
 FormalDeclarator ::= Identifier  .COLON Type 
 FormalDeclarator ::= Identifier  .LPAREN IdentifierList RPAREN COLON Type 
@@ -46820,9 +47149,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -47427,9 +47757,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -47525,8 +47856,8 @@ AssignmentExpression               Gt/Rd  512
 
 
 STATE 207 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 557 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 560 569 )
 
 AssignPropertyCall ::= property  .TypeArgumentsopt LPAREN ArgumentListopt 
                        RPAREN SEMICOLON 
@@ -47546,8 +47877,8 @@ Default reduction to rule  578
 
 
 STATE 208 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AwaitStatement ::= await  .Expression SEMICOLON 
 
@@ -47722,9 +48053,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -47818,8 +48150,8 @@ Expression                         Goto   309
 
 
 STATE 209 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 NextStatement ::= next  .SEMICOLON 
 
@@ -47828,8 +48160,8 @@ SEMICOLON    Sh/Rd  158
 
 
 STATE 210 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AnnotationStatement ::= Annotations  .Statement 
 Annotations ::= Annotations  .Annotation 
@@ -48010,9 +48342,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -48070,7 +48403,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -48086,6 +48418,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -48124,8 +48457,8 @@ Block                              Gt/Rd  75
 
 
 STATE 211 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 FinishStatement ::= finish  .Statement 
 
@@ -48305,9 +48638,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -48365,7 +48699,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -48381,6 +48714,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -48419,8 +48753,8 @@ Block                              Gt/Rd  75
 
 
 STATE 212 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AtEachStatement ::= ateach  .LPAREN FormalParameter in Expression RPAREN 
                     ClockedClauseopt Statement 
@@ -48430,8 +48764,8 @@ LPAREN    Shift  310
 
 
 STATE 213 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 ForEachStatement ::= foreach  .LPAREN FormalParameter in Expression RPAREN 
                      ClockedClauseopt Statement 
@@ -48441,8 +48775,8 @@ LPAREN    Shift  311
 
 
 STATE 214 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 NonExpressionStatement ::= WhenStatement . (94)
 WhenStatement ::= WhenStatement  .or LPAREN Expression RPAREN Statement 
@@ -48521,8 +48855,8 @@ Default reduction to rule  94
 
 
 STATE 215 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 WhenStatement ::= when  .LPAREN Expression RPAREN Statement 
 
@@ -48531,8 +48865,8 @@ LPAREN    Shift  313
 
 
 STATE 216 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AtomicStatement ::= atomic  .PlaceExpressionSingleListopt Statement 
 
@@ -48596,8 +48930,8 @@ Default reduction to rule  203
 
 
 STATE 217 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AsyncStatement ::= async  .PlaceExpressionSingleListopt ClockedClauseopt 
                    Statement 
@@ -48663,8 +48997,8 @@ Default reduction to rule  203
 
 
 STATE 218 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 NowStatement ::= now  .LPAREN Clock RPAREN Statement 
 
@@ -48673,8 +49007,8 @@ LPAREN    Shift  317
 
 
 STATE 219 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 BasicForStatement ::= for  .LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON 
                       ForUpdateopt RPAREN Statement 
@@ -48686,8 +49020,8 @@ LPAREN    Shift  318
 
 
 STATE 220 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 WhileStatement ::= while  .LPAREN Expression RPAREN Statement 
 
@@ -48696,8 +49030,8 @@ LPAREN    Shift  319
 
 
 STATE 221 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 IfThenStatement ::= if  .LPAREN Expression RPAREN Statement 
 IfThenElseStatement ::= if  .LPAREN Expression RPAREN Statement else Statement 
@@ -48707,8 +49041,8 @@ LPAREN    Shift  320
 
 
 STATE 222 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 TryStatement ::= try  .Block Catches 
 TryStatement ::= try  .Block Catchesopt Finally 
@@ -48722,8 +49056,8 @@ Block     Goto   321
 
 
 STATE 223 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 ThrowStatement ::= throw  .Expression SEMICOLON 
 
@@ -48898,9 +49232,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -48994,8 +49329,8 @@ Expression                         Goto   322
 
 
 STATE 224 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 ReturnStatement ::= return  .Expressionopt SEMICOLON 
 
@@ -49170,9 +49505,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 Expressionopt ::= . (520)
 Expressionopt ::= .Expression 
@@ -49272,8 +49608,8 @@ Default reduction to rule  520
 
 
 STATE 225 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 ContinueStatement ::= continue  .Identifieropt SEMICOLON 
 
@@ -49294,8 +49630,8 @@ Default reduction to rule  516
 
 
 STATE 226 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 BreakStatement ::= break  .Identifieropt SEMICOLON 
 
@@ -49316,8 +49652,8 @@ Default reduction to rule  516
 
 
 STATE 227 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 DoStatement ::= do  .Statement while LPAREN Expression RPAREN SEMICOLON 
 
@@ -49497,9 +49833,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -49557,7 +49894,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -49573,6 +49909,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -49611,8 +49948,8 @@ Block                              Gt/Rd  75
 
 
 STATE 228 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 SwitchStatement ::= switch  .LPAREN Expression RPAREN SwitchBlock 
 
@@ -49621,8 +49958,8 @@ LPAREN    Shift  328
 
 
 STATE 229 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 AssertStatement ::= assert  .Expression SEMICOLON 
 AssertStatement ::= assert  .Expression COLON Expression SEMICOLON 
@@ -49798,9 +50135,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -49894,8 +50232,8 @@ Expression                         Goto   329
 
 
 STATE 230 ----------------------------------------------------------------------
-( 130 210 211 222 227 230 241 314 331 366 410 412 417 418 419 448 457 481 486 
-  493 495 496 501 515 516 523 535 556 566 )
+( 130 210 211 222 227 230 241 314 331 367 412 414 419 420 421 451 460 484 489 
+  496 498 499 504 518 519 526 538 559 569 )
 
 Block ::= LBRACE  .BlockStatementsopt RBRACE 
 
@@ -50111,9 +50449,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 BlockStatementsopt ::= . (544)
@@ -50258,8 +50597,8 @@ Default reduction to rule  205
 
 
 STATE 231 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 ExpressionStatement ::= StatementExpression  .SEMICOLON 
 
@@ -50268,8 +50607,8 @@ SEMICOLON    Sh/Rd  106
 
 
 STATE 232 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 331 366 410 412 417 418 457 493 495 501 515 516 
-  523 535 556 566 )
+( 130 210 211 227 230 241 314 331 367 412 414 419 420 460 496 498 504 518 519 
+  526 538 559 569 )
 
 LabeledStatement ::= Identifier  .COLON Statement 
 TypeName ::= Identifier . (214)
@@ -50303,8 +50642,8 @@ Default reduction to rule  222
 
 
 STATE 233 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 318 331 366 410 412 415 417 418 457 493 494 495 
-  501 515 516 523 535 556 566 )
+( 130 210 211 227 230 241 314 318 331 367 412 414 417 419 420 460 496 497 498 
+  504 518 519 526 538 559 569 )
 
 PostIncrementExpression ::= PostfixExpression  .PLUS_PLUS 
 PostDecrementExpression ::= PostfixExpression  .MINUS_MINUS 
@@ -50315,8 +50654,8 @@ PLUS_PLUS      Sh/Rd  448
 
 
 STATE 234 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 318 331 366 410 412 415 417 418 457 493 494 495 
-  501 515 516 523 535 556 566 )
+( 130 210 211 227 230 241 314 318 331 367 412 414 417 419 420 460 496 497 498 
+  504 518 519 526 538 559 569 )
 
 StatementExpression ::= ClassInstanceCreationExpression . (113)
 Primary ::= ClassInstanceCreationExpression . (398)
@@ -50334,8 +50673,8 @@ Default reduction to rule  398
 
 
 STATE 235 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 318 331 366 410 412 415 417 418 457 493 494 495 
-  501 515 516 523 535 556 566 )
+( 130 210 211 227 230 241 314 318 331 367 412 414 417 419 420 460 496 497 498 
+  504 518 519 526 538 559 569 )
 
 StatementExpression ::= MethodInvocation . (112)
 Primary ::= MethodInvocation . (400)
@@ -50353,8 +50692,8 @@ Default reduction to rule  400
 
 
 STATE 236 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 318 331 366 410 412 415 417 418 457 493 494 495 
-  501 515 516 523 535 556 566 )
+( 130 210 211 227 230 241 314 318 331 367 412 414 417 419 420 460 496 497 498 
+  504 518 519 526 538 559 569 )
 
 StatementExpression ::= PostDecrementExpression . (111)
 PostfixExpression ::= PostDecrementExpression . (447)
@@ -50369,8 +50708,8 @@ Default reduction to rule  111
 
 
 STATE 237 ----------------------------------------------------------------------
-( 130 210 211 227 230 241 314 318 331 366 410 412 415 417 418 457 493 494 495 
-  501 515 516 523 535 556 566 )
+( 130 210 211 227 230 241 314 318 331 367 412 414 417 419 420 460 496 497 498 
+  504 518 519 526 538 559 569 )
 
 StatementExpression ::= PostIncrementExpression . (110)
 PostfixExpression ::= PostIncrementExpression . (446)
@@ -50385,7 +50724,7 @@ Default reduction to rule  110
 
 
 STATE 238 ----------------------------------------------------------------------
-( 130 230 241 501 523 556 566 )
+( 130 230 241 504 526 559 569 )
 
 LocalVariableDeclaration ::= VariableModifiersopt  .VarKeyword 
                              VariableDeclarators 
@@ -50403,7 +50742,7 @@ VarKeyword    Goto   332
 
 
 STATE 239 ----------------------------------------------------------------------
-( 130 230 241 501 523 556 566 )
+( 130 230 241 504 526 559 569 )
 
 ClassModifier ::= Annotation . (247)
 VariableModifier ::= Annotation . (304)
@@ -50475,7 +50814,7 @@ Default reduction to rule  364
 
 
 STATE 240 ----------------------------------------------------------------------
-( 130 230 241 501 523 556 566 )
+( 130 230 241 504 526 559 569 )
 
 LocalVariableDeclarationStatement ::= LocalVariableDeclaration  .SEMICOLON 
 
@@ -50484,7 +50823,7 @@ SEMICOLON    Sh/Rd  388
 
 
 STATE 241 ----------------------------------------------------------------------
-( 130 230 556 566 )
+( 130 230 559 569 )
 
 BlockStatements ::= BlockStatements  .BlockStatement 
 BlockStatementsopt ::= BlockStatements . (545)
@@ -50699,9 +51038,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 
@@ -51056,7 +51396,7 @@ Default reduction to rule  223
 
 
 STATE 246 ----------------------------------------------------------------------
-( 133 567 )
+( 133 570 )
 
 ClassInstanceCreationExpression ::= AmbiguousName DOT new  .Identifier 
                                     TypeArgumentsopt LPAREN ArgumentListopt 
@@ -51387,9 +51727,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -51490,7 +51831,7 @@ Default reduction to rule  542
 
 
 STATE 249 ----------------------------------------------------------------------
-( 135 568 )
+( 135 571 )
 
 FieldAccess ::= Primary DOT Identifier . (431)
 MethodInvocation ::= Primary DOT Identifier  .TypeArgumentsopt LPAREN 
@@ -51633,7 +51974,7 @@ Default reduction to rule  431
 
 
 STATE 250 ----------------------------------------------------------------------
-( 135 568 )
+( 135 571 )
 
 ClassInstanceCreationExpression ::= Primary DOT new  .Identifier 
                                     TypeArgumentsopt LPAREN ArgumentListopt 
@@ -51650,7 +51991,7 @@ identifier    Gt/Rd  368
 
 
 STATE 251 ----------------------------------------------------------------------
-( 135 568 )
+( 135 571 )
 
 FieldAccess ::= Primary DOT ErrorId . (7)
 MethodPrimaryPrefix ::= Primary DOT ErrorId . (13)
@@ -53626,9 +53967,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -55074,9 +55416,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -55346,9 +55689,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -55442,7 +55786,7 @@ Expression                         Goto   339
 
 
 STATE 279 ----------------------------------------------------------------------
-( 170 )
+( 170 391 )
 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
@@ -55576,11 +55920,12 @@ Default reduction to rule  496
 STATE 281 ----------------------------------------------------------------------
 ( 171 )
 
-AssignmentExpression ::= Expression  .ARROW Expression 
-LeftHandSide ::= ExpressionName LPAREN Expression  .RPAREN 
+ArgumentList ::= ArgumentList  .COMMA Expression 
+Assignment ::= ExpressionName LPAREN ArgumentList  .RPAREN AssignmentOperator 
+               AssignmentExpression 
 
-RPAREN    Sh/Rd  499
-ARROW     Shift  173
+RPAREN    Shift  340
+COMMA     Shift  172
 
 
 
@@ -55735,7 +56080,7 @@ WhereClauseopt ::= .WhereClause
 
 LBRACE            Shift  55
 
-WhereClauseopt    Goto   340
+WhereClauseopt    Goto   341
 WhereClause       Gt/Rd  200
 DepParameters     Gt/Rd  57
 
@@ -55818,7 +56163,7 @@ TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt
                        FormalParametersopt WhereClauseopt  .SEMICOLON 
 
 SEMICOLON    Sh/Rd  18
-EQUAL        Shift  341
+EQUAL        Shift  342
 
 
 
@@ -55835,10 +56180,10 @@ ExtendsInterfaces ::= .ExtendsInterfaces COMMA InterfaceType
 ExtendsInterfacesopt ::= . (534)
 ExtendsInterfacesopt ::= .ExtendsInterfaces 
 
-extends                 Shift  344
+extends                 Shift  345
 
-ExtendsInterfacesopt    Goto   342
-ExtendsInterfaces       Goto   343
+ExtendsInterfacesopt    Goto   343
+ExtendsInterfaces       Goto   344
 
 LBRACE                  Reduce 534
 
@@ -55893,7 +56238,7 @@ WhereClauseopt ::= .WhereClause
 LBRACE            Shift  55
                   Reduce 199
 
-WhereClauseopt    Goto   345
+WhereClauseopt    Goto   346
 WhereClause       Gt/Rd  200
 DepParameters     Gt/Rd  57
 
@@ -55914,9 +56259,9 @@ Super ::= .extends ClassType
 Superopt ::= . (562)
 Superopt ::= .Super 
 
-extends       Shift  347
+extends       Shift  348
 
-Superopt      Goto   346
+Superopt      Goto   347
 Super         Gt/Rd  563
 
 implements    Reduce 562
@@ -55930,7 +56275,7 @@ STATE 292 ----------------------------------------------------------------------
 
 Property ::= Annotationsopt Identifier  .COLON Type 
 
-COLON    Shift  348
+COLON    Shift  349
 
 
 
@@ -55969,9 +56314,9 @@ Super ::= .extends ClassType
 Superopt ::= . (562)
 Superopt ::= .Super 
 
-extends       Shift  347
+extends       Shift  348
 
-Superopt      Goto   349
+Superopt      Goto   350
 Super         Gt/Rd  563
 
 implements    Reduce 562
@@ -56011,8 +56356,8 @@ STATE 297 ----------------------------------------------------------------------
 IdentifierList ::= IdentifierList  .COMMA Identifier 
 FormalDeclarator ::= LPAREN IdentifierList  .RPAREN COLON Type 
 
-RPAREN    Shift  350
-COMMA     Shift  351
+RPAREN    Shift  351
+COMMA     Shift  352
 
 
 
@@ -56028,7 +56373,7 @@ IdentifierList ::= .IdentifierList COMMA Identifier
 
 IDENTIFIER        Sh/Rd  213
 
-IdentifierList    Goto   352
+IdentifierList    Goto   353
 Identifier        Gt/Rd  378
 identifier        Gt/Rd  368
 
@@ -56068,7 +56413,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   353
+Type                    Goto   354
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -56086,9 +56431,9 @@ Throws ::= .throws ExceptionTypeList
 Throwsopt ::= . (552)
 Throwsopt ::= .Throws 
 
-throws       Shift  355
+throws       Shift  356
 
-Throwsopt    Goto   354
+Throwsopt    Goto   355
 Throws       Gt/Rd  553
 
 DARROW       Reduce 552
@@ -56097,7 +56442,7 @@ Default reduction to rule  552
 
 
 STATE 301 ----------------------------------------------------------------------
-( 195 467 524 536 543 548 )
+( 195 470 527 539 546 551 )
 
 ResultType ::= COLON  .Type 
 
@@ -56130,7 +56475,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   356
+Type                    Goto   357
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -56160,10 +56505,10 @@ MethodInvocation ::= ClassName DOT super DOT  .Identifier TypeArgumentsopt
 identifier ::= .IDENTIFIER 
 Identifier ::= .identifier 
 
-ErrorId       Shift  358
+ErrorId       Shift  359
 IDENTIFIER    Sh/Rd  213
 
-Identifier    Goto   357
+Identifier    Goto   358
 identifier    Gt/Rd  368
 
 
@@ -56174,7 +56519,7 @@ STATE 304 ----------------------------------------------------------------------
 MethodInvocation ::= super DOT Identifier TypeArgumentsopt  .LPAREN 
                      ArgumentListopt RPAREN 
 
-LPAREN    Shift  359
+LPAREN    Shift  360
 
 
 
@@ -56357,9 +56702,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -56397,7 +56743,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   360
+ArgumentListopt                    Goto   361
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -56469,7 +56815,7 @@ RBRACE    Sh/Rd  187
 
 
 STATE 307 ----------------------------------------------------------------------
-( 206 553 558 )
+( 206 556 561 )
 
 AssignmentExpression ::= Expression  .ARROW Expression 
 LastExpression ::= Expression . (185)
@@ -56488,7 +56834,7 @@ STATE 308 ----------------------------------------------------------------------
 AssignPropertyCall ::= property TypeArgumentsopt  .LPAREN ArgumentListopt 
                        RPAREN SEMICOLON 
 
-LPAREN    Shift  361
+LPAREN    Shift  362
 
 
 
@@ -56545,7 +56891,7 @@ IDENTIFIER              Sh/Rd  213
 LBRACKET                Shift  36
 AT                      Shift  6
 
-FormalParameter         Goto   362
+FormalParameter         Goto   363
 VariableModifiersopt    Goto   115
 TypeArgumentsopt        Goto   45
 TypeArguments           Gt/Rd  579
@@ -56609,7 +56955,7 @@ IDENTIFIER              Sh/Rd  213
 LBRACKET                Shift  36
 AT                      Shift  6
 
-FormalParameter         Goto   363
+FormalParameter         Goto   364
 VariableModifiersopt    Goto   115
 TypeArgumentsopt        Goto   45
 TypeArguments           Gt/Rd  579
@@ -56636,7 +56982,7 @@ STATE 312 ----------------------------------------------------------------------
 
 WhenStatement ::= WhenStatement or  .LPAREN Expression RPAREN Statement 
 
-LPAREN    Shift  364
+LPAREN    Shift  365
 
 
 
@@ -56816,9 +57162,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -56907,7 +57254,7 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   365
+Expression                         Goto   366
 
 
 
@@ -57092,9 +57439,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -57152,7 +57500,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -57168,6 +57515,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -57382,9 +57730,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -57488,9 +57837,9 @@ ClockedClause ::= .clocked LPAREN ClockList RPAREN
 ClockedClauseopt ::= . (211)
 ClockedClauseopt ::= .ClockedClause 
 
-clocked                  Shift  367
+clocked                  Shift  368
 
-ClockedClauseopt         Goto   366
+ClockedClauseopt         Goto   367
 ClockedClause            Gt/Rd  212
 
 ArrayInitailizer         Reduce 211
@@ -57720,9 +58069,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -57758,10 +58108,10 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-Clock                              Goto   368
+Clock                              Goto   369
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   369
+Expression                         Goto   370
 LeftHandSide                       Goto   92
 TypeParameters                     Gt/Rd  565
 ConditionalExpression              Goto   90
@@ -57954,9 +58304,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 ForInitopt ::= . (522)
 ForInitopt ::= .ForInit 
 VariableModifiersopt ::= . (528)
@@ -57990,8 +58341,8 @@ ArrayInitailizer                   Sh/Rd  444
 AT                                 Shift  6
 LBRACKET                           Shift  265
 
-FormalParameter                    Goto   370
-ForInitopt                         Goto   371
+FormalParameter                    Goto   371
+ForInitopt                         Goto   372
 ForInit                            Gt/Rd  523
 StatementExpression                Gt/Rd  133
 LeftHandSide                       Goto   92
@@ -58022,8 +58373,8 @@ VariableModifier                   Gt/Rd  302
 Annotation                         Gt/Rd  304
 VariableModifiers                  Goto   113
 LocalVariableDeclaration           Gt/Rd  131
-StatementExpressionList            Goto   372
-VariableModifiersopt               Goto   373
+StatementExpressionList            Goto   373
+VariableModifiersopt               Goto   374
 TypeArgumentsopt                   Goto   45
 TypeArguments                      Gt/Rd  579
 AnnotatedType                      Gt/Rd  41
@@ -58216,9 +58567,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -58307,7 +58659,7 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   374
+Expression                         Goto   375
 
 
 
@@ -58488,9 +58840,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -58579,7 +58932,7 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   375
+Expression                         Goto   376
 
 
 
@@ -58595,11 +58948,11 @@ CatchClause ::= .catch LPAREN FormalParameter RPAREN Block
 Catchesopt ::= . (514)
 Catchesopt ::= .Catches 
 
-catch          Shift  377
+catch          Shift  378
 
-Catchesopt     Goto   376
+Catchesopt     Goto   377
 CatchClause    Gt/Rd  141
-Catches        Goto   378
+Catches        Goto   379
 
 finally        Reduce 514
 
@@ -58627,7 +58980,7 @@ SEMICOLON    Sh/Rd  137
 
 
 STATE 324 ----------------------------------------------------------------------
-( 224 414 )
+( 224 416 )
 
 AssignmentExpression ::= Expression  .ARROW Expression 
 Expressionopt ::= Expression . (521)
@@ -58662,7 +59015,7 @@ STATE 327 ----------------------------------------------------------------------
 
 DoStatement ::= do Statement  .while LPAREN Expression RPAREN SEMICOLON 
 
-while    Shift  379
+while    Shift  380
 
 
 
@@ -58842,9 +59195,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -58933,7 +59287,7 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   380
+Expression                         Goto   381
 
 
 
@@ -58945,7 +59299,7 @@ AssertStatement ::= assert Expression  .COLON Expression SEMICOLON
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW        Shift  173
-COLON        Shift  381
+COLON        Shift  382
 SEMICOLON    Sh/Rd  114
 
 
@@ -59140,9 +59494,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -59200,7 +59555,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -59216,6 +59570,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -59277,14 +59632,14 @@ VariableDeclarator ::= .Identifier LPAREN IdentifierList RPAREN ResultTypeopt
                        EQUAL VariableInitializer 
 
 IDENTIFIER             Sh/Rd  213
-LPAREN                 Shift  384
+LPAREN                 Shift  385
 
-VariableDeclarators    Goto   382
+VariableDeclarators    Goto   383
 VariableDeclarator     Gt/Rd  284
 identifier             Gt/Rd  368
-FormalDeclarators      Goto   383
+FormalDeclarators      Goto   384
 FormalDeclarator       Gt/Rd  280
-Identifier             Goto   385
+Identifier             Goto   386
 
 
 
@@ -59502,7 +59857,7 @@ TWIDDLE                            Shift  61
 MINUS_MINUS                        Shift  59
 PLUS_PLUS                          Shift  58
 
-PlaceExpressionSingleList          Goto   386
+PlaceExpressionSingleList          Goto   387
 ClosureBody                        Gt/Rd  191
 Block                              Gt/Rd  188
 ClosureExpression                  Gt/Rd  186
@@ -59571,7 +59926,7 @@ TypeArgumentsopt ::= .TypeArguments
 
 LBRACKET            Shift  36
 
-TypeArgumentsopt    Goto   387
+TypeArgumentsopt    Goto   388
 TypeArguments       Gt/Rd  579
 
 LPAREN              Reduce 578
@@ -59594,7 +59949,7 @@ STATE 336 ----------------------------------------------------------------------
 MethodInvocation ::= Primary DOT Identifier TypeArgumentsopt  .LPAREN 
                      ArgumentListopt RPAREN 
 
-LPAREN    Shift  388
+LPAREN    Shift  389
 
 
 
@@ -59611,7 +59966,7 @@ TypeArgumentsopt ::= .TypeArguments
 
 LBRACKET            Shift  36
 
-TypeArgumentsopt    Goto   389
+TypeArgumentsopt    Goto   390
 TypeArguments       Gt/Rd  579
 
 LPAREN              Reduce 578
@@ -59879,6 +60234,42 @@ Default reduction to rule  178
 
 
 STATE 340 ----------------------------------------------------------------------
+( 281 )
+
+Assignment ::= ExpressionName LPAREN ArgumentList RPAREN  .AssignmentOperator 
+               AssignmentExpression 
+
+AssignmentOperator ::= .EQUAL 
+AssignmentOperator ::= .MULTIPLY_EQUAL 
+AssignmentOperator ::= .DIVIDE_EQUAL 
+AssignmentOperator ::= .REMAINDER_EQUAL 
+AssignmentOperator ::= .PLUS_EQUAL 
+AssignmentOperator ::= .MINUS_EQUAL 
+AssignmentOperator ::= .LEFT_SHIFT_EQUAL 
+AssignmentOperator ::= .RIGHT_SHIFT_EQUAL 
+AssignmentOperator ::= .UNSIGNED_RIGHT_SHIFT_EQUAL 
+AssignmentOperator ::= .AND_EQUAL 
+AssignmentOperator ::= .XOR_EQUAL 
+AssignmentOperator ::= .OR_EQUAL 
+
+OR_EQUAL                      Sh/Rd  511
+XOR_EQUAL                     Sh/Rd  510
+AND_EQUAL                     Sh/Rd  509
+UNSIGNED_RIGHT_SHIFT_EQUAL    Sh/Rd  508
+RIGHT_SHIFT_EQUAL             Sh/Rd  507
+LEFT_SHIFT_EQUAL              Sh/Rd  506
+MINUS_EQUAL                   Sh/Rd  505
+PLUS_EQUAL                    Sh/Rd  504
+REMAINDER_EQUAL               Sh/Rd  503
+DIVIDE_EQUAL                  Sh/Rd  502
+MULTIPLY_EQUAL                Sh/Rd  501
+EQUAL                         Sh/Rd  500
+
+AssignmentOperator            Goto   391
+
+
+
+STATE 341 ----------------------------------------------------------------------
 ( 284 )
 
 FunctionType ::= TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
@@ -59888,9 +60279,9 @@ Throws ::= .throws ExceptionTypeList
 Throwsopt ::= . (552)
 Throwsopt ::= .Throws 
 
-throws       Shift  355
+throws       Shift  356
 
-Throwsopt    Goto   390
+Throwsopt    Goto   392
 Throws       Gt/Rd  553
 
 DARROW       Reduce 552
@@ -59898,7 +60289,7 @@ DARROW       Reduce 552
 Default reduction to rule  552
 
 
-STATE 341 ----------------------------------------------------------------------
+STATE 342 ----------------------------------------------------------------------
 ( 286 )
 
 TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt 
@@ -59934,7 +60325,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   391
+Type                    Goto   393
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -59942,7 +60333,7 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 342 ----------------------------------------------------------------------
+STATE 343 ----------------------------------------------------------------------
 ( 287 )
 
 NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier 
@@ -59952,26 +60343,26 @@ NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier
 
 InterfaceBody ::= .LBRACE InterfaceMemberDeclarationsopt RBRACE 
 
-LBRACE           Shift  392
+LBRACE           Shift  394
 
 InterfaceBody    Gt/Rd  29
 
 
 
-STATE 343 ----------------------------------------------------------------------
+STATE 344 ----------------------------------------------------------------------
 ( 287 )
 
 ExtendsInterfaces ::= ExtendsInterfaces  .COMMA InterfaceType 
 ExtendsInterfacesopt ::= ExtendsInterfaces . (535)
 
-COMMA     Shift  393
+COMMA     Shift  395
 
 LBRACE    Reduce 535
 
 Default reduction to rule  535
 
 
-STATE 344 ----------------------------------------------------------------------
+STATE 345 ----------------------------------------------------------------------
 ( 287 )
 
 ExtendsInterfaces ::= extends  .InterfaceType 
@@ -59995,7 +60386,7 @@ TypeName                Goto   13
 
 
 
-STATE 345 ----------------------------------------------------------------------
+STATE 346 ----------------------------------------------------------------------
 ( 290 )
 
 ValueClassDeclaration ::= ClassModifiersopt value class Identifier 
@@ -60006,9 +60397,9 @@ Super ::= .extends ClassType
 Superopt ::= . (562)
 Superopt ::= .Super 
 
-extends       Shift  347
+extends       Shift  348
 
-Superopt      Goto   394
+Superopt      Goto   396
 Super         Gt/Rd  563
 
 implements    Reduce 562
@@ -60017,7 +60408,7 @@ LBRACE        Reduce 562
 Default reduction to rule  562
 
 
-STATE 346 ----------------------------------------------------------------------
+STATE 347 ----------------------------------------------------------------------
 ( 291 )
 
 ValueClassDeclaration ::= ClassModifiersopt value Identifier 
@@ -60028,9 +60419,9 @@ Interfaces ::= .implements InterfaceTypeList
 Interfacesopt ::= . (560)
 Interfacesopt ::= .Interfaces 
 
-implements       Shift  396
+implements       Shift  398
 
-Interfacesopt    Goto   395
+Interfacesopt    Goto   397
 Interfaces       Gt/Rd  561
 
 LBRACE           Reduce 560
@@ -60038,8 +60429,8 @@ LBRACE           Reduce 560
 Default reduction to rule  560
 
 
-STATE 347 ----------------------------------------------------------------------
-( 291 294 345 )
+STATE 348 ----------------------------------------------------------------------
+( 291 294 346 )
 
 Super ::= extends  .ClassType 
 
@@ -60062,7 +60453,7 @@ TypeName                Goto   13
 
 
 
-STATE 348 ----------------------------------------------------------------------
+STATE 349 ----------------------------------------------------------------------
 ( 292 )
 
 Property ::= Annotationsopt Identifier COLON  .Type 
@@ -60096,7 +60487,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   397
+Type                    Goto   399
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -60104,7 +60495,7 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 349 ----------------------------------------------------------------------
+STATE 350 ----------------------------------------------------------------------
 ( 294 )
 
 NormalClassDeclaration ::= ClassModifiersopt class Identifier 
@@ -60115,9 +60506,9 @@ Interfaces ::= .implements InterfaceTypeList
 Interfacesopt ::= . (560)
 Interfacesopt ::= .Interfaces 
 
-implements       Shift  396
+implements       Shift  398
 
-Interfacesopt    Goto   398
+Interfacesopt    Goto   400
 Interfaces       Gt/Rd  561
 
 LBRACE           Reduce 560
@@ -60125,17 +60516,17 @@ LBRACE           Reduce 560
 Default reduction to rule  560
 
 
-STATE 350 ----------------------------------------------------------------------
+STATE 351 ----------------------------------------------------------------------
 ( 297 )
 
 FormalDeclarator ::= LPAREN IdentifierList RPAREN  .COLON Type 
 
-COLON    Shift  399
+COLON    Shift  401
 
 
 
-STATE 351 ----------------------------------------------------------------------
-( 297 352 426 470 503 525 )
+STATE 352 ----------------------------------------------------------------------
+( 297 353 428 473 506 528 )
 
 IdentifierList ::= IdentifierList COMMA  .Identifier 
 
@@ -60149,18 +60540,18 @@ identifier    Gt/Rd  368
 
 
 
-STATE 352 ----------------------------------------------------------------------
+STATE 353 ----------------------------------------------------------------------
 ( 298 )
 
 IdentifierList ::= IdentifierList  .COMMA Identifier 
 FormalDeclarator ::= Identifier LPAREN IdentifierList  .RPAREN COLON Type 
 
-RPAREN    Shift  400
-COMMA     Shift  351
+RPAREN    Shift  402
+COMMA     Shift  352
 
 
 
-STATE 353 ----------------------------------------------------------------------
+STATE 354 ----------------------------------------------------------------------
 ( 299 )
 
 AnnotatedType ::= Type  .Annotations 
@@ -60183,18 +60574,18 @@ RPAREN         Reduce 380
 Default reduction to rule  380
 
 
-STATE 354 ----------------------------------------------------------------------
+STATE 355 ----------------------------------------------------------------------
 ( 300 )
 
 ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt 
                       ResultTypeopt Throwsopt  .DARROW ClosureBody 
 
-DARROW    Shift  401
+DARROW    Shift  403
 
 
 
-STATE 355 ----------------------------------------------------------------------
-( 300 340 547 552 )
+STATE 356 ----------------------------------------------------------------------
+( 300 341 550 555 )
 
 Throws ::= throws  .ExceptionTypeList 
 
@@ -60212,7 +60603,7 @@ Identifier ::= .identifier
 
 IDENTIFIER              Sh/Rd  213
 
-ExceptionTypeList       Goto   402
+ExceptionTypeList       Goto   404
 ExceptionType           Gt/Rd  323
 ClassOrInterfaceType    Gt/Rd  37
 Identifier              Gt/Rd  214
@@ -60222,7 +60613,7 @@ ClassType               Gt/Rd  325
 
 
 
-STATE 356 ----------------------------------------------------------------------
+STATE 357 ----------------------------------------------------------------------
 ( 301 )
 
 AnnotatedType ::= Type  .Annotations 
@@ -60245,7 +60636,7 @@ SEMICOLON      Reduce 295
 Default reduction to rule  295
 
 
-STATE 357 ----------------------------------------------------------------------
+STATE 358 ----------------------------------------------------------------------
 ( 303 )
 
 FieldAccess ::= ClassName DOT super DOT Identifier . (433)
@@ -60261,7 +60652,7 @@ LBRACKET                      Reduce 433
 LPAREN                        Reduce 433
                               Reduce 578
 
-TypeArgumentsopt              Goto   403
+TypeArgumentsopt              Goto   405
 TypeArguments                 Gt/Rd  579
 
 ArrayInitailizer              Reduce 433
@@ -60388,7 +60779,7 @@ LongLiteral                   Reduce 433
 Default reduction to rule  433
 
 
-STATE 358 ----------------------------------------------------------------------
+STATE 359 ----------------------------------------------------------------------
 ( 303 )
 
 FieldAccess ::= ClassName DOT super DOT ErrorId . (9)
@@ -60522,7 +60913,7 @@ IntegerLiteral                Reduce 9
 Default reduction to rule  9
 
 
-STATE 359 ----------------------------------------------------------------------
+STATE 360 ----------------------------------------------------------------------
 ( 304 )
 
 MethodInvocation ::= super DOT Identifier TypeArgumentsopt LPAREN  .
@@ -60701,9 +61092,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -60741,7 +61133,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   404
+ArgumentListopt                    Goto   406
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -60803,17 +61195,17 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 360 ----------------------------------------------------------------------
+STATE 361 ----------------------------------------------------------------------
 ( 305 )
 
 ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt LPAREN 
                                     ArgumentListopt  .RPAREN ClassBodyopt 
 
-RPAREN    Shift  405
+RPAREN    Shift  407
 
 
 
-STATE 361 ----------------------------------------------------------------------
+STATE 362 ----------------------------------------------------------------------
 ( 308 )
 
 AssignPropertyCall ::= property TypeArgumentsopt LPAREN  .ArgumentListopt 
@@ -60992,9 +61384,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -61032,7 +61425,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   406
+ArgumentListopt                    Goto   408
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -61094,27 +61487,27 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 362 ----------------------------------------------------------------------
+STATE 363 ----------------------------------------------------------------------
 ( 310 )
 
 AtEachStatement ::= ateach LPAREN FormalParameter  .in Expression RPAREN 
                     ClockedClauseopt Statement 
 
-in    Shift  407
+in    Shift  409
 
 
 
-STATE 363 ----------------------------------------------------------------------
+STATE 364 ----------------------------------------------------------------------
 ( 311 )
 
 ForEachStatement ::= foreach LPAREN FormalParameter  .in Expression RPAREN 
                      ClockedClauseopt Statement 
 
-in    Shift  408
+in    Shift  410
 
 
 
-STATE 364 ----------------------------------------------------------------------
+STATE 365 ----------------------------------------------------------------------
 ( 312 )
 
 WhenStatement ::= WhenStatement or LPAREN  .Expression RPAREN Statement 
@@ -61290,9 +61683,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -61381,22 +61775,22 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   409
+Expression                         Goto   411
 
 
 
-STATE 365 ----------------------------------------------------------------------
+STATE 366 ----------------------------------------------------------------------
 ( 313 )
 
 WhenStatement ::= when LPAREN Expression  .RPAREN Statement 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  410
+RPAREN    Shift  412
 
 
 
-STATE 366 ----------------------------------------------------------------------
+STATE 367 ----------------------------------------------------------------------
 ( 316 )
 
 AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt  .
@@ -61578,9 +61972,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -61638,7 +62033,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -61654,6 +62048,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -61691,26 +62086,26 @@ Block                              Gt/Rd  75
 
 
 
-STATE 367 ----------------------------------------------------------------------
-( 316 490 491 )
+STATE 368 ----------------------------------------------------------------------
+( 316 493 494 )
 
 ClockedClause ::= clocked  .LPAREN ClockList RPAREN 
 
-LPAREN    Shift  411
-
-
-
-STATE 368 ----------------------------------------------------------------------
-( 317 )
-
-NowStatement ::= now LPAREN Clock  .RPAREN Statement 
-
-RPAREN    Shift  412
+LPAREN    Shift  413
 
 
 
 STATE 369 ----------------------------------------------------------------------
-( 317 411 492 )
+( 317 )
+
+NowStatement ::= now LPAREN Clock  .RPAREN Statement 
+
+RPAREN    Shift  414
+
+
+
+STATE 370 ----------------------------------------------------------------------
+( 317 413 495 )
 
 Clock ::= Expression . (162)
 AssignmentExpression ::= Expression  .ARROW Expression 
@@ -61723,40 +62118,40 @@ RPAREN    Reduce 162
 Default reduction to rule  162
 
 
-STATE 370 ----------------------------------------------------------------------
+STATE 371 ----------------------------------------------------------------------
 ( 318 )
 
 EnhancedForStatement ::= for LPAREN FormalParameter  .in Expression RPAREN 
                          Statement 
 
-in    Shift  413
-
-
-
-STATE 371 ----------------------------------------------------------------------
-( 318 )
-
-BasicForStatement ::= for LPAREN ForInitopt  .SEMICOLON Expressionopt SEMICOLON 
-                      ForUpdateopt RPAREN Statement 
-
-SEMICOLON    Shift  414
+in    Shift  415
 
 
 
 STATE 372 ----------------------------------------------------------------------
 ( 318 )
 
+BasicForStatement ::= for LPAREN ForInitopt  .SEMICOLON Expressionopt SEMICOLON 
+                      ForUpdateopt RPAREN Statement 
+
+SEMICOLON    Shift  416
+
+
+
+STATE 373 ----------------------------------------------------------------------
+( 318 )
+
 ForInit ::= StatementExpressionList . (130)
 StatementExpressionList ::= StatementExpressionList  .COMMA StatementExpression 
 
-COMMA        Shift  415
+COMMA        Shift  417
 
 SEMICOLON    Reduce 130
 
 Default reduction to rule  130
 
 
-STATE 373 ----------------------------------------------------------------------
+STATE 374 ----------------------------------------------------------------------
 ( 318 )
 
 FormalParameter ::= VariableModifiersopt  .FormalDeclarator 
@@ -61779,25 +62174,25 @@ IDENTIFIER          Sh/Rd  213
 var                 Sh/Rd  71
 val                 Sh/Rd  70
 
-VarKeyword          Goto   416
+VarKeyword          Goto   418
 FormalDeclarator    Gt/Rd  299
 Identifier          Goto   194
 identifier          Gt/Rd  368
 
 
 
-STATE 374 ----------------------------------------------------------------------
+STATE 375 ----------------------------------------------------------------------
 ( 319 )
 
 WhileStatement ::= while LPAREN Expression  .RPAREN Statement 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  417
+RPAREN    Shift  419
 
 
 
-STATE 375 ----------------------------------------------------------------------
+STATE 376 ----------------------------------------------------------------------
 ( 320 )
 
 IfThenStatement ::= if LPAREN Expression  .RPAREN Statement 
@@ -61805,33 +62200,33 @@ IfThenElseStatement ::= if LPAREN Expression  .RPAREN Statement else Statement
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  418
+RPAREN    Shift  420
 
 
 
-STATE 376 ----------------------------------------------------------------------
+STATE 377 ----------------------------------------------------------------------
 ( 321 )
 
 TryStatement ::= try Block Catchesopt  .Finally 
 
 Finally ::= .finally Block 
 
-finally    Shift  419
+finally    Shift  421
 
 Finally    Gt/Rd  140
 
 
 
-STATE 377 ----------------------------------------------------------------------
-( 321 378 )
+STATE 378 ----------------------------------------------------------------------
+( 321 379 )
 
 CatchClause ::= catch  .LPAREN FormalParameter RPAREN Block 
 
-LPAREN    Shift  420
+LPAREN    Shift  422
 
 
 
-STATE 378 ----------------------------------------------------------------------
+STATE 379 ----------------------------------------------------------------------
 ( 321 )
 
 TryStatement ::= try Block Catches . (139)
@@ -61840,7 +62235,7 @@ Catchesopt ::= Catches . (515)
 
 CatchClause ::= .catch LPAREN FormalParameter RPAREN Block 
 
-catch                    Shift  377
+catch                    Shift  378
 
 CatchClause              Gt/Rd  142
 
@@ -61916,27 +62311,27 @@ finally                  Reduce 515
 Default reduction to rule  139
 
 
-STATE 379 ----------------------------------------------------------------------
+STATE 380 ----------------------------------------------------------------------
 ( 327 )
 
 DoStatement ::= do Statement while  .LPAREN Expression RPAREN SEMICOLON 
 
-LPAREN    Shift  421
+LPAREN    Shift  423
 
 
 
-STATE 380 ----------------------------------------------------------------------
+STATE 381 ----------------------------------------------------------------------
 ( 328 )
 
 SwitchStatement ::= switch LPAREN Expression  .RPAREN SwitchBlock 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  422
+RPAREN    Shift  424
 
 
 
-STATE 381 ----------------------------------------------------------------------
+STATE 382 ----------------------------------------------------------------------
 ( 329 )
 
 AssertStatement ::= assert Expression COLON  .Expression SEMICOLON 
@@ -62112,9 +62507,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -62203,40 +62599,40 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   423
+Expression                         Goto   425
 
 
 
-STATE 382 ----------------------------------------------------------------------
-( 332 416 )
+STATE 383 ----------------------------------------------------------------------
+( 332 418 )
 
 VariableDeclarators ::= VariableDeclarators  .COMMA VariableDeclarator 
 LocalVariableDeclaration ::= VariableModifiersopt VarKeyword 
                              VariableDeclarators . (389)
 
-COMMA        Shift  424
+COMMA        Shift  426
 
 SEMICOLON    Reduce 389
 
 Default reduction to rule  389
 
 
-STATE 383 ----------------------------------------------------------------------
-( 332 416 )
+STATE 384 ----------------------------------------------------------------------
+( 332 418 )
 
 FormalDeclarators ::= FormalDeclarators  .COMMA FormalDeclarator 
 LocalVariableDeclaration ::= VariableModifiersopt VarKeyword 
                              FormalDeclarators . (390)
 
-COMMA        Shift  425
+COMMA        Shift  427
 
 SEMICOLON    Reduce 390
 
 Default reduction to rule  390
 
 
-STATE 384 ----------------------------------------------------------------------
-( 332 416 )
+STATE 385 ----------------------------------------------------------------------
+( 332 418 )
 
 FormalDeclarator ::= LPAREN  .IdentifierList RPAREN COLON Type 
 VariableDeclarator ::= LPAREN  .IdentifierList RPAREN ResultTypeopt EQUAL 
@@ -62249,14 +62645,14 @@ IdentifierList ::= .IdentifierList COMMA Identifier
 
 IDENTIFIER        Sh/Rd  213
 
-IdentifierList    Goto   426
+IdentifierList    Goto   428
 Identifier        Gt/Rd  378
 identifier        Gt/Rd  368
 
 
 
-STATE 385 ----------------------------------------------------------------------
-( 332 416 )
+STATE 386 ----------------------------------------------------------------------
+( 332 418 )
 
 FormalDeclarator ::= Identifier  .COLON Type 
 FormalDeclarator ::= Identifier  .LPAREN IdentifierList RPAREN COLON Type 
@@ -62268,10 +62664,10 @@ ResultType ::= .COLON Type
 ResultTypeopt ::= . (576)
 ResultTypeopt ::= .ResultType 
 
-LPAREN           Shift  428
-COLON            Shift  429
+LPAREN           Shift  430
+COLON            Shift  431
 
-ResultTypeopt    Goto   427
+ResultTypeopt    Goto   429
 ResultType       Gt/Rd  577
 
 EQUAL            Reduce 576
@@ -62279,7 +62675,7 @@ EQUAL            Reduce 576
 Default reduction to rule  576
 
 
-STATE 386 ----------------------------------------------------------------------
+STATE 387 ----------------------------------------------------------------------
 ( 333 )
 
 FutureExpression ::= future LBRACKET Type RBRACKET PlaceExpressionSingleList  .
@@ -62546,18 +62942,18 @@ TypeParametersopt                  Goto   57
 
 
 
-STATE 387 ----------------------------------------------------------------------
+STATE 388 ----------------------------------------------------------------------
 ( 334 )
 
 ClassInstanceCreationExpression ::= AmbiguousName DOT new Identifier 
                                     TypeArgumentsopt  .LPAREN ArgumentListopt 
                                     RPAREN ClassBodyopt 
 
-LPAREN    Shift  430
+LPAREN    Shift  432
 
 
 
-STATE 388 ----------------------------------------------------------------------
+STATE 389 ----------------------------------------------------------------------
 ( 336 )
 
 MethodInvocation ::= Primary DOT Identifier TypeArgumentsopt LPAREN  .
@@ -62736,9 +63132,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -62776,7 +63173,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   431
+ArgumentListopt                    Goto   433
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -62838,29 +63235,302 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 389 ----------------------------------------------------------------------
+STATE 390 ----------------------------------------------------------------------
 ( 337 )
 
 ClassInstanceCreationExpression ::= Primary DOT new Identifier 
                                     TypeArgumentsopt  .LPAREN ArgumentListopt 
                                     RPAREN ClassBodyopt 
 
-LPAREN    Shift  432
-
-
-
-STATE 390 ----------------------------------------------------------------------
-( 340 )
-
-FunctionType ::= TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
-                 WhereClauseopt Throwsopt  .DARROW Type 
-
-DARROW    Shift  433
+LPAREN    Shift  434
 
 
 
 STATE 391 ----------------------------------------------------------------------
+( 340 )
+
+Assignment ::= ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator  .
+               AssignmentExpression 
+
+TypeName ::= .TypeName DOT ErrorId 
+ExpressionName ::= .AmbiguousName DOT ErrorId 
+MethodName ::= .AmbiguousName DOT ErrorId 
+AmbiguousName ::= .AmbiguousName DOT ErrorId 
+FieldAccess ::= .Primary DOT ErrorId 
+FieldAccess ::= .super DOT ErrorId 
+FieldAccess ::= .ClassName DOT super DOT ErrorId 
+MethodInvocation ::= .MethodPrimaryPrefix LPAREN ArgumentListopt RPAREN 
+MethodInvocation ::= .MethodSuperPrefix LPAREN ArgumentListopt RPAREN 
+MethodInvocation ::= .MethodClassNameSuperPrefix LPAREN ArgumentListopt RPAREN 
+MethodPrimaryPrefix ::= .Primary DOT ErrorId 
+MethodSuperPrefix ::= .super DOT ErrorId 
+MethodClassNameSuperPrefix ::= .ClassName DOT super DOT ErrorId 
+ClassInstanceCreationExpression ::= .new TypeName TypeArgumentsopt LPAREN 
+                                    ArgumentListopt RPAREN ClassBodyopt 
+ClassInstanceCreationExpression ::= .Primary DOT new Identifier 
+                                    TypeArgumentsopt LPAREN ArgumentListopt 
+                                    RPAREN ClassBodyopt 
+ClassInstanceCreationExpression ::= .AmbiguousName DOT new Identifier 
+                                    TypeArgumentsopt LPAREN ArgumentListopt 
+                                    RPAREN ClassBodyopt 
+Type ::= .FunctionType 
+Type ::= .ConstrainedType 
+FunctionType ::= .TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
+                 WhereClauseopt Throwsopt DARROW Type 
+AnnotatedType ::= .Type Annotations 
+ConstrainedType ::= .ClassOrInterfaceType 
+ConstrainedType ::= .AnnotatedType 
+ConstrainedType ::= .LPAREN Type RPAREN 
+ClassOrInterfaceType ::= .TypeName TypeArgumentsopt Argumentsopt 
+                         DepParametersopt PlaceTypeSpecifieropt 
+TypeParameters ::= .LBRACKET TypeParameterList RBRACKET 
+SubtypeConstraint ::= .Type SUBTYPE Type 
+SubtypeConstraint ::= .Type SUPERTYPE Type 
+CastExpression ::= .ConditionalExpression as Type 
+CastExpression ::= .ConditionalExpression to Type 
+CastExpression ::= .ConditionalExpression NOT Expression 
+CastExpression ::= .ConditionalExpression 
+Primary ::= .here 
+Primary ::= .FutureExpression 
+Primary ::= .LBRACKET RegionExpressionList RBRACKET 
+AssignmentExpression ::= .Expression ARROW Expression 
+ClosureExpression ::= .TypeParametersopt FormalParameters WhereClauseopt 
+                      ResultTypeopt Throwsopt DARROW ClosureBody 
+ClosureExpression ::= .CastExpression 
+FutureExpression ::= .future ClosureBody 
+FutureExpression ::= .future PlaceExpressionSingleList ClosureBody 
+FutureExpression ::= .future LBRACKET Type RBRACKET ClosureBody 
+FutureExpression ::= .future LBRACKET Type RBRACKET PlaceExpressionSingleList 
+                     ClosureBody 
+identifier ::= .IDENTIFIER 
+TypeName ::= .Identifier 
+TypeName ::= .TypeName DOT Identifier 
+ClassName ::= .TypeName 
+TypeArguments ::= .LBRACKET TypeArgumentList RBRACKET 
+ExpressionName ::= .Identifier 
+ExpressionName ::= .AmbiguousName DOT Identifier 
+MethodName ::= .Identifier 
+MethodName ::= .AmbiguousName DOT Identifier 
+AmbiguousName ::= .Identifier 
+AmbiguousName ::= .AmbiguousName DOT Identifier 
+Annotations ::= .Annotation 
+Annotations ::= .Annotations Annotation 
+Annotation ::= .AT InterfaceType 
+Identifier ::= .identifier 
+Primary ::= .Literal 
+Primary ::= .TypeName DOT class 
+Primary ::= .self 
+Primary ::= .this 
+Primary ::= .ClassName DOT this 
+Primary ::= .LPAREN Expression RPAREN 
+Primary ::= .ClassInstanceCreationExpression 
+Primary ::= .FieldAccess 
+Primary ::= .MethodInvocation 
+Primary ::= .OperatorFunction 
+OperatorFunction ::= .TypeName DOT PLUS 
+OperatorFunction ::= .TypeName DOT MINUS 
+OperatorFunction ::= .TypeName DOT MULTIPLY 
+OperatorFunction ::= .TypeName DOT DIVIDE 
+OperatorFunction ::= .TypeName DOT REMAINDER 
+OperatorFunction ::= .TypeName DOT AND 
+OperatorFunction ::= .TypeName DOT OR 
+OperatorFunction ::= .TypeName DOT XOR 
+OperatorFunction ::= .TypeName DOT LEFT_SHIFT 
+OperatorFunction ::= .TypeName DOT RIGHT_SHIFT 
+OperatorFunction ::= .TypeName DOT UNSIGNED_RIGHT_SHIFT 
+OperatorFunction ::= .TypeName DOT LESS 
+OperatorFunction ::= .TypeName DOT LESS_EQUAL 
+OperatorFunction ::= .TypeName DOT GREATER_EQUAL 
+OperatorFunction ::= .TypeName DOT GREATER 
+OperatorFunction ::= .TypeName DOT EQUAL_EQUAL 
+OperatorFunction ::= .TypeName DOT NOT_EQUAL 
+Literal ::= .IntegerLiteral 
+Literal ::= .LongLiteral 
+Literal ::= .FloatingPointLiteral 
+Literal ::= .DoubleLiteral 
+Literal ::= .BooleanLiteral 
+Literal ::= .CharacterLiteral 
+Literal ::= .StringLiteral 
+Literal ::= .null 
+BooleanLiteral ::= .true 
+BooleanLiteral ::= .false 
+FieldAccess ::= .Primary DOT Identifier 
+FieldAccess ::= .super DOT Identifier 
+FieldAccess ::= .ClassName DOT super DOT Identifier 
+MethodInvocation ::= .MethodName TypeArgumentsopt LPAREN ArgumentListopt RPAREN 
+MethodInvocation ::= .Primary DOT Identifier TypeArgumentsopt LPAREN 
+                     ArgumentListopt RPAREN 
+MethodInvocation ::= .super DOT Identifier TypeArgumentsopt LPAREN 
+                     ArgumentListopt RPAREN 
+MethodInvocation ::= .ClassName DOT super DOT Identifier TypeArgumentsopt 
+                     LPAREN ArgumentListopt RPAREN 
+MethodInvocation ::= .Primary TypeArgumentsopt LPAREN ArgumentListopt RPAREN 
+PostfixExpression ::= .Primary 
+PostfixExpression ::= .ArrayInitailizer 
+PostfixExpression ::= .ExpressionName 
+PostfixExpression ::= .PostIncrementExpression 
+PostfixExpression ::= .PostDecrementExpression 
+PostIncrementExpression ::= .PostfixExpression PLUS_PLUS 
+PostDecrementExpression ::= .PostfixExpression MINUS_MINUS 
+UnaryExpression ::= .PreIncrementExpression 
+UnaryExpression ::= .PreDecrementExpression 
+UnaryExpression ::= .PLUS UnaryExpressionNotPlusMinus 
+UnaryExpression ::= .MINUS UnaryExpressionNotPlusMinus 
+UnaryExpression ::= .UnaryExpressionNotPlusMinus 
+PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
+PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
+UnaryExpressionNotPlusMinus ::= .PostfixExpression 
+UnaryExpressionNotPlusMinus ::= .TWIDDLE UnaryExpression 
+UnaryExpressionNotPlusMinus ::= .Annotations UnaryExpression 
+UnaryExpressionNotPlusMinus ::= .NOT UnaryExpression 
+MultiplicativeExpression ::= .UnaryExpression 
+MultiplicativeExpression ::= .MultiplicativeExpression MULTIPLY UnaryExpression 
+MultiplicativeExpression ::= .MultiplicativeExpression DIVIDE UnaryExpression 
+MultiplicativeExpression ::= .MultiplicativeExpression REMAINDER 
+                             UnaryExpression 
+AdditiveExpression ::= .MultiplicativeExpression 
+AdditiveExpression ::= .AdditiveExpression PLUS MultiplicativeExpression 
+AdditiveExpression ::= .AdditiveExpression MINUS MultiplicativeExpression 
+ShiftExpression ::= .AdditiveExpression 
+ShiftExpression ::= .ShiftExpression LEFT_SHIFT AdditiveExpression 
+ShiftExpression ::= .ShiftExpression RIGHT_SHIFT AdditiveExpression 
+ShiftExpression ::= .ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression 
+RelationalExpression ::= .ShiftExpression 
+RelationalExpression ::= .SubtypeConstraint 
+RelationalExpression ::= .RelationalExpression LESS ShiftExpression 
+RelationalExpression ::= .RelationalExpression GREATER ShiftExpression 
+RelationalExpression ::= .RelationalExpression LESS_EQUAL ShiftExpression 
+RelationalExpression ::= .RelationalExpression GREATER_EQUAL ShiftExpression 
+RelationalExpression ::= .RelationalExpression instanceof Type 
+EqualityExpression ::= .RelationalExpression 
+EqualityExpression ::= .EqualityExpression EQUAL_EQUAL RelationalExpression 
+EqualityExpression ::= .EqualityExpression NOT_EQUAL RelationalExpression 
+AndExpression ::= .EqualityExpression 
+AndExpression ::= .AndExpression AND EqualityExpression 
+ExclusiveOrExpression ::= .AndExpression 
+ExclusiveOrExpression ::= .ExclusiveOrExpression XOR AndExpression 
+InclusiveOrExpression ::= .ExclusiveOrExpression 
+InclusiveOrExpression ::= .InclusiveOrExpression OR ExclusiveOrExpression 
+ConditionalAndExpression ::= .InclusiveOrExpression 
+ConditionalAndExpression ::= .ConditionalAndExpression AND_AND 
+                             InclusiveOrExpression 
+ConditionalOrExpression ::= .ConditionalAndExpression 
+ConditionalOrExpression ::= .ConditionalOrExpression OR_OR 
+                            ConditionalAndExpression 
+ConditionalExpression ::= .ConditionalOrExpression 
+ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON 
+                          ConditionalExpression 
+AssignmentExpression ::= .ClosureExpression 
+AssignmentExpression ::= .Assignment 
+Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
+LeftHandSide ::= .ExpressionName 
+LeftHandSide ::= .FieldAccess 
+Expression ::= .AssignmentExpression 
+TypeParametersopt ::= . (564)
+TypeParametersopt ::= .TypeParameters 
+TypeArgumentsopt ::= . (578)
+TypeArgumentsopt ::= .TypeArguments 
+
+LPAREN                             Shift  79
+                                   Reduce 564
+                                   Reduce 578
+PLUS_PLUS                          Shift  58
+MINUS_MINUS                        Shift  59
+NOT                                Shift  60
+TWIDDLE                            Shift  61
+AT                                 Shift  6
+this                               Sh/Rd  395
+self                               Sh/Rd  394
+here                               Sh/Rd  175
+super                              Shift  68
+new                                Shift  69
+IDENTIFIER                         Sh/Rd  213
+false                              Sh/Rd  428
+true                               Sh/Rd  427
+null                               Sh/Rd  426
+StringLiteral                      Sh/Rd  425
+CharacterLiteral                   Sh/Rd  424
+DoubleLiteral                      Sh/Rd  422
+FloatingPointLiteral               Sh/Rd  421
+LongLiteral                        Sh/Rd  420
+IntegerLiteral                     Sh/Rd  419
+future                             Shift  70
+ArrayInitailizer                   Sh/Rd  444
+MINUS                              Shift  75
+PLUS                               Shift  76
+LBRACKET                           Shift  91
+
+Assignment                         Gt/Rd  495
+ClosureExpression                  Gt/Rd  494
+Expression                         Goto   279
+LeftHandSide                       Goto   92
+TypeParameters                     Gt/Rd  565
+ConditionalExpression              Goto   90
+SubtypeConstraint                  Gt/Rd  473
+ConstrainedType                    Gt/Rd  35
+FunctionType                       Gt/Rd  34
+AnnotatedType                      Gt/Rd  41
+ClassOrInterfaceType               Gt/Rd  40
+TypeArguments                      Gt/Rd  579
+TypeArgumentsopt                   Goto   45
+Type                               Goto   80
+UnaryExpressionNotPlusMinus        Gt/Rd  454
+PreDecrementExpression             Gt/Rd  451
+PreIncrementExpression             Gt/Rd  450
+PostDecrementExpression            Gt/Rd  447
+PostIncrementExpression            Gt/Rd  446
+ExpressionName                     Goto   94
+BooleanLiteral                     Gt/Rd  423
+identifier                         Gt/Rd  368
+MethodName                         Goto   63
+MethodClassNameSuperPrefix         Goto   64
+MethodSuperPrefix                  Goto   65
+MethodPrimaryPrefix                Goto   66
+Identifier                         Goto   71
+AmbiguousName                      Goto   72
+Primary                            Goto   74
+OperatorFunction                   Gt/Rd  401
+MethodInvocation                   Gt/Rd  400
+FieldAccess                        Goto   93
+ClassInstanceCreationExpression    Gt/Rd  398
+ClassName                          Goto   67
+TypeName                           Goto   81
+Literal                            Gt/Rd  392
+FutureExpression                   Gt/Rd  176
+Annotation                         Gt/Rd  364
+Annotations                        Goto   62
+PostfixExpression                  Goto   73
+MultiplicativeExpression           Goto   78
+UnaryExpression                    Gt/Rd  461
+ShiftExpression                    Goto   83
+AdditiveExpression                 Goto   77
+EqualityExpression                 Goto   85
+RelationalExpression               Goto   82
+ExclusiveOrExpression              Goto   87
+AndExpression                      Goto   84
+ConditionalAndExpression           Goto   89
+InclusiveOrExpression              Goto   86
+ConditionalOrExpression            Goto   88
+CastExpression                     Gt/Rd  184
+TypeParametersopt                  Goto   57
+AssignmentExpression               Goto   435
+
+
+
+STATE 392 ----------------------------------------------------------------------
 ( 341 )
+
+FunctionType ::= TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
+                 WhereClauseopt Throwsopt  .DARROW Type 
+
+DARROW    Shift  436
+
+
+
+STATE 393 ----------------------------------------------------------------------
+( 342 )
 
 TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt 
                        FormalParametersopt WhereClauseopt EQUAL Type  .
@@ -62879,8 +63549,8 @@ Annotation     Gt/Rd  364
 
 
 
-STATE 392 ----------------------------------------------------------------------
-( 342 )
+STATE 394 ----------------------------------------------------------------------
+( 343 )
 
 InterfaceBody ::= LBRACE  .InterfaceMemberDeclarationsopt RBRACE 
 
@@ -62960,20 +63630,20 @@ SEMICOLON                         Sh/Rd  363
 nonblocking                       Sh/Rd  321
 local                             Sh/Rd  320
 sequential                        Sh/Rd  319
-safe                              Shift  435
+safe                              Shift  438
 extern                            Sh/Rd  317
 atomic                            Sh/Rd  316
-strictfp                          Shift  436
+strictfp                          Shift  439
 native                            Sh/Rd  314
-final                             Shift  437
-static                            Shift  438
-abstract                          Shift  439
-private                           Shift  440
-protected                         Shift  441
-public                            Shift  442
+final                             Shift  440
+static                            Shift  441
+abstract                          Shift  442
+private                           Shift  443
+protected                         Shift  444
+public                            Shift  445
 AT                                Shift  6
 
-InterfaceMemberDeclarationsopt    Goto   434
+InterfaceMemberDeclarationsopt    Goto   437
 InterfaceDeclaration              Gt/Rd  362
 ClassDeclaration                  Gt/Rd  361
 MethodDeclaration                 Gt/Rd  360
@@ -62986,11 +63656,11 @@ ClassModifiers                    Goto   26
 ClassModifiersopt                 Goto   27
 NormalClassDeclaration            Gt/Rd  244
 ValueClassDeclaration             Gt/Rd  62
-Annotation                        Goto   443
-MethodModifiers                   Goto   444
+Annotation                        Goto   446
+MethodModifiers                   Goto   447
 MethodModifier                    Gt/Rd  305
-MethodModifiersopt                Goto   445
-InterfaceMemberDeclarations       Goto   446
+MethodModifiersopt                Goto   448
+InterfaceMemberDeclarations       Goto   449
 InterfaceMemberDeclaration        Gt/Rd  358
 
 def                               Reduce 554
@@ -63002,8 +63672,8 @@ RBRACE                            Reduce 532
 Default reduction to rule  205
 
 
-STATE 393 ----------------------------------------------------------------------
-( 343 )
+STATE 395 ----------------------------------------------------------------------
+( 344 )
 
 ExtendsInterfaces ::= ExtendsInterfaces COMMA  .InterfaceType 
 
@@ -63026,8 +63696,8 @@ TypeName                Goto   13
 
 
 
-STATE 394 ----------------------------------------------------------------------
-( 345 )
+STATE 396 ----------------------------------------------------------------------
+( 346 )
 
 ValueClassDeclaration ::= ClassModifiersopt value class Identifier 
                           TypePropertiesopt PropertyListopt WhereClauseopt 
@@ -63037,9 +63707,9 @@ Interfaces ::= .implements InterfaceTypeList
 Interfacesopt ::= . (560)
 Interfacesopt ::= .Interfaces 
 
-implements       Shift  396
+implements       Shift  398
 
-Interfacesopt    Goto   447
+Interfacesopt    Goto   450
 Interfaces       Gt/Rd  561
 
 LBRACE           Reduce 560
@@ -63047,8 +63717,8 @@ LBRACE           Reduce 560
 Default reduction to rule  560
 
 
-STATE 395 ----------------------------------------------------------------------
-( 346 )
+STATE 397 ----------------------------------------------------------------------
+( 347 )
 
 ValueClassDeclaration ::= ClassModifiersopt value Identifier 
                           TypePropertiesopt PropertyListopt WhereClauseopt 
@@ -63056,14 +63726,14 @@ ValueClassDeclaration ::= ClassModifiersopt value Identifier
 
 ClassBody ::= .LBRACE ClassBodyDeclarationsopt RBRACE 
 
-LBRACE       Shift  448
+LBRACE       Shift  451
 
 ClassBody    Gt/Rd  63
 
 
 
-STATE 396 ----------------------------------------------------------------------
-( 346 349 394 )
+STATE 398 ----------------------------------------------------------------------
+( 347 350 396 )
 
 Interfaces ::= implements  .InterfaceTypeList 
 
@@ -63080,7 +63750,7 @@ Identifier ::= .identifier
 
 IDENTIFIER              Sh/Rd  213
 
-InterfaceTypeList       Goto   449
+InterfaceTypeList       Goto   452
 InterfaceType           Gt/Rd  266
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
@@ -63089,8 +63759,8 @@ ClassOrInterfaceType    Gt/Rd  38
 
 
 
-STATE 397 ----------------------------------------------------------------------
-( 348 )
+STATE 399 ----------------------------------------------------------------------
+( 349 )
 
 Property ::= Annotationsopt Identifier COLON Type . (23)
 AnnotatedType ::= Type  .Annotations 
@@ -63113,8 +63783,8 @@ RPAREN         Reduce 23
 Default reduction to rule  23
 
 
-STATE 398 ----------------------------------------------------------------------
-( 349 )
+STATE 400 ----------------------------------------------------------------------
+( 350 )
 
 NormalClassDeclaration ::= ClassModifiersopt class Identifier 
                            TypePropertiesopt Propertiesopt WhereClauseopt 
@@ -63122,14 +63792,14 @@ NormalClassDeclaration ::= ClassModifiersopt class Identifier
 
 ClassBody ::= .LBRACE ClassBodyDeclarationsopt RBRACE 
 
-LBRACE       Shift  448
+LBRACE       Shift  451
 
 ClassBody    Gt/Rd  19
 
 
 
-STATE 399 ----------------------------------------------------------------------
-( 350 )
+STATE 401 ----------------------------------------------------------------------
+( 351 )
 
 FormalDeclarator ::= LPAREN IdentifierList RPAREN COLON  .Type 
 
@@ -63162,7 +63832,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   450
+Type                    Goto   453
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -63170,17 +63840,17 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 400 ----------------------------------------------------------------------
-( 352 )
+STATE 402 ----------------------------------------------------------------------
+( 353 )
 
 FormalDeclarator ::= Identifier LPAREN IdentifierList RPAREN  .COLON Type 
 
-COLON    Shift  451
+COLON    Shift  454
 
 
 
-STATE 401 ----------------------------------------------------------------------
-( 354 )
+STATE 403 ----------------------------------------------------------------------
+( 355 )
 
 ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt 
                       ResultTypeopt Throwsopt DARROW  .ClosureBody 
@@ -63446,13 +64116,13 @@ TypeParametersopt                  Goto   57
 
 
 
-STATE 402 ----------------------------------------------------------------------
-( 355 )
+STATE 404 ----------------------------------------------------------------------
+( 356 )
 
 Throws ::= throws ExceptionTypeList . (322)
 ExceptionTypeList ::= ExceptionTypeList  .COMMA ExceptionType 
 
-COMMA        Shift  452
+COMMA        Shift  455
 
 DARROW       Reduce 322
 EQUAL        Reduce 322
@@ -63461,18 +64131,18 @@ SEMICOLON    Reduce 322
 Default reduction to rule  322
 
 
-STATE 403 ----------------------------------------------------------------------
-( 357 )
+STATE 405 ----------------------------------------------------------------------
+( 358 )
 
 MethodInvocation ::= ClassName DOT super DOT Identifier TypeArgumentsopt  .
                      LPAREN ArgumentListopt RPAREN 
 
-LPAREN    Shift  453
+LPAREN    Shift  456
 
 
 
-STATE 404 ----------------------------------------------------------------------
-( 359 )
+STATE 406 ----------------------------------------------------------------------
+( 360 )
 
 MethodInvocation ::= super DOT Identifier TypeArgumentsopt LPAREN 
                      ArgumentListopt  .RPAREN 
@@ -63481,8 +64151,8 @@ RPAREN    Sh/Rd  436
 
 
 
-STATE 405 ----------------------------------------------------------------------
-( 360 )
+STATE 407 ----------------------------------------------------------------------
+( 361 )
 
 ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt LPAREN 
                                     ArgumentListopt RPAREN  .ClassBodyopt 
@@ -63491,7 +64161,7 @@ ClassBody ::= .LBRACE ClassBodyDeclarationsopt RBRACE
 ClassBodyopt ::= . (538)
 ClassBodyopt ::= .ClassBody 
 
-LBRACE                   Shift  448
+LBRACE                   Shift  451
                          Reduce 538
 
 ClassBodyopt             Gt/Rd  30
@@ -63611,18 +64281,18 @@ IntegerLiteral           Reduce 538
 Default reduction to rule  538
 
 
-STATE 406 ----------------------------------------------------------------------
-( 361 )
+STATE 408 ----------------------------------------------------------------------
+( 362 )
 
 AssignPropertyCall ::= property TypeArgumentsopt LPAREN ArgumentListopt  .
                        RPAREN SEMICOLON 
 
-RPAREN    Shift  454
+RPAREN    Shift  457
 
 
 
-STATE 407 ----------------------------------------------------------------------
-( 362 )
+STATE 409 ----------------------------------------------------------------------
+( 363 )
 
 AtEachStatement ::= ateach LPAREN FormalParameter in  .Expression RPAREN 
                     ClockedClauseopt Statement 
@@ -63798,9 +64468,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -63889,12 +64560,12 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   455
+Expression                         Goto   458
 
 
 
-STATE 408 ----------------------------------------------------------------------
-( 363 )
+STATE 410 ----------------------------------------------------------------------
+( 364 )
 
 ForEachStatement ::= foreach LPAREN FormalParameter in  .Expression RPAREN 
                      ClockedClauseopt Statement 
@@ -64070,9 +64741,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -64161,23 +64833,23 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   456
+Expression                         Goto   459
 
 
 
-STATE 409 ----------------------------------------------------------------------
-( 364 )
+STATE 411 ----------------------------------------------------------------------
+( 365 )
 
 WhenStatement ::= WhenStatement or LPAREN Expression  .RPAREN Statement 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  457
+RPAREN    Shift  460
 
 
 
-STATE 410 ----------------------------------------------------------------------
-( 365 )
+STATE 412 ----------------------------------------------------------------------
+( 366 )
 
 WhenStatement ::= when LPAREN Expression RPAREN  .Statement 
 
@@ -64357,9 +65029,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -64417,7 +65090,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -64433,6 +65105,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -64470,8 +65143,8 @@ Block                              Gt/Rd  75
 
 
 
-STATE 411 ----------------------------------------------------------------------
-( 367 )
+STATE 413 ----------------------------------------------------------------------
+( 368 )
 
 ClockedClause ::= clocked LPAREN  .ClockList RPAREN 
 
@@ -64649,9 +65322,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -64687,7 +65361,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ClockList                          Goto   458
+ClockList                          Goto   461
 Clock                              Gt/Rd  160
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
@@ -64742,12 +65416,12 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   369
+Expression                         Goto   370
 
 
 
-STATE 412 ----------------------------------------------------------------------
-( 368 )
+STATE 414 ----------------------------------------------------------------------
+( 369 )
 
 NowStatement ::= now LPAREN Clock RPAREN  .Statement 
 
@@ -64927,9 +65601,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -64987,7 +65662,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -65003,6 +65677,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -65040,8 +65715,8 @@ Block                              Gt/Rd  75
 
 
 
-STATE 413 ----------------------------------------------------------------------
-( 370 )
+STATE 415 ----------------------------------------------------------------------
+( 371 )
 
 EnhancedForStatement ::= for LPAREN FormalParameter in  .Expression RPAREN 
                          Statement 
@@ -65217,9 +65892,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -65308,12 +65984,12 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   459
+Expression                         Goto   462
 
 
 
-STATE 414 ----------------------------------------------------------------------
-( 371 )
+STATE 416 ----------------------------------------------------------------------
+( 372 )
 
 BasicForStatement ::= for LPAREN ForInitopt SEMICOLON  .Expressionopt SEMICOLON 
                       ForUpdateopt RPAREN Statement 
@@ -65489,9 +66165,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 Expressionopt ::= . (520)
 Expressionopt ::= .Expression 
@@ -65529,7 +66206,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-Expressionopt                      Goto   460
+Expressionopt                      Goto   463
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
 Expression                         Goto   324
@@ -65590,8 +66267,8 @@ SEMICOLON                          Reduce 520
 Default reduction to rule  520
 
 
-STATE 415 ----------------------------------------------------------------------
-( 372 518 )
+STATE 417 ----------------------------------------------------------------------
+( 373 521 )
 
 StatementExpressionList ::= StatementExpressionList COMMA  .StatementExpression 
 
@@ -65700,9 +66377,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -65733,7 +66411,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -65751,12 +66428,13 @@ Primary                            Goto   74
 identifier                         Gt/Rd  368
 Identifier                         Goto   71
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 
 
 
-STATE 416 ----------------------------------------------------------------------
-( 373 )
+STATE 418 ----------------------------------------------------------------------
+( 374 )
 
 FormalParameter ::= VariableModifiersopt VarKeyword  .FormalDeclarator 
 LocalVariableDeclaration ::= VariableModifiersopt VarKeyword  .
@@ -65780,19 +66458,19 @@ VariableDeclarator ::= .Identifier LPAREN IdentifierList RPAREN ResultTypeopt
                        EQUAL VariableInitializer 
 
 IDENTIFIER             Sh/Rd  213
-LPAREN                 Shift  384
+LPAREN                 Shift  385
 
 identifier             Gt/Rd  368
-VariableDeclarators    Goto   382
+VariableDeclarators    Goto   383
 VariableDeclarator     Gt/Rd  284
-Identifier             Goto   385
-FormalDeclarators      Goto   383
-FormalDeclarator       Goto   461
+Identifier             Goto   386
+FormalDeclarators      Goto   384
+FormalDeclarator       Goto   464
 
 
 
-STATE 417 ----------------------------------------------------------------------
-( 374 )
+STATE 419 ----------------------------------------------------------------------
+( 375 )
 
 WhileStatement ::= while LPAREN Expression RPAREN  .Statement 
 
@@ -65972,9 +66650,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -66032,7 +66711,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -66048,6 +66726,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -66085,8 +66764,8 @@ Block                              Gt/Rd  75
 
 
 
-STATE 418 ----------------------------------------------------------------------
-( 375 )
+STATE 420 ----------------------------------------------------------------------
+( 376 )
 
 IfThenStatement ::= if LPAREN Expression RPAREN  .Statement 
 IfThenElseStatement ::= if LPAREN Expression RPAREN  .Statement else Statement 
@@ -66267,9 +66946,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -66318,7 +66998,7 @@ await                              Shift  208
 property                           Shift  207
 SynchronizedStatement              Sh/Rd  83
 
-Statement                          Goto   462
+Statement                          Goto   465
 ExpressionStatement                Gt/Rd  74
 NonExpressionStatement             Gt/Rd  73
 PreDecrementExpression             Gt/Rd  109
@@ -66327,7 +67007,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -66343,6 +67022,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -66380,8 +67060,8 @@ Block                              Gt/Rd  75
 
 
 
-STATE 419 ----------------------------------------------------------------------
-( 376 )
+STATE 421 ----------------------------------------------------------------------
+( 377 )
 
 Finally ::= finally  .Block 
 
@@ -66393,8 +67073,8 @@ Block     Gt/Rd  144
 
 
 
-STATE 420 ----------------------------------------------------------------------
-( 377 )
+STATE 422 ----------------------------------------------------------------------
+( 378 )
 
 CatchClause ::= catch LPAREN  .FormalParameter RPAREN Block 
 
@@ -66434,7 +67114,7 @@ IDENTIFIER              Sh/Rd  213
 LBRACKET                Shift  36
 AT                      Shift  6
 
-FormalParameter         Goto   463
+FormalParameter         Goto   466
 VariableModifiersopt    Goto   115
 TypeArgumentsopt        Goto   45
 TypeArguments           Gt/Rd  579
@@ -66456,8 +67136,8 @@ val                     Reduce 528
 Default reduction to rule  528
 
 
-STATE 421 ----------------------------------------------------------------------
-( 379 )
+STATE 423 ----------------------------------------------------------------------
+( 380 )
 
 DoStatement ::= do Statement while LPAREN  .Expression RPAREN SEMICOLON 
 
@@ -66632,9 +67312,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -66723,25 +67404,25 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   464
+Expression                         Goto   467
 
 
 
-STATE 422 ----------------------------------------------------------------------
-( 380 )
+STATE 424 ----------------------------------------------------------------------
+( 381 )
 
 SwitchStatement ::= switch LPAREN Expression RPAREN  .SwitchBlock 
 
 SwitchBlock ::= .LBRACE SwitchBlockStatementGroupsopt SwitchLabelsopt RBRACE 
 
-LBRACE         Shift  465
+LBRACE         Shift  468
 
 SwitchBlock    Gt/Rd  116
 
 
 
-STATE 423 ----------------------------------------------------------------------
-( 381 )
+STATE 425 ----------------------------------------------------------------------
+( 382 )
 
 AssertStatement ::= assert Expression COLON Expression  .SEMICOLON 
 AssignmentExpression ::= Expression  .ARROW Expression 
@@ -66751,8 +67432,8 @@ SEMICOLON    Sh/Rd  115
 
 
 
-STATE 424 ----------------------------------------------------------------------
-( 382 )
+STATE 426 ----------------------------------------------------------------------
+( 383 )
 
 VariableDeclarators ::= VariableDeclarators COMMA  .VariableDeclarator 
 
@@ -66764,17 +67445,17 @@ VariableDeclarator ::= .LPAREN IdentifierList RPAREN ResultTypeopt EQUAL
 VariableDeclarator ::= .Identifier LPAREN IdentifierList RPAREN ResultTypeopt 
                        EQUAL VariableInitializer 
 
-LPAREN                Shift  466
+LPAREN                Shift  469
 IDENTIFIER            Sh/Rd  213
 
 VariableDeclarator    Gt/Rd  285
-Identifier            Goto   467
+Identifier            Goto   470
 identifier            Gt/Rd  368
 
 
 
-STATE 425 ----------------------------------------------------------------------
-( 383 )
+STATE 427 ----------------------------------------------------------------------
+( 384 )
 
 FormalDeclarators ::= FormalDeclarators COMMA  .FormalDeclarator 
 
@@ -66793,30 +67474,30 @@ identifier          Gt/Rd  368
 
 
 
-STATE 426 ----------------------------------------------------------------------
-( 384 )
+STATE 428 ----------------------------------------------------------------------
+( 385 )
 
 IdentifierList ::= IdentifierList  .COMMA Identifier 
 FormalDeclarator ::= LPAREN IdentifierList  .RPAREN COLON Type 
 VariableDeclarator ::= LPAREN IdentifierList  .RPAREN ResultTypeopt EQUAL 
                        VariableInitializer 
 
-RPAREN    Shift  468
-COMMA     Shift  351
+RPAREN    Shift  471
+COMMA     Shift  352
 
 
 
-STATE 427 ----------------------------------------------------------------------
-( 385 467 )
+STATE 429 ----------------------------------------------------------------------
+( 386 470 )
 
 VariableDeclarator ::= Identifier ResultTypeopt  .EQUAL VariableInitializer 
 
-EQUAL    Shift  469
+EQUAL    Shift  472
 
 
 
-STATE 428 ----------------------------------------------------------------------
-( 385 )
+STATE 430 ----------------------------------------------------------------------
+( 386 )
 
 FormalDeclarator ::= Identifier LPAREN  .IdentifierList RPAREN COLON Type 
 VariableDeclarator ::= Identifier LPAREN  .IdentifierList RPAREN ResultTypeopt 
@@ -66829,14 +67510,14 @@ IdentifierList ::= .IdentifierList COMMA Identifier
 
 IDENTIFIER        Sh/Rd  213
 
-IdentifierList    Goto   470
+IdentifierList    Goto   473
 Identifier        Gt/Rd  378
 identifier        Gt/Rd  368
 
 
 
-STATE 429 ----------------------------------------------------------------------
-( 385 )
+STATE 431 ----------------------------------------------------------------------
+( 386 )
 
 ResultType ::= COLON  .Type 
 FormalDeclarator ::= Identifier COLON  .Type 
@@ -66870,7 +67551,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   471
+Type                    Goto   474
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -66878,8 +67559,8 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 430 ----------------------------------------------------------------------
-( 387 )
+STATE 432 ----------------------------------------------------------------------
+( 388 )
 
 ClassInstanceCreationExpression ::= AmbiguousName DOT new Identifier 
                                     TypeArgumentsopt LPAREN  .ArgumentListopt 
@@ -67058,9 +67739,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -67098,7 +67780,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   472
+ArgumentListopt                    Goto   475
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -67160,8 +67842,8 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 431 ----------------------------------------------------------------------
-( 388 )
+STATE 433 ----------------------------------------------------------------------
+( 389 )
 
 MethodInvocation ::= Primary DOT Identifier TypeArgumentsopt LPAREN 
                      ArgumentListopt  .RPAREN 
@@ -67170,8 +67852,8 @@ RPAREN    Sh/Rd  435
 
 
 
-STATE 432 ----------------------------------------------------------------------
-( 389 )
+STATE 434 ----------------------------------------------------------------------
+( 390 )
 
 ClassInstanceCreationExpression ::= Primary DOT new Identifier 
                                     TypeArgumentsopt LPAREN  .ArgumentListopt 
@@ -67350,9 +68032,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -67390,7 +68073,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   473
+ArgumentListopt                    Goto   476
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -67452,8 +68135,132 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 433 ----------------------------------------------------------------------
-( 390 )
+STATE 435 ----------------------------------------------------------------------
+( 391 )
+
+Assignment ::= ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression . (497)
+Expression ::= AssignmentExpression . (512)
+
+ARROW                    Reduce 497
+                         Reduce 512
+
+ArrayInitailizer         Reduce 497
+SynchronizedStatement    Reduce 497
+IDENTIFIER               Reduce 497
+while                    Reduce 497
+when                     Reduce 497
+volatile                 Reduce 497
+var                      Reduce 497
+value                    Reduce 497
+val                      Reduce 497
+type                     Reduce 497
+try                      Reduce 497
+true                     Reduce 497
+transient                Reduce 497
+throws                   Reduce 497
+throw                    Reduce 497
+this                     Reduce 497
+switch                   Reduce 497
+super                    Reduce 497
+strictfp                 Reduce 497
+static                   Reduce 497
+sequential               Reduce 497
+self                     Reduce 497
+safe                     Reduce 497
+return                   Reduce 497
+public                   Reduce 497
+protected                Reduce 497
+property                 Reduce 497
+private                  Reduce 497
+package                  Reduce 497
+null                     Reduce 497
+now                      Reduce 497
+nonblocking              Reduce 497
+next                     Reduce 497
+new                      Reduce 497
+native                   Reduce 497
+local                    Reduce 497
+interface                Reduce 497
+instanceof               Reduce 497
+implements               Reduce 497
+if                       Reduce 497
+here                     Reduce 497
+to                       Reduce 497
+in                       Reduce 497
+future                   Reduce 497
+foreach                  Reduce 497
+for                      Reduce 497
+finish                   Reduce 497
+final                    Reduce 497
+false                    Reduce 497
+extern                   Reduce 497
+extends                  Reduce 497
+do                       Reduce 497
+def                      Reduce 497
+continue                 Reduce 497
+const                    Reduce 497
+class                    Reduce 497
+break                    Reduce 497
+await                    Reduce 497
+atomic                   Reduce 497
+ateach                   Reduce 497
+async                    Reduce 497
+assert                   Reduce 497
+as                       Reduce 497
+abstract                 Reduce 497
+SUPERTYPE                Reduce 497
+SUBTYPE                  Reduce 497
+DARROW                   Reduce 497
+RANGE                    Reduce 497
+GREATER_EQUAL            Reduce 497
+GREATER                  Reduce 497
+EQUAL_EQUAL              Reduce 497
+EQUAL                    Reduce 497
+LESS_EQUAL               Reduce 497
+UNSIGNED_RIGHT_SHIFT     Reduce 497
+RIGHT_SHIFT              Reduce 497
+LEFT_SHIFT               Reduce 497
+LESS                     Reduce 497
+PLUS_PLUS                Reduce 497
+PLUS                     Reduce 497
+TWIDDLE                  Reduce 497
+RBRACE                   Reduce 497
+OR_OR                    Reduce 497
+LBRACE                   Reduce 497
+XOR                      Reduce 497
+RBRACKET                 Reduce 497
+LBRACKET                 Reduce 497
+AT                       Reduce 497
+QUESTION                 Reduce 497
+SEMICOLON                Reduce 497
+COLON                    Reduce 497
+DIVIDE                   Reduce 497
+DOT                      Reduce 497
+COMMA                    Reduce 497
+MULTIPLY                 Reduce 497
+RPAREN                   Reduce 497
+LPAREN                   Reduce 497
+AND_AND                  Reduce 497
+AND                      Reduce 497
+REMAINDER                Reduce 497
+NOT_EQUAL                Reduce 497
+NOT                      Reduce 497
+MINUS                    Reduce 497
+OR                       Reduce 497
+MINUS_MINUS              Reduce 497
+StringLiteral            Reduce 497
+CharacterLiteral         Reduce 497
+DoubleLiteral            Reduce 497
+FloatingPointLiteral     Reduce 497
+LongLiteral              Reduce 497
+IntegerLiteral           Reduce 497
+
+Default reduction to rule  497
+
+
+STATE 436 ----------------------------------------------------------------------
+( 392 )
 
 FunctionType ::= TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
                  WhereClauseopt Throwsopt DARROW  .Type 
@@ -67487,7 +68294,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   474
+Type                    Goto   477
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -67495,8 +68302,8 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 434 ----------------------------------------------------------------------
-( 392 )
+STATE 437 ----------------------------------------------------------------------
+( 394 )
 
 InterfaceBody ::= LBRACE InterfaceMemberDeclarationsopt  .RBRACE 
 
@@ -67504,8 +68311,8 @@ RBRACE    Sh/Rd  357
 
 
 
-STATE 435 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 438 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 ClassModifier ::= safe . (255)
 MethodModifier ::= safe . (318)
@@ -67542,8 +68349,8 @@ local          Reduce 318
 Default reduction to rule  255
 
 
-STATE 436 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 439 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 ClassModifier ::= strictfp . (254)
 MethodModifier ::= strictfp . (315)
@@ -67589,8 +68396,8 @@ def            Reduce 315
 Default reduction to rule  254
 
 
-STATE 437 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 440 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 ClassModifier ::= final . (253)
 MethodModifier ::= final . (313)
@@ -67627,8 +68434,8 @@ local          Reduce 313
 Default reduction to rule  253
 
 
-STATE 438 ----------------------------------------------------------------------
-( 392 446 )
+STATE 441 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= static . (252)
 MethodModifier ::= static . (312)
@@ -67674,8 +68481,8 @@ def            Reduce 312
 Default reduction to rule  252
 
 
-STATE 439 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 442 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 ClassModifier ::= abstract . (251)
 MethodModifier ::= abstract . (311)
@@ -67721,8 +68528,8 @@ def            Reduce 311
 Default reduction to rule  251
 
 
-STATE 440 ----------------------------------------------------------------------
-( 392 446 )
+STATE 443 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= private . (250)
 MethodModifier ::= private . (310)
@@ -67768,8 +68575,8 @@ def            Reduce 310
 Default reduction to rule  250
 
 
-STATE 441 ----------------------------------------------------------------------
-( 392 446 )
+STATE 444 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= protected . (249)
 MethodModifier ::= protected . (309)
@@ -67815,8 +68622,8 @@ def            Reduce 309
 Default reduction to rule  249
 
 
-STATE 442 ----------------------------------------------------------------------
-( 392 446 )
+STATE 445 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= public . (248)
 MethodModifier ::= public . (308)
@@ -67862,8 +68669,8 @@ def            Reduce 308
 Default reduction to rule  248
 
 
-STATE 443 ----------------------------------------------------------------------
-( 392 446 )
+STATE 446 ----------------------------------------------------------------------
+( 394 449 )
 
 ClassModifier ::= Annotation . (247)
 MethodModifier ::= Annotation . (307)
@@ -67909,8 +68716,8 @@ def            Reduce 307
 Default reduction to rule  247
 
 
-STATE 444 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 447 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 MethodModifiers ::= MethodModifiers  .MethodModifier 
 MethodModifiersopt ::= MethodModifiers . (555)
@@ -67956,19 +68763,19 @@ def               Reduce 555
 Default reduction to rule  555
 
 
-STATE 445 ----------------------------------------------------------------------
-( 392 446 448 486 )
+STATE 448 ----------------------------------------------------------------------
+( 394 449 451 489 )
 
 MethodDeclaration ::= MethodModifiersopt  .def Identifier TypeParametersopt 
                       FormalParameters WhereClauseopt ResultTypeopt Throwsopt 
                       MethodBody 
 
-def    Shift  475
+def    Shift  478
 
 
 
-STATE 446 ----------------------------------------------------------------------
-( 392 )
+STATE 449 ----------------------------------------------------------------------
+( 394 )
 
 InterfaceMemberDeclarations ::= InterfaceMemberDeclarations  .
                                 InterfaceMemberDeclaration 
@@ -68045,17 +68852,17 @@ SEMICOLON                     Sh/Rd  363
 nonblocking                   Sh/Rd  321
 local                         Sh/Rd  320
 sequential                    Sh/Rd  319
-safe                          Shift  435
+safe                          Shift  438
 extern                        Sh/Rd  317
 atomic                        Sh/Rd  316
-strictfp                      Shift  436
+strictfp                      Shift  439
 native                        Sh/Rd  314
-final                         Shift  437
-static                        Shift  438
-abstract                      Shift  439
-private                       Shift  440
-protected                     Shift  441
-public                        Shift  442
+final                         Shift  440
+static                        Shift  441
+abstract                      Shift  442
+private                       Shift  443
+protected                     Shift  444
+public                        Shift  445
 AT                            Shift  6
 
 InterfaceMemberDeclaration    Gt/Rd  359
@@ -68071,10 +68878,10 @@ ClassModifiers                Goto   26
 ClassModifiersopt             Goto   27
 NormalClassDeclaration        Gt/Rd  244
 ValueClassDeclaration         Gt/Rd  62
-Annotation                    Goto   443
-MethodModifiers               Goto   444
+Annotation                    Goto   446
+MethodModifiers               Goto   447
 MethodModifier                Gt/Rd  305
-MethodModifiersopt            Goto   445
+MethodModifiersopt            Goto   448
 
 def                           Reduce 554
 value                         Reduce 205
@@ -68085,8 +68892,8 @@ RBRACE                        Reduce 533
 Default reduction to rule  205
 
 
-STATE 447 ----------------------------------------------------------------------
-( 394 )
+STATE 450 ----------------------------------------------------------------------
+( 396 )
 
 ValueClassDeclaration ::= ClassModifiersopt value class Identifier 
                           TypePropertiesopt PropertyListopt WhereClauseopt 
@@ -68094,14 +68901,14 @@ ValueClassDeclaration ::= ClassModifiersopt value class Identifier
 
 ClassBody ::= .LBRACE ClassBodyDeclarationsopt RBRACE 
 
-LBRACE       Shift  448
+LBRACE       Shift  451
 
 ClassBody    Gt/Rd  64
 
 
 
-STATE 448 ----------------------------------------------------------------------
-( 395 398 405 447 510 511 )
+STATE 451 ----------------------------------------------------------------------
+( 397 400 407 450 513 514 )
 
 ClassBody ::= LBRACE  .ClassBodyDeclarationsopt RBRACE 
 
@@ -68216,39 +69023,39 @@ sequential                    Sh/Rd  319
 extern                        Sh/Rd  317
 atomic                        Sh/Rd  316
 native                        Sh/Rd  314
-safe                          Shift  435
-final                         Shift  437
-strictfp                      Shift  436
-static                        Shift  481
-abstract                      Shift  439
-private                       Shift  482
-protected                     Shift  483
-public                        Shift  484
+safe                          Shift  438
+final                         Shift  440
+strictfp                      Shift  439
+static                        Shift  484
+abstract                      Shift  442
+private                       Shift  485
+protected                     Shift  486
+public                        Shift  487
 SEMICOLON                     Sh/Rd  279
-def                           La/Sh  607
+def                           La/Sh  610
 
-ClassBodyDeclarationsopt      Goto   476
+ClassBodyDeclarationsopt      Goto   479
 ConstructorDeclaration        Gt/Rd  274
 StaticInitializer             Gt/Rd  273
 InstanceInitializer           Gt/Rd  272
 ClassMemberDeclaration        Gt/Rd  271
-ConstructorModifiers          Goto   477
+ConstructorModifiers          Goto   480
 ConstructorModifier           Gt/Rd  333
-ConstructorModifiersopt       Goto   478
+ConstructorModifiersopt       Goto   481
 Block                         Gt/Rd  330
-FieldModifiersopt             Goto   479
+FieldModifiersopt             Goto   482
 FieldModifier                 Gt/Rd  287
-FieldModifiers                Goto   480
-MethodModifiersopt            Goto   445
+FieldModifiers                Goto   483
+MethodModifiersopt            Goto   448
 MethodModifier                Gt/Rd  305
-MethodModifiers               Goto   444
+MethodModifiers               Goto   447
 NormalClassDeclaration        Gt/Rd  244
 ValueClassDeclaration         Gt/Rd  62
 ClassModifiers                Goto   26
 ClassModifier                 Gt/Rd  245
 ClassModifiersopt             Goto   27
 NormalInterfaceDeclaration    Gt/Rd  345
-Annotation                    Goto   485
+Annotation                    Goto   488
 InterfaceModifiers            Goto   17
 InterfaceModifier             Gt/Rd  346
 InterfaceModifiersopt         Goto   16
@@ -68256,7 +69063,7 @@ InterfaceDeclaration          Gt/Rd  278
 ClassDeclaration              Gt/Rd  277
 MethodDeclaration             Gt/Rd  276
 FieldDeclaration              Gt/Rd  275
-ClassBodyDeclarations         Goto   486
+ClassBodyDeclarations         Goto   489
 ClassBodyDeclaration          Gt/Rd  269
 
 interface                     Reduce 536
@@ -68270,21 +69077,21 @@ RBRACE                        Reduce 558
 Default reduction to rule  556
 
 
-STATE 449 ----------------------------------------------------------------------
-( 396 )
+STATE 452 ----------------------------------------------------------------------
+( 398 )
 
 Interfaces ::= implements InterfaceTypeList . (265)
 InterfaceTypeList ::= InterfaceTypeList  .COMMA InterfaceType 
 
-COMMA     Shift  487
+COMMA     Shift  490
 
 LBRACE    Reduce 265
 
 Default reduction to rule  265
 
 
-STATE 450 ----------------------------------------------------------------------
-( 399 )
+STATE 453 ----------------------------------------------------------------------
+( 401 )
 
 AnnotatedType ::= Type  .Annotations 
 FormalDeclarator ::= LPAREN IdentifierList RPAREN COLON Type . (381)
@@ -68306,8 +69113,8 @@ RPAREN         Reduce 381
 Default reduction to rule  381
 
 
-STATE 451 ----------------------------------------------------------------------
-( 400 )
+STATE 454 ----------------------------------------------------------------------
+( 402 )
 
 FormalDeclarator ::= Identifier LPAREN IdentifierList RPAREN COLON  .Type 
 
@@ -68340,7 +69147,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   488
+Type                    Goto   491
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -68348,8 +69155,8 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 452 ----------------------------------------------------------------------
-( 402 )
+STATE 455 ----------------------------------------------------------------------
+( 404 )
 
 ExceptionTypeList ::= ExceptionTypeList COMMA  .ExceptionType 
 
@@ -68374,8 +69181,8 @@ ClassOrInterfaceType    Gt/Rd  37
 
 
 
-STATE 453 ----------------------------------------------------------------------
-( 403 )
+STATE 456 ----------------------------------------------------------------------
+( 405 )
 
 MethodInvocation ::= ClassName DOT super DOT Identifier TypeArgumentsopt 
                      LPAREN  .ArgumentListopt RPAREN 
@@ -68553,9 +69360,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -68593,7 +69401,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   489
+ArgumentListopt                    Goto   492
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -68655,8 +69463,8 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 454 ----------------------------------------------------------------------
-( 406 )
+STATE 457 ----------------------------------------------------------------------
+( 408 )
 
 AssignPropertyCall ::= property TypeArgumentsopt LPAREN ArgumentListopt 
                        RPAREN  .SEMICOLON 
@@ -68665,32 +69473,32 @@ SEMICOLON    Sh/Rd  33
 
 
 
-STATE 455 ----------------------------------------------------------------------
-( 407 )
+STATE 458 ----------------------------------------------------------------------
+( 409 )
 
 AtEachStatement ::= ateach LPAREN FormalParameter in Expression  .RPAREN 
                     ClockedClauseopt Statement 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  490
+RPAREN    Shift  493
 
 
 
-STATE 456 ----------------------------------------------------------------------
-( 408 )
+STATE 459 ----------------------------------------------------------------------
+( 410 )
 
 ForEachStatement ::= foreach LPAREN FormalParameter in Expression  .RPAREN 
                      ClockedClauseopt Statement 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  491
+RPAREN    Shift  494
 
 
 
-STATE 457 ----------------------------------------------------------------------
-( 409 )
+STATE 460 ----------------------------------------------------------------------
+( 411 )
 
 WhenStatement ::= WhenStatement or LPAREN Expression RPAREN  .Statement 
 
@@ -68870,9 +69678,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -68930,7 +69739,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -68946,6 +69754,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -68983,41 +69792,41 @@ Block                              Gt/Rd  75
 
 
 
-STATE 458 ----------------------------------------------------------------------
-( 411 )
+STATE 461 ----------------------------------------------------------------------
+( 413 )
 
 ClockedClause ::= clocked LPAREN ClockList  .RPAREN 
 ClockList ::= ClockList  .COMMA Clock 
 
-COMMA     Shift  492
+COMMA     Shift  495
 RPAREN    Sh/Rd  146
 
 
 
-STATE 459 ----------------------------------------------------------------------
-( 413 )
+STATE 462 ----------------------------------------------------------------------
+( 415 )
 
 EnhancedForStatement ::= for LPAREN FormalParameter in Expression  .RPAREN 
                          Statement 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  493
+RPAREN    Shift  496
 
 
 
-STATE 460 ----------------------------------------------------------------------
-( 414 )
+STATE 463 ----------------------------------------------------------------------
+( 416 )
 
 BasicForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt  .SEMICOLON 
                       ForUpdateopt RPAREN Statement 
 
-SEMICOLON    Shift  494
+SEMICOLON    Shift  497
 
 
 
-STATE 461 ----------------------------------------------------------------------
-( 416 )
+STATE 464 ----------------------------------------------------------------------
+( 418 )
 
 FormalDeclarators ::= FormalDeclarator . (280)
 FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator . (300)
@@ -69029,14 +69838,14 @@ in           Reduce 300
 Default reduction to rule  280
 
 
-STATE 462 ----------------------------------------------------------------------
-( 418 )
+STATE 465 ----------------------------------------------------------------------
+( 420 )
 
 IfThenStatement ::= if LPAREN Expression RPAREN Statement . (102)
 IfThenElseStatement ::= if LPAREN Expression RPAREN Statement  .else Statement 
 
 else                     Reduce 102
-                         Shift  495
+                         Shift  498
 
 ArrayInitailizer         Reduce 102
 SynchronizedStatement    Reduce 102
@@ -69108,28 +69917,28 @@ IntegerLiteral           Reduce 102
 Default reduction to rule  102
 
 
-STATE 463 ----------------------------------------------------------------------
-( 420 )
+STATE 466 ----------------------------------------------------------------------
+( 422 )
 
 CatchClause ::= catch LPAREN FormalParameter  .RPAREN Block 
 
-RPAREN    Shift  496
+RPAREN    Shift  499
 
 
 
-STATE 464 ----------------------------------------------------------------------
-( 421 )
+STATE 467 ----------------------------------------------------------------------
+( 423 )
 
 DoStatement ::= do Statement while LPAREN Expression  .RPAREN SEMICOLON 
 AssignmentExpression ::= Expression  .ARROW Expression 
 
 ARROW     Shift  173
-RPAREN    Shift  497
+RPAREN    Shift  500
 
 
 
-STATE 465 ----------------------------------------------------------------------
-( 422 )
+STATE 468 ----------------------------------------------------------------------
+( 424 )
 
 SwitchBlock ::= LBRACE  .SwitchBlockStatementGroupsopt SwitchLabelsopt RBRACE 
 
@@ -69144,15 +69953,15 @@ SwitchLabel ::= .default COLON
 SwitchBlockStatementGroupsopt ::= . (526)
 SwitchBlockStatementGroupsopt ::= .SwitchBlockStatementGroups 
 
-default                          Shift  499
+default                          Shift  502
                                  Reduce 526
-case                             Shift  500
+case                             Shift  503
                                  Reduce 526
 
-SwitchBlockStatementGroupsopt    Goto   498
-SwitchLabels                     Goto   501
+SwitchBlockStatementGroupsopt    Goto   501
+SwitchLabels                     Goto   504
 SwitchLabel                      Gt/Rd  121
-SwitchBlockStatementGroups       Goto   502
+SwitchBlockStatementGroups       Goto   505
 SwitchBlockStatementGroup        Gt/Rd  118
 
 RBRACE                           Reduce 526
@@ -69160,8 +69969,8 @@ RBRACE                           Reduce 526
 Default reduction to rule  526
 
 
-STATE 466 ----------------------------------------------------------------------
-( 424 )
+STATE 469 ----------------------------------------------------------------------
+( 426 )
 
 VariableDeclarator ::= LPAREN  .IdentifierList RPAREN ResultTypeopt EQUAL 
                        VariableInitializer 
@@ -69173,14 +69982,14 @@ IdentifierList ::= .IdentifierList COMMA Identifier
 
 IDENTIFIER        Sh/Rd  213
 
-IdentifierList    Goto   503
+IdentifierList    Goto   506
 Identifier        Gt/Rd  378
 identifier        Gt/Rd  368
 
 
 
-STATE 467 ----------------------------------------------------------------------
-( 424 )
+STATE 470 ----------------------------------------------------------------------
+( 426 )
 
 VariableDeclarator ::= Identifier  .ResultTypeopt EQUAL VariableInitializer 
 VariableDeclarator ::= Identifier  .LPAREN IdentifierList RPAREN ResultTypeopt 
@@ -69190,10 +69999,10 @@ ResultType ::= .COLON Type
 ResultTypeopt ::= . (576)
 ResultTypeopt ::= .ResultType 
 
-LPAREN           Shift  504
+LPAREN           Shift  507
 COLON            Shift  301
 
-ResultTypeopt    Goto   427
+ResultTypeopt    Goto   429
 ResultType       Gt/Rd  577
 
 EQUAL            Reduce 576
@@ -69201,8 +70010,8 @@ EQUAL            Reduce 576
 Default reduction to rule  576
 
 
-STATE 468 ----------------------------------------------------------------------
-( 426 )
+STATE 471 ----------------------------------------------------------------------
+( 428 )
 
 FormalDeclarator ::= LPAREN IdentifierList RPAREN  .COLON Type 
 VariableDeclarator ::= LPAREN IdentifierList RPAREN  .ResultTypeopt EQUAL 
@@ -69212,9 +70021,9 @@ ResultType ::= .COLON Type
 ResultTypeopt ::= . (576)
 ResultTypeopt ::= .ResultType 
 
-COLON            Shift  506
+COLON            Shift  509
 
-ResultTypeopt    Goto   505
+ResultTypeopt    Goto   508
 ResultType       Gt/Rd  577
 
 EQUAL            Reduce 576
@@ -69222,8 +70031,8 @@ EQUAL            Reduce 576
 Default reduction to rule  576
 
 
-STATE 469 ----------------------------------------------------------------------
-( 427 )
+STATE 472 ----------------------------------------------------------------------
+( 429 )
 
 VariableDeclarator ::= Identifier ResultTypeopt EQUAL  .VariableInitializer 
 
@@ -69400,9 +70209,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -69412,7 +70222,7 @@ TypeArgumentsopt ::= .TypeArguments
 LPAREN                             Shift  79
                                    Reduce 564
                                    Reduce 578
-EQUAL                              Shift  507
+EQUAL                              Shift  510
 MINUS                              Shift  75
 PLUS                               Shift  76
 ArrayInitailizer                   Sh/Rd  444
@@ -69442,7 +70252,7 @@ PLUS_PLUS                          Shift  58
 VariableInitializer                Gt/Rd  385
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   508
+Expression                         Goto   511
 LeftHandSide                       Goto   92
 TypeParameters                     Gt/Rd  565
 ConditionalExpression              Goto   90
@@ -69497,21 +70307,21 @@ AssignmentExpression               Gt/Rd  512
 
 
 
-STATE 470 ----------------------------------------------------------------------
-( 428 )
+STATE 473 ----------------------------------------------------------------------
+( 430 )
 
 IdentifierList ::= IdentifierList  .COMMA Identifier 
 FormalDeclarator ::= Identifier LPAREN IdentifierList  .RPAREN COLON Type 
 VariableDeclarator ::= Identifier LPAREN IdentifierList  .RPAREN ResultTypeopt 
                        EQUAL VariableInitializer 
 
-RPAREN    Shift  509
-COMMA     Shift  351
+RPAREN    Shift  512
+COMMA     Shift  352
 
 
 
-STATE 471 ----------------------------------------------------------------------
-( 429 )
+STATE 474 ----------------------------------------------------------------------
+( 431 )
 
 AnnotatedType ::= Type  .Annotations 
 ResultType ::= COLON Type . (295)
@@ -69534,30 +70344,30 @@ COMMA          Reduce 380
 Default reduction to rule  380
 
 
-STATE 472 ----------------------------------------------------------------------
-( 430 )
+STATE 475 ----------------------------------------------------------------------
+( 432 )
 
 ClassInstanceCreationExpression ::= AmbiguousName DOT new Identifier 
                                     TypeArgumentsopt LPAREN ArgumentListopt  .
                                     RPAREN ClassBodyopt 
 
-RPAREN    Shift  510
+RPAREN    Shift  513
 
 
 
-STATE 473 ----------------------------------------------------------------------
-( 432 )
+STATE 476 ----------------------------------------------------------------------
+( 434 )
 
 ClassInstanceCreationExpression ::= Primary DOT new Identifier 
                                     TypeArgumentsopt LPAREN ArgumentListopt  .
                                     RPAREN ClassBodyopt 
 
-RPAREN    Shift  511
+RPAREN    Shift  514
 
 
 
-STATE 474 ----------------------------------------------------------------------
-( 433 )
+STATE 477 ----------------------------------------------------------------------
+( 436 )
 
 FunctionType ::= TypeArgumentsopt LPAREN FormalParameterListopt RPAREN 
                  WhereClauseopt Throwsopt DARROW Type . (36)
@@ -69687,8 +70497,8 @@ IntegerLiteral           Reduce 36
 Default reduction to rule  36
 
 
-STATE 475 ----------------------------------------------------------------------
-( 445 )
+STATE 478 ----------------------------------------------------------------------
+( 448 )
 
 MethodDeclaration ::= MethodModifiersopt def  .Identifier TypeParametersopt 
                       FormalParameters WhereClauseopt ResultTypeopt Throwsopt 
@@ -69699,13 +70509,13 @@ Identifier ::= .identifier
 
 IDENTIFIER    Sh/Rd  213
 
-Identifier    Goto   512
+Identifier    Goto   515
 identifier    Gt/Rd  368
 
 
 
-STATE 476 ----------------------------------------------------------------------
-( 448 )
+STATE 479 ----------------------------------------------------------------------
+( 451 )
 
 ClassBody ::= LBRACE ClassBodyDeclarationsopt  .RBRACE 
 
@@ -69713,8 +70523,8 @@ RBRACE    Sh/Rd  268
 
 
 
-STATE 477 ----------------------------------------------------------------------
-( 448 486 )
+STATE 480 ----------------------------------------------------------------------
+( 451 489 )
 
 ConstructorModifiers ::= ConstructorModifiers  .ConstructorModifier 
 ConstructorModifiersopt ::= ConstructorModifiers . (549)
@@ -69738,19 +70548,19 @@ def                    Reduce 549
 Default reduction to rule  549
 
 
-STATE 478 ----------------------------------------------------------------------
-( 448 486 )
+STATE 481 ----------------------------------------------------------------------
+( 451 489 )
 
 ConstructorDeclaration ::= ConstructorModifiersopt  .def this TypeParametersopt 
                            FormalParameters WhereClauseopt ResultTypeopt 
                            Throwsopt ConstructorBody 
 
-def    Shift  513
+def    Shift  516
 
 
 
-STATE 479 ----------------------------------------------------------------------
-( 448 486 )
+STATE 482 ----------------------------------------------------------------------
+( 451 489 )
 
 FieldDeclaration ::= FieldModifiersopt  .FieldKeyword FieldDeclarators 
                      SEMICOLON 
@@ -69763,12 +70573,12 @@ const           Sh/Rd  69
 var             Sh/Rd  68
 val             Sh/Rd  67
 
-FieldKeyword    Goto   514
+FieldKeyword    Goto   517
 
 
 
-STATE 480 ----------------------------------------------------------------------
-( 448 486 )
+STATE 483 ----------------------------------------------------------------------
+( 451 489 )
 
 FieldModifiers ::= FieldModifiers  .FieldModifier 
 FieldModifiersopt ::= FieldModifiers . (557)
@@ -69798,8 +70608,8 @@ const            Reduce 557
 Default reduction to rule  557
 
 
-STATE 481 ----------------------------------------------------------------------
-( 448 486 )
+STATE 484 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= static . (252)
 MethodModifier ::= static . (312)
@@ -69851,8 +70661,8 @@ def            Reduce 312
 Default reduction to rule  252
 
 
-STATE 482 ----------------------------------------------------------------------
-( 448 486 )
+STATE 485 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= private . (250)
 FieldModifier ::= private . (292)
@@ -69893,7 +70703,7 @@ AT             Reduce 250
                Reduce 310
                Reduce 338
                Reduce 292
-def            La/Sh  608
+def            La/Sh  611
 
 value          Reduce 250
 class          Reduce 250
@@ -69913,8 +70723,8 @@ extern         Reduce 310
 Default reduction to rule  250
 
 
-STATE 483 ----------------------------------------------------------------------
-( 448 486 )
+STATE 486 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= protected . (249)
 FieldModifier ::= protected . (291)
@@ -69955,7 +70765,7 @@ AT             Reduce 249
                Reduce 309
                Reduce 337
                Reduce 291
-def            La/Sh  609
+def            La/Sh  612
 
 value          Reduce 249
 class          Reduce 249
@@ -69975,8 +70785,8 @@ extern         Reduce 309
 Default reduction to rule  249
 
 
-STATE 484 ----------------------------------------------------------------------
-( 448 486 )
+STATE 487 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= public . (248)
 FieldModifier ::= public . (290)
@@ -70017,7 +70827,7 @@ AT             Reduce 248
                Reduce 308
                Reduce 336
                Reduce 290
-def            La/Sh  610
+def            La/Sh  613
 
 value          Reduce 248
 class          Reduce 248
@@ -70037,8 +70847,8 @@ extern         Reduce 308
 Default reduction to rule  248
 
 
-STATE 485 ----------------------------------------------------------------------
-( 448 486 )
+STATE 488 ----------------------------------------------------------------------
+( 451 489 )
 
 ClassModifier ::= Annotation . (247)
 FieldModifier ::= Annotation . (289)
@@ -70079,7 +70889,7 @@ AT             Reduce 247
                Reduce 307
                Reduce 335
                Reduce 289
-def            La/Sh  611
+def            La/Sh  614
 
 value          Reduce 247
 class          Reduce 247
@@ -70099,8 +70909,8 @@ extern         Reduce 307
 Default reduction to rule  247
 
 
-STATE 486 ----------------------------------------------------------------------
-( 448 )
+STATE 489 ----------------------------------------------------------------------
+( 451 )
 
 ClassBodyDeclarations ::= ClassBodyDeclarations  .ClassBodyDeclaration 
 ClassBodyDeclarationsopt ::= ClassBodyDeclarations . (559)
@@ -70212,39 +71022,39 @@ sequential                    Sh/Rd  319
 extern                        Sh/Rd  317
 atomic                        Sh/Rd  316
 native                        Sh/Rd  314
-safe                          Shift  435
-final                         Shift  437
-strictfp                      Shift  436
-static                        Shift  481
-abstract                      Shift  439
-private                       Shift  482
-protected                     Shift  483
-public                        Shift  484
+safe                          Shift  438
+final                         Shift  440
+strictfp                      Shift  439
+static                        Shift  484
+abstract                      Shift  442
+private                       Shift  485
+protected                     Shift  486
+public                        Shift  487
 SEMICOLON                     Sh/Rd  279
-def                           La/Sh  612
+def                           La/Sh  615
 
 ClassBodyDeclaration          Gt/Rd  270
 ConstructorDeclaration        Gt/Rd  274
 StaticInitializer             Gt/Rd  273
 InstanceInitializer           Gt/Rd  272
 ClassMemberDeclaration        Gt/Rd  271
-ConstructorModifiers          Goto   477
+ConstructorModifiers          Goto   480
 ConstructorModifier           Gt/Rd  333
-ConstructorModifiersopt       Goto   478
+ConstructorModifiersopt       Goto   481
 Block                         Gt/Rd  330
-FieldModifiersopt             Goto   479
+FieldModifiersopt             Goto   482
 FieldModifier                 Gt/Rd  287
-FieldModifiers                Goto   480
-MethodModifiersopt            Goto   445
+FieldModifiers                Goto   483
+MethodModifiersopt            Goto   448
 MethodModifier                Gt/Rd  305
-MethodModifiers               Goto   444
+MethodModifiers               Goto   447
 NormalClassDeclaration        Gt/Rd  244
 ValueClassDeclaration         Gt/Rd  62
 ClassModifiers                Goto   26
 ClassModifier                 Gt/Rd  245
 ClassModifiersopt             Goto   27
 NormalInterfaceDeclaration    Gt/Rd  345
-Annotation                    Goto   485
+Annotation                    Goto   488
 InterfaceModifiers            Goto   17
 InterfaceModifier             Gt/Rd  346
 InterfaceModifiersopt         Goto   16
@@ -70264,8 +71074,8 @@ RBRACE                        Reduce 559
 Default reduction to rule  556
 
 
-STATE 487 ----------------------------------------------------------------------
-( 449 )
+STATE 490 ----------------------------------------------------------------------
+( 452 )
 
 InterfaceTypeList ::= InterfaceTypeList COMMA  .InterfaceType 
 
@@ -70288,8 +71098,8 @@ TypeName                Goto   13
 
 
 
-STATE 488 ----------------------------------------------------------------------
-( 451 )
+STATE 491 ----------------------------------------------------------------------
+( 454 )
 
 AnnotatedType ::= Type  .Annotations 
 FormalDeclarator ::= Identifier LPAREN IdentifierList RPAREN COLON Type . (382)
@@ -70311,8 +71121,8 @@ RPAREN         Reduce 382
 Default reduction to rule  382
 
 
-STATE 489 ----------------------------------------------------------------------
-( 453 )
+STATE 492 ----------------------------------------------------------------------
+( 456 )
 
 MethodInvocation ::= ClassName DOT super DOT Identifier TypeArgumentsopt 
                      LPAREN ArgumentListopt  .RPAREN 
@@ -70321,8 +71131,8 @@ RPAREN    Sh/Rd  437
 
 
 
-STATE 490 ----------------------------------------------------------------------
-( 455 )
+STATE 493 ----------------------------------------------------------------------
+( 458 )
 
 AtEachStatement ::= ateach LPAREN FormalParameter in Expression RPAREN  .
                     ClockedClauseopt Statement 
@@ -70331,9 +71141,9 @@ ClockedClause ::= .clocked LPAREN ClockList RPAREN
 ClockedClauseopt ::= . (211)
 ClockedClauseopt ::= .ClockedClause 
 
-clocked                  Shift  367
+clocked                  Shift  368
 
-ClockedClauseopt         Goto   515
+ClockedClauseopt         Goto   518
 ClockedClause            Gt/Rd  212
 
 ArrayInitailizer         Reduce 211
@@ -70386,8 +71196,8 @@ IntegerLiteral           Reduce 211
 Default reduction to rule  211
 
 
-STATE 491 ----------------------------------------------------------------------
-( 456 )
+STATE 494 ----------------------------------------------------------------------
+( 459 )
 
 ForEachStatement ::= foreach LPAREN FormalParameter in Expression RPAREN  .
                      ClockedClauseopt Statement 
@@ -70396,9 +71206,9 @@ ClockedClause ::= .clocked LPAREN ClockList RPAREN
 ClockedClauseopt ::= . (211)
 ClockedClauseopt ::= .ClockedClause 
 
-clocked                  Shift  367
+clocked                  Shift  368
 
-ClockedClauseopt         Goto   516
+ClockedClauseopt         Goto   519
 ClockedClause            Gt/Rd  212
 
 ArrayInitailizer         Reduce 211
@@ -70451,8 +71261,8 @@ IntegerLiteral           Reduce 211
 Default reduction to rule  211
 
 
-STATE 492 ----------------------------------------------------------------------
-( 458 )
+STATE 495 ----------------------------------------------------------------------
+( 461 )
 
 ClockList ::= ClockList COMMA  .Clock 
 
@@ -70628,9 +71438,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -70669,7 +71480,7 @@ LBRACKET                           Shift  91
 Clock                              Gt/Rd  161
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   369
+Expression                         Goto   370
 LeftHandSide                       Goto   92
 TypeParameters                     Gt/Rd  565
 ConditionalExpression              Goto   90
@@ -70724,8 +71535,8 @@ AssignmentExpression               Gt/Rd  512
 
 
 
-STATE 493 ----------------------------------------------------------------------
-( 459 )
+STATE 496 ----------------------------------------------------------------------
+( 462 )
 
 EnhancedForStatement ::= for LPAREN FormalParameter in Expression RPAREN  .
                          Statement 
@@ -70906,9 +71717,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -70966,7 +71778,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -70982,6 +71793,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -71019,8 +71831,8 @@ Block                              Gt/Rd  75
 
 
 
-STATE 494 ----------------------------------------------------------------------
-( 460 )
+STATE 497 ----------------------------------------------------------------------
+( 463 )
 
 BasicForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt 
                       SEMICOLON  .ForUpdateopt RPAREN Statement 
@@ -71133,9 +71945,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 ForUpdateopt ::= . (518)
 ForUpdateopt ::= .ForUpdate 
 
@@ -71161,7 +71974,7 @@ future                             Shift  70
 super                              Shift  68
 IDENTIFIER                         Sh/Rd  213
 
-ForUpdateopt                       Goto   517
+ForUpdateopt                       Goto   520
 ForUpdate                          Gt/Rd  519
 StatementExpression                Gt/Rd  133
 LeftHandSide                       Goto   92
@@ -71189,15 +72002,15 @@ PostIncrementExpression            Goto   237
 PreDecrementExpression             Gt/Rd  109
 PreIncrementExpression             Gt/Rd  108
 Assignment                         Gt/Rd  107
-StatementExpressionList            Goto   518
+StatementExpressionList            Goto   521
 
 RPAREN                             Reduce 518
 
 Default reduction to rule  518
 
 
-STATE 495 ----------------------------------------------------------------------
-( 462 )
+STATE 498 ----------------------------------------------------------------------
+( 465 )
 
 IfThenElseStatement ::= if LPAREN Expression RPAREN Statement else  .Statement 
 
@@ -71377,9 +72190,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -71437,7 +72251,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -71453,6 +72266,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -71490,8 +72304,8 @@ Block                              Gt/Rd  75
 
 
 
-STATE 496 ----------------------------------------------------------------------
-( 463 )
+STATE 499 ----------------------------------------------------------------------
+( 466 )
 
 CatchClause ::= catch LPAREN FormalParameter RPAREN  .Block 
 
@@ -71503,8 +72317,8 @@ Block     Gt/Rd  143
 
 
 
-STATE 497 ----------------------------------------------------------------------
-( 464 )
+STATE 500 ----------------------------------------------------------------------
+( 467 )
 
 DoStatement ::= do Statement while LPAREN Expression RPAREN  .SEMICOLON 
 
@@ -71512,8 +72326,8 @@ SEMICOLON    Sh/Rd  126
 
 
 
-STATE 498 ----------------------------------------------------------------------
-( 465 )
+STATE 501 ----------------------------------------------------------------------
+( 468 )
 
 SwitchBlock ::= LBRACE SwitchBlockStatementGroupsopt  .SwitchLabelsopt RBRACE 
 
@@ -71524,11 +72338,11 @@ SwitchLabel ::= .default COLON
 SwitchLabelsopt ::= . (524)
 SwitchLabelsopt ::= .SwitchLabels 
 
-default            Shift  499
-case               Shift  500
+default            Shift  502
+case               Shift  503
 
-SwitchLabelsopt    Goto   519
-SwitchLabels       Goto   520
+SwitchLabelsopt    Goto   522
+SwitchLabels       Goto   523
 SwitchLabel        Gt/Rd  121
 
 RBRACE             Reduce 524
@@ -71536,8 +72350,8 @@ RBRACE             Reduce 524
 Default reduction to rule  524
 
 
-STATE 499 ----------------------------------------------------------------------
-( 465 498 501 502 520 )
+STATE 502 ----------------------------------------------------------------------
+( 468 501 504 505 523 )
 
 SwitchLabel ::= default  .COLON 
 
@@ -71545,8 +72359,8 @@ COLON    Sh/Rd  124
 
 
 
-STATE 500 ----------------------------------------------------------------------
-( 465 498 501 502 520 )
+STATE 503 ----------------------------------------------------------------------
+( 468 501 504 505 523 )
 
 SwitchLabel ::= case  .ConstantExpression COLON 
 
@@ -71721,9 +72535,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ConstantExpression ::= .Expression 
 TypeParametersopt ::= . (564)
@@ -71760,10 +72575,10 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ConstantExpression                 Goto   521
+ConstantExpression                 Goto   524
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   522
+Expression                         Goto   525
 LeftHandSide                       Goto   92
 TypeParameters                     Gt/Rd  565
 ConditionalExpression              Goto   90
@@ -71818,8 +72633,8 @@ AssignmentExpression               Gt/Rd  512
 
 
 
-STATE 501 ----------------------------------------------------------------------
-( 465 502 )
+STATE 504 ----------------------------------------------------------------------
+( 468 505 )
 
 SwitchBlockStatementGroup ::= SwitchLabels  .BlockStatements 
 SwitchLabels ::= SwitchLabels  .SwitchLabel 
@@ -72038,9 +72853,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 
@@ -72098,11 +72914,11 @@ next                                 Shift  209
 await                                Shift  208
 property                             Shift  207
 SynchronizedStatement                Sh/Rd  83
-default                              Shift  499
-case                                 Shift  500
+default                              Shift  502
+case                                 Shift  503
 
 SwitchLabel                          Gt/Rd  122
-BlockStatements                      Goto   523
+BlockStatements                      Goto   526
 BlockStatement                       Gt/Rd  373
 LocalVariableDeclaration             Goto   240
 VariableModifiers                    Goto   113
@@ -72121,7 +72937,6 @@ Assignment                           Gt/Rd  107
 PostDecrementExpression              Goto   236
 PostIncrementExpression              Goto   237
 PostfixExpression                    Goto   233
-ExpressionName                       Goto   94
 OperatorFunction                     Gt/Rd  401
 MethodInvocation                     Goto   235
 FieldAccess                          Goto   93
@@ -72137,6 +72952,7 @@ BooleanLiteral                       Gt/Rd  423
 ClassName                            Goto   67
 Primary                              Goto   74
 AmbiguousName                        Goto   72
+ExpressionName                       Goto   94
 LeftHandSide                         Goto   92
 StatementExpression                  Goto   231
 Identifier                           Goto   232
@@ -72183,8 +72999,8 @@ val                                  Reduce 528
 Default reduction to rule  528
 
 
-STATE 502 ----------------------------------------------------------------------
-( 465 )
+STATE 505 ----------------------------------------------------------------------
+( 468 )
 
 SwitchBlockStatementGroups ::= SwitchBlockStatementGroups  .
                                SwitchBlockStatementGroup 
@@ -72196,13 +73012,13 @@ SwitchLabels ::= .SwitchLabels SwitchLabel
 SwitchLabel ::= .case ConstantExpression COLON 
 SwitchLabel ::= .default COLON 
 
-default                      Shift  499
+default                      Shift  502
                              Reduce 527
-case                         Shift  500
+case                         Shift  503
                              Reduce 527
 
 SwitchBlockStatementGroup    Gt/Rd  119
-SwitchLabels                 Goto   501
+SwitchLabels                 Goto   504
 SwitchLabel                  Gt/Rd  121
 
 RBRACE                       Reduce 527
@@ -72210,20 +73026,20 @@ RBRACE                       Reduce 527
 Default reduction to rule  527
 
 
-STATE 503 ----------------------------------------------------------------------
-( 466 )
+STATE 506 ----------------------------------------------------------------------
+( 469 )
 
 IdentifierList ::= IdentifierList  .COMMA Identifier 
 VariableDeclarator ::= LPAREN IdentifierList  .RPAREN ResultTypeopt EQUAL 
                        VariableInitializer 
 
-RPAREN    Shift  524
-COMMA     Shift  351
+RPAREN    Shift  527
+COMMA     Shift  352
 
 
 
-STATE 504 ----------------------------------------------------------------------
-( 467 )
+STATE 507 ----------------------------------------------------------------------
+( 470 )
 
 VariableDeclarator ::= Identifier LPAREN  .IdentifierList RPAREN ResultTypeopt 
                        EQUAL VariableInitializer 
@@ -72235,24 +73051,24 @@ IdentifierList ::= .IdentifierList COMMA Identifier
 
 IDENTIFIER        Sh/Rd  213
 
-IdentifierList    Goto   525
+IdentifierList    Goto   528
 Identifier        Gt/Rd  378
 identifier        Gt/Rd  368
 
 
 
-STATE 505 ----------------------------------------------------------------------
-( 468 524 )
+STATE 508 ----------------------------------------------------------------------
+( 471 527 )
 
 VariableDeclarator ::= LPAREN IdentifierList RPAREN ResultTypeopt  .EQUAL 
                        VariableInitializer 
 
-EQUAL    Shift  526
+EQUAL    Shift  529
 
 
 
-STATE 506 ----------------------------------------------------------------------
-( 468 )
+STATE 509 ----------------------------------------------------------------------
+( 471 )
 
 ResultType ::= COLON  .Type 
 FormalDeclarator ::= LPAREN IdentifierList RPAREN COLON  .Type 
@@ -72286,7 +73102,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   527
+Type                    Goto   530
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -72294,8 +73110,8 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 507 ----------------------------------------------------------------------
-( 469 526 537 549 )
+STATE 510 ----------------------------------------------------------------------
+( 472 529 540 552 )
 
 VariableInitializer ::= EQUAL  .Expression 
 
@@ -72470,9 +73286,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -72561,12 +73378,12 @@ FieldAccess                        Goto   93
 ExpressionName                     Goto   94
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   528
+Expression                         Goto   531
 
 
 
-STATE 508 ----------------------------------------------------------------------
-( 469 526 537 549 )
+STATE 511 ----------------------------------------------------------------------
+( 472 529 540 552 )
 
 AssignmentExpression ::= Expression  .ARROW Expression 
 VariableInitializer ::= Expression . (286)
@@ -72579,8 +73396,8 @@ COMMA        Reduce 286
 Default reduction to rule  286
 
 
-STATE 509 ----------------------------------------------------------------------
-( 470 )
+STATE 512 ----------------------------------------------------------------------
+( 473 )
 
 FormalDeclarator ::= Identifier LPAREN IdentifierList RPAREN  .COLON Type 
 VariableDeclarator ::= Identifier LPAREN IdentifierList RPAREN  .ResultTypeopt 
@@ -72590,9 +73407,9 @@ ResultType ::= .COLON Type
 ResultTypeopt ::= . (576)
 ResultTypeopt ::= .ResultType 
 
-COLON            Shift  530
+COLON            Shift  533
 
-ResultTypeopt    Goto   529
+ResultTypeopt    Goto   532
 ResultType       Gt/Rd  577
 
 EQUAL            Reduce 576
@@ -72600,8 +73417,8 @@ EQUAL            Reduce 576
 Default reduction to rule  576
 
 
-STATE 510 ----------------------------------------------------------------------
-( 472 )
+STATE 513 ----------------------------------------------------------------------
+( 475 )
 
 ClassInstanceCreationExpression ::= AmbiguousName DOT new Identifier 
                                     TypeArgumentsopt LPAREN ArgumentListopt 
@@ -72611,7 +73428,7 @@ ClassBody ::= .LBRACE ClassBodyDeclarationsopt RBRACE
 ClassBodyopt ::= . (538)
 ClassBodyopt ::= .ClassBody 
 
-LBRACE                   Shift  448
+LBRACE                   Shift  451
                          Reduce 538
 
 ClassBodyopt             Gt/Rd  32
@@ -72731,8 +73548,8 @@ IntegerLiteral           Reduce 538
 Default reduction to rule  538
 
 
-STATE 511 ----------------------------------------------------------------------
-( 473 )
+STATE 514 ----------------------------------------------------------------------
+( 476 )
 
 ClassInstanceCreationExpression ::= Primary DOT new Identifier 
                                     TypeArgumentsopt LPAREN ArgumentListopt 
@@ -72742,7 +73559,7 @@ ClassBody ::= .LBRACE ClassBodyDeclarationsopt RBRACE
 ClassBodyopt ::= . (538)
 ClassBodyopt ::= .ClassBody 
 
-LBRACE                   Shift  448
+LBRACE                   Shift  451
                          Reduce 538
 
 ClassBodyopt             Gt/Rd  31
@@ -72862,8 +73679,8 @@ IntegerLiteral           Reduce 538
 Default reduction to rule  538
 
 
-STATE 512 ----------------------------------------------------------------------
-( 475 )
+STATE 515 ----------------------------------------------------------------------
+( 478 )
 
 MethodDeclaration ::= MethodModifiersopt def Identifier  .TypeParametersopt 
                       FormalParameters WhereClauseopt ResultTypeopt Throwsopt 
@@ -72875,7 +73692,7 @@ TypeParametersopt ::= .TypeParameters
 
 LBRACKET             Shift  102
 
-TypeParametersopt    Goto   531
+TypeParametersopt    Goto   534
 TypeParameters       Gt/Rd  565
 
 LPAREN               Reduce 564
@@ -72883,19 +73700,19 @@ LPAREN               Reduce 564
 Default reduction to rule  564
 
 
-STATE 513 ----------------------------------------------------------------------
-( 478 )
+STATE 516 ----------------------------------------------------------------------
+( 481 )
 
 ConstructorDeclaration ::= ConstructorModifiersopt def  .this TypeParametersopt 
                            FormalParameters WhereClauseopt ResultTypeopt 
                            Throwsopt ConstructorBody 
 
-this    Shift  532
+this    Shift  535
 
 
 
-STATE 514 ----------------------------------------------------------------------
-( 479 )
+STATE 517 ----------------------------------------------------------------------
+( 482 )
 
 FieldDeclaration ::= FieldModifiersopt FieldKeyword  .FieldDeclarators 
                      SEMICOLON 
@@ -72910,15 +73727,15 @@ FieldDeclarator ::= .Identifier WhereClauseopt ResultTypeopt EQUAL
 
 IDENTIFIER          Sh/Rd  213
 
-FieldDeclarators    Goto   533
+FieldDeclarators    Goto   536
 FieldDeclarator     Gt/Rd  282
 identifier          Gt/Rd  368
-Identifier          Goto   534
+Identifier          Goto   537
 
 
 
-STATE 515 ----------------------------------------------------------------------
-( 490 )
+STATE 518 ----------------------------------------------------------------------
+( 493 )
 
 AtEachStatement ::= ateach LPAREN FormalParameter in Expression RPAREN 
                     ClockedClauseopt  .Statement 
@@ -73099,9 +73916,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -73159,7 +73977,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -73175,6 +73992,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -73212,8 +74030,8 @@ Block                              Gt/Rd  75
 
 
 
-STATE 516 ----------------------------------------------------------------------
-( 491 )
+STATE 519 ----------------------------------------------------------------------
+( 494 )
 
 ForEachStatement ::= foreach LPAREN FormalParameter in Expression RPAREN 
                      ClockedClauseopt  .Statement 
@@ -73394,9 +74212,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -73454,7 +74273,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -73470,6 +74288,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -73507,31 +74326,31 @@ Block                              Gt/Rd  75
 
 
 
-STATE 517 ----------------------------------------------------------------------
-( 494 )
+STATE 520 ----------------------------------------------------------------------
+( 497 )
 
 BasicForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt 
                       SEMICOLON ForUpdateopt  .RPAREN Statement 
 
-RPAREN    Shift  535
+RPAREN    Shift  538
 
 
 
-STATE 518 ----------------------------------------------------------------------
-( 494 )
+STATE 521 ----------------------------------------------------------------------
+( 497 )
 
 ForUpdate ::= StatementExpressionList . (132)
 StatementExpressionList ::= StatementExpressionList  .COMMA StatementExpression 
 
-COMMA     Shift  415
+COMMA     Shift  417
 
 RPAREN    Reduce 132
 
 Default reduction to rule  132
 
 
-STATE 519 ----------------------------------------------------------------------
-( 498 )
+STATE 522 ----------------------------------------------------------------------
+( 501 )
 
 SwitchBlock ::= LBRACE SwitchBlockStatementGroupsopt SwitchLabelsopt  .RBRACE 
 
@@ -73539,8 +74358,8 @@ RBRACE    Sh/Rd  117
 
 
 
-STATE 520 ----------------------------------------------------------------------
-( 498 )
+STATE 523 ----------------------------------------------------------------------
+( 501 )
 
 SwitchLabels ::= SwitchLabels  .SwitchLabel 
 SwitchLabelsopt ::= SwitchLabels . (525)
@@ -73548,8 +74367,8 @@ SwitchLabelsopt ::= SwitchLabels . (525)
 SwitchLabel ::= .case ConstantExpression COLON 
 SwitchLabel ::= .default COLON 
 
-default        Shift  499
-case           Shift  500
+default        Shift  502
+case           Shift  503
 
 SwitchLabel    Gt/Rd  122
 
@@ -73558,8 +74377,8 @@ RBRACE         Reduce 525
 Default reduction to rule  525
 
 
-STATE 521 ----------------------------------------------------------------------
-( 500 )
+STATE 524 ----------------------------------------------------------------------
+( 503 )
 
 SwitchLabel ::= case ConstantExpression  .COLON 
 
@@ -73567,8 +74386,8 @@ COLON    Sh/Rd  123
 
 
 
-STATE 522 ----------------------------------------------------------------------
-( 500 )
+STATE 525 ----------------------------------------------------------------------
+( 503 )
 
 AssignmentExpression ::= Expression  .ARROW Expression 
 ConstantExpression ::= Expression . (513)
@@ -73580,8 +74399,8 @@ COLON    Reduce 513
 Default reduction to rule  513
 
 
-STATE 523 ----------------------------------------------------------------------
-( 501 )
+STATE 526 ----------------------------------------------------------------------
+( 504 )
 
 SwitchBlockStatementGroup ::= SwitchLabels BlockStatements . (120)
 BlockStatements ::= BlockStatements  .BlockStatement 
@@ -73796,9 +74615,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 
@@ -73940,8 +74760,8 @@ RBRACE                               Reduce 120
 Default reduction to rule  120
 
 
-STATE 524 ----------------------------------------------------------------------
-( 503 )
+STATE 527 ----------------------------------------------------------------------
+( 506 )
 
 VariableDeclarator ::= LPAREN IdentifierList RPAREN  .ResultTypeopt EQUAL 
                        VariableInitializer 
@@ -73952,7 +74772,7 @@ ResultTypeopt ::= .ResultType
 
 COLON            Shift  301
 
-ResultTypeopt    Goto   505
+ResultTypeopt    Goto   508
 ResultType       Gt/Rd  577
 
 EQUAL            Reduce 576
@@ -73960,20 +74780,20 @@ EQUAL            Reduce 576
 Default reduction to rule  576
 
 
-STATE 525 ----------------------------------------------------------------------
-( 504 )
+STATE 528 ----------------------------------------------------------------------
+( 507 )
 
 IdentifierList ::= IdentifierList  .COMMA Identifier 
 VariableDeclarator ::= Identifier LPAREN IdentifierList  .RPAREN ResultTypeopt 
                        EQUAL VariableInitializer 
 
-RPAREN    Shift  536
-COMMA     Shift  351
+RPAREN    Shift  539
+COMMA     Shift  352
 
 
 
-STATE 526 ----------------------------------------------------------------------
-( 505 )
+STATE 529 ----------------------------------------------------------------------
+( 508 )
 
 VariableDeclarator ::= LPAREN IdentifierList RPAREN ResultTypeopt EQUAL  .
                        VariableInitializer 
@@ -74151,9 +74971,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -74163,7 +74984,7 @@ TypeArgumentsopt ::= .TypeArguments
 LPAREN                             Shift  79
                                    Reduce 564
                                    Reduce 578
-EQUAL                              Shift  507
+EQUAL                              Shift  510
 MINUS                              Shift  75
 PLUS                               Shift  76
 ArrayInitailizer                   Sh/Rd  444
@@ -74193,7 +75014,7 @@ PLUS_PLUS                          Shift  58
 VariableInitializer                Gt/Rd  386
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   508
+Expression                         Goto   511
 LeftHandSide                       Goto   92
 TypeParameters                     Gt/Rd  565
 ConditionalExpression              Goto   90
@@ -74248,8 +75069,8 @@ AssignmentExpression               Gt/Rd  512
 
 
 
-STATE 527 ----------------------------------------------------------------------
-( 506 )
+STATE 530 ----------------------------------------------------------------------
+( 509 )
 
 AnnotatedType ::= Type  .Annotations 
 ResultType ::= COLON Type . (295)
@@ -74272,8 +75093,8 @@ COMMA          Reduce 381
 Default reduction to rule  381
 
 
-STATE 528 ----------------------------------------------------------------------
-( 507 )
+STATE 531 ----------------------------------------------------------------------
+( 510 )
 
 AssignmentExpression ::= Expression  .ARROW Expression 
 VariableInitializer ::= EQUAL Expression . (391)
@@ -74286,18 +75107,18 @@ COMMA        Reduce 391
 Default reduction to rule  391
 
 
-STATE 529 ----------------------------------------------------------------------
-( 509 536 )
+STATE 532 ----------------------------------------------------------------------
+( 512 539 )
 
 VariableDeclarator ::= Identifier LPAREN IdentifierList RPAREN ResultTypeopt  .
                        EQUAL VariableInitializer 
 
-EQUAL    Shift  537
+EQUAL    Shift  540
 
 
 
-STATE 530 ----------------------------------------------------------------------
-( 509 )
+STATE 533 ----------------------------------------------------------------------
+( 512 )
 
 ResultType ::= COLON  .Type 
 FormalDeclarator ::= Identifier LPAREN IdentifierList RPAREN COLON  .Type 
@@ -74331,7 +75152,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   538
+Type                    Goto   541
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -74339,8 +75160,8 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 531 ----------------------------------------------------------------------
-( 512 )
+STATE 534 ----------------------------------------------------------------------
+( 515 )
 
 MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt  .
                       FormalParameters WhereClauseopt ResultTypeopt Throwsopt 
@@ -74351,12 +75172,12 @@ FormalParameters ::= .LPAREN FormalParameterList RPAREN
 
 LPAREN              Shift  117
 
-FormalParameters    Goto   539
+FormalParameters    Goto   542
 
 
 
-STATE 532 ----------------------------------------------------------------------
-( 513 )
+STATE 535 ----------------------------------------------------------------------
+( 516 )
 
 ConstructorDeclaration ::= ConstructorModifiersopt def this  .TypeParametersopt 
                            FormalParameters WhereClauseopt ResultTypeopt 
@@ -74368,7 +75189,7 @@ TypeParametersopt ::= .TypeParameters
 
 LBRACKET             Shift  102
 
-TypeParametersopt    Goto   540
+TypeParametersopt    Goto   543
 TypeParameters       Gt/Rd  565
 
 LPAREN               Reduce 564
@@ -74376,20 +75197,20 @@ LPAREN               Reduce 564
 Default reduction to rule  564
 
 
-STATE 533 ----------------------------------------------------------------------
-( 514 )
+STATE 536 ----------------------------------------------------------------------
+( 517 )
 
 FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators  .
                      SEMICOLON 
 FieldDeclarators ::= FieldDeclarators  .COMMA FieldDeclarator 
 
-COMMA        Shift  541
+COMMA        Shift  544
 SEMICOLON    Sh/Rd  72
 
 
 
-STATE 534 ----------------------------------------------------------------------
-( 514 541 )
+STATE 537 ----------------------------------------------------------------------
+( 517 544 )
 
 FieldDeclarator ::= Identifier  .WhereClauseopt COLON Type 
 FieldDeclarator ::= Identifier  .WhereClauseopt ResultTypeopt EQUAL 
@@ -74403,7 +75224,7 @@ WhereClauseopt ::= .WhereClause
 
 LBRACE            Shift  55
 
-WhereClauseopt    Goto   542
+WhereClauseopt    Goto   545
 WhereClause       Gt/Rd  200
 DepParameters     Gt/Rd  57
 
@@ -74413,8 +75234,8 @@ COLON             Reduce 199
 Default reduction to rule  199
 
 
-STATE 535 ----------------------------------------------------------------------
-( 517 )
+STATE 538 ----------------------------------------------------------------------
+( 520 )
 
 BasicForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt 
                       SEMICOLON ForUpdateopt RPAREN  .Statement 
@@ -74595,9 +75416,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 
 ArrayInitailizer                   Sh/Rd  444
 MINUS_MINUS                        Shift  59
@@ -74655,7 +75477,6 @@ Assignment                         Gt/Rd  107
 PostDecrementExpression            Goto   236
 PostIncrementExpression            Goto   237
 PostfixExpression                  Goto   233
-ExpressionName                     Goto   94
 OperatorFunction                   Gt/Rd  401
 MethodInvocation                   Goto   235
 FieldAccess                        Goto   93
@@ -74671,6 +75492,7 @@ BooleanLiteral                     Gt/Rd  423
 ClassName                          Goto   67
 Primary                            Goto   74
 AmbiguousName                      Goto   72
+ExpressionName                     Goto   94
 LeftHandSide                       Goto   92
 StatementExpression                Goto   231
 Identifier                         Goto   232
@@ -74708,8 +75530,8 @@ Block                              Gt/Rd  75
 
 
 
-STATE 536 ----------------------------------------------------------------------
-( 525 )
+STATE 539 ----------------------------------------------------------------------
+( 528 )
 
 VariableDeclarator ::= Identifier LPAREN IdentifierList RPAREN  .ResultTypeopt 
                        EQUAL VariableInitializer 
@@ -74720,7 +75542,7 @@ ResultTypeopt ::= .ResultType
 
 COLON            Shift  301
 
-ResultTypeopt    Goto   529
+ResultTypeopt    Goto   532
 ResultType       Gt/Rd  577
 
 EQUAL            Reduce 576
@@ -74728,8 +75550,8 @@ EQUAL            Reduce 576
 Default reduction to rule  576
 
 
-STATE 537 ----------------------------------------------------------------------
-( 529 )
+STATE 540 ----------------------------------------------------------------------
+( 532 )
 
 VariableDeclarator ::= Identifier LPAREN IdentifierList RPAREN ResultTypeopt 
                        EQUAL  .VariableInitializer 
@@ -74907,9 +75729,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -74919,7 +75742,7 @@ TypeArgumentsopt ::= .TypeArguments
 LPAREN                             Shift  79
                                    Reduce 564
                                    Reduce 578
-EQUAL                              Shift  507
+EQUAL                              Shift  510
 MINUS                              Shift  75
 PLUS                               Shift  76
 ArrayInitailizer                   Sh/Rd  444
@@ -74949,7 +75772,7 @@ PLUS_PLUS                          Shift  58
 VariableInitializer                Gt/Rd  387
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   508
+Expression                         Goto   511
 LeftHandSide                       Goto   92
 TypeParameters                     Gt/Rd  565
 ConditionalExpression              Goto   90
@@ -75004,8 +75827,8 @@ AssignmentExpression               Gt/Rd  512
 
 
 
-STATE 538 ----------------------------------------------------------------------
-( 530 )
+STATE 541 ----------------------------------------------------------------------
+( 533 )
 
 AnnotatedType ::= Type  .Annotations 
 ResultType ::= COLON Type . (295)
@@ -75028,8 +75851,8 @@ COMMA          Reduce 382
 Default reduction to rule  382
 
 
-STATE 539 ----------------------------------------------------------------------
-( 531 )
+STATE 542 ----------------------------------------------------------------------
+( 534 )
 
 MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt 
                       FormalParameters  .WhereClauseopt ResultTypeopt Throwsopt 
@@ -75043,7 +75866,7 @@ WhereClauseopt ::= .WhereClause
 
 LBRACE            Shift  55
 
-WhereClauseopt    Goto   543
+WhereClauseopt    Goto   546
 WhereClause       Gt/Rd  200
 DepParameters     Gt/Rd  57
 
@@ -75055,8 +75878,8 @@ COLON             Reduce 199
 Default reduction to rule  199
 
 
-STATE 540 ----------------------------------------------------------------------
-( 532 )
+STATE 543 ----------------------------------------------------------------------
+( 535 )
 
 ConstructorDeclaration ::= ConstructorModifiersopt def this 
                            TypeParametersopt  .FormalParameters WhereClauseopt 
@@ -75067,12 +75890,12 @@ FormalParameters ::= .LPAREN FormalParameterList RPAREN
 
 LPAREN              Shift  117
 
-FormalParameters    Goto   544
+FormalParameters    Goto   547
 
 
 
-STATE 541 ----------------------------------------------------------------------
-( 533 )
+STATE 544 ----------------------------------------------------------------------
+( 536 )
 
 FieldDeclarators ::= FieldDeclarators COMMA  .FieldDeclarator 
 
@@ -75085,13 +75908,13 @@ FieldDeclarator ::= .Identifier WhereClauseopt ResultTypeopt EQUAL
 IDENTIFIER         Sh/Rd  213
 
 FieldDeclarator    Gt/Rd  283
-Identifier         Goto   534
+Identifier         Goto   537
 identifier         Gt/Rd  368
 
 
 
-STATE 542 ----------------------------------------------------------------------
-( 534 )
+STATE 545 ----------------------------------------------------------------------
+( 537 )
 
 FieldDeclarator ::= Identifier WhereClauseopt  .COLON Type 
 FieldDeclarator ::= Identifier WhereClauseopt  .ResultTypeopt EQUAL 
@@ -75101,9 +75924,9 @@ ResultType ::= .COLON Type
 ResultTypeopt ::= . (576)
 ResultTypeopt ::= .ResultType 
 
-COLON            Shift  546
+COLON            Shift  549
 
-ResultTypeopt    Goto   545
+ResultTypeopt    Goto   548
 ResultType       Gt/Rd  577
 
 EQUAL            Reduce 576
@@ -75111,8 +75934,8 @@ EQUAL            Reduce 576
 Default reduction to rule  576
 
 
-STATE 543 ----------------------------------------------------------------------
-( 539 )
+STATE 546 ----------------------------------------------------------------------
+( 542 )
 
 MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt 
                       FormalParameters WhereClauseopt  .ResultTypeopt Throwsopt 
@@ -75124,7 +75947,7 @@ ResultTypeopt ::= .ResultType
 
 COLON            Shift  301
 
-ResultTypeopt    Goto   547
+ResultTypeopt    Goto   550
 ResultType       Gt/Rd  577
 
 throws           Reduce 576
@@ -75134,8 +75957,8 @@ SEMICOLON        Reduce 576
 Default reduction to rule  576
 
 
-STATE 544 ----------------------------------------------------------------------
-( 540 )
+STATE 547 ----------------------------------------------------------------------
+( 543 )
 
 ConstructorDeclaration ::= ConstructorModifiersopt def this 
                            TypeParametersopt FormalParameters  .WhereClauseopt 
@@ -75149,7 +75972,7 @@ WhereClauseopt ::= .WhereClause
 
 LBRACE            Shift  55
 
-WhereClauseopt    Goto   548
+WhereClauseopt    Goto   551
 WhereClause       Gt/Rd  200
 DepParameters     Gt/Rd  57
 
@@ -75161,18 +75984,18 @@ COLON             Reduce 199
 Default reduction to rule  199
 
 
-STATE 545 ----------------------------------------------------------------------
-( 542 )
+STATE 548 ----------------------------------------------------------------------
+( 545 )
 
 FieldDeclarator ::= Identifier WhereClauseopt ResultTypeopt  .EQUAL 
                     VariableInitializer 
 
-EQUAL    Shift  549
+EQUAL    Shift  552
 
 
 
-STATE 546 ----------------------------------------------------------------------
-( 542 )
+STATE 549 ----------------------------------------------------------------------
+( 545 )
 
 ResultType ::= COLON  .Type 
 FieldDeclarator ::= Identifier WhereClauseopt COLON  .Type 
@@ -75206,7 +76029,7 @@ FunctionType            Gt/Rd  34
 identifier              Gt/Rd  368
 Identifier              Gt/Rd  214
 TypeName                Goto   13
-Type                    Goto   550
+Type                    Goto   553
 AnnotatedType           Gt/Rd  41
 ClassOrInterfaceType    Gt/Rd  40
 TypeArguments           Gt/Rd  579
@@ -75214,8 +76037,8 @@ TypeArgumentsopt        Goto   45
 
 
 
-STATE 547 ----------------------------------------------------------------------
-( 543 )
+STATE 550 ----------------------------------------------------------------------
+( 546 )
 
 MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt 
                       FormalParameters WhereClauseopt ResultTypeopt  .Throwsopt 
@@ -75225,9 +76048,9 @@ Throws ::= .throws ExceptionTypeList
 Throwsopt ::= . (552)
 Throwsopt ::= .Throws 
 
-throws       Shift  355
+throws       Shift  356
 
-Throwsopt    Goto   551
+Throwsopt    Goto   554
 Throws       Gt/Rd  553
 
 EQUAL        Reduce 552
@@ -75236,8 +76059,8 @@ SEMICOLON    Reduce 552
 Default reduction to rule  552
 
 
-STATE 548 ----------------------------------------------------------------------
-( 544 )
+STATE 551 ----------------------------------------------------------------------
+( 547 )
 
 ConstructorDeclaration ::= ConstructorModifiersopt def this 
                            TypeParametersopt FormalParameters WhereClauseopt  .
@@ -75249,7 +76072,7 @@ ResultTypeopt ::= .ResultType
 
 COLON            Shift  301
 
-ResultTypeopt    Goto   552
+ResultTypeopt    Goto   555
 ResultType       Gt/Rd  577
 
 throws           Reduce 576
@@ -75259,8 +76082,8 @@ SEMICOLON        Reduce 576
 Default reduction to rule  576
 
 
-STATE 549 ----------------------------------------------------------------------
-( 545 )
+STATE 552 ----------------------------------------------------------------------
+( 548 )
 
 FieldDeclarator ::= Identifier WhereClauseopt ResultTypeopt EQUAL  .
                     VariableInitializer 
@@ -75438,9 +76261,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -75450,7 +76274,7 @@ TypeArgumentsopt ::= .TypeArguments
 LPAREN                             Shift  79
                                    Reduce 564
                                    Reduce 578
-EQUAL                              Shift  507
+EQUAL                              Shift  510
 MINUS                              Shift  75
 PLUS                               Shift  76
 ArrayInitailizer                   Sh/Rd  444
@@ -75480,7 +76304,7 @@ PLUS_PLUS                          Shift  58
 VariableInitializer                Gt/Rd  384
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
-Expression                         Goto   508
+Expression                         Goto   511
 LeftHandSide                       Goto   92
 TypeParameters                     Gt/Rd  565
 ConditionalExpression              Goto   90
@@ -75535,8 +76359,8 @@ AssignmentExpression               Gt/Rd  512
 
 
 
-STATE 550 ----------------------------------------------------------------------
-( 546 )
+STATE 553 ----------------------------------------------------------------------
+( 549 )
 
 AnnotatedType ::= Type  .Annotations 
 ResultType ::= COLON Type . (295)
@@ -75558,8 +76382,8 @@ COMMA          Reduce 383
 Default reduction to rule  383
 
 
-STATE 551 ----------------------------------------------------------------------
-( 547 )
+STATE 554 ----------------------------------------------------------------------
+( 550 )
 
 MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt 
                       FormalParameters WhereClauseopt ResultTypeopt 
@@ -75571,14 +76395,14 @@ MethodBody ::= .EQUAL Block
 MethodBody ::= .SEMICOLON 
 
 SEMICOLON     Sh/Rd  329
-EQUAL         Shift  553
+EQUAL         Shift  556
 
 MethodBody    Gt/Rd  24
 
 
 
-STATE 552 ----------------------------------------------------------------------
-( 548 )
+STATE 555 ----------------------------------------------------------------------
+( 551 )
 
 ConstructorDeclaration ::= ConstructorModifiersopt def this 
                            TypeParametersopt FormalParameters WhereClauseopt 
@@ -75588,9 +76412,9 @@ Throws ::= .throws ExceptionTypeList
 Throwsopt ::= . (552)
 Throwsopt ::= .Throws 
 
-throws       Shift  355
+throws       Shift  356
 
-Throwsopt    Goto   554
+Throwsopt    Goto   557
 Throws       Gt/Rd  553
 
 EQUAL        Reduce 552
@@ -75599,8 +76423,8 @@ SEMICOLON    Reduce 552
 Default reduction to rule  552
 
 
-STATE 553 ----------------------------------------------------------------------
-( 551 )
+STATE 556 ----------------------------------------------------------------------
+( 554 )
 
 MethodBody ::= EQUAL  .LastExpression SEMICOLON 
 MethodBody ::= EQUAL  .LBRACE BlockStatementsopt LastExpression RBRACE 
@@ -75779,9 +76603,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -75816,10 +76641,10 @@ NOT                                Shift  60
 TWIDDLE                            Shift  61
 MINUS_MINUS                        Shift  59
 PLUS_PLUS                          Shift  58
-LBRACE                             Shift  556
+LBRACE                             Shift  559
 
 Block                              Gt/Rd  328
-LastExpression                     Goto   555
+LastExpression                     Goto   558
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
 Expression                         Goto   307
@@ -75877,8 +76702,8 @@ AssignmentExpression               Gt/Rd  512
 
 
 
-STATE 554 ----------------------------------------------------------------------
-( 552 )
+STATE 557 ----------------------------------------------------------------------
+( 555 )
 
 ConstructorDeclaration ::= ConstructorModifiersopt def this 
                            TypeParametersopt FormalParameters WhereClauseopt 
@@ -75888,14 +76713,14 @@ ConstructorBody ::= .EQUAL ConstructorBlock
 ConstructorBody ::= .SEMICOLON 
 
 SEMICOLON          Sh/Rd  340
-EQUAL              Shift  557
+EQUAL              Shift  560
 
 ConstructorBody    Gt/Rd  65
 
 
 
-STATE 555 ----------------------------------------------------------------------
-( 553 )
+STATE 558 ----------------------------------------------------------------------
+( 556 )
 
 MethodBody ::= EQUAL LastExpression  .SEMICOLON 
 
@@ -75903,8 +76728,8 @@ SEMICOLON    Sh/Rd  326
 
 
 
-STATE 556 ----------------------------------------------------------------------
-( 553 )
+STATE 559 ----------------------------------------------------------------------
+( 556 )
 
 MethodBody ::= EQUAL LBRACE  .BlockStatementsopt LastExpression RBRACE 
 Block ::= LBRACE  .BlockStatementsopt RBRACE 
@@ -76121,9 +76946,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 BlockStatementsopt ::= . (544)
@@ -76206,7 +77032,7 @@ private                              Sh/Rd  250
 protected                            Sh/Rd  249
 public                               Sh/Rd  248
 
-BlockStatementsopt                   Goto   558
+BlockStatementsopt                   Goto   561
 Statement                            Gt/Rd  377
 ClassDeclaration                     Gt/Rd  376
 LocalVariableDeclarationStatement    Gt/Rd  375
@@ -76293,8 +77119,8 @@ MINUS                                Reduce 544
 Default reduction to rule  544
 
 
-STATE 557 ----------------------------------------------------------------------
-( 554 )
+STATE 560 ----------------------------------------------------------------------
+( 557 )
 
 ConstructorBody ::= EQUAL  .ConstructorBlock 
 
@@ -76398,7 +77224,7 @@ MethodInvocation ::= .ClassName DOT super DOT Identifier TypeArgumentsopt
                      LPAREN ArgumentListopt RPAREN 
 MethodInvocation ::= .Primary TypeArgumentsopt LPAREN ArgumentListopt RPAREN 
 
-LBRACE                             Shift  559
+LBRACE                             Shift  562
 property                           Shift  207
 LPAREN                             Shift  118
 self                               Sh/Rd  394
@@ -76416,8 +77242,8 @@ FloatingPointLiteral               Sh/Rd  421
 LongLiteral                        Sh/Rd  420
 IntegerLiteral                     Sh/Rd  419
 future                             Shift  70
-super                              Shift  563
-this                               Shift  564
+super                              Shift  566
+this                               Shift  567
 
 ConstructorBlock                   Gt/Rd  339
 AssignPropertyCall                 Gt/Rd  343
@@ -76433,17 +77259,17 @@ MethodClassNameSuperPrefix         Goto   64
 MethodSuperPrefix                  Goto   65
 MethodPrimaryPrefix                Goto   66
 ClassName                          Goto   67
-AmbiguousName                      Goto   560
+AmbiguousName                      Goto   563
 identifier                         Gt/Rd  368
-Identifier                         Goto   561
+Identifier                         Goto   564
 TypeName                           Goto   120
 BooleanLiteral                     Gt/Rd  423
-Primary                            Goto   562
+Primary                            Goto   565
 
 
 
-STATE 558 ----------------------------------------------------------------------
-( 556 )
+STATE 561 ----------------------------------------------------------------------
+( 559 )
 
 MethodBody ::= EQUAL LBRACE BlockStatementsopt  .LastExpression RBRACE 
 Block ::= LBRACE BlockStatementsopt  .RBRACE 
@@ -76620,9 +77446,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 TypeParametersopt ::= . (564)
 TypeParametersopt ::= .TypeParameters 
@@ -76659,7 +77486,7 @@ TWIDDLE                            Shift  61
 MINUS_MINUS                        Shift  59
 PLUS_PLUS                          Shift  58
 
-LastExpression                     Goto   565
+LastExpression                     Goto   568
 Assignment                         Gt/Rd  495
 ClosureExpression                  Gt/Rd  494
 Expression                         Goto   307
@@ -76717,8 +77544,8 @@ AssignmentExpression               Gt/Rd  512
 
 
 
-STATE 559 ----------------------------------------------------------------------
-( 557 )
+STATE 562 ----------------------------------------------------------------------
+( 560 )
 
 ConstructorBlock ::= LBRACE  .ExplicitConstructorInvocationopt 
                      BlockStatementsopt RBRACE 
@@ -76851,12 +77678,12 @@ IntegerLiteral                      Sh/Rd  419
                                     Reduce 546
 future                              Shift  70
                                     Reduce 546
-super                               Shift  563
+super                               Shift  566
                                     Reduce 546
-this                                Shift  564
+this                                Shift  567
                                     Reduce 546
 
-ExplicitConstructorInvocationopt    Goto   566
+ExplicitConstructorInvocationopt    Goto   569
 ExplicitConstructorInvocation       Gt/Rd  547
 OperatorFunction                    Gt/Rd  401
 MethodInvocation                    Gt/Rd  400
@@ -76869,12 +77696,12 @@ MethodClassNameSuperPrefix          Goto   64
 MethodSuperPrefix                   Goto   65
 MethodPrimaryPrefix                 Goto   66
 ClassName                           Goto   67
-AmbiguousName                       Goto   560
+AmbiguousName                       Goto   563
 identifier                          Gt/Rd  368
-Identifier                          Goto   561
+Identifier                          Goto   564
 TypeName                            Goto   120
 BooleanLiteral                      Gt/Rd  423
-Primary                             Goto   562
+Primary                             Goto   565
 
 ArrayInitailizer                    Reduce 546
 SynchronizedStatement               Reduce 546
@@ -76921,8 +77748,8 @@ MINUS_MINUS                         Reduce 546
 Default reduction to rule  546
 
 
-STATE 560 ----------------------------------------------------------------------
-( 557 559 )
+STATE 563 ----------------------------------------------------------------------
+( 560 562 )
 
 MethodName ::= AmbiguousName  .DOT ErrorId 
 AmbiguousName ::= AmbiguousName  .DOT ErrorId 
@@ -76932,12 +77759,12 @@ ClassInstanceCreationExpression ::= AmbiguousName  .DOT new Identifier
 MethodName ::= AmbiguousName  .DOT Identifier 
 AmbiguousName ::= AmbiguousName  .DOT Identifier 
 
-DOT    Shift  567
+DOT    Shift  570
 
 
 
-STATE 561 ----------------------------------------------------------------------
-( 557 559 )
+STATE 564 ----------------------------------------------------------------------
+( 560 562 )
 
 TypeName ::= Identifier . (214)
 MethodName ::= Identifier . (224)
@@ -76952,8 +77779,8 @@ LPAREN      Reduce 224
 Default reduction to rule  224
 
 
-STATE 562 ----------------------------------------------------------------------
-( 557 559 )
+STATE 565 ----------------------------------------------------------------------
+( 560 562 )
 
 FieldAccess ::= Primary  .DOT ErrorId 
 MethodPrimaryPrefix ::= Primary  .DOT ErrorId 
@@ -76973,7 +77800,7 @@ TypeArguments ::= .LBRACKET TypeArgumentList RBRACKET
 TypeArgumentsopt ::= . (578)
 TypeArgumentsopt ::= .TypeArguments 
 
-DOT                 Shift  568
+DOT                 Shift  571
 LBRACKET            Shift  36
 
 TypeArgumentsopt    Goto   134
@@ -76984,8 +77811,8 @@ LPAREN              Reduce 578
 Default reduction to rule  578
 
 
-STATE 563 ----------------------------------------------------------------------
-( 557 559 )
+STATE 566 ----------------------------------------------------------------------
+( 560 562 )
 
 FieldAccess ::= super  .DOT ErrorId 
 MethodSuperPrefix ::= super  .DOT ErrorId 
@@ -77002,7 +77829,7 @@ TypeArgumentsopt ::= .TypeArguments
 DOT                 Shift  127
 LBRACKET            Shift  36
 
-TypeArgumentsopt    Goto   569
+TypeArgumentsopt    Goto   572
 TypeArguments       Gt/Rd  579
 
 LPAREN              Reduce 578
@@ -77010,8 +77837,8 @@ LPAREN              Reduce 578
 Default reduction to rule  578
 
 
-STATE 564 ----------------------------------------------------------------------
-( 557 559 )
+STATE 567 ----------------------------------------------------------------------
+( 560 562 )
 
 ExplicitConstructorInvocation ::= this  .TypeArgumentsopt LPAREN 
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -77026,7 +77853,7 @@ LBRACKET            Reduce 395
 LPAREN              Reduce 395
                     Reduce 578
 
-TypeArgumentsopt    Goto   570
+TypeArgumentsopt    Goto   573
 TypeArguments       Gt/Rd  579
 
 DOT                 Reduce 395
@@ -77034,8 +77861,8 @@ DOT                 Reduce 395
 Default reduction to rule  395
 
 
-STATE 565 ----------------------------------------------------------------------
-( 558 )
+STATE 568 ----------------------------------------------------------------------
+( 561 )
 
 MethodBody ::= EQUAL LBRACE BlockStatementsopt LastExpression  .RBRACE 
 
@@ -77043,8 +77870,8 @@ RBRACE    Sh/Rd  327
 
 
 
-STATE 566 ----------------------------------------------------------------------
-( 559 )
+STATE 569 ----------------------------------------------------------------------
+( 562 )
 
 ConstructorBlock ::= LBRACE ExplicitConstructorInvocationopt  .
                      BlockStatementsopt RBRACE 
@@ -77261,9 +78088,10 @@ PostDecrementExpression ::= .PostfixExpression MINUS_MINUS
 PreIncrementExpression ::= .PLUS_PLUS UnaryExpressionNotPlusMinus 
 PreDecrementExpression ::= .MINUS_MINUS UnaryExpressionNotPlusMinus 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 VariableModifiersopt ::= . (528)
 VariableModifiersopt ::= .VariableModifiers 
 BlockStatementsopt ::= . (544)
@@ -77324,7 +78152,7 @@ protected                            Sh/Rd  249
 public                               Sh/Rd  248
 AT                                   Shift  6
 
-BlockStatementsopt                   Goto   571
+BlockStatementsopt                   Goto   574
 Statement                            Gt/Rd  377
 ClassDeclaration                     Gt/Rd  376
 LocalVariableDeclarationStatement    Gt/Rd  375
@@ -77407,8 +78235,8 @@ RBRACE                               Reduce 544
 Default reduction to rule  205
 
 
-STATE 567 ----------------------------------------------------------------------
-( 560 )
+STATE 570 ----------------------------------------------------------------------
+( 563 )
 
 MethodName ::= AmbiguousName DOT  .ErrorId 
 AmbiguousName ::= AmbiguousName DOT  .ErrorId 
@@ -77422,16 +78250,16 @@ identifier ::= .IDENTIFIER
 Identifier ::= .identifier 
 
 new           Shift  246
-ErrorId       Shift  573
+ErrorId       Shift  576
 IDENTIFIER    Sh/Rd  213
 
-Identifier    Goto   572
+Identifier    Goto   575
 identifier    Gt/Rd  368
 
 
 
-STATE 568 ----------------------------------------------------------------------
-( 562 )
+STATE 571 ----------------------------------------------------------------------
+( 565 )
 
 FieldAccess ::= Primary DOT  .ErrorId 
 MethodPrimaryPrefix ::= Primary DOT  .ErrorId 
@@ -77450,8 +78278,8 @@ identifier ::= .IDENTIFIER
 Identifier ::= .identifier 
 
 new           Shift  250
-super         Shift  574
-this          Shift  575
+super         Shift  577
+this          Shift  578
 ErrorId       Shift  251
 IDENTIFIER    Sh/Rd  213
 
@@ -77460,28 +78288,28 @@ identifier    Gt/Rd  368
 
 
 
-STATE 569 ----------------------------------------------------------------------
-( 563 )
+STATE 572 ----------------------------------------------------------------------
+( 566 )
 
 ExplicitConstructorInvocation ::= super TypeArgumentsopt  .LPAREN 
                                   ArgumentListopt RPAREN SEMICOLON 
 
-LPAREN    Shift  576
+LPAREN    Shift  579
 
 
 
-STATE 570 ----------------------------------------------------------------------
-( 564 )
+STATE 573 ----------------------------------------------------------------------
+( 567 )
 
 ExplicitConstructorInvocation ::= this TypeArgumentsopt  .LPAREN 
                                   ArgumentListopt RPAREN SEMICOLON 
 
-LPAREN    Shift  577
+LPAREN    Shift  580
 
 
 
-STATE 571 ----------------------------------------------------------------------
-( 566 )
+STATE 574 ----------------------------------------------------------------------
+( 569 )
 
 ConstructorBlock ::= LBRACE ExplicitConstructorInvocationopt 
                      BlockStatementsopt  .RBRACE 
@@ -77490,8 +78318,8 @@ RBRACE    Sh/Rd  341
 
 
 
-STATE 572 ----------------------------------------------------------------------
-( 567 )
+STATE 575 ----------------------------------------------------------------------
+( 570 )
 
 MethodName ::= AmbiguousName DOT Identifier . (225)
 AmbiguousName ::= AmbiguousName DOT Identifier . (229)
@@ -77503,8 +78331,8 @@ DOT         Reduce 229
 Default reduction to rule  225
 
 
-STATE 573 ----------------------------------------------------------------------
-( 567 )
+STATE 576 ----------------------------------------------------------------------
+( 570 )
 
 MethodName ::= AmbiguousName DOT ErrorId . (4)
 AmbiguousName ::= AmbiguousName DOT ErrorId . (6)
@@ -77516,8 +78344,8 @@ DOT         Reduce 6
 Default reduction to rule  4
 
 
-STATE 574 ----------------------------------------------------------------------
-( 568 )
+STATE 577 ----------------------------------------------------------------------
+( 571 )
 
 ExplicitConstructorInvocation ::= Primary DOT super  .TypeArgumentsopt LPAREN 
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -77528,7 +78356,7 @@ TypeArgumentsopt ::= .TypeArguments
 
 LBRACKET            Shift  36
 
-TypeArgumentsopt    Goto   578
+TypeArgumentsopt    Goto   581
 TypeArguments       Gt/Rd  579
 
 LPAREN              Reduce 578
@@ -77536,8 +78364,8 @@ LPAREN              Reduce 578
 Default reduction to rule  578
 
 
-STATE 575 ----------------------------------------------------------------------
-( 568 )
+STATE 578 ----------------------------------------------------------------------
+( 571 )
 
 ExplicitConstructorInvocation ::= Primary DOT this  .TypeArgumentsopt LPAREN 
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -77548,7 +78376,7 @@ TypeArgumentsopt ::= .TypeArguments
 
 LBRACKET            Shift  36
 
-TypeArgumentsopt    Goto   579
+TypeArgumentsopt    Goto   582
 TypeArguments       Gt/Rd  579
 
 LPAREN              Reduce 578
@@ -77556,8 +78384,8 @@ LPAREN              Reduce 578
 Default reduction to rule  578
 
 
-STATE 576 ----------------------------------------------------------------------
-( 569 )
+STATE 579 ----------------------------------------------------------------------
+( 572 )
 
 ExplicitConstructorInvocation ::= super TypeArgumentsopt LPAREN  .
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -77735,9 +78563,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -77775,7 +78604,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   580
+ArgumentListopt                    Goto   583
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -77837,8 +78666,8 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 577 ----------------------------------------------------------------------
-( 570 )
+STATE 580 ----------------------------------------------------------------------
+( 573 )
 
 ExplicitConstructorInvocation ::= this TypeArgumentsopt LPAREN  .
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -78016,9 +78845,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -78056,7 +78886,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   581
+ArgumentListopt                    Goto   584
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -78118,48 +78948,48 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 578 ----------------------------------------------------------------------
-( 574 )
+STATE 581 ----------------------------------------------------------------------
+( 577 )
 
 ExplicitConstructorInvocation ::= Primary DOT super TypeArgumentsopt  .LPAREN 
                                   ArgumentListopt RPAREN SEMICOLON 
 
-LPAREN    Shift  582
-
-
-
-STATE 579 ----------------------------------------------------------------------
-( 575 )
-
-ExplicitConstructorInvocation ::= Primary DOT this TypeArgumentsopt  .LPAREN 
-                                  ArgumentListopt RPAREN SEMICOLON 
-
-LPAREN    Shift  583
-
-
-
-STATE 580 ----------------------------------------------------------------------
-( 576 )
-
-ExplicitConstructorInvocation ::= super TypeArgumentsopt LPAREN 
-                                  ArgumentListopt  .RPAREN SEMICOLON 
-
-RPAREN    Shift  584
-
-
-
-STATE 581 ----------------------------------------------------------------------
-( 577 )
-
-ExplicitConstructorInvocation ::= this TypeArgumentsopt LPAREN 
-                                  ArgumentListopt  .RPAREN SEMICOLON 
-
-RPAREN    Shift  585
+LPAREN    Shift  585
 
 
 
 STATE 582 ----------------------------------------------------------------------
 ( 578 )
+
+ExplicitConstructorInvocation ::= Primary DOT this TypeArgumentsopt  .LPAREN 
+                                  ArgumentListopt RPAREN SEMICOLON 
+
+LPAREN    Shift  586
+
+
+
+STATE 583 ----------------------------------------------------------------------
+( 579 )
+
+ExplicitConstructorInvocation ::= super TypeArgumentsopt LPAREN 
+                                  ArgumentListopt  .RPAREN SEMICOLON 
+
+RPAREN    Shift  587
+
+
+
+STATE 584 ----------------------------------------------------------------------
+( 580 )
+
+ExplicitConstructorInvocation ::= this TypeArgumentsopt LPAREN 
+                                  ArgumentListopt  .RPAREN SEMICOLON 
+
+RPAREN    Shift  588
+
+
+
+STATE 585 ----------------------------------------------------------------------
+( 581 )
 
 ExplicitConstructorInvocation ::= Primary DOT super TypeArgumentsopt LPAREN  .
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -78337,9 +79167,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -78377,7 +79208,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   586
+ArgumentListopt                    Goto   589
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -78439,8 +79270,8 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 583 ----------------------------------------------------------------------
-( 579 )
+STATE 586 ----------------------------------------------------------------------
+( 582 )
 
 ExplicitConstructorInvocation ::= Primary DOT this TypeArgumentsopt LPAREN  .
                                   ArgumentListopt RPAREN SEMICOLON 
@@ -78618,9 +79449,10 @@ ConditionalExpression ::= .ConditionalOrExpression QUESTION Expression COLON
 AssignmentExpression ::= .ClosureExpression 
 AssignmentExpression ::= .Assignment 
 Assignment ::= .LeftHandSide AssignmentOperator AssignmentExpression 
+Assignment ::= .ExpressionName LPAREN ArgumentList RPAREN AssignmentOperator 
+               AssignmentExpression 
 LeftHandSide ::= .ExpressionName 
 LeftHandSide ::= .FieldAccess 
-LeftHandSide ::= .ExpressionName LPAREN Expression RPAREN 
 Expression ::= .AssignmentExpression 
 ArgumentListopt ::= . (542)
 ArgumentListopt ::= .ArgumentList 
@@ -78658,7 +79490,7 @@ MINUS                              Shift  75
 PLUS                               Shift  76
 LBRACKET                           Shift  91
 
-ArgumentListopt                    Goto   587
+ArgumentListopt                    Goto   590
 AssignmentExpression               Gt/Rd  512
 CastExpression                     Gt/Rd  184
 TypeParametersopt                  Goto   57
@@ -78720,8 +79552,8 @@ RPAREN                             Reduce 542
 Default reduction to rule  542
 
 
-STATE 584 ----------------------------------------------------------------------
-( 580 )
+STATE 587 ----------------------------------------------------------------------
+( 583 )
 
 ExplicitConstructorInvocation ::= super TypeArgumentsopt LPAREN 
                                   ArgumentListopt RPAREN  .SEMICOLON 
@@ -78730,8 +79562,8 @@ SEMICOLON    Sh/Rd  26
 
 
 
-STATE 585 ----------------------------------------------------------------------
-( 581 )
+STATE 588 ----------------------------------------------------------------------
+( 584 )
 
 ExplicitConstructorInvocation ::= this TypeArgumentsopt LPAREN 
                                   ArgumentListopt RPAREN  .SEMICOLON 
@@ -78740,28 +79572,28 @@ SEMICOLON    Sh/Rd  25
 
 
 
-STATE 586 ----------------------------------------------------------------------
-( 582 )
+STATE 589 ----------------------------------------------------------------------
+( 585 )
 
 ExplicitConstructorInvocation ::= Primary DOT super TypeArgumentsopt LPAREN 
                                   ArgumentListopt  .RPAREN SEMICOLON 
 
-RPAREN    Shift  588
+RPAREN    Shift  591
 
 
 
-STATE 587 ----------------------------------------------------------------------
-( 583 )
+STATE 590 ----------------------------------------------------------------------
+( 586 )
 
 ExplicitConstructorInvocation ::= Primary DOT this TypeArgumentsopt LPAREN 
                                   ArgumentListopt  .RPAREN SEMICOLON 
 
-RPAREN    Shift  589
+RPAREN    Shift  592
 
 
 
-STATE 588 ----------------------------------------------------------------------
-( 586 )
+STATE 591 ----------------------------------------------------------------------
+( 589 )
 
 ExplicitConstructorInvocation ::= Primary DOT super TypeArgumentsopt LPAREN 
                                   ArgumentListopt RPAREN  .SEMICOLON 
@@ -78770,8 +79602,8 @@ SEMICOLON    Sh/Rd  28
 
 
 
-STATE 589 ----------------------------------------------------------------------
-( 587 )
+STATE 592 ----------------------------------------------------------------------
+( 590 )
 
 ExplicitConstructorInvocation ::= Primary DOT this TypeArgumentsopt LPAREN 
                                   ArgumentListopt RPAREN  .SEMICOLON 
@@ -78784,12 +79616,12 @@ SEMICOLON    Sh/Rd  27
 Look-Ahead STATES:
 
 
-LA STATE 590 -------------------------------------------------------------------
+LA STATE 593 -------------------------------------------------------------------
 (Unreachable State)
 
 
 
-LA STATE 591 -------------------------------------------------------------------
+LA STATE 594 -------------------------------------------------------------------
 (81)
 
 
@@ -78820,18 +79652,18 @@ this                    Reduce 216
 Default reduction to rule  216
 
 
-LA STATE 592 -------------------------------------------------------------------
+LA STATE 595 -------------------------------------------------------------------
 (Unreachable State)
 
 
 
-LA STATE 593 -------------------------------------------------------------------
+LA STATE 596 -------------------------------------------------------------------
 (Unreachable State)
 
 
 
-LA STATE 594 -------------------------------------------------------------------
-(595)
+LA STATE 597 -------------------------------------------------------------------
+(598)
 
 
 MINUS_MINUS             Reduce 364
@@ -78871,11 +79703,11 @@ COLON                   Reduce 304
 Default reduction to rule  364
 
 
-LA STATE 595 -------------------------------------------------------------------
-(596)
+LA STATE 598 -------------------------------------------------------------------
+(599)
 
 
-RPAREN                        La/Sh  594
+RPAREN                        La/Sh  597
 
 MINUS_MINUS                   Reduce 364
 OR                            Reduce 364
@@ -78928,11 +79760,11 @@ COMMA                         Reduce 304
 Default reduction to rule  364
 
 
-LA STATE 596 -------------------------------------------------------------------
+LA STATE 599 -------------------------------------------------------------------
 (112)
 
 
-IDENTIFIER              La/Sh  595
+IDENTIFIER              La/Sh  598
 
 IntegerLiteral          Reduce 364
 LongLiteral             Reduce 364
@@ -78963,12 +79795,12 @@ ArrayInitailizer        Reduce 364
 Default reduction to rule  364
 
 
-LA STATE 597 -------------------------------------------------------------------
+LA STATE 600 -------------------------------------------------------------------
 (Unreachable State)
 
 
 
-LA STATE 598 -------------------------------------------------------------------
+LA STATE 601 -------------------------------------------------------------------
 (120)
 
 
@@ -78999,21 +79831,6 @@ this                    Reduce 216
 Default reduction to rule  216
 
 
-LA STATE 599 -------------------------------------------------------------------
-(Unreachable State)
-
-
-
-LA STATE 600 -------------------------------------------------------------------
-(Unreachable State)
-
-
-
-LA STATE 601 -------------------------------------------------------------------
-(Unreachable State)
-
-
-
 LA STATE 602 -------------------------------------------------------------------
 (Unreachable State)
 
@@ -79040,7 +79857,22 @@ LA STATE 606 -------------------------------------------------------------------
 
 
 LA STATE 607 -------------------------------------------------------------------
-(448)
+(Unreachable State)
+
+
+
+LA STATE 608 -------------------------------------------------------------------
+(Unreachable State)
+
+
+
+LA STATE 609 -------------------------------------------------------------------
+(Unreachable State)
+
+
+
+LA STATE 610 -------------------------------------------------------------------
+(451)
 
 
 this          Reduce 548
@@ -79049,8 +79881,8 @@ IDENTIFIER    Reduce 554
 Default reduction to rule  548
 
 
-LA STATE 608 -------------------------------------------------------------------
-(482)
+LA STATE 611 -------------------------------------------------------------------
+(485)
 
 
 this          Reduce 338
@@ -79059,8 +79891,8 @@ IDENTIFIER    Reduce 310
 Default reduction to rule  338
 
 
-LA STATE 609 -------------------------------------------------------------------
-(483)
+LA STATE 612 -------------------------------------------------------------------
+(486)
 
 
 this          Reduce 337
@@ -79069,8 +79901,8 @@ IDENTIFIER    Reduce 309
 Default reduction to rule  337
 
 
-LA STATE 610 -------------------------------------------------------------------
-(484)
+LA STATE 613 -------------------------------------------------------------------
+(487)
 
 
 this          Reduce 336
@@ -79079,8 +79911,8 @@ IDENTIFIER    Reduce 308
 Default reduction to rule  336
 
 
-LA STATE 611 -------------------------------------------------------------------
-(485)
+LA STATE 614 -------------------------------------------------------------------
+(488)
 
 
 this          Reduce 335
@@ -79089,8 +79921,8 @@ IDENTIFIER    Reduce 307
 Default reduction to rule  335
 
 
-LA STATE 612 -------------------------------------------------------------------
-(486)
+LA STATE 615 -------------------------------------------------------------------
+(489)
 
 
 this          Reduce 548
@@ -79098,17 +79930,17 @@ IDENTIFIER    Reduce 554
 
 Default reduction to rule  548
 
-Number of entries in base Action Table: 7702
-Additional space required for compaction of Action Table: 14.7%
+Number of entries in base Action Table: 7761
+Additional space required for compaction of Action Table: 15.1%
 
-Number of unique terminal states: 405
-Number of Shift actions saved by merging: 2849
-Number of Conflict points saved by merging: 111
+Number of unique terminal states: 406
+Number of Shift actions saved by merging: 2886
+Number of Conflict points saved by merging: 112
 Number of Reduce actions saved by merging: 413
-Number of Reduce saved by default: 7200
+Number of Reduce saved by default: 7310
 
-Number of entries in Terminal Action Table: 2447
-Additional space required for compaction of Terminal Table: 6.4%
+Number of entries in Terminal Action Table: 2449
+Additional space required for compaction of Terminal Table: 4.9%
 
 
  IBM LALR Parser Generator              1.00 (Dec  2 2007)
@@ -79117,615 +79949,618 @@ Additional space required for compaction of Terminal Table: 6.4%
 Mapping of new state numbers into original numbers:
 
   586  ==>>    130
-  610  ==>>      2
-  611  ==>>      4
-  614  ==>>      9
-  617  ==>>     14
-  619  ==>>     12
-  623  ==>>    102
-  626  ==>>    554
-  627  ==>>      7
+  610  ==>>    424
+  611  ==>>      2
+  614  ==>>    102
+  617  ==>>      5
+  620  ==>>      4
+  623  ==>>     69
+  626  ==>>     57
   628  ==>>    180
-  629  ==>>    293
-  635  ==>>    514
-  638  ==>>    192
-  673  ==>>     15
-  675  ==>>     16
+  629  ==>>    447
+  630  ==>>    343
+  634  ==>>      9
+  637  ==>>      7
+  639  ==>>     54
+  673  ==>>    377
+  674  ==>>     12
   684  ==>>     36
-  687  ==>>    422
-  689  ==>>     54
-  691  ==>>     18
+  687  ==>>    291
+  689  ==>>    501
+  691  ==>>     15
   694  ==>>    115
-  697  ==>>     69
-  700  ==>>    238
-  702  ==>>     57
-  704  ==>>     10
+  697  ==>>    276
+  700  ==>>    544
+  704  ==>>     16
   705  ==>>    225
-  710  ==>>    222
-  711  ==>>    216
-  717  ==>>     19
+  710  ==>>     18
+  711  ==>>    534
+  717  ==>>     10
   719  ==>>    230
-  747  ==>>      5
-  756  ==>>    276
-  759  ==>>     33
+  747  ==>>     11
+  753  ==>>     26
+  758  ==>>     33
+  761  ==>>     19
   762  ==>>    193
-  769  ==>>    226
-  772  ==>>     92
-  773  ==>>     20
+  765  ==>>     47
+  766  ==>>    293
+  772  ==>>    523
   818  ==>>     46
-  824  ==>>    100
-  829  ==>>    289
-  832  ==>>     47
-  834  ==>>      3
-  838  ==>>     21
-  841  ==>>     22
-  852  ==>>    501
-  880  ==>>     23
-  882  ==>>    342
-  890  ==>>    541
-  894  ==>>    298
-  898  ==>>    384
-  901  ==>>    378
-  902  ==>>    419
-  904  ==>>    116
-  905  ==>>     24
-  906  ==>>     25
-  939  ==>>     13
-  950  ==>>     35
-  953  ==>>     37
-  960  ==>>    425
-  965  ==>>    428
-  968  ==>>     27
-  971  ==>>    556
-  995  ==>>     29
-  996  ==>>     30
-  999  ==>>     11
- 1009  ==>>     31
- 1015  ==>>     32
- 1016  ==>>    104
- 1019  ==>>    466
- 1022  ==>>    504
- 1025  ==>>     44
+  828  ==>>    379
+  832  ==>>    226
+  838  ==>>    100
+  852  ==>>    504
+  880  ==>>    294
+  882  ==>>    482
+  883  ==>>    104
+  891  ==>>    192
+  898  ==>>    298
+  901  ==>>    116
+  904  ==>>    289
+  939  ==>>     20
+  940  ==>>     21
+  950  ==>>     80
+  951  ==>>     14
+  952  ==>>     22
+  957  ==>>     23
+  960  ==>>    385
+  963  ==>>     92
+  964  ==>>    427
+  967  ==>>     24
+  968  ==>>     25
+  971  ==>>    559
+  995  ==>>     13
+  996  ==>>    316
+ 1005  ==>>     27
+ 1008  ==>>     35
+ 1011  ==>>     29
+ 1013  ==>>     30
+ 1014  ==>>    430
+ 1018  ==>>    216
+ 1021  ==>>    469
+ 1025  ==>>     31
+ 1059  ==>>     32
  1069  ==>>     97
- 1080  ==>>    316
- 1082  ==>>    424
- 1085  ==>>     38
- 1089  ==>>     39
- 1092  ==>>     48
- 1095  ==>>     49
- 1096  ==>>    481
- 1102  ==>>    520
- 1104  ==>>    566
- 1128  ==>>    479
- 1129  ==>>     63
- 1132  ==>>     45
- 1134  ==>>     53
- 1135  ==>>     34
- 1141  ==>>     40
- 1144  ==>>     41
- 1147  ==>>      1
+ 1072  ==>>    340
+ 1080  ==>>    517
+ 1083  ==>>     37
+ 1086  ==>>     17
+ 1087  ==>>     49
+ 1092  ==>>     44
+ 1095  ==>>     45
+ 1096  ==>>     53
+ 1104  ==>>    569
+ 1129  ==>>     56
+ 1132  ==>>    426
+ 1136  ==>>     38
+ 1141  ==>>     39
+ 1146  ==>>      1
  1148  ==>>     51
- 1149  ==>>     56
- 1156  ==>>     50
- 1193  ==>>     42
- 1202  ==>>    143
- 1205  ==>>     64
- 1207  ==>>     65
- 1209  ==>>     80
- 1213  ==>>     99
- 1215  ==>>     66
- 1219  ==>>     67
- 1224  ==>>    321
- 1225  ==>>     68
+ 1150  ==>>    300
+ 1152  ==>>     52
+ 1153  ==>>    507
+ 1157  ==>>     64
+ 1158  ==>>      3
+ 1202  ==>>     40
+ 1205  ==>>     41
+ 1212  ==>>     50
+ 1216  ==>>    562
+ 1219  ==>>    103
  1237  ==>>    241
- 1261  ==>>     71
- 1265  ==>>     52
- 1266  ==>>    114
- 1267  ==>>     72
- 1268  ==>>     73
- 1274  ==>>     17
+ 1262  ==>>     65
+ 1268  ==>>     66
+ 1269  ==>>    105
+ 1271  ==>>     67
  1275  ==>>    178
- 1278  ==>>    127
- 1281  ==>>     77
- 1282  ==>>    395
- 1283  ==>>     26
- 1284  ==>>    179
- 1285  ==>>     78
- 1287  ==>>    373
- 1290  ==>>    185
- 1324  ==>>    531
- 1326  ==>>    398
- 1335  ==>>     82
- 1338  ==>>     83
- 1339  ==>>     84
- 1345  ==>>    523
- 1377  ==>>    103
- 1378  ==>>     85
- 1384  ==>>     86
- 1386  ==>>     87
- 1392  ==>>    477
- 1394  ==>>    107
- 1398  ==>>     88
+ 1278  ==>>     99
+ 1279  ==>>     48
+ 1282  ==>>    195
+ 1284  ==>>    107
+ 1287  ==>>    374
+ 1291  ==>>    179
+ 1336  ==>>     68
+ 1339  ==>>    557
+ 1345  ==>>    526
+ 1369  ==>>     63
+ 1375  ==>>     71
+ 1386  ==>>    127
+ 1395  ==>>     72
+ 1396  ==>>    238
+ 1398  ==>>     73
+ 1433  ==>>     77
  1445  ==>>    133
- 1448  ==>>     89
+ 1448  ==>>    321
  1453  ==>>     55
  1508  ==>>    135
- 1511  ==>>     90
+ 1511  ==>>     78
  1512  ==>>    147
- 1540  ==>>     93
- 1542  ==>>     94
- 1548  ==>>     95
- 1552  ==>>    105
- 1555  ==>>     96
+ 1536  ==>>     82
+ 1537  ==>>    483
+ 1548  ==>>     83
+ 1552  ==>>    145
+ 1555  ==>>     84
  1557  ==>>     91
- 1612  ==>>    141
- 1613  ==>>    496
- 1614  ==>>    376
- 1618  ==>>    145
- 1621  ==>>    551
- 1622  ==>>    338
- 1657  ==>>     74
- 1667  ==>>     81
- 1673  ==>>    128
- 1675  ==>>    109
- 1677  ==>>    182
- 1683  ==>>    183
- 1686  ==>>    110
- 1689  ==>>    540
- 1693  ==>>    111
- 1694  ==>>    112
- 1695  ==>>    101
- 1696  ==>>    465
- 1699  ==>>    120
+ 1612  ==>>     85
+ 1613  ==>>     86
+ 1614  ==>>    114
+ 1615  ==>>     34
+ 1618  ==>>    554
+ 1620  ==>>     87
+ 1622  ==>>    222
+ 1623  ==>>    338
+ 1658  ==>>     74
+ 1674  ==>>     81
+ 1675  ==>>    141
+ 1679  ==>>     88
+ 1681  ==>>    169
+ 1685  ==>>     89
+ 1689  ==>>    174
+ 1693  ==>>    101
+ 1695  ==>>    182
  1701  ==>>    131
- 1756  ==>>    121
- 1757  ==>>    191
- 1812  ==>>    188
- 1813  ==>>    122
- 1816  ==>>    284
- 1817  ==>>    126
- 1819  ==>>    169
- 1823  ==>>    134
- 1825  ==>>    144
- 1828  ==>>    142
- 1830  ==>>    113
- 1836  ==>>    347
- 1839  ==>>    165
- 1841  ==>>    166
- 1843  ==>>    167
- 1846  ==>>    291
- 1851  ==>>    168
- 1852  ==>>    175
- 1858  ==>>    174
- 1859  ==>>    177
- 1862  ==>>    181
- 1866  ==>>    210
- 1890  ==>>    447
- 1894  ==>>    290
- 1895  ==>>    186
- 1898  ==>>    534
- 1899  ==>>    187
- 1900  ==>>    189
- 1903  ==>>    539
- 1904  ==>>    194
- 1905  ==>>    195
- 1906  ==>>    196
- 1908  ==>>    197
- 1912  ==>>    199
- 1916  ==>>    480
- 1953  ==>>    211
- 1978  ==>>    200
- 1981  ==>>    544
- 1982  ==>>    176
- 1984  ==>>    201
- 1986  ==>>    202
- 1991  ==>>    204
- 1994  ==>>    205
- 2000  ==>>    209
- 2003  ==>>    212
- 2006  ==>>    213
- 2040  ==>>    227
- 2064  ==>>    203
- 2065  ==>>    214
- 2068  ==>>    207
- 2069  ==>>    242
- 2071  ==>>    385
- 2073  ==>>    215
- 2077  ==>>    218
- 2078  ==>>    219
- 2081  ==>>    220
- 2083  ==>>    246
- 2086  ==>>    221
- 2087  ==>>    228
- 2090  ==>>    231
- 2091  ==>>    232
- 2094  ==>>    233
- 2127  ==>>    314
- 2151  ==>>    249
- 2152  ==>>    234
- 2155  ==>>    250
- 2158  ==>>    303
- 2161  ==>>    254
- 2165  ==>>    255
- 2167  ==>>    235
- 2169  ==>>    256
- 2177  ==>>    351
- 2180  ==>>    236
- 2181  ==>>    237
- 2214  ==>>    331
- 2238  ==>>    334
- 2239  ==>>    274
- 2243  ==>>    275
- 2245  ==>>    467
- 2247  ==>>    239
- 2251  ==>>    353
- 2252  ==>>    356
- 2253  ==>>    240
- 2258  ==>>    475
- 2261  ==>>    391
- 2265  ==>>    243
- 2267  ==>>    244
- 2268  ==>>    245
- 2301  ==>>    366
- 2325  ==>>    337
- 2326  ==>>    468
- 2329  ==>>    357
- 2330  ==>>    397
- 2331  ==>>    509
- 2332  ==>>    524
- 2334  ==>>    247
- 2338  ==>>    450
- 2339  ==>>    471
- 2340  ==>>    251
- 2346  ==>>    252
- 2348  ==>>    253
- 2351  ==>>    490
- 2352  ==>>    257
- 2355  ==>>    491
- 2388  ==>>    410
- 2412  ==>>    536
- 2413  ==>>    474
- 2417  ==>>    488
- 2419  ==>>    542
- 2421  ==>>    258
- 2425  ==>>    543
- 2427  ==>>    259
- 2429  ==>>    260
- 2430  ==>>    261
- 2435  ==>>    527
- 2436  ==>>    538
- 2437  ==>>    262
- 2442  ==>>    263
- 2475  ==>>    412
- 2505  ==>>    548
- 2506  ==>>    567
- 2509  ==>>    264
- 2513  ==>>    550
- 2515  ==>>    266
- 2517  ==>>    267
- 2520  ==>>    268
- 2522  ==>>    568
- 2526  ==>>    269
- 2528  ==>>    270
- 2529  ==>>    271
- 2562  ==>>    417
- 2586  ==>>    562
- 2587  ==>>    272
- 2590  ==>>    563
- 2591  ==>>    273
- 2592  ==>>    279
- 2593  ==>>    280
- 2594  ==>>    281
- 2595  ==>>    282
- 2596  ==>>    283
- 2599  ==>>    286
- 2600  ==>>    288
- 2601  ==>>    292
- 2602  ==>>    295
- 2603  ==>>    296
- 2604  ==>>    297
- 2606  ==>>    302
- 2608  ==>>    304
- 2609  ==>>    306
- 2612  ==>>    307
- 2613  ==>>    308
- 2616  ==>>    309
- 2649  ==>>    418
- 2673  ==>>    564
- 2674  ==>>    312
- 2677  ==>>    574
- 2678  ==>>    322
- 2679  ==>>    323
- 2680  ==>>    324
- 2681  ==>>    325
- 2682  ==>>    326
- 2683  ==>>    327
- 2686  ==>>    329
- 2687  ==>>    330
- 2688  ==>>    335
- 2689  ==>>    336
- 2690  ==>>    339
- 2691  ==>>    343
- 2692  ==>>    350
- 2693  ==>>    352
- 2694  ==>>    354
- 2695  ==>>    358
- 2696  ==>>    360
- 2699  ==>>    362
- 2700  ==>>    363
- 2703  ==>>    365
- 2736  ==>>    457
- 2760  ==>>    575
- 2761  ==>>    367
- 2764  ==>>    368
- 2765  ==>>    369
- 2766  ==>>    370
- 2767  ==>>    371
- 2768  ==>>    372
- 2769  ==>>    374
- 2770  ==>>    375
- 2773  ==>>    377
- 2774  ==>>    379
- 2775  ==>>    380
- 2776  ==>>    382
- 2777  ==>>    383
- 2778  ==>>    387
- 2779  ==>>    389
- 2780  ==>>    390
- 2781  ==>>    400
- 2782  ==>>    402
- 2783  ==>>    403
- 2786  ==>>    404
- 2787  ==>>    406
- 2788  ==>>    409
- 2789  ==>>    423
- 2790  ==>>    426
- 2823  ==>>    493
- 2847  ==>>    427
- 2848  ==>>    431
- 2851  ==>>    434
- 2852  ==>>    435
- 2853  ==>>    436
- 2854  ==>>    437
- 2855  ==>>    438
- 2856  ==>>    439
- 2857  ==>>    440
- 2860  ==>>    441
- 2861  ==>>    442
- 2862  ==>>    443
- 2863  ==>>    445
- 2864  ==>>    449
- 2865  ==>>    454
- 2866  ==>>    455
- 2867  ==>>    456
- 2868  ==>>    458
- 2869  ==>>    459
- 2870  ==>>    460
- 2871  ==>>    461
- 2872  ==>>    462
- 2873  ==>>    463
- 2874  ==>>    464
- 2875  ==>>    470
- 2876  ==>>    472
- 2877  ==>>    473
- 2910  ==>>    495
- 2934  ==>>    476
- 2935  ==>>    478
- 2938  ==>>    482
- 2939  ==>>    483
- 2940  ==>>    484
- 2941  ==>>    485
- 2942  ==>>    489
- 2943  ==>>    497
- 2944  ==>>    499
- 2947  ==>>    503
- 2948  ==>>    505
- 2949  ==>>    508
- 2950  ==>>    513
- 2951  ==>>    517
- 2952  ==>>    518
- 2953  ==>>    519
- 2954  ==>>    521
- 2955  ==>>    522
- 2956  ==>>    525
- 2957  ==>>    528
- 2958  ==>>    529
- 2959  ==>>    533
- 2960  ==>>    545
- 2961  ==>>    555
- 2962  ==>>    560
- 2963  ==>>    561
- 2964  ==>>    565
- 2997  ==>>    515
- 3021  ==>>    569
- 3022  ==>>    570
- 3025  ==>>    571
- 3026  ==>>    572
- 3027  ==>>    573
- 3028  ==>>    578
- 3029  ==>>    579
- 3030  ==>>    580
- 3031  ==>>    581
- 3034  ==>>    584
- 3035  ==>>    585
- 3036  ==>>    586
- 3037  ==>>    587
- 3038  ==>>    588
- 3039  ==>>    589
- 3084  ==>>    516
- 3171  ==>>    535
- 3258  ==>>    265
- 3313  ==>>     43
- 3403  ==>>    108
- 3458  ==>>    119
- 3513  ==>>    148
- 3537  ==>>    512
- 3548  ==>>    532
- 3553  ==>>    149
- 3605  ==>>    123
- 3660  ==>>     58
- 3695  ==>>    124
- 3750  ==>>     59
- 3785  ==>>    125
- 3840  ==>>     75
- 3875  ==>>    198
- 3930  ==>>     76
- 3965  ==>>    248
- 4020  ==>>      6
- 4025  ==>>    344
- 4055  ==>>    305
- 4110  ==>>    393
- 4115  ==>>    487
- 4145  ==>>    359
- 4200  ==>>    444
- 4235  ==>>    361
- 4325  ==>>    388
- 4390  ==>>    559
- 4415  ==>>    411
- 4470  ==>>    430
- 4527  ==>>     60
- 4563  ==>>    432
- 4653  ==>>    453
- 4743  ==>>    553
- 4799  ==>>    576
- 4856  ==>>     61
- 4894  ==>>    577
- 4984  ==>>    582
- 5074  ==>>    583
- 5138  ==>>    294
- 5140  ==>>    346
- 5141  ==>>    349
- 5143  ==>>    345
- 5145  ==>>    394
- 5149  ==>>    300
- 5150  ==>>    340
- 5154  ==>>    547
- 5156  ==>>    498
- 5162  ==>>    552
- 5164  ==>>    132
- 5219  ==>>    206
- 5307  ==>>    224
- 5370  ==>>    277
- 5425  ==>>    160
- 5490  ==>>    315
- 5545  ==>>    317
- 5633  ==>>    414
- 5693  ==>>    469
- 5748  ==>>    492
- 5828  ==>>    500
- 5896  ==>>    526
- 5951  ==>>    537
- 6006  ==>>     62
- 6043  ==>>    155
- 6086  ==>>    549
- 6141  ==>>    558
- 6221  ==>>     79
- 6292  ==>>    118
- 6347  ==>>    159
- 6402  ==>>    162
- 6457  ==>>    170
- 6512  ==>>    171
- 6567  ==>>    172
- 6622  ==>>    173
- 6677  ==>>    190
- 6732  ==>>    208
- 6787  ==>>    223
- 6842  ==>>    229
- 6897  ==>>    278
- 6952  ==>>    313
- 7007  ==>>    319
- 7062  ==>>    320
- 7117  ==>>    328
- 7172  ==>>    364
- 7227  ==>>    381
- 7282  ==>>    407
- 7337  ==>>    408
- 7392  ==>>    413
- 7447  ==>>    421
- 7502  ==>>    507
- 7557  ==>>     70
- 7613  ==>>    333
- 7666  ==>>    287
- 7687  ==>>    161
- 7743  ==>>    129
- 7799  ==>>    386
- 7865  ==>>    401
- 7900  ==>>    217
- 7921  ==>>    157
- 7980  ==>>    318
- 8039  ==>>    150
- 8085  ==>>    158
- 8130  ==>>    557
- 8133  ==>>    405
- 8152  ==>>    154
- 8198  ==>>    156
- 8234  ==>>    502
- 8240  ==>>    448
- 8244  ==>>    151
- 8269  ==>>    510
- 8285  ==>>    511
- 8296  ==>>    138
- 8342  ==>>    146
- 8354  ==>>    163
- 8387  ==>>    164
- 8434  ==>>    152
- 8459  ==>>    486
- 8473  ==>>    153
- 8522  ==>>    494
- 8561  ==>>    299
- 8573  ==>>    301
- 8606  ==>>    341
- 8617  ==>>    396
- 8651  ==>>    136
- 8694  ==>>    137
- 8741  ==>>    139
- 8766  ==>>      8
- 8776  ==>>    140
- 8805  ==>>    392
- 8811  ==>>    415
- 8841  ==>>     28
- 8849  ==>>    106
- 8850  ==>>    184
- 8864  ==>>    348
- 8903  ==>>    452
- 8911  ==>>    332
- 8955  ==>>     98
- 8960  ==>>    446
- 8974  ==>>    416
- 9000  ==>>    117
- 9076  ==>>    285
- 9109  ==>>    310
- 9118  ==>>    311
- 9153  ==>>    420
- 9186  ==>>    399
- 9191  ==>>    355
- 9201  ==>>    429
- 9234  ==>>    433
- 9245  ==>>    451
- 9278  ==>>    506
- 9287  ==>>    530
- 9296  ==>>    546
+ 1756  ==>>    191
+ 1811  ==>>    143
+ 1814  ==>>    185
+ 1817  ==>>     90
+ 1821  ==>>    183
+ 1824  ==>>    144
+ 1827  ==>>    113
+ 1829  ==>>     93
+ 1833  ==>>    128
+ 1837  ==>>    493
+ 1838  ==>>    347
+ 1851  ==>>    543
+ 1860  ==>>    186
+ 1863  ==>>    421
+ 1864  ==>>     94
+ 1865  ==>>    210
+ 1889  ==>>    397
+ 1893  ==>>    188
+ 1894  ==>>    246
+ 1897  ==>>    284
+ 1898  ==>>     95
+ 1899  ==>>     96
+ 1902  ==>>    290
+ 1903  ==>>    176
+ 1904  ==>>    242
+ 1905  ==>>    109
+ 1910  ==>>    110
+ 1911  ==>>    111
+ 1914  ==>>    112
+ 1917  ==>>    120
+ 1952  ==>>    211
+ 1980  ==>>    537
+ 1981  ==>>    203
+ 1982  ==>>    121
+ 1983  ==>>    122
+ 1984  ==>>    542
+ 1989  ==>>    547
+ 1993  ==>>    126
+ 1999  ==>>    254
+ 2039  ==>>    227
+ 2063  ==>>    134
+ 2064  ==>>    142
+ 2067  ==>>    207
+ 2068  ==>>    250
+ 2071  ==>>    303
+ 2076  ==>>    165
+ 2077  ==>>    386
+ 2080  ==>>    166
+ 2084  ==>>    167
+ 2086  ==>>    168
+ 2089  ==>>    175
+ 2093  ==>>    177
+ 2126  ==>>    314
+ 2150  ==>>    249
+ 2151  ==>>    255
+ 2155  ==>>    256
+ 2157  ==>>    470
+ 2159  ==>>    400
+ 2163  ==>>    274
+ 2164  ==>>    275
+ 2165  ==>>    181
+ 2170  ==>>    352
+ 2173  ==>>    354
+ 2180  ==>>    187
+ 2213  ==>>    331
+ 2237  ==>>    334
+ 2238  ==>>    471
+ 2241  ==>>    337
+ 2242  ==>>    357
+ 2243  ==>>    450
+ 2244  ==>>    189
+ 2246  ==>>    194
+ 2250  ==>>    393
+ 2251  ==>>    399
+ 2252  ==>>    512
+ 2258  ==>>    196
+ 2260  ==>>    480
+ 2264  ==>>    197
+ 2300  ==>>    367
+ 2324  ==>>    358
+ 2325  ==>>    453
+ 2329  ==>>    474
+ 2331  ==>>    527
+ 2333  ==>>    199
+ 2337  ==>>    539
+ 2339  ==>>    477
+ 2341  ==>>    200
+ 2343  ==>>    201
+ 2345  ==>>    478
+ 2350  ==>>    494
+ 2353  ==>>    202
+ 2387  ==>>    412
+ 2411  ==>>    545
+ 2412  ==>>    546
+ 2416  ==>>    491
+ 2417  ==>>    551
+ 2418  ==>>    204
+ 2420  ==>>    205
+ 2424  ==>>    530
+ 2425  ==>>    541
+ 2426  ==>>    209
+ 2432  ==>>    212
+ 2434  ==>>    213
+ 2435  ==>>    553
+ 2436  ==>>    214
+ 2441  ==>>    215
+ 2474  ==>>    414
+ 2502  ==>>    565
+ 2503  ==>>    570
+ 2506  ==>>    571
+ 2515  ==>>    218
+ 2516  ==>>    219
+ 2518  ==>>    220
+ 2520  ==>>    221
+ 2521  ==>>    228
+ 2522  ==>>    231
+ 2523  ==>>    232
+ 2524  ==>>    233
+ 2525  ==>>    234
+ 2528  ==>>    235
+ 2561  ==>>    419
+ 2585  ==>>    566
+ 2586  ==>>    236
+ 2589  ==>>    567
+ 2590  ==>>    237
+ 2591  ==>>    239
+ 2592  ==>>    240
+ 2593  ==>>    243
+ 2594  ==>>    244
+ 2595  ==>>    245
+ 2598  ==>>    247
+ 2599  ==>>    251
+ 2600  ==>>    252
+ 2601  ==>>    253
+ 2602  ==>>    257
+ 2603  ==>>    258
+ 2604  ==>>    259
+ 2605  ==>>    260
+ 2606  ==>>    261
+ 2607  ==>>    262
+ 2608  ==>>    263
+ 2611  ==>>    264
+ 2612  ==>>    266
+ 2615  ==>>    267
+ 2648  ==>>    420
+ 2672  ==>>    577
+ 2673  ==>>    268
+ 2676  ==>>    578
+ 2677  ==>>    269
+ 2678  ==>>    270
+ 2679  ==>>    271
+ 2680  ==>>    272
+ 2681  ==>>    273
+ 2682  ==>>    279
+ 2685  ==>>    280
+ 2686  ==>>    281
+ 2687  ==>>    282
+ 2688  ==>>    283
+ 2689  ==>>    286
+ 2690  ==>>    288
+ 2691  ==>>    292
+ 2692  ==>>    295
+ 2693  ==>>    296
+ 2694  ==>>    297
+ 2695  ==>>    302
+ 2698  ==>>    304
+ 2699  ==>>    306
+ 2702  ==>>    307
+ 2735  ==>>    460
+ 2759  ==>>    308
+ 2760  ==>>    309
+ 2763  ==>>    312
+ 2764  ==>>    322
+ 2765  ==>>    323
+ 2766  ==>>    324
+ 2767  ==>>    325
+ 2768  ==>>    326
+ 2769  ==>>    327
+ 2772  ==>>    329
+ 2773  ==>>    330
+ 2774  ==>>    335
+ 2775  ==>>    336
+ 2776  ==>>    339
+ 2777  ==>>    344
+ 2778  ==>>    351
+ 2779  ==>>    353
+ 2780  ==>>    355
+ 2781  ==>>    359
+ 2782  ==>>    361
+ 2783  ==>>    363
+ 2784  ==>>    364
+ 2785  ==>>    366
+ 2786  ==>>    368
+ 2787  ==>>    369
+ 2788  ==>>    370
+ 2789  ==>>    371
+ 2822  ==>>    496
+ 2846  ==>>    372
+ 2847  ==>>    373
+ 2850  ==>>    375
+ 2851  ==>>    376
+ 2852  ==>>    378
+ 2853  ==>>    380
+ 2854  ==>>    381
+ 2855  ==>>    383
+ 2856  ==>>    384
+ 2859  ==>>    388
+ 2860  ==>>    390
+ 2861  ==>>    392
+ 2862  ==>>    402
+ 2863  ==>>    404
+ 2864  ==>>    405
+ 2865  ==>>    406
+ 2866  ==>>    408
+ 2867  ==>>    411
+ 2868  ==>>    425
+ 2869  ==>>    428
+ 2870  ==>>    429
+ 2871  ==>>    433
+ 2872  ==>>    435
+ 2873  ==>>    437
+ 2874  ==>>    438
+ 2875  ==>>    439
+ 2876  ==>>    440
+ 2909  ==>>    498
+ 2933  ==>>    441
+ 2934  ==>>    442
+ 2937  ==>>    443
+ 2938  ==>>    444
+ 2939  ==>>    445
+ 2940  ==>>    446
+ 2941  ==>>    448
+ 2942  ==>>    452
+ 2943  ==>>    457
+ 2946  ==>>    458
+ 2947  ==>>    459
+ 2948  ==>>    461
+ 2949  ==>>    462
+ 2950  ==>>    463
+ 2951  ==>>    464
+ 2952  ==>>    465
+ 2953  ==>>    466
+ 2954  ==>>    467
+ 2955  ==>>    473
+ 2956  ==>>    475
+ 2957  ==>>    476
+ 2958  ==>>    479
+ 2959  ==>>    481
+ 2960  ==>>    485
+ 2961  ==>>    486
+ 2962  ==>>    487
+ 2963  ==>>    488
+ 2996  ==>>    518
+ 3020  ==>>    492
+ 3021  ==>>    500
+ 3024  ==>>    502
+ 3025  ==>>    506
+ 3026  ==>>    508
+ 3027  ==>>    511
+ 3028  ==>>    516
+ 3029  ==>>    520
+ 3030  ==>>    521
+ 3033  ==>>    522
+ 3034  ==>>    524
+ 3035  ==>>    525
+ 3036  ==>>    528
+ 3037  ==>>    531
+ 3038  ==>>    532
+ 3039  ==>>    536
+ 3040  ==>>    548
+ 3041  ==>>    558
+ 3042  ==>>    563
+ 3043  ==>>    564
+ 3044  ==>>    568
+ 3045  ==>>    572
+ 3046  ==>>    573
+ 3047  ==>>    574
+ 3048  ==>>    575
+ 3049  ==>>    576
+ 3050  ==>>    581
+ 3083  ==>>    519
+ 3107  ==>>    582
+ 3108  ==>>    583
+ 3111  ==>>    584
+ 3112  ==>>    587
+ 3113  ==>>    588
+ 3114  ==>>    589
+ 3115  ==>>    590
+ 3116  ==>>    591
+ 3117  ==>>    592
+ 3170  ==>>    538
+ 3257  ==>>    265
+ 3312  ==>>     43
+ 3398  ==>>    346
+ 3401  ==>>    108
+ 3456  ==>>    119
+ 3511  ==>>    148
+ 3536  ==>>    350
+ 3539  ==>>    341
+ 3540  ==>>    550
+ 3541  ==>>    555
+ 3546  ==>>    515
+ 3547  ==>>    484
+ 3551  ==>>    149
+ 3604  ==>>    123
+ 3659  ==>>      6
+ 3662  ==>>     42
+ 3693  ==>>    124
+ 3748  ==>>    345
+ 3782  ==>>    125
+ 3837  ==>>    395
+ 3871  ==>>    198
+ 3926  ==>>    490
+ 3960  ==>>    248
+ 4049  ==>>    305
+ 4138  ==>>    360
+ 4227  ==>>    362
+ 4316  ==>>    389
+ 4374  ==>>    348
+ 4405  ==>>    413
+ 4460  ==>>    432
+ 4516  ==>>     60
+ 4553  ==>>    434
+ 4642  ==>>    456
+ 4731  ==>>    556
+ 4787  ==>>    579
+ 4843  ==>>    136
+ 4882  ==>>    580
+ 4971  ==>>    585
+ 5060  ==>>    586
+ 5122  ==>>    396
+ 5149  ==>>    132
+ 5205  ==>>    171
+ 5293  ==>>    206
+ 5348  ==>>    224
+ 5403  ==>>    150
+ 5444  ==>>    277
+ 5509  ==>>    535
+ 5519  ==>>    158
+ 5564  ==>>    315
+ 5619  ==>>    317
+ 5707  ==>>    416
+ 5767  ==>>    472
+ 5822  ==>>    495
+ 5902  ==>>    503
+ 5970  ==>>    529
+ 6025  ==>>    540
+ 6080  ==>>     61
+ 6118  ==>>    151
+ 6160  ==>>    552
+ 6215  ==>>    561
+ 6295  ==>>     79
+ 6366  ==>>    118
+ 6421  ==>>    159
+ 6476  ==>>    162
+ 6531  ==>>    170
+ 6586  ==>>    172
+ 6641  ==>>    173
+ 6696  ==>>    190
+ 6751  ==>>    208
+ 6806  ==>>    223
+ 6861  ==>>    229
+ 6916  ==>>    278
+ 6971  ==>>    313
+ 7026  ==>>    319
+ 7081  ==>>    320
+ 7136  ==>>    328
+ 7191  ==>>    365
+ 7246  ==>>    382
+ 7301  ==>>    391
+ 7356  ==>>    409
+ 7411  ==>>    410
+ 7466  ==>>    415
+ 7521  ==>>    423
+ 7576  ==>>    510
+ 7631  ==>>     70
+ 7667  ==>>    499
+ 7687  ==>>    333
+ 7761  ==>>    160
+ 7817  ==>>    129
+ 7873  ==>>    387
+ 7939  ==>>    403
+ 7995  ==>>    161
+ 8030  ==>>    217
+ 8048  ==>>    407
+ 8049  ==>>    513
+ 8060  ==>>    157
+ 8105  ==>>    318
+ 8160  ==>>    287
+ 8164  ==>>    152
+ 8210  ==>>    154
+ 8256  ==>>    560
+ 8259  ==>>    514
+ 8277  ==>>    155
+ 8319  ==>>    451
+ 8324  ==>>    156
+ 8371  ==>>    497
+ 8421  ==>>    146
+ 8433  ==>>    163
+ 8459  ==>>    505
+ 8467  ==>>    455
+ 8478  ==>>    356
+ 8488  ==>>    489
+ 8514  ==>>    153
+ 8553  ==>>     58
+ 8602  ==>>    164
+ 8616  ==>>    299
+ 8635  ==>>    301
+ 8680  ==>>    137
+ 8718  ==>>     62
+ 8753  ==>>    138
+ 8788  ==>>    139
+ 8823  ==>>    140
+ 8858  ==>>    417
+ 8898  ==>>    106
+ 8906  ==>>    332
+ 8915  ==>>     59
+ 8939  ==>>      8
+ 8949  ==>>     75
+ 8974  ==>>    394
+ 8983  ==>>     76
+ 9007  ==>>    418
+ 9011  ==>>     28
+ 9022  ==>>    184
+ 9054  ==>>    398
+ 9110  ==>>     98
+ 9125  ==>>    117
+ 9130  ==>>    449
+ 9178  ==>>    285
+ 9232  ==>>    342
+ 9246  ==>>    310
+ 9288  ==>>    311
+ 9305  ==>>    468
+ 9323  ==>>    422
+ 9338  ==>>    349
+ 9356  ==>>    401
+ 9371  ==>>    431
+ 9404  ==>>    436
+ 9415  ==>>    454
+ 9448  ==>>    509
+ 9457  ==>>    533
+ 9466  ==>>    549
 
 Actions in Compressed Tables:
-     Number of Shifts: 746
-     Number of Shift/Reduces: 630
-     Number of conflict points: 474
+     Number of Shifts: 747
+     Number of Shift/Reduces: 629
+     Number of conflict points: 475
      Number of Look-Ahead Shifts: 11
-     Number of Gotos: 3358
-     Number of Goto/Reduces: 3755
+     Number of Gotos: 3390
+     Number of Goto/Reduces: 3779
      Number of Reduces: 181
-     Number of Defaults: 205
+     Number of Defaults: 206
 
 Parsing Tables storage:
-    Storage required for BASE_CHECK: 19092 Bytes
-    Storage required for BASE_ACTION: 20348 Bytes
-    Storage required for TERM_CHECK: 5398 Bytes
-    Storage required for TERM_ACTION: 5214 Bytes
+    Storage required for BASE_CHECK: 19432 Bytes
+    Storage required for BASE_ACTION: 20548 Bytes
+    Storage required for TERM_CHECK: 5346 Bytes
+    Storage required for TERM_ACTION: 5144 Bytes
 
 Error maps storage:
-    Storage required for ACTION_SYMBOLS_BASE map: 1180 Bytes
+    Storage required for ACTION_SYMBOLS_BASE map: 1186 Bytes
     Storage required for ACTION_SYMBOLS_RANGE map: 1684 Bytes
-    Storage required for NACTION_SYMBOLS_BASE map: 1180 Bytes
+    Storage required for NACTION_SYMBOLS_BASE map: 1186 Bytes
     Storage required for NACTION_SYMBOLS_RANGE map: 470 Bytes
     Storage required for TERMINAL_INDEX map: 290 Bytes
     Storage required for NON_TERMINAL_INDEX map: 500 Bytes
@@ -79735,9 +80570,9 @@ Error maps storage:
     Storage required for SCOPE_LHS_SYMBOL map: 282 Bytes
     Storage required for SCOPE_LOOK_AHEAD map: 282 Bytes
     Storage required for SCOPE_STATE_SET map: 282 Bytes
-    Storage required for SCOPE_RIGHT_SIDE map: 1578 Bytes
-    Storage required for SCOPE_STATE map: 1058 Bytes
-    Storage required for IN_SYMB map: 1180 Bytes
+    Storage required for SCOPE_RIGHT_SIDE map: 1586 Bytes
+    Storage required for SCOPE_STATE map: 1064 Bytes
+    Storage required for IN_SYMB map: 1186 Bytes
 
     Number of names: 267
     Number of characters in name: 2573

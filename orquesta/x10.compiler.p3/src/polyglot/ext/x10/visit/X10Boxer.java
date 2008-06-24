@@ -59,7 +59,7 @@ public class X10Boxer extends AscriptionVisitor
 			// to the primitive type),
 
 			Call call_n = (Call) e;
-			String m_name = call_n.id().id();
+			String m_name = call_n.name().id();
 			Type target_t = call_n.target().type();
 			if (m_name.equals("force") && xts.isFuture(target_t)) {
 				if (fromType.isPrimitive() && ! fromType.isVoid()) {
@@ -101,7 +101,7 @@ public class X10Boxer extends AscriptionVisitor
 		// FIXME: [IP] HACK: Leave printf alone
 		if (n instanceof Call) {
 			Call call_n = (Call) n;
-			String m_name = call_n.id().id();
+			String m_name = call_n.name().id();
 			Type target_t = call_n.target().type();
 			if (m_name.equals("printf") && target_t.isClass() &&
 					target_t.toClass().fullName().equals("java.io.PrintStream")) {

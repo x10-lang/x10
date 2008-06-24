@@ -140,7 +140,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.begin(0);
 		
 		tr.print(n, n.flags(), w);
-		tr.print(n, n.id(), w);
+		tr.print(n, n.name(), w);
 		w.write("(");
 		
 		w.begin(0);
@@ -212,7 +212,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    w.write("class ");
 		}
 		
-		tr.print(n, n.id(), w);
+		tr.print(n, n.name(), w);
 		
 		if (n.superClass() != null) {
 		    w.allowBreak(0);
@@ -333,7 +333,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			new Template("place-check", t.translate(null), target).expand();
 			// then emit '.', name of the method and argument list.
 			w.write(".");
-			w.write(c.name());
+			w.write(c.nameString());
 			w.write("(");
 			w.begin(0);
 			List l = c.arguments();
@@ -432,7 +432,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(MethodDecl_c dec) {
 		TypeSystem ts = tr.typeSystem();
-		if (dec.name().equals("main") &&
+		if (dec.nameString().equals("main") &&
 			dec.flags().flags().isPublic() &&
 			dec.flags().flags().isStatic() &&
 			dec.returnType().type().isVoid() &&
@@ -528,7 +528,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 											 new Object[] {
 												 form.flags(),
 												 form.type(),
-												 form.id(),
+												 form.name(),
 												 new Join(",", idxs)
 											 }),
 								body);
@@ -547,7 +547,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 								 new Object[] {
 									 form.flags(),
 									 form.type(),
-									 form.id(),
+									 form.name(),
 									 regVar,
 									 new Join("\n", new Join("\n", f.locals()), f.body())
 								 })
@@ -557,7 +557,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						 new Object[] {
 							 form.flags(),
 							 form.type(),
-							 form.id(),
+							 form.name(),
 							 f.domain(),
 							 new Join("\n", new Join("\n", f.locals()), f.body())
 						 }).expand();
@@ -569,7 +569,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					 new Object[] {
 						 l.formal().flags(),
 						 l.formal().type(),
-						 l.formal().id(),
+						 l.formal().name(),
 						 l.domain(),
 						 new Join("\n", new Join("\n", l.locals()), l.body()),
 						 processClocks(l),
@@ -618,7 +618,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			new Template("place-check", t.translate(null), target).expand();
 			// then emit '.' and name of the field.
 			w.write(".");
-			w.write(n.name());
+			w.write(n.nameString());
 		} else
 			// WARNING: it's important to delegate to the appropriate visit() here!
 			visit((Node)n);
