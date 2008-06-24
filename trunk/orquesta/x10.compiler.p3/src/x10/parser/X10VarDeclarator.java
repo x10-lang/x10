@@ -13,6 +13,7 @@ import java.util.List;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.CanonicalTypeNode_c;
+import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Id;
@@ -30,7 +31,7 @@ import x10.parser.X10Parser.JPGPosition;
  */
 public class X10VarDeclarator extends VarDeclarator {
 	private final List<Formal> vars;
-	public Flags flags;
+	public FlagsNode flags;
 
 	public X10VarDeclarator(JPGPosition pos, Id name) {
 		this(pos, name, null);
@@ -50,7 +51,7 @@ public class X10VarDeclarator extends VarDeclarator {
 				Name ni = (Name) paramList.get(i);
 				TypeSystem ts = ni.ts;
 				NodeFactory nf = ni.nf;
-				this.vars.add(nf.Formal(ni.pos, flags == null ? Flags.NONE : flags, nf.CanonicalTypeNode(ni.pos, ts.Int()), ni.name));
+				this.vars.add(nf.Formal(ni.pos, flags == null ? nf.FlagsNode(ni.pos, Flags.NONE) : flags, nf.CanonicalTypeNode(ni.pos, ts.Int()), ni.name));
 			}
 	
 		} else {
@@ -58,10 +59,8 @@ public class X10VarDeclarator extends VarDeclarator {
 		}
 	}
 
-	public void setFlag(Flags flags) {
-		boolean allCapitals = name != null && name.equals(name.id().toUpperCase());
-		// vj: disable until we have more support for declarative programming in X10.
-		this.flags = (false && (allCapitals || hasExplodedVars())) ? flags.set(Flags.FINAL) : flags;
+	public void setFlag(FlagsNode flags) {
+		this.flags = flags;
 	}
 
     public Position position() {

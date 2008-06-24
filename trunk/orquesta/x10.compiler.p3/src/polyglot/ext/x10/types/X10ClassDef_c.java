@@ -6,17 +6,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
-import polyglot.ast.Special;
-import polyglot.ext.x10.ast.X10Special;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef_c;
 import polyglot.types.ClassType;
@@ -29,11 +22,20 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.FilteringList;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Predicate;
-import polyglot.util.Transformation;
-import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
+import quicktime.std.music.KnobDescription;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XLit;
+import x10.constraint.XRoot;
+import x10.constraint.XSelf;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
@@ -66,20 +68,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     
     // END ANNOTATION MIXIN
     
-    protected Ref<? extends Constraint> classInvariant;
-    
     // Cached realClause of the root type.
-    protected Constraint rootClause;
     protected SemanticException rootClauseInvalid;
-
-    public void setClassInvariant(Ref<? extends Constraint> c) {
-        this.classInvariant = c;
-        this.rootClause = null;
-    }
-
-    public Ref<? extends Constraint> classInvariant() {
-        return classInvariant;
-    }
 
     /**
      * Set the realClause for this type. The realClause is the conjunction of the
@@ -93,100 +83,129 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      * @return
      */
     boolean computing = false;
+    
+    // Cached realClause of the root type.
+    XConstraint rootXClause;
+    
+    protected Ref<XConstraint> xclassInvariant;
 
-    public Constraint getRootClause() {
-        if (rootClause == null) {
-            if (computing) {
-                this.rootClause = new Constraint_c((X10TypeSystem) ts);
-                this.rootClauseInvalid = 
-                    new SemanticException("The real clause is recursive.", position());
-                return rootClause;
-            }
+    public void setXClassInvariant(Ref<XConstraint> c) {
+        this.xclassInvariant = c;
+        this.rootXClause = null;
+    }
 
-            computing = true;
+    public Ref<XConstraint> xclassInvariant() {
+        return xclassInvariant;
+    }
+    
+    public XConstraint getRootXClause() {
+	    if (rootXClause == null) {
+		    if (computing) {
+			    this.rootXClause = new XConstraint_c();
+			    this.rootClauseInvalid = 
+				    new SemanticException("The real clause is recursive.", position());
+			    return rootXClause;
+		    }
+		    
+		    computing = true;
+		    
+		    try {
+			    List<? extends X10FieldDef> properties = (List<? extends X10FieldDef>) properties();
+			    
+			    X10TypeSystem xts = (X10TypeSystem) ts;
 
-            try {
-                List<? extends X10FieldDef> properties = (List<? extends X10FieldDef>) properties();
+			    XConstraint result = new XConstraint_c();
+			    
+			    XRoot oldThis = xts.xtypeTranslator().transThis(asType());
+			    
+			    try {
+				    XConstraint ci = Types.get(xclassInvariant);
+				    if (ci != null) {
+					    ci = ci.substitute(XSelf.Self, oldThis);
+					    result.addIn(ci);
+				    }
+				    
+				    // Add in constraints from the supertypes.  This is
+				    // no need to change self, and no occurrence of this is possible in 
+				    // a type's base constraint.
+				    {
+					    Type type = Types.get(superType());
+					    XConstraint rs = X10TypeMixin.realX(type);
+					    if (rs != null) {
+						    rs = rs.substitute(XSelf.Self, oldThis);
+						    result.addIn(rs);
+					    }
+				    }
 
-                Constraint result = new Constraint_c((X10TypeSystem) ts);
-                
-                C_Special_c self = new C_Special_c(X10Special.SELF, this.asType());
-				try {
-                Constraint ci = Types.get(classInvariant);
-
-                if (ci != null)
-                    result.addIn(ci);
-
-                // Add in constraints from the supertype.
-                Type type = Types.get(superType());
-                if (type instanceof X10Type) {
-                    X10Type xType = (X10Type) type;
-                    Constraint rs = xType.realClause();
-                    // no need to change self, and no occurrence of this is possible in 
-                    // a type's base constraint.
-                    if (rs != null)
-                        result.addIn(rs);
-                }
-
-                // Add in constraints from the interfaces.
-                for (Iterator<Ref<? extends Type>> i = interfaces().iterator(); i.hasNext(); ) {
-                    Ref<? extends Type> it = (Ref<? extends Type>) i.next();
-                    if (it instanceof X10Type) {
-                        X10Type xType = (X10Type) it;
-                        Constraint rs = xType.realClause();
-                        // no need to change self, and no occurrence of this is possible in 
-                        // a type's base constraint.
-                        if (rs != null)
-                            result.addIn(rs);
-                    } 
-                }
-                
-                C_Var newThis = self;
-
-                // add in the bindings from the property declarations.
-                for (X10FieldDef fi : properties) {
-                    type = fi.asInstance().type();   // ### check for recursive call here
-                    if (type instanceof X10Type) {
-                        X10Type xType = (X10Type) type;
-                        Constraint rs = xType.realClause();
-                        if (rs != null) {
-                            C_Var newSelf = new C_Field_c(fi.asInstance(), self);
-                            Constraint rs1 = rs.substitute(newSelf, C_Special.Self);
-							Constraint rs2 = rs1.substitute(newThis, C_Special.This);
-							rs2.setSelfVar(null);
-							result.addIn(rs2);
-                        }
-                    }
-                }
-                }
-                catch (Failure f) {
-                    result.setInconsistent();
-                    this.rootClauseInvalid = new SemanticException("The class invariant and property constraints are inconsistent.", position());
-                }
-
-                if (result.consistent()) {
-                    // Verify that the realclause, as it stands entails the assertions of the 
-                    // property.
-                    for (X10FieldDef fi : properties) {
-                        C_Var var = new C_Field_c(fi.asInstance(), self);
-                        if (! result.entailsType(var)) {
-                            this.rootClause = result;
-                            this.rootClauseInvalid = 
-                                new SemanticException("The real clause," + result 
-                                                      + " does not satisfy constraints from the property declaration " 
-                                                      + var.type() + " " + var + ".", position());
-                        }
-                    }
-                }
-
-                this.rootClause = result;
-            }
-            finally {
-                computing = false;
-            }
-        }
-
-        return rootClause;
+				    // Add in constraints from the interfaces.
+				    for (Iterator<Ref<? extends Type>> i = interfaces().iterator(); i.hasNext(); ) {
+					    Ref<? extends Type> it = (Ref<? extends Type>) i.next();
+					    XConstraint rs = X10TypeMixin.realX(it.get());
+					    // no need to change self, and no occurrence of this is possible in 
+					    // a type's base constraint.
+					    if (rs != null) {
+						    rs = rs.substitute(XSelf.Self, oldThis);
+						    result.addIn(rs);
+					    }
+				    }
+				    
+				    // add in the bindings from the property declarations.
+				    for (X10FieldDef fi : properties) {
+					    Type type = fi.asInstance().type();   // ### check for recursive call here
+					    XConstraint rs = X10TypeMixin.realX(type);
+					    if (rs != null) {
+						    // Given: C(:c) f
+						    // Add in: c[self.f/self,self/this]
+						    XTerm newSelf = xts.xtypeTranslator().trans(XSelf.Self, fi.asInstance());
+						    XConstraint rs1 = rs.substitute(newSelf, XSelf.Self);
+						    XConstraint rs2 = rs1.substitute(XSelf.Self, oldThis);
+						    result.addIn(rs2);
+					    }
+				    }
+			    }
+			    catch (XFailure f) {
+				    result.setInconsistent();
+				    this.rootXClause = result;
+				    this.rootClauseInvalid = new SemanticException("The class invariant and property constraints are inconsistent.", position());
+			    }
+			    
+			    if (result.consistent()) {
+				    // Verify that the realclause, as it stands, entails the assertions of the 
+				    // property.
+				    for (X10FieldDef fi : properties) {
+					    Type ftype = fi.asInstance().type();
+					    
+					    XConstraint c = X10TypeMixin.realX(ftype);
+					    XTerm newSelf = xts.xtypeTranslator().trans(XSelf.Self, fi.asInstance());
+					    c = c.substitute(newSelf, XSelf.Self);
+					    
+					    if (! result.entails(c)) {
+						    this.rootXClause = result;
+						    this.rootClauseInvalid = 
+							    new SemanticException("The real clause, " + result 
+							                          + ", does not satisfy constraints from " + fi + ".", position());
+					    }
+				    }
+			    }
+			    
+			    this.rootXClause = result;
+		    }
+		    catch (XFailure e) {
+			    this.rootXClause = new XConstraint_c();
+			    this.rootXClause.setInconsistent();
+			    this.rootClauseInvalid = new SemanticException(e.getMessage(), position());
+		    }
+		    catch (SemanticException e) {
+			    this.rootXClause = new XConstraint_c();
+			    this.rootXClause.setInconsistent();
+			    this.rootClauseInvalid = e;
+		    }
+		    finally {
+			    computing = false;
+		    }
+	    }
+	    
+	    return rootXClause;
     }
 
     public boolean isJavaType() {
@@ -237,9 +256,13 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
             }
         });
     }
-    
+
     List<TypeProperty> typeProperties;
 
+    // TODO:
+    // Add .class property
+    // Add class <: C to class invariant
+    // Add code to not complain that it's not initialized; ignore when disambiguating C[T]
     public List<TypeProperty> typeProperties() {
     	if (typeProperties.size() == 0) {
     		boolean isValueArray = false;
@@ -248,10 +271,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     			isValueArray = true;
     			isArray = true;
     		}
-    		if (fullName().equals("x10.lang.GenericReferenceArray")) {
-    			isValueArray = false;
-    			isArray = true;
-    		}
+//    		if (fullName().equals("x10.lang.GenericReferenceArray")) {
+//    			isValueArray = false;
+//    			isArray = true;
+//    		}
     		if (isArray) {
     			X10TypeSystem ts = (X10TypeSystem) this.ts;
     			X10ClassType ct = (X10ClassType) this.asType();
@@ -290,16 +313,16 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
 	@Override
 	public List<FieldDef> fields() {
-		if (! valid && name != null && (name.equals("genericArray") || name.equals("GenericReferenceArray"))) {
-			fixArrayType(name.equals("genericArray"));
+		if (! valid) {
+			fixGenericAndPrimitiveTypes();
 			valid = true;
 		}
 		return fields2();
 	}
 	@Override
 	public List<ConstructorDef> constructors() {
-		if (! valid && name != null && (name.equals("genericArray") || name.equals("GenericReferenceArray"))) {
-			fixArrayType(name.equals("genericArray"));
+		if (! valid) {
+			fixGenericAndPrimitiveTypes();
 			valid = true;
 		}
 		return super.constructors();
@@ -307,74 +330,168 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
 	@Override
 	public List<MethodDef> methods() {
-		if (! valid && name != null && (name.equals("genericArray") || name.equals("GenericReferenceArray"))) {
-			fixArrayType(name.equals("genericArray"));
+		if (! valid) {
+			fixGenericAndPrimitiveTypes();
 			valid = true;
 		}
 		return super.methods();
 	}
-
-	private void fixArrayType(boolean isValueArray) {
-		X10ClassType ct = (X10ClassType) asType();
+	
+	private void fixGenericAndPrimitiveTypes() {
+		if (name == null || ! knownGenericTypes.contains(name))
+			return;
 		
-		if (typeProperties().size() == 1) {
-			X10TypeSystem ts = (X10TypeSystem) this.ts;
+		X10TypeSystem ts = (X10TypeSystem) this.ts;
 
-			TypeProperty px = typeProperties().get(0);
-			
-			C_Var thisPath = new C_Special_c(Special.THIS, ct);
-			PathType_c T = new PathType_c(ts, Position.COMPILER_GENERATED, thisPath, px);
-			Type param1 = ts.parameter1();
-			
-			for (FieldDef f : fields) {
-				Ref<Type> r = (Ref<Type>) f.type();
-				if (r.get().typeEquals(param1)) {
-					r.update(T);
-				}
-			}
-			
-			for (MethodDef m : methods) {
-				{
-					Ref<Type> r = (Ref<Type>) m.returnType();
-					if (r.get().typeEquals(param1)) {
-						r.update(T);
-					}
-				}
-				for (Ref<? extends Type> fr : m.formalTypes()) {
-					Ref<Type> r = (Ref<Type>) fr;
-					if (r.get().typeEquals(param1)) {
-						r.update(T);
-					}
-				}
-				for (Ref<? extends Type> fr : m.throwTypes()) {
-					Ref<Type> r = (Ref<Type>) fr;
-					if (r.get().typeEquals(param1)) {
-						r.update(T);
-					}
-				}
-			}
+		X10ClassType ct = (X10ClassType) asType();
+		TypeProperty px = X10TypeSystem_c.getFirstTypeProperty(this);
+		
+		if (px == null)
+			return;
+		
+		XVar thisPath;
+		try {
+			thisPath = ts.xtypeTranslator().transThis(ct);
+		}
+		catch (SemanticException e) {
+			throw new InternalCompilerError(e);
+		}
+		
+		Type T = PathType_c.pathBase(px.asType(), thisPath, ct);
 
-			for (ConstructorDef c : constructors) {
-				X10ConstructorDef xc = (X10ConstructorDef) c;
-				{
-					Ref<Type> r = (Ref<Type>) xc.returnType();
-					if (r.get().typeEquals(param1)) {
-						r.update(T);
-					}
-				}
-				for (Ref<? extends Type> fr : xc.formalTypes()) {
-					Ref<Type> r = (Ref<Type>) fr;
-					if (r.get().typeEquals(param1)) {
-						r.update(T);
-					}
-				}
-				for (Ref<? extends Type> fr : xc.throwTypes()) {
-					Ref<Type> r = (Ref<Type>) fr;
-					if (r.get().typeEquals(param1)) {
-						r.update(T);
-					}
-				}
+		// Replace Parameter1 with T.
+		// Replace C { Parameter1 } with C[T].
+
+		for (FieldDef f : fields) {
+			Ref<Type> r = (Ref<Type>) f.type();
+			Type newType = fixType(r.get(), T);
+			if (newType != r.get())
+				r.update(newType);
+		}
+
+		for (MethodDef m : methods) {
+			{
+				Ref<Type> r = (Ref<Type>) m.returnType();
+				Type newType = fixType(r.get(), T);
+				if (newType != r.get())
+					r.update(newType);
+			}
+			for (Ref<? extends Type> fr : m.formalTypes()) {
+				Ref<Type> r = (Ref<Type>) fr;
+				Type newType = fixType(r.get(), T);
+				if (newType != r.get())
+					r.update(newType);
+			}
+			for (Ref<? extends Type> fr : m.throwTypes()) {
+				Ref<Type> r = (Ref<Type>) fr;
+				Type newType = fixType(r.get(), T);
+				if (newType != r.get())
+					r.update(newType);
 			}
 		}
+
+		for (ConstructorDef c : constructors) {
+			X10ConstructorDef xc = (X10ConstructorDef) c;
+			{
+				Ref<Type> r = (Ref<Type>) xc.returnType();
+				Type newType = fixType(r.get(), T);
+				if (newType != r.get())
+					r.update(newType);
+			}
+			for (Ref<? extends Type> fr : xc.formalTypes()) {
+				Ref<Type> r = (Ref<Type>) fr;
+				Type newType = fixType(r.get(), T);
+				if (newType != r.get())
+					r.update(newType);
+			}
+			for (Ref<? extends Type> fr : xc.throwTypes()) {
+				Ref<Type> r = (Ref<Type>) fr;
+				Type newType = fixType(r.get(), T);
+				if (newType != r.get())
+					r.update(newType);
+			}
+		}
+	}
+	
+	private Set<String> knownGenericTypes;
+	private Map<String,Type> primitiveTypes;
+	
+	{
+		primitiveTypes = new HashMap<String, Type>();
+		primitiveTypes.put("x10.lang.Void", ts.Void());
+		primitiveTypes.put("x10.lang.Boolean", ts.Boolean());
+		primitiveTypes.put("x10.lang.Byte", ts.Byte());
+		primitiveTypes.put("x10.lang.Short", ts.Short());
+		primitiveTypes.put("x10.lang.Char", ts.Char());
+		primitiveTypes.put("x10.lang.Int", ts.Int());
+		primitiveTypes.put("x10.lang.Long", ts.Long());
+		primitiveTypes.put("x10.lang.Float", ts.Float());
+		primitiveTypes.put("x10.lang.Double", ts.Double());
+		
+		knownGenericTypes = new HashSet<String>();
+		knownGenericTypes.add("x10.lang.genericArray");
+		knownGenericTypes.add("x10.lang.GenericReferenceArray");
+		knownGenericTypes.add("x10.lang.Future");
+		knownGenericTypes.add("x10.lang.Box");
+	}
+	
+	private Type fixType(Type oldType, Type typeArg) {
+		X10TypeSystem ts = (X10TypeSystem) this.ts;
+		Type param1 = ts.parameter1();
+
+		if (oldType.typeEquals(param1)) {
+			return typeArg;
+		}
+		else if (oldType instanceof ConstrainedType) {
+			ConstrainedType ct = (ConstrainedType) oldType;
+			Type t = Types.get(ct.baseType());
+			Type t2 = fixType(t, typeArg);
+			XConstraint c = Types.get(ct.constraint());
+			// param1 should not appear in constraint; in fact, we shouldn't have any constraints
+//			XConstraint c2 = c.substitute(ts.xtypeTranslator().trans(typeArg), (XRoot) ts.xtypeTranslator().trans(param1));
+			return X10TypeMixin.xclause(t2, c);
+		}
+		else if (oldType instanceof ClassType) {
+			ClassType ct = (ClassType) oldType;
+			
+			X10ClassDef def = (X10ClassDef) ct.def();
+			
+			String name = def.fullName();
+			
+			if (name != null && primitiveTypes.containsKey(name)) {
+				return primitiveTypes.get(name);
+			}
+
+			if (name != null && def.typeProperties().size() == 1 && knownGenericTypes.contains(name)) {
+				TypeProperty px = def.typeProperties().get(0);
+				
+				XVar ToPath;
+				XVar thisPath;
+				try {
+					thisPath = ts.xtypeTranslator().transThis(ct);
+					ToPath = (XVar) ts.xtypeTranslator().trans(typeArg);
+				}
+				catch (SemanticException e) {
+					throw new InternalCompilerError(e);
+				}
+				
+				Type T = PathType_c.pathBase(px.asType(), thisPath, ct);
+
+				XConstraint c = X10TypeMixin.xclause(oldType);
+				if (c == null)
+					c = new XConstraint_c();
+				
+				try {
+					c.addBinding(ToPath, XTerms.makeLit(T));
+				}
+				catch (XFailure e) {
+					throw new InternalCompilerError(e);
+				}
+				
+				return X10TypeMixin.xclause(oldType, c);
+			}
+		}
+		
+		return oldType;
 	}
 }

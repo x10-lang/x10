@@ -19,6 +19,6 @@ import polyglot.ast.ClassDecl;
  *
  * 
  */
-public interface ValueClassDecl extends TypeDecl {
+public interface ValueClassDecl extends ClassDecl {
 
 }

@@ -7,6 +7,8 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.TypeNode;
@@ -22,4 +24,6 @@ public interface X10ConstructorDecl extends ConstructorDecl {
 	DepParameterExpr whereClause();
 	X10ConstructorDecl whereClause(DepParameterExpr e);
 	
+	List<TypeParamNode> typeParameters();
+	X10ConstructorDecl typeParameters(List<TypeParamNode> typeParams);
 }

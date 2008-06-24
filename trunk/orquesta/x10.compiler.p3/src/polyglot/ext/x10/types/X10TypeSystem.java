@@ -15,22 +15,28 @@ import java.util.List;
 import polyglot.ast.Binary;
 import polyglot.ast.Expr;
 import polyglot.ast.Unary;
-import polyglot.ext.x10.types.constr.C_Here_c;
-import polyglot.ext.x10.types.constr.C_Lit;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.TypeTranslator;
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
+import polyglot.types.Named;
+import polyglot.types.NoClassException;
+import polyglot.types.PrimitiveType;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
+import polyglot.types.Resolver;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Type_c;
 import polyglot.types.VarDef;
 import polyglot.util.Position;
+import x10.constraint.XConstraint;
+import x10.constraint.XLit;
+import x10.constraint.XTerm;
 
 /**
  * Parts of this code are taken from the pao extension in the polyglot framework.
@@ -39,25 +45,32 @@ import polyglot.util.Position;
  * @author vj
  */
 public interface X10TypeSystem extends TypeSystem {
+	public static final String DIST_FIELD = "dist";
+	public static final String REGION_FIELD = "region";
+	public static final String RANK_FIELD = "rank";
+	public static final String ZERO_BASED_FIELD = "zeroBased";
+	public static final String LOCATION_FIELD = "loc";
+	public static final String ONE_PLACE_FIELD = "onePlace";
 
 	/** Add an annotation to a type object, optionally replacing existing annotations that are subtypes of annoType. */
 	void addAnnotation(X10Def o, X10ClassType annoType, boolean replace);
 		
-	NullableType createNullableType(Position p, Ref<? extends X10NamedType> t);
-	FutureType createFutureType(Position p, Ref<? extends X10NamedType> t);
+	Type boxOf(Position p, Ref<? extends Type> t);
+	Type futureOf(Position p, Ref<? extends Type> t);
 
 	/**
 	 * Create a <code>ClosureType</code> with the given signature.
 	 */
-	ClosureType closure(Position p, Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwTypes);
+	ClosureType closure(Position p, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, Ref<? extends XConstraint> whereClause, List<Ref<? extends Type>> throwTypes);
 	ClosureInstance createClosureInstance(Position pos, Ref<? extends ClosureDef> def);
 
 	ClassType X10Object();
 	ClassType parameter1();
+
+	XTerm here();
 	
 	ClassType place();
 	ClassType region();
-	C_Here_c here();
 	ClassType point();
 	ClassType distribution();
 	ClassType Activity();
@@ -71,14 +84,14 @@ public interface X10TypeSystem extends TypeSystem {
 	ClassType OperatorUnary();
 	ClassType ArrayOperations();
 
-	C_Lit FALSE();
-	C_Lit TRUE();
-	C_Lit NEG_ONE();
-	C_Lit ZERO();
-	C_Lit ONE();
-	C_Lit TWO();
-	C_Lit THREE();
-	C_Lit NULL();
+	XLit FALSE();
+	XLit TRUE();
+	XLit NEG_ONE();
+	XLit ZERO();
+	XLit ONE();
+	XLit TWO();
+	XLit THREE();
+	XLit NULL();
 	
 	CodeDef asyncCodeInstance(boolean isStatic);
 
@@ -89,19 +102,26 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @param argTypes The closure's formal parameter types.
 	 * @param excTypes The closure's exception throw types.
 	 */
-	ClosureDef closureDef(Position pos, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
-	        Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes);
+	ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
+	                                                                              Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes,
+	                                                                              Ref<? extends XConstraint> whereClause, List<Ref<? extends Type>> throwTypes);
+
+	X10MethodDef
+	methodDef(Position pos, Ref<? extends ReferenceType> container, Flags flags, Ref<? extends Type> returnType, String name,
+		        List<Ref<? extends Type>> typeParams,
+		        List<Ref<? extends Type>> argTypes,
+		        Ref<? extends XConstraint> whereClause,
+		        List<Ref<? extends Type>> excTypes);
 
 	/**
-	 * Provide a generic type constructor for arrays:
-	 * Behaves the same as <Type>Array(isValueType, distribution).
-	 * May throw an Error if not implemented for the given type.
-	 * 1/13/2005 -- implemented for int and double only.
-	 * TODO: implement for all native types.
+	 * Provide a generic type constructor for arrays: Behaves the same as
+	 * <Type>Array(isValueType, distribution). May throw an Error if not
+	 * implemented for the given type. 1/13/2005 -- implemented for int and
+	 * double only. TODO: implement for all native types.
 	 */
 
-	ReferenceType array(Type type, boolean isValueType, Expr distribution);
-	ReferenceType array(Ref<? extends Type> type, boolean isValueType, Expr distribution);
+	Type array(Type type, boolean isValueType, Expr distribution);
+	Type array(Ref<? extends Type> type, boolean isValueType, Expr distribution);
 
 	/**
 	 * Provide a generic type constructor for arrays:
@@ -110,8 +130,8 @@ public interface X10TypeSystem extends TypeSystem {
 	 * 1/13/2005 -- implemented for int and double only.
 	 * TODO: implement for all native types.
 	 */
-	ReferenceType array(Type type, Expr distribution);
-	ReferenceType array(Ref<? extends Type> type, Expr distribution);
+	Type array(Type type, Expr distribution);
+	Type array(Ref<? extends Type> type, Expr distribution);
 
 	/**
 	 * Provide a generic type constructor for arrays:
@@ -120,8 +140,8 @@ public interface X10TypeSystem extends TypeSystem {
 	 * 1/13/2005 -- implemented for int and double only.
 	 * TODO: implement for all native types.
 	 */
-	ReferenceType array(Type type, boolean isValueType);
-	ReferenceType array(Ref<? extends Type> type, boolean isValueType);
+	Type array(Type type, boolean isValueType);
+	Type array(Ref<? extends Type> type, boolean isValueType);
 
 	/**
 	 * Provide a generic type constructor for arrays:
@@ -130,24 +150,24 @@ public interface X10TypeSystem extends TypeSystem {
 	 * 1/13/2005 -- implemented for int and double only.
 	 * TODO: implement for all native types.
 	 */
-	ReferenceType array(Type type);
-	ReferenceType array(Ref<? extends Type> type);
+	Type array(Type type);
+	Type array(Ref<? extends Type> type);
 
-	ClassType booleanArray(boolean isValueType, Expr distribution);
-	ClassType booleanArray(Expr distribution);
-	ClassType booleanArray();
+	Type booleanArray(boolean isValueType, Expr distribution);
+	Type booleanArray(Expr distribution);
+	Type booleanArray();
 
-	ClassType charArray(boolean isValueType, Expr distribution);
-	ClassType charArray(Expr distribution);
-	ClassType charArray();
+	Type charArray(boolean isValueType, Expr distribution);
+	Type charArray(Expr distribution);
+	Type charArray();
 
-	ClassType byteArray(boolean isValueType, Expr distribution);
-	ClassType byteArray(Expr distribution);
-	ClassType byteArray();
+	Type byteArray(boolean isValueType, Expr distribution);
+	Type byteArray(Expr distribution);
+	Type byteArray();
 
-	ClassType shortArray(boolean isValueType, Expr distribution);
-	ClassType shortArray(Expr distribution);
-	ClassType shortArray();
+	Type shortArray(boolean isValueType, Expr distribution);
+	Type shortArray(Expr distribution);
+	Type shortArray();
 
 	/**
 	 * Return the parametric type of all X10 intArrays with the
@@ -156,7 +176,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @param distribution -- the underlying distribution for this type. May be null.
 	 * @return -- the ClassType object
 	 */
-	ClassType intArray(boolean isValueType, Expr distribution);
+	Type intArray(boolean isValueType, Expr distribution);
 
 	/**
 	 * Return the parametric type of all X10 int arrays with the
@@ -165,7 +185,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @param distribution -- the underlying distribution for this type. May be null.
 	 * @return -- the ClassType object
 	 */
-	ClassType intArray(Expr distribution);
+	Type intArray(Expr distribution);
 
 	/**
 	 * Return the parametric type of all X10 int arrays with no
@@ -173,11 +193,11 @@ public interface X10TypeSystem extends TypeSystem {
 	 * intValueArray and IntReferenceArray.
 	 * @return -- the ClassType object
 	 */
-	ClassType intArray();
+	Type intArray();
 
-	ClassType floatArray(boolean isValueType, Expr distribution);
-	ClassType floatArray(Expr distribution);
-	ClassType floatArray();
+	Type floatArray(boolean isValueType, Expr distribution);
+	Type floatArray(Expr distribution);
+	Type floatArray();
 
 	/**
 	 * Return the parametric type of all X10 doubleArrays with the
@@ -186,7 +206,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @param distribution -- the underlying distribution for this type. May be null.
 	 * @return -- the ClassType object
 	 */
-	ClassType doubleArray(boolean isValueType, Expr distribution);
+	Type doubleArray(boolean isValueType, Expr distribution);
 
 	/**
 	 * Return the parametric type of all X10 double arrays with the
@@ -195,7 +215,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @param distribution -- the underlying distribution for this type. May be null.
 	 * @return -- the ClassType object
 	 */
-	ClassType doubleArray(Expr distribution);
+	Type doubleArray(Expr distribution);
 
 	/**
 	 * Return the parametric type of all X10 double arrays with no
@@ -203,7 +223,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * doubleValueArray and DoubleReferenceArray.
 	 * @return -- the ClassType object
 	 */
-	ClassType doubleArray();
+	Type doubleArray();
 
 	/**
 	 * Return the parametric type of all X10 longArrays with the
@@ -212,7 +232,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @param distribution -- the underlying distribution for this type. May be null.
 	 * @return -- the ClassType object
 	 */
-	ClassType longArray(boolean isValueType, Expr distribution);
+	Type longArray(boolean isValueType, Expr distribution);
 
 	/**
 	 * Return the parametric type of all X10 long arrays with the
@@ -221,7 +241,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @param distribution -- the underlying distribution for this type. May be null.
 	 * @return -- the ClassType object
 	 */
-	ClassType longArray(Expr distribution);
+	Type longArray(Expr distribution);
 
 	/**
 	 * Return the parametric type of all X10 long arrays with no
@@ -229,7 +249,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * longValueArray and DoubleReferenceArray.
 	 * @return -- the ClassType object
 	 */
-	ClassType longArray();
+	Type longArray();
 
 	// TODO: Add similar support for arrays of long and boolean.
 
@@ -266,17 +286,16 @@ public interface X10TypeSystem extends TypeSystem {
 	 MethodInstance primitiveEquals();
 
 	/** Return the method instance for runtime.T.tValue() */
-	 MethodInstance getter(X10PrimitiveType t);
+	 MethodInstance getter(PrimitiveType t);
 
 	/** Return the constructor instance for runtime.T.T(t) */
-	 ConstructorInstance wrapper(X10PrimitiveType t);
+	 ConstructorInstance wrapper(PrimitiveType t);
 
 	/** Return boxed type runtime.T for primitive t. */
-	 X10NamedType boxedType(X10PrimitiveType t);
+	 X10NamedType boxedType(PrimitiveType t);
 
   boolean isPrimitiveTypeArray(Type me);
  
-     boolean isNullable(Type me) ;
      boolean isFuture(Type me) ;
      boolean isIndexable(Type me) ;
       boolean isX10Array(Type me) ;
@@ -307,20 +326,18 @@ public interface X10TypeSystem extends TypeSystem {
 	
    VarDef createSelf(X10Type t);
    
-   TypeTranslator typeTranslator();
+   XTypeTranslator xtypeTranslator();
 
-   boolean equivClause(X10Type m, X10Type o);
-   boolean equivClause(Constraint m, Constraint o);
-   boolean entailsClause(X10Type me, X10Type other);
-   boolean entailsClause(Constraint me, Constraint other);
-   
+   boolean equivClause(Type m, Type o);
+   boolean equivClause(XConstraint m, XConstraint o);
+   boolean entailsClause(Type me, Type other);
+   boolean entailsClause(XConstraint me, XConstraint other);
    
    /**
     * True if the two types are equal, ignoring their dep clauses.
     * @param other
     * @return
     */
-   boolean equalsWithoutClause(X10Type me, X10Type other);
    boolean typeBaseEquals(Type me, Type other);
    boolean isBoxedType(Type type);
    String getGetterName(Type type);
@@ -328,16 +345,32 @@ public interface X10TypeSystem extends TypeSystem {
    
    X10ConstructorDef constructorDef(Position pos,
 			 Ref<? extends ClassType> container,
-			 Flags flags, Ref<? extends ClassType> returnType, List<Ref<? extends Type>> argTypes,
-			 List<Ref<? extends Type>> excTypes);
+			 Flags flags, Ref<? extends ClassType> returnType, List<Ref<? extends Type>> typeParams,
+			 List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes);
    Type boxedTypeToPrimitiveType(Type presumedBoxedType);
 
-   boolean clausesConsistent(Constraint c1, Constraint c2);
-   boolean primitiveClausesConsistent(Constraint c1, Constraint c2);
-   boolean clauseImplicitCastValid(Constraint c1, Constraint c2);
+   Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
+   Type performUnaryOperation(Type t, Type l, Unary.Operator op);
 
-   X10Type performBinaryOperation(X10Type t, X10Type l, X10Type r, Binary.Operator op);
-   X10Type performUnaryOperation(X10Type t, X10Type l, Unary.Operator op);
+   X10MethodInstance findMethod(ReferenceType targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
+   X10ConstructorInstance findConstructor(ClassType ct, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
+
+   PathType findTypeProperty(ClassType container, String name, ClassDef currClass) throws SemanticException;
+   Type TypeType();
+
+   /** x10.lang.Box */
+   Type Box();
+   Type boxOf(Ref<? extends Type> base);
+   boolean isBox(Type type);
+
+Type Ref();
+
+TypeDef BoxRefTypeDef();
+
+boolean isFunction(Type type);
+
+   
+//   X10NamedType createBoxFromTemplate(X10ClassDef def);
 
 }
 

@@ -1,8 +1,8 @@
 package polyglot.ext.x10.types;
 
-import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.types.MemberDef;
 import polyglot.types.Type;
+import x10.constraint.XVar;
 
 public interface TypeProperty extends MemberDef {
 	enum Variance {
@@ -16,5 +16,5 @@ public interface TypeProperty extends MemberDef {
 	void setName(String name);
 	
 	Type asType();
-	C_Var asVar();
+	XVar asVar();
 }

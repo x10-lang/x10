@@ -13,17 +13,6 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.List;
-import java.util.Map;
-
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.types.FieldInstance;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
 import polyglot.types.Type;
 
 
@@ -44,53 +33,4 @@ public interface X10Type extends Type, X10TypeObject {
      * @return
      */
     boolean safe();
-
-    boolean isNullable();
-    boolean isFuture();
-    NullableType toNullable();
-    FutureType toFuture();
-
-    /**
-     * A string representation of this type, appropriate for displaying to the user.
-     * Note: toString() returns a string that is capable of being read by the Java compiler.
-     * @return
-     */
-    String toStringForDisplay();
-    
-    
-    // BEGIN DEPENDENT TYPE MIXIN
-
-    // Getters and *imperative* setters.
-    // Other functionality is in the DependentTypeMixin.
-    // These methods should not be called directly by client code.
-    public Ref<? extends Constraint> getDepClause();
-    public void setDepClause(Ref<? extends Constraint> c);
-    public List<Ref<? extends Type>> getTypeParams();
-    public void setTypeParams(List<Ref<? extends Type>> l);
-    
-    public Constraint depClause();
-    public List<Type> typeParameters();
-    public Constraint realClause();
-
-    public C_Var selfVar();
-    public X10Type makeNoClauseVariant();
-    public X10Type makeVariant(Constraint c, List<Type> l);
-    public boolean isConstrained();
-    public boolean isParametric();
-
-    public X10Type depClause(Constraint c);
-    public X10Type depClause(Ref<? extends Constraint> c);
-    public X10Type typeParams(List<Ref<? extends Type>> l);
-
-    // Get the clause of the root type.  (:) for anything other than classes.
-    public Constraint getRootClause();
-    public void checkRealClause() throws SemanticException;  
-    public X10Type rootType();
-    public boolean equalsWithoutClauseImpl(Type o);
-    // END DEPENDENT TYPE MIXIN
-    
-    public Constraint getRealClause();
-    public void setRealClause(Constraint c, SemanticException error);
-    
-
 }

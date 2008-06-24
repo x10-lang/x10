@@ -43,7 +43,7 @@ public class X10Unary_c extends Unary_c {
 	/** Get the precedence of the expression. */
 	public Precedence precedence() {
 		/* [IP] TODO: This should be the real precedence */
-		X10Type l = (X10Type) expr.type();
+		Type l = expr.type();
         X10TypeSystem xts = (X10TypeSystem) l.typeSystem();
 		if (xts.isPoint(l)) {
 			return Precedence.LITERAL;
@@ -65,7 +65,7 @@ public class X10Unary_c extends Unary_c {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
-	        X10Type t = (X10Type) expr.type();
+	        Type t = expr.type();
 		if ((op == NEG || op == POS) && ts.isPoint(t)) {
 			return type(t);
 		}
@@ -73,18 +73,16 @@ public class X10Unary_c extends Unary_c {
 		X10Unary_c n = (X10Unary_c) super.typeCheck(tc);
 
 		Type resultType = n.type();
-		if (resultType instanceof X10Type) {
-		    resultType = ts.performUnaryOperation((X10Type) resultType, t, op);
-		    if (resultType != n.type()) {
-		        n = (X10Unary_c) n.type(resultType);
-		    }
+		resultType = ts.performUnaryOperation(resultType, t, op);
+		if (resultType != n.type()) {
+			n = (X10Unary_c) n.type(resultType);
 		}
 
 		return n;
 	}
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		X10Type t = (X10Type) expr.type();
+		Type t = expr.type();
         X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 		if ((op == NEG || op == POS) && ts.isPoint(t)) {
 			printSubExpr(expr, true, w, tr);

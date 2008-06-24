@@ -10,20 +10,20 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Node;
-import polyglot.ast.IntLit.Kind;
 import polyglot.ast.IntLit_c;
-import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ast.Node;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Lit;
-import polyglot.ext.x10.types.constr.C_Lit_c;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
+import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XSelf;
+import x10.constraint.XTerm;
 
 /**
  * An immutable representation of an int lit, modified from JL 
@@ -53,10 +53,15 @@ public class X10IntLit_c extends IntLit_c {
 		  }
 		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		  X10Type Type = (X10Type) (kind==INT ? xts.Int() : xts.Long());
-		 
-			C_Lit_c literal = new C_Lit_c(constantValue(), Type);
-			Constraint c = Constraint_c.addSelfBinding(literal,null,xts);
-			X10Type newType  = Type.depClause(c);
-	    return type(newType);
+		  
+			  XConstraint c = new XConstraint_c();
+			  XTerm term = xts.xtypeTranslator().trans(this.type(Type));
+			  try {
+				  c = c.addBinding(XSelf.Self, term);
+			  }
+			  catch (XFailure e) {
+			  }
+			  Type newType = X10TypeMixin.xclause(Type, c);
+			  return type(newType);
 	  }
 }

@@ -14,6 +14,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.ConstrainedType_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -89,18 +90,18 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
             X10Type t = (X10Type) tn.type();
 
             if (dep != null) {
-                t = t.depClause(dep.constraint());
+        	    t = new ConstrainedType_c(ts, position(), tn.typeRef(), dep.xconstraint());
             }
 
             n.depTypeCheckingNeeded = false;
-;
+
             // check if the cast is statically valid
             n = (DepInstanceof_c) n.superTypeCheck(tc);
 
             // cast is either statically valid or requires a runtime check
             X10Type fromType = (X10Type) n.expr.type();
             X10Type toType = (X10Type) n.compareType.type();
-            toType = X10TypeMixin.depClause(toType, n.dep.constraint());
+            toType = toType;
             
             // if toType is nullable and is constrained then expr must be not null
             n.notNullRequired = n.isToTypeNullable() && ts.isTypeConstrained(toType);

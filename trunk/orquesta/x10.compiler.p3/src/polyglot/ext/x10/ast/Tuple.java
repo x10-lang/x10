@@ -26,7 +26,5 @@ public interface Tuple extends Expr {
 	List<Expr> arguments();
 	Receiver pointReceiver();
 	Receiver regionReceiver();
-	MethodInstance pointMI();
-	MethodInstance regionMI();
 
 }

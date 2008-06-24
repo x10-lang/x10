@@ -22,10 +22,11 @@ import polyglot.types.Type;
  */
 public interface NullableType extends ReferenceType, X10NamedType {
     /** Ultimate base type; if this is nullable<...nullable<T>...>, then T. */
-    X10NamedType ultimateBase();
+	X10NamedType ultimateBase();
     
     /** Base type; if this is nullable<T>, then T. */
-    X10NamedType base();
+	X10NamedType base();
+	
     Ref<? extends X10NamedType> theBaseType();
     NullableType base(Ref<? extends X10NamedType> base);
 }

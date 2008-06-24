@@ -14,19 +14,25 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.ConstrainedType;
+import polyglot.ext.x10.types.ConstrainedType_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
 
 /**
  * @author vj
@@ -61,7 +67,7 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	  public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
 	        // Override to disambiguate the base type and rebuild the node before type checking the dep clause.
 
-	        TypeSystem ts = tc.typeSystem();
+	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	        NodeFactory nf = tc.nodeFactory();
 
 	        DepCast_c n = this;
@@ -78,11 +84,25 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	        DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
 	        n = (DepCast_c) n.dep(dep);
 	        
-	        X10Type t = (X10Type) tn.type();
+	        Type t = tn.type();
 
 	        if (dep != null) {
-	            t = t.depClause(dep.constraint());
+	        	if (t instanceof ConstrainedType) {
+	        		ConstrainedType ct = (ConstrainedType) t;
+	        		XConstraint c = ct.constraint().get();
+	        		try {
+					c.addIn(dep.xconstraint().get());
+				}
+				catch (XFailure e) {
+					throw new SemanticException(e.getMessage(), position());
+				}
+	        		t = X10TypeMixin.xclause(t, c);
+	        	}
+	        	else {
+	        		t = new ConstrainedType_c(ts, position(), tn.typeRef(), dep.xconstraint());
+	        	}
 	        }
+	        
 	        
 	        Expr e = (Expr) n.visitChild(n.expr, childtc);
 	        n = (DepCast_c) n.expr(e);
@@ -92,20 +112,19 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	        
 	        // check if the cast is statically valid
 	        n = (DepCast_c) n.superTypeCheck(tc);
+	        n = (DepCast_c) n.type(t);
 
 	        // cast is either statically valid or requires a runtime check
 	        Type toType = n.castType.type();
 	        Type fromType = n.expr.type();
-	        X10Type x10ToType = (X10Type) toType;
-	        X10Type x10FromType = (X10Type) fromType;
 	        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
 	        // we generate deptype constraint code checking only if targetType is
 	        // constrained and fromType not.
 	        // Otherwise the previous isCastValid has already check type
 	        // compatibility
-	        if (xts.isTypeConstrained(x10ToType)
-	                && !xts.isTypeConstrained(x10FromType)) {		
+	        if (xts.isTypeConstrained(toType)
+	                && !xts.isTypeConstrained(fromType)) {		
 	            if (fromType.isPrimitive()) {
 	                if (!n.expr.isConstant()) {
 	                    if (n.notVisited) {

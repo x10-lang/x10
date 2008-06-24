@@ -2,13 +2,13 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
-import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import x10.constraint.XConstraint;
 
 public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
     /**
@@ -18,22 +18,22 @@ public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
     void setReturnType(Ref<? extends ClassType> t);
     
     /** Return type associated with the constructor. */
-    Ref<? extends ClassType> returnType();
+    Ref<? extends Type> returnType();
     
     /** Return the constraint on properties, if any,
      * obtained from the return type of the call
      * to super in the body of this constructor. 
      * @return
      */
-    Ref<? extends Constraint> supClause();
+    Ref<? extends XConstraint> supClause();
     
     /** Set the constraint on properties obtained from
-     * the return type of the call to super. Set when typechecking
+     * the return type of the call to super. Set when type-checking
      * the code in the body of the constructor for which this is the constructor instance.
      * 
      * @param c
      */
-    void setSupClause(Ref<? extends Constraint> c);
+    void setSupClause(Ref<? extends XConstraint> c);
 
 //    /**
 //     * Return an instance of this, specialized with (a) any references

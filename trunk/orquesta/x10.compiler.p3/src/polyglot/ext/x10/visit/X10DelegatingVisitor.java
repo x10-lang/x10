@@ -105,8 +105,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof Id_c) { visit((Id_c)n); return; }
 		if (n instanceof AnnotationNode_c) { visit((AnnotationNode_c)n); return; }
 		if (n instanceof X10ArrayTypeNode_c) { visit((X10ArrayTypeNode_c)n); return; }
-		if (n instanceof NullableNode_c) { visit((NullableNode_c)n); return; }
-		if (n instanceof FutureNode_c) { visit((FutureNode_c)n); return; }
 		if (n instanceof CanonicalTypeNode_c) { visit((CanonicalTypeNode_c)n); return; }
 		if (n instanceof ArrayTypeNode_c) { visit((ArrayTypeNode_c)n); return; }
 		if (n instanceof AmbDepTypeNode_c) { visit((AmbDepTypeNode_c)n); return; }
@@ -200,7 +198,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof X10Instanceof_c) { visit((X10Instanceof_c)n); return; }
 		if (n instanceof Instanceof_c) { visit((Instanceof_c)n); return; }
 		if (n instanceof Here_c) { visit((Here_c)n); return; }
-		if (n instanceof GenParameterExpr_c) { visit((GenParameterExpr_c)n); return; }
 		if (n instanceof Future_c) { visit((Future_c)n); return; }
 		if (n instanceof X10Field_c) { visit((X10Field_c)n); return; }
 		if (n instanceof Field_c) { visit((Field_c)n); return; }
@@ -304,7 +301,6 @@ public class X10DelegatingVisitor {
 				public void visit(Field_c n) { visit((Expr_c)n); }
 					public void visit(X10Field_c n) { visit((Field_c)n); }
 				public void visit(Future_c n) { visit((Expr_c)n); }
-				public void visit(GenParameterExpr_c n) { visit((Expr_c)n); }
 				public void visit(Here_c n) { visit((Expr_c)n); }
 				public void visit(Instanceof_c n) { visit((Expr_c)n); }
 					public void visit(X10Instanceof_c n) { visit((Instanceof_c)n); }
@@ -400,8 +396,6 @@ public class X10DelegatingVisitor {
 				public void visit(ArrayTypeNode_c n) { visit((TypeNode_c)n); }
 				public void visit(CanonicalTypeNode_c n) { visit((TypeNode_c)n); }
 				public void visit(AmbDepTypeNode_c n) { visit((TypeNode_c)n); }
-				public void visit(FutureNode_c n) { visit((TypeNode_c)n); }
-				public void visit(NullableNode_c n) { visit((TypeNode_c)n); }
 				public void visit(X10ArrayTypeNode_c n) { visit((TypeNode_c)n); }
 			public void visit(AnnotationNode_c n) { visit((Node_c) n); }
 			public void visit(Id_c n) { visit((Node_c) n); }

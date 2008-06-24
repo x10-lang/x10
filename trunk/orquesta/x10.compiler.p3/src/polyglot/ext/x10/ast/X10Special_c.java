@@ -7,31 +7,25 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.lang.reflect.Constructor;
-
 import polyglot.ast.Node;
-import polyglot.ast.TypeNode;
 import polyglot.ast.Special_c;
+import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10ConstructorDef;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ProcedureDef;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10ProcedureInstance;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.main.Report;
+import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.CodeInstance;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
+import x10.constraint.XVar;
 
 public class X10Special_c extends Special_c implements X10Special {
 
@@ -63,19 +57,19 @@ public class X10Special_c extends Special_c implements X10Special {
         X10Context c = (X10Context) tc.context();
 
         if (isSelf) {
-    		X10NamedType tt = c.currentDepType();
+    		Type tt = c.currentDepType();
     		if (tt == null) {
     			   throw new SemanticException("self may only be used within a dependent type", 
     					   position());
     		}
         	if (c.inSuperTypeDeclaration()) {
-        		tt = (X10NamedType) c.supertypeDeclarationType().asType();
+        		tt = c.supertypeDeclarationType().asType();
         	}
         	
         	// The type of self should not include a dep clause; otherwise
         	// self in C(:c) could have type C(:c), causing an infinite regress
         	// later in type checking.
-        	tt = (X10NamedType) tt.makeNoClauseVariant();
+        	tt = X10TypeMixin.xclause(tt, null);
     	
         	assert tt != null;
         	return type(tt);
@@ -90,8 +84,13 @@ public class X10Special_c extends Special_c implements X10Special {
             // Use the constructor return type, not the base type.
             if (c.currentDepType() == null && c.currentCode() instanceof X10ConstructorDef) {
             	X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
-            	ClassType returnType = cd.returnType().get();
-            	t = returnType;
+            	Type returnType = cd.returnType().get();
+            	if (returnType.isClass()) {
+            		t = returnType.toClass();
+            	}
+            	else {
+            		throw new SemanticException("Constructor return type is not a class type.", cd.position());
+            	}
             }
         }
         else {
@@ -118,14 +117,17 @@ public class X10Special_c extends Special_c implements X10Special {
         }
 
         X10Special result = this;
+        X10TypeSystem xts = (X10TypeSystem) ts;
 
         if (kind == THIS) {
-        	X10Type tt = (X10Type) t.copy();
-        	tt = X10TypeMixin.setSelfVar(tt, new C_Special_c(X10Special.THIS, t));
+        	Type tt = t;
+        	tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
-            result = (X10Special) type(t.superType());
+        	Type tt = t.superType();
+        	tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
+            result = (X10Special) type(tt);
         }
         
         assert result.type() != null;
@@ -134,12 +136,17 @@ public class X10Special_c extends Special_c implements X10Special {
         CodeDef ci = c.currentCode();
         if (ci instanceof X10ProcedureDef) {
             X10ProcedureDef pi = (X10ProcedureDef) ci;
-            Constraint where = Types.get(pi.whereClause());
+            XConstraint where = Types.get(pi.whereClause());
             if (where != null) {
-                X10Type newType = (X10Type) result.type().copy();
-                Constraint dep = X10TypeMixin.depClause(newType).copy();
-                dep.addIn(where);
-                newType = X10TypeMixin.depClauseDeref(newType, dep);
+                Type newType = result.type();
+                XConstraint dep = X10TypeMixin.xclause(newType).copy();
+                try {
+			dep.addIn(where);
+		}
+		catch (XFailure e) {
+			throw new SemanticException(e.getMessage(), position());
+		}
+                newType = X10TypeMixin.xclause(newType, dep);
                 return result.type(newType);
             }
         }

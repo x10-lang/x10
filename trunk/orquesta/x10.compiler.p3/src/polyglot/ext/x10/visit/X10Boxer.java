@@ -60,10 +60,10 @@ public class X10Boxer extends AscriptionVisitor
 
 			Call call_n = (Call) e;
 			String m_name = call_n.id().id();
-			X10Type target_t = (X10Type) call_n.target().type();
+			Type target_t = call_n.target().type();
 			if (m_name.equals("force") && xts.isFuture(target_t)) {
-				if (fromType.isPrimitive()) {
-					Type boxed_t = ((X10TypeSystem) ts).boxedType((X10PrimitiveType) fromType);
+				if (fromType.isPrimitive() && ! fromType.isVoid()) {
+					Type boxed_t = xts.boxedType(fromType.toPrimitive());
 					call_n = (Call) call_n.type(xts.X10Object()); // set the type to object to avoid a type error when flattening
 					ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
 				} else {
@@ -102,7 +102,7 @@ public class X10Boxer extends AscriptionVisitor
 		if (n instanceof Call) {
 			Call call_n = (Call) n;
 			String m_name = call_n.id().id();
-			X10Type target_t = (X10Type) call_n.target().type();
+			Type target_t = call_n.target().type();
 			if (m_name.equals("printf") && target_t.isClass() &&
 					target_t.toClass().fullName().equals("java.io.PrintStream")) {
 				return n;

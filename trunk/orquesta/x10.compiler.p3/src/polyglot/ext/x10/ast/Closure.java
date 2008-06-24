@@ -12,6 +12,10 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ClosureDef;
 
 public interface Closure extends Expr, CodeBlock {
+	    
+	public List<TypeParamNode> typeParameters();
+	public Closure typeParameters(List<TypeParamNode> typeParams);
+
     /** The closure's formal parameters.
      * @return A list of {@link polyglot.ast.Formal Formal}
      */
@@ -27,5 +31,8 @@ public interface Closure extends Expr, CodeBlock {
      */
     TypeNode returnType();
     
+    public DepParameterExpr whereClause();
+    public Closure whereClause(DepParameterExpr whereClause);
+
     ClosureDef closureDef();
 }

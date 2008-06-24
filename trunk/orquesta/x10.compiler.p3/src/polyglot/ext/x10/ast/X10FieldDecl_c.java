@@ -9,37 +9,42 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
+import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.StringLit;
+import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
+import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
     DepParameterExpr thisClause;
 
-    public X10FieldDecl_c(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode type,
+    public X10FieldDecl_c(Position pos, DepParameterExpr thisClause, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
         super(pos, flags, type, name, init);
         this.thisClause = thisClause;
     }
     
-    protected X10FieldDecl_c(Position pos,  Flags flags, TypeNode type,
+    protected X10FieldDecl_c(Position pos,  FlagsNode flags, TypeNode type,
             Id name, Expr init) {
         this(pos, null, flags, type, name, init);
     }
@@ -87,7 +92,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         // Any occurrence of a non-final static field in X10
         // should be reported as an error.
-        if (flags().isStatic() && (!flags().isFinal())) {
+        if (flags().flags().isStatic() && (!flags().flags().isFinal())) {
             throw new SemanticException("Non-final static field is illegal in X10",
                                         this.position());
         }
@@ -110,8 +115,35 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             fi.setConstantValue(val);
         }
 
+        // TODO: Could infer type of final fields as LCA of types assigned in the constructor.
+        if (type instanceof UnknownTypeNode && init == null)
+        	throw new SemanticException("Cannot infer field type; field has no initializer.", position());
+        
+        // Do not infer types of mutable fields, since there could be more than one assignment and the compiler might not see them all.
+        if (type instanceof UnknownTypeNode && ! flags.flags().isFinal())
+        	throw new SemanticException("Cannot infer type of non-final fields.", position());
+
         return n;
     }
+
+	    @Override
+	    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
+		    if (type() instanceof UnknownTypeNode && init != null) {
+			    UnknownTypeNode tn = (UnknownTypeNode) type();
+
+			    NodeVisitor childv = v.enter(parent, this);
+	    	            childv = childv.enter(this, type());
+	    		    			    
+			    if (childv instanceof TypeCheckPreparer) {
+				    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
+				    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+				    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+				    tc = (TypeChecker) tc.context(tcp.context().freeze());
+				    r.setResolver(new TypeCheckExprGoal(this, init, tc, r));
+			    }
+		    }
+		    return super.setResolverOverride(parent, v);
+	    }
 
     public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
         X10FieldDecl_c f = (X10FieldDecl_c) super.disambiguate(ar);
@@ -126,7 +158,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
         if (xts.isValueType(ref) && !fi.flags().isFinal()) {
             fi.setFlags(fi.flags().Final());
-            f = (X10FieldDecl_c) f.flags(fi.flags());
+            f = (X10FieldDecl_c) f.flags(f.flags().flags(fi.flags()));
         }
 
         return f;

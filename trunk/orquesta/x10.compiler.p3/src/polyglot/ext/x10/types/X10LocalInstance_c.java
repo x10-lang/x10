@@ -10,23 +10,20 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ext.x10.types.constr.C_Local_c;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.types.constr.Failure;
-import polyglot.types.DerefTransform;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance_c;
 import polyglot.types.Ref;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.TransformingList;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XLocal;
 
 /**
  * @author vj
@@ -61,11 +58,18 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         if (flags.isFinal()) {
             X10Type t = (X10Type) super.type();
             try {
-                Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(t, x10Def().asInstance()), t.depClause(), (X10TypeSystem) ts);
-                return t.depClause(c);
+        	    XConstraint c = X10TypeMixin.xclause(t);
+        	    if (c == null) c = new XConstraint_c();
+        	    X10TypeSystem xts = (X10TypeSystem) ts;
+        	    XLocal var = xts.xtypeTranslator().trans(this, t);
+        	    c.addSelfBinding(var);
+        	    return X10TypeMixin.xclause(t, c);
             }
-            catch (Failure f) {
+            catch (SemanticException f) {
                 throw new InternalCompilerError("Could not add self binding.", f);
+            }
+            catch (XFailure f) {
+        	    throw new InternalCompilerError("Could not add self binding.", f);
             }
         }
         

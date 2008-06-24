@@ -17,22 +17,24 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.Id;
 import polyglot.ast.Local_c;
 import polyglot.ast.Node;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ProcedureDef;
-import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.main.Report;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.constraint.XVar;
 
 public class X10Local_c extends Local_c {
 
@@ -75,11 +77,9 @@ public class X10Local_c extends Local_c {
 			CodeDef ci = xtc.currentCode();
 			if (ci instanceof X10ProcedureDef) {
 			    X10ProcedureDef pi = (X10ProcedureDef) ci;
-				Constraint c = Types.get(pi.whereClause());
+				XConstraint c = Types.get(pi.whereClause());
 				if (c != null) {
 					X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-
-					c = c.copy();
 
 					// Substitute self for x (this local) in the where clause.
 //					C_Var var = new TypeTranslator(xts).trans(localInstance());
@@ -89,15 +89,16 @@ public class X10Local_c extends Local_c {
 //        			System.out.println("after = " + c);
 
       			    // Add the where clause into the constraint for this type. 
-        			X10Type t = (X10Type) result.type().copy();
+        			Type t = result.type();
 
-        			Constraint dep = t.depClause();
-        			if (dep == null) dep = new Constraint_c(xts);
+        			XConstraint dep = X10TypeMixin.xclause(t);
+        			if (dep == null) dep = new XConstraint_c();
         			else dep = dep.copy();
-        			dep.selfVar(result);
+        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
+        			dep.addSelfBinding((XVar) resultTerm);
         			dep.addIn(c);
         			
-        			t = t.depClause(dep);
+        			t = X10TypeMixin.xclause(t, dep);
         			
 					return result.type(t);
 				}
@@ -116,6 +117,9 @@ public class X10Local_c extends Local_c {
 //			} else {
 				throw z;
 //			}
+		}
+		catch (XFailure e) {
+			throw new SemanticException(e.getMessage(), position());
 		}
 	}
 	

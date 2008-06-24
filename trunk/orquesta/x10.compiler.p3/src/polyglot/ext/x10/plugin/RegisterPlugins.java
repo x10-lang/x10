@@ -13,7 +13,7 @@ public class RegisterPlugins extends SourceGoal_c {
 		this.extInfo = (ExtensionInfo) job.extensionInfo();
 	}
 
-	public boolean run() {
+	public boolean runTask() {
 		for (CompilerPlugin plugin : extInfo.plugins().values()) {
 			plugin.register(extInfo, job());
 		}

@@ -10,13 +10,8 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.List;
-
-import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
-import polyglot.types.ReferenceType;
-import polyglot.types.SemanticException;
 import polyglot.types.Type;
 
 /**
@@ -35,5 +30,7 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<
 	 * @return
 	 */
 	boolean isSafe();
+	
+	X10MethodInstance returnType(Type returnType);
 
 }

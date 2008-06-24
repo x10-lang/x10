@@ -29,6 +29,7 @@ import polyglot.ast.Unary;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.ExprFlattener.Flattener;
@@ -68,9 +69,9 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	        X10Type t2 = (X10Type) e2.type();
 	      
 	        if (t1.isNull() && t2.isNumeric())
-	            return type(ts.createNullableType(t2.position(), Types.ref((X10NamedType) t2)));
+	            return type(ts.boxOf(t2.position(), Types.ref((X10NamedType) t2)));
 	        if (t1.isNumeric() && t2.isNull())
-	            return type(ts.createNullableType(t1.position(), Types.ref((X10NamedType) t1)));
+	            return type(ts.boxOf(t1.position(), Types.ref((X10NamedType) t1)));
 
 	        if (! ts.typeEquals(cond.type(), ts.Boolean())) {
 	            throw new SemanticException(
@@ -85,7 +86,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	        	return type(t1);
 	        
 	        if (ts.typeBaseEquals(t1, t2)) {
-	            return type(t1.rootType());
+	            return type(X10TypeMixin.xclause(t1, null));
 	        }
 	        
 	        // Otherwise, if the second and third operands have numeric type, then
@@ -176,7 +177,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	                final LocalDef condLi = ts.localDef(pos, flags, Types.ref(cond.type()), resultVarName.id());
 	                // Evaluate the condition.
 	                Expr nCond = (Expr) cond.visit(fc);
-	                final LocalDecl condDecl = nf.LocalDecl(pos, flags, condTn, resultVarName, nCond).localDef(condLi);
+	                final LocalDecl condDecl = nf.LocalDecl(pos, nf.FlagsNode(pos, flags), condTn, resultVarName, nCond).localDef(condLi);
 	                fc.add(condDecl);
 	                final Local condRef = (Local) nf.Local(pos,resultVarName).localInstance(condLi.asInstance()).type(cond.type());
 

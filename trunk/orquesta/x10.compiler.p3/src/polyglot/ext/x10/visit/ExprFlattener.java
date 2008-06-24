@@ -31,6 +31,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10ArrayAccess1;
@@ -135,10 +136,6 @@ public class ExprFlattener extends ContextVisitor  {
 		
 		public Node override(Node p, Node n) {
 			if (n instanceof Stmt && n!= root) return n;
-			if (n instanceof Future) {
-				Future f = (Future) n;
-				return f.flatten(this);
-			}
 			if (n instanceof X10Binary) {
 				X10Binary f = (X10Binary) n;
 				Binary.Operator op = f.operator();
@@ -202,7 +199,7 @@ public class ExprFlattener extends ContextVisitor  {
 					final TypeNode tn = nf.CanonicalTypeNode(pos,type);
 					final LocalDef li = ts.localDef(pos, flags, Types.ref(type), varName);
 					final Id varId = nf.Id(n.position(), varName);
-					final LocalDecl ld = nf.LocalDecl(n.position(), flags, tn, varId, e).localDef(li);
+					final LocalDecl ld = nf.LocalDecl(n.position(), nf.FlagsNode(n.position(), flags), tn, varId, e).localDef(li);
 					final Local ldRef = (Local) nf.Local(n.position(), varId).localInstance(li.asInstance()).type(type);
 					stmtList.add(ld);
 					result=ldRef;

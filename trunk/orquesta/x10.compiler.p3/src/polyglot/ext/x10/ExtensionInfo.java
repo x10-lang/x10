@@ -23,6 +23,7 @@ import polyglot.ext.x10.plugin.LoadJobPlugins;
 import polyglot.ext.x10.plugin.LoadPlugins;
 import polyglot.ext.x10.plugin.RegisterPlugins;
 import polyglot.ext.x10.query.QueryEngine;
+import polyglot.ext.x10.types.X10SourceClassResolver;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.AssignPropertyChecker;
 import polyglot.ext.x10.visit.CastRewriter;
@@ -43,8 +44,14 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
+import polyglot.types.LoadedClassResolver;
+import polyglot.types.MemberClassResolver;
+import polyglot.types.SemanticException;
+import polyglot.types.SourceClassResolver;
+import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
+import polyglot.util.InternalCompilerError;
 import polyglot.visit.PruningVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -128,6 +135,30 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         }
         throw new IllegalStateException("Could not parse " + source.path());
     }
+
+    protected void initTypeSystem() {
+	        try {
+	            LoadedClassResolver lr;
+	            lr = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
+	                                         compiler.loader(), true,
+	                                         getOptions().compile_command_line_only,
+	                                         getOptions().ignore_mod_times);
+
+	            TopLevelResolver r = lr;
+
+	            // Resolver to handle lookups of member classes.
+	            if (TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+	                MemberClassResolver mcr = new MemberClassResolver(ts, lr, true);
+	                r = mcr;
+	            }
+
+	            ts.initialize(r, this);
+	        }
+	        catch (SemanticException e) {
+	            throw new InternalCompilerError(
+	                "Unable to initialize type system: " + e.getMessage(), e);
+	        }
+	    }
 
     protected NodeFactory createNodeFactory() {
         return new X10NodeFactory_c(this);

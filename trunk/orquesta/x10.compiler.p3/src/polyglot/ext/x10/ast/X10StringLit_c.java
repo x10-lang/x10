@@ -12,16 +12,18 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Node;
 import polyglot.ast.StringLit_c;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Lit_c;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
+import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XSelf;
+import x10.constraint.XTerm;
 
 /**
  * @author vj
@@ -39,11 +41,16 @@ public class X10StringLit_c extends StringLit_c {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem xts= (X10TypeSystem) tc.typeSystem();
 		X10Type Type = (X10Type) xts.String();
-		 
-			C_Lit_c literal = new C_Lit_c(value, Type);
-			Constraint c = Constraint_c.addSelfBinding(literal,null,xts);
-		  X10Type newType  = Type.depClause(c);
-	    return type(newType);
+		
+			  XConstraint c = new XConstraint_c();
+			  XTerm term = xts.xtypeTranslator().trans(this.type(Type));
+			  try {
+				  c = c.addBinding(XSelf.Self, term);
+			  }
+			  catch (XFailure e) {
+			  }
+			  Type newType = X10TypeMixin.xclause(Type, c);
+			  return type(newType);
 	  }
 
 }

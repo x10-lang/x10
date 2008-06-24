@@ -20,6 +20,7 @@ import polyglot.ext.x10.ast.X10ArrayAccess1Assign;
 import polyglot.ext.x10.ast.X10ArrayAccess1Unary;
 import polyglot.ext.x10.ast.X10ArrayAccessAssign;
 import polyglot.ext.x10.ast.X10ArrayAccessUnary;
+import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -53,19 +54,14 @@ public class QueryEngine {
 	 * @return true iff a is a dense one-diemnsional array with zero origin
 	 */
 	public boolean isRectangularRankOneLowZero(X10ArrayAccess1 a) {
-		if ( a.array().type() instanceof X10ParsedClassType ) {
-			X10ParsedClassType t = (X10ParsedClassType) a.array().type();
-			return (t.isRail() || (t.isZeroBased() && t.isRankOne() && t.isRect()));
-		}
-		else 
-			// a does not represent an X10 array (it may be a distribution or region)
-			return false;
+		Type t = a.array().type();
+		return X10ArraysMixin.isRail(t) || (X10ArraysMixin.isZeroBased(t) && X10ArraysMixin.isRankOne(t) && X10ArraysMixin.isRect(t));
 	}
 
 	protected boolean needsHereCheck(Type t) {
 		/* Removed by RAJ to disable compile time BAD_PLACE_CHECK option*/
 		/* Reinstated by Igor because the place checks are still generated.
-		   To be removed when the generation is comletely disabled. */
+		   To be removed when the generation is completely disabled. */
 		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
 			return false;
         if (t instanceof X10Type) {
