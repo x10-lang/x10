@@ -45,6 +45,10 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.whereClause = whereClause;
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
     }
+    
+    protected boolean inferReturnType;
+    public boolean inferReturnType() { return inferReturnType; }
+    public void inferReturnType(boolean r) { this.inferReturnType = r; }
 
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends X10ClassType>> annotations;

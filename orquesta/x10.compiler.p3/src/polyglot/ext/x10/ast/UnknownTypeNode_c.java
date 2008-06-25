@@ -13,6 +13,7 @@ import polyglot.types.LazyRef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
@@ -43,22 +44,26 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 		// Dereference--this will cause type inference to be performed.
 		Type t = typeRef().get();
 		
+		if (t instanceof UnknownType) {
+		    return this;
+		}
+		
 		return nf.CanonicalTypeNode(position(), t);
 	}
-	
-	    public void setResolver(Node parent, final TypeCheckPreparer v) {
-	    	if (typeRef() instanceof LazyRef) {
-	    		final LazyRef<Type> r = (LazyRef<Type>) typeRef();
-	    		final TypeSystem ts = v.typeSystem();
-	    		if (r.resolver() == null) {
-	    			r.setResolver(new Runnable() {
-	    				public void run() {
-	    					r.update(ts.unknownType(position()));
-	    				}
-	    			});
-	    		}
-	    	}
+
+	public void setResolver(Node parent, final TypeCheckPreparer v) {
+	    if (typeRef() instanceof LazyRef) {
+		final LazyRef<Type> r = (LazyRef<Type>) typeRef();
+		final TypeSystem ts = v.typeSystem();
+		if (r.resolver() == null) {
+		    r.setResolver(new Runnable() {
+			public void run() {
+			    r.update(ts.unknownType(position()));
+			}
+		    });
+		}
 	    }
+	}
 		
 	public String toString() {
 		return "_";

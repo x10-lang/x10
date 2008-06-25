@@ -17,6 +17,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Context;
@@ -34,6 +35,7 @@ import polyglot.types.Qualifier;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -73,6 +75,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10MethodDecl_c n = (X10MethodDecl_c) super.buildTypesOverride(tb);
         X10MethodDef ci = (X10MethodDef) n.methodDef();
+        if (returnType() instanceof UnknownTypeNode) {
+            ci.inferReturnType(true);
+        }
 
         if (n.whereClause() != null)
             ci.setWhereClause(n.whereClause().xconstraint());
@@ -164,7 +169,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     			    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
     			    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     			    tc = (TypeChecker) tc.context(tcp.context().freeze());
-    			    r.setResolver(new TypeCheckFragmentGoal(this, body, tc, r));
+    			    r.setResolver(new TypeCheckFragmentGoal(this, body, tc, r, true));
     		    }
     	    }
     	    return super.setResolverOverride(parent, v);
@@ -298,6 +303,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             if (childtc2.hasErrors()) throw new SemanticException();
             nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
             
+            if (nn.returnType() instanceof UnknownTypeNode) {
+        	NodeFactory nf = tc.nodeFactory();
+        	TypeSystem ts = tc.typeSystem();
+        	// Body had no return statement.  Set to void.
+        	((Ref<Type>) nn.returnType().typeRef()).update(ts.Void());
+        	nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), ts.Void()));
+            }
             return nn;
         }
        

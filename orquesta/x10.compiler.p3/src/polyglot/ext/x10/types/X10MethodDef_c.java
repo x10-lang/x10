@@ -51,6 +51,10 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         this.whereClause = whereClause;
     }
 
+    protected boolean inferReturnType;
+    public boolean inferReturnType() { return inferReturnType; }
+    public void inferReturnType(boolean r) { this.inferReturnType = r; }
+
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends X10ClassType>> annotations;
 
