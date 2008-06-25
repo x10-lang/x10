@@ -9,6 +9,10 @@ import polyglot.types.Type;
 
 public interface X10MethodDef extends MethodDef, X10ProcedureDef {
 
+    /** Set a flag indicating we should infer the return type. */
+    boolean inferReturnType();
+    void inferReturnType(boolean r);
+    
     /**
      * Return an instance of this, specialized with (a) any references
      * to this in the dependent type of the result replaced by

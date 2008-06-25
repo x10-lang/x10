@@ -144,7 +144,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     	  tc = (TypeChecker) tc.context(v.context().freeze());
 
     	  LazyRef<XConstraint> xr = (LazyRef<XConstraint>) xconstraint;
-    	  xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr));
+    	  xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
       }
     
     @Override
