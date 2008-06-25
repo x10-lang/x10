@@ -1,31 +1,32 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2008
+ *
+ *  This file is part of X10 Language.
+ *
+ */
 package x10.constraint.test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.tools.javac.util.Pair;
-
 import junit.framework.TestCase;
-import x10.constraint.C_Equals;
-import x10.constraint.C_Field;
-import x10.constraint.C_Field_c;
-import x10.constraint.C_Formula;
-import x10.constraint.C_Local;
-import x10.constraint.C_Name;
-import x10.constraint.C_NameWrapper;
-import x10.constraint.C_Term;
-import x10.constraint.C_Terms;
-import x10.constraint.C_Var;
-import x10.constraint.Constraint;
-import x10.constraint.Constraint_c;
-import x10.constraint.Failure;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XEquals;
+import x10.constraint.XFailure;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
 
 public class FormulaTest extends TestCase {
 	public FormulaTest() {
 		super("FormulaTest");
 	}
-	
-	public Constraint parse(String s) {
+		
+	public XConstraint parse(String s) {
 		char[] buf = s.toCharArray();
 		int i = 0;
 		
@@ -40,28 +41,28 @@ public class FormulaTest extends TestCase {
 			assert false : "cannot parse " + s;
 		}
 		
-		Constraint c = new Constraint_c();
+		XConstraint c = new XConstraint_c();
 
-		Pair<Integer,C_Term> p = parse(buf, i);
-		C_Term t = p.snd;
+		Pair<Integer,XTerm> p = parse(buf, i);
+		XTerm t = p.snd;
 	
 		if (t != null) {
 			try {
-				if (t instanceof C_Equals) {
-					c.addBinding(((C_Equals) t).left(), ((C_Equals) t).right());
+				if (t instanceof XEquals) {
+					c.addBinding(((XEquals) t).left(), ((XEquals) t).right());
 				}
 				else {
 					c.addTerm(t);
 				}
 			}
-			catch (Failure e) {
+			catch (XFailure e) {
 			}
 		}
 
 		return c;
 	}
 	
-	public Pair<Integer,C_Name> parseId(char[] buf, int i) {
+	public Pair<Integer,XName> parseId(char[] buf, int i) {
 		int n = buf.length;
 		char c = buf[i];
 		
@@ -74,15 +75,15 @@ public class FormulaTest extends TestCase {
 		}
 
 		String id = new String(buf, begin, i-begin);
-		C_Name xid = new C_NameWrapper<String>(id);
-		return new Pair<Integer, C_Name>(i, xid);
+		XName xid = new XNameWrapper<String>(id);
+		return new Pair<Integer, XName>(i, xid);
 	}
 	
-	public Pair<Integer,C_Term> parse(char[] buf, int i) {
+	public Pair<Integer,XTerm> parse(char[] buf, int i) {
 		int n = buf.length;
 		
 		if (i >= n) {
-			return new Pair<Integer,C_Term>(n, null);
+			return new Pair<Integer,XTerm>(n, null);
 		}
 		
 		char c = buf[i];
@@ -92,10 +93,10 @@ public class FormulaTest extends TestCase {
 			c = buf[i];
 		}
 		
-		C_Name op = null;
+		XName op = null;
 		
 		if (Character.isLetter(c)) {
-			Pair<Integer,C_Name> p = parseId(buf, i);
+			Pair<Integer,XName> p = parseId(buf, i);
 			i = p.fst;
 			c = buf[i];
 			op = p.snd;
@@ -106,13 +107,13 @@ public class FormulaTest extends TestCase {
 			if (c == '=') {
 				i++;
 				c = buf[i];
-				op = new C_NameWrapper<String>("==");
+				op = new XNameWrapper<String>("==");
 			}
 		}
 		else if (c == '!') {
 			i++;
 			c = buf[i];
-			op = new C_NameWrapper<String>("!");
+			op = new XNameWrapper<String>("!");
 		}
 		else if (c == '&') {
 			i++;
@@ -120,7 +121,7 @@ public class FormulaTest extends TestCase {
 			if (c == '&') {
 				i++;
 				c = buf[i];
-				op = new C_NameWrapper<String>("&&");
+				op = new XNameWrapper<String>("&&");
 			}
 		}
 		
@@ -129,10 +130,10 @@ public class FormulaTest extends TestCase {
 			return null;
 		}
 		
-		List<C_Term> terms = new ArrayList<C_Term>();
+		List<XTerm> terms = new ArrayList<XTerm>();
 
 		while (true) {
-			C_Term t = null;
+			XTerm t = null;
 			
 			while (Character.isWhitespace(c)) {
 				i++;
@@ -140,25 +141,25 @@ public class FormulaTest extends TestCase {
 			}
 		
 			if (c == '(') {
-				Pair<Integer,C_Term> p = parse(buf, i+1);
+				Pair<Integer,XTerm> p = parse(buf, i+1);
 				t = p.snd;
 				i = p.fst;
 				c = buf[i];
 			}
 
-			C_Var left = null;
+			XVar left = null;
 
 			while (Character.isLetter(c)) {
-				Pair<Integer,C_Name> p = parseId(buf, i);
+				Pair<Integer,XName> p = parseId(buf, i);
 				i = p.fst;
 				c = buf[i];
-				C_Name id = p.snd;
+				XName id = p.snd;
 
 				if (left != null) {
-					left = C_Terms.makeField(left, id);
+					left = XTerms.makeField(left, id);
 				}
 				else {
-					left = C_Terms.makeLocal(id);
+					left = XTerms.makeLocal(id);
 				}
 
 				if (c == '.') {
@@ -185,37 +186,37 @@ public class FormulaTest extends TestCase {
 		}
 		
 		if (op.toString().equals("==")) {
-			C_Term left = terms.get(0);
+			XTerm left = terms.get(0);
 			for (int k = 1; k < terms.size(); k++) {
-				left = C_Terms.makeEquals(left, terms.get(k));
+				left = XTerms.makeEquals(left, terms.get(k));
 			}
-			return new Pair<Integer,C_Term>(i, left);
+			return new Pair<Integer,XTerm>(i, left);
 		}
 		if (op.toString().equals("&&")) {
-			C_Term left = terms.get(0);
+			XTerm left = terms.get(0);
 			for (int k = 1; k < terms.size(); k++) {
-				left = C_Terms.makeAnd(left, terms.get(k));
+				left = XTerms.makeAnd(left, terms.get(k));
 			}
-			return new Pair<Integer,C_Term>(i, left);
+			return new Pair<Integer,XTerm>(i, left);
 		}
 		if (op.toString().equals("!")) {
-			return new Pair<Integer,C_Term>(i, C_Terms.makeNot(terms.get(0)));
+			return new Pair<Integer,XTerm>(i, XTerms.makeNot(terms.get(0)));
 		}
 
-		return new Pair<Integer,C_Term>(i, C_Terms.makeAtom(op, terms.toArray(new C_Term[0])));
+		return new Pair<Integer,XTerm>(i, XTerms.makeAtom(op, terms.toArray(new XTerm[0])));
 	}
 
 	@Override
 	protected void runTest() throws Throwable {
-		Constraint c1 = parse("(== x y)");
-		Constraint c2 = parse("(== y x)");
-		Constraint c3 = parse("(== y x)");
-		Constraint c4 = parse("(&& (== y x) (== x.f z))");
-		Constraint c5 = parse("(== y.f z)");
-		Constraint c6 = parse("(&& (F x.f z) (== x.f z) (== y x))");
-		Constraint c7 = parse("(F y.f z)");
-		Constraint c8 = parse("(F z x.f)");
-		Constraint c9 = parse("(! (! (== x y)))");
+		XConstraint c1 = parse("(== x y)");
+		XConstraint c2 = parse("(== y x)");
+		XConstraint c3 = parse("(== y x)");
+		XConstraint c4 = parse("(&& (== y x) (== x.f z))");
+		XConstraint c5 = parse("(== y.f z)");
+		XConstraint c6 = parse("(&& (F x.f z) (== x.f z) (== y x))");
+		XConstraint c7 = parse("(F y.f z)");
+		XConstraint c8 = parse("(F z x.f)");
+		XConstraint c9 = parse("(! (! (== x y)))");
 //		Constraint c9 = parse("(! (== x y))");
 		
 		System.out.println("c1 = " + c1);
