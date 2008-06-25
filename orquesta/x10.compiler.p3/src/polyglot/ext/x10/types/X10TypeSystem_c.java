@@ -78,6 +78,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		super();
 	}
 	
+	@Override
+	public List<java.lang.String> defaultPackageImports() {
+	    List<String> l = new ArrayList<String>(1);
+	    l.add("x10.lang");
+	    l.add("x10.lang.annotation");
+	    return l;
+	}
+	
 	public PathType findTypeProperty(ClassType container, String name, ClassDef currClass) throws SemanticException {
 		assert_(container);
 		

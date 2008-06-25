@@ -34,6 +34,8 @@ public class X10SourceClassResolver extends SourceClassResolver {
 //				throw new SemanticException("Could not load " + name + ".");
 //		}
 		
+	        X10TypeSystem ts = (X10TypeSystem) this.ts;
+	        
 		if (name.equals("x10.lang.Void")) return ts.Void();
 		if (name.equals("x10.lang.Boolean")) return ts.Boolean();
 		if (name.equals("x10.lang.Byte")) return ts.Byte();
@@ -66,7 +68,30 @@ public class X10SourceClassResolver extends SourceClassResolver {
 
 				assert cd.asType() == n;
 				n = cd.asType();
+				return n;
 			}
+		}
+		
+		// Change x10.lang.Array to x10.lang.GenericReferenceArray
+		if (name.equals("x10.lang.Array")) {
+		    Named n = super.find("x10.lang.GenericReferenceArray");
+		    if (n instanceof X10ParsedClassType) {
+			X10ParsedClassType ct = (X10ParsedClassType) n;
+			X10ClassDef cd = ct.x10Def();
+			n = cd.asType();
+			return n;
+		    }
+		}
+		
+		// Change x10.lang.ValArray to x10.lang.genericArray
+		if (name.equals("x10.lang.ValArray")) {
+		    Named n = super.find("x10.lang.genericArray");
+		    if (n instanceof X10ParsedClassType) {
+			X10ParsedClassType ct = (X10ParsedClassType) n;
+			X10ClassDef cd = ct.x10Def();
+			n = cd.asType();
+			return n;
+		    }
 		}
 		
 		// Change java.lang.String to x10.lang.String
@@ -92,6 +117,7 @@ public class X10SourceClassResolver extends SourceClassResolver {
 				
 				assert cd.asType() == n;
 				n = cd.asType();
+				return n;
 			}
 		}
 		
