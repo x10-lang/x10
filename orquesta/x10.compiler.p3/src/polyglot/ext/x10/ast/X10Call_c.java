@@ -75,10 +75,16 @@ public class X10Call_c extends Call_c implements X10Call {
    
    @Override
    public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
-       // Check if target.name is a field of function type; if so, convert to a closure call.
+       // Check if target.name is a field or local of function type; if so, convert to a closure call.
        X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
        X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
-       Field f = nf.Field(position(), target(), name());
+
+       Expr f;
+       if (target() != null)
+	   f = nf.Field(position(), target(), name());
+       else
+	   f = nf.AmbExpr(position(), name());
+       
        try {
 	   Node n = f.del().disambiguate(ar);
 	   if (n instanceof Expr) {
