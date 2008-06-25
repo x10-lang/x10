@@ -464,7 +464,7 @@
         private List<Expr> toActuals(List<Formal> l) {
             List<Expr> l2 = new ArrayList<Expr>();
             for (Formal f : l) {
-                l2.add(nf.Local(f.position(), f.id()));
+                l2.add(nf.Local(f.position(), f.name()));
             }
             return l2;
         }
@@ -3594,7 +3594,7 @@
                  | ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
         /.$BeginJava
                  //   setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
-                    setResult(nf.Assign(pos(), nf.X10ArrayAccessAssign(pos(), e1.toExpr(), ArgumentList), AssignmentOperator, AssignmentExpression));
+                    setResult(nf.Assign(pos(), nf.X10ArrayAccess(pos(), e1.toExpr(), ArgumentList), AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
     

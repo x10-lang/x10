@@ -472,7 +472,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     private List<Expr> toActuals(List<Formal> l) {
         List<Expr> l2 = new ArrayList<Expr>();
         for (Formal f : l) {
-            l2.add(nf.Local(f.position(), f.id()));
+            l2.add(nf.Local(f.position(), f.name()));
         }
         return l2;
     }
@@ -6049,7 +6049,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
                 //#line 3596 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
              //   setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
-                setResult(nf.Assign(pos(), nf.X10ArrayAccessAssign(pos(), e1.toExpr(), ArgumentList), AssignmentOperator, AssignmentExpression));
+                setResult(nf.Assign(pos(), nf.X10ArrayAccess(pos(), e1.toExpr(), ArgumentList), AssignmentOperator, AssignmentExpression));
                 break;
             }
      

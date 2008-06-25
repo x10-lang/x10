@@ -36,21 +36,21 @@ Options in effect for /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser
     TRACE=CONFLICTS  VARIABLES=NONTERMINALS  NOVERBOSE  NOVISITOR  
     VISITOR-TYPE="Visitor"  WARNINGS  NOXREF  
 
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1066:28:1066:33:36971:36976: Warning: The use of the escaped symbol "$Empty" as a keyword has been deprecated. The proper spelling is %Empty
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3072:37:3072:37:110018:110018: Warning: The symbol "%" starts with the keyword marker %. It should be quoted.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:968:19:968:21:33462:33464: Error: The undeclared symbol "any" is assumed to be a terminal
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:969:19:969:25:33484:33490: Error: The undeclared symbol "current" is assumed to be a terminal
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1208:19:1208:39:42930:42950: Error: The undeclared symbol "SynchronizedStatement" is assumed to be a terminal
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1774:23:1774:32:62019:62028: Error: The undeclared symbol "ObjectKind" is assumed to be a terminal
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3386:27:3386:42:129557:129572: Error: The undeclared symbol "ArrayInitailizer" is assumed to be a terminal
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:968:19:968:21:33462:33464: Warning: The terminal symbol "any" was not imported from X10Lexer.gi
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:969:19:969:25:33484:33490: Warning: The terminal symbol "current" was not imported from X10Lexer.gi
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1208:19:1208:39:42930:42950: Warning: The terminal symbol "SynchronizedStatement" was not imported from X10Lexer.gi
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1774:23:1774:32:62019:62028: Warning: The terminal symbol "ObjectKind" was not imported from X10Lexer.gi
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3386:27:3386:42:129557:129572: Warning: The terminal symbol "ArrayInitailizer" was not imported from X10Lexer.gi
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3915:16:3915:25:147042:147051: Warning: Duplicate specification of this type
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:4046:14:4046:29:151908:151923: Warning: Duplicate specification of this type
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:938:14:938:25:32517:32528: Warning: No type specified for nonterminal "FunctionType". Object assumed.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1066:28:1066:33:36973:36978: Warning: The use of the escaped symbol "$Empty" as a keyword has been deprecated. The proper spelling is %Empty
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3072:37:3072:37:110020:110020: Warning: The symbol "%" starts with the keyword marker %. It should be quoted.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:968:19:968:21:33464:33466: Error: The undeclared symbol "any" is assumed to be a terminal
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:969:19:969:25:33486:33492: Error: The undeclared symbol "current" is assumed to be a terminal
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1208:19:1208:39:42932:42952: Error: The undeclared symbol "SynchronizedStatement" is assumed to be a terminal
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1774:23:1774:32:62021:62030: Error: The undeclared symbol "ObjectKind" is assumed to be a terminal
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3386:27:3386:42:129559:129574: Error: The undeclared symbol "ArrayInitailizer" is assumed to be a terminal
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:968:19:968:21:33464:33466: Warning: The terminal symbol "any" was not imported from X10Lexer.gi
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:969:19:969:25:33486:33492: Warning: The terminal symbol "current" was not imported from X10Lexer.gi
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1208:19:1208:39:42932:42952: Warning: The terminal symbol "SynchronizedStatement" was not imported from X10Lexer.gi
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1774:23:1774:32:62021:62030: Warning: The terminal symbol "ObjectKind" was not imported from X10Lexer.gi
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3386:27:3386:42:129559:129574: Warning: The terminal symbol "ArrayInitailizer" was not imported from X10Lexer.gi
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3915:16:3915:25:147038:147047: Warning: Duplicate specification of this type
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:4046:14:4046:29:151904:151919: Warning: Duplicate specification of this type
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:938:14:938:25:32519:32530: Warning: No type specified for nonterminal "FunctionType". Object assumed.
 
 Predefined Macros:
 
@@ -1862,17 +1862,17 @@ RANK RULE
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/X10Lexer.gi:94:5:94:13:2339:2347: Informative: The terminal SlComment is useless.
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/X10Lexer.gi:95:5:95:13:2353:2361: Informative: The terminal MlComment is useless.
 /Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/X10Lexer.gi:96:5:96:14:2367:2376: Informative: The terminal DocComment is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1774:23:1774:32:62019:62028: Informative: The terminal ObjectKind is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1066:5:1066:22:36948:36965: Warning: The nonterminal ExistentialListopt is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1772:5:1772:17:61948:61960: Warning: The nonterminal ObjectKindopt is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1792:5:1792:13:62653:62661: Warning: The nonterminal Unsafeopt is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2561:5:2561:18:88980:88993: Warning: The nonterminal SimpleTypeName is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2778:5:2778:14:96188:96197: Warning: The nonterminal SimpleName is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2792:5:2792:20:96547:96562: Warning: The nonterminal ArrayInitializer is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2792:30:2792:52:96572:96594: Warning: The nonterminal VariableInitializersopt is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2792:54:2792:57:96596:96599: Warning: The nonterminal ,opt is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2800:5:2800:24:96865:96884: Warning: The nonterminal VariableInitializers is useless.
-/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3335:5:3335:19:125953:125967: Warning: The nonterminal MethodSelection is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1774:23:1774:32:62021:62030: Informative: The terminal ObjectKind is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1066:5:1066:22:36950:36967: Warning: The nonterminal ExistentialListopt is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1772:5:1772:17:61950:61962: Warning: The nonterminal ObjectKindopt is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:1792:5:1792:13:62655:62663: Warning: The nonterminal Unsafeopt is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2561:5:2561:18:88982:88995: Warning: The nonterminal SimpleTypeName is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2778:5:2778:14:96190:96199: Warning: The nonterminal SimpleName is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2792:5:2792:20:96549:96564: Warning: The nonterminal ArrayInitializer is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2792:30:2792:52:96574:96596: Warning: The nonterminal VariableInitializersopt is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2792:54:2792:57:96598:96601: Warning: The nonterminal ,opt is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:2800:5:2800:24:96867:96886: Warning: The nonterminal VariableInitializers is useless.
+/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g:3335:5:3335:19:125955:125969: Warning: The nonterminal MethodSelection is useless.
 
 
  IBM LALR Parser Generator              1.00 (Dec  2 2007)
