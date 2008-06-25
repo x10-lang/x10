@@ -62,6 +62,7 @@
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
             <fileset dir="${build}" includes="org/**,polyglot/ext/x10/**,x10/parser/**,data/**" excludes="${jar}"/>
+            <fileset dir="${basedir}/../x10.constraints/bin" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
         </jar>
     </target>
     <target name="buildall" depends="init">
