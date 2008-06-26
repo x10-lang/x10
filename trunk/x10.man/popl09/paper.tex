@@ -1,4 +1,4 @@
-\documentclass[nocopyrightspace,9pt]{sigplanconf}
+\documentclass[preprint,nocopyrightspace,9pt]{sigplanconf}
 %\documentclass{llncs}
 
 \newif\iflncs
@@ -124,6 +124,13 @@ by the programmer.
 \end{abstract}
 
 \section{Introduction}
+
+\todo{Possible claim: first type system
+that combines genericity and dep types in some vague general way.}
+
+\todo{Incorporate some text from OOPSLA paper on deptypes.}
+
+\todo{Cite liquid types and whatever it cites}
 
 X10 is a statically typed object-oriented language
 designed for high-performance computing~\cite{X10}. The language extends a
@@ -315,9 +322,9 @@ the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
 \xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
 \xcd"C[T]" is sugar \xcd"C{X==T}".
 
-The rest of the paper...
+The rest of the paper\dots
 
-\section{Overview of X10 syntax}
+\section{X10}
 
 Before describing the generic type system, we present an
 overview of X10's syntax and semantics.
@@ -351,44 +358,6 @@ using the name \xcd"this" for constructors.
 In X10, constructors have a return type, which constrains
 the properties of the new object.
 
-\begin{figure}[tp]
-\begin{center}
-\begin{tabular}{lrcl}
-class & {\tt L} & ::= &
-\xcdmath"class C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}" \\
-& & & \xcdmath"  extends T { $\bar{\tt K}$ $\bar{\tt M}$ $\bar{\tt F}$ }" \\
-type & {\tt T} & ::= & \xcd"C" \\
-            & & \bnf & \xcd"e.X" \\
-            & & \bnf & \xcd"T{c}" \\
-constructor & {\tt K} & ::= &
-\xcdmath"def this[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T = e" \\
-method      & {\tt M} & ::= &
-\xcdmath"def m[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T = e" \\
-field       & {\tt F} & ::= &
-\xcdmath"val x{c}: T = e" \\
-            &  & \bnf &
-\xcdmath"var x{c}: T = e" \\
-constraint & {\tt c} & ::= & \xcd"e" \\
-expression & {\tt e} & ::= & \xcd"true" \\
-                  &  & \bnf & \xcd"x" \\
-                  &  & \bnf & \xcdmath"e$_1$ && e$_2$" \\
-                  &  & \bnf & \xcdmath"e$_1$ == e$_2$" \\
-                  &  & \bnf & \xcdmath"T$_1$ <: T$_2$" \\
-                  &  & \bnf & \xcdmath"T$_1$ == T$_2$" \\
-                  &  & \bnf & \dots \\
-\end{tabular}
-\end{center}
-\caption{X10 grammar}
-\label{fig:grammar}
-\end{figure}
-
-A subset of the grammar for X10 is shown in
-Figure~\ref{fig:grammar}.  We elide features of the language
-not relevant to this paper.  In the grammar $[ \alpha ]$ denotes
-an optional occurrence of the sequence of symbols $\alpha$,
-$\alpha^*$ denotes zero or more occurrences of $\alpha$, and
-$\alpha^+$ denotes one or more occurrences of $\alpha$.
-
 \if 0
 \section{Typing}
 
@@ -401,16 +370,16 @@ where ${\tt z} = {\tt e}$ if \xcd"e" is a final access path
 or else \xcd"z" is a fresh variable.
 \fi
 
-\section{Generic types}
-
-\subsection{Use-site variance}
+\section{Generics}
 
 \subsection{Subtyping}
 
 \xcd"C{c}" is a subtype of \xcd"D{d}" if \xcd"C" is a subclass
 of \xcd"D" and \xcd"c" entails \xcd"d".
 
-\section{Generic classes}
+\subsection{Use-site variance}
+
+\subsection{Class declarations}
 
 Classes may be declared with any number of type properties and
 value properties.  These properties can be constrained with a
@@ -466,13 +435,13 @@ where its actual variance differs from its declared variance.
 \vdash_{+} T
 \vdash_{-} T
 }{
-var x : T = e
+var x \ty T = e
 }
 
 \infrule{
 \vdash_{+} T
 }{
-val x : T = e
+val x \ty T = e
 }
 
 \infrule{
@@ -480,7 +449,7 @@ val x : T = e
 \vdash_{+} T2
 \vdash_{-} c
 }{
-def f(x: T1) : T2 where c = e
+def f(x: T1) \ty T2 where c = e
 }
 
 \infrule{
@@ -633,9 +602,855 @@ Classes that do not declare a constructor
 have a default constructor with a type parameter for each
 type property and a value parameter for each value property.
 
-\section{Constraint system}
+\section{Formal semantics}
+
+\newcommand\gxx{GenX10\xspace}
+
+We present a core calculus, \gxx, for X10 with generics.
+\gxx is based on Constrained Featherweight
+Java~\cite{constrained-types}.
+
+\todo{
+Add method overriding rules: covariant return, contravariant
+args, weaker constraints
+}
+
+The grammar for \gxx is shown in 
+Figure~\ref{fig:grammar}.  The calculus elides features of the
+full X10 language not relevant to this paper.
+
+\begin{figure}[tp]
+\begin{center}
+\begin{tabular}{lrcl}
+classes & {\tt L} & ::= &
+\xcdmath"class C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}" \\
+& & & \xcdmath"  extends T { K $\bar{\tt M}$ }" \\
+types & {\tt T} & ::= & \xcd"C" \\
+            & & \bnf & \xcd"X" \\
+            & & \bnf & \xcd"e.X" \\
+            & & \bnf & \xcd"T{c}" \\
+            & & \bnf & $\exists\Xcd{x}\ty\Xcd{T}$.~\xcd"T" \\
+            & & \bnf & $\exists\Xcd{X}\ty\Xcd{type}$.~\xcd"T" \\
+constructors      & {\tt K} & ::= &
+\xcdmath"def this[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T = {" \\
+                      &         &     &
+\xcdmath"  super[${\tt X}_{1..i}$](${\tt x}_{1..j}$);" \\
+                      &         &     &
+\xcdmath"  property[${\tt X}_{i+1..m}$](${\tt x}_{j+1..n}$); }" \\
+%\xcdmath"  property[${\tt X}_{i+1..m}$](${\tt x}_{j+1..k}$);" \\
+                      %&         &     &
+%\xcdmath"  $\bar{\tt f}$ = ${\tt x}_{k+1..n}$; }" \\
+methods     & {\tt M} & ::= &
+\xcdmath"def m[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T = e" \\
+expressions & {\tt e} & ::= & \dots \\
+constraint terms & {\tt t} & ::= & \\
+\quad literals        &         &      & \xcd"true" \bnf $n$ \bnf \xcd"C" \\
+\quad variables       &         & \bnf & \xcd"x" \bnf \xcd"X" \\
+\quad properties      &         & \bnf & \xcd"t".\xcd"x" \bnf \xcd"t".\xcd"X" \\
+\quad atoms           &         & \bnf & \xcdmath"f(t$_1$,$\dots$,t$_n$)" \\
+constraint & {\tt c} & ::=  & \Xcd{true} \\
+                  &  & \bnf & $\Xcd{t}_1 \equals \Xcd{t}_2$ \\
+                  &  & \bnf & $\Xcd{t}_1 \subtype \Xcd{t}_2$ \\
+                  &  & \bnf & $\exists$\Xcd{x}.~\Xcd{c} \\
+                  &  & \bnf & $\bar{\Xcd{c}}$ \\
+                  &  & \bnf & \xcdmath"p(t$_1$,$\dots$,t$_n$)" \\
+environments & $\Gamma$ & ::=  & $\epsilon$ \\
+            &          & \bnf & $\Gamma$, $\Xcd{x} \ty \Xcd{T}$ \\
+            &          & \bnf & $\Gamma$, $\Xcd{X} \ty \Xcd{type}$ \\
+\end{tabular}
+\end{center}
+\caption{\gxx grammar}
+\label{fig:grammar}
+\end{figure}
+
+\subsection{
+Constraint system
+}
+
+% Handbook of philosophical logic, Gabbay
+
+The X10 compiler permits the constraint system to be extended
+with compiler plugins.  The base compiler supports equality
+constraints over literals and final variables and subtyping
+and equality
+constraints over types.
+The core constraint system is presented here.  We assume a
+constraint solver {\cal C} implementing the plugged-in
+constraint systems.
+
+The constraint system does not distinguish between values and
+types.  Logical variables \xcd"x" may represent program variables
+or type variables.  Field accesses and member type references
+are special cases of atomic
+formulas; we write \Xcd{p.f} as sugar for \Xcd{f(p)}.
+
+The constraint system is shown in Figure~\ref{fig:constraints}.
+$\bar{\Xcd{c}}$ is a set of constraints.
+The constraint system satisfies the structural rules, and
+supports equality and subtyping
+constraints over terms.
+
+\begin{figure}
+
+\infax[I]{ \bar{\Xcd{c}}, \Xcd{c} \vdashC \Xcd{c} }
+
+\infrule[Cut]{ \bar{\Xcd{c}} \vdashC \Xcd{e} \andalso
+\bar{\Xcd{c}}, \Xcd{e} \vdashC \Xcd{d} }
+                     { \bar{\Xcd{c}} \vdashC \Xcd{d} }
+\infrule[Contraction]{ \bar{\Xcd{c}}, \Xcd{c}, \Xcd{c} \vdashC \Xcd{d} }
+                     { \bar{\Xcd{c}}, \Xcd{c} \vdashC \Xcd{d} }
+% \infrule[Permutation]{ \bar{\Xcd{c}}, \Xcd{c}, \Xcd{d} \vdashC \Xcd{e} }
+                     % { \bar{\Xcd{c}}, \Xcd{d}, \Xcd{c} \vdashC \Xcd{e} }
+% \infrule[Extension]{ \bar{\Xcd{c}}, \vdashC \Xcd{c} }
+                     % { \bar{\Xcd{c}}, \bar{\Xcd{c}}' \vdashC \Xcd{c} }
+\eat{
+\infrule[R-$\rightarrow$]{ \bar{\Xcd{c}}, \Xcd{c} \vdashC \Xcd{d} }
+                     { \bar{\Xcd{c}} \vdashC \Xcd{c} \rightarrow \Xcd{d} }
+\infrule[L-$\rightarrow$]{
+        \bar{\Xcd{c}}, \Xcd{c} \rightarrow \Xcd{d} \vdashC \Xcd{c}
+                \andalso
+        \bar{\Xcd{c}}, \Xcd{c} \rightarrow \Xcd{d}, \Xcd{d} \vdashC \Xcd{e} }
+                     { \bar{\Xcd{c}}, \Xcd{c} \rightarrow \Xcd{d} \vdashC \Xcd{e} }
+}
+
+\infrule[Eq-atom]
+{ \bar{\Xcd{c}} \vdashC \bar{\Xcd{s}} \equals \bar{\Xcd{t}} }
+{ \bar{\Xcd{c}} \vdashC \Xcd{f(}\bar{\Xcd{s}}\Xcd{)} \equals \Xcd{f(}\bar{\Xcd{t}}\Xcd{)} }
+
+% \infrule[Eq-field]{ \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2 }
+                  % { \bar{\Xcd{c}} \vdashC \Xcd{t}_1.\Xcd{f} \equals \Xcd{t}_2.\Xcd{f} }
+% \infrule[Eq-type]{ \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2 }
+                  % { \bar{\Xcd{c}} \vdashC \Xcd{t}_1.\Xcd{X} \equals \Xcd{t}_2.\Xcd{X} }
+
+\infax[Eq-refl]{ \bar{\Xcd{c}} \vdashC \Xcd{t} \equals \Xcd{t} }
+
+\infrule[Eq-trans]{
+        \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2
+        \andalso
+        \bar{\Xcd{c}} \vdashC \Xcd{t}_2 \equals \Xcd{t}_3
+        }
+        { \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_3 }
+
+\infrule[Eq-sym]{
+        \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2
+        }
+        { \bar{\Xcd{c}} \vdashC \Xcd{t}_2 \equals \Xcd{t}_1 }
+
+\infrule[Eq-sub]{
+\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2 \\
+\bar{\Xcd{c}} \vdashC \Xcd{T}_2 \subtype \Xcd{T}_1
+}{
+\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
+}
+
+\infrule[Sub-cons]{
+\bar{\Xcd{c}} \vdashC \Xcd{C\{c\}} \ty \Xcd{type}
+\andalso
+\bar{\Xcd{c}}, \Xcd{c} \vdashC \Xcd{d}
+}{
+\bar{\Xcd{c}} \vdashC \Xcd{C\{c\}} \subtype \Xcd{C\{d\}}
+}
+
+\infrule[Sub-super]{
+\mbox{\Xcdmath{C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} ext T \{\ $\bar{\tt M}$\ $\bar{\tt F}$\ \}}}
+}{
+\vdashC \Xcd{C} \subtype \Xcd{T} \\
+}
+
+\infrule[Sub-eq]{
+\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
+}{
+\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
+}
+
+\infrule[Sub-trans]{
+\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
+\andalso
+\bar{\Xcd{c}} \vdashC \Xcd{T}_2 \subtype \Xcd{T}_3
+}{
+\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_3
+}
+
+\caption{Constraints}
+\label{fig:subtyping}
+\label{fig:constraints}
+\end{figure}
+
+
+
+\subsection{
+Constraint projection
+}
+
+First, for a type environment $\Gamma$,
+we define the \emph{constraint projection},
+$\sigma(\Gamma)$ thus:
+
+\begin{align*}
+\sigma(\epsilon) &= \Xcd{true} \\
+\sigma(\Gamma, \Xcd{x} \ty \Xcd{T}) &=
+        \sigma(\Gamma),
+        \cons{\Xcd{T}}{\Xcd{x}}
+\\
+\sigma(\Gamma, \Xcd{c}) &= \sigma(\Gamma), \Xcd{c} \\
+\end{align*}
+
+The
+auxiliary function $\mathit{cons}$
+specifies the constraint for a type \Xcd{T} with \Xcd{self}
+bounds to \Xcd{x}.
+For type variables, the
+the constraint projection uses an atomic formula \Xcd{cons}.
+
+\begin{align*}
+\cons{\Xcd{C}}{\Xcd{z}} &= \Xcd{true} \\
+\cons{\Xcd{C\{c\}}}{\Xcd{z}} &= \Xcd{c}[\Xcd{z}/\Xcd{self}] \\
+\cons{\Xcd{p.X}}{\Xcd{z}} &= \Xcd{cons(p.X,z)} \\
+\cons{\Xcd{X}}{\Xcd{z}} &= \Xcd{cons(X,z)} \\
+\end{align*}
+
+\noindent
+Thus, for example, the constraint projection of the environment:
+\begin{quote}
+\xcdmath"b: D, a: C{self.X==D{d},self.Y<:b.Z}"
+\end{quote}
+\noindent is:
+\begin{quote}
+\xcdmath"a.X==D{d}, a.Y<:b.Z" \\
+\end{quote}
+
+\eat{
+\subsection{
+        Judgements
+}
+
+The following judgements will be defined:
+
+\begin{itemize}
+\item
+     The type {\tt T} is well-formed, given the assumptions $\Gamma$:
+
+    $\Gamma \vdash {\tt T} \ty {\tt type}$
+
+\item
+     The type {\tt S} is a subtype of {\tt T}, under the assumption $\Gamma$:
+
+      $\Gamma \vdash {\tt S} \subtype {\tt T}$
+
+    \item The expression {\tt e} is of type {\tt T}, given the assumptions $\Gamma$:
+
+      $\Gamma \vdash {\tt e} \ty {\tt T}$
+
+    \item The method {\tt M} is well-defined for the class {\tt C}
+given assumptions $\Gamma$:
+
+      $\Gamma \vdash {\tt M}~\mbox{OK in}~{\tt C}$
+
+    \item The field {\tt f: T} is well defined for the class {\tt C} given assumptions $\Gamma$:
+
+      $\Gamma \vdash {\tt f: T}~\mbox{OK in}~C$
+
+    \item The class definition {\tt L} is well defined given assumptions $\Gamma$:
+
+      $\Gamma \vdash {\tt L}~\mbox{OK}$
+
+\end{itemize}
+
+
+In what follows we will sometimes think of the family of five judgements
+as a single judgement $\Gamma \vdash \phi$ where $\phi$ ranges over the
+formulas 
+    ${\tt T} \ty {\tt type}$,
+      ${\tt S} \subtype {\tt T}$,
+      ${\tt e} \ty {\tt T}$,
+      ${\tt M}~\mbox{OK in}~{\tt C}$,
+      ${\tt f: T}~\mbox{OK in}~C$, and
+      ${\tt L}~\mbox{OK}$.
+
+
+Now, these judgements need to satisfy certain properties:
+
+\begin{enumerate}
+
+\item
+    $\Gamma \vdash {\tt T} \ty {\tt type}$
+whenever 
+      $\Gamma \vdash {\tt e} \ty {\tt T}$; that is,
+if we can conclude that {\tt e}
+      has type {\tt T} (under certain assumptions), then under those
+      assumptions we must be able to conclude that {\tt T} is well-defined.
+
+\item
+    $\Gamma \vdash {\tt S} \ty {\tt type}$ and
+    $\Gamma \vdash {\tt T} \ty {\tt type}$ whenever
+      $\Gamma \vdash {\tt S} \subtype {\tt T}$.
+
+\item
+If 
+      $\Gamma \vdash {\tt e} \ty {\tt T}$ and if {\tt x}
+is a variable occurring free in ${\tt e} \ty {\tt T}$, then for some
+      type {\tt U},
+      $\Gamma \vdash {\tt x} \ty {\tt U}$.
+That is, all free variables on the right-hand
+      side of the judgement are actually defined on the left-hand side.
+\end{enumerate}
+
+
+Keeping in mind these requirements, the rules are as follows. Below,
+whenever we use the assertion ``{\tt x} free'' in the antecedent of
+a rule we mean
+that {\tt x} is not free in the consequent of the rule.
+
+
+\subsection{
+      Structural and Logical Rules
+}
+
+
+First, we present the structural rules for $\vdash$. The judgement
+$\Gamma\vdash {\tt e} \ty {\tt T}$ is
+intuitionistic. That is, $\Gamma$ is considered a multiset of assertions, and
+the judgement possesses the inference rules:
+
+\infrule{
+\Gamma \vdash {\tt e} \ty {\tt T}
+\andalso
+\Gamma \vdash {\tt S} \ty {\tt type}
+\andalso
+    \mbox{{\tt x} not in $\mathit{var}(\Gamma)$}
+}{
+\Gamma, {\tt x} \ty {\tt S} \vdash {\tt e} \ty {\tt T}
+}
+
+
+
+\infrule{
+\Gamma \vdash {\tt e} \ty {\tt T}
+\andalso
+\Gamma \vdash {\tt c} \ty {\tt boolean}
+}{
+\Gamma, {\tt c} \vdash {\tt e} \ty {\tt T}
+}
+
+
+We also assume the following rule for conjunctions on the left and right:
+
+\infrule{
+\Gamma, \phi_1 , \phi_2 \vdash \phi
+}{
+\Gamma, (\phi_1 , \phi_2 ) \vdash \phi
+}
+
+
+\infrule{
+\Gamma \vdash \phi_1 
+\andalso
+     \Gamma \vdash \phi_2  
+}{
+\Gamma \vdash (\phi_1 , \phi_2 )
+}
+
+
+
+Existential quantification is governed by the following standard rules,
+specialized for the particular kinds of formulas we are dealing with:
+
+
+\infrule{
+\Gamma \vdash {\tt e} \ty {\tt T}[{\tt t}/{\tt x}]
+\andalso
+\Gamma \vdash {\tt t} \ty {\tt S}
+}{
+\Gamma \vdash {\tt e} \ty ({\tt x} \ty {\tt S};~{\tt T})
+}
+
+
+\infrule{
+\Gamma, {\tt x} \ty {\tt S}, {\tt c} \vdash {\tt e} \ty {\tt T}
+\andalso
+\mbox{{\tt x} fresh}
+}{
+\Gamma, ({\tt x} \ty {\tt S};~{\tt c}) \vdash {\tt e} \ty {\tt T}
+}
+
+
+\infrule{
+\Gamma, {\tt x} \ty {\tt S}, {\tt y} \ty \Xcd{C\{c\}} \vdash {\tt e} \ty {\tt T}
+\andalso
+\mbox{{\tt x} fresh}
+}{
+\Gamma, {\tt y} \ty \Xcd{C\{x:S; c\}} \vdash {\tt e} \ty {\tt T}
+}
+
+}
+
+\subsection{
+Type well-formedness
+}
+
+\begin{figure}
+
+\infrule{
+\mbox{\Xcdmath{C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} ext T \{\ $\bar{\tt M}$\ $\bar{\tt F}$\ \}}}
+}{
+\vdash \Xcd{C} \ty \Xcd{type}
+}
+
+\infrule{
+\vdash \Xcd{C} \ty \Xcd{type}
+\andalso
+\Gamma \vdash \Xcd{c} \ty \Xcd{boolean}
+}{
+\Gamma \vdash \Xcd{C\{c\}} \ty \Xcd{type}
+}
+
+\infrule{
+\Gamma \vdash \Xcd{p} \ty \Xcd{T}
+\andalso
+\vdash \Xcd{T}~\Xcd{has}~\Xcd{X}_i
+}{
+\Gamma \vdash \Xcd{p.X}_i \ty \Xcd{type}
+}
+
+\infax{
+\Gamma, \Xcd{X} \ty \Xcd{type} \vdash \Xcd{X} \ty \Xcd{type}
+}
+
+\caption{Type well-formedness}
+\label{fig:type-wf}
+\end{figure}
+
+\subsection{
+      Type inference rules
+}
+
+\subsubsection{Constraint rules}
+
+\begin{figure}
+
+\infrule[Has-class]{
+\mbox{\Xcdmath{C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} ext T \{\ $\bar{\tt M}$\ $\bar{\tt F}$\ \}}}
+}{
+\vdash {\tt C}~{\tt has}~{\tt X}_i \\
+\vdash {\tt C}~{\tt has}~{\tt x}_i \ty {\tt T}_i \\
+\vdash {\tt C}~{\tt has}~{\tt M}_i \\
+\vdash {\tt C}~{\tt has}~{\tt F}_i
+}
+
+\infrule[Has-sub]{
+\Gamma \vdash {\tt T_1}~{\tt has}~{\tt Z_i}
+\andalso
+\Gamma \vdash {\tt T_2} \subtype {\tt T_1}
+}{
+\Gamma \vdash {\tt T_2}~{\tt has}~{\tt Z_i}
+}
+
+\caption{Structural constraints}
+\label{fig:structural}
+\end{figure}
+
+\subsubsection{
+        Expression typing judgement
+}
+
+TODO: should merge subsumption into other rules ?
+
+\begin{figure}
+
+\infrule[T-sub]{
+\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e} \ty \Xcd{S}
+\andalso
+\bar{\Xcd{c}} \vdashC \Xcd{S} \subtype \Xcd{T}
+}{
+\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e} \ty \Xcd{T}
+}
+
+\infax[T-var]{
+\bar{\Xcd{c}}, \Gamma, \Xcd{x} \ty \Xcd{T} \vdash \Xcd{x} \ty \Xcd{T}
+}
+
+\infrule[T-cast]{
+\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e} \ty \Xcd{S}
+\andalso
+\bar{\Xcd{c}}, \Gamma \vdash \Xcd{T} \ty \Xcd{type}
+}{
+\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e}~\Xcd{as}~\Xcd{T} \ty \Xcd{T}
+}
+
+\infrule[T-field]{
+\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e} \ty \Xcd{T}
+\\
+%C, \Gamma \vdash \Xcd{T}~\Xcd{has}~\Xcd{var}~\Xcd{f}_i\Xcd{\{c\}} \ty \Xcd{T}_i
+\mathit{ftype}(\Xcd{T}, \Xcd{f}_i) = \Xcd{f}_i\Xcd{\{c\}} \ty \Xcd{T}_i \\
+\Xcd{z}~\mbox{fresh}
+\\
+\bar{\Xcd{c}}, \sigma(\Gamma, \Xcd{this} \ty \Xcd{T}), \Xcd{this} \equals \Xcd{z} \vdashC \Xcd{c}
+}{
+\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e}.\Xcd{f}_i \ty \Xcd{T}_i[\Xcd{z}/\Xcd{this}]
+}
+
+\infrule[T-invk]{
+\Gamma \vdash \Xcd{e}_0: \Xcd{T}_0
+\andalso
+\Gamma \vdash \bar{\Xcd{e}} \ty \bar{\Xcd{T}}
+\\
+\Xcd{T}_0~\Xcd{has}~\Xcd{def}~\Xcd{m[}\bar{\Xcd{Z}}\Xcd{](}\bar{\Xcd{z}} \ty \bar{\Xcd{S}}\Xcd{)\{c\}} \ty {\tt U}~\Xcd{=}~\Xcd{e}
+\\
+    \Xcd{z}_0, \bar{\Xcd{z}}, \bar{\Xcd{Z}}~\mbox{fresh}
+\\
+\Gamma' = \Gamma, \bar{\Xcd{Z}} \ty \Xcd{type},
+        \Xcd{z}_0 \ty \Xcd{T}_0,
+        \bar{\Xcd{z}} \ty \bar{\Xcd{T}}
+\\
+\sigma(\Gamma') \vdashC (\Xcd{c}, \bar{\Xcd{V}}\equals
+\bar{\Xcd{Z}}, \bar{\Xcd{T}} \subtype \bar{\Xcd{S}})
+}{
+\Gamma \vdash
+\Xcd{e}_0.\Xcd{m[}\bar{\Xcd{V}}\Xcd{](}\bar{\Xcd{e}}\Xcd{)} \ty
+(\bar{\Xcd{Z}} \ty \Xcd{type};~\Xcd{z}_0 \ty \Xcd{T}_0;~\bar{\Xcd{z}} \ty \bar{\Xcd{T}};~{\Xcd{U}})
+}
+
+\infrule[T-invk-inferred]{
+\bar{\Xcd{Y}}~\mbox{fresh}
+\\
+\Gamma, \bar{\Xcd{Y}} \ty {\tt type}
+\vdash
+\Xcd{e}_0.\Xcd{m[}\bar{\Xcd{Y}}\Xcd{](}\bar{\Xcd{e}}\Xcd{)} \ty
+(\bar{\Xcd{Z}} \ty \Xcd{type};~\Xcd{z}_0 \ty
+\Xcd{T}_0;~\bar{\Xcd{z}} \ty \bar{\Xcd{T}};~\Xcd{U})
+}{
+\Gamma \vdash
+\Xcd{e}_0.\Xcd{m(}\bar{\Xcd{e}}\Xcd{)} \ty
+(\bar{\Xcd{Z}} \ty \Xcd{type};~\Xcd{z}_0 \ty \Xcd{T}_0;~\bar{\Xcd{z}} \ty \bar{\Xcd{T}};~{\Xcd{U}})
+}
+
+\infrule[T-new]{
+\Gamma \vdash \bar{\Xcd{e}} \ty \bar{\Xcd{T}}
+\\
+\mathit{fields}(\Xcd{C}, \Xcd{z}_0) = \bar{\Xcd{f}} \ty \bar{\Xcd{S}}
+\\
+    \Xcd{z}_0, \bar{\Xcd{z}}, \bar{\Xcd{Z}}~\mbox{fresh}
+\\
+\Gamma' = \Gamma, \bar{\Xcd{Z}} \ty \Xcd{type}, \Xcd{z}_0 \ty
+\Xcd{C}, \bar{\Xcd{z}} \ty \bar{\Xcd{T}},
+\Xcd{z}_0.\bar{\Xcd{f}} \equals \bar{\Xcd{z}}
+\\
+\sigma(\Gamma') \vdashC \mathit{inv}(\Xcd{C},\Xcd{z}_0),
+\bar{\Xcd{V}}\equals \bar{\Xcd{Z}}, \bar{\Xcd{T}} \subtype \bar{\Xcd{S}}
+\\
+\sigma(\Gamma') \vdash_{\cal C}
+}{
+\Gamma \vdash
+\Xcd{new}~\Xcd{C[}\bar{\Xcd{V}}\Xcd{](}\bar{\Xcd{e}}\Xcd{)} \ty \Xcd{C\{}
+\Xcd{z}_0 \ty \Xcd{C};~
+\bar{\Xcd{z}} \ty \bar{\Xcd{T}};~
+\Xcd{z}_0.\bar{\Xcd{f}}\equals \bar{\Xcd{z}},
+\Xcd{self}\equals \Xcd{z}_0\Xcd{\}}
+}
+
+\caption{Typing rules}
+\label{fig:typing}
+\end{figure}
+
+The cast rule
+\rn{T-cast}
+requires that the cast type be well-formed. 
+
+
+
+The field access rule \rn{T-field}
+differs from the rule in the paper in that there is no need to
+substitute a fresh variable for the receiver. Note that {\tt this} may be free
+in {\tt S}---that would be a reference to the current object in the code in
+which {\tt e.f} occurs, not a reference to the receiver of the {\tt e.f} field
+selection (i.e., the object obtained by evaluating {\tt e}).
+
+\begin{align*}
+\sigma(\Xcd{p}) &= \Xcd{p} \\
+\sigma(\Xcd{e}) &= \Xcd{z} \qquad \mbox{otherwise; (\Xcd{z} fresh)} \\
+\end{align*}
+
+\noindent
+if we allow adding constraints to arbitrary types---do we?
+
+TODO: type parameters!
+
+Now we consider the rule for method invocation. Assume that in a type
+environment $\Gamma$ the expressions ${\tt e_0}, \dots, {\tt e_n}$
+have the types ${\tt T_0}, \dots, {\tt T_n}$.
+Since the
+actual values of these expressions are not known, we shall assume that
+they take on some fixed but unknown values
+                                     ${\tt z_0}, \dots, {\tt z_n}$
+of types ${\tt T_0}, \dots, {\tt T_n}$.
+Now, for ${\tt z_0}$ as receiver, let us assume that the type
+${\tt T_0}$ has a method named ${\tt m}$
+with signature
+$[\bar{\tt Z}](\bar{\tt z} \ty \bar{\tt S})\Xcd{\{c\}} \to {\tt U}$
+(Let ${\tt T_0} = \Xcd{C\{d\}}$.
+ If there is no
+method named {\tt m} for the class {\tt C} then this method invocation cannot be
+type-checked. Without loss of generality, we may assume that the
+type parameters of this method are named
+                                     ${\tt Z_1}, \dots, {\tt Z_k}$, and
+the value parameters are named
+                                     ${\tt z_1}, \dots, {\tt z_n}$
+since we are free to choose
+variable names as we wish.)
+Now, for the method to be invocable,
+it must be the case that the types
+    ${\tt T_1}, \dots, {\tt T_n}$
+are subtypes of
+    ${\tt S_1}, \dots, {\tt S_n}$.
+(Note
+that there may be no occurrences of {\tt this} in
+    ${\tt S_1}, \dots, {\tt S_n}$---they have been
+replaced by ${\tt z_0}$.)
+Further, it must be the case that for these parameter
+values, the constraint {\tt c} is entailed. Given all these assumptions it
+must be the case that the return type is {\tt U}, with all the parameters
+    ${\tt z_0}, \dots, {\tt z_n}$
+existentially quantified.
+
+
+\subsubsection{
+        Class OK judgement
+}
+
+The following rule is modified from what we had in the paper to ensure
+that all the types are well-formed (under the assumption {\tt this} \ty {\tt C}).
+Note
+that the variables $\bar{\tt x}$ are permitted to occur in the types ${\tt T_0}, \bar{\tt T}$,
+hence their typing assertions must be added to $\Gamma$.
+
+\infrule[Method OK]{
+\Gamma = \Xcd{this} \ty \Xcd{C\{self==this},\mathit{inv}(\Xcd{C})\Xcd{\}}, \bar{\Xcd{x}} \ty \bar{\Xcd{T}}\Xcd{\{self==\}}\bar{\Xcd{x}}\Xcd{\}}
+\\
+\sigma(\Gamma), \Xcd{c};~\Gamma \vdash \Xcd{e} \ty \Xcd{U}
+\\
+\sigma(\Gamma), \Xcd{c} \vdashC \Xcd{U} \subtype \Xcd{T}
+}{
+\Xcd{def}~\Xcd{m[}\bar{\Xcd{X}\Xcd{}](}\bar{\Xcd{x}} \ty
+\bar{\Xcd{T}}\Xcd{)\{c\}} \ty \Xcd{T}~\Xcd{=}~\Xcd{e}~\mbox{OK in}~\Xcd{C}
+}
+
+
+This rule did not exist in our submission. This is necessary to ensure
+that the types of fields are well-formed.
+
+\infrule[Field OK]{
+\sigma(\Xcd{this} \ty \Xcd{C}), \Xcd{c};~\Xcd{this} \ty \Xcd{C} \vdash \Xcd{T} \ty \Xcd{type}
+}{
+\Xcd{val}~\Xcd{f}\Xcd{\{c\}} \ty \Xcd{T}~\mbox{OK in}~\Xcd{C}
+}
+
+
+This rule is now modified to ensure that all the types and methods in
+the body of the class are well-formed.
+
+\infrule[Class OK]{
+\bar{\tt M}~\mbox{OK in}~{\tt C}
+\\
+\bar{\tt F}~\mbox{OK in}~{\tt C}
+\\
+{\tt this} \ty {\tt C} \vdash {\tt T} \ty {\tt type}
+}{
+\mbox{\Xcdmath{C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} ext T \{\ $\bar{\tt M}$\ $\bar{\tt F}$\ \}}}~\mbox{OK}
+}
+
+TODO: method overriding
+
+
+\subsubsection{
+        Subtype judgement
+}
+
+\infrule{
+\sigma(\Gamma) \vdash_{\cal C} {\tt T_1} \subtype {\tt T_2}
+}{
+\Gamma \vdash {\tt T_1} \subtype {\tt T_2}
+}
+
+
+\section{Odds and ends}
+
+static methods cannot mention T
+
+interfaces can have static methods; a property can implement I,
+allowing T.m() static calls
+
+Extensions: structural constraints, optional methods, interfaces
+        enabled flag trick
+
 
 \section{Constraint solver}
+
+The goal of the constraint solver is 
+to check an assertion ${\tt c} \vdash_{\cal C} {\tt d}$.
+
+$\sigma(\Gamma, x: \Xcd{C\{c\}}) = 
+        \sigma(\Gamma), x.type.class==C, x.type.cons==c[x/self]
+$
+
+The first step is to normalize constraints.
+Normalization splits constraints into type constraints and
+value constraints.  Produces a set of constraint judgments
+$\Gamma \vdash \Xcd{c}$ where $\Xcd{c}$ contains no conjunctions.
+
+Otherwise:
+
+\[
+\SB{ \Gamma \vdash \Xcd{c} }
+=
+\Gamma \vdash \Xcd{c}
+\]
+
+Theorem:
+normalized(c) |- normalized(d)
+iff
+c |- d
+
+Theorem:
+c |- d 
+iff
+|- c => d
+
+
+Once in normalized form, can solve as follows:
+
+Select a constraint $\Gamma \vdash \Xcd{c}$.
+If not consistent, fail.
+If valid, ok.
+If not valid, generate assignment of variables that makes it true.
+
+Question: is there an good method for generating the assignment?
+Or just brute force?
+Pick an unassigned variable, find weakest assignment that makes just
+this clause true.  Does that exist?
+
+DO NOT WANT:
+If assignment makes another clause false, rollback.
+
+Question: can we ensure each clause involves only one or two
+unknowns?
+
+Weakest assignment:
+
+\begin{verbatim}
+p==q --> add p==q
+C<:D --> either valid or not, nothing to do
+C<:Z.class --> Z.class<:Object        -- allowed to refine lower;
+Z.class<:C --> Z.class<:C                assignment will pick GLB
+C<:Z.class --> add C<:Z.class to set of constraints to check after assignment
+
+Z.cons == c --> add Z.cons==c
+        replace Z.cons in assumptions with c
+        (what if env not appropriate)
+c |- Z.cons
+\end{verbatim}
+
+Now, to check c |- d, check normalized(c) |- normalized(d).
+
+        all constraints are either ==, simple <:, or =>
+
+
+
+                
+        
+
+type inference:
+
+build a big constraint per method
+
+\begin{verbatim}
+S1; S2             --> cons(S1), cons(S2)
+if (x) S1 else S2  --> x => cons(S1), !x => cons(S2)
+x = y              --> y.type <: x.type 
+x + y              --> x.type <: number, y.type <: number,
+                       (x+y).type == promote(x.type, y.type)
+\end{verbatim}
+
+solve:
+
+        break into constraints G |- c where c is primitive
+
+        e.g., G |- C{c} <: D{d}
+        -->
+        G |- C <: D,
+        G, c |- d
+
+        put all constraints into a set C
+
+        infer new constraints A
+
+        solve(C, A) =
+                  if c in C s.t. A c not valid
+                  then
+                        solve(C, refine(A,c))
+                  else
+                        A
+
+        need to make refine(A, c) determinstic and efficient
+
+
+
+
+
+inference rules are of the form:
+
+\infax{
+\Gamma;~S \vdash e \ty T
+}
+
+where $\Gamma$ is a set of assumptions and $S$ is a set of inferred
+constraints.
+
+check rule:
+
+\infrule{
+\Gamma \vdash \Xcd{e} \ty \Xcd{T}
+\andalso
+\Xcd{T has def m(): T}'
+}{
+\Gamma \vdash \Xcd{e.m()} \ty \Xcd{T}'
+}
+
+infer rule:
+
+\infrule{
+\Gamma \vdash e \ty T
+}{
+\Gamma; T has () \Rightarrow T' \vdash e.m() \ty T'
+}
+
+bi-directional checking combines the two kinds of rules
+
+
+Some transforming of the constraints:
+
+
+\infax{
+\Gamma \vdash \Xcd{x} \ty \Xcd{T} \longrightarrow \Xcd{x}.\Xcd{type}\Xcd{==}\Xcd{T} 
+}
+
+\infrule{
+{\tt z}~\mbox{fresh}
+}{
+\Gamma \vdash \Xcd{C\{c\}} \Xcd{<:} \Xcd{D\{d\}}   \longrightarrow
+        \vdash \Xcd{C} \Xcd{<:} \Xcd{D},
+        \Gamma, \Xcd{z} \ty \Xcd{C},
+                \Xcd{c}[\Xcd{z}/\Xcd{self}] \vdash \Xcd{d}[\Xcd{z}/\Xcd{self}]
+}
+
+\infrule{
+\Gamma \vdash {\tt p} \ty \Xcd{C\{c\}} \longrightarrow {\cal C}
+}{
+\Gamma \vdash {\tt p.X} \Xcd{<:} {\tt T}   \longrightarrow
+        {\cal C},
+        \Gamma, \Xcd{c}[\Xcd{p}/\Xcd{self}] \vdash
+        \Xcd{C}(\Xcd{T})[\Xcd{p}/\Xcd{self}]
+}
+
 
 %\newcommand\eqedge{\rightleftharpoons}
 \newcommand\eqedge{\sim}
@@ -670,6 +1485,8 @@ If term $t$ has type $T$, add $v_t \typeedge V_{t{\tt .type}}$
 and
 add $V_T \eqedge V_{t{\tt .type}}$ to $G$.
 
+Type nodes are sets of classes.
+
 Next, constraints are incorporated into the graph:
 
 \begin{itemize}
@@ -698,6 +1515,9 @@ add $c[t/\Xcd{self}]$ to the worklist.
         Can saturate lazily when doing a lookup.
         EXCEPT: a type may have an arbitrary constraint
                 \xcd"C{self.x==3 && y > 7}"
+        EXCEPT: c is x.f==...
+                with x: C{c}
+                need to avoid infinite loop
 
 The inference algorithm adds
 flow edges, $v \flowedge w$, to the graph $G$.
@@ -733,11 +1553,13 @@ If $v_{p.X} \eqedge v_T$
 and there is a type edge from $v_p$ to $v_{\Xcd{C\{c\}}}$
 add in ${\tt c[p/self]}$.
 
-Let $\mathit{src}(v)$ be the set of nodes from which
+If adding the edge would create a cycle, merge the nodes.
+
+Let $\mathit{src}(v)$ be the set of class/interface nodes from which
 $v$ is reachable by flow and equivalence edges.
 These are the nodes that represent subtypes of $v$'s type.
 
-Let $\mathit{snk}(v)$ be the set of nodes reachable from
+Let $\mathit{snk}(v)$ be the set of class/interface nodes reachable from
 $v$ by flow and equivalence edges.
 These are the nodes that represent supertypes of $v$'s type.
 
@@ -797,14 +1619,14 @@ Because methods can be overridden, the inferred return type may be too
 precise, preventing subclasses from overriding the method.
 
 \infrule{
-\Gamma \vdash e_0 : C\{c\} \\
+\Gamma \vdash e_0 \ty C\{c\} \\
 \Gamma \vdash \mathit{mtype}(C, m) =
 [X_1,\dots,X_k](x_1:T_1,\dots,x_n:T_n)\{d\} \flowedge T \\
-\Gamma \vdash e_i : S_i \\
-\Gamma \vdash_{\cal C}
-\exists {\tt this}: C\{c\} .  \exists x_i: T_i .  S_i \subtype T_i \wedge d
+\Gamma \vdash e_i \ty S_i \\
+\sigma(\Gamma) \vdash_{\cal C}
+\exists {\tt this} \ty C\{c\} .  \exists x_i: T_i .  S_i \subtype T_i \wedge d
 }{
-\Gamma \vdash e_0.m(e_1, \ldots, e_n) : T
+\Gamma \vdash e_0.m(e_1, \ldots, e_n) \ty T
 }
 
 \begin{verbatim}
@@ -965,66 +1787,6 @@ def unmodifiableSet(set: Set): Set[set.T];
 If not invariant, need run-time constraint solving.
 \fi
 
-\ifsemantics
-
-\section{Semantics}
-
-\subsection{TODO}
-
-Explain: main difference between CFJ and CFGJ.
-Treat subclassing as a constraint.
-Subtyping rule now:
-\infrule{
-\Gamma \vdash_{\cal C} {\tt T}_1 \subtype {\tt T}_2
-}{
-\Gamma \vdash {\tt T}_1 \subtype {\tt T}_2
-}
-
-Baked in constraints:
-\infrule{
-\mbox{\Xcdmath{class C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} extends T \{$\dots$\}}}
-%}} \\
-}{
-%\vdash_{\cal C} \mbox{\Xcdmath{C\{c\}}} \subtype {\tt T}
-\vdash_{\cal C} {\tt C} \subtype {\tt T}
-}
-
-Add method overriding rules: covariant return, contravariant
-args, weaker constraints
-\if 0
-\infrule{
-\mbox{\xcdmath"class C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}"} \\
-\mbox{\xcdmath"  extends T { $\bar{\tt K}$ $\bar{\tt M}$ $\bar{\tt F}$ }"}
-\\
-\mathit{mtype}(T,m) =
-\mbox{\xcdmath"[$\bar{\tt X}'$]($\bar{\tt x}'$: $\bar{\tt T}'$){c'} => T'"} \\
-\\
-\mathit{mtype}(C,m) =
-\mbox{\xcdmath"[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c} => T"} \\
-\\
-{\tt this}: {\tt C},
-\bar{\tt X}: {\tt Type},
-\bar{\tt x}: \bar{\tt T},
-\mbox{\xcdmath"[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c} => T"} \\
-}{
-{\tt C.m} override ok
-}
-\fi
-
-
-\input{semantics}
-
-\fi
-
-\section{Odds and ends}
-
-static methods cannot mention T
-
-interfaces can have static methods; a property can implement I,
-allowing T.m() static calls
-
-
-
 \section{Implementation}
 
 This section describes an implementation approach for
@@ -1062,11 +1824,147 @@ for the type properties of these classes.
 Each class is translated into a \emph{template class}.
 The template class is compiled by a Java compiler (e.g., javac)
 to produce a class file.
+At run time, when a constrained type \xcd"C{c}" is first referenced, a
+class loader loads the template class for \xcd"C" and then transforms the
+template class bytecode, specializing it to the constraint
+\xcd"c".
 
-For each property T, a static member class named T is introduced.
-References to the type T continue to refer to T.
+------------------
 
-Constraints are erased from type references.
+Define $\mathit{reptype}($\xcd"T"$)$ to be the representation
+type of \xcd"T".
+
+\infax{
+\Gamma \vdash \mathit{reptype}({\tt C}) = {\tt C}
+}
+
+\infrule{
+\Gamma \vdash {\tt p} \ty {\tt T}
+}{
+\Gamma \vdash \mathit{reptype}({\tt p.X}) = \mathit{reptype}({\tt X})
+}
+
+\infrule{
+\Gamma \vdash {\tt p} \ty {\tt C\{self.X==T\}}
+}{
+\Gamma \vdash \mathit{reptype}({\tt p.X}) = \mathit{reptype}({\tt T})
+}
+
+\infrule{
+\Gamma \vdash {\tt p} \ty {\tt C\{self.X<:T\}}
+}{
+\Gamma \vdash \mathit{reptype}({\tt p.X}) = \mathit{reptype}({\tt T})
+}
+
+\infrule{
+\Gamma \vdash {\tt p} \ty {\tt C\{self.X:>T\}}
+}{
+\Gamma \vdash \mathit{reptype}({\tt p.X}) = {\tt Object}
+}
+
+\infrule{
+}{
+\Gamma \vdash \mathit{reptype}({\tt C\{self.X==T\}}) = {\tt C\$T}
+}
+
+\infrule{
+}{
+\Gamma \vdash \mathit{reptype}({\tt C\{self.X<:T\}}) = {\tt C}
+}
+
+--------------
+
+For example, consider the following classes.
+\begin{xten}
+class A[T] {
+    var a: T;
+}
+class C {
+    val x: A[Int] = new A[Int]();
+    val y: Int = x.a;
+}
+\end{xten}
+
+The compiler generates the following code:
+\begin{xten}
+class A {
+    // Dummy class needed to type-check uses of T.
+    @TypeProperty(1) static class T { }
+
+    T a;
+
+    // Dummy getter and setter; will be eliminated at run time
+    // and replaced with actual gets and sets of the field a.
+    @Getter("a") <S> S get$a() { return null; }
+    @Setter("a") <S> S set$a(S v) { return null; }
+}
+
+class C {
+    @ActualType("A$Int")
+    final A x = Runtime.<A>alloc("A$Int");
+    final int y = x.<Integer>get$a();
+}
+\end{xten}
+
+The member class \xcd"A.T" is used in place of the
+type property \xcd"T". 
+The \xcd"Runtime.alloc" method is used
+used in place of a constructor call.
+This code is compiled to Java bytecode.
+
+
+Then, at run time, suppose the expression \xcd"new C()" is
+evaluated.  This causes \xcd"C" to be loaded.
+The class loader transforms the bytecode as if it had
+been written as follows:
+
+\begin{xten}
+class C {
+    final A$Int x = new A$Int();
+    final int y = x.a;
+}
+\end{xten}
+
+The \xcd"ActualType" annotation is used to change the
+type of the field \xcd"x" from \xcd"A" to \xcd"A$Int".
+The call to \xcd"Runtime.alloc" is replaced with a
+constructor call.  The call to \xcd"x.get$a()" is
+replaced with a field access.
+
+The implementation cannot generate this code directly because
+the class \xcd"A$Int" does not yet exist; the Java source compiler
+would fail to compile \xcd"C".
+
+Next, as the \xcd"C" object is being constructed, the expression
+\xcd"new A$Int()" is evaluated, causing the class \xcd"A$Int" to
+be loaded.  The class loader intercepts
+this, demangles the name, and loads the bytecode for the
+template class \xcd"A".
+
+The bytecode is transformed, replacing the type property \xcd"T"
+with the concrete type \xcd"int", the translation of \xcd"Int".
+
+\begin{xten}
+class A {
+    x10.runtime.Type T;
+}
+
+class A$Int extends A {
+    int x;
+}
+\end{xten}
+
+Type properties are mapped to the Java primitive types and to
+Object.  Only nine possible instantiations per parameter.
+Instantiations used for representation.
+Adapter objects used for run time type information.
+
+Could do instantiation eagerly, but gets out of hand quickly: 9
+instantiations for one type properties, 81 for two type
+properties, 729 for three.
+Most of these are not used.
+
+Value constraints are erased from type references.
 
 Constructors are translated to static methods of their enclosing
 class.
@@ -1277,8 +2175,7 @@ signatures  & {\tt Sig} & ::= &
 \xcdmath"def m[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T" \\
             &        & \bnf &
 \xcdmath"val x{c}: T" \\
-            &  & \bnf &
-\xcdmath"var x{c}: T" \\
+            %&  & \bnf & \xcdmath"var x{c}: T" \\
 \end{tabular}
 \end{center}
 \caption{Grammar for structural constraints}

@@ -56,23 +56,16 @@
 \def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{\rn{#1})}}}
 \def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{\rn{#1}})}}
 \def\derives{\rightarrow}
-\def\subtype{<:}
+\newcommand\subclass{\ensuremath{\preceq}}
+\newcommand\subtype{\ensuremath{\,\Xcd{<:}\,}}
+\newcommand\equals{\ensuremath{\,\Xcd{==}\,}}
+\newcommand\equalsC{\ensuremath{\,\Xcd{==}\,}}
+\newcommand\dotclass[2]{\Xcd{class(}#1,#2\Xcd{)}}
+\newcommand\dotcons[2]{\Xcd{cons(}#1,#2\Xcd{)}}
+\newcommand\class[2]{\ensuremath{\mathit{class}(#1)}}
+\newcommand\cons[2]{\ensuremath{\mathit{cons}(#1, #2)}}
 
-\def\super{\mbox{\tt super}}
-\def\class{\mbox{\tt class}}
-\def\extends{\mbox{\tt extends}}
-\def\return{\mbox{\tt return}}
-\def\new{\mbox{\tt new}}
-\def\this{\mbox{\tt this}}
-\def\self{\mbox{\tt self}}
-\def\true{\mbox{\tt true}}
-\def\inv{\mbox{\em inv}}
-\def\mtype{\mbox{\em mtype}}
-\def\mbody{\mbox{\em mbody}}
-\def\field{\mbox{\em field}}
-\def\fields{\mbox{\em fields}}
-\def\types{\mbox{\em types}}
-\def\rc{\mbox{\em rc}}
+\newcommand\vdashC{\vdash_{\cal C}}
 
 % typeset a number in tiny italic exactly 15pts wide
 \newdimen\nw
@@ -134,7 +127,7 @@
 \newcommand\many[1]{\overline{#1}}
 %\newcommand\append{\mathbin{@}}
 \newcommand\append{\,,\,}
-\newcommand\cons{,}
+%\newcommand\cons{,}
 \newcommand\singleton[1]{[#1]}
 
 %%% macros for types
@@ -184,3 +177,9 @@
   \em
   \begin{tabular}{rcl}
   }{\unskip\end{tabular}}
+
+\ifpreprint
+\newcommand\todo[1]{{\textbf{todo:} #1}}
+\else
+\newcommand\todo[1]{}
+\fi
