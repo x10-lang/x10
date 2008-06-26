@@ -125,6 +125,10 @@ by the programmer.
 
 \section{Introduction}
 
+\todo{More positioning, relative to: DML, HM(X), constrained
+types (Trifonov, Smith) and subtyping constraints, Java
+generics, GJ, PolyJ, C\# generics, virtual types, liquid types}
+
 \todo{Possible claim: first type system
 that combines genericity and dep types in some vague general way.}
 
@@ -605,6 +609,12 @@ type property and a value parameter for each value property.
 \section{Formal semantics}
 
 \newcommand\gxx{GenX10\xspace}
+\newcommand\xbar[1]{\ensuremath{\bar{\Xcd{#1}}}}
+\newcommand\tbar[1]{\ensuremath{\bar{\tt {#1}}}}
+\newcommand\exc[2]{\ensuremath{\exists}#1.~#2}
+\newcommand\exty[3]{\ensuremath{\exists}#1\ty#2.~#3}
+\newcommand\extyty[5]{\ensuremath{\exists}#1\ty#2,#3\ty#4.~#5}
+\newcommand\extytyty[7]{\ensuremath{\exists}#1\ty#2,#3\ty#4,#5\ty#6.~#7}
 
 We present a core calculus, \gxx, for X10 with generics.
 \gxx is based on Constrained Featherweight
@@ -622,27 +632,46 @@ full X10 language not relevant to this paper.
 \begin{figure}[tp]
 \begin{center}
 \begin{tabular}{lrcl}
+program & {\tt P} & ::= & \xbar{L} \\
 classes & {\tt L} & ::= &
-\xcdmath"class C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}" \\
-& & & \xcdmath"  extends T { K $\bar{\tt M}$ }" \\
+\xcdmath"class C[$\tbar{X}$]($\tbar{x} \ty \tbar{T}$){c}" \\
+& & & \xcdmath"  extends T { K $\tbar{M}$ }" \\
 types & {\tt T} & ::= & \xcd"C" \\
             & & \bnf & \xcd"X" \\
             & & \bnf & \xcd"e.X" \\
             & & \bnf & \xcd"T{c}" \\
-            & & \bnf & $\exists\Xcd{x}\ty\Xcd{T}$.~\xcd"T" \\
-            & & \bnf & $\exists\Xcd{X}\ty\Xcd{type}$.~\xcd"T" \\
+            & & \bnf & $\exty{\Xcd{x}}{\Xcd{T}_0}{\Xcd{T}}$ \\
+            & & \bnf & $\exty{\Xcd{X}}{\Xcd{type}}{\Xcd{T}}$ \\
 constructors      & {\tt K} & ::= &
-\xcdmath"def this[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T = {" \\
+\xcdmath"def this[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T = {" \\
                       &         &     &
 \xcdmath"  super[${\tt X}_{1..i}$](${\tt x}_{1..j}$);" \\
                       &         &     &
 \xcdmath"  property[${\tt X}_{i+1..m}$](${\tt x}_{j+1..n}$); }" \\
 %\xcdmath"  property[${\tt X}_{i+1..m}$](${\tt x}_{j+1..k}$);" \\
                       %&         &     &
-%\xcdmath"  $\bar{\tt f}$ = ${\tt x}_{k+1..n}$; }" \\
+%\xcdmath"  $\tbar{f}$ = ${\tt x}_{k+1..n}$; }" \\
 methods     & {\tt M} & ::= &
-\xcdmath"def m[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T = e" \\
-expressions & {\tt e} & ::= & \dots \\
+\xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T = e" \\
+expressions & {\tt e} & ::= & \\
+\quad literals        &         &      & \xcd"true" \bnf \xcd"false" \bnf \xcd"null" \bnf $n$ \\
+\quad equality        &         & \bnf & \xcdmath"e$_1$==e$_2$" \\
+\quad subtyping       &         & \bnf & \xcdmath"T$_1$<:T$_2$" \\
+\quad type equality   &         & \bnf & \xcdmath"T$_1$==T$_2$" \\
+\quad variables       &         & \bnf & \xcd"x" \\
+\quad field access    &         & \bnf & \xcdmath"e.x" \\
+\quad val             &         & \bnf & \xcdmath"{ val x = e$_0$; $\tbar{e}$ }" \\
+                      &         & \bnf & \xcdmath"{ val x: T = e$_0$; $\tbar{e}$ }" \\
+\quad var             &         & \bnf & \xcdmath"{ var x = e$_0$; $\tbar{e}$ }" \\
+                      &         & \bnf & \xcdmath"{ var x: T = e$_0$; $\tbar{e}$ }" \\
+\quad assignment      &         & \bnf & \xcdmath"x = e" \\
+\quad field assignment&         & \bnf & \xcdmath"e$_1$.x = e$_2$" \\
+\quad call            &         & \bnf & \xcdmath"e$_0$.m[$\tbar{T}$]($\tbar{e}$)" \\
+\quad                 &         & \bnf & \xcdmath"e$_0$.m($\tbar{e}$)" \\
+\quad new             &         & \bnf & \xcdmath"new C[$\tbar{T}$]($\tbar{e}$)" \\
+                      &         & \bnf & \xcdmath"new C($\tbar{e}$)" \\
+\quad cast            &         & \bnf & \xcdmath"e as T" \\
+\quad if              &         & \bnf & \xcdmath"if (e$_0$) e$_1$ else e$_2$" \\
 constraint terms & {\tt t} & ::= & \\
 \quad literals        &         &      & \xcd"true" \bnf $n$ \bnf \xcd"C" \\
 \quad variables       &         & \bnf & \xcd"x" \bnf \xcd"X" \\
@@ -651,10 +680,11 @@ constraint terms & {\tt t} & ::= & \\
 constraint & {\tt c} & ::=  & \Xcd{true} \\
                   &  & \bnf & $\Xcd{t}_1 \equals \Xcd{t}_2$ \\
                   &  & \bnf & $\Xcd{t}_1 \subtype \Xcd{t}_2$ \\
-                  &  & \bnf & $\exists$\Xcd{x}.~\Xcd{c} \\
-                  &  & \bnf & $\bar{\Xcd{c}}$ \\
+                  &  & \bnf & $\exc{\Xcd{x}}{\Xcd{c}}$ \\
+                  &  & \bnf & $\xbar{c}$ \\
                   &  & \bnf & \xcdmath"p(t$_1$,$\dots$,t$_n$)" \\
 environments & $\Gamma$ & ::=  & $\epsilon$ \\
+            &          & \bnf & $\Gamma$, $\Xcd{c}$ \\
             &          & \bnf & $\Gamma$, $\Xcd{x} \ty \Xcd{T}$ \\
             &          & \bnf & $\Gamma$, $\Xcd{X} \ty \Xcd{type}$ \\
 \end{tabular}
@@ -675,7 +705,7 @@ constraints over literals and final variables and subtyping
 and equality
 constraints over types.
 The core constraint system is presented here.  We assume a
-constraint solver {\cal C} implementing the plugged-in
+constraint solver ${\cal C}$ implementing the plugged-in
 constraint systems.
 
 The constraint system does not distinguish between values and
@@ -685,90 +715,110 @@ are special cases of atomic
 formulas; we write \Xcd{p.f} as sugar for \Xcd{f(p)}.
 
 The constraint system is shown in Figure~\ref{fig:constraints}.
-$\bar{\Xcd{c}}$ is a set of constraints.
+$\xbar{c}$ is a set of constraints.
 The constraint system satisfies the structural rules, and
 supports equality and subtyping
 constraints over terms.
 
 \begin{figure}
 
-\infax[I]{ \bar{\Xcd{c}}, \Xcd{c} \vdashC \Xcd{c} }
+\infax[I]{ \xbar{c} \vdashC \Xcd{c}_i }
 
-\infrule[Cut]{ \bar{\Xcd{c}} \vdashC \Xcd{e} \andalso
-\bar{\Xcd{c}}, \Xcd{e} \vdashC \Xcd{d} }
-                     { \bar{\Xcd{c}} \vdashC \Xcd{d} }
-\infrule[Contraction]{ \bar{\Xcd{c}}, \Xcd{c}, \Xcd{c} \vdashC \Xcd{d} }
-                     { \bar{\Xcd{c}}, \Xcd{c} \vdashC \Xcd{d} }
-% \infrule[Permutation]{ \bar{\Xcd{c}}, \Xcd{c}, \Xcd{d} \vdashC \Xcd{e} }
-                     % { \bar{\Xcd{c}}, \Xcd{d}, \Xcd{c} \vdashC \Xcd{e} }
-% \infrule[Extension]{ \bar{\Xcd{c}}, \vdashC \Xcd{c} }
-                     % { \bar{\Xcd{c}}, \bar{\Xcd{c}}' \vdashC \Xcd{c} }
-\eat{
-\infrule[R-$\rightarrow$]{ \bar{\Xcd{c}}, \Xcd{c} \vdashC \Xcd{d} }
-                     { \bar{\Xcd{c}} \vdashC \Xcd{c} \rightarrow \Xcd{d} }
-\infrule[L-$\rightarrow$]{
-        \bar{\Xcd{c}}, \Xcd{c} \rightarrow \Xcd{d} \vdashC \Xcd{c}
-                \andalso
-        \bar{\Xcd{c}}, \Xcd{c} \rightarrow \Xcd{d}, \Xcd{d} \vdashC \Xcd{e} }
-                     { \bar{\Xcd{c}}, \Xcd{c} \rightarrow \Xcd{d} \vdashC \Xcd{e} }
+\infrule[Plugin]
+{ \xbar{c} \vdashC_{\cal X} \Xcd{d} }
+{ \xbar{c} \vdashC \Xcd{d} }
+
+% \infrule[Cut]{ \xbar{c} \vdashC \Xcd{c} \andalso
+% \xbar{c}, \Xcd{c} \vdashC \Xcd{d} }
+                     % { \xbar{c} \vdashC \Xcd{d} }
+% \infrule[Contraction]{ \xbar{c}, \Xcd{c}, \Xcd{c} \vdashC \Xcd{d} }
+                     % { \xbar{c}, \Xcd{c} \vdashC \Xcd{d} }
+% \infrule[Permutation]{ \xbar{c}, \Xcd{c}, \Xcd{d} \vdashC \Xcd{e} }
+                     % { \xbar{c}, \Xcd{d}, \Xcd{c} \vdashC \Xcd{e} }
+% \infrule[Extension]{ \xbar{c}, \vdashC \Xcd{c} }
+                     % { \xbar{c}, \xbar{c}' \vdashC \Xcd{c} }
+
+\infrule[Ex-I]{
+\xbar{c} \vdashC \Xcd{d}[\Xcd{t}/{\Xcd{x}}]
+}{
+\xbar{c} \vdashC \exc{\Xcd{x}}{\Xcd{d}}
 }
 
+\infrule[Ex-E]{
+\xbar{c}, \Xcd{d}[\Xcd{t}/\Xcd{x}] \vdashC \Xcd{e}
+\andalso
+\xbar{c} \vdashC \exc{\Xcd{x}}{\Xcd{d}}
+\andalso
+\Xcd{x} \not\in \mathit{FV}(\Xcd{e})
+}{
+\xbar{c} \vdashC \Xcd{e}
+}
+
+
 \infrule[Eq-atom]
-{ \bar{\Xcd{c}} \vdashC \bar{\Xcd{s}} \equals \bar{\Xcd{t}} }
-{ \bar{\Xcd{c}} \vdashC \Xcd{f(}\bar{\Xcd{s}}\Xcd{)} \equals \Xcd{f(}\bar{\Xcd{t}}\Xcd{)} }
+{ \xbar{c} \vdashC \xbar{s} \equals \xbar{t} }
+{ \xbar{c} \vdashC \Xcd{f(}\xbar{s}\Xcd{)} \equals \Xcd{f(}\xbar{t}\Xcd{)} }
 
-% \infrule[Eq-field]{ \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2 }
-                  % { \bar{\Xcd{c}} \vdashC \Xcd{t}_1.\Xcd{f} \equals \Xcd{t}_2.\Xcd{f} }
-% \infrule[Eq-type]{ \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2 }
-                  % { \bar{\Xcd{c}} \vdashC \Xcd{t}_1.\Xcd{X} \equals \Xcd{t}_2.\Xcd{X} }
+% \infrule[Eq-field]{ \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2 }
+                  % { \xbar{c} \vdashC \Xcd{t}_1.\Xcd{f} \equals \Xcd{t}_2.\Xcd{f} }
+% \infrule[Eq-type]{ \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2 }
+                  % { \xbar{c} \vdashC \Xcd{t}_1.\Xcd{X} \equals \Xcd{t}_2.\Xcd{X} }
 
-\infax[Eq-refl]{ \bar{\Xcd{c}} \vdashC \Xcd{t} \equals \Xcd{t} }
+\infax[Eq-refl]{ \xbar{c} \vdashC \Xcd{t} \equals \Xcd{t} }
 
 \infrule[Eq-trans]{
-        \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2
+        \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2
         \andalso
-        \bar{\Xcd{c}} \vdashC \Xcd{t}_2 \equals \Xcd{t}_3
+        \xbar{c} \vdashC \Xcd{t}_2 \equals \Xcd{t}_3
         }
-        { \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_3 }
+        { \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_3 }
 
 \infrule[Eq-sym]{
-        \bar{\Xcd{c}} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2
+        \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2
         }
-        { \bar{\Xcd{c}} \vdashC \Xcd{t}_2 \equals \Xcd{t}_1 }
+        { \xbar{c} \vdashC \Xcd{t}_2 \equals \Xcd{t}_1 }
 
 \infrule[Eq-sub]{
-\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2 \\
-\bar{\Xcd{c}} \vdashC \Xcd{T}_2 \subtype \Xcd{T}_1
+\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2 \\
+\xbar{c} \vdashC \Xcd{T}_2 \subtype \Xcd{T}_1
 }{
-\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
+\xbar{c} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
 }
 
 \infrule[Sub-cons]{
-\bar{\Xcd{c}} \vdashC \Xcd{C\{c\}} \ty \Xcd{type}
+\xbar{c} \vdashC \Xcd{C\{c\}} \ty \Xcd{type}
 \andalso
-\bar{\Xcd{c}}, \Xcd{c} \vdashC \Xcd{d}
+\xbar{c}, \Xcd{c} \vdashC \Xcd{d}
 }{
-\bar{\Xcd{c}} \vdashC \Xcd{C\{c\}} \subtype \Xcd{C\{d\}}
+\xbar{c} \vdashC \Xcd{C\{c\}} \subtype \Xcd{C\{d\}}
 }
 
 \infrule[Sub-super]{
-\mbox{\Xcdmath{C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} ext T \{\ $\bar{\tt M}$\ $\bar{\tt F}$\ \}}}
+\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ K $\tbar{M}$\ $\tbar{F}$\ \}}}
 }{
 \vdashC \Xcd{C} \subtype \Xcd{T} \\
 }
 
+\infax[Sub-object]{
+\vdashC \Xcd{T} \subtype \Xcd{Object}
+}
+
+\infax[Sub-null]{
+\vdashC \Xcd{Null} \subtype \Xcd{T}
+}
+
 \infrule[Sub-eq]{
-\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
+\xbar{c} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
 }{
-\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
+\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
 }
 
 \infrule[Sub-trans]{
-\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
+\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
 \andalso
-\bar{\Xcd{c}} \vdashC \Xcd{T}_2 \subtype \Xcd{T}_3
+\xbar{c} \vdashC \Xcd{T}_2 \subtype \Xcd{T}_3
 }{
-\bar{\Xcd{c}} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_3
+\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_3
 }
 
 \caption{Constraints}
@@ -821,10 +871,10 @@ Thus, for example, the constraint projection of the environment:
 
 \eat{
 \subsection{
-        Judgements
+        Judgments
 }
 
-The following judgements will be defined:
+The following judgments will be defined:
 
 \begin{itemize}
 \item
@@ -857,8 +907,9 @@ given assumptions $\Gamma$:
 \end{itemize}
 
 
-In what follows we will sometimes think of the family of five judgements
-as a single judgement $\Gamma \vdash \phi$ where $\phi$ ranges over the
+In what follows we will sometimes think of the family of five
+judgments
+as a single judgment $\Gamma \vdash \phi$ where $\phi$ ranges over the
 formulas 
     ${\tt T} \ty {\tt type}$,
       ${\tt S} \subtype {\tt T}$,
@@ -868,7 +919,7 @@ formulas
       ${\tt L}~\mbox{OK}$.
 
 
-Now, these judgements need to satisfy certain properties:
+Now, these judgments need to satisfy certain properties:
 
 \begin{enumerate}
 
@@ -892,7 +943,7 @@ is a variable occurring free in ${\tt e} \ty {\tt T}$, then for some
       type {\tt U},
       $\Gamma \vdash {\tt x} \ty {\tt U}$.
 That is, all free variables on the right-hand
-      side of the judgement are actually defined on the left-hand side.
+      side of the judgment are actually defined on the left-hand side.
 \end{enumerate}
 
 
@@ -907,10 +958,11 @@ that {\tt x} is not free in the consequent of the rule.
 }
 
 
-First, we present the structural rules for $\vdash$. The judgement
+First, we present the structural rules for $\vdash$. The
+judgment
 $\Gamma\vdash {\tt e} \ty {\tt T}$ is
 intuitionistic. That is, $\Gamma$ is considered a multiset of assertions, and
-the judgement possesses the inference rules:
+the judgment possesses the inference rules:
 
 \infrule{
 \Gamma \vdash {\tt e} \ty {\tt T}
@@ -991,25 +1043,27 @@ Type well-formedness
 \begin{figure}
 
 \infrule{
-\mbox{\Xcdmath{C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} ext T \{\ $\bar{\tt M}$\ $\bar{\tt F}$\ \}}}
+\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ $\tbar{M}$\ $\tbar{F}$\ \}}}
 }{
 \vdash \Xcd{C} \ty \Xcd{type}
 }
 
 \infrule{
-\vdash \Xcd{C} \ty \Xcd{type}
+\Gamma \vdash \Xcd{T} \ty \Xcd{type}
 \andalso
-\Gamma \vdash \Xcd{c} \ty \Xcd{boolean}
+\Gamma, \Xcd{self} \ty \Xcd{T} \vdash \Xcd{c} \ty \Xcd{Boolean}
+\andalso
+\sigma(\Gamma) \vdashC \Xcd{c}~\mbox{OK}
 }{
-\Gamma \vdash \Xcd{C\{c\}} \ty \Xcd{type}
+\Gamma \vdash \Xcd{T\{c\}} \ty \Xcd{type}
 }
 
 \infrule{
 \Gamma \vdash \Xcd{p} \ty \Xcd{T}
 \andalso
-\vdash \Xcd{T}~\Xcd{has}~\Xcd{X}_i
+\Gamma \vdash \Xcd{T}~\Xcd{has}~\Xcd{X}
 }{
-\Gamma \vdash \Xcd{p.X}_i \ty \Xcd{type}
+\Gamma \vdash \Xcd{p.X} \ty \Xcd{type}
 }
 
 \infax{
@@ -1029,8 +1083,9 @@ Type well-formedness
 \begin{figure}
 
 \infrule[Has-class]{
-\mbox{\Xcdmath{C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} ext T \{\ $\bar{\tt M}$\ $\bar{\tt F}$\ \}}}
+\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ K\ $\tbar{M}$\ $\tbar{F}$\ \}}}
 }{
+\vdash {\tt C}~{\tt has}~{\tt K} \\
 \vdash {\tt C}~{\tt has}~{\tt X}_i \\
 \vdash {\tt C}~{\tt has}~{\tt x}_i \ty {\tt T}_i \\
 \vdash {\tt C}~{\tt has}~{\tt M}_i \\
@@ -1038,11 +1093,13 @@ Type well-formedness
 }
 
 \infrule[Has-sub]{
-\Gamma \vdash {\tt T_1}~{\tt has}~{\tt Z_i}
+{\tt Z} \not= {\tt K}
 \andalso
-\Gamma \vdash {\tt T_2} \subtype {\tt T_1}
+\Gamma \vdash {\tt T}_1~{\tt has}~{\tt Z}
+\andalso
+\sigma(\Gamma) \vdash {\tt T}_2 \subtype {\tt T}_1
 }{
-\Gamma \vdash {\tt T_2}~{\tt has}~{\tt Z_i}
+\Gamma \vdash {\tt T}_2~{\tt has}~{\tt Z}
 }
 
 \caption{Structural constraints}
@@ -1050,102 +1107,188 @@ Type well-formedness
 \end{figure}
 
 \subsubsection{
-        Expression typing judgement
+        Expression typing judgment
 }
 
-TODO: should merge subsumption into other rules ?
+\eat{
+We define \Xcd{T\{c\}} as follows:
+
+\begin{align*}
+\Xcd{D\{c\}} &= \Xcd{D\{c\}} \\
+\Xcd{D\{d\}\{c\}} &= \Xcd{D\{d,c\}} \\
+\Xcd{X\{c\}} &= \Xcd{X\{c\}} \\
+\Xcd{p.X\{c\}} &= \Xcd{p.X\{c\}} \\
+\end{align*}
+
+\begin{align*}
+\exists\Xcd{x}\ty \Xcd{S}.~\Xcd{C} &= \Xcd{C} \\
+\exists\Xcd{x}\ty \Xcd{S}.~\Xcd{C\{c\}} &=
+        \Xcd{C\{}\exists\Xcd{x}.~\sigma(\Xcd{x}\ty \Xcd{S})\Xcd{,c\}} \\
+\exists\Xcd{x}\ty \Xcd{S}.~\Xcd{p.X} &=
+        \Xcd{p.X\{}\exists\Xcd{x}.~\sigma(\Xcd{x}\ty \Xcd{S})\Xcd{,c\}} \\
+\exists\Xcd{x}\ty \Xcd{S}.~\Xcd{X} &=
+        \Xcd{X\{}\exists\Xcd{x}.~\sigma(\Xcd{x}\ty \Xcd{S})\Xcd{,c\}} \\
+\end{align*}
+}
 
 \begin{figure}
 
 \infrule[T-sub]{
-\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e} \ty \Xcd{S}
+\Gamma \vdash \Xcd{e} \ty \Xcd{S}
 \andalso
-\bar{\Xcd{c}} \vdashC \Xcd{S} \subtype \Xcd{T}
+\sigma(\Gamma) \vdashC \Xcd{S} \subtype \Xcd{T}
+\andalso
+\Gamma \vdash \Xcd{T} \ty \Xcd{type}
 }{
-\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e} \ty \Xcd{T}
+\Gamma \vdash \Xcd{e} \ty \Xcd{T}
+}
+
+\infax[T-bool]{
+\vdash \Xcd{true} \ty \Xcd{Boolean\{self==true\}} \\
+\vdash \Xcd{false} \ty \Xcd{Boolean\{self==false\}}
+}
+
+\infax[T-int]{
+\vdash n \ty \Xcd{Int\{self==}n\Xcd{\}}
+}
+
+\infax[T-null]{
+\vdash \Xcd{null} \ty \Xcd{Null}
+}
+
+\infrule[T-eq]{
+\Gamma \vdash \Xcd{e}_1 \ty \Xcd{T}_1
+\andalso
+\Gamma \vdash \Xcd{e}_2 \ty \Xcd{T}_2
+}{
+\Gamma \vdash \Xcd{e}_1 \equals \Xcd{e}_2 \ty
+        \extyty{\Xcd{z}_1}{\Xcd{T}_1}{\Xcd{z}_2}{\Xcd{T}_2}
+        {\Xcd{Boolean\{self==(}{\Xcd{z}_1}\equals{\Xcd{z}_2}\Xcd{)\}}}
+}
+
+\infrule[T-teq]{
+\Gamma \vdash \Xcd{T}_1 \ty \Xcd{type}
+\andalso
+\Gamma \vdash \Xcd{T}_2 \ty \Xcd{type}
+}{
+\Gamma \vdash \Xcd{T}_1 \equals \Xcd{T}_2 \ty \Xcd{Boolean}
+}
+
+\infrule[T-tsub]{
+\Gamma \vdash \Xcd{T}_1 \ty \Xcd{type}
+\andalso
+\Gamma \vdash \Xcd{T}_2 \ty \Xcd{type}
+}{
+\Gamma \vdash \Xcd{T}_1 \subtype \Xcd{T}_2 \ty \Xcd{Boolean}
 }
 
 \infax[T-var]{
-\bar{\Xcd{c}}, \Gamma, \Xcd{x} \ty \Xcd{T} \vdash \Xcd{x} \ty \Xcd{T}
+\Gamma, \Xcd{x} \ty \Xcd{T} \vdash \Xcd{x} \ty \Xcd{T}
+}
+
+TODO: T{self==x}
+
+\infrule[T-valdec]{
+\Gamma \vdash \Xcd{e}_0 \ty \Xcd{T}_0
+\andalso
+\Gamma, \Xcd{x} \ty \Xcd{T}_0 \vdash \tbar{e} \ty \tbar{T}
+}{
+\Gamma \vdash \Xcd{\{ val x = e}_0\Xcd{;}~\tbar{e}~\Xcd{ \}} \ty \Xcd{T}_n
+}
+
+\infrule[T-valdec2]{
+\Gamma \vdash \Xcd{e}_0 \ty \Xcd{T}_0
+\andalso
+\Gamma, \Xcd{x} \ty \Xcd{T}_0 \vdash \tbar{e} \ty \tbar{T}
+}{
+\Gamma \vdash \Xcd{\{ val x} \ty \Xcd{T}_0~\Xcd{= e}_0\Xcd{;}~\tbar{e}~\Xcd{ \}} \ty \Xcd{T}_n
 }
 
 \infrule[T-cast]{
-\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e} \ty \Xcd{S}
+\Gamma \vdash \Xcd{e} \ty \Xcd{S}
 \andalso
-\bar{\Xcd{c}}, \Gamma \vdash \Xcd{T} \ty \Xcd{type}
+\Gamma \vdash \Xcd{T} \ty \Xcd{type}
 }{
-\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e}~\Xcd{as}~\Xcd{T} \ty \Xcd{T}
+\Gamma \vdash \Xcd{e}~\Xcd{as}~\Xcd{T} \ty \Xcd{T}
 }
 
 \infrule[T-field]{
-\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e} \ty \Xcd{T}
+\Gamma \vdash \Xcd{e} \ty \Xcd{T}
 \\
-%C, \Gamma \vdash \Xcd{T}~\Xcd{has}~\Xcd{var}~\Xcd{f}_i\Xcd{\{c\}} \ty \Xcd{T}_i
-\mathit{ftype}(\Xcd{T}, \Xcd{f}_i) = \Xcd{f}_i\Xcd{\{c\}} \ty \Xcd{T}_i \\
-\Xcd{z}~\mbox{fresh}
+\Xcd{T}~\Xcd{has}~\Xcd{f}\Xcd{\{c\}} \ty \Xcd{U}
 \\
-\bar{\Xcd{c}}, \sigma(\Gamma, \Xcd{this} \ty \Xcd{T}), \Xcd{this} \equals \Xcd{z} \vdashC \Xcd{c}
+\sigma(\Gamma, \Xcd{this} \ty \Xcd{T}) \vdashC \Xcd{c}
 }{
-\bar{\Xcd{c}}, \Gamma \vdash \Xcd{e}.\Xcd{f}_i \ty \Xcd{T}_i[\Xcd{z}/\Xcd{this}]
+\Gamma \vdash \Xcd{e}.\Xcd{f} \ty \exty{\Xcd{this}}{\Xcd{T}}{\Xcd{U}}
 }
 
+TODO: U{self==this.f}
+
 \infrule[T-invk]{
-\Gamma \vdash \Xcd{e}_0: \Xcd{T}_0
+\Gamma \vdash \Xcd{e}_0 \ty \Xcd{T}_0
 \andalso
-\Gamma \vdash \bar{\Xcd{e}} \ty \bar{\Xcd{T}}
+\Gamma \vdash \xbar{e} \ty \xbar{T}
 \\
-\Xcd{T}_0~\Xcd{has}~\Xcd{def}~\Xcd{m[}\bar{\Xcd{Z}}\Xcd{](}\bar{\Xcd{z}} \ty \bar{\Xcd{S}}\Xcd{)\{c\}} \ty {\tt U}~\Xcd{=}~\Xcd{e}
+\Xcd{T}_0~\Xcd{has}~\Xcd{def}~\Xcd{m[}\xbar{X}\Xcd{](}\xbar{x} \ty \xbar{S}\Xcd{)\{c\}} \ty {\tt U}~\Xcd{=}~\Xcd{e}
 \\
-    \Xcd{z}_0, \bar{\Xcd{z}}, \bar{\Xcd{Z}}~\mbox{fresh}
+\Gamma' = \Gamma, \xbar{X} \ty \Xcd{type},
+        \Xcd{this} \ty \Xcd{T}_0,
+        \xbar{x} \ty \xbar{T},
+        \xbar{X} \equals \xbar{V}
 \\
-\Gamma' = \Gamma, \bar{\Xcd{Z}} \ty \Xcd{type},
-        \Xcd{z}_0 \ty \Xcd{T}_0,
-        \bar{\Xcd{z}} \ty \bar{\Xcd{T}}
+\sigma(\Gamma') \vdashC \Xcd{c}
 \\
-\sigma(\Gamma') \vdashC (\Xcd{c}, \bar{\Xcd{V}}\equals
-\bar{\Xcd{Z}}, \bar{\Xcd{T}} \subtype \bar{\Xcd{S}})
+\sigma(\Gamma') \vdashC \xbar{T} \subtype \xbar{S}
 }{
 \Gamma \vdash
-\Xcd{e}_0.\Xcd{m[}\bar{\Xcd{V}}\Xcd{](}\bar{\Xcd{e}}\Xcd{)} \ty
-(\bar{\Xcd{Z}} \ty \Xcd{type};~\Xcd{z}_0 \ty \Xcd{T}_0;~\bar{\Xcd{z}} \ty \bar{\Xcd{T}};~{\Xcd{U}})
+\Xcd{e}_0.\Xcd{m[}\xbar{V}\Xcd{](}\xbar{e}\Xcd{)} \ty
+\extytyty{\xbar{X}}{\Xcd{type}}{\Xcd{this}}{\Xcd{T}_0}{\xbar{x}}{\xbar{T}}{\Xcd{U}}
 }
 
 \infrule[T-invk-inferred]{
-\bar{\Xcd{Y}}~\mbox{fresh}
+\xbar{Y}~\mbox{fresh}
 \\
-\Gamma, \bar{\Xcd{Y}} \ty {\tt type}
+\Gamma, \xbar{Y} \ty {\tt type}
 \vdash
-\Xcd{e}_0.\Xcd{m[}\bar{\Xcd{Y}}\Xcd{](}\bar{\Xcd{e}}\Xcd{)} \ty
-(\bar{\Xcd{Z}} \ty \Xcd{type};~\Xcd{z}_0 \ty
-\Xcd{T}_0;~\bar{\Xcd{z}} \ty \bar{\Xcd{T}};~\Xcd{U})
+\Xcd{e}_0.\Xcd{m[}\xbar{Y}\Xcd{](}\xbar{e}\Xcd{)} \ty
+\Xcd{T}
 }{
 \Gamma \vdash
-\Xcd{e}_0.\Xcd{m(}\bar{\Xcd{e}}\Xcd{)} \ty
-(\bar{\Xcd{Z}} \ty \Xcd{type};~\Xcd{z}_0 \ty \Xcd{T}_0;~\bar{\Xcd{z}} \ty \bar{\Xcd{T}};~{\Xcd{U}})
+\Xcd{e}_0.\Xcd{m(}\xbar{e}\Xcd{)} \ty
+\Xcd{T}
 }
 
 \infrule[T-new]{
-\Gamma \vdash \bar{\Xcd{e}} \ty \bar{\Xcd{T}}
+\Gamma \vdash \xbar{e} \ty \xbar{T}
 \\
-\mathit{fields}(\Xcd{C}, \Xcd{z}_0) = \bar{\Xcd{f}} \ty \bar{\Xcd{S}}
+\Xcd{C}~\Xcd{has}~\Xcd{def}~\Xcd{this[}\xbar{X}\Xcd{](}\xbar{x} \ty \xbar{S}\Xcd{)\{c\}} \ty {\tt U}~\Xcd{=}~\dots
 \\
-    \Xcd{z}_0, \bar{\Xcd{z}}, \bar{\Xcd{Z}}~\mbox{fresh}
+\Gamma' = \Gamma, \xbar{X} \ty \Xcd{type}, \Xcd{this} \ty \Xcd{C}, \xbar{x} \ty \xbar{T}, \xbar{V} \equals \xbar{X}
 \\
-\Gamma' = \Gamma, \bar{\Xcd{Z}} \ty \Xcd{type}, \Xcd{z}_0 \ty
-\Xcd{C}, \bar{\Xcd{z}} \ty \bar{\Xcd{T}},
-\Xcd{z}_0.\bar{\Xcd{f}} \equals \bar{\Xcd{z}}
+\Gamma'' = \Gamma, \xbar{X} \ty \Xcd{type}, \Xcd{this} \ty \Xcd{U}, \xbar{x} \ty \xbar{T}, \xbar{V} \equals \xbar{X}
 \\
-\sigma(\Gamma') \vdashC \mathit{inv}(\Xcd{C},\Xcd{z}_0),
-\bar{\Xcd{V}}\equals \bar{\Xcd{Z}}, \bar{\Xcd{T}} \subtype \bar{\Xcd{S}}
+\sigma(\Gamma') \vdashC \Xcd{c}
 \\
-\sigma(\Gamma') \vdash_{\cal C}
+\sigma(\Gamma') \vdashC \xbar{T} \subtype \xbar{S}
+\\
+\sigma(\Gamma'') \vdashC \mathit{inv}(\Xcd{C}),
 }{
 \Gamma \vdash
-\Xcd{new}~\Xcd{C[}\bar{\Xcd{V}}\Xcd{](}\bar{\Xcd{e}}\Xcd{)} \ty \Xcd{C\{}
-\Xcd{z}_0 \ty \Xcd{C};~
-\bar{\Xcd{z}} \ty \bar{\Xcd{T}};~
-\Xcd{z}_0.\bar{\Xcd{f}}\equals \bar{\Xcd{z}},
-\Xcd{self}\equals \Xcd{z}_0\Xcd{\}}
+\Xcd{new}~\Xcd{C[}\xbar{V}\Xcd{](}\xbar{e}\Xcd{)} \ty
+\extytyty{\xbar{X}}{\Xcd{type}}{\Xcd{this}}{\Xcd{C}}{\xbar{x}}{\xbar{T}}{\Xcd{U}}
+}
+
+\infrule[T-new-inferred]{
+\xbar{Y}~\mbox{fresh}
+\\
+\Gamma, \xbar{Y} \ty {\tt type}
+\vdash
+\Xcd{new}~\Xcd{C[}\xbar{Y}\Xcd{](}\xbar{e}\Xcd{)} \ty
+\Xcd{T}
+}{
+\Gamma \vdash
+\Xcd{new}~\Xcd{C(}\xbar{e}\Xcd{)} \ty
+\Xcd{T}
 }
 
 \caption{Typing rules}
@@ -1156,19 +1299,12 @@ The cast rule
 \rn{T-cast}
 requires that the cast type be well-formed. 
 
-
-
 The field access rule \rn{T-field}
 differs from the rule in the paper in that there is no need to
 substitute a fresh variable for the receiver. Note that {\tt this} may be free
 in {\tt S}---that would be a reference to the current object in the code in
 which {\tt e.f} occurs, not a reference to the receiver of the {\tt e.f} field
 selection (i.e., the object obtained by evaluating {\tt e}).
-
-\begin{align*}
-\sigma(\Xcd{p}) &= \Xcd{p} \\
-\sigma(\Xcd{e}) &= \Xcd{z} \qquad \mbox{otherwise; (\Xcd{z} fresh)} \\
-\end{align*}
 
 \noindent
 if we allow adding constraints to arbitrary types---do we?
@@ -1186,7 +1322,7 @@ of types ${\tt T_0}, \dots, {\tt T_n}$.
 Now, for ${\tt z_0}$ as receiver, let us assume that the type
 ${\tt T_0}$ has a method named ${\tt m}$
 with signature
-$[\bar{\tt Z}](\bar{\tt z} \ty \bar{\tt S})\Xcd{\{c\}} \to {\tt U}$
+$[\xbar{Z}](\xbar{z} \ty \xbar{S})\Xcd{\{c\}} \to {\tt U}$
 (Let ${\tt T_0} = \Xcd{C\{d\}}$.
  If there is no
 method named {\tt m} for the class {\tt C} then this method invocation cannot be
@@ -1214,24 +1350,26 @@ existentially quantified.
 
 
 \subsubsection{
-        Class OK judgement
+        Class OK judgment
 }
 
 The following rule is modified from what we had in the paper to ensure
 that all the types are well-formed (under the assumption {\tt this} \ty {\tt C}).
 Note
-that the variables $\bar{\tt x}$ are permitted to occur in the types ${\tt T_0}, \bar{\tt T}$,
+that the variables $\xbar{x}$ are permitted to occur in the types $\Xcd{T}_0, \xbar{T}$,
 hence their typing assertions must be added to $\Gamma$.
 
 \infrule[Method OK]{
-\Gamma = \Xcd{this} \ty \Xcd{C\{self==this},\mathit{inv}(\Xcd{C})\Xcd{\}}, \bar{\Xcd{x}} \ty \bar{\Xcd{T}}\Xcd{\{self==\}}\bar{\Xcd{x}}\Xcd{\}}
+\Gamma = \Xcd{this} \ty \Xcd{C\{self==this},\mathit{inv}(\Xcd{C})\Xcd{\}},
+        \xbar{x} \ty \xbar{T}\Xcd{\{self==\}}\xbar{x}\Xcd{\}},
+        \Xcd{c}
 \\
-\sigma(\Gamma), \Xcd{c};~\Gamma \vdash \Xcd{e} \ty \Xcd{U}
+\Gamma \vdash \Xcd{e} \ty \Xcd{U}
 \\
-\sigma(\Gamma), \Xcd{c} \vdashC \Xcd{U} \subtype \Xcd{T}
+\sigma(\Gamma) \vdashC \Xcd{U} \subtype \Xcd{T}
 }{
-\Xcd{def}~\Xcd{m[}\bar{\Xcd{X}\Xcd{}](}\bar{\Xcd{x}} \ty
-\bar{\Xcd{T}}\Xcd{)\{c\}} \ty \Xcd{T}~\Xcd{=}~\Xcd{e}~\mbox{OK in}~\Xcd{C}
+\Xcd{def}~\Xcd{m[}\xbar{X}\Xcd{](}\xbar{x} \ty
+\xbar{T}\Xcd{)\{c\}} \ty \Xcd{T}~\Xcd{=}~\Xcd{e}~\mbox{OK in}~\Xcd{C}
 }
 
 
@@ -1239,7 +1377,7 @@ This rule did not exist in our submission. This is necessary to ensure
 that the types of fields are well-formed.
 
 \infrule[Field OK]{
-\sigma(\Xcd{this} \ty \Xcd{C}), \Xcd{c};~\Xcd{this} \ty \Xcd{C} \vdash \Xcd{T} \ty \Xcd{type}
+\Xcd{this} \ty \Xcd{C}, \Xcd{c} \vdash \Xcd{T} \ty \Xcd{type}
 }{
 \Xcd{val}~\Xcd{f}\Xcd{\{c\}} \ty \Xcd{T}~\mbox{OK in}~\Xcd{C}
 }
@@ -1249,20 +1387,22 @@ This rule is now modified to ensure that all the types and methods in
 the body of the class are well-formed.
 
 \infrule[Class OK]{
-\bar{\tt M}~\mbox{OK in}~{\tt C}
+K~\mbox{OK in}~{\tt C}
 \\
-\bar{\tt F}~\mbox{OK in}~{\tt C}
+\xbar{M}~\mbox{OK in}~{\tt C}
+\\
+\xbar{F}~\mbox{OK in}~{\tt C}
 \\
 {\tt this} \ty {\tt C} \vdash {\tt T} \ty {\tt type}
 }{
-\mbox{\Xcdmath{C[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$)\{c\} ext T \{\ $\bar{\tt M}$\ $\bar{\tt F}$\ \}}}~\mbox{OK}
+\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ K\ $\tbar{M}$\ $\tbar{F}$\ \}}}~\mbox{OK}
 }
 
 TODO: method overriding
 
 
 \subsubsection{
-        Subtype judgement
+        Subtype judgment
 }
 
 \infrule{
@@ -1286,54 +1426,54 @@ Extensions: structural constraints, optional methods, interfaces
 \section{Constraint solver}
 
 The goal of the constraint solver is 
-to check an assertion ${\tt c} \vdash_{\cal C} {\tt d}$.
-
-$\sigma(\Gamma, x: \Xcd{C\{c\}}) = 
-        \sigma(\Gamma), x.type.class==C, x.type.cons==c[x/self]
-$
+to check an assertion ${\tt c} \vdashC {\tt d}$.
 
 The first step is to normalize constraints.
 Normalization splits constraints into type constraints and
 value constraints.  Produces a set of constraint judgments
-$\Gamma \vdash \Xcd{c}$ where $\Xcd{c}$ contains no conjunctions.
+$\xbar{c} \vdashC \Xcd{c}$ where $\Xcd{c}$ contains no conjunctions.
 
-Otherwise:
+\begin{align*}
+\SB{ \xbar{c} \vdashC \Xcd{d}_1, \Xcd{d}_2 } 
+        &=
+     \xbar{c} \vdashC \Xcd{d}_1,
+     \xbar{c} \vdashC \Xcd{d}_2
+     \\
+\SB{ \xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2 } 
+        &=
+     \xbar{c} \vdashC \class{\Xcd{T}_1}{\Xcd{self}} \subtype \class{\Xcd{T}_2}{\Xcd{self}}, \\
+     & \quad~
+     \xbar{c}, \cons{\Xcd{T}_1}{\Xcd{self}} \vdashC \class{\Xcd{T}_2}{\Xcd{self}}
+     \\
+\SB{ \xbar{c} \vdashC \Xcd{d} }
+        &=
+     \xbar{c} \vdashC \Xcd{d}
+     \qquad~\mbox{(otherwise)}
+     \\
+\end{align*}
 
-\[
-\SB{ \Gamma \vdash \Xcd{c} }
-=
-\Gamma \vdash \Xcd{c}
-\]
-
-Theorem:
-normalized(c) |- normalized(d)
-iff
-c |- d
-
-Theorem:
-c |- d 
-iff
-|- c => d
-
-
-Once in normalized form, can solve as follows:
-
-Select a constraint $\Gamma \vdash \Xcd{c}$.
+Once in normalized form, the inference proceeds as follows:
+Select a constraint $\xbar{c} \vdashC \Xcd{c}$.
 If not consistent, fail.
 If valid, ok.
-If not valid, generate assignment of variables that makes it true.
+If not valid, generate assignment of variables that makes it
+true, adding the assignment to the assumptions for all
+constraints.
 
-Question: is there an good method for generating the assignment?
-Or just brute force?
+The inference algorithm must specify the criteria for:
+\begin{itemize}
+\item selecting the next constraint to solve
+\item generating the variable assignment consistent with all
+other constraints (to avoid backtracking)
+\end{itemize}
+
 Pick an unassigned variable, find weakest assignment that makes just
-this clause true.  Does that exist?
-
-DO NOT WANT:
-If assignment makes another clause false, rollback.
+this clause true.  Does the weakest assignment exist?
 
 Question: can we ensure each clause involves only one or two
 unknowns?
 
+\eat{
 Weakest assignment:
 
 \begin{verbatim}
@@ -1350,107 +1490,9 @@ c |- Z.cons
 \end{verbatim}
 
 Now, to check c |- d, check normalized(c) |- normalized(d).
-
-        all constraints are either ==, simple <:, or =>
-
-
-
-                
-        
-
-type inference:
-
-build a big constraint per method
-
-\begin{verbatim}
-S1; S2             --> cons(S1), cons(S2)
-if (x) S1 else S2  --> x => cons(S1), !x => cons(S2)
-x = y              --> y.type <: x.type 
-x + y              --> x.type <: number, y.type <: number,
-                       (x+y).type == promote(x.type, y.type)
-\end{verbatim}
-
-solve:
-
-        break into constraints G |- c where c is primitive
-
-        e.g., G |- C{c} <: D{d}
-        -->
-        G |- C <: D,
-        G, c |- d
-
-        put all constraints into a set C
-
-        infer new constraints A
-
-        solve(C, A) =
-                  if c in C s.t. A c not valid
-                  then
-                        solve(C, refine(A,c))
-                  else
-                        A
-
-        need to make refine(A, c) determinstic and efficient
-
-
-
-
-
-inference rules are of the form:
-
-\infax{
-\Gamma;~S \vdash e \ty T
 }
 
-where $\Gamma$ is a set of assumptions and $S$ is a set of inferred
-constraints.
-
-check rule:
-
-\infrule{
-\Gamma \vdash \Xcd{e} \ty \Xcd{T}
-\andalso
-\Xcd{T has def m(): T}'
-}{
-\Gamma \vdash \Xcd{e.m()} \ty \Xcd{T}'
-}
-
-infer rule:
-
-\infrule{
-\Gamma \vdash e \ty T
-}{
-\Gamma; T has () \Rightarrow T' \vdash e.m() \ty T'
-}
-
-bi-directional checking combines the two kinds of rules
-
-
-Some transforming of the constraints:
-
-
-\infax{
-\Gamma \vdash \Xcd{x} \ty \Xcd{T} \longrightarrow \Xcd{x}.\Xcd{type}\Xcd{==}\Xcd{T} 
-}
-
-\infrule{
-{\tt z}~\mbox{fresh}
-}{
-\Gamma \vdash \Xcd{C\{c\}} \Xcd{<:} \Xcd{D\{d\}}   \longrightarrow
-        \vdash \Xcd{C} \Xcd{<:} \Xcd{D},
-        \Gamma, \Xcd{z} \ty \Xcd{C},
-                \Xcd{c}[\Xcd{z}/\Xcd{self}] \vdash \Xcd{d}[\Xcd{z}/\Xcd{self}]
-}
-
-\infrule{
-\Gamma \vdash {\tt p} \ty \Xcd{C\{c\}} \longrightarrow {\cal C}
-}{
-\Gamma \vdash {\tt p.X} \Xcd{<:} {\tt T}   \longrightarrow
-        {\cal C},
-        \Gamma, \Xcd{c}[\Xcd{p}/\Xcd{self}] \vdash
-        \Xcd{C}(\Xcd{T})[\Xcd{p}/\Xcd{self}]
-}
-
+\subsection{A graph-based inference algorithm}
 
 %\newcommand\eqedge{\rightleftharpoons}
 \newcommand\eqedge{\sim}
@@ -1479,8 +1521,8 @@ $v_t$.  For each access path {\tt p.x}, add a tree edge
 $v_{{\tt p}} \treeedge{{\tt x}} v_{{\tt p.x}}$.
 For each path type {\tt p.X}, add a tree edge
 $v_{{\tt p}} \treeedge{{\tt X}} V_{{\tt p.X}}$.
-For each atomic formula ${\tt f}(\bar{t})$, add the tree edge
-$v_{{\tt f}(\bar{t})} \treeedge{i} v_{t_i}$ for all $i$.
+For each atomic formula ${\tt f}(\xbar{t})$, add the tree edge
+$v_{{\tt f}(\xbar{t})} \treeedge{i} v_{t_i}$ for all $i$.
 If term $t$ has type $T$, add $v_t \typeedge V_{t{\tt .type}}$
 and
 add $V_T \eqedge V_{t{\tt .type}}$ to $G$.
@@ -1629,73 +1671,7 @@ precise, preventing subclasses from overriding the method.
 \Gamma \vdash e_0.m(e_1, \ldots, e_n) \ty T
 }
 
-\begin{verbatim}
-Types can be inferred if the constraints are satisfied.
-Need to materialize the constraints.
-
-1. union-find on equality constraints
-2. solve the subtyping constraints -- collapse cycles into union-find
-        if SCC has a contradiction, complain
-3. materialize bounds
-
-impl: use XConstraint for union-find
-
-        - T <: S
-        - whenever we ask if T <: S, ask TypeSystem, then add <:(T,S)
-          to constraint if true
-        - whenever we ask if T == S, ask TypeSystem, then add ==(T,S)
-          to constraint if true
-
-Based on Henglein, TAPOS 99
-
-lower bound of X
-        union type of types Ti with Ti --> X
-upper bound of X
-        interesection type of types Ti with X --> Ti
-
-C{c} & D{d} = (C&D){c||d}
-C{c} | D{d} = (C|D){c&&d}
-
-C&D = gcd(C,D)
-C|D = lca(C,D)
-
-X <: int ||
-X <: float
--->
-X <: int|float
--->
-X <: number
-
-int <: X || float <: X
--->
-int&float <: X
--->
-void <: X
-
-p==q || p==q  -->  p==q
-p==q || p==r  -->  true
-S<:T || S<:U  -->  S<:(T|U)
-T<:S || U<:S  -->  (T&U)<:S
-
-\end{verbatim}
-
-A key difference is that X10 supports where clauses that
-constrain method and constructor type and value arguments.
-The algorithm should infer not only the base type of a
-constrained type, but also the type and value constraints.
-
-
-X10 should perform type inference of local variable
-types and of type arguments for method and constructor calls.%
-
-\if 0
-The algorithm infers a type for a local variable by
-type-checking the variable initializer and assigning
-that type to the variable.
-When checking calls with omitted type arguments,
-the algorithm attempts to find an instantiation of the type
-parameters for which the call will type check.
-\fi
+\subsection{Discussion}
 
 Consider the following method from \cite{adding-wildcards}:
 \begin{xten}
@@ -1829,51 +1805,6 @@ class loader loads the template class for \xcd"C" and then transforms the
 template class bytecode, specializing it to the constraint
 \xcd"c".
 
-------------------
-
-Define $\mathit{reptype}($\xcd"T"$)$ to be the representation
-type of \xcd"T".
-
-\infax{
-\Gamma \vdash \mathit{reptype}({\tt C}) = {\tt C}
-}
-
-\infrule{
-\Gamma \vdash {\tt p} \ty {\tt T}
-}{
-\Gamma \vdash \mathit{reptype}({\tt p.X}) = \mathit{reptype}({\tt X})
-}
-
-\infrule{
-\Gamma \vdash {\tt p} \ty {\tt C\{self.X==T\}}
-}{
-\Gamma \vdash \mathit{reptype}({\tt p.X}) = \mathit{reptype}({\tt T})
-}
-
-\infrule{
-\Gamma \vdash {\tt p} \ty {\tt C\{self.X<:T\}}
-}{
-\Gamma \vdash \mathit{reptype}({\tt p.X}) = \mathit{reptype}({\tt T})
-}
-
-\infrule{
-\Gamma \vdash {\tt p} \ty {\tt C\{self.X:>T\}}
-}{
-\Gamma \vdash \mathit{reptype}({\tt p.X}) = {\tt Object}
-}
-
-\infrule{
-}{
-\Gamma \vdash \mathit{reptype}({\tt C\{self.X==T\}}) = {\tt C\$T}
-}
-
-\infrule{
-}{
-\Gamma \vdash \mathit{reptype}({\tt C\{self.X<:T\}}) = {\tt C}
-}
-
---------------
-
 For example, consider the following classes.
 \begin{xten}
 class A[T] {
@@ -1893,8 +1824,9 @@ class A {
 
     T a;
 
-    // Dummy getter and setter; will be eliminated at run time
-    // and replaced with actual gets and sets of the field a.
+    // Dummy getter and setter; will be eliminated
+    // at run time and replaced with actual gets
+    // and sets of the field a.
     @Getter("a") <S> S get$a() { return null; }
     @Setter("a") <S> S set$a(S v) { return null; }
 }
@@ -2170,9 +2102,9 @@ XXX this is an extension of the type system
 expressions & {\tt e} & ::= & \dots \\
             &        & \bnf & \xcd"T has Sig" \\
 signatures  & {\tt Sig} & ::= &
-\xcdmath"def this[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T" \\
+\xcdmath"def this[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
             &        & \bnf &
-\xcdmath"def m[$\bar{\tt X}$]($\bar{\tt x}$: $\bar{\tt T}$){c}: T" \\
+\xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
             &        & \bnf &
 \xcdmath"val x{c}: T" \\
             %&  & \bnf & \xcdmath"var x{c}: T" \\
@@ -2536,7 +2468,23 @@ more expressive power.
 We expect that the design admits an efficient
 implementation and intend to implement the design shortly.
 
-\newpage
+\section{Acknowledgements} 
+
+The authors thank
+Doug Lea, Lex Spoon, Jens Palsberg, Bob Blainey, and Olivier Tardieu
+for valuable feedback on versions of the language.
+The implementation uses some code from the implementation
+of PolyJ by Michael Clarkson and Andrew Myers.
+
+\eat{
+Credits: Nate Nystrom had the idea, designed the type
+system and the type inference algorithm,
+implemented the type checker, and sketched the
+translation; Igor Peshansky implemented the translation; Vijay
+Saraswat worked out the formal semantics and did the proof, and
+implemented the constraint solver.  All authors contributed to the text.
+}
+
 
 \bibliographystyle{plain}
 \bibliography{master}
