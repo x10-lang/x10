@@ -26,7 +26,6 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Predicate;
 import polyglot.util.TypedList;
-import quicktime.std.music.KnobDescription;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
