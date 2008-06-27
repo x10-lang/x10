@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: mk.plot.2.sh,v 1.1 2008-06-26 12:22:19 srkodali Exp $
+# $Id: mk.plot.2.sh,v 1.2 2008-06-27 09:22:02 srkodali Exp $
 #
 # Script for generating plots from tables.
 #
@@ -25,9 +25,6 @@ printf "set output \"${out_file}\"\n" >> $tmp_file
 printf "set size 1,1\n" >> $tmp_file
 printf "set grid xtics\n" >> $tmp_file
 printf "set style data linespoints\n" >> $tmp_file
-#printf "set style line 1 linewidth 1\n" >> $tmp_file
-#printf "set style line 2 linewidth 1\n" >> $tmp_file
-#printf "set style line 3 linewidth 1\n" >> $tmp_file
 printf "set xtics 0,2,8\n" >> $tmp_file
 printf "set xrange [1:8]\n" >> $tmp_file
 printf "set yrange [0:40]\n" >> $tmp_file
@@ -44,9 +41,9 @@ printf "set origin 0,0\n" >> $tmp_file
 printf "set size 0.25,1\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 0 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 0 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
+printf "\"${c_tbl}\" index 0 using 3:5 title \"\" with linespoints lw 2 pt 8, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${cilk_tbl}\" index 0 using 3:5 title \"\" with linespoints lw 2 pt 4" >> $tmp_file
+printf "\"${cilk_tbl}\" index 0 using 3:5 title \"\" with linespoints lw 2 pt 2" >> $tmp_file
 printf "\n" >> $tmp_file
 #printf "with linespoints lw 2 ; \\" >> $tmp_file
 #printf "\n" >> $tmp_file
@@ -60,9 +57,9 @@ printf "set origin 0.25,0\n" >> $tmp_file
 printf "set size 0.25,1\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 1 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 1 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
+printf "\"${c_tbl}\" index 1 using 3:5 title \"\" with linespoints lw 2 pt 8, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${cilk_tbl}\" index 1 using 3:5 title \"\" with linespoints lw 2 pt 4" >> $tmp_file
+printf "\"${cilk_tbl}\" index 1 using 3:5 title \"\" with linespoints lw 2 pt 2" >> $tmp_file
 printf "\n" >> $tmp_file
 
 printf "set xlabel \" \"\n" >> $tmp_file
@@ -71,9 +68,9 @@ printf "set origin 0.5,0\n" >> $tmp_file
 printf "set size 0.25,1\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 2 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 2 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
+printf "\"${c_tbl}\" index 2 using 3:5 title \"\" with linespoints lw 2 pt 8, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${cilk_tbl}\" index 2 using 3:5 title \"\" with linespoints lw 2 pt 4" >> $tmp_file
+printf "\"${cilk_tbl}\" index 2 using 3:5 title \"\" with linespoints lw 2 pt 2" >> $tmp_file
 printf "\n" >> $tmp_file
 
 
@@ -84,9 +81,9 @@ printf "set origin 0.75,0\n" >> $tmp_file
 printf "set size 0.25,1\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 3 using 3:5 title \"XWS\" with linespoints lw 2 pt 4, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 3 using 3:5 title \"C\" with linespoints lw 2 pt 4, \\" >> $tmp_file
+printf "\"${c_tbl}\" index 3 using 3:5 title \"C\" with linespoints lw 2 pt 8, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${cilk_tbl}\" index 3 using 3:5 title \"Cilk\" with linespoints lw 2 pt 4" >> $tmp_file
+printf "\"${cilk_tbl}\" index 3 using 3:5 title \"Cilk\" with linespoints lw 2 pt 2" >> $tmp_file
 printf "\n" >> $tmp_file
 
 printf "unset multiplot\n" >> $tmp_file
