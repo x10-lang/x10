@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: mk.plot.2.sh,v 1.1 2008-06-26 12:25:43 srkodali Exp $
+# $Id: mk.plot.2.sh,v 1.2 2008-06-27 09:16:00 srkodali Exp $
 #
 # Script for generating plots from tables.
 #
@@ -40,7 +40,7 @@ printf "set origin 0,0\n" >> $tmp_file
 printf "set size 0.25,1\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 0 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 0 using 3:5 title \"\" with linespoints lw 2 pt 4" >> $tmp_file
+printf "\"${c_tbl}\" index 0 using 3:5 title \"\" with linespoints lw 2 pt 8" >> $tmp_file
 printf "\n" >> $tmp_file
 
 printf "set lmargin 0\n" >> $tmp_file
@@ -52,7 +52,7 @@ printf "set origin 0.25,0\n" >> $tmp_file
 printf "set size 0.25,1\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 1 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 1 using 3:5 title \"\" with linespoints lw 2 pt 4" >> $tmp_file
+printf "\"${c_tbl}\" index 1 using 3:5 title \"\" with linespoints lw 2 pt 8" >> $tmp_file
 printf "\n" >> $tmp_file
 
 printf "set xlabel \" \"\n" >> $tmp_file
@@ -61,7 +61,7 @@ printf "set origin 0.5,0\n" >> $tmp_file
 printf "set size 0.25,1\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 2 using 3:5 title \"\" with linespoints lw 2 pt 4, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 2 using 3:5 title \"\" with linespoints lw 2 pt 4" >> $tmp_file
+printf "\"${c_tbl}\" index 2 using 3:5 title \"\" with linespoints lw 2 pt 8" >> $tmp_file
 printf "\n" >> $tmp_file
 
 
@@ -72,7 +72,7 @@ printf "set origin 0.75,0\n" >> $tmp_file
 printf "set size 0.25,1\n" >> $tmp_file
 printf "plot \"${java_tbl}\" index 3 using 3:5 title \"XWS\" with linespoints lw 2 pt 4, \\" >> $tmp_file
 printf "\n" >> $tmp_file
-printf "\"${c_tbl}\" index 3 using 3:5 title \"C\" with linespoints lw 2 pt 4" >> $tmp_file
+printf "\"${c_tbl}\" index 3 using 3:5 title \"C\" with linespoints lw 2 pt 8" >> $tmp_file
 printf "\n" >> $tmp_file
 
 printf "unset multiplot\n" >> $tmp_file
