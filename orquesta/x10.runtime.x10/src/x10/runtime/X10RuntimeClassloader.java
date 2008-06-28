@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 import x10.runtime.bytecode.ClassFile;
 
@@ -214,6 +213,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 					nextLocal++;
 			}
 			// FIXME: Ugh, partial abstract interpretation
+			// TODO: arrays
 			char[] stack = new char[max_stack*2+1];
 			int sp = 0;
 			for (int o = off; o < off + len; o++) {
@@ -245,33 +245,79 @@ public class X10RuntimeClassloader extends ClassLoader {
 				case BC_aload_0: case BC_aload_1: case BC_aload_2: case BC_aload_3:
 				{
 					int arg = c - BC_aload_0;
-					if (remap[1+arg] != '\0') {
-						code[o] -= atopDelta(remap[1+arg]) * 4;
-						stack[++sp] = remap[1+arg];
-					}
 					if (reassignLocals[arg] != arg) {
-						if (reassignLocals[arg] < 3)
+						if (reassignLocals[arg] <= 3)
 							code[o] = (byte)(BC_aload_0 + reassignLocals[arg]);
 						else // FIXME
 							throw new IllegalArgumentException("bytecode size change!!!");
+					}
+					if (remap[1+arg] != '\0') {
+						code[o] -= atopDelta(remap[1+arg]) * 4;
+						stack[++sp] = remap[1+arg];
 					}
 					break;
 				}
 				case BC_astore_0: case BC_astore_1: case BC_astore_2: case BC_astore_3:
 				{
 					int arg = c - BC_astore_0;
+					if (reassignLocals[arg] != arg) {
+						if (reassignLocals[arg] <= 3)
+							code[o] = (byte)(BC_astore_0 + reassignLocals[arg]);
+						else // FIXME
+							throw new IllegalArgumentException("bytecode size change!!!");
+					}
 					if (sp > 0 && stack[sp] != '\0' && stack[sp] != 'L' && stack[sp] != '[') {
-						if (remap[arg+1] == '\0')
-							remap[arg+1] = stack[sp];
+						if (remap[1+arg] == '\0')
+							remap[1+arg] = stack[sp];
 						sp--;
 					}
 					if (remap[1+arg] != '\0')
 						code[o] -= atopDelta(remap[1+arg]) * 4;
-					if (reassignLocals[arg] != arg) {
-						if (reassignLocals[arg] < 3)
-							code[o] = (byte)(BC_astore_0 + reassignLocals[arg]);
-						else // FIXME
-							throw new IllegalArgumentException("bytecode size change!!!");
+					break;
+				}
+				case BC_if_acmpeq: case BC_if_acmpne:
+				{
+					// HACK: Add padding instructions by casting the expression to boolean
+					// (e.g., "if ((boolean)(expr))" and hope javac doesn't optimize it away.
+					// With javac, that adds 8 bytes (only need 1 for lcmp/fcmp*/dcmp*).
+					// This worked on Windows with Sun 1.5, IBM 1.5, IBM 1.6.
+					// TODO: test on a Mac, Linux, and AIX (should be same, it's Java).
+					// TODO: test jikes.
+					char r = '\0';
+					if (sp > 0 && stack[sp] != '\0' && stack[sp] != 'L' && stack[sp] != '[') {
+						assert (stack[sp-1] == stack[sp]);
+						r = stack[sp];
+						sp -= 2;
+					}
+					if (r != '\0') {
+						assert ((code[o+3] & 0xFF) == BC_iconst_1
+						     && (code[o+4] & 0xFF) == BC_goto
+						     && (code[o+7] & 0xFF) == BC_iconst_0
+						     && (code[o+8] & 0xFF) == BC_ifeq);
+						switch (r) {
+						case 'I':
+						case 'B':
+						case 'C':
+						case 'S':
+						case 'Z': // FIXME: is this ok?
+							code[o] = (byte)(BC_if_icmpeq + c - BC_if_acmpeq);
+							break;
+						case 'D':
+							code[o] = (byte)BC_dcmpl;
+							for (int x = 1; x < 8; x++) code[o+x] = BC_nop;
+							code[o+8] = (byte)(BC_ifeq + c - BC_if_acmpeq);
+							break;
+						case 'F':
+							code[o] = (byte)BC_fcmpl;
+							for (int x = 1; x < 8; x++) code[o+x] = BC_nop;
+							code[o+8] = (byte)(BC_ifeq + c - BC_if_acmpeq);
+							break;
+						case 'J':
+							code[o] = (byte)BC_lcmp;
+							for (int x = 1; x < 8; x++) code[o+x] = BC_nop;
+							code[o+8] = (byte)(BC_ifeq + c - BC_if_acmpeq);
+							break;
+						}
 					}
 					break;
 				}
