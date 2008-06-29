@@ -5,7 +5,7 @@ package x10.runtime;
 
    @author vj 06/12/08
  */
-public Runtime {
+public class Runtime {
     /**
        Make a clock.
      */
@@ -15,26 +15,26 @@ public Runtime {
        Make a NativeRail[T] of length l, initializing the value at
        index i with init(i).
      */
-    public incomplete def [T] makeNativeRail(l:nat, init: nat(l-1)=>T):NativeRail[T](l);
+    public incomplete def makeNativeRail[T](l:nat, init: (nat(l-1))=>T):NativeRail[T](l);
 
     /**
        Make a NativeRail[T] of length l, initialized the value at
        index i with init.
      */
-    public incomplete def [T] makeNativeRail(l:nat, init: T):NativeRail[T](l);
+    public incomplete def makeNativeRail[T](l:nat, init: T):NativeRail[T](l);
 
     /**
        Create and return a NativeRail[T] of length l, after
        initialized the value at index i with init(i).
      */
-    public incomplete def [T] makeNativeValRail(l:nat, init: nat(l-1)=>T):NativeValRail[T](l);
+    public incomplete def makeNativeValRail[T](l:nat, init: (nat(l-1))=>T):NativeValRail[T](l);
 
 
     /**
        Create and return a NativeValRail[T] of length l, after
        initialized the value at index i with init.
      */
-    public incomplete def [T] makeNativeValRail(l:nat, init: T):NativeValRail[T](l);
+    public incomplete def makeNativeValRail[T](l:nat, init: T):NativeValRail[T](l);
 
 
     public def makeUnitRegion():region{rank==0,rect,zeroBased,!rail, !colMajor}=UnitRegion.unit;

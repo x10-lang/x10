@@ -1,20 +1,24 @@
 package x10.lang;
 
-public value float implements Arithmetic[float] {
-    public extern add(x:float):float;
-    public extern def sub(x:float):float;
-    public extern def mul(x:float):float;
-    public extern def div(x:float):float;
-    public extern def cosub(x:T):T;
-    public extern def codiv(x:T):T;
-    public extern def negiv():T;
-    public extern def muliv():T;
-    public extern def zero():T;
-    public extern def unit():T;
-    public extern def eq(y:T):boolean;
-    public extern def lt(y:T):boolean;
-    public extern def gt(y:T):boolean;
-    public extern def le(y:T):boolean;
-    public extern def ge(y:T):boolean;
-    public extern def ne(y:T):boolean;
+public value Float implements Arithmetic[Float], Comparable[Float] {
+    public extern def add(x: Float): Float;
+    public extern def sub(x: Float): Float;
+    public extern def mul(x: Float): Float;
+    public extern def div(x: Float): Float;
+    public extern def mod(x: Float): Float;
+    
+    public extern def cosub(x: Float): Float;
+    public extern def codiv(x: Float): Float;
+    public extern def neginv(): Float;
+    public extern def mulinv(): Float;
+
+    public extern def eq(y: Float): Boolean;
+    public extern def lt(y: Float): Boolean;
+    public extern def gt(y: Float): Boolean;
+    public extern def le(y: Float): Boolean;
+    public extern def ge(y: Float): Boolean;
+    public extern def ne(y: Float): Boolean;
+
+    public extern static def zero(): Float;
+    public extern static def unit(): Float;
 }

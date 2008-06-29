@@ -23,26 +23,23 @@ package x10.lang;
  */
 
 public abstract value Array[T](dist: Dist, region: Region, rank: nat) 
-    extends Indexable[T](region), Settable[T](region), 
-	    Arithmetic[Array[T]{dist=this.dist}] if T <: Arithmetic[T] {
+    implements Indexable[T](region), Settable[T](region), 
+	    Arithmetic[Array[T]{dist=this.dist}] /* if T <: Arithmetic[T] */ {
 
-    public static def make(d :Dist, maker: (Point => T)):
-	Array[T]{dist==d, region==d.region, rank==d.rank}
-       = Runtime.makeArray[T](dist, maker);
+    public static def make[T](d: Dist, maker: ((Point) => T)): Array[T]{dist==d, region==d.region, rank==d.rank} = Runtime.makeArray[T](dist, maker);
 
     val pieces: DistRail[Rail[T]{current}];
-    protected def this(d :Dist, maker: (Point => T)): 
+    
+    protected def this(d :Dist, maker: ((Point) =>T)): 
 	Array[T]{dist==d, region==d.region, rank==d.rank} = {
 	    property(dist, dist.region, dist.rank);
 	    // for any distribution d, d.backbone is the unique distribution 
 	    // over the set of places in the range of d.
 	    val u: dist{unique} = d.backbone();
-	    pieces = DistRail[Rail[T]{current}].make(u, 
-						     (pt: Point)=> { 
-							 val n: nat = (d | here).size();
-							 new Rail[T](n, 
-								     (pt : nat(n)) => maker(dist.coord(here, pt)))
-						     });
+	    pieces = DistRail.make[Rail[T]{current}](u, 
+						     (pt: Point) => { 
+							     val n: nat = (d | here).size();
+							     new Rail[T](n, (pt: nat(n)) => maker(dist.coord(here, pt))) });
 	}
 
     /**
@@ -53,7 +50,7 @@ public abstract value Array[T](dist: Dist, region: Region, rank: nat)
        other recourse.
      */
 
-    public abstract def view(r: Region{region contains r)):Array[T]{dist==this.dist | r};
+    public abstract def view(r: Region{r in region}):Array[T]{dist==this.dist | r};
 
     /**
        Returns a Rail r representing the underlying memory used to
@@ -93,11 +90,11 @@ public abstract value Array[T](dist: Dist, region: Region, rank: nat)
 
     public def rawIterate(f: (nat, T)=>T) = {
 	val rail = rawLocalView();
-	for (int i=0; i < rail.length; i++) 
+	for (var i: int = 0; i < rail.length; i++)
 	    rail(i)=f(i, rail(i));
     }
     public def rawIterate(f: (nat) => T)=rawIterate((nat, T)=>f(p));
-    public def rawIterate(f: () => T) = rawIterate((nat, T) => f())
+    public def rawIterate(f: () => T) = rawIterate((nat, T) => f());
 
 
 
@@ -108,10 +105,10 @@ public abstract value Array[T](dist: Dist, region: Region, rank: nat)
      * iterators rather than individual accessors.
 
      */
-    public get(point : point(region)):T = {
-	var p = dist(point);
+    public def get(point : point(region)):T = {
+	val p = dist(point);
 	// using the async expression syntax here. 
-	p==here ? localGet(point) : async (p) localGet(point);
+	p==here ? localGet(point) : async (p) localGet(point)
     }
 
     /** Set the value at this point in the array. Throws a
@@ -119,11 +116,10 @@ public abstract value Array[T](dist: Dist, region: Region, rank: nat)
      * is an expensive operation and should only be used with great
      * care. The programmer should attempt to write the code using
      * iterators rather than individual accessors.
-
      */
-    public set(pt : point(region), t: T) = set(pt, (point(region), T)=> t);
-    public set(pt : point(region), f: (point(region),T)=> T) = {
-	var p = dist(point);
+    public def set(pt : point(region), t: T) = set(pt, (point(region), T)=> t);
+    public def set(pt : point(region), f: (point(region),T)=> T) = {
+	val p = dist(point);
 	if (p==here) {
 	    localSet(point, f);
 	} else {
@@ -133,15 +129,14 @@ public abstract value Array[T](dist: Dist, region: Region, rank: nat)
 
     /**
        Given a point pt (which is mapped by dist to the current
-       place), set this(pt) to f(pt, this(pt)).
-
+       place), set this(pt) to f(pt, this(pt)).l
      */
-    public abstract def localSet(pt: point(dist(here)), f:(point(dst(here)), T=>T): void;
+    public abstract def localSet(pt: point(dist(here)), f:(point(dst(here)), T)=>T): void;
 
 
-
+/*
 	
-    final ObjectRail Rail[T]{current}] pieces;
+    val pieces: ObjectRail[Rail[T]{current}];
 
 	public Array(:dist==_dist && region==_dist.region && rank==_dist.rank) 
 	            (final dist _dist, final ObjectRailMaker maker) {
@@ -149,6 +144,6 @@ public abstract value Array[T](dist: Dist, region: Region, rank: nat)
 
 		
 	}
-
+*/
 
 }
