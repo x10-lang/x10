@@ -16,5 +16,5 @@ package can reference it.
 @author vj 06/10/08
 */
 
-interface NativeValRail[T](length: int) extends NativeAbsRail[T](length), Value {
+interface NativeValRail extends NativeAbsRail, Value {
 }

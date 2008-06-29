@@ -1,7 +1,6 @@
 package x10.lang;
 
 abstract class TypeDefs {
-
     static type boolean = Boolean;
     static type byte = Byte;
     static type short = Short;
@@ -20,8 +19,8 @@ abstract class TypeDefs {
     static type int64 = long;
     static type nat63 = long{self>=0};
 
-    static type true = boolean{self==true};
-    static type false = boolean{self==false};
+//    static type true = boolean{self==true};
+//    static type false = boolean{self==false};
 
     static type nat = int{self >= 0};
     static type nat(v: int) = nat{self == v};
@@ -59,9 +58,6 @@ abstract class TypeDefs {
     static type NativeRail[T](x: nat)= NativeRail[T]{self.length==x};
 
     static type point = ValRail[int];
-    static type point(n: nat) = point{self.length==n);
+    static type point(n: nat) = point{self.length==n};
     static type point(r: region) = point{self in r};
-
-
-
 }

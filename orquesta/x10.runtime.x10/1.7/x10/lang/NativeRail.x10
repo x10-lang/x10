@@ -42,6 +42,6 @@ Note: This interface is package protected.
 
 @author vj 06/10/08
 */
-import static TypeDefs.*;
+import TypeDefs.*;
 
-interface NativeRail[T](length:int) extends NativeAbsRail[T](length), Settable[T](0..length-1) {}
+interface NativeRail extends NativeAbsRail, Settable[Int,Range[Int](0,length-1),T] {}

@@ -26,11 +26,11 @@ geq zero and leq diagonal (if any).
 * @author vj
 */
 
-public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boolean, 
-			     colMajor:boolean) implements Iterable[point], Contains[point], ContainsAll[region{self.rank==this.rank}] {
+public abstract value Region(rank:int, rect:boolean, zeroBased:boolean, rail:boolean, 
+			     colMajor:boolean) implements Iterable[point], Contains[point], ContainsAll[Region{rank==this.rank}] {
 
-    public region(_rank: nat, _rect: boolean, _zeroBased: boolean, _rail: boolean, 
-		  _colMajor: boolean): region{rank==_rank, zeroBased=_zeroBased, rail==_rail,
+    public def this(_rank: nat, _rect: boolean, _zeroBased: boolean, _rail: boolean, 
+		  _colMajor: boolean): Region{rank==_rank, zeroBased=_zeroBased, rail==_rail,
 					      colMajor=_colMajor} = 
     {
 	property(_rank, _rect, _zerobased, _rail,_colMajor);
@@ -50,7 +50,7 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
 
      @throws UnsupportedOperationException -- if the region is empty
     */
-    public def proj(index :nat(1..rank)): region{rank==1} throws UnsupportedOperationException;
+    public def proj(index :nat(1..rank)): Region{rank==1} throws UnsupportedOperationException;
 
     /**
      * Returns true iff the region contains every point between two
@@ -63,32 +63,32 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
      * size of the region is 0.
      * @throws UnsupportedOperationException -- if the region is empty or there is no least point.
      */
-    public abstract def low(index : nat(1..rank)) throws UnsupportedOperationException;
+    public abstract def low(index : nat(1..rank)): int throws UnsupportedOperationException;
 
     /**
      * Return the high bound for the index'th dimension, if it exists, else
      * throws UnsupportedOperationException. 
      * @throws UnsupportedOperationException -- if the region is empty or there is no highest point.
      */
-    public abstract def high(index : nat(1..rank)) throws UnsupportedOperationException;
+    public abstract def high(index : nat(1..rank)): int throws UnsupportedOperationException;
 
     /**
        Return the minimum point in this region, if there is one.
        If there isn't, throw an UnsupportedOperationException.
      */
-    public abstract def min() throws UnsupportedOperationException;
+    public abstract def min(): Point throws UnsupportedOperationException;
 
     /**
        Return the minimum point in this region, if there is one.
        If there isn't, throw an UnsupportedOperationException.
      */
-    public abstract def max() throws UnsupportedOperationException;
+    public abstract def max(): Point throws UnsupportedOperationException;
 
-    public abstract def union(r: region{rank==this.rank}):region{rank==this.rank};
-    public abstract def intersection(r: region{rank==this.rank}):region{rank==this.rank};
-    public abstract def difference(r: region{rank==this.rank}):region{rank==this.rank};
-    public abstract def convexHull(r: region{rank==this.rank}):region{rank==this.rank};
-    public abstract def disjoint(r: region{rank==this.rank}):boolean;
+    public abstract def union(r: Region{rank==this.rank}):Region{rank==this.rank};
+    public abstract def intersection(r: Region{rank==this.rank}):Region{rank==this.rank};
+    public abstract def difference(r: Region{rank==this.rank}):Region{rank==this.rank};
+    public abstract def convexHull(r: Region{rank==this.rank}):Region{rank==this.rank};
+    public abstract def disjoint(r: Region{rank==this.rank}):boolean;
 
     /**
        The product this * r of regions is a region of rank this.rank +
@@ -99,14 +99,14 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
        Currently defined only for rectangular regions, hence returns a
        rectangular region.
      */
-    public abstract def product(r: region{rect}){this.rect}:region{rect,rank=this.rank+r.rank};
+    public abstract def product(r: Region{rect}){this.rect}:Region{rect,rank=this.rank+r.rank};
 
-    public def product(regions: ValRail[region{rect}]){this.rect}: region{rect}= {
+    public def product(regions: ValRail[Region{rect}]){this.rect}: Region{rect}= {
 	val n = regions.length;
 	if (n == 0) return this;
 	if (n == 1) return product(regions(0));
-	var r = regions(n-1);
-	for (int i = n-2; i >= 0; i--) { 
+	var r: Region{rect} = regions(n-1);
+	for (var i: int = n-2; i >= 0; i--) { 
 	    r = regions(i).product(r);
 	}
 	product(r)
@@ -122,19 +122,19 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
 	Does every point in r lie in this region? 
 	Intended to be overridden by subclasses representing non-full regions. 
     */
-    public def contains(r :region{rank==this.rank}):boolean = containsAll(r);
-    public abstract def containsAll(r :region{rank==this.rank}):boolean;
+    public def contains(r :Region{rank==this.rank}):boolean = containsAll(r);
+    public abstract def containsAll(r :Region{rank==this.rank}):boolean;
 
     /**
      * Returns true iff the set of points in r and this are equal.
      */
-    public def equals(r :region{rank==this.rank}):boolean = contains(r)&& r.contains(this);
+    public def equals(r :Region{rank==this.rank}):boolean = contains(r)&& r.contains(this);
 
     /**
      * @param p a point in the coordinate space
      * @return the ordinal number of the point [0 ... size()]
      */
-    public abstract def ordinal(p: point(this));
+    public abstract def ordinal(p: point(this)): nat;
 
     public def coord(ord: nat):point{length==rank} throws ArrayIndexOutofBoundsException = {
 	if (ord > size()) throw new ArrayIndexOutOfBoundsException();
@@ -163,7 +163,7 @@ public abstract value region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
     /**
        Make the unique unit region.
      */
-    public static def makeUnitRegion(): region{rank==0, rect, zeroBased, !rail, !colMajor} = unitRegion;
-    public static val unitRegion = Runtime.makeUnitRegion();
+    public static def makeUnitRegion(): Region{rank==0, rect, zeroBased, !rail, !colMajor} = unitRegion;
+    public const unitRegion = Runtime.makeUnitRegion();
 }
 

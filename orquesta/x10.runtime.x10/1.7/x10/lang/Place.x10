@@ -49,7 +49,7 @@ public abstract value Place(id: Nat) {
     public static def maxPlaces() = places().length;
     public static def first() = places()(0);
     public static def last() = places()(length-1);
-    public static def places(f :nat=>boolean) = places().filter(f);
+    public static def places(f: (nat)=>boolean) = places().filter(f);
     public static def places()=Runtime.runtime.places();
 
     public def next(k :int) = places(k+id % places.length);

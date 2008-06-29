@@ -1,20 +1,24 @@
 package x10.lang;
 
-public value int implements Arithmetic[int] {
-    public extern add(x:int):int;
-    public extern def sub(x:int):int;
-    public extern def mul(x:int):int;
-    public extern def div(x:int):int;
-    public extern def cosub(x:T):T;
-    public extern def codiv(x:T):T;
-    public extern def negiv():T;
-    public extern def muliv():T;
-    public extern def zero():T;
-    public extern def unit():T;
-    public extern def eq(y:T):boolean;
-    public extern def lt(y:T):boolean;
-    public extern def gt(y:T):boolean;
-    public extern def le(y:T):boolean;
-    public extern def ge(y:T):boolean;
-    public extern def ne(y:T):boolean;
+public value Int implements Arithmetic[Int], Comparable[Int], BitString[Int] {
+    public extern def add(x: Int): Int;
+    public extern def sub(x: Int): Int;
+    public extern def mul(x: Int): Int;
+    public extern def div(x: Int): Int;
+    public extern def mod(x: Int): Int;
+    
+    public extern def cosub(x: Int): Int;
+    public extern def codiv(x: Int): Int;
+    public extern def neginv(): Int;
+    public extern def mulinv(): Int;
+
+    public extern static def zero(): Int;
+    public extern static def unit(): Int;
+
+    public extern def eq(y: Int): Boolean;
+    public extern def lt(y: Int): Boolean;
+    public extern def gt(y: Int): Boolean;
+    public extern def le(y: Int): Boolean;
+    public extern def ge(y: Int): Boolean;
+    public extern def ne(y: Int): Boolean;
 }

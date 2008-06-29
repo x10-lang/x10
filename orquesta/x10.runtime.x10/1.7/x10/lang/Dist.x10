@@ -7,9 +7,9 @@ package x10.lang;
 
    @author vj, 06/14/08
  */
-public class Dist(region: Region, unique: Boolean){unique => region.rail} {
+public class Dist(region: Region, unique: Boolean) /* {unique => region.rail} */ {
     
-    protected def this(r: Region, u: Boolean) {
+    protected def this(r: Region, u: Boolean): Dist(r, u) = {
 	property(r,u);
     }
     /**
@@ -43,7 +43,7 @@ public class Dist(region: Region, unique: Boolean){unique => region.rail} {
 
      */
     var backbone:Dist(unique);
-    public def backbone(): Dist{unique} {
+    public def backbone(): Dist{unique} = {
 	if (var != null) return backbone;
 	backbone = Dist.makeUnique(places());
     }

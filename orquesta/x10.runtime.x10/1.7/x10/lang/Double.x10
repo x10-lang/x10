@@ -1,20 +1,24 @@
 package x10.lang;
 
-public value double implements Arithmetic[double] {
-    public extern add(x:double):double;
-    public extern def sub(x:double):double;
-    public extern def mul(x:double):double;
-    public extern def div(x:double):double;
-    public extern def cosub(x:T):T;
-    public extern def codiv(x:T):T;
-    public extern def negiv():T;
-    public extern def muliv():T;
-    public extern def zero():T;
-    public extern def unit():T;
-    public extern def eq(y:T):boolean;
-    public extern def lt(y:T):boolean;
-    public extern def gt(y:T):boolean;
-    public extern def le(y:T):boolean;
-    public extern def ge(y:T):boolean;
-    public extern def ne(y:T):boolean;
+public value Double implements Arithmetic[Double], Comparable[Double] {
+    public extern def add(x: Double): Double;
+    public extern def sub(x: Double): Double;
+    public extern def mul(x: Double): Double;
+    public extern def div(x: Double): Double;
+    public extern def mod(x: Double): Double;
+    
+    public extern def cosub(x: Double): Double;
+    public extern def codiv(x: Double): Double;
+    public extern def neginv(): Double;
+    public extern def mulinv(): Double;
+
+    public extern def eq(y: Double): Boolean;
+    public extern def lt(y: Double): Boolean;
+    public extern def gt(y: Double): Boolean;
+    public extern def le(y: Double): Boolean;
+    public extern def ge(y: Double): Boolean;
+    public extern def ne(y: Double): Boolean;
+
+    public extern static def zero(): Double;
+    public extern static def unit(): Double;
 }
