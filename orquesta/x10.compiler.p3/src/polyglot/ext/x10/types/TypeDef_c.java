@@ -8,6 +8,7 @@ import polyglot.types.Flags;
 import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -16,7 +17,7 @@ import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
 
 public class TypeDef_c extends Def_c implements TypeDef {
-	protected Ref<? extends ReferenceType> container;
+	protected Ref<? extends StructType> container;
 	protected Flags flags;
 	protected String name;
 	protected Ref<? extends Package> package_;
@@ -27,7 +28,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected Ref<? extends Type> type;
 	protected Type asType;
 	
-	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, String name, Ref<? extends ReferenceType> container, List<Ref<? extends Type>> typeParams,
+	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, String name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
 			List<String> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> whereClause, Ref<? extends Type> type) {
 
 		super(ts, pos);
@@ -87,7 +88,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.types.TypeDef#container()
 	 */
-	public Ref<? extends ReferenceType> container() {
+	public Ref<? extends StructType> container() {
 		return container;
 	}
 
@@ -122,7 +123,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.types.TypeDef#setContainer(polyglot.types.Ref)
 	 */
-	public void setContainer(Ref<? extends ReferenceType> container) {
+	public void setContainer(Ref<? extends StructType> container) {
 		this.container = container;
 	}
 

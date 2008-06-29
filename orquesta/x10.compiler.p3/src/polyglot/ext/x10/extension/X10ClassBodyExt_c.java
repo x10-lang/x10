@@ -407,7 +407,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                    if (memberMI.name().equals(targetName))
                       return memberMI;
                    }
-                   currentClass = (ClassType_c)currentClass.superType();
+                   currentClass = (ClassType_c)currentClass.superClass();
                 }
                 /* now start looking in the interfaces...*/ 
                 if(trace) System.out.println("Search the interfaces....");
@@ -427,7 +427,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                             return memberMI;
                       }
                    }
-                   currentClass = (ClassType_c)currentClass.superType();
+                   currentClass = (ClassType_c)currentClass.superClass();
                 }
 		return null;
         }
@@ -516,7 +516,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					if (arrayDescriptorMI != null && (backingArrayMI !=null)){
 						doneSearch = true;
 					}
-					currentClass = (ClassType_c)currentClass.superType();
+					currentClass = (ClassType_c)currentClass.superClass();
 				}
 				if (null == arrayDescriptorMI) 
 					throw new Error("Could not find "+descriptorName+" in class "+ ct.fullName());

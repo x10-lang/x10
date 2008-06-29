@@ -6,6 +6,7 @@ import polyglot.types.Flags;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject_c;
 import polyglot.types.Types;
@@ -31,9 +32,9 @@ public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 		return "type " + name;
 	}
 	
-	Type asType = null;
+	PathType asType = null;
 	
-	public Type asType() {
+	public PathType asType() {
 		if (asType == null) {
 			asType = new PathType_c(ts, position, XSelf.Self, Types.get(container()), this);
 		}
@@ -66,7 +67,7 @@ public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 		return variance;
 	}
 
-	public Ref<? extends ReferenceType> container() {
+	public Ref<? extends StructType> container() {
 		return container;
 	}
 
@@ -74,7 +75,7 @@ public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 		return Flags.PUBLIC.Final();
 	}
 
-	public void setContainer(Ref<? extends ReferenceType> container) {
+	public void setContainer(Ref<? extends StructType> container) {
 		this.container = (Ref<? extends X10ClassType>) container;
 	}
 

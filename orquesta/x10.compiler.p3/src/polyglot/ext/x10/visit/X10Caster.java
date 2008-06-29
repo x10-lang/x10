@@ -404,7 +404,7 @@ public class X10Caster extends AscriptionVisitor {
 		
 
 		public TypeNode getToTypeRootType(X10CastInfo castOrInstanceof) {
-			Type baseType = X10TypeMixin.xclause(castOrInstanceof.getTypeNode().type(), null);
+			Type baseType = X10TypeMixin.xclause(castOrInstanceof.getTypeNode().type(), (XConstraint) null);
 //			if (((X10TypeSystem) ts).isNullable(baseType)) {
 //				baseType = ((NullableType) baseType).base();
 //			}

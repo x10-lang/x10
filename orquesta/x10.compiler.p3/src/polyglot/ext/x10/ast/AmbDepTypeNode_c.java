@@ -220,7 +220,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         			throw new SemanticException(e.getMessage(), position());
         		}
         	}
-        	t = X10TypeMixin.xclause(ct, null);
+        	t = X10TypeMixin.xclause(ct, (XConstraint) null);
         }
         
 //        if (ts.typeEquals(t, ts.Box())) {

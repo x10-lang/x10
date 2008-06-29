@@ -3,7 +3,7 @@
 %options la=6
 %options variables=nt
 %options conflicts
---%options softkeywords
+%options softkeywords
 %options package=x10.parser
 %options template=btParserTemplate.gi
 %options import_terminals="X10Lexer.gi"
@@ -80,6 +80,7 @@
     import polyglot.ext.x10.ast.X10Formal;
     import polyglot.ext.x10.ast.X10Formal_c;
     import polyglot.ext.x10.ast.X10Loop;
+    import polyglot.ext.x10.ast.X10Call;
     import polyglot.ext.x10.ast.ConstantDistMaker;
     import polyglot.ext.x10.ast.TypeDecl;
     import polyglot.ext.x10.ast.TypeParamNode;
@@ -256,6 +257,7 @@
     if
     implements
     import
+    incomplete
     instanceof
     interface
     local
@@ -269,6 +271,7 @@
     package
     private
     protected
+    property
     public
     return
     safe
@@ -289,6 +292,79 @@
     val
     value
     var
+    volatile
+    when
+    while
+%End
+
+%SoftKeywords
+    abstract
+    as
+    assert
+    async
+    ateach
+    atomic
+    await
+    break
+    case
+    catch
+    class
+    clocked
+    const
+    continue
+    def
+    default
+    do
+    else
+    extends
+    extern
+    false
+    final
+    finally
+    finish
+    for
+    foreach
+    goto
+    has
+    here
+    if
+    implements
+    import
+    incomplete
+    instanceof
+    interface
+    local
+    native
+    new
+    next
+    nonblocking
+    now
+    null
+    or
+    package
+    private
+    protected
+    property
+    public
+    return
+    safe
+    self
+    sequential
+    static
+    strictfp
+--    super
+    switch
+--    this
+    throw
+    throws
+    transient
+    true
+    try
+    type
+    unsafe
+--    val
+    value
+--    var
     volatile
     when
     while
@@ -771,12 +847,6 @@
 %End
 
 %Rules
-    PackageDeclaration ::= package PackageName ;
-        /.$BeginJava
-                    setResult(PackageName.toPackage());
-          $EndJava
-        ./
-
     TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
         /.$BeginJava
                     FlagsNode f = extractFlags(TypeDefModifiersopt);
@@ -802,23 +872,7 @@
           $EndJava
         ./
         
-    NormalClassDeclaration ::= ClassModifiersopt class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
-        /.$BeginJava
-          checkTypeName(Identifier);
-          List/*<PropertyDecl>*/ props = Propertiesopt;
-          DepParameterExpr ci = WhereClauseopt;
-          FlagsNode f = extractFlags(ClassModifiersopt);
-          List annotations = extractAnnotations(ClassModifiersopt);
-          ClassDecl cd = X10Flags.isValue(f.flags())
-             ? nf.ValueClassDecl(pos(),
-                  f, Identifier, TypePropertiesopt, props, ci, Superopt, Interfacesopt, ClassBody)
-             : nf.X10ClassDecl(pos(),
-                  f, Identifier, TypePropertiesopt, props, ci, Superopt, Interfacesopt, ClassBody);
-          cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(annotations);
-          setResult(cd);
-          $EndJava
-        ./
-
+        
     Properties ::= ( PropertyList )
       /.$BeginJava
        setResult(PropertyList);
@@ -846,6 +900,20 @@
 
     MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
         /.$BeginJava
+           if (Identifier.id().equals("this")) {
+                       ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
+                                                 extractFlags(MethodModifiersopt),
+                                                 nf.Id(pos(3), "this"),
+                                                 ResultTypeopt,
+                                                 TypeParametersopt,
+                                                 FormalParameters,
+                                                 WhereClauseopt,
+                                                 Throwsopt,
+                                                 MethodBody);
+         cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(MethodModifiersopt));
+         setResult(cd);
+              }
+              else {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
               
@@ -858,6 +926,7 @@
               MethodBody);
           md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
           setResult(md);
+          }
           $EndJava
         ./
 
@@ -944,9 +1013,9 @@
           $EndJava
         ./
 
-    ClassType ::= ClassOrInterfaceType
-    InterfaceType ::= ClassOrInterfaceType
-           
+    ClassType ::= NamedType
+    InterfaceType ::= FunctionType | NamedType | ( Type )
+    
     AnnotatedType ::= Type Annotations
         /.$BeginJava
                     TypeNode tn = Type;
@@ -955,7 +1024,7 @@
           $EndJava
         ./
 
-    ConstrainedType ::=  ClassOrInterfaceType
+    ConstrainedType ::=  NamedType
            | AnnotatedType
            | ( Type )
         /.$BeginJava
@@ -982,7 +1051,7 @@
 --                              | + Type
 --                              | - Type
                               
-    ClassOrInterfaceType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt 
+    NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt 
         /.$BeginJava
                 TypeNode type;
                 
@@ -1090,11 +1159,29 @@
 
     ------------------------------------- Section ::: Classes
     ClassDeclaration ::= ValueClassDeclaration
+                       | NormalClassDeclaration
+        
+    NormalClassDeclaration ::= ClassModifiersopt class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+        /.$BeginJava
+          checkTypeName(Identifier);
+          List/*<PropertyDecl>*/ props = Propertiesopt;
+          DepParameterExpr ci = WhereClauseopt;
+          FlagsNode f = extractFlags(ClassModifiersopt);
+          List annotations = extractAnnotations(ClassModifiersopt);
+          ClassDecl cd = X10Flags.isValue(f.flags())
+             ? nf.ValueClassDecl(pos(),
+                  f, Identifier, TypePropertiesopt, props, ci, Superopt, Interfacesopt, ClassBody)
+             : nf.X10ClassDecl(pos(),
+                  f, Identifier, TypePropertiesopt, props, ci, Superopt, Interfacesopt, ClassBody);
+          cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(annotations);
+          setResult(cd);
+          $EndJava
+        ./
 
-    ValueClassDeclaration ::= ClassModifiersopt value Identifier TypePropertiesopt PropertyListopt WhereClauseopt Superopt Interfacesopt ClassBody
+    ValueClassDeclaration ::= ClassModifiersopt value Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
         /.$BeginJava
         checkTypeName(Identifier);
-        List props = PropertyListopt;
+        List props = Propertiesopt;
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = (nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
         extractFlags(ClassModifiersopt), Identifier, 
@@ -1103,10 +1190,10 @@
         setResult(cd);
           $EndJava
         ./
-      | ClassModifiersopt value class Identifier TypePropertiesopt PropertyListopt WhereClauseopt Superopt Interfacesopt ClassBody
+      | ClassModifiersopt value class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
         /.$BeginJava
                     checkTypeName(Identifier);
-        List props = PropertyListopt;
+        List props = Propertiesopt;
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = (nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
                                     extractFlags(ClassModifiersopt), Identifier, 
@@ -1251,6 +1338,23 @@
     
     ExpressionStatement ::= StatementExpression ;
         /.$BeginJava
+                    boolean eval = true;
+                    if (StatementExpression instanceof X10Call) {
+                        X10Call c = (X10Call) StatementExpression;
+                        if (c.name().id().equals("property") && c.target() == null) {
+                            setResult(nf.AssignPropertyCall(c.position(),c.typeArguments(), c.arguments()));
+                            eval = false;
+                        }
+                        if (c.name().id().equals("super") && c.target() instanceof Expr) {
+                            setResult(nf.X10SuperCall(c.position(), (Expr) c.target(), c.typeArguments(), c.arguments()));
+                            eval = false;
+                       }
+                       if (c.name().id().equals("this") && c.target() instanceof Expr) {
+                            setResult(nf.X10ThisCall(c.position(), (Expr) c.target(), c.typeArguments(), c.arguments()));
+                            eval = false;
+                       }
+                    }
+                        
                     setResult(nf.Eval(pos(), StatementExpression));
           $EndJava
         ./
@@ -1371,7 +1475,6 @@
                               | StatementExpressionList , StatementExpression
         /.$BeginJava
                     StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
-                    //setResult(StatementExpressionList);
           $EndJava
         ./
     
@@ -1659,15 +1762,7 @@
           $EndJava
         ./
 
-    Primary ::= FutureExpression
-
     RegionExpression ::= Expression
-                       | Expression$expr1 .. Expression$expr2
-        /.$BeginJava
-                    Call regionCall = nf.RegionMaker(pos(), expr1, expr2);
-                    setResult(regionCall);
-          $EndJava
-        ./
 
     RegionExpressionList ::= RegionExpression
         /.$BeginJava
@@ -1705,7 +1800,6 @@
               ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt, Throwsopt, ClosureBody));
           $EndJava
         ./
-                       | CastExpression
                        
     LastExpression ::= Expression
         /.$BeginJava
@@ -1713,9 +1807,9 @@
           $EndJava
         ./
 
-    ClosureBody ::= ClosureExpression
+    ClosureBody ::= CastExpression
         /.$BeginJava
-                    setResult(nf.Block(pos(), nf.X10Return(pos(), ClosureExpression, true)));
+                    setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
           $EndJava
         ./
                   | { BlockStatementsopt LastExpression }
@@ -1727,6 +1821,27 @@
           $EndJava
         ./
                   | Block
+
+    AsyncExpression ::= async ClosureBody
+        /.$BeginJava
+                    setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
+          $EndJava
+        ./
+                       | async PlaceExpressionSingleList ClosureBody
+        /.$BeginJava
+                    setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
+          $EndJava
+        ./
+                       | async '[' Type ']' ClosureBody
+        /.$BeginJava
+                    setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
+          $EndJava
+        ./
+                       | async '[' Type ']' PlaceExpressionSingleList ClosureBody
+        /.$BeginJava
+                    setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
+          $EndJava
+        ./
 
     FutureExpression ::= future ClosureBody
         /.$BeginJava
@@ -1988,6 +2103,13 @@
         ./
 
     PackageDeclaration ::= Annotationsopt package PackageName ;
+        /.$BeginJava
+                    PackageNode pn = PackageName.toPackage();
+                    pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
+                    setResult(pn);
+          $EndJava
+        ./
+    
 
     ImportDeclaration ::= SingleTypeImportDeclaration
                         | TypeImportOnDemandDeclaration
@@ -2022,8 +2144,6 @@
         ./
 
     -- Chapter 8
-
-    ClassDeclaration ::= NormalClassDeclaration
 
     ClassModifiers ::= ClassModifier
         /.$BeginJava
@@ -2142,16 +2262,16 @@
           $EndJava
         ./
 
-    InterfaceTypeList ::= InterfaceType
+    InterfaceTypeList ::= Type
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), TypeNode.class, false);
-                    l.add(InterfaceType);
+                    l.add(Type);
                     setResult(l);
           $EndJava
         ./
-                        | InterfaceTypeList , InterfaceType
+                        | InterfaceTypeList , Type
         /.$BeginJava
-                    InterfaceTypeList.add(InterfaceType);
+                    InterfaceTypeList.add(Type);
                     setResult(InterfaceTypeList);
           $EndJava
         ./
@@ -2201,6 +2321,13 @@
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(MethodDeclaration);
+                    setResult(l);
+          $EndJava
+        ./
+                             | TypeDefDeclaration
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add(TypeDefDeclaration);
                     setResult(l);
           $EndJava
         ./
@@ -2301,6 +2428,11 @@
                     | private
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
+          $EndJava
+        ./
+                    | static
+        /.$BeginJava
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
           $EndJava
         ./
                     | transient
@@ -2501,6 +2633,16 @@
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
           $EndJava
         ./
+                     | incomplete
+        /.$BeginJava
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
+          $EndJava
+        ./
+                     | property
+        /.$BeginJava
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
+          $EndJava
+        ./
 
     
     Throws ::= throws ExceptionTypeList
@@ -2519,7 +2661,6 @@
                         | ExceptionTypeList , ExceptionType
         /.$BeginJava
                     ExceptionTypeList.add(ExceptionType);
-                    // setResult(ExceptionTypeList);
           $EndJava
         ./
     
@@ -2698,17 +2839,16 @@
           $EndJava
         ./
     
-    ExtendsInterfaces ::= extends InterfaceType
+    ExtendsInterfaces ::= extends Type
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), TypeNode.class, false);
-                    l.add(InterfaceType);
+                    l.add(Type);
                     setResult(l);
           $EndJava
         ./
-                        | ExtendsInterfaces , InterfaceType
+                        | ExtendsInterfaces , Type
         /.$BeginJava
-                    ExtendsInterfaces.add(InterfaceType);
-                    // setResult(ExtendsInterfaces);
+                    ExtendsInterfaces.add(Type);
           $EndJava
         ./
     
@@ -2769,9 +2909,9 @@
           $EndJava
         ./
     
-    Annotation ::= @ InterfaceType
+    Annotation ::= @ NamedType
         /.$BeginJava
-                    setResult(nf.AnnotationNode(pos(), InterfaceType));
+                    setResult(nf.AnnotationNode(pos(), NamedType));
           $EndJava
         ./
     
@@ -3495,8 +3635,16 @@
           $EndJava
         ./
     
+    RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+        /.$BeginJava
+                    Call regionCall = nf.RegionMaker(pos(), expr1, expr2);
+                    setResult(regionCall);
+          $EndJava
+        ./
+    
     RelationalExpression ::= ShiftExpression
                            | SubtypeConstraint
+                           | RangeExpression
                            | RelationalExpression < ShiftExpression
         /.$BeginJava
                     setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
@@ -3522,12 +3670,11 @@
                     setResult(nf.Instanceof(pos(), RelationalExpression, Type));
           $EndJava
         ./
---                           | RelationalExpression in ShiftExpression
---        /.$BeginJava
---                    setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
---          $EndJava
---        ./
-        
+                           | RelationalExpression in ShiftExpression
+        /.$BeginJava
+                    setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
+          $EndJava
+        ./
     
     EqualityExpression ::= RelationalExpression
                          | EqualityExpression == RelationalExpression
@@ -3576,25 +3723,37 @@
           $EndJava
         ./
     
+    
     ConditionalExpression ::= ConditionalOrExpression
+                            | ClosureExpression
+                            | FutureExpression
+                            | AsyncExpression
                             | ConditionalOrExpression ? Expression : ConditionalExpression
         /.$BeginJava
                     setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
           $EndJava
         ./
     
-    AssignmentExpression ::= ClosureExpression
-                           | Assignment
+    AssignmentExpression ::= Assignment
+                           | CastExpression
     
     Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
         /.$BeginJava
                     setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
-                 | ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+                 | ExpressionName$e1 ( Expression , ArgumentList ) AssignmentOperator AssignmentExpression
         /.$BeginJava
-                 //   setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
-                    setResult(nf.Assign(pos(), nf.X10ArrayAccess(pos(), e1.toExpr(), ArgumentList), AssignmentOperator, AssignmentExpression));
+        // TODO: change to Settable interface rather than array access
+                    List l = new ArrayList();
+                    l.add(Expression);
+                    l.addAll(ArgumentList);
+                    setResult(nf.Assign(pos(), nf.X10ArrayAccess(pos(), e1.toExpr(), l), AssignmentOperator, AssignmentExpression));
+          $EndJava
+        ./
+                 | ExpressionName$e1 ( Expression ) AssignmentOperator AssignmentExpression
+        /.$BeginJava
+                    setResult(nf.Assign(pos(), nf.X10ArrayAccess1(pos(), e1.toExpr(), Expression), AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
     
@@ -3919,8 +4078,8 @@
     polyglot.ast.Lit ::= Literal
     TypeNode ::= Type
     TypeNode ::= AnnotatedType
-    TypeNode ::= ClassOrInterfaceType
-    TypeNode ::= ClassType | InterfaceType
+    TypeNode ::= NamedType
+    TypeNode ::= ClassType
     Name ::= SimpleName
     PackageNode ::= PackageDeclarationopt | PackageDeclaration
     List ::= ImportDeclarationsopt | ImportDeclarations
@@ -3959,7 +4118,7 @@
     'Object[]' ::= FormalDeclarator
     'Object[]' ::= FieldDeclarator
     Expr ::= VariableInitializer
-    MethodDecl ::= MethodDeclaration 
+    ClassMember ::= MethodDeclaration 
     List ::= FormalParameterListopt | FormalParameterList 
     List ::= FormalParametersopt | FormalParameters 
     List ::= ExistentialListopt | ExistentialList 
@@ -4023,7 +4182,7 @@
     Unary ::= PostIncrementExpression | PostDecrementExpression
     Expr ::= UnaryExpression | UnaryExpressionNotPlusMinus
     Unary ::= PreIncrementExpression | PreDecrementExpression
-    Cast ::= CastExpression
+    Expr ::= CastExpression
     Expr ::= MultiplicativeExpression | AdditiveExpression
     Expr ::= ShiftExpression | RelationalExpression | EqualityExpression
     Expr ::= AndExpression | ExclusiveOrExpression | InclusiveOrExpression
@@ -4081,6 +4240,7 @@
            | PlaceExpressionSingleList
     Stmt ::= AssignPropertyCall
     Future ::= FutureExpression
+    Expr ::= AsyncExpression
     DepParameterExpr ::= DepParametersopt
                        | DepParameters
     List ::= Properties | Propertiesopt 
@@ -4107,5 +4267,6 @@
     List ::= TypeDefModifier | TypeDefModifiers | TypeDefModifiersopt
     Expr ::= MethodSelection
     Expr ::= SubtypeConstraint
+    Expr ::= RangeExpression
     TypeDecl ::= TypeDefDeclaration
 %End

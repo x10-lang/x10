@@ -41,6 +41,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
 
 /**
  * @author VijaySaraswat
@@ -86,7 +87,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	        	return type(t1);
 	        
 	        if (ts.typeBaseEquals(t1, t2)) {
-	            return type(X10TypeMixin.xclause(t1, null));
+	            return type(X10TypeMixin.xclause(t1, (XConstraint) null));
 	        }
 	        
 	        // Otherwise, if the second and third operands have numeric type, then

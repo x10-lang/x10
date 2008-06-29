@@ -283,7 +283,7 @@ implements ArrayConstructor {
 		}
 		// Transfer the attributes from the dist to the array. This is in lieu of reading the
 		// dependent type for the constructor from an X10 source file.
-		Type p = ts.array(newBaseType, isValue);
+		Type p = ts.x10Array(newBaseType, isValue);
 		Type t = transferAttributes(p, newDistribution.type());
 		// System.out.println("ArrayConstructor_c: t=" + t);
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);

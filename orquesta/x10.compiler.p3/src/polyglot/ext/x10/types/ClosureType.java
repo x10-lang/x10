@@ -14,7 +14,7 @@ import x10.constraint.XConstraint;
  * return type and throwable exception types).
  * @author rfuhrer
  */
-public interface ClosureType extends X10Type {
+public interface ClosureType extends X10ClassType {
     /**
      * @return the type of value returned by an invocation of the closure. cannot be void.
      */

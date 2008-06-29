@@ -104,6 +104,7 @@
     if
     implements
     import
+    incomplete
     instanceof
     interface
     local
@@ -199,6 +200,11 @@
               | i n
         /.$BeginAction
                 $setResult($_in);
+          $EndAction
+        ./
+              | i n c o m p l e t e
+        /.$BeginAction
+                $setResult($_incomplete);
           $EndAction
         ./
 

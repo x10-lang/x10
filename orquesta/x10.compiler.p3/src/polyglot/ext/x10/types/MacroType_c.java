@@ -8,9 +8,10 @@ import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
+import polyglot.types.ObjectType;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -41,9 +42,13 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public TypeDef def() {
 		return Types.get(def);
 	}
+	
+	public boolean isGloballyAccessible() {
+	    return false;
+	}
 
 	@Override
-	public MacroType container(ReferenceType container) {
+	public MacroType container(StructType container) {
 		return (MacroType) super.container(container);
 	}
 	
@@ -206,8 +211,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = definedType;
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).fields();
+		if (base instanceof StructType) {
+			return ((StructType) base).fields();
 		}
 		return Collections.emptyList();
 	}
@@ -215,8 +220,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	@Override
 	public List<Type> interfaces() {
 		Type base = definedType;
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).interfaces();
+		if (base instanceof ObjectType) {
+			return ((ObjectType) base).interfaces();
 		}
 		return Collections.emptyList();
 	}
@@ -224,17 +229,17 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	@Override
 	public List<MethodInstance> methods() {
 		Type base = definedType;
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).methods();
+		if (base instanceof StructType) {
+			return ((StructType) base).methods();
 		}
 		return Collections.emptyList();
 	}
 
 	@Override
-	public Type superType() {
+	public Type superClass() {
 		Type base = definedType;
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).superType();
+		if (base instanceof ObjectType) {
+			return ((ObjectType) base).superClass();
 		}
 		return null;
 	}

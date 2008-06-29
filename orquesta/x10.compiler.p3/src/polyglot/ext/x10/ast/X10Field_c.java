@@ -33,6 +33,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -86,12 +87,12 @@ public class X10Field_c extends Field_c {
 			//							: "") +
 			//							"of non-reference type \"" +
 			//							target.type() + "\".", target.position());
-			if (!tType.isReference())
+			if (!(tType instanceof StructType))
 				throw new NoMemberException(NoMemberException.FIELD,
 						"Field \"" + name + "\" not found in type \"" +
 						tType + "\".");
 
-			FieldInstance fi = ts.findField(tType.toReference(), name.id(), c.currentClassDef());
+			FieldInstance fi = ts.findField((StructType) tType, name.id(), c.currentClassDef());
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",

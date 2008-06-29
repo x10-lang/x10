@@ -24,6 +24,7 @@ import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -153,7 +154,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         //      is that good enough?
 
         FieldDef fi = f.fieldDef();
-        ReferenceType ref = fi.container().get();
+        StructType ref = fi.container().get();
 
         X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
         if (xts.isValueType(ref) && !fi.flags().isFinal()) {

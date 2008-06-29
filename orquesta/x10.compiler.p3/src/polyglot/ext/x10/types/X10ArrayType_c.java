@@ -12,6 +12,10 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
         super(ts, pos, base);
     }
     
+    public boolean isGloballyAccessible() {
+	    return false;
+    }
+	
     public String name() { return ((Named) base).name();}
     public String fullName() { return ((Named) base).fullName();}
 

@@ -9,12 +9,14 @@ import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.NullType;
+import polyglot.types.ObjectType;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.ReferenceType_c;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
@@ -35,6 +37,10 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		this.constraint = constraint;
 	}
 
+	public boolean isGloballyAccessible() {
+	    return false;
+	}
+	
 	public Ref<? extends Type> baseType() {
 		return baseType;
 	}
@@ -137,8 +143,8 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = baseType.get();
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).fields();
+		if (base instanceof StructType) {
+			return ((StructType) base).fields();
 		}
 		return Collections.emptyList();
 	}
@@ -146,8 +152,8 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	@Override
 	public List<Type> interfaces() {
 		Type base = baseType.get();
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).interfaces();
+		if (base instanceof ObjectType) {
+			return ((ObjectType) base).interfaces();
 		}
 		return Collections.emptyList();
 	}
@@ -155,17 +161,17 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	@Override
 	public List<MethodInstance> methods() {
 		Type base = baseType.get();
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).methods();
+		if (base instanceof StructType) {
+			return ((StructType) base).methods();
 		}
 		return Collections.emptyList();
 	}
 
 	@Override
-	public Type superType() {
+	public Type superClass() {
 		Type base = baseType.get();
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).superType();
+		if (base instanceof ObjectType) {
+			return ((ObjectType) base).superClass();
 		}
 		return null;
 	}

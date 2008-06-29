@@ -15,6 +15,7 @@ import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.ReferenceType_c;
 import polyglot.types.Resolver;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -31,7 +32,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public abstract class ParametrizedType_c extends ReferenceType_c implements ParametrizedType {
-	ReferenceType container;
+	StructType container;
 	Flags flags;
 	String name;
 
@@ -39,13 +40,13 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 		super(ts, pos);
 	}
 	
-	public ParametrizedType container(ReferenceType container) {
+	public ParametrizedType container(StructType container) {
 		ParametrizedType_c t = (ParametrizedType_c) copy();
 		t.container = container;
 		return t;
 	}
 
-	public ReferenceType container() {
+	public StructType container() {
 		if (this.container == null) {
 			this.container = Types.get(def().container());
 		}

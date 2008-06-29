@@ -69,7 +69,7 @@ public class X10Special_c extends Special_c implements X10Special {
         	// The type of self should not include a dep clause; otherwise
         	// self in C(:c) could have type C(:c), causing an infinite regress
         	// later in type checking.
-        	tt = X10TypeMixin.xclause(tt, null);
+        	tt = X10TypeMixin.xclause(tt, (XConstraint) null);
     	
         	assert tt != null;
         	return type(tt);
@@ -79,7 +79,12 @@ public class X10Special_c extends Special_c implements X10Special {
 
         if (qualifier == null) {
             // an unqualified "this" 
-            t =  c.currentClass();
+            t = c.currentClass();
+            
+            // If in the supertype declaration, make this refer to the current class, not the enclosing class (or null).
+            if (c.inSuperTypeDeclaration()) {
+        	t = c.supertypeDeclarationType().asType();
+            }
             
             // Use the constructor return type, not the base type.
             if (c.currentDepType() == null && c.currentCode() instanceof X10ConstructorDef) {
@@ -125,7 +130,7 @@ public class X10Special_c extends Special_c implements X10Special {
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
-        	Type tt = t.superType();
+        	Type tt = t.superClass();
         	tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
             result = (X10Special) type(tt);
         }

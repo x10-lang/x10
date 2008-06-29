@@ -349,7 +349,6 @@ public class X10Context_c extends Context_c implements X10Context {
 				X10ClassType dep = (X10ClassType) this.depType;
 				FieldInstance myVi = ts.findField(dep, name, currentClassDef());
 				if (myVi != null) {
-					//if (name.equals("val")) Report.report(1, "X10Context_c: ==> " + myVi);
 					return myVi;
 				}
 			}

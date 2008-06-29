@@ -13,6 +13,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -38,7 +39,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     List<Ref<? extends Type>> typeParameters;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
-            Ref<? extends ReferenceType> container,
+            Ref<? extends StructType> container,
             Flags flags, 
             Ref<? extends Type> returnType,
             String name,

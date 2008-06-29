@@ -21,6 +21,9 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
+import polyglot.ext.x10.types.PathType;
+import polyglot.ext.x10.types.PathType_c;
+import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassDef_c;
 import polyglot.ext.x10.types.X10Context;
@@ -34,6 +37,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
+import polyglot.types.Named;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -181,7 +185,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	X10Context xc = (X10Context) c;
     	
     	   if (child == this.superClass || this.interfaces.contains(child)) {
-    		   
     	       X10ClassDef_c type = (X10ClassDef_c) this.type;
                xc = xc.pushSuperTypeDeclaration(type);
                
@@ -190,11 +193,23 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                // hierarchy, but avoids an infinite loop.
                xc = (X10Context) xc.pushBlock();
                xc.addNamed(type.asType());
-
+               
                // For X10, also add the properties.
+               for (TypeProperty t : type.typeProperties()) {
+		    PathType pt = t.asType();
+		    X10TypeSystem ts = (X10TypeSystem) xc.typeSystem();
+		    try {
+			Type pt2 = PathType_c.pathBase(pt, ts.xtypeTranslator().transThis(type.asType()), type.asType());
+			xc.addNamed((Named) pt2);
+		    }
+		    catch (SemanticException e) {
+		    }
+               }
+
                for (FieldDef f : type.properties()) {
                    xc.addVariable(f.asInstance());
                }
+               
                return child.del().enterScope(xc); 
            }
     	   
@@ -203,6 +218,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	       xc = (X10Context) xc.pushClass(type, type.asType());
     	       return child.del().enterScope(xc); 
     	   }
+    	   
            return super.enterChildScope(child, xc);
     }
     

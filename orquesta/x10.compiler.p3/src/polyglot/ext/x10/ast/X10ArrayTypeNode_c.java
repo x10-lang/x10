@@ -42,6 +42,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XTerm;
 
 /** An immutable AST representation of an X10 array type.
  * @author vj Dec 9, 2004
@@ -177,7 +178,8 @@ X10ArrayTypeNode {
 	            return n;
 	        }
 
-	        Type t = ts.array( tn.typeRef(), isValueType, distribution() );
+	        XTerm dist = ts.xtypeTranslator().trans(distribution());
+	        Type t = ts.x10Array( tn.typeRef(), isValueType, dist );
 	        sym.update(t);
 	        
 	        DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);

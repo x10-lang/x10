@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 import polyglot.frontend.Source;
+import polyglot.types.ArrayType;
 import polyglot.types.ClassDef_c;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -428,8 +429,17 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		primitiveTypes.put("x10.lang.Double", ts.Double());
 		
 		knownGenericTypes = new HashSet<String>();
+		knownGenericTypes.add("x10.lang.AbstractArray");
+		knownGenericTypes.add("x10.lang.Array");
+		knownGenericTypes.add("x10.lang.ValArray");
+
+		knownGenericTypes.add("x10.lang.AbstractNativeRail");
+		knownGenericTypes.add("x10.lang.NativeRail");
+		knownGenericTypes.add("x10.lang.NativeValRail");
+		
 		knownGenericTypes.add("x10.lang.genericArray");
 		knownGenericTypes.add("x10.lang.GenericReferenceArray");
+		
 		knownGenericTypes.add("x10.lang.Future");
 		knownGenericTypes.add("x10.lang.Box");
 	}
@@ -449,6 +459,11 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			// param1 should not appear in constraint; in fact, we shouldn't have any constraints
 //			XConstraint c2 = c.substitute(ts.xtypeTranslator().trans(typeArg), (XRoot) ts.xtypeTranslator().trans(param1));
 			return X10TypeMixin.xclause(t2, c);
+		}
+		if (oldType instanceof ArrayType) {
+		    ArrayType at = (ArrayType) oldType;
+		    Type base = fixType(at.base(), typeArg);
+		    return ts.x10Array(base, false);
 		}
 		else if (oldType instanceof ClassType) {
 			ClassType ct = (ClassType) oldType;

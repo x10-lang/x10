@@ -156,6 +156,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	
+	public Expr Contains(Position pos, Expr item, Expr collection) {
+	    Contains n = new Contains_c(pos, item, collection);
+	    n = (Contains) n.ext(extFactory().extExpr());
+	    n = (Contains) n.del(delFactory().delExpr());
+	    return n;
+	}
+	
 	public X10MLSourceFile X10MLSourceFile(Position position, PackageNode packageName, List<Import> imports, List<TopLevelDecl> decls) {
 		 X10MLSourceFile n = new X10MLSourceFile_c(position, packageName, CollectionUtil.nonNullList(imports), CollectionUtil.nonNullList(decls));
 		 n = (X10MLSourceFile)n.ext(extFactory().extSourceFile());

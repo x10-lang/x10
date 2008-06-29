@@ -29,6 +29,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.util.Position;
@@ -67,9 +68,9 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
 	    		}
 
 	    		// Now try properties.
-	    		if (t instanceof ReferenceType) {
+	    		if (t instanceof StructType) {
 	    			try {
-	    				FieldInstance fi = ts.findField((ReferenceType) t, this.name.id(), c.currentClassDef());
+	    				FieldInstance fi = ts.findField((StructType) t, this.name.id(), c.currentClassDef());
 	    				if (fi instanceof X10FieldInstance) {
 	    					X10FieldInstance xfi = (X10FieldInstance) fi;
 	    					if (xfi.isProperty()) {
@@ -124,7 +125,8 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
 			    try {
 				    X10TypeSystem xts = (X10TypeSystem) ts;
 				    PathType pt = xts.findTypeProperty((ClassType) t, this.name.id(), c.currentClassDef());
-				    return nf.CanonicalTypeNode(pos, PathType_c.pathBase(pt, xts.xtypeTranslator().transThis((ClassType) t), t));
+				    Type pt2 = PathType_c.pathBase(pt, xts.xtypeTranslator().transThis((ClassType) t), t);
+				    return nf.CanonicalTypeNode(pos, pt2);
 			    }
 			    catch (SemanticException e) {
 			    }

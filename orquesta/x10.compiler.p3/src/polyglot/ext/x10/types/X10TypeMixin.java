@@ -20,6 +20,7 @@ import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -101,23 +102,30 @@ public class X10TypeMixin {
 		}
 		return null;
 	}
+	public static Type baseType(Type t) {
+	    if (t instanceof ConstrainedType) {
+		ConstrainedType ct = (ConstrainedType) t;
+		return baseType(Types.get(ct.baseType()));
+	    }
+	    return t;
+	}
 	public static Type xclause(Type t, XConstraint c) {
-		if (c == null || c.valid()) {
-			if (t instanceof ConstrainedType) {
-				ConstrainedType ct = (ConstrainedType) t;
-				t = Types.get(ct.baseType());
-				if (t instanceof ConstrainedType)
-					return xclause(t, null);
-			}
-			return t;
-		}
-		else {
-			if (t instanceof ConstrainedType) {
-				ConstrainedType ct = (ConstrainedType) t;
-				return xclause(Types.get(ct.baseType()), c);
-			}
-			return new ConstrainedType_c((X10TypeSystem) t.typeSystem(), t.position(), Types.ref(t), Types.ref(c));
-		}
+	        if (c == null || c.valid()) {
+	            return baseType(t);
+	        }
+	        return xclause(Types.ref(t), Types.ref(c));
+	}
+	public static Type xclause(Ref<? extends Type> t, Ref<XConstraint> c) {
+	    if (c == null) {
+		c = Types.<XConstraint>ref(new XConstraint_c());
+	    }
+	    if (t instanceof ConstrainedType) {
+		ConstrainedType ct = (ConstrainedType) t;
+		return xclause(ct.baseType(), c);
+	    }
+	    Type tx = t.getCached();
+	    assert tx != null;
+	    return new ConstrainedType_c((X10TypeSystem) tx.typeSystem(), tx.position(), t, c);
 	}
 
     public static boolean isConstrained(Type t) {
@@ -275,7 +283,7 @@ public class X10TypeMixin {
 					return S;
 				}
 			}
-			Type sup = ct.superType();
+			Type sup = ct.superClass();
 			if (sup != null)
 				return getParameterType(sup, c, prop);
 		}

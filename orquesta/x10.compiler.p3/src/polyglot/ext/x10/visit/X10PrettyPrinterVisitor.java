@@ -92,6 +92,7 @@ import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -311,7 +312,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// access to method x10.lang.Object.getLocation should not be checked
 		boolean is_location_access;
 		String f_name = c.methodInstance().name();
-		ReferenceType f_container = c.methodInstance().container();
+		StructType f_container = c.methodInstance().container();
 		is_location_access = f_name != null && "getLocation".equals(f_name) && f_container instanceof ReferenceType;
 
 		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
@@ -320,7 +321,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		if (! (target instanceof TypeNode) &&	// don't annotate access to static vars
 			! (target instanceof Future_c) &&
-			t instanceof ReferenceType &&	// don't annotate access to instances of ordinary Java objects.
+			t instanceof StructType &&	// don't annotate access to instances of ordinary Java objects.
 			! c.isTargetImplicit() &&
 			! (target instanceof Special) &&
 			! (t.isClass() && t.toClass().isAnonymous()) && // don't annotate anonymous classes: they're here
@@ -602,7 +603,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// access to field x10.lang.Object.location should not be checked
 		boolean is_location_access;
 		String f_name = n.fieldInstance().name();
-		ReferenceType f_container = n.fieldInstance().container();
+		StructType f_container = n.fieldInstance().container();
 		is_location_access = f_name != null && "location".equals(f_name) && f_container instanceof ReferenceType;
 
 		if (! (target instanceof TypeNode) &&	// don't annotate access to static vars
@@ -674,7 +675,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		boolean refs_to_values = false;
 
 		if (base_type.isPrimitive()) {
-			kind = base_type.toPrimitive().kind().toString();
+			kind = base_type.toPrimitive().name();
 		}
 		else { // this is a User-defined[?] ? array
 			kind = USER_DEFINED;

@@ -36,6 +36,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
+import polyglot.types.LazyRef;
 import polyglot.types.MemberDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -164,7 +165,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 
 	@Override
 	public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+		final X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
 		ClassDef ct = tb.currentClass();
 
@@ -174,7 +175,8 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		                                                                           Collections.EMPTY_LIST, null, null);
 
 	        TypeDecl_c n = (TypeDecl_c) copy();
-	        n = (TypeDecl_c) n.visitSignature(tb);
+	        TypeBuilder tb2 = tb.pushDef(typeDef);
+		n = (TypeDecl_c) n.visitSignature(tb2);
 
 	        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
 	        for (TypeParamNode tpn : n.typeParameters()) {
@@ -185,15 +187,24 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>();
 	        List<String> formalNames = new ArrayList<String>();
 	        for (Formal f : n.formals()) {
-	        	XConstraint c = new XConstraint_c();
-	        	try {
-				c = c.addBinding(XSelf.Self, ts.xtypeTranslator().trans(f.localDef().asInstance()));
-			}
-			catch (XFailure e) {
-			}
-	        	Type t = X10TypeMixin.xclause(f.type().type(), c);
-	        	formalTypes.add(f.type().typeRef());
-	        	formalNames.add(f.name().id());
+	            final Formal f2 = f;
+	            final LazyRef<XConstraint> cref = Types.<XConstraint>lazyRef(new XConstraint_c());
+	            Type t = X10TypeMixin.xclause(f.type().typeRef(), cref);
+	            cref.setResolver(new Runnable() {
+	        	public void run() {
+	        	    XConstraint c = new XConstraint_c();
+	        	    try {
+	        		c = c.addBinding(XSelf.Self, ts.xtypeTranslator().trans(f2.localDef().asInstance()));
+	        	    }
+	        	    catch (XFailure e) {
+	        	    }
+	        	    catch (SemanticException e) {
+	        	    }
+	        	    cref.update(c);
+	        	}
+	            });
+	            formalTypes.add(f.type().typeRef());
+	            formalNames.add(f.name().id());
 	        }
 	        typeDef.setFormalTypes(formalTypes);
 	        typeDef.setFormalNames(formalNames);
@@ -202,7 +213,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        	typeDef.setWhereClause(n.whereClause.xconstraint());
 
 	        if (n.type != null) {
-	        	TypeNode tn = (TypeNode) n.visitChild(n.type, tb);
+	        	TypeNode tn = (TypeNode) n.visitChild(n.type, tb2);
 	        	n = (TypeDecl_c) n.type(tn);
 	        	typeDef.setType(tn.typeRef());
 	        }
@@ -241,5 +252,35 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	public MemberDef memberDef() {
 		return typeDef;
 	}
-
+	
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append(flags().flags().translate());
+	    sb.append("type ");
+	    sb.append(name());
+	    if (typeParameters().size() == 0) {
+		String sep = "";
+		sb.append("[");
+		for (Formal f : formals()) {
+		    sb.append(sep);
+		    sep = ",";
+		    sb.append(f);
+		}
+		sb.append("]");
+	    }
+	    if (formals().size() == 0) {
+		String sep = "";
+		sb.append("(");
+		for (Formal f : formals()) {
+		    sb.append(sep);
+		    sep = ",";
+		    sb.append(f);
+		}
+		sb.append(")");
+	    }
+	    sb.append(" = ");
+	    sb.append(type());
+	    sb.append(";");
+	    return sb.toString();
+	}
 }
