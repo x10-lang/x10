@@ -9,15 +9,22 @@ package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Block;
+import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl_c;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Return;
+import polyglot.ast.Stmt;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Context;
@@ -36,6 +43,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -173,6 +181,63 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     		    }
     	    }
     	    return super.setResolverOverride(parent, v);
+        }
+        
+        @Override
+        protected void checkFlags(TypeChecker tc, Flags flags) throws SemanticException {
+            super.checkFlags(tc, flags);
+
+            X10Flags xf = X10Flags.toX10Flags(flags);
+            if (xf.isIncomplete() && body != null) {
+        	throw new SemanticException("An incomplete method cannot have a body.", position());
+            }
+            
+            if (xf.isProperty() && body == null) {
+        	throw new SemanticException("A property method must have a body.", position());
+            }
+        }
+        
+        @Override
+        public Node typeCheck(TypeChecker tc) throws SemanticException {
+            NodeFactory nf = tc.nodeFactory();
+            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            
+            X10MethodDecl_c n = (X10MethodDecl_c) super.typeCheck(tc);
+
+            X10Flags xf = X10Flags.toX10Flags(mi.flags());
+            
+            if (xf.isIncomplete()) {
+        	mi.setFlags(xf.clearIncomplete());
+        	Flags oldFlags = n.flags().flags();
+		X10Flags newFlags = X10Flags.toX10Flags(oldFlags).clearIncomplete();
+		n = (X10MethodDecl_c) n.flags(n.flags().flags(newFlags));
+		Type rtx = ts.RuntimeException();
+
+		CanonicalTypeNode rtxNode = nf.CanonicalTypeNode(position(), Types.ref(rtx));
+		Expr msg = nf.StringLit(position(), "Incomplete method.");
+		New newRtx = nf.New(position(), rtxNode, Collections.singletonList(msg));
+		Block b = nf.Block(position(), nf.Throw(position(), newRtx));
+		b = (Block) b.visit(tc);
+		n = (X10MethodDecl_c) n.body(b);
+            }
+            
+            if (xf.isProperty()) {
+        	boolean ok = false;
+        	if (body.statements().size() == 1) {
+        	    Stmt s = body.statements().get(0);
+        	    if (s instanceof Return) {
+        		Return r = (Return) s;
+        		if (r.expr() != null) {
+        		    ts.xtypeTranslator().trans(r.expr());
+        		    ok = true;
+        		}
+        	    }
+        	}
+        	if (! ok)
+        	    throw new SemanticException("Property method body must be a constraint expression.", position());
+            }
+
+            return n;
         }
 
         public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {

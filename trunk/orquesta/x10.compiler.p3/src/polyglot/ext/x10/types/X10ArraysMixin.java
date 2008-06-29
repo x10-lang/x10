@@ -3,6 +3,7 @@ package polyglot.ext.x10.types;
 import polyglot.types.FieldInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XConstraint;
@@ -56,9 +57,9 @@ public class X10ArraysMixin {
 	    
 	    public static X10FieldInstance getProperty(Type t, String propName) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-		    if (t instanceof ReferenceType) {
+		    if (t instanceof StructType) {
 			    try {
-				    X10FieldInstance fi = (X10FieldInstance) xts.findField((ReferenceType) t, propName);
+				    X10FieldInstance fi = (X10FieldInstance) xts.findField((StructType) t, propName);
 				    if (fi != null && fi.isProperty()) {
 					    return fi;
 				    }

@@ -13,7 +13,6 @@ package polyglot.ext.x10.types;
 import java.util.List;
 
 import polyglot.ast.Binary;
-import polyglot.ast.Expr;
 import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -29,6 +28,7 @@ import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Type_c;
@@ -107,7 +107,7 @@ public interface X10TypeSystem extends TypeSystem {
 	                                                                              Ref<? extends XConstraint> whereClause, List<Ref<? extends Type>> throwTypes);
 
 	X10MethodDef
-	methodDef(Position pos, Ref<? extends ReferenceType> container, Flags flags, Ref<? extends Type> returnType, String name,
+	methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, String name,
 		        List<Ref<? extends Type>> typeParams,
 		        List<Ref<? extends Type>> argTypes,
 		        Ref<? extends XConstraint> whereClause,
@@ -120,8 +120,8 @@ public interface X10TypeSystem extends TypeSystem {
 	 * double only. TODO: implement for all native types.
 	 */
 
-	Type array(Type type, boolean isValueType, Expr distribution);
-	Type array(Ref<? extends Type> type, boolean isValueType, Expr distribution);
+	Type x10Array(Type type, boolean isValueType, XTerm distribution);
+	Type x10Array(Ref<? extends Type> type, boolean isValueType, XTerm distribution);
 
 	/**
 	 * Provide a generic type constructor for arrays:
@@ -130,8 +130,8 @@ public interface X10TypeSystem extends TypeSystem {
 	 * 1/13/2005 -- implemented for int and double only.
 	 * TODO: implement for all native types.
 	 */
-	Type array(Type type, Expr distribution);
-	Type array(Ref<? extends Type> type, Expr distribution);
+	Type x10Array(Type type, XTerm distribution);
+	Type x10Array(Ref<? extends Type> type, XTerm distribution);
 
 	/**
 	 * Provide a generic type constructor for arrays:
@@ -140,8 +140,8 @@ public interface X10TypeSystem extends TypeSystem {
 	 * 1/13/2005 -- implemented for int and double only.
 	 * TODO: implement for all native types.
 	 */
-	Type array(Type type, boolean isValueType);
-	Type array(Ref<? extends Type> type, boolean isValueType);
+	Type x10Array(Type type, boolean isValueType);
+	Type x10Array(Ref<? extends Type> type, boolean isValueType);
 
 	/**
 	 * Provide a generic type constructor for arrays:
@@ -150,108 +150,8 @@ public interface X10TypeSystem extends TypeSystem {
 	 * 1/13/2005 -- implemented for int and double only.
 	 * TODO: implement for all native types.
 	 */
-	Type array(Type type);
-	Type array(Ref<? extends Type> type);
-
-	Type booleanArray(boolean isValueType, Expr distribution);
-	Type booleanArray(Expr distribution);
-	Type booleanArray();
-
-	Type charArray(boolean isValueType, Expr distribution);
-	Type charArray(Expr distribution);
-	Type charArray();
-
-	Type byteArray(boolean isValueType, Expr distribution);
-	Type byteArray(Expr distribution);
-	Type byteArray();
-
-	Type shortArray(boolean isValueType, Expr distribution);
-	Type shortArray(Expr distribution);
-	Type shortArray();
-
-	/**
-	 * Return the parametric type of all X10 intArrays with the
-	 * given values for the isValueType and distribution parameters.
-	 * @param isValueType -- true if this type is a value type.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	Type intArray(boolean isValueType, Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 int arrays with the
-	 * given distribution. The class returned is a superclass of
-	 * intValueArray and IntReferenceArray.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	Type intArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 int arrays with no
-	 * constraints on the distribution.The class returned is a superclass of
-	 * intValueArray and IntReferenceArray.
-	 * @return -- the ClassType object
-	 */
-	Type intArray();
-
-	Type floatArray(boolean isValueType, Expr distribution);
-	Type floatArray(Expr distribution);
-	Type floatArray();
-
-	/**
-	 * Return the parametric type of all X10 doubleArrays with the
-	 * given values for the isValueType and distribution parameters.
-	 * @param isValueType -- true if this type is a value type.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	Type doubleArray(boolean isValueType, Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 double arrays with the
-	 * given distribution. The class returned is a superclass of
-	 * doubleValueArray and DoubleReferenceArray.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	Type doubleArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 double arrays with no
-	 * constraints on the distribution.The class returned is a superclass of
-	 * doubleValueArray and DoubleReferenceArray.
-	 * @return -- the ClassType object
-	 */
-	Type doubleArray();
-
-	/**
-	 * Return the parametric type of all X10 longArrays with the
-	 * given values for the isValueType and distribution parameters.
-	 * @param isValueType -- true if this type is a value type.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	Type longArray(boolean isValueType, Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 long arrays with the
-	 * given distribution. The class returned is a superclass of
-	 * longValueArray and DoubleReferenceArray.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	Type longArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 long arrays with no
-	 * constraints on the distribution.The class returned is a superclass of
-	 * longValueArray and DoubleReferenceArray.
-	 * @return -- the ClassType object
-	 */
-	Type longArray();
-
-	// TODO: Add similar support for arrays of long and boolean.
+	Type x10Array(Type type);
+	Type x10Array(Ref<? extends Type> type);
 
 	/**
 	 * Return the ClassType object for the x10.lang.Indexable interface.
@@ -262,6 +162,23 @@ public interface X10TypeSystem extends TypeSystem {
 	 * Return the ClassType object for the x10.lang.Array interface.
 	 */
 	ClassType Array();
+	
+	/**
+	 * Return the ClassType object for the x10.lang.Array interface.
+	 */
+	ClassType ValArray();
+	
+	/**
+	 * Return the ClassType object for the x10.lang.NativeRail interface.
+	 * @return
+	 */
+	ClassType NativeRail();
+	
+	/**
+	 * Return the ClassType object for the x10.lang.NativeRail interface.
+	 * @return
+	 */
+	ClassType NativeValRail();
 
 	// RMF 7/11/2006 - Added so that the parser can create a canonical type node
 	// for "primitive types", which otherwise will cause disambiguation to fail.
@@ -294,8 +211,20 @@ public interface X10TypeSystem extends TypeSystem {
 	/** Return boxed type runtime.T for primitive t. */
 	 X10NamedType boxedType(PrimitiveType t);
 
+	 public ClassType Comparable();
+    public ClassType Iterable();
+    public ClassType Iterator();
+    public ClassType Contains();
+    public ClassType ContainsAll();
+
+  boolean isComparable(Type me);
+  boolean isIterable(Type me);
+  boolean isIterator(Type me);
+  boolean isContains(Type me);
+  boolean isContainsAll(Type me);
+  
   boolean isPrimitiveTypeArray(Type me);
- 
+  
      boolean isFuture(Type me) ;
      boolean isIndexable(Type me) ;
       boolean isX10Array(Type me) ;
@@ -368,6 +297,8 @@ Type Ref();
 TypeDef BoxRefTypeDef();
 
 boolean isFunction(Type type);
+
+X10ClassDef closureInterfaceDef(int size, int size2);
 
    
 //   X10NamedType createBoxFromTemplate(X10ClassDef def);

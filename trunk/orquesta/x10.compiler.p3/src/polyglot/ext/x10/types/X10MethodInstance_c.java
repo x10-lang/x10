@@ -273,7 +273,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
 	    // We've smuggled the type args in with the actual args.  Pull them out again.
 	    for (Type t : args) {
-		    Type base = X10TypeMixin.xclause(t, null);
+		    Type base = X10TypeMixin.xclause(t, (XConstraint) null);
 		    if (base.typeEquals(((X10TypeSystem_c) xts).TypeType())) {
 			    // t should be type{self==C}.  Add C to the typeActuals list.
 			    XConstraint c = X10TypeMixin.xclause(t);

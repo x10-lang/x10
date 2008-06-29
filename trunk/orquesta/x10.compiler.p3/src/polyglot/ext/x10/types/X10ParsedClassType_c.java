@@ -91,7 +91,7 @@ implements X10ParsedClassType
 	}
 
 	public List<FieldInstance> properties() {
-	    Type superType = superType();
+	    Type superType = superClass();
 	    if (superType instanceof X10ClassType) {
 	        List<FieldInstance> l = ((X10ClassType) superType).properties();
 	        List<FieldInstance> l2 = new ArrayList<FieldInstance>();

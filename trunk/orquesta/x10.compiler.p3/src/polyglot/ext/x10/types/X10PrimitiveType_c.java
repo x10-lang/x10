@@ -30,13 +30,12 @@ import polyglot.util.CodeWriter;
 public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveType {
 	protected X10PrimitiveType_c() { }
 
-	public X10PrimitiveType_c(TypeSystem ts, PrimitiveType.Kind kind) {
-		super(ts, kind);
+	public X10PrimitiveType_c(TypeSystem ts, String name) {
+		super(ts, name);
 	}
 
 	public void print(CodeWriter w) {
-		// [IP] FIXME: is this the right thing to do here?
-		w.write(super.toString());
+		w.write(name());
 	}
 
 	private static String getStackTrace() {

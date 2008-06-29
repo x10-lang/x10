@@ -178,8 +178,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		//Report.report(1, "X10Binary_c: l=" + l + " r=" + r + " op=" + op);
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		if (op == EQ || op == NE) {
-			l = X10TypeMixin.xclause(l, null);
-			r = X10TypeMixin.xclause(r, null);
+			l = X10TypeMixin.xclause(l, (XConstraint) null);
+			r = X10TypeMixin.xclause(r, (XConstraint) null);
 			if (! ts.isCastValid(l, r) && ! ts.isCastValid(r, l)) {
 					throw new SemanticException("The " + op +
 					    " operator must have operands of similar type.",
@@ -189,25 +189,32 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 				return type(ts.Boolean());
 			}
 		// TODO: define these operations for arrays as well, with the same distribution.
-		if ((op == GT || op == LT || op == GE || op == LE) && (xts.isPoint(l)
-				|| xts.isPlace(l))) {
-			if (xts.isPlace(l)) {
-				if (!xts.isPlace(r))
-					throw new SemanticException("The " + op +
-							" operator instance must have a place operand.", right.position());
-			}
-			if (xts.isPoint(l)) {
-				if (!xts.isPoint(r))
-					throw new SemanticException("The " + op +
-							" operator instance must have a point operand.", right.position());
-			}
-			return type(ts.Boolean());
+		if ((op == GT || op == LT || op == GE || op == LE) && xts.isPlace(l)) {
+		    if (xts.isPlace(l) && !xts.isPlace(r)) {
+			throw new SemanticException("The " + op +
+			                            " operator instance must have a Place operand.", right.position());
+		    }
+		    return type(ts.Boolean());
+		}
+		if ((op == GT || op == LT || op == GE || op == LE) && xts.isPoint(l)) {
+		    if (xts.isPoint(l) && !xts.isPoint(r)) {
+			throw new SemanticException("The " + op +
+			                            " operator instance must have a Point operand.", right.position());
+		    }
+		    return type(ts.Boolean());
+		}
+		if ((op == GT || op == LT || op == GE || op == LE) && xts.isComparable(l)) {
+		    if (xts.isComparable(l) && !xts.isComparable(r)) {
+			    throw new SemanticException("The " + op +
+			                                " operator instance must have a Comparble operand.", right.position());
+		    }
+		    return type(ts.Boolean());
 		}
 		// TODO: Check that the underlying regions are disjoint.
 
 		if (op == COND_OR && xts.isDistributedArray(l)) { // || -- <T>array.union(<T>array right)
-			l = X10TypeMixin.xclause(l, null);
-			r = X10TypeMixin.xclause(r, null);
+			l = X10TypeMixin.xclause(l, (XConstraint) null);
+			r = X10TypeMixin.xclause(r, (XConstraint) null);
 			if (!(l.typeEquals(r))) {
 				throw new SemanticException("The operands of " + op +
 						" have base types " + l + " and " + r + "; these must " +

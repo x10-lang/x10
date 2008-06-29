@@ -12,6 +12,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.DerefTransform;
+import polyglot.types.LazyRef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -62,7 +63,8 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		throwTypes.add(tn.typeRef());
 	    }
 
-	    Type t = ts.closure(position(), returnType.typeRef(), typeParams, formalTypes, whereClause.xconstraint(), throwTypes);
+	    Type t = ts.closure(position(), returnType.typeRef(), typeParams, formalTypes, whereClause != null ? whereClause.xconstraint() : null, throwTypes);
+	    ((LazyRef<Type>) typeRef()).update(t);
 	    return nf.CanonicalTypeNode(position(), t);
 	}
 
@@ -159,7 +161,30 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	}
 
 	public String toString() {
-		return typeParams + "" + formals + whereClause + " => " + returnType;
+	    StringBuilder sb = new StringBuilder();
+	    if (typeParams.size() > 0) {
+		sb.append("[");
+		String sep = "";
+		for (TypeParamNode p : typeParams) {
+		    sb.append(sep);
+		    sb.append(p);
+		    sep = ", ";
+		}
+		sb.append("]");
+	    }
+	    sb.append("(");
+		String sep = "";
+		for (Formal p : formals) {
+		    sb.append(sep);
+		    sb.append(p);
+		    sep = ", ";
+		}
+	    sb.append(")");
+	    if (whereClause != null)
+		sb.append(whereClause);
+	    sb.append(" => ");
+	    sb.append(returnType);
+	    return sb.toString();
 	}
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {

@@ -67,6 +67,7 @@ public interface X10NodeFactory extends NodeFactory {
     TypePropertyNode TypePropertyNode(Position pos, Id name, TypeProperty.Variance variance);
     TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr where, TypeNode returnType, List<TypeNode> throwTypes);   
     Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup);
+    Expr Contains(Position pos, Expr item, Expr collection);
 	TypeDecl TypeDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr where, TypeNode type);
 
     Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArgs, List<Expr> args);

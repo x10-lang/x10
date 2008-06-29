@@ -15,6 +15,6 @@ public interface TypeProperty extends MemberDef {
 	String name();
 	void setName(String name);
 	
-	Type asType();
+	PathType asType();
 	XVar asVar();
 }

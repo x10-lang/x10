@@ -14,6 +14,7 @@ import polyglot.types.Flags;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
@@ -92,7 +93,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
             }
         }
         
-        ReferenceType container = container();
+        StructType container = container();
         
         // HACK!
         if (name().equals("UNIQUE") && container.typeEquals(xts.distribution()) && flags.isStatic()) {

@@ -7,6 +7,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.Term_c;
 import polyglot.ext.x10.types.ParameterType_c;
+import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.TypeProperty_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -76,13 +77,11 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 		
 	        Def def = tb.def();
 	        
-	        if (! (def instanceof ProcedureDef)) {
-	            throw new SemanticException("Type parameter cannot occur outside method, constructor, or closure definition.", position());
+	        if (! (def instanceof ProcedureDef || def instanceof TypeDef)) {
+	            throw new SemanticException("Type parameter cannot occur outside method, constructor, closure, or type definition.", position());
 	        }
 	        
-	        ProcedureDef code = (ProcedureDef) def;
-
-		Type t = new ParameterType_c(xts, position(), name(), Types.ref(code));
+		Type t = new ParameterType_c(xts, position(), name(), Types.ref(def));
 		return typeRef(Types.ref(t));
 	}
 

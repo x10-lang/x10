@@ -1,7 +1,9 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
@@ -13,6 +15,7 @@ import polyglot.types.SourceClassResolver;
 import polyglot.types.Types;
 import polyglot.types.reflect.ClassFileLoader;
 import polyglot.util.Position;
+import polyglot.util.StringUtil;
 import sun.text.CompactShortArray.Iterator;
 
 public class X10SourceClassResolver extends SourceClassResolver {
@@ -27,7 +30,7 @@ public class X10SourceClassResolver extends SourceClassResolver {
 	public Named find(String name) throws SemanticException {
 //		if (name.equals("x10.lang.Box")) {
 //			Named n = super.find(name);
-//			X10TypeSystem		xts = (X10TypeSystem) ts;
+//			X10TypeSystem xts = (X10TypeSystem) ts;
 //			if (n instanceof X10ParsedClassType)
 //				return xts.createBoxFromTemplate(((X10ParsedClassType) n).x10Def());
 //			else
@@ -94,26 +97,22 @@ public class X10SourceClassResolver extends SourceClassResolver {
 		    }
 		}
 		
-		// Change java.lang.String to x10.lang.String
-		if (name.equals("x10.lang.String")) {
-			Named n = super.find("java.lang.String");
+		Map<String,String> classMap = new HashMap<String, String>();
+		classMap.put("x10.lang.String", "java.lang.String");
+		classMap.put("x10.lang.Throwable", "java.lang.Throwable");
+		classMap.put("x10.lang.Exception", "java.lang.Exception");
+		classMap.put("x10.lang.RuntimeException", "java.lang.RuntimeException");
+		
+		String newName = classMap.get(name);
+		
+		if (newName != null) {
+			Named n = super.find(newName);
 			if (n instanceof X10ParsedClassType) {
 				X10ParsedClassType ct = (X10ParsedClassType) n;
 				X10ClassDef cd = ct.x10Def();
 				
-				cd.setPackage(Types.ref(ts.packageForName(ts.packageForName("x10"), "lang")));
-				
-//				List<MethodDef> methods = new ArrayList<MethodDef>();
-//				MethodDef charAt = null;
-//				for (MethodDef m : cd.methods()) {
-//						methods.add(m);
-//						if (m.name().equals("charAt"))
-//							charAt = m;
-//				}
-//				// Add def apply(i) = charAt(i);
-//				MethodDef m = cd.typeSystem().methodDef(Position.COMPILER_GENERATED, Types.ref(ct), Flags.PUBLIC, charAt.container(), "apply", charAt.formalTypes(), charAt.throwTypes());
-//				methods.add(m);
-//				cd.setMethods(methods);
+				String newPackage = StringUtil.getPackageComponent(newName);
+				cd.setPackage(Types.ref(ts.packageForName(newPackage)));
 				
 				assert cd.asType() == n;
 				n = cd.asType();

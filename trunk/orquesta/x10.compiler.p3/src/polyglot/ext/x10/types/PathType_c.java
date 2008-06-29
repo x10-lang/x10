@@ -10,10 +10,12 @@ import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
+import polyglot.types.ObjectType;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -42,8 +44,12 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 		this.baseType = baseType;
 	}
 
+	public boolean isGloballyAccessible() {
+	    return false;
+	}
+	
 	@Override
-	public PathType container(ReferenceType container) {
+	public PathType container(StructType container) {
 		return (PathType) super.container(container);
 	}
 	
@@ -87,7 +93,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 	}
 	
 	public static XVar pathBase(Type t) {
-		t = X10TypeMixin.xclause(t, null);
+		t = X10TypeMixin.xclause(t, (XConstraint) null);
 		if (t instanceof PathType) {
 			PathType pt = (PathType) t;
 			return pt.base();
@@ -97,7 +103,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 	
 	public static Type pathBase(Type t, XVar base, Type baseType) {
 		XConstraint c = X10TypeMixin.xclause(t);
-		t = X10TypeMixin.xclause(t, null);
+		t = X10TypeMixin.xclause(t, (XConstraint) null);
 		if (t instanceof PathType) {
 			PathType pt = (PathType) t;
 			return X10TypeMixin.xclause(pt.base(base, baseType), c);
@@ -113,7 +119,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 		return prop;
 	}
 	
-	public ReferenceType container() {
+	public StructType container() {
 		return Types.get(prop.container());
 	}
 
@@ -170,8 +176,8 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = lowerBound();
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).fields();
+		if (base instanceof StructType) {
+			return ((StructType) base).fields();
 		}
 		return Collections.emptyList();
 	}
@@ -179,8 +185,8 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 	@Override
 	public List<Type> interfaces() {
 		Type base = lowerBound();
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).interfaces();
+		if (base instanceof ObjectType) {
+			return ((ObjectType) base).interfaces();
 		}
 		return Collections.emptyList();
 	}
@@ -188,17 +194,17 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 	@Override
 	public List<MethodInstance> methods() {
 		Type base = lowerBound();
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).methods();
+		if (base instanceof StructType) {
+			return ((StructType) base).methods();
 		}
 		return Collections.emptyList();
 	}
 
 	@Override
-	public Type superType() {
+	public Type superClass() {
 		Type base = lowerBound();
-		if (base instanceof ReferenceType) {
-			return ((ReferenceType) base).superType();
+		if (base instanceof ObjectType) {
+			return ((ObjectType) base).superClass();
 		}
 		return null;
 	}

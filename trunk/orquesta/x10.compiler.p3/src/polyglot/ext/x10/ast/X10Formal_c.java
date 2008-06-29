@@ -160,7 +160,22 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	}
 
     public String toString() {
-        return super.toString() + translateVars();
+	StringBuffer sb = new StringBuffer();
+	sb.append(flags.flags().clearFinal().translate());
+	if (flags.flags().isFinal())
+	    sb.append("val ");
+	else
+	    sb.append("var ");
+	sb.append(name);
+	if (! vars.isEmpty()) {
+		sb.append("(");
+		for (int i = 0; i < vars.size(); i++)
+			sb.append(i > 0 ? "," : "").append(vars.get(i));
+		sb.append(")");
+	}
+	sb.append(": ");
+	sb.append(type);
+	return sb.toString();
     }
 
 	/* (non-Javadoc)
@@ -299,5 +314,6 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	{
 		return explode(nf, ts, name, pos, flags, vars, null);
 	}
+	
 }
 

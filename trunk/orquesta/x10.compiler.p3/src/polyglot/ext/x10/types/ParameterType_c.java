@@ -18,6 +18,10 @@ public class ParameterType_c extends Type_c implements ParameterType {
 		this.def = def;
 	}
 	
+	public boolean isGloballyAccessible() {
+	    return false;
+	}
+	
 	public String fullName() {
 		return name;
 	}

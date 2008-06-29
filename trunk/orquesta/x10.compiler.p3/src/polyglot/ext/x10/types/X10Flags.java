@@ -31,6 +31,8 @@ public class X10Flags extends Flags {
         public static final Flags LOCAL        = createFlag("local", null);
         public static final Flags NON_BLOCKING = createFlag("nonblocking", null);
         public static final Flags SEQUENTIAL   = createFlag("sequential", null);
+        public static final Flags INCOMPLETE   = createFlag("incomplete", null);
+        public static final Flags PROPERTY     = createFlag("property", null);
        
         /**
          * Return a new Flags object with a new name.  Should be called only once
@@ -195,7 +197,7 @@ public class X10Flags extends Flags {
             }
             
             /**
-             * Return a copy of this <code>this</code> with the <code>pure</code>
+             * Return a copy of this <code>this</code> with the <code>safe</code>
              * flag set.
          * @param flags TODO
              */
@@ -203,7 +205,7 @@ public class X10Flags extends Flags {
         	return setX(SAFE);
             }
         /**
-             * Return a copy of this <code>this</code> with the <code>pure</code>
+             * Return a copy of this <code>this</code> with the <code>safe</code>
              * flag clear.
          * @param flags TODO
              */
@@ -211,14 +213,14 @@ public class X10Flags extends Flags {
         	return clearX(SAFE);
             }
         /**
-             * Return true if <code>this</code> has the <code>pure</code> flag set.
+             * Return true if <code>this</code> has the <code>safe</code> flag set.
          * @param flags TODO
              */
             public boolean isSafe() {
         	return contains(SAFE);
             }
             /**
-             * Return a copy of this <code>this</code> with the <code>pure</code>
+             * Return a copy of this <code>this</code> with the <code>local</code>
              * flag set.
          * @param flags TODO
              */
@@ -226,7 +228,7 @@ public class X10Flags extends Flags {
         	return setX(LOCAL);
             }
         /**
-             * Return a copy of this <code>this</code> with the <code>pure</code>
+             * Return a copy of this <code>this</code> with the <code>local</code>
              * flag clear.
          * @param flags TODO
              */
@@ -234,14 +236,14 @@ public class X10Flags extends Flags {
         	return clearX(LOCAL);
             }
         /**
-             * Return true if <code>this</code> has the <code>pure</code> flag set.
+             * Return true if <code>this</code> has the <code>local</code> flag set.
          * @param flags TODO
              */
             public boolean isLocal() {
         	return contains(LOCAL) || contains(SAFE);
             }
             /**
-             * Return a copy of this <code>this</code> with the <code>pure</code>
+             * Return a copy of this <code>this</code> with the <code>nonblocking</code>
              * flag set.
          * @param flags TODO
              */
@@ -249,7 +251,7 @@ public class X10Flags extends Flags {
         	return setX(NON_BLOCKING);
             }
         /**
-             * Return a copy of this <code>this</code> with the <code>pure</code>
+             * Return a copy of this <code>this</code> with the <code>nonblocking</code>
              * flag clear.
          * @param flags TODO
              */
@@ -257,14 +259,60 @@ public class X10Flags extends Flags {
         	return clearX(NON_BLOCKING);
             }
         /**
-             * Return true if <code>this</code> has the <code>pure</code> flag set.
+             * Return true if <code>this</code> has the <code>nonblocking</code> flag set.
          * @param flags TODO
              */
             public boolean isNonBlocking() {
         	return contains(NON_BLOCKING) || contains(SAFE);
             }
             /**
-             * Return a copy of this <code>this</code> with the <code>pure</code>
+             * Return a copy of this <code>this</code> with the <code>incomplete</code>
+             * flag set.
+             * @param flags TODO
+             */
+            public  X10Flags Incomplete() {
+        	return setX(INCOMPLETE);
+            }
+            /**
+             * Return a copy of this <code>this</code> with the <code>incomplete</code>
+             * flag clear.
+             * @param flags TODO
+             */
+            public  X10Flags clearIncomplete() {
+        	return clearX(INCOMPLETE);
+            }
+            /**
+             * Return true if <code>this</code> has the <code>incomplete</code> flag set.
+             * @param flags TODO
+             */
+            public boolean isIncomplete() {
+        	return contains(INCOMPLETE);
+            }
+            /**
+             * Return a copy of this <code>this</code> with the <code>property</code>
+             * flag set.
+             * @param flags TODO
+             */
+            public  X10Flags Property() {
+        	return setX(PROPERTY);
+            }
+            /**
+             * Return a copy of this <code>this</code> with the <code>property</code>
+             * flag clear.
+             * @param flags TODO
+             */
+            public  X10Flags clearProperty() {
+        	return clearX(PROPERTY);
+            }
+            /**
+             * Return true if <code>this</code> has the <code>property</code> flag set.
+             * @param flags TODO
+             */
+            public boolean isProperty() {
+        	return contains(PROPERTY);
+            }
+            /**
+             * Return a copy of this <code>this</code> with the <code>sequential</code>
              * flag set.
          * @param flags TODO
              */
@@ -272,7 +320,7 @@ public class X10Flags extends Flags {
         	return setX(SEQUENTIAL);
             }
         /**
-             * Return a copy of this <code>this</code> with the <code>pure</code>
+             * Return a copy of this <code>this</code> with the <code>sequential</code>
              * flag clear.
          * @param flags TODO
              */
@@ -280,7 +328,7 @@ public class X10Flags extends Flags {
         	return clearX(SEQUENTIAL);
             }
         /**
-             * Return true if <code>this</code> has the <code>pure</code> flag set.
+             * Return true if <code>this</code> has the <code>sequential</code> flag set.
          * @param flags TODO
              */
             public  boolean isSequential() {
@@ -303,14 +351,14 @@ public class X10Flags extends Flags {
                 return sb.toString();
             }
             public boolean hasAllAnnotationsOf(X10Flags f) {
-            	boolean result = 
-            		((! f.isSequential()) || isSequential() || isSafe())
-            		&& ((! f.isLocal()) || isLocal() || isSafe())
-            		&& ((! f.isNonBlocking()) || isNonBlocking() || isSafe())
-            		&& ((! f.isSafe()) || isSafe());
-            	//Report.report(1, "X10Flags: " + this + ".hasAllAnnotationsOf(" + f + ")? " + result);
-            	return result;
-            	
+                boolean result =
+                        ((! f.isSequential()) || isSequential() || isSafe())
+                        && ((! f.isLocal()) || isLocal() || isSafe())
+                        && ((! f.isNonBlocking()) || isNonBlocking() || isSafe())
+                        && ((! f.isSafe()) || isSafe());
+                //Report.report(1, "X10Flags: " + this + ".hasAllAnnotationsOf(" + f + ")? " + result);
+                return result;
+
             }
             public String toString() {
             	  StringBuffer sb = new StringBuffer();

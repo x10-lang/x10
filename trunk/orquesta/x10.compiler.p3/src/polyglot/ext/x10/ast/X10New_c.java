@@ -14,6 +14,7 @@ import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
@@ -23,6 +24,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -61,6 +63,13 @@ public class X10New_c extends New_c implements X10New {
 		    X10New_c n = (X10New_c) copy();
 		    n.typeArguments = new ArrayList<TypeNode>(args);
 		    return n;
+	    }
+	    
+	    @Override
+	    protected New_c typeCheckHeader(TypeChecker childtc) throws SemanticException {
+		X10New_c n = (X10New_c) super.typeCheckHeader(childtc);
+		typeArguments = visitList(typeArguments, childtc);
+		return (X10New_c) n.typeArguments(typeArguments);
 	    }
 	    
 	/**

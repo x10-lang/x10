@@ -13,6 +13,7 @@ import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
+import polyglot.ext.x10.ast.Contains;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.SubtypeTest;
@@ -45,23 +46,24 @@ public class XTypeTranslator {
 	}
 
 	public void addTypeToEnv(XTerm self, Type t) throws SemanticException {
-		if (t instanceof ConstrainedType) {
-			ConstrainedType ct = (ConstrainedType) t;
-			XConstraint c = ct.constraint().get();
-//			try {
-//				c = c.substitute(self, XSelf.Self);
-//			}
-//			catch (XFailure e) {
-//				throw new SemanticException(e);
-//			}
-			try {
-				c = c.addBinding(XTerms.makeField(XSelf.Self, XTerms.makeName("type")), trans(ct.baseType().get()));
-			}
-			catch (XFailure e) {
-				throw new SemanticException(e);
-			}
-			self.setSelfConstraint(c);
+	    XConstraint c = X10TypeMixin.realX(t);
+	    Type base = X10TypeMixin.baseType(t);
+	    if (false) {
+		if (c != null) {
+		    c = c.copy();
 		}
+		else {
+		    c = new XConstraint_c();
+		}
+		try {
+		    c = c.addBinding(XTerms.makeField(XSelf.Self, XTerms.makeName("type")), trans(base));
+		}
+		catch (XFailure e) {
+		    throw new SemanticException(e);
+		}
+	    }
+
+	    self.setSelfConstraint(c);
 	}
 
 	public XTerm trans(Unary t) throws SemanticException {
@@ -204,6 +206,16 @@ public class XTypeTranslator {
 		addTypeToEnv(v, t.type());
 		return v;
 	}
+	
+	public XTerm trans(Contains t) throws SemanticException {
+	    Expr left = t.item();
+	    Expr right = t.collection();
+	    boolean containsAll = t.isSubsetTest();
+	    if (containsAll)
+		return XTerms.makeAtom(XTerms.makeName("subset"), trans(left), trans(right));
+	    else
+		return XTerms.makeAtom(XTerms.makeName("in"), trans(left), trans(right));
+	}
 
 	public XTerm trans(SubtypeTest t) throws SemanticException {
 		TypeNode left = t.subtype();
@@ -255,6 +267,10 @@ public class XTypeTranslator {
 		}
 		if (term instanceof Binary)
 			return trans((Binary) term);
+		if (term instanceof SubtypeTest)
+		    return trans((SubtypeTest) term);
+		if (term instanceof Contains)
+		    return trans((Contains) term);
 		if (term instanceof TypeNode)
 			return trans((TypeNode) term);
 		if (term instanceof ParExpr)

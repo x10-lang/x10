@@ -181,7 +181,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		}
 		
 		if (child == array) {
-			return ts.array(this.type);
+			return ts.x10Array(this.type);
 		}
 
 		return child.type();

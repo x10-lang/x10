@@ -22,9 +22,6 @@ import polyglot.types.TypeSystem;
 public class X10NullType_c extends NullType_c implements X10NullType {
     public X10NullType_c( TypeSystem ts ) {super(ts);}
     
-    public String name() { return "NULL_TYPE";}
-    public String fullName() { return "NULL_TYPE";}
-    
     public boolean safe() { return true;}
 
     public String toString() { 
