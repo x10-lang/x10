@@ -705,25 +705,26 @@ constraints over literals and final variables and subtyping
 and equality
 constraints over types.
 The core constraint system is presented here.  We assume a
-constraint solver ${\cal C}$ implementing the plugged-in
+constraint solver ${\cal X}$ implementing the plugged-in
 constraint systems.
 
 The constraint system does not distinguish between values and
 types.  Logical variables \xcd"x" may represent program variables
 or type variables.  Field accesses and member type references
 are special cases of atomic
-formulas; we write \Xcd{p.f} as sugar for \Xcd{f(p)}.
+formulas; we write \Xcd{p.f} (\Xcd{p.X}) as sugar for \Xcd{f(p)}
+(\Xcd{f(X)}).
 
 The constraint system is shown in Figure~\ref{fig:constraints}.
-$\xbar{c}$ is a set of constraints.
-The constraint system satisfies the structural rules, and
-supports equality and subtyping
-constraints over terms.
+$\xbar{c}$ is a set of constraints.  The constraint system
+satisfies the given structural rules, and supports equality and
+subtyping constraints over terms.
 
 \begin{figure}
 
 \infax[I]{ \xbar{c} \vdashC \Xcd{c}_i }
 
+XXX remove
 \infrule[Plugin]
 { \xbar{c} \vdashC_{\cal X} \Xcd{d} }
 { \xbar{c} \vdashC \Xcd{d} }
@@ -738,12 +739,14 @@ constraints over terms.
 % \infrule[Extension]{ \xbar{c}, \vdashC \Xcd{c} }
                      % { \xbar{c}, \xbar{c}' \vdashC \Xcd{c} }
 
+XXX check this
 \infrule[Ex-I]{
 \xbar{c} \vdashC \Xcd{d}[\Xcd{t}/{\Xcd{x}}]
 }{
 \xbar{c} \vdashC \exc{\Xcd{x}}{\Xcd{d}}
 }
 
+XXX check this
 \infrule[Ex-E]{
 \xbar{c}, \Xcd{d}[\Xcd{t}/\Xcd{x}] \vdashC \Xcd{e}
 \andalso
@@ -754,6 +757,26 @@ constraints over terms.
 \xbar{c} \vdashC \Xcd{e}
 }
 
+XXX fix this: cons should be a predicate, not an atom
+\infrule[Cons-eq]{
+\xbar{c} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
+}{
+\xbar{c} \vdashC
+\Xcd{cons(}\Xcd{T}_1\Xcd{,z)} \equals 
+\Xcd{cons(}\Xcd{T}_2\Xcd{,z)} 
+}
+
+\infrule[Cons-sub]{
+\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
+}{
+\xbar{c},
+\Xcd{cons(}\Xcd{T}_1\Xcd{,z)} \vdashC 
+\Xcd{cons(}\Xcd{T}_2\Xcd{,z)} 
+}
+
+\infax[Cons]{
+\vdashC \Xcd{cons(C,z)}
+}
 
 \infrule[Eq-atom]
 { \xbar{c} \vdashC \xbar{s} \equals \xbar{t} }
@@ -794,17 +817,13 @@ constraints over terms.
 }
 
 \infrule[Sub-super]{
-\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ K $\tbar{M}$\ $\tbar{F}$\ \}}}
+\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ K\ $\tbar{M}$\ $\tbar{F}$\ \}}}
 }{
 \vdashC \Xcd{C} \subtype \Xcd{T} \\
 }
 
 \infax[Sub-object]{
 \vdashC \Xcd{T} \subtype \Xcd{Object}
-}
-
-\infax[Sub-null]{
-\vdashC \Xcd{Null} \subtype \Xcd{T}
 }
 
 \infrule[Sub-eq]{
@@ -845,18 +864,22 @@ $\sigma(\Gamma)$ thus:
 \sigma(\Gamma, \Xcd{c}) &= \sigma(\Gamma), \Xcd{c} \\
 \end{align*}
 
-The
-auxiliary function $\mathit{cons}$
+The auxiliary function $\mathit{cons}$
 specifies the constraint for a type \Xcd{T} with \Xcd{self}
 bounds to \Xcd{x}.
-For type variables, the
-the constraint projection uses an atomic formula \Xcd{cons}.
+The constraint projection uses an atomic formula \Xcd{cons},
+which is equated to the constraint of \Xcd{T} if \Xcd{T} is not
+a type variable.
 
 \begin{align*}
-\cons{\Xcd{C}}{\Xcd{z}} &= \Xcd{true} \\
-\cons{\Xcd{C\{c\}}}{\Xcd{z}} &= \Xcd{c}[\Xcd{z}/\Xcd{self}] \\
-\cons{\Xcd{p.X}}{\Xcd{z}} &= \Xcd{cons(p.X,z)} \\
-\cons{\Xcd{X}}{\Xcd{z}} &= \Xcd{cons(X,z)} \\
+\cons{\Xcd{C}}{\Xcd{z}} &=
+    \Xcd{cons(C,z)} \\
+\cons{\Xcd{C\{c\}}}{\Xcd{z}} &=
+    \Xcd{c}[\Xcd{z}/\Xcd{self}], \Xcd{cons(C\{c\},z)==c}[\Xcd{z}/\Xcd{self}] \\
+\cons{\Xcd{p.X}}{\Xcd{z}} &=
+    \Xcd{cons(p.X,z)} \\
+\cons{\Xcd{X}}{\Xcd{z}} &=
+    \Xcd{cons(X,z)} \\
 \end{align*}
 
 \noindent
@@ -1143,6 +1166,7 @@ We define \Xcd{T\{c\}} as follows:
 \Gamma \vdash \Xcd{e} \ty \Xcd{T}
 }
 
+\eat{
 \infax[T-bool]{
 \vdash \Xcd{true} \ty \Xcd{Boolean\{self==true\}} \\
 \vdash \Xcd{false} \ty \Xcd{Boolean\{self==false\}}
@@ -1153,7 +1177,8 @@ We define \Xcd{T\{c\}} as follows:
 }
 
 \infax[T-null]{
-\vdash \Xcd{null} \ty \Xcd{Null}
+\vdash \Xcd{null} \ty \Xcd{T}
+}
 }
 
 \infrule[T-eq]{
@@ -1186,8 +1211,7 @@ We define \Xcd{T\{c\}} as follows:
 \Gamma, \Xcd{x} \ty \Xcd{T} \vdash \Xcd{x} \ty \Xcd{T}
 }
 
-TODO: T{self==x}
-
+\eat{
 \infrule[T-valdec]{
 \Gamma \vdash \Xcd{e}_0 \ty \Xcd{T}_0
 \andalso
@@ -1204,6 +1228,26 @@ TODO: T{self==x}
 \Gamma \vdash \Xcd{\{ val x} \ty \Xcd{T}_0~\Xcd{= e}_0\Xcd{;}~\tbar{e}~\Xcd{ \}} \ty \Xcd{T}_n
 }
 
+\infrule[T-assign]{
+\Gamma \vdash \Xcd{x} \ty \Xcd{T}
+\andalso
+\Gamma \vdash \Xcd{e} \ty \Xcd{T}
+}{
+\Gamma \vdash \Xcd{x}~\Xcd{=}~\Xcd{e} \ty \Xcd{T}
+}
+
+\infrule[T-if]{
+\Gamma \vdash \Xcd{e}_0 \ty
+\exists\Xcd{z}\ty\Xcd{Boolean}.~\Xcd{Boolean\{self==z\}}
+\\
+\Gamma, \Xcd{z==true} \vdash \Xcd{e}_1 \ty \Xcd{T}
+\\
+\Gamma, \Xcd{z==false} \vdash \Xcd{e}_2 \ty \Xcd{T}
+}{
+\Gamma \vdash \Xcd{if}~\Xcd{(e}_0\Xcd{)}~\Xcd{e}_1~\Xcd{else}~\Xcd{e}_2 \ty \Xcd{T}
+}
+}
+
 \infrule[T-cast]{
 \Gamma \vdash \Xcd{e} \ty \Xcd{S}
 \andalso
@@ -1214,15 +1258,15 @@ TODO: T{self==x}
 
 \infrule[T-field]{
 \Gamma \vdash \Xcd{e} \ty \Xcd{T}
+%\\
+%\Xcd{T} = \exty{\Xcd{z}}{\Xcd{S}}{\Xcd{S\{self==z\}}}
 \\
 \Xcd{T}~\Xcd{has}~\Xcd{f}\Xcd{\{c\}} \ty \Xcd{U}
 \\
 \sigma(\Gamma, \Xcd{this} \ty \Xcd{T}) \vdashC \Xcd{c}
 }{
-\Gamma \vdash \Xcd{e}.\Xcd{f} \ty \exty{\Xcd{this}}{\Xcd{T}}{\Xcd{U}}
+\Gamma \vdash \Xcd{e}.\Xcd{f} \ty \exty{\Xcd{this}}{\Xcd{T}}{\Xcd{U\{self==this.f\}}}
 }
-
-TODO: U{self==this.f}
 
 \infrule[T-invk]{
 \Gamma \vdash \Xcd{e}_0 \ty \Xcd{T}_0
@@ -1245,19 +1289,6 @@ TODO: U{self==this.f}
 \extytyty{\xbar{X}}{\Xcd{type}}{\Xcd{this}}{\Xcd{T}_0}{\xbar{x}}{\xbar{T}}{\Xcd{U}}
 }
 
-\infrule[T-invk-inferred]{
-\xbar{Y}~\mbox{fresh}
-\\
-\Gamma, \xbar{Y} \ty {\tt type}
-\vdash
-\Xcd{e}_0.\Xcd{m[}\xbar{Y}\Xcd{](}\xbar{e}\Xcd{)} \ty
-\Xcd{T}
-}{
-\Gamma \vdash
-\Xcd{e}_0.\Xcd{m(}\xbar{e}\Xcd{)} \ty
-\Xcd{T}
-}
-
 \infrule[T-new]{
 \Gamma \vdash \xbar{e} \ty \xbar{T}
 \\
@@ -1276,19 +1307,6 @@ TODO: U{self==this.f}
 \Gamma \vdash
 \Xcd{new}~\Xcd{C[}\xbar{V}\Xcd{](}\xbar{e}\Xcd{)} \ty
 \extytyty{\xbar{X}}{\Xcd{type}}{\Xcd{this}}{\Xcd{C}}{\xbar{x}}{\xbar{T}}{\Xcd{U}}
-}
-
-\infrule[T-new-inferred]{
-\xbar{Y}~\mbox{fresh}
-\\
-\Gamma, \xbar{Y} \ty {\tt type}
-\vdash
-\Xcd{new}~\Xcd{C[}\xbar{Y}\Xcd{](}\xbar{e}\Xcd{)} \ty
-\Xcd{T}
-}{
-\Gamma \vdash
-\Xcd{new}~\Xcd{C(}\xbar{e}\Xcd{)} \ty
-\Xcd{T}
 }
 
 \caption{Typing rules}
@@ -1490,6 +1508,35 @@ c |- Z.cons
 \end{verbatim}
 
 Now, to check c |- d, check normalized(c) |- normalized(d).
+}
+
+We add the following rules to allow type arguments to calls to
+be omitted.
+
+\infrule[T-invk-inferred]{
+\xbar{Y}~\mbox{fresh}
+\\
+\Gamma, \xbar{Y} \ty {\tt type}
+\vdash
+\Xcd{e}_0.\Xcd{m[}\xbar{Y}\Xcd{](}\xbar{e}\Xcd{)} \ty
+\Xcd{T}
+}{
+\Gamma \vdash
+\Xcd{e}_0.\Xcd{m(}\xbar{e}\Xcd{)} \ty
+\Xcd{T}
+}
+
+\infrule[T-new-inferred]{
+\xbar{Y}~\mbox{fresh}
+\\
+\Gamma, \xbar{Y} \ty {\tt type}
+\vdash
+\Xcd{new}~\Xcd{C[}\xbar{Y}\Xcd{](}\xbar{e}\Xcd{)} \ty
+\Xcd{T}
+}{
+\Gamma \vdash
+\Xcd{new}~\Xcd{C(}\xbar{e}\Xcd{)} \ty
+\Xcd{T}
 }
 
 \subsection{A graph-based inference algorithm}
