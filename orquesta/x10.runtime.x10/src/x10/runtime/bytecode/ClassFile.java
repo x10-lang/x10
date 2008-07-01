@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ClassFile {
+public class ClassFile implements ClassFileConstants {
 	public int magic;
 	public short minor;
 	public short major;
@@ -539,17 +539,6 @@ public class ClassFile {
 		return a;
 	}
 	private static final int CONSTANT_Empty = 0;
-	public static final int CONSTANT_Class = 7;
-	public static final int CONSTANT_Fieldref = 9;
-	public static final int CONSTANT_Methodref = 10;
-	public static final int CONSTANT_InterfaceMethodref = 11;
-	public static final int CONSTANT_String = 8;
-	public static final int CONSTANT_Integer = 3;
-	public static final int CONSTANT_Float = 4;
-	public static final int CONSTANT_Long = 5;
-	public static final int CONSTANT_Double = 6;
-	public static final int CONSTANT_NameAndType = 12;
-	public static final int CONSTANT_Utf8 = 1;
 	private static final byte[] EMPTY = { CONSTANT_Empty };
 	private static List<byte[]> readConstantPool(String name, InputStream in) throws IOException {
 		int cp_size = ((in.read() & 0xFF) << 8 | (in.read() & 0xFF));
