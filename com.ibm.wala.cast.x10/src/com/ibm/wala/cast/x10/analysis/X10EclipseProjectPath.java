@@ -17,8 +17,8 @@ import com.ibm.wala.eclipse.util.EclipseProjectPath;
  */
 public class X10EclipseProjectPath extends EclipseProjectPath {
 
-    public X10EclipseProjectPath(IPath workspaceRootPath, IJavaProject project) throws JavaModelException, IOException {
-	super(workspaceRootPath, project);
+    public X10EclipseProjectPath(IJavaProject project) throws JavaModelException, IOException {
+	super(project);
     }
 
     @Override

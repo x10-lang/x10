@@ -41,7 +41,7 @@ public class X10IRTests extends IRTests {
     }
 
     public X10IRTests(String name) {
-	super(name);
+	super(name,  null);
     }
 
     protected JavaSourceAnalysisEngine getAnalysisEngine(final String[] mainClassDescriptors) {

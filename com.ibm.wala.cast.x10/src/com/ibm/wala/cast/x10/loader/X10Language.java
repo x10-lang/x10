@@ -25,6 +25,10 @@ public class X10Language extends LanguageImpl {
 	return null;
     }
 
+    public TypeReference getThrowableType() {
+	return TypeReference.JavaLangThrowable;
+    }
+
     public TypeReference getConstantType(Object o) {
 	return Language.JAVA.getConstantType(o);
     }
