@@ -28,7 +28,7 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
 	      makeDefaultContextInterpreters(appContextInterpreter, options, cha, reflect);
       setContextInterpreter(contextInterpreter);
 
-      ContextSelector def = new DefaultContextSelector(cha, options.getMethodTargetSelector());
+      ContextSelector def = new DefaultContextSelector();
       ContextSelector contextSelector =
 	appContextSelector == null? 
 	def: 

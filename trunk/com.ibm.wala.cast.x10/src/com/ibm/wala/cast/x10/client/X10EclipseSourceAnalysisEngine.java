@@ -69,7 +69,7 @@ public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysis
      */
     @Override
     protected EclipseProjectPath createProjectPath(IJavaProject project) throws JavaModelException, IOException {
-        return new X10EclipseProjectPath(workspaceRootPath, project);
+        return new X10EclipseProjectPath(project);
     }
 
     @Override

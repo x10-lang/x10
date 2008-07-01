@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.Set;
 
 import com.ibm.wala.cast.x10.loader.X10AnalysisScope;
-import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
-import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
+import com.ibm.wala.cast.x10.translator.polyglot.*;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
-import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
+import com.ibm.wala.cast.java.translator.polyglot.*;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.classLoader.Module;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
@@ -18,7 +17,7 @@ import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.util.collections.HashSetFactory;
 
-public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
+public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
     /**
      * Modules which contain X10 system or library code
      */
@@ -39,8 +38,8 @@ public class X10SourceAnalysisEngine extends JavaSourceAnalysisEngine {
     }
 
     @Override
-    protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions, IRTranslatorExtension extInfo) {
-	return new X10ClassLoaderFactory(exclusions, extInfo, super.getTranslatorExtension());
+    protected ClassLoaderFactory getClassLoaderFactory(SetOfClasses exclusions) {
+	return new X10ClassLoaderFactory(exclusions, getTranslatorExtension(), super.getTranslatorExtension());
     }
 
     @Override
