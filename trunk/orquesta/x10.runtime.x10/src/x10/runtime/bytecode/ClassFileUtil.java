@@ -15,7 +15,9 @@ public class ClassFileUtil {
 	public static final String SIG_void = "V";
 	public static final String SIG_boolean = "Z";
 	public static final String SIG_null = "N";
+	public static final String SIG_Object = "Ljava/lang/Object;";
 	public static final String SIG_String = "Ljava/lang/String;";
+	public static final String SIG_StringBuilder = "Ljava/lang/StringBuilder;";
 	public static final String SIG_Class = "Ljava/lang/Class;";
 
 	/** Order matters! */
@@ -25,9 +27,11 @@ public class ClassFileUtil {
 	/** Order matters! */
 	public static final String[] PRIM_SIGS = { SIG_byte, SIG_char, SIG_double, SIG_float, SIG_int, SIG_long, SIG_short, SIG_void, SIG_boolean };
 	public static String typeToSignature(String string) {
+		if (string.charAt(0) == '[') // Java stores array types as signatures
+			return string;
 		int bkt_idx = string.lastIndexOf("[]");
 		if (bkt_idx != -1)
-			return "[" + typeToSignature(string.substring(0, bkt_idx));
+			return ("[" + typeToSignature(string.substring(0, bkt_idx))).intern();
 		assert (PRIMITIVES.length == PRIM_SIGS.length);
 		for (int i = 0; i < PRIMITIVES.length; i++) {
 			if (string.equals(PRIMITIVES[i]))
@@ -43,6 +47,51 @@ public class ClassFileUtil {
 				return PRIMITIVES[i];
 		assert (signature.charAt(0) == 'L');
 		return signature.substring(1, signature.length()-1).replace('/', '.');
+	}
+	public static String constantPoolTypeFromSignature(String signature) {
+		if (signature.charAt(0) == '[')
+			return signature; // Java stores arrays as signatures
+		for (int i = 0; i < PRIM_SIGS.length; i++)
+			if (signature.equals(PRIM_SIGS[i]))
+				return PRIMITIVES[i];
+		assert (signature.charAt(0) == 'L');
+		return signature.substring(1, signature.length()-1);
+	}
+	public static String wrapperToSignature(String wrapper) {
+		assert (wrapper.startsWith("java/lang/"));
+		switch (wrapper.charAt(10)) {
+		case 'B':
+			if (wrapper.charAt(11) == 'o') {
+				assert (wrapper.equals("java/lang/Boolean"));
+				return SIG_boolean;
+			} else {
+				assert (wrapper.equals("java/lang/Byte"));
+				return SIG_byte;
+			}
+		case 'C':
+			assert (wrapper.equals("java/lang/Character"));
+			return SIG_char;
+		case 'D':
+			assert (wrapper.equals("java/lang/Double"));
+			return SIG_double;
+		case 'F':
+			assert (wrapper.equals("java/lang/Float"));
+			return SIG_float;
+		case 'I':
+			assert (wrapper.equals("java/lang/Integer"));
+			return SIG_int;
+		case 'L':
+			assert (wrapper.equals("java/lang/Long"));
+			return SIG_long;
+		case 'S':
+			assert (wrapper.equals("java/lang/Short"));
+			return SIG_short;
+		case 'V':
+			assert (wrapper.equals("java/lang/Void"));
+			return SIG_void;
+		}
+		assert (false);
+		return null;
 	}
 	public static int nextTypePos(String signature, int index) {
 		switch (signature.charAt(index)) {
@@ -61,7 +110,7 @@ public class ClassFileUtil {
 		case 'B': case 'C': case 'D': case 'F': case 'I':
 		case 'J': case 'S': case 'V': case 'Z':
 			return true;
-		case '[': case 'L':
+		case '[': case 'L': case 'N':
 			return false;
 		}
 		throw new IllegalArgumentException(type.substring(0, 1));
@@ -71,16 +120,57 @@ public class ClassFileUtil {
 			return false;
 		return true;
 	}
+	public static boolean isPrimitiveArray(String type) {
+		assert (isArray(type));
+		return isPrimitive(type.substring(1));
+	}
 	public static boolean isArrayOf(String type, String base) {
 		if (type.charAt(0) != '[')
 			return false;
 		if (isPrimitive(base))
-			return type.substring(1).equals(base);
+			return elementType(type).equals(base);
 		// TODO: check inheritance
-		return type.substring(1).equals(base);
+		return elementType(type).equals(base);
+	}
+	public static String arrayOf(String base) {
+		return arrayOf(base, 1);
+	}
+	public static String arrayOf(String base, int dim) {
+		return (replicate("[", dim)+base).intern();
+	}
+	public static String elementType(String array) {
+		assert (isArray(array));
+		return array.substring(1).intern();
+	}
+	public static boolean isInteger(String type) {
+		switch (type.charAt(0)) {
+		case 'B': case 'C': case 'I': case 'S': case 'Z':
+			return true;
+		case 'D': case 'F': case 'J': case 'V': case '[': case 'L': case 'N':
+			return false;
+		}
+		throw new IllegalArgumentException(type.substring(0, 1));
 	}
 	public static boolean isWidePrimitive(char t) {
 		return t == 'D' || t == 'J';
+	}
+	public static final String[] PRIM_ARRAY_TO_JAVA_TYPE = {
+		null, null, null, null,
+		SIG_boolean, SIG_char, SIG_float, SIG_double, SIG_byte, SIG_short, SIG_int, SIG_long,
+	};
+	public static final byte JavaTypeToPrimArray(String type) {
+		assert (isPrimitive(type));
+		for (int i = 0; i < PRIM_ARRAY_TO_JAVA_TYPE.length; i++)
+			if (PRIM_ARRAY_TO_JAVA_TYPE[i] == type)
+				return (byte) i;
+		return 0;
+	}
+
+	public static String replicate(String s, int count) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < count; i++)
+			sb.append(s);
+		return sb.toString();
 	}
 
 	/** Represents a signature of a method split into parts */
@@ -113,8 +203,6 @@ public class ClassFileUtil {
 			return sb.toString();
 		}
 	}
-
-	public static final int ACC_STATIC = 0x0008;
 
 	public static String constantPoolType(ClassFile cf, int index) {
 		byte[] entry = cf.constant_pool.get(index);
@@ -157,4 +245,10 @@ public class ClassFileUtil {
 		}
 		return argTypes;
 	}
+	public static String methodReturnType(String container, String signature, boolean isStatic) {
+		return signature.substring(signature.indexOf(')')+1).intern();
+//		MethodSig sig = MethodSig.fromSignature(signature);
+//		return sig.returnType;
+	}
+
 }
