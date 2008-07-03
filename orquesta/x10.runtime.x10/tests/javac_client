@@ -1,2 +1,2 @@
 #!/bin/bash
-javac -classpath ../classes -sourcepath dummy "$@"
+javac -classpath ../classes -sourcepath dummy -g "$@"
