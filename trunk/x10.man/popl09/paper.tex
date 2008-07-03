@@ -104,7 +104,6 @@ of objects.  Generic types are defined
 in a natural extension of the
 dependent type system.
 
-
 The immutable state of an object is represented by its
 \emph{properties}, public final fields of the object.
 A \emph{constrained type} then, is a defined by a class type and
@@ -124,6 +123,29 @@ by the programmer.
 \end{abstract}
 
 \section{Introduction}
+
+Outline:
+\begin{itemize}
+\item Classes have value properties and type properties.
+\item Constrained types.
+\item Pluggable constraint solvers.
+\item This combination subsumes many OO type systems:
+\begin{itemize}
+\item Generics of various flavors:
+equality constraints, subtyping constraints, structural
+constraints, use-site variance, definition-site variance
+\item Translation from Java wildcards to constraints
+\item MyType: add \Xcd{class} property, and add
+$\Xcd{p} \ty \Xcd{C} \vdash \Xcd{p}.\Xcd{class} \subtype \Xcd{C}$,
+and/or add \Xcd{type} property.
+\item Virtual types plus contravariance (translation?)
+\item Virtual classes: add an \Xcd{outer} property and
+the constraint \Xcd{x}.\Xcd{type} == \Xcd{x}.\Xcd{outer}.\Xcd{T}
+\item Generalized constraints from C\#
+\item Ownership?  Generic ownership?
+\end{itemize}
+\end{itemize}
+
 
 \todo{More positioning, relative to: DML, HM(X), constrained
 types (Trifonov, Smith) and subtyping constraints, Java
@@ -635,51 +657,30 @@ full X10 language not relevant to this paper.
 program & {\tt P} & ::= & \xbar{L} \\
 classes & {\tt L} & ::= &
 \xcdmath"class C[$\tbar{X}$]($\tbar{x} \ty \tbar{T}$){c}" \\
-& & & \xcdmath"  extends T { K $\tbar{M}$ }" \\
-types & {\tt T} & ::= & \xcd"C" \\
+& & & \xcdmath"  extends T { $\tbar{M}$ }" \\
+base types & {\tt R} & ::= & \xcd"C" \\
             & & \bnf & \xcd"X" \\
             & & \bnf & \xcd"e.X" \\
-            & & \bnf & \xcd"T{c}" \\
-            & & \bnf & $\exty{\Xcd{x}}{\Xcd{T}_0}{\Xcd{T}}$ \\
-            & & \bnf & $\exty{\Xcd{X}}{\Xcd{type}}{\Xcd{T}}$ \\
-constructors      & {\tt K} & ::= &
-\xcdmath"def this[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T = {" \\
-                      &         &     &
-\xcdmath"  super[${\tt X}_{1..i}$](${\tt x}_{1..j}$);" \\
-                      &         &     &
-\xcdmath"  property[${\tt X}_{i+1..m}$](${\tt x}_{j+1..n}$); }" \\
-%\xcdmath"  property[${\tt X}_{i+1..m}$](${\tt x}_{j+1..k}$);" \\
-                      %&         &     &
-%\xcdmath"  $\tbar{f}$ = ${\tt x}_{k+1..n}$; }" \\
+types & {\tt T} & ::= & \xcd"R" \\
+            & & \bnf & \xcd"R{c}" \\
 methods     & {\tt M} & ::= &
 \xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T = e" \\
 expressions & {\tt e} & ::= & \\
 \quad literals        &         &      & \xcd"true" \bnf \xcd"false" \bnf \xcd"null" \bnf $n$ \\
-\quad equality        &         & \bnf & \xcdmath"e$_1$==e$_2$" \\
-\quad subtyping       &         & \bnf & \xcdmath"T$_1$<:T$_2$" \\
-\quad type equality   &         & \bnf & \xcdmath"T$_1$==T$_2$" \\
 \quad variables       &         & \bnf & \xcd"x" \\
 \quad field access    &         & \bnf & \xcdmath"e.x" \\
-\quad val             &         & \bnf & \xcdmath"{ val x = e$_0$; $\tbar{e}$ }" \\
-                      &         & \bnf & \xcdmath"{ val x: T = e$_0$; $\tbar{e}$ }" \\
-\quad var             &         & \bnf & \xcdmath"{ var x = e$_0$; $\tbar{e}$ }" \\
-                      &         & \bnf & \xcdmath"{ var x: T = e$_0$; $\tbar{e}$ }" \\
-\quad assignment      &         & \bnf & \xcdmath"x = e" \\
-\quad field assignment&         & \bnf & \xcdmath"e$_1$.x = e$_2$" \\
 \quad call            &         & \bnf & \xcdmath"e$_0$.m[$\tbar{T}$]($\tbar{e}$)" \\
-\quad                 &         & \bnf & \xcdmath"e$_0$.m($\tbar{e}$)" \\
+%\quad                 &         & \bnf & \xcdmath"e$_0$.m($\tbar{e}$)" \\
 \quad new             &         & \bnf & \xcdmath"new C[$\tbar{T}$]($\tbar{e}$)" \\
-                      &         & \bnf & \xcdmath"new C($\tbar{e}$)" \\
+%\quad                 &         & \bnf & \xcdmath"new C($\tbar{e}$)" \\
 \quad cast            &         & \bnf & \xcdmath"e as T" \\
-\quad if              &         & \bnf & \xcdmath"if (e$_0$) e$_1$ else e$_2$" \\
 constraint terms & {\tt t} & ::= & \\
-\quad literals        &         &      & \xcd"true" \bnf $n$ \bnf \xcd"C" \\
-\quad variables       &         & \bnf & \xcd"x" \bnf \xcd"X" \\
-\quad properties      &         & \bnf & \xcd"t".\xcd"x" \bnf \xcd"t".\xcd"X" \\
-\quad atoms           &         & \bnf & \xcdmath"f(t$_1$,$\dots$,t$_n$)" \\
+\quad self            &         &      & \xcd"self" \\
+\quad variables       &         & \bnf & \xcd"x" \\
+\quad properties      &         & \bnf & \xcd"t".\xcd"x" \\
+\quad atoms           &         & \bnf & \xcdmath"g(t$_1$,$\dots$,t$_n$)" \\
+\quad new             &         & \bnf & \xcdmath"new C(t$_1$,$\dots$,t$_n$)" \\
 constraint & {\tt c} & ::=  & \Xcd{true} \\
-                  &  & \bnf & $\Xcd{t}_1 \equals \Xcd{t}_2$ \\
-                  &  & \bnf & $\Xcd{t}_1 \subtype \Xcd{t}_2$ \\
                   &  & \bnf & $\exc{\Xcd{x}}{\Xcd{c}}$ \\
                   &  & \bnf & $\xbar{c}$ \\
                   &  & \bnf & \xcdmath"p(t$_1$,$\dots$,t$_n$)" \\
@@ -692,6 +693,30 @@ environments & $\Gamma$ & ::=  & $\epsilon$ \\
 \caption{\gxx grammar}
 \label{fig:grammar}
 \end{figure}
+
+\begin{figure}[tp]
+\begin{center}
+\begin{tabular}{lrcl}
+types & {\tt T} & ::= & \dots \\
+            & & \bnf & $\exty{\Xcd{x}}{\Xcd{T}_0}{\Xcd{T}}$ \\
+            & & \bnf & $\exty{\Xcd{X}}{\Xcd{type}}{\Xcd{T}}$ \\
+constraint terms & {\tt t} & ::= & \dots \\
+\quad literals        &         &      & \xcd"true" \bnf $n$ \bnf \xcd"C" \\
+\quad type variables       &         & \bnf & \xcd"X" \\
+\quad type properties      &         & \bnf & \xcd"t".\xcd"X" \\
+constraint & {\tt c} & ::=  & \dots \\
+                  &  & \bnf & $\Xcd{t}_1 \equals \Xcd{t}_2$ \\
+                  &  & \bnf & $\Xcd{t}_1 \subtype \Xcd{t}_2$ \\
+\end{tabular}
+\end{center}
+\caption{Extended \gxx grammar}
+\label{fig:grammar2}
+\end{figure}
+
+The type 
+$\exty{\Xcd{x}}{\Xcd{T}}{\Xcd{R\{c\}}}$
+is sugar for
+$\Xcd{R\{}\exc{\Xcd{x}}{\sigma(\Xcd{x}\ty\Xcd{T}),\Xcd{c}}\Xcd{\}}$.
 
 \subsection{
 Constraint system
@@ -710,10 +735,8 @@ constraint systems.
 
 The constraint system does not distinguish between values and
 types.  Logical variables \xcd"x" may represent program variables
-or type variables.  Field accesses and member type references
-are special cases of atomic
-formulas; we write \Xcd{p.f} (\Xcd{p.X}) as sugar for \Xcd{f(p)}
-(\Xcd{f(X)}).
+or type variables.  Path terms \Xcd{p.x} may represent field
+accesses or member type references.
 
 The constraint system is shown in Figure~\ref{fig:constraints}.
 $\xbar{c}$ is a set of constraints.  The constraint system
@@ -1166,7 +1189,6 @@ We define \Xcd{T\{c\}} as follows:
 \Gamma \vdash \Xcd{e} \ty \Xcd{T}
 }
 
-\eat{
 \infax[T-bool]{
 \vdash \Xcd{true} \ty \Xcd{Boolean\{self==true\}} \\
 \vdash \Xcd{false} \ty \Xcd{Boolean\{self==false\}}
@@ -1174,11 +1196,6 @@ We define \Xcd{T\{c\}} as follows:
 
 \infax[T-int]{
 \vdash n \ty \Xcd{Int\{self==}n\Xcd{\}}
-}
-
-\infax[T-null]{
-\vdash \Xcd{null} \ty \Xcd{T}
-}
 }
 
 \infrule[T-eq]{
@@ -1209,43 +1226,6 @@ We define \Xcd{T\{c\}} as follows:
 
 \infax[T-var]{
 \Gamma, \Xcd{x} \ty \Xcd{T} \vdash \Xcd{x} \ty \Xcd{T}
-}
-
-\eat{
-\infrule[T-valdec]{
-\Gamma \vdash \Xcd{e}_0 \ty \Xcd{T}_0
-\andalso
-\Gamma, \Xcd{x} \ty \Xcd{T}_0 \vdash \tbar{e} \ty \tbar{T}
-}{
-\Gamma \vdash \Xcd{\{ val x = e}_0\Xcd{;}~\tbar{e}~\Xcd{ \}} \ty \Xcd{T}_n
-}
-
-\infrule[T-valdec2]{
-\Gamma \vdash \Xcd{e}_0 \ty \Xcd{T}_0
-\andalso
-\Gamma, \Xcd{x} \ty \Xcd{T}_0 \vdash \tbar{e} \ty \tbar{T}
-}{
-\Gamma \vdash \Xcd{\{ val x} \ty \Xcd{T}_0~\Xcd{= e}_0\Xcd{;}~\tbar{e}~\Xcd{ \}} \ty \Xcd{T}_n
-}
-
-\infrule[T-assign]{
-\Gamma \vdash \Xcd{x} \ty \Xcd{T}
-\andalso
-\Gamma \vdash \Xcd{e} \ty \Xcd{T}
-}{
-\Gamma \vdash \Xcd{x}~\Xcd{=}~\Xcd{e} \ty \Xcd{T}
-}
-
-\infrule[T-if]{
-\Gamma \vdash \Xcd{e}_0 \ty
-\exists\Xcd{z}\ty\Xcd{Boolean}.~\Xcd{Boolean\{self==z\}}
-\\
-\Gamma, \Xcd{z==true} \vdash \Xcd{e}_1 \ty \Xcd{T}
-\\
-\Gamma, \Xcd{z==false} \vdash \Xcd{e}_2 \ty \Xcd{T}
-}{
-\Gamma \vdash \Xcd{if}~\Xcd{(e}_0\Xcd{)}~\Xcd{e}_1~\Xcd{else}~\Xcd{e}_2 \ty \Xcd{T}
-}
 }
 
 \infrule[T-cast]{
@@ -1444,31 +1424,15 @@ Extensions: structural constraints, optional methods, interfaces
 \section{Constraint solver}
 
 The goal of the constraint solver is 
-to check an assertion ${\tt c} \vdashC {\tt d}$.
+to check an assertion $\xbar{c} \vdashC \Xcd{d}$.
 
-The first step is to normalize constraints.
-Normalization splits constraints into type constraints and
-value constraints.  Produces a set of constraint judgments
+\eat{
+Inference
+
+The first step is to normalize constraints
+into a set of constraint judgments
 $\xbar{c} \vdashC \Xcd{c}$ where $\Xcd{c}$ contains no conjunctions.
 
-\begin{align*}
-\SB{ \xbar{c} \vdashC \Xcd{d}_1, \Xcd{d}_2 } 
-        &=
-     \xbar{c} \vdashC \Xcd{d}_1,
-     \xbar{c} \vdashC \Xcd{d}_2
-     \\
-\SB{ \xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2 } 
-        &=
-     \xbar{c} \vdashC \class{\Xcd{T}_1}{\Xcd{self}} \subtype \class{\Xcd{T}_2}{\Xcd{self}}, \\
-     & \quad~
-     \xbar{c}, \cons{\Xcd{T}_1}{\Xcd{self}} \vdashC \class{\Xcd{T}_2}{\Xcd{self}}
-     \\
-\SB{ \xbar{c} \vdashC \Xcd{d} }
-        &=
-     \xbar{c} \vdashC \Xcd{d}
-     \qquad~\mbox{(otherwise)}
-     \\
-\end{align*}
 
 Once in normalized form, the inference proceeds as follows:
 Select a constraint $\xbar{c} \vdashC \Xcd{c}$.
@@ -1490,24 +1454,6 @@ this clause true.  Does the weakest assignment exist?
 
 Question: can we ensure each clause involves only one or two
 unknowns?
-
-\eat{
-Weakest assignment:
-
-\begin{verbatim}
-p==q --> add p==q
-C<:D --> either valid or not, nothing to do
-C<:Z.class --> Z.class<:Object        -- allowed to refine lower;
-Z.class<:C --> Z.class<:C                assignment will pick GLB
-C<:Z.class --> add C<:Z.class to set of constraints to check after assignment
-
-Z.cons == c --> add Z.cons==c
-        replace Z.cons in assumptions with c
-        (what if env not appropriate)
-c |- Z.cons
-\end{verbatim}
-
-Now, to check c |- d, check normalized(c) |- normalized(d).
 }
 
 We add the following rules to allow type arguments to calls to
@@ -1539,7 +1485,7 @@ be omitted.
 \Xcd{T}
 }
 
-\subsection{A graph-based inference algorithm}
+\subsection{Constraint representation}
 
 %\newcommand\eqedge{\rightleftharpoons}
 \newcommand\eqedge{\sim}
@@ -1592,6 +1538,8 @@ to $G$.
 
 \end{itemize}
 
+\subsection{Solving}
+
 A flow-path is a path that follows flow and equivalence edges
 only.
 A type-path is a path that follows type and equivalence edges
@@ -1603,217 +1551,27 @@ add $c[t/\Xcd{self}]$ to the worklist.
 
         Can saturate lazily when doing a lookup.
         EXCEPT: a type may have an arbitrary constraint
-                \xcd"C{self.x==3 && y > 7}"
+                \xcd"C{self.x==3 && y > 7}", so affect is non-local
         EXCEPT: c is x.f==...
                 with x: C{c}
                 need to avoid infinite loop
 
-The inference algorithm adds
-flow edges, $v \flowedge w$, to the graph $G$.
+To check:
 
-For constraint {\tt S<:T},
-add the flow edge $v_{\tt S} \flowedge v_{\tt T}$
-to $G$.
+\begin{itemize}
+\item To check
+constraint {\tt p==q}, check if $v_{\tt p} \eqedge^* v_{\tt q}$.
+\item To check
+constraint {\tt S<:T}, check if there is a flow-path from $V_{\tt S}$ to
+$V_{\tt T}$.  This requires checking entailment of the type constraints and
+adding more edges to the graph.  (XXX details!)
+Add the flow edge to memoize.
+\end{itemize}
 
-TODO: self constraints
-TODO: existentials
-
-Initialize $W$ to the set of equivalence edges for the set of
-equational constraints {\tt p==q}.
-Initialize $G$ with flow edges only.
-
-\paragraph{Merge fields.}
-For all $t$ in the constraint, for all
-$v_{t'}$ reachable by flow edges from $v_t$,
-if $t$ has a type member {\tt X},
-add $v_{t.{\tt X}} \eqedge v_{t'.{\tt X}}$ to $W$;
-if $t$ has a field {\tt f},
-add $v_{t.{\tt f.type}} \eqedge v_{t'.{\tt f.type}}$ to $W$.
-
-\paragraph{Process equational constraints.}
-While $W$ is non-empty, extract and remove  $v_{\tt p} \eqedge v_{\tt q}$
-from $W$.
-If the edge is already in $G$, continue with the next constraint.
-
-If the edge connects $v_{\tt S}$ and $v_{\tt T}$
-and {\tt S} and {\tt T} cannot be equal, fail.
-
-If $v_{p.X} \eqedge v_T$
-and there is a type edge from $v_p$ to $v_{\Xcd{C\{c\}}}$
-add in ${\tt c[p/self]}$.
-
-If adding the edge would create a cycle, merge the nodes.
-
-Let $\mathit{src}(v)$ be the set of class/interface nodes from which
-$v$ is reachable by flow and equivalence edges.
-These are the nodes that represent subtypes of $v$'s type.
-
-Let $\mathit{snk}(v)$ be the set of class/interface nodes reachable from
-$v$ by flow and equivalence edges.
-These are the nodes that represent supertypes of $v$'s type.
-
-If there is a $v$ in both $\mathit{src}(v_{\tt p})$
-              and $\mathit{snk}(v_{\tt q})$,
-add $v \eqedge v_{\tt p}$
-to $W$.
-
-If there is a $v$ in both $\mathit{src}(v_{\tt q})$
-              and $\mathit{snk}(v_{\tt p})$,
-add $v \eqedge v_{\tt q}$
-to $W$.
-
-Add the edge to $G$ and continue with $W$.
-
-
-
-
-\section{Type inference}
-
-Because constrained types can be verbose, X10 supports type
-inference to reduce the type annotation burden on the
-programmer.
-
-The type inference algorithm allows types to be omitted
-altogether from many declarations and from method
-and constructor invocations.
-The algorithm also allows programmers to write a
-partially constrained type or just the base type in a
-declaration and to have a more precise constrained type
-inferred.
-For instance, it infers the type \xcd"int{self==3}" for the
-local variables \xcd"x", \xcd"y", \xcd"z" in the following code:
-\begin{xten}
-val x = 3;
-val y: int = x;
-val z: int{self>0} = x;
-\end{xten}
-The algorithm is local: method and constructor parameter types,
-as well as the types of mutable fields,
-must be declared explicitly.  For non-\xcd"private" members,
-this requirement is essential for enabling separate compilation.
-Limiting the scope of inference also eliminates one cause of
-potentially confusing error messages when types cannot be inferred.
-
-The algorithm uses the subtyping constraint system described in
-Section~\ref{sec:constraints}.
-
-In general, an expression may have more than one satisfying type.
-
-One requirement of the algorithm
-is that it report not only that there exists a satisfying
-assignment, but also reports the assignment itself.
-The algorithm chooses the most precise assignment.
-
-Because methods can be overridden, the inferred return type may be too
-precise, preventing subclasses from overriding the method.
-
-\infrule{
-\Gamma \vdash e_0 \ty C\{c\} \\
-\Gamma \vdash \mathit{mtype}(C, m) =
-[X_1,\dots,X_k](x_1:T_1,\dots,x_n:T_n)\{d\} \flowedge T \\
-\Gamma \vdash e_i \ty S_i \\
-\sigma(\Gamma) \vdash_{\cal C}
-\exists {\tt this} \ty C\{c\} .  \exists x_i: T_i .  S_i \subtype T_i \wedge d
-}{
-\Gamma \vdash e_0.m(e_1, \ldots, e_n) \ty T
-}
-
-\subsection{Discussion}
-
-Consider the following method from \cite{adding-wildcards}:
-\begin{xten}
-def choose[T](a: T, b: T): T { ... }
-\end{xten}
-%
-In the following snippet, the algorithm should infer the type
-\xcd"Collection" for \xcd"x".
-\begin{xten}
-intSet: Set[int];
-stringList: List[String];
-val x = choose(intSet, stringList);
-\end{xten}
-%
-And in this snippet, the algorithm should infer the type
-\xcd"Collection[int]" for \xcd"y".
-\begin{xten}
-intSet: Set[int];
-intList: List[int];
-val y = choose(intSet, intList);
-\end{xten}
-%
-Finally, in this snippet, the algorithm should infer the type
-\xcd"Collection{T <: Number}" for \xcd"z".
-\begin{xten}
-intSet: Set[int];
-numList: List{T <: Number};
-val z = choose(intSet, numList);
-\end{xten}
-The inference algorithm for Java 5 produces analogous results.
-
-Now, consider the following example:
-\begin{xten}
-def union[T](a: Set[T], b: Set[T]) : Set[T];
-\end{xten}
-The union method cannot be called with just arguments of type \xcd"Set".
-\begin{xten}
-set1: Set;
-set2: Set;
-val a = union(set1, set2);
-\end{xten}
-This is illegal because the type system cannot demonstrate that
-\xcd"set1.T" and \xcd"set2.T" are equal.
-The following, however, is acceptable:
-\begin{xten}
-set1: Set;
-set2: Set[set1.T];
-val a = union(set1, set2);
-\end{xten}
-
-As another example from \cite{adding-wildcards}, consider
-the following method signature:
-\begin{xten}
-def unmodifiableSet[T](set: Set[T]): Set[T];
-\end{xten}
-
-In Java, this method could be called with an argument of
-type \xcd"Set<?>".
-This instantiates the method on \xcd"?"; that is, the
-wildcard is captured by the call, since any element type will be
-safe.  A type variable can capture only one wildcard.
-
-In X10, the method can be called with just a \xcd"Set" because there
-are no constraints on \xcd"T".  Using desugared syntax, the method is
-equivalent to:
-\begin{xten}
-def unmodifiableSet[T](set: Set{self.T==T}): Set{self.T==T};
-\end{xten}
-Any \xcd"Set" can be passed in: for an argument \xcd"e", the method
-is instantiated on \xcd"e.T".
-%
-Note that if this method were defined as:
-\begin{xten}
-def unmodifiableSet(set: Set): Set;
-\end{xten}
-then the connection between the element types of the
-argument and of the return types would be broken.
-However, in X10, one could write use the following signature to keep the
-connection:
-\begin{xten}
-def unmodifiableSet(set: Set): Set[set.T];
-\end{xten}
-
-\if 0
-\section{Introspection}
-
-\xcd"Cell[Cell[T<:A]]"
-
-If not invariant, need run-time constraint solving.
-\fi
-
-\section{Implementation}
+\section{Translation}
 
 This section describes an implementation approach for
-constrained types on a Java virtual machine.
+generic constrained types on a Java virtual machine.
 We describe the implementation as a translation to Java.
 
 The design
@@ -1826,7 +1584,7 @@ to concrete types.  To implement run-time type checking (e.g.,
 casts), type properties are represented at run time
 using \emph{adapter objects}.
 
-This design, appropriately extended to handle language features
+This design, extended to handle language features
 not described in this paper, has been implemented in the X10
 compiler.  The X10 compiler is built on the Polyglot framework
 and translates X10 source to Java source\footnote{There is also
@@ -1938,10 +1696,10 @@ Object.  Only nine possible instantiations per parameter.
 Instantiations used for representation.
 Adapter objects used for run time type information.
 
-Could do instantiation eagerly, but gets out of hand quickly: 9
-instantiations for one type properties, 81 for two type
+Could do instantiation eagerly, but quickly gets out of hand without
+whole-program analysis to limit the number of instantiations: 9
+instantiations for one type property, 81 for two type
 properties, 729 for three.
-Most of these are not used.
 
 Value constraints are erased from type references.
 
@@ -2009,128 +1767,9 @@ new C[int{self==3}]() instanceof C[int{self<4}];
 \label{fig:translation2}
 \end{figure*}
 
-\begin{figure*}[tp]
-\begin{xten}
-class C{0} implements C {
-    final Type T = {0}$Type.it;
-    {0} x;
-    C{0}({0} x) { this.x = x; }
-
-    void set$(Object x) { set(({0}) x); }
-    void set({0} x) { this.x = x; }
-
-    Object get$() { return ({0}) get(); }
-    {0} get() { return this.x; }
-
-    D d$() { return d(); }
-    D{0} d() { return new D{0}(); }
-
-    Object t$() { return t(); }
-    {0} t() { return new {0}(); }
-
-    boolean isa(Object y) { return T.instanceof$(y); }
-
-    static class map$Type extends Type {
-        ...
-        static map$Type instantiate$(Type T, Type S) { ... }
-    }
-
-    static class map$Type{0}{1} extends Map$Type {
-        map$ new$() { return new map${0}{1}(); }
-    }
-
-    interface map$ {
-        Object apply$(C c, Fun1 f);
-    }
-
-    class map${0}{1} implements map$ {
-        final Type T = {0}$Type.it;
-        final Type S = {1}$Type.it;
-        Object apply$(C c, Fun1 f)
-          { return apply((C{0}) c, (Fun1{0}{1}) f); }
-        {1} apply(C{0} c, Fun1{0}{1} f) { return f(c.x); }
-    }
-}
-
-C x = new C$String();
-C$int y = new C$int();
-C z = new C$Array$int();
-C.map$Type.instantiate$(x.T, int$Type.it).new$().apply$(x,f);
-C$int$self$lt$4.instanceof$(new C$int$self$eqeq$3());
-\end{xten}
-
-\caption{Translation to Java}
-\label{fig:translation4}
-\end{figure*}
-
-\begin{figure*}[tp]
-\begin{xten}
-class C$Type implements Type {
-    static Type it = new C$Type();
-    boolean instanceof$(Object x) { return x instanceof C; }
-
-    static Map<Type,Type> instantiations;
-
-    static Type instantiate$(Type T) {
-        instantiations.get(T);
-    }
-}
-
-class C{0}$Type implements Type {
-    static Type it = new C{0}$Type();
-    boolean instanceof$(Object x) { return x instanceof C{0}; }
-}
-
-interface C {
-    void set$(Object x);
-    Object get$();
-    D d$();
-    Object t$();
-    boolean isa$(Object y);
-}
-\end{xten}
-
-\caption{Translation to Java}
-\label{fig:translation3}
-\end{figure*}
+\subsection{Translation to Java}
 
 \subsection{Run-time instantiation}
-
-In this translation the type properties are represented as
-instances of a \xcd"Type" class, analogous to \xcd"java.lang.Class".
-Each generic class has a \xcd"Type"-typed field for each of
-its type properties initialized by the class's constructor.
-The \xcd"Type" objects
-are used to implement {\tt instanceof} and cast operations.
-\begin{xten}
-interface Type {
-    boolean instanceof$(Object x);
-    <T> T cast$(Object x);
-}
-\end{xten}
-
-
-In this translation, which is partially based on the
-NextGen~\cite{allen03,allen04} translation,
-a generic class is translated into a \emph{base interface} and
-a \emph{template class} that implements the base interface.
-At runtime, the first time a generic class is instantiated
-a class loader loads \emph{template class}, rewriting the
-bytecode to instantiate the type properties as appropriate.
-
-For example, the
-code for class {\tt C} above is translated into the template
-class in Figure~\ref{fig:translation4}
-with supporting classes Figure~\ref{fig:translation3}.
-When instantiating the template, the string ``{\tt \{0\}}'' is
-substituted with the name of the actual type
-property.\footnote{In a real implementation, the names would be
-mangled as appropriate.}
-Since methods of {\tt C} can be called in a context where the
-property instantiation is not known,
-each method in the template class has to be implemented twice:
-once with an Object interface and once with an instantiated
-interface.
 
 We translate \xcd"instanceof" and cast operations to calls to
 methods of a \xcd"Type" because the actual implementation of
@@ -2489,6 +2128,91 @@ Unlike virtual types, type properties can be refined contravariantly.
 For instance, one can write the type \xcd"List[-Integer]",
 and even \xcd"List{Integer<:T, T<:Number}".
 
+\section{Extensions}
+
+\subsection{Self type}
+
+Add a type property \Xcd{class} to \Xcd{Object}:
+\begin{xten}
+class Object[class] { }
+\end{xten}
+
+The class invariant for all classes \Xcd{C}
+implies $\Xcd{this}.\Xcd{class} \subtype \Xcd{C}$.
+
+\subsection{Structural constraints}
+
+
+\subsection{Ownership}
+
+Consider the following example of generic ownership
+derived from Potanin et al.~\cite{ogj-oopsla06}.
+\eat{
+@inproceedings{ogj-oopsla06,
+title = "Generic Ownership for Generic {Java}",
+author = "Alex Potanin and James Noble and Dave Clarke and Robert Biddle",
+booktitle = "Object-oriented Programming Systems, Languages, and Applications (OOPSLA 2006)"
+month = oct,
+year = 2006,
+location = "Portland, OR"
+}
+}
+
+\begin{xten}
+class Object(owner: Object) { }
+
+// Map inherits Object.owner
+// No need to add explicit vOwner and kOwner properties for Key, Value
+class Map[Key, Value]{Key <: Comparable, Value <: Object}
+{
+    private nodes: Vector[Node[Key, Value](this)](this);
+
+    public def put(key: Key, value: Value): Void = {
+        nodes.add(new Node[Key, Value](key, value, this)());
+    }
+
+    public def get(key: Key): Value = {
+        for (mn: Node[Key, Value](this) in nodes) {
+            if (mn.key.equals(key))
+                return mn.value;
+        }
+        return null;
+    }
+
+    // OGJ will prevent this from being called, since caller
+    // can only assign the result to a supertype of Vector(this),
+    // which would be only Vector(this) or Object(this)
+    // BUT: we have Vector :> Vector(this)
+    // Need to require that all class types have an equality constraint
+    // on the owner property
+    public def exposeVector(): Vector(this) { return nodes; }
+}
+
+class Node[Key, Value]
+    {Key <: Comparable, Value <: Object}
+{
+    val key: Key;
+    val value: Value;
+
+    public def this[K, V](k: Key, v: Value, o: Object): Node[K, V](o) {
+        super(o);               // set the owner
+        property[K, V];         // set the type properties
+        this.key = k;
+        this.value = v;
+    }
+}
+\end{xten}
+
+Restrictions:
+\begin{itemize}
+\item owner property must be constrained (define this!)
+\item owner is always equal to or inside the owner of all other type properties
+\item types with an actual owner == this, can only be accessed via this
+\end{itemize}
+
+
+                        
+
 
 \section{Related work}
 
@@ -2520,18 +2244,11 @@ implementation and intend to implement the design shortly.
 The authors thank
 Doug Lea, Lex Spoon, Jens Palsberg, Bob Blainey, and Olivier Tardieu
 for valuable feedback on versions of the language.
-The implementation uses some code from the implementation
-of PolyJ by Michael Clarkson and Andrew Myers.
-
-\eat{
-Credits: Nate Nystrom had the idea, designed the type
-system and the type inference algorithm,
-implemented the type checker, and sketched the
-translation; Igor Peshansky implemented the translation; Vijay
-Saraswat worked out the formal semantics and did the proof, and
-implemented the constraint solver.  All authors contributed to the text.
-}
-
+We thank 
+Andrew Myers and
+Michael Clarkson for providing us with their implementation of
+PolyJ, on which our implementation was based, and for many
+discussions over the years about parameterized types in Java.
 
 \bibliographystyle{plain}
 \bibliography{master}
