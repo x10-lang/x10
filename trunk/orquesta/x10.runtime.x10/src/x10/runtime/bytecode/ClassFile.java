@@ -53,6 +53,14 @@ public class ClassFile implements ClassFileConstants {
 				entry[0] == CONSTANT_InterfaceMethodref);
 		return getShort(entry, 1);
 	}
+	public short addClassRef(short name_index) {
+		byte[] entry = new byte[3];
+		entry[0] = CONSTANT_Class;
+		putShort(entry, 1, name_index);
+		short class_index = (short)constant_pool.size();
+		constant_pool.add(entry);
+		return class_index;
+	}
 	public short getNameAndTypeIndex(int val_idx) {
 		byte[] entry = constant_pool.get(val_idx);
 		assert (entry[0] == CONSTANT_Fieldref || entry[0] == CONSTANT_Methodref ||
@@ -68,11 +76,23 @@ public class ClassFile implements ClassFileConstants {
 		constant_pool.add(entry);
 		return name_and_type_index;
 	}
-	public short addMethodRef(short class_index, short name_and_type_index) {
+	public short addMethodRef(short class_index, short name_and_type_index, boolean isInterface) {
 		byte[] entry = new byte[5];
-		entry[0] = CONSTANT_Methodref;
+		if (isInterface)
+			entry[0] = CONSTANT_InterfaceMethodref;
+		else
+			entry[0] = CONSTANT_Methodref;
 		putShort(entry, 1, class_index);
 		putShort(entry, 3, name_and_type_index);
+		short method_ref_index = (short)constant_pool.size();
+		constant_pool.add(entry);
+		return method_ref_index;
+	}
+	public short addFieldRef(short class_index, short descriptor_index) {
+		byte[] entry = new byte[5];
+		entry[0] = CONSTANT_Fieldref;
+		putShort(entry, 1, class_index);
+		putShort(entry, 3, descriptor_index);
 		short method_ref_index = (short)constant_pool.size();
 		constant_pool.add(entry);
 		return method_ref_index;
@@ -122,6 +142,29 @@ public class ClassFile implements ClassFileConstants {
 			if (constant_pool.get(i)[0] == tag)
 				return (short)i;
 		return -1;
+	}
+
+	private short[] instances = new short[1]; // usually 1 other instance
+	private int numInstances = 0;
+	/**
+	 * Is the class reference at a given index an instance of this class.
+	 */
+	public boolean isInstance(int index) {
+		if (index == this_class)
+			return true;
+		for (int i = 0; i < numInstances; i++)
+			if (instances[i] == index)
+				return true;
+		return false;
+	}
+	/**
+	 * Register a class reference at a given index as an instance of this class.
+	 */
+	public void addInstance(int index) {
+		if (isInstance(index)) return;
+		if (numInstances == instances.length)
+			System.arraycopy(instances, 0, instances = new short[numInstances*2], 0, numInstances);
+		instances[numInstances++] = (short) index;
 	}
 
 	private static final String CODE = "Code";
@@ -386,10 +429,11 @@ public class ClassFile implements ClassFileConstants {
 	}
 	private static int computeConstantPoolLength(List<byte[]> cp) {
 		int total = 2;
-		int i = 0;
+		boolean skip = true; // Skip first entry
 		for (byte[] e : cp) {
-			if (i++ == 0) continue; // Skip first entry
+			if (skip) { skip = false; continue; }
 			total += e.length;
+			if (e[0] == CONSTANT_Long || e[0] == CONSTANT_Double) skip = true; // Skip next entry
 		}
 		return total;
 	}
@@ -423,11 +467,12 @@ public class ClassFile implements ClassFileConstants {
 	}
 	private static int dumpConstantPool(byte[] b, int o, List<byte[]> cp) {
 		o = putShort(b, o, (short)cp.size());
-		int i = 0;
+		boolean skip = true; // Skip first entry
 		for (byte[] e : cp) {
-			if (i++ == 0) continue; // Skip first entry
+			if (skip) { skip = false; continue; }
 			System.arraycopy(e, 0, b, o, e.length);
 			o += e.length;
+			if (e[0] == CONSTANT_Long || e[0] == CONSTANT_Double) skip = true; // Skip next entry
 		}
 		return o;
 	}
