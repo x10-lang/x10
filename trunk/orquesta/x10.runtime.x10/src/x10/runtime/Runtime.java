@@ -26,4 +26,18 @@ public class Runtime {
 	public static Object coerce(short s) { return null; }
 	public static Object coerce(boolean b) { return null; }
 	public static Object coerce(Object o) { return null; }
+
+	public static boolean instanceof$(boolean r, Class c) { return r; }
+	public static boolean instanceof$(boolean r, Class c, Class d) { return r; }
+	public static boolean instanceof$(boolean r, Class c, Class d, Class e) { return r; }
+	public static boolean instanceof$(boolean r, Class c, Class d, Class e, Class f) { return r; }
+	public static boolean instanceof$(boolean r, Class c, Class d, Class e, Class f, Class g) { return r; }
+	public static boolean instanceof$(boolean r, Class c, Class d, Class e, Class f, Class g, Class h) { return r; }
+	public static boolean instanceof$(boolean r, Class c, Class d, Class e, Class f, Class g, Class h, Class i) { return r; }
+	public static Object cast$(Object o, Class c) { return o; }
+	public static Object cast$(Object o, Class c, Class d, Class e) { return o; }
+	public static Object cast$(Object o, Class c, Class d, Class e, Class f) { return o; }
+	public static Object cast$(Object o, Class c, Class d, Class e, Class f, Class g) { return o; }
+	public static Object cast$(Object o, Class c, Class d, Class e, Class f, Class g, Class h) { return o; }
+	public static Object cast$(Object o, Class c, Class d, Class e, Class f, Class g, Class h, Class i) { return o; }
 }
