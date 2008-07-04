@@ -1,0 +1,37 @@
+Genericity through Constrained Types
+
+Abstract
+
+For OO languages, \cite{oopsla08} introduced the general framework of
+{\em constrained types}. This framework is parametrized by an
+arbitrary {\em constraint system} $\cal C$ of interest.  Constraint
+systems (introduced in the late 80s) formalize systems of partial
+information. Constrained types are formulas $C\{c\}$ where $C$ is the
+name of a class or an interface and $c$ is a constraint on the
+immutable state of the object (the {\em properties}). Thus the
+framework captures the notion of value-dependent type systems for OO
+languages. It permits the development of languages with pluggable type
+systems, and suports dynamic code generation to check casts at
+run-time.  Many type systems for OO languages developed over the last
+decade can be thought of as constrained type systems.
+
+This paper shows that constrained types can also account for generic
+(type-dependent) type systems. The basic idea is to formalize the
+essence of nominal OO types -- types as names with specified signature
+and a partial order (inheritance, implementation) -- as a constraint
+system, and to permit type-valued properties and
+parameters. Type-generic dependence is now expressed through
+constraints on these properties and parameters. Type-valued properties
+are required to have a run-time representation (the run-time semantics
+is not defined through erasure).
+
+The paper makes the following contributions. (1) We show how to
+accomodate generic OO types within the framework of constrained
+types. (2) We illustrate with the development of a formal
+featherweight language, Generic FJ (GFJ) and establish type
+soundness. (3) We discuss the design and implementation of the type
+system for X10, a modern OO language, based on constrained types. The
+type system integrates and extends the features of Java 1.4 style
+nominal types, virtual types, and Scala's path-types, as
+well as representing (dynamic) generic types.
+
