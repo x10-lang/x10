@@ -38,6 +38,8 @@
 \setlength{\pdfpageheight}{11in}
 \fi
 
+\newcommand\gxx{GenX10\xspace}
+
 
 % \input{../../../../vj/res/pagesizes}
 % \input{../../../../vj/res/vijay-macros}
@@ -95,31 +97,40 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
 \maketitle
 
 \begin{abstract}
-Genericity is a key requirement for modern object-oriented languages.
-In this paper, we describe a design for generic types in
-the programming language X10.
-X10 has an expressive and powerful dependent type system
-in which types are specified by constraining the immutable state
-of objects.  Generic types are defined
-in a natural extension of the
-dependent type system.
+We present a general framework for \emph{generic constrained types}
+that captures the notion of value-dependent and
+type-dependent (generic) type systems for object-oriented
+languages.  Constraint systems formalize systems of partial
+information.  Constrained types are formulas \Xcd{C\{c\}} where
+\Xcd{C} is the name of a class or an interface and \Xcd{c} is a
+constraint on the immutable state of an instance of \Xcd{C} (the
+{\em properties}).
 
-The immutable state of an object is represented by its
-\emph{properties}, public final fields of the object.
-A \emph{constrained type} then, is a defined by a class type and
-a boolean predicate on the properties of the class.
-Generic types are defined by first introducing \emph{type properties} into
-the language, and then constraining those properties using
-subtyping constraints.
+The basic idea is to formalize the essence of nominal
+object-oriented types as a constraint system, and to permit both
+value and type properties and parameters.  Type-generic
+dependence is now expressed through constraints on these
+properties and parameters.  Type-valued properties are required
+to have a run-time representation---the run-time semantics is
+not defined through erasure.
 
-The type system presented  here  subsumes the expressive power
-of Java's generic types, virtual types,
-and generalized constraints proposed for C\#.
-The system also admits an efficient implementation
-and eschews the pitfalls of a type erasure semantics.
-We describe also a local type inference algorithm for constrained
-types that permits type annotations and constraints to be elided
-by the programmer.
+Many type systems for object-oriented languages developed over
+the last decade can be thought of as constrained type systems in
+this formulation.  This framework is parametrized by an
+arbitrary constraint system $\cal C$ of interest.  It permits
+the development of languages with pluggable type systems, and
+suports dynamic code generation to check casts at run-time.
+
+The paper makes the following contributions: (1) We show how to
+accomodate generic object-oriented types within the framework of
+constrained types. (1) We illustrate the type system with the
+development of a formal calculus \gxx and establish type
+soundness. (3) We discuss the design and implementation of the
+type system for X10, a modern object-oriented language, based on
+constrained types.  The type system integrates and extends the
+features of nominal types, virtual types, and
+Scala's path-dependent types, as well as representing generic
+types.
 \end{abstract}
 
 \section{Introduction}
@@ -214,63 +225,6 @@ For example, given the above class definition,
 the type \xcd"Point{x*x+y*y<1}" is the type of all
 points within the unit circle.
 
-In previous
-work~\cite{X10,constrained-types}, we considered
-only value properties.
-To support genericity these types are generalized
-to allow \emph{type properties} and constraints on these properties.
-Like a value property, a type property is an instance member.
-The type properties of an object are bound to concrete types
-when the object is
-created.
-Types may be defined by constraining the type properties as
-well as the value properties of a class.
-
-The following code declares a class \xcd"Cell" with a type
-property named \xcd"T".
-\begin{xten}
-class Cell[T] {
-    var x: T;
-    def get(): T = x;
-    def set(x: T) = { this.x = x: }
-}
-\end{xten}
-The class has a mutable field \xcd"x",
-and has \xcd"get" and \xcd"set" methods for accessing the field.
-
-This example shows that type properties are in many ways similar to
-type parameters as provided in object-oriented languages such as
-Java and Scala and in functional languages such as ML and
-Haskell.
-
-Type properties are types in their own right:
-they may be used in any context a type may be used,
-including in \xcd"instanceof" and cast expressions.
-However, the key distinction between type properties
-and type parameters is that type properties are instance
-members.
-Thus, for an expression \xcd"e" of type \xcd"Cell", \xcd"e.T" is
-a type, equivalent to the concrete type to which \xcd"T" was
-initialized when the object \xcd"e" was instantiated.
-To ensure
-soundness, \xcd"e" is restricted to final access paths.
-Within the body of a class, the unqualified property name \xcd"T" resolves
-to \xcd"this.T" (or to \xcd"C.this.T" if \xcd"T" is a property of
-an enclosing class \xcd"C").
-
-All properties of an object, both type and value, must be bound at object
-instantiation and are immutable once bound.  Thus, the type
-property \Xcd"T" of a given \Xcd"Cell" must be bound to 
-a concrete type.
-
-As with value properties, type properties may be constrained
-by predicates to produce new types.
-X10 supports
-equality constraints, written \xcdmath"T$_1$==T$_2$", and
-subtyping constraints, written \xcdmath"T$_1$<:T$_2$".
-For instance, the type \xcd"Cell{T==String}" is the type of
-all \xcd"Cell"s that contain a \xcd"String".
-
 In general, the syntax of a constrained type is
 \xcd"C{c}", where \xcd"C" is a base class and
 \xcd"c" is a predicate on the properties of \xcd"C".
@@ -283,6 +237,61 @@ Constraints on properties induce a natural subtyping relationship:
 \xcd"C{c}" is a subtype of
 \xcd"D{d}" if \xcd"C" is a subclass of \xcd"D" and
 \xcd"c" entails \xcd"d".
+
+In previous
+work~\cite{X10,constrained-types}, we considered
+only value properties.
+To support genericity these types are generalized
+to allow \emph{type properties}, type-valued immutable instance
+members of an object.
+Types may be defined by constraining the type properties as
+well as the value properties of a class.
+
+The following code declares a class \xcd"Cell" with a type
+property named \xcd"T".
+\begin{xten}
+class Cell[T] {
+    var x: T;
+    def get(): T = x;
+    def set(x: T) = { this.x = x: }
+}
+\end{xten}
+The class has a mutable field \xcd"x" of type \Xcd"T",
+and has \xcd"get" and \xcd"set" methods for accessing the field.
+
+This example shows that type properties are in many ways similar to
+type parameters as provided in object-oriented languages such as
+Java~\cite{Java3} and Scala~\cite{Scala} and in functional languages such as ML and
+Haskell.
+
+As the example illustrates,
+type properties are types in their own right:
+they may be used in any context a type may be used,
+including in \xcd"instanceof" and cast expressions.
+%
+However, the key distinction between type properties
+and type parameters is that type properties are instance
+members.
+Thus, for an expression \xcd"e" of type \xcd"Cell", \xcd"e.T" is
+a type, equivalent to the concrete type to which \xcd"T" was
+initialized when the object \xcd"e" was instantiated.
+To ensure
+soundness, \xcd"e" is restricted to final access paths.
+Within the body of a class, the unqualified property name \xcd"T" resolves
+to \xcd"this.T".
+
+All properties of an object, both type and value, must be bound at object
+instantiation and are immutable once bound.  Thus, the type
+property \Xcd"T" of a given \Xcd"Cell" instance must be bound to 
+a concrete type by the constructor.
+
+As with value properties, type properties may be constrained
+by predicates to produce new types.
+X10 supports
+equality constraints, written \xcdmath"T$_1$==T$_2$", and
+subtyping constraints, written \xcdmath"T$_1$<:T$_2$".
+For instance, the type \xcd"Cell{T==String}" is the type of
+all \xcd"Cell"s that contain a \xcd"String".
 
 \subsection{Generics}
 
@@ -854,7 +863,6 @@ type property and a value parameter for each value property.
 
 \section{Formal semantics}
 
-\newcommand\gxx{GenX10\xspace}
 \newcommand\xbar[1]{\ensuremath{\bar{\Xcd{#1}}}}
 \newcommand\tbar[1]{\ensuremath{\bar{\tt {#1}}}}
 \newcommand\exc[2]{\ensuremath{\exists}#1.~#2}
@@ -921,6 +929,16 @@ environments & $\Gamma$ & ::=  & $\epsilon$ \\
 \label{fig:grammar}
 \end{figure}
 
+Figure~\ref{fig:grammar2} extends the grammar with syntactic
+sugar for subtyping constraints and existential types.
+The subtyping constraint
+                  $\Xcd{t}_1 \subtype \Xcd{t}_2$ 
+                  is atomic formula.
+The existential type 
+$\exty{\Xcd{x}}{\Xcd{T}}{\Xcd{R\{c\}}}$
+is sugar for
+$\Xcd{R\{}\exc{\Xcd{x}}{\sigma(\Xcd{x}\ty\Xcd{T}),\Xcd{c}}\Xcd{\}}$.
+
 \begin{figure}[tp]
 \begin{center}
 \begin{tabular}{lrcl}
@@ -936,21 +954,105 @@ constraint & {\tt c} & ::=  & \dots \\
                   &  & \bnf & \Xcd{cons(T,z)} \\
 \end{tabular}
 \end{center}
-\caption{Extended \gxx grammar}
+\caption{\gxx grammar with subtyping constraints}
 \label{fig:grammar2}
 \end{figure}
 
-The type 
-$\exty{\Xcd{x}}{\Xcd{T}}{\Xcd{R\{c\}}}$
-is sugar for
-$\Xcd{R\{}\exc{\Xcd{x}}{\sigma(\Xcd{x}\ty\Xcd{T}),\Xcd{c}}\Xcd{\}}$.
+We assume a fixed but unknown constraint system ${\cal D}$.
+A program \Xcd{P} is written using constraints from ${\cal D}$,
+We assume classes defined in \Xcd{P} do not have a cyclic
+inheritance structure.
 
-\subsection{
-Constraint system
+\infrule[Program OK]{
+\Xcd{extends}^+~\mbox{acyclic}
+}{
+\vdash \xbar{L}~\mbox{ok}
 }
 
-% Handbook of philosophical logic, Gabbay
+\subsection{
+The object constraint system, ${\cal O}$
+}
 
+From \Xcd{P} and ${\cal D}$
+we generate an \emph{object constraint system} ${\cal O}$, shown
+in Figure~\ref{fig:object-constraints},
+as follows.  Let \Xcd{C} and \Xcd{D} range over names of classes
+in \Xcd{P}, \Xcd{f} over field names, \Xcd{m} over method names,
+\Xcd{T} over types, and \Xcd{c} over constraints in the
+underlying data constraint system ${\cal D}$.
+
+\begin{figure}[tp]
+\begin{center}
+\begin{tabular}{lrcl}
+constraint & {\tt c} 
+                    & ::=  & \Xcd{class(C)} \\
+                  & & \bnf & \Xcd{C}~\Xcd{extends}~\Xcd{D} \\
+                  & & \bnf & $\Xcd{fields(x,}\xbar{f}\ty\xbar{T}\Xcd{)}$ \\
+                  & & \bnf & $\Xcd{mtype(x,m,[}\xbar{X}\Xcd{(}\xbar{x}\ty\xbar{T}\Xcd{)\{c\}}$ \\
+\end{tabular}
+
+\infrule{
+\Xcdmath{class C[$\tbar{X}$]($\tbar{f} \ty \tbar{T}$)\{c\} extends D\{d\} \{ $\tbar{M}$\}} \in \Xcd{P}
+}{
+\vdashO \Xcd{class(C)} \\
+\vdashO \Xcd{C}~\Xcd{extends}~\Xcd{C} \\
+\vdashO \Xcd{C}~\Xcd{extends}~\Xcd{D}
+}
+
+\infrule[Fields]{
+\Xcdmath{class C[$\tbar{X}$]($\tbar{f} \ty \tbar{T}$)\{c\} extends Object \{ $\tbar{M}$\}} \in \Xcd{P}
+}{
+\Gamma, \Xcd{z}\ty \Xcd{C}\{d\} \vdashO \Xcdmath{fields(z,$\tbar{f}\ty\tbar{T}$)}
+}
+
+\infrule[Fields-extends]{
+\vdashO \Xcd{C}~\Xcd{extends}~\Xcd{D}
+\\
+\Xcdmath{class C[$\tbar{X}$]($\tbar{f} \ty \tbar{T}$)\{c\} extends D\{d\} \{ $\tbar{M}$\}} \in \Xcd{P}
+\\
+\Gamma, \Xcd{z}\ty \Xcd{D\{d\}} \vdashO
+\Xcdmath{fields(z,$\tbar{f}_0\ty\tbar{T}_0$)}
+}{
+\Gamma, \Xcd{z}\ty \Xcd{D\{d\}} \vdashO
+\Xcdmath{fields(z,$\tbar{f}_0\ty\tbar{T}_0$, $\tbar{f}\ty\tbar{T}$)}
+}
+
+\infrule[Mtype]{
+\Xcdmath{class C[$\tbar{X}$]($\tbar{f} \ty \tbar{T}$)\{c\} extends Object \{$\tbar{M}$\}} \in \Xcd{P}
+\\
+\Xcd{M}_i = 
+\Xcdmath{def m$_i$[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$)\{c\}: T = e}
+}{
+\Gamma, \Xcd{z}\ty \Xcd{C\{d\}} \vdashO
+\Xcdmath{mtype(z,m$_i$,[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$)\{c\} $\to$T)}
+}
+
+\end{center}
+\caption{The constraint system ${\cal O}$}
+\label{fig:object-constraints}
+\end{figure}
+
+In the method signature
+                $\Xcd{[}\xbar{X}\Xcd{(}\xbar{x}\ty\xbar{T}\Xcd{)\{c\}}$,
+                the type variables \xbar{X} and data variables
+                \xbar{x} are considered bound; formulas with
+                bound variables are considered equivalent upto
+                $\alpha$-renaming.
+
+The constraint system satisfies the axioms and
+inference rules in Figure~\ref{fig:object-constraints}.
+The \Xcd{class}, \Xcd{extends}, \Xcd{fields}, and \Xcd{mtype}
+constraints are given directly from the program \Xcd{P}.
+
+The constraint system ${\cal C}$ is the disjoint conjunction
+${\cal D}$, ${\cal O}$
+of
+the constraint systems
+${\cal D}$ and ${\cal O}$.
+(This requires the assumption that 
+${\cal D}$ does not have any constraints in common with ${\cal O}$.
+
+\eat{
 The X10 compiler permits the constraint system to be extended
 with compiler plugins.  The base compiler supports equality
 constraints over literals and final variables and subtyping
@@ -969,19 +1071,27 @@ The constraint system is shown in Figure~\ref{fig:constraints}.
 $\xbar{c}$ is a set of constraints.  The constraint system
 satisfies the given structural rules, and supports equality and
 subtyping constraints over terms.
+}
+
+
+\subsection{Structural and logical rules}
+
+All judgments are intuitionistic.  In particular, this means
+that all constraint systems satisfy the rules and axioms
+in Figure~\ref{fig:logic}.
 
 \begin{figure}
 
-\infax[I]{ \xbar{c} \vdashC \Xcd{c}_i }
+\infax[Id]{ \Gamma, \Xcd{c} \vdash \Xcd{c} }
 
-XXX remove
-\infrule[Plugin]
-{ \xbar{c} \vdashC_{\cal X} \Xcd{d} }
-{ \xbar{c} \vdashC \Xcd{d} }
+\infrule[Cut]{
+\Gamma \vdash \Xcd{c}
+\andalso
+\Gamma, \Xcd{c} \vdash \Xcd{d}
+}{
+\Gamma \vdash \Xcd{d}
+}
 
-% \infrule[Cut]{ \xbar{c} \vdashC \Xcd{c} \andalso
-% \xbar{c}, \Xcd{c} \vdashC \Xcd{d} }
-                     % { \xbar{c} \vdashC \Xcd{d} }
 % \infrule[Contraction]{ \xbar{c}, \Xcd{c}, \Xcd{c} \vdashC \Xcd{d} }
                      % { \xbar{c}, \Xcd{c} \vdashC \Xcd{d} }
 % \infrule[Permutation]{ \xbar{c}, \Xcd{c}, \Xcd{d} \vdashC \Xcd{e} }
@@ -989,25 +1099,136 @@ XXX remove
 % \infrule[Extension]{ \xbar{c}, \vdashC \Xcd{c} }
                      % { \xbar{c}, \xbar{c}' \vdashC \Xcd{c} }
 
-XXX check this
-\infrule[Ex-I]{
-\xbar{c} \vdashC \Xcd{d}[\Xcd{t}/{\Xcd{x}}]
+\infrule[Weak-1]{
+\Gamma \vdash \phi
+\andalso
+\Gamma \vdash \Xcd{T} \ty \Xcd{type}
+\andalso
+\Xcd{x} \not\in \mathit{var}(\Gamma)
 }{
-\xbar{c} \vdashC \exc{\Xcd{x}}{\Xcd{d}}
+\Gamma, \Xcd{x} \ty \Xcd{T} \vdash \phi
 }
 
-XXX check this
-\infrule[Ex-E]{
-\xbar{c}, \Xcd{d}[\Xcd{t}/\Xcd{x}] \vdashC \Xcd{e}
+\infrule[Weak-2]{
+\Gamma \vdash \phi
 \andalso
-\xbar{c} \vdashC \exc{\Xcd{x}}{\Xcd{d}}
-\andalso
-\Xcd{x} \not\in \mathit{FV}(\Xcd{e})
+\Gamma \vdash \Xcd{c} \ty \Xcd{o}
 }{
-\xbar{c} \vdashC \Xcd{e}
+\Gamma, \Xcd{c} \ty \phi
 }
 
-XXX fix this: cons should be a predicate, not an atom
+\infrule[And-L]{
+\Gamma, \psi_0, \psi_1 \vdash \phi
+}{
+\Gamma, (\psi_0, \psi_1) \vdash \phi
+}
+
+\infrule[And-R]{
+\Gamma \vdash \psi_0
+\andalso
+\Gamma \vdash \psi_1
+}{
+\Gamma \vdash (\psi_0, \psi_1)
+}
+
+\infrule[Exists-R]{
+\Gamma \vdash \phi[\Xcd{t}/\Xcd{x}]
+}{
+\Gamma \vdashC \exc{\Xcd{x}}{\phi}
+}
+
+\infrule[Exists-L]{
+\Gamma, \Xcd{x} \ty \Xcd{T}, \psi \vdash \phi
+\andalso
+\Xcd{x}~\mbox{fresh}
+}{
+\Gamma, \exc{\Xcd{x}\ty\Xcd{T}}{\psi} \vdash \phi
+}
+
+\caption{Logical rules}
+\label{fig:logic}
+\end{figure}
+
+
+\subsection{Well-formedness rules}
+
+We use the judgment for well-typedness for expressions to
+represent well-typedness for constraints.  That is, we posit
+a special type \Xcd{o} (traditionally the type of propositions),
+and regard constraints as expressions of type \Xcd{o}.
+
+Further, we change the formulation slightly so that there are no
+constraints of the form \Xcdmath{p(t$_1$,$\dots$,t$_n$)}; rather
+instance method invocation syntax is used to express invocation
+of
+pre-defined constraints.  This logically leads to the step of
+simply marking certain classes as ``predicate'' classes---all
+the (instance) methods of these classes whose return type is
+\Xcd{o} then correspond to ``primitive constraints''.
+Syntactically, we continue to use the symmetric syntax
+\Xcdmath{p(t$_1$,$\dots$,t$_n$)} rather than
+\Xcdmath{t$_1$.p(t$_2$,$\dots$,t$_n$)}.
+The alternative is tor introduce static methods and static
+method invocations in the expression language.  This is not
+difficult, but is annoying to have to repeat most of the
+formulation of instance methods.
+
+This means that the only cases left to handle are all the simple
+ones, expression the availability of certain constraints and
+operations of type \Xcd{o}.
+
+
+\begin{figure}
+\infax[True]{\Gamma \vdash \Xcd{true} \ty \Xcd{o}}
+
+\infrule[Equals]{
+\Gamma \vdash \Xcd{t}_0 \ty \Xcd{T}_0
+\andalso
+\Gamma \vdash \Xcd{t}_1 \ty \Xcd{T}_1
+\andalso
+(
+\Gamma \vdash \Xcd{T}_0 \subtype \Xcd{T}_1
+\vee
+\Gamma \vdash \Xcd{T}_1 \subtype \Xcd{T}_2
+)
+}{
+\Gamma \vdash \Xcd{t}_0 \equals \Xcd{t}_1 \ty \Xcd{o}
+}
+
+\infrule[And]{
+\Gamma \vdash \Xcd{c}_0 \ty \Xcd{o}
+\andalso
+\Gamma \vdash \Xcd{c}_1 \ty \Xcd{o}
+}{
+\Gamma \vdash (\Xcd{c}_0, \Xcd{c}_1) \ty \Xcd{o}
+}
+
+\infrule[Some]{
+\Gamma \vdash \Xcd{t} \ty \Xcd{T}
+\andalso
+\Gamma \vdash \Xcd{c}[\Xcd{t}/\Xcd{x}] \ty \Xcd{o}
+}{
+\Gamma \vdash \exc{\Xcd{x}\ty\Xcd{T}}{\Xcd{c}} \ty \Xcd{o}
+}
+
+\infrule[Type]{
+\Gamma \vdash \Xcd{class(C)}
+\andalso
+\Gamma, \Xcd{self} \ty \Xcd{C} \vdash \Xcd{c} \ty \Xcd{o}
+}{
+\Gamma \vdash \Xcd{C\{c\}} \ty \Xcd{type}
+}
+
+\caption{Well-formedness rules}
+\label{fig:wf}
+\end{figure}
+
+
+\subsection{Subtyping constraints}
+
+
+\begin{figure}
+
 \infrule[Cons-eq]{
 \xbar{c} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
 }{
@@ -1090,9 +1311,8 @@ XXX fix this: cons should be a predicate, not an atom
 \xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_3
 }
 
-\caption{Constraints}
+\caption{Equality and subtyping rules}
 \label{fig:subtyping}
-\label{fig:constraints}
 \end{figure}
 
 
