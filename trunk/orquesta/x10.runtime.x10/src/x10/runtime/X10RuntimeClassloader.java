@@ -139,6 +139,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 	private static final String CAST_METHOD = "cast$";
 	private static final String CAST_SIG = "("+SIG_Object+SIG_String+")"+SIG_Object;
 	private static final String COERCE_METHOD = "coerce";
+	private static final String RECOVER_PREFIX = "recover";
 
 	/**
 	 * Rename the class appropriately.
@@ -557,7 +558,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 			assert (depth[o - off + offset] == 0 || sp == depth[o - off + offset]);
 			depth[o - off + offset] = sp;
 		}
-		protected void process_acmpC(int offset) {
+		protected void process_if_acmpC(int offset) {
 			int c = getByte(code, o);
 			// FIXME: HACK: Add padding instructions by casting the expression to
 			// boolean (e.g., "if ((boolean)(expr))" and hope javac doesn't
@@ -583,8 +584,10 @@ public class X10RuntimeClassloader extends ClassLoader {
 				case 'B':
 				case 'C':
 				case 'S':
-				case 'Z': // FIXME: is this ok for booleans?
+				case 'Z':
 					putByte(code, o, BC_if_icmpeq + c - BC_if_acmpeq);
+					assert (depth[o - off + offset] == 0 || sp == depth[o - off + offset]);
+					depth[o - off + offset] = sp;
 					return;
 				case 'D':
 					putByte(code, o, BC_dcmpl);
@@ -601,6 +604,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 				push(v1);
 				push(v2);
 				reinterpret();
+				return;
 			}
 			assert (depth[o - off + offset] == 0 || sp == depth[o - off + offset]);
 			depth[o - off + offset] = sp;
@@ -641,7 +645,14 @@ public class X10RuntimeClassloader extends ClassLoader {
 		protected void process_tableswitch(int[] offsets) {
 			String val = pop();
 			assert (val == SIG_int);
-			// TODO: set stack depth
+			assert (depth[o - off + offsets[0]] == 0 || sp == depth[o - off + offsets[0]]);
+			depth[o - off + offsets[0]] = sp;
+			for (int i = 3; i < offsets.length; i++) {
+				assert (depth[o - off + offsets[i]] == 0 || sp == depth[o - off + offsets[i]]);
+				depth[o - off + offsets[i]] = sp;
+			}
+			int l = getBytecodeLength(o);
+			sp = depth[o - off + l];
 		}
 		/**
 		 * Returns the array of pairs for the lookupswitch instruction.
@@ -662,7 +673,14 @@ public class X10RuntimeClassloader extends ClassLoader {
 		protected void process_lookupswitch(int[] pairs) {
 			String val = pop();
 			assert (val == SIG_int);
-			// TODO: set stack depth
+			assert (depth[o - off + pairs[0]] == 0 || sp == depth[o - off + pairs[0]]);
+			depth[o - off + pairs[0]] = sp;
+			for (int i = 1; i < pairs.length; i+=2) {
+				assert (depth[o - off + pairs[i+1]] == 0 || sp == depth[o - off + pairs[i+1]]);
+				depth[o - off + pairs[i+1]] = sp;
+			}
+			int l = getBytecodeLength(o);
+			sp = depth[o - off + l];
 		}
 		protected void process_Treturn(String type) {
 			String val = pop();
@@ -785,6 +803,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 			// TODO: check arg types?
 			String newContainer = container;
 			String newSignature = signature;
+			String t;
 			// FIXME: HACK -- special case StringBuilder.append
 			if (!isInterface && !isStatic &&
 					container.equals("java/lang/StringBuilder") && name.equals("append") &&
@@ -809,6 +828,16 @@ public class X10RuntimeClassloader extends ClassLoader {
 				assert (cc == BC_checkcast &&
 						getFormal(typeToSignature(cf.getString(cni)), formals) != -1);
 				for (int j = 0; j < x+3; j++) putByte(code, o+j, BC_nop); // Clear assignment
+				push(args[0]);
+				reinterpret();
+				return;
+			} else if (isStatic && container.equals("x10/runtime/Runtime") &&
+					   name.startsWith(RECOVER_PREFIX) &&
+					   isPrimitive(t = name.substring(RECOVER_PREFIX.length())) &&
+					   signature.equals("("+SIG_Object+")"+t))
+			{
+				int x = 3;
+				for (int j = 0; j < x; j++) putByte(code, o+j, BC_nop); // Clear assignment
 				push(args[0]);
 				reinterpret();
 				return;
@@ -1071,6 +1100,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 
 		public void interpret(String signature, String[] actuals, String[] formals, short[] changedSignatures, char[] remap, short[] reassignLocals) {
 			for (o = off; o < off + len; o++) {
+				assert (depth[o - off] == 0 || sp == depth[o - off]);
 				int h = findExceptionHandler(o - off);
 				if (h >= 0) {
 					assert (sp == 1);
@@ -1257,7 +1287,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 				case BC_if_icmpgt:
 				case BC_if_icmple:      process_if_icmpC(getShort(code, o+1)); break;
 				case BC_if_acmpeq:
-				case BC_if_acmpne:      process_acmpC(getShort(code, o+1)); break;
+				case BC_if_acmpne:      process_if_acmpC(getShort(code, o+1)); break;
 				case BC_ifnull:
 				case BC_ifnonnull:      process_ifCnull(getShort(code, o+1)); break;
 				case BC_tableswitch:    process_tableswitch(getTableswitchOffsets(code, o+1)); break;
@@ -1329,13 +1359,13 @@ public class X10RuntimeClassloader extends ClassLoader {
 				{
 					int lo = getInt(code, o+pad+5);
 					int hi = getInt(code, o+pad+9);
-					x = pad + 12 + (hi-lo+1)*4;
+					x = 1 + pad + 12 + (hi-lo+1)*4;
 					break;
 				}
 				case BC_lookupswitch:
 				{
-					int n = getInt(code, o+pad+4);
-					x = pad + 8 + n*8;
+					int n = getInt(code, o+pad+5);
+					x = 1 + pad + 8 + n*8;
 					break;
 				}
 				case BC_wide:
