@@ -41,5 +41,18 @@ public class Map implements Runnable {
 		m.put(k, (Map.V)Runtime.coerce((double)7.0));
 		System.out.println("Created map m of type"+m.getClass().getName());
 		System.out.println("\tretrieved m{5}="+m.get(k));
+		int k1 = Runtime.recoverI(k);
+		switch (k1) {
+			case 1: System.out.println("\t1"); break;
+			case 2: System.out.println("\t2");
+			case 3: System.out.println("\t3"); break;
+			default: System.out.println("\t?"); break;
+		}
+		switch (k1) {
+			case 1: System.out.println("\t1");
+			case 5: System.out.println("\t5"); break;
+			case 18: System.out.println("\t18"); break;
+			default: System.out.println("\t?"); break;
+		}
 	}
 }
