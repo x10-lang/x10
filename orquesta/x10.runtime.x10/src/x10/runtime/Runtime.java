@@ -26,6 +26,15 @@ public class Runtime {
 	public static Object coerce(short s) { return null; }
 	public static Object coerce(boolean b) { return null; }
 	public static Object coerce(Object o) { return null; }
+	public static byte recoverB(Object o) { return 0; }
+	public static char recoverC(Object o) { return 0; }
+	public static double recoverD(Object o) { return 0; }
+	public static float recoverF(Object o) { return 0; }
+	public static int recoverI(Object o) { return 0; }
+	public static long recoverJ(Object o) { return 0; }
+	public static short recoverS(Object o) { return 0; }
+	public static boolean recoverZ(Object o) { return false; }
+	public static Object recoverL(Object o) { return null; }
 
 	public static boolean instanceof$(boolean r, Class c) { return r; }
 	public static boolean instanceof$(boolean r, Class c, Class d) { return r; }
