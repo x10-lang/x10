@@ -124,6 +124,9 @@ by the programmer.
 
 \section{Introduction}
 
+\todo{Awkward, repetative}
+
+\eat{
 Outline:
 \begin{itemize}
 \item Classes have value properties and type properties.
@@ -145,6 +148,7 @@ the constraint \Xcd{x}.\Xcd{type} == \Xcd{x}.\Xcd{outer}.\Xcd{T}
 \item Ownership?  Generic ownership?
 \end{itemize}
 \end{itemize}
+}
 
 
 \todo{More positioning, relative to: DML, HM(X), constrained
@@ -158,45 +162,43 @@ that combines genericity and dep types in some vague general way.}
 
 \todo{Cite liquid types and whatever it cites}
 
-X10 is a statically typed object-oriented language
-designed for high-performance computing~\cite{X10}. The language extends a
-class-based sequential core language similar to Java
-with constructs for distribution and
-fine-grained concurrency.  However, X10 does not yet support
-generic types, a standard feature of modern object-oriented languages.
-This paper presents a design for generics that is a natural
-extension of the language's core dependent type system.
+Modern object-oriented type systems provide 
+many features to improve productivity by 
+allowing programmers to express strong program
+invariants as types that are
+checked by the compiler, without sacrificing the ability to
+reuse code.
 
-The sequential semantics of X10 are similar to Java's
-X10 programs and execute on a Java virtual machine.
-After evaluating several existing proposals for generic types in
-Java-like
-languages~\cite{Java3,adding-wildcards,GJ,Pizza,polyj,thorup97,allen03,allen04,csharp,emir06,scala},
-we concluded that these proposals were insufficient for our needs.
+Examples include generics, self types, 
+dependent types. 
+We present a dependent type system
+that extends a class-based language with
+statically-enforced constraints on
+types and values.
+This type system 
+supports several features of modern object-oriented 
+language through natural extensions of the core dependent type
+system: generic types, virtual types, and self types
+among them.
 
-% Most of these languages support genericity through parameterized
-% types.
-A problem with many of these proposals, and in particular with
-Java5~\cite{Java3} and Scala~\cite{scala}, is that generic types
-are implemented via type erasure.
-Our design is not implemented via type erasure and, in addition,
-supports run-time introspection of generic types.
+We have formalized the type system in an extension of
+Featherweight Java~\cite{FJ}
+and provide proof of soundness.
+The type system is parameterized on the constraint system.
+By augmenting the default constraint system,
+the type system can serve as a core calculus 
+for formalizing extensions of a core object-oriented language. 
 
-Another problem with many of these proposals is inadequate support
-for primitive types, especially arrays. The performance of primitive arrays is
-critical for the high-performance applications for which
-X10 is intended. These proposals introduce unnecessary boxing
-and unboxing of primitives.
-Our design does not require primitives be boxed.
-
-The design of generics in X10 and is based on its existing
-dependent type system~\cite{X10,constrained-types}.
-To rule out large classes of errors statically,
-X10 provides \emph{constrained types},
+This work is done in the context of the X10
+programming language~\cite{X10}.
+The key idea is to define
+\emph{constrained types},
 a form of dependent type
-defined on predicates over the immutable state of
-objects~\cite{X10,constrained-types}.
-%
+defined on predicates over types and over the immutable state of
+the program.
+
+In X10, objects may have both value members (fields)
+and type members.
 The immutable state of an object is captured by its
 \emph{value properties}: public final fields of the object.
 For instance, the following class declares a two-dimensional
@@ -204,6 +206,7 @@ point with properties \xcd"x" and \xcd"y" of type \xcd"float":
 \begin{xten}
 class Point(x: float, y: float) { }
 \end{xten}
+
 A constrained type is a type \xcd"C{e}", where \xcd"C" is a
 class and \xcd"e" is a boolean predicate on the properties of
 \xcd"C" and the final variables in scope at the type.
@@ -211,6 +214,9 @@ For example, given the above class definition,
 the type \xcd"Point{x*x+y*y<1}" is the type of all
 points within the unit circle.
 
+In previous
+work~\cite{X10,constrained-types}, we considered
+only value properties.
 To support genericity these types are generalized
 to allow \emph{type properties} and constraints on these properties.
 Like a value property, a type property is an instance member.
@@ -234,11 +240,13 @@ and has \xcd"get" and \xcd"set" methods for accessing the field.
 
 This example shows that type properties are in many ways similar to
 type parameters as provided in object-oriented languages such as
-Java and Scala.
+Java and Scala and in functional languages such as ML and
+Haskell.
+
 Type properties are types in their own right:
 they may be used in any context a type may be used,
 including in \xcd"instanceof" and cast expressions.
-However, the key semantic distinction between type properties
+However, the key distinction between type properties
 and type parameters is that type properties are instance
 members.
 Thus, for an expression \xcd"e" of type \xcd"Cell", \xcd"e.T" is
@@ -246,10 +254,14 @@ a type, equivalent to the concrete type to which \xcd"T" was
 initialized when the object \xcd"e" was instantiated.
 To ensure
 soundness, \xcd"e" is restricted to final access paths.
-Within the body of a class, a property name \xcd"T" resolves
+Within the body of a class, the unqualified property name \xcd"T" resolves
 to \xcd"this.T" (or to \xcd"C.this.T" if \xcd"T" is a property of
-an enclosing class \xcd"C"), just as value properties are
-resolved.
+an enclosing class \xcd"C").
+
+All properties of an object, both type and value, must be bound at object
+instantiation and are immutable once bound.  Thus, the type
+property \Xcd"T" of a given \Xcd"Cell" must be bound to 
+a concrete type.
 
 As with value properties, type properties may be constrained
 by predicates to produce new types.
@@ -272,9 +284,234 @@ Constraints on properties induce a natural subtyping relationship:
 \xcd"D{d}" if \xcd"C" is a subclass of \xcd"D" and
 \xcd"c" entails \xcd"d".
 
-We consider here only constraints on type properties.
-See Nystrom et al.~\cite{constrained-types} for a more thorough
-presentation of constrained types in X10.
+\subsection{Generics}
+
+Type properties and subtyping constraints may be used to 
+provide genericity.  Unlike existing 
+existing proposals for generic types in
+Java-like
+languages~\cite{Java3,adding-wildcards,GJ,Pizza,polyj,thorup97,allen03,allen04,csharp,emir06,scala},
+which 
+are implemented via type erasure,
+our design supports run-time introspection of generic types.
+
+Another problem with many of these proposals is inadequate support
+for primitive types, especially arrays. The performance of primitive arrays is
+critical for the high-performance applications for which
+X10 is intended. These proposals introduce unnecessary boxing
+and unboxing of primitives.
+Our design does not require primitives be boxed.
+
+The \xcd"Cell" defined class above is a generic class.
+The type property \xcd"T" may be constrained with equality and
+subtyping constraints.
+
+The type \xcd"Cell{T==float}"
+binds the type property \xcd"T" to \xcd"float".
+Assuming \xcd"c" has this type, the following code is legal:
+\begin{xten}
+val x: float = c.get();
+c.set(1.0);
+\end{xten}
+The type of \xcd"c.get()" is \xcd"c.T", which is equivalent to
+\xcd"float".
+Similarly, the \xcd"set" method takes a \xcd"float" as argument.
+
+Subtyping constraints enable use-site variance:
+The type \xcd"Cell{T<:int}"
+constrains \xcd"T" to be a subtype of \xcd"int".
+All instances with this type must bind \xcd"T" to a subtype of \xcd"int".
+The following expressions have this type:
+\begin{xten}
+new Cell[int](1);
+new Cell[int{self==3}](3);
+\end{xten}
+The cell in the first expression may contain any \xcd"int".
+The cell in the second expression may contain only \xcd"3".
+%
+If \xcd"c" has the type \xcd"Cell{T<:int}",
+then \xcd"c.get()" has the abstract type \xcd"c.T", which is an unknown but
+fixed subtype of \xcd"int".  The \xcd"set" method of \xcd"c" can
+only be called with an object of type \xcd"c.T".
+
+Types properties may also be constrained contravariantly.
+
+Subtyping constraints provide similar expressive power as Java
+wildcards.  We describe an encoding of wildcards in
+Section~\ref{wildcards}. 
+
+\todo{move this para}
+Type and value constraints are also used to support generalized
+constraints~\cite{emir06}, optional methods~\cite{???} and
+optional interfaces.
+
+\subsection{Self types}
+
+Type properties can also be used to support self
+types~\cite{bruce-binary,bsg95}.
+
+We introduce a 
+type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
+\begin{xtenmath}
+class Object[class] { $\dots$ }
+\end{xtenmath}
+
+The class invariant for all classes \Xcd{C}
+implies $\Xcd{this}.\Xcd{class} \subtype \Xcd{C}$.
+
+\subsection{Virtual types}
+
+Type properties share many similarities with virtual types~\cite{mp89-virtual-classes,beta}, particularly
+with sound formulations of virtual types using path-dependent types,
+as found in gbeta~\cite{ernst99-gbeta}, Scala~\cite{scala},
+and J\&~\cite{nqm06}.
+%
+Constrained types are more expressive than virtual
+types since they can be constrained at the use-site,
+can be refined on a per-object basis without explicit subclassing,
+and can be refined contravariantly
+as well as covariantly.
+
+Thorup~\cite{thorup97}
+proposed adding genericity to Java using virtual types.  For example,
+a generic \xcd"List" class can be written as follows:
+\begin{xten}
+abstract class List {
+    abstract typedef T;
+    void add(T element) { ... }
+    T get(int i) { ... }
+}
+\end{xten}
+This class can be refined by bounding the virtual type \xcd"T" above:
+\begin{xten}
+abstract class NumberList extends List {
+    abstract typedef T as Number;
+}
+\end{xten}
+And this abstract class can be further refined to \emph{final bind}
+\xcd"T" to a particular type:
+\begin{xten}
+class IntList extends NumberList {
+    final typedef T as Integer;
+}
+\end{xten}
+These classes are related by subtyping:
+${\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}$.
+Only classes where \xcd"T" is final bound can be non-abstract.
+
+In X10, an analogous \xcd"List" class would be written as follows:
+\begin{xten}
+class List[T] {
+    def add(element: T) = { ... }
+    def get(i: int): T = { ... }
+}
+\end{xten}
+
+\xcd"NumberList" and \xcd"IntList" can be written as follows:
+\begin{xten}
+class NumberList extends List{T<:Number} { }
+class IntList extends NumberList{T==Integer} { }
+\end{xten}
+
+However, note that X10's \xcd"List" is not abstract.
+Instances of \xcd"List"
+can instantiate \xcd"T" with a particular type and there is no need to declared classes for \xcd"NumberList" and \xcd"IntList".  Instead, one can use the types
+\xcd"List[+Number]" and \xcd"List[Integer]".
+
+Unlike virtual types, type properties can be refined contravariantly.
+For instance, one can write the type \xcd"List[-Integer]",
+and even \xcd"List{Integer<:T, T<:Number}".
+
+\subsection{Structural constraints}
+
+Type constraints need not be limited to subtyping constraints.
+By introducing structural constraints on types, GenX10 allows
+type properties to be instantiated on any type with a given set
+of methods and fields. This feature is useful for reusing code
+in separate libraries since it does not require 
+code of one library to implement an interface to satisfy a
+constraint of another library.
+
+\eat{
+class Array[T](add: (T,T)=>T) {
+    def this[T](){T <: Arithmetic} = { 
+        property[T](T.add);
+    }
+    def this[T](){T <: Array, T.add != null} = { 
+        property[T](T.add);
+    }
+}
+}
+
+\subsection{Outline}
+
+The rest of the paper\dots
+
+\section{X10}
+
+Before describing the generic type system, we present an
+overview of X10's syntax and semantics.
+X10 is a class-based language similar to Java or Scala.
+Superficially, the language may be thought of as sequential
+Java with some elements of Scala syntax and with new constructs
+for concurrency and distribution.
+Like Java, the language provides both classes and interfaces; it does not
+yet support traits, as found in Scala.
+
+Both classes and interfaces may define properties. Value
+properties may be considered to be public final fields. Whereas
+Java supports only static fields in interfaces, X10
+allows interfaces to define value properties. Any class implementing
+an interface must declare, and initialize in its
+constructor,
+the properties inherited from the interface.
+
+Classes may define fields, methods, and constructors. The
+declaration syntax,
+illustrated in the \xcd"Cell" example
+above,
+is similar to Scala's.  Fields may be
+declared either \xcd"val" or \xcd"var".  A \xcd"val" is n
+\emph{final} and must be assigned exactly once.  Methods are
+declared with a \xcd"def" keyword.
+As in Java, methods may be declared \xcd"static", however fields cannot.
+Constructor syntax is
+similar to method syntax and X10 adopts Scala's convention of
+using the name \xcd"this" for constructors.
+In X10, constructors have a return type, which constrains
+the properties of the new object.
+
+\if 0
+\section{Typing}
+
+As stated above, if \xcd"p" is a final access path of a
+type with property \xcd"T", then \xcd"p.T" is a legal type.
+Given an expression context \xcd"E"$[\cdot]$, if
+the expression \xcd"E"$[{\tt x}]$ has type \xcd"x.T",
+then the expression \xcd"E"$[{\tt e}]$ has type \xcd"z.T",
+where ${\tt z} = {\tt e}$ if \xcd"e" is a final access path
+or else \xcd"z" is a fresh variable.
+\fi
+
+\section{Generics}
+
+Type properties and subtyping constraints may be used to 
+provide genericity.  Unlike existing 
+existing proposals for generic types in
+Java-like
+languages~\cite{Java3,adding-wildcards,GJ,Pizza,polyj,thorup97,allen03,allen04,csharp,emir06,scala},
+which 
+are implemented via type erasure,
+our design supports run-time introspection of generic types.
+
+Another problem with many of these proposals is inadequate support
+for primitive types, especially arrays. The performance of primitive arrays is
+critical for the high-performance applications for which
+X10 is intended. These proposals introduce unnecessary boxing
+and unboxing of primitives.
+Our design does not require primitives be boxed.
+
+The \xcd"Cell" defined class above is a generic class.
 The following are legal types:
 \begin{itemize}
 \item \xcd"Cell".  This type has no constraints on \xcd"T".
@@ -348,55 +585,6 @@ the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
 \xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
 \xcd"C[T]" is sugar \xcd"C{X==T}".
 
-The rest of the paper\dots
-
-\section{X10}
-
-Before describing the generic type system, we present an
-overview of X10's syntax and semantics.
-X10 is a class-based language similar to Java or Scala.
-Superficially, the language may be thought of as sequential
-Java with some elements of Scala syntax and with new constructs
-for concurrency and distribution.
-Like Java, the language provides both classes and interfaces; it does not
-yet support traits, as found in Scala.
-
-Both classes and interfaces may define properties. Value
-properties may be considered to be public final fields. Whereas
-Java supports only static fields in interfaces, X10
-allows interfaces to define value properties. Any class implementing
-an interface must declare, and initialize in its
-constructor,
-the properties inherited from the interface.
-
-Classes may define fields, methods, and constructors. The
-declaration syntax,
-illustrated in the \xcd"Cell" example
-above,
-is similar to Scala's.  Fields may be
-declared either \xcd"val" or \xcd"var".  A \xcd"val" is n
-\emph{final} and must be assigned exactly once.  Methods are
-declared with a \xcd"def" keyword.
-As in Java, methods may be declared \xcd"static", however fields cannot.
-Constructor syntax is
-similar to method syntax and X10 adopts Scala's convention of
-using the name \xcd"this" for constructors.
-In X10, constructors have a return type, which constrains
-the properties of the new object.
-
-\if 0
-\section{Typing}
-
-As stated above, if \xcd"p" is a final access path of a
-type with property \xcd"T", then \xcd"p.T" is a legal type.
-Given an expression context \xcd"E"$[\cdot]$, if
-the expression \xcd"E"$[{\tt x}]$ has type \xcd"x.T",
-then the expression \xcd"E"$[{\tt e}]$ has type \xcd"z.T",
-where ${\tt z} = {\tt e}$ if \xcd"e" is a final access path
-or else \xcd"z" is a fresh variable.
-\fi
-
-\section{Generics}
 
 \subsection{Subtyping}
 
@@ -584,6 +772,42 @@ the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]"
 the call to \xcd"ys.append" is not allowed because the caller cannot show that
 ${\tt Number} \subtype {\tt Double}$.
 
+\subsection{Optional methods and interfaces}
+
+Method where clauses also provide support for optional methods.
+
+\begin{xten}
+class List[T] {
+    ...
+    def print(){T <: Printable} = {
+        for (x: T in this)
+            x.print();
+    }
+}
+\end{xten}
+
+\xcd"List.print" may only be called on lists instantiated on
+subtypes of the \xcd"Printable" interface.
+
+Optional methods generalize to optional interfaces.
+
+\begin{xten}
+class List[T] implements {T <: Printable} Printable {
+    ...
+    def print(){T <: Printable} = {
+        for (x: T in this)
+            x.print();
+    }
+}
+\end{xten}
+
+In this case \xcd"List" implements the \xcd"Printable" interface
+only if \xcd"List.T" implements \xcd"Printable".
+Thus \xcd"List{T==String}"
+and \xcd"List{T==List[String]}"
+are subtypes of \xcd"Printable", but
+\xcd"List{T==DirtyWord}"\footnote{A list of length 7, of course.} is not.
+
 \subsection{Method overriding}
 
 Legal if any call to super method can call sub method.
@@ -658,15 +882,16 @@ program & {\tt P} & ::= & \xbar{L} \\
 classes & {\tt L} & ::= &
 \xcdmath"class C[$\tbar{X}$]($\tbar{x} \ty \tbar{T}$){c}" \\
 & & & \xcdmath"  extends T { $\tbar{M}$ }" \\
-base types & {\tt R} & ::= & \xcd"C" \\
-            & & \bnf & \xcd"X" \\
-            & & \bnf & \xcd"e.X" \\
-types & {\tt T} & ::= & \xcd"R" \\
-            & & \bnf & \xcd"R{c}" \\
+base types & {\tt R} \\
+\quad classes & & ::= & \xcd"C" \\
+\quad type variables  & & \bnf & \xcd"X" \\
+\quad type members    & & \bnf & \xcd"e.X" \\
+\quad type type       & & \bnf & \xcd"type" \\
+types & {\tt T} & ::= & \xcd"R{c}" \\
 methods     & {\tt M} & ::= &
 \xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T = e" \\
-expressions & {\tt e} & ::= & \\
-\quad literals        &         &      & \xcd"true" \bnf \xcd"false" \bnf \xcd"null" \bnf $n$ \\
+expressions & {\tt e} & \\
+\quad literals        &         & ::=  & \xcd"true" \bnf \xcd"false" \bnf \xcd"null" \bnf $n$ \\
 \quad variables       &         & \bnf & \xcd"x" \\
 \quad field access    &         & \bnf & \xcdmath"e.x" \\
 \quad call            &         & \bnf & \xcdmath"e$_0$.m[$\tbar{T}$]($\tbar{e}$)" \\
@@ -674,16 +899,18 @@ expressions & {\tt e} & ::= & \\
 \quad new             &         & \bnf & \xcdmath"new C[$\tbar{T}$]($\tbar{e}$)" \\
 %\quad                 &         & \bnf & \xcdmath"new C($\tbar{e}$)" \\
 \quad cast            &         & \bnf & \xcdmath"e as T" \\
-constraint terms & {\tt t} & ::= & \\
-\quad self            &         &      & \xcd"self" \\
+constraint terms & {\tt t} &     & \\
+\quad self            &         & ::=  & \xcd"self" \\
 \quad variables       &         & \bnf & \xcd"x" \\
 \quad properties      &         & \bnf & \xcd"t".\xcd"x" \\
 \quad atoms           &         & \bnf & \xcdmath"g(t$_1$,$\dots$,t$_n$)" \\
 \quad new             &         & \bnf & \xcdmath"new C(t$_1$,$\dots$,t$_n$)" \\
-constraint & {\tt c} & ::=  & \Xcd{true} \\
-                  &  & \bnf & $\exc{\Xcd{x}}{\Xcd{c}}$ \\
-                  &  & \bnf & $\xbar{c}$ \\
-                  &  & \bnf & \xcdmath"p(t$_1$,$\dots$,t$_n$)" \\
+constraint & {\tt c} &      & \\
+\quad true            &  & ::=  & \Xcd{true} \\
+\quad equality        &  & \bnf & $\Xcd{t}_1 \equals \Xcd{t}_2$ \\
+\quad existentials    &  & \bnf & $\exc{\Xcd{x}}{\Xcd{c}}$ \\
+\quad conjunction     &  & \bnf & $\xbar{c}$ \\
+\quad predicates      &  & \bnf & \xcdmath"p(t$_1$,$\dots$,t$_n$)" \\
 environments & $\Gamma$ & ::=  & $\epsilon$ \\
             &          & \bnf & $\Gamma$, $\Xcd{c}$ \\
             &          & \bnf & $\Gamma$, $\Xcd{x} \ty \Xcd{T}$ \\
@@ -705,8 +932,8 @@ constraint terms & {\tt t} & ::= & \dots \\
 \quad type variables       &         & \bnf & \xcd"X" \\
 \quad type properties      &         & \bnf & \xcd"t".\xcd"X" \\
 constraint & {\tt c} & ::=  & \dots \\
-                  &  & \bnf & $\Xcd{t}_1 \equals \Xcd{t}_2$ \\
                   &  & \bnf & $\Xcd{t}_1 \subtype \Xcd{t}_2$ \\
+                  &  & \bnf & \Xcd{cons(T,z)} \\
 \end{tabular}
 \end{center}
 \caption{Extended \gxx grammar}
@@ -2067,78 +2294,9 @@ of shuffle requires delegating to a private parameterized version that
 
 \subsection{Virtual types}
 
-Type properties share many similarities with virtual types~\cite{mp89-virtual-classes,beta}, particularly
-with sound formulations of virtual types using path-dependent types,
-as found in gbeta~\cite{ernst99-gbeta}, Scala~\cite{scala},
-and J\&~\cite{nqm06}.
-%
-Constrained types are more expressive than virtual
-types since they can be constrained at the use-site,
-can be refined on a per-object basis without explicit subclassing,
-and can be refined contravariantly
-as well as covariantly.
-
-Thorup~\cite{thorup97}
-proposed adding genericity to Java using virtual types.  For example,
-a generic \xcd"List" class can be written as follows:
-\begin{xten}
-abstract class List {
-    abstract typedef T;
-    void add(T element) { ... }
-    T get(int i) { ... }
-}
-\end{xten}
-This class can be refined by bounding the virtual type \xcd"T" above:
-\begin{xten}
-abstract class NumberList extends List {
-    abstract typedef T as Number;
-}
-\end{xten}
-And this abstract class can be further refined to \emph{final bind}
-\xcd"T" to a particular type:
-\begin{xten}
-class IntList extends NumberList {
-    final typedef T as Integer;
-}
-\end{xten}
-These classes are related by subtyping:
-${\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}$.
-Only classes where \xcd"T" is final bound can be non-abstract.
-
-In X10, an analogous \xcd"List" class would be written as follows:
-\begin{xten}
-class List[T] {
-    def add(element: T) = { ... }
-    def get(i: int): T = { ... }
-}
-\end{xten}
-
-\xcd"NumberList" and \xcd"IntList" can be written as follows:
-\begin{xten}
-class NumberList extends List{T<:Number} { }
-class IntList extends NumberList{T==Integer} { }
-\end{xten}
-
-However, note that X10's \xcd"List" is not abstract.
-Instances of \xcd"List"
-can instantiate \xcd"T" with a particular type and there is no need to declared classes for \xcd"NumberList" and \xcd"IntList".  Instead, one can use the types
-\xcd"List[+Number]" and \xcd"List[Integer]".
-
-Unlike virtual types, type properties can be refined contravariantly.
-For instance, one can write the type \xcd"List[-Integer]",
-and even \xcd"List{Integer<:T, T<:Number}".
-
 \section{Extensions}
 
 \subsection{Self type}
-
-Add a type property \Xcd{class} to \Xcd{Object}:
-\begin{xten}
-class Object[class] { }
-\end{xten}
-
-The class invariant for all classes \Xcd{C}
-implies $\Xcd{this}.\Xcd{class} \subtype \Xcd{C}$.
 
 \subsection{Structural constraints}
 
@@ -2147,16 +2305,6 @@ implies $\Xcd{this}.\Xcd{class} \subtype \Xcd{C}$.
 
 Consider the following example of generic ownership
 derived from Potanin et al.~\cite{ogj-oopsla06}.
-\eat{
-@inproceedings{ogj-oopsla06,
-title = "Generic Ownership for Generic {Java}",
-author = "Alex Potanin and James Noble and Dave Clarke and Robert Biddle",
-booktitle = "Object-oriented Programming Systems, Languages, and Applications (OOPSLA 2006)"
-month = oct,
-year = 2006,
-location = "Portland, OR"
-}
-}
 
 \begin{xten}
 class Object(owner: Object) { }
