@@ -367,6 +367,8 @@ Section~\ref{sec:virtual}.
 
 \subsection{Contributions}
 
+\todo{We need some!}
+
 \subsection{Implementation}
 
 Type properties and subtyping constraints may be used to 
@@ -414,7 +416,23 @@ class Array[T](add: (T,T)=>T) {
 }
 
 \paragraph{Outline.}
-The rest of the paper\dots
+The rest of the paper is organized as follows.
+%
+Section~\ref{sec:related} discusses related work.
+%
+An informal overview of generic constrained types in X10
+is presented in
+Section~\ref{sec:lang}.  
+%
+Section~\ref{sec:semantics} presents a formal semantics and a
+proof of soundness.
+%
+The implementation of generics in X10 by translation to Java is described in 
+Section~\ref{sec:translation}.
+%
+Finally, Section~\ref{sec:conclusions} concludes.
+
+\todo{Fix this}
 
 \section{Related work}
 \label{sec:related}
@@ -920,9 +938,120 @@ cs = bs; // ok
 
 
 \subsection{Structural constraints}
+\label{sec:structural}
+
+XXX this is an extension of the type system
+
+\begin{figure}[tp]
+\begin{center}
+\begin{tabular}{lrcl}
+expressions & {\tt e} & ::= & \dots \\
+            &        & \bnf & \xcd"T has Sig" \\
+signatures  & {\tt Sig} & ::= &
+\xcdmath"def this[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
+            &        & \bnf &
+\xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
+            &        & \bnf &
+\xcdmath"val x{c}: T" \\
+            %&  & \bnf & \xcdmath"var x{c}: T" \\
+\end{tabular}
+\end{center}
+\caption{Grammar for structural constraints}
+\label{fig:structural}
+\end{figure}
+
+The type system is general enough to support not only subtyping
+constraints, but also structural constraints on types.  The type
+system need not change except by extending the constraint
+system.  The syntax for structural constraints is shown in
+Figure~\ref{fig:structural}.
+
+Structural constraints on types are found in many languages.
+Haskell~\cite{haskell} supports type classes.
+%ML's module system allows modules to be constrained by
+%structural signatures~\cite{ml}.
+In Modula-3, type equivalence and subtyping are structural
+rather than nominal as in object-oriented languages of the C
+family such as C++, Java, Scala, and X10.
+%
+The language PolyJ~\cite{polyj} allows type parameters to be bounded using
+structural where clauses, a form of F-bounded
+polymorphism~\cite{fbounds}.
+For example, a sorted list class in PolyJ can be written as follows:
+\begin{xten}
+class SortedList[T] where T { int compare(T) } {
+    void add(T x) { ... x.compare(y) ... }
+}
+\end{xten}
+The where clause states that the type parameter \xcd"T" must have a
+method \xcd"compare" with the given signatures.
+
+To support this, X10 provides structural constraints on types.
+The analogous X10 code for \xcd"SortedList" is:
+\begin{xten}
+class SortedList[T] where T has compare(T): int {
+    def add(x: T) = { ... x.compare(y) ... }
+}
+\end{xten}
+
+A structural constraint is of the form \emph{Type}~\xcd"has"~\emph{Signature}.
+A constraint is satisfied if the type has a member of the appropriate name
+and with a compatible type.
+The constraint \xcd"X has f(T1): T2"
+is satisfied by a type \xcd"T" if it has a method \xcd"f"
+whose type is a subtype of \xcd"(T1 => T2)"$[{\tt T}/{\tt X}]$.
+As an example,
+the constraint \xcd"X has equals(X): boolean"
+is satisfied by all three of the following classes:
+\begin{xten}
+class C { def equals(x: C): boolean; }
+class D extends C { }
+class E { def equals(x: Object): boolean; }
+\end{xten}
+
+By using function types and where clauses on constructors,
+X10 can go further than PolyJ.
+Unlike in PolyJ, where the \xcd"compare" method must be provided by \xcd"T",
+in X10 the \xcd"compare" function can be external to \xcd"T".
+This is achieved as follows:
+\begin{xten}
+class SortedList[T] {
+    val compare: (T,T) => int;
+    def this(cmp: (T,T) => int) = { compare = cmp; }
+    def add(x: T) = { ... compare(x,y) ... }
+}
+\end{xten}
+
+This permits
+\xcd"SortedList" to be instantiated using different compare functions:
+\begin{xten}
+val unixFiles    = new SortedList[String]
+                        (String.compareTo.(String));
+val windowsFiles = new SortedList[String]
+                        (String.compareToIgnoreCase.(String));
+\end{xten}
+
+But, a problem with this approach is that the compare function must be
+provided to the constructor at each instantiation of \xcd"SortedList".
+The problem can be resolved by using constructors with different
+structural constraints:
+\begin{xten}
+class SortedList[T] {
+    val compare: (T,T) => int;
+    def this[T]() where T has compareTo(T): int = {
+        this[T](T.compareTo.(S));
+    }
+    def this[T](cmp: (T,T) => int) = { compare = cmp; }
+    def add(x: T) = { ... compare(x,y) ... }
+}
+\end{xten}
+Now, \xcd"SortedList" can be instantiated with any type that has
+a \xcd"compareTo"
+method without expliclty specifying the method at each constructor call.
 
 
-\section{Self types}
+
+\subsection{Self types}
 \label{sec:self}
 
 Type properties can also be used to support self
@@ -2281,118 +2410,6 @@ methods of a \xcd"Type" because the actual implementation of
 the operation may require run-time constraint solving or other
 complex code that cannot be easily substituted in when rewriting
 the bytecode during instantiation.
-
-\section{Structural constraints}
-\label{sec:structural}
-
-XXX this is an extension of the type system
-
-\begin{figure}[tp]
-\begin{center}
-\begin{tabular}{lrcl}
-expressions & {\tt e} & ::= & \dots \\
-            &        & \bnf & \xcd"T has Sig" \\
-signatures  & {\tt Sig} & ::= &
-\xcdmath"def this[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
-            &        & \bnf &
-\xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
-            &        & \bnf &
-\xcdmath"val x{c}: T" \\
-            %&  & \bnf & \xcdmath"var x{c}: T" \\
-\end{tabular}
-\end{center}
-\caption{Grammar for structural constraints}
-\label{fig:structural}
-\end{figure}
-
-The type system is general enough to support not only subtyping
-constraints, but also structural constraints on types.  The type
-system need not change except by extending the constraint
-system.  The syntax for structural constraints is shown in
-Figure~\ref{fig:structural}.
-
-Structural constraints on types are found in many languages.
-Haskell~\cite{haskell} supports type classes.
-%ML's module system allows modules to be constrained by
-%structural signatures~\cite{ml}.
-In Modula-3, type equivalence and subtyping are structural
-rather than nominal as in object-oriented languages of the C
-family such as C++, Java, Scala, and X10.
-%
-The language PolyJ~\cite{polyj} allows type parameters to be bounded using
-structural where clauses, a form of F-bounded
-polymorphism~\cite{fbounds}.
-For example, a sorted list class in PolyJ can be written as follows:
-\begin{xten}
-class SortedList[T] where T { int compare(T) } {
-    void add(T x) { ... x.compare(y) ... }
-}
-\end{xten}
-The where clause states that the type parameter \xcd"T" must have a
-method \xcd"compare" with the given signatures.
-
-To support this, X10 provides structural constraints on types.
-The analogous X10 code for \xcd"SortedList" is:
-\begin{xten}
-class SortedList[T] where T has compare(T): int {
-    def add(x: T) = { ... x.compare(y) ... }
-}
-\end{xten}
-
-A structural constraint is of the form \emph{Type}~\xcd"has"~\emph{Signature}.
-A constraint is satisfied if the type has a member of the appropriate name
-and with a compatible type.
-The constraint \xcd"X has f(T1): T2"
-is satisfied by a type \xcd"T" if it has a method \xcd"f"
-whose type is a subtype of \xcd"(T1 => T2)"$[{\tt T}/{\tt X}]$.
-As an example,
-the constraint \xcd"X has equals(X): boolean"
-is satisfied by all three of the following classes:
-\begin{xten}
-class C { def equals(x: C): boolean; }
-class D extends C { }
-class E { def equals(x: Object): boolean; }
-\end{xten}
-
-By using function types and where clauses on constructors,
-X10 can go further than PolyJ.
-Unlike in PolyJ, where the \xcd"compare" method must be provided by \xcd"T",
-in X10 the \xcd"compare" function can be external to \xcd"T".
-This is achieved as follows:
-\begin{xten}
-class SortedList[T] {
-    val compare: (T,T) => int;
-    def this(cmp: (T,T) => int) = { compare = cmp; }
-    def add(x: T) = { ... compare(x,y) ... }
-}
-\end{xten}
-
-This permits
-\xcd"SortedList" to be instantiated using different compare functions:
-\begin{xten}
-val unixFiles    = new SortedList[String]
-                        (String.compareTo.(String));
-val windowsFiles = new SortedList[String]
-                        (String.compareToIgnoreCase.(String));
-\end{xten}
-
-But, a problem with this approach is that the compare function must be
-provided to the constructor at each instantiation of \xcd"SortedList".
-The problem can be resolved by using constructors with different
-structural constraints:
-\begin{xten}
-class SortedList[T] {
-    val compare: (T,T) => int;
-    def this[T]() where T has compareTo(T): int = {
-        this[T](T.compareTo.(S));
-    }
-    def this[T](cmp: (T,T) => int) = { compare = cmp; }
-    def add(x: T) = { ... compare(x,y) ... }
-}
-\end{xten}
-Now, \xcd"SortedList" can be instantiated with any type that has
-a \xcd"compareTo"
-method without expliclty specifying the method at each constructor call.
 
 \section{Discussion}
 \label{sec:discussion}
