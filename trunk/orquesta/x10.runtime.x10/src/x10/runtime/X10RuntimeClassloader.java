@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -15,7 +17,6 @@ import static x10.runtime.bytecode.ByteArrayUtil.*;
 import static x10.runtime.bytecode.BytecodeConstants.*;
 import static x10.runtime.bytecode.ClassFileUtil.*;
 import static x10.runtime.bytecode.ClassFileConstants.*;
-
 
 public class X10RuntimeClassloader extends ClassLoader {
 	private static final boolean DUMP_GENERATED_CLASSES = true;
@@ -38,12 +39,28 @@ public class X10RuntimeClassloader extends ClassLoader {
 
 	private static final String PARAMETERS = "x10.generics.Parameters";
 	private final Class<? extends Annotation> PARAMETERS_CLASS;
+	private final Method PARAMETERS_VALUE;
+	private static final String INSTANTIATION = "x10.generics.Instantiation";
+	private final Class<? extends Annotation> INSTANTIATION_CLASS;
+	private final Method INSTANTIATION_VALUE;
+	private static final Class[] NO_PARAMETERS = { };
 	public X10RuntimeClassloader() {
-		Class<? extends Annotation> pc = null; 
+		Class<? extends Annotation> pc = null;
+		Method pvm = null;
+		Class<? extends Annotation> ic = null;
+		Method ivm = null;
 		try {
 			pc = (Class<? extends Annotation>)loadClass(PARAMETERS);
-		} catch (ClassNotFoundException e) { assert (false); }
+			pvm = pc.getDeclaredMethod("value", NO_PARAMETERS);
+			ic = (Class<? extends Annotation>)loadClass(INSTANTIATION);
+			ivm = ic.getDeclaredMethod("value", NO_PARAMETERS);
+		}
+		catch (ClassNotFoundException e) { assert (false); }
+		catch (NoSuchMethodException e) { assert (false); }
 		PARAMETERS_CLASS = pc;
+		PARAMETERS_VALUE = pvm;
+		INSTANTIATION_CLASS = ic;
+		INSTANTIATION_VALUE = ivm;
 	}
 
 	public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
@@ -238,9 +255,9 @@ public class X10RuntimeClassloader extends ClassLoader {
 				max_locals = numLocals;
 				cf.setMethodLocals(code, (short)max_locals);
 			}
+			// TODO: attributes
 		}
 		// TODO: attributes
-		// TODO: local variable tables
 		cf.this_class = newTypeIndex;
 	}
 
@@ -251,23 +268,49 @@ public class X10RuntimeClassloader extends ClassLoader {
 			return null;
 		}
 	}
-	private HashMap<String, String[]> cache = new HashMap<String, String[]>();
+	private HashMap<String, String[]> formalsCache = new HashMap<String, String[]>();
 	private String[] getFormals(int class_index, String[] formals, ClassFile cf, short[] changedSignatures) {
 		if (cf.isInstance(class_index))
 			return formals;
 		String container = cf.getString(cf.getNameIndex(class_index));
-		if (cache.containsKey(container))
-			return cache.get(container);
+		if (formalsCache.containsKey(container))
+			return formalsCache.get(container);
 		String[] parms = null;
 		Class<?> containerClass = getClass(container.replace('/','.'));
 		if (containerClass != null) {
-			x10.generics.Parameters parameters = (x10.generics.Parameters)containerClass.getAnnotation(PARAMETERS_CLASS);
+			Annotation parameters = containerClass.getAnnotation(PARAMETERS_CLASS);
 			if (parameters != null) {
-				parms = parameters.value();
+				try {
+					parms = (String[]) PARAMETERS_VALUE.invoke(parameters);
+				} catch (IllegalAccessException e) { } catch (InvocationTargetException e) { }
+				if (VERBOSE)
+					System.out.println(PARAMETERS+" annotation = "+parameters.getClass().getName()+
+							" of type "+parameters.annotationType().getName()+" = "+Arrays.toString(parms));
 			}
 		}
-		cache.put(container, parms);
+		formalsCache.put(container, parms);
 		return parms;
+	}
+	private HashMap<String, String[]> remapCache = new HashMap<String, String[]>();
+	private String[] getRemapType(int class_index, ClassFile cf) {
+		String container = cf.getString(cf.getNameIndex(class_index));
+		if (remapCache.containsKey(container))
+			return remapCache.get(container);
+		String[] type = null;
+		Class<?> containerClass = getClass(container.replace('/','.'));
+		if (containerClass != null) {
+			Annotation instantiation = containerClass.getAnnotation(INSTANTIATION_CLASS);
+			if (instantiation != null) {
+				try {
+					type = (String[]) INSTANTIATION_VALUE.invoke(instantiation);
+				} catch (IllegalAccessException e) { } catch (InvocationTargetException e) { }
+				if (VERBOSE)
+					System.out.println(INSTANTIATION+" annotation = "+instantiation.getClass().getName()+
+							" of type "+instantiation.annotationType().getName()+" = "+Arrays.toString(type));
+			}
+		}
+		remapCache.put(container, type);
+		return type;
 	}
 
 	private static String instantiateType(String type, String[] formals, String[] actuals) {
@@ -355,11 +398,19 @@ public class X10RuntimeClassloader extends ClassLoader {
 			// Assume sorted
 			return Arrays.binarySearch(handlers, (short) o);
 		}
+		protected final int getExceptionHandlerCount() {
+			return handlers.length;
+		}
 		protected final short getExceptionHandler(int i) {
 			return handlers[i];
 		}
 		protected final short getCaughtExceptionIndex(int i) {
 			return catches[i];
+		}
+		protected final void setCaughtExceptionIndex(int i, short v) {
+			int exc_off = cf.getMethodExceptionTableOffset(code);
+			int e = exc_off+i*8;
+			putShort(code, e+6, v);
 		}
 
 		private boolean reinterpret = false;
@@ -711,16 +762,17 @@ public class X10RuntimeClassloader extends ClassLoader {
 				System.out.println("Access to "+container+"."+name+" "+descriptor);
 			String newContainer = container;
 			String newDescriptor = descriptor;
-			formals = getFormals(class_index, formals, cf, changedSignatures);
-			boolean isParameterized = formals != null && formals.length > 0;
+			String[] newFormals = getFormals(class_index, formals, cf, changedSignatures);
+			boolean isParameterized = newFormals != null && newFormals.length > 0;
 			if (isParameterized) {
+				String[] params = actuals;
 				if (receiver != null) { // get the type from the stack
-					actuals = demangle(typeFromSignature(receiver));
+					params = demangle(typeFromSignature(receiver));
 				} else {
 					// FIXME: what to do about static fields, e.g., List[T].f?
 				}
 				newContainer = mangle(container, actuals);
-				newDescriptor = instantiateType(descriptor, formals, actuals);
+				newDescriptor = instantiateType(descriptor, newFormals, params);
 				short new_field_ref = createFieldRef(cf, newContainer, name, newDescriptor);
 				if (new_field_ref != field_ref_index) {
 					short new_descriptor_index = cf.getDescriptorIndex(cf.getNameAndTypeIndex(new_field_ref));
@@ -753,7 +805,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 			String descriptor = processFieldAccess(field_ref_index, receiver, formals, actuals, changedSignatures);
 		}
 		private int extractClassParameters(int x, String[] formals, String[] actuals, String[] result) {
-			for (int i = 0; i < formals.length; i++) {
+			for (int i = 0; i < result.length; i++) {
 				int cload = getByte(code, o+x);
 				assert (cload == BC_ldc || cload == BC_ldc_w || cload == BC_getstatic);
 				String signature = null;
@@ -842,13 +894,13 @@ public class X10RuntimeClassloader extends ClassLoader {
 				reinterpret();
 				return;
 			}
-			formals = getFormals(class_index, formals, cf, changedSignatures);
-			boolean isParameterized = formals != null && formals.length > 0;
+			String[] newFormals = getFormals(class_index, formals, cf, changedSignatures);
+			boolean isParameterized = newFormals != null && newFormals.length > 0;
 			if (isParameterized) {
 				// TODO: retrieve the annotations and make sure the method is annotated Synthetic
 				if (isStatic && name.equals(INSTANCEOF_METHOD) && signature.equals(INSTANCEOF_SIG)) {
 					int x = 3;
-					String[] params = new String[formals.length];
+					String[] params = new String[newFormals.length];
 					x = extractClassParameters(x, formals, actuals, params);
 					newContainer = mangle(container, params);
 					newSignature = INSTANCEOF1_SIG; // Add a boolean arg
@@ -881,7 +933,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 				} else if (isStatic && name.equals(CAST_METHOD) && signature.equals(CAST_SIG)) {
 					int x = 3;
 					if (getByte(code, o+x) != BC_nop) { // already processed
-						String[] params = new String[formals.length];
+						String[] params = new String[newFormals.length];
 						x = extractClassParameters(x, formals, actuals, params);
 						newContainer = mangle(container, params);
 						short new_method_ref = createMethodRef(cf, newContainer, name, signature, isInterface);
@@ -910,8 +962,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 						reinterpret();
 						return;
 					}
-				} else if (!name.equals(INSTANCEOF_METHOD) && // already mangled
-						   container_index == cf.getNameIndex(cf.this_class)) {
+				} else if (!name.equals(INSTANCEOF_METHOD)) { // FIXME: else already mangled
 					String[] params = actuals;
 					if (!isStatic) { // get the type from the stack
 						params = demangle(typeFromSignature(args[0]));
@@ -920,7 +971,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 					}
 					newContainer = mangle(container, params);
 					MethodSig sig = MethodSig.fromSignature(signature);
-					MethodSig newSig = instantiateSignature(sig, formals, params);
+					MethodSig newSig = instantiateSignature(sig, newFormals, params);
 					newSignature = newSig.toSignature();
 					short new_method_ref = createMethodRef(cf, newContainer, name, newSignature, isInterface);
 					if (new_method_ref != method_ref_index) {
@@ -962,12 +1013,12 @@ public class X10RuntimeClassloader extends ClassLoader {
 		protected void process_new(int type_index, String[] formals, String[] actuals, short[] changedSignatures) {
 			short name_index = cf.getNameIndex(type_index);
 			String type = cf.getString(name_index);
-			formals = getFormals(type_index, formals, cf, changedSignatures);
-			boolean isParameterized = formals != null && formals.length > 0;
+			String[] newFormals = getFormals(type_index, formals, cf, changedSignatures);
+			boolean isParameterized = newFormals != null && newFormals.length > 0;
 			if (VERBOSE)
 				System.out.println("Creating instance of "+type+(isParameterized?" (parameterized)":""));
 			if (isParameterized) {
-				String[] params = new String[formals.length];
+				String[] params = new String[newFormals.length];
 				assert (getByte(code, o+3) == BC_dup);
 				int x = 4;
 				x = extractClassParameters(x, formals, actuals, params);
@@ -1099,6 +1150,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 		}
 
 		public void interpret(String signature, String[] actuals, String[] formals, short[] changedSignatures, char[] remap, short[] reassignLocals) {
+			// Process bytecodes
 			for (o = off; o < off + len; o++) {
 				assert (depth[o - off] == 0 || sp == depth[o - off]);
 				int h = findExceptionHandler(o - off);
@@ -1347,6 +1399,28 @@ public class X10RuntimeClassloader extends ClassLoader {
 				} else
 					o += getBytecodeLength(o)-1;
 			}
+			// Process exception table
+			for (int j = 0; j < getExceptionHandlerCount(); j++) {
+				short exc_index = getCaughtExceptionIndex(j);
+				String excName = cf.getString(cf.getNameIndex(exc_index));
+				if (VERBOSE)
+					System.out.println("Catch block for "+excName);
+				String[] remapType = getRemapType(exc_index, cf);
+				if (remapType != null) {
+					String[] params = new String[remapType.length - 1];
+					for (int i = 0; i < params.length; i++)
+						params[i] = typeFromSignature(instantiateType(typeToSignature(remapType[i+1]), formals, actuals));
+					String newName = constantPoolTypeFromSignature(typeToSignature(mangle(remapType[0], params)));
+					short new_exc_index = createClassRef(cf, newName);
+					if (new_exc_index != exc_index) {
+						setCaughtExceptionIndex(j, new_exc_index);
+						if (VERBOSE)
+							System.out.println("\t   ->"+newName);
+					}
+				}
+				
+			}
+			// TODO: local variable table
 		}
 
 		protected final int getBytecodeLength(int o) {
