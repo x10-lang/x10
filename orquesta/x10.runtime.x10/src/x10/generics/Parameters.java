@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Stores the generic type parameter names for a class.
  */
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Parameters {
 	String[] value();
