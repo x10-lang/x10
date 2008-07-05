@@ -1,4 +1,5 @@
 import x10.generics.Parameters;
+import x10.generics.Instantiation;
 import x10.generics.Synthetic;
 import x10.runtime.Runtime;
 
@@ -34,6 +35,11 @@ public class Map implements Runnable {
 	public void remove(K k) {
 		key = EMPTY;
 	}
+	public static boolean mark() {
+		System.out.println("Executing: "+Map.class.getName());
+		//throw new MapException(int.class);
+		throw new MapException(K.class);
+	}
 	public void run() {
 		System.out.println("Loaded and executed: "+getClass().getName());
 		Map m = new Map(int.class, double.class, 3);
@@ -54,5 +60,24 @@ public class Map implements Runnable {
 			case 18: System.out.println("\t18"); break;
 			default: System.out.println("\t?"); break;
 		}
+		//@Instantiation({"MapException","int"})
+		@Instantiation({"MapException","Map$K"})
+		class MapException__K extends RuntimeException { };
+		try {
+			Map.mark();
+		} catch (MapException__K e) {
+			System.out.println("Caught "+e.getClass().getName());
+		}
 	}
 }
+
+@Parameters({"T"})
+class MapException extends RuntimeException {
+	public class T {};
+	public MapException() { }
+	@Synthetic public MapException(Class T) { this(); }
+	@Synthetic public static boolean instanceof$(Object o, String constraint) { assert(false); return true; }
+	public static boolean instanceof$(Object o, String constraint, boolean b) { /*check constraint*/; return b; }
+	public static Object cast$(Object o, String constraint) { /*check constraint*/; return (MapException)o; }
+}
+
