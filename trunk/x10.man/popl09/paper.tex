@@ -75,7 +75,7 @@
 \iflncs
 
 \author{
-Nathaniel Nystom\inst{1}
+Nathaniel Nystrom\inst{1}
 \and
 Igor Peshansky\inst{1}
 \and
@@ -83,7 +83,7 @@ Vijay Saraswat\inst{1}
 }
 
 \institute{IBM T.~J. Watson Research~Center, P.O.~Box~704, Yorktown~Heights NY 10598 USA,
-\email{\{nystrom,vsaraswa\}@us.ibm.com}}
+\email{\{nystrom,igorp,vsaraswa\}@us.ibm.com}}
 
 \else
 
@@ -126,10 +126,10 @@ the last decade can be thought of as constrained type systems in
 this formulation.  This framework is parametrized by an
 arbitrary constraint system $\cal C$ of interest.  It permits
 the development of languages with pluggable type systems, and
-suports dynamic code generation to check casts at run-time.
+supports dynamic code generation to check casts at run-time.
 
 The paper makes the following contributions: (1) We show how to
-accomodate generic object-oriented types within the framework of
+accommodate generic object-oriented types within the framework of
 constrained types. (1) We illustrate the type system with the
 development of a formal calculus \gxx and establish type
 soundness. (3) We discuss the design and implementation of the
@@ -203,7 +203,7 @@ among them.
 We have formalized the type system in an extension of
 Featherweight Java~\cite{FJ}
 and provide proof of soundness.
-The type system is parameterized on the constraint system.
+The type system is parametrized on the constraint system.
 By augmenting the default constraint system,
 the type system can serve as a core calculus 
 for formalizing extensions of a core object-oriented language. 
@@ -536,7 +536,7 @@ X10 is a class-based object-oriented language.
 The language has a sequential core similar to Java or Scala, but 
 constructs
 for concurrency and distribution, as well as constrained types,
-describeds here.
+described here.
 Like Java, the language provides single class inheritance and
 multiple interface inheritance.
 
@@ -608,7 +608,7 @@ of the new object simultaneously; the syntax is similar to a \xcd"super"
 constructor call.
 
 If the \xcd"property" statement is omitted, the compiler implicitly
-initailizes the properties from the formal type and value parameters
+initializes the properties from the formal type and value parameters
 of the constructor.  The property statement for \xcd"Cell"'s constructor,
 for example, could have been omitted.
 
@@ -639,7 +639,7 @@ Extensions: structural constraints, optional methods, interfaces
 Legal if any call to super method can call sub method.
 
 covariant return
-contravaraint args
+contravariant args
 weaker where clause
 
 \subsubsection{Method parameters}
@@ -663,7 +663,7 @@ class List[T] {
 \end{xten}
 
 
-A parameterized method can is invoked by giving type arguments before the
+A parametrized method can is invoked by giving type arguments before the
 expression arguments.  For example, the following code takes a
 list of \xcd"String"s and returns a list of string lengths of
 type \xcd"int"
@@ -1047,7 +1047,7 @@ class SortedList[T] {
 \end{xten}
 Now, \xcd"SortedList" can be instantiated with any type that has
 a \xcd"compareTo"
-method without expliclty specifying the method at each constructor call.
+method without explicitly specifying the method at each constructor call.
 
 
 
@@ -1272,7 +1272,7 @@ In the method signature
                 $\Xcd{[}\xbar{X}\Xcd{(}\xbar{x}\ty\xbar{T}\Xcd{)\{c\}}$,
                 the type variables \xbar{X} and data variables
                 \xbar{x} are considered bound; formulas with
-                bound variables are considered equivalent upto
+                bound variables are considered equivalent up to
                 $\alpha$-renaming.
 
 The constraint system satisfies the axioms and
@@ -2014,7 +2014,7 @@ the value parameters are named
                                      ${\tt z_1}, \dots, {\tt z_n}$
 since we are free to choose
 variable names as we wish.)
-Now, for the method to be invocable,
+Now, for the method to be invokable,
 it must be the case that the types
     ${\tt T_1}, \dots, {\tt T_n}$
 are subtypes of
@@ -2250,7 +2250,7 @@ generic constrained types on a Java virtual machine.
 We describe the implementation as a translation to Java.
 
 The design
-is a hybrid design based on the implementation of parameterized classes in
+is a hybrid design based on the implementation of parametrized classes in
 NextGen~\cite{allen03,allen04} and the implementation of
 PolyJ~\cite{polyj}.
 Generic classes are translated into template classes
@@ -2464,7 +2464,7 @@ def aMethod[T](list: List[T]) = { ... }
 \end{xten}
 This method can then be called on any \xcd"List" object.
 However, there is no way to do this for fields since they
-cannot be parameterized.
+cannot be parametrized.
 Java introduced wildcards to allow such fields to be
 typed:
 \begin{xten}
@@ -2558,7 +2558,7 @@ def shuffle[T](list: List[T]) = {
     }
 }
 \end{xten}
-The method is parameterized on \xcd"T" because the method body needs
+The method is parametrized on \xcd"T" because the method body needs
 the element type to declare the variable \xcd"xi".
 
 However, the method parameter can be omitted by using the type \xcd"list.T"
@@ -2575,7 +2575,7 @@ not.  The names of type properties are visible outside the body of
 their class declaration.
 
 \if 0
-Type properties can be used as the basis of a parameterized type
+Type properties can be used as the basis of a parametrized type
 system.  This is done simply by making type properties private.
 Using the syntactic sugar described above,
 the resulting system behaves identically to a system with type
@@ -2584,11 +2584,11 @@ parameters.
 
 In Java,
 Wildcard
-capture allows the parameterized method to be called with any \xcd"List",
+capture allows the parametrized method to be called with any \xcd"List",
 regardless of its parameter type.
 However,
 the method parameter cannot be omitted: declaring a parameterless version
-of shuffle requires delegating to a private parameterized version that
+of shuffle requires delegating to a private parametrized version that
 ``opens up'' the parameter.
 
 \eat{
@@ -2674,7 +2674,7 @@ more expressive power.
 We expect that the design admits an efficient
 implementation and intend to implement the design shortly.
 
-\section*{Acknowledgements} 
+\section*{Acknowledgments} 
 
 The authors thank Bob Blainey, 
 Doug Lea, Jens Palsberg, Lex Spoon, and Olivier Tardieu
@@ -2683,7 +2683,7 @@ We thank
 Andrew Myers and
 Michael Clarkson for providing us with their implementation of
 PolyJ, on which our implementation was based, and for many
-discussions over the years about parameterized types in Java.
+discussions over the years about parametrized types in Java.
 
 \bibliographystyle{plain}
 \bibliography{master}
