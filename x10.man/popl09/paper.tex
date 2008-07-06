@@ -70,7 +70,7 @@
 
 \begin{document}
 
-\title{Genericity through Constrained Types}
+\title{Genericity through Dependently Constrained Types}
 
 \iflncs
 
@@ -82,7 +82,8 @@ Igor Peshansky\inst{1}
 Vijay Saraswat\inst{1}
 }
 
-\institute{IBM T.~J. Watson Research~Center, P.O.~Box~704, Yorktown~Heights NY 10598 USA,
+\institute{IBM T.~J. Watson Research~Center,
+P.O.~Box~704, Yorktown~Heights NY 10598 USA,
 \email{\{nystrom,igorp,vsaraswa\}@us.ibm.com}}
 
 \else
@@ -540,6 +541,8 @@ described here.
 Like Java, the language provides single class inheritance and
 multiple interface inheritance.
 
+\subsection{Classes}
+
 Classes in X10 may be declared with any number of type properties and
 value properties.  These properties can be constrained with a
 \emph{class invariant},
@@ -569,7 +572,9 @@ a class,
 both type and value, must be initialized by the class's
 constructors.
 
-Classes may define fields, methods, and constructors. The
+Classes may define fields, methods, and constructors.
+Consider the example in Figure~\ref{fig:list}.
+The
 declaration syntax
 is similar to Scala's.  Fields may be
 declared either \xcd"val" or \xcd"var".  A \xcd"val" field is
@@ -585,36 +590,61 @@ using the name \xcd"this" for constructors.
 In X10, constructors have a return type, which constrains
 the properties of the new object.
 
-\subsection{Classes}
+\begin{figure}
+\begin{xten}
+class List[T](length: int){length >= 0} {
+    var head: T;
+    var tail: List[T];
+
+    def this[S](): List[S](0) = property[S](0);
+    def this[S](hd: S): List[S](1) = { property[S](1); head = hd; }
+    def this[S](hd: S, tl: List[S]): List[S](tl.length+1) = {
+        property[S](tl.length+1); head = hd; tail = tl;
+    }
+
+    def map[S](f: (T)=>S): List[S] = ...;
+
+    // XXX
+    def get(i: int){0 <= i, i < length} = {
+        if (i == 0) return head;
+        if (tail != null) return tail.get(i-1);
+        throw new IndexOutOfBoundsException();
+    }
+}
+\end{xten}
+\caption{List example}
+\label{fig:list}
+\end{figure}
 
 \subsection{Constructors}
 
+Objects in X10 are initialized with constructors. 
 Constructors are defined using the syntax \xcd"def this",
-as shown in Figure~\ref{fig:grammar}.
-%
+illustrated with the three \xcd"List"
+constructors in Figure~\ref{fig:list}.
+
 Constructors must ensure that all properties of the new object
 are initialized and that the class invariants of the object's
 class and its superclasses and superinterfaces hold.
 
+Constructors can take zero or more type parameters and zero or
+more value parameters.
+
 Properties are initialized with a \xcd"property" statement.
-For instance, the
-constructor for \xcd"Cell" ensures that the type property \xcd"T" is bound.
-\begin{xten}
-    def this[T](x: T) =
-      { property[T](); this.x = x; }
-\end{xten}
 The \xcd"property" statement is used to set all the properties
 of the new object simultaneously; the syntax is similar to a \xcd"super"
 constructor call.
-
-If the \xcd"property" statement is omitted, the compiler implicitly
-initializes the properties from the formal type and value parameters
-of the constructor.  The property statement for \xcd"Cell"'s constructor,
-for example, could have been omitted.
+The first constructor takes zero arguments and initializes the
+type property \xcd"T" to the type parameter \xcd"S"
+length to \xcd"0".  The second constructor initializes the
+length to \xcd"1", the third to one plus the length of the tail.
 
 Constructors have ``return
 types'' that can specify an invariant satisfied by the object being
-constructed.  The compiler verifies that the
+constructed.  This type 
+is used as the type of the \xcd"new" expression that
+invoked the constructor.
+The compiler verifies that the
 constructor return type and the class invariant are implied by the
 \xcd"property" statement and any \xcd"super"
 or \xcd"this" calls in the constructor body.
@@ -625,46 +655,25 @@ type property and a value parameter for each value property.
 
 \subsection{Methods}
 
-static methods cannot mention T
+Methods in X10 are declared with the \xcd"def" keyword.
 
-interfaces can have static methods; a property can implement I,
-allowing T.m() static calls
+Like Java, X10 supports both instance and static methods.
+Since a type property is an instance member, a static method may
+not refer to a type property of the class.
 
-method where clauses, optional methods
-Extensions: structural constraints, optional methods, interfaces
-        enabled flag trick
+Interfaces are permitted to have static methods that must be
+implemented by classes that implement the interface; this is
+useful when a type property \xcd"T" is constrained to implement
+an interface \xcd"I"; static methods of \xcd"I" can be invoked
+through \xcd"T".
 
-\subsubsection{Method overriding}
-
-Legal if any call to super method can call sub method.
-
-covariant return
-contravariant args
-weaker where clause
-
-\subsubsection{Method parameters}
-
-Methods and constructors may have type parameters.
-For instance, the \xcd"List" class below defines a \xcd"map"
-method that maps each element of a list of \xcd"T"
-to a value of another type \xcd"S", constructing a new list of
-\xcd"S".
-\begin{xten}
-class List[T] {
-    val array: Array[T];
-    def map[S](f: T => S): List[S] {
-        val newArray = new Array[S](array.length);
-        for (i in [0:array.length-1]) {
-            newArray(i) = f(array(i));
-        }
-        return new List(newArray);
-    }
-}
-\end{xten}
-
+Methods may have both type and value parameters.  
+For instance, the \xcd"map" method in Figure~\ref{fig:list} 
+has a type parameter \xcd"S" and a value parameter that is a
+function from \xcd"T" to \xcd"S".
 
 A parametrized method can is invoked by giving type arguments before the
-expression arguments.  For example, the following code takes a
+expression arguments.  The following code takes a
 list of \xcd"String"s and returns a list of string lengths of
 type \xcd"int"
 \begin{xten}
@@ -672,6 +681,14 @@ xs: List[String] = ...;
 ys: List[int] = xs.map[int](
         (x: String) => x.length());
 \end{xten}
+
+\subsubsection{Method where clauses}
+
+Methods may also have \emph{where clauses}, constraints on when
+the method may be invoked.  The \xcd"get" method in
+Figure~\ref{fig:list} requires that the argument \xcd"i" is
+within the list bounds.  A method with a \emph{where clause}
+is called a \emph{conditional method}.
 
 \subsubsection{Conditional methods}
 
@@ -717,6 +734,14 @@ ys.append(1.0); // illegal
 the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
 the call to \xcd"ys.append" is not allowed because the caller cannot show that
 ${\tt Number} \subtype {\tt Double}$.
+
+\subsubsection{Method overriding}
+
+Legal if any call to super method can call sub method.
+
+covariant return
+contravariant args
+weaker where clause
 
 \subsubsection{Optional methods and interfaces}
 
