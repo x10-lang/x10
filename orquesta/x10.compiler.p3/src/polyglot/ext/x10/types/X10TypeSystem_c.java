@@ -8,8 +8,10 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +21,7 @@ import polyglot.ast.Expr;
 import polyglot.ext.x10.ast.FunctionTypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Source;
+import polyglot.main.Report;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -38,12 +41,12 @@ import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
+import polyglot.types.NoMemberException;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
@@ -63,6 +66,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
+import x10.constraint.XRef_c;
 import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -139,6 +143,198 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    l.add("x10.lang.annotation");
 	    return l;
 	}
+	
+	protected List<MacroType> findAcceptableTypeDefs(StructType container, java.lang.String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currClass)
+	    throws SemanticException {
+	    assert_(container);
+	    assert_(argTypes);
+	    
+	    SemanticException error = null;
+	    
+	    // The list of acceptable methods. These methods are accessible from
+	    // currClass, the method call is valid, and they are not overridden
+	    // by an unacceptable method (which can occur with protected methods
+	    // only).
+	    List<MacroType> acceptable = new ArrayList<MacroType>();
+	    
+	    // A list of unacceptable methods, where the method call is valid, but
+	    // the method is not accessible. This list is needed to make sure that
+	    // the acceptable methods are not overridden by an unacceptable method.
+	    List<MacroType> unacceptable = new ArrayList<MacroType>();
+	    
+	    Set<Type> visitedTypes = new HashSet<Type>();
+	    
+	    LinkedList<Type> typeQueue = new LinkedList<Type>();
+	    typeQueue.addLast(container);
+	    
+	    while (! typeQueue.isEmpty()) {
+	    	Type t = typeQueue.removeFirst();
+	    
+	    	if (! (t instanceof X10ParsedClassType)) {
+	    		continue;
+	    	}
+	    
+	    	X10ParsedClassType type = (X10ParsedClassType) t;
+	    
+	    	if (visitedTypes.contains(type)) {
+	    		continue;
+	    	}
+	    
+	    	visitedTypes.add(type);
+	    
+	    	if (Report.should_report(Report.types, 2))
+	    		Report.report(2, "Searching type " + type + " for method " +
+	    				name + "(" + CollectionUtil.listToString(argTypes) + ")");
+	    
+	    	for (Iterator<Type> i = type.typeMembers().iterator(); i.hasNext(); ) {
+	    	    Type ti = i.next();
+	    		
+	    	    if (!(ti instanceof MacroType)) {
+	    		continue;	    		
+	    	    }
+	    	    
+	    	    MacroType mi = (MacroType) ti;
+	    	    
+	    		if (Report.should_report(Report.types, 3))
+	    			Report.report(3, "Trying " + mi);
+	    
+	    		if (! mi.name().equals(name)) {
+	    			continue;
+	    		}
+	    
+	    		try {
+	    			mi = (MacroType) mi.instantiate(container, typeArgs, argTypes);
+
+	    			if (isAccessible(mi, currClass)) {
+	    			    if (Report.should_report(Report.types, 3)) {
+	    				Report.report(3, "->acceptable: " + mi + " in "
+	    				              + mi.container());
+	    			    }
+
+	    			    acceptable.add(mi);
+	    			}
+	    			else {
+	    			    // method call is valid, but the method is
+	    			    // unacceptable.
+	    			    unacceptable.add(mi);
+	    			    if (error == null) {
+	    				error = new NoMemberException(NoMemberException.METHOD,
+	    				                              "Method " + mi.signature() +
+	    				                              " in " + container +
+	    				" is inaccessible."); 
+	    			    }
+	    			}
+
+	    			continue;
+	    		}
+	    		catch (SemanticException e) {
+	    		}
+	    
+	    		if (error == null) {
+	    			error = new SemanticException("Type definition " + mi.name() +
+	    			                              " in " + container +
+	    			                              " cannot be instantiated with arguments " + (
+	    			                              typeArgs.size() > 0 ? 
+	    			                              "[" + CollectionUtil.listToString(typeArgs) + "]" : "") +
+	    			                              "(" + CollectionUtil.listToString(argTypes) + ")."); 
+	    		}
+	    	}
+	    	
+	    	if (type instanceof ObjectType) {
+	    	    ObjectType ot = (ObjectType) type;
+	    
+	    	    if (ot.superClass() != null) {
+	    		typeQueue.addLast(ot.superClass());
+	    	    }
+	    
+	    	    typeQueue.addAll(ot.interfaces());
+	    	}
+	    }
+	    
+	    if (error == null) {
+		error = new SemanticException("No type defintion found in "
+		                            + container +
+		                              " for " + name + (
+		                        	      typeArgs.size() > 0 ? 
+		                        	                           "[" + CollectionUtil.listToString(typeArgs) + "]" : "") +
+		                        	                           "(" + CollectionUtil.listToString(argTypes) + ")."); 
+	    }
+	    
+	    if (acceptable.size() == 0) {
+	    	throw error;
+	    }
+	    
+	    // remove any types in acceptable that are overridden by an
+	    // unacceptable
+	    // type.
+	    // TODO
+//	    for (Iterator<MacroType> i = unacceptable.iterator(); i.hasNext();) {
+//		MacroType mi = i.next();
+//	    	acceptable.removeAll(mi.overrides());
+//	    }
+	    
+	    if (acceptable.size() == 0) {
+	    	throw error;
+	    }
+	    
+	    return acceptable;
+	}
+	
+	public MacroType findTypeDef(ClassType container, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currClass) throws SemanticException {
+		List<MacroType> acceptable = findAcceptableTypeDefs(container, name, typeArgs, argTypes, currClass);
+		
+		if (acceptable.size() == 0) {
+			throw new NoMemberException(NoMemberException.METHOD,
+					"No valid method call found for " + name +
+					"(" + CollectionUtil.listToString(argTypes) + ")" +
+					" in " +
+					container + ".");
+		}
+		
+		Collection<MacroType> maximal =
+			findMostSpecificProcedures(acceptable);
+		
+		if (maximal.size() > 1) {
+			StringBuffer sb = new StringBuffer();
+			for (Iterator<MacroType> i = maximal.iterator(); i.hasNext();) {
+			    MacroType ma = (MacroType) i.next();
+				sb.append(ma.returnType());
+				sb.append(" ");
+				sb.append(ma.container());
+				sb.append(".");
+				sb.append(ma.signature());
+				if (i.hasNext()) {
+					if (maximal.size() == 2) {
+						sb.append(" and ");
+					}
+					else {
+						sb.append(", ");
+					}
+				}
+			}
+		
+			throw new SemanticException("Reference to " + name +
+					" is ambiguous, multiple methods match: "
+					+ sb.toString());
+		}
+		
+		MacroType mi = maximal.iterator().next();
+		
+		return mi;
+	}
+	
+	public List<MacroType> findTypeDefs(ClassType container, String name, ClassDef currClass) throws SemanticException {
+	    assert_(container);
+	    
+//	    Named n = classContextResolver(container, currClass).find(name);
+//	    
+//	    if (n instanceof MacroType) {
+//		return (MacroType) n;
+//	    }
+	    
+	    throw new NoClassException(name, container);
+	}
+	
 	
 	public PathType findTypeProperty(ClassType container, String name, ClassDef currClass) throws SemanticException {
 		assert_(container);
@@ -449,21 +645,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	protected ClassType nativeValRail_;
 	public ClassType NativeValRail() {
 		if (nativeValRail_ == null)
-		    nativeValRail_ = load("x10.lang.NativeValRail"); // java file
+		    nativeValRail_ = load("x10.lang.NativeValRail");
 		return nativeValRail_;
 	}
 	
 	protected ClassType nativeRail_;
 	public ClassType NativeRail() {
 	    if (nativeRail_ == null)
-		nativeRail_ = load("x10.lang.NativeRail"); // java file
+		nativeRail_ = load("x10.lang.NativeRail");
 	    return nativeRail_;
 	}
 	
 	protected ClassType x10ObjectType_;
 	public ClassType X10Object() {
 		if (x10ObjectType_ == null)
-			x10ObjectType_ = load("x10.lang.Object"); // java file
+			x10ObjectType_ = load("x10.lang.Object");
 		return x10ObjectType_;
 	}
 	
@@ -500,6 +696,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    if (containsType_ == null)
 		containsType_ = load("x10.lang.Contains"); // java file
 	    return containsType_;
+	}
+	
+	protected ClassType settableType_;
+	public ClassType Settable() {
+	    if (settableType_ == null)
+		settableType_ = load("x10.lang.Settable"); // java file
+	    return settableType_;
 	}
 	
 	protected ClassType containsAllType_;
@@ -608,9 +811,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public Type x10Array(Type type, boolean isValueType, XTerm distribution) {
-		List<Ref<? extends Type>> list = new ArrayList<Ref<? extends Type>>();
-		list.add(Types.ref(type));
-		return genericArray(isValueType, distribution, list);
+	    return x10Array(Types.ref(type), isValueType, distribution);
 	}
 	
 	public Type x10Array(Type type, XTerm distribution) {
@@ -626,7 +827,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public Type x10Array(Ref<? extends Type> type, boolean isValueType, XTerm distribution) {
-	    return x10Array(Types.get(type), isValueType, distribution);
+	    Type at;
+	    
+	    if (isValueType) {
+		at = ValArray();
+	    }
+	    else {
+		at = Array();
+	    }
+	    
+	    at = fixGenericType(type, (X10ParsedClassType) at, isValueType);
+	    at = X10ArraysMixin.setDistribution(at, distribution);
+	    
+	    return at;
 	}
 
 	public Type x10Array(Ref<? extends Type> type, XTerm distribution) {
@@ -651,7 +864,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	protected X10ParsedClassType genericArrayType_;
 	public Type newAndImprovedValueArray(Ref<? extends Type> base) {
 		if (genericArrayType_ == null)
-			genericArrayType_ = (X10ParsedClassType) load("x10.lang.genericArray");
+			genericArrayType_ = (X10ParsedClassType) load("x10.lang.ValueA");
 		return fixGenericType(base, genericArrayType_, false /* should be true XXX */);
 	}
 
@@ -690,36 +903,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		}
 		
 		return ct;
-	}
-	
-	public Type genericArray(boolean isValueType, XTerm distribution, List<Ref<? extends Type>> types) {
-		return isValueType
-		? genericValueArray(distribution, types)
-				: GenericReferenceArray(distribution, types);
-	}
-	
-	public Type genericArray(XTerm distribution, List<Ref<? extends Type>> typeParams) {
-		return newAndImprovedValueArray(typeParams.size() == 0 ? null : typeParams.get(0));
-	}
-	
-	public X10ParsedClassType genericArray() {
-		return (X10ParsedClassType) genericArray(null, Collections.EMPTY_LIST);
-	}
-	
-	private X10ParsedClassType genericValueArray() {
-		return (X10ParsedClassType) genericValueArray(null, Collections.EMPTY_LIST);
-	}
-	
-	private Type genericValueArray(XTerm distribution, List<Ref<? extends Type>> types) {
-		return genericArray(distribution, types);
-	}
-	
-	private X10ParsedClassType GenericReferenceArray() {
-		return (X10ParsedClassType) GenericReferenceArray(null, Collections.EMPTY_LIST);
-	}
-	
-	private Type GenericReferenceArray(XTerm distribution, List<Ref<? extends Type>> typeParams) {
-		return newAndImprovedArray(typeParams.size() == 0 ? null : typeParams.get(0));
 	}
 	
 	protected ClassType indexableType_ = null;
@@ -1036,7 +1219,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			
 			boolean result = true;
 			result &= pt1.def() == pt2.def();
-			result &= typeListEquals(pt1.typeParams(), pt2.typeParams());
+			result &= typeListEquals(pt1.typeParameters(), pt2.typeParameters());
 			result &= typeListEquals(pt1.formalTypes(), pt2.formalTypes());
 			result &= listEquals(pt1.formals(), pt2.formals()); 
 			if (result)
@@ -1061,7 +1244,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			TypeProperty px = pt1.property();
 			XVar base = PathType_c.pathBase(pt1);
 			if (base != null) {
-			    XConstraint c = base.selfConstraint();
+			    final XConstraint c = base.selfConstraint();
 //			    if (c != null) {
 //				c = c.copy();
 //			    }
@@ -1078,17 +1261,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 						// Check if the constraint on the base p implies that p.T <: S
 						// Avoid infinite recursion by removing selfConstraint on base.
 						base.setSelfConstraint(null);
-						c = c.substitute(base, XSelf.Self);
+						XConstraint c1 = c.substitute(base, XSelf.Self);
 						XConstraint c2 = new XConstraint_c();
 						c2.addAtom(xtypeTranslator().transSubtype(t1, t2));
-						boolean result = c.entails(c2);
+						boolean result = c1.entails(c2);
 						if (result)
 							return true;
 					}
 					catch (XFailure e) {
 					}
 					finally {
-						base.setSelfConstraint(c);
+						base.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return c; } });
 					}
 				}
 			}
@@ -1527,20 +1710,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			return true;
 		return false;
 	}
-	protected boolean isX10Subtype(Type me, Type sup) {
-		boolean result = isSubtype(me, sup);        
-		return result;
-	}
 	protected boolean isX10BaseSubtype(Type me, Type sup) {
 		Type xme = X10TypeMixin.xclause(me, (XConstraint) null);
 		Type xsup = X10TypeMixin.xclause(sup, (XConstraint) null);
-		return isX10Subtype(xme, xsup);
+		return isSubtype(xme, xsup);
 	}
 	public  boolean isIndexable(Type me) { 
 		return isX10BaseSubtype(me, Indexable()); 
 	}
+	public  boolean isSettable(Type me) { 
+	    return isX10BaseSubtype(me, Settable()); 
+	}
 	public  boolean isX10Array(Type me) { 
-		return isX10Subtype(me, Array()); 
+		return isSubtype(me, Array()); 
 	}
 	
 	public boolean isTypeConstrained(Type me) {
@@ -1548,43 +1730,43 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public  boolean isBooleanArray(Type me) {
-		return isX10Subtype(me, x10Array(Boolean())); 
+		return isSubtype(me, x10Array(Boolean())); 
 	}
 	public boolean isCharArray(Type me) {
-		return isX10Subtype(me, x10Array(Char())); 
+		return isSubtype(me, x10Array(Char())); 
 	}
 	public boolean isByteArray(Type me) {
-		return isX10Subtype(me, x10Array(Byte())); 
+		return isSubtype(me, x10Array(Byte())); 
 	}
 	public  boolean isShortArray(Type me) {
-		return isX10Subtype(me, x10Array(Short())); 
+		return isSubtype(me, x10Array(Short())); 
 	}
 	public  boolean isIntArray(Type me) {
-		return isX10Subtype(me, x10Array(Int())); 
+		return isSubtype(me, x10Array(Int())); 
 	}
 	public  boolean isLongArray(Type me) {
-		return isX10Subtype(me, x10Array(Long())); 
+		return isSubtype(me, x10Array(Long())); 
 	}
 	public boolean isFloatArray(Type me) {
-		return isX10Subtype(me, x10Array(Float())); 
+		return isSubtype(me, x10Array(Float())); 
 	}
 	public  boolean isDoubleArray(Type me) {
-		return isX10Subtype(me, x10Array(Double())); 
+		return isSubtype(me, x10Array(Double())); 
 	}
 	public  boolean isClock(Type me) {
-		return isX10Subtype(me, clock()); 
+		return isSubtype(me, clock()); 
 	}
 	public  boolean isPoint(Type me) {
-		return isX10Subtype(me, point()); 
+		return isSubtype(me, point()); 
 	}
 	public  boolean isPlace(Type me) {
-		return isX10Subtype(me, place());
+		return isSubtype(me, place());
 	}
 	public  boolean isRegion(Type me) {
-		return isX10Subtype(me, region());
+		return isSubtype(me, region());
 	}
 	public  boolean isDistribution(Type me) {
-		return isX10Subtype(me, distribution());
+		return isSubtype(me, distribution());
 	}
 	public  boolean isDistributedArray(Type me) {
 		return isX10Array(me);
@@ -1593,25 +1775,25 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return isX10BaseSubtype((X10Type) me, value());
 	}
 	public  boolean isComparable(Type me) {
-	    return isX10Subtype(me, Comparable());
+	    return isSubtype(me, Comparable());
 	}
 	public  boolean isIterable(Type me) {
-	    return isX10Subtype(me, Iterable());
+	    return isSubtype(me, Iterable());
 	}
 	public  boolean isIterator(Type me) {
-	    return isX10Subtype(me, Iterator());
+	    return isSubtype(me, Iterator());
 	}
 	public  boolean isContains(Type me) {
-	    return isX10Subtype(me, Contains());
+	    return isSubtype(me, Contains());
 	}
 	public  boolean isContainsAll(Type me) {
-	    return isX10Subtype(me, ContainsAll());
+	    return isSubtype(me, ContainsAll());
 	}
-	public Type baseType(Type theType) {
+	public Type arrayBaseType(Type theType) {
 		if (theType instanceof X10ClassType) {
 			X10ClassType xct = (X10ClassType) theType;
 			X10ClassDef def = (X10ClassDef) xct.def();
-			if (def == genericArray().def() || def == GenericReferenceArray().def()) {
+			if (def == Array().def() || def == ValArray().def()) {
 				return X10TypeMixin.getParameterType(xct, "T");
 			}
 		}
@@ -2048,7 +2230,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return TypeType;
 	}
 
-	public X10MethodInstance findMethod(ReferenceType targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef)
+	public X10MethodInstance findMethod(StructType targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef)
 	throws SemanticException {
 		// EVIL HACK: prepend type arguments T as type{self==T} to the argument types.
 		// callValid will separate them out again.

@@ -23,6 +23,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XRef_c;
 import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -75,9 +76,9 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 			    Assign a = (Assign) ((Eval)s.get(i)).expr();
 			    Expr initializer = a.right();
 			    Type initType = initializer.type();
-			    FieldInstance fii = fi.get(i);
+			    final FieldInstance fii = fi.get(i);
 			    XVar prop = (XVar) ts.xtypeTranslator().trans(XSelf.Self, fii);
-			    prop.setSelfConstraint(X10TypeMixin.realX(fii.type()));
+			    prop.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return X10TypeMixin.realX(fii.type()); } });
 			    
 			    // Add in the real clause of the initializer with [self.prop/self]
 			    XConstraint c = X10TypeMixin.realX(initType);

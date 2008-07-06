@@ -10,6 +10,7 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.AmbExpr;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
@@ -199,7 +200,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 		    PathType pt = t.asType();
 		    X10TypeSystem ts = (X10TypeSystem) xc.typeSystem();
 		    try {
-			Type pt2 = PathType_c.pathBase(pt, ts.xtypeTranslator().transThis(type.asType()), type.asType());
+			Type pt2 = PathType_c.pathBase(pt, ts.xtypeTranslator().transThisWithoutTypeConstraint(), type.asType());
 			xc.addNamed((Named) pt2);
 		    }
 		    catch (SemanticException e) {
@@ -247,9 +248,27 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             def.setXClassInvariant(ci.xconstraint());
             n = (X10ClassDecl_c) n.classInvariant(ci);
         }
+        
+//        n = n.disambiguateHeader(tb);
 
         return n;
     }
+    
+//    private X10ClassDecl_c disambiguateHeader(TypeBuilder tb) {
+//	X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+//	X10ClassDef_c type = (X10ClassDef_c) this.type;
+//	return (X10ClassDecl_c) this.visitChildren(new NodeVisitor() {
+//	    public Node override(Node n) {
+//		if (n == body)
+//		    return n;
+//		if (n instanceof AmbExpr) {
+//		    AmbExpr e = (AmbExpr) n;
+//		    if (e.name)
+//		}
+//		return null;
+//	    }
+//	});
+//    }
 
     public Node typeCheckClassInvariant(Node parent, TypeChecker tc, TypeChecker childtc) throws SemanticException {
         X10ClassDecl_c n = this;
@@ -278,9 +297,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
 
-    	ClassType ct = type.asType();
-    	X10TypeMixin.checkRealClause(ct);
-    	
+    	((X10ClassDef) type).checkRealClause();
+	    	
     	return result;
     }
 } 

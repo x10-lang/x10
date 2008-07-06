@@ -24,7 +24,4 @@ import polyglot.types.MethodInstance;
  */
 public interface Tuple extends Expr {
 	List<Expr> arguments();
-	Receiver pointReceiver();
-	Receiver regionReceiver();
-
 }

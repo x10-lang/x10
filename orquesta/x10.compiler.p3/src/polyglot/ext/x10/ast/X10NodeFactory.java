@@ -9,11 +9,11 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
 import polyglot.ast.ClassBody;
-import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
@@ -37,7 +37,6 @@ import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.FieldInstance;
-import polyglot.types.Flags;
 import polyglot.util.Position;
 
 /**
@@ -66,7 +65,7 @@ public interface X10NodeFactory extends NodeFactory {
     TypeParamNode TypeParamNode(Position pos, Id name);
     TypePropertyNode TypePropertyNode(Position pos, Id name, TypeProperty.Variance variance);
     TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr where, TypeNode returnType, List<TypeNode> throwTypes);   
-    Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup);
+    Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
     Expr Contains(Position pos, Expr item, Expr collection);
 	TypeDecl TypeDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr where, TypeNode type);
 
@@ -126,10 +125,9 @@ public interface X10NodeFactory extends NodeFactory {
 	X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base,
 									  boolean isValueType,
 									  DepParameterExpr indexedSet);
-	X10ArrayAccess X10ArrayAccess(Position pos, Expr a, List<Expr> indices);
-	X10ArrayAccess1 X10ArrayAccess1(Position pos, Expr a, Expr index);
+	SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);
 
-	Tuple Tuple(Position pos, Receiver p, Receiver r, List<Expr> args);
+	Tuple Tuple(Position pos, List<Expr> args);
 	TypeNode array(TypeNode n, Position pos, int dims);
 	Formal Formal(Position pos, FlagsNode flags, TypeNode type, Id name);
 	X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
@@ -144,9 +142,9 @@ public interface X10NodeFactory extends NodeFactory {
     Special Self(Position pos);
     
     StmtSeq StmtSeq(Position pos, List<Stmt> l);
-    ConstantDistMaker ConstantDistMaker(Position pos, Expr left, Expr right);
-    RegionMaker RegionMaker(Position pos, Expr left, Expr right);
-    RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, Id name, List<Expr> args);
+    Expr ConstantDistMaker(Position pos, Expr left, Expr right);
+    Expr RegionMaker(Position pos, Expr left, Expr right);
+    Expr RectRegionMaker(Position pos, Receiver receiver, Id name, List<Expr> args);
     MethodDecl AtomicMethodDecl(Position pos, FlagsNode flags,
             TypeNode returnType, Id name, List<TypeParamNode> typeParams,
             List<Formal> formals, DepParameterExpr where, List<TypeNode> throwTypes, Block body);
@@ -162,8 +160,8 @@ public interface X10NodeFactory extends NodeFactory {
 
     AnnotationNode AnnotationNode(Position pos, TypeNode tn);
     
-    AmbDepTypeNode AmbDepTypeNode(Position pos, TypeNode type, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep);
-    AmbDepTypeNode AmbDepTypeNode(Position pos, TypeNode type, DepParameterExpr dep);
+    AmbDepTypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep);
+    AmbDepTypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep);
 
 	AssignPropertyBody AssignPropertyBody(Position position, List<Stmt> statements, X10ConstructorDef ci, List<FieldInstance> fi);
 

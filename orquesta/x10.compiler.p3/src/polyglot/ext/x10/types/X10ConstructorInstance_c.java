@@ -14,6 +14,7 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -118,7 +119,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     
     @Override
-    public ConstructorInstance instantiate(ReferenceType receiverType,
+    public ConstructorInstance instantiate(StructType receiverType,
     		List<Type> argumentTypes) throws SemanticException {
 
 	    return X10MethodInstance_c.instantiate(this, receiverType, argumentTypes);

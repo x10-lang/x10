@@ -7,15 +7,20 @@ import java.util.List;
 import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
+import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem_c.TypeEquals;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
@@ -23,6 +28,7 @@ import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
 import x10.constraint.XNameWrapper;
+import x10.constraint.XRef_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
@@ -80,19 +86,23 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) super.name(name);
 	}
 
-	public List<Type> typeParams() {
+	public List<Type> typeParameters() {
 		if (typeParams == null) {
 			typeParams = new TransformingList<Ref<? extends Type>, Type>(def().typeParameters(), new DerefTransform<Type>());
 		}
 		return typeParams;
 	}
 
-	public MacroType typeParams(List<Type> typeParams) {
+	public MacroType typeParameters(List<Type> typeParams) {
 		MacroType_c t = (MacroType_c) copy();
 		t.typeParams = TypedList.copyAndCheck(typeParams, Type.class, true);
 		return (MacroType) t;
 	}
-
+	
+	public boolean hasFormals(List<Type> formalTypes) {
+	        return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals());
+	}
+	
 	public List<XVar> formals() {
 		if (formals == null) {
 			List<Integer> indices = new ArrayList<Integer>();
@@ -159,11 +169,10 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		}
 
 		public XVar transform(Integer i) {
-			Ref<? extends Type> r = formalTypes.get(i);
+			final Ref<? extends Type> r = formalTypes.get(i);
 			String name = formalNames.get(i);
-			Type t = r.get();
 			XVar v = XTerms.makeLocal(new XNameWrapper<String>(name));
-			v.setSelfConstraint(X10TypeMixin.realX(t));
+			v.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return X10TypeMixin.realX(r.get()); } });
 			return v;
 		}
 	}
@@ -180,32 +189,40 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	}
 	
+	public String designator() {
+	    return "type";
+	}
+	
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(name);
-		for (int i = 0; i < typeParams.size(); i++) {
-			if (i == 0)
-				sb.append("[");
-			if (i != 0)
-				sb.append(", ");
-			sb.append(typeParams.get(i));
-			if (i == typeParams.size()-1)
-				sb.append("]");
-		}
-		for (int i = 0; i < formals.size(); i++) {
-			if (i == 0)
-				sb.append("(");
-			if (i != 0)
-				sb.append(", ");
-			sb.append(formals.get(i));
-			sb.append(": ");
-			sb.append(formalTypes.get(i));
-			if (i == formals.size()-1)
-				sb.append(")");
-		}
-		if (whereClause != null)
-			sb.append(whereClause);
-		return sb.toString();
+		return designator() + signature();
+	}
+
+	public String signature() {
+	    StringBuffer sb = new StringBuffer();
+	    sb.append(name);
+	    for (int i = 0; i < typeParams.size(); i++) {
+	    	if (i == 0)
+	    		sb.append("[");
+	    	if (i != 0)
+	    		sb.append(", ");
+	    	sb.append(typeParams.get(i));
+	    	if (i == typeParams.size()-1)
+	    		sb.append("]");
+	    }
+	    for (int i = 0; i < formals.size(); i++) {
+	    	if (i == 0)
+	    		sb.append("(");
+	    	if (i != 0)
+	    		sb.append(", ");
+	    	sb.append(formals.get(i));
+	    	sb.append(": ");
+	    	sb.append(formalTypes.get(i));
+	    	if (i == formals.size()-1)
+	    		sb.append(")");
+	    }
+	    if (whereClause != null)
+	    	sb.append(whereClause);
+	    return sb.toString();
 	}
 
 	@Override
@@ -243,5 +260,69 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		}
 		return null;
 	}
+	
+	public List<Type> throwTypes() {
+	    return Collections.EMPTY_LIST;
+	}
 
+	public boolean callValid(Type thisType, List<Type> actualTypes) {
+	        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
+	}
+	
+	public MacroType instantiate(StructType receiverType, List<Type> argumentTypes) throws SemanticException {
+	    return X10MethodInstance_c.<MacroType>instantiate(this, receiverType, Collections.EMPTY_LIST, argumentTypes);
+	}
+
+	public MacroType instantiate(StructType receiverType, List<Type> typeArgs, List<Type> argumentTypes) throws SemanticException {
+	    return X10MethodInstance_c.<MacroType>instantiate(this, receiverType, typeArgs, argumentTypes);
+	}
+
+	public boolean moreSpecific(ProcedureInstance<TypeDef> pi) {
+	        ProcedureInstance<TypeDef> p1 = this;
+	        ProcedureInstance<TypeDef> p2 = pi;
+
+	        // rule 1:
+	        Type t1 = null;
+	        Type t2 = null;
+	        
+	        if (p1 instanceof MemberInstance) {
+	            t1 = ((MemberInstance<TypeDef>) p1).container();
+	        }
+	        if (p2 instanceof MemberInstance) {
+	            t2 = ((MemberInstance<TypeDef>) p2).container();
+	        }
+	        
+	        if (t1 != null && t2 != null) {
+	            if (t1.isClass() && t2.isClass()) {
+	                if (! t1.isSubtype(t2) &&
+	                        ! t1.toClass().isEnclosed(t2.toClass())) {
+	                    return false;
+	                }
+	            }
+	            else {
+	                if (! t1.isSubtype(t2)) {
+	                    return false;
+	                }
+	            }
+	        }
+
+	        // rule 2:
+	        return p2.callValid(t1, p1.formalTypes());
+	}
+	
+	public Type returnType() {
+	    return ts.Void();
+	}
+	
+	public MacroType returnType(Type t) {
+	    return this;
+	}
+	
+	public MacroType throwTypes(List<Type> throwTypes) {
+	    return this;
+	}
+
+	public boolean throwsSubset(ProcedureInstance<TypeDef> pi) {
+	    return true;
+	}
 }

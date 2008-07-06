@@ -17,6 +17,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
+import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -41,6 +42,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
         super(ts, fromSource);
         this.typeProperties = new ArrayList<TypeProperty>();
+        this.typeMembers = new ArrayList<TypeDef>();
     }
     
     // BEGIN ANNOTATION MIXIN
@@ -98,6 +100,11 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         return xclassInvariant;
     }
     
+    public void checkRealClause() throws SemanticException {
+	if (rootClauseInvalid != null)
+	    throw rootClauseInvalid;
+    }
+    
     public XConstraint getRootXClause() {
 	    if (rootXClause == null) {
 		    if (computing) {
@@ -116,24 +123,20 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
 			    XConstraint result = new XConstraint_c();
 			    
-			    XRoot oldThis = xts.xtypeTranslator().transThis(asType());
+			    XRoot oldThis = xts.xtypeTranslator().transThisWithoutTypeConstraint();
 			    
 			    try {
-				    XConstraint ci = Types.get(xclassInvariant);
-				    if (ci != null) {
-					    ci = ci.substitute(XSelf.Self, oldThis);
-					    result.addIn(ci);
-				    }
-				    
 				    // Add in constraints from the supertypes.  This is
 				    // no need to change self, and no occurrence of this is possible in 
 				    // a type's base constraint.
 				    {
 					    Type type = Types.get(superType());
-					    XConstraint rs = X10TypeMixin.realX(type);
-					    if (rs != null) {
+					    if (type != null) {
+						XConstraint rs = X10TypeMixin.realX(type);
+						if (rs != null) {
 						    rs = rs.substitute(XSelf.Self, oldThis);
 						    result.addIn(rs);
+						}
 					    }
 				    }
 
@@ -162,6 +165,16 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 						    result.addIn(rs2);
 					    }
 				    }
+
+				    // Finally, add in the class invariant.
+				    // It is important to do this last since we need avoid type-checking constraints
+				    // until after the base type of the supertypes are resolved.
+				    XConstraint ci = Types.get(xclassInvariant);
+				    if (ci != null) {
+					ci = ci.substitute(XSelf.Self, oldThis);
+					result.addIn(ci);
+				    }
+				    
 			    }
 			    catch (XFailure f) {
 				    result.setInconsistent();
@@ -209,15 +222,9 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     }
 
     public boolean isJavaType() {
-        return fromJavaClassFile() || fullName().startsWith("java");
+        return fromJavaClassFile();
     }
 
-    public List<FieldDef> fields2() {
-        List<FieldDef> fields = super.fields();
-        setPropertiesFromMagicString(fields);
-        return fields;
-    }
-    
     boolean propertiesInitialized = false;
     
     protected void setPropertiesFromMagicString(List<FieldDef> fields) {
@@ -256,39 +263,33 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
             }
         });
     }
-
+    
     List<TypeProperty> typeProperties;
-
+    
     // TODO:
     // Add .class property
     // Add class <: C to class invariant
     // Add code to not complain that it's not initialized; ignore when disambiguating C[T]
     public List<TypeProperty> typeProperties() {
-    	if (typeProperties.size() == 0) {
-    		boolean isValueArray = false;
-    		boolean isArray = false;
-    		if (fullName().equals("x10.lang.genericArray")) {
-    			isValueArray = true;
-    			isArray = true;
-    		}
-//    		if (fullName().equals("x10.lang.GenericReferenceArray")) {
-//    			isValueArray = false;
-//    			isArray = true;
-//    		}
-    		if (isArray) {
-    			X10TypeSystem ts = (X10TypeSystem) this.ts;
-    			X10ClassType ct = (X10ClassType) this.asType();
-    			TypeProperty p = new TypeProperty_c(ts, Position.COMPILER_GENERATED, Types.ref(ct), "T",
-    					isValueArray ? TypeProperty.Variance.COVARIANT : TypeProperty.Variance.INVARIANT);
-    			addTypeProperty(p);
-    		}
-    	}
-    	
-    	return Collections.unmodifiableList(typeProperties);
+	return Collections.unmodifiableList(typeProperties);
+    }
+    
+    public void addTypeProperty(TypeProperty p) {
+	typeProperties.add(p);
     }
 
-    public void addTypeProperty(TypeProperty p) {
-    	typeProperties.add(p);
+    List<TypeDef> typeMembers;
+
+    // TODO:
+    // Add .class property
+    // Add class <: C to class invariant
+    // Add code to not complain that it's not initialized; ignore when disambiguating C[T]
+    public List<TypeDef> memberTypes() {
+    	return Collections.unmodifiableList(typeMembers);
+    }
+
+    public void addMemberType(TypeDef t) {
+    	typeMembers.add(t);
     }
     
     boolean valid = false;
@@ -317,7 +318,9 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			fixGenericAndPrimitiveTypes();
 			valid = true;
 		}
-		return fields2();
+		List<FieldDef> fs = super.fields();
+		setPropertiesFromMagicString(fs);
+		return fs;
 	}
 	@Override
 	public List<ConstructorDef> constructors() {
@@ -362,6 +365,19 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		// Replace Parameter1 with T.
 		// Replace C { Parameter1 } with C[T].
 
+//		List<Ref<? extends Type>> newInterfaces = new ArrayList<Ref<? extends Type>>();
+//		
+//		for (Ref<? extends Type> tref : interfaces) {
+//		    Type t = tref.getCached();
+//		    if (!(t instanceof Named) || !((Named) t).name().equals("Parameter1"))
+//			newInterfaces.add(tref);
+//		    else
+//			System.out.println("removing " + t);
+//		}
+//		
+//		if (newInterfaces.size() != interfaces.size())
+//		    interfaces = newInterfaces;
+		
 		for (FieldDef f : fields) {
 			Ref<Type> r = (Ref<Type>) f.type();
 			Type newType = fixType(r.get(), T);
@@ -429,17 +445,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		primitiveTypes.put("x10.lang.Double", ts.Double());
 		
 		knownGenericTypes = new HashSet<String>();
-		knownGenericTypes.add("x10.lang.AbstractArray");
-		knownGenericTypes.add("x10.lang.Array");
-		knownGenericTypes.add("x10.lang.ValArray");
-
-		knownGenericTypes.add("x10.lang.AbstractNativeRail");
-		knownGenericTypes.add("x10.lang.NativeRail");
-		knownGenericTypes.add("x10.lang.NativeValRail");
-		
 		knownGenericTypes.add("x10.lang.genericArray");
 		knownGenericTypes.add("x10.lang.GenericReferenceArray");
-		
 		knownGenericTypes.add("x10.lang.Future");
 		knownGenericTypes.add("x10.lang.Box");
 	}

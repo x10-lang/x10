@@ -27,6 +27,7 @@ import polyglot.types.NullType;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -42,6 +43,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XPromise;
+import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
 import x10.constraint.XSelf;
 import x10.constraint.XTerm;
@@ -192,14 +194,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	
 	public static boolean callValidImpl(X10ProcedureInstance<?> me, Type thisType, final List<Type> args) {
 		// me should have been instantiated correctly; if so, the call is valid
-		return true;
-//		try {
-//			instantiate(me, thisType, args);
-//			return true;
-//		}
-//		catch (SemanticException e) {
-//			return false;
-//		}
+		try {
+			instantiate(me, thisType, args);
+			return true;
+		}
+		catch (SemanticException e) {
+			return false;
+		}
 	}
 
 	public boolean callValidNoClauses(Type thisType, List<Type> argTypes) {
@@ -230,13 +231,42 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
     
     @Override
-    public MethodInstance instantiate(ReferenceType receiverType,
+    public MethodInstance instantiate(StructType receiverType,
     		List<Type> argumentTypes) throws SemanticException {
 
 	    return instantiate(this, receiverType, argumentTypes);
     }
 
     public static <PI extends X10ProcedureInstance<?>> PI instantiate(PI me, Type thisType, final List<Type> args) throws SemanticException {
+	List<Type> actualTypes = new ArrayList<Type>();
+	List<Type> actuals = new ArrayList<Type>();
+	X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
+	
+	    // We've smuggled the type args in with the actual args.  Pull them out again.
+	    for (Type t : args) {
+		    Type base = X10TypeMixin.xclause(t, (XConstraint) null);
+		    if (base.typeEquals(((X10TypeSystem_c) xts).TypeType())) {
+			    // t should be type{self==C}.  Add C to the typeActuals list.
+			    XConstraint c = X10TypeMixin.xclause(t);
+			    XVar v = X10TypeMixin.selfVar(c);
+			    if (v instanceof XLit) {
+				    XLit lit = (XLit) v;
+				    if (lit.val() instanceof Type) {
+					    actualTypes.add((Type) lit.val());
+					    continue;
+				    }
+			    }
+			    throw new InternalCompilerError("Could not extract smuggled type argument from " + t + ".", t.position());
+		    }
+		    else {
+			    actuals.add(t);
+		    }
+	    }
+
+	    return instantiate(me, thisType, actualTypes, actuals);
+    }
+    
+    public static <PI extends X10ProcedureInstance<?>> PI instantiate(PI me, Type thisType, List<Type> actualTypes, final List<Type> args) throws SemanticException {
 	    X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
 	    final List<Type> formals = me.formalTypes();
 	    final List<Type> typeFormals = me.typeParameters();
@@ -250,8 +280,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    }
 
 	    XVar selfVar = X10TypeMixin.selfVar(thisType);
-	    if (selfVar != null && selfVar.selfConstraint() == null)
-		    selfVar.setSelfConstraint(X10TypeMixin.xclause(thisType));
+	    if (selfVar != null && selfVar.selfConstraint() == null) {
+		final Type t = thisType;
+		selfVar.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return X10TypeMixin.realX(t); } });
+	    }
 
 	    if (selfVar == null) {
 		    XConstraint c = X10TypeMixin.xclause(thisType);
@@ -271,36 +303,20 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    // We'll subst selfVar for THIS.
 	    XRoot THIS = xts.xtypeTranslator().transThis(thisType);
 
-	    // We've smuggled the type args in with the actual args.  Pull them out again.
-	    for (Type t : args) {
-		    Type base = X10TypeMixin.xclause(t, (XConstraint) null);
-		    if (base.typeEquals(((X10TypeSystem_c) xts).TypeType())) {
-			    // t should be type{self==C}.  Add C to the typeActuals list.
-			    XConstraint c = X10TypeMixin.xclause(t);
-			    XVar v = X10TypeMixin.selfVar(c);
-			    if (v instanceof XLit) {
-				    XLit lit = (XLit) v;
-				    if (lit.val() instanceof Type) {
-					    actualTypeVars.add(lit);
-					    continue;
-				    }
-			    }
-			    throw new InternalCompilerError("Could not extract smuggled type argument from " + t + ".", t.position());
-		    }
-		    else {
-			    actuals.add(t);
-		    }
-	    }
-
 	    if (actuals.size() != formals.size()) {
 		    throw new SemanticException("Call not valid; incorrect number of actual arguments.", me.position());
 	    }
 	    
-	    if (actualTypeVars.size() != 0 && actualTypeVars.size() != typeFormals.size()) {
+	    if (actualTypes.size() != 0 && actualTypes.size() != typeFormals.size()) {
 		    throw new SemanticException("Call not valid; incorrect number of actual type arguments.", me.position());
 	    }
 	    
 	    XConstraint env  = new XConstraint_c();
+	    
+	    for (Type t : actualTypes) {
+		XVar lit = (XVar) xts.xtypeTranslator().trans(t);
+		actualTypeVars.add(lit);
+	    }
 
 	    if (actualTypeVars.size() == 0) {
 		    // Generate a list of type vars to use for the type actuals.
@@ -595,7 +611,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    List<Type> typeParams = new ArrayList<Type>();
 		    List<Type> formalTypes = new ArrayList<Type>();
 		    List<XVar> formals = new ArrayList<XVar>();
-		    for (Type p : pt.typeParams()) {
+		    for (Type p : pt.typeParameters()) {
 			    Type p2 = subst(p, actual, var);
 			    typeParams.add(p2);
 		    }
@@ -610,7 +626,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			    }
 			    formals.add(v2);
 		    }
-		    t = pt.typeParams(typeParams).formals(formals).formalTypes(formalTypes);
+		    t = pt.typeParameters(typeParams).formals(formals).formalTypes(formalTypes);
 	    }
 	    
 	    if (t instanceof ConstrainedType) {

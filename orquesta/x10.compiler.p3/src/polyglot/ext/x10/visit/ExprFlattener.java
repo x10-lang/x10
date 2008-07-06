@@ -12,8 +12,6 @@ package polyglot.ext.x10.visit;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.omg.CORBA.UNKNOWN;
-
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Conditional;
@@ -31,19 +29,9 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.ast.Closure;
-import polyglot.ext.x10.ast.Future;
-import polyglot.ext.x10.ast.X10ArrayAccess;
-import polyglot.ext.x10.ast.X10ArrayAccess1;
-import polyglot.ext.x10.ast.X10ArrayAccess1Assign;
-import polyglot.ext.x10.ast.X10ArrayAccess1Unary;
-import polyglot.ext.x10.ast.X10ArrayAccessAssign;
-import polyglot.ext.x10.ast.X10ArrayAccessUnary;
 import polyglot.ext.x10.ast.X10Binary;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -102,8 +90,7 @@ public class ExprFlattener extends ContextVisitor  {
 			if (p instanceof For) return done;
 			// Do not enter  a statement.
 			 if (n instanceof Stmt && n != root) return done;
-			needsFlattening = (n instanceof X10ArrayAccess || n instanceof X10ArrayAccess1)                     
-			&& ! (p instanceof LocalDecl);
+			needsFlattening = false && ! (p instanceof LocalDecl);
 			return needsFlattening ? done : this;
 		}
 		public boolean needsFlattening() {
@@ -174,19 +161,6 @@ public class ExprFlattener extends ContextVisitor  {
 				// without modifying this node, since this node is not
 				// an expression which itself needs to be expanded.
 				if (parent instanceof LocalDecl || parent instanceof Assign)
-					return e;
-				
-				// ### added to workaround bug where the edges below are assumed by QueryEngine
-				if (parent instanceof X10ArrayAccess1Assign && e instanceof X10ArrayAccess1)
-					return e;
-
-				if (parent instanceof X10ArrayAccessAssign  && e instanceof X10ArrayAccess)
-					return e;
-
-				if (parent instanceof X10ArrayAccess1Unary && e instanceof X10ArrayAccess1)
-					return e;
-
-				if (parent instanceof X10ArrayAccessUnary && e instanceof X10ArrayAccess)
 					return e;
 				
 				// Now expand the expression. 

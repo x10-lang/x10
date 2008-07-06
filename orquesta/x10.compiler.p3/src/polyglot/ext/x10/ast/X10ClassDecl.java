@@ -4,6 +4,7 @@ import java.util.List;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.TypeDef;
 
 public interface X10ClassDecl extends ClassDecl {
 	DepParameterExpr classInvariant();

@@ -57,6 +57,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -162,15 +163,27 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Finds the class which added a field to the scope.
 	 */
 	public ClassType findFieldScope(String name) throws SemanticException {
-		ClassType result = super.findFieldScope(name);
-		if (result == null) {
-			// hack. This is null when this context is in a deptype, and the deptype
-			// is not a classtype, and the field belongs to the outer type, e.g.
-			// class Foo { int(:v=0) v; }
-			ClassType r = type;
+		VarInstance<?> vi = findVariableInThisScope(name);
+		
+		if (vi instanceof FieldInstance) {
+		    ClassType result = type;
+		    if (result != null)
+			return result;
+		    if (inDepType())
 			result = ((X10Context_c) pop()).type();
+		    if (result != null)
+			return result;
+		    if (supertypeDeclarationType() != null)
+			result = supertypeDeclarationType().asType();
+		    if (result != null)
+			return result;
 		}
-		return result;
+		
+		if (vi == null && outer != null) {
+		    return outer.findFieldScope(name);
+		}
+		
+		throw new SemanticException("Field " + name + " not found.");
 	}
 
 	/**

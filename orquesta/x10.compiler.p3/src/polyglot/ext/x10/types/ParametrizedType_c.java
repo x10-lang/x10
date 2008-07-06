@@ -93,7 +93,7 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 		if (t instanceof ParametrizedType) {
 			ParametrizedType pt = (ParametrizedType) t;
 			if (pt.def() != def()) return false;
-			if (! pt.typeParams().equals(typeParams())) return false;
+			if (! pt.typeParameters().equals(typeParameters())) return false;
 			if (! pt.formals().equals(formals())) return false;
 			if (! pt.formalTypes().equals(formalTypes())) return false;
 			return true;

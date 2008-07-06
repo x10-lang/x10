@@ -17,6 +17,7 @@ import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -94,7 +95,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         // Any occurrence of a non-final static field in X10
         // should be reported as an error.
         if (flags().flags().isStatic() && (!flags().flags().isFinal())) {
-            throw new SemanticException("Non-final static field is illegal in X10",
+            throw new SemanticException("Cannot declare static non-final field.",
                                         this.position());
         }
         return result;
@@ -104,9 +105,17 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
-        X10FieldDecl_c n = (X10FieldDecl_c) super.buildTypesOverride(tb);
 
+        X10FieldDecl_c n = (X10FieldDecl_c) super.buildTypesOverride(tb);
+        
         FieldDef fi = n.fieldDef();
+
+        // Clear the static bit on properties
+        if (this instanceof PropertyDecl) {
+            Flags flags = flags().flags().clearStatic();
+            n = (X10FieldDecl_c) n.flags(n.flags.flags(flags));
+            fi.setFlags(flags);
+        }
 
         // vj - shortcut and initialize the field instance if the decl has an initializer
         // This is the hack to permit reading the list of properties from the StringLit initializer

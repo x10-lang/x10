@@ -124,6 +124,7 @@
     safe
     self
     sequential
+    shared
     static
     strictfp
     super
@@ -207,7 +208,11 @@
                 $setResult($_incomplete);
           $EndAction
         ./
-
+              | s h a r e d
+        /.$BeginAction
+                $setResult($_shared);
+          $EndAction
+        ./
               | a t e a c h
         /.$BeginAction
                     $setResult($_ateach);

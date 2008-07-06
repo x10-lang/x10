@@ -216,12 +216,14 @@ public interface X10TypeSystem extends TypeSystem {
     public ClassType Iterator();
     public ClassType Contains();
     public ClassType ContainsAll();
-
-  boolean isComparable(Type me);
+    public ClassType Settable();
+  
+    boolean isComparable(Type me);
   boolean isIterable(Type me);
   boolean isIterator(Type me);
   boolean isContains(Type me);
   boolean isContainsAll(Type me);
+  boolean isSettable(Type me);
   
   boolean isPrimitiveTypeArray(Type me);
   
@@ -243,7 +245,7 @@ public interface X10TypeSystem extends TypeSystem {
       boolean isDistribution(Type me);
       boolean isDistributedArray(Type me);
      boolean isValueType( Type me);
-	Type baseType(Type theType);
+	Type arrayBaseType(Type theType);
    
 	/**
 	 * Is a type constrained (i.e. its depClause is != null)
@@ -281,10 +283,14 @@ public interface X10TypeSystem extends TypeSystem {
    Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
    Type performUnaryOperation(Type t, Type l, Unary.Operator op);
 
-   X10MethodInstance findMethod(ReferenceType targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
+   X10MethodInstance findMethod(StructType targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
    X10ConstructorInstance findConstructor(ClassType ct, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
 
+   MacroType findTypeDef(ClassType targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
+   List<MacroType> findTypeDefs(ClassType container, String name, ClassDef currClass) throws SemanticException;
+   
    PathType findTypeProperty(ClassType container, String name, ClassDef currClass) throws SemanticException;
+   
    Type TypeType();
 
    /** x10.lang.Box */

@@ -23,6 +23,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.ClassDecl_c;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -82,8 +83,7 @@ public class ValueClassDecl_c extends X10ClassDecl_c implements ValueClassDecl {
         public Node typeCheck(TypeChecker tc) throws SemanticException {
         	ValueClassDecl_c result = (ValueClassDecl_c) super.typeCheck(tc);
         	
-            	ClassType ct = type.asType();
-            	X10TypeMixin.checkRealClause(ct);
+            	((X10ClassDef) type).checkRealClause();
         	
             	return result;
         }

@@ -12,21 +12,28 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Iterator;
 import java.util.List;
 
+import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Term;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.Translator;
 import polyglot.visit.TypeChecker;
 
 /** An immutable representation of the X10 construct [e1,..., ek ]. 
@@ -39,89 +46,74 @@ import polyglot.visit.TypeChecker;
  * @author vj Jan 19, 2005
  * 
  */
-public class Tuple_c extends Expr_c implements Tuple {
-	protected List<Expr> args;
-	protected Receiver pointReceiver;
-	protected Receiver regionReceiver;
-	
+public class Tuple_c extends ArrayInit_c implements Tuple {
 	public Tuple_c(Position pos, Receiver pointReceiver, Receiver regionReceiver, List<Expr> args) {
-		super(pos);
-		this.pointReceiver = pointReceiver;
-		this.regionReceiver = regionReceiver;
-		this.args = args;
-		assert (args.size() > 0);
-		//Report.report(1, "Tuple_c created:" + pointName + "| " + regionName + "| " + args);
+		super(pos, args);
 	}
 	
-	public List<Expr> arguments() { return args; }
-	public Receiver pointReceiver() { return pointReceiver; }
-	public Receiver regionReceiver() { return regionReceiver; }
-	
-	/** Type check the expression. Fork into an ArrayAccess if the underlying
-	 * array is a Java array, or if the index is an int and not a distribution.
-	 * 
-	 * */
+	public List<Expr> arguments() { return super.elements(); }
+
+	/** Type check the initializer. */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		//Report.report(1, "Tuple_c.typeCheck:***" + args);
-                X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-		Type argType = ((Expr) args.get(0)).type();
-		if (argType.isInt()) {
-			// This is a point construction.
-			return nf.Call(position(), pointReceiver, nf.Id(position(), "point"), args).del().typeCheck(tc);
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
+	    Type type = null;
+
+	    for (Expr e : elements) {
+		if (type == null) {
+		    type = e.type();
 		}
-		RectRegionMaker result= 
-			(RectRegionMaker) nf.RectRegionMaker(position(), regionReceiver, nf.Id(position(), "region"), args).del().typeCheck(tc);
-		
-		return result;
-	}
-	
-	/* (non-Javadoc)
-	 * @see polyglot.ast.Term#entry()
-	 */
-	public Term firstChild() {
-		return listChild(args, null);
-	}
-	/* (non-Javadoc)
-	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
-	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
-		// pointReceiver and regionReceiver are AmbReceiver's when they 
-		// are created. AmbReceievers are not expressions.
-		// So they are not visited during CFG construction.
-		v.visitCFGList(args, this, EXIT);
-		return succs;
-	}
-	public Tuple_c reconstruct(Receiver pointR, Receiver regionR, List args ) {
-		if (this.pointReceiver == pointR && this.regionReceiver == regionR && this.args == args)
-			return this;
-		Tuple_c n = (Tuple_c) copy();
-		n.pointReceiver = pointR;
-		n.regionReceiver = regionR;
-		n.args = args;
-		//Report.report(1, "Tuple_c returning (#" + n.hashCode() + ") " + n.args );
-		return n;
-		
+		else {
+		    type = ts.leastCommonAncestor(type, e.type());
+		}
+	    }
+
+	    if (type == null) {
+		return type(ts.Null());
+	    }
+	    else {
+		Type t = ((X10TypeSystem_c) ts).newAndImprovedValueArray(Types.ref(type));
+		return type(t);
+	    }
 	}
 
-	/** Visit the children -- the two receivers and the argument list. */
-	public Node visitChildren(NodeVisitor v) {
-	//	Report.report(1, "Tuple_c: (#" + hashCode() + ")" + this + " visited by " + v);
-		Receiver pointR = (Receiver) visitChild(this.pointReceiver, v);
-		Receiver regionR = (Receiver) visitChild(this.regionReceiver, v);
-		List args = visitList(this.args, v);
-		return reconstruct(pointR, regionR, args);
+	@Override
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("[");
+	    for (Iterator<Expr> i = elements.iterator(); i.hasNext(); ) {
+		Expr e = i.next();
+		sb.append(e.toString());
+		if (i.hasNext()) {
+		    sb.append(", ");
+		}
+	    }
+	    sb.append("]");
+	    return sb.toString();
 	}
-	public void dump(CodeWriter w) {
-		w.write("Tuple: ");
-		super.dump(w);
-		// throw new InternalError("Ambiguous Node cannot be rewritten.");
-	}
+	
+	
+	
+	@Override
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		throw new InternalError("Ambiguous Node cannot be rewritten.");
+	    w.write("[");
+
+	    for (Iterator<Expr> i = elements.iterator(); i.hasNext(); ) {
+		Expr e = i.next();
+
+		print(e, w, tr);
+
+		if (i.hasNext()) {
+		    w.write(",");
+		    w.allowBreak(0, " ");
+		}
+	    }
+
+	    w.write("]");
 	}
-	// throwTypes, ExceptionCheck, checkConsistency should not be defined, I believe.
-	// childExpectedType is needed by AscriptionVisitor; that pass happens after typechecking
-	// so we do not need to define the behavior for this method.
-	// findTargetType is not needed, the targets are known to be references, and this will be
-	// checked by the calls this node resolves to.
+	
+	@Override
+	public void translate(CodeWriter w, Translator tr) {
+	    super.prettyPrint(w, tr);
+	}
 }

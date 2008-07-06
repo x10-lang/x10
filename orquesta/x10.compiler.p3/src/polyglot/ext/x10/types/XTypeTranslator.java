@@ -28,6 +28,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
+import x10.constraint.XRef_c;
 import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -45,25 +46,28 @@ public class XTypeTranslator {
 		ts = xts;
 	}
 
-	public void addTypeToEnv(XTerm self, Type t) throws SemanticException {
-	    XConstraint c = X10TypeMixin.realX(t);
-	    Type base = X10TypeMixin.baseType(t);
-	    if (false) {
-		if (c != null) {
-		    c = c.copy();
+	public void addTypeToEnv(XTerm self, final Type t) throws SemanticException {
+	    self.setSelfConstraint(new XRef_c<XConstraint>() {
+		public XConstraint compute() {
+		    XConstraint c = X10TypeMixin.realX(t);
+		    Type base = X10TypeMixin.baseType(t);
+		    if (false) {
+			if (c != null) {
+			    c = c.copy();
+			}
+			else {
+			    c = new XConstraint_c();
+			}
+			try {
+			    c = c.addBinding(XTerms.makeField(XSelf.Self, XTerms.makeName("type")), trans(base));
+			}
+			catch (XFailure e) {
+			    c.setInconsistent();
+			}
+		    }
+		    return c;
 		}
-		else {
-		    c = new XConstraint_c();
-		}
-		try {
-		    c = c.addBinding(XTerms.makeField(XSelf.Self, XTerms.makeName("type")), trans(base));
-		}
-		catch (XFailure e) {
-		    throw new SemanticException(e);
-		}
-	    }
-
-	    self.setSelfConstraint(c);
+	    });
 	}
 
 	public XTerm trans(Unary t) throws SemanticException {
@@ -324,8 +328,13 @@ public class XTypeTranslator {
 		return result;
 	}
 
+	public XLocal transThisWithoutTypeConstraint() throws SemanticException {
+	    XLocal v = XTerms.makeLocal(XTerms.makeName("this"));
+	    return v;
+	}
+	
 	public XLocal transThis(Type t) throws SemanticException {
-		XLocal v = XTerms.makeLocal(XTerms.makeName("this"));
+	    XLocal v = transThisWithoutTypeConstraint();
 		addTypeToEnv(v, t);
 		return v;
 	}

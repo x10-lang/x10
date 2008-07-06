@@ -16,6 +16,11 @@ import x10.constraint.XVar;
 
 public class X10ArraysMixin {
 	
+            public static Type arrayBaseType(Type t) {
+        	X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+        	return xts.arrayBaseType(t);
+            }
+            
 	    protected static Type setProperty(Type t, String propName) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	        return setProperty(t, propName, xts.TRUE());
@@ -160,7 +165,7 @@ public class X10ArraysMixin {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	        if (isRail(t))
 	           return xts.ONE();
-	        return findOrSythesize(t, "rank");
+	        return findOrSythesize(t, X10TypeSystem.RANK_FIELD);
 	    }
 
 	    private static XTerm findOrSythesize(Type t, String propName) {
@@ -214,17 +219,17 @@ public class X10ArraysMixin {
 	    }
 
 	    public static XTerm region(Type t) {
-	        return findOrSythesize(t, "region");
+	        return findOrSythesize(t, X10TypeSystem.REGION_FIELD);
 	    }
 	    public static Type setRegion(Type t, XTerm region) {
-	           return setProperty(t, "region", region);
+	           return setProperty(t, X10TypeSystem.REGION_FIELD, region);
 	    }
 	    
 	    public static XTerm distribution(Type t) {
-	        return findOrSythesize(t, "distribution");
+	        return findOrSythesize(t, X10TypeSystem.DIST_FIELD);
 	    }
 	    public static Type setDistribution(Type t, XTerm dist) {
-	           return setProperty(t, "distribution", dist);
+	           return setProperty(t, X10TypeSystem.DIST_FIELD, dist);
 	    }
 
 	    public static XVar self(Type t) {

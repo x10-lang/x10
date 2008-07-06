@@ -5,12 +5,13 @@ import java.util.List;
 import polyglot.types.ClassType;
 import polyglot.types.MemberDef;
 import polyglot.types.Package;
+import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 
-public interface TypeDef extends X10Def, MemberDef {
-	public abstract Type asType();
+public interface TypeDef extends X10Def, MemberDef, ProcedureDef {
+	public abstract MacroType asType();
 
 	public Ref<? extends Package> package_();
 	public void setPackage(Ref<? extends Package> pkg);

@@ -102,9 +102,24 @@ implements X10ParsedClassType
 	    return definedProperties();
 	}
 	
+	public List<Type> typeMembers() {
+	    return new TransformingList<TypeDef, Type>(x10Def().memberTypes(), new TypeDefAsMacroTypeTransform());
+	}
+	
+	public List<Type> typeMembersNamed(String name) {
+	    List<Type> ts = new ArrayList<Type>();
+	    for (TypeDef p : x10Def().memberTypes()) {
+		if (name.equals(p.name())) {
+		    ts.add(p.asType());
+		}
+	    }
+	    return ts;
+	}
+	
 	public List<Type> typeProperties() {
 	    return new TransformingList<TypeProperty, Type>(x10Def().typeProperties(), new TypePropertyAsPathTypeTransform());
 	}
+	
 	
 	public Named typePropertyNamed(String name) {
 		for (TypeProperty p : x10Def().typeProperties()) {
@@ -117,10 +132,21 @@ implements X10ParsedClassType
 	
 	@Override
 	public Named memberTypeNamed(String name) {
-		Named n = super.memberTypeNamed(name);
-		if (n == null)
-			return typePropertyNamed(name);
-		return null;
+	    Named n = super.memberTypeNamed(name);
+	    if (n == null)
+		n = typePropertyNamed(name);
+	    if (n == null) {
+		for (Type t : typeMembersNamed(name)) {
+		    if (t instanceof MacroType) {
+			MacroType mt = (MacroType) t;
+			if (mt.formals().size() == 0 && mt.typeParameters().size() == 0) {
+			    n = mt;
+			    break;
+			}
+		    }
+		}
+	    }
+	    return n;
 	}
 	
 	public String toString() {

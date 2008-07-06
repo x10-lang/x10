@@ -27,14 +27,14 @@ import x10.constraint.XVar;
 public interface ParametrizedType extends X10NamedType, ReferenceType {
 	String name();
 
-	List<Type> typeParams();
+	List<Type> typeParameters();
 	List<XVar> formals();
 	List<Type> formalTypes();
 	XConstraint whereClause();
 	
 	Def def();
 
-	ParametrizedType typeParams(List<Type> typeParams);
+	ParametrizedType typeParameters(List<Type> typeParams);
 	ParametrizedType formals(List<XVar> formals);
 	ParametrizedType formalTypes(List<Type> formalTypes);
 }
