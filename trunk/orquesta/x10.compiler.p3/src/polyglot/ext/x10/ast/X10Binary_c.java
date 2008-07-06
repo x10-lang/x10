@@ -12,16 +12,21 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.AmbExpr;
+import polyglot.ast.AmbPrefix;
+import polyglot.ast.Ambiguous;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
+import polyglot.ast.Prefix;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -40,6 +45,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
@@ -162,6 +168,48 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			// ignore div by 0
 		}
 		return null;
+	}
+
+	/** If the expression was parsed as an ambiguous expression, return a Prefix that would have parsed the same way.  Otherwise, return null. */
+	private static Prefix toPrefix(X10NodeFactory nf, Expr e) {
+	    if (e instanceof AmbExpr) {
+		AmbExpr e1 = (AmbExpr) e;
+		return nf.AmbPrefix(e.position(), null, e1.name());
+	    }
+	    if (e instanceof Field) {
+		Field f = (Field) e;
+		if (f.target() instanceof Expr) {
+		    Prefix p = toPrefix(nf, (Expr) f.target());
+		    if (p == null)
+			return null;
+		    return nf.AmbPrefix(e.position(), p, f.name());
+		}
+		else {
+		    return nf.AmbPrefix(e.position(), f.target(), f.name());
+		}
+	    }
+	    return null;
+	}
+	
+	// HACK: T1==T2 can sometimes be parsed as e1==e2.  Correct that.
+	@Override
+	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+	    if (op == EQ) {
+		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		Prefix t1 = toPrefix(nf, left);
+		Prefix t2 = toPrefix(nf, right);
+
+		if (t1 != null && t2 != null) {
+		    Node n1 = this.visitChild(t1, tc);
+		    Node n2 = this.visitChild(t2, tc);
+
+		    if (n1 instanceof TypeNode && n2 instanceof TypeNode) {
+			return nf.SubtypeTest(position(), (TypeNode) n1, (TypeNode) n2, true).typeCheck(tc);
+		    }
+		}
+	    }
+
+	    return null;
 	}
 
 	/**

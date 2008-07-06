@@ -36,14 +36,21 @@ public class SubtypeTest_c extends Expr_c implements SubtypeTest {
 
 	TypeNode sub;
 	TypeNode sup;
+	boolean equals;
 
 	/**
 	 * @param pos
+	 * @param equals TODO
 	 */
-	public SubtypeTest_c(Position pos, TypeNode sub, TypeNode sup) {
+	public SubtypeTest_c(Position pos, TypeNode sub, TypeNode sup, boolean equals) {
 		super(pos);
 		this.sub = sub;
 		this.sup = sup;
+		this.equals = equals;
+	}
+	
+	public boolean equals() {
+	    return equals;
 	}
 
 	public TypeNode supertype() {
@@ -54,6 +61,12 @@ public class SubtypeTest_c extends Expr_c implements SubtypeTest {
 		return sub;
 	}
 
+	public SubtypeTest equals(boolean equals) {
+	    SubtypeTest_c n = (SubtypeTest_c) copy();
+	    n.equals = equals;
+	    return n;
+	}
+	
 	public SubtypeTest supertype(TypeNode sup) {
 		SubtypeTest_c n = (SubtypeTest_c) copy();
 		n.sup = sup;
@@ -116,12 +129,12 @@ public class SubtypeTest_c extends Expr_c implements SubtypeTest {
 	}
 
 	public String toString() {
-		return sub + " <: " + sup;
+		return sub + (equals ? " == " : " <: ") + sup;
 	}
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		printBlock(sub, w, tr);
-		w.write(" <: ");
+		w.write((equals ? " == " : " <: "));
 		printBlock(sup, w, tr);
 	}
 

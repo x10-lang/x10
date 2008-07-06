@@ -45,56 +45,69 @@ public class X10TypeMixin {
 	public static XConstraint realX(Type t) {
 		if (t instanceof ConstrainedType) {
 			ConstrainedType	ct = (ConstrainedType) t;
-			XConstraint realClause = ct.getRealXClause();
 
-			if (realClause == null) {
-				// Set the real clause to something invalid to detect recursion.
-				ct.setRealXClause(new XConstraint_c(), new SemanticException("The dependent clause is recursive.", ct.position()));
+			// Now get the root clause and join it with the dep clause.
+			XConstraint rootClause = realX(Types.get(ct.baseType()));
+			assert rootClause != null;
 
-				// Now get the root clause and join it with the dep clause.
-				XConstraint rootClause;
+			XConstraint depClause = xclause(ct);
 
-				if (ct.baseType().get() instanceof X10ClassType) {
-					X10ClassType xct = (X10ClassType) ct.baseType().get();
-					rootClause = xct.x10Def().getRootXClause();
-				}
-				else {
-					 rootClause = new XConstraint_c();
-				}
-				
-				assert rootClause != null;
-
-				XConstraint depClause = xclause(ct);
-
-				if (depClause == null) {
-					realClause = rootClause;
-				}
-				else {
-					realClause = rootClause.copy();
-
-					try {
-						realClause.addIn(depClause);
-					}
-					catch (XFailure f) {
-						realClause.setInconsistent();
-						SemanticException realClauseInvalid = new SemanticException("The dependent clause is inconsistent with respect to the class invariant and property constraints.", ct.position());
-						ct.setRealXClause(realClause, realClauseInvalid);
-						return realClause;
-					}
-				}
-
-				ct.setRealXClause(realClause, null);
+			if (depClause == null) {
+			    return rootClause;
 			}
+			else {
+			    XConstraint realClause = rootClause.copy();
 
-			return realClause;
+			    try {
+				realClause.addIn(depClause);
+			    }
+			    catch (XFailure f) {
+				realClause.setInconsistent();
+			    }
+			    return realClause;
+			}
 		}
 		else if (t instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) t;
 			return ct.x10Def().getRootXClause();
 		}
+		else if (t instanceof MacroType) {
+		    MacroType mt = (MacroType) t;
+		    XConstraint c = realX(mt.definedType());
+		    XConstraint w = mt.whereClause();
+		    if (w != null) {
+			c = c.copy();
+			try {
+			    c.addIn(w);
+			}
+			catch (XFailure e) {
+			    c.setInconsistent();
+			}
+		    }
+		    return c;
+		}
+		else if (t instanceof PathType) {
+		    PathType pt = (PathType) t;
+		    XVar base = pt.base();
+		    XConstraint c = base.selfConstraint();
+		    TypeProperty p = pt.property();
+		    XConstraint w = pt.whereClause();
+		    if (w != null) {
+			c = c.copy();
+			try {
+			    c.addIn(w);
+			}
+			catch (XFailure e) {
+			    c.setInconsistent();
+			    return c;
+			}
+		    }
+		    return c;
+		}
 
 		return new XConstraint_c();
 	}
+	
 	public static XConstraint xclause(Type t) {
 		if (t instanceof ConstrainedType) {
 			ConstrainedType  ct = (ConstrainedType) t;
@@ -274,28 +287,30 @@ public class X10TypeMixin {
 	}
 
 	private static Type getParameterType(Type theType, XConstraint c, String prop) {
-		ClassType ct = theType.toClass();
-		if (ct != null) {
-			X10ClassDef def = (X10ClassDef) ct.def();
-			for (TypeProperty p : def.typeProperties()) {
-				if (p.name().equals(prop)) {
-					Type S = X10TypeMixin.lookupTypeProperty(c, p);
-					return S;
-				}
-			}
-			Type sup = ct.superClass();
-			if (sup != null)
-				return getParameterType(sup, c, prop);
-		}
+	        theType = X10TypeMixin.baseType(theType);
+	        if (theType instanceof ClassType) {
+	            ClassType ct = (ClassType) theType;
+	            X10ClassDef def = (X10ClassDef) ct.def();
+	            for (TypeProperty p : def.typeProperties()) {
+	        	if (p.name().equals(prop)) {
+	        	    Type S = X10TypeMixin.lookupTypeProperty(c, p);
+	        	    return S;
+	        	}
+	            }
+	            Type sup = ct.superClass();
+	            if (sup != null)
+	        	return getParameterType(sup, c, prop);
+	        }
+	        else if (theType instanceof PathType) {
+	            PathType pt = (PathType) theType;
+	            Type baseType = pt.baseType();
+	            Type t = getParameterType(baseType, pt.property().name());
+	            if (t != null)
+	        	return getParameterType(t, c, prop);
+	        }
 		return null;
 	}
 	
-	public static void checkRealClause(Type t) throws SemanticException {
-		if (t instanceof ConstrainedType) {
-			ConstrainedType ct = (ConstrainedType) t;
-			ct.checkRealClause();
-		}
-	}
 	public static List<FieldInstance> properties(Type t) {
 		if (t instanceof ConstrainedType) {
 			ConstrainedType ct = (ConstrainedType) t;

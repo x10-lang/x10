@@ -125,7 +125,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		else // theType.isClass()
 		{
 			if (typeSystem.isX10Array(theType)) {
-				Type base = typeSystem.baseType(theType);
+				Type base = typeSystem.arrayBaseType(theType);
 				if (!base.isPrimitive())
 					return "jobject*";
 				return typeToCString(base)+"*";

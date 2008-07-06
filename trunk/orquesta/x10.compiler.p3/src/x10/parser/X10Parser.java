@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.io.File;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
@@ -305,7 +306,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     }
 
 
-    //#line 376 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+    //#line 305 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -327,7 +328,87 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                    (X10NodeFactory) n,
                    source,
                    q);
+        setMessageHandler(new MessageHandler(q));
     }
+
+public static class MessageHandler implements IMessageHandler {
+ErrorQueue eq;
+
+public MessageHandler(ErrorQueue eq) {
+    this.eq = eq;
+}
+
+public void handleMessage(int errorCode, int[] msgLocation,
+                          int[] errorLocation, String filename,
+                          String[] errorInfo) {
+
+    File file = new File(filename);
+
+    int l0 = msgLocation[2];
+    int c0 = msgLocation[3];
+    int l1 = msgLocation[4];
+    int c1 = msgLocation[5];
+    int o0 = msgLocation[0];
+    int o1 = msgLocation[0] + msgLocation[1];
+
+    Position pos = new Position(file.getPath(),
+                file.getPath(), l0, c0, l1, c1+1, o0, o1);
+
+    String msg = "";
+    String info = "";
+
+    for (String s : errorInfo) {
+        info += s;
+    }
+
+    switch (errorCode) {
+        case LEX_ERROR_CODE:
+            msg = "Unexpected character ignored: " + info;
+            break;
+        case ERROR_CODE:
+            msg = "Parse terminated at this token: " + info;
+            break;
+        case BEFORE_CODE:
+            msg = "Token " + info + " expected before this input";
+            break;
+        case INSERTION_CODE:
+            msg = "Token " + info + " expected after this input";
+            break;
+        case INVALID_CODE:
+            msg = "Unexpected input discarded: " + info;
+            break;
+        case SUBSTITUTION_CODE:
+            msg = "Token " + info + " expected instead of this input";
+            break;
+        case DELETION_CODE:
+            msg = "Unexpected input ignored: " + info;
+            break;
+        case MERGE_CODE:
+            msg = "Merging token(s) to recover: " + info;
+            break;
+        case MISPLACED_CODE:
+            msg = "Misplaced constructs(s): " + info;
+            break;
+        case SCOPE_CODE:
+            msg = "Token(s) inserted to complete scope: " + info;
+            break;
+        case EOF_CODE:
+            msg = "Reached after this token: " + info;
+            break;
+        case INVALID_TOKEN_CODE:
+            msg = "Invalid token: " + info;
+            break;
+        case ERROR_RULE_WARNING_CODE:
+            msg = "Ignored token: " + info;
+            break;
+        case NO_MESSAGE_CODE:
+            msg = "Syntax error";
+            break;
+    }
+
+    eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
+}
+}
 
     public String getErrorLocation(int lefttok, int righttok)
     {
@@ -1004,19 +1085,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 16:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
             //
             case 16: {
-                //#line 850 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 859 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 850 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 859 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 850 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 859 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 850 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 859 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 850 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 859 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 850 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 859 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 852 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 861 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1032,17 +1113,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 17:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt ;
             //
             case 17: {
-                //#line 862 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 862 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 862 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 862 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 862 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 864 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 873 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1058,9 +1139,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 18:  Properties ::= ( PropertyList )
             //
             case 18: {
-                //#line 876 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 885 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(2);
-                //#line 878 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 887 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
    setResult(PropertyList);
            break;
             }  
@@ -1068,9 +1149,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 19:  PropertyList ::= Property
             //
             case 19: {
-                //#line 881 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 890 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 883 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 892 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -1081,11 +1162,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 20:  PropertyList ::= PropertyList , Property
             //
             case 20: {
-                //#line 888 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 897 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(1);
-                //#line 888 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 897 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 890 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 899 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 PropertyList.add(Property);
                 break;
             }
@@ -1094,13 +1175,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 21:  Property ::= Annotationsopt Identifier : Type
             //
             case 21: {
-                //#line 895 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 904 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 895 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 904 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 895 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 904 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(4);
-                //#line 897 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 906 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), Type, Identifier));
                 break;
             }
@@ -1109,23 +1190,23 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 22:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 22: {
-                //#line 901 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 910 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 901 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 910 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 901 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 910 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 901 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 910 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 901 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 910 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 901 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 910 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 901 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 910 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 901 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 910 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 903 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 912 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
        if (Identifier.id().equals("this")) {
                    ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(MethodModifiersopt),
@@ -1160,11 +1241,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 23:  ExplicitConstructorInvocation ::= this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 23: {
-                //#line 933 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 942 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 933 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 942 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 935 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 944 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10ThisCall(pos(), TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1173,11 +1254,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 24:  ExplicitConstructorInvocation ::= super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 24: {
-                //#line 938 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 947 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 938 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 947 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 940 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 949 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10SuperCall(pos(), TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1186,13 +1267,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 25:  ExplicitConstructorInvocation ::= Primary . this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 25: {
-                //#line 943 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 952 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 943 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 952 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 943 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 952 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 945 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 954 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10ThisCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1201,13 +1282,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 26:  ExplicitConstructorInvocation ::= Primary . super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 26: {
-                //#line 948 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 957 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 948 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 957 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 948 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 957 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 950 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 959 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10SuperCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1216,21 +1297,21 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 27:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier TypePropertiesopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
             //
             case 27: {
-                //#line 954 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 963 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifiersopt = (List) getRhsSym(1);
-                //#line 954 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 963 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 954 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 963 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 954 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 963 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 954 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 963 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 954 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 963 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfacesopt = (List) getRhsSym(7);
-                //#line 954 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 963 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(8);
-                //#line 956 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 965 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
       checkTypeName(Identifier);
       List/*<PropertyDecl>*/ props = Propertiesopt;
       DepParameterExpr ci = WhereClauseopt;
@@ -1253,15 +1334,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 28:  ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 28: {
-                //#line 974 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 983 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(2);
-                //#line 974 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 983 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(3);
-                //#line 974 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 983 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 974 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 983 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(7);
-                //#line 976 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 985 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
                 else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
@@ -1272,17 +1353,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 29:  ClassInstanceCreationExpression ::= Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 29: {
-                //#line 981 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 981 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 981 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 981 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 981 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 983 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 992 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Name b = new X10Name(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1294,17 +1375,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 30:  ClassInstanceCreationExpression ::= AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 30: {
-                //#line 989 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 998 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 989 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 998 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 989 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 998 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 989 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 998 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 989 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 998 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 991 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1000 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Name b = new X10Name(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1316,11 +1397,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 31:  AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 31: {
-                //#line 998 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1007 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 998 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1007 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1000 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1009 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.AssignPropertyCall(pos(), TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1329,17 +1410,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 34:  FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt => Type
             //
             case 34: {
-                //#line 1010 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(1);
-                //#line 1010 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1010 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1010 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(6);
-                //#line 1010 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1012 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1021 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
                 break;
             }
@@ -1348,11 +1429,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 39:  AnnotatedType ::= Type Annotations
             //
             case 39: {
-                //#line 1019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1028 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1028 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1021 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1030 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                 setResult(tn);
@@ -1360,31 +1441,83 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 42:  ConstrainedType ::= ( Type )
+            // Rule 43:  ConstrainedType ::= ( Type )
             //
-            case 42: {
-                //#line 1029 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 43: {
+                //#line 1039 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1031 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1041 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Type);
                 break;
             }
      
             //
-            // Rule 47:  NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt
+            // Rule 48:  NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt
             //
-            case 47: {
-                //#line 1054 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 48: {
+                //#line 1064 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
+                //#line 1064 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 1064 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List TypeArgumentsopt = (List) getRhsSym(4);
+                //#line 1064 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List Argumentsopt = (List) getRhsSym(5);
+                //#line 1064 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(6);
+                //#line 1064 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Object PlaceTypeSpecifieropt = (Object) getRhsSym(7);
+                //#line 1066 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+            TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
+            // TODO: place constraint
+            if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
+                type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, Argumentsopt, DepParametersopt);
+            }
+            setResult(type);
+                break;
+            }
+     
+            //
+            // Rule 49:  NamedType ::= Primary . class$c TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt
+            //
+            case 49: {
+                //#line 1075 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
+                //#line 1075 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                IToken c = (IToken) getRhsIToken(3);
+                //#line 1075 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List TypeArgumentsopt = (List) getRhsSym(4);
+                //#line 1075 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List Argumentsopt = (List) getRhsSym(5);
+                //#line 1075 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(6);
+                //#line 1075 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Object PlaceTypeSpecifieropt = (Object) getRhsSym(7);
+                //#line 1077 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+            TypeNode type = nf.X10AmbTypeNode(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class"));
+            // TODO: place constraint
+            if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
+                type = nf.AmbDepTypeNode(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class"), TypeArgumentsopt, Argumentsopt, DepParametersopt);
+            }
+            setResult(type);
+                break;
+            }
+     
+            //
+            // Rule 50:  NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt
+            //
+            case 50: {
+                //#line 1086 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 1054 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1086 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1054 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1086 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(3);
-                //#line 1054 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1086 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1054 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1086 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(5);
-                //#line 1056 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1088 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             TypeNode type;
             
             if (TypeName.name.id().equals("void")) {
@@ -1402,158 +1535,158 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
             // TODO: place constraint
             if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
-                type = nf.AmbDepTypeNode(pos(), type, TypeArgumentsopt, Argumentsopt, DepParametersopt);
+                type = nf.AmbDepTypeNode(pos(), TypeName.prefix != null ? TypeName.prefix.toPrefix() : null, TypeName.name, TypeArgumentsopt, Argumentsopt, DepParametersopt);
             }
             setResult(type);
                 break;
             }
      
             //
-            // Rule 48:  DepParameters ::= { Conjunction }
+            // Rule 51:  DepParameters ::= { Conjunction }
             //
-            case 48: {
-                //#line 1079 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 51: {
+                //#line 1111 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(2);
-                //#line 1081 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1113 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.DepParameterExpr(pos(), Collections.EMPTY_LIST, Conjunction));
                 break;
             }
      
             //
-            // Rule 49:  DepParameters ::= { ExistentialList ; Conjunction }
+            // Rule 52:  DepParameters ::= { ExistentialList ; Conjunction }
             //
-            case 49: {
-                //#line 1084 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 52: {
+                //#line 1116 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(2);
-                //#line 1084 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1116 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(4);
-                //#line 1086 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1118 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialList, Conjunction));
                 break;
             }
      
             //
-            // Rule 50:  TypeProperties ::= [ TypePropertyList ]
+            // Rule 53:  TypeProperties ::= [ TypePropertyList ]
             //
-            case 50: {
-                //#line 1090 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 53: {
+                //#line 1122 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypePropertyList = (List) getRhsSym(2);
-                //#line 1092 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1124 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(TypePropertyList);
                 break;
             }
      
             //
-            // Rule 51:  TypeParameters ::= [ TypeParameterList ]
+            // Rule 54:  TypeParameters ::= [ TypeParameterList ]
             //
-            case 51: {
-                //#line 1096 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 54: {
+                //#line 1128 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(2);
-                //#line 1098 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1130 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(TypeParameterList);
                 break;
             }
      
             //
-            // Rule 52:  FormalParameters ::= ( FormalParameterListopt )
+            // Rule 55:  FormalParameters ::= ( FormalParameterListopt )
             //
-            case 52: {
-                //#line 1101 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 55: {
+                //#line 1133 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(2);
-                //#line 1103 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1135 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(FormalParameterListopt);
                 break;
             }
      
             //
-            // Rule 53:  Conjunction ::= Expression
+            // Rule 56:  Conjunction ::= Expression
             //
-            case 53: {
-                //#line 1107 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 56: {
+                //#line 1139 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1109 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1141 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Expression);
                 break;
             }
      
             //
-            // Rule 54:  Conjunction ::= Conjunction , Expression
+            // Rule 57:  Conjunction ::= Conjunction , Expression
             //
-            case 54: {
-                //#line 1112 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 57: {
+                //#line 1144 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(1);
-                //#line 1112 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1144 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1114 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1146 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), Conjunction, Binary.COND_AND, Expression));
                 break;
             }
      
             //
-            // Rule 55:  SubtypeConstraint ::= Type$t1 <: Type$t2
+            // Rule 58:  SubtypeConstraint ::= Type$t1 <: Type$t2
             //
-            case 55: {
-                //#line 1118 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 58: {
+                //#line 1150 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1118 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1150 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1120 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(nf.SubtypeTest(pos(), t1, t2));
+                //#line 1152 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(nf.SubtypeTest(pos(), t1, t2, false));
                 break;
             }
      
             //
-            // Rule 56:  SubtypeConstraint ::= Type$t1 :> Type$t2
+            // Rule 59:  SubtypeConstraint ::= Type$t1 :> Type$t2
             //
-            case 56: {
-                //#line 1123 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 59: {
+                //#line 1155 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1123 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1125 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(nf.SubtypeTest(pos(), t2, t1));
+                //#line 1157 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(nf.SubtypeTest(pos(), t2, t1, false));
                 break;
             }
      
             //
-            // Rule 57:  WhereClause ::= DepParameters
+            // Rule 60:  WhereClause ::= DepParameters
             //
-            case 57: {
-                //#line 1129 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 60: {
+                //#line 1161 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(1);
-                //#line 1131 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1163 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             setResult(DepParameters);
                 break;
             }
        
             //
-            // Rule 58:  ExistentialListopt ::= $Empty
+            // Rule 61:  ExistentialListopt ::= $Empty
             //
-            case 58: {
+            case 61: {
                 
-                //#line 1137 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1169 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             setResult(new ArrayList());
                 break;
             }
        
             //
-            // Rule 59:  ExistentialListopt ::= ExistentialList
+            // Rule 62:  ExistentialListopt ::= ExistentialList
             //
-            case 59: {
-                //#line 1140 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 62: {
+                //#line 1172 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1142 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1174 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             setResult(ExistentialList);
                 break;
             }
      
             //
-            // Rule 60:  ExistentialList ::= FormalParameter
+            // Rule 63:  ExistentialList ::= FormalParameter
             //
-            case 60: {
-                //#line 1146 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 63: {
+                //#line 1178 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 1148 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1180 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
                 setResult(l);
@@ -1561,39 +1694,39 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 61:  ExistentialList ::= ExistentialList ; FormalParameter
+            // Rule 64:  ExistentialList ::= ExistentialList ; FormalParameter
             //
-            case 61: {
-                //#line 1153 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 64: {
+                //#line 1185 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1153 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1185 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1155 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1187 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ExistentialList.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
      
             //
-            // Rule 64:  NormalClassDeclaration ::= ClassModifiersopt class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+            // Rule 67:  NormalClassDeclaration ::= ClassModifiersopt class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
-            case 64: {
-                //#line 1164 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 67: {
+                //#line 1196 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1164 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1164 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 1164 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1164 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1164 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1164 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1164 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1166 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1198 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
       checkTypeName(Identifier);
       List/*<PropertyDecl>*/ props = Propertiesopt;
       DepParameterExpr ci = WhereClauseopt;
@@ -1610,26 +1743,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 65:  ValueClassDeclaration ::= ClassModifiersopt value Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+            // Rule 68:  ValueClassDeclaration ::= ClassModifiersopt value Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
-            case 65: {
-                //#line 1181 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 68: {
+                //#line 1213 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1181 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1213 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1181 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1213 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 1181 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1213 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1181 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1213 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1181 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1213 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1181 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1213 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1181 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1213 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1183 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1215 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
     checkTypeName(Identifier);
     List props = Propertiesopt;
     DepParameterExpr ci = WhereClauseopt;
@@ -1642,26 +1775,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 66:  ValueClassDeclaration ::= ClassModifiersopt value class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+            // Rule 69:  ValueClassDeclaration ::= ClassModifiersopt value class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
-            case 66: {
-                //#line 1193 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 69: {
+                //#line 1225 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1193 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1225 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1193 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1225 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(5);
-                //#line 1193 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1225 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(6);
-                //#line 1193 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1225 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(7);
-                //#line 1193 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1225 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(8);
-                //#line 1193 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1225 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(9);
-                //#line 1193 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1225 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(10);
-                //#line 1195 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1227 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 checkTypeName(Identifier);
     List props = Propertiesopt;
     DepParameterExpr ci = WhereClauseopt;
@@ -1674,24 +1807,24 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 67:  ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt ConstructorBody
+            // Rule 70:  ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt ConstructorBody
             //
-            case 67: {
-                //#line 1206 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 70: {
+                //#line 1238 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifiersopt = (List) getRhsSym(1);
-                //#line 1206 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1238 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1206 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1238 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1206 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1238 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1206 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1238 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1206 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1238 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1206 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1238 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(9);
-                //#line 1208 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1240 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
      ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(ConstructorModifiersopt),
                                              nf.Id(pos(3), "this"),
@@ -1707,77 +1840,77 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
     
             //
-            // Rule 68:  Super ::= extends ClassType
+            // Rule 71:  Super ::= extends ClassType
             //
-            case 68: {
-                //#line 1222 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 71: {
+                //#line 1254 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 1224 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1256 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ClassType);
                 break;
             }
      
             //
-            // Rule 69:  FieldKeyword ::= val
+            // Rule 72:  FieldKeyword ::= val
             //
-            case 69: {
+            case 72: {
                 
-                //#line 1230 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1262 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
      
             //
-            // Rule 70:  FieldKeyword ::= var
+            // Rule 73:  FieldKeyword ::= var
             //
-            case 70: {
+            case 73: {
                 
-                //#line 1235 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1267 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                 break;
             }
      
             //
-            // Rule 71:  FieldKeyword ::= const
+            // Rule 74:  FieldKeyword ::= const
             //
-            case 71: {
+            case 74: {
                 
-                //#line 1240 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1272 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL.Static())));
                 break;
             }
      
             //
-            // Rule 72:  VarKeyword ::= val
+            // Rule 75:  VarKeyword ::= val
             //
-            case 72: {
+            case 75: {
                 
-                //#line 1248 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1280 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
      
             //
-            // Rule 73:  VarKeyword ::= var
+            // Rule 76:  VarKeyword ::= var
             //
-            case 73: {
+            case 76: {
                 
-                //#line 1253 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1285 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                 break;
             }
      
             //
-            // Rule 74:  FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
+            // Rule 77:  FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
             //
-            case 74: {
-                //#line 1258 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 77: {
+                //#line 1290 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1258 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1290 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FieldKeyword = (List) getRhsSym(2);
-                //#line 1258 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1290 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(3);
-                //#line 1260 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1292 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
     
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -1801,63 +1934,63 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 104:  IfThenStatement ::= if ( Expression ) Statement
+            // Rule 107:  IfThenStatement ::= if ( Expression ) Statement
             //
-            case 104: {
-                //#line 1315 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 107: {
+                //#line 1347 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1315 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1347 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1317 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1349 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                 break;
             }
      
             //
-            // Rule 105:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
+            // Rule 108:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
             //
-            case 105: {
-                //#line 1321 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 108: {
+                //#line 1353 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1321 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1353 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt s1 = (Stmt) getRhsSym(5);
-                //#line 1321 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1353 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt s2 = (Stmt) getRhsSym(7);
-                //#line 1323 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1355 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.If(pos(), Expression, s1, s2));
                 break;
             }
      
             //
-            // Rule 106:  EmptyStatement ::= ;
+            // Rule 109:  EmptyStatement ::= ;
             //
-            case 106: {
+            case 109: {
                 
-                //#line 1329 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1361 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Empty(pos()));
                 break;
             }
      
             //
-            // Rule 107:  LabeledStatement ::= Identifier : Statement
+            // Rule 110:  LabeledStatement ::= Identifier : Statement
             //
-            case 107: {
-                //#line 1333 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 110: {
+                //#line 1365 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1333 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1365 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1335 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1367 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Labeled(pos(), Identifier, Statement));
                 break;
             }
      
             //
-            // Rule 108:  ExpressionStatement ::= StatementExpression ;
+            // Rule 111:  ExpressionStatement ::= StatementExpression ;
             //
-            case 108: {
-                //#line 1339 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 111: {
+                //#line 1371 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1341 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1373 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 boolean eval = true;
                 if (StatementExpression instanceof X10Call) {
                     X10Call c = (X10Call) StatementExpression;
@@ -1880,79 +2013,79 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 116:  AssertStatement ::= assert Expression ;
+            // Rule 119:  AssertStatement ::= assert Expression ;
             //
-            case 116: {
-                //#line 1370 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 119: {
+                //#line 1402 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1372 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1404 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Assert(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 117:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
+            // Rule 120:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
-            case 117: {
-                //#line 1375 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 120: {
+                //#line 1407 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1375 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1407 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1377 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1409 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                 break;
             }
      
             //
-            // Rule 118:  SwitchStatement ::= switch ( Expression ) SwitchBlock
+            // Rule 121:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
-            case 118: {
-                //#line 1381 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 121: {
+                //#line 1413 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1381 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1413 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1383 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1415 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                 break;
             }
      
             //
-            // Rule 119:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+            // Rule 122:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
-            case 119: {
-                //#line 1387 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 122: {
+                //#line 1419 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1387 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1419 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1389 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1421 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                 break;
             }
      
             //
-            // Rule 121:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
+            // Rule 124:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
-            case 121: {
-                //#line 1395 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 124: {
+                //#line 1427 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1395 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1427 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1397 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1429 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                 break;
             }
      
             //
-            // Rule 122:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+            // Rule 125:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
-            case 122: {
-                //#line 1402 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 125: {
+                //#line 1434 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1402 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1434 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1404 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1436 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -1961,12 +2094,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 123:  SwitchLabels ::= SwitchLabel
+            // Rule 126:  SwitchLabels ::= SwitchLabel
             //
-            case 123: {
-                //#line 1411 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 126: {
+                //#line 1443 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1413 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1445 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -1974,90 +2107,90 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 124:  SwitchLabels ::= SwitchLabels SwitchLabel
+            // Rule 127:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
-            case 124: {
-                //#line 1418 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 127: {
+                //#line 1450 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1418 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1450 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1420 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1452 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                 break;
             }
      
             //
-            // Rule 125:  SwitchLabel ::= case ConstantExpression :
+            // Rule 128:  SwitchLabel ::= case ConstantExpression :
             //
-            case 125: {
-                //#line 1425 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 128: {
+                //#line 1457 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1427 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1459 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                 break;
             }
      
             //
-            // Rule 126:  SwitchLabel ::= default :
+            // Rule 129:  SwitchLabel ::= default :
             //
-            case 126: {
+            case 129: {
                 
-                //#line 1432 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1464 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Default(pos()));
                 break;
             }
      
             //
-            // Rule 127:  WhileStatement ::= while ( Expression ) Statement
+            // Rule 130:  WhileStatement ::= while ( Expression ) Statement
             //
-            case 127: {
-                //#line 1436 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 130: {
+                //#line 1468 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1436 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1468 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1438 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1470 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                 break;
             }
      
             //
-            // Rule 128:  DoStatement ::= do Statement while ( Expression ) ;
+            // Rule 131:  DoStatement ::= do Statement while ( Expression ) ;
             //
-            case 128: {
-                //#line 1442 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 131: {
+                //#line 1474 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1442 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1474 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1444 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1476 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                 break;
             }
      
             //
-            // Rule 131:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+            // Rule 134:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
-            case 131: {
-                //#line 1451 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 134: {
+                //#line 1483 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1451 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1483 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1451 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1483 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1451 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1483 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1453 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1485 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                 break;
             }
      
             //
-            // Rule 133:  ForInit ::= LocalVariableDeclaration
+            // Rule 136:  ForInit ::= LocalVariableDeclaration
             //
-            case 133: {
-                //#line 1458 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 136: {
+                //#line 1490 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1460 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1492 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -2065,12 +2198,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 135:  StatementExpressionList ::= StatementExpression
+            // Rule 138:  StatementExpressionList ::= StatementExpression
             //
-            case 135: {
-                //#line 1468 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 138: {
+                //#line 1500 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1470 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1502 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -2078,97 +2211,97 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 136:  StatementExpressionList ::= StatementExpressionList , StatementExpression
+            // Rule 139:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
-            case 136: {
-                //#line 1475 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 139: {
+                //#line 1507 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1475 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1507 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1477 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1509 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                 break;
             }
      
             //
-            // Rule 137:  BreakStatement ::= break Identifieropt ;
+            // Rule 140:  BreakStatement ::= break Identifieropt ;
             //
-            case 137: {
-                //#line 1481 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 140: {
+                //#line 1513 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1483 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1515 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Break(pos(), Identifieropt));
                 break;
             }
      
             //
-            // Rule 138:  ContinueStatement ::= continue Identifieropt ;
+            // Rule 141:  ContinueStatement ::= continue Identifieropt ;
             //
-            case 138: {
-                //#line 1487 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 141: {
+                //#line 1519 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1489 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1521 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Continue(pos(), Identifieropt));
                 break;
             }
      
             //
-            // Rule 139:  ReturnStatement ::= return Expressionopt ;
+            // Rule 142:  ReturnStatement ::= return Expressionopt ;
             //
-            case 139: {
-                //#line 1493 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 142: {
+                //#line 1525 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1495 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1527 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                 break;
             }
      
             //
-            // Rule 140:  ThrowStatement ::= throw Expression ;
+            // Rule 143:  ThrowStatement ::= throw Expression ;
             //
-            case 140: {
-                //#line 1499 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 143: {
+                //#line 1531 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1501 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1533 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Throw(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 141:  TryStatement ::= try Block Catches
+            // Rule 144:  TryStatement ::= try Block Catches
             //
-            case 141: {
-                //#line 1505 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 144: {
+                //#line 1537 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1505 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1537 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(3);
-                //#line 1507 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1539 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                 break;
             }
      
             //
-            // Rule 142:  TryStatement ::= try Block Catchesopt Finally
+            // Rule 145:  TryStatement ::= try Block Catchesopt Finally
             //
-            case 142: {
-                //#line 1510 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 145: {
+                //#line 1542 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1510 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1542 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1510 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1542 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1512 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1544 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                 break;
             }
      
             //
-            // Rule 143:  Catches ::= CatchClause
+            // Rule 146:  Catches ::= CatchClause
             //
-            case 143: {
-                //#line 1516 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 146: {
+                //#line 1548 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1518 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1550 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -2176,78 +2309,78 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 144:  Catches ::= Catches CatchClause
+            // Rule 147:  Catches ::= Catches CatchClause
             //
-            case 144: {
-                //#line 1523 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 147: {
+                //#line 1555 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(1);
-                //#line 1523 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1555 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1525 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1557 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                 break;
             }
      
             //
-            // Rule 145:  CatchClause ::= catch ( FormalParameter ) Block
+            // Rule 148:  CatchClause ::= catch ( FormalParameter ) Block
             //
-            case 145: {
-                //#line 1530 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 148: {
+                //#line 1562 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1530 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1562 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1532 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1564 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                 break;
             }
      
             //
-            // Rule 146:  Finally ::= finally Block
+            // Rule 149:  Finally ::= finally Block
             //
-            case 146: {
-                //#line 1536 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 149: {
+                //#line 1568 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1538 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1570 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Block);
                 break;
             }
      
             //
-            // Rule 147:  NowStatement ::= now ( Clock ) Statement
+            // Rule 150:  NowStatement ::= now ( Clock ) Statement
             //
-            case 147: {
-                //#line 1542 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 150: {
+                //#line 1574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1542 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1544 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1576 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               setResult(nf.Now(pos(), Clock, Statement));
                 break;
             }
      
             //
-            // Rule 148:  ClockedClause ::= clocked ( ClockList )
+            // Rule 151:  ClockedClause ::= clocked ( ClockList )
             //
-            case 148: {
-                //#line 1548 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 151: {
+                //#line 1580 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1550 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1582 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ClockList);
                 break;
             }
      
             //
-            // Rule 149:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
+            // Rule 152:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
-            case 149: {
-                //#line 1554 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 152: {
+                //#line 1586 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1554 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1586 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1554 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1586 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1556 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1588 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -2256,14 +2389,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 150:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
+            // Rule 153:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
             //
-            case 150: {
-                //#line 1563 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 153: {
+                //#line 1595 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1563 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1595 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1565 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1597 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
                                                ? nf.Here(pos(getLeftSpan()))
                                                : PlaceExpressionSingleListopt), Statement));
@@ -2271,55 +2404,55 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 151:  WhenStatement ::= when ( Expression ) Statement
+            // Rule 154:  WhenStatement ::= when ( Expression ) Statement
             //
-            case 151: {
-                //#line 1572 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 154: {
+                //#line 1604 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1572 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1604 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1574 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1606 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.When(pos(), Expression, Statement));
                 break;
             }
      
             //
-            // Rule 152:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
+            // Rule 155:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
-            case 152: {
-                //#line 1577 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 155: {
+                //#line 1609 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1577 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1609 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1577 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1609 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1577 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1609 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1579 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1611 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                 break;
             }
      
             //
-            // Rule 153:  ForEachStatement ::= foreach ( FormalParameter in Expression ) ClockedClauseopt Statement
+            // Rule 156:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
-            case 153: {
-                //#line 1584 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1584 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 156: {
+                //#line 1616 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                X10Formal LoopIndex = (X10Formal) getRhsSym(3);
+                //#line 1616 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1584 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1616 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1584 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1616 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1586 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                FlagsNode fn = FormalParameter.flags();
+                //#line 1618 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
                 fn = fn.flags(f);
                 setResult(nf.ForEach(pos(),
-                              FormalParameter.flags(fn),
+                              LoopIndex.flags(fn),
                               Expression,
                               ClockedClauseopt,
                               Statement));
@@ -2327,24 +2460,24 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 154:  AtEachStatement ::= ateach ( FormalParameter in Expression ) ClockedClauseopt Statement
+            // Rule 157:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
-            case 154: {
-                //#line 1598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 157: {
+                //#line 1630 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                X10Formal LoopIndex = (X10Formal) getRhsSym(3);
+                //#line 1630 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1630 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1630 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1600 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                FlagsNode fn = FormalParameter.flags();
+                //#line 1632 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
                 fn = fn.flags(f);
                 setResult(nf.AtEach(pos(),
-                             FormalParameter.flags(fn),
+                             LoopIndex.flags(fn),
                              Expression,
                              ClockedClauseopt,
                              Statement));
@@ -2352,47 +2485,47 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 155:  EnhancedForStatement ::= for ( FormalParameter in Expression ) Statement
+            // Rule 158:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
-            case 155: {
-                //#line 1612 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1612 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 158: {
+                //#line 1644 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                X10Formal LoopIndex = (X10Formal) getRhsSym(3);
+                //#line 1644 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1612 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1644 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1614 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                FlagsNode fn = FormalParameter.flags();
+                //#line 1646 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
                 fn = fn.flags(f);
                 setResult(nf.ForLoop(pos(),
-                        FormalParameter.flags(fn),
+                        LoopIndex.flags(fn),
                         Expression,
                         Statement));
                 break;
             }
      
             //
-            // Rule 156:  FinishStatement ::= finish Statement
+            // Rule 159:  FinishStatement ::= finish Statement
             //
-            case 156: {
-                //#line 1625 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 159: {
+                //#line 1657 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1627 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1659 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
      
             //
-            // Rule 157:  AnnotationStatement ::= Annotations Statement
+            // Rule 160:  AnnotationStatement ::= Annotations Statement
             //
-            case 157: {
-                //#line 1632 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 160: {
+                //#line 1664 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 1632 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1664 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1634 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1666 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
                     Statement = (Stmt) ((X10Ext) Statement.ext()).annotations((List) Annotations);
                 }
@@ -2401,44 +2534,44 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 158:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            // Rule 161:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
-            case 158: {
-                //#line 1641 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 161: {
+                //#line 1673 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1643 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1675 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               setResult(PlaceExpression);
                 break;
             }
      
             //
-            // Rule 160:  NextStatement ::= next ;
+            // Rule 163:  NextStatement ::= next ;
             //
-            case 160: {
+            case 163: {
                 
-                //#line 1651 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1683 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Next(pos()));
                 break;
             }
      
             //
-            // Rule 161:  AwaitStatement ::= await Expression ;
+            // Rule 164:  AwaitStatement ::= await Expression ;
             //
-            case 161: {
-                //#line 1655 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 164: {
+                //#line 1687 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1657 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1689 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 162:  ClockList ::= Clock
+            // Rule 165:  ClockList ::= Clock
             //
-            case 162: {
-                //#line 1661 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 165: {
+                //#line 1693 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1663 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1695 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -2446,76 +2579,76 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 163:  ClockList ::= ClockList , Clock
+            // Rule 166:  ClockList ::= ClockList , Clock
             //
-            case 163: {
-                //#line 1668 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 166: {
+                //#line 1700 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1668 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1700 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1670 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1702 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ClockList.add(Clock);
                 setResult(ClockList);
                 break;
             }
      
             //
-            // Rule 164:  Clock ::= Expression
+            // Rule 167:  Clock ::= Expression
             //
-            case 164: {
-                //#line 1676 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 167: {
+                //#line 1708 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1678 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1710 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
     setResult(Expression);
                 break;
             }
      
             //
-            // Rule 165:  CastExpression ::= ConditionalExpression as Type
+            // Rule 168:  CastExpression ::= ConditionalExpression as Type
             //
-            case 165: {
-                //#line 1690 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 168: {
+                //#line 1722 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1690 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1722 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1692 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1724 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Cast(pos(), Type, ConditionalExpression));
                 break;
             }
      
             //
-            // Rule 166:  CastExpression ::= ConditionalExpression to Type
+            // Rule 169:  CastExpression ::= ConditionalExpression to Type
             //
-            case 166: {
-                //#line 1695 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 169: {
+                //#line 1727 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1695 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1727 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1697 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1729 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Cast(pos(), Type, ConditionalExpression));
                 break;
             }
      
             //
-            // Rule 167:  CastExpression ::= ConditionalExpression ! Expression
+            // Rule 170:  CastExpression ::= ConditionalExpression ! Expression
             //
-            case 167: {
-                //#line 1700 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 170: {
+                //#line 1732 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1700 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1732 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1702 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1734 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
                 break;
             }
      
             //
-            // Rule 169:  TypePropertyList ::= TypeProperty
+            // Rule 172:  TypePropertyList ::= TypeProperty
             //
-            case 169: {
-                //#line 1709 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 172: {
+                //#line 1741 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypePropertyNode TypeProperty = (TypePropertyNode) getRhsSym(1);
-                //#line 1711 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1743 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypePropertyNode.class, false);
                 l.add(TypeProperty);
                 setResult(l);
@@ -2523,26 +2656,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 170:  TypePropertyList ::= TypePropertyList , TypeProperty
+            // Rule 173:  TypePropertyList ::= TypePropertyList , TypeProperty
             //
-            case 170: {
-                //#line 1716 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 173: {
+                //#line 1748 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypePropertyList = (List) getRhsSym(1);
-                //#line 1716 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1748 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypePropertyNode TypeProperty = (TypePropertyNode) getRhsSym(3);
-                //#line 1718 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1750 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypePropertyList.add(TypeProperty);
                 setResult(TypePropertyList);
                 break;
             }
      
             //
-            // Rule 171:  TypeParameterList ::= TypeParameter
+            // Rule 174:  TypeParameterList ::= TypeParameter
             //
-            case 171: {
-                //#line 1723 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 174: {
+                //#line 1755 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
-                //#line 1725 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1757 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParameter);
                 setResult(l);
@@ -2550,80 +2683,80 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 172:  TypeParameterList ::= TypeParameterList , TypeParameter
+            // Rule 175:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
-            case 172: {
-                //#line 1730 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 175: {
+                //#line 1762 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(1);
-                //#line 1730 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1762 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(3);
-                //#line 1732 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1764 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypeParameterList.add(TypeParameter);
                 setResult(TypeParameterList);
                 break;
             }
      
             //
-            // Rule 173:  TypeProperty ::= Identifier
+            // Rule 176:  TypeProperty ::= Identifier
             //
-            case 173: {
-                //#line 1737 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 176: {
+                //#line 1769 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1739 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1771 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.INVARIANT));
                 break;
             }
      
             //
-            // Rule 174:  TypeProperty ::= + Identifier
+            // Rule 177:  TypeProperty ::= + Identifier
             //
-            case 174: {
-                //#line 1742 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 177: {
+                //#line 1774 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1744 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1776 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.COVARIANT));
                 break;
             }
      
             //
-            // Rule 175:  TypeProperty ::= - Identifier
+            // Rule 178:  TypeProperty ::= - Identifier
             //
-            case 175: {
-                //#line 1747 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 178: {
+                //#line 1779 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1749 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1781 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.CONTRAVARIANT));
                 break;
             }
      
             //
-            // Rule 176:  TypeParameter ::= Identifier
+            // Rule 179:  TypeParameter ::= Identifier
             //
-            case 176: {
-                //#line 1753 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 179: {
+                //#line 1785 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1755 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1787 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier));
                 break;
             }
      
             //
-            // Rule 177:  Primary ::= here
+            // Rule 180:  Primary ::= here
             //
-            case 177: {
+            case 180: {
                 
-                //#line 1761 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1793 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(((X10NodeFactory) nf).Here(pos()));
                 break;
             }
      
             //
-            // Rule 179:  RegionExpressionList ::= RegionExpression
+            // Rule 182:  RegionExpressionList ::= RegionExpression
             //
-            case 179: {
-                //#line 1767 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 182: {
+                //#line 1799 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 1769 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1801 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -2631,100 +2764,98 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 180:  RegionExpressionList ::= RegionExpressionList , RegionExpression
+            // Rule 183:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
-            case 180: {
-                //#line 1774 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 183: {
+                //#line 1806 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 1774 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1806 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 1776 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1808 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                 break;
             }
      
             //
-            // Rule 181:  Primary ::= [ RegionExpressionList ]
+            // Rule 184:  Primary ::= [ ArgumentList ]
             //
-            case 181: {
-                //#line 1781 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                List RegionExpressionList = (List) getRhsSym(2);
-                //#line 1783 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                Receiver x10LangPointFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.point.factory");
-                Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.region.factory");
-                Tuple tuple = nf.Tuple(pos(), x10LangPointFactory, x10LangRegionFactory, RegionExpressionList);
+            case 184: {
+                //#line 1813 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentList = (List) getRhsSym(2);
+                //#line 1815 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                Tuple tuple = nf.Tuple(pos(), ArgumentList);
                 setResult(tuple);
                 break;
             }
      
             //
-            // Rule 182:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 185:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
-            case 182: {
-                //#line 1790 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 185: {
+                //#line 1820 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1790 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1820 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1792 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                ConstantDistMaker call = nf.ConstantDistMaker(pos(), expr1, expr2);
+                //#line 1822 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                 break;
             }
      
             //
-            // Rule 183:  ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
+            // Rule 186:  ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
             //
-            case 183: {
-                //#line 1797 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 186: {
+                //#line 1827 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(1);
-                //#line 1797 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1827 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(2);
-                //#line 1797 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1827 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(3);
-                //#line 1797 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1827 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 1797 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1827 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 1797 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1827 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(7);
-                //#line 1799 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1829 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Closure(pos(), TypeParametersopt, FormalParameters, WhereClauseopt, 
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt, Throwsopt, ClosureBody));
                 break;
             }
      
             //
-            // Rule 184:  LastExpression ::= Expression
+            // Rule 187:  LastExpression ::= Expression
             //
-            case 184: {
-                //#line 1804 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 187: {
+                //#line 1834 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1806 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1836 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Return(pos(), Expression, true));
                 break;
             }
      
             //
-            // Rule 185:  ClosureBody ::= CastExpression
+            // Rule 188:  ClosureBody ::= CastExpression
             //
-            case 185: {
-                //#line 1810 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 188: {
+                //#line 1840 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 1812 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1842 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
                 break;
             }
      
             //
-            // Rule 186:  ClosureBody ::= { BlockStatementsopt LastExpression }
+            // Rule 189:  ClosureBody ::= { BlockStatementsopt LastExpression }
             //
-            case 186: {
-                //#line 1815 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 189: {
+                //#line 1845 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 1815 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1845 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(3);
-                //#line 1817 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1847 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -2733,232 +2864,232 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 188:  AsyncExpression ::= async ClosureBody
+            // Rule 191:  AsyncExpression ::= async ClosureBody
             //
-            case 188: {
-                //#line 1825 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 191: {
+                //#line 1855 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 1827 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1857 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                 break;
             }
      
             //
-            // Rule 189:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
+            // Rule 192:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
             //
-            case 189: {
-                //#line 1830 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 192: {
+                //#line 1860 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1830 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1860 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 1832 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1862 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                 break;
             }
      
             //
-            // Rule 190:  AsyncExpression ::= async [ Type ] ClosureBody
+            // Rule 193:  AsyncExpression ::= async [ Type ] ClosureBody
             //
-            case 190: {
-                //#line 1835 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 193: {
+                //#line 1865 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1835 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1865 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 1837 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1867 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
                 break;
             }
      
             //
-            // Rule 191:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
+            // Rule 194:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
             //
-            case 191: {
-                //#line 1840 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 194: {
+                //#line 1870 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1840 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1870 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 1840 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1870 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 1842 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1872 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
                 break;
             }
      
             //
-            // Rule 192:  FutureExpression ::= future ClosureBody
+            // Rule 195:  FutureExpression ::= future ClosureBody
             //
-            case 192: {
-                //#line 1846 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 195: {
+                //#line 1876 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 1848 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1878 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
                 break;
             }
      
             //
-            // Rule 193:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
+            // Rule 196:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
             //
-            case 193: {
-                //#line 1851 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 196: {
+                //#line 1881 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1851 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1881 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 1853 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1883 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                 break;
             }
      
             //
-            // Rule 194:  FutureExpression ::= future [ Type ] ClosureBody
+            // Rule 197:  FutureExpression ::= future [ Type ] ClosureBody
             //
-            case 194: {
-                //#line 1856 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 197: {
+                //#line 1886 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1856 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1886 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 1858 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1888 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody));
                 break;
             }
      
             //
-            // Rule 195:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
+            // Rule 198:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
             //
-            case 195: {
-                //#line 1861 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 198: {
+                //#line 1891 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1861 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1891 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 1861 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1891 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 1863 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1893 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody));
                 break;
             }
      
             //
-            // Rule 196:  PlaceTypeSpecifieropt ::= $Empty
+            // Rule 199:  PlaceTypeSpecifieropt ::= $Empty
             //
-            case 196:
+            case 199:
                 setResult(null);
                 break;
  
             //
-            // Rule 198:  DepParametersopt ::= $Empty
+            // Rule 201:  DepParametersopt ::= $Empty
             //
-            case 198:
+            case 201:
                 setResult(null);
                 break;
  
             //
-            // Rule 200:  PropertyListopt ::= $Empty
+            // Rule 203:  PropertyListopt ::= $Empty
             //
-            case 200: {
+            case 203: {
                 
-                //#line 1878 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1908 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                 break;
             }
      
             //
-            // Rule 202:  WhereClauseopt ::= $Empty
+            // Rule 205:  WhereClauseopt ::= $Empty
             //
-            case 202:
+            case 205:
                 setResult(null);
                 break;
  
             //
-            // Rule 204:  ObjectKindopt ::= $Empty
+            // Rule 207:  ObjectKindopt ::= $Empty
             //
-            case 204:
+            case 207:
                 setResult(null);
                 break;
  
             //
-            // Rule 206:  PlaceExpressionSingleListopt ::= $Empty
+            // Rule 209:  PlaceExpressionSingleListopt ::= $Empty
             //
-            case 206:
+            case 209:
                 setResult(null);
                 break;
  
             //
-            // Rule 208:  ClassModifiersopt ::= $Empty
+            // Rule 211:  ClassModifiersopt ::= $Empty
             //
-            case 208: {
+            case 211: {
                 
-                //#line 1897 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1927 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                 break;
             }  
             //
-            // Rule 210:  TypeDefModifiersopt ::= $Empty
-            //
-            case 210: {
-                
-                //#line 1903 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-         setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
-                break;
-            }  
-            //
-            // Rule 212:  Unsafeopt ::= $Empty
-            //
-            case 212:
-                setResult(null);
-                break;
- 
-            //
-            // Rule 213:  Unsafeopt ::= unsafe
+            // Rule 213:  TypeDefModifiersopt ::= $Empty
             //
             case 213: {
                 
-                //#line 1911 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1933 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+         setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
+                break;
+            }  
+            //
+            // Rule 215:  Unsafeopt ::= $Empty
+            //
+            case 215:
+                setResult(null);
+                break;
+ 
+            //
+            // Rule 216:  Unsafeopt ::= unsafe
+            //
+            case 216: {
+                
+                //#line 1941 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 // any value distinct from null
                 setResult(this);
                 break;
             }
      
             //
-            // Rule 214:  ClockedClauseopt ::= $Empty
+            // Rule 217:  ClockedClauseopt ::= $Empty
             //
-            case 214: {
+            case 217: {
                 
-                //#line 1918 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1948 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
      
             //
-            // Rule 216:  identifier ::= IDENTIFIER$ident
+            // Rule 219:  identifier ::= IDENTIFIER$ident
             //
-            case 216: {
-                //#line 1927 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 219: {
+                //#line 1957 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 1929 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1959 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                 break;
             }
      
             //
-            // Rule 217:  TypeName ::= Identifier
+            // Rule 220:  TypeName ::= Identifier
             //
-            case 217: {
-                //#line 1934 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 220: {
+                //#line 1964 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1936 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1966 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10Name(nf, ts, pos(), Identifier));
                 break;
             }
      
             //
-            // Rule 218:  TypeName ::= TypeName . Identifier
+            // Rule 221:  TypeName ::= TypeName . Identifier
             //
-            case 218: {
-                //#line 1939 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 221: {
+                //#line 1969 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 1939 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1969 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1941 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1971 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -2968,23 +3099,23 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 220:  TypeArguments ::= [ TypeArgumentList ]
+            // Rule 223:  TypeArguments ::= [ TypeArgumentList ]
             //
-            case 220: {
-                //#line 1951 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 223: {
+                //#line 1981 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(2);
-                //#line 1953 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1983 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(TypeArgumentList);
                 break;
             }
      
             //
-            // Rule 221:  TypeArgumentList ::= Type
+            // Rule 224:  TypeArgumentList ::= Type
             //
-            case 221: {
-                //#line 1958 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 224: {
+                //#line 1988 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1960 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1990 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new ArrayList();
                 l.add(Type);
                 setResult(l);
@@ -2992,38 +3123,38 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 222:  TypeArgumentList ::= TypeArgumentList , Type
+            // Rule 225:  TypeArgumentList ::= TypeArgumentList , Type
             //
-            case 222: {
-                //#line 1965 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 225: {
+                //#line 1995 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(1);
-                //#line 1965 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 1995 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1967 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1997 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypeArgumentList.add(Type);
                 break;
             }
      
             //
-            // Rule 223:  PackageName ::= Identifier
+            // Rule 226:  PackageName ::= Identifier
             //
-            case 223: {
-                //#line 1975 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 226: {
+                //#line 2005 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1977 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2007 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10Name(nf, ts, pos(), Identifier));
                 break;
             }
      
             //
-            // Rule 224:  PackageName ::= PackageName . Identifier
+            // Rule 227:  PackageName ::= PackageName . Identifier
             //
-            case 224: {
-                //#line 1980 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 227: {
+                //#line 2010 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name PackageName = (Name) getRhsSym(1);
-                //#line 1980 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2010 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1982 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2012 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3033,65 +3164,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 225:  ExpressionName ::= Identifier
-            //
-            case 225: {
-                //#line 1996 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 1998 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(new X10Name(nf, ts, pos(), Identifier));
-                break;
-            }
-     
-            //
-            // Rule 226:  ExpressionName ::= AmbiguousName . Identifier
-            //
-            case 226: {
-                //#line 2001 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 2001 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(3);
-                //#line 2003 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(new X10Name(nf,
-                                  ts,
-                                  pos(getLeftSpan(), getRightSpan()),
-                                  AmbiguousName,
-                                  Identifier));
-                break;
-            }
-     
-            //
-            // Rule 227:  MethodName ::= Identifier
-            //
-            case 227: {
-                //#line 2011 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 2013 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(new X10Name(nf, ts, pos(), Identifier));
-                break;
-            }
-     
-            //
-            // Rule 228:  MethodName ::= AmbiguousName . Identifier
+            // Rule 228:  ExpressionName ::= Identifier
             //
             case 228: {
-                //#line 2016 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 2016 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(3);
-                //#line 2018 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(new X10Name(nf,
-                                  ts,
-                                  pos(getLeftSpan(), getRightSpan()),
-                                  AmbiguousName,
-                                  Identifier));
-                break;
-            }
-     
-            //
-            // Rule 229:  PackageOrTypeName ::= Identifier
-            //
-            case 229: {
                 //#line 2026 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2028 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
@@ -3100,26 +3175,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 230:  PackageOrTypeName ::= PackageOrTypeName . Identifier
+            // Rule 229:  ExpressionName ::= AmbiguousName . Identifier
             //
-            case 230: {
+            case 229: {
                 //#line 2031 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Name PackageOrTypeName = (Name) getRhsSym(1);
+                Name AmbiguousName = (Name) getRhsSym(1);
                 //#line 2031 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 2033 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
-                                  PackageOrTypeName,
+                                  AmbiguousName,
                                   Identifier));
                 break;
             }
      
             //
-            // Rule 231:  AmbiguousName ::= Identifier
+            // Rule 230:  MethodName ::= Identifier
             //
-            case 231: {
+            case 230: {
                 //#line 2041 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2043 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
@@ -3128,9 +3203,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 232:  AmbiguousName ::= AmbiguousName . Identifier
+            // Rule 231:  MethodName ::= AmbiguousName . Identifier
             //
-            case 232: {
+            case 231: {
                 //#line 2046 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name AmbiguousName = (Name) getRhsSym(1);
                 //#line 2046 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
@@ -3141,20 +3216,76 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                                   pos(getLeftSpan(), getRightSpan()),
                                   AmbiguousName,
                                   Identifier));
+                break;
+            }
+     
+            //
+            // Rule 232:  PackageOrTypeName ::= Identifier
+            //
+            case 232: {
+                //#line 2056 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 2058 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(new X10Name(nf, ts, pos(), Identifier));
+                break;
+            }
+     
+            //
+            // Rule 233:  PackageOrTypeName ::= PackageOrTypeName . Identifier
+            //
+            case 233: {
+                //#line 2061 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Name PackageOrTypeName = (Name) getRhsSym(1);
+                //#line 2061 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 2063 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(new X10Name(nf,
+                                  ts,
+                                  pos(getLeftSpan(), getRightSpan()),
+                                  PackageOrTypeName,
+                                  Identifier));
+                break;
+            }
+     
+            //
+            // Rule 234:  AmbiguousName ::= Identifier
+            //
+            case 234: {
+                //#line 2071 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 2073 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(new X10Name(nf, ts, pos(), Identifier));
+                break;
+            }
+     
+            //
+            // Rule 235:  AmbiguousName ::= AmbiguousName . Identifier
+            //
+            case 235: {
+                //#line 2076 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Name AmbiguousName = (Name) getRhsSym(1);
+                //#line 2076 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 2078 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(new X10Name(nf,
+                                  ts,
+                                  pos(getLeftSpan(), getRightSpan()),
+                                  AmbiguousName,
+                                  Identifier));
                break;
             }
      
             //
-            // Rule 233:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+            // Rule 236:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
-            case 233: {
-                //#line 2058 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 236: {
+                //#line 2088 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2058 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2088 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 2058 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2088 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 2060 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2090 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 // Add import x10.lang.* by default.
                 int token_pos = (ImportDeclarationsopt.size() == 0
                                      ? TypeDeclarationsopt.size() == 0
@@ -3170,12 +3301,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 234:  ImportDeclarations ::= ImportDeclaration
+            // Rule 237:  ImportDeclarations ::= ImportDeclaration
             //
-            case 234: {
-                //#line 2074 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 237: {
+                //#line 2104 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 2076 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2106 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -3183,14 +3314,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 235:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
+            // Rule 238:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
-            case 235: {
-                //#line 2081 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 238: {
+                //#line 2111 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 2081 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2111 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 2083 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2113 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -3198,12 +3329,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 236:  TypeDeclarations ::= TypeDeclaration
+            // Rule 239:  TypeDeclarations ::= TypeDeclaration
             //
-            case 236: {
-                //#line 2089 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 239: {
+                //#line 2119 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2091 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2121 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -3212,14 +3343,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 237:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
+            // Rule 240:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
-            case 237: {
-                //#line 2097 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 240: {
+                //#line 2127 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 2097 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2127 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(2);
-                //#line 2099 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2129 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -3227,14 +3358,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 238:  PackageDeclaration ::= Annotationsopt package PackageName ;
+            // Rule 241:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
-            case 238: {
-                //#line 2105 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 241: {
+                //#line 2135 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2105 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2135 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name PackageName = (Name) getRhsSym(3);
-                //#line 2107 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2137 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 PackageNode pn = PackageName.toPackage();
                 pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
                 setResult(pn);
@@ -3242,44 +3373,44 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 241:  SingleTypeImportDeclaration ::= import TypeName ;
+            // Rule 244:  SingleTypeImportDeclaration ::= import TypeName ;
             //
-            case 241: {
-                //#line 2119 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 244: {
+                //#line 2149 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(2);
-                //#line 2121 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2151 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, TypeName.toString()));
                 break;
             }
      
             //
-            // Rule 242:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+            // Rule 245:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
-            case 242: {
-                //#line 2125 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 245: {
+                //#line 2155 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name PackageOrTypeName = (Name) getRhsSym(2);
-                //#line 2127 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2157 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, PackageOrTypeName.toString()));
                 break;
             }
      
             //
-            // Rule 246:  TypeDeclaration ::= ;
+            // Rule 249:  TypeDeclaration ::= ;
             //
-            case 246: {
+            case 249: {
                 
-                //#line 2142 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2172 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(null);
                 break;
             }
      
             //
-            // Rule 247:  ClassModifiers ::= ClassModifier
+            // Rule 250:  ClassModifiers ::= ClassModifier
             //
-            case 247: {
-                //#line 2148 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 250: {
+                //#line 2178 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 2150 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2180 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(ClassModifier);
                 setResult(l);
@@ -3287,116 +3418,116 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 248:  ClassModifiers ::= ClassModifiers ClassModifier
+            // Rule 251:  ClassModifiers ::= ClassModifiers ClassModifier
             //
-            case 248: {
-                //#line 2155 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 251: {
+                //#line 2185 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiers = (List) getRhsSym(1);
-                //#line 2155 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2185 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(2);
-                //#line 2157 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2187 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ClassModifiers.addAll(ClassModifier);
                 break;
             }
      
             //
-            // Rule 249:  ClassModifier ::= Annotation
+            // Rule 252:  ClassModifier ::= Annotation
             //
-            case 249: {
-                //#line 2161 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 252: {
+                //#line 2191 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2163 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2193 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
      
             //
-            // Rule 250:  ClassModifier ::= public
+            // Rule 253:  ClassModifier ::= public
             //
-            case 250: {
+            case 253: {
                 
-                //#line 2168 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2198 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
      
             //
-            // Rule 251:  ClassModifier ::= protected
+            // Rule 254:  ClassModifier ::= protected
             //
-            case 251: {
+            case 254: {
                 
-                //#line 2173 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2203 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
      
             //
-            // Rule 252:  ClassModifier ::= private
+            // Rule 255:  ClassModifier ::= private
             //
-            case 252: {
+            case 255: {
                 
-                //#line 2178 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2208 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
      
             //
-            // Rule 253:  ClassModifier ::= abstract
+            // Rule 256:  ClassModifier ::= abstract
             //
-            case 253: {
+            case 256: {
                 
-                //#line 2183 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2213 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                 break;
             }
      
             //
-            // Rule 254:  ClassModifier ::= static
+            // Rule 257:  ClassModifier ::= static
             //
-            case 254: {
+            case 257: {
                 
-                //#line 2188 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2218 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
      
             //
-            // Rule 255:  ClassModifier ::= final
+            // Rule 258:  ClassModifier ::= final
             //
-            case 255: {
+            case 258: {
                 
-                //#line 2193 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2223 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
      
             //
-            // Rule 256:  ClassModifier ::= strictfp
+            // Rule 259:  ClassModifier ::= strictfp
             //
-            case 256: {
+            case 259: {
                 
-                //#line 2198 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2228 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                 break;
             }
      
             //
-            // Rule 257:  ClassModifier ::= safe
+            // Rule 260:  ClassModifier ::= safe
             //
-            case 257: {
+            case 260: {
                 
-                //#line 2203 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2233 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                 break;
             }
      
             //
-            // Rule 258:  TypeDefModifiers ::= TypeDefModifier
+            // Rule 261:  TypeDefModifiers ::= TypeDefModifier
             //
-            case 258: {
-                //#line 2207 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 261: {
+                //#line 2237 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(1);
-                //#line 2209 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2239 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(TypeDefModifier);
                 setResult(l);
@@ -3404,107 +3535,107 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 259:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
+            // Rule 262:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
             //
-            case 259: {
-                //#line 2214 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 262: {
+                //#line 2244 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifiers = (List) getRhsSym(1);
-                //#line 2214 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2244 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(2);
-                //#line 2216 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2246 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypeDefModifiers.addAll(TypeDefModifier);
                 break;
             }
      
             //
-            // Rule 260:  TypeDefModifier ::= Annotation
+            // Rule 263:  TypeDefModifier ::= Annotation
             //
-            case 260: {
-                //#line 2220 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 263: {
+                //#line 2250 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2222 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2252 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
      
             //
-            // Rule 261:  TypeDefModifier ::= public
+            // Rule 264:  TypeDefModifier ::= public
             //
-            case 261: {
+            case 264: {
                 
-                //#line 2227 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2257 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
      
             //
-            // Rule 262:  TypeDefModifier ::= protected
+            // Rule 265:  TypeDefModifier ::= protected
             //
-            case 262: {
+            case 265: {
                 
-                //#line 2232 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2262 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
      
             //
-            // Rule 263:  TypeDefModifier ::= private
+            // Rule 266:  TypeDefModifier ::= private
             //
-            case 263: {
+            case 266: {
                 
-                //#line 2237 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2267 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
      
             //
-            // Rule 264:  TypeDefModifier ::= abstract
+            // Rule 267:  TypeDefModifier ::= abstract
             //
-            case 264: {
+            case 267: {
                 
-                //#line 2242 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2272 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                 break;
             }
      
             //
-            // Rule 265:  TypeDefModifier ::= static
+            // Rule 268:  TypeDefModifier ::= static
             //
-            case 265: {
+            case 268: {
                 
-                //#line 2247 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2277 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
      
             //
-            // Rule 266:  TypeDefModifier ::= final
+            // Rule 269:  TypeDefModifier ::= final
             //
-            case 266: {
+            case 269: {
                 
-                //#line 2252 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2282 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
      
             //
-            // Rule 267:  Interfaces ::= implements InterfaceTypeList
+            // Rule 270:  Interfaces ::= implements InterfaceTypeList
             //
-            case 267: {
-                //#line 2259 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 270: {
+                //#line 2289 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 2261 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2291 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(InterfaceTypeList);
                 break;
             }
      
             //
-            // Rule 268:  InterfaceTypeList ::= Type
+            // Rule 271:  InterfaceTypeList ::= Type
             //
-            case 268: {
-                //#line 2265 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 271: {
+                //#line 2295 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2267 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2297 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -3512,51 +3643,51 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 269:  InterfaceTypeList ::= InterfaceTypeList , Type
+            // Rule 272:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
-            case 269: {
-                //#line 2272 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 272: {
+                //#line 2302 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 2272 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2302 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2274 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2304 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 InterfaceTypeList.add(Type);
                 setResult(InterfaceTypeList);
                 break;
             }
      
             //
-            // Rule 270:  ClassBody ::= { ClassBodyDeclarationsopt }
+            // Rule 273:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
-            case 270: {
-                //#line 2282 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 273: {
+                //#line 2312 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 2284 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2314 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                 break;
             }
      
             //
-            // Rule 272:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
+            // Rule 275:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
-            case 272: {
-                //#line 2289 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 275: {
+                //#line 2319 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 2289 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2319 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 2291 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2321 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                 break;
             }
      
             //
-            // Rule 274:  ClassBodyDeclaration ::= InstanceInitializer
+            // Rule 277:  ClassBodyDeclaration ::= InstanceInitializer
             //
-            case 274: {
-                //#line 2297 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 277: {
+                //#line 2327 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block InstanceInitializer = (Block) getRhsSym(1);
-                //#line 2299 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2329 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InstanceInitializer);
                 setResult(l);
@@ -3564,12 +3695,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 275:  ClassBodyDeclaration ::= StaticInitializer
+            // Rule 278:  ClassBodyDeclaration ::= StaticInitializer
             //
-            case 275: {
-                //#line 2304 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 278: {
+                //#line 2334 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block StaticInitializer = (Block) getRhsSym(1);
-                //#line 2306 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2336 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(StaticInitializer);
                 setResult(l);
@@ -3577,12 +3708,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 276:  ClassBodyDeclaration ::= ConstructorDeclaration
+            // Rule 279:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
-            case 276: {
-                //#line 2311 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 279: {
+                //#line 2341 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 2313 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2343 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -3590,12 +3721,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 278:  ClassMemberDeclaration ::= MethodDeclaration
+            // Rule 281:  ClassMemberDeclaration ::= MethodDeclaration
             //
-            case 278: {
-                //#line 2320 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 281: {
+                //#line 2350 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2322 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2352 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -3603,12 +3734,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 279:  ClassMemberDeclaration ::= TypeDefDeclaration
+            // Rule 282:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
-            case 279: {
-                //#line 2327 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 282: {
+                //#line 2357 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 2329 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2359 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -3616,12 +3747,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 280:  ClassMemberDeclaration ::= ClassDeclaration
+            // Rule 283:  ClassMemberDeclaration ::= ClassDeclaration
             //
-            case 280: {
-                //#line 2334 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 283: {
+                //#line 2364 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2336 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2366 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -3629,12 +3760,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 281:  ClassMemberDeclaration ::= InterfaceDeclaration
+            // Rule 284:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
-            case 281: {
-                //#line 2341 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 284: {
+                //#line 2371 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2343 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2373 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -3642,23 +3773,23 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 282:  ClassMemberDeclaration ::= ;
+            // Rule 285:  ClassMemberDeclaration ::= ;
             //
-            case 282: {
+            case 285: {
                 
-                //#line 2350 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2380 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                 break;
             }
      
             //
-            // Rule 283:  FormalDeclarators ::= FormalDeclarator
+            // Rule 286:  FormalDeclarators ::= FormalDeclarator
             //
-            case 283: {
-                //#line 2355 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 286: {
+                //#line 2385 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
-                //#line 2357 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2387 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FormalDeclarator);
                 setResult(l);
@@ -3666,25 +3797,25 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 284:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
+            // Rule 287:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
-            case 284: {
-                //#line 2362 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 287: {
+                //#line 2392 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(1);
-                //#line 2362 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2392 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2364 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2394 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FormalDeclarators.add(FormalDeclarator);
                 break;
             }
      
             //
-            // Rule 285:  FieldDeclarators ::= FieldDeclarator
+            // Rule 288:  FieldDeclarators ::= FieldDeclarator
             //
-            case 285: {
-                //#line 2369 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 288: {
+                //#line 2399 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
-                //#line 2371 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2401 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FieldDeclarator);
                 setResult(l);
@@ -3692,26 +3823,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 286:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
+            // Rule 289:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
-            case 286: {
-                //#line 2376 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 289: {
+                //#line 2406 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(1);
-                //#line 2376 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2406 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(3);
-                //#line 2378 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2408 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FieldDeclarators.add(FieldDeclarator);
                 // setResult(FieldDeclarators);
                 break;
             }
      
             //
-            // Rule 287:  VariableDeclarators ::= VariableDeclarator
+            // Rule 290:  VariableDeclarators ::= VariableDeclarator
             //
-            case 287: {
-                //#line 2384 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 290: {
+                //#line 2414 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
-                //#line 2386 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2416 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -3719,26 +3850,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 288:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
+            // Rule 291:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
-            case 288: {
-                //#line 2391 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 291: {
+                //#line 2421 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 2391 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2421 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(3);
-                //#line 2393 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2423 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                 break;
             }
      
             //
-            // Rule 290:  FieldModifiers ::= FieldModifier
+            // Rule 293:  FieldModifiers ::= FieldModifier
             //
-            case 290: {
-                //#line 2400 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 293: {
+                //#line 2430 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(1);
-                //#line 2402 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2432 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(FieldModifier);
                 setResult(l);
@@ -3746,118 +3877,118 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 291:  FieldModifiers ::= FieldModifiers FieldModifier
+            // Rule 294:  FieldModifiers ::= FieldModifiers FieldModifier
             //
-            case 291: {
-                //#line 2407 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 294: {
+                //#line 2437 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiers = (List) getRhsSym(1);
-                //#line 2407 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2437 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(2);
-                //#line 2409 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2439 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FieldModifiers.addAll(FieldModifier);
                 break;
             }
      
             //
-            // Rule 292:  FieldModifier ::= Annotation
+            // Rule 295:  FieldModifier ::= Annotation
             //
-            case 292: {
-                //#line 2413 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 295: {
+                //#line 2443 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2415 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2445 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
      
             //
-            // Rule 293:  FieldModifier ::= public
+            // Rule 296:  FieldModifier ::= public
             //
-            case 293: {
+            case 296: {
                 
-                //#line 2420 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2450 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
      
             //
-            // Rule 294:  FieldModifier ::= protected
+            // Rule 297:  FieldModifier ::= protected
             //
-            case 294: {
+            case 297: {
                 
-                //#line 2425 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2455 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
      
             //
-            // Rule 295:  FieldModifier ::= private
+            // Rule 298:  FieldModifier ::= private
             //
-            case 295: {
+            case 298: {
                 
-                //#line 2430 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2460 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
      
             //
-            // Rule 296:  FieldModifier ::= static
+            // Rule 299:  FieldModifier ::= static
             //
-            case 296: {
+            case 299: {
                 
-                //#line 2435 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2465 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
      
             //
-            // Rule 297:  FieldModifier ::= transient
+            // Rule 300:  FieldModifier ::= transient
             //
-            case 297: {
+            case 300: {
                 
-                //#line 2440 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2470 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.TRANSIENT)));
                 break;
             }
      
             //
-            // Rule 298:  FieldModifier ::= volatile
+            // Rule 301:  FieldModifier ::= volatile
             //
-            case 298: {
+            case 301: {
                 
-                //#line 2445 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2475 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.VOLATILE)));
                 break;
             }
      
             //
-            // Rule 299:  ResultType ::= : Type
+            // Rule 302:  ResultType ::= : Type
             //
-            case 299: {
-                //#line 2449 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 302: {
+                //#line 2479 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2451 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2481 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Type);
                 break;
             }
      
             //
-            // Rule 300:  FormalParameters ::= ( FormalParameterList )
+            // Rule 303:  FormalParameters ::= ( FormalParameterList )
             //
-            case 300: {
-                //#line 2455 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 303: {
+                //#line 2485 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(2);
-                //#line 2457 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2487 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(FormalParameterList);
                 break;
             }
      
             //
-            // Rule 301:  FormalParameterList ::= FormalParameter
+            // Rule 304:  FormalParameterList ::= FormalParameter
             //
-            case 301: {
-                //#line 2461 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 304: {
+                //#line 2491 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 2463 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2493 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -3865,27 +3996,128 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 302:  FormalParameterList ::= FormalParameterList , FormalParameter
+            // Rule 305:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
-            case 302: {
-                //#line 2468 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 305: {
+                //#line 2498 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(1);
-                //#line 2468 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2498 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 2470 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2500 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FormalParameterList.add(FormalParameter);
                 break;
             }
      
             //
-            // Rule 303:  FormalParameter ::= VariableModifiersopt FormalDeclarator
+            // Rule 306:  LoopIndexDeclarator ::= Identifier ResultTypeopt
             //
-            case 303: {
-                //#line 2474 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 306: {
+                //#line 2504 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 2504 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
+                //#line 2506 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, null });
+                break;
+            }
+     
+            //
+            // Rule 307:  LoopIndexDeclarator ::= ( IdentifierList ) ResultTypeopt
+            //
+            case 307: {
+                //#line 2509 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(2);
+                //#line 2509 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
+                //#line 2511 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, null });
+                break;
+            }
+     
+            //
+            // Rule 308:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt
+            //
+            case 308: {
+                //#line 2514 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 2514 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(3);
+                //#line 2514 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
+                //#line 2516 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, null });
+                break;
+            }
+     
+            //
+            // Rule 309:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
+            //
+            case 309: {
+                //#line 2520 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2474 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2520 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
+                //#line 2522 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+            Formal f;
+                        	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
+            Object[] o = LoopIndexDeclarator;
+            Position pos = (Position) o[0];
+            Id name = (Id) o[1];
+               List exploded = (List) o[2];
+                        DepParameterExpr where = (DepParameterExpr) o[3];
+                        TypeNode type = (TypeNode) o[4];
+                        if (type == null) type = nf.UnknownTypeNode(name.position());
+                        List explodedFormals = new ArrayList();
+                        for (Iterator i = exploded.iterator(); i.hasNext(); ) {
+                        	Id id = (Id) i.next();
+                        	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(name.position()), id));
+                        }
+            f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
+            f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+            setResult(f);
+                break;
+            }
+     
+            //
+            // Rule 310:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
+            //
+            case 310: {
+                //#line 2541 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List VariableModifiersopt = (List) getRhsSym(1);
+                //#line 2541 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List VarKeyword = (List) getRhsSym(2);
+                //#line 2541 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Object[] LoopIndexDeclarator = (Object[]) getRhsSym(3);
+                //#line 2543 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+            Formal f;
+                        	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
+            Object[] o = LoopIndexDeclarator;
+            Position pos = (Position) o[0];
+            Id name = (Id) o[1];
+               List exploded = (List) o[2];
+                        DepParameterExpr where = (DepParameterExpr) o[3];
+                        TypeNode type = (TypeNode) o[4];
+                                                    if (type == null) type = nf.UnknownTypeNode(name.position());
+                                                    List explodedFormals = new ArrayList();
+                        for (Iterator i = exploded.iterator(); i.hasNext(); ) {
+                        	Id id = (Id) i.next();
+                        	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(name.position()), id));
+                        }
+            f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
+            f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+            setResult(f);
+                break;
+            }
+     
+            //
+            // Rule 311:  FormalParameter ::= VariableModifiersopt FormalDeclarator
+            //
+            case 311: {
+                //#line 2563 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List VariableModifiersopt = (List) getRhsSym(1);
+                //#line 2563 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(2);
-                //#line 2476 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2565 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = FormalDeclarator;
@@ -3908,16 +4140,16 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 304:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
+            // Rule 312:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
             //
-            case 304: {
-                //#line 2496 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 312: {
+                //#line 2585 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2496 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2585 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2496 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2585 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2498 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2587 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = FormalDeclarator;
@@ -3940,12 +4172,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 305:  FormalParameter ::= Type
+            // Rule 313:  FormalParameter ::= Type
             //
-            case 305: {
-                //#line 2518 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 313: {
+                //#line 2607 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2520 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2609 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             Formal f;
             f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), ""), Collections.EMPTY_LIST);
             setResult(f);
@@ -3953,12 +4185,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 306:  VariableModifiers ::= VariableModifier
+            // Rule 314:  VariableModifiers ::= VariableModifier
             //
-            case 306: {
-                //#line 2526 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 314: {
+                //#line 2615 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(1);
-                //#line 2528 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2617 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(VariableModifier);
                 setResult(l);
@@ -3966,36 +4198,46 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 307:  VariableModifiers ::= VariableModifiers VariableModifier
+            // Rule 315:  VariableModifiers ::= VariableModifiers VariableModifier
             //
-            case 307: {
-                //#line 2533 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 315: {
+                //#line 2622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiers = (List) getRhsSym(1);
-                //#line 2533 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(2);
-                //#line 2535 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2624 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 VariableModifiers.addAll(VariableModifier);
                 break;
             }
      
             //
-            // Rule 308:  VariableModifier ::= Annotation
+            // Rule 316:  VariableModifier ::= Annotation
             //
-            case 308: {
-                //#line 2539 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 316: {
+                //#line 2628 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2541 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2630 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
      
             //
-            // Rule 309:  MethodModifiers ::= MethodModifier
+            // Rule 317:  VariableModifier ::= shared
             //
-            case 309: {
-                //#line 2548 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 317: {
+                
+                //#line 2635 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
+                break;
+            }
+     
+            //
+            // Rule 318:  MethodModifiers ::= MethodModifier
+            //
+            case 318: {
+                //#line 2642 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(1);
-                //#line 2550 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2644 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(MethodModifier);
                 setResult(l);
@@ -4003,207 +4245,207 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 310:  MethodModifiers ::= MethodModifiers MethodModifier
+            // Rule 319:  MethodModifiers ::= MethodModifiers MethodModifier
             //
-            case 310: {
-                //#line 2555 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 319: {
+                //#line 2649 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiers = (List) getRhsSym(1);
-                //#line 2555 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2649 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(2);
-                //#line 2557 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2651 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 MethodModifiers.addAll(MethodModifier);
                 break;
             }
      
             //
-            // Rule 311:  MethodModifier ::= Annotation
+            // Rule 320:  MethodModifier ::= Annotation
             //
-            case 311: {
-                //#line 2561 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 320: {
+                //#line 2655 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2563 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2657 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
      
             //
-            // Rule 312:  MethodModifier ::= public
+            // Rule 321:  MethodModifier ::= public
             //
-            case 312: {
+            case 321: {
                 
-                //#line 2568 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2662 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
      
             //
-            // Rule 313:  MethodModifier ::= protected
+            // Rule 322:  MethodModifier ::= protected
             //
-            case 313: {
+            case 322: {
                 
-                //#line 2573 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2667 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
      
             //
-            // Rule 314:  MethodModifier ::= private
+            // Rule 323:  MethodModifier ::= private
             //
-            case 314: {
+            case 323: {
                 
-                //#line 2578 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2672 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
      
             //
-            // Rule 315:  MethodModifier ::= abstract
+            // Rule 324:  MethodModifier ::= abstract
             //
-            case 315: {
+            case 324: {
                 
-                //#line 2583 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2677 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                 break;
             }
      
             //
-            // Rule 316:  MethodModifier ::= static
+            // Rule 325:  MethodModifier ::= static
             //
-            case 316: {
+            case 325: {
                 
-                //#line 2588 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2682 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
      
             //
-            // Rule 317:  MethodModifier ::= final
+            // Rule 326:  MethodModifier ::= final
             //
-            case 317: {
+            case 326: {
                 
-                //#line 2593 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2687 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
      
             //
-            // Rule 318:  MethodModifier ::= native
+            // Rule 327:  MethodModifier ::= native
             //
-            case 318: {
+            case 327: {
                 
-                //#line 2598 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2692 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                 break;
             }
      
             //
-            // Rule 319:  MethodModifier ::= strictfp
+            // Rule 328:  MethodModifier ::= strictfp
             //
-            case 319: {
+            case 328: {
                 
-                //#line 2603 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2697 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                 break;
             }
      
             //
-            // Rule 320:  MethodModifier ::= atomic
+            // Rule 329:  MethodModifier ::= atomic
             //
-            case 320: {
+            case 329: {
                 
-                //#line 2608 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2702 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
                 break;
             }
      
             //
-            // Rule 321:  MethodModifier ::= extern
+            // Rule 330:  MethodModifier ::= extern
             //
-            case 321: {
+            case 330: {
                 
-                //#line 2613 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2707 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                 break;
             }
      
             //
-            // Rule 322:  MethodModifier ::= safe
+            // Rule 331:  MethodModifier ::= safe
             //
-            case 322: {
+            case 331: {
                 
-                //#line 2618 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2712 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                 break;
             }
      
             //
-            // Rule 323:  MethodModifier ::= sequential
+            // Rule 332:  MethodModifier ::= sequential
             //
-            case 323: {
+            case 332: {
                 
-                //#line 2623 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2717 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
                 break;
             }
      
             //
-            // Rule 324:  MethodModifier ::= local
+            // Rule 333:  MethodModifier ::= local
             //
-            case 324: {
+            case 333: {
                 
-                //#line 2628 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2722 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.LOCAL)));
                 break;
             }
      
             //
-            // Rule 325:  MethodModifier ::= nonblocking
+            // Rule 334:  MethodModifier ::= nonblocking
             //
-            case 325: {
+            case 334: {
                 
-                //#line 2633 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2727 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
                 break;
             }
      
             //
-            // Rule 326:  MethodModifier ::= incomplete
+            // Rule 335:  MethodModifier ::= incomplete
             //
-            case 326: {
+            case 335: {
                 
-                //#line 2638 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2732 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
                 break;
             }
      
             //
-            // Rule 327:  MethodModifier ::= property
+            // Rule 336:  MethodModifier ::= property
             //
-            case 327: {
+            case 336: {
                 
-                //#line 2643 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2737 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
                 break;
             }
      
             //
-            // Rule 328:  Throws ::= throws ExceptionTypeList
+            // Rule 337:  Throws ::= throws ExceptionTypeList
             //
-            case 328: {
-                //#line 2648 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 337: {
+                //#line 2742 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 2650 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2744 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ExceptionTypeList);
                 break;
             }
      
             //
-            // Rule 329:  ExceptionTypeList ::= ExceptionType
+            // Rule 338:  ExceptionTypeList ::= ExceptionType
             //
-            case 329: {
-                //#line 2654 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 338: {
+                //#line 2748 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 2656 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2750 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -4211,38 +4453,38 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 330:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
+            // Rule 339:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
-            case 330: {
-                //#line 2661 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 339: {
+                //#line 2755 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 2661 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2755 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 2663 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2757 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ExceptionTypeList.add(ExceptionType);
                 break;
             }
      
             //
-            // Rule 332:  MethodBody ::= = LastExpression ;
+            // Rule 341:  MethodBody ::= = LastExpression ;
             //
-            case 332: {
-                //#line 2669 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 341: {
+                //#line 2763 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
-                //#line 2671 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2765 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Block(pos(), LastExpression));
                 break;
             }
      
             //
-            // Rule 333:  MethodBody ::= = { BlockStatementsopt LastExpression }
+            // Rule 342:  MethodBody ::= = { BlockStatementsopt LastExpression }
             //
-            case 333: {
-                //#line 2674 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 342: {
+                //#line 2768 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2674 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2768 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 2676 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2770 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new ArrayList();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -4251,63 +4493,63 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 334:  MethodBody ::= = Block
+            // Rule 343:  MethodBody ::= = Block
             //
-            case 334: {
-                //#line 2682 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 343: {
+                //#line 2776 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2684 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2778 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Block);
                 break;
             }
      
             //
-            // Rule 335:  MethodBody ::= ;
+            // Rule 344:  MethodBody ::= ;
             //
-            case 335:
+            case 344:
                 setResult(null);
                 break;
  
             //
-            // Rule 336:  InstanceInitializer ::= Block
+            // Rule 345:  InstanceInitializer ::= Block
             //
-            case 336: {
-                //#line 2690 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 345: {
+                //#line 2784 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
-                //#line 2692 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2786 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(), Flags.NONE), Block));
                 break;
             }
      
             //
-            // Rule 337:  StaticInitializer ::= static Block
+            // Rule 346:  StaticInitializer ::= static Block
             //
-            case 337: {
-                //#line 2696 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 346: {
+                //#line 2790 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2698 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2792 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
                 break;
             }
      
             //
-            // Rule 338:  SimpleTypeName ::= Identifier
+            // Rule 347:  SimpleTypeName ::= Identifier
             //
-            case 338: {
-                //#line 2702 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 347: {
+                //#line 2796 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2704 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2798 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10Name(nf, ts, pos(), Identifier));
                 break;
             }
      
             //
-            // Rule 339:  ConstructorModifiers ::= ConstructorModifier
+            // Rule 348:  ConstructorModifiers ::= ConstructorModifier
             //
-            case 339: {
-                //#line 2708 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 348: {
+                //#line 2802 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(1);
-                //#line 2710 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2804 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(ConstructorModifier);
                 setResult(l);
@@ -4315,86 +4557,86 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 340:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
+            // Rule 349:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
-            case 340: {
-                //#line 2715 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 349: {
+                //#line 2809 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifiers = (List) getRhsSym(1);
-                //#line 2715 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2809 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(2);
-                //#line 2717 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2811 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
                 break;
             }
      
             //
-            // Rule 341:  ConstructorModifier ::= Annotation
+            // Rule 350:  ConstructorModifier ::= Annotation
             //
-            case 341: {
-                //#line 2721 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 350: {
+                //#line 2815 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2723 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2817 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
      
             //
-            // Rule 342:  ConstructorModifier ::= public
+            // Rule 351:  ConstructorModifier ::= public
             //
-            case 342: {
+            case 351: {
                 
-                //#line 2728 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2822 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
      
             //
-            // Rule 343:  ConstructorModifier ::= protected
+            // Rule 352:  ConstructorModifier ::= protected
             //
-            case 343: {
+            case 352: {
                 
-                //#line 2733 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2827 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
      
             //
-            // Rule 344:  ConstructorModifier ::= private
+            // Rule 353:  ConstructorModifier ::= private
             //
-            case 344: {
+            case 353: {
                 
-                //#line 2738 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2832 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
      
             //
-            // Rule 345:  ConstructorBody ::= = ConstructorBlock
+            // Rule 354:  ConstructorBody ::= = ConstructorBlock
             //
-            case 345: {
-                //#line 2742 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 354: {
+                //#line 2836 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(2);
-                //#line 2744 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2838 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ConstructorBlock);
                 break;
             }
      
             //
-            // Rule 346:  ConstructorBody ::= ;
+            // Rule 355:  ConstructorBody ::= ;
             //
-            case 346:
+            case 355:
                 setResult(null);
                 break;
  
             //
-            // Rule 347:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 356:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 347: {
-                //#line 2750 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 356: {
+                //#line 2844 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 2750 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2844 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2752 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2846 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt == null)
@@ -4411,12 +4653,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 348:  ConstructorBlock ::= ExplicitConstructorInvocation
+            // Rule 357:  ConstructorBlock ::= ExplicitConstructorInvocation
             //
-            case 348: {
-                //#line 2766 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 357: {
+                //#line 2860 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(1);
-                //#line 2768 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2862 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(ExplicitConstructorInvocation);
@@ -4425,12 +4667,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 349:  ConstructorBlock ::= AssignPropertyCall
+            // Rule 358:  ConstructorBlock ::= AssignPropertyCall
             //
-            case 349: {
-                //#line 2774 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 358: {
+                //#line 2868 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(1);
-                //#line 2776 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2870 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(AssignPropertyCall);
@@ -4439,23 +4681,23 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 350:  Arguments ::= ( ArgumentListopt )
+            // Rule 359:  Arguments ::= ( ArgumentListopt )
             //
-            case 350: {
-                //#line 2783 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 359: {
+                //#line 2877 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 2785 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2879 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ArgumentListopt);
                 break;
             }
      
             //
-            // Rule 352:  InterfaceModifiers ::= InterfaceModifier
+            // Rule 361:  InterfaceModifiers ::= InterfaceModifier
             //
-            case 352: {
-                //#line 2793 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 361: {
+                //#line 2887 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(1);
-                //#line 2795 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2889 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(InterfaceModifier);
                 setResult(l);
@@ -4463,96 +4705,96 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 353:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
+            // Rule 362:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
-            case 353: {
-                //#line 2800 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 362: {
+                //#line 2894 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifiers = (List) getRhsSym(1);
-                //#line 2800 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2894 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(2);
-                //#line 2802 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2896 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
                 break;
             }
      
             //
-            // Rule 354:  InterfaceModifier ::= Annotation
+            // Rule 363:  InterfaceModifier ::= Annotation
             //
-            case 354: {
-                //#line 2806 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 363: {
+                //#line 2900 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2808 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2902 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
      
             //
-            // Rule 355:  InterfaceModifier ::= public
+            // Rule 364:  InterfaceModifier ::= public
             //
-            case 355: {
+            case 364: {
                 
-                //#line 2813 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2907 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
      
             //
-            // Rule 356:  InterfaceModifier ::= protected
+            // Rule 365:  InterfaceModifier ::= protected
             //
-            case 356: {
+            case 365: {
                 
-                //#line 2818 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2912 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
      
             //
-            // Rule 357:  InterfaceModifier ::= private
+            // Rule 366:  InterfaceModifier ::= private
             //
-            case 357: {
+            case 366: {
                 
-                //#line 2823 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2917 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
      
             //
-            // Rule 358:  InterfaceModifier ::= abstract
+            // Rule 367:  InterfaceModifier ::= abstract
             //
-            case 358: {
+            case 367: {
                 
-                //#line 2828 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2922 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                 break;
             }
      
             //
-            // Rule 359:  InterfaceModifier ::= static
+            // Rule 368:  InterfaceModifier ::= static
             //
-            case 359: {
+            case 368: {
                 
-                //#line 2833 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2927 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
      
             //
-            // Rule 360:  InterfaceModifier ::= strictfp
+            // Rule 369:  InterfaceModifier ::= strictfp
             //
-            case 360: {
+            case 369: {
                 
-                //#line 2838 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2932 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                 break;
             }
      
             //
-            // Rule 361:  ExtendsInterfaces ::= extends Type
+            // Rule 370:  ExtendsInterfaces ::= extends Type
             //
-            case 361: {
-                //#line 2842 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 370: {
+                //#line 2936 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2844 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2938 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -4560,50 +4802,50 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 362:  ExtendsInterfaces ::= ExtendsInterfaces , Type
+            // Rule 371:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
-            case 362: {
-                //#line 2849 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 371: {
+                //#line 2943 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 2849 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2943 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2851 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2945 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ExtendsInterfaces.add(Type);
                 break;
             }
      
             //
-            // Rule 363:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 372:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 363: {
-                //#line 2858 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 372: {
+                //#line 2952 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 2860 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2954 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                 break;
             }
      
             //
-            // Rule 365:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 374:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 365: {
-                //#line 2865 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 374: {
+                //#line 2959 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 2865 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 2959 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 2867 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2961 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                 break;
             }
      
             //
-            // Rule 366:  InterfaceMemberDeclaration ::= MethodDeclaration
+            // Rule 375:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
-            case 366: {
-                //#line 2872 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 375: {
+                //#line 2966 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2874 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2968 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -4611,12 +4853,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 367:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 376:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 367: {
-                //#line 2879 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 376: {
+                //#line 2973 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2881 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2975 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -4624,12 +4866,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 368:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 377:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 368: {
-                //#line 2886 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 377: {
+                //#line 2980 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2888 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2982 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -4637,22 +4879,22 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 369:  InterfaceMemberDeclaration ::= ;
+            // Rule 378:  InterfaceMemberDeclaration ::= ;
             //
-            case 369: {
+            case 378: {
                 
-                //#line 2895 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2989 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 370:  Annotations ::= Annotation
+            // Rule 379:  Annotations ::= Annotation
             //
-            case 370: {
-                //#line 2899 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 379: {
+                //#line 2993 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2901 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2995 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -4660,60 +4902,60 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 371:  Annotations ::= Annotations Annotation
+            // Rule 380:  Annotations ::= Annotations Annotation
             //
-            case 371: {
-                //#line 2906 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 380: {
+                //#line 3000 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 2906 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3000 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 2908 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3002 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Annotations.add(Annotation);
                 break;
             }
      
             //
-            // Rule 372:  Annotation ::= @ NamedType
+            // Rule 381:  Annotation ::= @ NamedType
             //
-            case 372: {
-                //#line 2912 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 381: {
+                //#line 3006 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
-                //#line 2914 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3008 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.AnnotationNode(pos(), NamedType));
                 break;
             }
      
             //
-            // Rule 373:  SimpleName ::= Identifier
+            // Rule 382:  SimpleName ::= Identifier
             //
-            case 373: {
-                //#line 2918 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 382: {
+                //#line 3012 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2920 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3014 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10Name(nf, ts, pos(), Identifier));
                 break;
             }
      
             //
-            // Rule 374:  Identifier ::= identifier
+            // Rule 383:  Identifier ::= identifier
             //
-            case 374: {
-                //#line 2924 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 383: {
+                //#line 3018 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2926 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3020 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 375:  ArrayInitializer ::= [ VariableInitializersopt ,opt$opt ]
+            // Rule 384:  ArrayInitializer ::= [ VariableInitializersopt ,opt$opt ]
             //
-            case 375: {
-                //#line 2932 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 384: {
+                //#line 3026 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableInitializersopt = (List) getRhsSym(2);
-                //#line 2932 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3026 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Object opt = (Object) getRhsSym(3);
-                //#line 2934 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3028 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (VariableInitializersopt == null)
                      setResult(nf.ArrayInit(pos()));
                 else setResult(nf.ArrayInit(pos(), VariableInitializersopt));
@@ -4721,12 +4963,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 376:  VariableInitializers ::= VariableInitializer
+            // Rule 385:  VariableInitializers ::= VariableInitializer
             //
-            case 376: {
-                //#line 2940 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 385: {
+                //#line 3034 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 2942 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3036 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -4734,37 +4976,37 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 377:  VariableInitializers ::= VariableInitializers , VariableInitializer
+            // Rule 386:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
-            case 377: {
-                //#line 2947 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 386: {
+                //#line 3041 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 2947 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3041 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 2949 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3043 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                 break;
             }
      
             //
-            // Rule 378:  Block ::= { BlockStatementsopt }
+            // Rule 387:  Block ::= { BlockStatementsopt }
             //
-            case 378: {
-                //#line 2965 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 387: {
+                //#line 3059 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 2967 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3061 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                 break;
             }
      
             //
-            // Rule 379:  BlockStatements ::= BlockStatement
+            // Rule 388:  BlockStatements ::= BlockStatement
             //
-            case 379: {
-                //#line 2971 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 388: {
+                //#line 3065 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 2973 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3067 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -4772,26 +5014,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 380:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 389:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 380: {
-                //#line 2978 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 389: {
+                //#line 3072 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 2978 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3072 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 2980 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3074 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                 break;
             }
      
             //
-            // Rule 382:  BlockStatement ::= ClassDeclaration
+            // Rule 391:  BlockStatement ::= ClassDeclaration
             //
-            case 382: {
-                //#line 2986 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 391: {
+                //#line 3080 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2988 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3082 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -4799,12 +5041,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 383:  BlockStatement ::= Statement
+            // Rule 392:  BlockStatement ::= Statement
             //
-            case 383: {
-                //#line 2993 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 392: {
+                //#line 3087 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 2995 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3089 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -4812,12 +5054,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 384:  IdentifierList ::= Identifier
+            // Rule 393:  IdentifierList ::= Identifier
             //
-            case 384: {
-                //#line 3001 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 393: {
+                //#line 3095 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3003 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3097 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Id.class, false);
                 l.add(Identifier);
                 setResult(l);
@@ -4825,149 +5067,149 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 385:  IdentifierList ::= IdentifierList , Identifier
+            // Rule 394:  IdentifierList ::= IdentifierList , Identifier
             //
-            case 385: {
-                //#line 3008 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 394: {
+                //#line 3102 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 3008 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3102 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3010 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3104 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 IdentifierList.add(Identifier);
                 break;
             }
      
             //
-            // Rule 386:  FormalDeclarator ::= Identifier : Type
+            // Rule 395:  FormalDeclarator ::= Identifier : Type
             //
-            case 386: {
-                //#line 3014 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 395: {
+                //#line 3108 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3014 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3108 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3016 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3110 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, Type, null });
                 break;
             }
      
             //
-            // Rule 387:  FormalDeclarator ::= ( IdentifierList ) : Type
+            // Rule 396:  FormalDeclarator ::= ( IdentifierList ) : Type
             //
-            case 387: {
-                //#line 3019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 396: {
+                //#line 3113 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3019 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3113 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(5);
-                //#line 3021 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3115 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, Type, null });
                 break;
             }
      
             //
-            // Rule 388:  FormalDeclarator ::= Identifier ( IdentifierList ) : Type
+            // Rule 397:  FormalDeclarator ::= Identifier ( IdentifierList ) : Type
             //
-            case 388: {
-                //#line 3024 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 397: {
+                //#line 3118 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3024 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3118 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3024 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3118 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(6);
-                //#line 3026 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3120 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, Type, null });
                 break;
             }
      
             //
-            // Rule 389:  FieldDeclarator ::= Identifier WhereClauseopt : Type
+            // Rule 398:  FieldDeclarator ::= Identifier WhereClauseopt : Type
             //
-            case 389: {
-                //#line 3030 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 398: {
+                //#line 3124 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3030 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3124 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(2);
-                //#line 3030 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3124 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(4);
-                //#line 3032 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3126 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, WhereClauseopt, Type, null });
                 break;
             }
      
             //
-            // Rule 390:  FieldDeclarator ::= Identifier WhereClauseopt ResultTypeopt = VariableInitializer
+            // Rule 399:  FieldDeclarator ::= Identifier WhereClauseopt ResultTypeopt = VariableInitializer
             //
-            case 390: {
-                //#line 3035 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 399: {
+                //#line 3129 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3035 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3129 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(2);
-                //#line 3035 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3129 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(3);
-                //#line 3035 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3129 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(5);
-                //#line 3037 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3131 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, WhereClauseopt, ResultTypeopt, VariableInitializer });
                 break;
             }
      
             //
-            // Rule 391:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
+            // Rule 400:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
             //
-            case 391: {
-                //#line 3041 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 400: {
+                //#line 3135 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3041 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3135 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3041 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3135 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3043 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3137 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, VariableInitializer });
                 break;
             }
      
             //
-            // Rule 392:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
+            // Rule 401:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
-            case 392: {
-                //#line 3046 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 401: {
+                //#line 3140 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3046 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3140 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 3046 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3140 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3048 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3142 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, VariableInitializer });
                 break;
             }
      
             //
-            // Rule 393:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
+            // Rule 402:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
-            case 393: {
-                //#line 3051 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 402: {
+                //#line 3145 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3051 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3145 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3051 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3145 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 3051 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3145 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3053 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3147 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, VariableInitializer });
                 break;
             }
      
             //
-            // Rule 395:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
+            // Rule 404:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
             //
-            case 395: {
-                //#line 3059 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 404: {
+                //#line 3153 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3059 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3153 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3059 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3153 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 3061 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3155 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -4989,7 +5231,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                                                                                 int index = 0;
                         for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                         	Id id = (Id) j.next();
-                        	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.X10ArrayAccess1(init.position(), nf.Local(init.position(), name), nf.IntLit(init.position(), IntLit.INT, index)) : null));
+                        	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                         	index++;
                         }
                         l.add(ld);
@@ -5000,16 +5242,16 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 396:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
+            // Rule 405:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
             //
-            case 396: {
-                //#line 3091 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 405: {
+                //#line 3185 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3091 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3185 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3091 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3185 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(3);
-                //#line 3093 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3187 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -5031,7 +5273,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                                                                                 int index = 0;
                         for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                         	Id id = (Id) j.next();
-                        	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.X10ArrayAccess1(init.position(), nf.Local(init.position(), name), nf.IntLit(init.position(), IntLit.INT, index)) : null));
+                        	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                         	index++;
                         }
                         l.add(ld);
@@ -5042,12 +5284,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 399:  Primary ::= TypeName . class
+            // Rule 408:  Primary ::= TypeName . class
             //
-            case 399: {
-                //#line 3133 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 408: {
+                //#line 3227 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3135 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3229 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (TypeName instanceof Name)
                 {
                     Name a = (Name) TypeName;
@@ -5058,54 +5300,54 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 400:  Primary ::= self
+            // Rule 409:  Primary ::= self
             //
-            case 400: {
+            case 409: {
                 
-                //#line 3145 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3239 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Self(pos()));
                 break;
             }
      
             //
-            // Rule 401:  Primary ::= this
+            // Rule 410:  Primary ::= this
             //
-            case 401: {
+            case 410: {
                 
-                //#line 3150 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3244 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.This(pos()));
                 break;
             }
      
             //
-            // Rule 402:  Primary ::= ClassName . this
+            // Rule 411:  Primary ::= ClassName . this
             //
-            case 402: {
-                //#line 3153 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 411: {
+                //#line 3247 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 3155 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3249 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
      
             //
-            // Rule 403:  Primary ::= ( Expression )
+            // Rule 412:  Primary ::= ( Expression )
             //
-            case 403: {
-                //#line 3158 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 412: {
+                //#line 3252 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 3160 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3254 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 408:  OperatorFunction ::= TypeName . +
+            // Rule 418:  OperatorFunction ::= TypeName . +
             //
-            case 408: {
-                //#line 3168 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 418: {
+                //#line 3263 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3170 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3265 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5117,12 +5359,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 409:  OperatorFunction ::= TypeName . -
+            // Rule 419:  OperatorFunction ::= TypeName . -
             //
-            case 409: {
-                //#line 3179 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 419: {
+                //#line 3274 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3181 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3276 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5134,12 +5376,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 410:  OperatorFunction ::= TypeName . *
+            // Rule 420:  OperatorFunction ::= TypeName . *
             //
-            case 410: {
-                //#line 3190 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 420: {
+                //#line 3285 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3192 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3287 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5151,12 +5393,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 411:  OperatorFunction ::= TypeName . /
+            // Rule 421:  OperatorFunction ::= TypeName . /
             //
-            case 411: {
-                //#line 3201 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 421: {
+                //#line 3296 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3203 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3298 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5168,12 +5410,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 412:  OperatorFunction ::= TypeName . %
+            // Rule 422:  OperatorFunction ::= TypeName . %
             //
-            case 412: {
-                //#line 3212 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 422: {
+                //#line 3307 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3214 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3309 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5185,12 +5427,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 413:  OperatorFunction ::= TypeName . &
+            // Rule 423:  OperatorFunction ::= TypeName . &
             //
-            case 413: {
-                //#line 3223 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 423: {
+                //#line 3318 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3225 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3320 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5202,12 +5444,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 414:  OperatorFunction ::= TypeName . |
+            // Rule 424:  OperatorFunction ::= TypeName . |
             //
-            case 414: {
-                //#line 3234 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 424: {
+                //#line 3329 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3236 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3331 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5219,12 +5461,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 415:  OperatorFunction ::= TypeName . ^
+            // Rule 425:  OperatorFunction ::= TypeName . ^
             //
-            case 415: {
-                //#line 3245 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 425: {
+                //#line 3340 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3247 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3342 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5236,12 +5478,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 416:  OperatorFunction ::= TypeName . <<
+            // Rule 426:  OperatorFunction ::= TypeName . <<
             //
-            case 416: {
-                //#line 3256 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 426: {
+                //#line 3351 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3258 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3353 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5253,12 +5495,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 417:  OperatorFunction ::= TypeName . >>
+            // Rule 427:  OperatorFunction ::= TypeName . >>
             //
-            case 417: {
-                //#line 3267 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 427: {
+                //#line 3362 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3269 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3364 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5270,12 +5512,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 418:  OperatorFunction ::= TypeName . >>>
+            // Rule 428:  OperatorFunction ::= TypeName . >>>
             //
-            case 418: {
-                //#line 3278 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 428: {
+                //#line 3373 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3280 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3375 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5287,12 +5529,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 419:  OperatorFunction ::= TypeName . <
+            // Rule 429:  OperatorFunction ::= TypeName . <
             //
-            case 419: {
-                //#line 3289 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 429: {
+                //#line 3384 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3291 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3386 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5304,12 +5546,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 420:  OperatorFunction ::= TypeName . <=
+            // Rule 430:  OperatorFunction ::= TypeName . <=
             //
-            case 420: {
-                //#line 3300 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 430: {
+                //#line 3395 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3302 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3397 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5321,12 +5563,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 421:  OperatorFunction ::= TypeName . >=
+            // Rule 431:  OperatorFunction ::= TypeName . >=
             //
-            case 421: {
-                //#line 3311 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 431: {
+                //#line 3406 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3313 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3408 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5338,12 +5580,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 422:  OperatorFunction ::= TypeName . >
+            // Rule 432:  OperatorFunction ::= TypeName . >
             //
-            case 422: {
-                //#line 3322 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 432: {
+                //#line 3417 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3324 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3419 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5355,12 +5597,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 423:  OperatorFunction ::= TypeName . ==
+            // Rule 433:  OperatorFunction ::= TypeName . ==
             //
-            case 423: {
-                //#line 3333 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 433: {
+                //#line 3428 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3335 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3430 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5372,12 +5614,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 424:  OperatorFunction ::= TypeName . !=
+            // Rule 434:  OperatorFunction ::= TypeName . !=
             //
-            case 424: {
-                //#line 3344 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 434: {
+                //#line 3439 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 3346 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3441 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5389,127 +5631,127 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 425:  Literal ::= IntegerLiteral$IntegerLiteral
+            // Rule 435:  Literal ::= IntegerLiteral$IntegerLiteral
             //
-            case 425: {
-                //#line 3357 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 435: {
+                //#line 3452 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
-                //#line 3359 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3454 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                 break;
             }
      
             //
-            // Rule 426:  Literal ::= LongLiteral$LongLiteral
+            // Rule 436:  Literal ::= LongLiteral$LongLiteral
             //
-            case 426: {
-                //#line 3363 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 436: {
+                //#line 3458 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken LongLiteral = (IToken) getRhsIToken(1);
-                //#line 3365 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3460 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                 break;
             }
      
             //
-            // Rule 427:  Literal ::= FloatingPointLiteral$FloatLiteral
+            // Rule 437:  Literal ::= FloatingPointLiteral$FloatLiteral
             //
-            case 427: {
-                //#line 3369 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 437: {
+                //#line 3464 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
-                //#line 3371 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3466 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                 break;
             }
      
             //
-            // Rule 428:  Literal ::= DoubleLiteral$DoubleLiteral
+            // Rule 438:  Literal ::= DoubleLiteral$DoubleLiteral
             //
-            case 428: {
-                //#line 3375 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 438: {
+                //#line 3470 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
-                //#line 3377 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3472 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                 break;
             }
      
             //
-            // Rule 429:  Literal ::= BooleanLiteral
+            // Rule 439:  Literal ::= BooleanLiteral
             //
-            case 429: {
-                //#line 3381 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 439: {
+                //#line 3476 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 3383 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3478 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                 break;
             }
      
             //
-            // Rule 430:  Literal ::= CharacterLiteral$CharacterLiteral
+            // Rule 440:  Literal ::= CharacterLiteral$CharacterLiteral
             //
-            case 430: {
-                //#line 3386 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 440: {
+                //#line 3481 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
-                //#line 3388 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3483 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                 break;
             }
      
             //
-            // Rule 431:  Literal ::= StringLiteral$str
+            // Rule 441:  Literal ::= StringLiteral$str
             //
-            case 431: {
-                //#line 3392 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 441: {
+                //#line 3487 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 3394 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3489 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                 break;
             }
      
             //
-            // Rule 432:  Literal ::= null
+            // Rule 442:  Literal ::= null
             //
-            case 432: {
+            case 442: {
                 
-                //#line 3400 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3495 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.NullLit(pos()));
                 break;
             }
      
             //
-            // Rule 433:  BooleanLiteral ::= true$trueLiteral
+            // Rule 443:  BooleanLiteral ::= true$trueLiteral
             //
-            case 433: {
-                //#line 3404 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 443: {
+                //#line 3499 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 3406 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3501 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
      
             //
-            // Rule 434:  BooleanLiteral ::= false$falseLiteral
+            // Rule 444:  BooleanLiteral ::= false$falseLiteral
             //
-            case 434: {
-                //#line 3409 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 444: {
+                //#line 3504 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 3411 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3506 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
      
             //
-            // Rule 435:  ArgumentList ::= Expression
+            // Rule 445:  ArgumentList ::= Expression
             //
-            case 435: {
-                //#line 3418 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 445: {
+                //#line 3513 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 3420 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3515 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -5517,68 +5759,107 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 436:  ArgumentList ::= ArgumentList , Expression
+            // Rule 446:  ArgumentList ::= ArgumentList , Expression
             //
-            case 436: {
-                //#line 3425 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 446: {
+                //#line 3520 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 3425 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3520 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 3427 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3522 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ArgumentList.add(Expression);
                 break;
             }
      
             //
-            // Rule 437:  FieldAccess ::= Primary . Identifier
+            // Rule 447:  FieldAccess ::= Primary . Identifier
             //
-            case 437: {
-                //#line 3431 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 447: {
+                //#line 3526 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3431 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3526 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3433 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3528 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
                 break;
             }
      
             //
-            // Rule 438:  FieldAccess ::= super . Identifier
+            // Rule 448:  FieldAccess ::= super . Identifier
             //
-            case 438: {
-                //#line 3436 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 448: {
+                //#line 3531 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3438 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3533 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
                 break;
             }
      
             //
-            // Rule 439:  FieldAccess ::= ClassName . super$sup . Identifier
+            // Rule 449:  FieldAccess ::= ClassName . super$sup . Identifier
             //
-            case 439: {
-                //#line 3441 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 449: {
+                //#line 3536 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 3441 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3536 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3441 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3536 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3443 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3538 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                 break;
             }
      
             //
-            // Rule 440:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            // Rule 450:  FieldAccess ::= Primary . class$c
             //
-            case 440: {
-                //#line 3447 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 450: {
+                //#line 3541 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
+                //#line 3541 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                IToken c = (IToken) getRhsIToken(3);
+                //#line 3543 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
+                break;
+            }
+     
+            //
+            // Rule 451:  FieldAccess ::= super . class$c
+            //
+            case 451: {
+                //#line 3546 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                IToken c = (IToken) getRhsIToken(3);
+                //#line 3548 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
+                break;
+            }
+     
+            //
+            // Rule 452:  FieldAccess ::= ClassName . super$sup . class$c
+            //
+            case 452: {
+                //#line 3551 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                Name ClassName = (Name) getRhsSym(1);
+                //#line 3551 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                IToken sup = (IToken) getRhsIToken(3);
+                //#line 3551 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                IToken c = (IToken) getRhsIToken(5);
+                //#line 3553 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
+                break;
+            }
+     
+            //
+            // Rule 453:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            //
+            case 453: {
+                //#line 3557 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name MethodName = (Name) getRhsSym(1);
-                //#line 3447 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3557 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3447 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3557 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3449 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3559 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
@@ -5586,82 +5867,82 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 441:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 454:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 441: {
-                //#line 3454 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 454: {
+                //#line 3564 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3454 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3564 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3454 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3564 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3454 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3564 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3456 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3566 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
      
             //
-            // Rule 442:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 455:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 442: {
-                //#line 3459 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 455: {
+                //#line 3569 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3459 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3569 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3459 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3569 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3461 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3571 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
      
             //
-            // Rule 443:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 456:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 443: {
-                //#line 3464 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 456: {
+                //#line 3574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 3464 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3464 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3464 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(6);
-                //#line 3464 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(8);
-                //#line 3466 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3576 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
      
             //
-            // Rule 444:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
+            // Rule 457:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
-            case 444: {
-                //#line 3469 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 457: {
+                //#line 3579 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3469 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3579 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3469 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3579 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3471 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3581 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.ClosureCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
      
             //
-            // Rule 445:  MethodSelection ::= MethodName . TypeParametersopt ( FormalParameterListopt )
+            // Rule 458:  MethodSelection ::= MethodName . TypeParametersopt ( FormalParameterListopt )
             //
-            case 445: {
-                //#line 3475 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 458: {
+                //#line 3585 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name MethodName = (Name) getRhsSym(1);
-                //#line 3475 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3585 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 3475 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3585 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(5);
-                //#line 3477 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3587 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -5675,18 +5956,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 446:  MethodSelection ::= Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
+            // Rule 459:  MethodSelection ::= Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
-            case 446: {
-                //#line 3488 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 459: {
+                //#line 3598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3488 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3488 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3488 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3490 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3600 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -5699,16 +5980,16 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 447:  MethodSelection ::= super . Identifier . TypeParametersopt ( FormalParameterListopt )
+            // Rule 460:  MethodSelection ::= super . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
-            case 447: {
-                //#line 3500 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 460: {
+                //#line 3610 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3500 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3610 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3500 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3610 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3502 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3612 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -5721,20 +6002,20 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 448:  MethodSelection ::= ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
+            // Rule 461:  MethodSelection ::= ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
-            case 448: {
-                //#line 3512 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 461: {
+                //#line 3622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 3512 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3512 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3512 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(7);
-                //#line 3512 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(9);
-                //#line 3514 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3624 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -5747,102 +6028,102 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 451:  PostfixExpression ::= ExpressionName
+            // Rule 464:  PostfixExpression ::= ExpressionName
             //
-            case 451: {
-                //#line 3527 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 464: {
+                //#line 3637 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 3529 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3639 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
      
             //
-            // Rule 454:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 467:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 454: {
-                //#line 3535 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 467: {
+                //#line 3645 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 3537 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3647 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                 break;
             }
      
             //
-            // Rule 455:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 468:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 455: {
-                //#line 3541 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 468: {
+                //#line 3651 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 3543 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3653 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                 break;
             }
      
             //
-            // Rule 458:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
+            // Rule 471:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
-            case 458: {
-                //#line 3549 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 471: {
+                //#line 3659 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3551 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3661 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
                 break;
             }
      
             //
-            // Rule 459:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
+            // Rule 472:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
-            case 459: {
-                //#line 3554 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 472: {
+                //#line 3664 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3556 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3666 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
                 break;
             }
      
             //
-            // Rule 461:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+            // Rule 474:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
-            case 461: {
-                //#line 3561 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 474: {
+                //#line 3671 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3563 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3673 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
                 break;
             }
      
             //
-            // Rule 462:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
+            // Rule 475:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
-            case 462: {
-                //#line 3567 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 475: {
+                //#line 3677 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3569 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3679 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
                 break;
             }
      
             //
-            // Rule 464:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            // Rule 477:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
-            case 464: {
-                //#line 3574 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 477: {
+                //#line 3684 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3576 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3686 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 465:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
+            // Rule 478:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
             //
-            case 465: {
-                //#line 3579 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 478: {
+                //#line 3689 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3579 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3689 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3581 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3691 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Expr e = UnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -5850,848 +6131,838 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 466:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            // Rule 479:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
-            case 466: {
-                //#line 3586 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 479: {
+                //#line 3696 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3588 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3698 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 468:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
+            // Rule 481:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
-            case 468: {
-                //#line 3593 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 481: {
+                //#line 3703 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3593 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3703 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3595 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3705 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 469:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 482:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
-            case 469: {
-                //#line 3598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 482: {
+                //#line 3708 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3598 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3708 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3600 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3710 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 470:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 483:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
-            case 470: {
-                //#line 3603 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 483: {
+                //#line 3713 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3603 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3713 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3605 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3715 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 472:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            // Rule 485:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
-            case 472: {
-                //#line 3610 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 485: {
+                //#line 3720 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 3610 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3720 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 3612 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3722 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                 break;
             }
      
             //
-            // Rule 473:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 486:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
-            case 473: {
-                //#line 3615 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 486: {
+                //#line 3725 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 3615 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3725 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 3617 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3727 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                 break;
             }
      
             //
-            // Rule 475:  ShiftExpression ::= ShiftExpression << AdditiveExpression
+            // Rule 488:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
-            case 475: {
-                //#line 3622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 488: {
+                //#line 3732 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3622 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3732 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3624 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3734 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                 break;
             }
      
             //
-            // Rule 476:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
+            // Rule 489:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
-            case 476: {
-                //#line 3627 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 489: {
+                //#line 3737 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3627 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3737 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3629 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3739 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                 break;
             }
      
             //
-            // Rule 477:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            // Rule 490:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
-            case 477: {
-                //#line 3632 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 490: {
+                //#line 3742 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3632 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3742 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3634 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3744 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                 break;
             }
      
             //
-            // Rule 478:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+            // Rule 491:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
-            case 478: {
-                //#line 3638 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 491: {
+                //#line 3748 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 3638 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3748 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 3640 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                Call regionCall = nf.RegionMaker(pos(), expr1, expr2);
+                //#line 3750 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
                 setResult(regionCall);
                 break;
             }
      
             //
-            // Rule 482:  RelationalExpression ::= RelationalExpression < ShiftExpression
+            // Rule 495:  RelationalExpression ::= RelationalExpression < ShiftExpression
             //
-            case 482: {
-                //#line 3648 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 495: {
+                //#line 3758 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3648 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3758 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3650 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3760 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
                 break;
             }
      
             //
-            // Rule 483:  RelationalExpression ::= RelationalExpression > ShiftExpression
+            // Rule 496:  RelationalExpression ::= RelationalExpression > ShiftExpression
             //
-            case 483: {
-                //#line 3653 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 496: {
+                //#line 3763 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3653 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3763 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3655 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3765 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
                 break;
             }
      
             //
-            // Rule 484:  RelationalExpression ::= RelationalExpression <= ShiftExpression
+            // Rule 497:  RelationalExpression ::= RelationalExpression <= ShiftExpression
             //
-            case 484: {
-                //#line 3658 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 497: {
+                //#line 3768 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3658 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3768 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3660 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3770 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
                 break;
             }
      
             //
-            // Rule 485:  RelationalExpression ::= RelationalExpression >= ShiftExpression
+            // Rule 498:  RelationalExpression ::= RelationalExpression >= ShiftExpression
             //
-            case 485: {
-                //#line 3663 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 498: {
+                //#line 3773 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3663 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3773 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3665 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3775 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
                 break;
             }
      
             //
-            // Rule 486:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 499:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 486: {
-                //#line 3668 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 499: {
+                //#line 3778 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3668 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3778 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3670 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3780 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                 break;
             }
      
             //
-            // Rule 487:  RelationalExpression ::= RelationalExpression in ShiftExpression
+            // Rule 500:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
-            case 487: {
-                //#line 3673 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 500: {
+                //#line 3783 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3673 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3783 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3675 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3785 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
                 break;
             }
      
             //
-            // Rule 489:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 502:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 489: {
-                //#line 3680 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 502: {
+                //#line 3790 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 3680 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3790 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 3682 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3792 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                 break;
             }
      
             //
-            // Rule 490:  EqualityExpression ::= EqualityExpression != RelationalExpression
+            // Rule 503:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
-            case 490: {
-                //#line 3685 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 503: {
+                //#line 3795 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 3685 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3795 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 3687 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3797 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                 break;
             }
      
             //
-            // Rule 492:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 504:  EqualityExpression ::= Type$t1 == Type$t2
             //
-            case 492: {
-                //#line 3692 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 504: {
+                //#line 3800 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                TypeNode t1 = (TypeNode) getRhsSym(1);
+                //#line 3800 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                TypeNode t2 = (TypeNode) getRhsSym(3);
+                //#line 3802 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(nf.SubtypeTest(pos(), t1, t2, true));
+                break;
+            }
+     
+            //
+            // Rule 506:  AndExpression ::= AndExpression & EqualityExpression
+            //
+            case 506: {
+                //#line 3807 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 3692 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3807 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 3694 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3809 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                 break;
             }
      
             //
-            // Rule 494:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 508:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 494: {
-                //#line 3699 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 508: {
+                //#line 3814 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 3699 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3814 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 3701 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3816 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                 break;
             }
      
             //
-            // Rule 496:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 510:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 496: {
-                //#line 3706 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 510: {
+                //#line 3821 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 3706 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3821 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 3708 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3823 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                 break;
             }
      
             //
-            // Rule 498:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 512:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 498: {
-                //#line 3713 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 512: {
+                //#line 3828 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 3713 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3828 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 3715 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3830 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                 break;
             }
      
             //
-            // Rule 500:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 514:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 500: {
-                //#line 3720 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 514: {
+                //#line 3835 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 3720 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3835 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 3722 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3837 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                 break;
             }
      
             //
-            // Rule 505:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 519:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 505: {
-                //#line 3731 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 519: {
+                //#line 3846 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 3731 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3846 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 3731 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3846 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 3733 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3848 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                 break;
             }
      
             //
-            // Rule 508:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 522:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 508: {
-                //#line 3740 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 522: {
+                //#line 3855 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 3740 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3855 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 3740 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3855 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 3742 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3857 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                 break;
             }
      
             //
-            // Rule 509:  Assignment ::= ExpressionName$e1 ( Expression , ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 523:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 509: {
-                //#line 3745 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 523: {
+                //#line 3860 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name e1 = (Name) getRhsSym(1);
-                //#line 3745 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(3);
-                //#line 3745 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                List ArgumentList = (List) getRhsSym(5);
-                //#line 3745 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(7);
-                //#line 3745 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Expr AssignmentExpression = (Expr) getRhsSym(8);
-                //#line 3747 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-    // TODO: change to Settable interface rather than array access
-                List l = new ArrayList();
-                l.add(Expression);
-                l.addAll(ArgumentList);
-                setResult(nf.Assign(pos(), nf.X10ArrayAccess(pos(), e1.toExpr(), l), AssignmentOperator, AssignmentExpression));
-                break;
-            }
-     
-            //
-            // Rule 510:  Assignment ::= ExpressionName$e1 ( Expression ) AssignmentOperator AssignmentExpression
-            //
-            case 510: {
-                //#line 3754 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Name e1 = (Name) getRhsSym(1);
-                //#line 3754 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(3);
-                //#line 3754 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3860 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                List ArgumentList = (List) getRhsSym(3);
+                //#line 3860 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 3754 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+                //#line 3860 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 3756 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(nf.Assign(pos(), nf.X10ArrayAccess1(pos(), e1.toExpr(), Expression), AssignmentOperator, AssignmentExpression));
+                //#line 3862 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
                 break;
             }
      
             //
-            // Rule 511:  LeftHandSide ::= ExpressionName
+            // Rule 524:  LeftHandSide ::= ExpressionName
             //
-            case 511: {
-                //#line 3760 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 524: {
+                //#line 3866 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 3762 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3868 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
      
             //
-            // Rule 513:  AssignmentOperator ::= =
+            // Rule 526:  AssignmentOperator ::= =
             //
-            case 513: {
+            case 526: {
                 
-                //#line 3769 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3875 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.ASSIGN);
                 break;
             }
      
             //
-            // Rule 514:  AssignmentOperator ::= *=
+            // Rule 527:  AssignmentOperator ::= *=
             //
-            case 514: {
+            case 527: {
                 
-                //#line 3774 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3880 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.MUL_ASSIGN);
                 break;
             }
      
             //
-            // Rule 515:  AssignmentOperator ::= /=
+            // Rule 528:  AssignmentOperator ::= /=
             //
-            case 515: {
+            case 528: {
                 
-                //#line 3779 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3885 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.DIV_ASSIGN);
                 break;
             }
      
             //
-            // Rule 516:  AssignmentOperator ::= %=
+            // Rule 529:  AssignmentOperator ::= %=
             //
-            case 516: {
+            case 529: {
                 
-                //#line 3784 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3890 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.MOD_ASSIGN);
                 break;
             }
      
             //
-            // Rule 517:  AssignmentOperator ::= +=
+            // Rule 530:  AssignmentOperator ::= +=
             //
-            case 517: {
+            case 530: {
                 
-                //#line 3789 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3895 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.ADD_ASSIGN);
                 break;
             }
      
             //
-            // Rule 518:  AssignmentOperator ::= -=
+            // Rule 531:  AssignmentOperator ::= -=
             //
-            case 518: {
+            case 531: {
                 
-                //#line 3794 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3900 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SUB_ASSIGN);
                 break;
             }
      
             //
-            // Rule 519:  AssignmentOperator ::= <<=
+            // Rule 532:  AssignmentOperator ::= <<=
             //
-            case 519: {
+            case 532: {
                 
-                //#line 3799 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3905 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SHL_ASSIGN);
                 break;
             }
      
             //
-            // Rule 520:  AssignmentOperator ::= >>=
+            // Rule 533:  AssignmentOperator ::= >>=
             //
-            case 520: {
+            case 533: {
                 
-                //#line 3804 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3910 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SHR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 521:  AssignmentOperator ::= >>>=
+            // Rule 534:  AssignmentOperator ::= >>>=
             //
-            case 521: {
+            case 534: {
                 
-                //#line 3809 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3915 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.USHR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 522:  AssignmentOperator ::= &=
+            // Rule 535:  AssignmentOperator ::= &=
             //
-            case 522: {
+            case 535: {
                 
-                //#line 3814 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3920 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                 break;
             }
      
             //
-            // Rule 523:  AssignmentOperator ::= ^=
+            // Rule 536:  AssignmentOperator ::= ^=
             //
-            case 523: {
+            case 536: {
                 
-                //#line 3819 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3925 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 524:  AssignmentOperator ::= |=
+            // Rule 537:  AssignmentOperator ::= |=
             //
-            case 524: {
+            case 537: {
                 
-                //#line 3824 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3930 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 527:  Catchesopt ::= $Empty
+            // Rule 540:  Catchesopt ::= $Empty
             //
-            case 527: {
+            case 540: {
                 
-                //#line 3837 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3943 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
      
             //
-            // Rule 529:  Identifieropt ::= $Empty
+            // Rule 542:  Identifieropt ::= $Empty
             //
-            case 529:
+            case 542:
                 setResult(null);
                 break;
  
             //
-            // Rule 530:  Identifieropt ::= Identifier
+            // Rule 543:  Identifieropt ::= Identifier
             //
-            case 530: {
-                //#line 3844 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
+            case 543: {
+                //#line 3950 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3846 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3952 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Identifier);
                 break;
             }
      
             //
-            // Rule 531:  ForUpdateopt ::= $Empty
+            // Rule 544:  ForUpdateopt ::= $Empty
             //
-            case 531: {
+            case 544: {
                 
-                //#line 3852 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3958 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                 break;
             }
      
             //
-            // Rule 533:  Expressionopt ::= $Empty
+            // Rule 546:  Expressionopt ::= $Empty
             //
-            case 533:
+            case 546:
                 setResult(null);
                 break;
  
             //
-            // Rule 535:  ForInitopt ::= $Empty
+            // Rule 548:  ForInitopt ::= $Empty
             //
-            case 535: {
+            case 548: {
                 
-                //#line 3863 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3969 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                 break;
             }
      
             //
-            // Rule 537:  SwitchLabelsopt ::= $Empty
+            // Rule 550:  SwitchLabelsopt ::= $Empty
             //
-            case 537: {
+            case 550: {
                 
-                //#line 3870 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3976 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                 break;
             }
      
             //
-            // Rule 539:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 552:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 539: {
+            case 552: {
                 
-                //#line 3877 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3983 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                 break;
             }
      
             //
-            // Rule 541:  VariableModifiersopt ::= $Empty
+            // Rule 554:  VariableModifiersopt ::= $Empty
             //
-            case 541: {
+            case 554: {
                 
-                //#line 3884 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3990 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 543:  VariableInitializersopt ::= $Empty
+            // Rule 556:  VariableInitializersopt ::= $Empty
             //
-            case 543:
+            case 556:
                 setResult(null);
                 break;
  
             //
-            // Rule 545:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 558:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 545: {
+            case 558: {
                 
-                //#line 3895 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4001 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
      
             //
-            // Rule 547:  ExtendsInterfacesopt ::= $Empty
+            // Rule 560:  ExtendsInterfacesopt ::= $Empty
             //
-            case 547: {
+            case 560: {
                 
-                //#line 3902 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4008 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 549:  InterfaceModifiersopt ::= $Empty
+            // Rule 562:  InterfaceModifiersopt ::= $Empty
             //
-            case 549: {
+            case 562: {
                 
-                //#line 3909 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4015 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 551:  ClassBodyopt ::= $Empty
+            // Rule 564:  ClassBodyopt ::= $Empty
             //
-            case 551:
+            case 564:
                 setResult(null);
                 break;
  
             //
-            // Rule 553:  Argumentsopt ::= $Empty
+            // Rule 566:  Argumentsopt ::= $Empty
             //
-            case 553: {
+            case 566: {
                 
-                //#line 3920 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4026 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
      
             //
-            // Rule 555:  ArgumentListopt ::= $Empty
+            // Rule 568:  ArgumentListopt ::= $Empty
             //
-            case 555: {
+            case 568: {
                 
-                //#line 3927 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4033 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
      
             //
-            // Rule 557:  BlockStatementsopt ::= $Empty
+            // Rule 570:  BlockStatementsopt ::= $Empty
             //
-            case 557: {
+            case 570: {
                 
-                //#line 3934 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4040 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
      
             //
-            // Rule 559:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 572:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 559:
+            case 572:
                 setResult(null);
                 break;
  
             //
-            // Rule 561:  ConstructorModifiersopt ::= $Empty
+            // Rule 574:  ConstructorModifiersopt ::= $Empty
             //
-            case 561: {
+            case 574: {
                 
-                //#line 3945 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4051 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 563:  FormalParameterListopt ::= $Empty
+            // Rule 576:  FormalParameterListopt ::= $Empty
             //
-            case 563: {
+            case 576: {
                 
-                //#line 3952 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4058 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
      
             //
-            // Rule 565:  Throwsopt ::= $Empty
+            // Rule 578:  Throwsopt ::= $Empty
             //
-            case 565: {
+            case 578: {
                 
-                //#line 3959 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4065 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 567:  MethodModifiersopt ::= $Empty
+            // Rule 580:  MethodModifiersopt ::= $Empty
             //
-            case 567: {
+            case 580: {
                 
-                //#line 3966 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4072 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 569:  FieldModifiersopt ::= $Empty
+            // Rule 582:  FieldModifiersopt ::= $Empty
             //
-            case 569: {
+            case 582: {
                 
-                //#line 3973 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4079 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 571:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 584:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 571: {
+            case 584: {
                 
-                //#line 3980 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4086 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
      
             //
-            // Rule 573:  Interfacesopt ::= $Empty
+            // Rule 586:  Interfacesopt ::= $Empty
             //
-            case 573: {
+            case 586: {
                 
-                //#line 3987 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4093 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 575:  Superopt ::= $Empty
+            // Rule 588:  Superopt ::= $Empty
             //
-            case 575: {
+            case 588: {
                 
-                //#line 3994 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4100 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                setResult(nf.TypeNodeFromQualifiedName(pos(), "x10.lang.Object"));
                 break;
             }
      
             //
-            // Rule 577:  TypeParametersopt ::= $Empty
+            // Rule 590:  TypeParametersopt ::= $Empty
             //
-            case 577: {
+            case 590: {
                 
-                //#line 4001 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4107 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                 break;
             }
      
             //
-            // Rule 579:  FormalParametersopt ::= $Empty
+            // Rule 592:  FormalParametersopt ::= $Empty
             //
-            case 579: {
+            case 592: {
                 
-                //#line 4008 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4114 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
      
             //
-            // Rule 581:  Annotationsopt ::= $Empty
+            // Rule 594:  Annotationsopt ::= $Empty
             //
-            case 581: {
+            case 594: {
                 
-                //#line 4015 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4121 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                 break;
             }
      
             //
-            // Rule 583:  TypeDeclarationsopt ::= $Empty
+            // Rule 596:  TypeDeclarationsopt ::= $Empty
             //
-            case 583: {
+            case 596: {
                 
-                //#line 4022 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4128 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
      
             //
-            // Rule 585:  ImportDeclarationsopt ::= $Empty
+            // Rule 598:  ImportDeclarationsopt ::= $Empty
             //
-            case 585: {
+            case 598: {
                 
-                //#line 4029 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4135 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
      
             //
-            // Rule 587:  PackageDeclarationopt ::= $Empty
+            // Rule 600:  PackageDeclarationopt ::= $Empty
             //
-            case 587:
+            case 600:
                 setResult(null);
                 break;
  
             //
-            // Rule 589:  ResultTypeopt ::= $Empty
+            // Rule 602:  ResultTypeopt ::= $Empty
             //
-            case 589:
+            case 602:
                 setResult(null);
                 break;
  
             //
-            // Rule 591:  TypeArgumentsopt ::= $Empty
+            // Rule 604:  TypeArgumentsopt ::= $Empty
             //
-            case 591: {
+            case 604: {
                 
-                //#line 4044 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4150 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 593:  TypePropertiesopt ::= $Empty
+            // Rule 606:  TypePropertiesopt ::= $Empty
             //
-            case 593: {
+            case 606: {
                 
-                //#line 4051 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4157 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypePropertyNode.class, false));
                 break;
             }
      
             //
-            // Rule 595:  Propertiesopt ::= $Empty
+            // Rule 608:  Propertiesopt ::= $Empty
             //
-            case 595: {
+            case 608: {
                 
-                //#line 4058 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4164 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                 break;
             }
      
             //
-            // Rule 597:  ,opt ::= $Empty
+            // Rule 610:  ,opt ::= $Empty
             //
-            case 597:
+            case 610:
                 setResult(null);
                 break;
 

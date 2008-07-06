@@ -4,11 +4,16 @@ import java.util.List;
 
 import polyglot.ast.Ambiguous;
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
+import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
 
 public interface AmbDepTypeNode extends TypeNode, Ambiguous {
-    TypeNode base();
-    AmbDepTypeNode base(TypeNode base);
+    Id name();
+    AmbDepTypeNode name(Id name);
+    
+    Prefix prefix();
+    AmbDepTypeNode prefix(Prefix prefix);
 
     List<TypeNode> typeArgs();
     AmbDepTypeNode typeArgs(List<TypeNode> typeArgs);

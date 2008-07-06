@@ -30,6 +30,7 @@
     import java.util.Iterator;
     import java.util.LinkedList;
     import java.util.List;
+    import java.io.File;
 
     import polyglot.ast.AmbExpr;
     import polyglot.ast.AmbTypeNode;
@@ -224,79 +225,6 @@
     CompilationUnit
 %End
 
-%Keywords
-    abstract
-    as
-    assert
-    async
-    ateach
-    atomic
-    await
-    break
-    case
-    catch
-    class
-    clocked
-    const
-    continue
-    def
-    default
-    do
-    else
-    extends
-    extern
-    false
-    final
-    finally
-    finish
-    for
-    foreach
-    goto
-    has
-    here
-    if
-    implements
-    import
-    incomplete
-    instanceof
-    interface
-    local
-    native
-    new
-    next
-    nonblocking
-    now
-    null
-    or
-    package
-    private
-    protected
-    property
-    public
-    return
-    safe
-    self
-    sequential
-    static
-    strictfp
-    super
-    switch
-    this
-    throw
-    throws
-    transient
-    true
-    try
-    type
-    unsafe
-    val
-    value
-    var
-    volatile
-    when
-    while
-%End
-
 %SoftKeywords
     abstract
     as
@@ -350,6 +278,7 @@
     safe
     self
     sequential
+    shared
     static
     strictfp
 --    super
@@ -362,9 +291,9 @@
     try
     type
     unsafe
---    val
+    val
     value
---    var
+    var
     volatile
     when
     while
@@ -394,8 +323,88 @@
                        (X10NodeFactory) n,
                        source,
                        q);
+            setMessageHandler(new MessageHandler(q));
         }
 
+public static class MessageHandler implements IMessageHandler {
+    ErrorQueue eq;
+
+    public MessageHandler(ErrorQueue eq) {
+        this.eq = eq;
+    }
+
+    public void handleMessage(int errorCode, int[] msgLocation,
+                              int[] errorLocation, String filename,
+                              String[] errorInfo) {
+
+        File file = new File(filename);
+
+        int l0 = msgLocation[2];
+        int c0 = msgLocation[3];
+        int l1 = msgLocation[4];
+        int c1 = msgLocation[5];
+        int o0 = msgLocation[0];
+        int o1 = msgLocation[0] + msgLocation[1];
+
+        Position pos = new Position(file.getPath(),
+                    file.getPath(), l0, c0, l1, c1+1, o0, o1);
+
+        String msg = "";
+        String info = "";
+
+        for (String s : errorInfo) {
+            info += s;
+        }
+
+        switch (errorCode) {
+            case LEX_ERROR_CODE:
+                msg = "Unexpected character ignored: " + info;
+                break;
+            case ERROR_CODE:
+                msg = "Parse terminated at this token: " + info;
+                break;
+            case BEFORE_CODE:
+                msg = "Token " + info + " expected before this input";
+                break;
+            case INSERTION_CODE:
+                msg = "Token " + info + " expected after this input";
+                break;
+            case INVALID_CODE:
+                msg = "Unexpected input discarded: " + info;
+                break;
+            case SUBSTITUTION_CODE:
+                msg = "Token " + info + " expected instead of this input";
+                break;
+            case DELETION_CODE:
+                msg = "Unexpected input ignored: " + info;
+                break;
+            case MERGE_CODE:
+                msg = "Merging token(s) to recover: " + info;
+                break;
+            case MISPLACED_CODE:
+                msg = "Misplaced constructs(s): " + info;
+                break;
+            case SCOPE_CODE:
+                msg = "Token(s) inserted to complete scope: " + info;
+                break;
+            case EOF_CODE:
+                msg = "Reached after this token: " + info;
+                break;
+            case INVALID_TOKEN_CODE:
+                msg = "Invalid token: " + info;
+                break;
+            case ERROR_RULE_WARNING_CODE:
+                msg = "Ignored token: " + info;
+                break;
+            case NO_MESSAGE_CODE:
+                msg = "Syntax error";
+                break;
+        }
+
+        eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
+    }
+    }
+    
         public String getErrorLocation(int lefttok, int righttok)
         {
             return getFileName() + ':' +
@@ -1025,6 +1034,7 @@
         ./
 
     ConstrainedType ::=  NamedType
+           | PathType
            | AnnotatedType
            | ( Type )
         /.$BeginJava
@@ -1050,7 +1060,29 @@
 --    TypeAndVarianceArgument ::= Type
 --                              | + Type
 --                              | - Type
-                              
+
+    NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt 
+        /.$BeginJava
+                TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
+                // TODO: place constraint
+                if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
+                    type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, Argumentsopt, DepParametersopt);
+                }
+                setResult(type);
+          $EndJava
+        ./
+        
+    NamedType ::= Primary . class$c TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt 
+        /.$BeginJava
+                TypeNode type = nf.X10AmbTypeNode(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex($c)), "class"));
+                // TODO: place constraint
+                if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
+                    type = nf.AmbDepTypeNode(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex($c)), "class"), TypeArgumentsopt, Argumentsopt, DepParametersopt);
+                }
+                setResult(type);
+          $EndJava
+        ./
+        
     NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt PlaceTypeSpecifieropt 
         /.$BeginJava
                 TypeNode type;
@@ -1070,7 +1102,7 @@
                 }
                 // TODO: place constraint
                 if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
-                    type = nf.AmbDepTypeNode(pos(), type, TypeArgumentsopt, Argumentsopt, DepParametersopt);
+                    type = nf.AmbDepTypeNode(pos(), TypeName.prefix != null ? TypeName.prefix.toPrefix() : null, TypeName.name, TypeArgumentsopt, Argumentsopt, DepParametersopt);
                 }
                 setResult(type);
           $EndJava
@@ -1117,12 +1149,12 @@
         
     SubtypeConstraint ::= Type$t1 <: Type$t2
          /.$BeginJava
-                    setResult(nf.SubtypeTest(pos(), t1, t2));
+                    setResult(nf.SubtypeTest(pos(), t1, t2, false));
           $EndJava
         ./
                         | Type$t1 :> Type$t2
          /.$BeginJava
-                    setResult(nf.SubtypeTest(pos(), t2, t1));
+                    setResult(nf.SubtypeTest(pos(), t2, t1, false));
           $EndJava
         ./
                         
@@ -1581,42 +1613,42 @@
           $EndJava
         ./
 
-    ForEachStatement ::= foreach ( FormalParameter in Expression ) ClockedClauseopt Statement
+    ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
         /.$BeginJava
-                    FlagsNode fn = FormalParameter.flags();
+                    FlagsNode fn = LoopIndex.flags();
                     Flags f = fn.flags();
                     f = f.Final();
                     fn = fn.flags(f);
                     setResult(nf.ForEach(pos(),
-                                  FormalParameter.flags(fn),
+                                  LoopIndex.flags(fn),
                                   Expression,
                                   ClockedClauseopt,
                                   Statement));
           $EndJava
         ./
 
-    AtEachStatement ::= ateach ( FormalParameter in Expression ) ClockedClauseopt Statement
+    AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
         /.$BeginJava
-                    FlagsNode fn = FormalParameter.flags();
+                    FlagsNode fn = LoopIndex.flags();
                     Flags f = fn.flags();
                     f = f.Final();
                     fn = fn.flags(f);
                     setResult(nf.AtEach(pos(),
-                                 FormalParameter.flags(fn),
+                                 LoopIndex.flags(fn),
                                  Expression,
                                  ClockedClauseopt,
                                  Statement));
           $EndJava
         ./
 
-    EnhancedForStatement ::= for ( FormalParameter in Expression ) Statement
+    EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
         /.$BeginJava
-                    FlagsNode fn = FormalParameter.flags();
+                    FlagsNode fn = LoopIndex.flags();
                     Flags f = fn.flags();
                     f = f.Final();
                     fn = fn.flags(f);
                     setResult(nf.ForLoop(pos(),
-                            FormalParameter.flags(fn),
+                            LoopIndex.flags(fn),
                             Expression,
                             Statement));
           $EndJava
@@ -1778,18 +1810,16 @@
           $EndJava
         ./
 
-    Primary ::= '[' RegionExpressionList ']'
+    Primary ::= '[' ArgumentList ']'
         /.$BeginJava
-                    Receiver x10LangPointFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.point.factory");
-                    Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.region.factory");
-                    Tuple tuple = nf.Tuple(pos(), x10LangPointFactory, x10LangRegionFactory, RegionExpressionList);
+                    Tuple tuple = nf.Tuple(pos(), ArgumentList);
                     setResult(tuple);
           $EndJava
         ./
 
     AssignmentExpression ::= Expression$expr1 '->' Expression$expr2
         /.$BeginJava
-                    ConstantDistMaker call = nf.ConstantDistMaker(pos(), expr1, expr2);
+                    Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
                     setResult(call);
           $EndJava
         ./
@@ -2471,6 +2501,65 @@
           $EndJava
         ./
         
+     LoopIndexDeclarator ::= Identifier ResultTypeopt
+        /.$BeginJava
+                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, null });
+          $EndJava
+        ./
+                         | ( IdentifierList ) ResultTypeopt
+        /.$BeginJava
+                    setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, null });
+          $EndJava
+        ./
+                         | Identifier ( IdentifierList ) ResultTypeopt
+        /.$BeginJava
+                    setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, null });
+          $EndJava
+        ./
+        
+    LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
+        /.$BeginJava
+                Formal f;
+                            	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
+                Object[] o = LoopIndexDeclarator;
+                Position pos = (Position) o[0];
+                Id name = (Id) o[1];
+                   List exploded = (List) o[2];
+                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            TypeNode type = (TypeNode) o[4];
+                            if (type == null) type = nf.UnknownTypeNode(name.position());
+                            List explodedFormals = new ArrayList();
+                            for (Iterator i = exploded.iterator(); i.hasNext(); ) {
+                            	Id id = (Id) i.next();
+                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(name.position()), id));
+                            }
+                f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
+                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                setResult(f);
+          $EndJava
+        ./
+                      | VariableModifiersopt VarKeyword LoopIndexDeclarator
+        /.$BeginJava
+                Formal f;
+                            	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
+                Object[] o = LoopIndexDeclarator;
+                Position pos = (Position) o[0];
+                Id name = (Id) o[1];
+                   List exploded = (List) o[2];
+                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            TypeNode type = (TypeNode) o[4];
+                                                        if (type == null) type = nf.UnknownTypeNode(name.position());
+                                                        List explodedFormals = new ArrayList();
+                            for (Iterator i = exploded.iterator(); i.hasNext(); ) {
+                            	Id id = (Id) i.next();
+                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(name.position()), id));
+                            }
+                f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
+                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                setResult(f);
+          $EndJava
+        ./
+    
     FormalParameter ::= VariableModifiersopt FormalDeclarator
         /.$BeginJava
                 Formal f;
@@ -2539,6 +2628,11 @@
     VariableModifier ::= Annotation
         /.$BeginJava
                     setResult(Collections.singletonList(Annotation));
+          $EndJava
+        ./
+                       | shared
+        /.$BeginJava
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
           $EndJava
         ./
     
@@ -3079,7 +3173,7 @@
                                                                                     int index = 0;
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.X10ArrayAccess1(init.position(), nf.Local(init.position(), name), nf.IntLit(init.position(), IntLit.INT, index)) : null));
+                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
                             l.add(ld);
@@ -3111,7 +3205,7 @@
                                                                                     int index = 0;
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.X10ArrayAccess1(init.position(), nf.Local(init.position(), name), nf.IntLit(init.position(), IntLit.INT, index)) : null));
+                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
                             l.add(ld);
@@ -3163,6 +3257,7 @@
                         | ClassInstanceCreationExpression
                         | FieldAccess
                         | MethodInvocation
+                        | MethodSelection
                         | OperatorFunction
                         
     OperatorFunction ::= TypeName . +
@@ -3443,6 +3538,21 @@
                     setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier));
           $EndJava
         ./
+                  | Primary . class$c
+        /.$BeginJava
+                    setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
+          $EndJava
+        ./
+                  | super . class$c
+        /.$BeginJava
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
+          $EndJava
+        ./
+                  | ClassName . super$sup . class$c
+        /.$BeginJava
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
+          $EndJava
+        ./
     
     MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
         /.$BeginJava
@@ -3637,7 +3747,7 @@
     
     RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
         /.$BeginJava
-                    Call regionCall = nf.RegionMaker(pos(), expr1, expr2);
+                    Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
                     setResult(regionCall);
           $EndJava
         ./
@@ -3685,6 +3795,11 @@
                          | EqualityExpression != RelationalExpression
         /.$BeginJava
                     setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
+          $EndJava
+        ./
+                         | Type$t1 == Type$t2
+        /.$BeginJava
+                    setResult(nf.SubtypeTest(pos(), t1, t2, true));
           $EndJava
         ./
     
@@ -3742,18 +3857,9 @@
                     setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
-                 | ExpressionName$e1 ( Expression , ArgumentList ) AssignmentOperator AssignmentExpression
+                 | ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
         /.$BeginJava
-        // TODO: change to Settable interface rather than array access
-                    List l = new ArrayList();
-                    l.add(Expression);
-                    l.addAll(ArgumentList);
-                    setResult(nf.Assign(pos(), nf.X10ArrayAccess(pos(), e1.toExpr(), l), AssignmentOperator, AssignmentExpression));
-          $EndJava
-        ./
-                 | ExpressionName$e1 ( Expression ) AssignmentOperator AssignmentExpression
-        /.$BeginJava
-                    setResult(nf.Assign(pos(), nf.X10ArrayAccess1(pos(), e1.toExpr(), Expression), AssignmentOperator, AssignmentExpression));
+                    setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
     
@@ -4116,6 +4222,7 @@
     List ::= VariableDeclarators | FormalDeclarators | FieldDeclarators
     'Object[]' ::= VariableDeclarator
     'Object[]' ::= FormalDeclarator
+    'Object[]' ::= LoopIndexDeclarator
     'Object[]' ::= FieldDeclarator
     Expr ::= VariableInitializer
     ClassMember ::= MethodDeclaration 
@@ -4123,6 +4230,7 @@
     List ::= FormalParametersopt | FormalParameters 
     List ::= ExistentialListopt | ExistentialList 
     X10Formal ::= FormalParameter
+    X10Formal ::= LoopIndex
     List ::= Throwsopt | Throws
     Block ::= MethodBody
     Block ::= StaticInitializer

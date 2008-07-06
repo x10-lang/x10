@@ -45,7 +45,9 @@ public class CastRewriter extends ContextVisitor {
 	}
 
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-		Node result = n;
+	    X10NodeFactory nf = (X10NodeFactory) this.nf;
+		
+	    Node result = n;
 		
 		if (n instanceof Cast) {
 			Cast nn = (Cast) n;
@@ -56,14 +58,14 @@ public class CastRewriter extends ContextVisitor {
 				X10ArrayTypeNode xatn = (X10ArrayTypeNode) xn;
 				TypeNode base = xatn.dep(null);
 				DepParameterExpr dep = xatn.dep();
-				return ((X10NodeFactory) nf).DepCast(n.position(), base, dep, nn.expr());
+				return nf.DepCast(n.position(), base, dep, nn.expr());
 			}
 			
 			if (xn instanceof AmbDepTypeNode) {
 			    AmbDepTypeNode adtn = (AmbDepTypeNode) xn;
-			    TypeNode base = adtn.base();
+			    TypeNode base = nf.X10AmbTypeNode(xn.position(), adtn.prefix(), adtn.name());
 			    DepParameterExpr dep = adtn.constraint();
-			    return ((X10NodeFactory) nf).DepCast(n.position(), base, dep, nn.expr());
+			    return nf.DepCast(n.position(), base, dep, nn.expr());
 			}
 		}
 		if (n instanceof Instanceof) {
@@ -75,14 +77,14 @@ public class CastRewriter extends ContextVisitor {
             				X10ArrayTypeNode xatn = (X10ArrayTypeNode) xn;
             				TypeNode base = xatn.dep(null);
             				DepParameterExpr dep = xatn.dep();
-            				return ((X10NodeFactory) nf).DepInstanceof(n.position(), base, dep, nn.expr());
+            				return nf.DepInstanceof(n.position(), base, dep, nn.expr());
             			}
                         
                         if (xn instanceof AmbDepTypeNode) {
                             AmbDepTypeNode adtn = (AmbDepTypeNode) xn;
-                            TypeNode base = adtn.base();
+                            TypeNode base = nf.X10AmbTypeNode(xn.position(), adtn.prefix(), adtn.name());
                             DepParameterExpr dep = adtn.constraint();
-                            return ((X10NodeFactory) nf).DepInstanceof(n.position(), base, dep, nn.expr());
+                            return nf.DepInstanceof(n.position(), base, dep, nn.expr());
                         }
 		}
 		return result;

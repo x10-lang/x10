@@ -3,6 +3,7 @@ package polyglot.ext.x10.types;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.types.CodeInstance;
 import polyglot.types.Def_c;
 import polyglot.types.Flags;
 import polyglot.types.Package;
@@ -26,7 +27,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected List<Ref<? extends Type>> formalTypes;
 	protected Ref<XConstraint> whereClause;
 	protected Ref<? extends Type> type;
-	protected Type asType;
+	protected MacroType asType;
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, String name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
 			List<String> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> whereClause, Ref<? extends Type> type) {
@@ -70,7 +71,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.types.TypeDef#asType()
 	 */
-	public Type asType() {
+	public MacroType asType() {
 		if (asType == null) {
 			asType = new MacroType_c((X10TypeSystem) ts, position(), Types.<TypeDef>ref(this));
 		}
@@ -182,6 +183,27 @@ public class TypeDef_c extends Def_c implements TypeDef {
 
 	public void setFlags(Flags flags) {
 		this.flags = flags;
+	}
+
+	public String designator() {
+	    return "type";
+	}
+
+	public void setThrowTypes(List<Ref<? extends Type>> l) {
+	    // TODO Auto-generated method stub
+	    
+	}
+
+	public String signature() {
+	    return "type " + name + typeParameters + "" + formalTypes;
+	}
+
+	public List<Ref<? extends Type>> throwTypes() {
+	    return Collections.EMPTY_LIST;
+	}
+
+	public CodeInstance<?> asInstance() {
+	    return asType();
 	}
 
 }

@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import polyglot.ast.AmbAssign;
+import polyglot.ast.AmbAssign_c;
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -65,6 +67,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
+import polyglot.ast.Assign.Operator;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
@@ -149,8 +152,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	
-	public Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup) {
-		SubtypeTest n = new SubtypeTest_c(pos, sub, sup);
+	public Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals) {
+		SubtypeTest n = new SubtypeTest_c(pos, sub, sup, equals);
 		n = (SubtypeTest) n.ext(extFactory().extExpr());
 		n = (SubtypeTest) n.del(delFactory().delExpr());
 		return n;
@@ -170,14 +173,14 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		 return n;
 	}
 	
-	public AmbDepTypeNode AmbDepTypeNode(Position pos, TypeNode base, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep) {
-		AmbDepTypeNode n = new AmbDepTypeNode_c(pos, base, typeArgs, args, dep);
+	public AmbDepTypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep) {
+		AmbDepTypeNode n = new AmbDepTypeNode_c(pos, prefix, name, typeArgs, args, dep);
 		n = (AmbDepTypeNode)n.ext(extFactory().extTypeNode());
 		n = (AmbDepTypeNode)n.del(delFactory().delTypeNode());
 		return n;
 	}
-	public AmbDepTypeNode AmbDepTypeNode(Position pos, TypeNode base, DepParameterExpr dep) {
-		return AmbDepTypeNode(pos, base, Collections.EMPTY_LIST, Collections.EMPTY_LIST, dep);
+	public AmbDepTypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep) {
+		return AmbDepTypeNode(pos, prefix, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, dep);
 	}
 
 	public Instanceof Instanceof(Position pos, Expr expr, TypeNode type) {
@@ -307,23 +310,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (Await) n.del(delFactory().delStmt());
 	}
 
-	public X10ArrayAccess1 X10ArrayAccess1(Position pos, Expr array,
-										   Expr index)
-	{
-		X10ArrayAccess1 n = new X10ArrayAccess1_c(pos, array, index);
-		n = (X10ArrayAccess1) n.ext(extFactory().extArrayAccess());
-		return (X10ArrayAccess1) n.del(delFactory().delArrayAccess());
-	}
-
-	public X10ArrayAccess X10ArrayAccess(Position pos, Expr array,
-										 List/*<Expr>*/ index)
-	{
-		// return Call(pos, array, "get", index);
-		X10ArrayAccess n = new X10ArrayAccess_c(pos, array, index);
-		n = (X10ArrayAccess) n.ext(extFactory().extArrayAccess());
-		return (X10ArrayAccess) n.del(delFactory().delArrayAccess());
-	}
-
 	public ArrayConstructor ArrayConstructor(Position pos, TypeNode base,
 											 boolean unsafe, boolean isValue,
 											 Expr d, Expr i)
@@ -359,10 +345,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return X10Call(pos, target, name, Collections.EMPTY_LIST, args);
 	}
 	
-	public ConstantDistMaker ConstantDistMaker(Position pos, Expr e1, Expr e2) {
+	public Expr ConstantDistMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
 		TypeSystem ts = this.extensionInfo().typeSystem();
-		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, "x10.lang.dist.factory");
+		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, "x10.lang.Dist");
 		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
 		l.add(e1);
 		l.add(e2);
@@ -469,35 +455,25 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public Assign Assign(Position pos, Expr left, Assign.Operator op,
 						 Expr right)
 	{
-		if (left instanceof X10ArrayAccess) {
-			return X10ArrayAccessAssign(pos, (X10ArrayAccess) left, op, right);
-		}
-		else if (left instanceof X10ArrayAccess1) {
-			return X10ArrayAccess1Assign(pos, (X10ArrayAccess1) left, op, right);
-		}
-		return super.Assign(pos, left, op, right);
+	    if (left instanceof Call) {
+		Call c = (Call) left;
+		return SettableAssign(pos, (Expr) c.target(), c.arguments(), op, right);
+	    }
+	    return super.Assign(pos, left, op, right);
 	}
-
-	public X10ArrayAccessAssign X10ArrayAccessAssign(Position pos,
-													 X10ArrayAccess left,
-													 Assign.Operator op,
-													 Expr right)
-	{
-		X10ArrayAccessAssign n = new X10ArrayAccessAssign_c(pos, left, op,
-															right);
-		n = (X10ArrayAccessAssign) n.ext(extFactory().extArrayAccess());
-		return (X10ArrayAccessAssign) n.del(delFactory().delArrayAccess());
+	
+	@Override
+	public polyglot.ast.AmbAssign AmbAssign(Position pos, Expr left, Operator op, Expr right) {
+	    AmbAssign n = new X10AmbAssign_c(pos, left, op, right);
+	    n = (AmbAssign)n.ext(extFactory().extAmbAssign());
+	    n = (AmbAssign)n.del(delFactory().delAmbAssign());
+	    return n;
 	}
-
-	public X10ArrayAccess1Assign X10ArrayAccess1Assign(Position pos,
-													   X10ArrayAccess1 left,
-													   Assign.Operator op,
-													   Expr right)
-	{
-		X10ArrayAccess1Assign n = new X10ArrayAccess1Assign_c(pos, left, op,
-															  right);
-		n = (X10ArrayAccess1Assign) n.ext(extFactory().extArrayAccess());
-		return (X10ArrayAccess1Assign) n.del(delFactory().delArrayAccess());
+	public polyglot.ext.x10.ast.SettableAssign SettableAssign(Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
+	    SettableAssign n = new SettableAssign_c(pos, array, index, op, right);
+	    n = (SettableAssign)n.ext(extFactory().extAssign());
+	    n = (SettableAssign)n.del(delFactory().delAssign());
+	    return n;
 	}
 
 	public Binary Binary(Position pos, Expr left, Binary.Operator op,
@@ -512,47 +488,15 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public Unary Unary(Position pos, Unary.Operator op, Expr expr) {
 		boolean incOp = (op == Unary.POST_INC || op == Unary.PRE_INC ||
 						 op == Unary.POST_DEC || op == Unary.PRE_DEC);
-		if (incOp && expr instanceof X10ArrayAccess) {
-			return X10ArrayAccessUnary(pos, op, (X10ArrayAccess) expr);
-		} else if (incOp && expr instanceof X10ArrayAccess1) {
-			return X10ArrayAccess1Unary(pos, op, (X10ArrayAccess1) expr);
-		}
 		Unary n = new X10Unary_c(pos, op, expr);
 		n = (Unary) n.ext(extFactory().extUnary());
 		n = (Unary) n.del(delFactory().delUnary());
 		return n;
 	}
 
-	public X10ArrayAccessUnary X10ArrayAccessUnary(Position pos,
-												   Unary.Operator op,
-												   X10ArrayAccess expr)
-	{
-		X10ArrayAccessUnary n = new X10ArrayAccessUnary_c(pos, op, expr);
-		n = (X10ArrayAccessUnary) n.ext(extFactory().extArrayAccess());
-		return (X10ArrayAccessUnary) n.del(delFactory().delArrayAccess());
-	}
-
-	public X10ArrayAccess1Unary X10ArrayAccess1Unary(Position pos,
-			Unary.Operator op,
-			ArrayAccess expr)
-	{
-		X10ArrayAccess1Unary n = new X10ArrayAccess1Unary_c(pos, op, expr);
-		n = (X10ArrayAccess1Unary) n.ext(extFactory().extArrayAccess());
-		return (X10ArrayAccess1Unary) n.del(delFactory().delArrayAccess());
-	}
-
-	public X10ArrayAccess1Unary X10ArrayAccess1Unary(Position pos,
-													 Unary.Operator op,
-													 X10ArrayAccess1 expr)
-	{
-		X10ArrayAccess1Unary n = new X10ArrayAccess1Unary_c(pos, op, expr);
-		n = (X10ArrayAccess1Unary) n.ext(extFactory().extArrayAccess());
-		return (X10ArrayAccess1Unary) n.del(delFactory().delArrayAccess());
-	}
-
-	public Tuple Tuple(Position pos, Receiver p, Receiver r, List<Expr> a) {
+	public Tuple Tuple(Position pos, List<Expr> a) {
 		//Report.report(1, "X10NodeFactory_c making tuple " + p + " " + r + " " + a);
-		Tuple n = new Tuple_c(pos, p, r, a);
+		Tuple n = new Tuple_c(pos, null, null, a);
 		n = (Tuple) n.ext(extFactory().extCall());
 		n = (Tuple) n.del(delFactory().delCall());
 		return n;
@@ -761,20 +705,20 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (If)n.del(delFactory().delIf());
 		return n;
 	}
-	public RegionMaker RegionMaker(Position pos, Expr e1, Expr e2) {
+	public Expr RegionMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
 		TypeSystem ts = this.extensionInfo().typeSystem();
-
-		Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos, "x10.lang.region.factory");
+		
 		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
 		l.add(e1);
 		l.add(e2);
-		RegionMaker n = new RegionMaker_c( pos, x10LangRegionFactory, Id(pos, "region"), l  );
 
-		n = (RegionMaker) n.ext(extFactory().extExpr());
-		return (RegionMaker) n.del(delFactory().delExpr());
+		New n = New(pos, nf.TypeNodeFromQualifiedName(pos, "x10.lang.Region"), l);
+		n = (New) n.ext(extFactory().extExpr());
+		n = (New) n.del(delFactory().delExpr());
+		return n;
 	}
-	public RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, Id name, List<Expr> args) {
+	public Expr RectRegionMaker(Position pos, Receiver receiver, Id name, List<Expr> args) {
 
 		RectRegionMaker n = new RectRegionMaker_c( pos, receiver, name, args );
 

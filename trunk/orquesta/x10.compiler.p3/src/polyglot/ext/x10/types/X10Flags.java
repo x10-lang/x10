@@ -33,6 +33,7 @@ public class X10Flags extends Flags {
         public static final Flags SEQUENTIAL   = createFlag("sequential", null);
         public static final Flags INCOMPLETE   = createFlag("incomplete", null);
         public static final Flags PROPERTY     = createFlag("property", null);
+        public static final Flags SHARED       = createFlag("shared", null);
        
         /**
          * Return a new Flags object with a new name.  Should be called only once
@@ -287,6 +288,29 @@ public class X10Flags extends Flags {
              */
             public boolean isIncomplete() {
         	return contains(INCOMPLETE);
+            }
+            /**
+             * Return a copy of this <code>this</code> with the <code>shared</code>
+             * flag set.
+             * @param flags TODO
+             */
+            public  X10Flags Shared() {
+        	return setX(SHARED);
+            }
+            /**
+             * Return a copy of this <code>this</code> with the <code>shared</code>
+             * flag clear.
+             * @param flags TODO
+             */
+            public  X10Flags clearShared() {
+        	return clearX(SHARED);
+            }
+            /**
+             * Return true if <code>this</code> has the <code>shared</code> flag set.
+             * @param flags TODO
+             */
+            public boolean isShared() {
+        	return contains(SHARED);
             }
             /**
              * Return a copy of this <code>this</code> with the <code>property</code>

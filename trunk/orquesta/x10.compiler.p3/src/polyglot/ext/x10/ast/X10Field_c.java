@@ -71,7 +71,8 @@ public class X10Field_c extends Field_c {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
 		Type tType = target.type();
-		assert tType != null : "target " + target + " type is null";
+		if (tType == null)
+		assert tType != null : "type of target of |" + this + "| is null";
 		try {
 			//Report.report(1, "X10Field_c.tpeCheck: context" + tc.context());
 			Context c = tc.context();

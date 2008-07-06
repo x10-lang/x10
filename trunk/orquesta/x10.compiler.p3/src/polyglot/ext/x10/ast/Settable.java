@@ -12,17 +12,17 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Variable;
-
 
 /**
  * @author vj Jan 11, 2005
  * 
  */
-public interface X10ArrayAccess1 extends Variable {
-
+public interface Settable extends Variable {
+	
 	/**
 	 * Array to access.
 	 */
@@ -31,19 +31,18 @@ public interface X10ArrayAccess1 extends Variable {
 	/**
 	 * Set the array to access.
 	 */
-	X10ArrayAccess1 array(Expr array);
+	Settable array(Expr array);
 	
 	/**
 	 * Index into the array.
 	 */
-	Expr index();
+	List<Expr> index();
 	
 	/**
 	 * Set the index into the array.
 	 */
-	X10ArrayAccess1 index(Expr index);
+	Settable index(List<Expr> index);
 	
 
-	
 
 }

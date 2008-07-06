@@ -120,7 +120,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 	    }
 	    if (type instanceof ParametrizedType) {
 		    ParametrizedType mt = (ParametrizedType) type;
-		    for (Type t : mt.typeParams()) {
+		    for (Type t : mt.typeParameters()) {
 			    if (hasVar(t, var))
 				    return true;
 		    }

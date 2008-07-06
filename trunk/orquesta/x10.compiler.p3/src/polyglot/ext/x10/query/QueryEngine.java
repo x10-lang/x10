@@ -12,19 +12,13 @@ package polyglot.ext.x10.query;
 
 import polyglot.ast.Call;
 import polyglot.ast.Field;
+import polyglot.ast.Unary;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10.ast.X10ArrayAccess;
-import polyglot.ext.x10.ast.X10ArrayAccess1;
-import polyglot.ext.x10.ast.X10ArrayAccess1Assign;
-import polyglot.ext.x10.ast.X10ArrayAccess1Unary;
-import polyglot.ext.x10.ast.X10ArrayAccessAssign;
-import polyglot.ext.x10.ast.X10ArrayAccessUnary;
+import polyglot.ext.x10.ast.SettableAssign;
 import polyglot.ext.x10.types.X10ArraysMixin;
-import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor.Template;
 import polyglot.types.ArrayType;
 import polyglot.types.Type;
 
@@ -53,9 +47,13 @@ public class QueryEngine {
 	 * @param a Array variable being used in one-dimensional access
 	 * @return true iff a is a dense one-diemnsional array with zero origin
 	 */
-	public boolean isRectangularRankOneLowZero(X10ArrayAccess1 a) {
+	public boolean isRectangularRankOneLowZero(SettableAssign a) {
 		Type t = a.array().type();
-		return X10ArraysMixin.isRail(t) || (X10ArraysMixin.isZeroBased(t) && X10ArraysMixin.isRankOne(t) && X10ArraysMixin.isRect(t));
+	        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+	        if (ts.isX10Array(t))
+	            return X10ArraysMixin.isRail(t) || (X10ArraysMixin.isZeroBased(t) && X10ArraysMixin.isRankOne(t) && X10ArraysMixin.isRect(t));
+	        else
+	            return false;
 	}
 
 	protected boolean needsHereCheck(Type t) {
@@ -80,43 +78,17 @@ public class QueryEngine {
 		return needsHereCheck(f.target().type());
 	}
 
-	// TODO: consolidate the below with one interface
-	public boolean needsHereCheck(X10ArrayAccess1 a) {
-		return needsHereCheck(a.array().type());
-	}
-
-	public boolean needsHereCheck(X10ArrayAccess a) {
-		return needsHereCheck(a.array().type());
-	}
-
-	public boolean needsHereCheck(X10ArrayAccess1Assign a) {
-		Type lt = a.left().type();
-		if (lt instanceof ArrayType) {
-			ArrayType at = (ArrayType) lt;
-			return needsHereCheck(at.base());
+	public boolean needsHereCheck(SettableAssign a) {
+		Type lt = a.leftType();
+		X10TypeSystem ts = (X10TypeSystem) lt.typeSystem();
+		if (ts.isX10Array(lt)) {
+			return needsHereCheck(X10ArraysMixin.arrayBaseType(lt));
 		}
 		return false;
 	}
 
-	public boolean needsHereCheck(X10ArrayAccessAssign a) {
-		Type lt = a.left().type();
-		if (lt instanceof ArrayType) {
-			ArrayType at = (ArrayType) lt;
-			return needsHereCheck(at.base());
-		}
-		return false;
-	}
-
-	public boolean needsHereCheck(X10ArrayAccess1Unary a) {
-		Type lt = a.expr().type();
-		if (lt instanceof ArrayType) {
-			ArrayType at = (ArrayType) lt;
-			return needsHereCheck(at.base());
-		}
-		return false;
-	}
-
-	public boolean needsHereCheck(X10ArrayAccessUnary a) {
+	public boolean needsHereCheck(Unary a) {
+	    System.out.println("TODO: needsHereCheck for " + a);
 		Type lt = a.expr().type();
 		if (lt instanceof ArrayType) {
 			ArrayType at = (ArrayType) lt;

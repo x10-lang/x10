@@ -29,8 +29,10 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.TypeDef_c;
 import polyglot.ext.x10.types.TypeProperty_c;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10FieldInstance;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
@@ -38,6 +40,8 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.MemberDef;
+import polyglot.types.Named;
+import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -57,7 +61,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	private DepParameterExpr whereClause;
 	private List<Formal> formals;
 	private List<TypeParamNode> typeParams;
-	private Id id;
+	private Id name;
 	private FlagsNode flags;
 	
 	private TypeDef typeDef;
@@ -65,7 +69,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	public TypeDecl_c(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr where, TypeNode type) {
 		super(pos);
 		this.flags = flags;
-		this.id = name;
+		this.name = name;
 		this.typeParams = TypedList.copyAndCheck(typeParameters, TypeParamNode.class, true);
 		this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 		this.whereClause = where;
@@ -73,12 +77,12 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	}
 
 	public Id name() {
-		return this.id;
+		return this.name;
 	}
 
 	public TypeDecl name(Id id) {
 		TypeDecl_c n = (TypeDecl_c) copy();
-		n.id = id;
+		n.name = id;
 		return n;
 	}
 
@@ -134,7 +138,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 
 	/** Visit the children of the method. */
 	public Node visitChildren(NodeVisitor v) {
-		Id id = (Id) this.visitChild(this.id, v);
+		Id id = (Id) this.visitChild(this.name, v);
 		FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
 		List<TypeParamNode> typeParams = this.visitList(this.typeParams, v);
 		List<Formal> formals = this.visitList(this.formals, v);
@@ -144,7 +148,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	}
 	/** Visit the children of the method. */
 	public Node visitSignature(NodeVisitor v) {
-		Id id = (Id) this.visitChild(this.id, v);
+		Id id = (Id) this.visitChild(this.name, v);
 		FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
 		List<TypeParamNode> typeParams = this.visitList(this.typeParams, v);
 		List<Formal> formals = this.visitList(this.formals, v);
@@ -167,12 +171,41 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
 		final X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
-		ClassDef ct = tb.currentClass();
+		X10ClassDef ct = (X10ClassDef) tb.currentClass();
 
-		TypeDef typeDef = new TypeDef_c(ts, position(), flags.flags(), id.id(), ct != null ? Types.ref(ct.asType()) : null,
+		// If this is a top-level typedef, add it to a dummy class for the package.
+		// When looking up types, we'll look for the package class then walk through the members.
+		Package package_ = tb.currentPackage();
+		String dummyName = "package";
+		String dummyClass = (package_ != null ? package_.fullName() + "." : "") + "package";
+		
+		if (ct == null) {
+		    Named n = ts.systemResolver().check(dummyClass);
+		    if (n instanceof X10ParsedClassType) {
+			ct = ((X10ParsedClassType) n).x10Def();
+		    }
+		}
+		
+		if (ct == null) {
+		    ct = (X10ClassDef) ts.createClassDef();
+		    ct.kind(ClassDef.TOP_LEVEL);
+		    ct.setPackage(package_ != null ? Types.ref(package_) : null);
+		    ct.name(dummyName);
+		    ct.superType(Types.ref(ts.Object()));
+		    ct.flags(Flags.PUBLIC.Abstract());
+		    ts.systemResolver().install(dummyClass, ct.asType());
+		}
+		
+		if (ct == null)
+		    throw new SemanticException("Could not find enclosing class or package for type definition \"" + name.id() + "\".", position());
+
+		TypeDef typeDef = new TypeDef_c(ts, position(), flags.flags(), name.id(), Types.ref(ct.asType()),
 		                                                                           Collections.EMPTY_LIST,
 		                                                                           Collections.EMPTY_LIST,
 		                                                                           Collections.EMPTY_LIST, null, null);
+		ct.addMemberType(typeDef);
+
+		typeDef.setPackage(package_ != null ? Types.ref(package_) : null);
 
 	        TypeDecl_c n = (TypeDecl_c) copy();
 	        TypeBuilder tb2 = tb.pushDef(typeDef);
@@ -246,7 +279,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	}
 
 	public String nameString() {
-		return id.id();
+		return name.id();
 	}
 
 	public MemberDef memberDef() {

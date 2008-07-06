@@ -33,6 +33,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
@@ -140,7 +141,7 @@ public class X10Call_c extends Call_c implements X10Call {
         		return this.typeCheckNullTarget(tc, typeArgs, argTypes);
         	}
 
-        	ReferenceType targetType = this.findTargetType();
+        	StructType targetType = this.findTargetType();
         	String name = this.name.id();
 		ClassDef currentClassDef = c.currentClassDef();
 		MethodInstance mi = xts.findMethod(targetType, 
@@ -190,10 +191,10 @@ public class X10Call_c extends Call_c implements X10Call {
             Type type = target.type();
             String name = nameString();
             List arguments = arguments();
-            ReferenceType java_io_PrintStream = (ReferenceType) xts.forName("java.io.PrintStream");
+            StructType java_io_PrintStream = (StructType) xts.forName("java.io.PrintStream");
             if (xts.isX10Array(type)) {
             // Special methods on arrays
-            Type elem = xts.baseType(type);
+            Type elem = xts.arrayBaseType(type);
             //reduce(), scan(), restriction(), union(), overlay(), update(), and lift()
             if ((name.equals("reduce") && arguments.size() == 2 &&
                     xts.isSubtype(((Expr)arguments.get(0)).type(), xts.OperatorBinary()) &&

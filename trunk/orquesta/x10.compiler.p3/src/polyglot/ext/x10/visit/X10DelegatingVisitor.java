@@ -160,11 +160,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof PropertyDecl_c) { visit((PropertyDecl_c)n); return; }
 		if (n instanceof X10FieldDecl_c) { visit((X10FieldDecl_c)n); return; }
 		if (n instanceof FieldDecl_c) { visit((FieldDecl_c)n); return; }
-		if (n instanceof X10ArrayAccess1_c) { visit((X10ArrayAccess1_c)n); return; }
-		if (n instanceof X10ArrayAccess_c) { visit((X10ArrayAccess_c)n); return; }
 		if (n instanceof X10Unary_c) { visit((X10Unary_c)n); return; }
-		if (n instanceof X10ArrayAccessUnary_c) { visit((X10ArrayAccessUnary_c)n); return; }
-		if (n instanceof X10ArrayAccess1Unary_c) { visit((X10ArrayAccess1Unary_c)n); return; }
 		if (n instanceof Unary_c) { visit((Unary_c)n); return; }
 		if (n instanceof Tuple_c) { visit((Tuple_c)n); return; }
 		if (n instanceof X10Special_c) { visit((X10Special_c)n); return; }
@@ -215,8 +211,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Call_c) { visit((Call_c)n); return; }
 		if (n instanceof X10Binary_c) { visit((X10Binary_c)n); return; }
 		if (n instanceof Binary_c) { visit((Binary_c)n); return; }
-		if (n instanceof X10ArrayAccessAssign_c) { visit((X10ArrayAccessAssign_c)n); return; }
-		if (n instanceof X10ArrayAccess1Assign_c) { visit((X10ArrayAccess1Assign_c)n); return; }
+		if (n instanceof SettableAssign_c) { visit((SettableAssign_c)n); return; }
 		if (n instanceof LocalAssign_c) { visit((LocalAssign_c)n); return; }
 		if (n instanceof FieldAssign_c) { visit((FieldAssign_c)n); return; }
 		if (n instanceof ArrayAccessAssign_c) { visit((ArrayAccessAssign_c)n); return; }
@@ -282,8 +277,7 @@ public class X10DelegatingVisitor {
 					public void visit(ArrayAccessAssign_c n) { visit((Assign_c)n); }
 					public void visit(FieldAssign_c n) { visit((Assign_c)n); }
 					public void visit(LocalAssign_c n) { visit((Assign_c)n); }
-					public void visit(X10ArrayAccess1Assign_c n) { visit((Assign_c)n); }
-					public void visit(X10ArrayAccessAssign_c n) { visit((Assign_c)n); }
+					public void visit(SettableAssign_c n) { visit((Assign_c)n); }
 				public void visit(Binary_c n) { visit((Expr_c)n); }
 					public void visit(X10Binary_c n) { visit((Binary_c)n); }
 				public void visit(Call_c n) { visit((Expr_c)n); }
@@ -334,11 +328,7 @@ public class X10DelegatingVisitor {
 					public void visit(X10Special_c n) { visit((Special_c)n); }
 				public void visit(Tuple_c n) { visit((Expr_c)n); }
 				public void visit(Unary_c n) { visit((Expr_c)n); }
-					public void visit(X10ArrayAccess1Unary_c n) { visit((Unary_c)n); }
-					public void visit(X10ArrayAccessUnary_c n) { visit((Unary_c)n); }
 					public void visit(X10Unary_c n) { visit((Unary_c)n); }
-				public void visit(X10ArrayAccess_c n) { visit((Expr_c)n); }
-				public void visit(X10ArrayAccess1_c n) { visit((Expr_c)n); }
 				public void visit(Closure_c n) { visit((Expr_c)n); }
 				public void visit(ClosureCall_c n) { visit((Expr_c)n); }
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }

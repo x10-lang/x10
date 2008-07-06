@@ -29,6 +29,7 @@ import polyglot.ast.New;
 import polyglot.ast.NewArray;
 import polyglot.visit.NodeVisitor;
 import polyglot.ext.x10.ast.Atomic;
+import polyglot.ext.x10.ast.SettableAssign;
 
 /**
  * The <code>AsyncElimination</code> runs over the AST and 
@@ -98,13 +99,29 @@ public class AtomicElimination extends NodeVisitor {
         if (s instanceof Eval) {
             Eval e = (Eval) s;
             Expr e_expr = e.expr();
-            Assign a;
-            if (e_expr instanceof ArrayAccessAssign ||
-                e_expr instanceof FieldAssign ||
-                e_expr instanceof LocalAssign) {
-                a = (Assign) e_expr;
-                ret = numFieldRefs_(a.left()) == 0 && // don't allow writes 
+            if (e_expr instanceof SettableAssign) {
+        	SettableAssign a;
+        	a = (SettableAssign) e_expr;
+                ret = numFieldRefs_(a.array()) == 0 && // don't allow writes
+		      numFieldRefs_(a.index()) == 0 && // don't allow writes
                       numFieldRefs_(a.right()) <= 1;
+            }
+            if (e_expr instanceof ArrayAccessAssign) {
+        	ArrayAccessAssign a;
+        	a = (ArrayAccessAssign) e_expr;
+        	ret = numFieldRefs_(a.array()) == 0 && // don't allow writes 
+        	      numFieldRefs_(a.index()) == 0 && // don't allow writes 
+        	      numFieldRefs_(a.right()) <= 1;
+            }
+            if (e_expr instanceof FieldAssign) {
+        	FieldAssign a;
+        	a = (FieldAssign) e_expr;
+        	ret = false;
+            }
+            if (e_expr instanceof LocalAssign) {
+        	LocalAssign a;
+        	a = (LocalAssign) e_expr;
+        	ret = numFieldRefs_(a.right()) <= 1;
             }
         } 
         return ret;
@@ -113,6 +130,13 @@ public class AtomicElimination extends NodeVisitor {
     /* cludge class */
     private class Ctr {
         int ctr;
+    }
+    private int numFieldRefs_(List<Expr> es) {
+	int c = 0;
+	for (Expr e : es) {
+	    c += numFieldRefs_(e);
+	}
+	return c;
     }
     /**
      * Traverses an expression and determines if it does not

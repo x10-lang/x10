@@ -123,7 +123,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 		return Types.get(prop.container());
 	}
 
-	public List<Type> typeParams() {
+	public List<Type> typeParameters() {
 		return Collections.EMPTY_LIST;
 	}
 
@@ -139,7 +139,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 		return null;
 	}
 	
-	public PathType typeParams(List<Type> typeParams) {
+	public PathType typeParameters(List<Type> typeParams) {
 		assert typeParams.size() == 0;
 		return this;
 	}

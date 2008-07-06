@@ -18,6 +18,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
+import polyglot.ext.x10.types.PathType_c;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
@@ -114,13 +115,13 @@ public class Contains_c extends Expr_c implements Contains {
 		
 		if (collType.isSubtype(ts.Contains())) {
 		    Type paramType = X10TypeMixin.getParameterType(collType, "T");
-		    if (itemType.isSubtype(paramType))
+		    if (paramType != null && itemType.isSubtype(paramType))
 			return isSubsetTest(false).type(ts.Boolean());
 		}
 
 		if (collType.isSubtype(ts.ContainsAll())) {
 		    Type paramType = X10TypeMixin.getParameterType(collType, "T");
-		    if (itemType.isSubtype(paramType))
+		    if (paramType != null && itemType.isSubtype(paramType))
 			return isSubsetTest(true).type(ts.Boolean());
 		}
 

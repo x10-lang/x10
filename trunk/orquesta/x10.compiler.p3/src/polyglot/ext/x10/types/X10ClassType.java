@@ -12,6 +12,7 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -19,6 +20,7 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Named;
 import polyglot.types.Type;
+import polyglot.util.TransformingList;
 
 /** The representative of ClassType in the X10 type hierarchy. A class is a
  * reference; arrays are examples of references which are not classes.
@@ -49,4 +51,8 @@ public interface X10ClassType extends ClassType, X10Type, X10Use<X10ClassDef> {
     
     List<Type> typeProperties();
     Named typePropertyNamed(String name);
+    
+    List<Type> typeMembers();
+    List<Type> typeMembersNamed(String name);
+
 }

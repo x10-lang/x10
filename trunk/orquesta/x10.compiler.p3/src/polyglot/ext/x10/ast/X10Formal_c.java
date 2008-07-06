@@ -270,7 +270,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			// int arglist(i) = name[i];
 			Formal var = vars.get(i);
 			Expr index = x10nf.IntLit(var.position(), IntLit.INT, i).type(ts.Int());
-			Expr init = x10nf.X10ArrayAccess1(var.position(), arrayBase, index).type(ts.Int());
+			Expr init = x10nf.ClosureCall(var.position(), arrayBase, Collections.EMPTY_LIST, Collections.singletonList(index)).type(ts.Int());
 			LocalDef li = var.localDef();
 			Stmt d = makeLocalDecl(nf, var.position(), flags, intType, var.name(), li, init);
 			stmts.add(d);

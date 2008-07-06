@@ -20,10 +20,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ast.ArrayAccess;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
-import polyglot.ast.Call_c;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
@@ -55,15 +53,10 @@ import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.Now_c;
 import polyglot.ext.x10.ast.PropertyDecl_c;
 import polyglot.ext.x10.ast.RemoteCall_c;
+import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.TypePropertyNode;
 import polyglot.ext.x10.ast.When_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1Unary_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1_c;
-import polyglot.ext.x10.ast.X10ArrayAccessAssign_c;
-import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
-import polyglot.ext.x10.ast.X10ArrayAccess_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10Cast_c;
@@ -76,9 +69,7 @@ import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
-import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.ParameterType_c;
 import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10ClassType;
@@ -100,8 +91,6 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
-import x10.constraint.XLocal;
-import x10.constraint.XTerms;
 
 
 /**
@@ -741,6 +730,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		return arrayClass;
 	}
 
+	/*
 	public void visit(X10ArrayAccess1_c a) {
 		Template template;
 		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) && a.index().type().isPrimitive() ) {
@@ -785,32 +775,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		template.expand();
 		//new Template("array_get", a.array(), new Join(",", index)).expand();
 	}
-
-	public void visit(X10ArrayAccess1Assign_c a) {
+*/
+	public void visit(SettableAssign_c a) {
+	    Expr array = a.array();
+	    List<Expr> index = a.index();
+	    if (index.size() == 1) {
 		String operator = a.operator().toString();
-		X10ArrayAccess1_c left = (X10ArrayAccess1_c)a.left();
+		Expr theIndex = index.get(0);
 		Template template;
-		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(left) && left.index().type().isPrimitive() ) {
+		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) && theIndex.type().isPrimitive() ) {
 			// Array being accesses has isZeroBased = isRankOne = isRect = true, and array index is an int (not a point)
-			Type base_type = left.array().type();
+			Type base_type = array.type();
 			X10TypeSystem xt = (X10TypeSystem) base_type.typeSystem();
 			
 			if (xt.isPrimitiveTypeArray(base_type)) {
 //				 Create template optimized for primitive base type with direct access to arr_ field
 				String arrayClass = runtimeClassNameForPrimitiveArray(xt, base_type);
-				template = new Template("array_set_primitive_rect_rank_1_low_0", new Object[] { left.array(), left.index(), a.right(), operator, arrayClass});
+				template = new Template("array_set_primitive_rect_rank_1_low_0", new Object[] { array, theIndex, a.right(), operator, arrayClass});
 			}
 			else if ( xt.isX10Array(base_type)) {
 				// Create template with call to getBackingArray()
-				template = new Template("array_set_rect_rank_1_low_0", new Object[] { left.array(), left.index(), a.right(), operator});
+				template = new Template("array_set_rect_rank_1_low_0", new Object[] { array, theIndex, a.right(), operator});
 			}
 			else 
 				// Some other kind of array e.g., distribution ==> use general template
-				template = new Template("array_set", new Object[] { left.array(), left.index(), a.right(), a.opString(a.operator())});
+				template = new Template("array_set", new Object[] { array, theIndex, a.right(), a.opString(a.operator())});
 		}
 		else {
 			// Use general template
-			template = new Template("array_set", new Object[] { left.array(), left.index(), a.right(), a.opString(a.operator())});
+			template = new Template("array_set", new Object[] { array, theIndex, a.right(), a.opString(a.operator())});
 		}
 
 		TypeNode elt_type = getParameterType((X10Type)a.type());
@@ -824,16 +817,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//				 a.opString(a.operator())
 		//			 }).expand();
 	}
-
-	public void visit(X10ArrayAccessAssign_c a) {
+	    else {
 		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
 						  ? "array_set" : "array_set"; //"array_set_noplacecheck";
-		X10ArrayAccess_c left = (X10ArrayAccess_c) a.left();
-		List index = left.index();
 		assert index.size() > 1;
 		Template template = new Template(tmpl,
 										 new Object[] {
-											 left.array(), new Join(",", index),
+											 array, new Join(",", index),
 											 a.right(),
 											 a.opString(a.operator())
 										 });
@@ -847,7 +837,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//				 a.opString(a.operator())
 		//			 }).expand();
 	}
-
+	}
+	/*
 	public void visit(X10ArrayAccess1Unary_c a) {
 		if (a.expr() instanceof ArrayAccess) {
 			// WARNING: it's important to delegate to the appropriate visit() here!
@@ -930,7 +921,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		template.expand();
 		//new Template("array_unary", expr.array(), expr.index(),
 		//			 a.opString(a.operator())).expand();
-	    ****/
+	    **** /
 	}
 
 	public void visit(X10ArrayAccessUnary_c a) {
@@ -955,7 +946,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//new Template("array_unary", expr.array(), new Join(",", index),
 		//			 a.opString(a.operator())).expand();
 	}
-
+*/
 	private void printType(Type type) {
 //		X10Type t = (X10Type) type;
 //		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
@@ -993,52 +984,29 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    return;
 		}
 
-		if (xts.isSubtype(type, xts.array())) {
+		if (xts.isSubtype(type, xts.NativeRail()) || xts.isSubtype(type, xts.NativeValRail())) {
 			Type T = X10TypeMixin.getParameterType((X10Type) type, "T");
 			if (T == null) {
-				s = "x10.lang.genericArray";
+				s = "Object[]";
 			} else if (T.isBoolean()) {
-				s = "x10.lang.booleanArray";
+				s = "boolean[]";
 			} else if (T.isByte()) {
-				s = "x10.lang.byteArray";
+				s = "byte[]";
 			} else if (T.isShort()) {
-				s = "x10.lang.shortArray";
+				s = "short[]";
 			} else if (T.isChar()) {
-				s = "x10.lang.charArray";
+				s = "char[]";
 			} else if (T.isInt()) {
-				s = "x10.lang.intArray";
+				s = "int[]";
 			} else if (T.isLong()) {
-				s = "x10.lang.longArray";
+				s = "long[]";
 			} else if (T.isFloat()) {
-				s = "x10.lang.floatArray";
+				s = "float[]";
 			} else if (T.isDouble()) {
-				s = "x10.lang.doubleArray";
+				s = "double[]";
 			}
 		}
-		
-		if (xts.isSubtype(type, xts.Array())) {
-			Type T = X10TypeMixin.getParameterType((X10Type) type, "T");
-			if (T == null) {
-				s = "x10.lang.GenericReferenceArray";
-			} else if (T.isBoolean()) {
-				s = "x10.lang.BooleanReferenceArray";
-			} else if (T.isByte()) {
-				s = "x10.lang.ByteReferenceArray";
-			} else if (T.isShort()) {
-				s = "x10.lang.ShortReferenceArray";
-			} else if (T.isChar()) {
-				s = "x10.lang.CharReferenceArray";
-			} else if (T.isInt()) {
-				s = "x10.lang.IntReferenceArray";
-			} else if (T.isLong()) {
-				s = "x10.lang.LongReferenceArray";
-			} else if (T.isFloat()) {
-				s = "x10.lang.FloatReferenceArray";
-			} else if (T.isDouble()) {
-				s = "x10.lang.DoubleReferenceArray";
-			}
-		}
-		
+
 		if (s != null)
 			w.write(s);
 		else
@@ -1133,7 +1101,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	private void generateStaticOrInstanceCall(Position pos, Expr left, String name, Expr right) {
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
-		ReferenceType lType = (ReferenceType) left.type();
+		StructType lType = (StructType) left.type();
 		Type rType = right.type();
 		try {
 			try {
