@@ -83,9 +83,12 @@ public class X10ImplicitDeclarationExpander extends ContextVisitor
 
 	private Node visitLoop(X10Loop n) {
 		X10Formal f = (X10Formal) n.formal();
-		if (!f.hasExplodedVars())
+		if (!f.hasExplodedVars()) 
 			return n;
-		return n.locals(f.explode(nf, ts));
+		List<Stmt> locals = new java.util.ArrayList<Stmt>();
+		locals.addAll(f.explode(nf, ts));
+		locals.addAll(n.locals());
+		return n.locals(locals);
 	}
 }
 
