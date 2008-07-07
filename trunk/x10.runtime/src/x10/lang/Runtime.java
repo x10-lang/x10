@@ -243,11 +243,17 @@ public abstract class Runtime {
 	 * @return true if completed normally, false if interrupted
 	 */
 	public static boolean sleep(long millis) {
+		PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
 		try {
+			// Notify runtime that thread executing current activity will be blocked
+			activityRunner.getPlace().threadBlockedNotification();
 			Thread.sleep(millis);
 			return true;
 		} catch (InterruptedException e) {
 			return false;
+		} finally {
+			// Notify runtime that thread executing current activity has become unblocked
+			activityRunner.getPlace().threadUnblockedNotification();
 		}
 	}
 
