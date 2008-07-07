@@ -92,9 +92,10 @@ public abstract class x10Test  extends x10.lang.Object {
 		// Cannot use async -- have to force a real Thread
 		Thread timer = new Thread(new Runnable() {
 			public void run() {
-				if (x10.lang.Runtime.sleep(seconds*1000)) {
+				try {
+					Thread.sleep(seconds*1000);
 					x10.lang.Runtime.exit(128);
-				}
+				} catch (InterruptedException e) {}
 			}
 		});
 		timer.start();
