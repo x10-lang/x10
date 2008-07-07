@@ -146,31 +146,6 @@ types.
 
 \todo{Awkward, repetitive}
 
-\eat{
-Outline:
-\begin{itemize}
-\item Classes have value properties and type properties.
-\item Constrained types.
-\item Pluggable constraint solvers.
-\item This combination subsumes many OO type systems:
-\begin{itemize}
-\item Generics of various flavors:
-equality constraints, subtyping constraints, structural
-constraints, use-site variance, definition-site variance
-\item Translation from Java wildcards to constraints
-\item MyType: add \Xcd{class} property, and add
-$\Xcd{p} \ty \Xcd{C} \vdash \Xcd{p}.\Xcd{class} \subtype \Xcd{C}$,
-and/or add \Xcd{type} property.
-\item Virtual types plus contravariance (translation?)
-\item Virtual classes: add an \Xcd{outer} property and
-the constraint \Xcd{x}.\Xcd{type} == \Xcd{x}.\Xcd{outer}.\Xcd{T}
-\item Generalized constraints from C\#
-\item Ownership?  Generic ownership?
-\end{itemize}
-\end{itemize}
-}
-
-
 \todo{More positioning, relative to: DML, HM(X), constrained
 types (Trifonov, Smith) and subtyping constraints, Java
 generics, GJ, PolyJ, C\# generics, virtual types, liquid types}
@@ -228,7 +203,8 @@ class Point(x: float, y: float) { }
 \end{xten}
 
 A constrained type is a type \xcd"C{e}", where \xcd"C" is a
-class and \xcd"e" is a predicate, or list of predicates, on the properties of
+class---called the \emph{base class}---and \xcd"e" is a
+\emph{constraint}, or list of constraints, on the properties of
 \xcd"C" and the final variables in scope at the type.
 For example, given the above class definition,
 the type \xcd"Point{x*x+y*y<1}" is the type of all
@@ -338,8 +314,8 @@ type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
 \begin{xtenmath}
 class Object[class] { $\dots$ }
 \end{xtenmath}
-Scala's path-dependent types~\cite{scala} and J\&'s~\cite{nqm06}
-dependent classes
+Scala's path-dependent types~\cite{scala} and J\&'s
+dependent classes~\cite{nqm06}
 take a similar approach.
 
 Self types are achieved by
@@ -372,8 +348,9 @@ Section~\ref{sec:virtual}.
 
 \subsection{Implementation}
 
-Type properties and subtyping constraints may be used to 
-provide genericity.  Unlike existing 
+Type properties are a powerful mechanism
+for providing genericity in X10.
+Unlike existing 
 existing proposals for generic types in
 Java-like
 languages~\cite{Java3,adding-wildcards,GJ,Pizza,polyj,thorup97,allen03,allen04,csharp,emir06,scala},
@@ -388,14 +365,7 @@ X10 is intended. These proposals introduce unnecessary boxing
 and unboxing of primitives.
 Our design does not require primitives be boxed.
 
-Types properties may also be constrained contravariantly.
-
-\todo{move this para}
-Type and value constraints are also used to support generalized
-constraints~\cite{emir06}, optional methods~\cite{clu} and
-optional interfaces.
-
-\subsection{Structural constraints}
+\paragraph{Structural constraints.}
 
 Type constraints need not be limited to subtyping constraints.
 By introducing structural constraints on types, \gxx allows
@@ -404,17 +374,6 @@ of methods and fields. This feature is useful for reusing code
 in separate libraries since it does not require 
 code of one library to implement an interface to satisfy a
 constraint of another library.
-
-\eat{
-class Array[T](add: (T,T)=>T) {
-    def this[T](){T <: Arithmetic} = { 
-        property[T](T.add);
-    }
-    def this[T](){T <: Array, T.add != null} = { 
-        property[T](T.add);
-    }
-}
-}
 
 \paragraph{Outline.}
 The rest of the paper is organized as follows.
@@ -591,15 +550,19 @@ In X10, constructors have a return type, which constrains
 the properties of the new object.
 
 \begin{figure}
-\begin{xten}
+\begin{xtennoindent}
 class List[T](length: int){length >= 0} {
     var head: T;
     var tail: List[T];
 
     def this[S](): List[S](0) = property[S](0);
-    def this[S](hd: S): List[S](1) = { property[S](1); head = hd; }
-    def this[S](hd: S, tl: List[S]): List[S](tl.length+1) = {
-        property[S](tl.length+1); head = hd; tail = tl;
+    def this[S](hd: S): List[S](1) = {
+        property[S](1); head = hd;
+    }
+    def this[S](hd: S, tl: List[S])
+        : List[S](tl.length+1) = {
+        property[S](tl.length+1);
+        head = hd; tail = tl;
     }
 
     def map[S](f: (T)=>S): List[S] = ...;
@@ -611,10 +574,140 @@ class List[T](length: int){length >= 0} {
         throw new IndexOutOfBoundsException();
     }
 }
-\end{xten}
+\end{xtennoindent}
 \caption{List example}
 \label{fig:list}
 \end{figure}
+
+\subsection{Constrained types}
+
+A constrained type is written \xcd"C{e}", where \xcd"C" is the
+name of a class and \xcd"e" is a constraint on the
+properties of \xcd"C" and the final variables in scope at the
+type.  
+
+For brevity, the constraint may be omitted and
+interpreted as \xcd"true".
+The syntax
+\xcdmath"C[T$_1$,$\dots$,T$_m$](e$_1$,$\dots$,e$_n$)" is sugar for
+\xcdmath"C{X$_1$==T$_1$,$\dots$,X$_m$==T$_m$,x$_1$==e$_1$,$\dots$,x$_n$==e$_n$}"
+where \xcd"X$_i$" are the type properties and \xcd"x$_i$" are the
+value properties of \xcd"C".
+If either list of properties is empty, it may be omitted.
+
+In this shortened syntax, a type argument \xcd"T" used may also
+be annotated
+with
+a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
+if \xcd"X" is a type property, then
+the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
+\xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
+\xcd"C[T]" is sugar \xcd"C{X==T}".
+Use-site variance is discussed in more detail in
+Section~\ref{sec:variance}
+
+The compiler checks that constraints are expressions
+of type \xcd"boolean" and that they can be statically checked by
+the compiler's constraint solver.  X10 supports conjunctions of equality and
+subtyping consraints.  Compiler plugins may be installed to
+handle richer constraint systems such as Presburger arithmetic
+or set constraints.
+
+\subsection{Generics}
+
+Type properties and subtyping constraints are used in X10 to 
+provide genericity.
+
+Unlike existing 
+existing proposals for generic types in
+Java-like
+languages~\cite{Java3,adding-wildcards,GJ,Pizza,polyj,thorup97,allen03,allen04,csharp,emir06,scala},
+which 
+are implemented via type erasure,
+our design supports run-time introspection of generic types.
+
+Another problem with many of these proposals is inadequate support
+for primitive types, especially arrays. The performance of primitive arrays is
+critical for the high-performance applications for which
+X10 is intended. These proposals introduce unnecessary boxing
+and unboxing of primitives.
+Our design does not require primitives be boxed.
+
+\subsection{Type constraints and variance}
+\label{sec:variance}
+
+Type properties and subtyping constraints are used in X10 to 
+provide genericity.
+
+The \xcd"List" class in Figure~\ref{fig:list}.
+Consider the following subtypes  of \xcd"List".
+\begin{itemize}
+\item \xcd"List".  This type has no constraints on the type
+property \xcd"T".
+Any type that constrains \xcd"T",
+is a subtype of \xcd"List".  The type \xcd"List" is equivalent to
+\xcd"List{true}".
+%
+For a \xcd"List" \xcd"l", the return type of the \xcd"get" method
+is \xcd"l.T".
+Since the property \xcd"T" is unconstrained,
+the caller can only assign the return value of \xcd"get"
+to a variable of type \xcd"l.T" or of type \xcd"Object".
+In the following code, \xcd"y" cannot be passed to the \xcd"set" method
+because it is not known if \xcd"Object" is a subtype of \xcd"c.T".
+\begin{xten}
+val x: l.T = l.get(0);
+val y: Object = l.get(1);
+l.set(x); // legal
+l.set(y); // illegal
+\end{xten}
+
+\item \xcd"List{T==float}".
+The type property \xcd"T" is bound to \xcd"float".
+Assuming \xcd"l" has this type, then following code is legal:
+\begin{xten}
+val x: float = l.get();
+l.set(1.0);
+\end{xten}
+The type of \xcd"l.get()" is \xcd"l.T", which is equivalent to
+\xcd"float".
+
+\item \xcd"List{T<:Collection}".
+This type constrains \xcd"T" to be a subtype of \xcd"Collection".
+All instances of this type must bind \xcd"T" to a subtype of
+\xcd"Collection"; for example \xcd"List[Set]" (i.e.,
+\xcd"List{T==Set}" is a subtype of
+\xcd"List{T<:Collection}" because \xcd"T==Set" entails
+\xcd"T<:Collection".
+%
+If \xcd"l" has the type \xcd"List{T<:Collection}",
+then \xcd"l.get(0)" has type \xcd"l.T", which is an unknown but
+fixed subtype of \xcd"Collection"; the return value can be
+assigned into a variable of type \xcd"Collection".
+
+\item \xcd"List{T:>String}".  This type bounds the type property
+\xcd"T"
+from below.  The \xcd"set" method may be called with any
+supertype of \xcd"String"; the return type of the \xcd"get"
+method is known to be a
+supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
+\end{itemize}
+
+\subsection{Type properties}
+
+Type properties may be declared invariant, covariant, or
+contravariant.
+If a property \xcd"X" of a class \xcd"C" is covariant,
+then if \xcd"S" is a subtype of
+\xcd"T", the type \xcd"C{X==S}" is a subtype of \xcd"C{X==T}".
+Similarly, if \xcd"X" is contravariant, 
+                  \xcd"C{X==T}" is a subtype of \xcd"C{X==S}".
+It is illegal for a covariant property to occur in a negative
+position in its class declaration and for a contravariant
+property to occur in a positive position.  A position is
+negative if it is a formal parameter type, or occurs in a method
+where clause.  A position is positive if it is a return type or
+occurs in a method where clause.
 
 \subsection{Constructors}
 
@@ -656,13 +749,17 @@ type property and a value parameter for each value property.
 \subsection{Methods}
 
 Methods in X10 are declared with the \xcd"def" keyword.
+The \xcd"List" class in Figure~\ref{fig:list} declares methods
+\xcd"get" and \xcd"map".
 
 Like Java, X10 supports both instance and static methods.
 Since a type property is an instance member, a static method may
 not refer to a type property of the class.
 
-Interfaces are permitted to have static methods that must be
-implemented by classes that implement the interface; this is
+Interfaces are also permitted to have static methods.  Classes
+implementing the interface must provide an implementation of the
+static methods of the interface.
+This feature is
 useful when a type property \xcd"T" is constrained to implement
 an interface \xcd"I"; static methods of \xcd"I" can be invoked
 through \xcd"T".
@@ -682,21 +779,19 @@ ys: List[int] = xs.map[int](
         (x: String) => x.length());
 \end{xten}
 
-\subsubsection{Method where clauses}
+\paragraph{Conditional methods.}
 
-Methods may also have \emph{where clauses}, constraints on when
-the method may be invoked.  The \xcd"get" method in
+Methods and constructor may also have \emph{where clauses},
+constraints on how
+the method may be invoked.  The where clause is written after
+the
+method parameters and before the return type.  The \xcd"get" method in
 Figure~\ref{fig:list} requires that the argument \xcd"i" is
-within the list bounds.  A method with a \emph{where clause}
+within the list bounds.  A method with a where clause
 is called a \emph{conditional method}.
 
-\subsubsection{Conditional methods}
-
-Method and constructor parameters, both value parameters and
-type parameters,
-can be constrained with a where clause on the method.
-For type parameters,
-this feature is similar to generalized constraints proposed for
+For type parameters, method where clauses are 
+similar to generalized constraints proposed for
 C\#~\cite{emir06}.
 %
 In the following code, the \xcd"T" parameter is covariant
@@ -735,13 +830,22 @@ the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]"
 the call to \xcd"ys.append" is not allowed because the caller cannot show that
 ${\tt Number} \subtype {\tt Double}$.
 
-\subsubsection{Method overriding}
+\paragraph{Method overriding.}
 
-Legal if any call to super method can call sub method.
+Method overriding is similar to Java: a method of a subclass
+with the same name and parameter types overrides a method of the
+superclass.  An overridden method may have a return type that is
+a subtype of the superclass method's return type.
+A method where clause may be weakened by an overriding
+method; that is, the where clause of the superclass must entail the  
+where clause of the subclass.
 
-covariant return
-contravariant args
-weaker where clause
+\eat{
+\subsection{Interfaces}
+
+optional interfaces
+value properties in interfaces
+static methods in interfaces
 
 \subsubsection{Optional methods and interfaces}
 
@@ -787,144 +891,33 @@ of \xcd"Printable".  The constraint \xcd"{T <: Printable}" on
 the \xcd"print" method is more restrictive than the 
 constraint (i.e., \xcd"true") on 
 \xcd"Printable.print".
-
-\subsection{Interfaces}
-
-optional interfaces
-value properties in interfaces
-static methods in interfaces
-
-\subsection{Constrained types}
-
-\subsection{Type constraints}
-
-\subsection{Subtyping constraints and variance}
-\label{sec:variance}
-
-XXX Generics with subtyping constraints.
-
-Type properties and subtyping constraints may be used to 
-provide genericity.  Unlike existing 
-existing proposals for generic types in
-Java-like
-languages~\cite{Java3,adding-wildcards,GJ,Pizza,polyj,thorup97,allen03,allen04,csharp,emir06,scala},
-which 
-are implemented via type erasure,
-our design supports run-time introspection of generic types.
-
-Another problem with many of these proposals is inadequate support
-for primitive types, especially arrays. The performance of primitive arrays is
-critical for the high-performance applications for which
-X10 is intended. These proposals introduce unnecessary boxing
-and unboxing of primitives.
-Our design does not require primitives be boxed.
-
-The \xcd"Cell" defined class above is a generic class.
-The following are legal types:
-\begin{itemize}
-\item \xcd"Cell".  This type has no constraints on \xcd"T".
-Any type that constrains \xcd"T", those below,
-is a subtype of \xcd"Cell".  The type \xcd"Cell" is equivalent to
-\xcd"Cell{true}".
-%
-For a \xcd"Cell" \xcd"c", the return type of the \xcd"get" method
-is \xcd"c.T".
-Since the property \xcd"T" is unconstrained,
-the caller can only assign the return value of \xcd"get"
-to a variable of type \xcd"c.T" or of type \xcd"Object".
-In the following code, \xcd"y" cannot be passed to the \xcd"set" method
-because it is not known if \xcd"Object" is a subtype of \xcd"c.T".
-\begin{xten}
-val x: c.T = c.get();
-val y: Object = c.get();
-c.set(x); // legal
-c.set(y); // illegal
-\end{xten}
-
-\item \xcd"Cell{T==float}".
-The type property \xcd"T" is bound to \xcd"float".
-Assuming \xcd"c" has this type, the following code is legal:
-\begin{xten}
-val x: float = c.get();
-c.set(1.0);
-\end{xten}
-The type of \xcd"c.get()" is \xcd"c.T", which is equivalent to
-\xcd"float".
-Similarly, the \xcd"set" method takes a \xcd"float" as argument.
-
-\item \xcd"Cell{T<:int}".
-This type constrains \xcd"T" to be a subtype of \xcd"int".
-All instances of this type must bind \xcd"T" to a subtype of \xcd"int".
-The following expressions have this type:
-\begin{xten}
-new Cell[int](1);
-new Cell[int{self==3}](3);
-\end{xten}
-The cell in the first expression may contain any \xcd"int".
-The cell in the second expression may contain only \xcd"3".
-%
-If \xcd"c" has the type \xcd"Cell{T<:int}",
-then \xcd"c.get()" has type \xcd"c.T", which is an unknown but
-fixed subtype of \xcd"int".  The \xcd"set" method of \xcd"c" can
-only be called with an object of type \xcd"c.T".
-
-\item \xcd"Cell{T:>String}".  This type bounds the type property
-\xcd"T"
-from below.  The \xcd"set" method may be called with any
-supertype of \xcd"String"; the return type of the \xcd"get"
-method is known to be a
-supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
-\end{itemize}
-
-For brevity, the constraint may be omitted and
-interpreted as \xcd"true".
-The syntax
-\xcd"C[T1,...,Tm](e1,...,en)" is sugar for
-\xcd"C{X1==T1,...,Xm==Tm,x1==e1,...,xn==en}"
-where \xcd"Xi" are the type properties and \xcd"xi" are the
-value properties of \xcd"C".
-If either list of properties is empty, it may be omitted.
-
-In this shortened syntax, a type argument \xcd"T" used may also be annotated
-with
-a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
-if \xcd"X" is a type property, then
-the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
-\xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
-\xcd"C[T]" is sugar \xcd"C{X==T}".
+}
 
 \subsection{Function-typed properties}
 
 \begin{figure}
 
 \begin{xtenmathnoindent}
-class List[T](equals: (T,T)=>boolean) {
-    val head: T;
-    val tail: List[T];
-
+class SortedList(compare: (T,T)=>int) extends List {
     def this[T](hd: T, tl: List[T],
-                eq: (T,T)=>boolean)
-                : List[T](eq) = {
-        property[T](eq);
-        this.head = hd;
-        this.tail = tl;
+                compare: (T,T)=>int)
+        : SortedList[T](compare) = {
+        super[T](hd, tl);
+        property(compare);
     }
 
-    def this[T](hd: T, tl: List[T])
-                : List[T](T.equals(Object)) = {
-        this[T](hd, tl, T.equals.(Object));
+    def this[T](hd: T, tl: List[T]){T <: Comparable}
+        : SortedList[T](T.compare.(Object)) = {
+        this[T](hd, tl, T.compareTo.(Object));
     }
 
-    def contains(x: T) = {
-        return equals(head, x) ||
-               tail != null && tail.contains(x);
+    def add(x: T) = {
+        $\dots$ compare(x, y) $\dots$
     }
-
-    $\dots$
 }
 \end{xtenmathnoindent}
 
-\caption{A linked list class with function-typed value properties}
+\caption{A \Xcd{SortedList} class with function-typed value properties}
 \label{fig:linked}
 \end{figure}
 
@@ -932,45 +925,41 @@ class List[T](equals: (T,T)=>boolean) {
 X10 supports first-class functions.
 Function-typed properties are a useful feature for generic
 collection classes.  Consider the definition of the
-\xcd"List" class in Figure~\ref{fig:linked}.
-The class has a property \xcd"equals" of type
-\xcd"(T,T)=>boolean"---a function that takes two \xcd"T"s and
-returns a \xcd"boolean".  The class declares two constructors,
-one takes a function to bind to the \xcd"equals"
-property, and another that binds \xcd"T"'s \xcd"equals" method to
-the property.  The \xcd"contains" method uses the \xcd"equals"
+\xcd"SortedList" class in Figure~\ref{fig:linked}.
+The class has a property \xcd"compare" of type
+\xcd"(T,T)=>int"---a function that takes two \xcd"T"s and
+returns an \xcd"int".  The class declares two constructors,
+one that takes a function to bind to the \xcd"compare"
+property, and another that binds \xcd"T"'s \xcd"compare" method to
+the property.  The \xcd"compare" method uses the \xcd"equals"
 function to compare elements. 
 
-Using this definition, one can create a list of \xcd"String"
-with
-\xcd"new List[String]("hello", null)".  In this list, strings
-are compared using \xcd"String.equals".  One can also create a 
-list where comparisons are case insensitive with
-\xcd"new List[String]("hello", null, String.equalsIgnoreCase.(String))".
-
-Furthermore, since \xcd"equals" is a property, it can be
-constrained in a type, allowing the programmer to prevent lists with
-different notions of equality from being confused:
+Using this definition, one can create lists with distinct types
+of, for example, case-sensitive and case-insensitive strings:
 \begin{xten}
-as: List[String](String.equalsIgnoreCase.(String));
-bs: List[String](String.equals.(Object));
-cs: List[String];
-as = bs; // illegal!
-bs = as; // illegal!
-cs = as; // ok
-cs = bs; // ok
+val unixFiles
+  = new SortedList[String]
+        (String.compareTo.(String));
+val windowsFiles
+  = new SortedList[String]
+        (String.compareToIgnoreCase.(String));
 \end{xten}
 
+\noindent
+The lists \xcd"unixFiles" and \xcd"windowsFiles" are constrained
+by different comparison functions.  This allows the programmer
+to write code, for instance, in which it is illegal to pass a list of UNIX
+files into a function that expects a list of Windows files, and
+vice versa.
 
-\subsection{Structural constraints}
+\section{Structural constraints}
 \label{sec:structural}
 
-XXX this is an extension of the type system
 
 \begin{figure}[tp]
 \begin{center}
 \begin{tabular}{lrcl}
-expressions & {\tt e} & ::= & \dots \\
+constraints & {\tt c} & ::= & \dots \\
             &        & \bnf & \xcd"T has Sig" \\
 signatures  & {\tt Sig} & ::= &
 \xcdmath"def this[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
@@ -985,11 +974,14 @@ signatures  & {\tt Sig} & ::= &
 \label{fig:structural}
 \end{figure}
 
-The type system is general enough to support not only subtyping
-constraints, but also structural constraints on types.  The type
+In this section, we consider an extension of the X10 type system
+to support structural type constraints.
+The type
 system need not change except by extending the constraint
 system.  The syntax for structural constraints is shown in
-Figure~\ref{fig:structural}.
+Figure~\ref{fig:structural}.  A structural constraint of the
+form \xcd"T has Sig" can specify that the type \xcd"T" have a
+constructor, method, or field of the given signature.
 
 Structural constraints on types are found in many languages.
 Haskell~\cite{haskell} supports type classes.
@@ -1000,33 +992,31 @@ rather than nominal as in object-oriented languages of the C
 family such as C++, Java, Scala, and X10.
 %
 The language PolyJ~\cite{polyj} allows type parameters to be bounded using
-structural where clauses, a form of F-bounded
-polymorphism~\cite{fbounds}.
+structural where clauses.
 For example, a sorted list class in PolyJ can be written as follows:
 \begin{xten}
-class SortedList[T] where T { int compare(T) } {
-    void add(T x) { ... x.compare(y) ... }
+class SortedList[T] where T { int compareTo(T) } {
+    void add(T x) { ... x.compareTo(y) ... }
 }
 \end{xten}
 The where clause states that the type parameter \xcd"T" must have a
-method \xcd"compare" with the given signatures.
+method \xcd"compareTo" with the given signature.
 
-To support this, X10 provides structural constraints on types.
-The analogous X10 code for \xcd"SortedList" is:
+The analogous code for \xcd"SortedList" in the structural
+extension of X10 is:
 \begin{xten}
-class SortedList[T] where T has compare(T): int {
-    def add(x: T) = { ... x.compare(y) ... }
+class SortedList[T]{T has def compareTo(T): int} {
+    def add(x: T): void = { ... x.compareTo(y) ... }
 }
 \end{xten}
 
-A structural constraint is of the form \emph{Type}~\xcd"has"~\emph{Signature}.
 A constraint is satisfied if the type has a member of the appropriate name
 and with a compatible type.
-The constraint \xcd"X has f(T1): T2"
-is satisfied by a type \xcd"T" if it has a method \xcd"f"
-whose type is a subtype of \xcd"(T1 => T2)"$[{\tt T}/{\tt X}]$.
+The constraint \xcdmath"X has def m(T$_1$): T$_2$"
+is satisfied by a type \xcd"T" if it has a method \xcd"m"
+whose type is a subtype of \xcdmath"(T$_1$ => T$_2$)"$[{\tt T}/{\tt X}]$.
 As an example,
-the constraint \xcd"X has equals(X): boolean"
+the constraint \xcd"X has def equals(X): boolean"
 is satisfied by all three of the following classes:
 \begin{xten}
 class C { def equals(x: C): boolean; }
@@ -1075,25 +1065,27 @@ a \xcd"compareTo"
 method without explicitly specifying the method at each constructor call.
 
 
-
-\subsection{Self types}
+\section{Self types}
 \label{sec:self}
 
-Type properties can also be used to support self
-types~\cite{bruce-binary,bsg95}.
+X10 itself does not support self 
+types~\cite{bruce-binary,bsg95}
+directly, but type properties can
+be used to encode them.
 
+%
 We introduce a 
 type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
 \begin{xtenmath}
 class Object[class] { $\dots$ }
 \end{xtenmath}
-Scala's path-dependent types~\cite{scala} and J\&'s~\cite{nqm06}
-dependent classes
+Scala's path-dependent types~\cite{scala} and J\&'s
+dependent classes~\cite{nqm06}
 take a similar approach.
 
 \noindent
 Self types are achieved by
-implicitly constraining types so that if an path expression \Xcd{p}
+implicitly constraining types so that if a path expression \Xcd{p}
 has type \Xcd{C}, then
 $\Xcd{p}.\Xcd{class} \subtype \Xcd{C}$.  In particular,
 $\Xcd{this}.\Xcd{class}$ is guaranteed to be a subtype
