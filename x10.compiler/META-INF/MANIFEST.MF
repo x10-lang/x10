@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
-Bundle-Version: 0.1.73
+Bundle-Version: 0.1.77
 Bundle-Localization: plugin
 Require-Bundle: x10.runtime,
  polyglot,
