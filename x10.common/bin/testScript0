@@ -373,7 +373,7 @@ genTest() {
       extractClassPath "$f"
       classpath="$RESULT"
       # run an actual x10 test case
-      doTest "$pkg" "$path" "${file%.x10}" "$options"
+      doTest "$pkg" "$path" "${file%.x10}" "$options" "$classpath"
       #echo 2>&1 "Done with $path/$pkg/$file"
     fi
   done < <(findTests "$topDir")
@@ -678,11 +678,12 @@ doTest() {
 	# TODO: run test via TestHarness instead.
 # run the x10 test case $tstDir/$srcDir/test.x10
 
-  chkArgs 4 "$@"
+  chkArgs 5 "$@"
   local srcDir="$1"
   local testDir="$2"
   local test="$3"
   local options="$4"
+  local classpath="$5"
   local x10FileName="$testDir/$srcDir/$test.x10" #./Misc/./a/b/c.x10
   changeSlashToDot "$srcDir/$test"
   local className="$RESULT"             #a.b.c
@@ -695,7 +696,7 @@ doTest() {
 
   let "nTotal = (( $nTotal + 1 ))"
 
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath $testDir:$classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir:$classpath\" -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
 
   if [[ $? != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
@@ -709,7 +710,7 @@ doTest() {
   # the output must contain 'Test succeeded'
   # the output must not contain a java stack traceback
   let "x10test_timeout = (( $timeLimit + 30 ))"
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -mx 128M -classpath $testDir:$classpath -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -mx 128M -classpath \"$testDir:$classpath\" -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   local runRc=$?
 
   echo ""                                    >> logDetail.$tdir.$className
