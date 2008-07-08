@@ -280,6 +280,14 @@ extractOptions() {
     RESULT="`sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' "$f"`"
 }
 
+extractClassPath() {
+# extract additional classpath from a *.x10 file f
+
+    chkArgs 1 "$@"
+    local f="$1"
+    RESULT="`sed -ne 's|^\s*//\s*CLASSPATH*\:\s*\(.*\)|\1|p' "$f"`"
+}
+
 removeDotSlash() {
 # convert ./a/b/./c to a/b/c
 
@@ -362,6 +370,8 @@ genTest() {
       [ -n "$pkg" ] || pkg='.'
       extractOptions "$f"
       options="$RESULT"
+      extractClassPath "$f"
+      classpath="$RESULT"
       # run an actual x10 test case
       doTest "$pkg" "$path" "${file%.x10}" "$options"
       #echo 2>&1 "Done with $path/$pkg/$file"
@@ -685,7 +695,7 @@ doTest() {
 
   let "nTotal = (( $nTotal + 1 ))"
 
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath $testDir -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath $testDir:$classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
 
   if [[ $? != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
@@ -699,7 +709,7 @@ doTest() {
   # the output must contain 'Test succeeded'
   # the output must not contain a java stack traceback
   let "x10test_timeout = (( $timeLimit + 30 ))"
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -mx 128M -classpath $testDir -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -mx 128M -classpath $testDir:$classpath -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   local runRc=$?
 
   echo ""                                    >> logDetail.$tdir.$className
