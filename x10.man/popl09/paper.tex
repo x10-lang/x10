@@ -397,92 +397,7 @@ Finally, Section~\ref{sec:conclusions} concludes.
 \section{Related work}
 \label{sec:related}
 
-\subsection{Dependent types}
-
-\cite{dependent-types,xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter,calc-constructions}
-
-Liquid types \cite{liquid-types}
-
-Hybrid types \cite{flanagan-popl06,flanagan-fool06}
-
-Constrained types
-\cite{sulzmann97type}
-\cite{trifonov96}
-\cite{pottier01b}
-
-Subtyping constraints
-\cite{pottier96simplifying}
-
-HM(X) \cite{pottier01a}
-
-
-\subsection{Generics}
-
-\cite{unifying-genericity}
-\cite{adding-wildcards}
-\cite{emir06}
-\cite{myers94}
-\cite{polyj}
-\cite{allen04}
-\cite{allen03}
-
-\subsection{Virtual types}
-\label{sec:virtual}
-
-Thorup~\cite{thorup97}
-proposed adding genericity to Java using virtual types.  For example,
-a generic \xcd"List" class can be written as follows:
-\begin{xten}
-abstract class List {
-    abstract typedef T;
-    void add(T element) { ... }
-    T get(int i) { ... }
-}
-\end{xten}
-This class can be refined by bounding the virtual type \xcd"T" above:
-\begin{xten}
-abstract class NumberList extends List {
-    abstract typedef T as Number;
-}
-\end{xten}
-And this abstract class can be further refined to \emph{final bind}
-\xcd"T" to a particular type:
-\begin{xten}
-class IntList extends NumberList {
-    final typedef T as Integer;
-}
-\end{xten}
-These classes are related by subtyping:
-${\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}$.
-Only classes where \xcd"T" is final bound can be non-abstract.
-
-The analogous definition of 
-\xcd"List" using type properties is as follows:
-\begin{xten}
-class List[T] {
-    def add(element: T) = { ... }
-    def get(i: int): T = { ... }
-}
-\end{xten}
-
-\noindent
-\xcd"NumberList" and \xcd"IntList" can be written as follows:
-\begin{xten}
-class NumberList extends List{T<:Number} { }
-class IntList extends NumberList{T==Integer} { }
-\end{xten}
-
-However, note that our version of \xcd"List" is not abstract.
-Instances of \xcd"List"
-can instantiate \xcd"T" with a particular type and there is no
-need to declared classes for \xcd"NumberList" and \xcd"IntList".
-Instead, one can simply use the types
-\xcd"List{T<:Number}" and \xcd"List{T==Integer}".
-
-In addition,
-unlike virtual types, type properties can be refined contravariantly.
-For instance, one can write the type \xcd"List{T:>Integer}",
-and even \xcd"List{Integer<:T, T<:Number}".
+\input{related}
 
 \section{X10 language overview}
 \label{sec:lang}
@@ -918,14 +833,14 @@ class SortedList(compare: (T,T)=>int) extends List {
 \end{xtenmathnoindent}
 
 \caption{A \Xcd{SortedList} class with function-typed value properties}
-\label{fig:linked}
+\label{fig:sorted}
 \end{figure}
 
 
 X10 supports first-class functions.
 Function-typed properties are a useful feature for generic
 collection classes.  Consider the definition of the
-\xcd"SortedList" class in Figure~\ref{fig:linked}.
+\xcd"SortedList" class in Figure~\ref{fig:sorted}.
 The class has a property \xcd"compare" of type
 \xcd"(T,T)=>int"---a function that takes two \xcd"T"s and
 returns an \xcd"int".  The class declares two constructors,
@@ -984,7 +899,8 @@ form \xcd"T has Sig" can specify that the type \xcd"T" have a
 constructor, method, or field of the given signature.
 
 Structural constraints on types are found in many languages.
-Haskell~\cite{haskell} supports type classes.
+Haskell supports type
+classes~\cite{haskell,haskell-type-classes}.
 %ML's module system allows modules to be constrained by
 %structural signatures~\cite{ml}.
 In Modula-3, type equivalence and subtyping are structural
@@ -993,10 +909,13 @@ family such as C++, Java, Scala, and X10.
 %
 The language PolyJ~\cite{polyj} allows type parameters to be bounded using
 structural where clauses.
-For example, a sorted list class in PolyJ can be written as follows:
+For example, the sorted list class from Figure~\ref{fig:sorted}
+could be
+be written as follows in PolyJ:
 \begin{xten}
 class SortedList[T] where T { int compareTo(T) } {
     void add(T x) { ... x.compareTo(y) ... }
+    ...
 }
 \end{xten}
 The where clause states that the type parameter \xcd"T" must have a
@@ -1006,64 +925,31 @@ The analogous code for \xcd"SortedList" in the structural
 extension of X10 is:
 \begin{xten}
 class SortedList[T]{T has def compareTo(T): int} {
-    def add(x: T): void = { ... x.compareTo(y) ... }
+    def add(x: T) = { ... x.compareTo(y) ... }
+    ...
 }
 \end{xten}
 
-A constraint is satisfied if the type has a member of the appropriate name
-and with a compatible type.
-The constraint \xcdmath"X has def m(T$_1$): T$_2$"
+A structural constraint is satisfied if the type has a member of
+the appropriate name and with a compatible type.  The constraint
+\xcdmath"Z has def m[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$): U"
 is satisfied by a type \xcd"T" if it has a method \xcd"m"
-whose type is a subtype of \xcdmath"(T$_1$ => T$_2$)"$[{\tt T}/{\tt X}]$.
+with signature
+\xcdmath"def m[$\tbar{Y}$]($\tbar{y}\ty\tbar{S}$): V"
+and where
+(\xcdmath"[$\tbar{Y}$]($\tbar{y}\ty\tbar{S}$) => V")$[\Xcd{T}/\Xcd{Z}]$
+is a subtype of
+(\xcdmath"[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$) => U")$[\Xcd{T}/\Xcd{Z}]$.
 As an example,
-the constraint \xcd"X has def equals(X): boolean"
-is satisfied by all three of the following classes:
+the constraint \xcd"X has def compareTo(X): int"
+is satisfied by both of the following classes:
 \begin{xten}
-class C { def equals(x: C): boolean; }
-class D extends C { }
-class E { def equals(x: Object): boolean; }
+class C { def compareTo(x: C): int = ...; }
+class D { def compareTo(x: Object): int = ...; }
 \end{xten}
 
-By using function types and where clauses on constructors,
-X10 can go further than PolyJ.
-Unlike in PolyJ, where the \xcd"compare" method must be provided by \xcd"T",
-in X10 the \xcd"compare" function can be external to \xcd"T".
-This is achieved as follows:
-\begin{xten}
-class SortedList[T] {
-    val compare: (T,T) => int;
-    def this(cmp: (T,T) => int) = { compare = cmp; }
-    def add(x: T) = { ... compare(x,y) ... }
-}
-\end{xten}
-
-This permits
-\xcd"SortedList" to be instantiated using different compare functions:
-\begin{xten}
-val unixFiles    = new SortedList[String]
-                        (String.compareTo.(String));
-val windowsFiles = new SortedList[String]
-                        (String.compareToIgnoreCase.(String));
-\end{xten}
-
-But, a problem with this approach is that the compare function must be
-provided to the constructor at each instantiation of \xcd"SortedList".
-The problem can be resolved by using constructors with different
-structural constraints:
-\begin{xten}
-class SortedList[T] {
-    val compare: (T,T) => int;
-    def this[T]() where T has compareTo(T): int = {
-        this[T](T.compareTo.(S));
-    }
-    def this[T](cmp: (T,T) => int) = { compare = cmp; }
-    def add(x: T) = { ... compare(x,y) ... }
-}
-\end{xten}
-Now, \xcd"SortedList" can be instantiated with any type that has
-a \xcd"compareTo"
-method without explicitly specifying the method at each constructor call.
-
+\todo{The important bit about all this is... don't have to
+      change the type system, just the constraints}
 
 \section{Self types}
 \label{sec:self}
