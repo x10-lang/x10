@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
  * Stores the generic type parameter names for a class.
  */
 @Retention(RetentionPolicy.CLASS)
-@Target({ElementType.METHOD,ElementType.CONSTRUCTOR})
+@Target({ElementType.TYPE,ElementType.METHOD,ElementType.CONSTRUCTOR})
 public @interface Synthetic { }
