@@ -82,6 +82,8 @@ public class List implements Runnable {
 		System.out.println("Created an array with {{"+r[0][0]+"},{"+r[1][0]+"}}");
 		T[][][] s = new T[3][2][1];
 		System.out.println("Created an array with {"+s[0]+","+s[1]+","+s[2]+"}");
+		List/*[T]*/[][][] t = (List[][][])Runtime.newarray$(new List/*[T]*/[3][2][1], T.class);
+		System.out.println("Created an array with {"+t[0]+","+t[1]+","+t[2]+"}");
 		List l2 = new List(int[].class);
 		boolean x2 = Runtime.instanceof$(List.instanceof$(l2, "int[]{self.length<2}"), int[].class);
 		System.out.println("\t"+l2.getClass().getName()+" "+(x2?"is":"isn't")+" an instance of List$int[]");
