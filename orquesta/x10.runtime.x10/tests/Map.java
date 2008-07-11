@@ -35,7 +35,7 @@ public class Map implements Runnable {
 	public void remove(K k) {
 		key = EMPTY;
 	}
-	public static boolean mark() {
+	public boolean mark() {
 		System.out.println("Executing: "+Map.class.getName());
 		//throw new MapException(int.class);
 		throw new MapException(K.class);
@@ -64,7 +64,7 @@ public class Map implements Runnable {
 		@Instantiation({"MapException","Map$K"})
 		class MapException__K extends RuntimeException { };
 		try {
-			Map.mark();
+			mark();
 		} catch (MapException__K e) {
 			System.out.println("Caught "+e.getClass().getName());
 		}
