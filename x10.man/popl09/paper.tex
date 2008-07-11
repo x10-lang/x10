@@ -159,36 +159,30 @@ that combines genericity and dep types in some vague general way.}
 
 Modern object-oriented type systems provide 
 many features to improve productivity by 
-allowing programmers to express strong program
+allowing programmers to express program
 invariants as types that are
 checked by the compiler, without sacrificing the ability to
 reuse code.
-
-Examples include generics, self types, 
-dependent types. 
 We present a dependent type system
 that extends a class-based language with
-statically-enforced constraints on
-types and values.
+statically-enforced constraints on types and values.
 This type system 
 supports several features of modern object-oriented 
 language through natural extensions of the core dependent type
 system: generic types, virtual types, and self types
 among them.
 
-We have formalized the type system in an extension of
-Featherweight Java~\cite{FJ}
-and provide proof of soundness.
-The type system is parametrized on the constraint system.
-By augmenting the default constraint system,
-the type system can serve as a core calculus 
-for formalizing extensions of a core object-oriented language. 
-
-The key idea is to define
-\emph{constrained types},
+The key idea is to define \emph{constrained types},
 a form of dependent type
 defined on predicates over types and over the immutable state of
 the program.
+The type system is parametrized on a constraint system.
+We have formalized the type system in an extension of
+Featherweight Java~\cite{FJ}
+and provide proof of soundness.
+By augmenting the default constraint system,
+the type system can serve as a core calculus 
+for formalizing extensions of a core object-oriented language. 
 
 This work is done in the context of the X10
 programming language~\cite{X10}.
@@ -278,6 +272,7 @@ Many features of modern object-oriented type systems fall out
 naturally from this type system.
 
 \paragraph{Generic types.}
+Constraints on type properties lead directly to a form of generic class.
 The \xcd"Cell" defined class above is a generic class.
 X10 supports
 equality constraints, written \xcdmath"T$_1$==T$_2$", and
@@ -300,47 +295,19 @@ All instances with this type must bind \xcd"T" to a subtype of
 Variables of this type may contain \xcd"Cell"s of
 \xcd"Collection", \xcd"Cell" of \xcd"List",
 or \xcd"Cell" of \xcd"Set", etc.
-
 Subtyping constraints provide similar expressive power as Java
 wildcards.  We describe an encoding of wildcards in
 Section~\ref{sec:wildcards}. 
 
-\paragraph{Self types.}
-Type properties can also be used to support a form of self
-types~\cite{bruce-binary,bsg95}.
-%
-Self types can be implemented by introducing a
-type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
-\begin{xtenmath}
-class Object[class] { $\dots$ }
-\end{xtenmath}
-Scala's path-dependent types~\cite{scala} and J\&'s
-dependent classes~\cite{nqm06}
-take a similar approach.
+\paragraph{Other type systems.}
 
-Self types are achieved by
-implicitly constraining types so that if an path expression \Xcd{p}
-has type \Xcd{C}, then
-$\Xcd{p}.\Xcd{class} \subtype \Xcd{C}$.  In particular,
-$\Xcd{this}.\Xcd{class}$ is guaranteed to be a subtype
-of the lexically enclosing class; the type
-$\Xcd{this}.\Xcd{class}$ represents all instances of the fixed,
-but statically unknown, run-time class referred to by the \Xcd{this}
-parameter.
-
-\paragraph{Virtual types.}
-
-Type properties share many similarities with virtual
-types~\cite{mp89-virtual-classes,beta,ernst99-gbeta,ernst06-virtual,cdnw07-tribe}
-and similar constructs built on path-dependent types found in
-languages such as Scala~\cite{scala}, and J\&~\cite{nqm06}.
-%
-Constrained types are more expressive than virtual
-types since they can be constrained at the use-site,
-can be refined on a per-object basis without explicit subclassing,
-and can be refined contravariantly
-as well as covariantly.  We explore this connection in
-Section~\ref{sec:virtual}.
+While this paper focuses mainly on supporting generic types 
+through dependent types, the formalism generalizes 
+other object-oriented type systems, e.g., self
+types~\cite{bruce-binary,bsg95}, virtual
+types~\cite{mp89-virtual-classes,beta,ernst06-virtual},
+and structually constrained
+types~\cite{polyj,haskell-type-classes}.
 
 \subsection{Contributions}
 
@@ -353,7 +320,7 @@ for providing genericity in X10.
 Unlike existing 
 existing proposals for generic types in
 Java-like
-languages~\cite{Java3,adding-wildcards,GJ,Pizza,polyj,thorup97,allen03,allen04,csharp,emir06,scala},
+languages~\cite{Java3,GJ,Pizza,polyj,thorup97,scala},
 which 
 are implemented via type erasure,
 our design supports run-time introspection of generic types.
@@ -364,16 +331,6 @@ critical for the high-performance applications for which
 X10 is intended. These proposals introduce unnecessary boxing
 and unboxing of primitives.
 Our design does not require primitives be boxed.
-
-\paragraph{Structural constraints.}
-
-Type constraints need not be limited to subtyping constraints.
-By introducing structural constraints on types, \gxx allows
-type properties to be instantiated on any type with a given set
-of methods and fields. This feature is useful for reusing code
-in separate libraries since it does not require 
-code of one library to implement an interface to satisfy a
-constraint of another library.
 
 \paragraph{Outline.}
 The rest of the paper is organized as follows.
@@ -393,11 +350,6 @@ Section~\ref{sec:translation}.
 Finally, Section~\ref{sec:conclusions} concludes.
 
 \todo{Fix this}
-
-\section{Related work}
-\label{sec:related}
-
-\input{related}
 
 \section{X10 language overview}
 \label{sec:lang}
@@ -869,6 +821,14 @@ vice versa.
 
 \section{Structural constraints}
 \label{sec:structural}
+
+Type constraints need not be limited to subtyping constraints.
+By introducing structural constraints on types, \gxx allows
+type properties to be instantiated on any type with a given set
+of methods and fields. This feature is useful for reusing code
+in separate libraries since it does not require
+code of one library to implement an interface to satisfy a
+constraint of another library.
 
 
 \begin{figure}[tp]
@@ -2494,16 +2454,50 @@ the method parameter cannot be omitted: declaring a parameterless version
 of shuffle requires delegating to a private parametrized version that
 ``opens up'' the parameter.
 
-\eat{
 \section{Extensions}
-\label{sec:extensions}
 
-\subsection{Self type}
+\paragraph{Self types.}
+Type properties can also be used to support a form of self
+types~\cite{bruce-binary,bsg95}. 
+%
+Self types can be implemented by introducing a
+type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
+\begin{xtenmath}
+class Object[class] { $\dots$ }
+\end{xtenmath}
+Scala's path-dependent types~\cite{scala} and J\&'s
+dependent classes~\cite{nqm06}
+take a similar approach.
 
-\subsection{Structural constraints}
+Self types are achieved by
+implicitly constraining types so that if an path expression \Xcd{p}
+has type \Xcd{C}, then
+$\Xcd{p}.\Xcd{class} \subtype \Xcd{C}$.  In particular,
+$\Xcd{this}.\Xcd{class}$ is guaranteed to be a subtype
+of the lexically enclosing class; the type
+$\Xcd{this}.\Xcd{class}$ represents all instances of the fixed,
+but statically unknown, run-time class referred to by the \Xcd{this}
+parameter.
+
+\paragraph{Virtual types.}
+
+Type properties share many similarities with virtual
+types~\cite{mp89-virtual-classes,beta,ernst99-gbeta,ernst06-virtual,cdnw07-tribe}
+and similar constructs built on path-dependent types found in
+languages such as Scala~\cite{scala}, and J\&~\cite{nqm06}.
+%
+Constrained types are more expressive than virtual
+types since they can be constrained at the use-site,
+can be refined on a per-object basis without explicit subclassing,
+and can be refined contravariantly
+as well as covariantly. 
+
+\paragraph{Structural constraints.}
+
+\eat{
 
 
-\subsection{Ownership}
+\paragraph{Ownership types.}
 
 Consider the following example of generic ownership
 derived from Potanin et al.~\cite{ogj-oopsla06}.
@@ -2562,6 +2556,11 @@ Restrictions:
 
 }
 
+
+\section{Related work}
+\label{sec:related}
+
+\input{related}
                         
 
 \section{Conclusions}
