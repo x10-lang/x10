@@ -17,6 +17,7 @@ public class Runtime {
 			e.printStackTrace();
 		}
 	}
+
 	public static Object coerce(byte b) { return null; }
 	public static Object coerce(char c) { return null; }
 	public static Object coerce(double d) { return null; }
@@ -43,10 +44,22 @@ public class Runtime {
 	public static boolean instanceof$(boolean r, Class c, Class d, Class e, Class f, Class g) { return r; }
 	public static boolean instanceof$(boolean r, Class c, Class d, Class e, Class f, Class g, Class h) { return r; }
 	public static boolean instanceof$(boolean r, Class c, Class d, Class e, Class f, Class g, Class h, Class i) { return r; }
+	public static boolean instanceof$(boolean r, Class c, Class d, Class e, Class f, Class g, Class h, Class i, Class... j) { return r; }
 	public static Object cast$(Object o, Class c) { return o; }
+	public static Object cast$(Object o, Class c, Class d) { return o; }
 	public static Object cast$(Object o, Class c, Class d, Class e) { return o; }
 	public static Object cast$(Object o, Class c, Class d, Class e, Class f) { return o; }
 	public static Object cast$(Object o, Class c, Class d, Class e, Class f, Class g) { return o; }
 	public static Object cast$(Object o, Class c, Class d, Class e, Class f, Class g, Class h) { return o; }
 	public static Object cast$(Object o, Class c, Class d, Class e, Class f, Class g, Class h, Class i) { return o; }
+	public static Object cast$(Object o, Class c, Class d, Class e, Class f, Class g, Class h, Class i, Class... j) { return o; }
+
+	public static Object newarray$(Object o, Class c) { return o; }
+	public static Object newarray$(Object o, Class c, Class d) { return o; }
+	public static Object newarray$(Object o, Class c, Class d, Class e) { return o; }
+	public static Object newarray$(Object o, Class c, Class d, Class e, Class f) { return o; }
+	public static Object newarray$(Object o, Class c, Class d, Class e, Class f, Class g) { return o; }
+	public static Object newarray$(Object o, Class c, Class d, Class e, Class f, Class g, Class h) { return o; }
+	public static Object newarray$(Object o, Class c, Class d, Class e, Class f, Class g, Class h, Class i) { return o; }
+	public static Object newarray$(Object o, Class c, Class d, Class e, Class f, Class g, Class h, Class i, Class... j) { return o; }
 }
