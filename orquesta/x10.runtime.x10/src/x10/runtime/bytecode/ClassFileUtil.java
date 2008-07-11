@@ -154,6 +154,9 @@ public class ClassFileUtil {
 	public static boolean isWidePrimitive(char t) {
 		return t == 'D' || t == 'J';
 	}
+	public static boolean isNull(String type) {
+		return type.charAt(0) == 'N';
+	}
 	public static final String[] PRIM_ARRAY_TO_JAVA_TYPE = {
 		null, null, null, null,
 		SIG_boolean, SIG_char, SIG_float, SIG_double, SIG_byte, SIG_short, SIG_int, SIG_long,
@@ -164,6 +167,9 @@ public class ClassFileUtil {
 			if (PRIM_ARRAY_TO_JAVA_TYPE[i] == type)
 				return (byte) i;
 		return 0;
+	}
+	public static String createNestedType(String container, String name) {
+		return container + "$" + name;
 	}
 
 	public static String replicate(String s, int count) {
@@ -202,6 +208,7 @@ public class ClassFileUtil {
 			sb.append(")").append(returnType);
 			return sb.toString();
 		}
+		public String toString() { return "MethodSig: "+toSignature(); }
 	}
 
 	public static String constantPoolType(ClassFile cf, int index) {
