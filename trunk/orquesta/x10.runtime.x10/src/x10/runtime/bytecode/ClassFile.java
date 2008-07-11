@@ -221,20 +221,59 @@ public class ClassFile implements ClassFileConstants {
 	public static class Attribute {
 		public short attribute_name_index;
 		public byte info[];
+		public String toString() {
+			StringBuilder b = new StringBuilder();
+			b.append(attribute_name_index).append(" [");
+			for (int i = 0; i < info.length; i++)
+				b.append(Integer.toHexString(info[i])).append(" ");
+			b.append("]");
+			return b.toString();
+		}
 	}
-	// FIXME: Field and Method are essentially the same.  Combine?
-	public static class Field {
+	public static class Member {
 		public short access_flags;
 		public short name_index;
 		public short descriptor_index;
 		public Attribute attributes[];
+		public String toString() {
+			StringBuilder b = new StringBuilder();
+			b.append(access_flags).append(" ").append(name_index).append(":").append(descriptor_index);
+			if (attributes != null) {
+				b.append(" [ ");
+				for (int i = 0; i < attributes.length; i++)
+					b.append(attributes[i].toString()).append(" ");
+				b.append("]");
+			}
+			return b.toString();
+		}
 	}
 	// FIXME: Field and Method are essentially the same.  Combine?
-	public static class Method {
-		public short access_flags;
-		public short name_index;
-		public short descriptor_index;
-		public Attribute attributes[];
+	public static class Field extends Member {
+		public String toString() { return "Field "+super.toString(); }
+	}
+	// FIXME: Field and Method are essentially the same.  Combine?
+	public static class Method extends Member {
+		public String toString() { return "Method "+super.toString(); }
+	}
+	public Field findField(String name, String descriptor) {
+		for (int i = 0; i < fields.length; i++) {
+			Field f = fields[i];
+			String n = getString(f.name_index);
+			String d = getString(f.descriptor_index);
+			if (n.equals(name) && d.equals(descriptor))
+				return f;
+		}
+		return null;
+	}
+	public Method findMethod(String name, String signature) {
+		for (int i = 0; i < methods.length; i++) {
+			Method m = methods[i];
+			String n = getString(m.name_index);
+			String s = getString(m.descriptor_index);
+			if (n.equals(name) && s.equals(signature))
+				return m;
+		}
+		return null;
 	}
 
 	public static class Annotation {
@@ -287,10 +326,28 @@ public class ClassFile implements ClassFileConstants {
 	public Annotation[] parseAnnotations(Method m) {
 		return parseAnnotations(m.attributes);
 	}
+	public Annotation[][] parseParameterAnnotations(Method m) {
+		return parseParameterAnnotations(m.attributes);
+	}
 	public Annotation findAnnotation(String name) {
 		Annotation[] annot = parseAnnotations();
-		for (int i = 0; i < annot.length; i++) {
-			Annotation a = annot[i];
+		return findAnnotation(annot, name);
+	}
+	public Annotation findAnnotation(Field f, String name) {
+		return findAnnotation(parseAnnotations(f), name);
+	}
+	public Annotation findAnnotation(Method m, String name) {
+		return findAnnotation(parseAnnotations(m), name);
+	}
+	public Annotation findAnnotation(Method m, String name, int p) {
+		Annotation[][] paramAnnot = parseParameterAnnotations(m);
+		if (paramAnnot == null)
+			return null;
+		return findAnnotation(paramAnnot[p], name);
+	}
+	public Annotation findAnnotation(Annotation[] annotations, String name) {
+		for (int i = 0; i < annotations.length; i++) {
+			Annotation a = annotations[i];
 			String n = getString(a.type_index);
 			if (n.equals(name))
 				return a;
@@ -300,11 +357,13 @@ public class ClassFile implements ClassFileConstants {
 
 	private static final String RUNTIME_VISIBLE_ANNOTATIONS = "RuntimeVisibleAnnotations";
 	private static final String RUNTIME_INVISIBLE_ANNOTATIONS = "RuntimeInvisibleAnnotations";
-	private static final String RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS = "RuntimeVisibleParameterAnnotations";
-	private static final String RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS = "RuntimeInvisibleParameterAnnotations";
 	private static final String[] ANNOTATION_ATTRIBUTES = {
 		RUNTIME_VISIBLE_ANNOTATIONS,
 		RUNTIME_INVISIBLE_ANNOTATIONS,
+	};
+	private static final String RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS = "RuntimeVisibleParameterAnnotations";
+	private static final String RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS = "RuntimeInvisibleParameterAnnotations";
+	private static final String[] PARAMETER_ANNOTATION_ATTRIBUTES = {
 		RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS,
 		RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS,
 	};
@@ -318,22 +377,71 @@ public class ClassFile implements ClassFileConstants {
 			annotAttrs[i] = a;
 		}
 		Annotation[] annotations = new Annotation[num_annotations];
-		int offset = 0;
+		int total = 0;
 		for (int i = 0; i < annotAttrs.length; i++) {
 			Attribute a = annotAttrs[i];
-			if (a != null)
-				offset = extractAnnotations(a.info, annotations, offset);
+			if (a != null) {
+				short num = getShort(a.info, 0);
+				int o = 2;
+				for (int j = 0; j < num; j++)
+					o = extractAnnotation(a.info, o, annotations, total + j);
+				assert (o == a.info.length);
+				total = total + num;
+			}
 		}
-		assert (offset == num_annotations);
+		assert (total == num_annotations);
 		return annotations;
 	}
-	private int extractAnnotations(byte[] b, Annotation[] annotations, int offset) {
-		short num = getShort(b, 0);
-		int o = 2;
-		for (int j = 0; j < num; j++)
-			o = extractAnnotation(b, o, annotations, offset + j);
-		assert (o == b.length);
-		return offset + num;
+	private Annotation[][] parseParameterAnnotations(Attribute[] attributes) {
+		int num_parameters = 0;
+		Attribute[] annotAttrs = new Attribute[PARAMETER_ANNOTATION_ATTRIBUTES.length];
+		for (int i = 0; i < PARAMETER_ANNOTATION_ATTRIBUTES.length; i++) {
+			Attribute a = findAttribute(PARAMETER_ANNOTATION_ATTRIBUTES[i], attributes);
+			if (a != null) {
+				short n = getByte(a.info, 0);
+				assert (num_parameters == 0 || num_parameters == n);
+				num_parameters = n;
+			}
+			annotAttrs[i] = a;
+		}
+		int[] num_annotations = new int[num_parameters];
+		for (int i = 0; i < annotAttrs.length; i++) {
+			Attribute a = annotAttrs[i];
+			if (a != null) {
+				int off = 1;
+				for (int j = 0; j < num_parameters; j++) {
+					short n = getShort(a.info, off);
+					num_annotations[j] += n;
+					off += 2;
+					for (int k = 0; k < n; k++)
+						off += getInt(a.info, off);
+				}
+			}
+		}
+		if (num_parameters == 0)
+			return null;
+		Annotation[][] annotations = new Annotation[num_parameters][];
+		for (int i = 0; i < annotations.length; i++)
+			annotations[i] = new Annotation[num_annotations[i]];
+		int[] total = new int[num_parameters];
+		for (int i = 0; i < annotAttrs.length; i++) {
+			Attribute a = annotAttrs[i];
+			if (a != null) {
+				int off = 1;
+				for (int j = 0; j < num_parameters; j++) {
+					short n = getShort(a.info, off);
+					off += 2;
+					int t = total[j];
+					for (int k = 0; k < n; k++)
+						off = extractAnnotation(a.info, off, annotations[j], t+k);
+					total[j] = t + n;
+				}
+				assert (off == a.info.length);
+			}
+		}
+		for (int j = 0; j < num_parameters; j++)
+			assert (total[j] == num_annotations[j]);
+		return annotations;
 	}
 	private int extractAnnotation(byte[] b, int o, Annotation[] a, int j) {
 		Annotation r = new Annotation();
