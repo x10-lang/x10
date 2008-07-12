@@ -1,0 +1,465 @@
+\documentclass[preprint,nocopyrightspace,9pt]{sigplanconf}
+%\documentclass{llncs}
+
+\def\val{\mbox{\tt val}}
+\def\is{\mbox{\tt is}}
+\def\klass{\mbox{\tt class}}
+\def\var{\mbox{\tt var}}
+\def\self{\mbox{\tt self}}
+\def\this{\mbox{\tt this}}
+\def\new{\mbox{\tt new}}
+\def\extends{\mbox{\tt extends}}
+\def\return{\mbox{\tt return}}
+\def\true{\mbox{\tt true}}
+\def\as{\mbox{\tt as}}
+\def\fields{\mbox{\tt fields}}
+\def\type{\mbox{\tt type}}
+\def\mtype{\mbox{\tt mtype}}
+\def\feild{\mbox{\tt field}}
+\def\Xten{{\sf X10}}
+\def\GXten{{\sf Gen X10}}
+\def\CFJ{{\sf CFJ}}
+
+\newif\iflncs
+\lncsfalse
+
+\usepackage{times-lite}
+\usepackage{mathptm}
+\usepackage{txtt}
+\usepackage{stmaryrd}
+\usepackage{code}
+\usepackage{bcprules}
+%\usepackage{ttquot}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{afterpage}
+\usepackage{balance}
+\usepackage{floatflt}
+\usepackage{defs}
+\usepackage{utils}
+\usepackage[pdftex]{graphicx}
+\usepackage{xspace}
+\usepackage{ifpdf}
+\usepackage{listings}
+\usepackage{x10}
+
+\newif\ifsemantics
+%\semanticsfalse
+\semanticstrue
+
+\hfuzz=1pt
+
+\pagestyle{plain}
+
+
+\ifpdf
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\fi
+
+
+% \input{../../../../vj/res/pagesizes}
+% \input{../../../../vj/res/vijay-macros}
+\newcommand\alt{\bnf}
+
+\newcommand\Implies{\Rightarrow}
+
+\iflncs
+\else
+\newtheorem{example}{Example}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newenvironment{proof}{
+\trivlist
+\item[\hskip \labelsep \textsc{Proof.}]
+\selectfont
+\ignorespaces}{$\Box$}
+
+%\newtheorem{proof}[theorem]{Proof}
+\fi
+
+\begin{document}
+\title{Type system for \Xten, v0.31 7/12/2008}
+\iflncs
+\author{a}
+\else
+\authorinfo{a}
+\fi
+\maketitle
+
+\begin{abstract}
+
+Notes on a formal semantics for dependently typed \Xten, and
+generically typed \Xten. 
+
+This version uses an explicit notation for the self variable ({\em
+designator}) for an expression. The syntax of method definition is
+changed slightly so that the self variable for the return type can be
+declared.
+
+Note that the technique of using self-variables works for the
+feather-weight languages since in this language every expression has a
+static desgignator
+
+ However, it will not work for the fuller
+language with local variable declarations.
+
+\end{abstract}
+
+\section{Judgements}
+
+Here is the syntax for \CFJ, converted to the new X10 1.7 style
+syntax. 
+
+{\em Need to answer reviewer's question: Does the invariant associated
+with a class C change when that associated with the class D that it
+extends, changes? (Yes.) Need to figure out what this means for
+separate compilation. Should still be able to compile separately. It
+is just the case now that when you link a new class in, the invariant
+for this class will depend on the invariant that you have loaded for
+its superclasses. Java and X10 do nothing to keep compile-time types
+consistent with link-time types.}
+
+\begin{tabular}{r@{\quad}rcl}
+(C Term) & {\tt t} &{::=}& {\tt x}\alt \self  \alt {\tt t.f} \\
+&&& \alt {\tt C}($\bar{\tt t}) \alt{\tt g}(\bar{\tt t})$ \\
+(Const.) & {\tt c},{\tt d} &{::=}&$\true\alt {\tt p}(\bar{\tt t}) \alt {\tt t=t}$\\
+&&& $\alt {\tt c,c}\alt{\tt  x:T;~c}$\\
+(Class) & {\tt L} &{::=}& $\klass\ C(\bar{f}:\bar{T})\{c\}\  \extends\ T\ \{\bar{M}\}$ \\
+(Method)& {\tt M} &{::=}& ${\tt def}\ {\tt m}(\bar{x}:\bar{T})\{c\}:p@T=e;$\\
+(Exp.)& {\tt e} &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})$\\
+&&&  $\alt {\tt e}\ \mbox{as {\tt T}}$ \\
+(Type)& {\tt S},{\tt T},\\
+&{\tt U},{\tt Z}&{::=}& C \alt $T\{d\}$\\
+(Desig.)& {\tt o}&{::=}& {\tt x} \alt {\tt C}($\bar{\tt o}$) \alt {\tt o.f}
+\end{tabular}
+\noindent The constraint $x:C;T$ is thought of as the existential
+quantification (projection) of $x$ (of type $C$) in $T$. We think of the type
+$C\{c_1\}\{c\_2\}$ as another notation for the type $C\{c_1,c_2\}$.
+
+Designators are names for values that are computed statically by the
+type system, as a function of the current set of parameters. (See 
+the definiton of {\tt is} below.)
+
+In the rest of this paper we will assume give some fixed but unknown
+constraint system $\cal D$. We will assume that the program $P$ is
+written using constraints from $\cal D$, and further that classes
+defined in $P$ do not have a cyclic inheritance struture. 
+
+\subsection{The Object constraint system, $\cal O$}\label{sec:O}
+
+From $P$ and $\cal D$ we also generate a new constraint system $\cal
+O$, the constraint system of {\em objects} over $P$ and $\cal D$ as
+follows. Let $C,D$ range over names of classes in $P$, $f$ over
+field names, $m$ over method names, $T$ over types, $c$ over
+constraints in the underlying data constraint system $\cal D$.
+The constraints of $\cal O$ are given by:
+
+\begin{tabular}{r@{\quad}rcl}
+(Const.) & {\tt c},{\tt d} &{::=}& $\klass(C)$ \alt $C\ \extends\ D$ \\
+&&& \alt $\fields(x)=\bar{f}:\bar{T}$ \\
+&&& \alt $\mtype(x,m)=(\bar{x}:\bar{T},c \rightarrow T))$\\
+\end{tabular}
+
+In the method signature formula $(\bar{x}:\bar{T},c \rightarrow T))$,
+the variables $\bar{x}$ are considered bound; formulas with bound
+variables are considered equivalent upto $\alpha$-renaming.
+
+The constraint system satisfies the following axioms and inference
+rules. 
+
+For every class $C$ defined in $P$, we have: $\vdash_{\cal O} \klass(C)$.
+
+The $\extends$ relation is transitive and $C\ \extends\ D$ whenever
+$C$ extends $D$ in the given program.
+
+Let $\bar{f}:\bar{C\{e\}}$ be the fields defined or inherited at class $D$.
+Then $\vdash_{\cal_O}$ satisfies:
+
+\infax[fields]{z:D\{d\} \vdash_{\cal O} \fields(z)=
+ \bar{f}:\bar{C\{e[z/\this],d[z/\self]\}}}
+
+\infax[Sel]
+{\vdash_{\cal O} D(\bar{t}).f_i=t_i}
+
+For every method
+$m(\bar{x}:\bar{E\{e\}})\{c\}:F\{u\}=\{\ldots\}$ defined or inherited at class $D$,
+$\vdash_{\cal_O}$ satisfies:
+
+\infrule[mtype]
+{\theta = [z/\this,\bar{d}/\bar{z}]}
+{z:D\{d\} \vdash_{\cal O} \mtype(z, m, \bar{d})=
+(\bar{E\{e\theta\}},c\theta\rightarrow F\{u\theta,d[z/\this]\})}
+
+
+
+The constraint system $\cal C$ is the (disjoint) conjunction $\cal
+D,O$ of the constraint systems $\cal D$ and $\cal O$. (This requires
+the assumption that $\cal D$ does not have any constraints in common
+with $\cal O$.)
+
+{\em Note: Figure out whether consistency checks need to be added.}
+
+\section{Rules}
+
+\subsection{Judgements}
+\newtheorem{defin}{Definition}[section]
+\newtheorem{definition}[defin]{Definition}
+
+The following judgements will be defined. In all of them $\Gamma$ is a
+{\em well-typed context}. A well-typed context is a (finite, possibly
+empty) sequence of formulas $x:T$ and constraints $c$ satisfying the
+property that
+\begin{enumerate}
+  \item for any formula $\phi$ in the sequence all variables $x$
+    occuring in $\phi$ are defined by a declaration $x:T$ (for some $T$)
+    in the sequence to the left of $\phi$.
+  \item for any variable $x$, there is at most one formula $x:T$ (for
+  some $T$) in $\Gamma$.
+\end{enumerate}
+
+
+\begin{itemize}
+  \item Given $\Gamma$, the type $T$ is well-formed: $\Gamma \vdash T
+  \ {\tt type}$
+  \item Given $\Gamma$, the type $S$ is a subtype of $T$: $\Gamma \vdash S \subtype T$
+  \item Given $\Gamma$, the expression $e$ is of type $T$ 
+   $d$: $\Gamma \vdash e:T$.
+
+  \item Given $\Gamma$, the method $M$ is well-defined for the class $C$: 
+  $\Gamma \vdash M\ \mbox{OK in $C$}$
+  \item Given $\Gamma$, the field $M$ is well-defined for the class $C$:
+    $\Gamma \vdash f:T\ \mbox{OK in $C$}$
+  \item Given $\Gamma$, the class definition \mbox{\em Cl} is well-defined: $\Gamma \vdash \mbox{{\em Cl}\ OK}$
+\end{itemize}
+
+
+In what follows we will sometimes think of the family of five
+judgements as a single judgement $\Gamma \vdash \phi$, where $\phi$
+ranges over the formulas $T\ \tt type$, $e:T$, $S \subtype T$, $f:T\
+\mbox{OK in $C$}$, $M\ \mbox{OK in $C$}$, and $C\ \mbox{OK}$.
+
+In defining these judgements we will use $\Gamma \vdash_{\cal C} c$,
+the judgement corresponding to the underlying constraint system. For simplicity,
+we define $\Gamma \vdash c$ to mean $\sigma(\Gamma)\vdash_{\cal C} c$,
+where the {\em constraint projection}, $\sigma(\Gamma)$ is defined thus:
+
+\begin{tabular}{l}
+$\sigma(\epsilon)={\tt true}$\\
+$\sigma(x:C\{c\}, \Gamma)$=c[x/\self], $\sigma(\Gamma)$\\
+$\sigma(c,\Gamma)$ = c, $\sigma(\Gamma)$
+\end{tabular}
+
+Now, these judgements need to satisfy certain properties:
+\begin{itemize}
+  \item $\Gamma \vdash T {\tt type}$ whenever $\Gamma \vdash e:T$. 
+
+That is, if we can conclude that {\tt e} has type {\tt T} (under
+certain assumptions), then under those assumptions we must be able to
+conclude that {\tt T} is well-defined.
+
+\item $\Gamma \vdash S\ \type$ and $\Gamma \vdash T\ \type$ whenever $\Gamma \vdash
+S \subtype T$.
+\item If $\Gamma \vdash e:T$ and $x$ is a variable occurring free in
+$e$ then for some type $U$, $\Gamma \vdash x:U$. That is, all free
+variables on the RHS are actually defined by the LHS.
+\end{itemize}
+
+Keeping in mind these requirements, the rules are as follows. Below
+whever we use the assertion 
+``$x$ free'' in the antecedent of a rule we
+mean that $x$ is not free in the consequent of the rule.
+
+\subsection{Structural and Logical Rules} 
+
+All judgements satisfy the rules and axioms of inference in
+Figure~\ref{fig:logical-rules}.
+
+\begin{figure*}
+\footnotesize
+
+\tabcolsep=0pt
+
+\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.47\textwidth}}
+\infax[Id]{\Gamma, c\vdash c} &
+\infrule[Cut]{\Gamma \vdash c \andalso \Gamma, c\vdash d}
+{\Gamma \vdash d} & \\
+\infrule[Weak-1]
+{\Gamma \vdash \phi \andalso \Gamma \vdash S\ \type \andalso x\not\in \var(\Gamma)}
+{\Gamma, x:S \vdash \phi}
+&
+\infrule[Weak-2]
+{\Gamma \vdash \phi \andalso \Gamma \vdash c:o}
+{\Gamma, c \vdash \phi}
+& 
+\infrule[And-L]
+{\Gamma, \psi_0,\psi_1 \vdash \phi}
+{\Gamma, (\psi_0,\psi_1)\vdash \phi}
+\\
+
+\infrule[And-R]
+{\Gamma \vdash \psi_0 \andalso \Gamma\vdash \psi_1}
+{\Gamma \vdash \psi_0,\psi_1}
+&
+\infrule[Exists-R]
+{\Gamma \vdash \phi [t/x] \andalso \Gamma \vdash t:S}
+{\Gamma \vdash x:S; \phi}
+
+&
+\infrule[Exists-L]
+{\Gamma , x:S, \psi \vdash \phi \andalso (x\ \mbox{fresh})}
+{\Gamma, x:S;\psi \vdash \phi}
+\end{tabular}
+\caption{Logical rules}\label{fig:logical-rules}
+\end{figure*}
+
+\subsection{Well formedness rules}
+
+We use the judgement for well-typedness for expressions to represent
+well-typedness for constraints. That is, we posit a special type
+{\tt o} (traditionally the type of propositions), and regard
+constraints as expressions of type {\tt o}. Further, we change the
+formulation slightly so that there are no constraints of the form
+{\tt p(t1,..., tn)}; rather instance method invocation syntax is
+used to express invocation of pre-defined constraints. This logically
+leads to the step of simply marking certain classes as ``predicate''
+classes -- all the (instance) methods of these classes whose return
+type is {\tt o} then correspond to ``primitive constraints.''
+
+Syntactically, we will continue to use the symmetric syntax
+{\tt p(t1,\ldots, tn)} rather than {\tt t1.p(t2,\ldots, tn)}.
+
+(The alternative is to introduce static methods, and static method
+invocations in the expression language. This is not too difficult, but
+it is annoying to have to repeat most of the formulation of instance
+methods, and to have one more case to prove.)
+
+So this means that the only cases left to handle are all the simple
+ones, expressing the availability of certain constants and operators
+at type {\tt o} (see Figure~\ref{Figure:Wff}).
+
+\begin{figure*}
+\footnotesize
+
+\tabcolsep=0pt
+
+\begin{tabular}{p{0.25\textwidth}p{0.47\textwidth}p{0.25\textwidth}}
+
+\infax[{\tt true}]{\Gamma \vdash {\tt true}: o}
+&
+\infrule[Equals]
+{\Gamma \vdash t_0: T_0 \andalso \Gamma \vdash t_1: T_1 \andalso  (\Gamma \vdash T_0 \subtype T_1 \vee \Gamma \vdash T_1 \subtype T_0)}
+{\Gamma \vdash t_0=t_1:o}
+&
+\infrule[And]
+{\Gamma \vdash c_0: o \andalso \Gamma \vdash c_1: o}
+{\Gamma \vdash (c_0,c_1):o}
+\\
+\infrule[Some]
+{\Gamma \vdash t: T \andalso \Gamma \vdash c[t/x]:o}
+{\Gamma \vdash x:T;c: o}
+&
+\infrule[type]
+{\Gamma \vdash \klass(C) \andalso \Gamma, \self:C \vdash c:o}
+{\Gamma \vdash C\{c\}\ {\tt type}}
+\end{tabular}
+\caption{Well formedness rules}\label{Figure:Wff}
+\end{figure*}
+
+\section{Type inference rules}
+\subsection{Subtype judgement}
+
+Only one inference rule needs to be specified:
+\infrule[Dep type]
+{\Gamma \vdash C\ \extends\ D \andalso \Gamma \vdash C\{c\}\ \type, D\{d\}\ \type \\
+\Gamma, \self:C,c\vdash d}
+{\Gamma \vdash C\{c\} \subtype D\{d\}}
+
+
+\subsection{Expression typing judgement}
+We will use an auxiliary judgement:
+
+\infrule[is]
+{\Gamma \vdash e:C\{c\} \andalso \Gamma, c \vdash \self=d \andalso \self \not\equiv d}
+{\Gamma \vdash e\ \is\ d}
+
+This judgement lets us find a {\em static designator} $d$ for a
+well-typed expression $e$. We will formulate the typing judgement in
+such a way that there will always be a static designator for a
+well-typed expression (in a given typing environment).
+
+Now we consider the rule for method invocation. Assume that in a type
+environment $\Gamma$ the expressions $\bar{e}$ have the types
+$\bar{T}$. Since the actual values of these expressions are not known,
+we shall assume that they take on some fixed but unknown values
+$\bar{z}$ of type $\bar{T}$.  Now for $z$ as receiver, let us assume
+that the type $T\equiv C\{d\}$ has a method named {\tt m} with
+signature $\bar{z}: \bar{Z}, c \rightarrow U$.  If there is no method
+named {\tt m} for the class {\tt C} then this method invocation cannot
+be type-checked. Without loss of generality we may assume that the
+parameters of this method are named $\bar{z}$, since we are free to
+choose variable names as we wish because of $\alpha$-equivalence. Now
+in order for the method to be invocable, it must be the case that the
+types $\bar{T}$ are subtypes of $\bar{Z}$. (Note that there are no
+occurrences of {\tt this} in $\bar{Z}$; they have been replaced by
+$z$ -- see Section~\ref{sec:O}) Further, it must be the case that for these parameter values,
+the constraint $c$ is entailed. Given all these assumptions it must be
+the case that the return type is $U$ --- with all the parameters
+$\bar{z}$ existentially quantified.
+
+\begin{figure*}
+\footnotesize
+\tabcolsep=0pt
+\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.47\textwidth}}
+\infax[T-Var]
+{\Gamma, {\tt x}:{\tt T} \vdash {\tt x:T\{\self==x\}}}
+%\infrule[T-Var]
+%{\sigma(\Gamma, \self:C), c \vdash_{\cal C} d \\
+% \Gamma \vdash  C\{d\}\ \type}
+%{\Gamma, x:C\{c\} \vdash x:C\{d\}}
+&
+\infrule[T-Cast]
+{\Gamma \vdash {\tt e}:{\tt U},{\tt e}\ \is\ {\tt d} \andalso \Gamma \vdash {\tt T} \ \type}
+{\Gamma \vdash {\tt e}\ \as\ {\tt T}: {\tt T}\{\self==d\}} &
+\infrule[T-Field]
+{\Gamma \vdash {\tt e}:{\tt S},{\tt e\ \is\ d} \andalso \Gamma \vdash \fields({\tt d})=\bar{\tt f}:\bar{\tt U}}
+{\Gamma \vdash {\tt e.f_i: U_i}\{{\tt \self==d.f_i}\}}
+\end{tabular}
+
+\begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}}
+\infrule[T-INVK]
+{\Gamma \vdash {\tt e}:{\tt T},{\tt e}\ \is\ {\tt d},\bar{\tt e}:\bar{\tt T},\bar{\tt e}\ \is\ \bar{\tt d} \\
+\Gamma \vdash \mtype({\tt d}, {\tt m},\bar{\tt d})= (\bar{\tt Z}, {\tt c \rightarrow U},g),\bar{\tt T} \subtype \bar{\tt Z},{\tt c}} 
+{\Gamma,  \vdash {\tt e.m(\bar{\tt e})}: U\{\self==g\}}
+&
+\infrule[T-NEW]
+{\Gamma \vdash \bar{\tt e}:\bar{\tt T},\bar{\tt e}\ \is\ \bar{\tt d} \\ 
+\Gamma,{\tt z}:{\tt C}, \vdash \fields({\tt z})=\bar{\tt f}:\bar{\tt Z} \andalso 
+\Gamma,{\tt z}:{\tt C}, {\tt z.\bar{f}=\bar{d}}\vdash \bar{T} \subtype \bar{Z}, inv({\tt C},{\tt z})}
+{\Gamma \vdash \new\ {\tt C}(\bar{\tt e}): {\tt C}\{{\tt \self==C(\bar{\tt d})}\}}
+\\
+\infrule[Method OK]
+{\this:C, \bar{x}:\bar{T},c,\bar{z}:\bar{S} \vdash T \ \type, \bar{T} \ \type, e:U, U \subtype T, e\ {\tt is}\ g}
+{{\tt def}\ m(\bar{x}:\bar{T})\{c\}:g@T=e;\ \mbox{OK in}\ C}
+&
+\infrule[Class OK]
+{\bar{M}\ \mbox{OK in}\ C \andalso \this:C,c \vdash \bar{T}\ \type, T\ \type}
+{\mbox{\tt class}\ C(\bar{f}:\bar{T})\{c\}\ \mbox{\tt extends}\ T\{\bar{M}\} \ \mbox{OK in}\ C}
+\end{tabular}
+\caption{Type judgement}\label{fig:typing judgement}
+\end{figure*}
+
+Note that in the Method OK rule, we permit the use of additional local
+variables $\bar{z}:\bar{S}$ in the context. These variables can be
+used as static designators for subexpressions of $e$, the body of the
+method. Since we require the context to be well-formed, these local
+variables must be distinct from the parameters to the method.
+
+\subsection{Class OK judgement}
+
+Note that the variables  $\bar{x}$ are permitted to
+occur in the types $T,\bar{T}$, hence their typing assertions must
+be added to $\Gamma$.
+
+
+\end{document}
