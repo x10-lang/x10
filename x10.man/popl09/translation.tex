@@ -1,0 +1,166 @@
+
+This section describes an implementation approach for
+generic constrained types on a Java virtual machine.
+We describe the implementation as a translation to Java.
+
+The design
+is a hybrid design based on the implementation of parametrized classes in
+NextGen~\cite{allen03,allen04} and the implementation of
+PolyJ~\cite{polyj}.
+Generic classes are translated into template classes
+that are instantiated on demand at run time by binding the type properties
+to concrete types.  To implement run-time type checking (e.g.,
+casts), type properties are represented at run time
+using \emph{adapter objects}.
+
+This design, extended to handle language features
+not described in this paper, has been implemented in the X10
+compiler.  The X10 compiler is built on the Polyglot framework
+and translates X10 source to Java source\footnote{There is also
+a translation from X10 to C++ source, not described here.}
+
+\subsection{Classes}
+
+Each class is translated into a \emph{template class}.
+The template class is compiled by a Java compiler (e.g., javac)
+to produce a class file.
+At run time, when a constrained type \xcd"C{c}" is first referenced, a
+class loader loads the template class for \xcd"C" and then transforms the
+template class bytecode, specializing it to the constraint
+\xcd"c".
+
+For example, consider the following classes.
+\begin{xten}
+class A[T] {
+    var a: T;
+}
+class C {
+    val x: A[Int] = new A[Int]();
+    val y: Int = x.a;
+}
+\end{xten}
+
+The compiler generates the following code:
+\begin{xten}
+class A {
+    // Dummy class needed to type-check uses of T.
+    @TypeProperty(1) static class T { }
+
+    T a;
+
+    // Dummy getter and setter; will be eliminated
+    // at run time and replaced with actual gets
+    // and sets of the field a.
+    @Getter("a") <S> S get\$a() { return null; }
+    @Setter("a") <S> S set\$a(S v) { return null; }
+}
+
+class C {
+    @ActualType("A\$Int")
+    final A x = Runtime.<A>alloc("A\$Int");
+    final int y = x.<Integer>get\$a();
+}
+\end{xten}
+
+The member class \xcd"A.T" is used in place of the
+type property \xcd"T". 
+The \xcd"Runtime.alloc" method is used
+used in place of a constructor call.
+This code is compiled to Java bytecode.
+
+
+Then, at run time, suppose the expression \xcd"new C()" is
+evaluated.  This causes \xcd"C" to be loaded.
+The class loader transforms the bytecode as if it had
+been written as follows:
+
+\begin{xten}
+class C {
+    final A\$Int x = new A\$Int();
+    final int y = x.a;
+}
+\end{xten}
+
+The \xcd"ActualType" annotation is used to change the
+type of the field \xcd"x" from \xcd"A" to \xcd"A\$Int".
+The call to \xcd"Runtime.alloc" is replaced with a
+constructor call.  The call to \xcd"x.get\$a()" is
+replaced with a field access.
+
+The implementation cannot generate this code directly because
+the class \xcd"A\$Int" does not yet exist; the Java source compiler
+would fail to compile \xcd"C".
+
+Next, as the \xcd"C" object is being constructed, the expression
+\xcd"new A\$Int()" is evaluated, causing the class \xcd"A\$Int" to
+be loaded.  The class loader intercepts
+this, demangles the name, and loads the bytecode for the
+template class \xcd"A".
+
+The bytecode is transformed, replacing the type property \xcd"T"
+with the concrete type \xcd"int", the translation of \xcd"Int".
+
+\begin{xten}
+class A {
+    x10.runtime.Type T;
+}
+
+class A\$Int extends A {
+    int x;
+}
+\end{xten}
+
+Type properties are mapped to the Java primitive types and to
+Object.  Only nine possible instantiations per parameter.
+Instantiations used for representation.
+Adapter objects used for run time type information.
+
+Could do instantiation eagerly, but quickly gets out of hand without
+whole-program analysis to limit the number of instantiations: 9
+instantiations for one type property, 81 for two type
+properties, 729 for three.
+
+Value constraints are erased from type references.
+
+Constructors are translated to static methods of their enclosing
+class.
+Constructor calls
+are translated to calls to static methods.
+
+
+Consider the code in Figure~\ref{fig:translation1}.  It contains most of the
+features of generics that have to be translated.
+\begin{figure*}[tp]
+\begin{xten}
+class C[T] {
+    var x: T;
+    def this[T](x: T) { this.x = x; }
+    def set(x: T) { this.x = x; }
+    def get(): T { return this.x; }
+    def map[S](f: T => S): S { return f(this.x); }
+    def d() { return new D[T](); }
+    def t() { return new T(); }
+    def isa(y: Object): boolean { return y instanceof T; }
+}
+
+val x : C = new C[String]();
+val y : C[int] = new C[int]();
+val z : C{T <: Array} = new C[Array[int]]();
+x.map[int](f);
+new C[int{self==3}]() instanceof C[int{self<4}];
+\end{xten}
+\caption{Code to translate}
+\label{fig:translation1}
+\end{figure*}
+
+\subsection{Eliminating method type parameters}
+
+\subsection{Translation to Java}
+
+\subsection{Run-time instantiation}
+
+We translate \xcd"instanceof" and cast operations to calls to
+methods of a \xcd"Type" because the actual implementation of
+the operation may require run-time constraint solving or other
+complex code that cannot be easily substituted in when rewriting
+the bytecode during instantiation.

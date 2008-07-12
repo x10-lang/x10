@@ -1,0 +1,499 @@
+
+\todo{Move some of this to Section~\ref{sec:related}}
+
+\subsection{Type properties versus type parameters}
+
+
+Type properties are similar, but not identical to type parameters.  The
+differences may potentially confuse programmers used to Java generics or C++
+templates.  The key difference is that type properties are instance members and
+are thus accessible through access paths: \xcd"e.T" is a legal type.
+
+Type properties, unlike type parameters, are inherited.
+For example, in the following code, \xcd"T" is defined in \xcd"List"
+and inherited into \xcd"Cons".  The property need not be
+declared by the \xcd"Cons" class.
+\begin{xten}
+class List[T] { }
+class Cons extends List {
+    def head(): T = { ... }
+    def tail(): List[T] = { ... }
+}
+\end{xten}
+The analogous code for \xcd"Cons" using type parameters would be:
+\begin{xten}
+class Cons[T] extends List[T] {
+    def head(): T = { ... }
+    def tail(): List[T] = { ... }
+}
+\end{xten}
+% This code is perfectly acceptable in X10 as well, but introduces a redundant
+% type property \xcd"T" equal to the \xcd"T" inherited from \xcd"List".
+
+We can make the type system behave as if type properties were
+type parameters very simply.  We need only make the syntax \xcd"e.T"
+illegal and permit type properties to be accessible only
+from within the body of their class definition via the implicit \xcd"this"
+qualifier.
+
+\subsection{Wildcards}
+
+Wildcards in Java~\cite{Java3,adding-wildcards} were motivated
+by the following example (rewritten in X10 syntax)
+from \cite{adding-wildcards}.
+Sometimes a class needs a field or method
+that is a list, but we don't care what the element type is.
+For methods, one can give the method a type parameter:
+\begin{xten}
+def aMethod[T](list: List[T]) = { ... }
+\end{xten}
+This method can then be called on any \xcd"List" object.
+However, there is no way to do this for fields since they
+cannot be parametrized.
+Java introduced wildcards to allow such fields to be
+typed:
+\begin{xten}
+List<?> list;
+\end{xten}
+In X10, a similar effect is achieved by not constraining the
+type property of \xcd"List".
+One can write the following:
+\begin{xten}
+list: List;
+\end{xten}
+Similarly, the method can be written without type parameters by
+not constraining \xcd"List":
+\begin{xten}
+def aMethod(list: List) = { ... }
+\end{xten}
+
+In X10, \xcd"List"
+is a supertype of
+\xcd"List[T]" for any \xcd"T",
+just as in Java
+\xcd"List<?>" is a supertype of
+\xcd"List<T>" for any \xcd"T".
+This follows directly from the definition of the type \xcd"List"
+as \xcd"List{true}", and the type \xcd"List[T]"
+as \xcd"List{X==T}", and the definition of subtyping.
+
+Wildcards in Java can also be bounded.
+We achieve the same
+effect in X10 by using type constraints.
+For instance, the following Java declarations:
+\begin{xten}
+void aMethod(List<? extends Number> list) { ... }
+<T extends Number> void aParameterizedMethod(List<T> list) { ... }
+\end{xten}
+may be written as follows in X10:
+\begin{xten}
+def aMethod(list: List{T <: Number}) = { ... }
+def aParameterizedMethod[T{self <: Number}](list: List[T]) = { ... }
+\end{xten}
+
+Wildcard bounds may be covariant, as in the following example:
+\begin{xten}
+List<? extends Number> list = new ArrayList<Integer>();
+Number num = list.get(0);     // legal
+list.set(0, new Double(0.0)); // illegal
+list.set(0, list.get(1));     // illegal
+\end{xten}
+This can also be written in X10, but with an important
+difference:
+\begin{xten}
+list: List{T <: Number} = new ArrayList[Integer]();
+num: Number = list.get(0);    // legal
+list.set(0, new Double(0.0)); // illegal
+list.set(0, list.get(1));     // legal! (when list is final)
+\end{xten}
+Note because \xcd"list.get" has return type \xcd"list.T", the
+last call in above is well-typed in X10; the analogous call in
+Java is not well-typed.
+
+Finally,
+one can also specify lower bounds on types.  These are useful for
+comparators:
+\begin{xten}
+class TreeSet[T] {
+  def this[T](cmp: Comparator{T :> this.T}) { ... }
+}
+\end{xten}
+Here, the comparator for any supertype of \xcd"T" can be used as
+to compare \xcd"TreeSet" elements.
+
+Another use of lower bounds is for list operations.
+The \xcd"map" method below takes a function that maps a supertype
+of the class parameter \xcd"T" to the method type parameter \xcd"S":
+\begin{xten}
+class List[T] {
+  def map[S](fun: Object{self :> T} => S) : List[S] = { ... }
+}
+\end{xten}
+
+\subsection{Proper abstraction}
+
+Consider the following example adapted from \cite{adding-wildcards}:
+\begin{xten}
+def shuffle[T](list: List[T]) = {
+  for (i: int in [0..list.size()-1]) {
+    val xi: T = list(i);
+    val j: int = Math.random(list.size());
+    list(i) = list(j);
+    list(j) = xi;
+  }
+}
+\end{xten}
+The method is parametrized on \xcd"T" because the method body needs
+the element type to declare the variable \xcd"xi".
+
+However, the method parameter can be omitted by using the type \xcd"list.T"
+for \xcd"xi".  Thus, the method can be declared with the signature:
+\begin{xten}
+def shuffle(list: List) { ... }
+\end{xten}
+This is called \emph{proper abstraction}.
+
+This example illustrates a key difference between type properties
+and type parameters:
+A type property is a member of its class, whereas a type parameter is
+not.  The names of type properties are visible outside the body of
+their class declaration.
+
+\if 0
+Type properties can be used as the basis of a parametrized type
+system.  This is done simply by making type properties private.
+Using the syntactic sugar described above,
+the resulting system behaves identically to a system with type
+parameters.
+\fi
+
+In Java,
+Wildcard
+capture allows the parametrized method to be called with any \xcd"List",
+regardless of its parameter type.
+However,
+the method parameter cannot be omitted: declaring a parameterless version
+of shuffle requires delegating to a private parametrized version that
+``opens up'' the parameter.
+
+\subsection{Conditional methods and generlized constraints}
+
+For type parameters, method constraints are 
+similar to generalized constraints proposed for
+C\#~\cite{emir06}.
+%
+In the following code, the \xcd"T" parameter is covariant
+and so the \xcd"append" methods below are illegal:
+\begin{xten}
+class List[+T] {
+  def append(other: T): List[T] = { ... }
+      // illegal
+  def append(other: List[T]): List[T] = { ... }
+      // illegal
+}
+\end{xten}
+%
+However, one can introduce a method parameter and then constrain
+the parameter from below by the class's parameter:
+For example, in the following code,
+\begin{xten}
+class List[+T] {
+  def append[U](other: U)
+      {T <: U}: List[U] = { ... }
+  def append[U](other: List[U])
+      {T <: U}: List[U] = { ... }
+}
+\end{xten}
+
+The constraints must be satisfied by the callers of \xcd"append".
+For example, in the following code:
+\begin{xten}
+xs: List[Number];
+ys: List[Integer];
+xs = ys; // ok
+xs.append(1.0); // legal
+ys.append(1.0); // illegal
+\end{xten}
+the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
+the call to \xcd"ys.append" is not allowed because the caller cannot show that
+${\tt Number} \subtype {\tt Double}$.
+
+
+\subsection{Self types}
+
+The generic constrained type system generalizes
+features of type systems from other object-oriented languages.
+
+Type properties can also be used to support a form of self
+types~\cite{bruce-binary,bsg95}. 
+%
+Self types can be implemented by introducing a
+type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
+\begin{xtenmath}
+class Object[class] { $\dots$ }
+\end{xtenmath}
+Scala's path-dependent types~\cite{scala} and J\&'s
+dependent classes~\cite{nqm06}
+take a similar approach.
+
+Self types are achieved by
+implicitly constraining types so that if an path expression \Xcd{p}
+has type \Xcd{C}, then
+$\Xcd{p}.\Xcd{class} \subtype \Xcd{C}$.  In particular,
+$\Xcd{this}.\Xcd{class}$ is guaranteed to be a subtype
+of the lexically enclosing class; the type
+$\Xcd{this}.\Xcd{class}$ represents all instances of the fixed,
+but statically unknown, run-time class referred to by the \Xcd{this}
+parameter.
+
+Self types address the binary method problem~\cite{bruce-binary}.
+In the following
+example, the class \xcd"BitSet" can be written with a
+\xcd"union" method that takes a self type as argument.
+
+\begin{xtenmath}
+interface Set {
+  def union(s: this.class): void;
+}
+
+class BitSet implements Set {
+  int bits;
+  def union(s: this.class): void {
+    this.bits |= s.bits;
+  }
+}
+\end{xtenmath}
+
+\noindent
+Since \xcd"s" has type this \Xcd{this}.\Xcd{class}, and the class
+invariant of \xcd"BitSet" implies
+$\Xcd{this}.\Xcd{class} \subtype \Xcd{BitSet}$,
+the implementation of the method is free to access the
+\xcd"bits" field of \xcd"s".
+
+Callers of \xcd"BitSet".\xcd"union()" must call the method with
+an argument that has the same run-time class as the
+receiver.  For a receiver \xcd"p", the
+type of the actual argument of the call must have a constraint
+that entails \xcd"self".\xcd"class==p".\xcd"class".
+
+\subsection{Virtual types}
+
+Type properties share many similarities with virtual
+types~\cite{mp89-virtual-classes,beta,ernst99-gbeta,ernst06-virtual,cdnw07-tribe}
+and similar constructs built on path-dependent types found in
+languages such as Scala~\cite{scala}, and J\&~\cite{nqm06}.
+%
+Constrained types are more expressive than virtual
+types since they can be constrained at the use-site,
+can be refined on a per-object basis without explicit subclassing,
+and can be refined contravariantly
+as well as covariantly. 
+
+Thorup~\cite{thorup97}
+proposed adding genericity to Java using virtual types.  For example,
+a generic \xcd"List" class can be written as follows:
+\begin{xten}
+abstract class List {
+    abstract typedef T;
+    void add(T element) { ... }
+    T get(int i) { ... }
+}
+\end{xten}
+This class can be refined by bounding the virtual type \xcd"T" above:
+\begin{xten}
+abstract class NumberList extends List {
+    abstract typedef T as Number;
+}
+\end{xten}
+And this abstract class can be further refined to \emph{final bind}
+\xcd"T" to a particular type:
+\begin{xten}
+class IntList extends NumberList {
+    final typedef T as Integer;
+}
+\end{xten}
+These classes are related by subtyping:
+${\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}$.
+Only classes where \xcd"T" is final bound can be non-abstract.
+
+The analogous definition of 
+\xcd"List" using type properties is as follows:
+\begin{xten}
+class List[T] {
+    def add(element: T) = { ... }
+    def get(i: int): T = { ... }
+}
+\end{xten}
+
+\noindent
+\xcd"NumberList" and \xcd"IntList" can be written as follows:
+\begin{xten}
+class NumberList extends List{T<:Number} { }
+class IntList extends NumberList{T==Integer} { }
+\end{xten}
+
+However, note that our version of \xcd"List" is not abstract.
+Instances of \xcd"List"
+can instantiate \xcd"T" with a particular type and there is no
+need to declared classes for \xcd"NumberList" and \xcd"IntList".
+Instead, one can simply use the types
+\xcd"List{T<:Number}" and \xcd"List{T==Integer}".
+
+In addition,
+unlike virtual types, type properties can be refined contravariantly.
+For instance, one can write the type \xcd"List{T:>Integer}",
+and even \xcd"List{Integer<:T, T<:Number}".
+
+
+\eat{
+\subsection{Ownership types}
+
+Consider the following example of generic ownership
+derived from Potanin et al.~\cite{ogj-oopsla06}.
+
+\begin{xten}
+class Object(owner: Object) { }
+
+// Map inherits Object.owner
+// No need to add explicit vOwner and kOwner properties for Key, Value
+class Map[Key, Value]{Key <: Comparable, Value <: Object}
+{
+    private nodes: Vector[Node[Key, Value](this)](this);
+
+    public def put(key: Key, value: Value): Void = {
+        nodes.add(new Node[Key, Value](key, value, this)());
+    }
+
+    public def get(key: Key): Value = {
+        for (mn: Node[Key, Value](this) in nodes) {
+            if (mn.key.equals(key))
+                return mn.value;
+        }
+        return null;
+    }
+
+    // OGJ will prevent this from being called, since caller
+    // can only assign the result to a supertype of Vector(this),
+    // which would be only Vector(this) or Object(this)
+    // BUT: we have Vector :> Vector(this)
+    // Need to require that all class types have an equality constraint
+    // on the owner property
+    public def exposeVector(): Vector(this) { return nodes; }
+}
+
+class Node[Key, Value]
+    {Key <: Comparable, Value <: Object}
+{
+    val key: Key;
+    val value: Value;
+
+    public def this[K, V](k: Key, v: Value, o: Object): Node[K, V](o) {
+        super(o);               // set the owner
+        property[K, V];         // set the type properties
+        this.key = k;
+        this.value = v;
+    }
+}
+\end{xten}
+
+Restrictions:
+\begin{itemize}
+\item owner property must be constrained (define this!)
+\item owner is always equal to or inside the owner of all other type properties
+\item types with an actual owner == this, can only be accessed via this
+\end{itemize}
+
+}
+
+\subsection{Structural constraints}
+\label{sec:structural}
+
+Type constraints need not be limited to subtyping constraints.
+By introducing structural constraints on types, \gxx allows
+type properties to be instantiated on any type with a given set
+of methods and fields. This feature is useful for reusing code
+in separate libraries since it does not require
+code of one library to implement an interface to satisfy a
+constraint of another library.
+
+
+\begin{figure}[tp]
+\begin{center}
+\begin{tabular}{lrcl}
+constraints & {\tt c} & ::= & \dots \\
+            &        & \bnf & \xcd"T has Sig" \\
+signatures  & {\tt Sig} & ::= &
+\xcdmath"def this[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
+            &        & \bnf &
+\xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
+            &        & \bnf &
+\xcdmath"val x{c}: T" \\
+            %&  & \bnf & \xcdmath"var x{c}: T" \\
+\end{tabular}
+\end{center}
+\caption{Grammar for structural constraints}
+\label{fig:structural2}
+\end{figure}
+
+In this section, we consider an extension of the X10 type system
+to support structural type constraints.
+The type
+system need not change except by extending the constraint
+system.  The syntax for structural constraints is shown in
+Figure~\ref{fig:structural}.  A structural constraint of the
+form \xcd"T has Sig" can specify that the type \xcd"T" have a
+constructor, method, or field of the given signature.
+
+Structural constraints on types are found in many languages.
+Haskell supports type
+classes~\cite{haskell,haskell-type-classes}.
+%ML's module system allows modules to be constrained by
+%structural signatures~\cite{ml}.
+In Modula-3, type equivalence and subtyping are structural
+rather than nominal as in object-oriented languages of the C
+family such as C++, Java, Scala, and X10.
+%
+The language PolyJ~\cite{polyj} allows type parameters to be bounded using
+structural where clauses.
+For example, the sorted list class from Figure~\ref{fig:sorted}
+could be
+be written as follows in PolyJ:
+\begin{xten}
+class SortedList[T] where T { int compareTo(T) } {
+    void add(T x) { ... x.compareTo(y) ... }
+    ...
+}
+\end{xten}
+The where clause states that the type parameter \xcd"T" must have a
+method \xcd"compareTo" with the given signature.
+
+The analogous code for \xcd"SortedList" in the structural
+extension of X10 is:
+\begin{xten}
+class SortedList[T]{T has def compareTo(T): int} {
+    def add(x: T) = { ... x.compareTo(y) ... }
+    ...
+}
+\end{xten}
+
+A structural constraint is satisfied if the type has a member of
+the appropriate name and with a compatible type.  The constraint
+\xcdmath"Z has def m[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$): U"
+is satisfied by a type \xcd"T" if it has a method \xcd"m"
+with signature
+\xcdmath"def m[$\tbar{Y}$]($\tbar{y}\ty\tbar{S}$): V"
+and where
+(\xcdmath"[$\tbar{Y}$]($\tbar{y}\ty\tbar{S}$) => V")$[\Xcd{T}/\Xcd{Z}]$
+is a subtype of
+(\xcdmath"[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$) => U")$[\Xcd{T}/\Xcd{Z}]$.
+As an example,
+the constraint \xcd"X has def compareTo(X): int"
+is satisfied by both of the following classes:
+\begin{xten}
+class C { def compareTo(x: C): int = ...; }
+class D { def compareTo(x: Object): int = ...; }
+\end{xten}
+
+\todo{The important bit about all this is... don't have to
+      change the type system, just the constraints}
