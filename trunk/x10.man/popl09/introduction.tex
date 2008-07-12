@@ -1,0 +1,206 @@
+\todo{Awkward, repetitive}
+
+\todo{More positioning, relative to: DML, HM(X), constrained
+types (Trifonov, Smith) and subtyping constraints, Java
+generics, GJ, PolyJ, C\# generics, virtual types, liquid types}
+
+\todo{Possible claim: first type system
+that combines genericity and dep types in some vague general way.}
+
+\todo{Incorporate some text from OOPSLA paper on deptypes.}
+
+\todo{Cite liquid types and whatever it cites}
+
+Modern object-oriented type systems provide 
+many features to improve productivity by 
+allowing programmers to express program
+invariants as types that are
+checked by the compiler, without sacrificing the ability to
+reuse code.
+We present a dependent type system
+that extends a class-based language with
+statically-enforced constraints on types and values.
+This type system 
+supports several features of modern object-oriented 
+language through natural extensions of the core dependent type
+system: generic types, virtual types, and self types
+among them.
+
+The key idea is to define \emph{constrained types},
+a form of dependent type
+defined on predicates over types and over the immutable state of
+the program.
+The type system is parametrized on a constraint system.
+We have formalized the type system in an extension of
+Featherweight Java~\cite{FJ}
+and provide proof of soundness.
+By augmenting the default constraint system,
+the type system can serve as a core calculus 
+for formalizing extensions of a core object-oriented language. 
+
+This work is done in the context of the X10
+programming language~\cite{X10}.
+In X10, objects may have both value members (fields)
+and type members.
+The immutable state of an object is captured by its
+\emph{value properties}: public final fields of the object.
+For instance, the following class declares a two-dimensional
+point with properties \xcd"x" and \xcd"y" of type \xcd"float":
+\begin{xten}
+class Point(x: float, y: float) { }
+\end{xten}
+
+A constrained type is a type \xcd"C{e}", where \xcd"C" is a
+class---called the \emph{base class}---and \xcd"e" is a
+\emph{constraint}, or list of constraints, on the properties of
+\xcd"C" and the final variables in scope at the type.
+For example, given the above class definition,
+the type \xcd"Point{x*x+y*y<1}" is the type of all
+points within the unit circle.
+
+% For brevity, a constraint can be written as
+% a comma-separated list of conjuncts; that is, the constraint
+% \xcd"c1"~\xcd"&&"~\xcd"c2" can be written
+% \xcd"c1,"~\xcd"c2".
+
+Constraints on properties induce a natural subtyping relationship:
+\xcd"C{c}" is a subtype of
+\xcd"D{d}" if \xcd"C" is a subclass of \xcd"D" and
+\xcd"c" entails \xcd"d".  Thus, \xcd"Point{x==1,y==1}"
+is a subtype of \xcd"Point{x>0}", which in turn is a subtype of
+\xcd"Point{true}"---written simply as \xcd"Point".
+
+In previous
+work~\cite{X10,constrained-types}, we considered
+only value properties.
+In this paper,
+to support genericity these types are generalized
+to allow \emph{type properties}, type-valued instance
+members of an object.
+Types may be defined by constraining the type properties as
+well as the value properties of a class.
+
+The following code declares a class \xcd"Cell" with a type
+property named \xcd"T".
+\begin{xten}
+class Cell[T] {
+    var value: T;
+    def get(): T = value;
+    def set(v: T) = { value = v; }
+}
+\end{xten}
+The class has a mutable field \xcd"value" of type \xcd"T",
+and has \xcd"get" and \xcd"set" methods for accessing the field.
+
+This example shows that type properties are in many ways similar to
+type parameters as provided in object-oriented languages such as
+Java~\cite{Java3} and Scala~\cite{scala} and in functional
+languages such as ML~\cite{ml} and
+Haskell~\cite{haskell}.
+
+As the example illustrates,
+type properties are types in their own right:
+they may be used in any context a type may be used,
+including in \xcd"instanceof" and cast expressions.
+%
+However, the key distinction between type properties
+and type parameters is that type properties are instance
+members.
+Thus, for an expression \xcd"e" of type \xcd"Cell", \xcd"e.T" is
+a type, equivalent to the concrete type to which \xcd"T" was
+initialized when the object \xcd"e" was instantiated.
+To ensure
+soundness, \xcd"e" is restricted to final access paths.
+Within the body of a class, the unqualified property name \xcd"T" resolves
+to \xcd"this.T".
+
+All properties of an object, both type and value, must be bound at object
+instantiation and are immutable once bound.  Thus, the type
+property \xcd"T" of a given \xcd"Cell" instance must be bound
+by the constructor
+to a concrete type such as \xcd"String" or \xcd"Point{x>=0}".
+
+As with value properties, type properties may be constrained
+by predicates to produce \emph{constrained types}.
+Many features of modern object-oriented type systems fall out
+naturally from this type system.
+
+\paragraph{Generic types.}
+Constraints on type properties lead directly to a form of generic class.
+The \xcd"Cell" defined class above is a generic class.
+X10 supports
+equality constraints, written \xcdmath"T$_1$==T$_2$", and
+subtyping constraints, written \xcdmath"T$_1$<:T$_2$", on types.
+For instance,
+the type \xcd"Cell{T==float}" is the type of all \xcd"Cell"s
+containing a \xcd"float".  For an instance \xcd"c" of this type,
+the types \xcd"c.T" and \xcd"float" are equivalent.  Thus, the
+following code is legal.
+\begin{xten}
+val x: float = c.get();
+c.set(1.0);
+\end{xten}
+
+Subtyping constraints enable \emph{use-site variance}~\cite{variance}.
+The type \xcd"Cell{T<:Collection}"
+constrains \xcd"T" to be a subtype of \xcd"Collection".
+All instances with this type must bind \xcd"T" to a subtype of
+\xcd"Collection".
+Variables of this type may contain \xcd"Cell"s of
+\xcd"Collection", \xcd"Cell" of \xcd"List",
+or \xcd"Cell" of \xcd"Set", etc.
+Subtyping constraints provide similar expressive power as Java
+wildcards.  We describe an encoding of wildcards in
+Section~\ref{sec:wildcards}. 
+
+\paragraph{Other type systems.}
+
+While this paper focuses mainly on supporting generic types 
+through dependent types, the formalism generalizes 
+other object-oriented type systems, e.g., self
+types~\cite{bruce-binary,bsg95}, virtual
+types~\cite{mp89-virtual-classes,beta,ernst06-virtual},
+and structually constrained
+types~\cite{polyj,haskell-type-classes}.
+
+\subsection{Contributions}
+
+\todo{We need some!}
+
+\subsection{Implementation}
+
+Type properties are a powerful mechanism
+for providing genericity in X10.
+Unlike existing 
+existing proposals for generic types in
+Java-like
+languages~\cite{Java3,GJ,Pizza,polyj,thorup97,scala},
+which 
+are implemented via type erasure,
+our design supports run-time introspection of generic types.
+
+Another problem with many of these proposals is inadequate support
+for primitive types, especially arrays. The performance of primitive arrays is
+critical for the high-performance applications for which
+X10 is intended. These proposals introduce unnecessary boxing
+and unboxing of primitives.
+Our design does not require primitives be boxed.
+
+\paragraph{Outline.}
+The rest of the paper is organized as follows.
+%
+Section~\ref{sec:related} discusses related work.
+%
+An informal overview of generic constrained types in X10
+is presented in
+Section~\ref{sec:lang}.  
+%
+Section~\ref{sec:semantics} presents a formal semantics and a
+proof of soundness.
+%
+The implementation of generics in X10 by translation to Java is described in 
+Section~\ref{sec:translation}.
+%
+Finally, Section~\ref{sec:conclusions} concludes.
+
+\todo{Fix this}
