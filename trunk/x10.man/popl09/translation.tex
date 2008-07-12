@@ -1,26 +1,22 @@
-
 This section describes an implementation approach for
 generic constrained types on a Java virtual machine.
 We describe the implementation as a translation to Java.
 
-The design
-is a hybrid design based on the implementation of parametrized classes in
-NextGen~\cite{allen03,allen04} and the implementation of
-PolyJ~\cite{polyj}.
-Generic classes are translated into template classes
-that are instantiated on demand at run time by binding the type properties
-to concrete types.  To implement run-time type checking (e.g.,
-casts), type properties are represented at run time
-using \emph{adapter objects}.
+The design is a hybrid design based on the implementation of
+parametrized classes in NextGen~\cite{allen03,allen04} and the
+implementation of PolyJ~\cite{polyj}.  Generic classes are translated
+into template classes that are instantiated on demand at run time by
+binding the type properties to concrete types.  To implement run-time
+type checking (e.g., casts), type properties are represented at run
+time using \emph{adapter objects}.
 
 This design, extended to handle language features
-not described in this paper, has been implemented in the X10
-compiler.  The X10 compiler is built on the Polyglot framework
-and translates X10 source to Java source\footnote{There is also
-a translation from X10 to C++ source, not described here.}
+not described in this paper, has been implemented in the \Xten{}
+compiler.  The \Xten{} compiler is built on the Polyglot framework
+and translates \Xten{} source to Java source\footnote{There is also
+a translation from \Xten{} to C++ source, not described here.}
 
 \subsection{Classes}
-
 Each class is translated into a \emph{template class}.
 The template class is compiled by a Java compiler (e.g., javac)
 to produce a class file.
@@ -30,6 +26,7 @@ template class bytecode, specializing it to the constraint
 \xcd"c".
 
 For example, consider the following classes.
+{\footnotesize
 \begin{xten}
 class A[T] {
     var a: T;
@@ -38,9 +35,10 @@ class C {
     val x: A[Int] = new A[Int]();
     val y: Int = x.a;
 }
-\end{xten}
+\end{xten}}
 
 The compiler generates the following code:
+{\footnotesize
 \begin{xten}
 class A {
     // Dummy class needed to type-check uses of T.
@@ -60,7 +58,7 @@ class C {
     final A x = Runtime.<A>alloc("A\$Int");
     final int y = x.<Integer>get\$a();
 }
-\end{xten}
+\end{xten}}
 
 The member class \xcd"A.T" is used in place of the
 type property \xcd"T". 
@@ -74,12 +72,13 @@ evaluated.  This causes \xcd"C" to be loaded.
 The class loader transforms the bytecode as if it had
 been written as follows:
 
+{\footnotesize
 \begin{xten}
 class C {
     final A\$Int x = new A\$Int();
     final int y = x.a;
 }
-\end{xten}
+\end{xten}}
 
 The \xcd"ActualType" annotation is used to change the
 type of the field \xcd"x" from \xcd"A" to \xcd"A\$Int".
@@ -100,6 +99,9 @@ template class \xcd"A".
 The bytecode is transformed, replacing the type property \xcd"T"
 with the concrete type \xcd"int", the translation of \xcd"Int".
 
+
+
+{\footnotesize
 \begin{xten}
 class A {
     x10.runtime.Type T;
@@ -108,7 +110,7 @@ class A {
 class A\$Int extends A {
     int x;
 }
-\end{xten}
+\end{xten}}
 
 Type properties are mapped to the Java primitive types and to
 Object.  Only nine possible instantiations per parameter.
@@ -131,6 +133,7 @@ are translated to calls to static methods.
 Consider the code in Figure~\ref{fig:translation1}.  It contains most of the
 features of generics that have to be translated.
 \begin{figure*}[tp]
+{\footnotesize
 \begin{xten}
 class C[T] {
     var x: T;
@@ -148,7 +151,7 @@ val y : C[int] = new C[int]();
 val z : C{T <: Array} = new C[Array[int]]();
 x.map[int](f);
 new C[int{self==3}]() instanceof C[int{self<4}];
-\end{xten}
+\end{xten}}
 \caption{Code to translate}
 \label{fig:translation1}
 \end{figure*}

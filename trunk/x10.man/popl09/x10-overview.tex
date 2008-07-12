@@ -1,7 +1,7 @@
 
 This section presents an informal description of 
-generic constrained types in X10.  The type system is formalized
-in a simplified version of X10, \gxx (Generic Featherweight X10), in
+generic constrained types in \Xten{}.  The type system is formalized
+in a simplified version of \Xten{}, \gxx (Generic Featherweight \Xten{}), in
 Section~\ref{sec:semantics}.
 
 When presenting syntax, we follow the usual conventions for
@@ -13,7 +13,7 @@ a single list of terms (e.g.,
 we write \xbar{x}\Xcd{:}\xbar{T} for the list
 \xcdmath"x$_1$:T$_1$,$\dots$,x$_n$:T$_n$").
 
-X10 is a class-based object-oriented language.
+\Xten{} is a class-based object-oriented language.
 The language has a sequential core similar to Java or Scala, but 
 constructs
 for concurrency and distribution, as well as constrained types,
@@ -21,19 +21,19 @@ described here.
 Like Java, the language provides single class inheritance and
 multiple interface inheritance.
 
-A constrained type in X10 is written \xcd"C{e}", where \xcd"C" is the
+A constrained type in \Xten{} is written \xcd"C{e}", where \xcd"C" is the
 name of a class and \xcd"e" is a constraint on the properties of
 \xcd"C" and the final variables in scope at the type.  The
 constraint \xcd"e" may refer to the value being constrained
 through the special variable \xcd"self", which has type \xcd"C"
 in the constraint.  Constraints are drawn from a constraint
 language that, syntactically, is a subset of the boolean
-expressions of X10.
+expressions of \Xten{}.
 
 The compiler checks that constraints are expressions
 of type \xcd"boolean" and that they can be statically checked by
 the compiler's constraint solver.  
-X10 supports conjunctions of equalities
+\Xten{} supports conjunctions of equalities
 over final variables and compile-time constants, and equalities
 and subtyping constraints over types.
 Compiler plugins may be installed to
@@ -45,16 +45,16 @@ interpreted as \xcd"true".
 The syntax
 \xcdmath"C[$\tbar{T}$]($\tbar{e}$)" is sugar for
 \xcdmath"C[$\tbar{X}$==$\tbar{T}$]($\tbar{x}$==$\tbar{e}$)"
-where \xcd"X$_i$" are the type properties and \xcd"x$_i$" are the
-value properties of \xcd"C".
+where \xcdmath{X$_i$} are the type properties and \xcdmath"x$_i$" are the
+value properties of \xcd{C}.
 If either list of properties is empty, it may be omitted.
 
-To illustrate the features of dependent types in X10, we develop a \xcd"List"
+To illustrate the features of dependent types in \Xten{}, we develop a \xcd"List"
 class.  We will present several versions of \xcd"List" as we
 introduce new features.
 A \xcd"List" class with a type property \xcd"T" and an \xcd"int"
 property \xcd"length" is declared as in Figure~\ref{fig:list0}.
-Classes in X10 may be declared with any number of type properties and
+Classes in \Xten{} may be declared with any number of type properties and
 value properties.
 
 \begin{figure}
@@ -92,13 +92,13 @@ Methods are declared with the \xcd"def" keyword.
 The method \xcd"get" takes a final integer \xcd"i" argument
 and returns the element at that position.
 
-Objects in X10 are initialized with constructors, which
+Objects in \Xten{} are initialized with constructors, which
 must ensure that all properties of the new object
 are initialized and that the class invariants of the object's
 class and its superclasses and superinterfaces hold.
-X10 uses method syntax with the name
+\Xten{} uses method syntax with the name
 \xcd"this" for constructors.
-In X10, constructors have a ``return type, which constrains
+In \Xten{}, constructors have a ``return type'', which constrains
 the properties of the new object.  The constructor in
 Figure~\ref{fig:list0} takes a type argument \xcd"S"
 and two value arguments \xcd"hd" and \xcd"tl".  The constructor
@@ -195,10 +195,14 @@ In the method body, the \xcd"head" of the list is returned for
 position \xcd"0"; otherwise the call recurses on the \xcd"tail".
 Note that the type-checker must be flow sensitive to be able go
 guarantee that \xcd"i" is within the loop bounds of \xcd"tail".
-The constraint solver must prove that \xcd"tail.length > 0" and
-\xcd"0 <= i-1" and \xcd"i-1 < tail.length" from the facts:
-\xcd"this.length > 0", \xcd"tail.length == this.length-1",
-\xcd"0 <= i", \xcd"i < length"
+The constraint solver must prove
+{\footnotesize
+$$
+\begin{array}[t]{l}
+\tt length >0, tail.length=length-1, 0 \leq i, i < length, i \not= 0 \\
+\tt \quad\vdash tail.length > 0, 0 \leq i-1,i-1 < tail.length 
+\end{array}
+$$}
 
 Method overriding is similar to Java: a method of a subclass
 with the same name and parameter types overrides a method of the
@@ -208,14 +212,14 @@ A method constraint may be weakened by an overriding
 method; that is, the method constraint in the superclass must entail the  
 method constraint in the subclass.
 
-Methods may also have both type parameters.  
+Methods may also have type parameters.  
 For instance, the \xcd"map" method in Figure~\ref{fig:list} 
 has a type parameter \xcd"S" and a value parameter that is a
 function from \xcd"T" to \xcd"S".
-A parametrized method can is invoked by giving type arguments before the
-expression arguments, as is done by the recursive call to
-\xcd"map".  Actual type arguments can be inferred from the types
-of the value arguments---we do not describe this here.
+A parametrized method is invoked by giving type arguments before the
+expression arguments (see recursive call to
+\xcd"map").\footnote{Actual type arguments can be inferred from the types
+of the value arguments. Type inference is out of the scope of this paper.}
 
 \xcd"List" also defines three constructors: the first
 constructor takes no value arguments and initializes
@@ -227,7 +231,7 @@ list; the third takes both a head and tail.
 \subsection{Type constraints and variance}
 \label{sec:variance}
 
-Type properties and subtyping constraints may be used in X10 to 
+Type properties and subtyping constraints may be used in \Xten{} to 
 provide use-site variance
 constraints~\cite{variant-parametric-types}.
 
@@ -316,11 +320,11 @@ occurs in a method where clause.
 \eat{
 \subsection{Methods}
 
-Methods in X10 are declared with the \xcd"def" keyword.
+Methods in \Xten{} are declared with the \xcd"def" keyword.
 The \xcd"List" class in Figure~\ref{fig:list} declares methods
 \xcd"get" and \xcd"map".
 
-Like Java, X10 supports both instance and static methods.
+Like Java, \Xten{} supports both instance and static methods.
 Since a type property is an instance member, a static method may
 not refer to a type property of the class.
 
@@ -417,7 +421,7 @@ class SortedList(compare: (T,T)=>int) extends List {
 \end{figure}
 
 
-X10 supports first-class functions.
+\Xten{} supports first-class functions.
 Function-typed properties are a useful feature for generic
 collection classes.  Consider the definition of the
 \xcd"SortedList" class in Figure~\ref{fig:sorted}.
