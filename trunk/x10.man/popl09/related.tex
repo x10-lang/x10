@@ -237,7 +237,9 @@ parameters via type erasure.
 PolyJ~\cite{PolyJ} supports run-time representation of types
 via adapter objects, and also permits instantiation of
 parameters on primitive types and structural parameter bounds.
-NextGen~\cite{allen03} was implemented using run-time 
+LM~\cite{reflective-generics,type-passing-generics} also supports
+a run-time representation of types.
+NextGen~\cite{nextgen,allen03} was implemented using run-time 
 instantiation.
 X10's generics have a hybrid implementation, adopting PolyJ's
 adapter object approach for dependent types and for 
@@ -245,14 +247,32 @@ type introspection and using NextGen's run-time
 instantiation approach for greater efficiency.
 % MixGen~\cite{allen04} extends NextGen with mixins.
 
-C\# also supports generics.  Type parameters may be declared
+C\# also supports generics via ~\cite{csharp-generics}.
+Type parameters may be declared
 with definition-site variance tags.  Compilation does not erase
 types; the CLR performs run-time parameter instantiation.
-Generalized type constraints where proposed for
+Generalized type constraints were proposed for
 C\#~\cite{emir06}.  Methods can be annotated with subtyping
 constraints that must be satisfied to invoke the method.
 Generic X10 supports these constraints, as well as constraints
 on values, with method and constructor where clauses.
+
+\gxx does not support \emph{bivariance}~\cite{variant-parameter-types}; a class
+\xcd"C" is bivariant in a type property \xcd"X" if \xcd"C{self.X==S}" is a
+subtype of \xcd"C{self.X==T}" for any \xcd"S" and \xcd"T".  Bivariance is
+useful for writing code in which the property \xcd"X" is ignored.  One can
+achieve  this effect in \gxx simply by leaving \xcd"X" unconstrained.
+
+\eat{
+Parametric types with use-site variance are related to existential types:
+\xcd"C<+T>" corresponds to the bounded existential $\exists\tcd{X<:T}.C<X>$;
+\xcd"C<-T>" corresponds to the bounded existential $\exists\tcd{X:>T}.C<X>$;
+\xcd"C<*>" corresponds to the unbounded existential $\exists\tcd{X}.C<X>$.
+\gxx has a similar correspondence:
+\xcd"C{X<:T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}:C.self.X<:T\}";
+\xcd"C{X:>T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}";
+\xcd"C" corresponds to the unbounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}".
+}
 
 \paragraph{Virtual classes and types.}
 
