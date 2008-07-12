@@ -1,0 +1,292 @@
+
+Dependent types, constraint-based type systems and generic types have a long
+history.
+
+\paragraph{Constraint-based type systems.}
+
+The use of constraints for type inference and subtyping were
+developed by
+Mitchell~\cite{mitchell84}
+and
+Reynolds~\cite{reynolds85}.
+%
+Trifonov and Smith~\cite{trifonov96}
+proposed a type system where types are refined by subtyping
+constraints, however dependent types are not supported.
+
+% Pottier~\cite{pottier96simplifying,pottier01b}
+% presents a constraint-based type system for an ML-like language with
+% subtyping.
+
+HM(X)~\cite{sulzmann97type,pottier01a,pottier-remy-attapl}
+is a constraint-based framework
+for Hindley--Milner-style type systems.
+The framework is parameterized on the specific constraint system
+X; instantiating X yields extensions of the HM type system.
+Constraints in HM(X) are over types, not values.
+%
+Sulzmann and Stuckey~\cite{sulzmann-hmx-clpx} showed that the
+type inference algorithm for HM(X) can be encoded as a
+constraint logic program parameterized by the constraint system
+X.  Type inference in this framework is thus constraint solving.
+
+Structural constraints on types have been implemented in 
+Haskell type classes~\cite{haskell-type-classes}.
+PolyJ~\cite{polyj} also uses structual constraints to bound type
+parameters.
+
+\paragraph{Dependent types.}
+
+Several systems have been proposed that refine types in a base
+type system through constraints on
+values~\cite{refinement-types,conditional-types,jones94,sized-types,flanagan-popl06,flanagan-fool06,liquid-types}.
+
+% {\em Refinement types}~\cite{refinement-types} extend the 
+% Hindley--Milner type system with intersection, union, and
+% constructor types, enabling specification and inference of
+% more precise type information.
+% %
+% {\em Conditional
+% types}~\cite{conditional-types} extend refinement types to
+% encode control-flow information in the types.
+% %
+% Jones introduced {\em qualified types}, which permit
+% types to be constrained by a finite set of
+% predicates~\cite{jones94}.
+% %
+% {\em Sized types}~\cite{sized-types}
+% annotate types with the sizes of recursive data structures.
+% Sizes are linear functions of size variables.
+% Size inference is performed using a constraint solver for
+% Presburger arithmetic~\cite{omega}.
+% % constraints on types, support primitive recursion only
+
+% Index objects must be pure.
+% Singleton types int(n).
+% ML$^{\Pi}_0$:
+% Refinement of the ML type system: does not affect the
+% operational semantics.  Can erase to ML$_0$.
+
+% Jay and Sekanina 1996: array bounds checking based on shape
+% types.
+
+With {\em hybrid type-checking}~\cite{flanagan-popl06,flanagan-fool06},
+types can be constrained by arbitrary boolean expressions.
+While typing is undecidable, dynamic checks are inserted into
+the program when necessary if the type-checker cannot determine
+type safety statically.
+In X10, dynamic type checks, including tests of dependent
+constraints, are inserted only at explicit casts or
+\Xcd{instanceof} expressions.
+
+% Ada dependent types.
+% Ada has constrained array definitions.  A constraint
+% \cite{ada-ref-man}.  Not clear if they're dependent.  Are
+% there other dependent types?  Generics are dependent?
+
+        % Used for array bounds by Morrisett et al (I think--need
+        % to find paper)
+
+% Singleton types~\cite{aspinall-singletons}.
+
+Logically qualified types, or liquid types~\cite{liquid-types},
+permit types in a base HM-style type system to be
+qualified with dependent constraints.  The HM type inference
+algorithm is extended to infer constraints as well as base
+types.  \todo{More on this}
+
+Concoqtion~\cite{concoqtion} extends types in OCaml~\cite{ocaml}
+with constraints written as Coq~\cite{coq} rules.
+While the types are expressive, supporting the full generality
+of the Coq language, proofs must be
+provided to satisfy the type checker.
+X10 supports only constraints that can be checked by a
+constraint solver during compilation.
+Concoqtion encodes OCaml types and value to allow reasoning in
+the Coq formulae; however, there is an impedence mismatch
+caused by the differing syntax, representation, and behavior
+of OCaml versus Coq.
+
+% Where clauses for F-bounded polymorphism~\cite{where-clauses}
+% Bounded quantification: Cardelli and Wegner.  Bound T with T'
+% In F-bounded polymorphism~\cite{f-bounds}, type variables are bounded by a function of 
+% the type variable. 
+% Not dependent types.
+
+
+
+Cayenne~\cite{cayenne} is a Haskell-like language with fully dependent types.
+There is no distinction between static and dynamic types.
+Type-checking is undecidable.
+There is no notion of datatype refinement as in DML.
+
+Epigram~\cite{epigram,epigram-matter}
+is a dependently typed functional programming language based on
+a type theory with inductive families.
+Epigram does not have a phase distinction between values and
+types.
+
+\eat{
+$\lambda^{\sf Con}$ is a lambda calculus with assertions.
+Findler, Felleisen, Contracts for higher-order functions (ICFP02)
+
+  example: int[> 9]
+
+contracts are either simple predicates or function contracts.
+defined by (define/contract ...)
+
+enforced at run-time.
+}
+
+% Jif~\cite{jif,jflow} is an extension of Java in which
+% types are labeled with security policies enforced by the
+% compiler.
+
+ESC/Java~\cite{esc-java}
+allow programmers to write object invariants and pre- and
+post-conditions that are enforced statically
+by the compiler using an automated theorem prover.
+Static checking is undecidable and, in the presence of loops,
+is unsound (but still useful) unless the programmer supplies loop invariants.
+ESC/Java can enforce invariants on mutable state.
+
+% and Spec$\sharp$~\cite{specsharp}
+
+\eat{
+Pluggable and optional type systems were proposed by
+Bracha~\cite{bracha04-pluggable} and provide another means of
+specifying refinement types.
+Type annotations, implemented in compiler plugins, serve only to
+reject programs statically that might otherwise have dynamic
+type errors.
+CQual~\cite{foster-popl02} extends C with user-defined type
+qualifiers.  These
+qualifiers may be flow-sensitive and may be inferred. 
+CQual supports only a fixed set of typing rules
+for all qualifiers.
+In contrast, the {\em semantic type qualifiers} of
+Chin, Markstrum, and Millstein~\cite{chin05-qualifiers}
+allow programmers to define typing rules for qualifiers
+in a meta language that allows type-checking rules to be
+specified declaratively.
+JavaCOP~\cite{javacop-oopsla06} is a pluggable type system
+framework for Java.  Annotations are defined in a meta language
+that allows type-checking rules to be specified declaratively.
+JSR 308~\cite{jsr308} is a proposal for adding user-defined type qualifiers
+to Java.
+}
+
+% Holt, Cordy, the Turing programming language
+
+% Ou, Tan, Mandelbaum, Walker, Dynamic typing with dependent types
+% Separate dependent and simple parts of the program.
+% Statically type the dependent parts.
+% Dynamic checks when passing values into dependent part.
+
+Our work is closely related to DML, \cite{xi99dependent}, an
+extension of ML with dependent types. DML is also built
+parametrically on a constraint solver. Types are refinement types;
+they do not affect the operational semantics and erasing the
+constraints yields a legal ML program.
+
+At a conceptual level the intuitions behind the development of DML
+and constrained types are similar. Both are intended for practical
+programming by mainstream programmers, both introduce a strict
+separation between compile-time and run-time processing, are
+parametric on a constraint solver, and deal with mutually recursive
+data-structures, mutable state, and higher-order functions (encoded as
+objects in the case of constrained types). Both support existential
+types.
+
+The most obvious distinction between the two lies in the target
+domain: DML is designed for functional programming, specifically
+ML, whereas constrained types are designed for imperative, concurrent
+OO languages. Hence, technically our development of constrained types
+takes the route of an extension to FJ. But there are several other
+crucial differences as well.
+
+First, DML achieves its separation by not permitting program
+variables to be used in types. Instead, a parallel set of (universally
+or existentially quantified) ``index'' variables are
+introduced.
+Second, DML permits only variables of basic index sorts known to
+the constraint solver (e.g., \Xcd{bool}, \Xcd{int}, \Xcd{nat}) to
+occur in types. In contrast, constrained types permit program
+variables at any type to occur in constrained types. As with DML
+only operations specified by the constraint system are permitted in
+types. However, these operations always include field selection and
+equality on object references.  (As we have seen permitting arbitrary
+type/property graphs may lead to undecidability.) Note that DML
+style constraints are easily encoded in constrained types.
+
+Third, DML does not permit any runtime checking of constraints
+(dynamic casts).
+
+\paragraph{Genericity.}
+
+Genericity in object-oriented languages is usually
+suported through
+type parameterization.
+
+A number of proposals 
+for adding genericity to Java quickly followed
+the initial release of
+the language~\cite{GJ,Pizza,polyj,thorup97,allen03}.
+GJ~\cite{GJ} implements invariant type
+parameters via type erasure.
+PolyJ~\cite{PolyJ} supports run-time representation of types
+via adapter objects, and also permits instantiation of
+parameters on primitive types and structural parameter bounds.
+NextGen~\cite{allen03} was implemented using run-time 
+instantiation.
+X10's generics have a hybrid implementation, adopting PolyJ's
+adapter object approach for dependent types and for 
+type introspection and using NextGen's run-time
+instantiation approach for greater efficiency.
+% MixGen~\cite{allen04} extends NextGen with mixins.
+
+C\# also supports generics.  Type parameters may be declared
+with definition-site variance tags.  Compilation does not erase
+types; the CLR performs run-time parameter instantiation.
+Generalized type constraints where proposed for
+C\#~\cite{emir06}.  Methods can be annotated with subtyping
+constraints that must be satisfied to invoke the method.
+Generic X10 supports these constraints, as well as constraints
+on values, with method and constructor where clauses.
+
+\paragraph{Virtual classes and types.}
+
+{\em Virtual classes}~\cite{beta,mp89-virtual-classes,ernst06-virtual}.
+are a language-based extensibility
+mechanism that where
+originally introduced in the language
+BETA~\cite{beta} as a mechanism
+for supporting genericity.
+Virtual classes in BETA are not statically type safe, but this has been
+remedied in recent formulations~\cite{ernst99-gbeta,ernst06-virtual} and in
+variants of 
+virtual classes~\cite{scala,nqm06,cdnw06-tribe,variant-path-types}
+using path-dependent types.  
+
+{\em Virtual types}, also introduced in BETA~\cite{beta},
+are similar to virtual
+classes.  A virtual type is a type binding nested within an
+enclosing instance.
+Virtual types
+may be used to provide genericity; indeed
+Thorup~\cite{thorup97} proposed extending Java with virtual types
+as a genericity mechanism.  Virtual types influenced Java's 
+wildcards~\cite{adding-wildcards,Java3,wildcards-safe}.
+
+Igarashi and Pierce~\cite{ip99-virtual-types}
+model the semantics of virtual types
+and several variants
+in a typed lambda-calculus with subtyping and dependent types.
+
+Use-site variance based on 
+structural virtual types
+were proposed by Thorup and Torgerson~\cite{unifying-genericity}
+and extended for parameterized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}.  The latter type
+system lead to the development of wildcards in
+Java~\cite{Java3,adding-wildcards,wildcards-safe}.
