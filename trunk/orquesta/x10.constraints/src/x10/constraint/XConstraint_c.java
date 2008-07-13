@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import sun.security.x509.UniqueIdentity;
-
-
 /**
  * A representation of constraints of the form X1=t1 && ... Xk == tk.
  * Note that there is no unification, only checking. So it is possible
