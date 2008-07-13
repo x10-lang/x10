@@ -1,988 +1,257 @@
-We present a core calculus, \gxx, for X10 with generics.
-\gxx is based on Constrained Featherweight
-Java~\cite{constrained-types}.
+\section{Judgements}
 
-\todo{
-Add method overriding rules: covariant return, contravariant
-args, weaker constraints
-}
+Here is the syntax for \GFX.
 
-The grammar for \gxx is shown in 
-Figure~\ref{fig:grammar}.  The calculus elides features of the
-full X10 language not relevant to this paper.
-
-\begin{figure}[tp]
-\begin{center}
-\begin{tabular}{lrcl}
-program & {\tt P} & ::= & \xbar{L} \\
-classes & {\tt L} & ::= &
-\xcdmath"class C[$\tbar{X}$]($\tbar{x} \ty \tbar{T}$){c}" \\
-& & & \xcdmath"  extends T { $\tbar{M}$ }" \\
-base types & {\tt R} \\
-\quad classes & & ::= & \xcd"C" \\
-\quad type variables  & & \bnf & \xcd"X" \\
-\quad type members    & & \bnf & \xcd"e.X" \\
-\quad type type       & & \bnf & \xcd"type" \\
-types & {\tt T} & ::= & \xcd"R{c}" \\
-methods     & {\tt M} & ::= &
-\xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T = e" \\
-expressions & {\tt e} & \\
-\quad literals        &         & ::=  & \xcd"true" \bnf \xcd"false" \bnf \xcd"null" \bnf $n$ \\
-\quad variables       &         & \bnf & \xcd"x" \\
-\quad field access    &         & \bnf & \xcdmath"e.x" \\
-\quad call            &         & \bnf & \xcdmath"e$_0$.m[$\tbar{T}$]($\tbar{e}$)" \\
-%\quad                 &         & \bnf & \xcdmath"e$_0$.m($\tbar{e}$)" \\
-\quad new             &         & \bnf & \xcdmath"new C[$\tbar{T}$]($\tbar{e}$)" \\
-%\quad                 &         & \bnf & \xcdmath"new C($\tbar{e}$)" \\
-\quad cast            &         & \bnf & \xcdmath"e as T" \\
-constraint terms & {\tt t} &     & \\
-\quad self            &         & ::=  & \xcd"self" \\
-\quad variables       &         & \bnf & \xcd"x" \\
-\quad properties      &         & \bnf & \xcd"t".\xcd"x" \\
-\quad atoms           &         & \bnf & \xcdmath"g(t$_1$,$\dots$,t$_n$)" \\
-\quad new             &         & \bnf & \xcdmath"new C(t$_1$,$\dots$,t$_n$)" \\
-constraint & {\tt c} &      & \\
-\quad true            &  & ::=  & \Xcd{true} \\
-\quad equality        &  & \bnf & $\Xcd{t}_1 \equals \Xcd{t}_2$ \\
-\quad existentials    &  & \bnf & $\exc{\Xcd{x}}{\Xcd{c}}$ \\
-\quad conjunction     &  & \bnf & $\xbar{c}$ \\
-\quad predicates      &  & \bnf & \xcdmath"p(t$_1$,$\dots$,t$_n$)" \\
-environments & $\Gamma$ & ::=  & $\epsilon$ \\
-            &          & \bnf & $\Gamma$, $\Xcd{c}$ \\
-            &          & \bnf & $\Gamma$, $\Xcd{x} \ty \Xcd{T}$ \\
-            &          & \bnf & $\Gamma$, $\Xcd{X} \ty \Xcd{type}$ \\
-\end{tabular}
-\end{center}
-\caption{\gxx grammar}
-\label{fig:grammar}
-\end{figure}
-
-Figure~\ref{fig:grammar2} extends the grammar with syntactic
-sugar for subtyping constraints and existential types.
-The subtyping constraint
-                  $\Xcd{t}_1 \subtype \Xcd{t}_2$ 
-                  is atomic formula.
-The existential type 
-$\exty{\Xcd{x}}{\Xcd{T}}{\Xcd{R\{c\}}}$
-is sugar for
-$\Xcd{R\{}\exc{\Xcd{x}}{\sigma(\Xcd{x}\ty\Xcd{T}),\Xcd{c}}\Xcd{\}}$.
-
-\begin{figure}[tp]
-\begin{center}
-\begin{tabular}{lrcl}
-types & {\tt T} & ::= & \dots \\
-            & & \bnf & $\exty{\Xcd{x}}{\Xcd{T}_0}{\Xcd{T}}$ \\
-            & & \bnf & $\exty{\Xcd{X}}{\Xcd{type}}{\Xcd{T}}$ \\
-constraint terms & {\tt t} & ::= & \dots \\
-\quad literals        &         &      & \xcd"true" \bnf $n$ \bnf \xcd"C" \\
-\quad type variables       &         & \bnf & \xcd"X" \\
-\quad type properties      &         & \bnf & \xcd"t".\xcd"X" \\
-constraint & {\tt c} & ::=  & \dots \\
-                  &  & \bnf & $\Xcd{t}_1 \subtype \Xcd{t}_2$ \\
-                  &  & \bnf & \Xcd{cons(T,z)} \\
-\end{tabular}
-\end{center}
-\caption{\gxx grammar with subtyping constraints}
-\label{fig:grammar2}
-\end{figure}
-
-We assume a fixed but unknown constraint system ${\cal D}$.
-A program \Xcd{P} is written using constraints from ${\cal D}$,
-We assume classes defined in \Xcd{P} do not have a cyclic
-inheritance structure.
-
-\infrule[Program OK]{
-\Xcd{extends}^+~\mbox{acyclic}
-}{
-\vdash \xbar{L}~\mbox{ok}
-}
-
-\subsection{
-The object constraint system, ${\cal O}$
-}
-
-From \Xcd{P} and ${\cal D}$
-we generate an \emph{object constraint system} ${\cal O}$, shown
-in Figure~\ref{fig:object-constraints},
-as follows.  Let \Xcd{C} and \Xcd{D} range over names of classes
-in \Xcd{P}, \Xcd{f} over field names, \Xcd{m} over method names,
-\Xcd{T} over types, and \Xcd{c} over constraints in the
-underlying data constraint system ${\cal D}$.
-
-\begin{figure}[tp]
-\begin{center}
-\begin{tabular}{lrcl}
-constraint & {\tt c} 
-                    & ::=  & \Xcd{class(C)} \\
-                  & & \bnf & \Xcd{C}~\Xcd{extends}~\Xcd{D} \\
-                  & & \bnf & $\Xcd{fields(x,}\xbar{f}\ty\xbar{T}\Xcd{)}$ \\
-                  & & \bnf & $\Xcd{mtype(x,m,[}\xbar{X}\Xcd{(}\xbar{x}\ty\xbar{T}\Xcd{)\{c\}}$ \\
+\begin{tabular}{r@{\quad}rcl}
+(C Term) & {\tt t} &{::=}& {\tt x}\alt \self  \alt {\tt t.f} \\
+&&& \alt {\tt C}($\bar{\tt t}$) \alt{\tt g}($\bar{\tt t}$) \\
+(Const.) & {\tt c},{\tt d} &{::=}&\true\alt {\tt p}($\bar{\tt t}$) \alt {\tt t=t}\\
+&&& \alt {\tt c,c}\alt{\tt  x:T;~c}\\
+(Class) & {\tt L} &{::=}& \klass\ {\tt C}[$\bar{\tt X}$]($\bar{\tt f}$:$\bar{\tt T}$)\{{\tt c}\}\ {\tt extends}\ {\tt T}\ \{$\bar{\tt M}$\} \\
+(Method)& {\tt M} &{::=}& {\tt def}\ {\tt m}[$\bar{\tt X}$]($\bar{x}:\bar{T}$)\{c\}:T=e;\\
+(Exp.)& {\tt e} &{::=}& \tt {\tt x} \alt {\tt e.f} \alt {\tt e.m}[$\bar{\tt T}$]($\bar{\tt e}$)\\
+&&& \alt \new\ C[$\bar{\tt T}$]($\bar{\tt e}$) \alt {\tt e}\ \mbox{as {\tt T}} \\ 
+(Type)& {\tt S},{\tt T},\\
+&{\tt U},{\tt Z}&{::=}& {\tt X} \alt {\tt p.X} \alt {\tt C} \alt {\tt T\{d\}}\\
+(Path) & {\tt p}&{::=}& {\tt x} \alt {\tt p.f}
 \end{tabular}
 
-\infrule{
-\Xcdmath{class C[$\tbar{X}$]($\tbar{f} \ty \tbar{T}$)\{c\} extends D\{d\} \{ $\tbar{M}$\}} \in \Xcd{P}
-}{
-\vdashO \Xcd{class(C)} \\
-\vdashO \Xcd{C}~\Xcd{extends}~\Xcd{C} \\
-\vdashO \Xcd{C}~\Xcd{extends}~\Xcd{D}
-}
-
-\infrule[Fields]{
-\Xcdmath{class C[$\tbar{X}$]($\tbar{f} \ty \tbar{T}$)\{c\} extends Object \{ $\tbar{M}$\}} \in \Xcd{P}
-}{
-\Gamma, \Xcd{z}\ty \Xcd{C}\{d\} \vdashO \Xcdmath{fields(z,$\tbar{f}\ty\tbar{T}$)}
-}
-
-\infrule[Fields-extends]{
-\vdashO \Xcd{C}~\Xcd{extends}~\Xcd{D}
-\\
-\Xcdmath{class C[$\tbar{X}$]($\tbar{f} \ty \tbar{T}$)\{c\} extends D\{d\} \{ $\tbar{M}$\}} \in \Xcd{P}
-\\
-\Gamma, \Xcd{z}\ty \Xcd{D\{d\}} \vdashO
-\Xcdmath{fields(z,$\tbar{f}_0\ty\tbar{T}_0$)}
-}{
-\Gamma, \Xcd{z}\ty \Xcd{D\{d\}} \vdashO
-\Xcdmath{fields(z,$\tbar{f}_0\ty\tbar{T}_0$, $\tbar{f}\ty\tbar{T}$)}
-}
-
-\infrule[Mtype]{
-\Xcdmath{class C[$\tbar{X}$]($\tbar{f} \ty \tbar{T}$)\{c\} extends Object \{$\tbar{M}$\}} \in \Xcd{P}
-\\
-\Xcd{M}_i = 
-\Xcdmath{def m$_i$[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$)\{c\}: T = e}
-}{
-\Gamma, \Xcd{z}\ty \Xcd{C\{d\}} \vdashO
-\Xcdmath{mtype(z,m$_i$,[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$)\{c\} $\to$T)}
-}
-
-\end{center}
-\caption{The constraint system ${\cal O}$}
-\label{fig:object-constraints}
-\end{figure}
-
-In the method signature
-                $\Xcd{[}\xbar{X}\Xcd{(}\xbar{x}\ty\xbar{T}\Xcd{)\{c\}}$,
-                the type variables \xbar{X} and data variables
-                \xbar{x} are considered bound; formulas with
-                bound variables are considered equivalent up to
-                $\alpha$-renaming.
-
-The constraint system satisfies the axioms and
-inference rules in Figure~\ref{fig:object-constraints}.
-The \Xcd{class}, \Xcd{extends}, \Xcd{fields}, and \Xcd{mtype}
-constraints are given directly from the program \Xcd{P}.
-
-The constraint system ${\cal C}$ is the disjoint conjunction
-${\cal D}$, ${\cal O}$
-of
-the constraint systems
-${\cal D}$ and ${\cal O}$.
-(This requires the assumption that 
-${\cal D}$ does not have any constraints in common with ${\cal O}$.
-
-\eat{
-The X10 compiler permits the constraint system to be extended
-with compiler plugins.  The base compiler supports equality
-constraints over literals and final variables and subtyping
-and equality
-constraints over types.
-The core constraint system is presented here.  We assume a
-constraint solver ${\cal X}$ implementing the plugged-in
-constraint systems.
-
-The constraint system does not distinguish between values and
-types.  Logical variables \xcd"x" may represent program variables
-or type variables.  Path terms \Xcd{p.x} may represent field
-accesses or member type references.
-
-The constraint system is shown in Figure~\ref{fig:constraints}.
-$\xbar{c}$ is a set of constraints.  The constraint system
-satisfies the given structural rules, and supports equality and
-subtyping constraints over terms.
-}%eat
-
-
-\subsection{Structural and logical rules}
-
-All judgments are intuitionistic.  In particular, this means
-that all constraint systems satisfy the rules and axioms
-in Figure~\ref{fig:logic}.
-
-\begin{figure}
-
-\infax[Id]{ \Gamma, \Xcd{c} \vdash \Xcd{c} }
-
-\infrule[Cut]{
-\Gamma \vdash \Xcd{c}
-\andalso
-\Gamma, \Xcd{c} \vdash \Xcd{d}
-}{
-\Gamma \vdash \Xcd{d}
-}
-
-% \infrule[Contraction]{ \xbar{c}, \Xcd{c}, \Xcd{c} \vdashC \Xcd{d} }
-                     % { \xbar{c}, \Xcd{c} \vdashC \Xcd{d} }
-% \infrule[Permutation]{ \xbar{c}, \Xcd{c}, \Xcd{d} \vdashC \Xcd{e} }
-                     % { \xbar{c}, \Xcd{d}, \Xcd{c} \vdashC \Xcd{e} }
-% \infrule[Extension]{ \xbar{c}, \vdashC \Xcd{c} }
-                     % { \xbar{c}, \xbar{c}' \vdashC \Xcd{c} }
-
-\infrule[Weak-1]{
-\Gamma \vdash \phi
-\andalso
-\Gamma \vdash \Xcd{T} \ty \Xcd{type}
-\andalso
-\Xcd{x} \not\in \mathit{var}(\Gamma)
-}{
-\Gamma, \Xcd{x} \ty \Xcd{T} \vdash \phi
-}
-
-\infrule[Weak-2]{
-\Gamma \vdash \phi
-\andalso
-\Gamma \vdash \Xcd{c} \ty \Xcd{o}
-}{
-\Gamma, \Xcd{c} \ty \phi
-}
-
-\infrule[And-L]{
-\Gamma, \psi_0, \psi_1 \vdash \phi
-}{
-\Gamma, (\psi_0, \psi_1) \vdash \phi
-}
-
-\infrule[And-R]{
-\Gamma \vdash \psi_0
-\andalso
-\Gamma \vdash \psi_1
-}{
-\Gamma \vdash (\psi_0, \psi_1)
-}
-
-\infrule[Exists-R]{
-\Gamma \vdash \phi[\Xcd{t}/\Xcd{x}]
-}{
-\Gamma \vdashC \exc{\Xcd{x}}{\phi}
-}
-
-\infrule[Exists-L]{
-\Gamma, \Xcd{x} \ty \Xcd{T}, \psi \vdash \phi
-\andalso
-\Xcd{x}~\mbox{fresh}
-}{
-\Gamma, \exc{\Xcd{x}\ty\Xcd{T}}{\psi} \vdash \phi
-}
-
-\caption{Logical rules}
-\label{fig:logic}
-\end{figure}
-
-
-\subsection{Well-formedness rules}
-
-We use the judgment for well-typedness for expressions to
-represent well-typedness for constraints.  That is, we posit
-a special type \Xcd{o} (traditionally the type of propositions),
-and regard constraints as expressions of type \Xcd{o}.
-
-Further, we change the formulation slightly so that there are no
-constraints of the form \Xcdmath{p(t$_1$,$\dots$,t$_n$)}; rather
-instance method invocation syntax is used to express invocation
-of
-pre-defined constraints.  This logically leads to the step of
-simply marking certain classes as ``predicate'' classes---all
-the (instance) methods of these classes whose return type is
-\Xcd{o} then correspond to ``primitive constraints''.
-Syntactically, we continue to use the symmetric syntax
-\Xcdmath{p(t$_1$,$\dots$,t$_n$)} rather than
-\Xcdmath{t$_1$.p(t$_2$,$\dots$,t$_n$)}.
-The alternative is tor introduce static methods and static
-method invocations in the expression language.  This is not
-difficult, but is annoying to have to repeat most of the
-formulation of instance methods.
-
-This means that the only cases left to handle are all the simple
-ones, expression the availability of certain constraints and
-operations of type \Xcd{o}.
-
-
-\begin{figure}
-\infax[True]{\Gamma \vdash \Xcd{true} \ty \Xcd{o}}
-
-\infrule[Equals]{
-\Gamma \vdash \Xcd{t}_0 \ty \Xcd{T}_0
-\andalso
-\Gamma \vdash \Xcd{t}_1 \ty \Xcd{T}_1
-\andalso
-(
-\Gamma \vdash \Xcd{T}_0 \subtype \Xcd{T}_1
-\vee
-\Gamma \vdash \Xcd{T}_1 \subtype \Xcd{T}_2
-)
-}{
-\Gamma \vdash \Xcd{t}_0 \equals \Xcd{t}_1 \ty \Xcd{o}
-}
-
-\infrule[And]{
-\Gamma \vdash \Xcd{c}_0 \ty \Xcd{o}
-\andalso
-\Gamma \vdash \Xcd{c}_1 \ty \Xcd{o}
-}{
-\Gamma \vdash (\Xcd{c}_0, \Xcd{c}_1) \ty \Xcd{o}
-}
-
-\infrule[Some]{
-\Gamma \vdash \Xcd{t} \ty \Xcd{T}
-\andalso
-\Gamma \vdash \Xcd{c}[\Xcd{t}/\Xcd{x}] \ty \Xcd{o}
-}{
-\Gamma \vdash \exc{\Xcd{x}\ty\Xcd{T}}{\Xcd{c}} \ty \Xcd{o}
-}
-
-\infrule[Type]{
-\Gamma \vdash \Xcd{class(C)}
-\andalso
-\Gamma, \Xcd{self} \ty \Xcd{C} \vdash \Xcd{c} \ty \Xcd{o}
-}{
-\Gamma \vdash \Xcd{C\{c\}} \ty \Xcd{type}
-}
-
-\caption{Well-formedness rules}
-\label{fig:wf}
-\end{figure}
-
-
-\subsection{Subtyping constraints}
-
-
-\begin{figure}
-
-\infrule[Cons-eq]{
-\xbar{c} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
-}{
-\xbar{c} \vdashC
-\Xcd{cons(}\Xcd{T}_1\Xcd{,z)} \equals 
-\Xcd{cons(}\Xcd{T}_2\Xcd{,z)} 
-}
-
-\infrule[Cons-sub]{
-\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
-}{
-\xbar{c},
-\Xcd{cons(}\Xcd{T}_1\Xcd{,z)} \vdashC 
-\Xcd{cons(}\Xcd{T}_2\Xcd{,z)} 
-}
-
-\infax[Cons]{
-\vdashC \Xcd{cons(C,z)}
-}
-
-\infrule[Eq-atom]
-{ \xbar{c} \vdashC \xbar{s} \equals \xbar{t} }
-{ \xbar{c} \vdashC \Xcd{f(}\xbar{s}\Xcd{)} \equals \Xcd{f(}\xbar{t}\Xcd{)} }
-
-% \infrule[Eq-field]{ \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2 }
-                  % { \xbar{c} \vdashC \Xcd{t}_1.\Xcd{f} \equals \Xcd{t}_2.\Xcd{f} }
-% \infrule[Eq-type]{ \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2 }
-                  % { \xbar{c} \vdashC \Xcd{t}_1.\Xcd{X} \equals \Xcd{t}_2.\Xcd{X} }
-
-\infax[Eq-refl]{ \xbar{c} \vdashC \Xcd{t} \equals \Xcd{t} }
-
-\infrule[Eq-trans]{
-        \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2
-        \andalso
-        \xbar{c} \vdashC \Xcd{t}_2 \equals \Xcd{t}_3
-        }
-        { \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_3 }
-
-\infrule[Eq-sym]{
-        \xbar{c} \vdashC \Xcd{t}_1 \equals \Xcd{t}_2
-        }
-        { \xbar{c} \vdashC \Xcd{t}_2 \equals \Xcd{t}_1 }
-
-\infrule[Eq-sub]{
-\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2 \\
-\xbar{c} \vdashC \Xcd{T}_2 \subtype \Xcd{T}_1
-}{
-\xbar{c} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
-}
-
-\infrule[Sub-cons]{
-\xbar{c} \vdashC \Xcd{C\{c\}} \ty \Xcd{type}
-\andalso
-\xbar{c}, \Xcd{c} \vdashC \Xcd{d}
-}{
-\xbar{c} \vdashC \Xcd{C\{c\}} \subtype \Xcd{C\{d\}}
-}
-
-\infrule[Sub-super]{
-\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ K\ $\tbar{M}$\ $\tbar{F}$\ \}}}
-}{
-\vdashC \Xcd{C} \subtype \Xcd{T} \\
-}
-
-\infax[Sub-object]{
-\vdashC \Xcd{T} \subtype \Xcd{Object}
-}
-
-\infrule[Sub-eq]{
-\xbar{c} \vdashC \Xcd{T}_1 \equals \Xcd{T}_2
-}{
-\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
-}
-
-\infrule[Sub-trans]{
-\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_2
-\andalso
-\xbar{c} \vdashC \Xcd{T}_2 \subtype \Xcd{T}_3
-}{
-\xbar{c} \vdashC \Xcd{T}_1 \subtype \Xcd{T}_3
-}
-
-\caption{Equality and subtyping rules}
-\label{fig:subtyping}
-\end{figure}
-
-
-
-\subsection{
-Constraint projection
-}
-
-First, for a type environment $\Gamma$,
-we define the \emph{constraint projection},
-$\sigma(\Gamma)$ thus:
-
-\begin{align*}
-\sigma(\epsilon) &= \Xcd{true} \\
-\sigma(\Gamma, \Xcd{x} \ty \Xcd{T}) &=
-        \sigma(\Gamma),
-        \cons{\Xcd{T}}{\Xcd{x}}
-\\
-\sigma(\Gamma, \Xcd{c}) &= \sigma(\Gamma), \Xcd{c} \\
-\end{align*}
-
-The auxiliary function $\mathit{cons}$
-specifies the constraint for a type \Xcd{T} with \Xcd{self}
-bounds to \Xcd{x}.
-The constraint projection uses an atomic formula \Xcd{cons},
-which is equated to the constraint of \Xcd{T} if \Xcd{T} is not
-a type variable.
-
-\begin{align*}
-\cons{\Xcd{C}}{\Xcd{z}} &=
-    \Xcd{cons(C,z)} \\
-\cons{\Xcd{C\{c\}}}{\Xcd{z}} &=
-    \Xcd{c}[\Xcd{z}/\Xcd{self}], \Xcd{cons(C\{c\},z)==c}[\Xcd{z}/\Xcd{self}] \\
-\cons{\Xcd{p.X}}{\Xcd{z}} &=
-    \Xcd{cons(p.X,z)} \\
-\cons{\Xcd{X}}{\Xcd{z}} &=
-    \Xcd{cons(X,z)} \\
-\end{align*}
-
-\noindent
-Thus, for example, the constraint projection of the environment:
-\begin{quote}
-\xcdmath"b: D, a: C{self.X==D{d},self.Y<:b.Z}"
-\end{quote}
-\noindent is:
-\begin{quote}
-\xcdmath"a.X==D{d}, a.Y<:b.Z" \\
-\end{quote}
-
-\eat{
-\subsection{
-        Judgments
-}%eat
-
-The following judgments will be defined:
-
-\begin{itemize}
-\item
-     The type {\tt T} is well-formed, given the assumptions $\Gamma$:
-
-    $\Gamma \vdash {\tt T} \ty {\tt type}$
-
-\item
-     The type {\tt S} is a subtype of {\tt T}, under the assumption $\Gamma$:
-
-      $\Gamma \vdash {\tt S} \subtype {\tt T}$
-
-    \item The expression {\tt e} is of type {\tt T}, given the assumptions $\Gamma$:
-
-      $\Gamma \vdash {\tt e} \ty {\tt T}$
-
-    \item The method {\tt M} is well-defined for the class {\tt C}
-given assumptions $\Gamma$:
-
-      $\Gamma \vdash {\tt M}~\mbox{OK in}~{\tt C}$
-
-    \item The field {\tt f: T} is well defined for the class {\tt C} given assumptions $\Gamma$:
-
-      $\Gamma \vdash {\tt f: T}~\mbox{OK in}~C$
-
-    \item The class definition {\tt L} is well defined given assumptions $\Gamma$:
-
-      $\Gamma \vdash {\tt L}~\mbox{OK}$
-
-\end{itemize}
+\noindent The constraint {\tt x:C;T} is thought of as the existential
+quantification (projection) of {\tt x} (of type {\tt C}) in {\tt T}. We think of the type
+$\tt C\{c_1\}\{c_2\}$ as another notation for the type $\tt C\{c_1,c_2\}$.
+
+In the rest of this paper we will assume give some fixed but unknown
+constraint system $\cal D$. We will assume that the program $P$ is
+written using constraints from $\cal D$, and further that classes
+defined in $P$ do not have a cyclic inheritance struture. 
+
+\subsection{The Object constraint system, $\cal O$}\label{sec:O}
+
+From $P$ and $\cal D$ we also generate a new constraint system $\cal
+O$, the constraint system of {\em objects} over $P$ and $\cal D$ as
+follows. Let $\tt C,D$ range over names of classes in $P$, $\tt f$ over
+field names, $\tt m$ over method names, $\tt S,T$ over types, $\tt c$ over
+constraints in the underlying data constraint system $\cal D$.
+The constraints of $\cal O$ are given by:
+
+\begin{tabular}{r@{\quad}rcl}
+(Const.) & {\tt c},{\tt d} &{::=}& $\klass(\tt C)$ \alt ${\tt S}\ \extends\ {\tt T}$ \\
+&&& \alt $\fields(\tt x)= \bar{\tt f}:\bar{\tt T}$ \\
+&&& \alt $\mtype({\tt x},{\tt m},\bar{\tt x})=(\bar{T},{\tt c} \rightarrow {\tt T}))$\\
+\end{tabular}
+
+The constraint system satisfies the following axioms and inference
+rules. 
+
+\infrule[Class]
+{\klass\ {\tt C[\bar{\tt X}](\bar{\tt f}:\bar{\tt T})\ extends\ D\ \ldots \in P}}
+{\vdash_{\cal O} {\tt C} \extends {\tt D}}
+
+\infrule[Fields]
+{\bar{X},\bar{\tt f}:\bar{\tt C\{e\}} \mbox{ type and value fields defined or inherited at class $D$}}
+{{\tt z}:{\tt D\{d\}} \vdash_{\cal O} \fields(\tt z)=
+ \bar{X},\bar{\tt f}:\bar{\tt C\{e[z/\this],\self {\tt == z}.{\tt f_i},d[z/\self]\}}}
+
+\infax[Sel-V]{\vdash_{\cal O} D[\bar{\tt T}](\bar{\tt t}).{\tt f_i=t_i}}
+\infax[Sel-T]{\vdash_{\cal O} D[\bar{\tt T}](\bar{\tt t}).{\tt X_i=t_i}}
+
+\infrule[mtype]
+{{\tt m}(\bar{\tt x}:\bar{\tt E})\{{\tt c}\}:{\tt F}=\{\ldots\}\ \mbox{defined or inherited at $\tt D$}\\
+\theta = [{\tt z},\bar{\tt z}/\this,\bar{\tt x}]}
+{{\tt z}:{\tt D\{d\}} \vdash_{\cal O} \mtype({\tt z},{\tt  m}, \bar{\tt z})=
+(\bar{\tt E},{\tt c}\rightarrow {\tt F}\{{\tt d}[{\tt z}/\self]\})\theta}
+
+The constraint system $\cal C$ is the (disjoint) conjunction $\cal
+D,O$ of the constraint systems $\cal D$ and $\cal O$. (This requires
+the assumption that $\cal D$ does not have any constraints in common
+with $\cal O$.)
+
+{\em Note: Figure out whether consistency checks need to be added.}
+
+\section{Rules}
+
+\subsection{Judgements}
+\begin{definition}[Designator] The class of {\em designators}
+is given by:
+\begin{tabular}{r@{\quad}rcl}
+(Designator) & {\tt d} &{::=}& {\tt x}\alt C($\bar{\tt d}$)  \alt {\tt d.f} \\
+\end{tabular}
+\end{definition}
+
+In the following $\Gamma$ is a {\em well-typed context}, i.e.{} a
+(finite, possibly empty) sequence of formulas $\tt x:T$, $\tt T\
+\type$ and constraints $\tt c$ satisfying:
+\begin{enumerate}
+  \item for any formula $\phi$ in the sequence all variables $\tt x$
+    ({\tt X}) occuring in $\phi$ are defined by a declaration $\tt
+    x:T$ ({\tt X\ \type}) in the sequence to the left of $\phi$.
+
+  \item for any variable $\tt x$ ({\tt X}), there is at most one
+  formula $\tt x:T$ ({\tt X\ \type})  in $\Gamma$.
+\end{enumerate}
+
+The judgements of interest are:
+\begin{description}
+  \item[Type well-formedness]  $\Gamma \vdash {\tt T} \ {\tt type}$
+  \item[Subtyping] $\Gamma \vdash {\tt S} \subtype {\tt T}$
+  \item[Typing]    $\Gamma   \vdash {\tt e:T}$
+  \item[Method ok] $\Gamma \vdash M\ \mbox{OK in $C$}$ (method $\tt M$ is well-defined for the class $\tt C$). 
+  \item[Field ok]  $\Gamma \vdash f:T\ \mbox{OK in $C$}$ (field $\tt f:T$ is well-defined for the class $\tt C$).
+  \item[Class ok] $\Gamma \vdash {\tt Cl} \ OK$ (class definition {\tt Cl} is ok). 
+\end{description}
 
 
 In what follows we will sometimes think of the family of five
-judgments
-as a single judgment $\Gamma \vdash \phi$ where $\phi$ ranges over the
-formulas 
-    ${\tt T} \ty {\tt type}$,
-      ${\tt S} \subtype {\tt T}$,
-      ${\tt e} \ty {\tt T}$,
-      ${\tt M}~\mbox{OK in}~{\tt C}$,
-      ${\tt f: T}~\mbox{OK in}~C$, and
-      ${\tt L}~\mbox{OK}$.
+judgements as a single judgement $\Gamma \vdash \phi$, where $\phi$
+ranges over the formulas $T\ \tt type$, $e:T$, $S \subtype T$, $f:T\
+\mbox{OK in $C$}$, $M\ \mbox{OK in $C$}$, and $C\ \mbox{OK}$.
 
+In defining these judgements we will use $\Gamma \vdash_{\cal C} c$,
+the judgement corresponding to the underlying constraint system. For simplicity,
+we define $\Gamma \vdash {\tt c}$ to mean $\sigma(\Gamma)\vdash_{\cal C} {\tt c}$,
+where the {\em constraint projection}, $\sigma(\Gamma)$ is defined thus:
 
-Now, these judgments need to satisfy certain properties:
+\begin{tabular}{l}
+$\sigma(\epsilon)={\tt true}$\\
+$\sigma(x:C\{c\}, \Gamma)$=c[x/\self], $\sigma(\Gamma)$\\
+$\sigma(c,\Gamma)$ = c, $\sigma(\Gamma)$
+\end{tabular}
 
-\begin{enumerate}
+\subsection{Well formedness rules}
 
-\item
-    $\Gamma \vdash {\tt T} \ty {\tt type}$
-whenever 
-      $\Gamma \vdash {\tt e} \ty {\tt T}$; that is,
-if we can conclude that {\tt e}
-      has type {\tt T} (under certain assumptions), then under those
-      assumptions we must be able to conclude that {\tt T} is well-defined.
+We use the judgement for well-typedness for expressions to represent
+well-typedness for constraints. That is, we posit a special type {\tt
+o} (traditionally the type of propositions), and regard constraints as
+expressions of type {\tt o}. Further, we change the formulation
+slightly so that there are no constraints of the form {\tt p(t1,...,
+tn)}; rather instance method invocation syntax is used to express
+invocation of pre-defined constraints. This logically leads to the
+step of simply marking certain classes as ``predicate'' classes -- all
+the (instance) methods of these classes whose return type is {\tt o}
+then correspond to ``primitive constraints.''
 
-\item
-    $\Gamma \vdash {\tt S} \ty {\tt type}$ and
-    $\Gamma \vdash {\tt T} \ty {\tt type}$ whenever
-      $\Gamma \vdash {\tt S} \subtype {\tt T}$.
+Syntactically, we will continue to use the symmetric syntax
+{\tt p(t1,\ldots, tn)} rather than {\tt t1.p(t2,\ldots, tn)}.
 
-\item
-If 
-      $\Gamma \vdash {\tt e} \ty {\tt T}$ and if {\tt x}
-is a variable occurring free in ${\tt e} \ty {\tt T}$, then for some
-      type {\tt U},
-      $\Gamma \vdash {\tt x} \ty {\tt U}$.
-That is, all free variables on the right-hand
-      side of the judgment are actually defined on the left-hand side.
-\end{enumerate}
+(The alternative is to introduce static methods, and static method
+invocations in the expression language. This is not too difficult, but
+it is annoying to have to repeat most of the formulation of instance
+methods, and to have one more case to prove.)
 
+So this means that the only cases left to handle are all the simple
+ones, expressing the availability of certain constants and operators
+at type {\tt o} (see Figure~\ref{Figure:Wff}).
 
-Keeping in mind these requirements, the rules are as follows. Below,
-whenever we use the assertion ``{\tt x} free'' in the antecedent of
-a rule we mean
-that {\tt x} is not free in the consequent of the rule.
+\begin{figure*}
+\footnotesize
 
+\tabcolsep=0pt
 
-\subsection{
-      Structural and Logical Rules
-}
-
-
-First, we present the structural rules for $\vdash$. The
-judgment
-$\Gamma\vdash {\tt e} \ty {\tt T}$ is
-intuitionistic. That is, $\Gamma$ is considered a multiset of assertions, and
-the judgment possesses the inference rules:
-
-\infrule{
-\Gamma \vdash {\tt e} \ty {\tt T}
-\andalso
-\Gamma \vdash {\tt S} \ty {\tt type}
-\andalso
-    \mbox{{\tt x} not in $\mathit{var}(\Gamma)$}
-}{
-\Gamma, {\tt x} \ty {\tt S} \vdash {\tt e} \ty {\tt T}
-}
-
-
-
-\infrule{
-\Gamma \vdash {\tt e} \ty {\tt T}
-\andalso
-\Gamma \vdash {\tt c} \ty {\tt boolean}
-}{
-\Gamma, {\tt c} \vdash {\tt e} \ty {\tt T}
-}
-
-
-We also assume the following rule for conjunctions on the left and right:
-
-\infrule{
-\Gamma, \phi_1 , \phi_2 \vdash \phi
-}{
-\Gamma, (\phi_1 , \phi_2 ) \vdash \phi
-}
-
-
-\infrule{
-\Gamma \vdash \phi_1 
-\andalso
-     \Gamma \vdash \phi_2  
-}{
-\Gamma \vdash (\phi_1 , \phi_2 )
-}
-
-
-
-Existential quantification is governed by the following standard rules,
-specialized for the particular kinds of formulas we are dealing with:
-
-
-\infrule{
-\Gamma \vdash {\tt e} \ty {\tt T}[{\tt t}/{\tt x}]
-\andalso
-\Gamma \vdash {\tt t} \ty {\tt S}
-}{
-\Gamma \vdash {\tt e} \ty ({\tt x} \ty {\tt S};~{\tt T})
-}
-
-
-\infrule{
-\Gamma, {\tt x} \ty {\tt S}, {\tt c} \vdash {\tt e} \ty {\tt T}
-\andalso
-\mbox{{\tt x} fresh}
-}{
-\Gamma, ({\tt x} \ty {\tt S};~{\tt c}) \vdash {\tt e} \ty {\tt T}
-}
-
-
-\infrule{
-\Gamma, {\tt x} \ty {\tt S}, {\tt y} \ty \Xcd{C\{c\}} \vdash {\tt e} \ty {\tt T}
-\andalso
-\mbox{{\tt x} fresh}
-}{
-\Gamma, {\tt y} \ty \Xcd{C\{x:S; c\}} \vdash {\tt e} \ty {\tt T}
-}
-
-}
-
-\subsection{
-Type well-formedness
-}
-
-\begin{figure}
-
-\infrule{
-\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ $\tbar{M}$\ $\tbar{F}$\ \}}}
-}{
-\vdash \Xcd{C} \ty \Xcd{type}
-}
-
-\infrule{
-\Gamma \vdash \Xcd{T} \ty \Xcd{type}
-\andalso
-\Gamma, \Xcd{self} \ty \Xcd{T} \vdash \Xcd{c} \ty \Xcd{Boolean}
-\andalso
-\sigma(\Gamma) \vdashC \Xcd{c}~\mbox{OK}
-}{
-\Gamma \vdash \Xcd{T\{c\}} \ty \Xcd{type}
-}
-
-\infrule{
-\Gamma \vdash \Xcd{p} \ty \Xcd{T}
-\andalso
-\Gamma \vdash \Xcd{T}~\Xcd{has}~\Xcd{X}
-}{
-\Gamma \vdash \Xcd{p.X} \ty \Xcd{type}
-}
-
-\infax{
-\Gamma, \Xcd{X} \ty \Xcd{type} \vdash \Xcd{X} \ty \Xcd{type}
-}
-
-\caption{Type well-formedness}
-\label{fig:type-wf}
-\end{figure}
-
-\subsection{
-      Type inference rules
-}
-
-\subsubsection{Constraint rules}
-
-\begin{figure}
-
-\infrule[Has-class]{
-\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ K\ $\tbar{M}$\ $\tbar{F}$\ \}}}
-}{
-\vdash {\tt C}~{\tt has}~{\tt K} \\
-\vdash {\tt C}~{\tt has}~{\tt X}_i \\
-\vdash {\tt C}~{\tt has}~{\tt x}_i \ty {\tt T}_i \\
-\vdash {\tt C}~{\tt has}~{\tt M}_i \\
-\vdash {\tt C}~{\tt has}~{\tt F}_i
-}
-
-\infrule[Has-sub]{
-{\tt Z} \not= {\tt K}
-\andalso
-\Gamma \vdash {\tt T}_1~{\tt has}~{\tt Z}
-\andalso
-\sigma(\Gamma) \vdash {\tt T}_2 \subtype {\tt T}_1
-}{
-\Gamma \vdash {\tt T}_2~{\tt has}~{\tt Z}
-}
-
-\caption{Structural constraints}
-\label{fig:structural}
-\end{figure}
-
-\subsubsection{
-        Expression typing judgment
-}
-
-\eat{
-We define \Xcd{T\{c\}} as follows:
-
-\begin{align*}
-\Xcd{D\{c\}} &= \Xcd{D\{c\}} \\
-\Xcd{D\{d\}\{c\}} &= \Xcd{D\{d,c\}} \\
-\Xcd{X\{c\}} &= \Xcd{X\{c\}} \\
-\Xcd{p.X\{c\}} &= \Xcd{p.X\{c\}} \\
-\end{align*}
-
-\begin{align*}
-\exists\Xcd{x}\ty \Xcd{S}.~\Xcd{C} &= \Xcd{C} \\
-\exists\Xcd{x}\ty \Xcd{S}.~\Xcd{C\{c\}} &=
-        \Xcd{C\{}\exists\Xcd{x}.~\sigma(\Xcd{x}\ty \Xcd{S})\Xcd{,c\}} \\
-\exists\Xcd{x}\ty \Xcd{S}.~\Xcd{p.X} &=
-        \Xcd{p.X\{}\exists\Xcd{x}.~\sigma(\Xcd{x}\ty \Xcd{S})\Xcd{,c\}} \\
-\exists\Xcd{x}\ty \Xcd{S}.~\Xcd{X} &=
-        \Xcd{X\{}\exists\Xcd{x}.~\sigma(\Xcd{x}\ty \Xcd{S})\Xcd{,c\}} \\
-\end{align*}
-} %eat
-
-\begin{figure}
-
-\infrule[T-sub]{
-\Gamma \vdash \Xcd{e} \ty \Xcd{S}
-\andalso
-\sigma(\Gamma) \vdashC \Xcd{S} \subtype \Xcd{T}
-\andalso
-\Gamma \vdash \Xcd{T} \ty \Xcd{type}
-}{
-\Gamma \vdash \Xcd{e} \ty \Xcd{T}
-}
-
-\infax[T-bool]{
-\vdash \Xcd{true} \ty \Xcd{Boolean\{self==true\}} \\
-\vdash \Xcd{false} \ty \Xcd{Boolean\{self==false\}}
-}
-
-\infax[T-int]{
-\vdash n \ty \Xcd{Int\{self==}n\Xcd{\}}
-}
-
-\infrule[T-eq]{
-\Gamma \vdash \Xcd{e}_1 \ty \Xcd{T}_1
-\andalso
-\Gamma \vdash \Xcd{e}_2 \ty \Xcd{T}_2
-}{
-\Gamma \vdash \Xcd{e}_1 \equals \Xcd{e}_2 \ty
-        \extyty{\Xcd{z}_1}{\Xcd{T}_1}{\Xcd{z}_2}{\Xcd{T}_2}
-        {\Xcd{Boolean\{self==(}{\Xcd{z}_1}\equals{\Xcd{z}_2}\Xcd{)\}}}
-}
-
-\infrule[T-teq]{
-\Gamma \vdash \Xcd{T}_1 \ty \Xcd{type}
-\andalso
-\Gamma \vdash \Xcd{T}_2 \ty \Xcd{type}
-}{
-\Gamma \vdash \Xcd{T}_1 \equals \Xcd{T}_2 \ty \Xcd{Boolean}
-}
-
-\infrule[T-tsub]{
-\Gamma \vdash \Xcd{T}_1 \ty \Xcd{type}
-\andalso
-\Gamma \vdash \Xcd{T}_2 \ty \Xcd{type}
-}{
-\Gamma \vdash \Xcd{T}_1 \subtype \Xcd{T}_2 \ty \Xcd{Boolean}
-}
-
-\infax[T-var]{
-\Gamma, \Xcd{x} \ty \Xcd{T} \vdash \Xcd{x} \ty \Xcd{T}
-}
-
-\infrule[T-cast]{
-\Gamma \vdash \Xcd{e} \ty \Xcd{S}
-\andalso
-\Gamma \vdash \Xcd{T} \ty \Xcd{type}
-}{
-\Gamma \vdash \Xcd{e}~\Xcd{as}~\Xcd{T} \ty \Xcd{T}
-}
-
-\infrule[T-field]{
-\Gamma \vdash \Xcd{e} \ty \Xcd{T}
-%\\
-%\Xcd{T} = \exty{\Xcd{z}}{\Xcd{S}}{\Xcd{S\{self==z\}}}
+\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.25\textwidth}p{0.25\textwidth}}
+\infax[{\tt true}]{\Gamma \vdash {\tt true}: o}
+&
+\infrule[Equals]
+{\Gamma \vdash t_0: T_0 \andalso \Gamma \vdash t_1: T_1 \andalso  (\Gamma \vdash T_0 \subtype T_1 \vee \Gamma \vdash T_1 \subtype T_0)}
+{\Gamma \vdash t_0=t_1:o}
+&
+\infrule[And]
+{\Gamma \vdash c_0: o \andalso \Gamma \vdash c_1: o}
+{\Gamma \vdash (c_0,c_1):o}
+&
+\infrule[Some]
+{\Gamma \vdash t: T \andalso \Gamma \vdash c[t/x]:o}
+{\Gamma \vdash x:T;c: o}
 \\
-\Xcd{T}~\Xcd{has}~\Xcd{f}\Xcd{\{c\}} \ty \Xcd{U}
-\\
-\sigma(\Gamma, \Xcd{this} \ty \Xcd{T}) \vdashC \Xcd{c}
-}{
-\Gamma \vdash \Xcd{e}.\Xcd{f} \ty \exty{\Xcd{this}}{\Xcd{T}}{\Xcd{U\{self==this.f\}}}
-}
+\infrule[Class]
+{\Gamma \vdash \klass({\tt C})}
+{\Gamma \vdash {\tt C}\ \type} 
+&
+\infax[Id-X]{\Gamma, {\tt X}\ \type \vdash {\tt X}\ \type}
+&
+\infrule[Dep]
+{\Gamma \vdash T\ \type \andalso \Gamma, \self:T \vdash c:o}
+{\Gamma \vdash T\{c\}\ {\tt type}} 
+&
+\infrule[Path]
+{\Gamma \vdash {\tt p:T} \andalso \Gamma, {\tt x:T} \vdash \fields(x)=\bar{\tt X},\bar{\tt f}:\bar{\tt T}}
+{\Gamma \vdash {\tt p.X_i}\ {\tt type}} 
+\end{tabular}
+\caption{Constraint and Type Well-formedness rules}\label{Figure:Wff}
+\end{figure*}
 
-\infrule[T-invk]{
-\Gamma \vdash \Xcd{e}_0 \ty \Xcd{T}_0
-\andalso
-\Gamma \vdash \xbar{e} \ty \xbar{T}
-\\
-\Xcd{T}_0~\Xcd{has}~\Xcd{def}~\Xcd{m[}\xbar{X}\Xcd{](}\xbar{x} \ty \xbar{S}\Xcd{)\{c\}} \ty {\tt U}~\Xcd{=}~\Xcd{e}
-\\
-\Gamma' = \Gamma, \xbar{X} \ty \Xcd{type},
-        \Xcd{this} \ty \Xcd{T}_0,
-        \xbar{x} \ty \xbar{T},
-        \xbar{X} \equals \xbar{V}
-\\
-\sigma(\Gamma') \vdashC \Xcd{c}
-\\
-\sigma(\Gamma') \vdashC \xbar{T} \subtype \xbar{S}
-}{
-\Gamma \vdash
-\Xcd{e}_0.\Xcd{m[}\xbar{V}\Xcd{](}\xbar{e}\Xcd{)} \ty
-\extytyty{\xbar{X}}{\Xcd{type}}{\Xcd{this}}{\Xcd{T}_0}{\xbar{x}}{\xbar{T}}{\Xcd{U}}
-}
+\section{Type inference rules}
+\subsection{Subtype judgement}
 
-\infrule[T-new]{
-\Gamma \vdash \xbar{e} \ty \xbar{T}
-\\
-\Xcd{C}~\Xcd{has}~\Xcd{def}~\Xcd{this[}\xbar{X}\Xcd{](}\xbar{x} \ty \xbar{S}\Xcd{)\{c\}} \ty {\tt U}~\Xcd{=}~\dots
-\\
-\Gamma' = \Gamma, \xbar{X} \ty \Xcd{type}, \Xcd{this} \ty \Xcd{C}, \xbar{x} \ty \xbar{T}, \xbar{V} \equals \xbar{X}
-\\
-\Gamma'' = \Gamma, \xbar{X} \ty \Xcd{type}, \Xcd{this} \ty \Xcd{U}, \xbar{x} \ty \xbar{T}, \xbar{V} \equals \xbar{X}
-\\
-\sigma(\Gamma') \vdashC \Xcd{c}
-\\
-\sigma(\Gamma') \vdashC \xbar{T} \subtype \xbar{S}
-\\
-\sigma(\Gamma'') \vdashC \mathit{inv}(\Xcd{C}),
-}{
-\Gamma \vdash
-\Xcd{new}~\Xcd{C[}\xbar{V}\Xcd{](}\xbar{e}\Xcd{)} \ty
-\extytyty{\xbar{X}}{\Xcd{type}}{\Xcd{this}}{\Xcd{C}}{\xbar{x}}{\xbar{T}}{\Xcd{U}}
-}
+Only one inference rule needs to be specified:
+\infrule[Dep type]
+{\Gamma \vdash C\ \extends\ D \andalso \Gamma \vdash C\{c\}\ \type, D\{d\}\ \type \\
+\Gamma, \self:C,c\vdash d}
+{\Gamma \vdash C\{c\} \subtype D\{d\}}
 
-\caption{Typing rules}
-\label{fig:typing}
-\end{figure}
-
-The cast rule
-\rn{T-cast}
-requires that the cast type be well-formed. 
-
-The field access rule \rn{T-field}
-differs from the rule in the paper in that there is no need to
-substitute a fresh variable for the receiver. Note that {\tt this} may be free
-in {\tt S}---that would be a reference to the current object in the code in
-which {\tt e.f} occurs, not a reference to the receiver of the {\tt e.f} field
-selection (i.e., the object obtained by evaluating {\tt e}).
-
-\noindent
-if we allow adding constraints to arbitrary types---do we?
-
-TODO: type parameters!
+\subsection{Expression typing judgement}
 
 Now we consider the rule for method invocation. Assume that in a type
-environment $\Gamma$ the expressions ${\tt e_0}, \dots, {\tt e_n}$
-have the types ${\tt T_0}, \dots, {\tt T_n}$.
-Since the
-actual values of these expressions are not known, we shall assume that
-they take on some fixed but unknown values
-                                     ${\tt z_0}, \dots, {\tt z_n}$
-of types ${\tt T_0}, \dots, {\tt T_n}$.
-Now, for ${\tt z_0}$ as receiver, let us assume that the type
-${\tt T_0}$ has a method named ${\tt m}$
-with signature
-$[\xbar{Z}](\xbar{z} \ty \xbar{S})\Xcd{\{c\}} \to {\tt U}$
-(Let ${\tt T_0} = \Xcd{C\{d\}}$.
- If there is no
-method named {\tt m} for the class {\tt C} then this method invocation cannot be
-type-checked. Without loss of generality, we may assume that the
-type parameters of this method are named
-                                     ${\tt Z_1}, \dots, {\tt Z_k}$, and
-the value parameters are named
-                                     ${\tt z_1}, \dots, {\tt z_n}$
-since we are free to choose
-variable names as we wish.)
-Now, for the method to be invokable,
-it must be the case that the types
-    ${\tt T_1}, \dots, {\tt T_n}$
-are subtypes of
-    ${\tt S_1}, \dots, {\tt S_n}$.
-(Note
-that there may be no occurrences of {\tt this} in
-    ${\tt S_1}, \dots, {\tt S_n}$---they have been
-replaced by ${\tt z_0}$.)
-Further, it must be the case that for these parameter
-values, the constraint {\tt c} is entailed. Given all these assumptions it
-must be the case that the return type is {\tt U}, with all the parameters
-    ${\tt z_0}, \dots, {\tt z_n}$
-existentially quantified.
+environment $\Gamma$ the expressions $\bar{e}$ have the types
+$\bar{T}$. Since the actual values of these expressions are not known,
+we shall assume that they take on some fixed but unknown values
+$\bar{z}$ of type $\bar{T}$.  Now for $z$ as receiver, let us assume
+that the type $T\equiv C\{d\}$ has a method named {\tt m} with
+signature $\bar{z}: \bar{Z}, c \rightarrow U$.  If there is no method
+named {\tt m} for the class {\tt C} then this method invocation cannot
+be type-checked. Without loss of generality we may assume that the
+parameters of this method are named $\bar{z}$, since we are free to
+choose variable names as we wish because of $\alpha$-equivalence. Now
+in order for the method to be invocable, it must be the case that the
+types $\bar{T}$ are subtypes of $\bar{Z}$. (Note that there are no
+occurrences of {\tt this} in $\bar{Z}$; they have been replaced by
+$z$ -- see Section~\ref{sec:O}) Further, it must be the case that for these parameter values,
+the constraint $c$ is entailed. Given all these assumptions it must be
+the case that the return type is $U$ --- with all the parameters
+$\bar{z}$ existentially quantified.
 
+\begin{figure*}
+\footnotesize
+\tabcolsep=0pt
+\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.47\textwidth}}
+\infax[T-Var]
+{\Gamma, {\tt x}:{\tt T} \vdash {\tt x}:{\tt T\{\self{\tt ==x}\}}}
+%\infrule[T-Var]
+%{\sigma(\Gamma, \self:C), c \vdash_{\cal C} d \\
+% \Gamma \vdash  C\{d\}\ \type}
+%{\Gamma, x:C\{c\} \vdash x:C\{d\}}
+&
+\infrule[T-Cast]
+{\Gamma \vdash {\tt e}:{\tt U} \andalso \Gamma \vdash {\tt T} \ \type}
+{\Gamma \vdash {\tt e}\ \as\ {\tt T}: {\tt T}} &
+\infrule[T-Field]
+{\Gamma \vdash {\tt e}: {\tt S} \andalso \Gamma,{\tt z}:{\tt S}\vdash {\tt z}\ \has\ {\tt f}:{\tt T} \andalso \mbox{({\tt z} fresh)} }
+{\Gamma \vdash {\tt e}.{\tt f}:  ({\tt z}:{\tt S};{\tt T})}
+\end{tabular}
 
-\subsubsection{
-        Class OK judgment
-}
+\begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}}
+\infrule[T-INVK]
+{\Gamma \vdash {\tt e}:{\tt T},\bar{\tt e}:\bar{\tt T} \andalso \\
+\Gamma,{\tt z}:{\tt T},\bar{\tt z}:\bar{\tt T} \vdash \mtype({\tt z}, {\tt m}, \bar{\tt z})=\bar{\tt Z}, {\tt c} \rightarrow {\tt U} \andalso \mbox{({\tt z},$\bar{\tt z}$ fresh)} \\
+\Gamma, {\tt z}:{\tt T}, \bar{\tt z}:\bar{\tt T} \vdash \bar{\tt T} \subtype \bar{\tt Z},{\tt c}}
+{\Gamma \vdash {\tt e}.{\tt m}(\bar{\tt e}): ({\tt z}:{\tt T};\bar{\tt z}:\bar{T};U)}
+&
+\infrule[T-NEW]
+{\Gamma \vdash \bar{\tt e}:\bar{\tt T} \andalso \\ 
+\Gamma,{\tt z}:{\tt C}\vdash \fields({\tt z})=\bar{\tt f}:\bar{\tt Z}  \andalso \mbox{({\tt z},$\bar{\tt z}$\ fresh)}\\
+\Gamma, {\tt z}:{\tt C}, \bar{\tt z}:\bar{\tt T}, {\tt z}.\bar{\tt f}=\bar{\tt z} 
+\vdash \bar{\tt T} \subtype \bar{\tt Z}, inv({\tt C},{\tt z})}
+{\Gamma \vdash \new\ {\tt C}(\bar{\tt e}): C\{\bar{\tt z}:\bar{\tt T}; \self.\bar{\tt f}=\bar{\tt z},inv({\tt C},\self)\}} \\
+\infrule[Method OK]
+{\this:{\tt C}, \bar{\tt x}:\bar{\tt T},{\tt c} \vdash {\tt T} \ \type, \bar{\tt T} \ \type, {\tt e}:{\tt U}, {\tt U} \subtype {\tt T}}
+{{\tt def}\ {\tt m}(\bar{\tt x}:\bar{\tt T})\{{\tt c}\}:{\tt T}= {\tt e};\ \mbox{OK in}\ C}
+&
+\infrule[Class OK]
+{\bar{\tt M}\ \mbox{OK in}\ {\tt C} \andalso \this:{\tt C},{\tt c} \vdash \bar{\tt T}\ \type, {\tt T}\ \type}
+{\mbox{\tt class}\ {\tt C}(\bar{\tt f}:\bar{\tt T})\{{\tt c}\}\ \mbox{\tt extends}\ {\tt T}\{\bar{\tt M}\} \ \mbox{OK}}
+\end{tabular}
+\caption{Type judgement}\label{fig:typing judgement}
+\end{figure*}
 
-The following rule is modified from what we had in the paper to ensure
-that all the types are well-formed (under the assumption {\tt this} \ty {\tt C}).
-Note
-that the variables $\xbar{x}$ are permitted to occur in the types $\Xcd{T}_0, \xbar{T}$,
-hence their typing assertions must be added to $\Gamma$.
-
-\infrule[Method OK]{
-\Gamma = \Xcd{this} \ty \Xcd{C\{self==this},\mathit{inv}(\Xcd{C})\Xcd{\}},
-        \xbar{x} \ty \xbar{T}\Xcd{\{self==\}}\xbar{x}\Xcd{\}},
-        \Xcd{c}
-\\
-\Gamma \vdash \Xcd{e} \ty \Xcd{U}
-\\
-\sigma(\Gamma) \vdashC \Xcd{U} \subtype \Xcd{T}
-}{
-\Xcd{def}~\Xcd{m[}\xbar{X}\Xcd{](}\xbar{x} \ty
-\xbar{T}\Xcd{)\{c\}} \ty \Xcd{T}~\Xcd{=}~\Xcd{e}~\mbox{OK in}~\Xcd{C}
-}
-
-
-This rule did not exist in our submission. This is necessary to ensure
-that the types of fields are well-formed.
-
-\infrule[Field OK]{
-\Xcd{this} \ty \Xcd{C}, \Xcd{c} \vdash \Xcd{T} \ty \Xcd{type}
-}{
-\Xcd{val}~\Xcd{f}\Xcd{\{c\}} \ty \Xcd{T}~\mbox{OK in}~\Xcd{C}
-}
-
-
-This rule is now modified to ensure that all the types and methods in
-the body of the class are well-formed.
-
-\infrule[Class OK]{
-K~\mbox{OK in}~{\tt C}
-\\
-\xbar{M}~\mbox{OK in}~{\tt C}
-\\
-\xbar{F}~\mbox{OK in}~{\tt C}
-\\
-{\tt this} \ty {\tt C} \vdash {\tt T} \ty {\tt type}
-}{
-\mbox{\Xcdmath{C[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$)\{c\} ext T \{\ K\ $\tbar{M}$\ $\tbar{F}$\ \}}}~\mbox{OK}
-}
-
-TODO: method overriding
-
-
-\subsubsection{
-        Subtype judgment
-}
-
-\infrule{
-\sigma(\Gamma) \vdash_{\cal C} {\tt T_1} \subtype {\tt T_2}
-}{
-\Gamma \vdash {\tt T_1} \subtype {\tt T_2}
-}
 
 
 
