@@ -27,25 +27,13 @@ public class ClassFile implements ClassFileConstants {
 	}
 	public short getNameIndex(int val_idx) {
 		byte[] entry = constant_pool.get(val_idx);
-		assert (entry[0] == CONSTANT_Class || entry[0] == CONSTANT_NameAndType);
+		assert (entry[0] == CONSTANT_Class || entry[0] == CONSTANT_NameAndType || entry[0] == CONSTANT_String);
 		return getShort(entry, 1);
-	}
-	public void setNameIndex(int val_idx, short val) {
-		byte[] entry = constant_pool.get(val_idx);
-		assert (entry[0] == CONSTANT_Class || entry[0] == CONSTANT_NameAndType);
-		putShort(entry, 1, val);
-		//constant_pool.set(val_idx, entry);
 	}
 	public short getDescriptorIndex(int val_idx) {
 		byte[] entry = constant_pool.get(val_idx);
 		assert (entry[0] == CONSTANT_NameAndType);
 		return getShort(entry, 3);
-	}
-	public void setDescriptorIndex(int val_idx, short val) {
-		byte[] entry = constant_pool.get(val_idx);
-		assert (entry[0] == CONSTANT_NameAndType);
-		putShort(entry, 3, val);
-		//constant_pool.set(val_idx, entry);
 	}
 	public short getClassIndex(int val_idx) {
 		byte[] entry = constant_pool.get(val_idx);
