@@ -171,8 +171,8 @@ public class X10RuntimeClassloader extends ClassLoader {
 	}
 
 	public static final String PARAM_SEPARATOR = "$$";
-	public static final String DOT_MANGLING = "$$D";
-	public static final String DOLLAR_MANGLING = "$$S";
+	public static final String DOT_MANGLING = "$_P";
+	public static final String DOLLAR_MANGLING = "$_D";
 	public static final String BRACKETS_MANGLING = "$$$_";
 	private static String RE(String s) {
 		return s.replaceAll("([\\$\\[\\]\\.\\(\\)])", "\\\\$1");
@@ -183,9 +183,9 @@ public class X10RuntimeClassloader extends ClassLoader {
 			return mangle(name.substring(0, bkt_idx), actuals) + "[]";
 		for (int i = 0; i < actuals.length; i++)
 			name += PARAM_SEPARATOR +
-			        actuals[i]/*TODO .replaceAll("\\$", RE(DOLLAR_MANGLING))*/
-			                  .replaceAll("\\.", RE(DOT_MANGLING))
-			                  .replaceAll("\\[\\]", RE(BRACKETS_MANGLING));
+			        actuals[i].replaceAll(RE("$"), RE(DOLLAR_MANGLING))
+			                  .replaceAll(RE("."), RE(DOT_MANGLING))
+			                  .replaceAll(RE("[]"), RE(BRACKETS_MANGLING));
 		return name;
 	}
 	private static String[] demangle(String type) {
@@ -194,9 +194,11 @@ public class X10RuntimeClassloader extends ClassLoader {
 			return NO_TYPE_ARGS;
 		type = type.substring(separator+PARAM_SEPARATOR.length());
 		String thisType = type.replaceAll(RE(BRACKETS_MANGLING), "[]")
-		                      .replaceAll(RE(DOT_MANGLING), ".")
-		                      /*TODO .replaceAll(RE(DOLLAR_MANGLING), "$")*/; // FIXME: encoding
-		return thisType.split(RE(PARAM_SEPARATOR));
+		                      .replaceAll(RE(DOT_MANGLING), "."); // FIXME: encoding
+		String[] result = thisType.split(RE(PARAM_SEPARATOR));
+		for (int i = 0; i < result.length; i++)
+			result[i] = result[i].replaceAll(RE(DOLLAR_MANGLING), RE("$")); // FIXME: encoding
+		return result;
 	}
 	private static int getFormal(String f, String[] formals) {
 		for (int i = 0; i < formals.length; i++)
@@ -1357,6 +1359,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 			// TODO: handle >7 parameters as a Class[] constructor
 			for (int i = 0; i < result.length; i++) {
 				int cload = getByte(code, o+x);
+				int l = getBytecodeLength(o+x);
 				assert (cload == BC_ldc || cload == BC_ldc_w || cload == BC_getstatic);
 				String signature = null;
 				if (cload == BC_getstatic) { // primitive type
@@ -1374,10 +1377,36 @@ public class X10RuntimeClassloader extends ClassLoader {
 				} else { // must be ldc or ldc_w -- a class
 					int class_index = (cload == BC_ldc) ? getByte(code, o+x+1) : getShort(code, o+x+1);
 					String newSignature = typeToSignature(cf.getString(cf.getNameIndex(class_index)));
+					int c = getByte(code, o+x+l);
+					if (c == BC_invokevirtual) {
+						int method_ref_index = getShort(code, o+x+l+1);
+						int name_and_type_index = cf.getNameAndTypeIndex(method_ref_index);
+						short cont_index = cf.getNameIndex(cf.getClassIndex(method_ref_index));
+						assert (cf.getString(cont_index).equals("java/lang/Class"));
+						assert (cf.getString(cf.getNameIndex(name_and_type_index)).equals("getClassLoader")
+						     && cf.getString(cf.getDescriptorIndex(name_and_type_index)).equals("()Ljava/lang/ClassLoader;"));
+						int cc = getByte(code, o+x+l+3);
+						int type_index = getShort(code, o+x+l+4);
+						assert (cc == BC_checkcast && cf.getString(cf.getNameIndex(type_index)).equals("x10/runtime/X10RuntimeClassloader"));
+						int ld = getByte(code, o+x+l+6);
+						assert (ld == BC_ldc || ld == BC_ldc_w);
+						int str_idx = (ld == BC_ldc) ? getByte(code, o+x+l+7) : getShort(code, o+x+l+7);
+						int ln = getBytecodeLength(o+x+l+6);
+						int iv = getByte(code, o+x+l+6+ln);
+						int meth_ref_idx = getShort(code, o+x+l+7+ln);
+						int cont_idx = cf.getNameIndex(cf.getClassIndex(meth_ref_idx));
+						int name_type_idx = cf.getNameAndTypeIndex(meth_ref_idx);
+						assert (iv == BC_invokevirtual
+						     && cf.getString(cont_idx).equals("x10/runtime/X10RuntimeClassloader")
+						     && cf.getString(cf.getNameIndex(name_type_idx)).equals("getClass")
+						     && cf.getString(cf.getDescriptorIndex(name_type_idx)).equals("("+SIG_String+")"+SIG_Class));
+						newSignature = typeToSignature(cf.getString(cf.getNameIndex(str_idx)));
+						for (int j = l; j < l+9+ln; j++) putByte(code, o+x+j, BC_nop); // Clear assignment
+						x += 6+ln;
+					}
 					signature = instantiateType(newSignature, formals, actuals);
 				}
 				result[i] = typeFromSignature(signature);
-				int l = getBytecodeLength(o+x);
 				// TODO: clear type arguments off the stack (need to also rewrite method signatures)
 				//for (int j = 0; j < l; j++) putByte(code, o+x+j, BC_nop); // Clear assignment
 				x += l;
