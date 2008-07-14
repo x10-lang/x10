@@ -32,6 +32,7 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 
@@ -55,6 +56,13 @@ public class X10New_c extends New_c implements X10New {
 		ClassBody body = (ClassBody) visitChild(this.body, v);
 		X10New_c n = (X10New_c) typeArguments(typeArguments);
 		return n.reconstruct(qualifier, tn, arguments, body);
+	}
+	
+	@Override
+	public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+	X10New_c n = (X10New_c) super.buildTypesOverride(tb);
+        List<TypeNode> typeArgs = (List<TypeNode>) n.visitList(n.typeArguments(), tb);
+        return n.typeArguments(typeArgs);
 	}
 	
 	    List<TypeNode> typeArguments;

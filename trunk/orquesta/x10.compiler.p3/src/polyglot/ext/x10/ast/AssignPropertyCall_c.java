@@ -16,6 +16,7 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
+import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
@@ -25,21 +26,36 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Job;
 import polyglot.parse.Name;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XRef_c;
+import x10.constraint.XRoot;
+import x10.constraint.XSelf;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
 
 /**
  * @author vj
@@ -129,7 +145,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		TypeSystem ts = tc.typeSystem();
 		Context ctx = tc.context();
-		NodeFactory nf = tc.nodeFactory();
+		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		Position pos = position();
 		Job job = tc.job();
 		if (! (ctx.inCode()) || ! (ctx.currentCode() instanceof X10ConstructorDef))
@@ -141,34 +157,110 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		// property for the class reachable through the constructor.
 		List<FieldInstance> definedProperties = 
 			((X10ParsedClassType) thisConstructor.asInstance().container()).definedProperties();
+		List<Type> definedTypeProperties = 
+		    ((X10ParsedClassType) thisConstructor.asInstance().container()).typeProperties();
 		int pSize = definedProperties.size();
 		int aSize = arguments.size();
 		if (aSize != pSize) {
-			throw new SemanticException("The statement property(...) must have the same " 
-					+ " number of arguments as properties for the class.",
-					position());
+		    throw new SemanticException("The property initializer must have the same " 
+		                                + " number of arguments as properties for the class.",
+		                                position());
 		}
-		List<Stmt> s = new ArrayList<Stmt>(pSize);
+		int tpSize = definedTypeProperties.size();
+		int taSize = typeArgs.size();
+		if (taSize != tpSize) {
+		    throw new SemanticException("The property initializer must have the same " 
+		                                + " number of type arguments as type properties for the class.",
+		                                position());
+		}
 		
-		for (int i=0; i < aSize; i++) {
-			Expr l = nf.Field(pos,nf.This(pos), nf.Id(pos, definedProperties.get(i).name()));
-			l = (Expr) this.visitChild(l, tc);
-			
-//			 We fudge typechecking of the generating code as follows.
-			// X10 Typechecking of the assignment statement is problematic since 	
-			// the type of the field may have references to other fields, hence may use this,
-			// But this doesnt exist yet. We will check all the properties simultaneously
-			// in AssignPropertyBody. So we do not need to check it here. 
-			Expr arg = arguments.get(i);
-			Expr as = nf.Assign(pos, l, Assign.ASSIGN, arg);
-			as = (Expr) as.type(arg.type()); // Fake the type.
-			Stmt a = (Stmt) nf.Eval(pos, as);
-			a = (Stmt) a.disambiguate(new AmbiguityRemover(tc));
-			// a = (Stmt) a.visit(tc); Do not typecheck the statement a.
-			s.add(a);
-		}
-		Node n = ((X10NodeFactory) nf).AssignPropertyBody(pos,s, thisConstructor, definedProperties).del().typeCheck(tc);
-		return n;
+		 checkAssignments(tc, pos, thisConstructor, definedProperties, definedTypeProperties);
+		 
+		 List<Stmt> s = new ArrayList<Stmt>(pSize);
+
+		 for (int i=0; i < aSize; i++) {
+		     Expr l = nf.Field(pos,nf.This(pos), nf.Id(pos, definedProperties.get(i).name()));
+		     l = (Expr) this.visitChild(l, tc);
+
+		     //				 We fudge type checking of the generating code as follows.
+		     // X10 Typechecking of the assignment statement is problematic since 	
+		     // the type of the field may have references to other fields, hence may use this,
+		     // But this doesn't exist yet. We will check all the properties simultaneously
+		     // in AssignPropertyBody. So we do not need to check it here. 
+		     Expr arg = arguments.get(i);
+		     Expr as = nf.Assign(pos, l, Assign.ASSIGN, arg);
+		     as = (Expr) as.type(arg.type()); // Fake the type.
+		     Stmt a = (Stmt) nf.Eval(pos, as);
+		     a = (Stmt) a.disambiguate(new AmbiguityRemover(tc));
+		     // a = (Stmt) a.visit(tc); Do not type-check the statement a.
+		     s.add(a);
+		 }
+
+		 
+		 return nf.AssignPropertyBody(pos, s, thisConstructor, definedProperties).del().typeCheck(tc);
+	}
+
+	protected void checkAssignments(TypeChecker tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties, List<Type> definedTypeProperties)
+		throws SemanticException {
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		    Context ctx = tc.context();
+		    if (Types.get(thisConstructor.returnType()) instanceof UnknownType) {
+		        throw new SemanticException();
+		    }
+		    
+		    Type returnType = Types.get(thisConstructor.returnType());
+		    
+		    XConstraint result = X10TypeMixin.xclause(returnType);
+		    if (result != null) {
+			XConstraint known = Types.get(thisConstructor.supClause());
+			known = (known==null ? new XConstraint_c() : known.copy());
+			try {
+		            known.addIn(Types.get(thisConstructor.whereClause()));
+		            
+		            for (int i = 0; i < arguments.size(); i++) {
+		        	Expr initializer = arguments.get(i);
+		        	Type initType = initializer.type();
+		        	final FieldInstance fii = definedProperties.get(i);
+		        	XVar prop = (XVar) ts.xtypeTranslator().trans(XSelf.Self, fii);
+		        	prop.setSelfConstraint(new XRef_c<XConstraint>() {
+		        	    public XConstraint compute() { return X10TypeMixin.realX(fii.type()); } });
+
+		        	// Add in the real clause of the initializer with [self.prop/self]
+		        	XConstraint c = X10TypeMixin.realX(initType);
+		        	if (c==null) {
+		        	    c=new XConstraint_c();
+		        	    XTerm t = ts.xtypeTranslator().trans(initializer);
+		        	    c.addBinding(prop, t);
+		        	    known.addIn(c);
+		        	}
+		        	else {
+				    known.addIn(c.substitute(prop, XSelf.Self));
+		        	}
+		            }
+
+		            for (int i = 0; i < typeArgs.size(); i++) {
+		        	TypeNode tn = typeArgs.get(i);
+		        	Type pt = definedTypeProperties.get(i);
+		        	XVar prop = (XVar) ts.xtypeTranslator().trans(pt);
+		        	prop = (XVar) prop.subst(XSelf.Self, (XRoot) prop.rootVar());
+
+		        	// Add in the real clause of the initializer with [self.prop/self]
+		        	XConstraint c = new XConstraint_c();
+		        	XTerm t = ts.xtypeTranslator().trans(tn);
+		        	c.addBinding(prop, t);
+		        	known.addIn(c);
+		            }
+
+		            if (! known.entails(result)) {
+		        	    throw new SemanticException("Instances created by this constructor satisfy " + known 
+		        	                                + "; this is not strong enough to entail the return constraint " + result,
+		        	                                position());
+		            }
+		    }
+		    catch (XFailure e) {
+		            throw new SemanticException(e.getMessage());
+		    } 
+		    }
 	}
 	
 	/** Visit the children of the statement. */

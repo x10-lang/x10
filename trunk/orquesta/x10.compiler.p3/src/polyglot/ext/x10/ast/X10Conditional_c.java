@@ -74,7 +74,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	        if (t1.isNumeric() && t2.isNull())
 	            return type(ts.boxOf(t1.position(), Types.ref((X10NamedType) t1)));
 
-	        if (! ts.typeEquals(cond.type(), ts.Boolean())) {
+	        if (! cond.type().isBoolean()) {
 	            throw new SemanticException(
 	                                        "Condition of ternary expression must be of type boolean.",
 	                                        cond.position());

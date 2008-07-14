@@ -194,7 +194,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	
 	public static boolean callValidImpl(X10ProcedureInstance<?> me, Type thisType, final List<Type> args) {
 		// me should have been instantiated correctly; if so, the call is valid
-		try {
+	    if (true) return true;
+	    try {
 			instantiate(me, thisType, args);
 			return true;
 		}
@@ -244,7 +245,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	
 	    // We've smuggled the type args in with the actual args.  Pull them out again.
 	    for (Type t : args) {
-		    Type base = X10TypeMixin.xclause(t, (XConstraint) null);
+		    Type base = X10TypeMixin.baseType(t);
 		    if (base.typeEquals(((X10TypeSystem_c) xts).TypeType())) {
 			    // t should be type{self==C}.  Add C to the typeActuals list.
 			    XConstraint c = X10TypeMixin.xclause(t);
@@ -270,7 +271,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
 	    final List<Type> formals = me.formalTypes();
 	    final List<Type> typeFormals = me.typeParameters();
-	    final List<Type> actuals = new ArrayList<Type>();
+	    final List<Type> actuals = args;
 	    List<XVar> actualTypeVars = new ArrayList<XVar>();
 
 	    for (Type type : me.throwTypes()) {
@@ -346,7 +347,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    Type xtype = typeFormals.get(i);
 
 		    // TODO: should enforce this statically
-		    assert xtype instanceof ParameterType;
+		    assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " + (xtype != null ? xtype.getClass().getName() : "null");
 		    
 		    XRoot xi = xts.xtypeTranslator().transTypeParam((ParameterType) xtype);
 		    XVar yi = actualTypeVars.get(i);
