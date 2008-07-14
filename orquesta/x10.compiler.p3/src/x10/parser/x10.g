@@ -47,6 +47,7 @@
     import polyglot.ast.ClassMember;
     import polyglot.ast.Eval;
     import polyglot.ast.Expr;
+    import polyglot.ast.Field;
     import polyglot.ast.FloatLit;
     import polyglot.ast.ForInit;
     import polyglot.ast.ForUpdate;
@@ -3578,7 +3579,17 @@ public static class MessageHandler implements IMessageHandler {
         ./
                        | Primary TypeArgumentsopt ( ArgumentListopt )
         /.$BeginJava
-                    setResult(nf.ClosureCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
+                    if (Primary instanceof Field) {
+                        Field f = (Field) Primary;
+                        setResult(nf.X10Call(pos(), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt));
+                    }
+                    else if (Primary instanceof AmbExpr) {
+                        AmbExpr f = (AmbExpr) Primary;
+                        setResult(nf.X10Call(pos(), null, f.name(), TypeArgumentsopt, ArgumentListopt));
+                    }
+                    else {
+                        setResult(nf.ClosureCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
+                    }
           $EndJava
         ./
         

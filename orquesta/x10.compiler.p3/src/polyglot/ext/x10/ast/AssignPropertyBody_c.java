@@ -53,7 +53,7 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 		Position pos = position();
 		Job job = tc.job();
 		AssignPropertyBody_c n = (AssignPropertyBody_c) super.typeCheck(tc);
-		n.checkReturnType(ts);
+//		n.checkReturnType(ts);
 		return n;
 	}
 	protected void checkReturnType(X10TypeSystem ts) throws SemanticException {
