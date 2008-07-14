@@ -59,6 +59,9 @@
 \fi
 
 \newcommand\gxx{GFX\xspace}
+\newcommand\csharp{C$^{\sharp}$\xspace}
+\newcommand\hmx{$\mathrm{HM}(X)$\xspace}
+\newcommand\clpx{$\mathrm{CLP}(X)$\xspace}
 
 \newcommand\xbar[1]{\ensuremath{\bar{\Xcd{#1}}}}
 \newcommand\tbar[1]{\ensuremath{\bar{\tt {#1}}}}
@@ -128,7 +131,7 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
 \begin{abstract}
 We present a general framework for \emph{generic constrained types}
 that captures the notion of value-dependent and
-type-dependent (generic) type systems for object-oriented
+type-dependent (i.e., generic) type systems for object-oriented
 languages.  Constraint systems formalize systems of partial
 information.  Constrained types are formulas \Xcd{C\{c\}} where
 \Xcd{C} is the name of a class or an interface and \Xcd{c} is a
@@ -170,19 +173,20 @@ types.
 \label{sec:lang}
 \input{x10-overview}
 
-\section{Formal semantics}
+\section{Semantics}
 \label{sec:semantics}
-\input{semantics.tex}
+\input{quad-semantics}
 
 \eat{\input{constraint-solver.tex}}
-
-\section{Translation}
-\label{sec:translation}
-\input{translation.tex}
 
 \section{Discussion}
 \label{sec:discussion}
 \input{discussion}
+
+\section{Translation}
+\label{sec:translation}
+\label{sec:impl}
+\input{translation.tex}
 
 \section{Related work}
 \label{sec:related}
@@ -191,12 +195,14 @@ types.
 \section{Conclusions}
 \label{sec:conclusions}
 
+\todo{rewrite}
+
 We have presented a preliminary design for supporting genericity
 in X10 using type properties.  This type system generalizes the
 existing X10 type system.  The use of constraints on type
 properties allows
 the design to capture many features of generics in languages
-like Java 5 and C\# and then to extend these features with new
+like Java 5 and \csharp and then to extend these features with new
 more expressive power.
 We expect that the design admits an efficient
 implementation and intend to implement the design shortly.
@@ -206,7 +212,7 @@ implementation and intend to implement the design shortly.
 The authors thank Bob Blainey, 
 Doug Lea, Jens Palsberg, Lex Spoon, and Olivier Tardieu
 for valuable feedback on versions of the language.
-We thank 
+We thank
 Andrew Myers and
 Michael Clarkson for providing us with their implementation of
 PolyJ, on which our implementation was based, and for many

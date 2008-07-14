@@ -1,8 +1,66 @@
+\begin{verbatim}
+Outline
+
+Problem statement
+X10 ... new language design
+OO, imperative, concurrent
+catch errors -> types
+dependent types, generics
+        practical, pluggable
+
+=> constraint-based framework
+  -> rich history in type
+        OOPSLA: first step dep type system as a constraint system
+in this paper we show,
+1. extend constraint system applied to handle generics
+combined wth dependent types
+2. object type checking FJ style can be cast as a
+constraint system
+3. FGJ-style simply same constraint system but permitting
+type variables (vars at type type)
+4. can combine these two -- arrays need both!!
+
+5. practical real language, implementable:
+type-passing LM or PolyJ style
+        and NextGen style type instantiation
+   - design issues
+   - user-defineable version (later)
+
+beautiful small programs
+        - list
+        - gcd
+        - sorted list
+        - sorted binary tree?
+
+class SortedList[T]{tl == null || hd < tl.hd} {
+    hd: T;
+    tl: SortedList[T];
+
+    def this[T](hd: T, tl: SortedList[T]) {
+        ...
+    }
+
+    def insert(x: T): SortedList[T]{hd == min(this.hd, x)} = {
+        if (x < hd)
+            return new SortedList[T](x, this);
+        else
+            return new SortedList[T](hd, tl.insert(x));
+    }
+}
+
+
+
+
+
+\end{verbatim}
+
+
+
 \todo{Awkward, repetitive}
 
-\todo{More positioning, relative to: DML, HM(X), constrained
+\todo{More positioning, relative to: DML, \hmx, constrained
 types (Trifonov, Smith) and subtyping constraints, Java
-generics, GJ, PolyJ, C\# generics, virtual types, liquid types}
+generics, GJ, PolyJ, \csharp generics, virtual types, liquid types}
 
 \todo{Possible claim: first type system
 that combines genericity and dep types in some vague general way.}
@@ -161,7 +219,7 @@ other object-oriented type systems, e.g., self
 types~\cite{bruce-binary,bsg95}, virtual
 types~\cite{mp89-virtual-classes,beta,ernst06-virtual},
 and structually constrained
-types~\cite{polyj,haskell-type-classes}.
+types~\cite{java-popl97,haskell-type-classes}.
 
 \subsection{Contributions}
 
@@ -174,7 +232,7 @@ for providing genericity in X10.
 Unlike existing 
 existing proposals for generic types in
 Java-like
-languages~\cite{Java3,GJ,Pizza,polyj,thorup97,scala},
+languages~\cite{Java3,GJ,Pizza,java-popl97,thorup97,scala},
 which 
 are implemented via type erasure,
 our design supports run-time introspection of generic types.

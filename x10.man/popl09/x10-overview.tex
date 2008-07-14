@@ -43,7 +43,7 @@ or set constraints.
 For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
 The syntax
-\xcdmath"C[$\tbar{T}$]($\tbar{e}$)" is sugar for
+\xcdmath"C[$\tbar{T}$]($\tbar{e}$)" is shorthand for
 \xcdmath"C[$\tbar{X}$==$\tbar{T}$]($\tbar{x}$==$\tbar{e}$)"
 where \xcdmath{X$_i$} are the type properties and \xcdmath"x$_i$" are the
 value properties of \xcd{C}.
@@ -235,7 +235,7 @@ Type properties and subtyping constraints may be used in \Xten{} to
 provide use-site variance
 constraints~\cite{variant-parametric-types}.
 
-Consider the following subtypes  of the \xcd"List" from
+Consider the following subtypes  of \xcd"List" from
 Figure~\ref{fig:list}.
 \begin{itemize}
 \item \xcd"List".  This type has no constraints on the type
@@ -249,24 +249,12 @@ is \xcd"l.T".
 Since the property \xcd"T" is unconstrained,
 the caller can only assign the return value of \xcd"get"
 to a variable of type \xcd"l.T" or of type \xcd"Object".
-In the following code, \xcd"y" cannot be passed to the \xcd"set" method
-because it is not known if \xcd"Object" is a subtype of \xcd"c.T".
-\begin{xten}
-val x: l.T = l.get(0);
-val y: Object = l.get(1);
-l.set(x); // legal
-l.set(y); // illegal
-\end{xten}
 
 \item \xcd"List{T==float}".
 The type property \xcd"T" is bound to \xcd"float".
-Assuming \xcd"l" has this type, then following code is legal:
-\begin{xten}
-val x: float = l.get();
-l.set(1.0);
-\end{xten}
-The type of \xcd"l.get()" is \xcd"l.T", which is equivalent to
-\xcd"float".
+For a final expression \xcd"l" of this type,
+\xcd"l.T" and \xcd"float" are equivalent types and can be used
+interchangable wherever \xcd"l" is in scope.
 
 \item \xcd"List{T<:Collection}".
 This type constrains \xcd"T" to be a subtype of \xcd"Collection".
@@ -277,14 +265,15 @@ All instances of this type must bind \xcd"T" to a subtype of
 \xcd"T<:Collection".
 %
 If \xcd"l" has the type \xcd"List{T<:Collection}",
-then \xcd"l.get(0)" has type \xcd"l.T", which is an unknown but
+then the return type of \xcd"get" has type \xcd"l.T", which is an unknown but
 fixed subtype of \xcd"Collection"; the return value can be
 assigned into a variable of type \xcd"Collection".
 
 \item \xcd"List{T:>String}".  This type bounds the type property
 \xcd"T"
-from below.  The \xcd"set" method may be called with any
-supertype of \xcd"String"; the return type of the \xcd"get"
+from below.  For a \xcd"List" \xcd"l" of this type, any
+supertype of \xcd"String" may flow into a variable of type \xcd"l.T".
+The return type of the \xcd"get"
 method is known to be a
 supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
 \end{itemize}
@@ -295,9 +284,9 @@ be annotated
 with
 a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
 if \xcd"X" is a type property, then
-the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
-\xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
-\xcd"C[T]" is sugar \xcd"C{X==T}".
+the syntax \xcd"C[+T]" is shorthand for \xcd"C{X<:T}" and
+\xcd"C[-T]" is shorthand for \xcd"C{X:>T}"; of course,
+\xcd"C[T]" is shorthand for \xcd"C{X==T}".
 
 \eat{
 \subsection{Type properties}
