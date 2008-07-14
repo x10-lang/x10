@@ -8,7 +8,6 @@
 package x10.constraint;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 public interface XTerm extends Serializable {
@@ -18,7 +17,7 @@ public interface XTerm extends Serializable {
 	XConstraint selfConstraint();
 	
 	/** Set the constraint on the term's value. */
-	void setSelfConstraint(XConstraint c);
+	void setSelfConstraint(XRef_c<XConstraint> c);
 
 	/** Add in the self-constraint to c, and set the self-constraint to null 
 	 * @param visited TODO

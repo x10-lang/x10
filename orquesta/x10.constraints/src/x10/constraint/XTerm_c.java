@@ -28,13 +28,13 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 		}
 	}
 
-	protected XConstraint selfConstraint;
+	protected XRef_c<XConstraint> selfConstraint;
 	
 	public XConstraint selfConstraint() {
-		return selfConstraint;
+		return selfConstraint != null ? selfConstraint.get() : null;
 	}
 	
-	public void setSelfConstraint(XConstraint c) {
+	public void setSelfConstraint(XRef_c<XConstraint> c) {
 		this.selfConstraint = c;
 	}
 

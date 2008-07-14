@@ -715,7 +715,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
 	}
 
 	public void addSelfBinding(XTerm var) throws XFailure {
-		addBinding(XSelf.Self, var).addIn(var.selfConstraint());
+		addBinding(XSelf.Self, var);
 	}
 
 	// FIXME: need to convert f(g(x)) into \exists y. f(y) && g(x) = y when f and g both atoms
