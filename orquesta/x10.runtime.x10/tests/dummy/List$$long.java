@@ -1,5 +1,5 @@
 @x10.generics.Parameters({"T"})
-public class List$long implements Runnable {
+public class List$$long implements Runnable {
 	public class T {};
 	long x;
 	public long get() { return x; }
