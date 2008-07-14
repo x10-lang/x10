@@ -22,7 +22,7 @@ package x10.lang;
    @author vj 06/14/08
 
  */
-import static TypeDefs.*;
+import x10.lang.TypeDefs.*;
 
 // Note that R <: NativeAbsRail[T] and not R <: NativeAbsRail[T]
 // We get a form of partial type specification. 
@@ -31,16 +31,14 @@ import static TypeDefs.*;
 // NativeAbsRail[T]
 // NativeAbsRail[T]{length==self.length}
 
-// T is the mytype.
-
-abstract value T: AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]} 
+abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]} 
     implements Array[Base](0..length-1-> here), 
-	Nat(length-1)=> Base, // permit indexing by nats in the given range.
-	Arithmetic[AbsRail[Base,Mem](length)] if Base <: Arithmetic[Base] {
+	(Nat(length-1))=> Base, // permit indexing by nats in the given range.
+	Arithmetic[AbsRail[Base,Mem](length)] /* if Base <: Arithmetic[Base] */ {
 
-	    val r: Box[Mem{length==this.length}]; // augmented typevariables must be boxed.
+	    val r: Box[Mem{length==this.length}]; // augmented type variables must be boxed.
 
-    protected def this[B,M](_r: M){M <: NativeAbsRail[B]} : AbsRail[B,M](_r.length) {
+    protected def this[B,M](_r: M){M <: NativeAbsRail[B]} : AbsRail[B,M](_r.length) = {
 	property[B,M](_r.length);
 	r = _r;
     }
@@ -48,7 +46,7 @@ abstract value T: AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]}
     /**
        Create a new Rail that is a copy of this rail.
      */
-    public abstract def clone(): T(length); 
+    public abstract def clone(): this.class(length); 
     /**
        Create a new Rail of length l with Base=this.Base and
        Mem=this.Mem, initialized with init.
@@ -65,7 +63,7 @@ abstract value T: AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]}
        variables not already constrained to be equal to each other.
 
      */
-    protected abstract def clone(l: Nat, init: (Nat(l))=>Base): T(l);
+    protected abstract def clone(l: Nat, init: (Nat(l))=>Base): this.class(l);
     protected def clone[B,M](_r: M): AbsRail[B,M](_r.length);
 
     public def apply(p: Point(0..length-1)):Base = r(p);
@@ -83,27 +81,28 @@ abstract value T: AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]}
     }
 
     // you want the return type to be this.class{length+o.length}
-    public def append(o: AbsRail[Base]): T(length+o.length) = {
+    public def append(o: AbsRail[Base]): this.class(length+o.length) = {
 	val l = length+o.length;
 	clone(l, (i: nat(l-1)) => i<length-1? r(i) : other.r(i-length));
     }
 
-    public abstract makeNativeRail(n :Nat, f:(Nat(n-1))=>Base):NativeAbsRail[Base](n);
+    public abstract def makeNativeRail(n :Nat, f:(Nat(n-1))=>Base):NativeAbsRail[Base](n);
     /**
        Return the Rail obtained from this by removing those elements that do not satisfy the
        given condition.
      */
     public def filter(f: (Nat(length), Base)=>Boolean) = {
-	var count: Nat=0;
-	val temp = new ValRail[Boxed[T]](length, (i:Nat(length) => f(r(i))? { count++; r(i)}: null));
-	clone(Runtime.runtime.makeNativeRail(count, (i:Nat(count)=> temp(i))));
+	shared var count: Nat=0;
+	val temp = new ValRail[Base](length, (i:Nat(length)) => {
+		if (f(r(i))) { count++; return r(i); } else return null; });
+	clone(Runtime.runtime.makeNativeRail(count, (i:Nat(count))=> temp(i)))
     }
 
     public def mapRail(o: AbsRail[Base](length), op:(Base, Base)=>Base) = 
         map((i: Nat(length-1), x:Base) => op(x,o(i)));
 
     public def reduce(z: S, op: (Base, Base)=>S) = {
-	var v = z;
+	var v: S = z;
 	for (val w in r) v = op(v,w);
 	v
     }
@@ -115,7 +114,7 @@ abstract value T: AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]}
 	for (val p(i) in r.region) if (! op(i)) return false;
 	true
     }
-    public def isK(k:Base): Boolean = andReduce(x:Base => x==k);
+    public def isK(k:Base): Boolean = andReduce((x:Base) => x==k);
     public def add(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}  = mapRail(o,(x:Base,y:Base)=>x.add(y));
     public def mul(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}  = mapRail(o,Base.mul.(Base));
     public def div(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}  = mapRail(o,Base.div.(Base));
@@ -138,10 +137,10 @@ abstract value T: AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]}
     public def codiv(c: Base){Base <: Arithmetic[Base]} = map((x:int) => x.codiv(c));
     public def sub(c: Base){Base <: Arithmetic[Base]}   = map((x:int) => x.sub(c));
     public def cosub(c: Base){Base <: Arithmetic[Base]} = map((x:int) => x.cosub(c));
-    public def eq(c: Base){Base <: Arithmetic[Base]}    = andReduce(x:Base=> x.eq(c));
-    public def lt(c: Base){Base <: Arithmetic[Base]}    = andReduce(x:Base=> x.lt(c));
-    public def gt(c: Base){Base <: Arithmetic[Base]}    = andReduce(x:Base=> x.gt(c));
-    public def ge(c: Base){Base <: Arithmetic[Base]}    = andReduce(x:Base=> x.ge(c));
-    public def le(c: Base){Base <: Arithmetic[Base]}    = andReduce(x:Base=> x.le(c));
-    public def ne(c: Base){Base <: Arithmetic[Base]}    = andReduce(x:Base=> x.ne(c));
+    public def eq(c: Base){Base <: Arithmetic[Base]}    = andReduce((x:Base)=> x.eq(c));
+    public def lt(c: Base){Base <: Arithmetic[Base]}    = andReduce((x:Base)=> x.lt(c));
+    public def gt(c: Base){Base <: Arithmetic[Base]}    = andReduce((x:Base)=> x.gt(c));
+    public def ge(c: Base){Base <: Arithmetic[Base]}    = andReduce((x:Base)=> x.ge(c));
+    public def le(c: Base){Base <: Arithmetic[Base]}    = andReduce((x:Base)=> x.le(c));
+    public def ne(c: Base){Base <: Arithmetic[Base]}    = andReduce((x:Base)=> x.ne(c));
 }
