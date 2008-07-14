@@ -3,8 +3,8 @@ generic constrained types on a Java virtual machine.
 We describe the implementation as a translation to Java.
 
 The design is a hybrid design based on the implementation of
-parametrized classes in NextGen~\cite{allen03,allen04} and the
-implementation of PolyJ~\cite{polyj}.  Generic classes are translated
+parametrized classes in NextGen~\cite{nextgen,allen03,allen04} and the
+implementation of PolyJ~\cite{java-popl97}.  Generic classes are translated
 into template classes that are instantiated on demand at run time by
 binding the type properties to concrete types.  To implement run-time
 type checking (e.g., casts), type properties are represented at run
