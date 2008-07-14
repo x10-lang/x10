@@ -12,6 +12,9 @@ public class Dist(region: Region, unique: Boolean) /* {unique => region.rail} */
     protected def this(r: Region, u: Boolean): Dist(r, u) = {
 	property(r,u);
     }
+    
+    public static def constant(r: Region, p: Place): Dist(r, false) = new Dist(r, false);
+    
     /**
        Each distribution specifies a map from places to regions.
        this.region is the union of all the regions in the range of
@@ -22,7 +25,7 @@ public class Dist(region: Region, unique: Boolean) /* {unique => region.rail} */
        Return the (possibly null) sub-region of this.region which is
        mapped to the given place p.
      */
-    public def localRegion(p: place):Region{self.subset(region)}= regionMap(p);
+    public def localRegion(p: Place):Region{self.subset(region)}= regionMap(p);
     
 
     /**
@@ -31,7 +34,7 @@ public class Dist(region: Region, unique: Boolean) /* {unique => region.rail} */
        in the range of the map.
 
      */
-    public def places(): ValRail[place]=regionMap().keys();
+    public def places(): ValRail[Place]=regionMap().keys();
     public def regions(): ValRail[Region(self.subset(region))] =regionMap().values();
     
     /**
