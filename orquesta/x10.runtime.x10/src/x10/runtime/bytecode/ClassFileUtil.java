@@ -99,7 +99,7 @@ public class ClassFileUtil {
 		case 'J': case 'S': case 'V': case 'Z':
 			return index+1;
 		case '[':
-			return nextTypePos(signature, index+1) + 1;
+			return nextTypePos(signature, index+1);
 		case 'L':
 			return signature.indexOf(';', index+1) + 1;
 		}
