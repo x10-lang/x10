@@ -1,0 +1,248 @@
+\section{Semantics}
+\def\FX{{\sf FX}}
+\def\FXG{{\sf FX(G)}}
+\def\FXD{{\sf FX(D($\cal A$))}}
+\def\FXGD{{\sf FX(G,D($\cal A$))}}
+\def\FXGDP{{\sf FX(G,D($\cal A$),P)}}
+\def\has{\mbox{\tt has}}
+\def\TConstr{\mbox{\sc T-Constr}}
+\def\TInv{\mbox{\sc T-Inv}}
+\def\TVar{\mbox{\sc T-Var}}
+\def\TField{\mbox{\sc T-Field}}
+\def\TInvk{\mbox{\sc T-Invk}}
+\def\TNew{\mbox{\sc T-New}}
+\def\TCast{\mbox{\sc T-Cast}}
+\def\TUCast{\mbox{\sc T-UCast}}
+\def\TDCast{\mbox{\sc T-DCast}}
+\def\TSCast{\mbox{\sc T-SCast}}
+
+\def\RField{\mbox{\sc R-Field}}
+\def\RCField{\mbox{\sc RC-Field}}
+\def\RInvk{\mbox{\sc R-Invk}}
+\def\RCInvkRecv{\mbox{\sc RC-Invk-Recv}}
+\def\RCInvkArg{\mbox{\sc RC-Invk-Arg}}
+\def\RCNewArg{\mbox{\sc RC-New-Arg}}
+\def\RCast{\mbox{\sc R-Cast}}
+\def\RCCast{\mbox{\sc RC-Cast}}
+
+We now describe the semantics of languages in the \FX{} family.
+
+Each language $\cal L$ in the family is defined over a given input constraint
+system $\cal X$. Given a program $P$, we now show how to build a
+larger constraint system ${\cal O}({\cal X})$ on top of $\cal X$ which
+captures constraints related to the object-oriented structure of
+$P$. $\cal O$ is sensitive to $\cal X$ only in that $\cal O$ depends
+on the types defined by $\cal L$, and these may depend on $\cal X$.
+
+The static and dynamic semantics of $\cal L$ rests on ${\cal O}({\cal
+X})$.
+
+\subsection{The Object constraint system, $\cal O$}\label{sec:O}
+
+Given $\cal L$, its input constraint system $\cal X$ we now show
+how to define $\cal O$. The inference relation for $\cal O$ depends
+on the object-oriented structure of the input program $P$ in $\cal L$.
+For some members of $\cal L$, viz.{} the generic
+languages, $\cal X$ itself may use some of the constraints defined by
+$\cal O$. Thus we should think of $\cal X$ and $\cal O$ as being
+defined simultaneously and recursively.
+
+The constraints of $\cal O$ are given by:
+
+\begin{tabular}{r@{\quad}rcl}
+(Member) & {\tt M}&{::=}& $\tt m(\bar{\tt x}:\bar{\tt V})\{c\}:T=e$ \alt {\tt f:V}\\
+(Const.) & {\tt c},{\tt d} &{::=}& ${\tt S}\ \extends\ {\tt T}$ \alt ${\tt S}\ \subtype\ {\tt T}$\\
+&&& \alt $\fields({\tt x})= \bar{\tt f}:\bar{\tt V}$ \\
+&&& \alt {\tt x\ \has\ M}
+\end{tabular}
+
+Intuitively, ${\tt S}\ \extends\ {\tt T}$ is intended to hold if it
+can be established that {\tt S} is extends {\tt T}. For a
+variable {\tt x}, {\tt \fields({\tt x})} is intended to specify the
+(complete) set of typed fields available to {\tt x}. 
+{\tt x\ \has\ M} is intended to specify that the member {\tt M}
+(field or method) is availabele to {\tt x}.
+
+
+$\cal O$ satisfies the following axioms and inference rules:
+{\footnotesize
+\infrule[Class]
+{\tt \klass\ {\tt C}(\bar{\tt f}:\bar{\tt V})\ {\tt extends}\ {\tt D}\ \ldots \in P}
+{\tt \vdash_{\cal O} \klass({\tt C}),{\tt C} \extends {\tt D}}
+
+\infax[V-Id]{\vdash_{\cal O} T \extends T}
+\infrule[S-Trans]
+{\tt \Gamma \vdash_{\cal O} T_1 \subtype T_2, T_2 \subtype T_3}
+{\tt \Gamma \vdash_{\cal O} T_1 \subtype T_3}
+\infrule[\tt Sub-X]
+{\Gamma \vdash_{\cal O} {\tt t}\ \extends\ {\tt T}}
+{\Gamma \vdash_{\cal O} {\tt t} \subtype {\tt T}}
+
+\infax[Fields-B]{x:{\tt Object} \vdash_{\cal O} \fields({\tt x})=\bullet}
+\infrule[Fields-I]
+{\Gamma, {\tt x:D} \vdash_{\cal O} \fields({\tt x})=\bar{\tt g}:\bar{\tt V}\andalso 
+\klass\ {\tt C}(\bar{\tt f}:\bar{\tt U}){\tt \{c\}}\ {\tt extends}\ {\tt D}\{\bar{\tt M}\} \in {\tt C}}
+{\Gamma, {\tt x:C} \vdash \fields({\tt x})=\bar{\tt g}:\bar{\tt V},\bar{\tt f}:\bar{\tt U[x/\this]}}
+\infrule[Fields-C,E]
+{\Gamma, {\tt x: S} \vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt V}}
+{\Gamma, {\tt x:S\{d\}} \vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt V\{d[x/\self]\}} \\
+ \Gamma, {\tt x: (y:U;S)} \vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt (y:U;V)}
+}
+\infrule[\tt has-F]
+{\Gamma\vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt V}} 
+{\Gamma \vdash_{\cal O} {\tt x}\ \has\ {\tt f_i}:{\tt V_i}}
+
+\infax[Sel]{\tt \vdash_{\cal O} new\ D(\bar{\tt t}).{\tt f_i=t_i}}
+
+\infrule[Method-B]
+{\Gamma, {\tt x}:{\tt C}\vdash_{\cal O}\klass({\tt C})\andalso \theta=[{\tt x}/\this] \andalso
+{\tt def}\ {\tt m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e}\in P}
+{\tt\Gamma, {\tt x:C}\vdash_{\cal O} {\tt x}\ \has\ (m(\bar{\tt z}:\bar{\tt V\theta})\{c\theta\}:T\theta=e)}
+\infrule[Method-I]
+{\Gamma, {\tt x}:{\tt D}\vdash_{\cal O}{\tt x}\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e
+\andalso \klass\ {\tt C}(\ldots)\ {\tt extends}\ {\tt D}\{\bar{\tt M}\} \andalso {\tt m}\not\in \bar{\tt M}}
+{\Gamma, {\tt x:C}\vdash_{\cal O} {\tt x}\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e}
+\infrule[Method-C,E]
+{\tt\Gamma, x:S \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e}
+{\tt\Gamma, x:S\{d\} \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T\{d[x/\self]\}=e \\
+ \tt\Gamma, x: (y:U;S) \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:(y:U;T)=e}
+}%\footnotesize
+
+{\em Note: Figure out whether consistency checks need to be added.}
+\input{fx-semantics}
+
+\subsection{Extensions of \FX}
+\subsubsection{\FXG}
+Generics as in {\sf FGJ} are supported by adding the following productions:
+
+\begin{tabular}{r@{\quad}rcl}
+  (Par Type)& {\tt V}&{::=}& \type\\
+  (Path) & {\tt p} &{::=}& {\tt x} \alt {\tt p.f}\\
+  (Type)& {\tt T}&{::=}& {\tt X} \alt p\\
+  (C Term) & {\tt t} &{::=}& {\tt T} \\
+  (Const.) & {\tt c} &{::=}& ${\tt t } \extends {\tt N}$ \alt {\tt t==t}\\
+\end{tabular}
+
+\noindent and the following rule:
+{\footnotesize
+\infrule[Path]
+	{\Gamma \vdash {\tt p:T} \andalso \Gamma, {\tt x:T} \vdash {\tt x}\ \has\ {\tt X}:\ \type}
+	{\Gamma \vdash {\tt p.X}\ {\tt type}}
+\infax[\tt Type Var]{\Gamma, {\tt X:\type} \vdash {\tt X}\ \type}
+\infrule[\tt Inh-p]
+	{\Gamma \vdash_{\cal O} {\tt p} \extends {\tt T} \andalso \Gamma, {\tt x}:{\tt T} \vdash_{\cal O} {\tt x}\ \has\ {\tt M}}
+	{\Gamma,{\tt x}:{\tt p} \vdash_{\cal O} {\tt x}\ \has\ {\tt M}}
+\infrule[\tt Inh-X]
+	{\Gamma \vdash_{\cal O} {\tt X} \extends {\tt T} \andalso \Gamma, {\tt x}:{\tt T} \vdash_{\cal O} {\tt x}\ \has\ {\tt M}}
+	{\Gamma,{\tt x}:{\tt X} \vdash_{\cal O} {\tt x}\ \has\ {\tt M}}
+}
+
+\subsubsection{\FXD}
+Only the following rules are needed; no additional rules are needed for
+sub-typing, type-equivalence, expression typing or dynamic semantics.
+Below, {\tt q} ({\tt f}) ranges over all predicates (functions) specified by $\cal C$:
+
+\begin{tabular}{r@{\quad}rcl}
+  (Type) & T & {::=}& \mbox{new base types, e.g. {\tt int}, {\tt boolean}}\\
+  (C Term) & {\tt t} &{::=}& {\tt x} \alt $\tt f(\bar{\tt t})$ \alt t.f \alt $\tt \new\ C(\bar{\tt t})$\\
+  (Const.) & {\tt c} &{::=}& {\tt t==t}  \alt ${\tt q(\bar{\tt t})}$ 
+\end{tabular}
+
+We need the following rules:
+{\footnotesize
+\infrule[Pred]
+	{\tt p(\bar{\tt T}):{\tt o}\in {\cal C} \andalso \Gamma \vdash \bar{\tt t}:\bar{\tt T}}
+	{\Gamma \vdash \tt p(\bar{\tt T}):o}
+
+\infrule[Fun]
+	{\tt f(\bar{\tt T}):{\tt T}\in {\cal C} \andalso \Gamma \vdash \bar{\tt t}:\bar{\tt T}}
+	{\tt\Gamma \vdash \tt f(\bar{\tt T}):T}
+\infrule[Equals]
+	{\tt\Gamma \vdash t_0: T_0 \andalso \Gamma \vdash t_1: T_1 \\
+	  (\tt\Gamma \vdash T_0 \subtype T_1 \vee \Gamma \vdash T_1 \subtype T_0)}
+	{\tt\Gamma \vdash t_0=t_1:o}
+}
+
+\subsubsection{\FXGDP} 
+Only the following rules are needed beyond those of \FXG{} and \FXD{}.
+
+
+
+
+
+\subsection{Judgements}
+%\begin{definition}[Designator] The class of {\em designators}
+%is given by:
+%\begin{tabular}{r@{\quad}rcl}
+%(Designator) & {\tt d} &{::=}& {\tt x}\alt C($\bar{\tt d}$)  \alt {\tt d.f} \\
+%\end{tabular}
+%\end{definition}
+
+In the following $\Gamma$ is a {\em well-typed context}, i.e.{} a
+(finite, possibly empty) sequence of formulas $\tt x:T$, $\tt T\
+\type$ and constraints $\tt c$ satisfying:
+\begin{enumerate}
+  \item for any formula $\phi$ in the sequence all variables $\tt x$
+    ({\tt X}) occuring in $\phi$ are defined by a declaration $\tt
+    x:T$ ({\tt X\ \type}) in the sequence to the left of $\phi$.
+
+  \item for any variable $\tt x$ ({\tt X}), there is at most one
+  formula $\tt x:T$ ({\tt X\ \type})  in $\Gamma$.
+\end{enumerate}
+
+The judgements of interest are:
+\begin{description}
+  \item[Type well-formedness]  $\Gamma \vdash {\tt T} \ {\tt type}$
+  \item[Subtyping] $\Gamma \vdash {\tt S} \subtype {\tt T}$
+  \item[Typing]    $\Gamma   \vdash {\tt e:T}$
+  \item[Method ok] $\Gamma \vdash M\ \mbox{OK in $C$}$ (method $\tt M$ is well-defined for the class $\tt C$). 
+  \item[Field ok]  $\Gamma \vdash f:T\ \mbox{OK in $C$}$ (field $\tt f:T$ is well-defined for the class $\tt C$).
+  \item[Class ok] $\Gamma \vdash {\tt Cl} \ OK$ (class definition {\tt Cl} is ok). 
+\end{description}
+
+
+In defining these judgements we will use $\Gamma \vdash_{\cal C} c$,
+the judgement corresponding to the underlying constraint system. For simplicity,
+we define $\Gamma \vdash {\tt c}$ to mean $\sigma(\Gamma)\vdash_{\cal C} {\tt c}$,
+where the {\em constraint projection}, $\sigma(\Gamma)$ is defined thus:
+
+\begin{tabular}{l}
+$\sigma(\epsilon)={\tt true}$\\
+$\sigma(x:C\{c\}, \Gamma)$=c[x/\self], $\sigma(\Gamma)$\\
+$\sigma(c,\Gamma)$ = c, $\sigma(\Gamma)$
+\end{tabular}
+
+\subsection{Well formedness rules}
+
+We posit a special type {\tt o} (traditionally the type of
+propositions), and regard constraints as expressions of type {\tt
+o}. See Figure~\ref{Figure:Wff}.
+
+
+\section{Type inference rules}
+
+\subsection{Expression typing judgement}
+
+Now we consider the rule for method invocation. Assume that in a type
+environment $\Gamma$ the expressions $\bar{e}$ have the types
+$\bar{T}$. Since the actual values of these expressions are not known,
+we shall assume that they take on some fixed but unknown values
+$\bar{z}$ of type $\bar{T}$.  Now for $z$ as receiver, let us assume
+that the type $T\equiv C\{d\}$ has a method named {\tt m} with
+signature $\bar{z}: \bar{Z}, c \rightarrow U$.  If there is no method
+named {\tt m} for the class {\tt C} then this method invocation cannot
+be type-checked. Without loss of generality we may assume that the
+parameters of this method are named $\bar{z}$, since we are free to
+choose variable names as we wish because of $\alpha$-equivalence. Now
+in order for the method to be invocable, it must be the case that the
+types $\bar{T}$ are subtypes of $\bar{Z}$. (Note that there are no
+occurrences of {\tt this} in $\bar{Z}$; they have been replaced by
+$z$ -- see Section~\ref{sec:O}) Further, it must be the case that for these parameter values,
+the constraint $c$ is entailed. Given all these assumptions it must be
+the case that the return type is $U$ --- with all the parameters
+$\bar{z}$ existentially quantified.
+
+
+
+
+

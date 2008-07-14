@@ -1,0 +1,154 @@
+
+\begin{figure*}
+\footnotesize
+\begin{tabular}{l}
+\begin{tabular}{ll}
+\multicolumn{2}{l}{\bf \FX{} productions:} \\
+\quad\\
+\begin{tabular}{r@{\quad}rcl}
+(Class) & {\tt L} &{::=}& \klass\ {\tt C}($\bar{\tt f}$:$\bar{\tt V}$)\{{\tt c}\}\ {\tt extends}\ {\tt N}\ \{$\bar{\tt M}$\} \\
+(Method)& {\tt M} &{::=}& {\tt def}\ {\tt m}($\bar{\tt x}:\bar{\tt V}$)\{c\}:V=e;\\
+(Exp.)& {\tt e} &{::=}& \tt {\tt x} \alt \this \alt {\tt e.f} \alt {\tt e.m}($\bar{\tt e}$) 
+\alt \new\ C($\bar{\tt e}$) \alt {\tt e}\ \mbox{as {\tt T}} \\ 
+(Par Type) & {\tt U},{\tt V}&{::=} & T \\
+\end{tabular} 
+&
+\begin{tabular}{r@{\quad}rcl}
+(Type)& {\tt S},{\tt T}&{::=}& {\tt N} \alt {\tt T\{c\}}\\
+(N Type) & {\tt N}&{::=}& {\tt C} \alt {\tt N\{c\}}\\
+(C Term) & {\tt t} &{::=}& \self\\
+(Const.) & {\tt c},{\tt d} &{::=}&\true \alt {\tt c},{\tt c} \alt {\tt x}:{\tt V};{\tt c}\\
+\end{tabular} 
+\end{tabular}
+\quad \\
+{\tabcolsep=0pt
+\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.25\textwidth}p{0.25\textwidth}}
+\multicolumn{4}{l}{\bf \FX{} well-formedness rules:}\\
+\infax[{\tt true}]{\Gamma \vdash {\tt true}: {\tt o}}
+&
+\infrule[And]
+{\tt \Gamma \vdash c_0: o \andalso \Gamma \vdash c_1: o}
+{\tt \Gamma \vdash (c_0,c_1):o}
+&
+\infrule[Exists]
+{\tt \Gamma \vdash t: T \andalso \Gamma \vdash c[t/x]:o}
+{\tt \Gamma \vdash x:T;c: o}
+&
+\\
+\infrule[Class]
+{\Gamma \vdash \klass({\tt C})}
+{\Gamma \vdash {\tt C}\ \type} 
+&
+\infrule[Dep]
+{\tt \Gamma \vdash T\ \type \andalso \Gamma, \self:T \vdash c:o}
+{\tt \Gamma \vdash T\{c\}\ {\tt type}} 
+&& \\
+\end{tabular}}\\
+\quad\\
+{\tabcolsep=0pt
+\begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+\multicolumn{3}{l}{\bf \FX{} sub-typing and type-equivalence rules:}\\
+\infrule[S-Extends]
+{\tt class\ C(\ldots)\ extends\ D\{\ldots\}\in P}
+{\tt\vdash C \subtype D}
+&
+\infrule[S-Const-L]
+{\tt \Gamma,{\tt c} \vdash {\tt S}\; \subtype\; {\tt T}}
+{\tt \Gamma \vdash {\tt S\{c\}}\;\subtype\; {\tt T}}
+&
+\infrule[S-Const-R]
+{\tt \Gamma,{\tt \self:S} \vdash {\tt c}\andalso \Gamma \vdash {\tt S}\;\subtype\; {\tt T}}
+{\tt \Gamma \vdash {\tt S}\;\subtype\; {\tt T\{c\}}}
+\\
+\infrule[S-Exists-L]
+{\tt Gamma \vdash {\tt U}\ \type \andalso  \Gamma \vdash {\tt S}\; \subtype\; {\tt T}\andalso \mbox{({\tt x} fresh})}
+{\tt \Gamma \vdash {\tt x:U;S}\;\subtype\; {\tt T}}
+&
+\infrule[S-Exists-R]
+{\tt Gamma \vdash t:{\tt U} \andalso \Gamma \vdash {\tt S}\; \subtype\; {\tt T}[{\tt t}/{\tt x}]}
+{\tt \Gamma \vdash {\tt S}\;\subtype\; {\tt x;U:T}}
+&
+\infrule[Type-equiv]
+{\tt \Gamma \vdash S\; \subtype\; T \andalso \Gamma \vdash T\; \subtype\; S}
+{\tt \Gamma \vdash S \equiv T} 
+\end{tabular}
+}\\
+\quad\\
+{\tabcolsep=0pt
+\begin{tabular}{l}
+\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.47\textwidth}}
+\multicolumn{3}{l}{\bf Type judgement rules:}\\
+\infax[T-Var]
+{\Gamma, {\tt x}:{\tt T} \vdash {\tt x}:{\tt T\{\self{\tt ==x}\}}}
+&
+\infrule[T-Cast]
+{\Gamma \vdash {\tt e}:{\tt U} \andalso \Gamma \vdash {\tt T} \ \type}
+{\Gamma \vdash {\tt e}\ \as\ {\tt T}: {\tt T}} &
+\infrule[T-Field]
+{\Gamma \vdash {\tt e}: {\tt S} \andalso \Gamma,{\tt z}:{\tt S}\vdash {\tt z}\ \has\ {\tt f}:{\tt T} \andalso \mbox{({\tt z} fresh)} }
+{\Gamma \vdash {\tt e}.{\tt f}:  ({\tt z}:{\tt S};{\tt T})}
+\end{tabular}\\
+\begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}}
+\infrule[T-INVK]
+{\Gamma \vdash {\tt e}:{\tt T},\bar{\tt e}:\bar{\tt T} \andalso \\
+\Gamma,{\tt v}:{\tt T},\bar{\tt v}:\bar{\tt T} \vdash {\tt v}\ \has\ ({\tt m}(\bar{\tt v}:\bar{\tt V}), {\tt c} \rightarrow {\tt U}), \bar{\tt T} \subtype \bar{\tt V},{\tt c} 
+\andalso \mbox{({\tt v},$\bar{\tt v}$ fresh)}}
+{\Gamma \vdash {\tt e}.{\tt m}(\bar{\tt e}): ({\tt v}:{\tt T};\bar{\tt v}:\bar{T};U)}
+&
+\infrule[T-NEW]
+{\Gamma \vdash \bar{\tt e}:\bar{\tt T} \andalso \\ 
+\Gamma,{\tt v}:{\tt C}\vdash \fields({\tt v})=\bar{\tt f}:\bar{\tt V}  \andalso \mbox{({\tt v},$\bar{\tt v}$\ fresh)}\\
+\Gamma, {\tt v}:{\tt C}, \bar{\tt v}:\bar{\tt T}, {\tt v}.\bar{\tt f}=\bar{\tt v} 
+\vdash \bar{\tt T} \subtype \bar{\tt V}, \inv({\tt C},{\tt v})}
+{\Gamma \vdash \new\ {\tt C}(\bar{\tt e}): C\{\bar{\tt v}:\bar{\tt T}; \self.\bar{\tt f}=\bar{\tt v},\inv({\tt C},\self)\}} \\
+\infrule[Method OK]
+{\this:{\tt C}, \bar{\tt x}:\bar{\tt V},{\tt c} \vdash {\tt T} \ \type, \bar{\tt V} \ \type, {\tt e}:{\tt U}, {\tt U} \subtype {\tt T}}
+{{\tt def}\ {\tt m}(\bar{\tt x}:\bar{\tt V})\{{\tt c}\}:{\tt T}= {\tt e};\ \mbox{OK in}\ C}
+&
+\infrule[Class OK]
+{\bar{\tt M}\ \mbox{OK in}\ {\tt C} \andalso \this:{\tt C},{\tt c} \vdash \bar{\tt V}\ \type, {\tt N}\ \type}
+{\mbox{\tt class}\ {\tt C}(\bar{\tt f}:\bar{\tt V})\{{\tt c}\}\ \mbox{\tt extends}\ {\tt N}\{\bar{\tt M}\} \ \mbox{OK}}
+\end{tabular}
+\\ 
+\end{tabular}}\\
+\quad\\
+\begin{tabular}{p{0.43\textwidth}@{\quad}p{0.54\textwidth}}
+\multicolumn{2}{l}{\bf Transition Rules:}\\
+\typicallabel{RC-Field}
+\infrule[\RField]%
+{\tt x:C\} \vdash \fields(\tt x)=\bar{\tt f}:\bar{\tt V}}
+{(\new\ {\tt C}(\bar{\tt e})).{\tt f}_i \derives {\tt e}_i}
+
+\infrule[\RCField]%
+{{\tt e} \derives {{\tt e}}'}
+{{\tt e}.{\tt f}_i \derives {{\tt e}}'.{\tt f}_i}
+
+\infrule[\RCast]%
+{\vdash {\tt C} \subtype {\tt T[\new\ C(\bar{\tt d})/\self]}}
+{{\tt (T)(\new\ C(\bar{\tt d}))} \derives \new\ C(\bar{\tt d})}
+
+
+\infrule[\RCCast]%
+{{\tt e} \derives {{\tt e}}'}
+{{\tt (T) e} \derives {{\tt (T) e}}'}
+&
+\typicallabel{R-Invk-Recv}
+\infrule[\RInvk]
+{{\tt x:C}\vdash {\tt x}\has m(\bar{\tt x}:\bar{T})\{c\}:T=e}
+{(\new\ {\tt C}(\bar{\tt e})).{\tt m}(\bar{\tt d}) \derives {\tt e[\new\ {\tt C}(\bar{\tt e}),\bar{\tt d}/\this,\bar{\tt x}]}}
+
+\infrule[\RCInvkRecv]%
+{{\tt e} \derives {{\tt e}}'}
+{{\tt e}.{\tt m}(\bar{\tt e}) \derives {{\tt e}}'.{\tt m}(\bar{\tt e})}
+
+\infrule[\RCInvkArg]%
+{{\tt e}_i \derives {{\tt e}_i}'}
+{{\tt e}.{\tt m}(\ldots,{\tt e}_i,\ldots) \derives {{\tt e}}.{\tt m}(\ldots,{\tt e}_i',\ldots)} 
+
+\infrule[\RCNewArg]%
+{{\tt e}_i \derives {{\tt e}_i}'}
+{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)}
+\end{tabular}
+\end{tabular}  
+ \caption{Semantics of \FX}\label{fig:FX}
+\end{figure*}
