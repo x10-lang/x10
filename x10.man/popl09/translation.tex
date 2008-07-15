@@ -1,6 +1,5 @@
 This section describes an implementation approach for
 generic types in \Xten{} on a JVM.
-We describe the implementation as a translation to Java.
 
 The design is a hybrid design combining techniques of run-time
 instantiation from
@@ -19,6 +18,8 @@ This design has been implemented in the \Xten{} compiler, built
 on the Polyglot framework, which
 translates \Xten{} source to Java source.\footnote{There is also
 a translation from \Xten{} to C++ source, not described here.}
+The \Xten{} runtime was augmented with a class loader
+implementation that performs run-time instantiation.
 
 \subsection{Classes}
 Each class is translated into a \emph{template class}.
@@ -53,7 +54,7 @@ class A {
 
     T a;
 
-    // Dummy constructor; will be eliminated at run time
+    // Dummy constructor; eliminated at run time
     @Synthetic public A(Class T) { this(); }
 }
 
@@ -67,7 +68,7 @@ The member class \xcd"A.T" is used in place of the
 type property \xcd"T".   The field \xcd"T" of type
 \xcd"x10.runtime.Type" captures the actual constrained type on which \xcd"A"
 is instantiated, and is used for run-time type tests.
-The \xcd"Parameters" annotation on \xcd"A" is used during
+The \xcd"@Parameters" annotation on \xcd"A" is used during
 run-time instantiation to identify the parameters.
 Synthetic constructors with added \xcd"Class" parameters are
 used to pass instantiation arguments to the \xcd"new"
@@ -104,11 +105,10 @@ template class \xcd"A".
 The bytecode is transformed, replacing the type property \xcd"T"
 with the concrete type \xcd"int".
 
-For the Java primitive types and \xcd"Object",
-the methods
-\xcd"Runtime.to$X(Object)" and \xcd"Runtime.from(X)" are used
-to coerce a type to and from the actual type \xcd"X", possibly
-with additional casts.
+Parameter types are coerced to and from the actual type
+\xcd"X" (a Java primitive type or \xcd"Object") using
+methods \xcd"Runtime.to$X(Object)" and \xcd"Runtime.from(X)",
+possibly with additional casts.
 Both are eliminated from the transformed
 bytecode, but are needed for the template class to type-check.
 
@@ -227,20 +227,41 @@ Runtime.instanceof\$(C.instanceof\$(new C(int.class)(), "self<4"), int.class);
 \end{figure*}
 }
 
+\subsection{Passing type arguments}
+
+For types that are visible at run time, annotations are used to
+pass actual type arguments.  The \xcd"@InstantiateClass"
+annotation handles field types, method parameters, and
+superclasses; The \xcd"@InstantiateInterfaces" annotation handles
+interface instantiations; and the \xcd"@Instantiation" annotation
+is used for parametrized exceptions.
+
+Type arguments are passed to allocation expressions as
+synthetic constructor arguments.  Run-time type tests and casts
+receive type parameters via the \xcd"Runtime.cast$" and
+\xcd"Runtime.instanceof$" helper methods.
+
 \subsection{Eliminating method type parameters}
 
-We generate parameterized adapter classes for each
-parameterized method.  Invoking a method thus involves
+For each parametrized method, we generate parametrized
+adapter classes, annotated with \xcd"@ParametricMethod".
+Invoking a parametrized method thus involves
 instantiating such an adapter class and invoking its
 \xcd"apply()" method.
 
-\subsection{Translation to Java}
+\subsection{Parametrized exceptions}
+
+Parametrized exceptions are regular classes.
+Synthetic local classes, annotated with \xcd"@Instantiation",
+are generated for each catch block with an instantiated
+parametrized exception class.  Exception tables in the
+bytecode are rewritten with the new exception types.
 
 \subsection{Run-time instantiation}
 
 We translate \xcd"instanceof" and cast operations to combinations
 of instanceof tests/casts and calls to
-methods of a \xcd"Type" because the actual implementation of
+methods of \xcd"Type" because the actual implementation of
 the operation may require run-time constraint solving or other
 complex code that cannot be easily substituted in when rewriting
 the bytecode during instantiation.
