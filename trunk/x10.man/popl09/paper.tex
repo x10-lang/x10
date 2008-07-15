@@ -77,7 +77,7 @@
 
 \def\FGJ{{\sf FGJ}}
 \def\FX{{\sf FX}}
-\def\FXZ{{\sf FX($\bullet$)}}
+\def\FXZ{{\sf FX($\cdot$)}}
 \def\FXG{{\sf FX($\cal O$)}}
 \def\FXD{{\sf FX($\cal A$)}}
 \def\FXGD{{\sf FX(${\cal O},{\cal A}$)}}
@@ -197,22 +197,24 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
 \label{sec:conclusions}
 
 We have presented a constraint-based framework \FX{} for type-
-and value-dependent types in an object-oriented language.  The
-framework is instantiated on a constraint system $\cal O$ that
-captures the inheritance, subtyping, and class membership
-relationships of the program.  Further instantiations augment
-the constraint system with dependent types and generic types.
-Types in the framework are comprised of classes and a constraint
-over types and values.  
-
+and value-dependent types in an object-oriented language.
+%
+The framework captures the essence of object-oriented type
+systems in a constraint system 
+$\cal O$.  Instantiations of the framework augment the core
+object-oriented features with generic types and dependent types.
+%
 The use of constraints on type properties allows the design to
-capture many features of generics in languages like Java 5 and
-\csharp and then to extend these features with new more
-expressive power.
+capture many features of generics in object-oriented languages
+and then to extend these features with more
+expressive power.  We have proved the type system sound.
 
 The type system \FXGD{} formalizes the semantics of the \Xten{}
 programming language.  The design admits an efficient
 implementation for generics and dependent types in \Xten{}.
+To improve the expressiveness of \Xten{}, we plan to implement
+a type inference algorithm that infers constraints over types
+and values, and to support user-defined constraints.
 
 \section*{Acknowledgments} 
 
