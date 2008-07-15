@@ -3,36 +3,34 @@ have been well-studied in the literature.
 
 \paragraph{Constraint-based type systems.}
 
-The use of constraints for type inference and subtyping was
-developed by
-Mitchell~\cite{mitchell84}
-and by Reynolds~\cite{reynolds85}.  These and subsequent systems 
-are based on constraints over types, but not over values.
-Trifonov and Smith~\cite{trifonov96}
-proposed a type system in which types 
-are refined using subtyping
-constraints.
-Pottier~\cite{pottier96simplifying,pottier01b}
-presents a constraint-based type system for an ML-like language with
-subtyping.
+The use of constraints for type inference and subtyping has a history
+going back to Mitchell~\cite{mitchell84} and by
+Reynolds~\cite{reynolds85}.  These and subsequent systems are based on
+constraints over types, but not over values.  Trifonov and
+Smith~\cite{trifonov96} proposed a type system in which types are
+refined using subtyping constraints.
+Pottier~\cite{pottier96simplifying} presents a constraint-based type
+system for an ML-like language with subtyping.  These developments
+lead to \hmx~\cite{sulzmann97type}, a constraint-based framework for
+Hindley--Milner-style type systems.  The framework is parametrized on
+the specific constraint system $X$; instantiating $X$ yields
+extensions of the HM type system.  Constraints in \hmx{} are over
+types, not values. The \hmx{} approach is an important precursor to
+our constrained types approach. The principal difference is that
+\hmx{} applies to functional languages and does not integrate
+dependent types.
 
-These developments lead to
-\hmx~\cite{sulzmann97type,pottier01a,pottier-remy-attapl},
-a constraint-based framework
-for Hindley--Milner-style type systems.
-The framework is parametrized on the specific constraint system
-$X$; instantiating $X$ yields extensions of the HM type system.
-Constraints in \hmx are over types, not values.
 %
 Sulzmann and Stuckey~\cite{sulzmann-hmx-clpx} showed that the
 type inference algorithm for \hmx can be encoded as a
 constraint logic program parametrized by the constraint system
-$X$.  Type inference in this framework is thus constraint solving.
-
-Structural constraints on types have been implemented in 
-Haskell type classes~\cite{haskell-type-classes}.
-PolyJ~\cite{java-popl97} also uses structural constraints to bound type
-parameters.
+$X$. This is very much in spirit with our approach.
+Constrained types open the door to {\em user-defined}
+predicates and functions, effectively permitting the user to enrich
+$\cal C$ (hence the power of the compile-time type-checker) by
+developing application-specific constraints using a constraint
+programming language such as CLP($\cal C$) \cite{clp} or the richer
+RCC($\cal C$) \cite{DBLP:conf/fsttcs/JagadeesanNS05}.
 
 \paragraph{Dependent types.}
 
@@ -276,39 +274,3 @@ Parametric types with use-site variance are related to existential types:
 \xcd"C" corresponds to the unbounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}".
 }
 
-\paragraph{Virtual classes and types.}
-
-{\em Virtual classes}~\cite{beta,mp89-virtual-classes,ernst06-virtual}.
-are a language-based extensibility
-mechanism that where
-originally introduced in the language
-BETA~\cite{beta} as a mechanism
-for supporting genericity.
-Virtual classes in BETA are not statically type safe, but this has been
-remedied in recent formulations~\cite{ernst99-gbeta,ernst06-virtual} and in
-variants of 
-virtual classes~\cite{scala,nqm06,cdnw07-tribe,variant-path-types}
-using path-dependent types.  
-
-{\em Virtual types}, also introduced in BETA~\cite{beta},
-are similar to virtual
-classes.  A virtual type is a type binding nested within an
-enclosing instance.
-Virtual types
-may be used to provide genericity; indeed
-Thorup~\cite{thorup97} proposed extending Java with virtual types
-as a genericity mechanism.  Virtual types influenced Java's 
-wildcards~\cite{adding-wildcards,Java3,wildcards-safe}.
-
-Igarashi and Pierce~\cite{ip99-virtual-types}
-model the semantics of virtual types
-and several variants
-in a typed lambda-calculus with subtyping and dependent types.
-
-Use-site variance based on 
-structural virtual types
-were proposed by Thorup and Torgerson~\cite{unifying-genericity}
-and extended for parametrized type systems by Igarashi and
-Viroli~\cite{variant-parametric-types}.  The latter type
-system lead to the development of wildcards in
-Java~\cite{Java3,adding-wildcards,wildcards-safe}.
