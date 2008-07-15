@@ -1,30 +1,36 @@
 This section describes an implementation approach for
-generic constrained types on a Java virtual machine.
+generic types in \Xten{} on a JVM.
 We describe the implementation as a translation to Java.
 
-The design is a hybrid design based on the implementation of
-parametrized classes in NextGen~\cite{nextgen,allen03,allen04} and the
-implementation of PolyJ~\cite{java-popl97}.  Generic classes are translated
-into template classes that are instantiated on demand at run time by
-binding the type properties to concrete types.  To implement run-time
-type checking (e.g., casts), type properties are represented at run
-time using \emph{adapter objects}.
-
-This design, extended to handle language features
-not described in this paper, has been implemented in the \Xten{}
-compiler.  The \Xten{} compiler is built on the Polyglot framework
-and translates \Xten{} source to Java source\footnote{There is also
-a translation from \Xten{} to C++ source, not described here.}.
+The design is a hybrid design combining techniques of run-time
+instantiation from
+NextGen~\cite{nextgen,allen03,allen04} and type-passing from
+PolyJ~\cite{java-popl97}.  Generic classes are translated
+into ``template'' classes that are instantiated on demand at run time by
+binding the type properties to concrete types.
+%
+Value constraints are erased from type references.
+Adapter objects are used to represent type
+properties and constraints.  
+Run-time type tests (e.g., casts) are translated
+into code that checks those constraints at run time.
+%
+This design has been implemented in the \Xten{} compiler, built
+on the Polyglot framework, which
+translates \Xten{} source to Java source.\footnote{There is also
+a translation from \Xten{} to C++ source, not described here.}
 
 \subsection{Classes}
 Each class is translated into a \emph{template class}.
 The template class is compiled by a Java compiler (e.g., javac)
 to produce a class file.
 At run time, when a constrained type \xcd"C{c}" is first referenced, a
-class loader loads the template class for \xcd"C" and then transforms the
-template class bytecode, specializing it to the constraint
-\xcd"c".
-
+class loader loads the template class for \xcd"C" and then
+transforms its bytecode, specializing it to the constraint
+\xcd"c".  The implementation specializes constraints on
+types, not values; we leave value-constraint specialization to
+future work.
+%
 For example, consider the following classes.
 {\footnotesize
 \begin{xten}
@@ -32,8 +38,8 @@ class A[T] {
     var a: T;
 }
 class C {
-    val x: A[Int] = new A[Int]();
-    val y: Int = x.a;
+    val x: A[int] = new A[int]();
+    val y: int = x.a;
 }
 \end{xten}}
 
@@ -42,85 +48,77 @@ The compiler generates the following code:
 \begin{xten}
 @Parameters({"T"})
 class A {
-    // Dummy class needed to type-check uses of T.
     @TypeProperty public static class T { }
+    public x10.runtime.Type T;
 
     T a;
 
     // Dummy constructor; will be eliminated at run time
     @Synthetic public A(Class T) { this(); }
-    ...
 }
 
 class C {
     final A x = new A(int.class);
-    final int y = Runtime.recoverI(x.a);
+    final int y = Runtime.to$int(x.a);
 }
 \end{xten}}
 
 The member class \xcd"A.T" is used in place of the
-type property \xcd"T". 
-Synthetic constructors with added Class parameters are
+type property \xcd"T".   The field \xcd"T" of type
+\xcd"x10.runtime.Type" captures the actual constrained type on which \xcd"A"
+is instantiated, and is used for run-time type tests.
+The \xcd"Parameters" annotation on \xcd"A" is used during
+run-time instantiation to identify the parameters.
+Synthetic constructors with added \xcd"Class" parameters are
 used to pass instantiation arguments to the \xcd"new"
-statement.
+expression.
 This code is compiled to Java bytecode.
 
-Then, at run time, suppose the expression \xcd"new C()" is
-evaluated.  This causes \xcd"C" to be loaded.
+When an expression (e.g., \xcd"new C()") is evaluated,
+the class \xcd"C" is loaded.
 The class loader transforms the bytecode as if it had
 been written as follows:
 
 {\footnotesize
 \begin{xten}
 class C {
-    final A\$\$int x = new A\$\$int();
+    final A$$int x = new A$$int();
     final int y = x.a;
 }
 \end{xten}}
 
-The class loader rewrites allocations of classes
-annotated with \xcd"Parameters" (e.g., \xcd"A") with allocations of the
-instantiated classes (e.g., \xcd"A\$\$int").
+The class loader rewrites allocations of template classes
+(e.g., \xcd"A") with allocations of the
+instantiated classes (e.g., \xcd"A$$int").
+The name of the instantiated class is a mangled name derived from the name
+of the template class and the type properties.
 The implementation cannot generate this code directly because
-the class \xcd"A\$\$int" does not yet exist; the Java source compiler
+the class \xcd"A$$int" does not yet exist; the Java source compiler
 would fail to compile \xcd"C".
 
-Next, as the \xcd"C" object is being constructed, the expression
-\xcd"new A\$\$int()" is evaluated, causing the class \xcd"A\$\$int" to
-be loaded.  The class loader intercepts
+Upon evaluation of the constructor,
+class \xcd"A$$int" is loaded.
+The class loader intercepts
 this, demangles the name, and loads the bytecode for the
 template class \xcd"A".
 The bytecode is transformed, replacing the type property \xcd"T"
-with the concrete type \xcd"int", the translation of \xcd"Int".
+with the concrete type \xcd"int".
 
-The \xcd"Runtime.recoverX" methods are used
-for coercions from any parameter type to actual
-type X.  Similarly, the \xcd"Runtime.coerce(X)"
-methods are used for coercions from actual type
-X to any parameter type (with appropriate casts).
-Both are simply eliminated from the transformed
-bytecode.
+For the Java primitive types and \xcd"Object",
+the methods
+\xcd"Runtime.to$X(Object)" and \xcd"Runtime.from(X)" are used
+to coerce a type to and from the actual type \xcd"X", possibly
+with additional casts.
+Both are eliminated from the transformed
+bytecode, but are needed for the template class to type-check.
 
-{\footnotesize
-\begin{xten}
-class A {
-    x10.runtime.Type T;
-}
-
-class A\$int extends A {
-    int x;
-}
-\end{xten}}
-
+\eat{
 Currently, the class loader instantiates the template for
 every encountered combination of parameters.  If desired,
-it's possible (and relatively easy) to optimize this scheme
-to only instantiate for the Java primitive types and Object,
+it is possible (and relatively easy) to optimize this scheme
+to instantiate only for the Java primitive types and Object,
 giving nine possible instantiations per parameter.
-
-Adapter objects are used to represent inherited type
-parameters.  This is necessary for run-time type tests
-and casts.
+}
 
 %Instantiations are used for representation.
 %Adapter objects are used for run time type information.
@@ -130,16 +128,13 @@ and casts.
 %instantiations for one type property, 81 for two type
 %properties, 729 for three.
 
-Value constraints are erased from type references, but
-stored in the objects.  Run-time type tests are translated
-into code that checks those constraints at run time.
-
 %Constructors are translated to static methods of their
 %enclosing
 %class.
 %Constructor calls
 %are translated to calls to static methods.
 
+\eat{
 Consider the code in Figure~\ref{fig:translation1}.  It contains most of the
 features of generics that have to be translated.
 \begin{figure*}[tp]
@@ -230,6 +225,7 @@ Runtime.instanceof\$(C.instanceof\$(new C(int.class)(), "self<4"), int.class);
 \caption{Translated code}
 \label{fig:translation2}
 \end{figure*}
+}
 
 \subsection{Eliminating method type parameters}
 
