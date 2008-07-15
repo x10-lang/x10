@@ -69,7 +69,7 @@ type property \xcd"T".   The field \xcd"T" of type
 \xcd"x10.runtime.Type" captures the actual constrained type on which \xcd"A"
 is instantiated, and is used for run-time type tests.
 The \xcd"@Parameters" annotation on \xcd"A" is used during
-run-time instantiation to identify the parameters.
+run-time instantiation to identify the type properties.
 Synthetic constructors with added \xcd"Class" parameters are
 used to pass instantiation arguments to the \xcd"new"
 expression.
@@ -259,7 +259,7 @@ and invoking its
 Parametrized exceptions are treated just like other classes.
 Synthetic local classes, annotated with \xcd"@Instantiation",
 are generated for each catch block with an instantiated
-parametrized exception class.  Exception tables in the
+generic exception class.  Exception tables in the
 bytecode are rewritten with the new exception types.
 
 \paragraph{Run-time instantiation.}
