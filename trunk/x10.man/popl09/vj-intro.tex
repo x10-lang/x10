@@ -69,7 +69,9 @@ quantification is supported. The entailment relation is required to
 support a certain set of inference rules arising from a Gentzen-style
 formulation of intuitionistic logic.
 
-In applying constraint systems to OO languages, the principal insight
+In applying constraint systems to OO languages\footnote{The use of constraints for types has a distinguished
+history going back to Mitchell~\cite{mitchell84}. Our work is closely related to the \hmx{}
+approach \cite{sulzmann97type} -- see Section~\ref{sec:related} for details.}, the principal insight
 is that objects typically have some immutable state, and constraints on
 this state are of interest to the application.  For instance, in \Java{}
 the length of an array may not be statically known but is fixed once
@@ -101,12 +103,8 @@ directly in types; there is no need for a separate parallel universe
 of index expressions in the type system.  Constrained types always
 permit field selection and equality at object types; hence the
 programmer may specify constraints at any user-specified object type
-(not just over the built-in constraint system).  Finally, constrained
-types open the door to {\em user-defined} predicates and functions,
-effectively permitting the user to enrich $\cal C$ (hence the power of
-the compile-time type-checker) by developing application-specific
-constraints using a constraint programming language such as CLP($\cal
-C$) \cite{clp} or the richer RCC($\cal C$) \cite{DBLP:conf/fsttcs/JagadeesanNS05}.
+(not just over the built-in constraint system).  
+
 
 \subsection{Generic types}
 
