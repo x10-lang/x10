@@ -2,14 +2,14 @@
 \begin{figure*}
 \footnotesize
 \begin{tabular}{l}
-\begin{tabular}{ll}
-\multicolumn{2}{l}{\!\!\!\!\!\bf \FX{} productions:} \\
+{\bf \FX{} productions:} \\
 \quad\\
+\begin{tabular}{ll}
 \begin{tabular}{r@{\quad}rcl}
   (Class) & {\tt L} &{::=}& \klass\ {\tt C}($\bar{\tt f}:\bar{\tt V}$)\{{\tt c}\}\ {\tt extends}\ {\tt N}\ \{$\bar{\tt M}$\} \\
   (Method)& {\tt M} &{::=}& {\tt def}\ {\tt m}($\bar{\tt x}:\bar{\tt V}$){\tt \{c\}:V=e;}\\
-  (Exp.)& {\tt e} &{::=}& {\tt x} \alt \this \alt {\tt e.f} \alt {\tt e.m}($\bar{\tt e}$) \\
-  && \alt & \new\ {\tt C}($\bar{\tt e}$) \alt {\tt e}\ \mbox{{\tt as} {\tt T}} \\ 
+  (Exp.)& {\tt e} &{::=}& {\tt x} \alt \this \alt {\tt e.f} \alt {\tt e.m}($\bar{\tt e}$) 
+   \alt \new\ {\tt C}($\bar{\tt e}$) \alt {\tt e}\ \mbox{{\tt as} {\tt T}} \\ 
   (Par Type) & {\tt U},{\tt V}&{::=} & {\tt T} \\
 \end{tabular} 
 &
@@ -23,9 +23,9 @@
 \end{tabular}
 \quad \\
 \quad\\
+{\bf \FX{} well-formedness rules:}\\
 {\tabcolsep=0pt
-\begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
-\multicolumn{3}{l}{\bf \FX{} well-formedness rules:}\\
+\begin{tabular}{p{0.26\textwidth}p{0.33\textwidth}p{0.38\textwidth}}
 \infax[True]{\Gamma \vdash {\tt true}: {\tt o}}
 &
 \infrule[And]
@@ -39,7 +39,7 @@
 \end{tabular}}
 \quad\\
 {\tabcolsep=0pt
-\begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+\begin{tabular}{p{0.26\textwidth}p{0.33\textwidth}p{0.38\textwidth}}
 \infrule[Class]
 	{\Gamma \vdash \klass({\tt C})}
 	{\Gamma \vdash {\tt C}\ \type} 
@@ -55,10 +55,10 @@
 \end{tabular}}
 \quad\\
 \quad\\
+{\bf Type judgment rules:}\\
 {\tabcolsep=0pt
 \begin{tabular}{l}
-\begin{tabular}{p{0.27\textwidth}p{0.26\textwidth}p{0.44\textwidth}}
-\multicolumn{3}{l}{\bf Type judgment rules:}\\
+\begin{tabular}{p{0.27\textwidth}p{0.28\textwidth}p{0.42\textwidth}}
 \infax[T-Var]
       {\Gamma, {\tt x}:{\tt T} \vdash {\tt x}:{\tt T\{\self==x\}}}
 &
@@ -96,9 +96,9 @@
 \end{tabular}
 \end{tabular}}\\
 \quad\\
+{\bf Transition rules:}\\
 {\tabcolsep=0pt
 \begin{tabular}{p{0.43\textwidth}@{\quad}p{0.54\textwidth}}
-\multicolumn{2}{l}{\bf Transition rules:}\\
 \typicallabel{RC-Field}
 \infrule[\RField]
 	{\tt x:C \vdash \fields(\tt x)=\bar{\tt f}:\bar{\tt V}}
