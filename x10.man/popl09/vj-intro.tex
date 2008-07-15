@@ -222,6 +222,26 @@ and {\tt g} are immutable fields), the expression {\tt a.T} may itself
 be used as a type (cf. the return type {\tt this.T} for {\tt
 Array.get}).
 
+\subsection{Design and implementation of the \Xten{} type system}
+Many features of modern object-oriented type systems fall out
+naturally in this extended framework for constrained types.
+
+We illustrate by discussing the design of a new revision of the
+\Xten{} language (v 1.7, to be released Fall 08), and various
+programming idioms. Besides constrained types, the language supports
+function types. Since there may be a large number of constrained types
+in a program, a pure heterogeneous translation may lead to significant
+code bloat. Instead we use a hybrid implementation scheme that
+combines ideas from NextGen~\cite{nextgen,allen03,allen04} and
+PolyJ~\cite{java-popl97}. The implementation supports run-time type
+introspection and instantiation of generic types on primitive types.
+The performance of primitive arrays, especially, is critical for the
+high-performance applications for which \Xten{} is intended.  Our
+design does not require primitive values be boxed.
+
+We also discuss relationship with virtual types, \Java{} wildcards,
+self types and structural constraints.
+
 \subsection{The \FX($\cal C$) family}
 To further the foundations of constrained types, we develop the \FX{}
 family of languages. The core expression language is essentially
@@ -243,25 +263,6 @@ described in \cite{constrained-types}. \FXGD{} permits the use of constraints
 from $\cal O$ and $\cal A$ -- thus permitting value- and
 type-dependence -- and is the main topic for this paper.
 
-\subsection{Design and implementation of the \Xten{} type system}
-Many features of modern object-oriented type systems fall out
-naturally in this extended framework for constrained types.
-
-We illustrate by discussing the design of a new revision of the
-\Xten{} language (v 1.7, to be released Fall 08), and various
-programming idioms. Besides constrained types, the language supports
-function types. Since there may be a large number of constrained types
-in a program, a pure heterogeneous translation may lead to significant
-code bloat. Instead we use a hybrid implementation scheme that
-combines ideas from NextGen~\cite{nextgen,allen03,allen04} and
-PolyJ~\cite{java-popl97}. The implementation supports run-time type
-introspection and instantiation of generic types on primitive types.
-The performance of primitive arrays, especially, is critical for the
-high-performance applications for which \Xten{} is intended.  Our
-design does not require primitive values be boxed.
-
-We also discuss relationship with virtual types, \Java{} wildcards,
-self types and structural constraints.
 
 \paragraph{Contributions.}
 We extend the constrained types approach to handle generic types.  We
