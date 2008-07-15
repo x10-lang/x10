@@ -100,14 +100,14 @@ declared.
 
 Note that the technique of using self-variables works for the
 feather-weight languages since in this language every expression has a
-static desgignator
+static designator
 
  However, it will not work for the fuller
 language with local variable declarations.
 
 \end{abstract}
 
-\section{Judgements}
+\section{Judgments}
 
 Here is the syntax for \CFJ, converted to the new X10 1.7 style
 syntax. 
@@ -140,12 +140,12 @@ $C\{c_1\}\{c\_2\}$ as another notation for the type $C\{c_1,c_2\}$.
 
 Designators are names for values that are computed statically by the
 type system, as a function of the current set of parameters. (See 
-the definiton of {\tt is} below.)
+the definition of {\tt is} below.)
 
 In the rest of this paper we will assume give some fixed but unknown
 constraint system $\cal D$. We will assume that the program $P$ is
 written using constraints from $\cal D$, and further that classes
-defined in $P$ do not have a cyclic inheritance struture. 
+defined in $P$ do not have a cyclic inheritance structure. 
 
 \subsection{The Object constraint system, $\cal O$}\label{sec:O}
 
@@ -164,7 +164,7 @@ The constraints of $\cal O$ are given by:
 
 In the method signature formula $(\bar{x}:\bar{T},c \rightarrow T))$,
 the variables $\bar{x}$ are considered bound; formulas with bound
-variables are considered equivalent upto $\alpha$-renaming.
+variables are considered equivalent up to $\alpha$-renaming.
 
 The constraint system satisfies the following axioms and inference
 rules. 
@@ -203,17 +203,17 @@ with $\cal O$.)
 
 \section{Rules}
 
-\subsection{Judgements}
+\subsection{Judgments}
 \newtheorem{defin}{Definition}[section]
 \newtheorem{definition}[defin]{Definition}
 
-The following judgements will be defined. In all of them $\Gamma$ is a
+The following judgments will be defined. In all of them $\Gamma$ is a
 {\em well-typed context}. A well-typed context is a (finite, possibly
 empty) sequence of formulas $x:T$ and constraints $c$ satisfying the
 property that
 \begin{enumerate}
   \item for any formula $\phi$ in the sequence all variables $x$
-    occuring in $\phi$ are defined by a declaration $x:T$ (for some $T$)
+    occurring in $\phi$ are defined by a declaration $x:T$ (for some $T$)
     in the sequence to the left of $\phi$.
   \item for any variable $x$, there is at most one formula $x:T$ (for
   some $T$) in $\Gamma$.
@@ -236,12 +236,12 @@ property that
 
 
 In what follows we will sometimes think of the family of five
-judgements as a single judgement $\Gamma \vdash \phi$, where $\phi$
+judgments as a single judgment $\Gamma \vdash \phi$, where $\phi$
 ranges over the formulas $T\ \tt type$, $e:T$, $S \subtype T$, $f:T\
 \mbox{OK in $C$}$, $M\ \mbox{OK in $C$}$, and $C\ \mbox{OK}$.
 
-In defining these judgements we will use $\Gamma \vdash_{\cal C} c$,
-the judgement corresponding to the underlying constraint system. For simplicity,
+In defining these judgments we will use $\Gamma \vdash_{\cal C} c$,
+the judgment corresponding to the underlying constraint system. For simplicity,
 we define $\Gamma \vdash c$ to mean $\sigma(\Gamma)\vdash_{\cal C} c$,
 where the {\em constraint projection}, $\sigma(\Gamma)$ is defined thus:
 
@@ -251,7 +251,7 @@ $\sigma(x:C\{c\}, \Gamma)$=c[x/\self], $\sigma(\Gamma)$\\
 $\sigma(c,\Gamma)$ = c, $\sigma(\Gamma)$
 \end{tabular}
 
-Now, these judgements need to satisfy certain properties:
+Now, these judgments need to satisfy certain properties:
 \begin{itemize}
   \item $\Gamma \vdash T {\tt type}$ whenever $\Gamma \vdash e:T$. 
 
@@ -267,13 +267,13 @@ variables on the RHS are actually defined by the LHS.
 \end{itemize}
 
 Keeping in mind these requirements, the rules are as follows. Below
-whever we use the assertion 
+whenever we use the assertion 
 ``$x$ free'' in the antecedent of a rule we
 mean that $x$ is not free in the consequent of the rule.
 
 \subsection{Structural and Logical Rules} 
 
-All judgements satisfy the rules and axioms of inference in
+All judgments satisfy the rules and axioms of inference in
 Figure~\ref{fig:logical-rules}.
 
 \begin{figure*}
@@ -316,7 +316,7 @@ Figure~\ref{fig:logical-rules}.
 
 \subsection{Well formedness rules}
 
-We use the judgement for well-typedness for expressions to represent
+We use the judgment for well-typedness for expressions to represent
 well-typedness for constraints. That is, we posit a special type
 {\tt o} (traditionally the type of propositions), and regard
 constraints as expressions of type {\tt o}. Further, we change the
@@ -368,7 +368,7 @@ at type {\tt o} (see Figure~\ref{Figure:Wff}).
 \end{figure*}
 
 \section{Type inference rules}
-\subsection{Subtype judgement}
+\subsection{Subtype judgment}
 
 Only one inference rule needs to be specified:
 \infrule[Dep type]
@@ -377,15 +377,15 @@ Only one inference rule needs to be specified:
 {\Gamma \vdash C\{c\} \subtype D\{d\}}
 
 
-\subsection{Expression typing judgement}
-We will use an auxiliary judgement:
+\subsection{Expression typing judgment}
+We will use an auxiliary judgment:
 
 \infrule[is]
 {\Gamma \vdash e:C\{c\} \andalso \Gamma, c \vdash \self=d \andalso \self \not\equiv d}
 {\Gamma \vdash e\ \is\ d}
 
-This judgement lets us find a {\em static designator} $d$ for a
-well-typed expression $e$. We will formulate the typing judgement in
+This judgment lets us find a {\em static designator} $d$ for a
+well-typed expression $e$. We will formulate the typing judgment in
 such a way that there will always be a static designator for a
 well-typed expression (in a given typing environment).
 
@@ -400,7 +400,7 @@ named {\tt m} for the class {\tt C} then this method invocation cannot
 be type-checked. Without loss of generality we may assume that the
 parameters of this method are named $\bar{z}$, since we are free to
 choose variable names as we wish because of $\alpha$-equivalence. Now
-in order for the method to be invocable, it must be the case that the
+in order for the method to be invokable, it must be the case that the
 types $\bar{T}$ are subtypes of $\bar{Z}$. (Note that there are no
 occurrences of {\tt this} in $\bar{Z}$; they have been replaced by
 $z$ -- see Section~\ref{sec:O}) Further, it must be the case that for these parameter values,
@@ -428,7 +428,7 @@ $\bar{z}$ existentially quantified.
 \end{tabular}
 
 \begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}}
-\infrule[T-INVK]
+\infrule[T-Invk]
 {\Gamma \vdash {\tt e}:{\tt T},{\tt e}\ \is\ {\tt d},\bar{\tt e}:\bar{\tt T},\bar{\tt e}\ \is\ \bar{\tt d} \\
 \Gamma \vdash \mtype({\tt d}, {\tt m},\bar{\tt d})= (\bar{\tt Z}, {\tt c \rightarrow U},g),\bar{\tt T} \subtype \bar{\tt Z},{\tt c}} 
 {\Gamma,  \vdash {\tt e.m(\bar{\tt e})}: U\{\self==g\}}
@@ -447,7 +447,7 @@ $\bar{z}$ existentially quantified.
 {\bar{M}\ \mbox{OK in}\ C \andalso \this:C,c \vdash \bar{T}\ \type, T\ \type}
 {\mbox{\tt class}\ C(\bar{f}:\bar{T})\{c\}\ \mbox{\tt extends}\ T\{\bar{M}\} \ \mbox{OK in}\ C}
 \end{tabular}
-\caption{Type judgement}\label{fig:typing judgement}
+\caption{Type judgment}\label{fig:typing judgement}
 \end{figure*}
 
 Note that in the Method OK rule, we permit the use of additional local
@@ -456,7 +456,7 @@ used as static designators for subexpressions of $e$, the body of the
 method. Since we require the context to be well-formed, these local
 variables must be distinct from the parameters to the method.
 
-\subsection{Class OK judgement}
+\subsection{Class OK judgment}
 
 Note that the variables  $\bar{x}$ are permitted to
 occur in the types $T,\bar{T}$, hence their typing assertions must

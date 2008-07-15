@@ -91,7 +91,7 @@
 Notes on a formal semantics for dependently typed \Xten, and generically typed \Xten.
 \end{abstract}
 
-\section{Judgements}
+\section{Judgments}
 
 Here is the syntax for \CFJ, converted to the new X10 1.7 style
 syntax. {\em (Nate: we should convert the OOPSLA paper to this syntax as
@@ -125,7 +125,7 @@ for $\val\ x:S; \val\ y_1:T_1;\ldots;\val\ y_n:T_n;T$.
 In the rest of this paper we will assume give some fixed but unknown
 constraint system $\cal D$. We will assume that the program $P$ is
 written using constraints from $\cal D$, and further that classes
-defined in $P$ do not have a cyclic inheritance struture. 
+defined in $P$ do not have a cyclic inheritance structure. 
 
 \subsection{The Object constraint system, $\cal O$}\label{sec:O}
 
@@ -144,7 +144,7 @@ The constraints of $\cal O$ are given by:
 
 In the method signature formula $(\bar{x}:\bar{T},c \rightarrow T))$,
 the variables $\bar{x}$ are considered bound; formulas with bound variables are considered
-equivalent upto $\alpha$-renaming.
+equivalent up to $\alpha$-renaming.
 
 The constraint system satisfies the following axioms and inference
 rules. 
@@ -179,9 +179,9 @@ with $\cal O$.)
 
 \section{Rules}
 
-\subsection{Judgements}
+\subsection{Judgments}
 
-The following judgements will be defined. In all of them $\Gamma$ is a
+The following judgments will be defined. In all of them $\Gamma$ is a
 well-typed context.
 \begin{itemize}
   \item Given $\Gamma$, the type $T$ is well-formed: $\Gamma \vdash T
@@ -198,12 +198,12 @@ well-typed context.
 
 
 In what follows we will sometimes think of the family of five
-judgements as a single judgement $\Gamma \vdash \phi$, where $\phi$
+judgments as a single judgment $\Gamma \vdash \phi$, where $\phi$
 ranges over the formulas $T\ \tt type$, $e:T$, $S \subtype T$, $f:T\
 \mbox{OK in $C$}$, $M\ \mbox{OK in $C$}$, and $C\ \mbox{OK}$.
 
-In defining these judgements we will use $\Gamma \vdash_{\cal C} c$,
-the judgement corresponding to the underlying constraint system. For simplicity,
+In defining these judgments we will use $\Gamma \vdash_{\cal C} c$,
+the judgment corresponding to the underlying constraint system. For simplicity,
 we define $\Gamma \vdash c$ to mean $\sigma(\Gamma)\vdash_{\cal C} c$,
 where the {\em constraint projection}, $\sigma(\Gamma)$ is defined thus:
 
@@ -213,7 +213,7 @@ $\sigma(x:C\{c\}, \Gamma)$=({\tt val} x:C;(x=\self,c)), $\sigma(\Gamma)$\\
 $\sigma(c,\Gamma)$ = c, $\sigma(\Gamma)$
 \end{tabular}
 
-Now, these judgements need to satisfy certain properties:
+Now, these judgments need to satisfy certain properties:
 \begin{itemize}
   \item $\Gamma \vdash T {\tt type}$ whenever $\Gamma \vdash e:T$. 
 
@@ -229,13 +229,13 @@ variables on the RHS are actually defined by the LHS.
 \end{itemize}
 
 Keeping in mind these requirements, the rules are as follows. Below
-whever we use the assertion 
+whenever we use the assertion 
 ``$x$ free'' in the antecedent of a rule we
 mean that $x$ is not free in the consequent of the rule.
 
 \subsection{Structural and Logical Rules} 
 
-All the judgements are intuitionistic. In particular this means that
+All the judgments are intuitionistic. In particular this means that
 all constraint systems satisfy the rules and axioms of inference
 below.
 
@@ -279,7 +279,7 @@ below.
 
 \subsection{Well formedness rules}
 
-We use the judgement for well-typedness for expressions to represent
+We use the judgment for well-typedness for expressions to represent
 well-typedness for constraints. That is, we posit a special type
 {\tt o} (traditionally the type of propositions), and regard
 constraints as expressions of type {\tt o}. Further, we change the
@@ -331,7 +331,7 @@ at type {\tt o} (see Figure~\ref{Figure:Wff}).
 \end{figure*}
 
 \section{Type inference rules}
-\subsection{Subtype judgement}
+\subsection{Subtype judgment}
 
 Only one inference rule needs to be specified:
 \infrule[Dep type]
@@ -340,7 +340,7 @@ Only one inference rule needs to be specified:
 {\Gamma \vdash C\{c\} \subtype D\{d\}}
 
 
-\subsection{Expression typing judgement}
+\subsection{Expression typing judgment}
 
 Now we consider the rule for method invocation. Assume that in a type
 environment $\Gamma$ the expressions $\bar{e}$ have the types
@@ -353,7 +353,7 @@ named {\tt m} for the class {\tt C} then this method invocation cannot
 be type-checked. Without loss of generality we may assume that the
 parameters of this method are named $\bar{z}$, since we are free to
 choose variable names as we wish because of $\alpha$-equivalence. Now
-in order for the method to be invocable, it must be the case that the
+in order for the method to be invokable, it must be the case that the
 types $\bar{T}$ are subtypes of $\bar{Z}$. (Note that there are no
 occurrences of {\tt this} in $\bar{Z}$; they have been replaced by
 $z$ -- see Section~\ref{sec:O}) Further, it must be the case that for these parameter values,
@@ -402,10 +402,10 @@ $\bar{z}$ existentially quantified.
 {\bar{M}\ \mbox{OK in}\ C \andalso \this:C,c \vdash \bar{T}\ \type, T\ \type}
 {\mbox{\tt class}\ C(\bar{f}:\bar{T})\{c\}\ \mbox{\tt extends}\ T\{\bar{M}\} \ \mbox{OK in}\ C}
 \end{tabular}
-\caption{Type judgement}\label{fig:typing judgement}
+\caption{Type judgment}\label{fig:typing judgement}
 \end{figure*}
 
-\subsection{Class OK judgement}
+\subsection{Class OK judgment}
 
 Note that the variables  $\bar{x}$ are permitted to
 occur in the types $T,\bar{T}$, hence their typing assertions must
