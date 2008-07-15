@@ -112,7 +112,7 @@ the user to state constraints on type variables).
 {\Gamma \vdash_{\cal O} {\tt x:C},\klass({\tt C})}
 {\Gamma \vdash_{\cal O} \inv({\tt C}, {\tt x})}
 \\
-\end{tabular}
+\end{tabular}\\[-12pt]
 \begin{tabular}{p{0.30\textwidth}p{0.33\textwidth}p{0.36\textwidth}}
 \infax[V-Id]{\vdash_{\cal O} T \extends T} 
 &
@@ -122,7 +122,7 @@ the user to state constraints on type variables).
 &
 \infrule[S-Trans]
 	{\Gamma\tt \vdash_{\cal O} T_1 \subtype T_2, T_2 \subtype T_3}
-	{\Gamma\tt \vdash_{\cal O} T_1 \subtype T_3}\\
+	{\Gamma\tt \vdash_{\cal O} T_1 \subtype T_3}\\[-12pt]
 \infrule[S-Const-L]
 	{\Gamma\tt,  {\tt c} \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}}
 	{\Gamma\tt  \vdash_{\cal O} {\tt S\{c\}}\;\subtype\; {\tt T}}
@@ -134,10 +134,11 @@ the user to state constraints on type variables).
 \infrule[S-Extends]
 	{\tt class\ C(\ldots)\ extends\ D\{\ldots\}\in P}
 	{\tt\vdash_{\cal O} C \subtype D}
-\\
+\\[-12pt]
 \infrule[S-Exists-L]
 	{\Gamma\tt  \vdash {\tt U}\ \type \andalso  
-	  \Gamma \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}\andalso \mbox{({\tt x} fresh})}
+	  \Gamma \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}\andalso
+          \mbox{({\tt x} fresh})}
 	{\Gamma\tt  \vdash_{\cal O} {\tt x:U;S}\;\subtype\; {\tt T}}
 &
 \infrule[S-Exists-R]
@@ -146,7 +147,7 @@ the user to state constraints on type variables).
 &
 \infrule[Type-equiv]
 	{\Gamma\tt  \vdash_{\cal O} S\; \subtype\; T \andalso \Gamma \vdash_{\cal O} T\; \subtype\; S}
-	{\Gamma\tt  \vdash_{\cal O} S \equiv T} \\
+	{\Gamma\tt  \vdash_{\cal O} S \equiv T} \\[-12pt]
 \infax[Fields-B]{{\tt x}:{\tt Object} \vdash_{\cal O} \fields({\tt x})=\bullet}
 &
 \infrule[Fields-I]
@@ -158,7 +159,7 @@ the user to state constraints on type variables).
 	{\Gamma, {\tt x: S} \vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt V}}
 	{\Gamma, {\tt x:S\{d\}} \vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt V\{d[x/\self]\}} \\
 	  \Gamma, {\tt x: (y:U;S)} \vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt (y:U;V)}
-	} \\
+	} \\[-12pt]
 \infrule[Method-B]
 	{\Gamma, {\tt x}:{\tt C}\vdash_{\cal O}\klass({\tt C})\andalso \theta=[{\tt x}/\this] \andalso \\
 	  {\tt def}\ {\tt m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e}\in P}
