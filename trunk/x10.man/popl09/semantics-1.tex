@@ -381,13 +381,13 @@ $\bar{z}$ existentially quantified.
 \end{tabular}
 
 \begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}}
-\infrule[T-INVK]
+\infrule[T-Invk]
 {\Gamma \vdash e:T,\bar{e}:\bar{T} \andalso \\
 \Gamma,z:T \vdash \mtype(z, m, \bar{z}:\bar{Z}, c \rightarrow U) \andalso z,\bar{z}\ \mbox{fresh} \\
 \Delta \equiv \Gamma, z:T, \bar{z}:\bar{T} \andalso \Delta\vdash \bar{T} \subtype \bar{Z},c}
 {\Gamma \vdash e.m(\bar{e}): \val\ z:T,\bar{z}:\bar{T};U}
 &
-\infrule[T-NEW]
+\infrule[T-New]
 {\Gamma \vdash \bar{e}:\bar{T} \andalso \\ 
 \Gamma,z:C\vdash \fields(z,\bar{f}:\bar{Z})  \andalso z,\bar{z}\ \mbox{fresh}\\
 \Delta\equiv\Gamma, z:C, \bar{z}:\bar{T}, z.\bar{f}=\bar{z}\andalso 

@@ -454,7 +454,7 @@ predicates {\tt q} and functions {\tt f}. These are used to
 augment the constraints expressible in the language. 
 
 \begin{tabular}{r@{\quad}rcl}
-  (Type) & T & {::=}& \mbox{new base types, e.g., {\tt int}, {\tt boolean}}\\
+  (Type) & {\tt T} & {::=}& \mbox{new base types, e.g., {\tt int}, {\tt boolean}}\\
   (C Term) & {\tt t} &{::=}& $\tt f(\bar{\tt t})$ \\
   (Const.) & {\tt c} &{::=}& ${\tt q(\bar{\tt t})}$ 
 \end{tabular}
@@ -473,6 +473,7 @@ The obvious rules are needed to ensure that formulas are well-formed.
 	  (\Gamma\tt \vdash T_0 \subtype T_1 \vee \Gamma \vdash T_1 \subtype T_0)}
 	{\Gamma\tt \vdash t_0=t_1:o}
 }
+\noindent
 No additional type judgments or transition rules are needed. 
 
 \subsection{\FXGD} 
