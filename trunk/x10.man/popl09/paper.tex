@@ -43,10 +43,10 @@
 \def\GXten{{\sf Gen X10}}
 \def\CFJ{{\sf CFJ}}
 \def\FJ{{\sf FJ}}
-\def\FGJ{{\sf FGJ}}
 \def\GFX{{\sf FX(G)}}
+\def\Java{{\sf Java}}
 
-\newcommand\FX[1]{{\sf FX(#1)}}
+\def\FX{{\sf FX}}
 \def\FXG{{\sf FX(G)}}
 \def\FXD{{\sf FX(D($\cal A$))}}
 \def\FXGD{{\sf FX(G,D($\cal A$))}}
@@ -77,6 +77,36 @@
 \newcommand\exty[3]{\ensuremath{\exists}#1\ty#2.~#3}
 \newcommand\extyty[5]{\ensuremath{\exists}#1\ty#2,#3\ty#4.~#5}
 \newcommand\extytyty[7]{\ensuremath{\exists}#1\ty#2,#3\ty#4,#5\ty#6.~#7}
+\def\has{\mbox{\tt has}}
+\def\inv{\mathit{inv}}
+
+\def\FX{{\sf FX}}
+\def\FXZ{{\sf FX()}}
+\def\FXG{{\sf FX(G)}}
+\def\FGJ{{\sf FGJ}}
+\def\FXD{{\sf FX(D($\cal A$))}}
+\def\FXGD{{\sf FX(G,D($\cal A$))}}
+\def\FXGDP{{\sf FX(G,D($\cal A$),P)}}
+\def\has{\mbox{\tt has}}
+\def\TConstr{\mbox{\sc T-Constr}}
+\def\TInv{\mbox{\sc T-Inv}}
+\def\TVar{\mbox{\sc T-Var}}
+\def\TField{\mbox{\sc T-Field}}
+\def\TInvk{\mbox{\sc T-Invk}}
+\def\TNew{\mbox{\sc T-New}}
+\def\TCast{\mbox{\sc T-Cast}}
+\def\TUCast{\mbox{\sc T-UCast}}
+\def\TDCast{\mbox{\sc T-DCast}}
+\def\TSCast{\mbox{\sc T-SCast}}
+
+\def\RField{\mbox{\sc R-Field}}
+\def\RCField{\mbox{\sc RC-Field}}
+\def\RInvk{\mbox{\sc R-Invk}}
+\def\RCInvkRecv{\mbox{\sc RC-Invk-Recv}}
+\def\RCInvkArg{\mbox{\sc RC-Invk-Arg}}
+\def\RCNewArg{\mbox{\sc RC-New-Arg}}
+\def\RCast{\mbox{\sc R-Cast}}
+\def\RCCast{\mbox{\sc RC-Cast}}
 
 
 % \input{../../../../vj/res/pagesizes}
@@ -143,7 +173,8 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
 
 \section{Introduction}
 \label{sec:intro}
-\input{introduction}
+%\input{introduction}
+\input{vj-intro}
 
 \section{X10 language overview}
 \label{sec:lang}
