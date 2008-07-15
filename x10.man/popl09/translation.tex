@@ -38,6 +38,9 @@ For example, consider the following classes.
 class A[T] {
     var a: T;
 }
+\end{xten}}
+{\footnotesize
+\begin{xten}
 class C {
     val x: A[int] = new A[int]();
     val y: int = x.a;
@@ -54,6 +57,9 @@ class A {
     T a;
     @Synthetic public A(Class T) { this(); }
 }
+\end{xten}}
+{\footnotesize
+\begin{xten}
 class C {
     final A x = new A(int.class);
     final int y = Runtime.to$int(x.a);

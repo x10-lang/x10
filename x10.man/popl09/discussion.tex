@@ -143,7 +143,7 @@ Types are translated as follows:
 \SB{ \Xcdmath{C<? super T, $\dots$>} } &= \Xcdmath{C\{_1 :> $\ \SB{\tt{T}}$, $\dots$\}} \\
 \SB{ \Xcdmath{C<T, $\dots$>} } &= \Xcdmath{C\{_1 == $\ \SB{\tt{T}}$, $\dots$\}}
 \end{align*}}
-Through such a translation, the \FXG calculus in
+Through such a translation, the \FXG\ calculus in
 Section~\ref{sec:semantics} can capture the essence of Java's
 wildcards, but extended with support for run-time type
 introspection.
@@ -172,6 +172,7 @@ class List[T] {
 \end{xten}}
 }
 
+\eat{
 Constrained types also support
 \emph{proper abstraction}~\cite{adding-wildcards}.  To illustrate, a
 \xcd"reverse"
@@ -201,6 +202,7 @@ However,
 the method parameter cannot be omitted: declaring a parameterless version
 of \xcd"reverse" requires delegating to a private parametrized version that
 ``opens up'' the parameter.
+}
 
 %\input{self-types.tex}
 
