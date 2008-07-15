@@ -46,12 +46,6 @@
 \def\GFX{{\sf FX(G)}}
 \def\Java{{\sf Java}}
 
-\def\FX{{\sf FX}}
-\def\FXG{{\sf FX(G)}}
-\def\FXD{{\sf FX(D($\cal A$))}}
-\def\FXGD{{\sf FX(G,D($\cal A$))}}
-\def\FXGDP{{\sf FX(G,D($\cal A$),P)}}
-
 \newif\ifsemantics
 %\semanticsfalse
 \semanticstrue
@@ -80,13 +74,12 @@
 \def\has{\mbox{\tt has}}
 \def\inv{\mathit{inv}}
 
-\def\FX{{\sf FX}}
-\def\FXZ{{\sf FX()}}
-\def\FXG{{\sf FX(G)}}
 \def\FGJ{{\sf FGJ}}
-\def\FXD{{\sf FX(D($\cal A$))}}
-\def\FXGD{{\sf FX(G,D($\cal A$))}}
-\def\FXGDP{{\sf FX(G,D($\cal A$),P)}}
+\def\FX{{\sf FX}}
+\def\FXZ{{\sf FX($\bullet$)}}
+\def\FXG{{\sf FX($\cal O$)}}
+\def\FXD{{\sf FX($\cal A$)}}
+\def\FXGD{{\sf FX(${\cal O},{\cal A}$)}}
 \def\has{\mbox{\tt has}}
 \def\TConstr{\mbox{\sc T-Constr}}
 \def\TInv{\mbox{\sc T-Inv}}
@@ -176,13 +169,14 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
 %\input{introduction}
 \input{vj-intro}
 
-\section{X10 language overview}
-\label{sec:lang}
-\input{x10-overview}
 
 \section{Semantics}
 \label{sec:semantics}
 \input{quad-semantics}
+
+\section{X10 language overview}
+\label{sec:lang}
+\input{x10-overview}
 
 \eat{\input{constraint-solver.tex}}
 
