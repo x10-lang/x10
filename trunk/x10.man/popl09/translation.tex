@@ -21,7 +21,7 @@ a translation from \Xten{} to C++ source, not described here.}
 The \Xten{} runtime was augmented with a class loader
 implementation that performs run-time instantiation.
 
-\subsection{Classes}
+\paragraph{Classes.}
 Each class is translated into a \emph{template class}.
 The template class is compiled by a Java compiler (e.g., javac)
 to produce a class file.
@@ -227,13 +227,17 @@ Runtime.instanceof\$(C.instanceof\$(new C(int.class)(), "self<4"), int.class);
 \end{figure*}
 }
 
-\subsection{Passing type arguments}
+\paragraph{Passing type arguments.}
 
-For types that are visible at run time, annotations are used to
-pass actual type arguments.  The \xcd"@InstantiateClass"
-annotation handles field types, method parameters, and
-superclasses; The \xcd"@InstantiateInterfaces" annotation handles
-interface instantiations; and the \xcd"@Instantiation" annotation
+For types visible at run time, annotations are used to
+pass actual type arguments.  \xcd"@InstantiateClass"
+annotates fields, methods,
+method parameters, and classes to
+indicate instantiation parameters for field
+types, method return types, method parameters, and superclasses,
+respectively.
+\xcd"@InstantiateInterfaces" similarly handles
+interface instantiations.  \xcd"@Instantiation"
 is used for parametrized exceptions.
 
 Type arguments are passed to allocation expressions as
@@ -241,27 +245,32 @@ synthetic constructor arguments.  Run-time type tests and casts
 receive type parameters via the \xcd"Runtime.cast$" and
 \xcd"Runtime.instanceof$" helper methods.
 
-\subsection{Eliminating method type parameters}
+\paragraph{Eliminating method type parameters.}
 
-For each parametrized method, we generate parametrized
-adapter classes, annotated with \xcd"@ParametricMethod".
-Invoking a parametrized method thus involves
-instantiating such an adapter class and invoking its
-\xcd"apply()" method.
+For each parametrized method, we generate a parametrized
+adapter class annotated with \xcd"@ParametricMethod" and a
+factory method.
+A parametrized method is invoked by calling the factory method
+and invoking its
+\xcd"apply()" method on the resulting adapter object.
 
-\subsection{Parametrized exceptions}
+\paragraph{Parametrized exceptions.}
 
-Parametrized exceptions are regular classes.
+Parametrized exceptions are treated just like other classes.
 Synthetic local classes, annotated with \xcd"@Instantiation",
 are generated for each catch block with an instantiated
 parametrized exception class.  Exception tables in the
 bytecode are rewritten with the new exception types.
 
-\subsection{Run-time instantiation}
+\paragraph{Run-time instantiation.}
 
-We translate \xcd"instanceof" and cast operations to combinations
-of instanceof tests/casts and calls to
-methods of \xcd"Type" because the actual implementation of
-the operation may require run-time constraint solving or other
-complex code that cannot be easily substituted in when rewriting
-the bytecode during instantiation.
+We translate \xcd"instanceof" and cast operations on
+constrained types or type variables
+to
+similar operations on the instantiated type followed by calls
+to
+methods of the adapter object for the type
+that evaluate the constraint.
+% run-time constraint solving or other
+% complex code that cannot be easily substituted in when rewriting
+% the bytecode during instantiation.
