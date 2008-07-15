@@ -1,7 +1,7 @@
 
 This section presents an informal description of 
-generic constrained types in \Xten{}.  The type system is formalized
-in a simplified version of \Xten{}, \gxx (Generic Featherweight \Xten{}), in
+dependent and generic types in \Xten{}.  The type system is formalized
+in a simplified version of \Xten{}, \FX{}, in
 Section~\ref{sec:semantics}.
 
 When presenting syntax, we follow the usual conventions for
@@ -129,8 +129,7 @@ class List[T](length: int){length >= 0} {
   val tail{length>1}: List[T](length-1);
 
   def get(i: int{0 <= i, i < length}){length > 0} = {
-    if (i == 0) return head;
-    return tail.get(i-1);
+    return i==0 ? head : tail.get(i-1);
   }
 
   def map[S](f: (T)=>S): List[S] = {
@@ -193,13 +192,15 @@ permitted.  This constraint ensures that the field constraint on
 \xcd"tail" is satisfied in the method body.
 In the method body, the \xcd"head" of the list is returned for
 position \xcd"0"; otherwise the call recurses on the \xcd"tail".
-Note that the type-checker must be flow sensitive to be able go
+Note that for this example to type-check, the constraint system
+must support conditional constraints
+to
 guarantee that \xcd"i" is within the loop bounds of \xcd"tail".
 The constraint solver must prove
 {\footnotesize
 $$
 \begin{array}[t]{l}
-\tt length >0, tail.length=length-1, 0 \leq i, i < length, i \not= 0 \\
+\tt length > 0, tail.length=length-1, 0 \leq i, i < length, i \not= 0 \\
 \tt \quad\vdash tail.length > 0, 0 \leq i-1,i-1 < tail.length 
 \end{array}
 $$}
@@ -260,7 +261,7 @@ interchangable wherever \xcd"l" is in scope.
 This type constrains \xcd"T" to be a subtype of \xcd"Collection".
 All instances of this type must bind \xcd"T" to a subtype of
 \xcd"Collection"; for example \xcd"List[Set]" (i.e.,
-\xcd"List{T==Set}" is a subtype of
+\xcd"List{T==Set}") is a subtype of
 \xcd"List{T<:Collection}" because \xcd"T==Set" entails
 \xcd"T<:Collection".
 %

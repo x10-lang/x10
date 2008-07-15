@@ -69,7 +69,7 @@ T}$ is intended to hold if {\tt S} is a subtype of {\tt T}.  For a
 variable {\tt x}, {\tt \fields({\tt x})} is intended to specify the
 (complete) set of typed fields available to {\tt x}.  {\tt x\ \has\ I}
 is intended to specify that the member {\tt I} (field or method) is
-available to {\tt x} -- for instance it is defined at the class at
+available to {\tt x}---for instance it is defined at the class at
 which {\tt x} is declared or inherited by it, or it is available at
 the upper bound of a type variable.
 
@@ -79,16 +79,15 @@ Figure~\ref{fig:O}. Since $\cal O$ is a constraint system \cite{CCCC},
 it also satisfies Identity and Cut.
 %% Well, it isnt really since its assumptions are ordered??!
 
- Note that some rules (viz, {\sc S-Exists} rules)
+Note that some rules (viz, {\sc S-Exists} rules)
 use $\vdash$. 
-
 
 We assume that the rules given are complete for
 defining the predicates $\tt C \subtype D$ and {\tt C\ \has\ I}, for
-classes {\tt C},{\tt D} and members {\tt I}. That is, if the rules
+classes {\tt C}, {\tt D} and members {\tt I}; that is, if the rules
 cannot be used to establish $\tt \vdash_{\cal O} C \subtype D$ ($\tt
 \vdash_{\cal O} C\ \has\ I$), then it is the case that $\tt
-\vdash_{\cal O} C \not\subtype D$ ($\tt \vdash_{\cal O} \neg (C\ \has\
+\vdash_{\cal O} C \notsubtype D$ ($\tt \vdash_{\cal O} \neg (C\ \has\
 I)$).
 
 Such negative facts are important to establish {\em inconsistency} of
@@ -97,54 +96,55 @@ the user to state constraints on type variables).
 
 \begin{figure*}
 {\footnotesize
-\begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+\tabcolsep=0pt
+\begin{tabular}{p{0.30\textwidth}p{0.32\textwidth}p{0.37\textwidth}}
 \infrule[Class]
 	{\tt \klass\ {\tt C}(\bar{\tt f}:\bar{\tt V})\ {\tt extends}\ {\tt D}\ \ldots \in P}
 	{\tt \vdash_{\cal O} \klass({\tt C}),{\tt C} \extends {\tt D}}
 &
-\infrule[\tt has-F]
+\infrule[Has-F]
 	{\Gamma\vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt V}} 
 	{\Gamma \vdash_{\cal O} {\tt x}\ \has\ {\tt f_i}:{\tt V_i}}
 & \\
 \infax[Sel]{\tt \vdash_{\cal O} new\ D(\bar{\tt t}).{\tt f_i=t_i}}
 &
-\infrule[\tt Inv]
+\infrule[Inv]
 {\Gamma \vdash_{\cal O} {\tt x:C},\klass({\tt C})}
 {\Gamma \vdash_{\cal O} \inv({\tt C}, {\tt x})}
 &\\
 \infax[V-Id]{\vdash_{\cal O} T \extends T} 
 &
-\infrule[\tt Sub-X]
+\infrule[Sub-X]
 	{\Gamma \vdash_{\cal O} {\tt t}\ \extends\ {\tt T}}
 	{\Gamma \vdash_{\cal O} {\tt t} \subtype {\tt T}}
 &
 \infrule[S-Trans]
-	{\tt \Gamma \vdash_{\cal O} T_1 \subtype T_2, T_2 \subtype T_3}
-	{\tt \Gamma \vdash_{\cal O} T_1 \subtype T_3}\\
+	{\Gamma\tt \vdash_{\cal O} T_1 \subtype T_2, T_2 \subtype T_3}
+	{\Gamma\tt \vdash_{\cal O} T_1 \subtype T_3}\\
 \infrule[S-Extends]
 	{\tt class\ C(\ldots)\ extends\ D\{\ldots\}\in P}
 	{\tt\vdash_{\cal O} C \subtype D}
 &
 \infrule[S-Const-L]
-	{\tt \Gamma,{\tt c} \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}}
-	{\tt \Gamma \vdash_{\cal O} {\tt S\{c\}}\;\subtype\; {\tt T}}
+	{\Gamma\tt,  {\tt c} \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}}
+	{\Gamma\tt  \vdash_{\cal O} {\tt S\{c\}}\;\subtype\; {\tt T}}
 &
 \infrule[S-Const-R]
-	{\tt \Gamma \vdash_{\cal O} {\tt S}\;\subtype\; {\tt T}\andalso\Gamma,{\tt \self:S} \vdash_{\cal O} {\tt c} }
-	{\tt \Gamma \vdash_{\cal O} {\tt S}\;\subtype\; {\tt T\{c\}}}
+	{\Gamma\tt  \vdash_{\cal O} {\tt S}\;\subtype\; {\tt T}\andalso\Gamma,{\tt \self:S} \vdash_{\cal O} {\tt c} }
+	{\Gamma\tt  \vdash_{\cal O} {\tt S}\;\subtype\; {\tt T\{c\}}}
 \\
 \infrule[S-Exists-L]
-	{\tt \Gamma \vdash {\tt U}\ \type \andalso  
+	{\Gamma\tt  \vdash {\tt U}\ \type \andalso  
 	  \Gamma \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}\andalso \mbox{({\tt x} fresh})}
-	{\tt \Gamma \vdash_{\cal O} {\tt x:U;S}\;\subtype\; {\tt T}}
+	{\Gamma\tt  \vdash_{\cal O} {\tt x:U;S}\;\subtype\; {\tt T}}
 &
 \infrule[S-Exists-R]
-	{\tt \Gamma \vdash t:{\tt U} \andalso \Gamma \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}[{\tt t}/{\tt x}]}
-	{\tt \Gamma \vdash_{\cal O} {\tt S}\;\subtype\; {\tt x;U:T}}
+	{\Gamma\tt  \vdash t:{\tt U} \andalso \Gamma \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}[{\tt t}/{\tt x}]}
+	{\Gamma\tt  \vdash_{\cal O} {\tt S}\;\subtype\; {\tt x;U:T}}
 &
 \infrule[Type-equiv]
-	{\tt \Gamma \vdash_{\cal O} S\; \subtype\; T \andalso \Gamma \vdash_{\cal O} T\; \subtype\; S}
-	{\tt \Gamma \vdash_{\cal O} S \equiv T} \\
+	{\Gamma\tt  \vdash_{\cal O} S\; \subtype\; T \andalso \Gamma \vdash_{\cal O} T\; \subtype\; S}
+	{\Gamma\tt  \vdash_{\cal O} S \equiv T} \\
 \infax[Fields-B]{x:{\tt Object} \vdash_{\cal O} \fields({\tt x})=\bullet}
 &
 \infrule[Fields-I]
@@ -160,17 +160,17 @@ the user to state constraints on type variables).
 \infrule[Method-B]
 	{\Gamma, {\tt x}:{\tt C}\vdash_{\cal O}\klass({\tt C})\andalso \theta=[{\tt x}/\this] \andalso \\
 	  {\tt def}\ {\tt m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e}\in P}
-	{\tt\Gamma, {\tt x:C}\vdash_{\cal O} {\tt x}\ \has\ (m(\bar{\tt z}:\bar{\tt V\theta})\{c\theta\}:T\theta=e)}
+	{\Gamma\tt, {\tt x:C}\vdash_{\cal O} {\tt x}\ \has\ (m(\bar{\tt z}:\bar{\tt V\theta})\{c\theta\}:T\theta=e)}
 &
 \infrule[Method-I]
-	{\tt\Gamma, {\tt x}:{\tt D}\vdash_{\cal O}{\tt x}\ \has\ m(\bar{\tt z}:\bar{\tt V}){\tt \{c\}:T=e} \\
+	{\Gamma\tt, {\tt x}:{\tt D}\vdash_{\cal O}{\tt x}\ \has\ m(\bar{\tt z}:\bar{\tt V}){\tt \{c\}:T=e} \\
 	  \tt \andalso \klass\ {\tt C}(\ldots)\ {\tt extends}\ {\tt D}\{\bar{\tt M}\} \andalso {\tt m}\not\in \bar{\tt M}}
-	{\tt \Gamma, {\tt x:C}\vdash_{\cal O} {\tt x}\ \has\ {\tt m}(\bar{\tt z}:\bar{\tt V}){\tt \{c\}:T=e}}
+	{\Gamma\tt, {\tt x:C}\vdash_{\cal O} {\tt x}\ \has\ {\tt m}(\bar{\tt z}:\bar{\tt V}){\tt \{c\}:T=e}}
 &
 \infrule[Method-C,E]
-	{\tt\Gamma, x:S \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e} 
-	{\tt\Gamma, x:S\{d\} \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T\{d[x/\self]\}=e \\
-	  \tt\Gamma, x: (y:U;S) \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:(y:U;T)=e}
+	{\Gamma\tt, x:S \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e} 
+	{\Gamma\tt, x:S\{d\} \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T\{d[x/\self]\}=e \\
+	  \Gamma\tt, x: (y:U;S) \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:(y:U;T)=e}
 \end{tabular}}
 \caption{The Object constraint system, $\cal O$}\label{fig:O}  
 \end{figure*}
@@ -226,7 +226,7 @@ occur in the context $\Gamma$.
 
 We say that a context $\Gamma$ is {\em consistent} if all (finite)
 subsets of $\{\sigma(\phi)\alt \Gamma \vdash \phi\}$ are consistent.
-In all type judgements presented below ({\sc T-CAST}, {\sc T-FIELD}
+In all type judgements presented below ({\sc T-Cast}, {\sc T-Field}
 etc) we make the implicit assumption that the context $\Gamma$ is
 consistent; if it is inconsistent, the rule cannot be used and the
 type of the given expression cannot be established (type-checking
@@ -238,7 +238,7 @@ The semantics of \FXZ{} is presented in Figure~\ref{fig:FX}.
 The syntax is essentially that of \FJ{} with three major
 exceptions. First, types may be constrained with a clause {\tt
 \{c\}}. Second both classes and methods may have constraint clauses
-{\tt c} -- in the case of classes, {\tt c} is to be thought of as an
+{\tt c}---in the case of classes, {\tt c} is to be thought of as an
 invariant satisfied by all instances of the clause, and in the case of
 methods, {\tt c} is an additional condition that must be satisfied by
 {\tt this} and the arguments of the method in order for the method to
@@ -254,7 +254,7 @@ this theory further is beyond the scope of this paper.}
 
 The syntax for constraints in \FXZ{} is specified in
 Figure~\ref{fig:FX}. We distinguish a subset of these constraints as
-{\em user constraints} -- these are permitted to occur in
+{\em user constraints}---these are permitted to occur in
 programs. For \FXZ{} the only user constraint permitted is the vacuous
 {\tt true}. Thus the types occurring in user programs are isomorphic
 to class types, and class and method definitions specialize to the
@@ -262,8 +262,8 @@ standard class and method definitions of \FJ{}.
 
 The constraints permitted by the syntax in Figure~\ref{fig:FX} that
 are not user constraints are necessary to define the static and
-dynamic semantics of the program (see, e.g.{} the rules {\sc T-NEW}
-and {\sc T-FIELD}, {\sc T-VAR} that use equalities, conjunctions and
+dynamic semantics of the program (see, e.g.{} the rules {\sc T-New}
+and {\sc T-Field}, {\sc T-Var} that use equalities, conjunctions and
 existential quantifications. The use of this richer constraint set is
 not necessary, it simply enables us to present the static and dynamic
 semantics once for the entire family of \FX{} languages,
@@ -286,24 +286,24 @@ The rules for well-formedness of types are straightforward, given
 the assumption that constraints are of a pre-given type $o$.
 
 \paragraph{Type judgement rules.}
-{\sc T-VAR} is as expected, except that it asserts the constraint {\tt
+{\sc T-Var} is as expected, except that it asserts the constraint {\tt
 self==x} which records the fact that any value of this type is known
 statically to be equal to {\tt x}. This constraint is actually very
-crucial -- as we shall see in the other rules once we establish that
+crucial---as we shall see in the other rules once we establish that
 an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
 type to a freshly chosen variable {\tt z}. If in fact {\tt e} has a
 static ``name'' {\tt x} (i.e.{} {\tt e} is known statically to be
 equal to {\tt x}, i.e.{} {\tt e} is of type {\tt T\{self==x\}}), then
-{\sc T-VAR} lets us assert that {\tt z:T\{self==x\}}, i.e.{} {\tt z}
-equals {\tt x}. Thus {\sc T-VAR} provides an important base case for
+{\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e.{} {\tt z}
+equals {\tt x}. Thus {\sc T-Var} provides an important base case for
 reasoning statically about equality of values in the environment.
 
 We do away with the three casts provided in\FJ{} in favor of a single
 cast, requiring only that {\tt e} be of some type {\tt U}. At runtime
 {\tt e} will be checked to see if it is actually of type {\tt T} (see
-Rule~{\sc R-CAST}).
+Rule~{\sc R-Cast}).
 
-{\sc T-FIELD} may be understood through ``proxy'' reasoning as
+{\sc T-Field} may be understood through ``proxy'' reasoning as
 follows.  Given the context $\Gamma$ assume the receiver {\tt e} can
 be established to be of type {\tt S}. Now we do not know the runtime
 value of {\tt e}, so we shall assume that it is some fixed but unknown
@@ -318,9 +318,9 @@ by {\tt z}.}, then we can assert that
 Hence, we can assert that {\tt e.f} has type {\tt
 (z:S;V\{\self=z.f\})}.
 
-{\sc T-INVK} has a very similar structure to {\sc T-FIELD}: we use
+{\sc T-Invk} has a very similar structure to {\sc T-Field}: we use
 ``proxy'' reasoning for the receiver and the arguments of the method
-call. {\sc T-NEW} also uses the same proxy reasoning: however in this case
+call. {\sc T-New} also uses the same proxy reasoning: however in this case
 we can establish that the resulting value is equal to ${\tt new\ C(\bar{\tt v})}$
 for some values $\bar{\tt v}$ of the given type.
 
@@ -376,26 +376,35 @@ types).\footnote{To support structural typing, we permit the
 programmer to use {\tt x\ \has I} constraints, see
 Section~\ref{sec:structural-typing}.}
 
-The following well-formedness and $\vdash_{\cal O}$ rules must be
-added:
+The well-formedness and $\vdash_{\cal O}$ rules in
+Figure~\ref{fig:fgj} must be added.
+
+\begin{figure*}
 {\footnotesize
-\begin{tabular}{p{0.50\textwidth}p{0.50\textwidth}}
+\tabcolsep=0pt
+\begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
 \infrule[Path]
 	{\Gamma \vdash {\tt p:T} \andalso \Gamma, {\tt x:T} \vdash {\tt x}\ \has\ {\tt X}:\ \type}
 	{\Gamma \vdash {\tt p.X}\ {\tt type}} 
 &
-\infax[\tt Type Var]{\Gamma, {\tt X:\type} \vdash {\tt X}\ \type}\\
-\infax[\tt Equals]{{\tt S==T} \vdash_{\cal O} S \extends T, T \extends S}
-\\
-\infrule[\tt Inh-p]
+\infax[Type-Var]{\Gamma, {\tt X:\type} \vdash {\tt X}\ \type}
+&
+\infax[Equals]{{\tt S==T} \vdash_{\cal O} S \extends T, T \extends S}
+\end{tabular}
+\begin{tabular}{p{0.16\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+&
+\infrule[Inh-p]
 	{\Gamma \vdash_{\cal O} {\tt p} \extends {\tt T} \andalso \Gamma, {\tt x}:{\tt T} \vdash_{\cal O} {\tt x}\ \has\ {\tt I}}
 	{\Gamma,{\tt x}:{\tt p} \vdash_{\cal O} {\tt x}\ \has\ {\tt I}}
 &
-\infrule[\tt Inh-X]
+\infrule[Inh-X]
 	{\Gamma \vdash_{\cal O} {\tt X} \extends {\tt T} \andalso \Gamma, {\tt x}:{\tt T} \vdash_{\cal O} {\tt x}\ \has\ {\tt I}}
 	{\Gamma,{\tt x}:{\tt X} \vdash_{\cal O} {\tt x}\ \has\ {\tt I}}
 \end{tabular}
 }
+\caption{\FGJ{} semantics}
+\label{fig:fgj}
+\end{figure*}
 
 \begin{example}
 The \FGJ{} parametric method:
@@ -456,11 +465,11 @@ The obvious rules are needed to ensure that formulas are well-formed.
 
 \infrule[Fun]
 	{\tt f(\bar{\tt T}):{\tt T}\in {\cal C} \andalso \Gamma \vdash \bar{\tt t}:\bar{\tt T}}
-	{\tt\Gamma \vdash \tt f(\bar{\tt T}):T}
+	{\Gamma\tt \vdash \tt f(\bar{\tt T}):T}
 \infrule[Equals]
-	{\tt\Gamma \vdash t_0: T_0 \andalso \Gamma \vdash t_1: T_1 \\
-	  (\tt\Gamma \vdash T_0 \subtype T_1 \vee \Gamma \vdash T_1 \subtype T_0)}
-	{\tt\Gamma \vdash t_0=t_1:o}
+	{\Gamma\tt \vdash t_0: T_0 \andalso \Gamma \vdash t_1: T_1 \\
+	  (\Gamma\tt \vdash T_0 \subtype T_1 \vee \Gamma \vdash T_1 \subtype T_0)}
+	{\Gamma\tt \vdash t_0=t_1:o}
 }
 No additional type judgements or transition rules are needed. 
 
