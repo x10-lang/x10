@@ -24,46 +24,51 @@ as well as covariantly.
 Thorup~\cite{thorup97}
 proposed adding genericity to Java using virtual types.  For example,
 a generic \xcd"List" class can be written as follows:
+{\footnotesize
 \begin{xten}
 abstract class List {
   abstract typedef T;
   void add(T element) { ... }
   T get(int i) { ... }
 }
-\end{xten}
+\end{xten}}
 This class can be refined by bounding the virtual type \xcd"T" above:
+{\footnotesize
 \begin{xten}
 abstract class NumberList extends List {
   abstract typedef T as Number;
 }
-\end{xten}
+\end{xten}}
 This abstract class can be further refined to \emph{final bind}
 \xcd"T" to a particular type:
+{\footnotesize
 \begin{xten}
 class IntList extends NumberList {
   final typedef T as Integer;
 }
-\end{xten}
+\end{xten}}
 These classes are related by subtyping:
 ${\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}$.
 Only classes where \xcd"T" is final bound can be non-abstract.
 
 The analogous definition of 
 \xcd"List" using type properties is as follows:
+{\footnotesize
 \begin{xten}
 class List[T] {
   def this[T]() = { ... }
   def add(element: T) = { ... }
   def get(i: int): T = { ... }
 }
-\end{xten}
+\end{xten}}
 
 \noindent
 \xcd"NumberList" and \xcd"IntList" can be written as follows:
+{\footnotesize
 \begin{xten}
 class NumberList extends List{T<:Number} { }
 class IntList extends NumberList{T==Integer} { }
-\end{xten}
+\end{xten}}
 
 However, note that our version of \xcd"List" is not abstract;
 \xcd"T" need not be instantiated by a subclass because it can be
@@ -93,76 +98,64 @@ from within the body of their class definition via the implicit \xcd"this"
 qualifier.
 
 Wildcards in Java~\cite{Java3,adding-wildcards} can be motivated
-by the following example in Java.  Consider a \xcd"Set<T>" class
-with static field \xcd"EMPTY" containing an empty collection.  What
-type should \xcd"EMPTY" be?
-\begin{xtenmath}
-class Set<T> {
-  public static final $\langle what type? \rangle$ EMPTY = ...;
-  ...
-}
-\end{xtenmath}
-One option is to make the type of \xcd"EMPTY" be
-\xcd"Set<T>".  However, then
-\xcd"Set<String>.EMPTY"
-and \xcd"Set<Float>.EMPTY" are distinct variables.  We
-would like to share \xcd"EMPTY" across all classes.  The
-solution in Java is to use a wildcard:
-\begin{xten}
-class Set<T> {
-  public static final Set<?> EMPTY = ...;
-  ...
-}
-\end{xten}
-\xcd"EMPTY"'s type is the type of collections of
-{\em some} parameter \xcd"T".
+by the following example in Java.
+Consider a \xcd"Set" class and a variable \xcd"EMPTY" containing
+the empty set.  What should be the type of \xcd"EMPTY"?
+In Java, one can use a wildcard, and 
+assign the type \xcd"Set<?>"; that is the type of all \xcd"Set"
+instantiated on {\em some} parameter.  Clients of this
+type do not know what parameter the actual instance of \xcd"Set"
+is bound to, which restricts the methods that can be invoked on
+the object.
+
+Wildcards in Java can
+also be bounded above and below with \xcd"? extends T"
+and \xcd"? super T" respectively.
 %
-In \Xten{}, a similar effect is achieved by leaving the
-type property of \xcd"Set" unconstrained:
-\begin{xten}
-class Set[T] {
-  const EMPTY: Set;
-  ...
-}
-\end{xten}
+In \Xten{}, a similar effect to wildcards is achieved by leaving the
+element type property of \xcd"Set" unconstrained.
 
 \noindent
 We can thus define the following straightforward translation
-from Java wildcard types to \Xten{} types:
+from Java wildcard types to \Xten{} types.  If \xcd"Set"
+has the element-type property \xcd"T", we define:
+{\footnotesize
 \begin{align*}
-\SB{ \Xcd{C<?>} } &= {\tt C} \\
-\SB{ \Xcd{C<? extends Foo>} } &= \Xcd{C\{T <: Foo\}} \\
-\SB{ \Xcd{C<? extends Bar>} } &= \Xcd{C\{T :> Bar\}} \\
-\SB{ \Xcd{C<Baz>} } &= \Xcd{C\{T == Baz\}} \\
-\end{align*}
-
+\SB{ \Xcd{Set<?>} } &= {\tt Set} \\
+\SB{ \Xcd{Set<? extends Animal>} } &= \Xcd{Set\{T <: Animal\}} \\
+\SB{ \Xcd{Set<? super Vegetable>} } &= \Xcd{Set\{T :> Vegetable\}} \\
+\SB{ \Xcd{Set<Mineral>} } &= \Xcd{Set\{T == Mineral\}}
+\end{align*}}
 
 \eat{
 Finally,
 one can also specify lower bounds on types.  These are useful for
 comparators:
+{\footnotesize
 \begin{xten}
 class TreeSet[T] {
   def this[T](cmp: Comparator{T :> this.T}) { ... }
 }
-\end{xten}
+\end{xten}}
 Here, the comparator for any supertype of \xcd"T" can be used as
 to compare \xcd"TreeSet" elements.
 
 Another use of lower bounds is for list operations.
 The \xcd"map" method below takes a function that maps a supertype
 of the class parameter \xcd"T" to the method type parameter \xcd"S":
+{\footnotesize
 \begin{xten}
 class List[T] {
   def map[S](fun: Object{self :> T} => S) : List[S] = { ... }
 }
-\end{xten}
+\end{xten}}
 }
 
 Constrained types also support \emph{proper
 abstraction}~\cite{adding-wildcards}.  To illustrate, a
 \xcd"reverse"
 operation can operate on \xcd"List" of any type:
+{\footnotesize
 \begin{xten}
 def reverse(list: List) = {
   for (i: int in [0..list.length-1]) {
@@ -171,7 +164,7 @@ def reverse(list: List) = {
     list(list.length-1-i) = tmp;
   }
 }
-\end{xten}
+\end{xten}}
 
 The client of \xcd"reverse" need not provide the concrete type
 on which the list is instantiated; the \xcd"list" itself
@@ -196,9 +189,10 @@ types~\cite{bruce-binary,bsg95}.
 %
 Self types can be implemented by introducing a
 type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
+{\footnotesize
 \begin{xtenmath}
 class Object[class] { $\dots$ }
-\end{xtenmath}
+\end{xtenmath}}
 Scala's path-dependent types~\cite{scala} and J\&'s
 dependent classes~\cite{nqm06}
 take a similar approach.
@@ -218,6 +212,7 @@ In the following
 example, the class \xcd"BitSet" can be written with a
 \xcd"union" method that takes a self type as argument.
 
+{\footnotesize
 \begin{xtenmath}
 interface Set {
   def union(s: this.class): void;
@@ -229,7 +224,7 @@ class BitSet implements Set {
     this.bits |= s.bits;
   }
 }
-\end{xtenmath}
+\end{xtenmath}}
 
 \noindent
 Since \xcd"s" has type this \Xcd{this}.\Xcd{class}, and the class
@@ -307,6 +302,7 @@ Restrictions:
 
 \subsection{Structural constraints}
 \label{sec:structural}
+\label{sec:structural-typing}
 
 Type constraints need not be limited to subtyping constraints.
 By introducing structural constraints on types, one can
@@ -348,12 +344,13 @@ structural \emph{where clauses}.
 For example, the sorted list class from Figure~\ref{fig:sorted}
 could be
 be written as follows in PolyJ:
+{\footnotesize
 \begin{xten}
 class SortedList[T] where T {int compareTo(T)} {
     void add(T x) { ... x.compareTo(y) ... }
     ...
 }
-\end{xten}
+\end{xten}}
 The where clause states that the type parameter \xcd"T" must have a
 method \xcd"compareTo" with the given signature.
 
@@ -381,22 +378,24 @@ is a subtype of
 As an example,
 the constraint \xcd"X has def compareTo(X): int"
 is satisfied by both of the following classes:
+{\footnotesize
 \begin{xten}
 class C { def compareTo(x: C): int = ...; }
 class D { def compareTo(x: Object): int = ...; }
-\end{xten}
+\end{xten}}
 }
 
 Structural method constraints permit the introduction of
 CLU-style optional methods~\cite{clu}.  Consider the following
 \xcd"Array" class:
+{\footnotesize
 \begin{xten}
 class Array[T] {
   def add(a: Array[S])
     {T has add(S): U}: Array[U] = { ... }
   ...
 }
-\end{xten}
+\end{xten}}
 
 \noindent
 The \xcd"Array" class defines an \xcd"add" method that takes 
@@ -423,6 +422,7 @@ similar to generalized constraints proposed for
 %
 In the following code, the \xcd"T" parameter is covariant
 and so the \xcd"append" methods below are illegal:
+{\footnotesize
 \begin{xten}
 class List[+T] {
   def append(other: T): List[T] = { ... }
@@ -430,11 +430,12 @@ class List[+T] {
   def append(other: List[T]): List[T] = { ... }
       // illegal
 }
-\end{xten}
+\end{xten}}
 %
 However, one can introduce a method parameter and then constrain
 the parameter from below by the class's parameter:
 For example, in the following code,
+{\footnotesize
 \begin{xten}
 class List[+T] {
   def append[U](other: U)
@@ -442,17 +443,18 @@ class List[+T] {
   def append[U](other: List[U])
       {T <: U}: List[U] = { ... }
 }
-\end{xten}
+\end{xten}}
 
 The constraints must be satisfied by the callers of \xcd"append".
 For example, in the following code:
+{\footnotesize
 \begin{xten}
 xs: List[Number];
 ys: List[Integer];
 xs = ys; // ok
 xs.append(1.0); // legal
 ys.append(1.0); // illegal
-\end{xten}
+\end{xten}}
 the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
 the call to \xcd"ys.append" is not allowed because the caller cannot show that
 ${\tt Number} \subtype {\tt Double}$.

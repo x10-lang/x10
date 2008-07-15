@@ -97,7 +97,7 @@ the user to state constraints on type variables).
 \begin{figure*}
 {\footnotesize
 \tabcolsep=0pt
-\begin{tabular}{p{0.30\textwidth}p{0.32\textwidth}p{0.37\textwidth}}
+\begin{tabular}{p{0.30\textwidth}p{0.24\textwidth}p{0.23\textwidth}p{0.22\textwidth}}
 \infrule[Class]
 	{\tt \klass\ {\tt C}(\bar{\tt f}:\bar{\tt V})\ {\tt extends}\ {\tt D}\ \ldots \in P}
 	{\tt \vdash_{\cal O} \klass({\tt C}),{\tt C} \extends {\tt D}}
@@ -105,13 +105,15 @@ the user to state constraints on type variables).
 \infrule[Has-F]
 	{\Gamma\vdash_{\cal O} \fields({\tt x})=\bar{\tt f}:\bar{\tt V}} 
 	{\Gamma \vdash_{\cal O} {\tt x}\ \has\ {\tt f_i}:{\tt V_i}}
-& \\
+&
 \infax[Sel]{\tt \vdash_{\cal O} new\ D(\bar{\tt t}).{\tt f_i=t_i}}
 &
 \infrule[Inv]
 {\Gamma \vdash_{\cal O} {\tt x:C},\klass({\tt C})}
 {\Gamma \vdash_{\cal O} \inv({\tt C}, {\tt x})}
-&\\
+\\
+\end{tabular}
+\begin{tabular}{p{0.30\textwidth}p{0.33\textwidth}p{0.36\textwidth}}
 \infax[V-Id]{\vdash_{\cal O} T \extends T} 
 &
 \infrule[Sub-X]
@@ -121,10 +123,6 @@ the user to state constraints on type variables).
 \infrule[S-Trans]
 	{\Gamma\tt \vdash_{\cal O} T_1 \subtype T_2, T_2 \subtype T_3}
 	{\Gamma\tt \vdash_{\cal O} T_1 \subtype T_3}\\
-\infrule[S-Extends]
-	{\tt class\ C(\ldots)\ extends\ D\{\ldots\}\in P}
-	{\tt\vdash_{\cal O} C \subtype D}
-&
 \infrule[S-Const-L]
 	{\Gamma\tt,  {\tt c} \vdash_{\cal O} {\tt S}\; \subtype\; {\tt T}}
 	{\Gamma\tt  \vdash_{\cal O} {\tt S\{c\}}\;\subtype\; {\tt T}}
@@ -132,6 +130,10 @@ the user to state constraints on type variables).
 \infrule[S-Const-R]
 	{\Gamma\tt  \vdash_{\cal O} {\tt S}\;\subtype\; {\tt T}\andalso\Gamma,{\tt \self:S} \vdash_{\cal O} {\tt c} }
 	{\Gamma\tt  \vdash_{\cal O} {\tt S}\;\subtype\; {\tt T\{c\}}}
+&
+\infrule[S-Extends]
+	{\tt class\ C(\ldots)\ extends\ D\{\ldots\}\in P}
+	{\tt\vdash_{\cal O} C \subtype D}
 \\
 \infrule[S-Exists-L]
 	{\Gamma\tt  \vdash {\tt U}\ \type \andalso  
@@ -145,7 +147,7 @@ the user to state constraints on type variables).
 \infrule[Type-equiv]
 	{\Gamma\tt  \vdash_{\cal O} S\; \subtype\; T \andalso \Gamma \vdash_{\cal O} T\; \subtype\; S}
 	{\Gamma\tt  \vdash_{\cal O} S \equiv T} \\
-\infax[Fields-B]{x:{\tt Object} \vdash_{\cal O} \fields({\tt x})=\bullet}
+\infax[Fields-B]{{\tt x}:{\tt Object} \vdash_{\cal O} \fields({\tt x})=\bullet}
 &
 \infrule[Fields-I]
 	{\Gamma, {\tt x:D} \vdash_{\cal O} \fields({\tt x})=\bar{\tt g}:\bar{\tt V}\andalso \\
@@ -452,7 +454,7 @@ predicates {\tt q} and functions {\tt f}. These are used to
 augment the constraints expressible in the language. 
 
 \begin{tabular}{r@{\quad}rcl}
-  (Type) & T & {::=}& \mbox{new base types, e.g. {\tt int}, {\tt boolean}}\\
+  (Type) & T & {::=}& \mbox{new base types, e.g., {\tt int}, {\tt boolean}}\\
   (C Term) & {\tt t} &{::=}& $\tt f(\bar{\tt t})$ \\
   (Const.) & {\tt c} &{::=}& ${\tt q(\bar{\tt t})}$ 
 \end{tabular}
