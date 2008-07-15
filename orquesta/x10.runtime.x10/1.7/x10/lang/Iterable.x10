@@ -5,6 +5,6 @@ package x10.lang;
    
  */
 
-public interface Iterable[T] {
-        public def iterator(): Iterator[T];
+public interface Iterable[IterableT] {
+        public def iterator(): Iterator[IterableT];
 }

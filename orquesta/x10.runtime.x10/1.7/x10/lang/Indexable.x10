@@ -11,8 +11,8 @@ import x10.lang.TypeDefs.*;
    o(i1,..., ik) is considered the same as o(new point(i1,..., ik)), provided
    that r is of rank k.
  */
-//public interface Indexable[Index,Domain,T](base: Domain){Domain <: Contains[Index]} extends (Index{self in base}) => T {}
-public interface Indexable[Index,Domain,T](base: Domain){Domain <: Contains[Index]} extends (Index) => T {}
+//public interface Indexable[Index,Domain,IndexableT](base: Domain){Domain <: Contains[Index]} extends (Index{self in base}) => IndexableT {}
+public interface Indexable[Index,Domain,IndexableT](base: Domain){Domain <: Contains[Index]} extends (Index) => IndexableT {}
 
 // recursive root clause since to check if self in base is well-formed,
 // need to check know this.base : Domain, and Domain <: Contains[T], which computes root clause

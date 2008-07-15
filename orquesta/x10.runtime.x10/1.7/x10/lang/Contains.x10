@@ -5,6 +5,6 @@ package x10.lang;
    and if s implements Contains[T].
  */
 
-public interface Contains[T] {
-        public def contains(T): boolean;
+public interface Contains[ContainsT] {
+        public def contains(ContainsT): boolean;
 }

@@ -9,6 +9,6 @@ package x10.lang;
    x1 in x2 works if x1 implements Iterable[T] and x2 implements Contains[T]
  */
 
-public interface ContainsAll[T] {
-        public def containsAll(T): boolean;
+public interface ContainsAll[ContainsAllT] {
+        public def containsAll(ContainsAllT): boolean;
 }
