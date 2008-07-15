@@ -132,7 +132,7 @@ class List[T](length: int){length >= 0} {
     return i==0 ? head : tail.get(i-1);
   }
 
-  def map[S](f: Object{self :> T} => S) : List[S] = {
+  def map[S](f: Object{self :> T} => S): List[S] = {
     if (length==0)
       return new List[S](0);
     else if (length==1)
@@ -145,7 +145,7 @@ class List[T](length: int){length >= 0} {
   def this[S](hd: S): List[S](1) = {
     property[S](1); head = hd;
   }
-  def this[S](hd: S, tl: List[S]) : List[S](tl.length+1) = {
+  def this[S](hd: S, tl: List[S]): List[S](tl.length+1) = {
     property[S](tl.length+1);
     head = hd; tail = tl;
   }
@@ -160,19 +160,33 @@ class List[T](length: int){length >= 0} {
 Properties of a class may be constrained with 
 a \emph{class invariant}.   
 The \xcd"List" declaration's class invariant specifies that the length of
-the list be non-negative.
+the list be non-negative.  
+The class invariant must be established by all constructors of
+the class and can subsequently be assumed for all instances of the class.
 
-\subsection{Field, method, and constructor constraints}
+For generic types, the invariant is used to provide subtyping
+bounds on the type properties.  For instance, a binary
+tree class
+might require that its elements implement the \xcd"Comparable"
+interface:
+{\footnotesize
+\begin{xten}
+class Tree[T]{T <: Comparable[T]} {
+  left, right: Tree[T]; ...
+}
+\end{xten}}
 
-Field, method, and constructor declarations may have additional
+\subsection{Class member invariants}
+
+Class and interface member declarations may have additional
 constraints that must be satisfied for access.
 
 The field  declarations in Figure~\ref{fig:list}
 each have a \emph{field constraint}.  The field constraint on
-\xcd"head" requires that the \xcd"this.length>0" to access
-\xcd"head"; that is \xcd"this.head" may not be dereferenced
+\xcd"head" requires that \xcd"this.length>0";
+that is \xcd"this.head" may not be dereferenced
 unless \xcd"this" has type \xcd"List{length>0}".  Similarly,
-\xcd"tail" cannot be accessed unless the tail is non-empty.  The
+\xcd"tail" cannot be accessed unless the list has a non-empty tail.  The
 compiler is free to generate optimized representations of
 instances of \xcd"List" with a given length: it may remove the
 the \xcd"head" and \xcd"tail" fields for empty lists, for
@@ -183,19 +197,23 @@ specialization is described in Section~\ref{sec:impl}.
 The method \xcd"get" in Figure~\ref{fig:list}
 has a constraint on the type of \xcd"i" that requires
 that it be within the list bounds.
-The method also has a \emph{method constraint}.
-A method with a method constraint is called a \emph{conditional method}.
-The method constraint on \xcd"get" requires that the actual
+The method also has a \emph{method constraint} that
+requires that the actual
 receiver's
 \xcd"length" field must be non-zero---calls to \xcd"get" on empty lists are not
-permitted.  This constraint ensures that the field constraint on
+permitted.
+A method with a method constraint is called a \emph{conditional method}.
+The constraint on \xcd"get" ensures that the field constraint on
 \xcd"tail" is satisfied in the method body.
 In the method body, the \xcd"head" of the list is returned for
-position \xcd"0"; otherwise the call recurses on the \xcd"tail".
+position \xcd"0"; otherwise, the call recurses on \xcd"tail".
 Note that for this example to type-check, the constraint system
-must support conditional constraints
-to
-guarantee that \xcd"i" is within the loop bounds of \xcd"tail".
+must establish the field constraint on \xcd"tail"
+and the method constraint on the recursive call;
+that is, it must be able
+guarantee that the \xcd"tail" is non-empty and that
+\xcd"i-1" is within the bounds of \xcd"tail".
+\eat{
 The constraint solver must prove
 {\footnotesize
 $$
@@ -204,6 +222,7 @@ $$
 \tt \quad\vdash tail.length > 0, 0 \leq i-1,i-1 < tail.length 
 \end{array}
 $$}
+}
 
 Method overriding is similar to Java: a method of a subclass
 with the same name and parameter types overrides a method of the
