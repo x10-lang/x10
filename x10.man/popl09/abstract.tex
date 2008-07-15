@@ -1,7 +1,7 @@
 
 Modern object-oriented languages such as \Xten{} require a rich
-framework for types capable of expressing value-dependency,
-type-dependency and for supporting pluggable, application-specific
+framework for types capable of expressing value- and
+type-dependency, and for supporting pluggable, application-specific
 extensions.
 
 In earlier work, we presented the framework of {\em constrained types}
@@ -12,7 +12,7 @@ formulas \Xcd{C\{c\}} where \Xcd{C} is the name of a class or an interface
 and
 \Xcd{c} is a constraint in $\cal C$ on the immutable instance state of
 \Xcd{C} (the {\em properties}). Many (value-)dependent type systems
-for OO languages can be cast as constrained types.
+for OO languages can be cast as constraint systems.
 
 This paper extends the constrained types approach to handle
 {\em type-dependency} (``genericity''). The key idea is to formalize the
@@ -26,7 +26,7 @@ representation---the run-time semantics is not defined through
 erasure. Run-time casts are permitted through dynamic code generation.
 
 To illustrate the underlying theory, we develop a formal family
-\FX{${\cal C}$} of programming languages with a common set of sound
+\FX(${\cal C}$) of programming languages with a common set of sound
 type-checking rules.  By varying $\cal C$, we obtain languages with
 the power of \FJ, \FGJ, dependent-types, and new OO languages which
 uniformly support value- and type-dependency.  Concretely, we
