@@ -1,5 +1,7 @@
-
 We now describe the semantics of languages in the \FX{} family.
+For uniformity we declare type-valued parameters and properties
+to be of ``type'' \type, instead of using square brackets to demarcate
+them.
 
 Each language $\cal L$ in the family is defined over a given input constraint
 system $\cal X$. Given a program $P$, we now show how to build a
@@ -34,7 +36,7 @@ $\klass({\tt C})$ is intended to be true for all classes {\tt C}
 defined in the program. ${\tt S}\ \extends\ {\tt T}$ is intended to
 hold if it can be established that {\tt S} extends {\tt T}, for
 instance if {\tt S} is a class that extends {\tt T}, or if {\tt S} is
-a type variable and {\tt T} its upper bound. ${\tt S}\ \extends\ {\tt
+a type variable and {\tt T} its upper bound. ${\tt S}\ \subtype\ {\tt
 T}$ is intended to hold if {\tt S} is a subtype of {\tt T}.  For a
 variable {\tt x}, {\tt \fields({\tt x})} is intended to specify the
 (complete) set of typed fields available to {\tt x}.  {\tt x\ \has\ I}
@@ -390,32 +392,32 @@ The \FGJ{} parametric method:
 \noindent can be represented as
 {\footnotesize
 \begin{xten} 
-  def id(T:type, x:T):T=x;
+def id(T:type, x:T):T=x;
 \end{xten}
 }
 
-The class 
+\noindent The class 
 {\footnotesize
 \begin{xten} 
-  class Comparator<B> {
-    int compare(B y) { ...}
-  }
-  class SortedList<T extends Comparator<T>> { 
-    int m(T x, T y) {
-       return x.compare(y);
-  }
+class Comparator<B> {
+  int compare(B y) { ...}
+}
+class SortedList<T extends Comparator<T>> { 
+  int m(T x, T y) {
+     return x.compare(y);
+}
 \end{xten}
 }
 \noindent can be represented as
 {\footnotesize
-\begin{xten} 
-  class Comparator(B: type) {
-   def compare(y:B):int = ...;
-  }
-  class SortedList(T: type){T <: Comparator{self.B==T}} { 
-    def m(x:T, y:T):int = x.compare(y);
-  }
-\end{xten}
+\begin{xtenmath} 
+class Comparator(B: type) {
+ def compare(y:B):int = ...;
+}
+class SortedList(T: type){T\ $\extends$\ Comparator{self.B==T}} { 
+  def m(x:T, y:T):int = x.compare(y);
+}
+\end{xtenmath}
 }
 \end{example}
 
