@@ -137,9 +137,9 @@ name and signature.
 
 This motivates a very natural constraint system on types.  For a type
 variable {\tt X} we should be able to assert the constraint \Xcd{X}
-\subtype \Xcd{T}: a valuation (mapping from variables to types) realizes
-this constraint if it maps {\tt X} to a type that is a subtype of {\tt
-T}. Similarly, it should be able to require that a type has a
+$\extends$ \Xcd{T}: a valuation (mapping from variables to types) realizes
+this constraint if it maps {\tt X} to a type that extends {\tt T}.
+Similarly, it should be able to require that a type has a
 particular member---a field with a given name and type, or a method
 with a given name and signature. We introduce the constraints 
 \Xcd{T has f:T} and \Xcdmath{T has m($\tbar{x}\ty\bar{S}$):T} to express this.
