@@ -1,35 +1,90 @@
 
-\todo{Move some of this to Section~\ref{sec:related}}
+Generic constrained types generalize virtual types and 
+have a connection to parametric types with use-site variance
+annotations, such as Java's wildcards.  
 
-\subsection{Type properties versus type parameters}
+\subsection{Virtual types}
 
+Type properties share many similarities with virtual
+types~\cite{mp89-virtual-classes,beta,ernst99-gbeta,ernst06-virtual,cdnw07-tribe}
+and similar constructs built on path-dependent types found in
+languages such as Scala~\cite{scala}, and J\&~\cite{nqm06}.
+Indeed, one of the first proposals for adding genericity to Java
+was via virtual types~\cite{thorup97}, and Java
+wildcards (i.e., parameters with use-site variance)
+were developed from a line of work beginning with virtual
+types~\cite{unifying-genericity,variant-parameter-types,adding-wildcards}.
 
-Type properties are similar, but not identical to type parameters.  The
-differences may potentially confuse programmers used to Java generics or C++
-templates.  The key difference is that type properties are instance members and
-are thus accessible through access paths: \xcd"e.T" is a legal type.
+Constrained types are more expressive than virtual
+types in that they can be constrained at the use-site,
+can be refined on a per-object basis without explicit subclassing,
+and can be refined contravariantly
+as well as covariantly. 
 
-Type properties, unlike type parameters, are inherited.
-For example, in the following code, \xcd"T" is defined in \xcd"List"
-and inherited into \xcd"Cons".  The property need not be
-declared by the \xcd"Cons" class.
+Thorup~\cite{thorup97}
+proposed adding genericity to Java using virtual types.  For example,
+a generic \xcd"List" class can be written as follows:
 \begin{xten}
-class List[T] { }
-class Cons extends List {
-    def head(): T = { ... }
-    def tail(): List[T] = { ... }
+abstract class List {
+  abstract typedef T;
+  void add(T element) { ... }
+  T get(int i) { ... }
 }
 \end{xten}
-The analogous code for \xcd"Cons" using type parameters would be:
+This class can be refined by bounding the virtual type \xcd"T" above:
 \begin{xten}
-class Cons[T] extends List[T] {
-    def head(): T = { ... }
-    def tail(): List[T] = { ... }
+abstract class NumberList extends List {
+  abstract typedef T as Number;
 }
 \end{xten}
-% This code is perfectly acceptable in \Xten{} as well,
-but introduces a redundant
-% type property \xcd"T" equal to the \xcd"T" inherited from \xcd"List".
+This abstract class can be further refined to \emph{final bind}
+\xcd"T" to a particular type:
+\begin{xten}
+class IntList extends NumberList {
+  final typedef T as Integer;
+}
+\end{xten}
+These classes are related by subtyping:
+${\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}$.
+Only classes where \xcd"T" is final bound can be non-abstract.
+
+The analogous definition of 
+\xcd"List" using type properties is as follows:
+\begin{xten}
+class List[T] {
+  def this[T]() = { ... }
+  def add(element: T) = { ... }
+  def get(i: int): T = { ... }
+}
+\end{xten}
+
+\noindent
+\xcd"NumberList" and \xcd"IntList" can be written as follows:
+\begin{xten}
+class NumberList extends List{T<:Number} { }
+class IntList extends NumberList{T==Integer} { }
+\end{xten}
+
+However, note that our version of \xcd"List" is not abstract;
+\xcd"T" need not be instantiated by a subclass because it can be
+instantiated on a per-object basis in the constructor.
+There is no
+need to declared classes for \xcd"NumberList" and \xcd"IntList".
+Instead, one can simply use the types
+\xcd"List{T<:Number}" and \xcd"List{T==Integer}".
+
+In addition,
+unlike virtual types, type properties can be refined contravariantly.
+For instance, one can write the type \xcd"List{T:>Integer}",
+and even \xcd"List{Integer<:T, T<:Number}".
+
+\subsection{Type parameters and wildcards}
+
+Type properties are also similar, but not identical to, type
+parameters.  The key difference is that type properties are
+instance members bound during object construction.  Type
+properties are thus accessible through expressions: \xcd"e.T" is
+a legal type.
 
 We can make the type system behave as if type properties were
 type parameters very simply.  We need only make the syntax \xcd"e.T"
@@ -37,80 +92,52 @@ illegal and permit type properties to be accessible only
 from within the body of their class definition via the implicit \xcd"this"
 qualifier.
 
-\subsection{Wildcards}
-
-Wildcards in Java~\cite{Java3,adding-wildcards} were motivated
-by the following example (rewritten in \Xten{} syntax)
-from \cite{adding-wildcards}.
-Sometimes a class needs a field or method
-that is a list, but we don't care what the element type is.
-For methods, one can give the method a type parameter:
+Wildcards in Java~\cite{Java3,adding-wildcards} can be motivated
+by the following example in Java.  Consider a \xcd"Set<T>" class
+with static field \xcd"EMPTY" containing an empty collection.  What
+type should \xcd"EMPTY" be?
+\begin{xtenmath}
+class Set<T> {
+  public static final $\langle what type? \rangle$ EMPTY = ...;
+  ...
+}
+\end{xtenmath}
+One option is to make the type of \xcd"EMPTY" be
+\xcd"Set<T>".  However, then
+\xcd"Set<String>.EMPTY"
+and \xcd"Set<Float>.EMPTY" are distinct variables.  We
+would like to share \xcd"EMPTY" across all classes.  The
+solution in Java is to use a wildcard:
 \begin{xten}
-def aMethod[T](list: List[T]) = { ... }
+class Set<T> {
+  public static final Set<?> EMPTY = ...;
+  ...
+}
 \end{xten}
-This method can then be called on any \xcd"List" object.
-However, there is no way to do this for fields since they
-cannot be parametrized.
-Java introduced wildcards to allow such fields to be
-typed:
+\xcd"EMPTY"'s type is the type of collections of
+{\em some} parameter \xcd"T".
+%
+In \Xten{}, a similar effect is achieved by leaving the
+type property of \xcd"Set" unconstrained:
 \begin{xten}
-List<?> list;
-\end{xten}
-In \Xten{}, a similar effect is achieved by not constraining the
-type property of \xcd"List".
-One can write the following:
-\begin{xten}
-list: List;
-\end{xten}
-Similarly, the method can be written without type parameters by
-not constraining \xcd"List":
-\begin{xten}
-def aMethod(list: List) = { ... }
-\end{xten}
-
-In \Xten{}, \xcd"List"
-is a supertype of
-\xcd"List[T]" for any \xcd"T",
-just as in Java
-\xcd"List<?>" is a supertype of
-\xcd"List<T>" for any \xcd"T".
-This follows directly from the definition of the type \xcd"List"
-as \xcd"List{true}", and the type \xcd"List[T]"
-as \xcd"List{X==T}", and the definition of subtyping.
-
-Wildcards in Java can also be bounded.
-We achieve the same
-effect in \Xten{} by using type constraints.
-For instance, the following Java declarations:
-\begin{xten}
-void aMethod(List<? extends Number> list) { ... }
-<T extends Number> void aParameterizedMethod(List<T> list) { ... }
-\end{xten}
-may be written as follows in \Xten{}:
-\begin{xten}
-def aMethod(list: List{T <: Number}) = { ... }
-def aParameterizedMethod[T{self <: Number}](list: List[T]) = { ... }
+class Set[T] {
+  const EMPTY: Set;
+  ...
+}
 \end{xten}
 
-Wildcard bounds may be covariant, as in the following example:
-\begin{xten}
-List<? extends Number> list = new ArrayList<Integer>();
-Number num = list.get(0);     // legal
-list.set(0, new Double(0.0)); // illegal
-list.set(0, list.get(1));     // illegal
-\end{xten}
-This can also be written in \Xten{}, but with an important
-difference:
-\begin{xten}
-list: List{T <: Number} = new ArrayList[Integer]();
-num: Number = list.get(0);    // legal
-list.set(0, new Double(0.0)); // illegal
-list.set(0, list.get(1));     // legal! (when list is final)
-\end{xten}
-Note because \xcd"list.get" has return type \xcd"list.T", the
-last call in above is well-typed in \Xten{}; the analogous call in
-Java is not well-typed.
+\noindent
+We can thus define the following straightforward translation
+from Java wildcard types to \Xten{} types:
+\begin{align*}
+\SB{ \Xcd{C<?>} } &= {\tt C} \\
+\SB{ \Xcd{C<? extends Foo>} } &= \Xcd{C\{T <: Foo\}} \\
+\SB{ \Xcd{C<? extends Bar>} } &= \Xcd{C\{T :> Bar\}} \\
+\SB{ \Xcd{C<Baz>} } &= \Xcd{C\{T == Baz\}} \\
+\end{align*}
 
+
+\eat{
 Finally,
 one can also specify lower bounds on types.  These are useful for
 comparators:
@@ -130,103 +157,42 @@ class List[T] {
   def map[S](fun: Object{self :> T} => S) : List[S] = { ... }
 }
 \end{xten}
+}
 
-\subsection{Proper abstraction}
-
-Consider the following example adapted from \cite{adding-wildcards}:
+Constrained types also support \emph{proper
+abstraction}~\cite{adding-wildcards}.  To illustrate, a
+\xcd"reverse"
+operation can operate on \xcd"List" of any type:
 \begin{xten}
-def shuffle[T](list: List[T]) = {
-  for (i: int in [0..list.size()-1]) {
-    val xi: T = list(i);
-    val j: int = Math.random(list.size());
-    list(i) = list(j);
-    list(j) = xi;
+def reverse(list: List) = {
+  for (i: int in [0..list.length-1]) {
+    val tmp: list.T = list(i);
+    list(i) = list(list.length-1-i);
+    list(list.length-1-i) = tmp;
   }
 }
 \end{xten}
-The method is parametrized on \xcd"T" because the method body needs
-the element type to declare the variable \xcd"xi".
 
-However, the method parameter can be omitted by using the type \xcd"list.T"
-for \xcd"xi".  Thus, the method can be declared with the signature:
-\begin{xten}
-def shuffle(list: List) { ... }
-\end{xten}
-This is called \emph{proper abstraction}.
+The client of \xcd"reverse" need not provide the concrete type
+on which the list is instantiated; the \xcd"list" itself
+provides the element type---it is stored in the \xcd"list"
+to implement run-time type introspection.
 
-This example illustrates a key difference between type properties
-and type parameters:
-A type property is a member of its class, whereas a type parameter is
-not.  The names of type properties are visible outside the body of
-their class declaration.
-
-\if 0
-Type properties can be used as the basis of a parametrized type
-system.  This is done simply by making type properties private.
-Using the syntactic sugar described above,
-the resulting system behaves identically to a system with type
-parameters.
-\fi
-
-In Java,
+In Java, this method would be written with a type parameter on
+the method.
 Wildcard
 capture allows the parametrized method to be called with any \xcd"List",
 regardless of its parameter type.
 However,
 the method parameter cannot be omitted: declaring a parameterless version
-of shuffle requires delegating to a private parametrized version that
+of \xcd"reverse" requires delegating to a private parametrized version that
 ``opens up'' the parameter.
-
-\subsection{Conditional methods and generlized constraints}
-
-For type parameters, method constraints are 
-similar to generalized constraints proposed for
-\csharp~\cite{emir06}.
-%
-In the following code, the \xcd"T" parameter is covariant
-and so the \xcd"append" methods below are illegal:
-\begin{xten}
-class List[+T] {
-  def append(other: T): List[T] = { ... }
-      // illegal
-  def append(other: List[T]): List[T] = { ... }
-      // illegal
-}
-\end{xten}
-%
-However, one can introduce a method parameter and then constrain
-the parameter from below by the class's parameter:
-For example, in the following code,
-\begin{xten}
-class List[+T] {
-  def append[U](other: U)
-      {T <: U}: List[U] = { ... }
-  def append[U](other: List[U])
-      {T <: U}: List[U] = { ... }
-}
-\end{xten}
-
-The constraints must be satisfied by the callers of \xcd"append".
-For example, in the following code:
-\begin{xten}
-xs: List[Number];
-ys: List[Integer];
-xs = ys; // ok
-xs.append(1.0); // legal
-ys.append(1.0); // illegal
-\end{xten}
-the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
-the call to \xcd"ys.append" is not allowed because the caller cannot show that
-${\tt Number} \subtype {\tt Double}$.
 
 
 \subsection{Self types}
 
-The generic constrained type system generalizes
-features of type systems from other object-oriented languages.
-
 Type properties can also be used to support a form of self
-types~\cite{bruce-binary,bsg95}. 
+types~\cite{bruce-binary,bsg95}.
 %
 Self types can be implemented by introducing a
 type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
@@ -277,74 +243,6 @@ an argument that has the same run-time class as the
 receiver.  For a receiver \xcd"p", the
 type of the actual argument of the call must have a constraint
 that entails \xcd"self".\xcd"class==p".\xcd"class".
-
-\subsection{Virtual types}
-
-Type properties share many similarities with virtual
-types~\cite{mp89-virtual-classes,beta,ernst99-gbeta,ernst06-virtual,cdnw07-tribe}
-and similar constructs built on path-dependent types found in
-languages such as Scala~\cite{scala}, and J\&~\cite{nqm06}.
-%
-Constrained types are more expressive than virtual
-types since they can be constrained at the use-site,
-can be refined on a per-object basis without explicit subclassing,
-and can be refined contravariantly
-as well as covariantly. 
-
-Thorup~\cite{thorup97}
-proposed adding genericity to Java using virtual types.  For example,
-a generic \xcd"List" class can be written as follows:
-\begin{xten}
-abstract class List {
-    abstract typedef T;
-    void add(T element) { ... }
-    T get(int i) { ... }
-}
-\end{xten}
-This class can be refined by bounding the virtual type \xcd"T" above:
-\begin{xten}
-abstract class NumberList extends List {
-    abstract typedef T as Number;
-}
-\end{xten}
-And this abstract class can be further refined to \emph{final bind}
-\xcd"T" to a particular type:
-\begin{xten}
-class IntList extends NumberList {
-    final typedef T as Integer;
-}
-\end{xten}
-These classes are related by subtyping:
-${\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}$.
-Only classes where \xcd"T" is final bound can be non-abstract.
-
-The analogous definition of 
-\xcd"List" using type properties is as follows:
-\begin{xten}
-class List[T] {
-    def add(element: T) = { ... }
-    def get(i: int): T = { ... }
-}
-\end{xten}
-
-\noindent
-\xcd"NumberList" and \xcd"IntList" can be written as follows:
-\begin{xten}
-class NumberList extends List{T<:Number} { }
-class IntList extends NumberList{T==Integer} { }
-\end{xten}
-
-However, note that our version of \xcd"List" is not abstract.
-Instances of \xcd"List"
-can instantiate \xcd"T" with a particular type and there is no
-need to declared classes for \xcd"NumberList" and \xcd"IntList".
-Instead, one can simply use the types
-\xcd"List{T<:Number}" and \xcd"List{T==Integer}".
-
-In addition,
-unlike virtual types, type properties can be refined contravariantly.
-For instance, one can write the type \xcd"List{T:>Integer}",
-and even \xcd"List{Integer<:T, T<:Number}".
 
 
 \eat{
@@ -414,7 +312,10 @@ Type constraints need not be limited to subtyping constraints.
 By introducing structural constraints on types, one can
 instantiate
 type properties on any type with a given set
-of methods and fields. This feature is useful for reusing code
+of methods and fields.
+A structural constraint is satisfied if the type has a member of
+the appropriate name and with a compatible type.
+This feature is useful for reusing code
 in separate libraries since it does not require
 code of one library to implement an interface to satisfy a
 constraint of another library.
@@ -448,7 +349,7 @@ For example, the sorted list class from Figure~\ref{fig:sorted}
 could be
 be written as follows in PolyJ:
 \begin{xten}
-class SortedList[T] where T { int compareTo(T) } {
+class SortedList[T] where T {int compareTo(T)} {
     void add(T x) { ... x.compareTo(y) ... }
     ...
 }
@@ -465,8 +366,10 @@ class SortedList[T]{T has def compareTo(T): int} {
 }
 \end{xten}
 
+\eat{
 A structural constraint is satisfied if the type has a member of
-the appropriate name and with a compatible type.  The constraint
+the appropriate name and with a compatible type.
+The constraint
 \xcdmath"Z has def m[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$): U"
 is satisfied by a type \xcd"T" if it has a method \xcd"m"
 with signature
@@ -482,3 +385,76 @@ is satisfied by both of the following classes:
 class C { def compareTo(x: C): int = ...; }
 class D { def compareTo(x: Object): int = ...; }
 \end{xten}
+}
+
+Structual method constraints permit the introduction of
+CLU-style optional methods~\cite{clu}.  Consider the following
+\xcd"Array" class:
+\begin{xten}
+class Array[T] {
+  def add(a: Array[S])
+    {T has add(S): U}: Array[U] = { ... }
+  ...
+}
+\end{xten}
+
+\noindent
+The \xcd"Array" class defines an \xcd"add" method that takes 
+an array of \xcd"S", adds each element of the array to the
+corresponding element of \xcd"this", and returns an array of the
+results.  The method constraint specifies that the method may
+only be invoked if \xcd"T" has an \xcd"add" method of the
+appropriate type.  Thus, for example, an \xcd"Array[int]"
+can be added to an \xcd"Array[double]" because \xcd"int"
+has a method \xcd"add" (corresponding to the \xcd"+" operation)
+that adds an \xcd"int" and a \xcd"double", retuning a
+\xcd"double".  However, \xcd"Array[Rabbit]", for example, does not support
+the \xcd"add" operation because \xcd"Rabbit" does not have an
+\xcd"add" method.
+
+\eat{
+\subsection{Definition-site variance}
+
+\subsection{Conditional methods and generalized constraints}
+
+For type parameters, method constraints are 
+similar to generalized constraints proposed for
+\csharp~\cite{emir06}.
+%
+In the following code, the \xcd"T" parameter is covariant
+and so the \xcd"append" methods below are illegal:
+\begin{xten}
+class List[+T] {
+  def append(other: T): List[T] = { ... }
+      // illegal
+  def append(other: List[T]): List[T] = { ... }
+      // illegal
+}
+\end{xten}
+%
+However, one can introduce a method parameter and then constrain
+the parameter from below by the class's parameter:
+For example, in the following code,
+\begin{xten}
+class List[+T] {
+  def append[U](other: U)
+      {T <: U}: List[U] = { ... }
+  def append[U](other: List[U])
+      {T <: U}: List[U] = { ... }
+}
+\end{xten}
+
+The constraints must be satisfied by the callers of \xcd"append".
+For example, in the following code:
+\begin{xten}
+xs: List[Number];
+ys: List[Integer];
+xs = ys; // ok
+xs.append(1.0); // legal
+ys.append(1.0); // illegal
+\end{xten}
+the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
+the call to \xcd"ys.append" is not allowed because the caller cannot show that
+${\tt Number} \subtype {\tt Double}$.
+
+}

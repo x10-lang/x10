@@ -132,7 +132,7 @@ class List[T](length: int){length >= 0} {
     return i==0 ? head : tail.get(i-1);
   }
 
-  def map[S](f: (T)=>S): List[S] = {
+  def map[S](f: Object{self :> T} => S) : List[S] = {
     if (length==0)
       return new List[S](0);
     else if (length==1)
@@ -216,7 +216,7 @@ method constraint in the subclass.
 Methods may also have type parameters.  
 For instance, the \xcd"map" method in Figure~\ref{fig:list} 
 has a type parameter \xcd"S" and a value parameter that is a
-function from \xcd"T" to \xcd"S".
+function from a supertype of \xcd"T" to \xcd"S".
 A parametrized method is invoked by giving type arguments before the
 expression arguments (see recursive call to
 \xcd"map").\footnote{Actual type arguments can be inferred from the types
