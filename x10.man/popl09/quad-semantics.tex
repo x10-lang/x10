@@ -147,6 +147,8 @@ the user to state constraints on type variables).
 	{\Gamma\tt, x:S\{d\} \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T\{d[x/\self]\}=e \\
 	  \Gamma\tt, x: (y:U;S) \vdash_{\cal O} x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:(y:U;T)=e}
 \end{tabular}}
+
+For a class {\tt C} and variable {\tt x}, ${\tt \inv(C,x)}$ stands for the conjunction of class invariants for {\tt C} and its supertypes, with {\tt this} replaced by {\tt x}.
 \caption{The Object constraint system, $\cal O$}\label{fig:O}  
 \end{figure*}
 
@@ -434,17 +436,19 @@ augment the constraints expressible in the language.
 
 The obvious rules are needed to ensure that formulas are well-formed.
 {\footnotesize
+\begin{tabular}{p{0.50\textwidth}p{0.50\textwidth}}
 \infrule[Pred]
 	{\tt p(\bar{\tt T}):{\tt o}\in {\cal C} \andalso \Gamma \vdash \bar{\tt t}:\bar{\tt T}}
 	{\Gamma \vdash \tt p(\bar{\tt T}):o}
-
+&
 \infrule[Fun]
 	{\tt f(\bar{\tt T}):{\tt T}\in {\cal C} \andalso \Gamma \vdash \bar{\tt t}:\bar{\tt T}}
-	{\Gamma\tt \vdash \tt f(\bar{\tt T}):T}
+	{\Gamma\tt \vdash \tt f(\bar{\tt T}):T}\\
 \infrule[Equals]
 	{\Gamma\tt \vdash t_0: T_0 \andalso \Gamma \vdash t_1: T_1 \\
 	  (\Gamma\tt \vdash T_0 \subtype T_1 \vee \Gamma \vdash T_1 \subtype T_0)}
 	{\Gamma\tt \vdash t_0=t_1:o}
+\end{tabular}
 }
 \noindent
 No additional type judgments or transition rules are needed. 
