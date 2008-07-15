@@ -23,7 +23,7 @@
 \end{tabular}
 \quad \\
 \quad\\
-{\bf \FX{} well-formedness rules:}\\
+{\bf \FX{} well-formedness rules:}\\[-12pt]
 {\tabcolsep=0pt
 \begin{tabular}{p{0.26\textwidth}p{0.33\textwidth}p{0.38\textwidth}}
 \infax[True]{\Gamma \vdash {\tt true}: {\tt o}}
@@ -37,7 +37,7 @@
 	{\Gamma\tt \vdash x:T;c: o}
 \\
 \end{tabular}}
-\quad\\
+\quad\\[-12pt]
 {\tabcolsep=0pt
 \begin{tabular}{p{0.26\textwidth}p{0.33\textwidth}p{0.38\textwidth}}
 \infrule[Class]
@@ -55,7 +55,7 @@
 \end{tabular}}
 \quad\\
 \quad\\
-{\bf Type judgment rules:}\\
+{\bf Type judgment rules:}\\[-12pt]
 {\tabcolsep=0pt
 \begin{tabular}{l}
 \begin{tabular}{p{0.27\textwidth}p{0.28\textwidth}p{0.42\textwidth}}
@@ -68,7 +68,7 @@
 \infrule[T-Field]
 	{\Gamma \vdash {\tt e}: {\tt S} \andalso \Gamma,{\tt z}:{\tt S}\vdash {\tt z}\ \has\ {\tt f}:{\tt V} \andalso \mbox{({\tt z} fresh)} }
 	{\Gamma \vdash {\tt e}.{\tt f}:  ({\tt z}:{\tt S};{\tt V\{\self=z.f\}})}
-\end{tabular}\\
+\end{tabular}\\[-12pt]
 \begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}} 
 \infrule[T-Invk]
 	{\Gamma \vdash {\tt e}:{\tt T},\bar{\tt e}:\bar{\tt V} \andalso \\
@@ -83,7 +83,8 @@
 	  \Gamma,{\tt v}:{\tt C}\vdash \fields({\tt v})=\bar{\tt f}:\bar{\tt V}  \andalso \mbox{({\tt v},$\bar{\tt v}$\ fresh)}\\
 	  \Gamma, {\tt v}:{\tt C}, \bar{\tt v}:\bar{\tt T}, {\tt v}.\bar{\tt f}=\bar{\tt v} 
 	  \vdash \bar{\tt T} \subtype \bar{\tt V}, \inv({\tt C},{\tt v})}
-	{\Gamma \vdash \new\ {\tt C}(\bar{\tt e}): {\tt C}\{\bar{\tt v}:\bar{\tt T}; \new\ {\tt C}(\bar{\tt v})=\self, \inv({\tt C},\self)\}}\\
+	{\Gamma \vdash \new\ {\tt C}(\bar{\tt e}): {\tt C}\{\bar{\tt v}:\bar{\tt T}; \new\ {\tt C}(\bar{\tt v})=\self, \inv({\tt C},\self)\}}
+\\[-12pt]
 \infrule[Method OK]
 	{\this:{\tt C}\vdash {\tt c}:o \andalso \this:{\tt C},\bar{\tt x}:\bar{\tt V},{\tt c} \vdash {\tt T} \ \type, \bar{\tt V} \ \type, 
 	  {\tt e}:{\tt S}, {\tt S} \subtype {\tt T}}
@@ -94,9 +95,9 @@
 	{\mbox{\tt class}\ {\tt C}(\bar{\tt f}:\bar{\tt V})\{{\tt c}\}\ 
 	  \mbox{\tt extends}\ {\tt N}\{\bar{\tt M}\} \ \mbox{OK}}
 \end{tabular}
-\end{tabular}}\\
+\end{tabular}}\\[-12pt]
 \quad\\
-{\bf Transition rules:}\\
+{\bf Transition rules:}\\[-12pt]
 {\tabcolsep=0pt
 \begin{tabular}{p{0.43\textwidth}@{\quad}p{0.54\textwidth}}
 \typicallabel{RC-Field}
