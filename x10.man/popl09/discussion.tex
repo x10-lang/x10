@@ -32,7 +32,6 @@ wildcards~\cite{adding-wildcards,Java3,wildcards-safe}.
 %and several variants
 %in a typed lambda-calculus with subtyping and dependent types.
 
-
 Type properties share many similarities with virtual
 types~\cite{mp89-virtual-classes,beta,ernst99-gbeta,ernst06-virtual,cdnw07-tribe}
 and similar constructs built on path-dependent types found in
@@ -71,9 +70,8 @@ class IntList extends NumberList {
 }
 \end{xten}}
 \noindent
-These classes are related by subtyping:
-{\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}.
-Only classes where \xcd"T" is final bound can be non-abstract.
+Only classes where \xcd"T" is final bound, such as \xcd"IntList"
+can be non-abstract.
 %
 The analogous definition of 
 \xcd"List" in \Xten{} using type properties is as follows:
@@ -86,14 +84,12 @@ class List[T] {
 
 The \Xten{} version of \xcd"List" is not abstract;
 \xcd"T" need not be instantiated by a subclass because it can be
-instantiated on a per-object basis:
-rather than declaring subclasses
-\xcd"NumberList" and \xcd"IntList", 
-one uses the types
+instantiated on a per-object basis.
+Rather than declaring subclasses of \xcd"List",
+one uses the constrained subtypes
 \xcd"List{T<:Number}" and \xcd"List{T==Integer}".
 
-In addition,
-unlike virtual types, type properties can be refined contravariantly.
+Type properties can also be refined contravariantly.
 For instance, one can write the type \xcd"List{T:>Integer}",
 and even \xcd"List{Integer<:T, T<:Number}".
 
@@ -127,10 +123,10 @@ Wildcards can
 also be bounded above and below with
 {\tt ?} {\tt extends} {\tt T} and {\tt ?} {\tt super} {\tt T} respectively.
 %
-In \Xten{}, a similar effect to wildcards is achieved by leaving the
-element type property of \xcd"Set" unconstrained.
-%
-We can thus define the following straightforward translation
+In \Xten{}, a similar effect is achieved by leaving the
+element type property of \xcd"Set" partially unconstrained.
+
+We can define the following straightforward translation
 from Java wildcards to \Xten{}.
 Type parameters are translated to type properties whose name
 encodes their position in the parameter list.
@@ -144,7 +140,7 @@ Types are translated as follows:
 \SB{ \Xcdmath{C<T, $\dots$>} } &= \Xcdmath{C\{_1 == $\ \SB{\tt{T}}$, $\dots$\}}
 \end{align*}}
 Through such a translation, the \FXG\ calculus in
-Section~\ref{sec:semantics} can capture the essence of Java's
+Section~\ref{sec:semantics} captures the essence of Java's
 wildcards, but extended with support for run-time type
 introspection.
 
@@ -172,7 +168,6 @@ class List[T] {
 \end{xten}}
 }
 
-\eat{
 Constrained types also support
 \emph{proper abstraction}~\cite{adding-wildcards}.  To illustrate, a
 \xcd"reverse"
@@ -180,11 +175,8 @@ operation can operate on \xcd"List" of any type:
 {\footnotesize
 \begin{xten}
 def reverse(list: List) = {
-  for (i: int in [0..list.length-1]) {
-    val tmp: list.T = list(i);
-    list(i) = list(list.length-1-i);
-    list(list.length-1-i) = tmp;
-  }
+  for (i: int in [0..list.length-1])
+    swap(list, i, list.length-1-i);
 }
 \end{xten}}
 
@@ -194,15 +186,12 @@ provides the element type---it is stored in the \xcd"list"
 to implement run-time type introspection.
 
 In Java, this method would be written with a type parameter on
-the method.
-Wildcard
-capture allows the parametrized method to be called with any \xcd"List",
-regardless of its parameter type.
+the method; the type system permits it to be called with any
+\xcd"List".
 However,
 the method parameter cannot be omitted: declaring a parameterless version
 of \xcd"reverse" requires delegating to a private parametrized version that
 ``opens up'' the parameter.
-}
 
 %\input{self-types.tex}
 
@@ -283,23 +272,17 @@ in separate libraries since it does not require
 code of one library to implement an interface to satisfy a
 constraint of another library.
 
-In this section, we consider an extension of the \Xten{} type system
+We consider an extension of the \Xten{} type system
 to support structural type constraints.  Formally, the extension
-is straightforward; indeed the \FX{} family already supports structural constraints
-via the rules {\sc Has-F},
-{\sc Method-B},
-{\sc Method-I},
-and
-{\sc Method-C,E} in Figure~\ref{fig:O}.
-The constraint system need change only to add 
-structural
-constraints of the form ``{\tt T} {\tt has} {\tt I}''
-trivially derived from the existing constraints.
+is straightforward; indeed the \FX{} family already supports structural
+constraints
+via the rules for ``{\tt x} {\tt has} {\tt I}''.
+Figure~\ref{fig:O} and Figure~\ref{fig:fgj}.
 
 Structural constraints on types are found in many languages.
 Haskell supports type
 classes~\cite{haskell,haskell-type-classes}.
-
+%
 %ML's module system allows modules to be constrained by
 %structural signatures~\cite{ml}.
 In Modula-3, type equivalence and subtyping are structural
