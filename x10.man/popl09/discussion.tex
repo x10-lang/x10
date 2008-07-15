@@ -13,7 +13,7 @@ Indeed, one of the first proposals for adding genericity to Java
 was via virtual types~\cite{thorup97}, and Java
 wildcards (i.e., parameters with use-site variance)
 were developed from a line of work beginning with virtual
-types~\cite{unifying-genericity,variant-parameter-types,adding-wildcards}.
+types~\cite{unifying-genericity,variant-parametric-types,adding-wildcards}.
 
 Constrained types are more expressive than virtual
 types in that they can be constrained at the use-site,
@@ -48,11 +48,11 @@ class IntList extends NumberList {
 }
 \end{xten}}
 These classes are related by subtyping:
-${\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}$.
+{\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}.
 Only classes where \xcd"T" is final bound can be non-abstract.
-
+%
 The analogous definition of 
-\xcd"List" using type properties is as follows:
+\xcd"List" using type properties follows:
 {\footnotesize
 \begin{xten}
 class List[T] {
@@ -84,6 +84,7 @@ For instance, one can write the type \xcd"List{T:>Integer}",
 and even \xcd"List{Integer<:T, T<:Number}".
 
 \subsection{Type parameters and wildcards}
+\label{sec:parameters-vs-fields}
 
 Type properties are also similar, but not identical to, type
 parameters.  The key difference is that type properties are
@@ -98,7 +99,7 @@ from within the body of their class definition via the implicit \xcd"this"
 qualifier.
 
 Wildcards in Java~\cite{Java3,adding-wildcards} can be motivated
-by the following example in Java.
+by the following example.
 Consider a \xcd"Set" class and a variable \xcd"EMPTY" containing
 the empty set.  What should be the type of \xcd"EMPTY"?
 In Java, one can use a wildcard, and 
@@ -108,24 +109,30 @@ type do not know what parameter the actual instance of \xcd"Set"
 is bound to, which restricts the methods that can be invoked on
 the object.
 
-Wildcards in Java can
-also be bounded above and below with \xcd"? extends T"
-and \xcd"? super T" respectively.
+Wildcards can
+also be bounded above and below with
+{\tt ?} {\tt extends} {\tt T} and {\tt ?} {\tt super} {\tt T} respectively.
 %
 In \Xten{}, a similar effect to wildcards is achieved by leaving the
 element type property of \xcd"Set" unconstrained.
-
-\noindent
+%
 We can thus define the following straightforward translation
-from Java wildcard types to \Xten{} types.  If \xcd"Set"
-has the element-type property \xcd"T", we define:
+from Java wildcards to \Xten{}.
+Type parameters are translated to type properties whose name
+encodes their position in the parameter list.
+Types are translated as follows:
 {\footnotesize
 \begin{align*}
-\SB{ \Xcd{Set<?>} } &= {\tt Set} \\
-\SB{ \Xcd{Set<? extends Animal>} } &= \Xcd{Set\{T <: Animal\}} \\
-\SB{ \Xcd{Set<? super Vegetable>} } &= \Xcd{Set\{T :> Vegetable\}} \\
-\SB{ \Xcd{Set<Mineral>} } &= \Xcd{Set\{T == Mineral\}}
+\SB{ \Xcd{X} } &= \Xcd{_}i ~~~~\mbox{where \xcd{X} is the $i$th type parameter} \\
+\SB{ \Xcdmath{C<?, $\dots$>} } &= \Xcdmath{C\{$\dots$\}} \\
+\SB{ \Xcdmath{C<? extends T, $\dots$>} } &= \Xcdmath{C\{_1 <: $\ \SB{\tt{T}}$, $\dots$\}} \\
+\SB{ \Xcdmath{C<? super T, $\dots$>} } &= \Xcdmath{C\{_1 :> $\ \SB{\tt{T}}$, $\dots$\}} \\
+\SB{ \Xcdmath{C<T, $\dots$>} } &= \Xcdmath{C\{_1 == $\ \SB{\tt{T}}$, $\dots$\}}
 \end{align*}}
+Through such a translation, the \FXG calculus in
+Section~\ref{sec:semantics} can capture the essence of Java's
+wildcards, but extended with support for run-time type
+introspection.
 
 \eat{
 Finally,
@@ -151,8 +158,8 @@ class List[T] {
 \end{xten}}
 }
 
-Constrained types also support \emph{proper
-abstraction}~\cite{adding-wildcards}.  To illustrate, a
+Constrained types also support
+\emph{proper abstraction}~\cite{adding-wildcards}.  To illustrate, a
 \xcd"reverse"
 operation can operate on \xcd"List" of any type:
 {\footnotesize
@@ -193,6 +200,8 @@ type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
 \begin{xtenmath}
 class Object[class] { $\dots$ }
 \end{xtenmath}}
+
+\noindent
 Scala's path-dependent types~\cite{scala} and J\&'s
 dependent classes~\cite{nqm06}
 take a similar approach.
@@ -340,7 +349,7 @@ family such as C++, Java, Scala, and \Xten{}.
 %
 The language PolyJ~\cite{java-popl97} allows type parameters to be
 bounded using
-structural \emph{where clauses}.
+structural \emph{where clauses}~\cite{where-clauses}.
 For example, the sorted list class from Figure~\ref{fig:sorted}
 could be
 be written as follows in PolyJ:

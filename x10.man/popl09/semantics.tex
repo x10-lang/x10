@@ -231,13 +231,13 @@ $\bar{z}$ existentially quantified.
 \end{tabular}
 
 \begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}}
-\infrule[T-INVK]
+\infrule[T-Invk]
 {\Gamma \vdash {\tt e}:{\tt T},\bar{\tt e}:\bar{\tt T} \andalso \\
 \Gamma,{\tt z}:{\tt T},\bar{\tt z}:\bar{\tt T} \vdash \mtype({\tt z}, {\tt m}, \bar{\tt z})=\bar{\tt Z}, {\tt c} \rightarrow {\tt U} \andalso \mbox{({\tt z},$\bar{\tt z}$ fresh)} \\
 \Gamma, {\tt z}:{\tt T}, \bar{\tt z}:\bar{\tt T} \vdash \bar{\tt T} \subtype \bar{\tt Z},{\tt c}}
 {\Gamma \vdash {\tt e}.{\tt m}(\bar{\tt e}): ({\tt z}:{\tt T};\bar{\tt z}:\bar{T};U)}
 &
-\infrule[T-NEW]
+\infrule[T-New]
 {\Gamma \vdash \bar{\tt e}:\bar{\tt T} \andalso \\ 
 \Gamma,{\tt z}:{\tt C}\vdash \fields({\tt z})=\bar{\tt f}:\bar{\tt Z}  \andalso \mbox{({\tt z},$\bar{\tt z}$\ fresh)}\\
 \Gamma, {\tt z}:{\tt C}, \bar{\tt z}:\bar{\tt T}, {\tt z}.\bar{\tt f}=\bar{\tt z} 
