@@ -14,7 +14,7 @@ This design, extended to handle language features
 not described in this paper, has been implemented in the \Xten{}
 compiler.  The \Xten{} compiler is built on the Polyglot framework
 and translates \Xten{} source to Java source\footnote{There is also
-a translation from \Xten{} to C++ source, not described here.}
+a translation from \Xten{} to C++ source, not described here.}.
 
 \subsection{Classes}
 Each class is translated into a \emph{template class}.
@@ -40,32 +40,30 @@ class C {
 The compiler generates the following code:
 {\footnotesize
 \begin{xten}
+@Parameters({"T"})
 class A {
     // Dummy class needed to type-check uses of T.
-    @TypeProperty(1) static class T { }
+    @TypeProperty public static class T { }
 
     T a;
 
-    // Dummy getter and setter; will be eliminated
-    // at run time and replaced with actual gets
-    // and sets of the field a.
-    @Getter("a") <S> S get\$a() { return null; }
-    @Setter("a") <S> S set\$a(S v) { return null; }
+    // Dummy constructor; will be eliminated at run time
+    @Synthetic public A(Class T) { this(); }
+    ...
 }
 
 class C {
-    @ActualType("A\$Int")
-    final A x = Runtime.<A>alloc("A\$Int");
-    final int y = x.<Integer>get\$a();
+    final A x = new A(int.class);
+    final int y = Runtime.recoverI(x.a);
 }
 \end{xten}}
 
 The member class \xcd"A.T" is used in place of the
 type property \xcd"T". 
-The \xcd"Runtime.alloc" method is used
-used in place of a constructor call.
+Synthetic constructors with added Class parameters are
+used to pass instantiation arguments to the \xcd"new"
+statement.
 This code is compiled to Java bytecode.
-
 
 Then, at run time, suppose the expression \xcd"new C()" is
 evaluated.  This causes \xcd"C" to be loaded.
@@ -75,31 +73,33 @@ been written as follows:
 {\footnotesize
 \begin{xten}
 class C {
-    final A\$Int x = new A\$Int();
+    final A\$\$int x = new A\$\$int();
     final int y = x.a;
 }
 \end{xten}}
 
-The \xcd"ActualType" annotation is used to change the
-type of the field \xcd"x" from \xcd"A" to \xcd"A\$Int".
-The call to \xcd"Runtime.alloc" is replaced with a
-constructor call.  The call to \xcd"x.get\$a()" is
-replaced with a field access.
-
+The class loader rewrites allocations of classes
+annotated with \xcd"Parameters" (e.g., \xcd"A") with allocations of the
+instantiated classes (e.g., \xcd"A\$\$int").
 The implementation cannot generate this code directly because
-the class \xcd"A\$Int" does not yet exist; the Java source compiler
+the class \xcd"A\$\$int" does not yet exist; the Java source compiler
 would fail to compile \xcd"C".
 
 Next, as the \xcd"C" object is being constructed, the expression
-\xcd"new A\$Int()" is evaluated, causing the class \xcd"A\$Int" to
+\xcd"new A\$\$int()" is evaluated, causing the class \xcd"A\$\$int" to
 be loaded.  The class loader intercepts
 this, demangles the name, and loads the bytecode for the
 template class \xcd"A".
-
 The bytecode is transformed, replacing the type property \xcd"T"
 with the concrete type \xcd"int", the translation of \xcd"Int".
 
-
+The \xcd"Runtime.recoverX" methods are used
+for coercions from any parameter type to actual
+type X.  Similarly, the \xcd"Runtime.coerce(X)"
+methods are used for coercions from actual type
+X to any parameter type (with appropriate casts).
+Both are simply eliminated from the transformed
+bytecode.
 
 {\footnotesize
 \begin{xten}
@@ -107,28 +107,38 @@ class A {
     x10.runtime.Type T;
 }
 
-class A\$Int extends A {
+class A\$int extends A {
     int x;
 }
 \end{xten}}
 
-Type properties are mapped to the Java primitive types and to
-Object.  Only nine possible instantiations per parameter.
-Instantiations used for representation.
-Adapter objects used for run time type information.
+Currently, the class loader instantiates the template for
+every encountered combination of parameters.  If desired,
+it's possible (and relatively easy) to optimize this scheme
+to only instantiate for the Java primitive types and Object,
+giving nine possible instantiations per parameter.
 
-Could do instantiation eagerly, but quickly gets out of hand without
-whole-program analysis to limit the number of instantiations: 9
-instantiations for one type property, 81 for two type
-properties, 729 for three.
+Adapter objects are used to represent inherited type
+parameters.  This is necessary for run-time type tests
+and casts.
 
-Value constraints are erased from type references.
+%Instantiations are used for representation.
+%Adapter objects are used for run time type information.
+%
+%Could do instantiation eagerly, but quickly gets out of hand without
+%whole-program analysis to limit the number of instantiations: 9
+%instantiations for one type property, 81 for two type
+%properties, 729 for three.
 
-Constructors are translated to static methods of their enclosing
-class.
-Constructor calls
-are translated to calls to static methods.
+Value constraints are erased from type references, but
+stored in the objects.  Run-time type tests are translated
+into code that checks those constraints at run time.
 
+%Constructors are translated to static methods of their
+%enclosing
+%class.
+%Constructor calls
+%are translated to calls to static methods.
 
 Consider the code in Figure~\ref{fig:translation1}.  It contains most of the
 features of generics that have to be translated.
@@ -140,29 +150,100 @@ class C[T] {
     def this[T](x: T) { this.x = x; }
     def set(x: T) { this.x = x; }
     def get(): T { return this.x; }
-    def map[S](f: T => S): S { return f(this.x); }
+    def map[S](f: F[T,S]): S { return f._(this.x); }
     def d() { return new D[T](); }
-    def t() { return new T(); }
-    def isa(y: Object): boolean { return y instanceof T; }
+    def t() { return new T(); } // FIXME
+    def isa(y: Object): boolean { return y instanceof C[T]; }
 }
+abstract class F[T,S] { S _(T x); }
 
 val x : C = new C[String]();
-val y : C[int] = new C[int]();
-val z : C{T <: Array} = new C[Array[int]]();
-x.map[int](f);
-new C[int{self==3}]() instanceof C[int{self<4}];
+val y : C[Int] = new C[Int]();
+val z : C{T <: Array} = new C[Array[Int]]();
+val f : F[String,Int] = ...;
+x.map[Int](f);
+new C[Int{self==3}]() instanceof C[Int{self<4}];
 \end{xten}}
 \caption{Code to translate}
 \label{fig:translation1}
 \end{figure*}
 
+The translated version is shown in Figure~\ref{fig:translation2}.
+\begin{figure*}[tp]
+{\footnotesize
+\begin{xten}
+@Parameters({"T"})
+class C {
+    @TypeProperty public static class T { }
+    T x;
+    C(T x) { this.x = x; }
+    @Synthetic C(Class T, T x) { this(x); }
+    @Synthetic public static boolean instanceof\$(Object o, String constraint) { assert(false); return true; }
+    public static boolean instanceof\$(Object o, String constraint, boolean b) { /*check constraint*/; return b; }
+    public static Object cast\$(Object o, String constraint) { /*check constraint*/; return (C)o; }
+    void set(T x) { this.x = x; }
+    T get() { return this.x; }
+    @Synthetic
+    @Parameters("S")
+    public static class map {
+        public static class S { };
+        public C c;
+        public map(C c) { this.c = c; }
+        @Synthetic
+        public map(Class S, C c) { this(c); }
+        public S apply(@InstantiateClass({"C\$T", "C\$map\$S"}) F f) { return f._(c.x); }
+        @Synthetic
+        public T apply(Class T, T x, T y) { return apply(x, y); } // We might only need one
+    }
+    @Synthetic
+    @ParametricMethod("T")
+    Object make\$map(Class T) { assert(false); return null; }
+    @Synthetic
+    Object make\$map(Class T, boolean ignored) {
+        Object retval = null;
+        try {
+            X10RuntimeClassloader cl = (X10RuntimeClassloader)C.class.getClassLoader();
+            Class<?> c = cl.instantiate(map.class, T); 
+            retval = c.getDeclaredConstructor(new Class[] { C.class }).newInstance(this);
+        }
+        catch (IllegalAccessException e) { }
+        catch (NoSuchMethodException e) { }
+        catch (InstantiationException e) { }
+        catch (InvocationTargetException e) { }
+        return retval;
+    }
+    @InstantiateClass({"C\$T"}) D d() { return new D(T.class); }
+    T t() { return new T(); } // FIXME
+    boolean isa(Object y) { return Runtime.instanceof\$(C.instanceof\$(y, null), T.class); }
+}
+@Parameters({"T","S"})
+abstract class F { ... }
+
+C x = new C(String.class);
+C y = new C(int.class);
+C z = new C(((X10RuntimeClassloader)C.class.getClassLoader()).getClass("Array\$\$int"));
+F f = ...;
+((C.map)(Object)(C.map)x.make\$map(int.class)).apply(int.class, f);
+
+Runtime.instanceof\$(C.instanceof\$(new C(int.class)(), "self<4"), int.class);
+\end{xten}}
+\caption{Translated code}
+\label{fig:translation2}
+\end{figure*}
+
 \subsection{Eliminating method type parameters}
+
+We generate parameterized adapter classes for each
+parameterized method.  Invoking a method thus involves
+instantiating such an adapter class and invoking its
+\xcd"apply()" method.
 
 \subsection{Translation to Java}
 
 \subsection{Run-time instantiation}
 
-We translate \xcd"instanceof" and cast operations to calls to
+We translate \xcd"instanceof" and cast operations to combinations
+of instanceof tests/casts and calls to
 methods of a \xcd"Type" because the actual implementation of
 the operation may require run-time constraint solving or other
 complex code that cannot be easily substituted in when rewriting
