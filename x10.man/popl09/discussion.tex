@@ -19,7 +19,7 @@ Constrained types are more expressive than virtual
 types in that they can be constrained at the use-site,
 can be refined on a per-object basis without explicit subclassing,
 and can be refined contravariantly
-as well as covariantly. 
+as well as covariantly.
 
 Thorup~\cite{thorup97}
 proposed adding genericity to Java using virtual types.  For example,
@@ -28,54 +28,40 @@ a generic \xcd"List" class can be written as follows:
 \begin{xten}
 abstract class List {
   abstract typedef T;
-  void add(T element) { ... }
   T get(int i) { ... }
 }
 \end{xten}}
-This class can be refined by bounding the virtual type \xcd"T" above:
+\noindent
+This class can be refined by binding the virtual type \xcd"T":
 {\footnotesize
 \begin{xten}
 abstract class NumberList extends List {
   abstract typedef T as Number;
 }
-\end{xten}}
-This abstract class can be further refined to \emph{final bind}
-\xcd"T" to a particular type:
-{\footnotesize
-\begin{xten}
 class IntList extends NumberList {
   final typedef T as Integer;
 }
 \end{xten}}
+\noindent
 These classes are related by subtyping:
 {\tt IntList} \subtype {\tt NumberList} \subtype {\tt List}.
 Only classes where \xcd"T" is final bound can be non-abstract.
 %
 The analogous definition of 
-\xcd"List" using type properties follows:
+\xcd"List" in \Xten{} using type properties is as follows:
 {\footnotesize
 \begin{xten}
 class List[T] {
-  def this[T]() = { ... }
-  def add(element: T) = { ... }
   def get(i: int): T = { ... }
 }
 \end{xten}}
 
-\noindent
-\xcd"NumberList" and \xcd"IntList" can be written as follows:
-{\footnotesize
-\begin{xten}
-class NumberList extends List{T<:Number} { }
-class IntList extends NumberList{T==Integer} { }
-\end{xten}}
-
-However, note that our version of \xcd"List" is not abstract;
+The \Xten{} version of \xcd"List" is not abstract;
 \xcd"T" need not be instantiated by a subclass because it can be
-instantiated on a per-object basis in the constructor.
-There is no
-need to declared classes for \xcd"NumberList" and \xcd"IntList".
-Instead, one can simply use the types
+instantiated on a per-object basis:
+rather than declaring subclasses
+\xcd"NumberList" and \xcd"IntList", 
+one uses the types
 \xcd"List{T<:Number}" and \xcd"List{T==Integer}".
 
 In addition,
@@ -365,12 +351,13 @@ method \xcd"compareTo" with the given signature.
 
 The analogous code for \xcd"SortedList" in the structural
 extension of \Xten{} would be:
+{\footnotesize
 \begin{xten}
 class SortedList[T]{T has def compareTo(T): int} {
     def add(x: T) = { ... x.compareTo(y) ... }
     ...
 }
-\end{xten}
+\end{xten}}
 
 \eat{
 A structural constraint is satisfied if the type has a member of
@@ -393,6 +380,45 @@ class C { def compareTo(x: C): int = ...; }
 class D { def compareTo(x: Object): int = ...; }
 \end{xten}}
 }
+
+\subsubsection{Function-typed properties}
+
+\Xten{} supports first-class functions.
+Function-typed properties provide a useful alternative to
+structural constraints.
+Consider the following version of the
+\xcd"SortedList" class:
+{\footnotesize
+\begin{xten}
+class SortedList(compare: (T,T)=>int) extends List {
+    def add(x: T) = { ... compare(x, y) ... }
+    ...
+}
+\end{xten}}
+\noindent
+The class has a property \xcd"compare" of type
+\xcd"(T,T)=>int"---a function that takes two \xcd"T"s and
+returns an \xcd"int".  
+
+Using this definition, one can create lists with distinct types
+of, for example, case-sensitive and case-insensitive strings:
+{\footnotesize\begin{xten}
+val unixFiles
+  = new SortedList[String]
+        (String.compareTo.(String));
+val windowsFiles
+  = new SortedList[String]
+        (String.compareToIgnoreCase.(String));
+\end{xten}}
+
+\noindent
+The lists \xcd"unixFiles" and \xcd"windowsFiles" are constrained
+by different comparison functions.  This allows the programmer
+to write code, for instance, in which it is illegal to pass a list of UNIX
+files into a function that expects a list of Windows files, and
+vice versa.
+
+\subsubsection{Optional methods}
 
 Structural method constraints permit the introduction of
 CLU-style optional methods~\cite{clu}.  Consider the following
@@ -419,6 +445,9 @@ that adds an \xcd"int" and a \xcd"double", retuning a
 \xcd"double".  However, \xcd"Array[Rabbit]", for example, does not support
 the \xcd"add" operation because \xcd"Rabbit" does not have an
 \xcd"add" method.
+
+
+
 
 \eat{
 \subsection{Definition-site variance}

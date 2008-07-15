@@ -24,6 +24,7 @@
 \usepackage{listings}
 \usepackage{x10}
 
+  %\hyphenpenalty=1000
 
 \def\val{\mbox{\tt val}}
 \def\klass{\mbox{\tt class}}
@@ -169,25 +170,24 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
 %\input{introduction}
 \input{vj-intro}
 
-
-\section{Semantics}
-\label{sec:semantics}
-\input{quad-semantics}
-
 \section{X10 language overview}
 \label{sec:lang}
 \input{x10-overview}
-
-\eat{\input{constraint-solver.tex}}
-
-\section{Discussion}
-\label{sec:discussion}
-\input{discussion}
 
 \section{Translation}
 \label{sec:translation}
 \label{sec:impl}
 \input{translation.tex}
+
+\eat{\input{constraint-solver.tex}}
+
+\section{Semantics}
+\label{sec:semantics}
+\input{quad-semantics}
+
+\section{Discussion}
+\label{sec:discussion}
+\input{discussion}
 
 \section{Related work}
 \label{sec:related}
@@ -196,17 +196,23 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
 \section{Conclusions}
 \label{sec:conclusions}
 
-\todo{rewrite}
+We have presented a constraint-based framework \FX{} for type-
+and value-dependent types in an object-oriented language.  The
+framework is instantiated on a constraint system $\cal O$ that
+captures the inheritance, subtyping, and class membership
+relationships of the program.  Further instantiations augment
+the constraint system with dependent types and generic types.
+Types in the framework are comprised of classes and a constraint
+over types and values.  
 
-We have presented a preliminary design for supporting genericity
-in \Xten{} using type properties.  This type system generalizes the
-existing \Xten{} type system.  The use of constraints on type
-properties allows
-the design to capture many features of generics in languages
-like Java 5 and \csharp and then to extend these features with new
-more expressive power.
-We expect that the design admits an efficient
-implementation and intend to implement the design shortly.
+The use of constraints on type properties allows the design to
+capture many features of generics in languages like Java 5 and
+\csharp and then to extend these features with new more
+expressive power.
+
+The type system \FXGD{} formalizes the semantics of the \Xten{}
+programming language.  The design admits an efficient
+implementation for generics and dependent types in \Xten{}.
 
 \section*{Acknowledgments} 
 

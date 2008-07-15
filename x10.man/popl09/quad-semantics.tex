@@ -208,7 +208,7 @@ The judgments of interest are as follows.
 (4)~Method OK (method $\tt M$ is well-defined for the class $\tt C$): $\Gamma \vdash M\ \mbox{OK in $C$}$,
 (5)~Field OK (field $\tt f:T$ is well-defined for the class $\tt
    C$): $\Gamma \vdash f:T\ \mbox{OK in $C$}$
-(6)~Class OK: $\Gamma \vdash {\tt Cl} \ OK$ (class definition {\tt Cl} is well-formed). 
+(6)~Class OK: $\Gamma \vdash {\tt L} \ OK$ (class definition {\tt L} is well-formed). 
 
 In defining these judgments we will use $\Gamma \vdash_{\cal C} c$,
 the judgment corresponding to the underlying constraint system. For
@@ -497,7 +497,7 @@ The theorem needs the Substitution Lemma:
 {\Gamma \vdash {\tt e[\bar{\tt d}/\bar{\tt x}]:S}, {\tt S \subtype \bar{\tt x}:\bar{\tt A};T}}
 \end{lemma}
 
-We let values be of the form $\tt v ::= new C(\bar{\tt v})$. 
+We let values be of the form $\tt v ::= \new\ C(\bar{\tt v})$. 
 \begin{theorem}[Progress]
 If $\vdash {\tt e:T}$ then one of the following conditions holds:
 \begin{enumerate}
