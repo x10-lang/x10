@@ -100,7 +100,7 @@ class List[T](length: int){length >= 0} {
     return i==0 ? head : tail.get(i-1);
   }
 
-  def map[S](f: Object{self $\unrhd$ T} => S): List[S] = {
+  def map[S](f: Object{self $\super$ T} => S): List[S] = {
     if (length==0)
       return new List[S](0);
     else if (length==1)
