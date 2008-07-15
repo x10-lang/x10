@@ -1,8 +1,0 @@
-Sun Jun 15 16:02:39 2008
-What happens if we have:
-
-class C[T] {...}
-
-class D[T] extends C[T] {...}
-
-Do we have one type property named T in a D or two?
