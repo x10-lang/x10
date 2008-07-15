@@ -194,21 +194,13 @@ respectively.}
 \end{example}
 
 The type \Xcd{Array\{self.T==int\}} specifies the type of all arrays
-whose base type (\Xcd{T}) is \Xcd{int}. The type 
-
-{\footnotesize 
-\Xcd{Array\{self.T <: Numeric, self.r.rank==2\}}
-}
-
-\noindent specifies the type of all arrays whose base
+whose base type (\Xcd{T}) is \Xcd{int}.
+\Xcdmath{Array\{self.T $\extends$ Numeric,} \Xcd{self.r.rank==2\}}
+specifies the type of all arrays whose base
 type is a subtype of {\tt Numeric}, and whose region has rank {\tt 2}.
 The type 
-
-{\footnotesize
-\Xcd{Array\{self.T==List\{self.length==N\},self.r.rank==N\}}
-}
-
-\noindent specifies an {\tt N}-dimensional array whose elements are lists (of
+\Xcd{Array\{self.T==List\{self.length==N\},} \Xcd{self.r.rank==N\}}
+specifies an {\tt N}-dimensional array whose elements are lists (of
 unkown type) that are precisely {\tt N} long.
 
 Note that for any expression \xcd"a" of type \xcd"Array", \xcd"a.T" is
@@ -223,9 +215,9 @@ Array.get}).
 \subsection{Design and implementation of the \Xten{} type system}
 Many features of modern object-oriented type systems fall out
 naturally in this extended framework for constrained types.
-
-We illustrate by discussing the design of a new revision of the
-\Xten{} language (v 1.7, to be released Fall 08), and various
+%
+We illustrate these by discussing the design of a new revision of the
+\Xten{} language (v1.7, to be released Fall 2008), and various
 programming idioms. Besides constrained types, the language supports
 function types. Since there may be a large number of constrained types
 in a program, a pure heterogeneous translation may lead to significant
