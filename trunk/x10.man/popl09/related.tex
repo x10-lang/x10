@@ -257,11 +257,13 @@ constraints that must be satisfied to invoke the method.
 Generic \Xten{} supports these constraints, as well as constraints
 on values, with method and constructor where clauses.
 
+\eat{
 \FXG{} does not support \emph{bivariance}~\cite{variant-parametric-types}; a
 class \xcd"C" is bivariant in a type property \xcd"X" if \xcd"C{self.X==S}" is
 a subtype of \xcd"C{self.X==T}" for any \xcd"S" and \xcd"T".  Bivariance is
 useful for writing code in which the property \xcd"X" is ignored.  One can
 achieve  this effect in \FXG{} simply by leaving \xcd"X" unconstrained.
+}
 
 \eat{
 Parametric types with use-site variance are related to existential types:
