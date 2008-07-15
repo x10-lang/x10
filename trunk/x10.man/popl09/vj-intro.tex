@@ -7,13 +7,13 @@
 
 Modern architectural advances are leading to the development of
 complex computational systems, such as heterogeneous multi-core
-systems (e.g. Cell), large CPU count systems such as the Blue Gene,
+systems (e.g., Cell), large CPU count systems such as the Blue Gene,
 hybrid accelerated clusters such as the Road Runner.  Such systems
 pose a central challenge: How can application programmers write
 high-performance programs for such machines while building on the
 productivity gains of modern OO languages?
 
-The \Xten{} programming language \cite{concur05,oopsla05,x10} was
+The \Xten{} programming language \cite{x10-concur,x10-oopsla05,x10} was
 designed to address the challenges of ``productivity with
 performance'' on these diverse architectures. Developed on
 the {\em asynchronous partitioned global address} (APGAS) model, 
@@ -48,10 +48,10 @@ race conditions arise due to simultaneous read and write accesses by
 multiple activities to different divisions.
 
 These requirements motivated us to develop a framework for dependent
-types in OO languages \cite{x10-oopsla08}.  {\em Dependent type
+types in OO languages \cite{constrained-types}.  {\em Dependent type
 systems}~\cite{dependent-types,xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter,calc-constructions}
 have been extensively developed over the past few decades in the
-context of logic and functional programming -- they permit types to be
+context of logic and functional programming---they permit types to be
 parametrized by {\em values}.
 
 The key idea behind our approach is to focus on the notion of a {\em
@@ -59,9 +59,9 @@ constraint system}. Constraint systems were originally developed in
 \cite{cccc} to provide a simple framework for a large variety of
 inference systems used in programming languages, in particular as a
 foundation for constraint programming languages.  Patterned after
-Scott's information systems\cite{info-sys}, a constraint system is
+Scott's information systems~\cite{info-sys}, a constraint system is
 organized around the notion of {\em constraints} or tokens of partial
-information (e.g.{} {\tt X+Y>Z*3}), together with an entailment
+information (e.g., {\tt X+Y>Z*3}), together with an entailment
 relation $\vdash$.  Tokens may have first-order structure; existential
 quantification is supported. The entailment relation is required to
 support a certain set of inference rules arising from a Gentzen-style
@@ -73,9 +73,9 @@ which are of interest to the application.  For instance, in \Java{}
 the length of an array may not be statically known but is fixed once
 the array is created. Hence we can enrich the notion of a type: for a
 class {\tt C} we permit a type {\tt C\{c\}} where {\tt c} is a
-constraint on the immutable fields of the class. Thus, {\tt
-Array{self.length==N}} is a type satisfied by any array whose length
-is {\tt N} -- a (final) variable whose value may be unknown
+constraint on the immutable fields of the class. Thus,
+\Xcd{Array\{self.length==N\}} is a type satisfied by any array whose length
+is {\tt N}---a (final) variable whose value may be unknown
 statically. Subtyping is easily defined: a type {\tt C\{c\}} is a
 subtype of {\tt D\{d\}} (in the sense that any value satisfying {\tt
 C\{c\}} may be used wherever a value satisfying {\tt D\{d\}} is
@@ -85,8 +85,8 @@ entails {\tt d} in the underlying constraint system.
 Constrained types maintain a key phase distinction between
 compile-time computation (entailment checking in the underlying
 constraint system) and run-time (normal OO computation).  Dynamic type
-casting is permitted -- it leads to code being generated for execution
-at runtime to check that properties of the given object satisfy the
+casting is permitted---it leads to code being generated for execution
+at run time to check that properties of the given object satisfy the
 given constraint. 
 
 The constrained types approach enjoys many nice properties in contrast
@@ -110,8 +110,7 @@ C$) \cite{clp} or the richer RCC($\cal C$) \cite{rc}.
 
 In this paper we extend the constrained types approach to handle {\em
 generic
-types}~\cite{clu,ada,GJ,java-popl97,thorup97,Java3,csharp-generics} --
-types such as {\tt List<T>} in Java that are parametrized by other
+types}~\cite{clu,ada,GJ,java-popl97,thorup97,Java3,csharp-generics}---types such as {\tt List<T>} in Java that are parametrized by other
 types. Generic types are vital for implementing type-safe, reusable
 libraries, especially collections classes. For instance the data type
 {\tt Array} discussed above is generic on its member type.
@@ -133,13 +132,13 @@ members ``flow'' from supertypes to subtypes in a manner determined by
 the overriding rules of the language.
 
 This motivates a very natural constraint system on types.  For a type
-variable {\tt X} we should be able to assert the constraint ${\tt X
-<: T}$: a valuation (mapping from variables to types) realizes
+variable {\tt X} we should be able to assert the constraint
+\Xcd{X} \subtype \Xcd{T}: a valuation (mapping from variables to types) realizes
 this constraint if it maps {\tt X} to a type that is a subtype of {\tt
 T}. Similarly, it should be able to require that a type has a
-particular member -- a field with a given name and type, or a method
-with a given name and signature. We introduce the constraints {\tt T
-{}\has\ f:T} and $\tt T \has m(\bar{x}:\bar{S}):T$ to express this.
+particular member---a field with a given name and type, or a method
+with a given name and signature. We introduce the constraints
+\Xcd{T has f:T} and \Xcdmath{T has m($\tbar{x}\ty\tbar{S}$):T} to express this.
 
 The entailment relation between these pieces of partial information is
 straightforward to specify, given the interpretation specified in the
@@ -153,29 +152,30 @@ The next question is: where should variable types be permitted?
 Clearly, one must permit methods to have type parameters (as permitted
 for instance in Java~\cite{Java3}, Scala~\cite{scala} and in
 functional languages such as ML~\cite{ml} and Haskell~\cite{haskell}).
-It is necessary as well to permit classes to be dependent on types --
-for instance, {\tt Array} should be dependent on the type of its
+It is necessary as well to permit classes to be dependent on
+types---for instance, {\tt Array} should be dependent on the type of its
 member elements. While it is possible to develop an approach that
 classes have type {\em parameters} (cf \cite{Java3}), the constrained
 type approach suggests an alternative: classes may have type-valued
 properties (=immutable instance fields). To create an instance of such
 a class a type must be supplied to initialize this property. As with
-other state of the object, this value is available at runtime -- and
+other state of the object, this value is available at run time---and
 can hence be used in dynamic cast expressions.
 
 A pleasing aspect of the resulting design is that the same fundamental
-mechanism of constrained types -- imposing constraints on properties
+mechanism of constrained types---imposing constraints on properties
 -- is used to specify both value- and type-dependency of types.
 
 \begin{example}[Array]
   Consider the class {\tt Array} declared as:
+{\footnotesize
 \begin{xten}
 class Array[T](r:Region) {
   def get(p: Point{self in this.r}): this.T = ...;
   def set(p: Point{self in this.r}, v: this.T) = ...;
   ...
 }
-\end{xten}
+\end{xten}}
 {}\noindent The class has two properties, a type-valued property {\tt
 T} (enclosed in square brackets), and a value property {\tt r} of type
 {\tt Region}. The {\tt get} method for the array requires a point {\tt
@@ -186,19 +186,19 @@ this.}'' selector, as usual for OO languages. Hence occurrences of
 respectively.}
 \end{example}
 
-The type {\tt Array\{self.T==int\}} specifies the type of all arrays
-whose base type ({\tt T}) is {\tt int}. The type {\tt Array\{self.T <:
-Numeric, self.r.rank==2\}} specifies the type of all arrays whose base
+The type \Xcd{Array\{self.T==int\}} specifies the type of all arrays
+whose base type (\Xcd{T}) is \Xcd{int}. The type
+\Xcd{Array\{self.T} \Xcd{<:} \Xcd{Numeric,} \Xcd{self.r.rank==2\}} specifies the type of all arrays whose base
 type is a subtype of {\tt Numeric}, and whose region has rank {\tt 2}.
-The type {\tt Array\{self.T==List\{self.length==N\},self.r.rank==N\}}
+The type \Xcd{Array\{self.T==List\{self.length==N\},self.r.rank==N\}}
 specifies an {\tt N}-dimensional array whose elements are lists (of
-unkown type) that are precisely {\tt N} long.
+unknown type) that are precisely {\tt N} long.
 
 Note that for any expression \xcd"a" of type \xcd"Array", \xcd"a.T" is
 a type, equivalent to the type to which \xcd"T" was initialized when
-the object \xcd"a" was instantiated (e.g.{} {\tt String} or {\tt
-Point\{self in R\}}.  Thus if {\tt a} is a ``final'' access path
-(e.g. {\tt x.f.g}, where {\tt x} is an immutable variable, and {\tt f}
+the object \xcd"a" was instantiated (e.g., {\tt String} or
+\Xcd{Point\{self in R\}}.  Thus if {\tt a} is a ``final'' access path
+(e.g., {\tt x.f.g}, where {\tt x} is an immutable variable, and {\tt f}
 and {\tt g} are immutable fields), the expression {\tt a.T} may itself
 be used as a type (cf. the return type {\tt this.T} for the {\tt
 Array.get}).
@@ -216,16 +216,16 @@ shown to sound with respect to the operational semantics.
 
 Different members of the family are associated with different
 constraint systems. \FXZ{} is
-\FX{} instantiated over the vacuous constraint system -- the only
+\FX{} instantiated over the vacuous constraint system---the only
 user-specifiable constraint permitted is the vacuous {\tt true}. \FXZ{}
 corresponds to \FJ. \FXG{} permits user-specifiable constraints from the 
-Object constraint system $\cal O$ described above -- it corresponds to
+Object constraint system $\cal O$ described above---it corresponds to
 \FGJ{} (being somewhat richer in permitting path types). \FXD{} permits
-the use of constraints from some constraint system $\cal A$ -- it
+the use of constraints from some constraint system $\cal A$---it
 corresponds to a language with a pure value-dependent type system as
 described in \cite{OOPSLA08}. \FXGD{} permits the use of constraints
-from $\cal O$ and $\cal A$ -- thus permitting value- and
-type-dependence -- and is the main topic for this paper.
+from $\cal O$ and $\cal A$---thus permitting value- and
+type-dependence---and is the main topic for this paper.
 
 \subsection{Design and implementation of \Xten{} type system}
 \FXGD{} is the basis for the design of the type system for \Xten{} v1.7, a new
