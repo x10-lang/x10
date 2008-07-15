@@ -95,8 +95,8 @@ The class loader rewrites allocations of template classes
 instantiated classes (e.g., \xcd"A$$int").
 The name of the instantiated class is a mangled name derived from the name
 of the template class and the type properties.
-The implementation cannot generate this code directly because
-the class \xcd"A$$int" does not yet exist; the Java source compiler
+This code cannot be generated directly because
+class \xcd"A$$int" does not yet exist; the Java source compiler
 would fail to compile \xcd"C".
 
 Upon evaluation of the constructor,
