@@ -1,53 +1,21 @@
 
 This section presents an informal description of 
-dependent and generic types in \Xten{}.  The type system is formalized
-in a simplified version of \Xten{}, \FX{}, in
-Section~\ref{sec:semantics}.
-
-When presenting syntax, we follow the usual conventions for
-Featherweight Java:
-we write \xbar{t} for the list
-\xcdmath"t$_1$,$\dots$,t$_n$"; 
-terms with list subterms are considered 
-a single list of terms (e.g., 
-we write \xbar{x}\Xcd{:}\xbar{T} for the list
-\xcdmath"x$_1$:T$_1$,$\dots$,x$_n$:T$_n$").
+dependent and generic types in \Xten{}.  
 
 \Xten{} is a class-based object-oriented language.
-The language has a sequential core similar to Java or Scala, but 
-constructs
-for concurrency and distribution, as well as constrained types,
-described here.
-Like Java, the language provides single class inheritance and
-multiple interface inheritance.
+The language has a sequential core similar to Java or Scala, but
+constructs for concurrency and distribution, as well as constrained
+types, described here.  Like Java, the language provides single class
+inheritance and multiple interface inheritance.
 
 A constrained type in \Xten{} is written \xcd"C{e}", where \xcd"C" is the
 name of a class and \xcd"e" is a constraint on the properties of
 \xcd"C" and the final variables in scope at the type.  The
-constraint \xcd"e" may refer to the value being constrained
-through the special variable \xcd"self", which has type \xcd"C"
-in the constraint.  Constraints are drawn from a constraint
-language that, syntactically, is a subset of the boolean
-expressions of \Xten{}.
-
-The compiler checks that constraints are expressions
-of type \xcd"boolean" and that they can be statically checked by
-the compiler's constraint solver.  
-\Xten{} supports conjunctions of equalities
-over final variables and compile-time constants, and equalities
-and subtyping constraints over types.
-Compiler plugins may be installed to
-handle richer constraint systems such as Presburger arithmetic
-or set constraints.
-
-For brevity, the constraint may be omitted and
-interpreted as \xcd"true".
-The syntax
-\xcdmath"C[$\tbar{T}$]($\tbar{e}$)" is shorthand for
-\xcdmath"C[$\tbar{X}$==$\tbar{T}$]($\tbar{x}$==$\tbar{e}$)"
-where \xcdmath{X$_i$} are the type properties and \xcdmath"x$_i$" are the
-value properties of \xcd{C}.
-If either list of properties is empty, it may be omitted.
+constraint \xcd"e" may refer to the value being constrained through
+the special variable \xcd"self", which has type \xcd"C" in the
+constraint.  Constraints are drawn from a constraint language that,
+syntactically, is a subset of the boolean expressions of \Xten{}.  For
+brevity, the constraint may be omitted and interpreted as \xcd"true".
 
 To illustrate the features of dependent types in \Xten{}, we develop a \xcd"List"
 class.  We will present several versions of \xcd"List" as we
