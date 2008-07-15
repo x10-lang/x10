@@ -473,9 +473,8 @@ public class XConstraint_c implements XConstraint, Cloneable {
 		if (result)
 			return result;
 
-		if (roots == null || !roots.containsKey(t1) || !roots.containsKey(t2))
-			return true;
-
+                // FIXME: need to handle existentials.
+                
 		return false;
 
 	}
@@ -696,7 +695,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
 	public void replace(XPromise y, XPromise x, XRoot root) {
 		Collection<XPromise> rootPs = roots.values();
 		for (Map.Entry<XTerm, XPromise> e : roots.entrySet()) {
-			if (!e.getKey().equals(x)) {
+			if (!e.getKey().equals(x.term())) {
 				XPromise p = e.getValue();
 				p.replaceDescendant(y, x, root);
 			}

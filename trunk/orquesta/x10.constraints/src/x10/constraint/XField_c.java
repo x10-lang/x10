@@ -23,7 +23,7 @@ public class XField_c extends XVar_c implements XField {
 	public XTerm subst(XTerm y, XRoot x) {
 		XVar newReceiver = (XVar) receiver.subst(y, x);
 		if (newReceiver == receiver)
-			return this;
+		    return this;
 		XField_c n = (XField_c) clone();
 		n.receiver = newReceiver;
 		return n;
