@@ -3,55 +3,61 @@
 \footnotesize
 \begin{tabular}{l}
 \begin{tabular}{ll}
-\multicolumn{2}{l}{\bf \FX{} productions:} \\
+\multicolumn{2}{l}{\!\!\!\!\!\bf \FX{} productions:} \\
 \quad\\
 \begin{tabular}{r@{\quad}rcl}
   (Class) & {\tt L} &{::=}& \klass\ {\tt C}($\bar{\tt f}:\bar{\tt V}$)\{{\tt c}\}\ {\tt extends}\ {\tt N}\ \{$\bar{\tt M}$\} \\
   (Method)& {\tt M} &{::=}& {\tt def}\ {\tt m}($\bar{\tt x}:\bar{\tt V}$){\tt \{c\}:V=e;}\\
-  (Exp.)& {\tt e} &{::=}& \tt {\tt x} \alt \this \alt {\tt e.f} \alt {\tt e.m}($\bar{\tt e}$) \\
-  &&& \alt \new\ C($\bar{\tt e}$) \alt {\tt e}\ \mbox{as {\tt T}} \\ 
+  (Exp.)& {\tt e} &{::=}& {\tt x} \alt \this \alt {\tt e.f} \alt {\tt e.m}($\bar{\tt e}$) \\
+  && \alt & \new\ {\tt C}($\bar{\tt e}$) \alt {\tt e}\ \mbox{{\tt as} {\tt T}} \\ 
   (Par Type) & {\tt U},{\tt V}&{::=} & {\tt T} \\
 \end{tabular} 
 &
 \begin{tabular}{r@{\quad}rcl}
   (Type)& {\tt S},{\tt T}&{::=}& {\tt N} \alt {\tt T\{c\}} \alt ({\tt x}:S;T)\\
   (N Type) & {\tt N}&{::=}& {\tt C} \alt {\tt N\{c\}}\\
-  (C Term) & {\tt t} &{::=}& {\tt x}\alt \self \alt \this \alt {\tt t}.f \alt \new\ {\tt C}($\bar{t}$)\\
+  (C Term) & {\tt t} &{::=}& {\tt x} \alt \self \alt \this \alt {\tt t}.f \alt \new\ {\tt C}($\bar{t}$)\\
   (Const.) & {\tt c},{\tt d} &{::=}&\true \alt {\tt t==t} \alt {\tt c},{\tt c} \alt {\tt x}:{\tt V};{\tt c}\\
 %  (Values) & {\tt v}&{::=}& \new\ {\tt C}($\bar{\tt v}$)
 \end{tabular} 
 \end{tabular}
 \quad \\
+\quad\\
 {\tabcolsep=0pt
-\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.25\textwidth}p{0.25\textwidth}}
-\multicolumn{4}{l}{\bf \FX{} well-formedness rules:}\\
-\infax[{\tt true}]{\Gamma \vdash {\tt true}: {\tt o}}
+\begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+\multicolumn{3}{l}{\bf \FX{} well-formedness rules:}\\
+\infax[True]{\Gamma \vdash {\tt true}: {\tt o}}
 &
 \infrule[And]
-	{\tt \Gamma \vdash c_0: o \andalso \Gamma \vdash c_1: o}
-	{\tt \Gamma \vdash (c_0,c_1):o}
+	{\Gamma\tt  \vdash c_0: o \andalso \Gamma \vdash c_1: o}
+	{\Gamma\tt \vdash (c_0,c_1):o}
 &
 \infrule[Exists]
-	{\tt \Gamma \vdash t: T \andalso \Gamma \vdash c[t/x]:o}
-	{\tt \Gamma \vdash x:T;c: o}
-&
+	{\Gamma\tt \vdash t: T \andalso \Gamma \vdash c[t/x]:o}
+	{\Gamma\tt \vdash x:T;c: o}
+\\
+\end{tabular}}
+\quad\\
+{\tabcolsep=0pt
+\begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
 \infrule[Class]
 	{\Gamma \vdash \klass({\tt C})}
 	{\Gamma \vdash {\tt C}\ \type} 
-\\
+&
 \infrule[Exist-T]
-	{\tt \Gamma \vdash {\tt S}\ \type, {\tt T}\ \type}
-	{\tt \Gamma \vdash {\tt x:S;T}\ {\tt type}} 
+	{\Gamma\tt \vdash {\tt S}\ \type, {\tt T}\ \type}
+	{\Gamma\tt \vdash {\tt x:S;T}\ {\tt type}} 
 &
 \infrule[Dep]
-	{\tt \Gamma \vdash T\ \type \andalso \Gamma, \self:T \vdash c:o}
-	{\tt \Gamma \vdash T\{c\}\ {\tt type}} 
+	{\Gamma\tt \vdash T\ \type \andalso \Gamma, \self:T \vdash c:o}
+	{\Gamma\tt \vdash T\{c\}\ {\tt type}} 
+\\
 \end{tabular}}
 \quad\\
 \quad\\
 {\tabcolsep=0pt
 \begin{tabular}{l}
-\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.47\textwidth}}
+\begin{tabular}{p{0.27\textwidth}p{0.26\textwidth}p{0.44\textwidth}}
 \multicolumn{3}{l}{\bf Type judgement rules:}\\
 \infax[T-Var]
       {\Gamma, {\tt x}:{\tt T} \vdash {\tt x}:{\tt T\{\self==x\}}}
@@ -64,7 +70,7 @@
 	{\Gamma \vdash {\tt e}.{\tt f}:  ({\tt z}:{\tt S};{\tt V\{\self=z.f\}})}
 \end{tabular}\\
 \begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}} 
-\infrule[T-INVK]
+\infrule[T-Invk]
 	{\Gamma \vdash {\tt e}:{\tt T},\bar{\tt e}:\bar{\tt V} \andalso \\
 	  \Gamma,{\tt v}:{\tt T},\bar{\tt v}:\bar{\tt V} \vdash
 		{\tt v}\ \has\ ({\tt m}(\bar{\tt v}:\bar{\tt U}), {\tt c} \rightarrow {\tt S}), 
@@ -72,7 +78,7 @@
 	  \andalso \mbox{({\tt v},$\bar{\tt v}$ fresh)}}
 	{\Gamma \vdash {\tt e}.{\tt m}(\bar{\tt e}): ({\tt v}:{\tt T};\bar{\tt v}:\bar{\tt V};S)}
 	&
-\infrule[T-NEW]
+\infrule[T-New]
 	{\Gamma \vdash \bar{\tt e}:\bar{\tt T} \andalso \vdash \klass({\tt C}) \\ 
 	  \Gamma,{\tt v}:{\tt C}\vdash \fields({\tt v})=\bar{\tt f}:\bar{\tt V}  \andalso \mbox{({\tt v},$\bar{\tt v}$\ fresh)}\\
 	  \Gamma, {\tt v}:{\tt C}, \bar{\tt v}:\bar{\tt T}, {\tt v}.\bar{\tt f}=\bar{\tt v} 
@@ -90,8 +96,9 @@
 \end{tabular}
 \end{tabular}}\\
 \quad\\
+{\tabcolsep=0pt
 \begin{tabular}{p{0.43\textwidth}@{\quad}p{0.54\textwidth}}
-\multicolumn{2}{l}{\bf Transition Rules:}\\
+\multicolumn{2}{l}{\bf Transition rules:}\\
 \typicallabel{RC-Field}
 \infrule[\RField]
 	{\tt x:C \vdash \fields(\tt x)=\bar{\tt f}:\bar{\tt V}}
@@ -126,6 +133,7 @@
 		{{\tt e}_i \derives {{\tt e}_i}'}
 		{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)}
 \end{tabular}
+}
 \end{tabular}  
  \caption{Semantics of \FX}\label{fig:FX}
 \end{figure*}

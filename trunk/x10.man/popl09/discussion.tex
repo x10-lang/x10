@@ -27,7 +27,8 @@ class Cons[T] extends List[T] {
     def tail(): List[T] = { ... }
 }
 \end{xten}
-% This code is perfectly acceptable in X10 as well, but introduces a redundant
+% This code is perfectly acceptable in \Xten{} as well,
+but introduces a redundant
 % type property \xcd"T" equal to the \xcd"T" inherited from \xcd"List".
 
 We can make the type system behave as if type properties were
@@ -39,7 +40,7 @@ qualifier.
 \subsection{Wildcards}
 
 Wildcards in Java~\cite{Java3,adding-wildcards} were motivated
-by the following example (rewritten in X10 syntax)
+by the following example (rewritten in \Xten{} syntax)
 from \cite{adding-wildcards}.
 Sometimes a class needs a field or method
 that is a list, but we don't care what the element type is.
@@ -55,7 +56,7 @@ typed:
 \begin{xten}
 List<?> list;
 \end{xten}
-In X10, a similar effect is achieved by not constraining the
+In \Xten{}, a similar effect is achieved by not constraining the
 type property of \xcd"List".
 One can write the following:
 \begin{xten}
@@ -67,7 +68,7 @@ not constraining \xcd"List":
 def aMethod(list: List) = { ... }
 \end{xten}
 
-In X10, \xcd"List"
+In \Xten{}, \xcd"List"
 is a supertype of
 \xcd"List[T]" for any \xcd"T",
 just as in Java
@@ -79,13 +80,13 @@ as \xcd"List{X==T}", and the definition of subtyping.
 
 Wildcards in Java can also be bounded.
 We achieve the same
-effect in X10 by using type constraints.
+effect in \Xten{} by using type constraints.
 For instance, the following Java declarations:
 \begin{xten}
 void aMethod(List<? extends Number> list) { ... }
 <T extends Number> void aParameterizedMethod(List<T> list) { ... }
 \end{xten}
-may be written as follows in X10:
+may be written as follows in \Xten{}:
 \begin{xten}
 def aMethod(list: List{T <: Number}) = { ... }
 def aParameterizedMethod[T{self <: Number}](list: List[T]) = { ... }
@@ -98,7 +99,7 @@ Number num = list.get(0);     // legal
 list.set(0, new Double(0.0)); // illegal
 list.set(0, list.get(1));     // illegal
 \end{xten}
-This can also be written in X10, but with an important
+This can also be written in \Xten{}, but with an important
 difference:
 \begin{xten}
 list: List{T <: Number} = new ArrayList[Integer]();
@@ -107,7 +108,7 @@ list.set(0, new Double(0.0)); // illegal
 list.set(0, list.get(1));     // legal! (when list is final)
 \end{xten}
 Note because \xcd"list.get" has return type \xcd"list.T", the
-last call in above is well-typed in X10; the analogous call in
+last call in above is well-typed in \Xten{}; the analogous call in
 Java is not well-typed.
 
 Finally,
@@ -410,40 +411,26 @@ Restrictions:
 \label{sec:structural}
 
 Type constraints need not be limited to subtyping constraints.
-By introducing structural constraints on types, \gxx allows
-type properties to be instantiated on any type with a given set
+By introducing structural constraints on types, one can
+instantiate
+type properties on any type with a given set
 of methods and fields. This feature is useful for reusing code
 in separate libraries since it does not require
 code of one library to implement an interface to satisfy a
 constraint of another library.
 
-
-\begin{figure}[tp]
-\begin{center}
-\begin{tabular}{lrcl}
-constraints & {\tt c} & ::= & \dots \\
-            &        & \bnf & \xcd"T has Sig" \\
-signatures  & {\tt Sig} & ::= &
-\xcdmath"def this[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
-            &        & \bnf &
-\xcdmath"def m[$\tbar{X}$]($\tbar{x}$: $\tbar{T}$){c}: T" \\
-            &        & \bnf &
-\xcdmath"val x{c}: T" \\
-            %&  & \bnf & \xcdmath"var x{c}: T" \\
-\end{tabular}
-\end{center}
-\caption{Grammar for structural constraints}
-\label{fig:structural2}
-\end{figure}
-
-In this section, we consider an extension of the X10 type system
-to support structural type constraints.
-The type
-system need not change except by extending the constraint
-system.  The syntax for structural constraints is shown in
-Figure~\ref{fig:structural}.  A structural constraint of the
-form \xcd"T has Sig" can specify that the type \xcd"T" have a
-constructor, method, or field of the given signature.
+In this section, we consider an extension of the \Xten{} type system
+to support structural type constraints.  Formally, the extension
+is straightforward; indeed the \FX{} family already supports structural constraints
+via the rules {\sc Has-F},
+{\sc Method-B},
+{\sc Method-I},
+and
+{\sc Method-C,E} in Figure~\ref{fig:O}.
+The constraint system need change only to add 
+structural
+constraints of the form ``{\tt T} {\tt has} {\tt I}''
+trivially derived from the existing constraints.
 
 Structural constraints on types are found in many languages.
 Haskell supports type
@@ -452,10 +439,11 @@ classes~\cite{haskell,haskell-type-classes}.
 %structural signatures~\cite{ml}.
 In Modula-3, type equivalence and subtyping are structural
 rather than nominal as in object-oriented languages of the C
-family such as C++, Java, Scala, and X10.
+family such as C++, Java, Scala, and \Xten{}.
 %
-The language PolyJ~\cite{java-popl97} allows type parameters to be bounded using
-structural where clauses.
+The language PolyJ~\cite{java-popl97} allows type parameters to be
+bounded using
+structural \emph{where clauses}.
 For example, the sorted list class from Figure~\ref{fig:sorted}
 could be
 be written as follows in PolyJ:
@@ -469,7 +457,7 @@ The where clause states that the type parameter \xcd"T" must have a
 method \xcd"compareTo" with the given signature.
 
 The analogous code for \xcd"SortedList" in the structural
-extension of X10 is:
+extension of \Xten{} would be:
 \begin{xten}
 class SortedList[T]{T has def compareTo(T): int} {
     def add(x: T) = { ... x.compareTo(y) ... }
@@ -494,6 +482,3 @@ is satisfied by both of the following classes:
 class C { def compareTo(x: C): int = ...; }
 class D { def compareTo(x: Object): int = ...; }
 \end{xten}
-
-\todo{The important bit about all this is... don't have to
-      change the type system, just the constraints}

@@ -114,7 +114,7 @@ encoded in constrained types.
 Logically qualified types, or liquid types~\cite{liquid-types},
 permit types in a base Hindley--Milner-style type system to be refined with
 conjunctions of logical qualifiers.  The subtyping relation is similar to
-X10's, that is, two liquid types are in the subtyping relation if their base
+\Xten{}'s, that is, two liquid types are in the subtyping relation if their base
 types are and if one type's qualifier implies the other's.
 The Hindley--Milner type
 inference algorithm is used to infer base types; these types are used as templates for inference of the liquid types.
@@ -130,7 +130,7 @@ While typing is undecidable, dynamic checks are inserted into
 the program when necessary if the type-checker (which
 includes a constraint solver) cannot determine
 type safety statically.
-In \gxx, dynamic type checks, including tests of dependent
+In \FXG{}, dynamic type checks, including tests of dependent
 constraints, are inserted only at explicit casts or
 \Xcd{instanceof} expressions; constraint solving is performed at compile time.
 
@@ -145,7 +145,7 @@ with constraints written as Coq~\cite{coq} rules.
 While the types are expressive, supporting the full generality
 of the Coq language, proofs must be
 provided to satisfy the type checker.
-X10 supports only constraints that can be checked by a
+\Xten{} supports only constraints that can be checked by a
 constraint solver during compilation.
 Concoqtion encodes OCaml types and value to allow reasoning in
 the Coq formulae; however, there is an impedence mismatch
@@ -239,38 +239,38 @@ parameters via type erasure.
 PolyJ~\cite{java-popl97} supports run-time representation of types
 via adapter objects, and also permits instantiation of
 parameters on primitive types and structural parameter bounds.
-LM~\cite{reflective-generics,type-passing-generics} also supports
-a run-time representation of types.
+Viroli and Natali~\cite{reflective-generics,type-passing-generics}
+also support
+a run-time representation of types, using Java's reflection API.
 NextGen~\cite{nextgen,allen03} was implemented using run-time 
 instantiation.
-X10's generics have a hybrid implementation, adopting PolyJ's
+\Xten{}'s generics have a hybrid implementation, adopting PolyJ's
 adapter object approach for dependent types and for 
 type introspection and using NextGen's run-time
 instantiation approach for greater efficiency.
 % MixGen~\cite{allen04} extends NextGen with mixins.
 
-\csharp also supports generics via ~\cite{csharp-generics}.
-Type parameters may be declared
-with definition-site variance tags.  Compilation does not erase
-types; the CLR performs run-time parameter instantiation.
+\csharp also supports generic types via run-time instantiation in the
+CLR~\cite{csharp-generics}.  Type parameters may be declared
+with definition-site variance tags.
 Generalized type constraints were proposed for
 \csharp~\cite{emir06}.  Methods can be annotated with subtyping
 constraints that must be satisfied to invoke the method.
-Generic X10 supports these constraints, as well as constraints
+Generic \Xten{} supports these constraints, as well as constraints
 on values, with method and constructor where clauses.
 
-\gxx does not support \emph{bivariance}~\cite{variant-parametric-types}; a
+\FXG{} does not support \emph{bivariance}~\cite{variant-parametric-types}; a
 class \xcd"C" is bivariant in a type property \xcd"X" if \xcd"C{self.X==S}" is
 a subtype of \xcd"C{self.X==T}" for any \xcd"S" and \xcd"T".  Bivariance is
 useful for writing code in which the property \xcd"X" is ignored.  One can
-achieve  this effect in \gxx simply by leaving \xcd"X" unconstrained.
+achieve  this effect in \FXG{} simply by leaving \xcd"X" unconstrained.
 
 \eat{
 Parametric types with use-site variance are related to existential types:
 \xcd"C<+T>" corresponds to the bounded existential $\exists\tcd{X<:T}.C<X>$;
 \xcd"C<-T>" corresponds to the bounded existential $\exists\tcd{X:>T}.C<X>$;
 \xcd"C<*>" corresponds to the unbounded existential $\exists\tcd{X}.C<X>$.
-\gxx has a similar correspondence:
+\FXG{} has a similar correspondence:
 \xcd"C{X<:T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}:C.self.X<:T\}";
 \xcd"C{X:>T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}";
 \xcd"C" corresponds to the unbounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}".
