@@ -1,33 +1,36 @@
-Modern object-oriented languages such as \Xten{} require a rich framework for types
-capable of expressing value-dependency, type-dependency and supporting
-pluggable, application-specific extensions.
 
-We generalize the {\em constrained types} approach we have presented
-earlier to handle type-dependency.  Constraint systems formalize
-systems of partial information.  Constrained types are formulas
-\Xcd{C\{c\}} where \Xcd{C} is the name of a class or an interface and
-\Xcd{c} is a constraint on the immutable instance state of 
-\Xcd{C} (the {\em properties}). The framework is parametrized by 
-a constraint system $\cal C$ of interest, and permits additional
-constraint systems to be added by the programmer.
+Modern object-oriented languages such as \Xten{} require a rich
+framework for types capable of expressing value-dependency,
+type-dependency and for supporting pluggable, application-specific
+extensions.
 
-The basic idea is to formalize the essence of nominal object-oriented
-types as a constraint system, and to permit both value and type
-properties and parameters.  Type-generic dependence is now expressed
-through constraints on these properties and parameters.  Type-valued
-properties are required to have a run-time representation---the
-run-time semantics is not defined through erasure. Runtime casts are
-permitted through dynamic code generation.
+In earlier work, we presented the framework of {\em constrained types}
+for concurrent, object-oriented languages, parametrized by an
+underlying constraint system $\cal C$. Constraint systems are a very
+expressive framework for partial information. Types are viewed as
+formulas \Xcd{C\{c\}} where \Xcd{C} is the name of a class or an interface
+and
+\Xcd{c} is a constraint in $\cal C$ on the immutable instance state of
+\Xcd{C} (the {\em properties}). Many (value-)dependent type systems
+for OO languages can be cast as constrained types.
 
-Many type systems for object-oriented languages developed over the
-last decade can be thought of as constrained type systems in this
-formulation.
+This paper extends the constrained types approach to handle
+{\em type-dependency} (``genericity''). The key idea is to formalize the
+essence of nominal object-oriented types itself as a constraint system
+over predicates such as {\tt X} extends {\tt T}, {\tt S} is a subtype
+of {\tt T} and {\tt X} has member {\tt I}. Generic types are supported
+by introducing parameters and properties that range over types and
+permitting the user program to impose constraints on such
+variables. Type-valued properties are required to have a run-time
+representation---the run-time semantics is not defined through
+erasure. Run-time casts are permitted through dynamic code generation.
 
-The paper makes the following contributions: (1) We show how to
-accomodate type-dependent object-oriented types within the framework
-of constrained types. (2) We develop a core formal calculus \FX,
-illustrating the treatment of type-dependece, and establish type
-soundness.  (3) We discuss the specific design and implementation of
-the type system for \Xten{} based on constrained types.  The type system
-integrates and extends the features of nominal types, virtual types,
-self types, and Scala's path-dependent types.
+To illustrate the underlying theory, we develop a formal family
+\FX{${\cal C}$} of programming languages with a common set of sound
+type-checking rules.  By varying $\cal C$, we obtain languages with
+the power of \FJ, \FGJ, dependent-types, and new OO languages which
+uniformly support value- and type-dependency.  Concretely, we
+illustrate with the design and implementation of the type system for.
+\Xten{}.  The type system integrates and extends the features of
+nominal types, virtual types, self types, and Scala's path-dependent
+types.
