@@ -51,13 +51,9 @@ The compiler generates the following code:
 class A {
     @TypeProperty public static class T { }
     public x10.runtime.Type T;
-
     T a;
-
-    // Dummy constructor; eliminated at run time
     @Synthetic public A(Class T) { this(); }
 }
-
 class C {
     final A x = new A(int.class);
     final int y = Runtime.to$int(x.a);
