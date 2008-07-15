@@ -1,6 +1,6 @@
 package x10.lang;
 
-public interface Iterator[T] {
+public interface Iterator[IteratorT] {
         public def hasNext(): boolean;
-        public def next(): T;
+        public def next(): IteratorT;
 }
