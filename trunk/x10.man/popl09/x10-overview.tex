@@ -218,10 +218,16 @@ list; the third takes both a head and tail.
 
 \subsection{Type constraints and variance}
 \label{sec:variance}
+Use-site variance based on structural virtual types were proposed by
+Thorup and Torgerson~\cite{unifying-genericity} and extended for
+parametrized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}.  The latter type system lead
+to the development of wildcards in
+Java~\cite{Java3,adding-wildcards,wildcards-safe}.
 
 Type properties and subtyping constraints may be used in \Xten{} to 
 provide use-site variance
-constraints~\cite{variant-parametric-types}.
+constraints.
 
 Consider the following subtypes  of \xcd"List" from
 Figure~\ref{fig:list}.
@@ -275,6 +281,8 @@ if \xcd"X" is a type property, then
 the syntax \xcd"C[+T]" is shorthand for \xcd"C{X<:T}" and
 \xcd"C[-T]" is shorthand for \xcd"C{X:>T}"; of course,
 \xcd"C[T]" is shorthand for \xcd"C{X==T}".
+
+
 
 \eat{
 \subsection{Type properties}
