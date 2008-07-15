@@ -91,7 +91,7 @@ in Figure~\ref{fig:list}.
 
 \begin{figure}
 {\footnotesize
-\begin{xtennoindent}
+\begin{xtenmathnoindent}
 class List[T](length: int){length >= 0} {
   var head{length>0}: T;
   val tail{length>1}: List[T](length-1);
@@ -100,7 +100,7 @@ class List[T](length: int){length >= 0} {
     return i==0 ? head : tail.get(i-1);
   }
 
-  def map[S](f: Object{self :> T} => S): List[S] = {
+  def map[S](f: Object{self $\unrhd$ T} => S): List[S] = {
     if (length==0)
       return new List[S](0);
     else if (length==1)
@@ -118,7 +118,7 @@ class List[T](length: int){length >= 0} {
     head = hd; tail = tl;
   }
 }
-\end{xtennoindent}}
+\end{xtenmathnoindent}}
 \caption{List example, with more constraints}
 \label{fig:list}
 \end{figure}
@@ -139,11 +139,11 @@ might require that its elements implement the \xcd"Comparable"
 interface:
 \clearpage
 {\footnotesize
-\begin{xten}
-class Tree[T]{T <: Comparable[T]} {
+\begin{xtenmath}
+class Tree[T]{T $\extends$ Comparable[T]} {
   left, right: Tree[T]; ...
 }
-\end{xten}}
+\end{xtenmath}}
 
 \subsection{Class member invariants}
 
@@ -251,15 +251,15 @@ For a final expression \xcd"l" of this type,
 \xcd"l.T" and \xcd"float" are equivalent types and can be used
 interchangeable wherever \xcd"l" is in scope.
 
-\item \xcd"List{T<:Collection}".
+\item \xcdmath"List{T$\extends$Collection}".
 This type constrains \xcd"T" to be a subtype of \xcd"Collection".
 All instances of this type must bind \xcd"T" to a subtype of
 \xcd"Collection"; for example \xcd"List[Set]" (i.e.,
 \xcd"List{T==Set}") is a subtype of
-\xcd"List{T<:Collection}" because \xcd"T==Set" entails
-\xcd"T<:Collection".
+\xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
+\xcdmath"T$\extends$Collection".
 %
-If \xcd"l" has the type \xcd"List{T<:Collection}",
+If \xcd"l" has the type \xcdmath"List{T$\extends$Collection}",
 then the return type of \xcd"get" has type \xcd"l.T", which is an unknown but
 fixed subtype of \xcd"Collection"; the return value can be
 assigned into a variable of type \xcd"Collection".
@@ -279,7 +279,7 @@ be annotated
 with
 a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
 if \xcd"X" is a type property, then
-the syntax \xcd"C[+T]" is shorthand for \xcd"C{X<:T}" and
+the syntax \xcd"C[+T]" is shorthand for \xcdmath"C{X$\extends$T}" and
 \xcd"C[-T]" is shorthand for \xcd"C{X:>T}"; of course,
 \xcd"C[T]" is shorthand for \xcd"C{X==T}".
 
@@ -335,15 +335,15 @@ static methods in interfaces
 Method constraints also provide support for optional methods.
 
 {\footnotesize
-\begin{xten}
+\begin{xtenmath}
 class List[T] {
     ...
-    def print(){T <: Printable} = {
+    def print(){T $\extends$ Printable} = {
         for (x: T in this)
             x.print();
     }
 }
-\end{xten}}
+\end{xtenmath}}
 
 \xcd"List.print" may only be called on lists instantiated on
 subtypes of the \xcd"Printable" interface.

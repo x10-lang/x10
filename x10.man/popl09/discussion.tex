@@ -87,11 +87,11 @@ The \Xten{} version of \xcd"List" is not abstract;
 instantiated on a per-object basis.
 Rather than declaring subclasses of \xcd"List",
 one uses the constrained subtypes
-\xcd"List{T<:Number}" and \xcd"List{T==Integer}".
+\xcdmath"List{T$\extends$Number}" and \xcd"List{T==Integer}".
 
 Type properties can also be refined contravariantly.
 For instance, one can write the type \xcd"List{T:>Integer}",
-and even \xcd"List{Integer<:T, T<:Number}".
+and even \xcdmath"List{Integer$\extends$T, T$\extends$Number}".
 
 \subsection{Type parameters and wildcards}
 \label{sec:parameters-vs-fields}
@@ -135,8 +135,8 @@ Types are translated as follows:
 \begin{align*}
 \SB{ \Xcd{X} } &= \Xcd{_}i ~~~~\mbox{where \xcd{X} is the $i$th type parameter} \\
 \SB{ \Xcdmath{C<?, $\dots$>} } &= \Xcdmath{C\{$\dots$\}} \\
-\SB{ \Xcdmath{C<? extends T, $\dots$>} } &= \Xcdmath{C\{_1 <: $\ \SB{\tt{T}}$, $\dots$\}} \\
-\SB{ \Xcdmath{C<? super T, $\dots$>} } &= \Xcdmath{C\{_1 :> $\ \SB{\tt{T}}$, $\dots$\}} \\
+\SB{ \Xcdmath{C<? extends T, $\dots$>} } &= \Xcdmath{C\{_1 } \extends\Xcdmath{ $\ \SB{\tt{T}}$, $\dots$\}} \\
+\SB{ \Xcdmath{C<? super T, $\dots$>} } &= \Xcdmath{C\{_1 } \unrhd\Xcdmath{ $\ \SB{\tt{T}}$, $\dots$\}} \\
 \SB{ \Xcdmath{C<T, $\dots$>} } &= \Xcdmath{C\{_1 == $\ \SB{\tt{T}}$, $\dots$\}}
 \end{align*}}
 Through such a translation, the \FXG\ calculus in
@@ -302,7 +302,7 @@ class SortedList[T] where T {int compareTo(T)} {
     ...
 }
 \end{xten}}
-The where clause states that the type parameter \xcd"T" must have a
+The \xcd"where" clause states that the type parameter \xcd"T" must have a
 method \xcd"compareTo" with the given signature.
 
 The analogous code for \xcd"SortedList" in the structural
