@@ -70,7 +70,7 @@ abstract public class longArray extends x10Array {
 	 * @return
 	 */
 	public long max() {
-		return reduce(max, 0);
+		return reduce(max, java.lang.Long.MIN_VALUE);
 	}
 	/**
 	 * Convenience method for returning the max of the array after applying the given fun.
@@ -78,7 +78,7 @@ abstract public class longArray extends x10Array {
 	 * @return
 	 */
 	public long max(Operator.Unary fun) {
-		return lift(fun).reduce(max, 0);
+		return lift(fun).reduce(max, java.lang.Long.MIN_VALUE);
 	}
 	/**
 	 * Convenience method for subtracting another array pointwise.

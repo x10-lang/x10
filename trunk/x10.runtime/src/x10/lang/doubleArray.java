@@ -67,10 +67,10 @@ abstract public class doubleArray extends x10Array {
 	 * @return
 	 */
 	public double max() {
-		return reduce(max, 0);
+		return reduce(max, java.lang.Double.MIN_VALUE);
 	}
 	public double max(region r) {
-		return reduce(max, 0, r);
+		return reduce(max, java.lang.Double.MIN_VALUE, r);
 	}
 	/**
 	 * Convenience method for returning the max of the array after applying the given fun.
@@ -78,7 +78,7 @@ abstract public class doubleArray extends x10Array {
 	 * @return
 	 */
 	public double max(Operator.Unary fun) {
-		return lift(fun).reduce(max, 0);
+		return lift(fun).reduce(max, java.lang.Double.MIN_VALUE);
 	}
 	/**
 	 * Convenience method for applying abs to each element in the array.
