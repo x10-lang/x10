@@ -62,7 +62,7 @@ abstract public class floatArray extends x10Array {
 	 * @return
 	 */
 	public float max() {
-		return reduce(max, 0);
+		return reduce(max, java.lang.Float.MIN_VALUE);
 	}
 	/**
 	 * Convenience method for returning the max of the array after applying the given fun.
@@ -70,7 +70,7 @@ abstract public class floatArray extends x10Array {
 	 * @return
 	 */
 	public float max(Operator.Unary fun) {
-		return lift(fun).reduce(max, 0);
+		return lift(fun).reduce(max, java.lang.Float.MIN_VALUE);
 	}
 	/**
 	 * Convenience method for applying abs to each element in the array.
