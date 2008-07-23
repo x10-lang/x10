@@ -53,7 +53,7 @@ public class X10Local_c extends Local_c {
 				// this local is defined in an outer class
 				if (!li.flags().isFinal()) {
 					throw new SemanticException("Local variable \"" + li.name() + 
-							"\" is accessed from an inner class or a closure, and must be declared " +
+							"\" is accessed from an inner class, closure, or async, and must be declared " +
 							"final.",
 							this.position());                     
 				}
