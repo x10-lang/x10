@@ -16,8 +16,11 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Id_c;
+import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Field_c;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.Context;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
@@ -49,6 +52,25 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 
 	public Expr getDomain(Expr d) {
 		return new Field_c(position(), d, new Id_c(position(), "distribution"));
+	}
+
+	/**
+	 * The evaluation of place and list of clocks is not in the scope of the async.
+	 */
+	public Context enterScope(Context c) {
+		X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
+		c = c.pushCode(ts.asyncCodeInstance(c.inStaticContext()));
+		return c;
+	}
+
+	/**
+	 * The evaluation of place and list of clocks is not in the scope of the async.
+	 */
+	public Context enterChildScope(Node child, Context c) {
+		if (child != this.body) {
+			c = c.pop();
+		}
+		return c;
 	}
 
 	public String toString() {

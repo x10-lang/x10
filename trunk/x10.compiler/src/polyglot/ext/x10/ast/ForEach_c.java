@@ -19,6 +19,8 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.main.Report;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
@@ -53,6 +55,25 @@ public class ForEach_c extends X10ClockedLoop_c implements ForEach, Clocked {
 
 	public String toString() {
 		return "foreach (" + formal + ":" + domain + ")" + body;
+	}
+	
+	/**
+	 * The evaluation of place and list of clocks is not in the scope of the async.
+	 */
+	public Context enterScope(Context c) {
+		X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
+		c = c.pushCode(ts.asyncCodeInstance(c.inStaticContext()));
+		return c;
+	}
+
+	/**
+	 * The evaluation of place and list of clocks is not in the scope of the async.
+	 */
+	public Context enterChildScope(Node child, Context c) {
+		if (child != this.body) {
+			c = c.pop();
+		}
+		return c;
 	}
 	
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {

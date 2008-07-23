@@ -127,7 +127,18 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * classes.
 	 */
 	public boolean isLocal(String name) {
-		return depType == null ? super.isLocal(name) : pop().isLocal(name);
+		if (depType != null)
+			return pop().isLocal(name);
+		// Don't cross async boundary.
+        if ((isBlock() || isCode()) &&
+                (findVariableInThisScope(name) != null || findInThisScope(name) != null)) {
+                return true;
+        }
+		if (isCode())
+			return false;
+//		if (inAsync() && pop() instanceof X10Context && ((X10Context) pop()).inAsync())
+//			return false;
+		return super.isLocal(name);
 	}
 
 	/**
