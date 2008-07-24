@@ -41,27 +41,27 @@ be a NativeRail[T](length).
 
  */
 
-import static TypeDefs.*;
+import x10.lang.TypeDefs.*;
 
-public value class ValRail extends AbsRail{Mem==NativeValRail[Base]} { 
+public value class ValRail extends AbsRail{Mem==NativeValRail{NativeRailT==Base}} { 
 
-    def this[T](x0:T): ValRail{Base==T,length==1} {
-	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](1, (i:Nat(0)=> x0));
+    def this[T](x0:T): ValRail{Base==T,length==1} = {
+	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](1, (i:Nat(0))=> x0));
     }
-    def this[T](x0:T, x1:T): ValRail{Base==T,length==2} {
-	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](2, (i:Nat(1)=> i==0? x0:x1));
+    def this[T](x0:T, x1:T): ValRail{Base==T,length==2} = {
+	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](2, (i:Nat(1))=> (i==0? x0:x1)));
     }
-    def this[T](x0:T, x1:T, x2: T): ValRail{Base==T,length==3} {
-	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](3, (i:Nat(2)=> i==0? x0: i==1? x1:x2));
+    def this[T](x0:T, x1:T, x2: T): ValRail{Base==T,length==3} = {
+	super[T, NativeValRail[T]](Runtime.runtime.makeNativeValRail[T](3, (i:Nat(2))=> (i==0? x0: i==1? x1:x2)));
     }
 
-    def this[T]( l: Nat, init: Nat(l)=>T) {
+    def this[T]( l: Nat, init: (Nat(l))=>T) = {
 	super[T,NativeValRail[T]](makeNativeValRail(l, init));
     }
-    def this[T]( r: NativeValRail[T]) {
+    def this[T]( r: NativeValRail[T]) = {
 	super[T,NativeValRail[T]](r);
     }
-    public static def allK[Base](length: Nat, v: Base) = new ValRail[Base](length, x:Nat(length-1)=>v);
+    public static def allK[Base](length: Nat, v: Base) = new ValRail[Base](length, (x:Nat(length-1))=>v);
     public static def allZero[Base](length: Nat){Base <: Arithmetic[Base]} = allK(length, T.zero());
 
     /**
@@ -74,7 +74,7 @@ public value class ValRail extends AbsRail{Mem==NativeValRail[Base]} {
     @Override
     protected def clone[T](_r: NativeValRail[T]) = new ValRail[T](_r);
     @Override
-	public makeNativeRail(n :Nat, f:(Nat(n-1))=>Base):NativeAbsRail[Base](n) 
+	public def makeNativeRail(n :Nat, f:(Nat(n-1))=>Base):NativeAbsRail[Base](n) 
 	= Runtime.runtime.makeNativeValRail[Base](n, f);
 
 

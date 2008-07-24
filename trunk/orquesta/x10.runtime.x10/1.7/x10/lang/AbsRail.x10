@@ -31,7 +31,7 @@ import x10.lang.TypeDefs.*;
 // NativeAbsRail[T]
 // NativeAbsRail[T]{length==self.length}
 
-abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]} 
+abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail{NativeRailT==Base}} 
     implements Array[Base](0..length-1-> here), 
 	(Nat(length-1))=> Base, // permit indexing by nats in the given range.
 	Arithmetic[AbsRail[Base,Mem](length)] /* if Base <: Arithmetic[Base] */ {
@@ -46,7 +46,8 @@ abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]}
     /**
        Create a new Rail that is a copy of this rail.
      */
-    public abstract def clone(): this.class(length); 
+    public abstract def clone(): AbsRail[Base,Mem](length); 
+    
     /**
        Create a new Rail of length l with Base=this.Base and
        Mem=this.Mem, initialized with init.
@@ -63,7 +64,7 @@ abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]}
        variables not already constrained to be equal to each other.
 
      */
-    protected abstract def clone(l: Nat, init: (Nat(l))=>Base): this.class(l);
+    protected abstract def clone(l: Nat, init: (Nat(l))=>Base): AbsRail[Base,Mem](l);
     protected def clone[B,M](_r: M): AbsRail[B,M](_r.length);
 
     public def apply(p: Point(0..length-1)):Base = r(p);
@@ -81,7 +82,7 @@ abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail[Base]}
     }
 
     // you want the return type to be this.class{length+o.length}
-    public def append(o: AbsRail[Base]): this.class(length+o.length) = {
+    public def append(o: AbsRail[Base]): AbsRail[Base,Mem](length+o.length) = {
 	val l = length+o.length;
 	clone(l, (i: nat(l-1)) => i<length-1? r(i) : other.r(i-length));
     }

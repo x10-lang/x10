@@ -1,3 +1,5 @@
 package x10.lang;
 
-public class NativeAbsRail[T](length: Nat) extends Indexable[Int,Range[Int](0,length-1),T] {}
+import x10.lang.TypeDefs.*;
+
+public interface NativeAbsRail[NativeRailT](length: Nat) extends Indexable[Int,Range[Int](0,length-1),NativeRailT] {}

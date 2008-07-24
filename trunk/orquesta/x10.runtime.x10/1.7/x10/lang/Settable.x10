@@ -8,6 +8,6 @@ package x10.lang;
 
  */
 
-public interface Settable[Index,Domain,T](base: Domain){Domain <: Contains[Index]} {
-    def set(p: Index{self in base}, v: T): void;
+public interface Settable[Index,Domain,SettableT](base: Domain){Domain <: Contains[Index]} {
+    def set(p: Index{self in base}, v: SettableT): void;
 }
