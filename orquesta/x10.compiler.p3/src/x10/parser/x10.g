@@ -435,8 +435,8 @@ public static class MessageHandler implements IMessageHandler {
                       leftToken.getLine(), leftToken.getColumn(),
                       rightToken.getEndLine(), rightToken.getEndColumn(),
                       leftToken.getStartOffset(), rightToken.getEndOffset());
-                this.leftIToken = leftToken;
-                this.rightIToken = rightToken;
+                this.leftIToken = null;
+                this.rightIToken = null;
             }
 
             public IToken getLeftIToken() { return leftIToken; }
@@ -444,6 +444,7 @@ public static class MessageHandler implements IMessageHandler {
 
             public String toText()
             {
+            if (true) return "...";
                 IPrsStream prsStream = leftIToken.getPrsStream();
                 return new String(prsStream.getInputChars(), offset(), endOffset() - offset() + 1);
             }
@@ -937,6 +938,22 @@ public static class MessageHandler implements IMessageHandler {
           md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
           setResult(md);
           }
+          $EndJava
+        ./
+
+    PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              Identifier,
+              TypeParametersopt,
+              FormalParameters,
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
           $EndJava
         ./
 
@@ -2355,6 +2372,13 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(l);
           $EndJava
         ./
+                             | PropertyMethodDeclaration
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add(PropertyMethodDeclaration);
+                    setResult(l);
+          $EndJava
+        ./
                              | TypeDefDeclaration
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -2968,6 +2992,13 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(MethodDeclaration);
+                    setResult(l);
+          $EndJava
+        ./
+                                 | PropertyMethodDeclaration
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add(PropertyMethodDeclaration);
                     setResult(l);
           $EndJava
         ./
@@ -4204,7 +4235,7 @@ public static class MessageHandler implements IMessageHandler {
     Import ::= ImportDeclaration
     Import ::= SingleTypeImportDeclaration
     Import ::= TypeImportOnDemandDeclaration
-    ClassDecl ::= TypeDeclaration
+    TopLevelDecl ::= TypeDeclaration
     List ::= ClassModifier
             | ClassModifiers
             | ClassModifiersopt
@@ -4237,6 +4268,7 @@ public static class MessageHandler implements IMessageHandler {
     'Object[]' ::= FieldDeclarator
     Expr ::= VariableInitializer
     ClassMember ::= MethodDeclaration 
+    ClassMember ::= PropertyMethodDeclaration 
     List ::= FormalParameterListopt | FormalParameterList 
     List ::= FormalParametersopt | FormalParameters 
     List ::= ExistentialListopt | ExistentialList 

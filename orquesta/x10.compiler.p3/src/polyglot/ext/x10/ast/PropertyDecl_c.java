@@ -23,6 +23,7 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10FieldInstance;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -106,7 +107,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     protected MethodDecl getter(X10NodeFactory nf) {
         X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
         Position pos = Position.COMPILER_GENERATED;
-        Flags flags = Flags.PUBLIC.Final();
+        Flags flags = X10Flags.PROPERTY.Public().Final();
         List<Formal> formals = Collections.EMPTY_LIST;
         List<TypeNode> throwTypes = Collections.EMPTY_LIST;
         Expr e = nf.Field(pos, nf.This(pos), name);

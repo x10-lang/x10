@@ -23,7 +23,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -119,7 +118,7 @@ public class X10AmbQualifierNode_c extends Node_c implements X10AmbQualifierNode
 		r.setResolver(new TypeCheckFragmentGoal(parent, this, tc, r, false));
 	}
 
-	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+	public Node disambiguate(TypeChecker ar) throws SemanticException {
 		SemanticException ex;
 
 		try {

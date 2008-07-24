@@ -34,10 +34,12 @@ import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.SetResolverGoal;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
+import polyglot.types.MethodInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -58,6 +60,7 @@ import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XPromise;
 import x10.constraint.XSelf;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
 /** A representation of a method declaration. Includes an extra field to represent the where clause
@@ -99,7 +102,31 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         if (returnType instanceof UnknownTypeNode && body == null)
         	throw new SemanticException("Cannot infer method return type; method has no body.", position());
 
+        if (X10Flags.toX10Flags(ci.flags()).isProperty()) {
+            final LazyRef<XTerm> bodyRef = Types.lazyRef(null);
+            bodyRef.setResolver(new SetResolverGoal(tb.job()));
+            ci.body(bodyRef);
+        }
+        
+        // property implies public, final
+        X10Flags xf = X10Flags.toX10Flags(flags.flags());
+        if (xf.isProperty()) {
+            xf = X10Flags.toX10Flags(xf.Public().Final());
+            ci.setFlags(xf);
+            n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
+        }
+        
         return n;
+    }
+    
+    public void setResolver(Node parent, final TypeCheckPreparer v) {
+    	X10MethodDef mi = (X10MethodDef) this.mi;
+	if (mi.body() instanceof LazyRef) {
+    		LazyRef<XTerm> r = (LazyRef<XTerm>) mi.body();
+    		TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+    		tc = (TypeChecker) tc.context(v.context().freeze());
+    		r.setResolver(new TypeCheckFragmentGoal(parent, this, tc, r, false));
+    	}
     }
 
     /** Visit the children of the method. */
@@ -191,9 +218,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             if (xf.isIncomplete() && body != null) {
         	throw new SemanticException("An incomplete method cannot have a body.", position());
             }
-            
             if (xf.isProperty() && body == null) {
         	throw new SemanticException("A property method must have a body.", position());
+            }
+            if (xf.isProperty() && ! xf.isFinal()) {
+        	throw new SemanticException("A property method must be final.", position());
+            }
+            if (xf.isProperty() && xf.isStatic()) {
+        	throw new SemanticException("A property method cannot be static.", position());
             }
         }
         
@@ -228,8 +260,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	    if (s instanceof Return) {
         		Return r = (Return) s;
         		if (r.expr() != null) {
-        		    ts.xtypeTranslator().trans(r.expr());
+        		    XTerm v = ts.xtypeTranslator().trans(r.expr());
         		    ok = true;
+        		    X10MethodDef mi = (X10MethodDef) this.mi;
+        		    if (mi.body() instanceof LazyRef) {
+        			LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
+        			bodyRef.update(v);
+        		    }
         		}
         	    }
         	}
@@ -345,6 +382,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	// childtc will have a "wrong" mi pushed in, but that doesnt matter.
         	// we simply need to push in a non-null mi here.
         	TypeChecker childtc1 = (TypeChecker) tc.enter(parent, nn);
+            	if (childtc1.context() == tc.context())
+            	    childtc1 = (TypeChecker) childtc1.context((Context) tc.context().copy());
         	// Add the type params and formals to the context.
         	nn.visitList(nn.typeParameters(),childtc1);
         	nn.visitList(nn.formals(),childtc1);
@@ -375,9 +414,18 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	((Ref<Type>) nn.returnType().typeRef()).update(ts.Void());
         	nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), ts.Void()));
             }
+          
             return nn;
         }
-       
+
+        @Override
+       protected void overrideMethodCheck(TypeChecker tc) throws SemanticException {
+            super.overrideMethodCheck(tc);
+            
+            // TODO: check that constraint is entailed by super
+            // TODO: if property method, check body entails super
+        }
+
         private static final Collection TOPICS = 
             CollectionUtil.list(Report.types, Report.context);
 }

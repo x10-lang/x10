@@ -71,6 +71,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			return ((X10Type) o);
 		}
 	}
+	
 	public Object copy() { 
 		return super.copy();
 	}
@@ -91,6 +92,20 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    super(ts, pos, def);
 	}
 	
+	XTerm body;
+
+	public XTerm body() {
+	    if (this.body == null)
+		body = Types.get(x10Def().body());
+	    return body;
+	}
+
+	public X10MethodInstance body(XTerm body) {
+	    X10MethodInstance_c n = (X10MethodInstance_c) copy();
+	    n.body = body;
+	    return n;
+	}
+
 	/** Constraint on formal parameters. */
 	protected XConstraint whereClause;
 	public XConstraint whereClause() { return whereClause; }

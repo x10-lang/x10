@@ -11,29 +11,20 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Assign;
-import polyglot.ast.Assign_c;
-import polyglot.ast.Eval;
 import polyglot.ast.Expr;
-import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
-import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
-import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Job;
-import polyglot.parse.Name;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
@@ -43,7 +34,6 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
@@ -54,7 +44,6 @@ import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
 import x10.constraint.XSelf;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 /**
@@ -191,7 +180,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		     Expr as = nf.Assign(pos, l, Assign.ASSIGN, arg);
 		     as = (Expr) as.type(arg.type()); // Fake the type.
 		     Stmt a = (Stmt) nf.Eval(pos, as);
-		     a = (Stmt) a.disambiguate(new AmbiguityRemover(tc));
+		     a = (Stmt) a.disambiguate(tc);
 		     // a = (Stmt) a.visit(tc); Do not type-check the statement a.
 		     s.add(a);
 		 }
@@ -234,7 +223,9 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	    known.addIn(c);
 		        	}
 		        	else {
-				    known.addIn(c.substitute(prop, XSelf.Self));
+		        	    // self==u { self.unique / self } = self.unique.unique == u  ERROR
+				    XConstraint c2 = c.substitute(prop, XSelf.Self);
+				    known.addIn(c2);
 		        	}
 		            }
 
@@ -251,7 +242,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	known.addIn(c);
 		            }
 
-		            if (! known.entails(result)) {
+		            if (! known.copy().entails(result)) {
 		        	    throw new SemanticException("Instances created by this constructor satisfy " + known 
 		        	                                + "; this is not strong enough to entail the return constraint " + result,
 		        	                                position());

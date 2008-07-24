@@ -1,8 +1,12 @@
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
@@ -19,6 +23,7 @@ import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.SubtypeTest;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -29,6 +34,7 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XRef_c;
+import x10.constraint.XRoot;
 import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -138,22 +144,20 @@ public class XTypeTranslator {
 		return XTerms.makeLocal(XTerms.makeName(t));
 	}
 	
-	// TODO: general macro types, also need to translate back for checking <: later
-	public XVar transMacroType(ParametrizedType t) {
-		if (t instanceof PathType) {
-			PathType pt = (PathType) t;
-			XName field = XTerms.makeName(pt.property(), pt.property().name());
-			return XTerms.makeField(pt.formals().get(0), field);
-		}
-		assert false;
-		return null;
+	public XVar transPathType(PathType t) {
+	    XName field = XTerms.makeName(t.property(), t.property().name());
+	    return XTerms.makeField(t.formals().get(0), field);
 	}
 
 	public XTerm trans(Type t) {
 		if (t instanceof ParameterType)
 			return transTypeParam((ParameterType) t);
-		if (t instanceof ParametrizedType)
-			return transMacroType((ParametrizedType) t);
+		if (t instanceof PathType)
+			return transPathType((PathType) t);
+		if (t instanceof MacroType) {
+		    MacroType pt = (MacroType) t;
+		    return trans(pt.definedType());
+		}
 		return XTerms.makeLit(t);
 	}
 
@@ -226,6 +230,25 @@ public class XTypeTranslator {
 		TypeNode right = t.supertype();
 		return transSubtype(left.type(), right.type());
 	}
+	public XTerm trans(Call t) throws SemanticException {
+	    Flags f = t.methodInstance().flags();
+	    if (X10Flags.toX10Flags(f).isProperty()) {
+		XTerm r = trans(t.target());
+		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
+		XTerm body = xmi.body();
+		if (body != null) {
+		    body = body.subst(r, transThis(xmi.container()));
+		    for (int i = 0; i < t.arguments().size(); i++) {
+			XRoot x = (XRoot) X10TypeMixin.selfVar(xmi.formalTypes().get(i));
+			XTerm y = trans(t.arguments().get(i));
+			body = body.subst(y, x);
+		    }
+		    return body;
+		}
+	    }
+	
+	    throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");
+	}
 
 	public XTerm transSubtype(Type ltype, Type rtype) {
 		XTerm v = XTerms.makeAtom(XTerms.makeName("<:"), trans(ltype), trans(rtype));
@@ -260,6 +283,10 @@ public class XTypeTranslator {
 			Expr e = (Expr) term;
 			if (e.isConstant())
 				return XTerms.makeLit(e.constantValue());
+		}
+		if (term instanceof Call) {
+		    Call c = (Call) term;
+		    return trans((Call) term);
 		}
 		if (term instanceof Unary) {
 			Unary u = (Unary) term;

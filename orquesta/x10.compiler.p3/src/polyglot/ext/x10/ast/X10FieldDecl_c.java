@@ -29,7 +29,6 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
@@ -155,7 +154,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    return super.setResolverOverride(parent, v);
 	    }
 
-    public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+    public Node disambiguate(TypeChecker ar) throws SemanticException {
         X10FieldDecl_c f = (X10FieldDecl_c) super.disambiguate(ar);
 
         // [IP] All fields in value types should be final

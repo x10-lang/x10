@@ -48,6 +48,7 @@ public class X10TypeMixin {
 
 			// Now get the root clause and join it with the dep clause.
 			XConstraint rootClause = realX(Types.get(ct.baseType()));
+			if (rootClause == null)
 			assert rootClause != null;
 
 			XConstraint depClause = xclause(ct);
@@ -92,6 +93,7 @@ public class X10TypeMixin {
 		    XConstraint c = base.selfConstraint();
 		    TypeProperty p = pt.property();
 		    XConstraint w = pt.whereClause();
+		    c = c == null ? new XConstraint_c() : c;
 		    if (w != null) {
 			c = c.copy();
 			try {

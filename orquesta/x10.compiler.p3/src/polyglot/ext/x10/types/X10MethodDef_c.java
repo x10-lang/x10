@@ -25,6 +25,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
 /**
@@ -37,6 +38,7 @@ import x10.constraint.XVar;
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     protected Ref<? extends XConstraint> whereClause;
     List<Ref<? extends Type>> typeParameters;
+    Ref<XTerm> body;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
@@ -46,10 +48,19 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
             Ref<? extends XConstraint> whereClause,
-            List<Ref<? extends Type>> excTypes) {
+            List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
         super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
         this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
         this.whereClause = whereClause;
+        this.body = body;
+    }
+    
+    public Ref<XTerm> body() {
+        return body;
+    }
+    
+    public void body(Ref<XTerm> body) {
+	this.body = body;
     }
 
     protected boolean inferReturnType;

@@ -50,7 +50,10 @@ public class X10SourceClassResolver extends SourceClassResolver {
 		if (name.equals("x10.lang.Int")) return ts.Int();
 		if (name.equals("x10.lang.Long")) return ts.Long();
 		if (name.equals("x10.lang.Float")) return ts.Float();
-		if (name.equals("x10.lang.Double")) return ts.Double();
+		if (name.equals("x10.lang.UByte")) return ts.UByte();
+		if (name.equals("x10.lang.UShort")) return ts.UShort();
+		if (name.equals("x10.lang.UInt")) return ts.UInt();
+		if (name.equals("x10.lang.ULong")) return ts.ULong();
 	
 		// Change java.lang.Object to x10.lang.Object
 		if (name.equals("x10.lang.Object")) {

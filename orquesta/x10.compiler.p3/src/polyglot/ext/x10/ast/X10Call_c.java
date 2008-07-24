@@ -21,6 +21,8 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.ClosureDef;
+import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
@@ -28,6 +30,7 @@ import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
@@ -39,7 +42,6 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
@@ -75,30 +77,8 @@ public class X10Call_c extends Call_c implements X10Call {
    }
    
    @Override
-   public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
-       // Check if target.name is a field or local of function type; if so, convert to a closure call.
-       X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
-       X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
-
-       Expr f;
-       if (target() != null)
-	   f = nf.Field(position(), target(), name());
-       else
-	   f = nf.AmbExpr(position(), name());
-       
-       try {
-	   Node n = f.del().disambiguate(ar);
-	   if (n instanceof Expr) {
-	       Expr e = (Expr) n;
-	       if (ts.isFunction(e.type())) {
-		   return nf.ClosureCall(position(), e, typeArguments(), arguments()).disambiguate(ar);
-	       }
-	   }
-       }
-       catch (SemanticException e) {
-       }
-       
-       return super.disambiguate(ar);
+   public Node disambiguate(TypeChecker tc) throws SemanticException {
+       return this;
    }
    
 	protected Node typeCheckNullTarget(TypeChecker tc, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
@@ -118,6 +98,37 @@ public class X10Call_c extends Call_c implements X10Call {
                 nameString().equals("getLocation") && arguments().isEmpty())
         {
             return xnf.Here(position()).del().typeCheck(tc);
+        }
+
+        {
+            // Check if target.name is a field or local of function type; if so, convert to a closure call.
+            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
+            Expr f;
+            if (target() != null)
+        	f = nf.Field(position(), target(), name());
+            else
+        	f = nf.AmbExpr(position(), name());
+
+            try {
+        	Node n = f.del().disambiguate(tc);
+        	n = n.del().typeCheck(tc);
+        	n = n.del().checkConstants(tc);
+        	if (n instanceof Expr) {
+        	    Expr e = (Expr) n;
+        	    if (ts.isFunction(e.type())) {
+        		ClosureCall cc = nf.ClosureCall(position(), e, typeArguments(), arguments());
+        		ClosureInstance ci = ts.createClosureInstance(position(), new ErrorRef_c<ClosureDef>(ts, position()));
+        		cc = cc.closureInstance(ci);
+        		cc = (ClosureCall) cc.disambiguate(tc);
+        		cc = (ClosureCall) cc.typeCheck(tc);
+        		return cc;
+        	    }
+        	}
+            }
+            catch (SemanticException e) {
+            }
         }
      
         try {

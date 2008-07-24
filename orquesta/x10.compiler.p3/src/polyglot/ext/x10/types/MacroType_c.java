@@ -43,6 +43,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	public MacroType_c(TypeSystem ts, Position pos, Ref<TypeDef> def) {
 		super(ts, pos);
+		this.def = def;
 	}
 	
 	public TypeDef def() {
@@ -194,31 +195,36 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public String toString() {
-		return designator() + signature();
+		return designator() + " " + signature();
 	}
 
 	public String signature() {
 	    StringBuffer sb = new StringBuffer();
-	    sb.append(name);
-	    for (int i = 0; i < typeParams.size(); i++) {
-	    	if (i == 0)
-	    		sb.append("[");
-	    	if (i != 0)
-	    		sb.append(", ");
-	    	sb.append(typeParams.get(i));
-	    	if (i == typeParams.size()-1)
-	    		sb.append("]");
+	    TypeDef d = def.getCached();
+	    sb.append(d.name());
+	    if (typeParams != null) {
+		for (int i = 0; i < typeParams.size(); i++) {
+		    if (i == 0)
+			sb.append("[");
+		    if (i != 0)
+			sb.append(", ");
+		    sb.append(typeParams.get(i));
+		    if (i == typeParams.size()-1)
+			sb.append("]");
+		}
 	    }
-	    for (int i = 0; i < formals.size(); i++) {
-	    	if (i == 0)
-	    		sb.append("(");
-	    	if (i != 0)
-	    		sb.append(", ");
-	    	sb.append(formals.get(i));
-	    	sb.append(": ");
-	    	sb.append(formalTypes.get(i));
-	    	if (i == formals.size()-1)
-	    		sb.append(")");
+	    if (formals != null && formalTypes != null) {
+		for (int i = 0; i < formals.size(); i++) {
+		    if (i == 0)
+			sb.append("(");
+		    if (i != 0)
+			sb.append(", ");
+		    sb.append(formals.get(i));
+		    sb.append(": ");
+		    sb.append(formalTypes.get(i));
+		    if (i == formals.size()-1)
+			sb.append(")");
+		}
 	    }
 	    if (whereClause != null)
 	    	sb.append(whereClause);
