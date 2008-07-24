@@ -23,10 +23,10 @@ package x10.lang;
  */
 
 public abstract value Array[T](dist: Dist, region: Region, rank: nat) 
-    implements Indexable[T](region), Settable[T](region), 
-	    Arithmetic[Array[T]{dist=this.dist}] /* if T <: Arithmetic[T] */ {
+    implements Indexable[point,Region,T](region), Settable[point,Region,T](region), 
+	    Arithmetic[Array[T]{dist==this.dist}](T <: Arithmetic[T](true)) {
 
-    public static def make[T](d: Dist, maker: ((Point) => T)): Array[T]{dist==d, region==d.region, rank==d.rank} = Runtime.makeArray[T](dist, maker);
+    public static def make[T](d: Dist, maker: ((Point) => T)): Array[T]{dist==d, region==d.region, rank==d.rank()} = Runtime.makeArray[T](dist, maker);
 
     val pieces: DistRail[Rail[T]{current}];
     
@@ -131,7 +131,7 @@ public abstract value Array[T](dist: Dist, region: Region, rank: nat)
        Given a point pt (which is mapped by dist to the current
        place), set this(pt) to f(pt, this(pt)).l
      */
-    public abstract def localSet(pt: point(dist(here)), f:(point(dst(here)), T)=>T): void;
+    public abstract def localSet(pt: point(dist(here)), f:(point(dist(here)), T)=>T): void;
 
 
 /*

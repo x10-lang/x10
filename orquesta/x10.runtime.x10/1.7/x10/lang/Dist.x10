@@ -7,10 +7,20 @@ package x10.lang;
 
    @author vj, 06/14/08
  */
-public class Dist(region: Region, unique: Boolean) /* {unique => region.rail} */ {
+public class Dist(region: Region, unique: Boolean) /* {unique => region.rail} */ implements (Point{self in region}) => Place {
     
+    public property rank() = region.rank;
+    public property rect() = region.rect;
+    public property zeroBased() = region.zeroBased;
+    public property rail() = region.rail;
+    public property colMajor() = region.colMajor;
+
     protected def this(r: Region, u: Boolean): Dist(r, u) = {
 	property(r,u);
+    }
+    
+    public def apply(p: Point{self in Region}): Place = {
+        return places()(0);
     }
     
     public static def constant(r: Region, p: Place): Dist(r, false) = new Dist(r, false);

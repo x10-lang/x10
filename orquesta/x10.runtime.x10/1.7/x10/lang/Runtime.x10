@@ -9,6 +9,11 @@ public abstract class Runtime {
     /*package protected*/
     const runtime = new x10.runtime.Runtime();
 
+    /**
+       Make an array.
+     */
+    public def makeArray[T](d: Dist, maker: ((Point) => T)): Array[T]{dist==d, region==d.region, rank==d.rank()};
+
     public abstract def maxPlaces(): Nat;
     /**
        Make a clock.
