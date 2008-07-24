@@ -71,7 +71,7 @@ public interface X10TypeSystem extends TypeSystem {
 	
 	ClassType place();
 	ClassType region();
-	ClassType point();
+	Type point();
 	ClassType distribution();
 	ClassType Activity();
 	ClassType FutureActivity();
@@ -111,7 +111,7 @@ public interface X10TypeSystem extends TypeSystem {
 		        List<Ref<? extends Type>> typeParams,
 		        List<Ref<? extends Type>> argTypes,
 		        Ref<? extends XConstraint> whereClause,
-		        List<Ref<? extends Type>> excTypes);
+		        List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
 	/**
 	 * Provide a generic type constructor for arrays: Behaves the same as
@@ -293,18 +293,25 @@ public interface X10TypeSystem extends TypeSystem {
    
    Type TypeType();
 
+   PrimitiveType UByte();
+   PrimitiveType UShort();
+   PrimitiveType UInt();
+   PrimitiveType ULong();
+
    /** x10.lang.Box */
    Type Box();
    Type boxOf(Ref<? extends Type> base);
    boolean isBox(Type type);
 
-Type Ref();
+   Type Ref();
 
-TypeDef BoxRefTypeDef();
+   TypeDef BoxRefTypeDef();
 
-boolean isFunction(Type type);
+   boolean isFunction(Type type);
 
-X10ClassDef closureInterfaceDef(int size, int size2);
+   X10ClassDef closureInterfaceDef(int size, int size2);
+
+ClosureType toFunction(Type targetType);
 
    
 //   X10NamedType createBoxFromTemplate(X10ClassDef def);

@@ -9,7 +9,7 @@ import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
+import polyglot.visit.TypeChecker;
 
 public class X10AmbAssign_c extends AmbAssign_c {
 
@@ -18,7 +18,7 @@ public class X10AmbAssign_c extends AmbAssign_c {
     }
     
     @Override
-    public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+    public Node disambiguate(TypeChecker ar) throws SemanticException {
 	if (left instanceof Call) {
 	    Call c= (Call) left;
 	    if (c.target() instanceof Expr) {

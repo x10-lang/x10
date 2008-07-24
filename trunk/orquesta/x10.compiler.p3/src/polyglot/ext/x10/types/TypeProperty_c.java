@@ -46,7 +46,7 @@ public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 	public XVar asVar() {
 		if (asVar == null) {
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			return xts.xtypeTranslator().transMacroType((ParametrizedType) asType());
+			return xts.xtypeTranslator().transPathType(asType());
 		}
 		return asVar;
 	}

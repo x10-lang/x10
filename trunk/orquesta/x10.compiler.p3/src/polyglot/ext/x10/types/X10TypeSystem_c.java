@@ -131,7 +131,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		argTypes.add(Types.ref(t));
 	    }
 	    
-	    X10MethodDef mi = ts.methodDef(pos, Types.ref(cd.asType()), Flags.PUBLIC, Types.ref(returnType), "apply", typeParams, argTypes, whereClause, throwTypes);
+	    X10MethodDef mi = ts.methodDef(pos, Types.ref(cd.asType()), Flags.PUBLIC, Types.ref(returnType), "apply", typeParams, argTypes, whereClause, throwTypes, null);
 	    cd.addMethod(mi);
 	    return cd;
 	}
@@ -401,9 +401,51 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return boxOf(Position.COMPILER_GENERATED, base);
 	}
 	
+	public ClosureType toFunction(Type t) {
+	    // TODO: check for uniqueness
+	    t = X10TypeMixin.xclause(t, (XConstraint) null);
+	    if (t instanceof ClosureType)
+		return (ClosureType) t;
+	    if (t instanceof MacroType) {
+		MacroType mt = (MacroType) t;
+		return toFunction(mt.definedType());
+	    }
+	    if (t instanceof ObjectType) {
+		ObjectType ot = (ObjectType) t;
+		Type sup = ot.superClass();
+		if (sup != null) {
+		    ClosureType ct = toFunction(sup);
+		    if (ct != null)
+			return ct;
+		}
+		for (Type ti : ot.interfaces()) {
+		    ClosureType ct = toFunction(ti);
+		    if (ct != null)
+			return ct;
+		}
+	    }
+	    return null;
+	}
+	
 	public boolean isFunction(Type t) {
 	    t = X10TypeMixin.xclause(t, (XConstraint) null);
-	    return t instanceof ClosureType;
+	    if (t instanceof ClosureType)
+		return true;
+	    if (t instanceof MacroType) {
+		MacroType mt = (MacroType) t;
+		return isFunction(mt.definedType());
+	    }
+	    if (t instanceof ObjectType) {
+		ObjectType ot = (ObjectType) t;
+		Type sup = ot.superClass();
+		if (sup != null && isFunction(sup))
+		    return true;
+		for (Type ti : ot.interfaces()) {
+		    if (isFunction(ti))
+			return true;
+		}
+	    }
+	    return false;
 	}
 	public boolean isBox(Type t) {
 		X10TypeSystem ts = this;
@@ -556,21 +598,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, String name,
 			List<Ref<? extends Type>> argTypes,
 			List<Ref<? extends Type>> excTypes) {
-		return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, null, excTypes);
+		return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, null, excTypes, null);
 	}
 	
 	public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, String name,
 	        List<Ref<? extends Type>> typeParams,
 	        List<Ref<? extends Type>> argTypes,
 	        Ref<? extends XConstraint> whereClause,
-	        List<Ref<? extends Type>> excTypes) {
+	        List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
 	    assert_(container);
 	    assert_(returnType);
 	    assert_(typeParams);
 	    assert_(argTypes);
 	    assert_(excTypes);
 	    return new X10MethodDef_c(this, pos, container, flags,
-	                              returnType, name, typeParams, argTypes, whereClause, excTypes);
+	                              returnType, name, typeParams, argTypes, whereClause, excTypes, body);
 	}
 	
 	/**
@@ -726,10 +768,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return regionType_;
 	}
 	
-	protected ClassType pointType_;
-	public ClassType point() {
+	protected Type pointType_;
+	public Type point() {
 		if (pointType_ == null)
-			pointType_ = load("x10.lang.point"); // java file
+		    try {
+			pointType_ = typeForName("x10.lang.Point");
+		    }
+		    catch (SemanticException e) {
+			throw new InternalCompilerError("Could not load x10.lang.Point");
+		    } // java file
 		return pointType_;
 	}
 	
@@ -1131,6 +1178,34 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		isFloatArray(me) || 
 		isDoubleArray(me);
 	}
+	
+	public boolean isUByte(Type t) {
+	    return isSubtype(t, UByte());
+	}
+	
+	public boolean isUShort(Type t) {
+	    return isSubtype(t, UShort());
+	}
+	
+	public boolean isUInt(Type t) {
+	    return isSubtype(t, UInt());
+	}
+	
+	public boolean isULong(Type t) {
+	    return isSubtype(t, ULong());
+	}
+	
+	public boolean isNumeric(Type t) {
+	        return super.isNumeric(t) || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
+	}
+
+	public boolean isIntOrLess(Type t) {
+	    return super.isIntOrLess(t) || isUByte(t) || isUShort(t);
+	}
+
+	public boolean isLongOrLess(Type t) {
+	    return super.isLongOrLess(t) || isUByte(t) || isUShort(t) || isUInt(t);
+	}
 
 	@Override
 	public boolean isSubtype(Type t1, Type t2) {
@@ -1290,9 +1365,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			return true;
 		}
 		
-		if (t1 instanceof PrimitiveType && ! t1.isVoid() && t2.typeEquals(boxedType((PrimitiveType) t1))) {
-			return true;
-		}
+//		if (t1 instanceof PrimitiveType && ! t1.isVoid() && t2.typeEquals(boxedType((PrimitiveType) t1))) {
+//			return true;
+//		}
 
 		return super.isSubtype(t1, t2);
 	}
@@ -1448,6 +1523,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			return isCastValid(fromType, fromNT.base());
 		}
 		
+		if (toType instanceof MacroType) {
+		    MacroType toMT = (MacroType) toType;
+		    return isCastValid(fromType, toMT.definedType());
+		}
+		
+		if (fromType instanceof MacroType) {
+		    MacroType fromMT = (MacroType) fromType;
+		    return isCastValid(fromMT.definedType(), toType);
+		}
+		
+		
 //		// If
 //		//   x: C(:T==S)
 //		// need to compare x.T against S also
@@ -1600,6 +1686,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (toType instanceof NullableType) {
 			NullableType toNT = (NullableType) toType;
 			return isImplicitCastValid(fromType, toNT.base());
+		}
+
+		if (toType instanceof MacroType) {
+		    MacroType toMT = (MacroType) toType;
+		    return isImplicitCastValid(fromType, toMT.definedType());
+		}
+		
+		if (fromType instanceof MacroType) {
+		    MacroType fromMT = (MacroType) fromType;
+		    return isImplicitCastValid(fromMT.definedType(), toType);
 		}
 		
 		Type t1 = fromType;
@@ -1994,14 +2090,83 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		checkAccessFlags(f);
 	}
     
+	public boolean isSigned(Type t) {
+	return isByte(t) || isShort(t) || isInt(t) || isLong(t);
+}
+	public boolean isUnsigned(Type t) {
+	    return isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
+	}
+
+	 public Type promote2(Type t1, Type t2) throws SemanticException {
+	     if (isDouble(t1) || isDouble(t2))
+		 return Double();
+
+	     if (isFloat(t1) || isFloat(t2))
+		 return Float();
+
+	     if (isLong(t1) || isLong(t2))
+		 return Long();
+	     
+	     if (isULong(t1) || isULong(t2))
+		 return Long();
+
+	     if (isInt(t1) || isInt(t2))
+		 return Int();
+	     
+	     if (isUInt(t1) || isUInt(t2))
+		 return Int();
+	     
+	     if (isShort(t1) || isShort(t2))
+		 return Int();
+	     
+	     if (isChar(t1) || isChar(t2))
+		 return Int();
+	     
+	     if (isByte(t1) || isByte(t2))
+		 return Int();
+	     
+	     if (isUShort(t1) || isUShort(t2))
+		 return Int();
+	     
+	     if (isUByte(t1) || isUByte(t2))
+		 return Int();
+	     
+	     throw new SemanticException("Cannot promote non-numeric type " + t1);
+	 }
+
+	 public Type promote2(Type t) throws SemanticException {
+	     if (isUByte(t) || isUShort(t))
+		 return UInt();
+
+	     if (isUInt(t))
+		 return UInt();
+
+	     if (isULong(t))
+		 return ULong();
+
+	     if (isByte(t) || isChar(t) || isShort(t) || isInt(t))
+		 return Int();
+
+	     if (isLong(t))
+		 return Long();
+
+	     if (isFloat(t))
+		 return Float();
+
+	     if (isDouble(t))
+		 return Double();
+
+	     throw new SemanticException("Cannot promote non-numeric type " + t);
+	 }
+
 	@Override
 	public Type promote(Type t) throws SemanticException {
-	    Type pt = super.promote(t);
+	    Type pt = promote2(t);
 	    return X10TypeMixin.xclause(pt, (XConstraint) null);
 	}
 	@Override
 	public Type promote(Type t1, Type t2) throws SemanticException {
-		Type pt = super.promote(t1, t2);
+		Type pt = promote2(t1, t2);
 		return X10TypeMixin.xclause(pt, (XConstraint) null);
 	}
 	@Override

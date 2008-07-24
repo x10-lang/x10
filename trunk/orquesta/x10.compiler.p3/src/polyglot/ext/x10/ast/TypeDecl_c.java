@@ -26,6 +26,9 @@ import polyglot.ast.StringLit;
 import polyglot.ast.Term;
 import polyglot.ast.Term_c;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.ConstrainedType;
+import polyglot.ext.x10.types.MacroType;
+import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.TypeDef_c;
 import polyglot.ext.x10.types.TypeProperty_c;
@@ -36,6 +39,7 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
@@ -46,11 +50,13 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -204,7 +210,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		                                                                           Collections.EMPTY_LIST,
 		                                                                           Collections.EMPTY_LIST, null, null);
 		ct.addMemberType(typeDef);
-
+		
 		typeDef.setPackage(package_ != null ? Types.ref(package_) : null);
 
 	        TypeDecl_c n = (TypeDecl_c) copy();
@@ -253,7 +259,46 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 
 	        n = (TypeDecl_c) n.typeDef(typeDef);
 	        
+	        // Add to the system resolver if the type def takes no arguments.
+	        // Otherwise, we'll search through the container.
+	        if (ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
+	            if (ct.name().equals(dummyName) && ct.package_() != null)
+	        	ts.systemResolver().install(ct.package_().get().fullName() + "." + name.id(), typeDef.asType());
+	            else if (ct.name().equals(dummyName) && ct.package_() == null)
+	        	ts.systemResolver().install(name.id(), typeDef.asType());
+		    ts.systemResolver().install(ct.fullName() + "." + name.id(), typeDef.asType());
+		}
+		
 	        return n;
+	}
+	
+	@Override
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	    checkCycles(type.type());
+	    return this;
+	}
+
+	private void checkCycles(Type type) throws SemanticException {
+	    if (type instanceof MacroType) {
+		MacroType mt = (MacroType) type;
+		if (mt.def() == typeDef) {
+		    throw new SemanticException("Recursive type definition; type definition depends on itself.", position());
+		}
+	    }
+	    if (type instanceof ConstrainedType) {
+		ConstrainedType ct = (ConstrainedType) type;
+		checkCycles(ct.baseType().get());
+	    }
+	    if (type instanceof ClassType) {
+		ClassType ct = (ClassType) type;
+		checkCycles(ct.superClass());
+		for (Type t : ct.interfaces())
+		    checkCycles(t);
+	    }
+	    if (type instanceof PathType) {
+		PathType ct = (PathType) type;
+		checkCycles(ct.baseType());
+	    }
 	}
 
 	public TypeDef typeDef() { return typeDef; }

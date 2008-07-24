@@ -22,9 +22,9 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeChecker;
 
 /**
  * An <code>AmbTypeNode</code> is an ambiguous AST node composed of
@@ -89,7 +89,7 @@ public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
       return reconstruct(qual, name);
   }
   
-  public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+  public Node disambiguate(TypeChecker ar) throws SemanticException {
       SemanticException ex;
       
       try {

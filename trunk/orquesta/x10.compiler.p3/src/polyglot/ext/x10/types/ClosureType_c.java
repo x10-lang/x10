@@ -105,8 +105,7 @@ public class ClosureType_c extends X10ParsedClassType_c implements ClosureType {
     @Override
     public String toString() {
 	StringBuffer buff= new StringBuffer();
-	buff.append(returnType.toString())
-	    .append('(');
+	buff.append('(');
 	for(Iterator<Ref<? extends Type>> iter= argumentTypes.iterator(); iter.hasNext(); ) {
 	    Ref<? extends Type> type= iter.next();
 	    buff.append(type.toString());
@@ -121,6 +120,8 @@ public class ClosureType_c extends X10ParsedClassType_c implements ClosureType {
 		if (iter.hasNext()) buff.append(',');
 	    }
 	}
+	buff.append(" => ");
+	buff.append(returnType.toString());
 	return buff.toString();
     }
 }

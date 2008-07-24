@@ -144,6 +144,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10Context cc = (X10Context) super.enterChildScope(child, c);
 
         if (child == this.returnType) {
+            if (cc == c) cc = (X10Context) c.copy();
             cc.setVarWhoseTypeIsBeingElaborated(null);
         }
 
@@ -269,6 +270,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	// childtc will have a "wrong" mi pushed in, but that doesnt matter.
     	// we simply need to push in a non-null mi here.
     	TypeChecker childtc1 = (TypeChecker) tc.enter(parent, nn);
+    	if (childtc1.context() == tc.context())
+    	    childtc1 = (TypeChecker) childtc1.context((Context) tc.context().copy());
     	// Add the type params and formals to the context.
     	nn.visitList(nn.typeParameters(),childtc1);
     	nn.visitList(nn.formals(),childtc1);

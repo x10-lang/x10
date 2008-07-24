@@ -22,9 +22,9 @@ import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeChecker;
 
 public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
@@ -45,7 +45,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	}
 	
 	@Override
-	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+	public Node disambiguate(TypeChecker ar) throws SemanticException {
 	    X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
 	    X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
 	    FunctionTypeNode_c n = this;

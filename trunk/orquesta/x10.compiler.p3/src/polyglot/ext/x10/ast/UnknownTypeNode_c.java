@@ -16,7 +16,6 @@ import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
@@ -37,7 +36,7 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 		return this;
 	}
 
-	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+	public Node disambiguate(TypeChecker ar) throws SemanticException {
 		SemanticException ex;
 		NodeFactory nf = ar.nodeFactory();
 

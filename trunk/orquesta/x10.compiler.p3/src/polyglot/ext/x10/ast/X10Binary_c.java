@@ -13,8 +13,6 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.AmbExpr;
-import polyglot.ast.AmbPrefix;
-import polyglot.ast.Ambiguous;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
@@ -27,6 +25,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Prefix;
+import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -45,7 +44,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
@@ -170,6 +168,27 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		return null;
 	}
 
+	/** If the expression was parsed as an ambiguous expression, return a Receiver that would have parsed the same way.  Otherwise, return null. */
+	private static Receiver toReceiver(X10NodeFactory nf, Expr e) {
+	    if (e instanceof AmbExpr) {
+		AmbExpr e1 = (AmbExpr) e;
+		return nf.AmbReceiver(e.position(), null, e1.name());
+	    }
+	    if (e instanceof Field) {
+		Field f = (Field) e;
+		if (f.target() instanceof Expr) {
+		    Prefix p = toPrefix(nf, (Expr) f.target());
+		    if (p == null)
+			return null;
+		    return nf.AmbReceiver(e.position(), p, f.name());
+		}
+		else {
+		    return nf.AmbReceiver(e.position(), f.target(), f.name());
+		}
+	    }
+	    return null;
+	}
+	
 	/** If the expression was parsed as an ambiguous expression, return a Prefix that would have parsed the same way.  Otherwise, return null. */
 	private static Prefix toPrefix(X10NodeFactory nf, Expr e) {
 	    if (e instanceof AmbExpr) {
@@ -196,8 +215,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
 	    if (op == EQ) {
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-		Prefix t1 = toPrefix(nf, left);
-		Prefix t2 = toPrefix(nf, right);
+		Receiver t1 = toReceiver(nf, left);
+		Receiver t2 = toReceiver(nf, right);
 
 		if (t1 != null && t2 != null) {
 		    Node n1 = this.visitChild(t1, tc);

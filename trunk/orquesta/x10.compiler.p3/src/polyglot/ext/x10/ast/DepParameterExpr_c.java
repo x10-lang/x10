@@ -32,7 +32,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
@@ -148,12 +147,12 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
       }
     
     @Override
-    public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+    public Node disambiguate(TypeChecker ar) throws SemanticException {
     	DepParameterExpr_c n = (DepParameterExpr_c) super.disambiguate(ar);
     	
     	if (((X10Context) ar.context()).inAnnotation() && condition == null) {
     		Expr lit = ar.nodeFactory().BooleanLit(position(), true);
-    		lit = (Expr) this.visitChild(lit, ar.typeChecker());
+    		lit = (Expr) this.visitChild(lit, ar);
     		return n.condition(lit);
     	}
 

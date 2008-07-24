@@ -42,6 +42,7 @@ package polyglot.ext.x10.types;
  * @see Context
  */
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.main.Report;
@@ -230,10 +231,10 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Finds the definition of a particular type.
 	 */
-	public Named find(String name) throws SemanticException {
-//		assert (depType == null);
-		return super.find(name);
-	}
+//	public Named find(String name) throws SemanticException {
+////		assert (depType == null);
+//		return super.find(name);
+//	}
 
 	/**
 	 * Push a source file scope.
@@ -330,10 +331,69 @@ public class X10Context_c extends Context_c implements X10Context {
 		super.addNamed(t);
 	}
 
-	public Named findInThisScope(String name) {
-//		assert (depType == null);
-		return super.findInThisScope(name);
-	}
+	    public Named findInThisScope(String name) {
+	        if (types != null) {
+	        Named t = (Named) types.get(name);
+	            if (t != null)
+	        	return t;
+	        }
+	        if (isClass()) {
+	            if (! this.type.isAnonymous() &&
+	                this.type.name().equals(name)) {
+	                return this.type;
+	            }
+	            else {
+	                ClassType container = this.currentClass();
+			Named t = findMemberTypeInThisScope(name, container);
+			if (t != null) return t;
+	            }
+	        }
+	        if (inDepType()) {
+	            Type container = currentDepType();
+	            Named t = findMemberTypeInThisScope(name, container);
+	            if (t != null) return t;
+	        }
+	        if (supertypeDeclarationType() != null) {
+	            ClassType container = supertypeDeclarationType().asType();
+	            Named t = findMemberTypeInThisScope(name, container);
+	            if (t != null) return t;
+	        }
+	        return null;
+	    }
+
+	    private Named findMemberTypeInThisScope(String name, Type container) {
+		X10TypeSystem ts = (X10TypeSystem) this.ts;
+		ClassDef currentClassDef = this.currentClassDef();
+		if (container instanceof MacroType) {
+		    MacroType mt = (MacroType) container;
+		    System.out.println("mt = " + mt + " @ " + mt.position());
+		    System.out.println("mt = " + mt.definedType() + " @ " + mt.definedType().position());
+		    return findMemberTypeInThisScope(name, mt.definedType());
+		}
+		if (container instanceof ConstrainedType) {
+		    ConstrainedType mt = (ConstrainedType) container;
+		    return findMemberTypeInThisScope(name, mt.baseType().get());
+		}
+		if (container instanceof ClassType) {
+		    ClassType ct = (ClassType) container;
+		    try {
+			return ts.findMemberClass(ct, name, currentClassDef);
+		    }
+		    catch (SemanticException e) {
+		    }
+		    try {
+			return ts.findTypeDef(ct, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, currentClassDef);
+		    }
+		    catch (SemanticException e) {
+		    }
+		    try {
+			return ts.findTypeProperty(ct, name, currentClassDef);
+		    }
+		    catch (SemanticException e) {
+		    }
+		}
+		return null;
+	    }
 
 	public void addNamedToThisScope(Named type) {
 //		assert (depType == null);
@@ -414,7 +474,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 
 	public String toString() {
-		return "(" + (depType != null ? "depType" + depType : kind.toString()) +
+		return "(" + (depType != null ? "depType " + depType : kind.toString()) +
 		       " " + mapsToString() + " " + outer + ")";
 	}
 

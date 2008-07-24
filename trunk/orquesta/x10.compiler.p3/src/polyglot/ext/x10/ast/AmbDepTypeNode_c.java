@@ -8,36 +8,28 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
-import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.types.ConstrainedType;
-import polyglot.ext.x10.types.ConstrainedType_c;
 import polyglot.ext.x10.types.MacroType;
-import polyglot.ext.x10.types.MacroType_c;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.frontend.Globals;
-import polyglot.frontend.Goal;
-import polyglot.frontend.SetResolverGoal;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef;
 import polyglot.types.Named;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -48,21 +40,14 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeBuilder;
-import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XLit;
-import x10.constraint.XPromise;
 import x10.constraint.XSelf;
-import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 
 
 public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
@@ -143,6 +128,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         Context cc = super.enterChildScope(child, c);
         return cc;
     }
+    
     public Node visitChildren(NodeVisitor v) {
         Prefix prefix = (Prefix) visitChild(this.prefix, v);
         Id name = (Id) visitChild(this.name, v);
@@ -159,13 +145,14 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
     protected TypeNode disambiguateBase(TypeChecker ar) throws SemanticException {
 	SemanticException ex;
 	
+	Position pos = position();
 	TypeChecker tc = ar;
 	
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
         // First look for a typedef.
-        try {
+	try {
             X10ParsedClassType typeDefContainer = null;
 
             if (prefix instanceof PackageNode || prefix == null) {
@@ -184,7 +171,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	}
             }
             else if (prefix instanceof Expr) {
-        	throw new InternalCompilerError("non-static type members not implemented", position());
+        	throw new InternalCompilerError("non-static type members not implemented", pos);
             }
 
             if (typeDefContainer != null) {
@@ -201,7 +188,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
                 }
 
                 MacroType mt = ts.findTypeDef(typeDefContainer, name.id(), typeArgs, argTypes, tc.context().currentClassDef());
-                return nf.CanonicalTypeNode(position(), Types.ref(mt));
+                return nf.CanonicalTypeNode(pos, Types.ref(mt));
             }
         }
         catch (SemanticException e) {
@@ -209,7 +196,8 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         
         // Otherwise, look for a simply-named type.
         try {
-            Node n = ar.nodeFactory().disamb().disambiguate(this, ar, position(), prefix, name);
+            Disamb disamb = ar.nodeFactory().disamb();
+	    Node n = disamb.disambiguate(this, ar, pos, prefix, name);
 
             if (n instanceof TypeNode) {
         	return (TypeNode) n;
@@ -217,7 +205,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
 
             ex = new SemanticException("Could not find type \"" +
                                        (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +
-                                       "\".", position());
+                                       "\".", pos);
         }
         catch (SemanticException e) {
             ex = e;
@@ -238,13 +226,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         
         Prefix prefix = (Prefix) visitChild(n.prefix, childtc);
         Id name = (Id) visitChild(n.name, childtc);
-        List<TypeNode> typeArgs = visitList(n.typeArgs, childtc);
-        List<Expr> args = visitList(n.args, childtc);
 
         n = (AmbDepTypeNode_c) n.prefix(prefix);
         n = (AmbDepTypeNode_c) n.name(name);
-        n = (AmbDepTypeNode_c) n.typeArgs(typeArgs);
-        n = (AmbDepTypeNode_c) n.args(args);
         
         TypeNode tn;
         
@@ -264,11 +248,16 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
             sym.update(ts.unknownType(position()));
             return n;
         }
-        
+
         // Update the symbol with the base type so that if we try to get the type while checking the constraint, we don't get a cyclic
         // dependency error, but instead get a less precise type.
         sym.update(t);
-
+        
+        List<TypeNode> typeArgs = visitList(n.typeArgs, childtc);
+        List<Expr> args = visitList(n.args, childtc);
+        n = (AmbDepTypeNode_c) n.typeArgs(typeArgs);
+        n = (AmbDepTypeNode_c) n.args(args);
+        
         DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
         
         XConstraint c = dep != null ? Types.get(dep.xconstraint()) : null;
@@ -297,7 +286,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         if (! typeArgs.isEmpty()) {
         	List<TypeProperty> typeProps = X10TypeMixin.typeProperties(t);
         	if (typeProps.size() != typeArgs.size()) {
-        		throw new SemanticException("Number of type property initializers is not the same as number of type properties.", position());
+        		throw new SemanticException("Number of type property initializers (" + typeArgs.size() + ") for " + t + " is not the same as number of type properties (" + typeProps.size() + ").", position());
         	}
         	if (c == null) c = new XConstraint_c();
         	for (int i = 0; i < typeProps.size(); i++) {
@@ -317,7 +306,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         if (! args.isEmpty()) {
         	List<FieldInstance> props = X10TypeMixin.properties(t);
         	if (props.size() != args.size()) {
-        		throw new SemanticException("Number of value property initializers is not the same as number of value properties.", position());
+        	    throw new SemanticException("Number of value property initializers (" + args.size() + ") for " + t + " is not the same as number of value properties (" + props.size() + ").", position());
         	}
         	if (c == null) c = new XConstraint_c();
         	for (int i = 0; i < props.size(); i++) {

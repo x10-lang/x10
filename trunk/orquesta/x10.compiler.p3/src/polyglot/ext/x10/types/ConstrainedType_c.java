@@ -18,6 +18,7 @@ import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import x10.constraint.XConstraint;
@@ -34,6 +35,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		super(ts, pos);
 		assert ts != null;
 		this.baseType = baseType;
+		assert !(baseType.known() && baseType.getCached() instanceof UnknownType);
 		this.constraint = constraint;
 	}
 
@@ -116,7 +118,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 				sb.append("]");
 			}
 			if (ct.definedProperties().size() > 0) {
-				sb.append("[");
+				sb.append("(");
 				String sep = "";
 				for (FieldInstance p : ct.definedProperties()) {
 					XVar v = XTerms.makeField(XSelf.Self, XTerms.makeName(p, p.name()));
@@ -131,7 +133,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 						sb.append("self." + p.name());
 					}
 				}
-				sb.append("]");
+				sb.append(")");
 			}
 		}
 		if (c != null && ! c.valid()) {

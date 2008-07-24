@@ -13,6 +13,7 @@ package polyglot.ext.x10.types;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
+import x10.constraint.XTerm;
 
 /**
  * @author vj
@@ -32,5 +33,8 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<
 	boolean isSafe();
 	
 	X10MethodInstance returnType(Type returnType);
+	
+	XTerm body();
+	X10MethodInstance body(XTerm body);
 
 }

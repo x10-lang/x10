@@ -63,11 +63,11 @@ public class X10Disamb_c extends Disamb_c {
 	    	if (exprOK()) {
 	    		// First try local variables.
 	    		VarInstance<?> vi = c.findVariableSilent(name.id());
-	    		
+
 	    		if (vi != null && vi.def() == c.varWhoseTypeIsBeingElaborated()) {
-	                Expr e = ((X10NodeFactory) nf).Self(pos); 
-	                e = e.type(t);
-	                return e;
+	    		    Expr e = ((X10NodeFactory) nf).Self(pos); 
+	    		    e = e.type(t);
+	    		    return e;
 	    		}
 	    		
 	    		if (vi instanceof LocalInstance) {
@@ -132,50 +132,49 @@ public class X10Disamb_c extends Disamb_c {
 
 	        }
 	    }
-	    else {
-		if (exprOK()) {
-		    // First try local variables and fields.
-		    VarInstance vi = c.findVariableSilent(name.id());
 
-		    if (vi != null) {
-			Node n = disambiguateVarInstance(vi);
-			if (n != null) return n;
+	    if (exprOK()) {
+		// First try local variables and fields.
+		VarInstance vi = c.findVariableSilent(name.id());
+
+		if (vi != null) {
+		    Node n = disambiguateVarInstance(vi);
+		    if (n != null) return n;
+		}
+	    }
+
+	    // no variable found. try types.
+	    if (typeOK()) {
+		try {
+		    Named n = c.find(name.id());
+		    if (n instanceof Type) {
+			Type type = (Type) n;
+			return nf.CanonicalTypeNode(pos, type);
 		    }
+		} catch (NoClassException e1) {
+		    if (!name.id().equals(e1.getClassName())) {
+			// hmm, something else must have gone wrong
+			// rethrow the exception
+			throw e1;
+		    }
+
+		    // couldn't find a type named name. 
+		    // It must be a package--ignore the exception.
 		}
 
-		// no variable found. try types.
-		if (typeOK()) {
+		ClassType t = c.currentClass();
+		if (t != null) {
 		    try {
-			Named n = c.find(name.id());
-			if (n instanceof Type) {
-			    Type type = (Type) n;
-			    return nf.CanonicalTypeNode(pos, type);
-			}
-		    } catch (NoClassException e1) {
-			if (!name.id().equals(e1.getClassName())) {
-			    // hmm, something else must have gone wrong
-			    // rethrow the exception
-			    throw e1;
-			}
-
-			// couldn't find a type named name. 
-			// It must be a package--ignore the exception.
+			X10TypeSystem xts = (X10TypeSystem) ts;
+			PathType pt = xts.findTypeProperty((ClassType) t, this.name.id(), c.currentClassDef());
+			Type pt2;
+			if (c.inSuperTypeDeclaration())
+			    pt2 = PathType_c.pathBase(pt, xts.xtypeTranslator().transThisWithoutTypeConstraint(), t);
+			else
+			    pt2 = PathType_c.pathBase(pt, xts.xtypeTranslator().transThis((ClassType) t), t);
+			return nf.CanonicalTypeNode(pos, pt2);
 		    }
-
-		    ClassType t = c.currentClass();
-		    if (t != null) {
-			try {
-			    X10TypeSystem xts = (X10TypeSystem) ts;
-			    PathType pt = xts.findTypeProperty((ClassType) t, this.name.id(), c.currentClassDef());
-			    Type pt2;
-			    if (c.inSuperTypeDeclaration())
-				pt2 = PathType_c.pathBase(pt, xts.xtypeTranslator().transThisWithoutTypeConstraint(), t);
-			    else
-				pt2 = PathType_c.pathBase(pt, xts.xtypeTranslator().transThis((ClassType) t), t);
-			    return nf.CanonicalTypeNode(pos, pt2);
-			}
-			catch (SemanticException e) {
-			}
+		    catch (SemanticException e) {
 		    }
 		}
 	    }
