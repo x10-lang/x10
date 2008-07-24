@@ -8,8 +8,8 @@ public interface Indexable
             lang.
             Fun_0_1
 {
-    public class Index { }public class Domain { }public class T { }
-    private final x10.runtime.Type Index;private final x10.runtime.Type Domain;private final x10.runtime.Type T;
+    public class Index { }public class Domain { }public class IndexableT { }
+    private final x10.runtime.Type Index;private final x10.runtime.Type Domain;private final x10.runtime.Type IndexableT;
     
     
     Object[]
