@@ -159,6 +159,9 @@ public abstract value Region(rank:int, rect:boolean, zeroBased:boolean, rail:boo
        Make an empty region of the given rank.
      */
     public static def makeEmptyRegion(rank: nat) = Runtime.makeEmptyRegion(rank);
+
+    /** Make a region from the given range. */
+    public static def makeRangeRegion(min: int, max: int) = Runtime.makeRangeRegion(min, max);
     
     /**
        Make the unique unit region.

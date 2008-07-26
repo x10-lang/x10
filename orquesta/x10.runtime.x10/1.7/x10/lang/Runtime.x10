@@ -38,18 +38,19 @@ public abstract class Runtime {
      */
     public abstract def makeNativeValRail[T](l: Nat, init: (Nat(l-1))=>T): NativeValRail[T](l);
 
-
     /**
        Create and return a NativeValRail[T] of length l, after
        initialized the value at index i with init.
      */
     public def makeNativeValRail[T](l: Nat, init: T):NativeValRail[T](l);
 
-    public abstract def makeUnitRegion():Region{rank==0,rect,!rail, !colMajor};
+    public static incomplete def makeUnitRegion():Region{rank==0,rect,!rail, !colMajor};
 
-    public abstract def makeEmptyRegion(r :nat):Region{rank==r,rect,rail==(r==1), !colMajor};
+    public static incomplete def makeEmptyRegion(r :nat):Region{rank==r,rect,rail==(r==1), !colMajor};
 
-    public abstract def makeRectRegion(r :nat):Region{rank==r,rect,rail==(r==1), !colMajor};
+    public static incomplete def makeRectRegion(r :nat):Region{rank==r,rect,rail==(r==1), !colMajor};
+
+    public static incomplete def makeRangeRegion(min :int, max: int):Region{rank==1,rect,rail==true, !colMajor};
 
     //********************** Place *****************************
     /**
