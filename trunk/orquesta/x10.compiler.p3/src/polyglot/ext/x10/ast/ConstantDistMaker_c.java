@@ -42,27 +42,27 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
 		super(pos, target, name, Collections.EMPTY_LIST, arguments);
 	}
 	 
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        ConstantDistMaker_c n = (ConstantDistMaker_c) super.typeCheck(tc);
-        Expr left = (Expr) n.arguments.get(0);
-        Type lType = left.type();
-       // Report.report(1, "ConstantDistMaker..ltype " + left+ "(#" + left.hashCode() + ") is " + lType);
-        Type type = xts.distribution();
-		XTerm rank = X10ArraysMixin.rank(lType);
-		if (rank != null) type = X10ArraysMixin.setRank(type, rank);
-		type = X10ArraysMixin.setOnePlace(type, xts.here());
-		boolean zeroB = X10ArraysMixin.isZeroBased(lType);
-		if (zeroB) type = X10ArraysMixin.setZeroBased(type);
-		
-		boolean isRect = X10ArraysMixin.isRect(lType);
-		if (isRect) type = X10ArraysMixin.setRect(type);
-
-	        type = X10ArraysMixin.setConstantDist(type);
-
-	//Report.report(1, "ConstantDistMaker.. returning " + this + " with type "  + type);
-		return n.type(type);
-    }
+//    public Node typeCheck(TypeChecker tc) throws SemanticException {
+//        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+//        ConstantDistMaker_c n = (ConstantDistMaker_c) super.typeCheck(tc);
+//        Expr left = (Expr) n.arguments.get(0);
+//        Type lType = left.type();
+//       // Report.report(1, "ConstantDistMaker..ltype " + left+ "(#" + left.hashCode() + ") is " + lType);
+//        Type type = xts.distribution();
+//		XTerm rank = X10ArraysMixin.rank(lType);
+//		if (rank != null) type = X10ArraysMixin.setRank(type, rank);
+//		type = X10ArraysMixin.setOnePlace(type, xts.here());
+//		boolean zeroB = X10ArraysMixin.isZeroBased(lType);
+//		if (zeroB) type = X10ArraysMixin.setZeroBased(type);
+//		
+//		boolean isRect = X10ArraysMixin.isRect(lType);
+//		if (isRect) type = X10ArraysMixin.setRect(type);
+//
+//	        type = X10ArraysMixin.setConstantDist(type);
+//
+//	//Report.report(1, "ConstantDistMaker.. returning " + this + " with type "  + type);
+//		return n.type(type);
+//    }
     
    /* public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
     	Report.report(1, "ConstantDistMaker outputting " + arguments.get(0)

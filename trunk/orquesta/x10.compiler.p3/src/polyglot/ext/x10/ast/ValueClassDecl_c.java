@@ -31,6 +31,7 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -67,7 +68,7 @@ public class ValueClassDecl_c extends X10ClassDecl_c implements ValueClassDecl {
 	static List<TypeNode> addValueToInterfaces(List<TypeNode> interfaces, X10NodeFactory nf) {
 		List<TypeNode> elist = TypedList.copy(interfaces, TypeNode.class, false);
 		X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
-		ClassType value = ts.value();
+		Type value = ts.Value();
 		CanonicalTypeNode ctn = nf.CanonicalTypeNode(Position.COMPILER_GENERATED, Types.ref(value));
 		elist.add(0, ctn); 
 		return elist;

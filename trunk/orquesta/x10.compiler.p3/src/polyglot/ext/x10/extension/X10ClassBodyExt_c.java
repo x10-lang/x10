@@ -793,7 +793,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 */
 	public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
 		typeSystem = ts;
-		PrimitiveType tt = ts.Long();
+		Type tt = ts.Long();
 		boolean seenNativeMethodDecl = false;
 
 		ClassBody_c cb = (ClassBody_c) node();

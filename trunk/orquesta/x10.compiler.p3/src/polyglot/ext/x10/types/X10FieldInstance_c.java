@@ -93,15 +93,15 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
             }
         }
         
-        StructType container = container();
-        
-        // HACK!
-        if (name().equals("UNIQUE") && container.typeEquals(xts.distribution()) && flags.isStatic()) {
-            Type ud = t;
-            ud = X10ArraysMixin.setUniqueDist(ud);
-            ud = X10ArraysMixin.setRail(ud);
-            return ud;
-        }        
+//        StructType container = container();
+//        
+//        // HACK!
+//        if (name().equals("UNIQUE") && container.typeEquals(xts.distribution()) && flags.isStatic()) {
+//            Type ud = t;
+//            ud = X10ArraysMixin.setUniqueDist(ud);
+//            ud = X10ArraysMixin.setRail(ud);
+//            return ud;
+//        }        
 
         return t;
     }

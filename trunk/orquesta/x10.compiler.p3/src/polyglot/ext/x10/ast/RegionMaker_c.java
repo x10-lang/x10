@@ -41,23 +41,24 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 		super(pos, target, name, Collections.EMPTY_LIST, arguments);
 	
 	}
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        RegionMaker_c n = (RegionMaker_c) super.typeCheck(tc);
-        Expr left = (Expr) n.arguments.get(0);
-      
-        Type type = n.type();
-        type =        X10ArraysMixin.setRank(type, xts.ONE());
-        type =  X10ArraysMixin.setRect(type);
-        // vj: Also may wish to check for the type being int(:self==0).
-        Object leftVal = left.constantValue();
-        if ((leftVal instanceof Integer && ((Integer) leftVal).intValue()==0)) {
-            type = X10ArraysMixin.setZeroBased(type);
-        }
-        
-		RegionMaker result = (RegionMaker) n.type(type);
-		//Report.report(1, "RegionMaker_c: type of |" + result + "| is " + result.type());
-		return result;
-    }
+//	
+//	public node typecheck(typechecker tc) throws semanticexception {
+//        x10typesystem xts = (x10typesystem) tc.typesystem();
+//        regionmaker_c n = (regionmaker_c) super.typecheck(tc);
+//        expr left = (expr) n.arguments.get(0);
+//      
+//        type type = n.type();
+//        type =        x10arraysmixin.setrank(type, xts.one());
+//        type =  x10arraysmixin.setrect(type);
+//        // vj: also may wish to check for the type being int(:self==0).
+//        object leftval = left.constantvalue();
+//        if ((leftval instanceof integer && ((integer) leftval).intvalue()==0)) {
+//            type = x10arraysmixin.setzerobased(type);
+//        }
+//        
+//		regionmaker result = (regionmaker) n.type(type);
+//		//report.report(1, "regionmaker_c: type of |" + result + "| is " + result.type());
+//		return result;
+//    }
 	
 }

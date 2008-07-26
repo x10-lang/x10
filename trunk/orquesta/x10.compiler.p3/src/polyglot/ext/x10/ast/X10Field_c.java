@@ -18,6 +18,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10Context;
@@ -88,12 +89,12 @@ public class X10Field_c extends Field_c {
 			//							: "") +
 			//							"of non-reference type \"" +
 			//							target.type() + "\".", target.position());
-			if (!(tType instanceof StructType))
-				throw new NoMemberException(NoMemberException.FIELD,
-						"Field \"" + name + "\" not found in type \"" +
-						tType + "\".");
+//			if (!(tType instanceof StructType))
+//				throw new NoMemberException(NoMemberException.FIELD,
+//						"Field \"" + name + "\" not found in type \"" +
+//						tType + "\".");
 
-			FieldInstance fi = ts.findField((StructType) tType, name.id(), c.currentClassDef());
+			FieldInstance fi = ts.findField(tType, name.id(), c.currentClassDef());
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",
@@ -119,7 +120,7 @@ public class X10Field_c extends Field_c {
 				fi = fi.type(retType);
 			}
 			// FIXME: [IP] HACK!
-			if (xts.typeEquals(fi.container(), xts.distribution()) && fi.name().equals("UNIQUE")) {
+			if (xts.typeEquals(fi.container(), xts.Dist()) && fi.name().equals("UNIQUE")) {
 				Type ud = fi.type();
 				ud = X10ArraysMixin.setUniqueDist(ud);
 				fi = fi.type(ud);
@@ -188,6 +189,7 @@ public class X10Field_c extends Field_c {
 	protected X10Field_c checkArrayFields(X10Field_c result) {
 		Type aType = result.target.type();
 		X10TypeSystem xts = (X10TypeSystem) aType.typeSystem();
+		/*
 		if (result.nameString().equals("distribution") && xts.isX10Array(aType)) {
 			Type aType1 = aType;
 			Type type = result.type();
@@ -252,6 +254,7 @@ public class X10Field_c extends Field_c {
 			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
 			return result;
 		}
+		*/
 		return result;
 	}
 //

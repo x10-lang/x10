@@ -72,7 +72,7 @@ public class Tuple_c extends ArrayInit_c implements Tuple {
 		return type(ts.Null());
 	    }
 	    else {
-		Type t = ((X10TypeSystem_c) ts).newAndImprovedValueArray(Types.ref(type));
+		Type t = ((X10TypeSystem_c) ts).arrayOf(Types.ref(type));
 		return type(t);
 	    }
 	}

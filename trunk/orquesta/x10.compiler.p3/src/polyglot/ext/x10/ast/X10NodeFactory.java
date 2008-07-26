@@ -101,9 +101,6 @@ public interface X10NodeFactory extends NodeFactory {
             DepParameterExpr ci, TypeNode superClass,
 			List<TypeNode> interfaces, ClassBody body);
 	Await Await(Position pos, Expr expr);
-	ArrayConstructor ArrayConstructor(Position pos, TypeNode base,
-									  boolean unsafe, boolean isValue,
-									  Expr distribution, Expr init);
 	Point Point(Position pos, List<Expr> expr);
 
 	X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);

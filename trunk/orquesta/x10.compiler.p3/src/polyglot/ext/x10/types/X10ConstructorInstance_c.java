@@ -119,7 +119,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     
     @Override
-    public ConstructorInstance instantiate(StructType receiverType,
+    public ConstructorInstance instantiate(Type receiverType,
     		List<Type> argumentTypes) throws SemanticException {
 
 	    return X10MethodInstance_c.instantiate(this, receiverType, argumentTypes);

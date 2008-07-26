@@ -8,19 +8,28 @@
 
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.AmbTypeNode;
+import java.util.Collections;
+
+import polyglot.ast.Disamb;
+import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
+import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
+import polyglot.ext.x10.types.MacroType;
+import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.LazyRef;
+import polyglot.types.Named;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -91,10 +100,59 @@ public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
   
   public Node disambiguate(TypeChecker ar) throws SemanticException {
       SemanticException ex;
-      
+    
+      Position pos = position();
+      TypeChecker tc = ar;
+    
+      X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+      X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+    
+      Prefix       prefix = qual;
+      // First look for a typedef.
       try {
-          Node n = ar.nodeFactory().disamb().disambiguate(this, ar, position(), qual, name);
+          X10ParsedClassType typeDefContainer = null;
+    
+          if (prefix instanceof PackageNode || prefix == null) {
+              PackageNode pn = (PackageNode) prefix;
+              String dummyName = "package";
+              String fullName = (pn != null ? Types.get(pn.package_()).fullName() + "." : "") + dummyName;
+              Named n = ts.systemResolver().find(fullName);
+              if (n instanceof X10ParsedClassType) {
+        	  typeDefContainer = (X10ParsedClassType) n;
+              }
+          }
+          else if (prefix instanceof TypeNode) {
+              TypeNode tn = (TypeNode) prefix;
+              if (tn.type() instanceof X10ParsedClassType) {
+        	  typeDefContainer = (X10ParsedClassType) tn.type();
+              }
+          }
+          else if (prefix instanceof Expr) {
+              throw new InternalCompilerError("non-static type members not implemented", pos);
+          }
+    
+          if (typeDefContainer != null) {
+              MacroType mt = ts.findTypeDef(typeDefContainer, name.id(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, tc.context().currentClassDef());
+              
+              LazyRef<Type> sym = (LazyRef<Type>) type;
+              sym.update(mt);
+              
+              // Reset the resolver goal to one that can run when the ref is deserialized.
+              Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
+              resolver.update(Goal.Status.SUCCESS);
+              sym.setResolver(resolver);
 
+              return nf.CanonicalTypeNode(pos, sym);
+          }
+      }
+      catch (SemanticException e) {
+      }
+    
+      // Otherwise, look for a simply-named type.
+      try {
+          Disamb disamb = ar.nodeFactory().disamb();
+          Node n = disamb.disambiguate(this, ar, pos, prefix, name);
+    
           if (n instanceof TypeNode) {
               TypeNode tn = (TypeNode) n;
               LazyRef<Type> sym = (LazyRef<Type>) type;
@@ -104,21 +162,21 @@ public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
               Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
               resolver.update(Goal.Status.SUCCESS);
               sym.setResolver(resolver);
-              return n;
+              return tn;
           }
-
+    
           ex = new SemanticException("Could not find type \"" +
-                                     (qual == null ? name.toString() : qual.toString() + "." + name.toString()) +
-                                     "\".", position());
+                                     (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +
+                                     "\".", pos);
       }
       catch (SemanticException e) {
           ex = e;
       }
-
+    
       // Mark the type as an error, so we don't try looking it up again.
       LazyRef<Type> sym = (LazyRef<Type>) type;
       sym.update(ar.typeSystem().unknownType(position()));
-
+    
       throw ex;
   }
 

@@ -123,7 +123,7 @@ implements Atomic {
 		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
 		
 		if ( child == place ) {
-			return ts.place();
+			return ts.Place();
 		}
 		
 		return child.type();

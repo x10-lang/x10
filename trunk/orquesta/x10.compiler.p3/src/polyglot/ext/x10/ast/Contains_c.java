@@ -107,10 +107,10 @@ public class Contains_c extends Expr_c implements Contains {
 		Type itemType = item.type();
 		Type collType = collection.type();
 
-		if (itemType.isSubtype(ts.point()) && collType.isSubtype(ts.region()))
+		if (itemType.isSubtype(ts.Point()) && collType.isSubtype(ts.Region()))
 		    return isSubsetTest(false).type(ts.Boolean());
 		
-		if (itemType.isSubtype(ts.region()) && collType.isSubtype(ts.region()))
+		if (itemType.isSubtype(ts.Region()) && collType.isSubtype(ts.Region()))
 		    return isSubsetTest(true).type(ts.Boolean());
 		
 		if (collType.isSubtype(ts.Contains())) {

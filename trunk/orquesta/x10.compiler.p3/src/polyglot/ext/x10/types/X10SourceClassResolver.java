@@ -42,18 +42,18 @@ public class X10SourceClassResolver extends SourceClassResolver {
 //	        if (name.equals("x10.lang.NativeRail")) return ts.NativeRail();
 //	        if (name.equals("x10.lang.NativeValRail")) return ts.NativeValRail();
 	        
-		if (name.equals("x10.lang.Void")) return ts.Void();
-		if (name.equals("x10.lang.Boolean")) return ts.Boolean();
-		if (name.equals("x10.lang.Byte")) return ts.Byte();
-		if (name.equals("x10.lang.Short")) return ts.Short();
-		if (name.equals("x10.lang.Char")) return ts.Char();
-		if (name.equals("x10.lang.Int")) return ts.Int();
-		if (name.equals("x10.lang.Long")) return ts.Long();
-		if (name.equals("x10.lang.Float")) return ts.Float();
-		if (name.equals("x10.lang.UByte")) return ts.UByte();
-		if (name.equals("x10.lang.UShort")) return ts.UShort();
-		if (name.equals("x10.lang.UInt")) return ts.UInt();
-		if (name.equals("x10.lang.ULong")) return ts.ULong();
+		if (name.equals("x10.lang.Void")) return (Named) ts.Void();
+		if (name.equals("x10.lang.Boolean")) return(Named) ts.Boolean();
+		if (name.equals("x10.lang.Byte")) return (Named)ts.Byte();
+		if (name.equals("x10.lang.Short")) return(Named) ts.Short();
+		if (name.equals("x10.lang.Char")) return (Named)ts.Char();
+		if (name.equals("x10.lang.Int")) return(Named) ts.Int();
+		if (name.equals("x10.lang.Long")) return (Named)ts.Long();
+		if (name.equals("x10.lang.Float")) return(Named) ts.Float();
+		if (name.equals("x10.lang.UByte")) return (Named)ts.UByte();
+		if (name.equals("x10.lang.UShort")) return(Named) ts.UShort();
+		if (name.equals("x10.lang.UInt")) return(Named) ts.UInt();
+		if (name.equals("x10.lang.ULong")) return(Named) ts.ULong();
 	
 		// Change java.lang.Object to x10.lang.Object
 		if (name.equals("x10.lang.Object")) {

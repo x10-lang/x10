@@ -10,7 +10,10 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.Assign;
@@ -32,6 +35,7 @@ import polyglot.ast.Unary;
 import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10LocalDef_c;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.visit.ExprFlattener;
@@ -40,6 +44,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -245,16 +250,49 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		//Report.report(1, "X10Binary_c: l=" + l + " r=" + r + " op=" + op);
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		if (op == EQ || op == NE) {
-			l = X10TypeMixin.xclause(l, (XConstraint) null);
-			r = X10TypeMixin.xclause(r, (XConstraint) null);
-			if (! ts.isCastValid(l, r) && ! ts.isCastValid(r, l)) {
-					throw new SemanticException("The " + op +
-					    " operator must have operands of similar type.",
-					    position());
-				    }
-			
-				return type(ts.Boolean());
-			}
+		    l = X10TypeMixin.xclause(l, (XConstraint) null);
+		    r = X10TypeMixin.xclause(r, (XConstraint) null);
+		    if (! ts.isCastValid(l, r) && ! ts.isCastValid(r, l)) {
+			throw new SemanticException("The " + op +
+			                            " operator must have operands of similar type.",
+			                            position());
+		    }
+
+		    return type(ts.Boolean());
+		}
+		
+		Map<Binary.Operator,String> methodNameMap = new HashMap<Operator, String>();
+		methodNameMap.put(ADD, "add");
+		methodNameMap.put(SUB, "sub");
+		methodNameMap.put(MUL, "mul");
+		methodNameMap.put(DIV, "div");
+		methodNameMap.put(MOD, "mod");
+		methodNameMap.put(BIT_AND, "and");
+		methodNameMap.put(BIT_OR, "or");
+		methodNameMap.put(BIT_XOR, "xor");
+		methodNameMap.put(COND_OR, "union");
+		methodNameMap.put(COND_AND, "intersect");
+		methodNameMap.put(SHL, "shl");
+		methodNameMap.put(SHR, "shr");
+		methodNameMap.put(USHR, "ushr");
+		methodNameMap.put(GT, "gt");
+		methodNameMap.put(LT, "lt");
+		methodNameMap.put(LE, "le");
+		methodNameMap.put(GE, "ge");
+		
+		String methodName = methodNameMap.get(op);
+		
+		if (l instanceof StructType && methodName != null) {
+		    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
+		    try {
+			X10MethodInstance mi = ts.findMethod((StructType) l, methodName, Collections.EMPTY_LIST, Collections.singletonList(r), tc.context().currentClassDef());
+			return type(mi.returnType());
+		    }
+		    catch (SemanticException e) {
+			// Cannot find the method.  Fall through.
+		    }
+		}
+/*		
 		// TODO: define these operations for arrays as well, with the same distribution.
 		if ((op == GT || op == LT || op == GE || op == LE) && xts.isPlace(l)) {
 		    if (xts.isPlace(l) && !xts.isPlace(r)) {
@@ -484,7 +522,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 						" operator instance must have a point or integer operand.", left.position());
 			return type(r);
 		}
-
+*/
 		X10Binary_c n = (X10Binary_c) super.typeCheck(tc);
 
 		Type resultType = n.type();
@@ -496,6 +534,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		return n;
 	}
 	
+	/*
 	public Type checkRanks(Type l, Type r, Type result) throws SemanticException {
 		Type lType =  l;
 		Type rType =  r;
@@ -561,7 +600,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		//Report.report(1, "X10Binary_c: exiting lRank=" + lRank + " rRank=" + rRank);
 		return result;
 	}
-	
+	*/
+	/*
 	public Type checkDistributions(Type l, Type r, Type result) throws SemanticException {
 		Type lType = l;
 		Type rType = r;
@@ -580,7 +620,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		//Report.report(1, "X10Binary_c: exiting lRank=" + lRank + " rRank=" + rRank);
 		return result;
 	}
-
+*/
 
 	 /** Flatten the expressions in place and body, creating stmt if necessary.
      * The place field must be visited by the given flattener since those statements must be executed outside
