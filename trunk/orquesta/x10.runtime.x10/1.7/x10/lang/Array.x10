@@ -96,8 +96,6 @@ public abstract value Array[T](dist: Dist, region: Region, rank: nat)
     public def rawIterate(f: (nat) => T)=rawIterate((nat, T)=>f(p));
     public def rawIterate(f: () => T) = rawIterate((nat, T) => f());
 
-
-
     /** Fetch the value at this point in the array. Throws a
      * BadPlaceException if the point is not local. In general, this
      * is an expensive operation and should only be used with great

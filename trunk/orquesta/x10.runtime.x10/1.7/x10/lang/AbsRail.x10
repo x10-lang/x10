@@ -22,7 +22,6 @@ package x10.lang;
    @author vj 06/14/08
 
  */
-import x10.lang.TypeDefs.*;
 
 // Note that R <: NativeAbsRail[T] and not R <: NativeAbsRail[T]
 // We get a form of partial type specification. 
@@ -32,7 +31,8 @@ import x10.lang.TypeDefs.*;
 // NativeAbsRail[T]{length==self.length}
 
 abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail{NativeRailT==Base}} 
-    implements Array[Base](0..length-1-> here), 
+    extends Array[Base](0..length-1-> here)
+    implements
 	(Nat(length-1))=> Base, // permit indexing by nats in the given range.
 	Arithmetic[AbsRail[Base,Mem](length)] /* if Base <: Arithmetic[Base] */ {
 
@@ -117,9 +117,9 @@ abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail{NativeRailT==
     }
     public def isK(k:Base): Boolean = andReduce((x:Base) => x==k);
     public def add(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}  = mapRail(o,(x:Base,y:Base)=>x.add(y));
+    public def sub(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}  = mapRail(o,Base.sub.(Base));
     public def mul(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}  = mapRail(o,Base.mul.(Base));
     public def div(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}  = mapRail(o,Base.div.(Base));
-    public def sub(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}  = mapRail(o,Base.sub.(Base));
     public def cosub(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}= mapRail(o,Base.cosub.(Base));
     public def codiv(o: AbsRail[Base,Mem](length)){Base <: Arithmetic[Base]}= mapRail(o,Base.codiv.(Base));
     public def neginv(){Base <: Arithmetic[Base]}                    = map(Base.neginv.());
