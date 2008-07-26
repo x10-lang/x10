@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ext.x10.visit.X10Translator;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -142,12 +143,47 @@ public class X10Context_c extends Context_c implements X10Context {
 		return depType == null ? super.isLocal(name) : pop().isLocal(name);
 	}
 
+
+	    /**
+	     * Looks up a method with name "name" and arguments compatible with
+	     * "argTypes".
+	     */
+	    public MethodInstance superFindMethod(String name, List<Type> argTypes) throws SemanticException {
+	        if (Report.should_report(TOPICS, 3))
+	          Report.report(3, "find-method " + name + argTypes + " in " + this);
+
+	        // Check for any method with the appropriate name.
+	        // If found, stop the search since it shadows any enclosing
+	        // classes method of the same name.
+	        ClassType currentClass = this.currentClass();
+		if (currentClass != null &&
+	            ts.hasMethodNamed(currentClass, name)) {
+	            if (Report.should_report(TOPICS, 3))
+	              Report.report(3, "find-method " + name + argTypes + " -> " +
+	                                currentClass);
+	            
+	            Type t = currentClass;
+	            X10TypeSystem xts = (X10TypeSystem) ts;
+	            t = X10TypeMixin.setSelfVar(t, xts.xtypeTranslator().transThisWithoutTypeConstraint());
+	            
+	            // Found a class which has a method of the right name.
+	            // Now need to check if the method is of the correct type.
+	            return ts.findMethod(t, name, argTypes, this.currentClassDef());
+	        }
+
+	        if (outer != null) {
+	            return outer.findMethod(name, argTypes);
+	        }
+
+	        throw new SemanticException("Method " + name + " not found.");
+	    }
+	    
 	/**
 	 * Looks up a method with name "name" and arguments compatible with
 	 * "argTypes".
 	 */
-	public MethodInstance findMethod(String name, List argTypes) throws SemanticException {
-		MethodInstance result = depType == null ? super.findMethod(name, argTypes) : pop().findMethod(name, argTypes);
+	public MethodInstance findMethod(String name, List<Type> argTypes) throws SemanticException {
+		MethodInstance result = depType == null ? superFindMethod(name, argTypes) : pop().findMethod(name, argTypes);
 		return result;
 	}
 
@@ -366,31 +402,27 @@ public class X10Context_c extends Context_c implements X10Context {
 		ClassDef currentClassDef = this.currentClassDef();
 		if (container instanceof MacroType) {
 		    MacroType mt = (MacroType) container;
-		    System.out.println("mt = " + mt + " @ " + mt.position());
-		    System.out.println("mt = " + mt.definedType() + " @ " + mt.definedType().position());
 		    return findMemberTypeInThisScope(name, mt.definedType());
 		}
 		if (container instanceof ConstrainedType) {
 		    ConstrainedType mt = (ConstrainedType) container;
 		    return findMemberTypeInThisScope(name, mt.baseType().get());
 		}
-		if (container instanceof ClassType) {
-		    ClassType ct = (ClassType) container;
-		    try {
-			return ts.findMemberClass(ct, name, currentClassDef);
-		    }
-		    catch (SemanticException e) {
-		    }
-		    try {
-			return ts.findTypeDef(ct, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, currentClassDef);
-		    }
-		    catch (SemanticException e) {
-		    }
-		    try {
-			return ts.findTypeProperty(ct, name, currentClassDef);
-		    }
-		    catch (SemanticException e) {
-		    }
+		try {
+		    Type t = ts.findMemberType(container, name, currentClassDef);
+		    if (t instanceof Named) return (Named) t;
+		}
+		catch (SemanticException e) {
+		}
+		try {
+		    return ts.findTypeDef(container, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, currentClassDef);
+		}
+		catch (SemanticException e) {
+		}
+		try {
+		    return ts.findTypeProperty(container, name, currentClassDef);
+		}
+		catch (SemanticException e) {
 		}
 		return null;
 	    }

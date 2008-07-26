@@ -247,7 +247,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
     
     @Override
-    public MethodInstance instantiate(StructType receiverType,
+    public MethodInstance instantiate(Type receiverType,
     		List<Type> argumentTypes) throws SemanticException {
 
 	    return instantiate(this, receiverType, argumentTypes);
@@ -398,6 +398,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    try {
 			    XConstraint yc2 = yc.substitute(yi, XSelf.Self);
 			    env.addIn(yc2);
+			    env.addBinding(xi, yi);
 		    }
 		    catch (XFailure f) {
 			    // environment is inconsistent.
@@ -413,6 +414,16 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    for (int i = 0; i < formals.size(); i++) {
 		    Type xtype = formals.get(i);
 		    Type ytype = actuals.get(i);
+		    
+		    XConstraint yc = X10TypeMixin.xclause(ytype);
+		    try {
+			yc = yc != null ? yc : new XConstraint_c();
+			yc.addBinding(x[i], y[i]);
+			yc.addSelfBinding(y[i]);
+		    }
+		    catch (XFailure e) {
+		    }
+		    ytype = X10TypeMixin.xclause(ytype, yc);
 
 		    XConstraint query = new XConstraint_c();
 

@@ -126,4 +126,8 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 		public void setNotNullRequired(boolean b) {
 			this.notNullRequired = b;
 		}
+		
+		public String toString() {
+		    return expr.toString() + " as " + castType.toString();
+		}
 }

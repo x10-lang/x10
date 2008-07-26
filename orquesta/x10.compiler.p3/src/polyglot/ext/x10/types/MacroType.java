@@ -14,7 +14,7 @@ public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X1
 	Type definedType();
 	MacroType definedType(Type t);
 	
-	MacroType instantiate(StructType container, List<Type> typeArgs, List<Type> argTypes) throws SemanticException;
+	MacroType instantiate(Type container, List<Type> typeArgs, List<Type> argTypes) throws SemanticException;
 	
 	MacroType name(String name);
 	MacroType typeParameters(List<Type> typeParams);

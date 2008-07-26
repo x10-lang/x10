@@ -134,8 +134,8 @@ public class X10TypeMixin {
 	    if (c == null) {
 		c = Types.<XConstraint>ref(new XConstraint_c());
 	    }
-	    if (t instanceof ConstrainedType) {
-		ConstrainedType ct = (ConstrainedType) t;
+	    if (t.known() && t.get() instanceof ConstrainedType) {
+		ConstrainedType ct = (ConstrainedType) t.get();
 		return xclause(ct.baseType(), c);
 	    }
 	    Type tx = t.getCached();

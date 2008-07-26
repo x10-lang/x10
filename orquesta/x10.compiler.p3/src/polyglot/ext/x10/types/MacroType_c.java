@@ -10,6 +10,7 @@ import polyglot.types.Flags;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
+import polyglot.types.Package;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
@@ -195,12 +196,35 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public String toString() {
-		return designator() + " " + signature();
+	        return signature();
 	}
 
 	public String signature() {
 	    StringBuffer sb = new StringBuffer();
 	    TypeDef d = def.getCached();
+	    Ref<? extends StructType> cont = d.container();
+	    if (cont != null) {
+		Type t = cont.getCached();
+		if (t != null) {
+		    sb.append(t);
+		    sb.append(".");
+		}
+	    }
+	    else {
+		Ref<? extends Package> pkg = d.package_();
+		if (pkg != null) {
+		    Package p = pkg.getCached();
+		    if (p != null) {
+			if (p.name().equals("package")) {
+			    sb.append(p.prefix());
+			}
+			else {
+			    sb.append(p);
+			}
+			sb.append(".");
+		    }
+		}
+	    }
 	    sb.append(d.name());
 	    if (typeParams != null) {
 		for (int i = 0; i < typeParams.size(); i++) {
@@ -275,11 +299,11 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
 	}
 	
-	public MacroType instantiate(StructType receiverType, List<Type> argumentTypes) throws SemanticException {
+	public MacroType instantiate(Type receiverType, List<Type> argumentTypes) throws SemanticException {
 	    return X10MethodInstance_c.<MacroType>instantiate(this, receiverType, Collections.EMPTY_LIST, argumentTypes);
 	}
 
-	public MacroType instantiate(StructType receiverType, List<Type> typeArgs, List<Type> argumentTypes) throws SemanticException {
+	public MacroType instantiate(Type receiverType, List<Type> typeArgs, List<Type> argumentTypes) throws SemanticException {
 	    return X10MethodInstance_c.<MacroType>instantiate(this, receiverType, typeArgs, argumentTypes);
 	}
 

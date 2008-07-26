@@ -47,7 +47,7 @@ public class Point_c extends Expr_c implements Point {
 
 	@Override
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-	    return this.type(((X10TypeSystem) tc.typeSystem()).point());
+	    return this.type(((X10TypeSystem) tc.typeSystem()).Point());
 	}
 
 	/* (non-Javadoc)

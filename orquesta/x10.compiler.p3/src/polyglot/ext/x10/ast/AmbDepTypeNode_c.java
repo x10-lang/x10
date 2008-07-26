@@ -26,6 +26,8 @@ import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.Globals;
+import polyglot.frontend.Goal;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef;
@@ -188,8 +190,15 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
                 }
 
                 MacroType mt = ts.findTypeDef(typeDefContainer, name.id(), typeArgs, argTypes, tc.context().currentClassDef());
-                return nf.CanonicalTypeNode(pos, Types.ref(mt));
-            }
+                LazyRef<Type> sym = (LazyRef<Type>) type;
+                sym.update(mt);
+                
+                // Reset the resolver goal to one that can run when the ref is deserialized.
+                Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
+                resolver.update(Goal.Status.SUCCESS);
+                sym.setResolver(resolver);
+
+                return nf.CanonicalTypeNode(pos, sym);            }
         }
         catch (SemanticException e) {
         }

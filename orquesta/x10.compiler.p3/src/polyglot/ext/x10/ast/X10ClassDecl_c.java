@@ -208,14 +208,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         TypeNode superClass = this.superClass;
 
         X10TypeSystem xts = (X10TypeSystem) ts;
+        
+        Type t = ts.Object();
+        String objectName = ((ClassType) t).fullName();
 
-        if (superClass != null || thisType.asType().typeEquals(ts.Object()) || thisType.fullName().equals(ts.Object().fullName())) {
+        if (superClass != null || thisType.asType().typeEquals(ts.Object()) || thisType.fullName().equals(objectName)) {
             super.setSuperClass(ts, thisType);
         }
-        else if (thisType.asType().typeEquals(xts.X10Object()) || thisType.fullName().equals(xts.X10Object().fullName())) {
-            thisType.superType(Types.<Type>ref(ts.Object()));
-        }
-        else if (thisType.fullName().equals("x10.compilergenerated.Parameter1")) {
+        else if (thisType.asType().typeEquals(xts.X10Object()) || thisType.fullName().equals(objectName)) {
             thisType.superType(Types.<Type>ref(ts.Object()));
         }
         else {

@@ -310,16 +310,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (Await) n.del(delFactory().delStmt());
 	}
 
-	public ArrayConstructor ArrayConstructor(Position pos, TypeNode base,
-											 boolean unsafe, boolean isValue,
-											 Expr d, Expr i)
-	{
-		ArrayConstructor n = new ArrayConstructor_c(pos, base, unsafe, isValue,
-													d, i);
-		n = (ArrayConstructor) n.ext(extFactory().extExpr());
-		return (ArrayConstructor) n.del(delFactory().delExpr());
-	}
-
 	public Point Point(Position pos, List<Expr> exprs) {
 		Point n = new Point_c(pos, exprs);
 		n = (Point) n.ext(extFactory().extExpr());
@@ -713,9 +703,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		l.add(e1);
 		l.add(e2);
 
-		New n = New(pos, nf.TypeNodeFromQualifiedName(pos, "x10.lang.Region"), l);
-		n = (New) n.ext(extFactory().extExpr());
-		n = (New) n.del(delFactory().delExpr());
+		Call n = new RegionMaker_c(pos, nf.TypeNodeFromQualifiedName(pos, "x10.lang.Region"), nf.Id(pos, "makeRangeRegion"), l);
+		n = (Call) n.ext(extFactory().extExpr());
+		n = (Call) n.del(delFactory().delExpr());
 		return n;
 	}
 	public Expr RectRegionMaker(Position pos, Receiver receiver, Id name, List<Expr> args) {

@@ -29,8 +29,11 @@ import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.Globals;
+import polyglot.frontend.Goal;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
+import polyglot.types.LazyRef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
@@ -100,35 +103,29 @@ public class X10Disamb_c extends Disamb_c {
 	    	}
 	    	
 	        if (typeOK()) {
-	            if (t instanceof ClassType) {
-	                try {
-	                    ClassType ct = ts.findMemberClass((ClassType) t, this.name.id());
-	                    return nf.CanonicalTypeNode(pos, ct);
-	                }
-	                catch (SemanticException e) {
-	                }
+	            try {
+	        	Type ct = ts.findMemberType(t, this.name.id());
+	        	
+	        	return makeTypeNode(ct);
+	            }
+	            catch (SemanticException e) {
 	            }
 
-	            if (t instanceof ClassType) {
-	        	    try {
-	        		    X10TypeSystem xts = (X10TypeSystem) ts;
-	        		    PathType pt = xts.findTypeProperty((ClassType) t, this.name.id(), c.currentClassDef());
-	        		    return nf.CanonicalTypeNode(pos, pt);
-//	        		    return nf.CanonicalTypeNode(pos, PathType_c.pathBase(pt, xts.xtypeTranslator().transThis((ClassType) t), t));
-	        	    }
-	        	    catch (SemanticException e) {
-	        	    }
-	            }
-
-	            if (t instanceof ClassType) {
-	        	try {
-	        	    X10TypeSystem xts = (X10TypeSystem) ts;
-	        	    MacroType mt = xts.findTypeDef((ClassType) t, this.name.id(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, c.currentClassDef());
-	        	    return nf.CanonicalTypeNode(pos, mt);
-	        	}
-	        	catch (SemanticException e) {
-	        	}
-	            }
+//	            try {
+//	        	X10TypeSystem xts = (X10TypeSystem) ts;
+//	        	Type pt = xts.findTypeProperty(t, this.name.id(), c.currentClassDef());
+//	        	return nf.CanonicalTypeNode(pos, pt);
+//	            }
+//	            catch (SemanticException e) {
+//	            }
+//
+//	            try {
+//	        	X10TypeSystem xts = (X10TypeSystem) ts;
+//	        	Type mt = xts.findTypeDef(t, this.name.id(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, c.currentClassDef());
+//	        	return nf.CanonicalTypeNode(pos, mt);
+//	            }
+//	            catch (SemanticException e) {
+//	            }
 
 	        }
 	    }
@@ -149,7 +146,7 @@ public class X10Disamb_c extends Disamb_c {
 		    Named n = c.find(name.id());
 		    if (n instanceof Type) {
 			Type type = (Type) n;
-			return nf.CanonicalTypeNode(pos, type);
+			return makeTypeNode(type);
 		    }
 		} catch (NoClassException e1) {
 		    if (!name.id().equals(e1.getClassName())) {
@@ -172,7 +169,9 @@ public class X10Disamb_c extends Disamb_c {
 			    pt2 = PathType_c.pathBase(pt, xts.xtypeTranslator().transThisWithoutTypeConstraint(), t);
 			else
 			    pt2 = PathType_c.pathBase(pt, xts.xtypeTranslator().transThis((ClassType) t), t);
-			return nf.CanonicalTypeNode(pos, pt2);
+			
+
+	        	return makeTypeNode(pt2);
 		    }
 		    catch (SemanticException e) {
 		    }
@@ -225,7 +224,8 @@ public class X10Disamb_c extends Disamb_c {
 					
 					if (term instanceof XVar) {
 						XVar v = (XVar) term;
-						return nf.CanonicalTypeNode(pos, PathType_c.pathBase(pt, v, e.type()));
+						Type pt2 = PathType_c.pathBase(pt, v, e.type());
+				        	return makeTypeNode(pt2);
 					}
 				}
 				catch (SemanticException ex) {
@@ -235,6 +235,7 @@ public class X10Disamb_c extends Disamb_c {
 
 		return super.disambiguateExprPrefix(e);
 	}
+
 
 	@Override
 	public Node disambiguate(Ambiguous amb, ContextVisitor v, Position pos, Node prefix, Id name) throws SemanticException {

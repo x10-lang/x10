@@ -212,12 +212,17 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         
         @Override
         protected void checkFlags(TypeChecker tc, Flags flags) throws SemanticException {
-            super.checkFlags(tc, flags);
-
             X10Flags xf = X10Flags.toX10Flags(flags);
+
             if (xf.isIncomplete() && body != null) {
         	throw new SemanticException("An incomplete method cannot have a body.", position());
             }
+
+            if (xf.isIncomplete())
+        	super.checkFlags(tc, xf.Native());
+            else
+        	super.checkFlags(tc, xf);
+
             if (xf.isProperty() && body == null) {
         	throw new SemanticException("A property method must have a body.", position());
             }

@@ -154,7 +154,7 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
 
 		Type placeType = place.type();
 		Expr newPlace = place;
-		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
+		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
 		if (! placeIsPlace) {
 			newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).del().typeCheck(tc);
 		}
@@ -165,7 +165,7 @@ public class Async_c extends Stmt_c implements Async, CompoundStmt {
         for (Iterator i = clocks().iterator(); i.hasNext(); ) {
             Expr tn = (Expr) i.next();
             Type t = tn.type();
-            if (! t.isSubtype(ts.clock())) {
+            if (! t.isSubtype(ts.Clock())) {
                 throw new SemanticException("Type \"" + t + "\" must be x10.lang.clock.",
                     tn.position());
             }

@@ -89,7 +89,7 @@ public class Future_c extends Closure_c
 
     	Type placeType = place.type();
     	Expr newPlace = place;
-    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
+    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
     	if ( ! placeIsPlace ) {
     	    newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).del().typeCheck(tc);
     	}
@@ -104,7 +104,7 @@ public class Future_c extends Closure_c
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
     	X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
     	if ( child == place ) {
-    		return ts.place();
+    		return ts.Place();
     	}
     	return child.type();
     }

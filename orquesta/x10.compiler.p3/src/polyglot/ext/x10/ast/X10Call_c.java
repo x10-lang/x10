@@ -27,8 +27,10 @@ import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldInstance;
@@ -39,12 +41,14 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
+import x10.constraint.XLocal;
 
 /**
  * A method call wrapper to rewrite getLocation() calls on primitives
@@ -84,6 +88,49 @@ public class X10Call_c extends Call_c implements X10Call {
 	protected Node typeCheckNullTarget(TypeChecker tc, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
 		return super.typeCheckNullTarget(tc, argTypes);
 	}
+
+	    protected Node typeCheckNullTarget(TypeChecker tc, List<Type> argTypes) throws SemanticException {
+	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	        NodeFactory nf = tc.nodeFactory();
+	        Context c = tc.context();
+
+	        // the target is null, and thus implicit
+	        // let's find the target, using the context, and
+	        // set the target appropriately, and then type check
+	        // the result
+	        MethodInstance mi = c.findMethod(this.name.id(), argTypes);
+	        
+	        XLocal this_ = ts.xtypeTranslator().transThisWithoutTypeConstraint();
+	        
+	        Receiver r;
+	        if (mi.flags().isStatic()) {
+	            Type container = findContainer(ts, mi);            
+	            container = X10TypeMixin.setSelfVar(container, this_);
+	            r = nf.CanonicalTypeNode(position().startOf(), container).typeRef(Types.ref(container));
+	        } else {
+	            // The method is non-static, so we must prepend with "this", but we
+	            // need to determine if the "this" should be qualified.  Get the
+	            // enclosing class which brought the method into scope.  This is
+	            // different from mi.container().  mi.container() returns a super type
+	            // of the class we want.
+	            Type scope = c.findMethodScope(name.id());
+	            scope = X10TypeMixin.setSelfVar(scope, this_);
+
+	            if (! ts.typeEquals(scope, c.currentClass())) {
+	                r = nf.This(position().startOf(),
+	                            nf.CanonicalTypeNode(position().startOf(), scope)).type(scope);
+	            }
+	            else {
+	                r = nf.This(position().startOf()).type(scope);
+	            }
+	        }
+
+	        // we call computeTypes on the reciever too.
+	        Call_c call = (Call_c) this.targetImplicit(true).target(r);       
+	        call = (Call_c)call.methodInstance(mi).type(mi.returnType());
+//	        call = (Call_c) call.methodInstance(mi);
+	        return call;
+	    }
 
     /**
      * Rewrite getLocation() to Here for value types and operator calls for
@@ -192,7 +239,9 @@ public class X10Call_c extends Call_c implements X10Call {
 //        	result = result.adjustMI(tc);
 //        	result.checkWhereClause(tc);
         	result.checkAnnotations(tc);
-        	Expr r = result.setDeptypeForBuiltInCalls(xts);
+        	
+        	// Expr r = result.setDeptypeForBuiltInCalls(xts);
+        	Expr r =result;
 
         	return r;
         }
@@ -203,39 +252,6 @@ public class X10Call_c extends Call_c implements X10Call {
             String name = nameString();
             List arguments = arguments();
             StructType java_io_PrintStream = (StructType) xts.forName("java.io.PrintStream");
-            if (xts.isX10Array(type)) {
-            // Special methods on arrays
-            Type elem = xts.arrayBaseType(type);
-            //reduce(), scan(), restriction(), union(), overlay(), update(), and lift()
-            if ((name.equals("reduce") && arguments.size() == 2 &&
-                    xts.isSubtype(((Expr)arguments.get(0)).type(), xts.OperatorBinary()) &&
-                    xts.isSubtype(((Expr)arguments.get(1)).type(), elem)) ||
-                (name.equals("scan") && arguments.size() == 2 &&
-                    xts.isSubtype(((Expr)arguments.get(0)).type(), xts.OperatorBinary()) &&
-                    xts.isSubtype(((Expr)arguments.get(1)).type(), elem)) ||
-                (name.equals("restriction") && arguments.size() == 1 &&
-                    isRestrictionArgType(((Expr)arguments.get(0)).type(), xts)) ||
-                (name.equals("union") && arguments.size() == 1 &&
-                    xts.isSubtype(type, ((Expr)arguments.get(0)).type())) ||
-                (name.equals("overlay") && arguments.size() == 1 &&
-                    xts.isSubtype(type, ((Expr)arguments.get(0)).type())) ||
-                (name.equals("view")) || /* (VIVEK) Prototype extension to support array views in the future */
-                (name.equals("update") && arguments.size() == 1 &&
-                    xts.isSubtype(type, ((Expr)arguments.get(0)).type())) ||
-                (name.equals("lift") &&
-                    ((arguments.size() == 2 &&
-                      xts.isSubtype(((Expr)arguments.get(0)).type(), xts.OperatorBinary()) &&
-                      xts.isSubtype(type, ((Expr)arguments.get(1)).type())) ||
-                     (arguments.size() == 1 &&
-                      xts.isSubtype(((Expr)arguments.get(0)).type(), xts.OperatorUnary()))))
-               )
-            {
-                TypeNode t = xnf.CanonicalTypeNode(position(), xts.ArrayOperations());
-                List newargs = TypedList.copy(arguments, Expr.class, false);
-                newargs.add(0, this.target);
-                return ((X10Call_c)this.target(t).arguments(newargs)).superTypeCheck(tc);
-            }
-            } else
             // FIXME: [IP] HACK: do not typecheck printf beyond the first argument
             if (xts.typeEquals(type, java_io_PrintStream)) {
                 if (name.equals("printf") && arguments.size() >= 1 &&
@@ -256,74 +272,6 @@ public class X10Call_c extends Call_c implements X10Call {
         } finally {
         
         }
-    }
-
-    /**
-     * Check if this is a call to built in methods -- methods such as x10.lang.dist.factory.block(region r)
-     * which have a dependent return type but are currently implemented as Java hence we do not
-     * have the right signature for them. This is stand-in code and should go away when we find 
-     * a way to express all our libraries (e.g. x10.lang.dist) in X10 instead of Java.
-     * 
-     * This method must be called only after base-level type-checking has been performed. Therefore
-     * the type of this has already been set, e.g. to dist. This method should simply set
-     * the depclause on the result type if there is information in the arguments that requires this,
-     * @author vj
-     * @param xts
-     * @return
-     */
-    public Expr setDeptypeForBuiltInCalls(X10TypeSystem xts) {
-    	Type type = type();
-    	FieldInstance dist_factory = null;
-    	try {
-    		dist_factory = xts.findField(xts.distribution(), "factory");
-    	} catch (NoMemberException e) {
-    		if (e.getKind() != NoMemberException.FIELD)
-    			throw new InternalCompilerError("Something went terribly wrong", e);
-    	} catch (SemanticException e) {
-			throw new InternalCompilerError("Something went terribly wrong", e);
-    	}
-    	final int argSize = arguments.size();
-    	if (target instanceof Field && xts.equals(((Field) target).fieldInstance(), dist_factory) &&
-    			nameString().equals("block") && argSize <= 1)
-    	{
-    		// handles the method
-    		// dist(:rank==a.rank,isZeroBased=a.isZeroBased,rect==a.rect) block(final region a)
-    		// on the class x10.lang.dist.factory. (Actually, it checks that the receiver is 
-    		// a field called factory, and the methodname is block and the call has <= 1 args.)
-    		Type rType = type;
-    		if (argSize == 0) {
-    			rType = X10ArraysMixin.setZeroBasedRectRankOne(rType);
-    		} else {
-    			Type argType = ((Expr) arguments.get(0)).type();
-    			assert xts.isRegion(argType);
-    			rType = X10ArraysMixin.transferRegionProperties(rType, argType);
-    		}
-    		return type(rType);
-    	}
-    	else if (xts.isRegion(target.type()) && nameString().equals("toDistribution") && argSize == 0) {
-    		Type rType = type;
-			rType = X10ArraysMixin.transferRegionProperties(rType, target.type());
-//			try {
-//				C_Term targetTerm = new TypeTranslator(xts).trans(target);
-//				if (targetTerm instanceof C_Var) {
-//					FieldInstance fi = xts.findField(xts.distribution(), "region");
-//					rType.addBinding(new C_Field_c(fi, C_Special.Self), (C_Var) targetTerm);
-//				}
-//			}
-//			catch (Exception e) {
-//				System.out.println(e.getMessage());
-//			}
-			return type(rType);
-    	}
-    	else if (xts.isX10Array(target.type()) && nameString().equals("local") && argSize == 0) {
-    		Type rType =  type;
-    		rType = X10ArraysMixin.setRect(rType);
-    		rType = X10ArraysMixin.setZeroBased(rType);
-    		rType = X10ArraysMixin.setRank(rType, xts.ONE());
-    		rType = X10ArraysMixin.setRail(rType);
-    		return type(rType);
-    	}
-    	return this;
     }
 
     /**
@@ -382,9 +330,5 @@ public class X10Call_c extends Call_c implements X10Call {
 	private Node superTypeCheck(TypeChecker tc) throws SemanticException {
         return super.typeCheck(tc);
     }
-
-	private boolean isRestrictionArgType(Type type, X10TypeSystem xts) {
-		return xts.isPlace(type) || xts.isDistribution(type) || xts.isRegion(type);
-	}
 }
 

@@ -64,7 +64,7 @@ public class Here_c extends Expr_c
     /** Type check the expression. */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		return type(ts.place());
+		return type(ts.Place());
 	}
     public String translate(Resolver c) {
       return "x10.lang.Runtime.here()";

@@ -52,9 +52,9 @@ public class SubtypeSolver implements Solver {
 			XFormula f = (XFormula) t;
 			XTerm sub = f.left();
 			XTerm sup = f.right();
-			Graph graph = buildGraph(atoms);
-			if (atomsEntailSubtype(graph, sub, sup))
-				return true;
+//			Graph graph = buildGraph(atoms);
+//			if (atomsEntailSubtype(graph, sub, sup))
+//				return true;
 			Type t1 = getType(sub);
 			Type t2 = getType(sup);
 			if (t1 != null && t2 != null && ts.isSubtype(t1, t2)) {

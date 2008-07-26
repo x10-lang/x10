@@ -36,7 +36,6 @@ import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.Configuration;
-import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Atomic_c;
@@ -77,6 +76,8 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
@@ -352,7 +353,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (n == null)
 	    	return n;
 	    X10TypeSystem x10ts = (X10TypeSystem) this.tr.typeSystem();
-	    Type parmType = n.returnType().type().isPrimitive() ? n.returnType().type() : x10ts.parameter1();
+	    Type parmType = n.returnType().type().isPrimitive() ? n.returnType().type() : x10ts.Object(); // XXX: was param1
 	    return new Template("array_init_closure", new Object[] {
 		    parmType.toString(), new Join("\n", n.formals()), n.body()
 	    })/*.expand()*/;
@@ -659,6 +660,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		arrayTypeToRuntimeName.put(USER_DEFINED, "GenericArray");
 	}
 
+	/* FIXME: move this into New
 	public void visit(ArrayConstructor_c a) {
 		Type base_type = a.arrayBaseType().type();
 		String kind = null;
@@ -705,6 +707,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						 new Boolean(refs_to_values)
 					 }).expand(tr2);
 	}
+	*/
 
 	private TypeNode getParameterType(Type at) {
 		if (X10TypeMixin.isConstrained(at)) {
@@ -981,7 +984,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		if (type instanceof MacroType) {
 		    MacroType mt = (MacroType) type;
-		    printType(mt);
+		    printType(mt.definedType());
 		    return;
 		}
 
@@ -1105,9 +1108,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		StructType lType = (StructType) left.type();
 		Type rType = right.type();
 		try {
+		    ClassDef objectDef = ((ClassType) xts.Object()).def();
 			try {
 				MethodInstance mi = xts.findMethod(lType,
-						name, Collections.singletonList(rType), xts.Object().def());
+						name, Collections.singletonList(rType), objectDef);
 				tr.print(null, nf.Call(pos, left, nf.Id(pos, name), right).methodInstance(mi).type(mi.returnType()), w);
 //				printSubExpr(left, true, w, tr);
 //				w.write(".");
@@ -1117,7 +1121,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //				w.write(")");
 			} catch (NoMemberException e) {
 				MethodInstance mi = xts.findMethod(xts.ArrayOperations(),
-						name, Arrays.asList(new Type[] {lType, rType}), xts.Object().def());
+						name, Arrays.asList(new Type[] {lType, rType}), objectDef);
 				tr.print(null, nf.Call(pos, nf.CanonicalTypeNode(pos, xts.ArrayOperations()),
 						nf.Id(pos, name), left, right).methodInstance(mi), w);
 //				w.write("x10.lang.ArrayOperations.");

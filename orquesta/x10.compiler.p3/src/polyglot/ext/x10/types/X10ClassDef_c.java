@@ -341,9 +341,6 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	}
 	
 	private void fixGenericAndPrimitiveTypes() {
-		if (name == null || ! knownGenericTypes.contains(name))
-			return;
-		
 		X10TypeSystem ts = (X10TypeSystem) this.ts;
 
 		X10ClassType ct = (X10ClassType) asType();
@@ -429,7 +426,6 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		}
 	}
 	
-	private Set<String> knownGenericTypes;
 	private Map<String,Type> primitiveTypes;
 	
 	{
@@ -443,22 +439,12 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		primitiveTypes.put("x10.lang.Long", ts.Long());
 		primitiveTypes.put("x10.lang.Float", ts.Float());
 		primitiveTypes.put("x10.lang.Double", ts.Double());
-		
-		knownGenericTypes = new HashSet<String>();
-		knownGenericTypes.add("x10.lang.genericArray");
-		knownGenericTypes.add("x10.lang.GenericReferenceArray");
-		knownGenericTypes.add("x10.lang.Future");
-		knownGenericTypes.add("x10.lang.Box");
 	}
 	
 	private Type fixType(Type oldType, Type typeArg) {
 		X10TypeSystem ts = (X10TypeSystem) this.ts;
-		Type param1 = ts.parameter1();
 
-		if (oldType.typeEquals(param1)) {
-			return typeArg;
-		}
-		else if (oldType instanceof ConstrainedType) {
+		if (oldType instanceof ConstrainedType) {
 			ConstrainedType ct = (ConstrainedType) oldType;
 			Type t = Types.get(ct.baseType());
 			Type t2 = fixType(t, typeArg);
@@ -481,35 +467,6 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			
 			if (name != null && primitiveTypes.containsKey(name)) {
 				return primitiveTypes.get(name);
-			}
-
-			if (name != null && def.typeProperties().size() == 1 && knownGenericTypes.contains(name)) {
-				TypeProperty px = def.typeProperties().get(0);
-				
-				XVar ToPath;
-				XVar thisPath;
-				try {
-					thisPath = ts.xtypeTranslator().transThis(ct);
-					ToPath = (XVar) ts.xtypeTranslator().trans(typeArg);
-				}
-				catch (SemanticException e) {
-					throw new InternalCompilerError(e);
-				}
-				
-				Type T = PathType_c.pathBase(px.asType(), thisPath, ct);
-
-				XConstraint c = X10TypeMixin.xclause(oldType);
-				if (c == null)
-					c = new XConstraint_c();
-				
-				try {
-					c.addBinding(ToPath, XTerms.makeLit(T));
-				}
-				catch (XFailure e) {
-					throw new InternalCompilerError(e);
-				}
-				
-				return X10TypeMixin.xclause(oldType, c);
 			}
 		}
 		

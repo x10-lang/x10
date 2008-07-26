@@ -21,17 +21,12 @@ import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
-import polyglot.types.Named;
-import polyglot.types.NoClassException;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.Type_c;
 import polyglot.types.VarDef;
 import polyglot.util.Position;
 import x10.constraint.XConstraint;
@@ -64,24 +59,22 @@ public interface X10TypeSystem extends TypeSystem {
 	ClosureType closure(Position p, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, Ref<? extends XConstraint> whereClause, List<Ref<? extends Type>> throwTypes);
 	ClosureInstance createClosureInstance(Position pos, Ref<? extends ClosureDef> def);
 
-	ClassType X10Object();
-	ClassType parameter1();
+	Type X10Object();
 
 	XTerm here();
 	
-	ClassType place();
-	ClassType region();
-	Type point();
-	ClassType distribution();
+	Type Place();
+	Type Region();
+	Type Point();
+	Type Dist();
+	ClassType array();
+	Type Clock();
+	Type Value();
+	Type Runtime();
+
+	// Classes used during translation
 	ClassType Activity();
 	ClassType FutureActivity();
-	ClassType array();
-	ClassType clock();
-	ClassType value();
-	ClassType Runtime();
-	ClassType OperatorPointwise();
-	ClassType OperatorBinary();
-	ClassType OperatorUnary();
 	ClassType ArrayOperations();
 
 	XLit FALSE();
@@ -156,30 +149,66 @@ public interface X10TypeSystem extends TypeSystem {
 	/**
 	 * Return the ClassType object for the x10.lang.Indexable interface.
 	 */
-	ClassType Indexable();
+	Type Indexable();
 
 	/**
 	 * Return the ClassType object for the x10.lang.Array interface.
 	 */
-	ClassType Array();
+	Type Array();
 	
 	/**
 	 * Return the ClassType object for the x10.lang.Array interface.
 	 */
-	ClassType ValArray();
+	Type ValArray();
 	
 	/**
 	 * Return the ClassType object for the x10.lang.NativeRail interface.
 	 * @return
 	 */
-	ClassType NativeRail();
+	Type NativeRail();
 	
 	/**
 	 * Return the ClassType object for the x10.lang.NativeRail interface.
 	 * @return
 	 */
-	ClassType NativeValRail();
+	Type NativeValRail();
+	
+	public Type Comparable();
+	public Type Iterable();
+	public Type Iterator();
+	public Type Contains();
+	public Type ContainsAll();
+	public Type Settable();
+	
+	boolean isComparable(Type me);
+	boolean isIterable(Type me);
+	boolean isIterator(Type me);
+	boolean isContains(Type me);
+	boolean isContainsAll(Type me);
+	boolean isSettable(Type me);
 
+	     boolean isFuture(Type me) ;
+	     boolean isIndexable(Type me) ;
+	      boolean isX10Array(Type me) ;
+	      boolean isBooleanArray(Type me);
+	     boolean isCharArray(Type me) ;
+	     boolean isByteArray(Type me) ;
+	      boolean isShortArray(Type me) ;
+	      boolean isIntArray(Type me) ;
+	      boolean isLongArray(Type me) ;
+	     boolean isFloatArray(Type me);
+	      boolean isDoubleArray(Type me);
+	      boolean isClock(Type me) ;
+	      boolean isPoint(Type me);
+	      boolean isPlace(Type me);
+	      boolean isRegion(Type me);
+	      boolean isDistribution(Type me);
+	      boolean isDistributedArray(Type me);
+	     boolean isValueType( Type me);
+
+	     boolean isPrimitiveTypeArray(Type me);
+	     
+	
 	// RMF 7/11/2006 - Added so that the parser can create a canonical type node
 	// for "primitive types", which otherwise will cause disambiguation to fail.
 	//
@@ -210,42 +239,8 @@ public interface X10TypeSystem extends TypeSystem {
 
 	/** Return boxed type runtime.T for primitive t. */
 	 X10NamedType boxedType(PrimitiveType t);
-
-	 public ClassType Comparable();
-    public ClassType Iterable();
-    public ClassType Iterator();
-    public ClassType Contains();
-    public ClassType ContainsAll();
-    public ClassType Settable();
-  
-    boolean isComparable(Type me);
-  boolean isIterable(Type me);
-  boolean isIterator(Type me);
-  boolean isContains(Type me);
-  boolean isContainsAll(Type me);
-  boolean isSettable(Type me);
-  
-  boolean isPrimitiveTypeArray(Type me);
-  
-     boolean isFuture(Type me) ;
-     boolean isIndexable(Type me) ;
-      boolean isX10Array(Type me) ;
-      boolean isBooleanArray(Type me);
-     boolean isCharArray(Type me) ;
-     boolean isByteArray(Type me) ;
-      boolean isShortArray(Type me) ;
-      boolean isIntArray(Type me) ;
-      boolean isLongArray(Type me) ;
-     boolean isFloatArray(Type me);
-      boolean isDoubleArray(Type me);
-      boolean isClock(Type me) ;
-      boolean isPoint(Type me);
-      boolean isPlace(Type me);
-      boolean isRegion(Type me);
-      boolean isDistribution(Type me);
-      boolean isDistributedArray(Type me);
-     boolean isValueType( Type me);
-	Type arrayBaseType(Type theType);
+	 
+  Type arrayBaseType(Type theType);
    
 	/**
 	 * Is a type constrained (i.e. its depClause is != null)
@@ -283,20 +278,20 @@ public interface X10TypeSystem extends TypeSystem {
    Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
    Type performUnaryOperation(Type t, Type l, Unary.Operator op);
 
-   X10MethodInstance findMethod(StructType targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
-   X10ConstructorInstance findConstructor(ClassType ct, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
+   X10MethodInstance findMethod(Type targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
+   X10ConstructorInstance findConstructor(Type ct, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
 
-   MacroType findTypeDef(ClassType targetType, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
-   List<MacroType> findTypeDefs(ClassType container, String name, ClassDef currClass) throws SemanticException;
+   MacroType findTypeDef(Type t, String name, List<Type> typeArgs, List<Type> argTypes, ClassDef currentClassDef) throws SemanticException;
+   List<MacroType> findTypeDefs(Type container, String name, ClassDef currClass) throws SemanticException;
    
-   PathType findTypeProperty(ClassType container, String name, ClassDef currClass) throws SemanticException;
+   PathType findTypeProperty(Type t, String name, ClassDef currClass) throws SemanticException;
    
    Type TypeType();
 
-   PrimitiveType UByte();
-   PrimitiveType UShort();
-   PrimitiveType UInt();
-   PrimitiveType ULong();
+   Type UByte();
+   Type UShort();
+   Type UInt();
+   Type ULong();
 
    /** x10.lang.Box */
    Type Box();
@@ -311,7 +306,7 @@ public interface X10TypeSystem extends TypeSystem {
 
    X10ClassDef closureInterfaceDef(int size, int size2);
 
-ClosureType toFunction(Type targetType);
+   ClosureType toFunction(Type targetType);
 
    
 //   X10NamedType createBoxFromTemplate(X10ClassDef def);
