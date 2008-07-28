@@ -23,6 +23,8 @@ public class Dist(region: Region, unique: Boolean) /* {unique => region.rail} */
         return places()(0);
     }
     
+    public incomplete def coord(Place, Point): Point;
+    
     public static def constant(r: Region, p: Place): Dist(r, false) = new Dist(r, false);
     
     /**

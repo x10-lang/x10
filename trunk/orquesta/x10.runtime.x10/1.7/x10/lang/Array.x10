@@ -22,11 +22,14 @@ package x10.lang;
    @author vj, 06/14/08
  */
 
-public abstract value Array[T](dist: Dist, region: Region, rank: nat) 
+public abstract value Array[T](dist: Dist) 
     implements Indexable[point,Region,T](region), Settable[point,Region,T](region), 
 	    Arithmetic[Array[T]{dist==this.dist}](T <: Arithmetic[T](true)) {
 
-    public static def make[T](d: Dist, maker: ((Point) => T)): Array[T]{dist==d, region==d.region, rank==d.rank()} = Runtime.makeArray[T](dist, maker);
+    property region() = dist.region;
+    property rank() = dist.rank;
+    
+    public static def make[T](d: Dist, maker: ((Point) => T)): Array[T]{dist==d, region==d.region, rank==d.rank} = Runtime.makeArray[T](dist, maker);
 
     val pieces: DistRail[Rail[T]{current}];
     
