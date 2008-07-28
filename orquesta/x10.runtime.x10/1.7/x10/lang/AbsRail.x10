@@ -64,8 +64,8 @@ abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail{NativeRailT==
        variables not already constrained to be equal to each other.
 
      */
-    protected abstract def clone(l: Nat, init: (Nat(l))=>Base): AbsRail[Base,Mem](l);
-    protected def clone[B,M](_r: M): AbsRail[B,M](_r.length);
+    protected abstract def clone(l: Nat, init: (Nat(l))=>Base): AbsRail{self.Base==this.Baes,self.Mem==this.Mem,self.length==l};
+    protected def clone[B,M](_r: M): AbsRail{self.Base==B,self.Mem==M,self.length==_r.length};
 
     public def apply(p: Point(0..length-1)):Base = r(p);
     public def apply(p: Nat(0..length-1)):Base = r(p);
@@ -82,12 +82,12 @@ abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail{NativeRailT==
     }
 
     // you want the return type to be this.class{length+o.length}
-    public def append(o: AbsRail[Base]): AbsRail[Base,Mem](length+o.length) = {
+    public def append(o: AbsRail{self.Base==this.Base}): AbsRail{self.Base==this.Base,self.Mem==this.Mem,self.length==this.length+o.length} = {
 	val l = length+o.length;
 	clone(l, (i: nat(l-1)) => i<length-1? r(i) : other.r(i-length));
     }
 
-    public abstract def makeNativeRail(n :Nat, f:(Nat(n-1))=>Base):NativeAbsRail[Base](n);
+    public abstract def makeNativeRail(n :Nat, f:(Nat(n-1))=>Base):NativeAbsRail{NativeRailT==Base,length==n};
     /**
        Return the Rail obtained from this by removing those elements that do not satisfy the
        given condition.
@@ -102,7 +102,7 @@ abstract value AbsRail[Base,Mem](length: nat){Mem <: NativeAbsRail{NativeRailT==
     public def mapRail(o: AbsRail[Base](length), op:(Base, Base)=>Base) = 
         map((i: Nat(length-1), x:Base) => op(x,o(i)));
 
-    public def reduce(z: S, op: (Base, Base)=>S) = {
+    public def reduce[S](z: S, op: (Base, Base)=>S) = {
 	var v: S = z;
 	for (val w in r) v = op(v,w);
 	v
