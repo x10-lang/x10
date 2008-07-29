@@ -12,7 +12,7 @@ import java.lang.AssertionError;
 
 class ConstraintList extends ArrayList {
 
-    private int rank;
+    final int rank;
     private int axis; // which axis this set of constraints determines min/max for
 
     ConstraintList(int rank) {
