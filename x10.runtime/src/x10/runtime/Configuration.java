@@ -11,6 +11,7 @@
 package x10.runtime;
 
 import x10.runtime.util.ConfigurationError;
+import x10.runtime.util.OptionError;
 import x10.runtime.util.ShowUsageNotification;
 
 import java.util.StringTokenizer;
@@ -150,8 +151,11 @@ public final class Configuration extends x10.runtime.util.Configuration {
 				continue;
 			}
 
-			if (!parseArgument(Configuration.class, args[pos]))
+			try {
+				parseArgument(Configuration.class, args[pos]);
+			} catch (OptionError e) {
 				throw new ConfigurationError("Invalid argument: '"+args[pos]+"'");
+			}
 			pos++;
 		}
 		// TODO: Move MAIN_CLASS_NAME processing to Runtime.main()
