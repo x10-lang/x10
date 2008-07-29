@@ -142,6 +142,13 @@ public abstract class BaseRegion extends Region {
     }
 
 
+    //
+    // scanning, iterating
+    //
+    // XXX - slight generalization, or wrappering, of
+    // PolyRegion.Iterator gives us a BaseRegion.Iterator
+    //
+
     public java.util.Iterator scanners() {
         throw U.unsupported();
     }
