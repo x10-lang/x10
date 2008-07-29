@@ -10,19 +10,22 @@ public abstract value class Array_T implements Indexable_T, Settable_T, Arithmet
     // properties
     // XXX change impl to support these
     //
-
+    //public final Dist dist;
+    //
+    //public final Region region;
+    //public final place onePlace;
+    //public final boolean constant;
+    //public final boolean unique;
+    //
     //public final int rank;
     //public final boolean rect;
     //public final boolean zeroBased;
     //public final boolean rail;
-
-    //public final place onePlace;
-    //public final boolean constant;
-    //public final boolean unique;
-
+    //
 
     //
     // basic information
+    // XXX change to properties
     //
 
     public abstract Dist dist();
@@ -44,6 +47,10 @@ public abstract value class Array_T implements Indexable_T, Settable_T, Arithmet
 
     public static Array_T make(Region region, nullable<Indexable_T> init, boolean value) {
         return BaseArray_T.make(region, init, value);
+    }
+
+    public static Array_T make(T [] r) {
+        return BaseArray_T.make(r);
     }
 
     // XXX temp workaround b/c nullable<T> fails typechecking for libraries
