@@ -76,13 +76,16 @@ import java.util.Properties;
  * @author igor
  */
 public abstract class Configuration {
+
 	/**
 	 * Set a given field or component in a given class to the given value.
-	 * FIXME: make void and throw appropriate exceptions
+	 * @throws OptionError if the argument is invalid
+	 * @throws ConfigurationError if there was a problem processing the argument
 	 */
-	protected static boolean set(Class cls, String key, String val)
-		throws ConfigurationError
+	protected static void set(Class cls, String key, String val)
+		throws ConfigurationError, OptionError
 	{
+		assert (key != null);
 		int idx = 0;
 		String fld = null;
 		try {
@@ -106,10 +109,14 @@ public abstract class Configuration {
 						f = o.getClass().getField(fld);
 						t = f.getType();
 					}
-				} else {
-					System.err.println(key + " is not an array");
-					return false;
-				}
+				} else
+					throw new OptionError(key + " is not an array");
+			}
+			if (val == null) {
+				if (t == Boolean.TYPE)
+					val = "true";
+				else
+					throw new OptionError("Parameter "+key+" expects a value");
 			}
 			if (t == String.class) {
 				f.set(o, val);
@@ -127,23 +134,20 @@ public abstract class Configuration {
 				f.setByte(o, new Byte(val).byteValue());
 			} else if (t == Character.TYPE) {
 				if (val.length() != 1)
-					System.err.println("Parameter" + key + " only takes on character,"+
-							" using only the first character of configuration"+
-							" value >>" + val + "<<");
+					throw new OptionError("Parameter "+key+
+							" expects exactly one character; got '"+val+"'");
 				f.setChar(o, new Character(val.charAt('0')).charValue());
 			} else if (t == Boolean.TYPE) {
 				if (val.equalsIgnoreCase("true")) {
 					f.setBoolean(null, true);
 				} else if (val.equalsIgnoreCase("false")) {
 					f.setBoolean(null, false);
-				} else {
-					System.err.println("Parameter |" + key + "| expects a boolean, not |"
-							+ val + "|. Ignored.");
-				}
+				} else
+					throw new OptionError("Parameter "+key+
+							" expects a boolean, not '"+val+"'");
 			}
 		} catch (NoSuchFieldException nsfe) {
-			System.err.println("Parameter " + key + " not found, configuration directive ignored.");
-			return false;
+			throw new OptionError("Parameter "+key+" not found");
 		} catch (InstantiationException ie) {
 			System.err.println("Failed to create object for " + key);
 			throw new ConfigurationError(ie);
@@ -151,9 +155,9 @@ public abstract class Configuration {
 			System.err.println("Wrong permissions for field " + key + ": " + iae);
 			throw new ConfigurationError(iae);
 		} catch (NumberFormatException z) {
-			System.err.println("Parameter |" + key + "| expects a number, not |" + val + "|. Ignored.");
+			throw new OptionError("Parameter "+key+
+					" expects a number, not '" + val + "'");
 		}
-		return true;
 	}
 
 	/**
@@ -192,7 +196,11 @@ public abstract class Configuration {
 			while (i.hasNext()) {
 				String key = (String) i.next();
 				String val = props.getProperty(key);
-				set(cls, key, val);
+				try {
+					set(cls, key, val);
+				} catch (OptionError e) {
+					System.err.println(e.getMessage()+", ignoring.");
+				}
 			} // end of 'for each configuration directive'
 		} catch (IOException e) {
 			throw new ConfigurationError(e);
@@ -207,11 +215,14 @@ public abstract class Configuration {
 	 *
 	 * @param cls the configuration class
 	 * @param arg the current argument
-	 * @return true if the argument is recognized; false otherwise
+	 * @throws OptionError if the argument is invalid
+	 * @throws ConfigurationError if there was a problem processing the argument
 	 */
-	protected static boolean parseArgument(Class cls, String arg) {
+	protected static void parseArgument(Class cls, String arg)
+		throws OptionError, ConfigurationError
+	{
 		if (arg.length() < 1 || arg.charAt(0) != '-')
-			return false;
+			throw new OptionError("Invalid argument: '"+arg+"'");
 		int eq = arg.indexOf('=');
 		String optionName;
 		String optionValue = null;
@@ -221,11 +232,7 @@ public abstract class Configuration {
 			optionName = arg.substring(1, eq);
 			optionValue = arg.substring(eq+1);
 		}
-		try {
-			return set(cls, optionName, optionValue);
-		} catch (ConfigurationError e) {
-			return false;
-		}
+		set(cls, optionName, optionValue);
 	}
 
 	/**
