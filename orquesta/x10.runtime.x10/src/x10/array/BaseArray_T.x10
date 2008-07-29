@@ -19,6 +19,16 @@ public class BaseArray_T extends Array_T {
         return make(region, init, false);
     }
 
+    public static Array_T make(final T [] rail) {
+        Region r = Region.makeRectangular(0, rail.length-1);
+        class Init implements Indexable_T {
+            public T get(Point pt) {
+                return rail[pt.get(0)];
+            }
+        }
+        return make(r, new Init());
+    }
+
 
     //
     //
