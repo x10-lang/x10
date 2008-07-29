@@ -64,6 +64,12 @@ public abstract class BaseRegion extends Region {
         return PolyRegion.makeDiagonal(rowMin, colMin, size, false);
     }
 
+    static public Region make(Region [] regions) {
+        Region r = regions[0];
+        for (int i=1; i<regions.length; i++)
+            r = r.product(regions[i]);
+        return r;
+    }
 
 
     //

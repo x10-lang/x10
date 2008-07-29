@@ -80,6 +80,10 @@ public abstract value class Region {
         return BaseRegion.makeLowerTriangular(size);
     }
 
+    public static Region make(Region [] regions) {
+        return BaseRegion.make(regions);
+    }
+
 
     //
     // region operations
