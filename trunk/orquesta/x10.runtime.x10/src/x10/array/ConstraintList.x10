@@ -103,7 +103,11 @@ class ConstraintList(int rank) extends ArrayList {
     //
     // scanner support
     // 
+    // no longer used - now done in PolyScanner
+    // keep this for reference for now
+    //
 
+    /*
     ConstraintList init(int axis) {
         ConstraintList cl = new ConstraintList(rank);
         Iterator it = iterator();
@@ -125,6 +129,8 @@ class ConstraintList(int rank) extends ArrayList {
             c.sum[axis+1] = c.cs[axis]*position + c.sum[axis];
         }
     }
+    */
+
 
     //
     // constraints of the form a x + b <= 0, where a<0
@@ -163,6 +169,7 @@ class ConstraintList(int rank) extends ArrayList {
         }
         return max;
     }
+
 
     //
     // support for constructing rectangular regions: determining
