@@ -1,7 +1,5 @@
 package x10.array;
 
-
-import java.util.Collections; // sort
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
@@ -17,12 +15,6 @@ class ConstraintList(int rank) {
         this.rank = rank;
     }
 
-    /*
-    ConstraintList(ConstraintList that) {
-        this(that.rank);
-        this.addAll(that);
-    }
-    */
 
     class Iterator implements Iterator_Constraint {
         
@@ -53,6 +45,34 @@ class ConstraintList(int rank) {
     }
             
 
+    private void sort() {
+        qsort(constraints, 0, nconstraints-1);
+    }
+
+    private void qsort(Comparable [] a, int lo, int hi) {
+        if (hi <= lo) return;
+        int l = lo - 1;
+        int h = hi;
+        while (true) {
+            while (a[++l].compareTo(a[hi])<0)
+                continue;
+            while (a[hi].compareTo(a[--h])<0)
+                if (h==lo) break;
+            if (l >= h) break;
+            exch(a, l, h);
+        }
+        exch(a, l, hi);
+        qsort(a, lo, l-1);
+        qsort(a, l+1, hi);
+    }
+
+    private void exch(Comparable [] a, int i, int j) {
+        Comparable temp = a[i];
+        a[i] = a[j];
+        a[j] = temp;
+    }
+
+
 
     //
     // eliminate redundant parallel constraints. Since constraints
@@ -62,9 +82,7 @@ class ConstraintList(int rank) {
     // captures the strongest constraint.
     //
     ConstraintList reduce() {
-        //Collections.sort(this);
-        java.util.Arrays.sort(constraints, 0, nconstraints);
-        //printInfo(System.out, "unreduced constraints");
+        sort();
         Iterator_Constraint it = iterator();
         if (!it.hasNext())
             return this;
