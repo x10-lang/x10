@@ -2,14 +2,7 @@ package x10.lang;
 
 import x10.array.U;
 
-public class Point implements /*Indexable_int,*/ Arithmetic_Point {
-
-
-    //
-    // properties
-    //
-
-    public final int rank;
+public class Point(int rank) implements /*Indexable_int,*/ Arithmetic_Point {
 
 
     //
