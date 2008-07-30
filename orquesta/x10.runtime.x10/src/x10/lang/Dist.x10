@@ -5,24 +5,23 @@ import java.util.Set;
 
 import x10.array.BaseDist;
 
-public abstract value class Dist {
+public abstract value class Dist(
+
+    // Region properties
+    Region region,
+    int rank,
+    boolean rect,
+    boolean zeroBased,
+    boolean rail,
+
+    // Dist properties
+    boolean unique,
+    boolean constant,
+    nullable<place> onePlace
+
+) {
 
     public static final Dist UNIQUE = makeUnique();
-
-    //
-    // properties
-    //
-
-    public final Region region;
-    public final int rank;
-    public final boolean rect;
-    public final boolean zeroBased;
-    public final boolean rail;
-
-    public final boolean unique;
-    public final boolean constant;
-    public final nullable<place> onePlace;
-
 
     //
     // factories - place is all applicable places

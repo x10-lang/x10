@@ -6,17 +6,12 @@ import x10.lang.Point;
 
 import x10.array.BaseRegion;
 
-public abstract value class Region {
-
-
-    //
-    // properties
-    //
-
-    public final int rank;
-    public final boolean rect;
-    public final boolean zeroBased;
-    public final boolean rail;
+public abstract value class Region(
+    int rank,
+    boolean rect,
+    boolean zeroBased,
+    boolean rail
+) {
 
 
     //

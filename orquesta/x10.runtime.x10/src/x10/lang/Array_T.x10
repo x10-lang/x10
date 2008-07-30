@@ -4,22 +4,22 @@ import x10.lang.Object;
 
 import x10.array.BaseArray_T;
 
-public abstract value class Array_T implements Indexable_T, Settable_T, Arithmetic_Array_T {
+public abstract value class Array_T(
 
-    //
-    // properties
-    //
+    // Region properties
+    Region region,
+    int rank,
+    boolean rect,
+    boolean zeroBased,
+    boolean rail,
 
-    public final Region region;
-    public final int rank;
-    public final boolean rect;
-    public final boolean zeroBased;
-    public final boolean rail;
+    // Dist properties
+    Dist dist,
+    boolean unique,
+    boolean constant,
+    nullable<place> onePlace
 
-    public final Dist dist;
-    public final boolean unique;
-    public final boolean constant;
-    public final nullable<place> onePlace;
+) implements Indexable_T, Settable_T, Arithmetic_Array_T {
 
 
     //

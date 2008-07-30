@@ -2,7 +2,6 @@ package x10.array;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections; // sort
 import java.io.OutputStream;

@@ -10,9 +10,8 @@ import java.io.PrintStream;
 import java.lang.AssertionError;
 
 
-class ConstraintList extends ArrayList {
+class ConstraintList(int rank) extends ArrayList {
 
-    final int rank;
     private int axis; // which axis this set of constraints determines min/max for
 
     ConstraintList(int rank) {
@@ -24,9 +23,6 @@ class ConstraintList extends ArrayList {
         this.addAll(that);
     }
 
-    int rank() {
-        return rank;
-    }
 
     //
     // eliminate redundant parallel constraints. Since constraints

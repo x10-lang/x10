@@ -22,7 +22,7 @@ import java.io.PrintStream;
 // While sum is stored here, it is maintained by ConstraintList.
 //
 
-value class Constraint implements Comparable {
+value class Constraint implements java.lang.Comparable {
 
     int [] cs;
     int [] sum;
