@@ -266,7 +266,7 @@ class PolyRegion extends BaseRegion {
 
 
     //
-    //
+    // XXX special-case isEmpty() etc.?
     //
 
     static PolyRegion make(ConstraintList cl) {

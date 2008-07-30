@@ -11,25 +11,17 @@ public abstract value class Dist {
 
     //
     // properties
-    // XXX change impl to support this
     //
 
-    //public final int rank;
-    //public final boolean rect;
-    //public final boolean zeroBased;
-    //public final boolean rail;
+    public final Region region;
+    public final int rank;
+    public final boolean rect;
+    public final boolean zeroBased;
+    public final boolean rail;
 
-    //public final place onePlace;
-    //public final boolean constant;
-    //public final boolean unique;
-
-
-    //
-    // basic info
-    // XXX should be property?
-    //
-
-    public abstract Region region();
+    public final boolean unique;
+    public final boolean constant;
+    public final nullable<place> onePlace;
 
 
     //
@@ -55,6 +47,11 @@ public abstract value class Dist {
     public static Dist makeBlockCyclic(Region r, int axis, int blockSize) {
         return BaseDist.makeBlockCyclic(r, axis, blockSize);
     }
+
+    public static Dist make(Region r) {
+        return makeConstant(r);
+    }
+
 
     //
     // factories - place is a parameter
@@ -85,9 +82,9 @@ public abstract value class Dist {
     // mapping places to regions
     //
 
-    public abstract Map regionMap();	// place->region
-    public abstract place [] places();	// essentially regionMap().keys()
-    public abstract Region [] regions();// essentially regionMap().values()
+    public abstract Map regionMap();     // place->region
+    public abstract place [] places();   // essentially regionMap().keys()
+    public abstract Region [] regions(); // essentially regionMap().values()
     public abstract Region get(place p);
 
 
@@ -103,6 +100,24 @@ public abstract value class Dist {
     public abstract Dist overlay(Dist d);
     public abstract boolean isSubDistribution(Dist d);
     public abstract Dist restriction(Dist d);
+
+
+    //
+    //
+    //
+
+    protected Dist(Region region, boolean unique, boolean constant, nullable<place> onePlace) {
+
+        this.region = region;
+        this.rank = region.rank;
+        this.rect = region.rect;
+        this.zeroBased = region.zeroBased;
+        this.rail = region.rail;
+
+        this.unique = unique;
+        this.constant = constant;
+        this.onePlace = onePlace;
+    }
 
 }
 

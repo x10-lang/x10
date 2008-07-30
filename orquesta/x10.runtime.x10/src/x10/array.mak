@@ -51,18 +51,22 @@ gen:
 gen/%_Point.x10: %_T.x10 gen
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Point\2/g" <$< >$@
+	@chmod -w $@
 
 gen/%_Object.x10: %_T.x10 gen
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Object\2/g" <$< >$@
+	@chmod -w $@
 
 gen/%_double.x10: %_T.x10 gen
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1double\2/g" <$< >$@
+	@chmod -w $@
 
 gen/%_int.x10: %_T.x10 gen
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1int\2/g" <$< >$@
+	@chmod -w $@
 
 
 #
@@ -72,11 +76,14 @@ gen/%_int.x10: %_T.x10 gen
 gen/%_Array_T.x10: %_T.x10 gen
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Array_T\2/g" <$< >$@
+	@chmod -w $@
 
 gen/%_Array_double.x10: %_T.x10 gen
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Array_double\2/g" <$< >$@
+	@chmod -w $@
 
 gen/%_Array_Object.x10: %_T.x10 gen
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Array_Object\2/g" <$< >$@
+	@chmod -w $@
