@@ -39,7 +39,7 @@ public class BaseArray_T extends Array_T {
     }
 
     public Region region() {
-        return dist.region();
+        return dist.region;
     }
 
     public int rank() {

@@ -8,6 +8,8 @@ public class UniqueDist extends BaseDist {
 
     UniqueDist() {
 
+        super(Region.makeRectangular(0,place.MAX_PLACES-1), true, false, null);
+
         // places
         places = new place[place.MAX_PLACES];
         for (int i=0; i<place.MAX_PLACES; i++)
@@ -18,9 +20,6 @@ public class UniqueDist extends BaseDist {
         for (int i=0; i<place.MAX_PLACES; i++) {
             regions[i] = Region.makeRectangular(i, i);
         }
-
-        // overall region
-        region = Region.makeRectangular(0, place.MAX_PLACES-1);
 
         // region map
         initRegionMap();

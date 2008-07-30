@@ -9,15 +9,6 @@ import java.util.Collection;	// for Map
 public class BaseDist extends Dist implements Map {
 
     //
-    // basic info
-    //
-
-    public Region region() {
-        return region;
-    }
-
-
-    //
     // factories - place is all applicable places
     //
 
@@ -193,7 +184,6 @@ public class BaseDist extends Dist implements Map {
     //
     //
 
-    protected Region region;
     protected place [] places;
     protected Region [] regions;
 
@@ -202,5 +192,9 @@ public class BaseDist extends Dist implements Map {
     protected void initRegionMap() {
         for (int i=0; i<places.length; i++)
             regionMap[places[i].id] = regions[i];
+    }
+
+    protected BaseDist(Region region, boolean unique, boolean constant, nullable<place> onePlace) {
+        super(region, unique, constant, onePlace);
     }
 }    
