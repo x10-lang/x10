@@ -1,8 +1,9 @@
 package x10.array;
 
+import x10.lang.*;
+
 import x10.lang.Object;
 
-import x10.lang.*;
 
 public class BaseArray_T extends Array_T {
 

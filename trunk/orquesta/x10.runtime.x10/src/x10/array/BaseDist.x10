@@ -1,10 +1,11 @@
 package x10.array;
 
-import x10.lang.*;
-
 import java.util.Map;		// for Map
 import java.util.Set;		// for Map
 import java.util.Collection;	// for Map
+
+import x10.lang.*;
+
 
 public class BaseDist extends Dist implements Map {
 

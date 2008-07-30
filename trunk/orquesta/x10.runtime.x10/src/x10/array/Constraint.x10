@@ -1,6 +1,5 @@
 package x10.array;
 
-import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
@@ -13,16 +12,10 @@ import java.io.PrintStream;
 // The cs are stored in the first rank elements of the cs[] array; the
 // constant is stored in cs[rank()] (using homogeneous coordinates).
 //
-// In addition this class supports obtaining the bounds for a
-// particular axis by maintaining sums of cs[k]*xk that result from
-// the substitution of values of outer loop indices xk. In particular
-//
-//     sum[i] = constant + sum{k=0:i-1} cs[k]*xk
-//
-// While sum is stored here, it is maintained by ConstraintList.
+// XXX shouldn't be public - temp hack to support Iterator_Constraint
 //
 
-value class Constraint implements java.lang.Comparable {
+public value class Constraint implements java.lang.Comparable {
 
     int [] cs;
     int [] sum;
@@ -124,7 +117,7 @@ value class Constraint implements java.lang.Comparable {
 
 
     public String toString() {
-        OutputStream os = new ByteArrayOutputStream();
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(os);
         printInfo(ps);
         return os.toString();

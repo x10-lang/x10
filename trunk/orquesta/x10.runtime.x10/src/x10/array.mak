@@ -33,11 +33,16 @@ ARRAY_GEN=\
 gen/BaseArray_double.x10\
 gen/BaseArray_Object.x10\
 
+UTIL_GEN=\
+gen/Iterator_Constraint.x10\
+gen/Iterator_Scanner.x10
+
 
 build:
 	@cd lang && $(MAKE) -f ../array.mak $(LANG_GEN)
 	@cd array && $(MAKE) -f ../array.mak $(ARRAY_GEN)
-	$(X10C) -J-Xmx1024m {array,lang}/gen/*.x10 $(LANG) array/*.x10
+	@cd util && $(MAKE) -f ../array.mak $(UTIL_GEN)
+	$(X10C) -J-Xmx1024m */gen/*.x10 $(LANG) array/*.x10
 
 gen:
 	mkdir gen
@@ -66,6 +71,16 @@ gen/%_double.x10: %_T.x10 gen
 gen/%_int.x10: %_T.x10 gen
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1int\2/g" <$< >$@
+	@chmod -w $@
+
+gen/%_Scanner.x10: %_T.x10 gen
+	@rm -f $@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Scanner\2/g" <$< >$@
+	@chmod -w $@
+
+gen/%_Constraint.x10: %_T.x10 gen
+	@rm -f $@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Constraint\2/g" <$< >$@
 	@chmod -w $@
 
 

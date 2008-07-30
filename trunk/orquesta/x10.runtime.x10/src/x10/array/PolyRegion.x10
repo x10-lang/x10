@@ -1,15 +1,15 @@
 package x10.array;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.ArrayList;
 import java.util.Collections; // sort
-import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import x10.lang.Region;
 import x10.lang.Point;
+import x10.util.Iterator_Scanner;
+import x10.util.Iterator_Constraint;
+
 
 class PolyRegion extends BaseRegion {
 
@@ -26,7 +26,7 @@ class PolyRegion extends BaseRegion {
     // scanners
     //
 
-    private class Scanners implements java.util.Iterator {
+    private class Scanners implements Iterator_Scanner {
 
         boolean hasNext = true;
 
@@ -47,7 +47,7 @@ class PolyRegion extends BaseRegion {
         }
     };
 
-    public java.util.Iterator scanners() {
+    public Iterator_Scanner scanners() {
         return new Scanners();
     }
 
@@ -136,14 +136,14 @@ class PolyRegion extends BaseRegion {
             ConstraintList cl = new ConstraintList(rank);
 
             // these constraints
-            java.util.Iterator it = this.constraints.iterator();
+            Iterator_Constraint it = this.constraints.iterator();
             while (it.hasNext())
-                cl.add((Constraint)it.next());
+                cl.add(it.next());
 
             // those constraints
             it = that.constraints.iterator();
             while (it.hasNext())
-                cl.add((Constraint)it.next());
+                cl.add(it.next());
 
             // done
             return PolyRegion.make(cl);

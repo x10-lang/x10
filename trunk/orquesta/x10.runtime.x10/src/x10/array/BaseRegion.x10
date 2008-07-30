@@ -1,6 +1,6 @@
 package x10.array;
 
-import java.util.Iterator;
+import x10.util.Iterator_Scanner;
 
 import x10.lang.Point;
 import x10.lang.Region;
@@ -138,7 +138,7 @@ public abstract class BaseRegion extends Region {
     // PolyRegion.Iterator gives us a BaseRegion.Iterator
     //
 
-    public java.util.Iterator scanners() {
+    public Iterator_Scanner scanners() {
         throw U.unsupported();
     }
 
