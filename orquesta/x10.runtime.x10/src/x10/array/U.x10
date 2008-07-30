@@ -2,6 +2,7 @@ package x10.array;
 
 import x10.lang.*;
 
+
 public class U {
 
     public static void pr(String s) {

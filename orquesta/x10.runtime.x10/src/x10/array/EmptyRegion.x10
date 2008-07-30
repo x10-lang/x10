@@ -1,15 +1,14 @@
 package x10.array;
 
-import java.lang.UnsupportedOperationException;
-
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import x10.lang.Point;
 import x10.lang.Region;
+import x10.util.Iterator_Scanner;
 
 
-class EmptyRegion extends BaseRegion implements java.util.Iterator {
+
+class EmptyRegion extends BaseRegion implements Iterator_Scanner {
 
 
     EmptyRegion(int rank) {
@@ -50,7 +49,7 @@ class EmptyRegion extends BaseRegion implements java.util.Iterator {
         throw U.unsupported();
     }
 
-    public java.util.Iterator scanners() {
+    public Iterator_Scanner scanners() {
         return this;
     }
 

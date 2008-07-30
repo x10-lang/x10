@@ -1,10 +1,9 @@
 package x10.lang;
 
-import java.util.Iterator;
-
 import x10.lang.Point;
-
+import x10.util.Iterator_Scanner;
 import x10.array.BaseRegion;
+
 
 public abstract value class Region(
     int rank,
@@ -106,7 +105,7 @@ public abstract value class Region(
     // }
     //
 
-    public abstract java.util.Iterator scanners();
+    public abstract Iterator_Scanner scanners();
 
     public interface Scanner {
         void set(int axis, int position);

@@ -1,27 +1,57 @@
 package x10.array;
 
-import java.util.Iterator;
-import java.util.ArrayList;
+
 import java.util.Collections; // sort
-import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import java.lang.AssertionError;
+import x10.util.Iterator_Constraint;
 
 
-class ConstraintList(int rank) extends ArrayList {
+class ConstraintList(int rank) {
 
-    private int axis; // which axis this set of constraints determines min/max for
+    private Constraint [] constraints = new Constraint[4];
+    private int nconstraints = 0;
 
     ConstraintList(int rank) {
         this.rank = rank;
     }
 
+    /*
     ConstraintList(ConstraintList that) {
         this(that.rank);
         this.addAll(that);
     }
+    */
+
+    class Iterator implements Iterator_Constraint {
+        
+        private int i = 0;
+        
+        public boolean hasNext() {
+            return i<nconstraints;
+        }
+        
+        public Constraint next() {
+            return constraints[i++];
+        }
+    }
+
+
+    Iterator_Constraint iterator() {
+        return new Iterator();
+    }
+
+    void add(Constraint c) {
+        if (nconstraints==constraints.length) {
+            Constraint [] x = new Constraint[constraints.length*2];
+            for (int i=0; i<nconstraints; i++)
+                x[i] = constraints[i];
+            constraints = x;
+        }
+        constraints[nconstraints++] = c;
+    }
+            
 
 
     //
@@ -32,15 +62,16 @@ class ConstraintList(int rank) extends ArrayList {
     // captures the strongest constraint.
     //
     ConstraintList reduce() {
-        Collections.sort(this);
+        //Collections.sort(this);
+        java.util.Arrays.sort(constraints, 0, nconstraints);
         //printInfo(System.out, "unreduced constraints");
-        Iterator it = iterator();
+        Iterator_Constraint it = iterator();
         if (!it.hasNext())
             return this;
         ConstraintList result = new ConstraintList(rank);
-        Constraint last = (Constraint) it.next();
+        Constraint last = it.next();
         while (it.hasNext()) {
-            Constraint next = (Constraint) it.next();
+            Constraint next = it.next();
             if (!next.isParallel(last))
                 result.add(last);
             last = next;
@@ -67,14 +98,14 @@ class ConstraintList(int rank) extends ArrayList {
     //
     ConstraintList FME(int k) {
         ConstraintList result = new ConstraintList(rank);
-        for (int i=0; i<size(); i++) {
-            Constraint iConstraint = (Constraint) get(i);
+        for (int i=0; i<nconstraints; i++) {
+            Constraint iConstraint = constraints[i];
             int ic = iConstraint.cs[k];
             if (ic==0) {
                 result.add(iConstraint);
             } else {
-                for (int j=i+1; j<size(); j++) {
-                    Constraint jConstraint = (Constraint) get(j);
+                for (int j=i+1; j<nconstraints; j++) {
+                    Constraint jConstraint = constraints[j];
                     int jc = jConstraint.cs[k];
                     int [] cs = new int[rank+1];
                     if (ic>0 && jc<0) {
@@ -112,7 +143,7 @@ class ConstraintList(int rank) extends ArrayList {
         ConstraintList cl = new ConstraintList(rank);
         Iterator it = iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
+            Constraint c = it.next();
             if (c.cs[axis]!=0) {
                 c.sum[0] = c.cs[rank];
                 cl.add(c);
@@ -125,11 +156,16 @@ class ConstraintList(int rank) extends ArrayList {
     void set(int axis, int position) {
         Iterator it = iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
+            Constraint c = it.next();
             c.sum[axis+1] = c.cs[axis]*position + c.sum[axis];
         }
     }
-    */
+
+
+    // XXX should get these from Integer but they are missing from
+    // x10.lang.Integer in the Java runtime so just put them here
+    final static int MAX_VALUE = 2147483647;
+    final static int MIN_VALUE = -2147483648;
 
 
     //
@@ -137,10 +173,10 @@ class ConstraintList(int rank) extends ArrayList {
     // imply x >= -b / a
     //
     int min() {
-        int min = java.lang.Integer.MIN_VALUE;
-        Iterator it = iterator();
+        int min = Integer.MIN_VALUE;
+        Iterator_Constraint it = iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
+            Constraint c = it.next();
             int a = c.cs[axis];
             if (a < 0) {
                 int b = c.sum[axis];
@@ -156,10 +192,10 @@ class ConstraintList(int rank) extends ArrayList {
     // imply x <= -b / a
     //
     int max() {
-        int max = java.lang.Integer.MAX_VALUE;
-        Iterator it = iterator();
+        int max = Integer.MAX_VALUE;
+        Iterator_Constraint it = iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
+            Constraint c = it.next();
             int a = c.cs[axis];
             if (a > 0) {
                 int b = c.sum[axis];
@@ -169,6 +205,7 @@ class ConstraintList(int rank) extends ArrayList {
         }
         return max;
     }
+    */
 
 
     //
@@ -181,9 +218,9 @@ class ConstraintList(int rank) extends ArrayList {
     //
 
     boolean isRect() {
-        Iterator it = iterator();
+        Iterator_Constraint it = iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
+            Constraint c = it.next();
             if (!c.isRect())
                 return false;
         }
@@ -191,9 +228,9 @@ class ConstraintList(int rank) extends ArrayList {
     }
 
     int rectMin(int axis) {
-        Iterator it = iterator();
+        Iterator_Constraint it = iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
+            Constraint c = it.next();
             int a = c.cs[axis];
             if (a < 0) {
                 assert c.isRect();
@@ -204,9 +241,9 @@ class ConstraintList(int rank) extends ArrayList {
     }
     
     int rectMax(int axis) {
-        Iterator it = iterator();
+        Iterator_Constraint it = iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
+            Constraint c = it.next();
             int a = c.cs[axis];
             if (a > 0) {
                 assert c.isRect();
@@ -246,7 +283,7 @@ class ConstraintList(int rank) extends ArrayList {
 
     public void printInfo(PrintStream ps, String label) {
         ps.printf("%s\n", label);
-        Iterator it = iterator();
+        Iterator_Constraint it = iterator();
         while (it.hasNext()) {
             ps.printf("    ");
             ((Constraint)it.next()).printInfo(ps);

@@ -2,6 +2,8 @@ package x10.array;
 
 import java.io.PrintStream;
 
+import x10.util.Iterator_Constraint;
+
 
 //
 // Here's the general scheme for the information used in scanning,
@@ -113,7 +115,7 @@ class PolyScanner implements Region.Scanner {
 
         // count
         int imin=0, imax=0;
-        java.util.Iterator it = cl.iterator();
+        Iterator_Constraint it = cl.iterator();
         while (it.hasNext()) {
             Constraint c = (Constraint) it.next();
             if (c.cs[axis]<0) imin++;
@@ -151,6 +153,11 @@ class PolyScanner implements Region.Scanner {
 
     }
 
+    // XXX should get these from Integer but they are missing from
+    // x10.lang.Integer in the Java runtime so just put them here
+    final static int MAX_VALUE = 2147483647;
+    final static int MIN_VALUE = -2147483648;
+
     public void set(int axis, int position) {
         for (int k=axis+1; k<rank; k++)
             for (int l=0; l<minSum[k].length; l++)
@@ -161,7 +168,7 @@ class PolyScanner implements Region.Scanner {
     }
 
     public int min(int axis) {
-        int result = java.lang.Integer.MIN_VALUE;
+        int result = /*Integer.*/MIN_VALUE;
         for (int k=0; k<min[axis].length; k++) {
             int a = min[axis][k][axis];
             int b = minSum[axis][k][axis];
@@ -172,7 +179,7 @@ class PolyScanner implements Region.Scanner {
     }
 
     public int max(int axis) {
-        int result = java.lang.Integer.MAX_VALUE;
+        int result = /*Integer.*/MAX_VALUE;
         for (int k=0; k<max[axis].length; k++) {
             int a = max[axis][k][axis];
             int b = maxSum[axis][k][axis];

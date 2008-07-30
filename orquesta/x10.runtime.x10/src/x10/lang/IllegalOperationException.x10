@@ -1,6 +1,5 @@
 package x10.lang;
 
-import java.lang.RuntimeException;
 
 public class IllegalOperationException extends RuntimeException {
 
