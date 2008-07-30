@@ -30,22 +30,6 @@ public class BaseArray_T extends Array_T {
     }
 
 
-    //
-    //
-    //
-
-    public Dist dist() {
-        return dist;
-    }
-
-    public Region region() {
-        return dist.region;
-    }
-
-    public int rank() {
-        throw U.unsupported();
-    }
-
 
     //
     // XXX doesn't make sense for raw to be public if layout is not
@@ -195,9 +179,7 @@ public class BaseArray_T extends Array_T {
     //
     //
 
-    private Dist dist;
     private boolean value;
-
     private T [][] pieces;  // local raw storage for each place
     Layout [] layouts;      // layout for each place
 
@@ -210,16 +192,16 @@ public class BaseArray_T extends Array_T {
 
     protected BaseArray_T(final Dist dist, final nullable<Indexable_T> init, boolean value) {
 
-        this.dist = dist;
-        this.value = value;
+        super(dist);
 
+        this.value = value;
         pieces = new T[place.MAX_PLACES][];
         layouts = new Layout[place.MAX_PLACES];
 
         if (value) {
 
-            Layout layout = layout(region());
-            int n = region().size();
+            Layout layout = layout(region);
+            int n = region.size();
             T [] piece = new T[n];
 
             if (init!=/*null*/NO_INIT) {

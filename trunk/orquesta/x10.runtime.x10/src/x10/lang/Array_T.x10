@@ -8,29 +8,18 @@ public abstract value class Array_T implements Indexable_T, Settable_T, Arithmet
 
     //
     // properties
-    // XXX change impl to support these
-    //
-    //public final Dist dist;
-    //
-    //public final Region region;
-    //public final place onePlace;
-    //public final boolean constant;
-    //public final boolean unique;
-    //
-    //public final int rank;
-    //public final boolean rect;
-    //public final boolean zeroBased;
-    //public final boolean rail;
     //
 
-    //
-    // basic information
-    // XXX change to properties
-    //
+    public final Region region;
+    public final int rank;
+    public final boolean rect;
+    public final boolean zeroBased;
+    public final boolean rail;
 
-    public abstract Dist dist();
-    public abstract Region region();
-    public abstract int rank();
+    public final Dist dist;
+    public final boolean unique;
+    public final boolean constant;
+    public final nullable<place> onePlace;
 
 
     //
@@ -85,5 +74,26 @@ public abstract value class Array_T implements Indexable_T, Settable_T, Arithmet
     //
 
     public abstract T [] raw(place place);
+
+
+    //
+    //
+    //
+
+    protected Array_T(Dist dist) {
+
+        // dist properties
+        this.dist = dist;
+        this.unique = dist.unique;
+        this.constant = dist.constant;
+        this.onePlace = dist.onePlace;
+
+        // region properties
+        this.region = dist.region;
+        this.rank = region.rank;
+        this.rect = region.rect;
+        this.zeroBased = region.zeroBased;
+        this.rail = region.rail;
+    }
 
 }
