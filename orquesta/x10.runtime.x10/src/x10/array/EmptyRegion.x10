@@ -13,7 +13,7 @@ class EmptyRegion extends BaseRegion implements java.util.Iterator {
 
 
     EmptyRegion(int rank) {
-        super(rank);
+        super(rank, true, true);
     }
 
 

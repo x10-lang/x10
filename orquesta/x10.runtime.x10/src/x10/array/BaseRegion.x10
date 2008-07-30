@@ -10,7 +10,7 @@ import x10.lang.IllegalOperationException;
 public abstract class BaseRegion extends Region {
 
     //
-    // public static API - basic region construction
+    // factories
     //
 
     static public Region makeEmpty(int rank) {
@@ -26,11 +26,11 @@ public abstract class BaseRegion extends Region {
     }
 
     static public Region makeRectangular(int [] min, int [] max) {
-        return new RectRegion(min, max);
+        return RectRegion.make(min, max);
     }        
 
     static public Region makeRectangular(int min, int max) {
-        return new RectRegion(min, max);
+        return RectRegion.make(min, max);
     }        
 
     static public Region makeDiagonal(int size, int upper, int lower) {
@@ -73,18 +73,8 @@ public abstract class BaseRegion extends Region {
 
 
     //
-    // public region API - basic information
+    // basic information
     //
-
-    
-    public boolean isRect() {
-        return false;
-    }
-
-    public boolean isZeroBased() {
-        return false;
-    }
-
 
     public boolean disjoint(Region r) {
         throw U.unsupported();
@@ -100,7 +90,7 @@ public abstract class BaseRegion extends Region {
 
 
     //
-    // public region API - composite region construction
+    // region composition
     //
 
     public Region union(Region r) {
@@ -128,9 +118,8 @@ public abstract class BaseRegion extends Region {
     }
 
 
-
     //
-    // public region API - comparison operations
+    // region comparison operations
     //
 
     public boolean contains(Region r) {
@@ -171,8 +160,8 @@ public abstract class BaseRegion extends Region {
     //
     //
 
-    protected BaseRegion(int rank) {
-        super(rank);
+    protected BaseRegion(int rank, boolean rect, boolean zeroBased) {
+        super(rank, rect, zeroBased);
     }
 }
 

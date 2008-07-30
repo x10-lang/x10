@@ -14,16 +14,6 @@ import x10.lang.Point;
 
 class PolyRegion extends BaseRegion {
 
-    PolyRegion(int rank) {
-        super(rank);
-        constraints = new ConstraintList(rank);
-    }
-
-    PolyRegion(ConstraintList cl) {
-        super(cl.rank());
-        constraints = cl;
-    }
-
     //
     //
     //
@@ -67,6 +57,8 @@ class PolyRegion extends BaseRegion {
     }
 
 
+    //
+    // odometer-style iterator
     //
     // hasNext() computes the k that is the axis to be bumped:
     //
@@ -128,34 +120,9 @@ class PolyRegion extends BaseRegion {
     //
     // constraints
     //
-    // Note: this design for building a list of constraints doesn't
-    // work because the Region needs to be a value class and therefore
-    // immutable after construction. Need to build a list of
-    // constraints and then construct poly object.
-    //
 
-    private ConstraintList constraints;
+    protected ConstraintList constraints;
 
-    protected void addConstraint(Constraint c) {
-        constraints.add(c);
-    }
-
-    protected void endConstraints() {
-
-        // debug
-        //constraints.printInfo(System.out, "final constraints");
-
-        // eliminate redundant
-        constraints = constraints.reduce();
-        //constraints.printInfo(System.out, "reduced constraints");
-
-        // compute whether or not it's rectangular
-        boolean isRect = constraints.isRect();
-        //U.pr("isRect " + isRect);
-
-        
-
-    }
 
     //
     // Region methods
@@ -166,22 +133,21 @@ class PolyRegion extends BaseRegion {
         if (t instanceof PolyRegion) {
 
             // start
-            PolyRegion that = (PolyRegion) t;
-            PolyRegion result = new PolyRegion(rank);
+            PolyRegion that = (PolyRegion) t; // XXX
+            ConstraintList cl = new ConstraintList(rank);
 
             // these constraints
             java.util.Iterator it = this.constraints.iterator();
             while (it.hasNext())
-                result.addConstraint((Constraint)it.next());
+                cl.add((Constraint)it.next());
 
             // those constraints
             it = that.constraints.iterator();
             while (it.hasNext())
-                result.addConstraint((Constraint)it.next());
+                cl.add((Constraint)it.next());
 
             // done
-            result.endConstraints();
-            return result;
+            return PolyRegion.make(cl);
 
         } else {
             throw U.unsupported();
@@ -245,15 +211,15 @@ class PolyRegion extends BaseRegion {
         return 0x1<<2*axis;
     }
 
-    protected void addConstraint(int coeff, int op, int k) {
-        int [] cs = new int[rank+1];
-        for (int i=0; i<rank; i++) {
+    protected static void addConstraint(ConstraintList cl, int coeff, int op, int k) {
+        int [] cs = new int[cl.rank+1];
+        for (int i=0; i<cl.rank; i++) {
             int c = (coeff&3) - 2;
             cs[i] = op==LE? c : - c;
             coeff = coeff >> 2;
         }
-        cs[rank] = op==LE? -k : k;
-        addConstraint(new Constraint(cs));
+        cs[cl.rank] = op==LE? -k : k;
+        cl.add(new Constraint(cs));
     }
 
 
@@ -272,16 +238,14 @@ class PolyRegion extends BaseRegion {
     private static final int COL = X(1);
 
     public static Region makeDiagonal(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
-
-        PolyRegion r = new PolyRegion(2);
-        r.addConstraint(ZERO+ROW, GE, rowMin);
-        r.addConstraint(ZERO+ROW, LE, rowMax);
-        r.addConstraint(ZERO+COL, GE, colMin);
-        r.addConstraint(ZERO+COL, LE, colMax);
-        r.addConstraint(ZERO+COL-ROW, GE, colMin-rowMin-(lower-1));
-        r.addConstraint(ZERO+COL-ROW, LE, colMin-rowMin+(upper-1));
-        r.endConstraints();
-        return r;
+        ConstraintList cl = new ConstraintList(2);
+        addConstraint(cl, ZERO+ROW, GE, rowMin);
+        addConstraint(cl, ZERO+ROW, LE, rowMax);
+        addConstraint(cl, ZERO+COL, GE, colMin);
+        addConstraint(cl, ZERO+COL, LE, colMax);
+        addConstraint(cl, ZERO+COL-ROW, GE, colMin-rowMin-(lower-1));
+        addConstraint(cl, ZERO+COL-ROW, LE, colMin-rowMin+(upper-1));
+        return PolyRegion.make(cl);
     }
 
     public static Region makeDiagonal(int size, int upper, int lower) {
@@ -290,15 +254,31 @@ class PolyRegion extends BaseRegion {
 
     public static Region makeDiagonal(int rowMin, int colMin, int size, boolean upper) {
         if (upper) {
-            PolyRegion r = new PolyRegion(2);
-            r.addConstraint(ZERO+ROW, GE, rowMin);
-            r.addConstraint(ZERO+COL, LE, colMin+size-1);
-            r.addConstraint(ZERO+COL-ROW, GE, colMin-rowMin);
-            r.endConstraints();
-            return r;
+            ConstraintList cl = new ConstraintList(2);
+            addConstraint(cl, ZERO+ROW, GE, rowMin);
+            addConstraint(cl, ZERO+COL, LE, colMin+size-1);
+            addConstraint(cl, ZERO+COL-ROW, GE, colMin-rowMin);
+            return PolyRegion.make(cl);
         } else {
             throw U.unsupported();
         }
+    }
+
+
+    //
+    //
+    //
+
+    static PolyRegion make(ConstraintList cl) {
+        if (cl.isRect())
+            return new RectRegion(cl);
+        else
+            return new PolyRegion(cl);
+    }
+
+    PolyRegion(ConstraintList cl) {
+        super(cl.rank, cl.isRect(), cl.isZeroBased());
+        this.constraints = cl.reduce();
     }
 
 }

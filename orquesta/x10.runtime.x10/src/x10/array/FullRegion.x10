@@ -8,6 +8,6 @@ import x10.lang.Point;
 class FullRegion extends BaseRegion {
 
     FullRegion(int rank) {
-        super(rank);
+        super(rank, true, false);
     }
 }
