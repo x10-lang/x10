@@ -12,23 +12,11 @@ public abstract value class Region {
     //
     // properties
     //
-    // XXX for now some of these are isXXX methods b/c they are dynamic
-    // change method of construction to support this
-    //
 
     public final int rank;
-    
-    //public final boolean rect;
-    //public final boolean zeroBased;
-    //public final boolean rail;
-
-    public abstract boolean isRect();
-
-    public abstract boolean isZeroBased();
-
-    public boolean isRail() {
-        return rank==1 && isRect() && isZeroBased();
-    }
+    public final boolean rect;
+    public final boolean zeroBased;
+    public final boolean rail;
 
 
     //
@@ -158,11 +146,14 @@ public abstract value class Region {
 
 
     //
-    // protected/private implementation
+    //
     //
 
-    protected Region(int rank) {
+    protected Region(int rank, boolean rect, boolean zeroBased) {
         this.rank = rank;
+        this.rect = rect;
+        this.zeroBased = zeroBased;
+        this.rail = rank==1 && rect && zeroBased;
     }
 
 }

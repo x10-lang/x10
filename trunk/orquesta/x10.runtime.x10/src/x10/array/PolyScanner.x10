@@ -168,7 +168,6 @@ class PolyScanner implements Region.Scanner {
             int m = -b / a;
             if (m > result) result = m;
         }
-        U.pr("min(" + axis + ") = " + result);
         return result;
     }
 
@@ -180,7 +179,6 @@ class PolyScanner implements Region.Scanner {
             int m = -b / a;
             if (m < result) result = m;
         }
-        U.pr("max(" + axis + ") = " + result);
         return result;
     }
 

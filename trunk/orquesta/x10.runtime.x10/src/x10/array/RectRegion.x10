@@ -7,28 +7,21 @@ import x10.lang.Point;
 
 class RectRegion extends PolyRegion implements Region.Scanner, Layout {
 
-    private int [] min;
-    private int [] max;
-    private int [] delta;
+    private int [] min;            // cached bounds for efficiency
+    private int [] max;            // cached bounds for efficiency
 
-    private boolean zeroBased;
-    private int size;
+    private int [] delta;          // support for RectRegion as Layout
+    private int size;              // support for RectRegion as Layout
 
-    RectRegion(int [] min, int [] max) {
+    RectRegion(ConstraintList cl) {
+        
+        super(cl);
 
-        super(min.length);
+        // cache the bounds for efficiency
+        this.min = constraints.rectMin();
+        this.max = constraints.rectMax();
 
-        if (max.length!=min.length)
-            throw U.illegal("min and max must have same length");
-
-        this.min = min;
-        this.max = max;
-
-        zeroBased = true;
-        for (int i=0; i<min.length; i++)
-            if (min[i]!=0)
-                zeroBased = false;
-
+        // support for RectRegion as layout
         size = 1;
         delta = new int[min.length];
         for (int i=0; i<min.length; i++) {
@@ -36,31 +29,32 @@ class RectRegion extends PolyRegion implements Region.Scanner, Layout {
             size *= delta[i];
         }
 
-        // add constraints
-        for (int i=0; i<rank; i++) {
-            addConstraint(ZERO+X(i), GE, min[i]);
-            addConstraint(ZERO+X(i), LE, max[i]);
+
+    }
+
+    static RectRegion make(int [] min, int [] max) {
+
+        if (max.length!=min.length)
+            throw U.illegal("min and max must have same length");
+
+        ConstraintList cl = new ConstraintList(min.length);
+        for (int i=0; i<min.length; i++) {
+            addConstraint(cl, ZERO+X(i), GE, min[i]);
+            addConstraint(cl, ZERO+X(i), LE, max[i]);
         }
-        endConstraints();
 
+        return new RectRegion(cl);
     }
 
-    RectRegion(int min, int max) {
-        this(new int [] {min}, new int [] {max});
+
+    static RectRegion make(int min, int max) {
+        return make(new int [] {min}, new int [] {max});
     }
 
 
     //
     //
     //
-
-    public boolean isRect() {
-        return true;
-    }
-
-    public boolean isZeroBased() {
-        return zeroBased;
-    }
 
     public int size() {
         return size;
@@ -68,7 +62,7 @@ class RectRegion extends PolyRegion implements Region.Scanner, Layout {
 
 
     //
-    // RectRegion implements a rectangular layout
+    // RectRegion implements a rectangular memory layout
     //
     // ((i0-min0)*(delta1)+(i1-min1))*(delta2)+(i2-min2);
     //

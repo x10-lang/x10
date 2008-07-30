@@ -53,20 +53,6 @@ class ConstraintList extends ArrayList {
         return result;
     }
 
-    //
-    // compute whether or not a list of constraints represents an
-    // axis-aligned rectangle
-    //
-    boolean isRect() {
-        Iterator it = iterator();
-        while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
-            if (!c.isRect())
-                return false;
-        }
-        return true;
-    }
-
 
     //
     // apply Fourier-Motzkin Elimination to eliminate variable k:
@@ -183,9 +169,23 @@ class ConstraintList extends ArrayList {
     }
 
     //
-    // support for constructing rectangular regions
-    // return min/max along axis only if that axis is rectangular
+    // support for constructing rectangular regions: determining
+    // whether or not a cl is rectangular, and computing min/max along
+    // each axis if it is
     //
+    // XXX cache these for efficiency during region construction
+    // XXX assume constraints have been sorted and reduced - check/enforce that
+    //
+
+    boolean isRect() {
+        Iterator it = iterator();
+        while (it.hasNext()) {
+            Constraint c = (Constraint) it.next();
+            if (!c.isRect())
+                return false;
+        }
+        return true;
+    }
 
     int rectMin(int axis) {
         Iterator it = iterator();
@@ -213,6 +213,33 @@ class ConstraintList extends ArrayList {
         throw new AssertionError("no a>0");
     }
 
+    int [] rectMin() {
+        int [] min = new int[rank];
+        for (int i=0; i<min.length; i++)
+            min[i] = rectMin(i);
+        return min;
+    }
+
+    int [] rectMax() {
+        int [] max = new int[rank];
+        for (int i=0; i<max.length; i++)
+            max[i] = rectMax(i);
+        return max;
+    }
+
+    boolean isZeroBased() {
+        if (!isRect())
+            return false;
+        for (int i=0; i<rank; i++)
+            if (rectMin(i)!=0)
+                return false;
+        return true;
+    }
+
+
+    //
+    //
+    //
 
     public void printInfo(PrintStream ps, String label) {
         ps.printf("%s\n", label);
