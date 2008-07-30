@@ -54,10 +54,8 @@ class ConstraintList(int rank) {
         int l = lo - 1;
         int h = hi;
         while (true) {
-            while (a[++l].compareTo(a[hi])<0)
-                continue;
-            while (a[hi].compareTo(a[--h])<0)
-                if (h==lo) break;
+            while (a[++l].compareTo(a[hi])<0);
+            while (a[hi].compareTo(a[--h])<0 && h>lo);
             if (l >= h) break;
             exch(a, l, h);
         }
