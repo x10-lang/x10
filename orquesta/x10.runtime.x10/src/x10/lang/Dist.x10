@@ -1,10 +1,9 @@
 package x10.lang;
 
-import java.util.Set;
-
 import x10.array.BaseDist;
 
 import x10.util.Map_place_Region;
+import x10.util.Set_place;
 
 
 public abstract value class Dist(
@@ -58,7 +57,7 @@ public abstract value class Dist(
     // factories - place is a parameter
     //
 
-    public static Dist makeUnique(Set ps) {
+    public static Dist makeUnique(Set_place ps) {
         return BaseDist.makeUnique(ps);
     }
 
@@ -66,15 +65,15 @@ public abstract value class Dist(
         return BaseDist.makeConstant(r, p);
     }
 
-    public static Dist makeCyclic(Region r, int axis, Set ps) {
+    public static Dist makeCyclic(Region r, int axis, Set_place ps) {
         return BaseDist.makeCyclic(r, axis, ps);
     }
 
-    public static Dist makeBlock(Region r, int axis, Set ps) {
+    public static Dist makeBlock(Region r, int axis, Set_place ps) {
         return BaseDist.makeBlock(r, axis, ps);
     }
 
-    public static Dist makeBlockCyclic(Region r, int axis, int blockSize, Set ps) {
+    public static Dist makeBlockCyclic(Region r, int axis, int blockSize, Set_place ps) {
         return BaseDist.makeBlockCyclic(r, axis, blockSize, ps);
     }
 

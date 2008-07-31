@@ -36,7 +36,8 @@ gen/BaseArray_Object.x10\
 UTIL_GEN=\
 gen/Iterator_Constraint.x10\
 gen/Iterator_Scanner.x10\
-gen/Map_place_Region.x10
+gen/Map_place_Region.x10\
+gen/Set_place.x10
 
 
 build:
@@ -54,16 +55,6 @@ gen:
 # expand as necessary
 #
 
-gen/%_Point.x10: %_T.x10
-	@rm -f $@
-	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Point\2/g" <$< >$@
-	@chmod -w $@
-
-gen/%_Object.x10: %_T.x10
-	@rm -f $@
-	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Object\2/g" <$< >$@
-	@chmod -w $@
-
 gen/%_double.x10: %_T.x10
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1double\2/g" <$< >$@
@@ -74,15 +65,31 @@ gen/%_int.x10: %_T.x10
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1int\2/g" <$< >$@
 	@chmod -w $@
 
-gen/%_Scanner.x10: %_T.x10
+gen/%_Object.x10: %_T.x10
 	@rm -f $@
-	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Scanner\2/g" <$< >$@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Object\2/g" <$< >$@
+	@chmod -w $@
+
+gen/%_Point.x10: %_T.x10
+	@rm -f $@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Point\2/g" <$< >$@
 	@chmod -w $@
 
 gen/%_Constraint.x10: %_T.x10
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Constraint\2/g" <$< >$@
 	@chmod -w $@
+
+gen/%_Scanner.x10: %_T.x10
+	@rm -f $@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Scanner\2/g" <$< >$@
+	@chmod -w $@
+
+gen/%_place.x10: %_T.x10
+	@rm -f $@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1place\2/g" <$< >$@
+	@chmod -w $@
+
 
 
 #
