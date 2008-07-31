@@ -18,14 +18,12 @@ import java.io.PrintStream;
 public value class Constraint implements java.lang.Comparable {
 
     int [] cs;
-    int [] sum;
 
     private int rank;
 
     Constraint(int [] cs) {
         this.cs = cs;
         this.rank = cs.length-1;
-        this.sum = new int[rank];
     }
 
     //

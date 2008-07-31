@@ -168,6 +168,34 @@ class PolyRegion extends BaseRegion {
 
 
     //
+    // Cartesian product requires copying the constraint matrices into
+    // the result blockwise
+    //
+
+    public Region product(Region r) {
+        if (!(r instanceof PolyRegion))
+            throw U.unsupported();
+        PolyRegion that = (PolyRegion) r;
+        ConstraintList result = new ConstraintList(this.rank + that.rank);
+        copy(result, this.constraints, 0);         // padded w/ 0s on the right
+        copy(result, that.constraints, this.rank); // padded w/ 0s on the left
+        return PolyRegion.make(result);
+    }
+
+    private static void copy(ConstraintList to, ConstraintList from, int offset) {
+        Iterator_Constraint it = from.iterator();
+        while (it.hasNext()) {
+            int [] f = it.next().cs;
+            int [] t = new int[to.rank+1];
+            for (int i=0; i<from.rank; i++)
+                t[offset+i] = f[i];
+            t[to.rank] = f[from.rank];
+            to.add(new Constraint(t));
+        }
+    }
+
+
+    //
     // Bounding box is computed by taking the project on each
     // axis. This implementation is more efficient than computing
     // projection on each axis because it re-uses the FME results.
@@ -263,6 +291,9 @@ class PolyRegion extends BaseRegion {
     }
 
 
+    //
+    // here's where we examine the constraints and generate
+    // special-case subclasses, such as RectRegion, for efficiency
     //
     // XXX special-case isEmpty() etc.?
     //
