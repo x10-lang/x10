@@ -1,9 +1,9 @@
 package x10.array;
 
-import java.util.Set;
-
 import x10.lang.*;
+
 import x10.util.Map_place_Region;
+import x10.util.Set_place;
 
 
 public class BaseDist extends Dist implements Map_place_Region {
@@ -37,7 +37,7 @@ public class BaseDist extends Dist implements Map_place_Region {
     // factories - place is a parameter
     //
 
-    public static Dist makeUnique(Set ps) {
+    public static Dist makeUnique(Set_place ps) {
         throw U.unsupported();
     }
 
@@ -45,15 +45,15 @@ public class BaseDist extends Dist implements Map_place_Region {
         return new ConstantDist(r, p);
     }
 
-    public static Dist makeCyclic(Region r, int axis, Set ps) {
+    public static Dist makeCyclic(Region r, int axis, Set_place ps) {
         throw U.unsupported();
     }
 
-    public static Dist makeBlock(Region r, int axis, Set ps) {
+    public static Dist makeBlock(Region r, int axis, Set_place ps) {
         throw U.unsupported();
     }
 
-    public static Dist makeBlockCyclic(Region r, int axis, int blockSize, Set ps) {
+    public static Dist makeBlockCyclic(Region r, int axis, int blockSize, Set_place ps) {
         throw U.unsupported();
     }
 
