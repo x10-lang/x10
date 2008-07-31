@@ -90,9 +90,9 @@ public abstract value class Region(
     //
     // efficient scanning - rank is known at compile time
     //
-    // Region.Scanner it = r.scanners();
+    // Iterator_Scanner it = r.scanners();
     // while (it.hasNext()) {
-    //     Scanner s = (Scanner) it.next();
+    //     Region.Scanner s = it.next();
     //     int min0 = s.min(0);
     //     int max0 = s.max(0);
     //     for (int i0=min0; i0<=max0; i0++) {
