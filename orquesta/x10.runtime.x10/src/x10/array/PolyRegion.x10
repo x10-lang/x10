@@ -1,7 +1,6 @@
 package x10.array;
 
 import java.util.NoSuchElementException;
-import java.util.Collections; // sort
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
