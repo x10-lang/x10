@@ -310,4 +310,11 @@ class PolyRegion extends BaseRegion {
         this.constraints = cl.reduce();
     }
 
+    int [] min() {
+        return ((BaseRegion)boundingBox()).min();
+    }
+
+    int [] max() {
+        return ((BaseRegion)boundingBox()).max();
+    }
 }

@@ -7,6 +7,7 @@ import x10.lang.Object;
 
 public class BaseArray_T extends Array_T {
 
+
     public static Array_T make(Dist dist, Indexable_T init) {
         return new BaseArray_T(dist, init, false);
     }
@@ -31,7 +32,6 @@ public class BaseArray_T extends Array_T {
     }
 
 
-
     //
     // XXX doesn't make sense for raw to be public if layout is not
     // either make raw private, or if needed for performance
@@ -42,15 +42,13 @@ public class BaseArray_T extends Array_T {
         return pieces[place.id];
     }
 
-    private Layout layout(place place) {
-        //return (Layout) (value? region() : dist.get(here));
+    private RectLayout layout(place place) {
         return layouts[place.id];
     }
 
 
     //
-    // XXX performance
-    //     need subclass for value?
+    // XXX performance -  need subclass for value?
     //     
 
     public T get(Point pt) {
@@ -83,9 +81,9 @@ public class BaseArray_T extends Array_T {
     }
 
     public T get(int i0, int i1, int i2) {
-        //U.xxx("raw(here) " + raw(here) + " layout(here) " + layout(here) + " value " + value);
         return raw(here)[layout(here).offset(i0,i1,i2)];
     }
+
 
     //
     // XXX disallow set after constructor if value?
@@ -177,19 +175,33 @@ public class BaseArray_T extends Array_T {
 
 
     //
-    //
+    // XXX revisit pieces vs a non-distributed field per place which
+    // would make get() more efficient (no indexing into pieces[]).
+    // but then how to do "simulated distribution"??
     //
 
-    private boolean value;
+    private boolean value;  // whether we're a value array
     private T [][] pieces;  // local raw storage for each place
-    Layout [] layouts;      // layout for each place
+    RectLayout [] layouts;  // layout for each place
 
-    // XXX generalize this
-    Layout layout(Region r) {
-        return (Layout) r.boundingBox();
+
+    //
+    // for now since we only have RectLayouts we hard-code that here
+    // for efficiency, since RectLayout is a final value class.
+    //
+    // if/when we have other layouts, this might need to be a generic
+    // type parameter, i.e. BaseArray[T,L] where L is a layout class
+    //
+
+    RectLayout layout(Region r) {
+        BaseRegion br = (BaseRegion) r;
+        return (RectLayout) RectLayout.make(br.min(), br.max());
     }
 
+
+    //
     // XXX more efficient if ValArray_T subclass for value case?
+    //
 
     protected BaseArray_T(final Dist dist, final nullable<Indexable_T> init, boolean value) {
 
@@ -197,11 +209,11 @@ public class BaseArray_T extends Array_T {
 
         this.value = value;
         pieces = new T[place.MAX_PLACES][];
-        layouts = new Layout[place.MAX_PLACES];
+        layouts = new RectLayout[place.MAX_PLACES];
 
         if (value) {
 
-            Layout layout = layout(region);
+            RectLayout layout = layout(region);
             int n = region.size();
             T [] piece = new T[n];
 
@@ -219,11 +231,11 @@ public class BaseArray_T extends Array_T {
 
             // XXX more succinct using X10...
             finish {
-                layouts = new Layout[place.MAX_PLACES];
+                layouts = new RectLayout[place.MAX_PLACES];
                 for (int i=0; i<dist.places().length; i++) {
                     final place p = dist.places()[i];
                     async (p) {
-                        Layout layout = layout(dist.get(p));
+                        RectLayout layout = layout(dist.get(p));
                         layouts[p.id] = layout;
                         int n = layout.size();
                         T [] piece = new T[n];
@@ -235,9 +247,6 @@ public class BaseArray_T extends Array_T {
                     }
                 }
             }
-
         }
-
     }
-
 }

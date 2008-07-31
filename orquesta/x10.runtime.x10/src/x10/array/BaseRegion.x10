@@ -163,5 +163,13 @@ public abstract class BaseRegion extends Region {
     protected BaseRegion(int rank, boolean rect, boolean zeroBased) {
         super(rank, rect, zeroBased);
     }
+
+    int [] min() {
+        throw U.unsupported();
+    }
+
+    int [] max() {
+        throw U.unsupported();
+    }
 }
 
