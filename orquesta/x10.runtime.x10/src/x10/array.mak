@@ -39,12 +39,13 @@ gen/Iterator_Scanner.x10\
 gen/Map_place_Region.x10\
 gen/Set_place.x10
 
+X10C_OPTS = -BAD_PLACE_RUNTIME_CHECK=false -ARRAY_OPTIMIZATIONS=true
 
 build:
 	@cd lang && $(MAKE) -f ../array.mak gen $(LANG_GEN)
 	@cd array && $(MAKE) -f ../array.mak gen $(ARRAY_GEN)
 	@cd util && $(MAKE) -f ../array.mak gen $(UTIL_GEN)
-	$(X10C) -J-Xmx1024m */gen/*.x10 $(LANG) array/*.x10
+	$(X10C) -J-Xmx1024m $(X10C_OPTS) */gen/*.x10 $(LANG) array/*.x10
 
 gen:
 	mkdir gen
