@@ -1,9 +1,11 @@
 package x10.lang;
 
-import java.util.Map;
 import java.util.Set;
 
 import x10.array.BaseDist;
+
+import x10.util.Map_place_Region;
+
 
 public abstract value class Dist(
 
@@ -81,7 +83,7 @@ public abstract value class Dist(
     // mapping places to regions
     //
 
-    public abstract Map regionMap();     // place->region
+    public abstract Map_place_Region regionMap();
     public abstract place [] places();   // essentially regionMap().keys()
     public abstract Region [] regions(); // essentially regionMap().values()
     public abstract Region get(place p);

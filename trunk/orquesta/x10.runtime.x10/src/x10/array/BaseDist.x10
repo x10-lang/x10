@@ -1,13 +1,12 @@
 package x10.array;
 
-import java.util.Map;		// for Map
-import java.util.Set;		// for Map
-import java.util.Collection;	// for Map
+import java.util.Set;
 
 import x10.lang.*;
+import x10.util.Map_place_Region;
 
 
-public class BaseDist extends Dist implements Map {
+public class BaseDist extends Dist implements Map_place_Region {
 
     //
     // factories - place is all applicable places
@@ -63,7 +62,7 @@ public class BaseDist extends Dist implements Map {
     // mapping places to region
     //
 
-    public Map regionMap() {
+    public Map_place_Region regionMap() {
         return this;
     }
 
@@ -76,7 +75,7 @@ public class BaseDist extends Dist implements Map {
     }
 
     public Region get(place p) {
-        return (Region) (regionMap().get(p));
+        return regionMap[p.id]; // XXX check?
     }
 
 
@@ -113,70 +112,6 @@ public class BaseDist extends Dist implements Map {
     }
 
     public  Dist restriction(Dist d) {
-        throw U.unsupported();
-    }
-
-
-
-    //
-    // java.util.Map (for region map)
-    //
-
-    public void clear() {
-        throw U.unsupported();
-    }
-
-    public boolean containsKey(java.lang.Object key) {
-        throw U.unsupported();
-    }
-
-    public boolean containsValue(java.lang.Object value) {
-        throw U.unsupported();
-    }
-
-    public Set entrySet() {
-        throw U.unsupported();
-    }
-
-    public boolean equals(java.lang.Object o) {
-        throw U.unsupported();
-    }
-
-    public java.lang.Object get(java.lang.Object key) {
-        place p = (place) key;
-        Region r = regionMap[p.id]; // XXX check?
-        return r;
-    }
-
-    public int hashCode() {
-        throw U.unsupported();
-    }
-
-    public boolean isEmpty() {
-        throw U.unsupported();
-    }
-
-    public Set keySet() {
-        throw U.unsupported();
-    }
-
-    public java.lang.Object put(java.lang.Object key, java.lang.Object value) {
-        throw U.unsupported();
-    }
-
-    public void putAll(Map t) {
-        throw U.unsupported();
-    }
-
-    public java.lang.Object remove(java.lang.Object key) {
-        throw U.unsupported();
-    }
-
-    public int size() {
-        throw U.unsupported();
-    }
-
-    public Collection values() {
         throw U.unsupported();
     }
 

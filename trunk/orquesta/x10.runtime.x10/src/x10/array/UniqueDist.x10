@@ -1,7 +1,5 @@
 package x10.array;
 
-import java.util.Map;
-
 import x10.lang.*;
 
 
