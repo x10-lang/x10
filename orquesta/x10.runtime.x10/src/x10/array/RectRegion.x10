@@ -70,6 +70,62 @@ final class RectRegion extends PolyRegion implements Region.Scanner {
 
 
     //
+    // specialized from PolyRegion.Iterator
+    // keep them in sync
+    //
+    // XXX this is actually SLOWER than the generic PolyRegion.Iterator!!!???
+    //
+
+    final static class Iterator implements Region.Iterator {
+        
+        private final int rank;
+        private final int [] min;
+        private final int [] max;
+
+        private final int [] x;
+
+        private int k;
+
+        Iterator(final RectRegion r) {
+
+            rank = r.rank;
+
+            min = new int[rank];
+            max = new int[rank];
+            x = new int[rank];
+            for (int i=0; i<rank; i++) {
+                min[i] = r.min[i];
+                max[i] = r.max[i];
+                x[i] = min[i];
+            }
+
+            x[rank-1]--;
+        }
+
+        public final boolean hasNext() {
+            k = rank-1;
+            while (x[k]>=max[k])
+                if (--k<0)
+                    return false;
+            return true;
+        }
+
+        public final int [] next() {
+            x[k]++;
+            for (k=k+1; k<rank; k++)
+                x[k] = min[k];
+            return x;
+        }
+    }
+
+    /* slower!!!
+    public Region.Iterator iterator() {
+        return new RectRegion.Iterator(this);
+    }
+    */
+
+
+    //
     // region operations
     //
 
