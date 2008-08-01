@@ -58,6 +58,7 @@ final value class RectLayout(int rank) extends Layout {
         return size;
     }
 
+    /* obsolete, but keep for reference
     final Point coord(int offset) {
         int [] cs = new int[rank];
         for (int i=rank-1; i>0; i--) {
@@ -67,14 +68,14 @@ final value class RectLayout(int rank) extends Layout {
         cs[0] = offset + min[0];
         return Point.make(cs);
     }
+    */
 
     final int offset(Point coord) {
         assert coord.rank==rank;
         int [] cs = coord.coords();
         int offset = cs[0] - min[0];
-        for (int i=1; i<rank; i++) {
+        for (int i=1; i<rank; i++)
             offset = offset*delta[i] + cs[i] - min[i];
-        }
         return offset;
     }
 

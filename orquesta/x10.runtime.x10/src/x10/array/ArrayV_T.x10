@@ -74,8 +74,12 @@ final class ArrayV_T extends BaseArray_T {
         raw = new T[n];
 
         if (init!=/*null*/NO_INIT) {
-            for (int j=0; j<n; j++)
-                raw[j] = init.get(layout.coord(j));
+
+            Region.Iterator it = region.iterator();
+            while (it.hasNext()) {
+                Point p = Point.make(it.next()); // XXX perf
+                raw[layout.offset(p)] = init.get(p);
+            }
         }
     }
 }

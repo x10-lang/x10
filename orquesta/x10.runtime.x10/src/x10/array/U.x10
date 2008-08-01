@@ -13,6 +13,10 @@ public class U {
         System.out.println("xxx " + s);
     }
 
+    public static void where(String s) {
+        new java.lang.Exception(s).printStackTrace();
+    }
+
     public static RuntimeException unsupported() {
         return unsupported("unsupported operation");
     }
