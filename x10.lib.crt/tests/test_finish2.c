@@ -37,7 +37,7 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure,
     for (i = 0; i < 10; i++) {    
       
       x10_comm_handle_t req = x10_async_spawn((x10_here() + 1) % x10_nplaces(), closure, 
-					      sizeof(my_closure_t), frecord, NULL, 0);   
+					      sizeof(my_closure_t), x10_get_cur_frecord(), NULL, 0);   
       
       x10_async_spawn_wait(req);    
     }
@@ -65,18 +65,18 @@ int main()
     
     x10_finish_record_t frecord;
     
-    x10_finish_begin_global(&frecord, NULL, NULL, 0, 0);
+    X10_FINISH_BEGIN_GLOBAL
     
-    int i, tmp;
+    int i;
     
     for (i = 0; i < 10; i++) 
       {	
 	x10_comm_handle_t req = x10_async_spawn(1, (x10_async_closure_t*) &closure, 
-						sizeof(closure), &frecord, NULL, 0);  
+					        sizeof(closure), x10_get_cur_frecord(), NULL, 0);  
 	x10_async_spawn_wait(req);
       }
     
-    x10_finish_end(&frecord, &tmp);
+    X10_FINISH_END
 
 
     //    printf ("val : %d\n", val);

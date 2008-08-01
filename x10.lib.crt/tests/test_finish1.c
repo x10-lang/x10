@@ -30,17 +30,15 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure,
 
 void spawn_async (my_closure_t closure)
 {
-  x10_finish_record_t frecord;
-  int tmp;
   
-  x10_finish_begin_global(&frecord, NULL, NULL, 0, 0);
-  
-  x10_comm_handle_t req = x10_async_spawn(1, (x10_async_closure_t*) &closure, sizeof(closure), &frecord, NULL, 0);
+  X10_FINISH_BEGIN
+ 
+  x10_comm_handle_t req = x10_async_spawn(1, (x10_async_closure_t*) &closure, 
+	sizeof(closure), x10_get_cur_frecord(),NULL, 0);
   
   x10_async_spawn_wait(req);
   
-  x10_finish_end(&frecord, &tmp);
-  
+  X10_FINISH_END 
 }
 
 int __xlc_upc_main(){}
@@ -58,7 +56,7 @@ int main()
     my_closure_t closure;
     closure.base.handler = 1;
     int i;
-    for (i = 0; i < 100; ++i) {
+    for (i = 0; i < 90; ++i) {
       closure.magic_number = i;      
       spawn_async(closure);
     }

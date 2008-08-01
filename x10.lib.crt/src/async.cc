@@ -122,7 +122,7 @@ x10_async_spawn(const x10_place_t tgt,
 		const x10_clock_t* clocks, 
 		const int num_clocks)
 {
-  return X10::Acts::AsyncSpawn(tgt, (X10::AsyncClosure*) closure, cl_size, frecord, clocks, num_clocks);
+  return X10::Acts::AsyncSpawn(tgt, (X10::AsyncClosure*) closure, cl_size,frecord, clocks, num_clocks);
 }
 
 x10_err_t
@@ -232,15 +232,23 @@ __x10::Flush()
 
 void __x10::AsyncDispatch(__x10::AsyncDescr* async_descr)
 {  
+
+  x10_finish_record_t* __x10_tmp_frecord = __x10::CurFinishRecord;
+  
   switch (async_descr->_async_type)
-    {      
-      
+    {                 
     case __x10::NORMAL_ASYNC :      
+
+      __x10::CurFinishRecord = &async_descr->u._normal_async_descr.finish_record;
+
       __x10_callback_asyncswitch (async_descr->closure,
 				  &async_descr->u._normal_async_descr.finish_record, NULL, 0);
       break;
       
     case __x10::GLOBAL_ASYNC:
+
+      __x10::CurFinishRecord = &__x10_global_frecord;
+
       __x10_callback_asyncswitch (async_descr->closure, &__x10_global_frecord, NULL, 0);
       
       break;
@@ -249,4 +257,6 @@ void __x10::AsyncDispatch(__x10::AsyncDescr* async_descr)
       
       printf ("other cases not handled\n");
     }
+
+  __x10::CurFinishRecord = __x10_tmp_frecord;
 }

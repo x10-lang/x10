@@ -28,20 +28,19 @@ void __x10_callback_asyncswitch (x10_async_closure_t* closure_in,
       closure_out.base.handler = 2;
       closure_out.magic_number = 1;
       
-      x10_finish_record_t frecord_out;
       
-      x10_finish_begin(&frecord_out, NULL, NULL, 0, 0);
+      X10_FINISH_BEGIN;
       
       int i, tmp;
       
       for (i = 0; i < 100; ++i)
 	{
-	  x10_comm_handle_t req = x10_async_spawn(x10_nplaces()-1, (x10_async_closure_t*) &closure_out, sizeof(closure_out), &frecord_out, NULL, 0);
+	  x10_comm_handle_t req = x10_async_spawn(x10_nplaces()-1, (x10_async_closure_t*) &closure_out, sizeof(closure_out), x10_get_cur_frecord(), NULL, 0);
 	
 	  x10_async_spawn_wait(req);
 	}
       
-      x10_finish_end(&frecord_out, &tmp);
+      X10_FINISH_END;
 
       x10_finish_child(frecord_in, NULL, 0);
       break;
@@ -72,20 +71,18 @@ int main()
     closure.base.handler = 1;
     closure.magic_number = 1729;
     
-    x10_finish_record_t frecord;
+    X10_FINISH_BEGIN 
     
-    x10_finish_begin(&frecord, NULL, NULL, 0, 0);
-    
-    int i, tmp;
+    int i;
     
     for (i = 1; i < x10_nplaces() - 1; ++i)
       {
-	x10_comm_handle_t req = x10_async_spawn(i, (x10_async_closure_t*) &closure, sizeof(closure), &frecord, NULL, 0);
+	x10_comm_handle_t req = x10_async_spawn(i, (x10_async_closure_t*) &closure, sizeof(closure), x10_get_cur_frecord(), NULL, 0);
 	
 	x10_async_spawn_wait(req);
       }
     
-    x10_finish_end(&frecord, &tmp);
+    X10_FINISH_END
     
   } else {
     
