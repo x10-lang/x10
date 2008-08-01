@@ -76,7 +76,6 @@ final class PolyScanner implements Region.Scanner {
         minSum = new int[rank][][];
         maxSum = new int[rank][][];
 
-        //ConstraintList cl = constraints;
         cl.printInfo(System.out, "axis " + (rank-1));
         init(cl, rank-1);
         for (int k=rank-2; k>=0; k--) {

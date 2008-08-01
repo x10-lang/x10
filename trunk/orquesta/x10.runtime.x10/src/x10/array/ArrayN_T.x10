@@ -79,19 +79,22 @@ final class ArrayN_T extends BaseArray_T {
         finish {
             for (int i=0; i<dist.places().length; i++) {
                 async (dist.places()[i]) {
-                    RectLayout layout = layout(dist.get(here));
+                    Region r = dist.get(here);
+                    RectLayout layout = layout(r);
                     layouts[here.id] = layout;
                     int n = layout.size();
                     T [] raw = new T[n];
                     raws[here.id] = raw;
                     if (init!=/*null*/NO_INIT) {
-                        for (int j=0; j<n; j++)
-                            raw[j] = init.get(layout.coord(j));
+                        Region.Iterator it = r.iterator();
+                        while (it.hasNext()) {
+                            Point p = Point.make(it.next()); // XXX perf
+                            raw[layout.offset(p)] = init.get(p);
+                        }
                     }
                 }
             }
         }
-
 
     }
 }

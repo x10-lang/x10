@@ -11,7 +11,7 @@ import x10.lang.Object;
 // suitable for "simulated distribution" for constant distributions
 //
 // XXX whether this works depends on distributed object semantics
-// XXX raw and layout must be non-final?
+// XXX raw and layout must be non-final? but want final for performance...
 //
 
 final class Array1_T extends BaseArray_T {
@@ -73,12 +73,16 @@ final class Array1_T extends BaseArray_T {
         finish {
             for (int i=0; i<dist.places().length; i++) {
                 async (dist.places()[i]) {
-                    layout = layout(dist.get(here));
+                    Region r = dist.get(here);
+                    layout = layout(r);
                     int n = layout.size();
                     raw = new T[n];
                     if (init!=/*null*/NO_INIT) {
-                        for (int j=0; j<n; j++)
-                            raw[j] = init.get(layout.coord(j));
+                        Region.Iterator it = r.iterator();
+                        while (it.hasNext()) {
+                            Point p = Point.make(it.next()); // XXX perf
+                            raw[layout.offset(p)] = init.get(p);
+                        }
                     }
                 }
             }
