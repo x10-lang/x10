@@ -14,6 +14,14 @@ int** __x10::AsyncCounts = NULL;
 
 int* __x10::AsyncSpawned = NULL;
 
+x10_finish_record_t* __x10::CurFinishRecord = NULL;
+
+x10_finish_record_t*
+X10::Acts::GetCurFrecord()
+{
+  return __x10::CurFinishRecord;
+}
+
 X10::Err
 X10::Acts::FinishChild(const x10_finish_record_t* frecord, void* ex_buf, int ex_buf_size)
 {
@@ -30,11 +38,16 @@ X10::Err
 X10::Acts::FinishBegin(x10_finish_record_t* frecord, void* multi_ex_buf, int* ex_offsets, 
 		       int max_ex_buf_size, int max_num_exceptions)
 {
-  frecord->finish_root = __x10::here;
-
+  frecord = __x10::CurFinishRecord;
+  
+  __x10::CurFinishRecord = new x10_finish_record_t;
+  
+  __x10::CurFinishRecord->finish_root = __x10::here;
+  
   assert (__x10::FinishCounter < X10_MAX_FINISH_ID);
-
-  frecord->finish_id = __x10::FinishCounter++;  
+  
+  __x10::CurFinishRecord->finish_id = __x10::FinishCounter++;  
+  
   return X10_OK;
 }
 
@@ -42,9 +55,16 @@ X10::Err
 X10::Acts::FinishBeginGlobal(x10_finish_record_t* frecord, void* multi_ex_buf, int* ex_offsets, 
 			     int max_ex_buf_size, int max_num_exceptions)
 {
+  frecord = __x10::CurFinishRecord;
+
+  __x10::CurFinishRecord = new x10_finish_record_t;
+
   assert (__x10::here == 0);
-  frecord->finish_root = 0;
-  frecord->finish_id = 0;
+
+  __x10::CurFinishRecord->finish_root = 0;
+
+  __x10::CurFinishRecord->finish_id = 0;
+
   return X10_OK;
 }
 
@@ -58,7 +78,7 @@ X10::Acts::FinishEnd(const x10_finish_record_t* frecord, int* num_exceptions)
     cnt = 0;
     
     for (int i = 0; i < __x10::nplaces; i++)
-      if (__x10::AsyncCounts[ID(frecord)][i] == 0)
+      if (__x10::AsyncCounts[ID(__x10::CurFinishRecord)][i] == 0)
 	cnt++;
     
     x10_probe();
@@ -66,6 +86,10 @@ X10::Acts::FinishEnd(const x10_finish_record_t* frecord, int* num_exceptions)
   }while (cnt != __x10::nplaces) ;
   
   //  __upcrt_distr_fence(0);  
+
+  delete __x10::CurFinishRecord;
+
+  __x10::CurFinishRecord = (x10_finish_record_t*) frecord;
 
   return X10_OK;
 }
@@ -95,6 +119,13 @@ x10_finish_child(const x10_finish_record_t* frecord, void* ex_buf, int ex_buf_si
 {
   return X10::Acts::FinishChild(frecord, ex_buf, ex_buf_size);
 }
+
+EXTERN x10_finish_record_t*
+x10_get_cur_frecord()
+{
+  return X10::Acts::GetCurFrecord();
+}
+
 
 // __x10
 

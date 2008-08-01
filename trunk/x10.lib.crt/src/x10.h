@@ -147,10 +147,29 @@ x10_async_array_put(const x10_place_t tgt, const x10_addr_t src, const size_t nb
 
 /* finish */
 
+EXTERN x10_finish_record_t*
+x10_get_cur_frecord();
+
+#define X10_FINISH_BEGIN \
+{\
+  x10_finish_record_t* __x10_prev_finish_record;\
+  x10_finish_begin(__x10_prev_finish_record, NULL, NULL, 0, 0);					
+
+#define X10_FINISH_BEGIN_GLOBAL \
+{\
+  x10_finish_record_t* __x10_prev_finish_record;\
+  x10_finish_begin_global(__x10_prev_finish_record, NULL, NULL, 0, 0);
+
+#define X10_FINISH_END\
+  int __x10_tmp;\
+  x10_finish_end(__x10_prev_finish_record, &__x10_tmp);\
+}
+
 /**
  * \brief start the finish_scope (called by root activity only)
 
- * \param frecord	           the finish record
+ * \param frecord	           the current finish record (output)
+
  * \param multi_ex_buf             buffer for the resulting multi_exceptions (if any)
  * \param ex_offsets		   offsets array for individual exceptions 
  * \param max_ex_buf_size          maximum size of the multi_ex_buf 
@@ -167,7 +186,7 @@ x10_finish_begin_global(x10_finish_record_t* frecord, void* mult_ex_buf, int* ex
  * \brief end the finish_scope (called by root activity only).
                        Waits for global termination of all the activities (BLOCKING)
 
- * \param finish_record           pointer to finish_record
+ * \param finish_record           the saved finish record, returned by the lexically preceeding finish_begin[_global]
  * \param  num_exceptions         total number of exceptions
  */
 EXTERN x10_err_t
@@ -176,7 +195,7 @@ x10_finish_end(const x10_finish_record_t* finish_record, int* num_exceptions);
 /**
  * \brief notify the "root" that I have finished (called by children activity only)
 
- * \param frecord 		finish record
+ * \param frecord 		current finish record 
  * \param ex_buf		exception buffer 
  * \param ex_buf_size		size of the exception buffer
  */
@@ -371,6 +390,8 @@ namespace X10 {
       static CommHandle AsyncSpawn(const Place tgt, const AsyncClosure* closure, const size_t cl_size, const FinishRecord* frecord, const Clock* clocks, const int numClocks);
       
       static Err AsyncSpawnWait(const CommHandle handle);
+
+      static x10_finish_record_t* GetCurFrecord();
       
       static Err FinishChild(const FinishRecord* frecord, void* ex_buf, int ex_buf_size);
       
