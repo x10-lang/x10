@@ -107,7 +107,7 @@ public abstract value class Region(
 
     public abstract Iterator_Scanner scanners();
 
-    public interface Scanner {
+    public static interface Scanner {
         void set(int axis, int position);
         int min(int axis);
         int max(int axis);
@@ -124,7 +124,7 @@ public abstract value class Region(
     // }
     //
 
-    public interface Iterator {
+    public static interface Iterator {
         boolean hasNext();
         int [] next();
     }
