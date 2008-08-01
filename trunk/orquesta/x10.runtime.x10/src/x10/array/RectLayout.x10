@@ -3,6 +3,12 @@ package x10.array;
 import x10.lang.Region;
 import x10.lang.Point;
 
+
+//
+// XXX also need RectLayout0 w/ mins all 0? can that be done with
+// generics??
+//
+
 final value class RectLayout(int rank) extends Layout {
 
     private final int size;

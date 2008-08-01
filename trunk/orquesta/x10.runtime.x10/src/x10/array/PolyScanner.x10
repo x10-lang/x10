@@ -7,49 +7,51 @@ import x10.util.Iterator_Constraint;
 
 //
 // Here's the general scheme for the information used in scanning,
-// illustrated for a region of rank r=4. Each axis Xi is bounded
-// by a set of constraints elim[i] obtained from the region
-// constraints by FME (resulting in the 0 coefficients as
-// shown). Computing the bounds for Xi requires substituting X0 up
-// to Xi-1 into each constraint (as shown) and taking mins and
-// maxes.
+// illustrated for a region of rank r=4. Each axis Xi is bounded by
+// two sets of constraints, min[i] and max[i], obtained from the
+// region constraints by FME (resulting in the 0 coefficients as
+// shown). Computing the bounds for Xi requires substituting X0 up to
+// Xi-1 into each constraint (as shown for the min[i]s) and taking
+// mins and maxes.
 //
 //           0   1   2   r-1
 // 
-// elim[0]
+// min[0]
 //           A0  0   0   0   B   X0 bounded by B / A0
 //           A0  0   0   0   B   X0 bounded by B / A0
 //           ...                 ...
 // 
-// elim[1]
+// min[1]
 //           A0  A1  0   0   B   X1 bounded by (B+A0*X0) / A1
 //           A0  A1  0   0   B   X1 bounded by (B+A0*X0) / A1
 //           ...                 ...
 // 
-// elim[2]
+// min[2]
 //           A0  A1  A2  0   B   X2 bounded by (B+A0*X0+A1*X1) / A2
 //           A0  A1  A2  0   B   X2 bounded by (B+A0*X0+A1*X1) / A2
 //           ...                 ...
 // 
-// elim[3]
+// min[3]
 //           A0  A1  A2  A3  B   X3 bounded by (B+A0*X0+A1*X1+A2*X2) / A3
 //           A0  A1  A2  A3  B   X3 bounded by (B+A0*X0+A1*X1+A2*X2) / A3
 //           ...                 ...
 //
 // In the innermost loop the bounds for X3 could be computed by
 // substituting the known values of X0 through X2 into each
-// constraint. However, part of that computation can be pulled out
-// of the inner loop by keeping track for each constraint in
-// elim[k] a set of partial sums of the form
+// constraint. However, part of that computation can be pulled out of
+// the inner loop by keeping track for each constraint in in min[k]
+// and each constraing in max[k] a set of partial sums of the form
 //
-//     sum[0] = B
-//     sum[1] = B+A0*X0
+//     minSum[0] = B
+//     minSum[1] = B+A0*X0
 //     ...
-//     sum[k] = B+A0*X0+A1*X1+...+Ak-1*Xk-1
+//     minSum[k] = B+A0*X0+A1*X1+...+Ak-1*Xk-1
 //
-// and updating each partial sum sum[i+1] every time Xi changes by
+// (and similiarly for maxSum) and updating each partial sum
+// minSum[i+1] (and similarly for maxSum[i+1]) every time Xi changes
+// by
 //
-//     sum[i+1] := sum[i] + Ai*Xi
+//     minSum[i+1] := sum[i] + Ai*Xi
 //
 // The loop bounds for Xk are then obtained by computing mins and
 // maxes over the sum[k]/Ak for the constraints in elim[k].
