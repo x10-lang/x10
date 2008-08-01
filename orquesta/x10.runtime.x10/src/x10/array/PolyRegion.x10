@@ -81,7 +81,7 @@ class PolyRegion extends BaseRegion {
 
         private int k;
 
-        Iterator(final PolyRegion r) {
+        Iterator() {
             min[0] = s.min(0);
             max[0] = s.max(0);
             x[0] = min[0];
@@ -113,7 +113,7 @@ class PolyRegion extends BaseRegion {
     }
 
     public Region.Iterator iterator() {
-        return new PolyRegion.Iterator(this);
+        return new PolyRegion.Iterator();
     }
 
 
