@@ -70,16 +70,18 @@ class PolyRegion extends BaseRegion {
     // next() does the bumping and resetting
     //
 
-    class Iterator implements Region.Iterator {
+    final class Iterator implements Region.Iterator {
         
-        public int [] x = new int[rank];
+        private final int rank = PolyRegion.this.rank;
+        private final Region.Scanner s = scanner();
 
-        private Region.Scanner s = scanner();
-        private int [] min = new int[rank];
-        private int [] max = new int[rank];
+        private final int [] x = new int[rank];
+        private final int [] min = new int[rank];
+        private final int [] max = new int[rank];
+
         private int k;
 
-        Iterator() {
+        Iterator(final PolyRegion r) {
             min[0] = s.min(0);
             max[0] = s.max(0);
             x[0] = min[0];
@@ -91,7 +93,7 @@ class PolyRegion extends BaseRegion {
             x[rank-1]--;
         }
 
-        public boolean hasNext() {
+        public final boolean hasNext() {
             k = rank-1;
             while (x[k]>=max[k])
                 if (--k<0)
@@ -99,7 +101,7 @@ class PolyRegion extends BaseRegion {
             return true;
         }
 
-        public int [] next() {
+        public final int [] next() {
             x[k]++;
             for (k=k+1; k<rank; k++) {
                 s.set(k-1, x[k-1]);
@@ -111,7 +113,7 @@ class PolyRegion extends BaseRegion {
     }
 
     public Region.Iterator iterator() {
-        return new PolyRegion.Iterator();
+        return new PolyRegion.Iterator(this);
     }
 
 

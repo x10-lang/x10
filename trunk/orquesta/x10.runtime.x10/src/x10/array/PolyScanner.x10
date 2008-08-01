@@ -58,14 +58,14 @@ import x10.util.Iterator_Constraint;
 //
 
 
-class PolyScanner implements Region.Scanner {
+final class PolyScanner implements Region.Scanner {
 
-    int rank;
+    private final int rank;
 
-    int [][][] min;
-    int [][][] max;
-    int [][][] minSum;
-    int [][][] maxSum;
+    private final int [][][] min;
+    private final int [][][] max;
+    private final int [][][] minSum;
+    private final int [][][] maxSum;
 
     PolyScanner(ConstraintList cl) {
 
@@ -113,7 +113,7 @@ class PolyScanner implements Region.Scanner {
         }
     }
 
-    void init(ConstraintList cl, int axis) {
+    private final void init(ConstraintList cl, int axis) {
 
         // count
         int imin=0, imax=0;
@@ -160,7 +160,7 @@ class PolyScanner implements Region.Scanner {
     final static int MAX_VALUE = 2147483647;
     final static int MIN_VALUE = -2147483648;
 
-    public void set(int axis, int position) {
+    public final void set(int axis, int position) {
         for (int k=axis+1; k<rank; k++)
             for (int l=0; l<minSum[k].length; l++)
                 minSum[k][l][axis+1] = min[k][l][axis]*position + minSum[k][l][axis];
@@ -169,7 +169,7 @@ class PolyScanner implements Region.Scanner {
                 maxSum[k][l][axis+1] = max[k][l][axis]*position + maxSum[k][l][axis];
     }
 
-    public int min(int axis) {
+    public final int min(int axis) {
         int result = /*Integer.*/MIN_VALUE;
         for (int k=0; k<min[axis].length; k++) {
             int a = min[axis][k][axis];
@@ -180,7 +180,7 @@ class PolyScanner implements Region.Scanner {
         return result;
     }
 
-    public int max(int axis) {
+    public final int max(int axis) {
         int result = /*Integer.*/MAX_VALUE;
         for (int k=0; k<max[axis].length; k++) {
             int a = max[axis][k][axis];
