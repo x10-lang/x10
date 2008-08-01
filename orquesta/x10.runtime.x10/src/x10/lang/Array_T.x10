@@ -70,13 +70,6 @@ public abstract value class Array_T(
 
 
     //
-    // raw access
-    //
-
-    public abstract T [] raw(place place);
-
-
-    //
     //
     //
 

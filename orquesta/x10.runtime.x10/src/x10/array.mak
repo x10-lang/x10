@@ -15,23 +15,29 @@ lang/Region.x10\
 lang/Settable_T.x10\
 lang/T.x10
 
+
 LANG_GEN=\
 gen/Array_Object.x10\
 gen/Array_double.x10\
-gen/Array_Object.x10\
 gen/Indexable_double.x10\
 gen/Indexable_Object.x10\
 gen/Indexable_int.x10\
 gen/Settable_double.x10\
 gen/Settable_Object.x10\
-gen/Arithmetic_Array_T.x10\
 gen/Arithmetic_Array_double.x10\
 gen/Arithmetic_Array_Object.x10\
+gen/Arithmetic_Array_T.x10\
 gen/Arithmetic_Point.x10
 
 ARRAY_GEN=\
 gen/BaseArray_double.x10\
 gen/BaseArray_Object.x10\
+gen/Array1_double.x10\
+gen/Array1_Object.x10\
+gen/ArrayN_double.x10\
+gen/ArrayN_Object.x10\
+gen/ArrayV_double.x10\
+gen/ArrayV_Object.x10
 
 UTIL_GEN=\
 gen/Iterator_Constraint.x10\
