@@ -3,11 +3,13 @@ package x10.array;
 import x10.lang.Region;
 import x10.lang.Point;
 
-class RectRegion extends PolyRegion implements Region.Scanner {
+final class RectRegion extends PolyRegion implements Region.Scanner {
 
-    private int [] min;            // cached bounds for efficiency
-    private int [] max;            // cached bounds for efficiency
+    private final int [] min;            // cached bounds for efficiency
+    private final int [] max;            // cached bounds for efficiency
+
     private int size;
+
 
     RectRegion(ConstraintList cl) {
         
