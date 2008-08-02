@@ -105,11 +105,11 @@ class ConstraintList(int rank) {
     // for each pair of constraints such that the kth coefficient
     // is of opposite sign, construct a new constraint by adding
     // the two original constraints with appropriate positive
-    // multiplier to obtain a constraint with a kth coefficent of 0
+    // multipliers to obtain a constraint with a kth coefficent of 0
     //
     // the result is a set of constraints that describe the
     // polyhedron that is the projection of the polyhedron
-    // described by the original constraints onto a rank()-1
+    // described by the original constraints onto a rank-1
     // dimensional subspace obtained by eliminating axis k
     //
     ConstraintList FME(int k) {
@@ -230,7 +230,8 @@ class ConstraintList(int rank) {
     // each axis if it is
     //
     // XXX cache these for efficiency during region construction
-    // XXX assume constraints have been sorted and reduced - check/enforce that
+    // XXX assume constraints have been sorted and reduced - check/enforce
+    // XXX rectMin/Max only work if isRect is true - check/enforce
     //
 
     boolean isRect() {
@@ -253,7 +254,8 @@ class ConstraintList(int rank) {
                 return -c.cs[rank()] / a;
             }
         }
-        throw new AssertionError("no a<0");
+        String msg = "axis " + axis + " has no minimum";
+        throw new UnboundedRegionException(msg);
     }
     
     int rectMax(int axis) {
@@ -266,7 +268,8 @@ class ConstraintList(int rank) {
                 return -c.cs[rank()] / a;
             }
         }
-        throw new AssertionError("no a>0");
+        String msg = "axis " + axis + " has no maximum";
+        throw new UnboundedRegionException(msg);
     }
 
     int [] rectMin() {

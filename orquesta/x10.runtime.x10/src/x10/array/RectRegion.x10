@@ -3,6 +3,12 @@ package x10.array;
 import x10.lang.Region;
 import x10.lang.Point;
 
+//
+// XXX caching of min/max in constructor will generate exception that
+// prevents creation of unbounded rectangular RectRegion - fix that so
+// it only happens when scanner or iterator are created
+//
+
 final class RectRegion extends PolyRegion implements Region.Scanner {
 
     private final int [] min;            // cached bounds for efficiency
