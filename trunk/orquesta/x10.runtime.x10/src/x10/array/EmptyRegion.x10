@@ -6,7 +6,10 @@ import x10.lang.Point;
 import x10.lang.Region;
 import x10.util.Iterator_Scanner;
 
-
+//
+// XXX re-implement as PolyRegion w/ non-overlapping constraints to
+// pick up all ops
+//
 
 class EmptyRegion extends BaseRegion implements Iterator_Scanner {
 

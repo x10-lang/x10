@@ -123,6 +123,13 @@ final class PolyScanner implements Region.Scanner {
             if (c.cs[axis]>0) imax++;
         }
 
+        // complain if unbounded
+        if (imin==0 || imax==0) {
+            String m = imin==0? "minimum" : "maximum";
+            String msg = "axis " + axis + " has no " + m;
+            throw new UnboundedRegionException(msg);
+        }
+
         // allocate
         min[axis] = new int [imin][];
         max[axis] = new int [imax][];
