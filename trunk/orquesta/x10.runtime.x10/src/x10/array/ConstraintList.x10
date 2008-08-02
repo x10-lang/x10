@@ -11,7 +11,7 @@ public class ConstraintList(int rank) {
     private Constraint [] constraints = new Constraint[4];
     private int nconstraints = 0;
 
-    ConstraintList(int rank) {
+    public ConstraintList(int rank) {
         this.rank = rank;
     }
 
