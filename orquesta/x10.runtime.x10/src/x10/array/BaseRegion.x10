@@ -41,11 +41,6 @@ public abstract class BaseRegion extends Region {
         return PolyRegion.makeDiagonal(size, 1, 1);
     }
 
-    // XXX testing only; add to Region if needed externally
-    static public Region makeDiagonal(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
-        return PolyRegion.makeDiagonal(rowMin, colMin, rowMax, colMax, upper, lower);
-    }
-
     static public Region makeUpperTriangular(int size) {
         // XXX
         return PolyRegion.makeDiagonal(size, size, 1);
@@ -69,6 +64,19 @@ public abstract class BaseRegion extends Region {
         for (int i=1; i<regions.length; i++)
             r = r.product(regions[i]);
         return r;
+    }
+
+
+    //
+    // XXX testing only; add to Region if needed externally
+    //
+
+    static public Region makeDiagonal(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
+        return PolyRegion.makeDiagonal(rowMin, colMin, rowMax, colMax, upper, lower);
+    }
+
+    static public PolyRegion make(ConstraintList cl) {
+        return PolyRegion.make(cl);
     }
 
 

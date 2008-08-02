@@ -273,7 +273,7 @@ class PolyRegion extends BaseRegion {
     // XXX special-case isEmpty() etc.?
     //
 
-    static PolyRegion make(ConstraintList cl) {
+    public static PolyRegion make(ConstraintList cl) {
         if (cl.isRect())
             return new RectRegion(cl);
         else
