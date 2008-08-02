@@ -45,6 +45,37 @@ class ConstraintList(int rank) {
     }
             
 
+    //
+    // a simple mechanism of somewhat dubious utility to allow
+    // semi-symbolic specification of constraints. For example
+    // X0-Y1 >= n is specified as addConstraint(ZERO+X(0)-Y(1), GE, n)
+    //
+
+    static final int ZERO = 0xAAAAAAA;
+
+    static final int GE = 0;
+    static final int LE = 1;
+
+    static final int X(int axis) {
+        return 0x1<<2*axis;
+    }
+
+    void add(int coeff, int op, int k) {
+        int [] cs = new int[rank+1];
+        for (int i=0; i<rank; i++) {
+            int c = (coeff&3) - 2;
+            cs[i] = op==LE? c : - c;
+            coeff = coeff >> 2;
+        }
+        cs[rank] = op==LE? -k : k;
+        add(new Constraint(cs));
+    }
+
+
+    //
+    //
+    //
+
     private void sort() {
         qsort(constraints, 0, nconstraints-1);
     }
