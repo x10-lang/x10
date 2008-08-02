@@ -225,33 +225,6 @@ class PolyRegion extends BaseRegion {
 
 
     //
-    // a simple mechanism of somewhat dubious utility to allow
-    // semi-symbolic specification of constraints. For example
-    // X0-Y1 >= n is specified as addConstraint(ZERO+X(0)-Y(1), GE, n)
-    //
-
-    protected static final int ZERO = 0xAAAAAAA;
-
-    protected static final int GE = 0;
-    protected static final int LE = 1;
-
-    protected static final int X(int axis) {
-        return 0x1<<2*axis;
-    }
-
-    protected static void addConstraint(ConstraintList cl, int coeff, int op, int k) {
-        int [] cs = new int[cl.rank+1];
-        for (int i=0; i<cl.rank; i++) {
-            int c = (coeff&3) - 2;
-            cs[i] = op==LE? c : - c;
-            coeff = coeff >> 2;
-        }
-        cs[cl.rank] = op==LE? -k : k;
-        cl.add(new Constraint(cs));
-    }
-
-
-    //
     // lower==1 and lower==1 include the diagonal
     // lower==size and upper==size includes entire size x size square
     //
@@ -262,17 +235,17 @@ class PolyRegion extends BaseRegion {
     // col-row <= colMin-rowMin + (upper-1)
     //
 
-    private static final int ROW = X(0);
-    private static final int COL = X(1);
+    private static final int ROW = ConstraintList.X(0);
+    private static final int COL = ConstraintList.X(1);
 
     public static Region makeDiagonal(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
         ConstraintList cl = new ConstraintList(2);
-        addConstraint(cl, ZERO+ROW, GE, rowMin);
-        addConstraint(cl, ZERO+ROW, LE, rowMax);
-        addConstraint(cl, ZERO+COL, GE, colMin);
-        addConstraint(cl, ZERO+COL, LE, colMax);
-        addConstraint(cl, ZERO+COL-ROW, GE, colMin-rowMin-(lower-1));
-        addConstraint(cl, ZERO+COL-ROW, LE, colMin-rowMin+(upper-1));
+        cl.add(cl.ZERO+ROW, cl.GE, rowMin);
+        cl.add(cl.ZERO+ROW, cl.LE, rowMax);
+        cl.add(cl.ZERO+COL, cl.GE, colMin);
+        cl.add(cl.ZERO+COL, cl.LE, colMax);
+        cl.add(cl.ZERO+COL-ROW, cl.GE, colMin-rowMin-(lower-1));
+        cl.add(cl.ZERO+COL-ROW, cl.LE, colMin-rowMin+(upper-1));
         return PolyRegion.make(cl);
     }
 
@@ -283,9 +256,9 @@ class PolyRegion extends BaseRegion {
     public static Region makeDiagonal(int rowMin, int colMin, int size, boolean upper) {
         if (upper) {
             ConstraintList cl = new ConstraintList(2);
-            addConstraint(cl, ZERO+ROW, GE, rowMin);
-            addConstraint(cl, ZERO+COL, LE, colMin+size-1);
-            addConstraint(cl, ZERO+COL-ROW, GE, colMin-rowMin);
+            cl.add(cl.ZERO+ROW, cl.GE, rowMin);
+            cl.add(cl.ZERO+COL, cl.LE, colMin+size-1);
+            cl.add(cl.ZERO+COL-ROW, cl.GE, colMin-rowMin);
             return PolyRegion.make(cl);
         } else {
             throw U.unsupported();
