@@ -240,12 +240,12 @@ class PolyRegion extends BaseRegion {
 
     public static Region makeDiagonal(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
         ConstraintList cl = new ConstraintList(2);
-        cl.add(cl.ZERO+ROW, cl.GE, rowMin);
-        cl.add(cl.ZERO+ROW, cl.LE, rowMax);
-        cl.add(cl.ZERO+COL, cl.GE, colMin);
-        cl.add(cl.ZERO+COL, cl.LE, colMax);
-        cl.add(cl.ZERO+COL-ROW, cl.GE, colMin-rowMin-(lower-1));
-        cl.add(cl.ZERO+COL-ROW, cl.LE, colMin-rowMin+(upper-1));
+        cl.add(ROW, cl.GE, rowMin);
+        cl.add(ROW, cl.LE, rowMax);
+        cl.add(COL, cl.GE, colMin);
+        cl.add(COL, cl.LE, colMax);
+        cl.add(COL-ROW, cl.GE, colMin-rowMin-(lower-1));
+        cl.add(COL-ROW, cl.LE, colMin-rowMin+(upper-1));
         return PolyRegion.make(cl);
     }
 
@@ -256,9 +256,9 @@ class PolyRegion extends BaseRegion {
     public static Region makeDiagonal(int rowMin, int colMin, int size, boolean upper) {
         if (upper) {
             ConstraintList cl = new ConstraintList(2);
-            cl.add(cl.ZERO+ROW, cl.GE, rowMin);
-            cl.add(cl.ZERO+COL, cl.LE, colMin+size-1);
-            cl.add(cl.ZERO+COL-ROW, cl.GE, colMin-rowMin);
+            cl.add(ROW, cl.GE, rowMin);
+            cl.add(COL, cl.LE, colMin+size-1);
+            cl.add(COL-ROW, cl.GE, colMin-rowMin);
             return PolyRegion.make(cl);
         } else {
             throw U.unsupported();

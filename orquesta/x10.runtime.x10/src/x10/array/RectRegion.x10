@@ -37,8 +37,8 @@ final class RectRegion extends PolyRegion implements Region.Scanner {
 
         ConstraintList cl = new ConstraintList(min.length);
         for (int i=0; i<min.length; i++) {
-            cl.add(cl.ZERO+cl.X(i), cl.GE, min[i]);
-            cl.add(cl.ZERO+cl.X(i), cl.LE, max[i]);
+            cl.add(cl.X(i), cl.GE, min[i]);
+            cl.add(cl.X(i), cl.LE, max[i]);
         }
 
         return new RectRegion(cl);

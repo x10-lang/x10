@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import x10.util.Iterator_Constraint;
 
 
-class ConstraintList(int rank) {
+public class ConstraintList(int rank) {
 
     private Constraint [] constraints = new Constraint[4];
     private int nconstraints = 0;
@@ -34,7 +34,7 @@ class ConstraintList(int rank) {
         return new Iterator();
     }
 
-    void add(Constraint c) {
+    public void add(Constraint c) {
         if (nconstraints==constraints.length) {
             Constraint [] x = new Constraint[constraints.length*2];
             for (int i=0; i<nconstraints; i++)
@@ -48,19 +48,23 @@ class ConstraintList(int rank) {
     //
     // a simple mechanism of somewhat dubious utility to allow
     // semi-symbolic specification of constraints. For example
-    // X0-Y1 >= n is specified as addConstraint(ZERO+X(0)-Y(1), GE, n)
+    // X0-Y1 >= n is specified as addConstraint(X(0)-Y(1), GE, n)
+    //
+    // XXX coefficients must be -1,0,+1; can allow larger coefficients
+    // by increasing # bits per coeff
     //
 
-    static final int ZERO = 0xAAAAAAA;
+    private static final int ZERO = 0xAAAAAAA;
 
-    static final int GE = 0;
-    static final int LE = 1;
+    public static final int GE = 0;
+    public static final int LE = 1;
 
-    static final int X(int axis) {
+    public static final int X(int axis) {
         return 0x1<<2*axis;
     }
 
-    void add(int coeff, int op, int k) {
+    public void add(int coeff, int op, int k) {
+        coeff += ZERO;
         int [] cs = new int[rank+1];
         for (int i=0; i<rank; i++) {
             int c = (coeff&3) - 2;
@@ -73,7 +77,7 @@ class ConstraintList(int rank) {
 
 
     //
-    //
+    // quick&dirty sort
     //
 
     private void sort() {
