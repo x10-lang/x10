@@ -288,7 +288,7 @@ where append <| {m:nat}{n:nat}
     'a list(m) * 'a list(n) -> 'a list(m+n)  
 \end{displayml}
 \noindent in contrast with the direct embedded expression with constrained types:
-\begin{displayxten}
+\begin{xten}
 class List(int(:self >= 0) n) {
   Object item;
   List(n-1) tail;
@@ -298,7 +298,7 @@ class List(int(:self >= 0) n) {
   }
   ...
 }
-\end{displayxten}
+\end{xten}
 
 Second, \DML{} permits only variables of basic index sorts known to
 the constraint solver (e.g., \xcd{bool}, \xcd{int}, \xcd{nat}) to

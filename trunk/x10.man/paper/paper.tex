@@ -24,49 +24,12 @@
 \newif\iflstworks
 \lstworkstrue
 \iflstworks
-\usepackage{listings}
+\usepackage{x10}
 \fi
 
 \hfuzz=1pt
 
 \iflstworks
-\lstdefinelanguage{X10}%
-  {morekeywords={abstract,break,case,catch,class,%
-      const,continue,default,do,else,extends,false,final,%
-      finally,for,goto,if,implements,import,instanceof,%
-      interface,label,native,new,null,package,private,protected,%
-      public,return,static,super,switch,synchronized,this,throw,%
-      throws,transient,true,try,void,volatile,while,%
-      async,atomic,when,foreach,ateach,finish,clock,clocked,%
-      here,%
-      self,property,nullable,future},%
-   sensitive,%
-   morecomment=[l]//,%
-   morecomment=[s]{/*}{*/},%
-   morestring=[b]",%
-   morestring=[b]',%
-  }
-\fi
-
-\newcommand\codestyle\tt
-
-\iflstworks
-\lstnewenvironment{displayxten}
-  {\lstset{language=X10,basicstyle=\codestyle,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,mathescape=true,keepspaces=true,keywordstyle=}}
-  {}
-\lstnewenvironment{xten}
-  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,keywordstyle=,numbers=left,numberstyle=\tiny}}
-  {}
-\lstnewenvironment{xtenx}
-  {\lstset{language=X10,basicstyle=\codestyle\footnotesize,tabsize=4,columns=fullflexible,captionpos=b,keywordstyle=,numbers=left,numberstyle=\tiny,xleftmargin=15pt}}
-  {}
-\newcommand\inputxten[1]{\begin{minipage}{\textwidth}\lstinputlisting[language=X10,basicstyle=\codestyle\footnotesize,columns=fullflexible,tabsize=4,captionpos=b,keepspaces,keywordstyle=,numbers=left,numberstyle=\tiny,xleftmargin=15pt]{#1}\end{minipage}}
-
-%\newenvironment{displayxten}{\begin{xten}}{\end{xten}}
-
-\newcommand{\xcd}[1]{{\lstinline[language=X10,basicstyle=\codestyle,mathescape=true,columns=flexible,breaklines,keywordstyle=]{#1}}}
-\newcommand{\tcd}[1]{{\codestyle{#1}}}
-
 \else
 \newcommand{\xcd}[1]{{\tt #1}}
 \newcommand{\tcd}[1]{{\tt #1}}
@@ -101,14 +64,16 @@
 %\newtheorem{proof}[theorem]{Proof}
 \fi
 
-\newcommand\Xten{{\sf X10}}
+%\newcommand\Xten{{\sf X10}}
 \newcommand\DML{{DML}}
-\newcommand\FJ{{FJ}}
-\newcommand\CFJ{{CFJ}}
+%\newcommand\FJ{{FJ}}
+%\newcommand\CFJ{{CFJ}}
 \newcommand\java{{Java}}
-\newcommand\Java{{\java}}
-\newcommand\csharp{{C$\sharp$}}
+%\newcommand\Java{{\java}}
+%\newcommand\csharp{{C$\sharp$}}
 \newcommand\FXten{{FX10}}
+
+\renewcommand\andalso{\quad}
 
 \begin{document}
 
@@ -191,7 +156,7 @@ Tennessee, USA.}
 
 \section{Formal semantics}
 \label{sec:semantics}
-\input{semantics}
+\input{quad-semantics}
 
 \section{Related work}\label{sec:related}
 \input{related2}

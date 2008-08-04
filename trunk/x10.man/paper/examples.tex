@@ -61,20 +61,20 @@ variable) with the same simple syntax. In the example below,
 the type of {\tt a} does not place any constraint on the second
 dimension of {\tt a}, but this dimension can be used in other
 types (e.g., the return type).
-\begin{displayxten}
+\begin{xten}
   class Matrix(int m, int n) {
     Matrix(m,a.n) mul(Matrix(:m==this.n) a) {...}
     ...
   }
-\end{displayxten}
+\end{xten}
 
 Constraints also naturally permit the expression of existential types:
-\begin{displayxten}
+\begin{xten}
   class List(int length) { 
     List(:length <= this.length) filter(Comparator k) {...} 
     ...
   }
-\end{displayxten}
+\end{xten}
 \noindent
 Here, the length of the list returned by the \xcd{filter} method is 
 unknown, but is bound by the length of the original list.
@@ -91,12 +91,12 @@ In CFJ, an array of type \xcd{T[]} indexed by (signed) integers
 can be modeled as a class with the following
 signature:\footnote{For this example, we assume generics
 are supported.}
-\begin{displayxten}
+\begin{xten}
 interface Array<T>(int(:self >= 0) length) {
   T get(int(:0 <= self, self < this.length) i);
   void set(int(:0 <= self, self < this.length) i, T v);
 }
-\end{displayxten}
+\end{xten}
 
 Bounds can be checked using a constraint system based on
 Presburger arithmetic~\cite{omega}.  Constraint terms include
@@ -159,13 +159,13 @@ place then the entire subtree is at that place.  In
 {\tt place} that specifies the location at which the object is located.
 %
 The desired property may be specified thus:
-\begin{displayxten}
+\begin{xten}
 class Tree(boolean localLeft) extends Object {
   Tree(:!this.localLeft || (location==here && self.localLeft)) left; 
   Tree(:location==here) right);
   ...
 }
-\end{displayxten}
+\end{xten}
 The constraint on \xcd{left} states that if the \xcd{localLeft} property is
 true for the current node, then the location of the \xcd{left} child must be
 \xcd{here} and its \xcd{localLeft} property must be set.  This ensures,
@@ -297,19 +297,19 @@ the result is a subset of \tcd{outer}.
 AVL trees and red-black trees can be modeled so that the
 data structure invariant is enforced statically.
 
-\begin{displayxten}
+\begin{xten}
 class AVLTree(int(:self >= 0) height) {...}
 class Leaf(Object key) extends AVLTree(0) {...}
 class Node(Object key, AVLTree l, AVLTree r
          : int d=l.height-r.height; -1 <= d, d <= 1) 
     extends AVLTree(max(l.height,r.height)+1) {...}
-\end{displayxten}
+\end{xten}
 
 Red--black trees may be modeled similarly. Such trees have the
 invariant that (a) all leaves are black, (b) each non-leaf node has
 the same number of black nodes on every path to a leaf (the black
 height), (c) the immediate children of every red node are black.
-\begin{displayxten}
+\begin{xten}
 class RBTree(int blackHeight) {...}
 class Leaf extends RBTree(0) { int value; ... }
 class Node(boolean isBlack, 
@@ -317,7 +317,7 @@ class Node(boolean isBlack,
            RBTree(:this.isBlack || isBlack,
                    blackHeight=l.blackHeight) r)
     extends RBTree(l.blackHeight+1) { int value; ... }
-\end{displayxten}
+\end{xten}
 }
 
 \eat{
@@ -495,11 +495,11 @@ These conditions ensure that \xcd{tail()} can be called only on
 \xcd{this} because its return type is otherwise not valid.
 For instance, in the following code, the type of \xcd{ys} is
 not valid because the \xcd{owner} property is bound to \xcd{xs}:
-\begin{displayxten}
+\begin{xten}
     final Owned o = ...;
     final List(:owner==o & valOwner==o) xs;
     List(:owner==xs & valOwner==o) ys = xs.tail();
-\end{displayxten}
+\end{xten}
 
 \fi
 
@@ -570,20 +570,20 @@ the activity that created it or by an ancestor of that activity.
 % it or by a descendant of that activity.
 Local objects are declared and created by qualifying their type
 with {\tt  local}:
-\begin{displayxten}
+\begin{xten}
   local C o = new local C();
-\end{displayxten}
+\end{xten}
 
 To encode local objects in \Xten{}, we add an {\tt  activity}
 property to objects:
-\begin{displayxten}
+\begin{xten}
   class Object(Activity activity) { ... }
-\end{displayxten}
+\end{xten}
 \noindent
 where {\tt  Activity} has a possibly null {\tt  parent} property:
-\begin{displayxten}
+\begin{xten}
   class Activity(Activity parent) { ... }
-\end{displayxten}
+\end{xten}
 \noindent
 
 To track the current activity ({\tt  z}), we augment typing judgments
@@ -651,13 +651,13 @@ locals can be written by contained asyncs.
 locals created by an activity are inherited by the parent when
 the activity terminates.
 
-\begin{displayxten}
+\begin{xten}
 C(:thread = current) x = ...;
 finish foreach (...) {
   C(:thread = current) y = x; // no!
   x = y;
 }
-\end{displayxten}
+\end{xten}
 
 // can read if thread prop is current, or an ancestor of current
 // can write if thread prop is current or a child of current
