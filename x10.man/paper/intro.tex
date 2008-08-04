@@ -96,13 +96,15 @@ languages.
 \subsection{Constrained types}
 
 \begin{figure}[t]
-\begin{xtenx}
+{
+\small
+\begin{xtennoindent}
 class List(int(:self >= 0) n) {
   Object head = null;
   List(n-1) tail = null;
 
   List(0)() { property(0); }
-  List(1)(Object head) { this(head, new List()); }
+
   List(tail.n+1)(Object head, List tail) {
     property(tail.n+1);
     this.head = head;
@@ -126,7 +128,8 @@ class List(int(:self >= 0) n) {
     return (f.isTrue(head)) ? new List(head,l) : l;
   }
 }
-\end{xtenx}
+\end{xtennoindent}
+}
 \caption{
 This program implements a mutable list of Objects. The size of a list
 does not change through its lifetime, even though at different points
@@ -136,7 +139,7 @@ in time its head and tail might point to different structures.}
 
 We permit the definition of a class \xcd{C} to specify
 a list of typed parameters or {\em properties},
-${\tt T}_1~{\tt x}_1, \dots, {\tt T}_k~{\tt x}_k$,
+${\tt T}_1~{\tt f}_1, \dots, {\tt T}_k~{\tt f}_k$,
 similar in syntactic structure to a method formal parameter list.
 %
 Each property in this list is treated as  a \xcd{public} \xcd{final} instance field.
@@ -154,9 +157,9 @@ property list with a ``\xcd{:}''.
 %
 For instance, we may specify a class \xcd{List} with an
 \xcd{int length} property as follows:
-\begin{displayxten}
+\begin{xten}
 class List(int length: length >= 0) {...}
-\end{displayxten}
+\end{xten}
 Given such a definition for a class \xcd{C}, types can be
 constructed by {\em constraining} the properties of \xcd{C}.  In
 principle, {\em any} boolean expression over the properties
@@ -187,9 +190,9 @@ the vacuously constrained type \xcd{C(:true)}, and
 write
 \tcd{C(${\tt e}_1,\ldots,{\tt e}_k$)} for
 the type
-\tcd{C(${\tt x}_1$==${\tt e}_1,\ldots,{\tt x}_k$==${\tt e}_k$)}
+\tcd{C(${\tt f}_1$==${\tt e}_1,\ldots,{\tt f}_k$==${\tt e}_k$)}
 where \xcd{C} declares the $k$ properties
-${\tt x}_1,\ldots,{\tt x}_k$.
+${\tt f}_1,\ldots,{\tt f}_k$.
 
 Constrained types may occur wherever normal types occur. In
 particular, they may be used to specify the types of properties,
@@ -223,20 +226,19 @@ constructed.  The compiler verifies that the
 constructor return type and the class invariant are implied by the
 \xcd{property} statement and any \xcd{super} calls in the constructor
 body.
-A constructor must either invoke another constructor via a
-\xcd{this} call of the same
-class or have a \xcd{property} statement on every
+A constructor must either invoke another constructor of the same
+class via a
+\xcd{this} call
+or must have a \xcd{property} statement on every
 non-exceptional path
-through the constructor to ensure the properties are initialized.
-The \xcd{List} class has three constructors: the first
-constructor returns an empty list; the second returns 
-a singleton list of length \xcd{1}; the third
+to ensure the properties are initialized.
+The \xcd{List} class has two constructors: the first
+constructor returns an empty list;
+the second
 returns a list of length \xcd{m+1}, where \xcd{m} is the length
 of the second argument. 
-The second constructor (line 6) invokes
-the third.
 
-In the third constructor (lines 7--11), as well as 
+In the second constructor (lines 7--11), as well as 
 the \xcd{append} (line 13) and \xcd{rev} (line 20) methods,
 the return type
 depends on properties of the formal parameters. 

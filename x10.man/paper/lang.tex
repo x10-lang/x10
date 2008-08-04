@@ -60,7 +60,7 @@ the returned \xcd{List}; the term \xcd{this.n} is the length of the
 receiver of the call to \xcd{filter}.
 
 Constraints are specified in terms of an underlying
-constraint system~\cite{CCCC}---a pre-defined logical vocabulary of
+constraint system~\cite{cccc}---a pre-defined logical vocabulary of
 functions and predicates with algorithms for consistency and
 entailment.  The \Xten{} compiler permits different constraint
 systems to be installed using compiler
@@ -174,12 +174,12 @@ arguments to the method.  Any argument used in this way must
 be declared \xcd{final},
 ensuring it is not mutated by the method body.  For instance,
 the following is a valid method declaration:
-\begin{displayxten}
+\begin{xten}
 List(arg.length-1)
   tail(final List arg: arg.length > 0) {
      ...
 }
-\end{displayxten}
+\end{xten}
 \noindent
 The precondition
 says that
@@ -257,9 +257,9 @@ class and its superclasses and superinterfaces hold.
 For instance, the
 nullary constructor for \xcd{List} ensures that the property
 \xcd{length} has the value \xcd{0}:
-\begin{displayxten}
+\begin{xten}
     public List(0)() { property(0); }
-\end{displayxten}
+\end{xten}
 The \xcd{property} statement is used to set all the properties
 of the new object simultaneously.  Capturing this assignment in
 a single statement simplifies checking that the constructor
@@ -293,7 +293,7 @@ by the instances.
 \subsection{Extending dependent classes}
 
 A class may extend a constrained class, e.g.,
-\xcd{class C(}\dots\xcd{) extends D(:d)}.
+\xcd{class} \xcd{C($\dots$)} \xcd{extends} \xcd{D(:d)}.
 This documents the programmer's intention that
 every call to \xcd{super} in a constructor for \xcd{C} must ensure
 that the invariant \xcd{d} is established on the state of the class
@@ -330,11 +330,11 @@ property. The class must have a single property with the given name
 and type.
 
 The general form of a class declaration is now:
-\begin{displayxten}
+\begin{xten}
 class C(T$_1$ x$_1$, ..., T$_k$ x$_k$)
       extends B(:c)
       implements I$_1$(:c$_1$), ..., I$_n$(:c$_n$) {...}
-\end{displayxten}
+\end{xten}
 \noindent
 For such a declaration to type-check, it must be that the class
 invariant of \xcd{C} implies \inv(${\tt I}_i$)\xcd{\ & c}$_i$, where
@@ -411,31 +411,31 @@ common divisor of two integers:\footnote{Checking this program
 requires a constraint system capable of reasoning about integer
 multiplication and
 division.  We have not yet implemented such a system.}
-\begin{displayxten}
+\begin{xten}
 int(:int x; int y; a==x*self & b==y*self)
   gcd(final int a, final int b)
 {
     if (b == 0) return a;
     else return gcd(b, a % b);
 }
-\end{displayxten}
+\end{xten}
 \fi
 
 Operations on values of constrained type
 propagate constraints
 to the operation result by introducing existentially quantified
 variables.  Consider the assignment to \tcd{c} below:
-\begin{displayxten}
+\begin{xten}
 int(:self >= 0) a = ...;
 int(:self >= 0) b = ...;
 int(:self >= 0) c = a*b;
-\end{displayxten}
+\end{xten}
 During type-checking, the type of \xcd{a*b} is
 computed from the types of \xcd{a} and \xcd{b} to be
 the type:
-\begin{displayxten}
+\begin{xten}
 int(:int x; int y; self==x*y & x>=0 & y>=0)
-\end{displayxten}
+\end{xten}
 That is, there exist non-negative \tcd{int}s \tcd{x} and \tcd{y} 
 whose product is \tcd{self}.
 The constraint on this type is strong enough to establish the
@@ -465,10 +465,10 @@ formal parameter and write $\rc({\tt C(:c)}, {\tt z})$
 for $\rc({\tt C(:c}[{\tt z}/\mbox{\xcd{self}}]))$.
 
 Consider a general class definition:
-\begin{displayxten}
+\begin{xten}
 class C(C$_1$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c)
   extends D(:d) { ... }
-\end{displayxten}
+\end{xten}
 
 \noindent From this, we get:
 %
@@ -538,13 +538,13 @@ relationships in data values that are too complicated to be captured by
 the type system.}
 
 Consider a variation of \xcd{List} from Figure~\ref{fig:list-example}:
-\begin{displayxten}
+\begin{xten}
 class List(int(:self >= 0) n) {
   Object head;
   List(:self!=null & self.n==this.n-1) tail;
   ...
 }
-\end{displayxten}
+\end{xten}
 The type of the field \xcd{tail} is not parametrically
 consistent. There exists a value for the property \xcd{this}.\xcd{n}, namely
 \xcd{0}, for which the real clause \xcd{self}~\xcd{!=}~\xcd{null} \xcd{&}

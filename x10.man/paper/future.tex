@@ -22,13 +22,13 @@ and by incorporating subtyping constraints into the language, we believe we can 
 programmer to write down.  A type inference algorithm for constrained types.
 
 \paragraph{Flow sensitivity.}  The following code should type-check:
-\begin{displayxten}
+\begin{xten}
 int x = ...;
 int(:self >= 0) y;
 if (x >= 0) {
     y = x;
 }
-\end{displayxten}
+\end{xten}
 
 \paragraph{State-dependent constrained types.}
 

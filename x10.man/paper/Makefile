@@ -12,7 +12,7 @@ TARGETS = $(DOC)
 # TARGETS could be $(DOC).dvi instead, if there are no figures
 
 TEXS = paper.tex \
-	conclusion.tex examples.tex future.tex impl.tex intro.tex lang.tex longex.tex paper.tex related.tex semantics.tex abstract.tex \
+	conclusion.tex examples.tex future.tex impl.tex intro.tex lang.tex longex.tex paper.tex related.tex semantics.tex abstract.tex related2.tex semantics2.tex \
        $(X10TEXS) $(STY)
 STY = defs.sty utils.sty
 #
