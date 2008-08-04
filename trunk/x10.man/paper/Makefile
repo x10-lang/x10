@@ -5,7 +5,9 @@ SHELL = /bin/sh
 #
 # change this line to contain the name of the document without extension
 
-TARGETS = paper.pdf
+DOC = res0000095-nystrom.pdf
+TARGETS = $(DOC)
+
 #
 # TARGETS could be $(DOC).dvi instead, if there are no figures
 
@@ -36,6 +38,9 @@ X10TEXS = $(X10_FILES:.x10=.tex)
 .SUFFIXES: .x10
 
 default: $(TARGETS)
+
+$(DOC): paper.pdf
+	cp paper.pdf $(DOC)
 
 BIBFILE = master.bib
 #

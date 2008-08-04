@@ -54,7 +54,9 @@ array (the number of dimensions (the rank) and the size of each dimension)
 is determined at
 run time, but is fixed once the array is constructed. Thus, the shape of an
 array is part of its immutable state.
-Both mutable and immutable variables may have a constrained type.
+Both mutable and immutable variables may have a constrained
+type: the constraint specifies invariants on the immutable state
+of the object stored in the variable. 
 
 \Xten{} provides a framework for specifying and checking constrained types
 that achieves certain desirable properties:
@@ -100,7 +102,7 @@ class List(int(:self >= 0) n) {
   List(n-1) tail = null;
 
   List(0)() { property(0); }
-  List(1)(Object head) { this(head, new List());}
+  List(1)(Object head) { this(head, new List()); }
   List(tail.n+1)(Object head, List tail) {
     property(tail.n+1);
     this.head = head;
@@ -140,8 +142,8 @@ similar in syntactic structure to a method formal parameter list.
 Each property in this list is treated as  a \xcd{public} \xcd{final} instance field.
 %
 We also permit the
-specification of a {\em class invariant}, a
-{\em where clause}~\cite{where-clauses}
+specification of a {\em class invariant}
+%, a {\em where clause}~\cite{where-clauses}
 in the class definition. A class invariant
 is a boolean expression on the properties of the class.
 The compiler ensures that all
@@ -186,7 +188,7 @@ write
 \tcd{C(${\tt e}_1,\ldots,{\tt e}_k$)} for
 the type
 \tcd{C(${\tt x}_1$==${\tt e}_1,\ldots,{\tt x}_k$==${\tt e}_k$)}
-where \xcd{C} specifies the $k$ properties
+where \xcd{C} declares the $k$ properties
 ${\tt x}_1,\ldots,{\tt x}_k$.
 
 Constrained types may occur wherever normal types occur. In
@@ -202,8 +204,9 @@ length \xcd{n}.
 Intuitively, this definition states that a \xcd{List} has an \xcd{int}
 property \xcd{n}, which must be non-negative.
 In a constraint, the name \xcd{self} refers to the type being
-constrained (as opposed to \xcd{this}, which refers to
-an instance of the enclosing class).
+constrained (as opposed to \xcd{this}, which is the implicit
+formal parameter bound to a method's receiver,
+an instance of the lexically enclosing class).
 The class has two
 fields that hold the head and tail of the list.  The properties
 of the
@@ -220,11 +223,18 @@ constructed.  The compiler verifies that the
 constructor return type and the class invariant are implied by the
 \xcd{property} statement and any \xcd{super} calls in the constructor
 body.
+A constructor must either invoke another constructor via a
+\xcd{this} call of the same
+class or have a \xcd{property} statement on every
+non-exceptional path
+through the constructor to ensure the properties are initialized.
 The \xcd{List} class has three constructors: the first
 constructor returns an empty list; the second returns 
 a singleton list of length \xcd{1}; the third
-returns a list of length \xcd{m+1}, where \xcd{m} is
-the length of the second argument.
+returns a list of length \xcd{m+1}, where \xcd{m} is the length
+of the second argument. 
+The second constructor (line 6) invokes
+the third.
 
 In the third constructor (lines 7--11), as well as 
 the \xcd{append} (line 13) and \xcd{rev} (line 20) methods,

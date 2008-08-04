@@ -145,12 +145,12 @@ Usually, constrained types are simply translated to
 non-constrained types by erasure; constraints are checked
 statically and need no run-time representation.
 However, dependent types may be used in casts
-and \xcd{instanceof} expressions.  Because the constraint syntax
-in \Xten{} is a subset of the \Xten{} expression syntax, run-time tests
-of constrained types are translated to Java
+and \xcd{instanceof} expressions.  The language does not allow
+existential constraints to be used in run-time type tests; this
+allows the tests of constrained types to be implemented
 by evaluating the constraint with
 \xcd{self} bound to the expression being tested.
-For examples, casts are translated as:
+For example, casts are translated as:
 \eat{
 \begin{code}
   $\Lb$e instanceof C(:c)$\Rb$ = 
