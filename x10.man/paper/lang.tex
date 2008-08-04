@@ -153,13 +153,20 @@ variables.
 
 \subsection{Method and constructor preconditions}
 
-Methods and constructors may specify preconditions on their parameters
-as where clauses.  For an invocation of a method (or constructor) to
-be type-correct, the associated where clause must be statically known
-to be satisfied. Note that the where clause may contain constraints on
-the properties of \xcd{this}. Thus the where clause may be used to
-specify that a method is {\em conditionally} available on some objects
+Methods and constructors may specify constraints on their
+parameters, including the implicit parameter \xcd{this}.
+For an invocation of a method (or constructor) to
+be type-correct, the associated constraint must be statically known
+to be satisfied by the actual receiver and actual arguments of
+the invocation.  The constraint thus imposes a \emph{precondition}
+on callers of the method.
+\eat{
+Note that the constraint may constrathe implicit parameter in
+the properties of \xcd{this}; thus, it may be used to
+specify that a method appears to be {\em conditionally} available on
+some objects
 of the class and not others.
+}
 
 The
 return type of a method may also contain expressions involving the
@@ -174,8 +181,9 @@ List(arg.length-1)
 }
 \end{displayxten}
 \noindent
-It says that
-\xcd{tail} must be passed a non-empty list, and it returns a list
+The precondition
+says that
+\xcd{tail} must be passed a non-empty list.  The method returns a list
 whose length is one less than its argument.
 
 \subsection{Method overloading and overriding}
@@ -196,12 +204,26 @@ superinterfaces all their methods that are visible according to the access
 modifiers and that are not hidden or overridden. A method
 \xcd{m1} in a class \xcd{C} overrides a method \xcd{m2} in a
 superclass \xcd{D} if \xcd{m1} and \xcd{m2} have signatures
-with equivalent (unerased) formal parameter types. 
+with equivalent (unerased) formal parameter types.
+It is a static error if \xcd{m1}'s erased signature is the same
+as \xcd{m2}'s, but \xcd{m1} does not override \xcd{m2}.
 
-Dynamic method lookup does not take dependent type information into
-account, only the class hierarchy. This design decision ensures that
+It is also a static error if the method precondition on \xcd{m2} does
+not entail the precondition on \xcd{m1}.  This restriction
+ensures that if the a call
+is type-checked against \xcd{m2} at the superclass type \xcd{D},
+the precondition is satisfied if the method is dispatched to the
+method \xcd{m1} in the subclass \xcd{C}.
+
+Method dispatch takes only the class hierarchy into account, not 
+dependent type information.  Thus, \Xten{} does not provide a
+form
+of predicate dispatch~\cite{predicateClasses,jpred}, 
+evalutating constraints at run time to determine which method to
+invoke.
+This design decision ensures that
 serious errors such as method invocation errors are captured at
-compile-time. Such errors can arise because multiple incomparable
+compile time. Such errors can arise because multiple incomparable
 methods with the same name and acceptable argument lists might be
 available at the dynamic dependent type of the subject.
 
@@ -220,12 +242,13 @@ clauses for method dispatch.
 \eat{
 Like a method definition,
 a constructor may
-specify preconditions on its arguments
+specify constraint on its arguments
 and a postcondition on the value produced by the constructor.
 %
-Postconditions may be specified in a constructor declaration between
-the name of the class and the argument list of the constructor using a
-where clause. The where clause can reference only the properties of
+Postconditions may be specified in a constructor declaration by
+writing a constraint between
+the name of the class and the argument list of the constructor.
+The constraint can reference only the properties of
 the class.
 }
 
@@ -249,13 +272,19 @@ is necessary to deal with the situation in which the arguments to a
 constructor for a class \xcd{C} are such that no object can be
 constructed that satisfies the invariants for \xcd{C}. Dependent
 types make it possible to perform some of these checks at
-compile-time. The class invariant of a class explicitly captures
+compile time. The class invariant of a class explicitly captures
 conditions on the properties of the class that must be satisfied by
 any instance of the class.  Constructor preconditions capture
 conditions on the constructor arguments.
 The compiler's static check for
 non-emptiness of the type of any variable captures these invariant
-violations at compile-time.
+violations at compile time.
+
+The class invariant is part of the public interface of the
+class.  Consequently, if the invariant of \xcd{C} is changed, a class
+that creates instances of \xcd{C}
+may need to be recompiled to ensure the invariant is satisfied
+by the instances.
 
 %% Cannot throw an exception.
 
@@ -280,15 +309,15 @@ class may involve only the properties of the class being defined.
 
 \subsection{Dependent interfaces}
 
-\java{} does not allow interfaces to specify instance fields. Rather all
+\java{} does not allow interfaces to specify instance fields.  Rather, all
 fields in an interface are final static fields (constants).
-However,
+However, in \Xten{}
 since properties play a central role in the specification of
 refinements of a type, it makes sense to permit interfaces to specify
 properties.
 Similarly, an interface
 definition may specify an invariant on its properties.  Methods
-in the body of an interface may have where clauses
+in the body of an interface may have method constraints
 as well.
 
 All classes implementing an interface must have a property
@@ -321,7 +350,7 @@ the interface.
 \subsection{Separation between compile-time and run-time computation}
 
 Our design distinguishes between compile-time execution (performed
-during type-checking) and run-time execution. At compile-time, the
+during type-checking) and run-time execution. At compile time, the
 compiler processes the abstract syntax tree of the program generating
 queries to the constraint solver. The only computation engine running
 is the constraint solver, which operates on its own vocabulary of
@@ -414,11 +443,11 @@ constraint on the return type.  If the computed constraint cannot be
 represented by any installed constraint system,
 the type of \xcd{a*b} is promoted to the unconstrained supertype \xcd{int}.
 
-\subsection{Query evaluation}
+\subsection{Real clauses}
 
 Because object-oriented languages permit arbitrary mutual recursion between
 classes: classes \xcd{A} and \xcd{B} may have fields of type \xcd{B} and
-\xcd{A} respectively---the type/property graph may have cycles. The nodes
+\xcd{A}, respectively---the type/property graph may have cycles. The nodes
 in this graph are base types (class and interface names). There is an
 edge from node \xcd{A} to node \xcd{B} if \xcd{A} has a property whose
 base type is \xcd{B}.
@@ -432,8 +461,8 @@ $\rc({\tt C(:c)})$ denote the {\em real clause} of \xcd{C(:c)}.
 For simplicity, we consider only top-level classes; thus, the
 only free variable
 in $\rc({\tt C(:c)})$ is \xcd{self}.  We draw out \xcd{self} as a
-formal parameter and write $\rc({\tt C(:c)}, {\tt X})$
-for $\rc({\tt C(:c}[{\tt X}/\mbox{\xcd{self}}]))$.
+formal parameter and write $\rc({\tt C(:c)}, {\tt z})$
+for $\rc({\tt C(:c}[{\tt z}/\mbox{\xcd{self}}]))$.
 
 Consider a general class definition:
 \begin{displayxten}
@@ -442,13 +471,13 @@ class C(C$_1$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c)
 \end{displayxten}
 
 \noindent From this, we get:
-
-$$\rc({\tt C},{\tt X}) ~ \iff \!\!\!\!\!\!\!\!\!\!
+%
+$$\rc({\tt C},{\tt z}) ~ \iff \!\!\!\!\!\!\!\!\!\!
 \begin{array}{l}
-\quad  ({\tt c} \wedge {\tt d})[{\tt X}/\this]
-\;\wedge\; \rc({\tt D},{\tt X}) \;\wedge \\
-\quad  \rc(\mbox{\tcd{C$_1$(:c$_1$)}}, {\tt X.x}_1) \;\wedge\; \cdots
-\;\wedge\; \rc(\mbox{\tcd{C$_k$(:c$_k$)}}, {\tt X.x}_k)
+\quad  ({\tt c} \wedge {\tt d})[{\tt z}/{\tt self},{\tt z}/\this]
+\;\wedge\; \rc({\tt D},{\tt z}) \;\wedge \\
+\quad  \rc(\mbox{\tcd{C$_1$(:c$_1$)}}, {\tt z.x}_1) \;\wedge\; \cdots
+\;\wedge\; \rc(\mbox{\tcd{C$_k$(:c$_k$)}}, {\tt z.x}_k)
 \end{array}
 $$
 
@@ -458,21 +487,21 @@ defined in a mutually recursive fashion through the Clark completion
 of a Horn clause theory (over an underlying constraint system).
 
 The central algorithmic question now becomes whether given a
-constrained clause {\tt d}, does $\rc(\mbox{\tt C(:c)},{\tt X})$ entail {\tt d}? 
+constrained clause {\tt d}, does $\rc(\mbox{\tt C(:c)},{\tt z})$ entail {\tt d}? 
 %
 From the above formulation the question is clearly semi-decidable. It
 is not clear however whether it is decidable. This is a direction for
 further work.
 
 The \Xten{} compiler is conservative and rejects
-programs with cyclic dependency graphs: programs where the real
+programs with cyclic real clauses: programs where the real
 clause of the type
 of a property \tcd{p} itself constrains \tcd{p}.
 %
 % XXX can such a program even be constructed
 %
-In practice, many data structures have non-cyclic dependency
-graphs. For such programs the real clause can be computed quickly and
+In practice, many data structures have non-cyclic real clauses.
+For these programs, the real clause can be computed quickly and
 only a bounded number of questions to the constraint solver are
 generated during type-checking.
 
@@ -495,29 +524,33 @@ types wherever appropriate.
 
 Consider the set of final variables that are referenced in a type
 \xcd{T} = \xcd{C(:c)}. These are the {\em parameters} of the type. A
-type is said to be {\em parametrically consistent} if its where clause
+type is said to be {\em parametrically consistent} if its
+(class)
+invariant
 \xcd{c} is solvable for each possible assignment of values to
 parameters.  Types are required to be parametrically
 consistent. Parametric consistency is sufficient to ensure that the
-extension of a type is non-empty.\footnote{It is not necessary in that
-there may be programs whose types are not parametrically inconsistent
+extension of a type is non-empty.\footnote{Parametric
+consistency is not necessary in that
+there may be programs whose types are parametrically inconsistent
 but which never encounter empty types at runtime because of
-relationships in data values that are to complicated to be captured by
+relationships in data values that are too complicated to be captured by
 the type system.}
 
-Consider a variation of List from Figure~\ref{fig:list-example}:
+Consider a variation of \xcd{List} from Figure~\ref{fig:list-example}:
 \begin{displayxten}
 class List(int(:self >= 0) n) {
   Object head;
-  List(:self.n==this.n-1 & self!=null) tail;
+  List(:self!=null & self.n==this.n-1) tail;
   ...
 }
 \end{displayxten}
 The type of the field \xcd{tail} is not parametrically
-consistent. There exists a value for its parameter \xcd{n}, namely
+consistent. There exists a value for the property \xcd{this}.\xcd{n}, namely
 \xcd{0}, for which the real clause \xcd{self}~\xcd{!=}~\xcd{null} \xcd{&}
 \xcd{self.n}~\xcd{==}~\xcd{this.n-1} \xcd{&}
-\xcd{self.n}~\xcd{>=}~\xcd{0} is not satisfiable.
+\xcd{self.n}~\xcd{>=}~\xcd{0} is not satisfiable.  Permitting
+\xcd{tail} to be \xcd{null} would allow the type to be non-empty.
 
 The compiler will throw a type error when it encounters the
 initializer for this field in a constructor since it will not be able

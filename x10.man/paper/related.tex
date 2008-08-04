@@ -115,8 +115,8 @@ $\tau$\xcd{(:self ==}~$e$\xcd{)}.
 % Singleton types~\cite{aspinall-singletons}.
 
 Several languages---gbeta~\cite{ernst99-gbeta},
-Scala~\cite{scala-overview,scala-oopsla05}, J\&~\cite{nqm06} and
-others~\cite{oz01,ocrz-ecoop03}---provide {\em path-dependent
+Scala~\cite{scala-overview,scala-oopsla05}, J\&~\cite{nqm06}, and
+others~\cite{oz01,ocrz-ecoop03,dependent-classes}---provide {\em path-dependent
 types}.  For a final access path \xcd{p}, {\tt p.type}
 in Scala is the singleton type containing the object \xcd{p}.
 In J\&, {\tt p.class} is a type containing all objects
@@ -310,5 +310,14 @@ equality on object references.  (As we have seen permitting arbitrary
 type/property graphs may lead to undecidability.) Note that \DML{}
 style constraints are easily encoded in constrained types.
 
-Third, \DML{} does not permit any runtime checking of constraints
-(dynamic casts).
+% A reviewer says:
+% The third criticism of DML is technically correct but highly
+% misleading.  Instead of casts, DML allows "if tests" or case
+% analysis as dynamic tests that then yield static information
+% about the type in the appropriate branch of the if or case.
+% Either omit this criticism or describe how DML does the same
+% thing--or if DML's system is weaker in some way, give a
+% particular example to justify that.
+
+% Third, \DML{} does not permit any runtime checking of constraints
+% (dynamic casts).

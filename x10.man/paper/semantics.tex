@@ -36,8 +36,8 @@ with \FJ{}, we simply require that the input program be such that the class
 name {\tt C} and method name {\tt m} uniquely select the associated
 method on the class. 
 %
-We do model properties, constrained clauses, class invariants, where
-clauses in methods and constructors, and dependent type casts.
+We do model properties, constrained clauses, class invariants,
+methods and constructor preconditions, and dependent type casts.
 
 \subsection{Constraint system}
 
@@ -334,7 +334,8 @@ and retaining any constraint in $\Gamma$.
 %\TInv{} is a form of contraction that permits the class invariant {\tt c}
 %of a class {\tt C} to enrich the type of any variable of type {\tt C}.
 
-In \TField, we postulate the existence of a receiver object {\tt o} of
+In \TField, we postulate the existence of a receiver object
+${\tt z}_{\tt 0}$ of
 the given static type (${\tt T}_0$). $\fields({\tt T}_0,{\tt o})$ is
 the set of typed fields for ${\tt T}_0$ with all occurrences of 
 \this{} replaced  by {\tt o}. We record in the resulting
