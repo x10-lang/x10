@@ -9,25 +9,18 @@ import x10.lang.Point;
 // it only happens when scanner or iterator are created
 //
 
-final class RectRegion extends PolyRegion implements Region.Scanner {
 
-    private final int [] min;            // cached bounds for efficiency
-    private final int [] max;            // cached bounds for efficiency
+final class RectRegion extends PolyRegion {
 
-    private int size;
+    //
+    // computation of size and min/max is deferred until needed to
+    // allow unbounded regions
+    // 
 
+    private int size = -1;
 
     RectRegion(ConstraintList cl) {
-        
         super(cl);
-
-        this.min = constraints.rectMin();
-        this.max = constraints.rectMax();
-
-        // XXX PolyRegion.size()???
-        size = 1;
-        for (int i=0; i<rank; i++)
-            size *= max[i] - min[i] + 1;
     }
 
     static RectRegion make(int [] min, int [] max) {
@@ -50,6 +43,13 @@ final class RectRegion extends PolyRegion implements Region.Scanner {
     }
 
     public int size() {
+        if (size < 0) {
+            int [] min = constraints.rectMin();
+            int [] max = constraints.rectMax();
+            size = 1;
+            for (int i=0; i<rank; i++)
+                size *= max[i] - min[i] + 1;
+        }
         return size;
     }
 
@@ -58,20 +58,31 @@ final class RectRegion extends PolyRegion implements Region.Scanner {
     // scanner
     //
 
-    protected Region.Scanner scanner() {
-        return this;
+    private final static class Scanner implements Region.Scanner {
+
+        private final int [] min;
+        private final int [] max;
+
+        Scanner(PolyRegion r) {
+            min = r.constraints.rectMin();
+            max = r.constraints.rectMax();
+        }
+
+        final public void set(int axis, int position) {
+            // no-op
+        }
+        
+        final public int min(int axis) {
+            return min[axis];
+        }
+        
+        final public int max(int axis) {
+            return max[axis];
+        }
     }
 
-    public void set(int axis, int position) {
-        // no-op
-    }
-
-    public int min(int axis) {
-        return min[axis];
-    }
-
-    public int max(int axis) {
-        return max[axis];
+    public Region.Scanner scanner() {
+        return new RectRegion.Scanner(this);
     }
 
 
@@ -82,29 +93,24 @@ final class RectRegion extends PolyRegion implements Region.Scanner {
     // XXX this is actually SLOWER than the generic PolyRegion.Iterator!!!???
     //
 
-    final static class Iterator implements Region.Iterator {
+    private final static class Iterator implements Region.Iterator {
         
+        // parameters
         private final int rank;
         private final int [] min;
         private final int [] max;
 
+        // state
         private final int [] x;
-
         private int k;
 
         Iterator(final RectRegion r) {
-
             rank = r.rank;
-
-            min = new int[rank];
-            max = new int[rank];
+            min = r.constraints.rectMin();
+            max = r.constraints.rectMax();
             x = new int[rank];
-            for (int i=0; i<rank; i++) {
-                min[i] = r.min[i];
-                max[i] = r.max[i];
+            for (int i=0; i<rank; i++)
                 x[i] = min[i];
-            }
-
             x[rank-1]--;
         }
 
@@ -140,11 +146,11 @@ final class RectRegion extends PolyRegion implements Region.Scanner {
     }
 
     int [] min() {
-        return min;
+        return constraints.rectMin();
     }
 
     int [] max() {
-        return max;
+        return constraints.rectMax();
     }
 
 }

@@ -280,7 +280,7 @@ class PolyRegion extends BaseRegion {
             return new PolyRegion(cl);
     }
 
-    PolyRegion(ConstraintList cl) {
+    protected PolyRegion(ConstraintList cl) {
         super(cl.rank, cl.isRect(), cl.isZeroBased());
         this.constraints = cl.reduce();
     }
