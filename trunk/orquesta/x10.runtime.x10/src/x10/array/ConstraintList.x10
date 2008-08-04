@@ -267,6 +267,7 @@ public class ConstraintList(int rank) {
     // XXX cache these for efficiency during region construction
     // XXX assume constraints have been sorted and reduced - check/enforce
     // XXX rectMin/Max only work if isRect is true - check/enforce
+    // XXX cache rectMin/rectMax/isZeroBased for performance
     //
 
     boolean isRect() {
@@ -324,9 +325,13 @@ public class ConstraintList(int rank) {
     boolean isZeroBased() {
         if (!isRect())
             return false;
-        for (int i=0; i<rank; i++)
-            if (rectMin(i)!=0)
-                return false;
+        try {
+            for (int i=0; i<rank; i++)
+                if (rectMin(i)!=0)
+                    return false;
+        } catch (UnboundedRegionException e) {
+            return false;
+        }
         return true;
     }
 

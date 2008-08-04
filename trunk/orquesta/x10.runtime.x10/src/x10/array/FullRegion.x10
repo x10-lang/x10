@@ -4,12 +4,14 @@ import x10.lang.Region;
 import x10.lang.Point;
 
 //
-// XXX not completely implemented - implement as PolyRegion w/ no constraints
+// Implemented as a PolyRegion with no constraints.
+//
+// XXX probably don't need separate class - just make in PolyRegion.makeFull
 //
 
-class FullRegion extends BaseRegion {
+class FullRegion extends PolyRegion {
 
     FullRegion(int rank) {
-        super(rank, true, false);
+        super(new ConstraintList(rank));
     }
 }
