@@ -165,7 +165,7 @@ to be satisfied by the actual receiver and actual arguments of
 the invocation.  The constraint thus imposes a \emph{precondition}
 on callers of the method.
 \eat{
-Note that the constraint may constrathe implicit parameter in
+Note that the constraint may constrain the implicit parameter in
 the properties of \xcd{this}; thus, it may be used to
 specify that a method appears to be {\em conditionally} available on
 some objects
@@ -223,7 +223,7 @@ Method dispatch takes only the class hierarchy into account, not
 dependent type information.  Thus, \Xten{} does not provide a
 form
 of predicate dispatch~\cite{predicateClasses,jpred}, 
-evalutating constraints at run time to determine which method to
+evaluating constraints at run time to determine which method to
 invoke.
 This design decision ensures that
 serious errors such as method invocation errors are captured at
@@ -545,7 +545,7 @@ consistent. Parametric consistency is sufficient to ensure that the
 extension of a type is non-empty.\footnote{Parametric
 consistency is not necessary in that
 there may be programs whose types are parametrically inconsistent
-but which never encounter empty types at runtime because of
+but which never encounter empty types at run time because of
 relationships in data values that are too complicated to be captured by
 the type system.}
 
