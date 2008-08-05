@@ -10,8 +10,8 @@ def sor(omega: double,
           = outer & (outer-NORTH) & (outer+NORTH)
                   & (outer-WEST)  & (outer+WEST);
 
-  d0: region = inner.rank(0); // { i | (i,j) in inner }
-  d1: region = inner.rank(1); // { j | (i,j) in inner }
+  d0: region = inner.rank(0); // {i | (i,j) in inner}
+  d1: region = inner.rank(1); // {j | (i,j) in inner}
   
   if (d1.size() == 0) return;
   
