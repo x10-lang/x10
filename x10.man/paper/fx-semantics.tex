@@ -13,7 +13,7 @@
 \end{tabular} 
 &
 \begin{tabular}{r@{\quad}r@{~~}c@{~~}l}
-  (Type)& {\tt S},{\tt T},{\tt U},{\tt V}&{::=}& {\tt N}
+  (Type)& {\tt S},{\tt T},{\tt U}&{::=}& {\tt N}
         \alt {\tt T\{c\}} \alt {\tt x}:{\tt S};\,{\tt T}\\
   (N Type) & {\tt N}&{::=}& {\tt C} \alt {\tt N\{c\}}\\
   (C Term) & {\tt t} &{::=}& {\tt x} \alt \self \alt \this \alt
@@ -89,13 +89,13 @@
 \end{tabular}\\[-12pt]
 \begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}} 
 \infrule[T-Invk]
-	{\Gamma \vdash {\tt e}:{\tt T},\bar{\tt e}:\bar{\tt V} \andalso \\
-	  \Gamma,{\tt z}:{\tt T},\bar{\tt z}:\bar{\tt V} \vdash
-		{\tt z}\ \has\ ({\tt m}(\bar{\tt z}:\bar{\tt U}), {\tt c} \rightarrow {\tt S}), 
-		\bar{\tt V} \subtype \bar{\tt U},{\tt c} 
+	{\Gamma \vdash {\tt e}:{\tt T},\bar{\tt e}:\bar{\tt T} \andalso \\
+	  \Gamma,{\tt z}:{\tt T},\bar{\tt z}:\bar{\tt T} \vdash
+		{\tt z}\ \has\ {\tt m}(\bar{\tt z}:\bar{\tt U})\{{\tt c}\}: {\tt S} = {\tt e}', 
+		\bar{\tt T} \subtype \bar{\tt U},{\tt c} 
 	  \andalso \mbox{({\tt z},$\bar{\tt z}$ fresh)}}
 	{\Gamma \vdash {\tt e}.{\tt m}(\bar{\tt e}):
-                ({\tt z}:{\tt T};\,\bar{\tt z}:\bar{\tt V};\,{\tt S})}
+                ({\tt z}:{\tt T};\,\bar{\tt z}:\bar{\tt T};\,{\tt S})}
 	&
 \infrule[T-New]
 	{\Gamma \vdash \bar{\tt e}:\bar{\tt T} \andalso \vdash \klass({\tt C}) \\ 
@@ -105,7 +105,7 @@
 	{\Gamma \vdash \new\ {\tt C}(\bar{\tt e}): {\tt C}\{\bar{\tt z}:\bar{\tt T};\,\new\ {\tt C}(\bar{\tt z})=\self, \inv({\tt C},\self)\}}
 \\[-12pt]
 \infrule[Method OK]
-	{\this:{\tt C}\vdash {\tt c}:o \andalso \this:{\tt C},\bar{\tt x}:\bar{\tt U},{\tt c} \vdash {\tt T} \ \type, \bar{\tt U} \ \type, 
+	{\this:{\tt C}\vdash {\tt c}:{\tt o} \andalso \this:{\tt C},\bar{\tt x}:\bar{\tt U},{\tt c} \vdash {\tt T} \ \type, \bar{\tt U} \ \type, 
 	  {\tt e}:{\tt S}, {\tt S} \subtype {\tt T}}
 	{{\tt def}\ {\tt m}(\bar{\tt x}:\bar{\tt U})\{{\tt c}\}:{\tt T}= {\tt e};\ \mbox{OK in}\ C}
 	&

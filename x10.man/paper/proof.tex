@@ -128,22 +128,25 @@ Straightforward.
 
 \begin{lemma}
 \label{lemmaone} % 1. 
-If   $\Gamma \vdash S \subtype T$,
-then $\fields(S,z)$ has $\fields(T,z)$ as a prefix.
+If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+and  $\Gamma, {\tt z}: {\tt S} \vdash \fields(z) = \bar{\tt F}_1$,
+and  $\Gamma, {\tt z}: {\tt T} \vdash \fields(z) = \bar{\tt F}_2$,
+then $\tbar{F}_2$ is a prefix of $\tbar{F}_1$.
 \end{lemma}
 
 \begin{proof}
-Immediate from the definition of $\fields$.
+Immediate from the rules of $\cal O$.
 \end{proof}
 
 \begin{lemma}
 \label{lemmatwo} % 2. 
-If   $S \subtype T$,
-then $\mtype(S,m,z) = \mtype(T,m,z)$.
+If   $\Gamma \vdash S \subtype T$,
+and  $\Gamma, {\tt z}: {\tt T} \vdash {\tt z}\ \has\ {\tt I}$,
+then $\Gamma, {\tt z}: {\tt T} \vdash {\tt z}\ \has\ {\tt I}$.
 \end{lemma}
 
 \begin{proof}
-Immediate from the definition of $\mtype$.
+Immediate from the rules of $\cal O$.
 \end{proof}
 
 \begin{lemma}
@@ -173,7 +176,10 @@ and
 $\sigma(\Gamma, x: C\{c\}) \vdash_{\cal C} d[x/\self]$
 with $x$ fresh.
 From the definition of $\sigma(\cdot)$ we have
-    $$\sigma(\Gamma,{\tt f}: {\tt S}) = \sigma(\Gamma), c[f/\self], \inv(C,f)$$ and $$\sigma(\Gamma,{\tt f}: {\tt T}) = \sigma(\Gamma), d[f/\self], \inv(D,f).$$
+    $$\sigma(\Gamma,{\tt f}: {\tt S}) =
+      \sigma(\Gamma), c[{\tt f}/\self], \inv(C,{\tt f})$$ and
+    $$\sigma(\Gamma,{\tt f}: {\tt T}) =
+      \sigma(\Gamma), d[{\tt f}/\self], \inv(D,{\tt f}).$$
 From $\Gamma \vdash S \subtype T$ we have 
 $\sigma(\Gamma, x: C\{c\}) \vdash_{\cal C} d[f/\self]$.
 Additionally, from the definition of $\inv(C,f)$ and
@@ -471,21 +477,23 @@ of $\Gamma \vdash e: T$.
    \RField:  For the expression ${\tt (\new\ C(\bar{e})).f_i}$, 
              we have from \TField\ that
              $\Gamma \vdash {\tt e}: {\tt T}_0$ and
-             $\fields({\tt T}_0,{\tt z}_0) = \bar{\tt f}: \bar{\tt U}$, where
+             $\Gamma, {\tt z}_0: {\tt T}_0 \vdash {\tt z}_0\ \has\ {\tt f}_i: {\tt U}_i$.
+             Let $T = ({\tt z}_0: {\tt T}_0; {\tt U}_i\{\self{\tt ==}{\tt z}_0.{\tt f}\})$.
              ${\tt z}_0$ is fresh.
+
              Additionally, we have from \RField\ that
-             $\fields(C)=\bar{f}: \bar{C}$.
+             ${\tt z}_0: {\tt C} \vdash \fields({\tt z}_0)=\bar{f}: \bar{U}$.
 
              We have 
-             $T_0 = C\{\bar{f}: \bar{\tt T}{\tt ;\self.\bar{f}}=\bar{\tt f}\}$
+             $T_0 = {\tt C}\{\bar{z}: \bar{\tt T}{\tt ; \new {\tt C}(\tbar{z}) = \self, \inv({\tt C},\self)}\}$.
              and from \TNew, 
              $\Gamma \vdash \bar{\tt e}: \bar{\tt T}$,
-             $\theta=[\bar{\tt f}/\this.\bar{\tt f}]$,
-             $\fields(C,\theta)=\bar{\tt f}: \bar{\tt Z}$,
-             $\Gamma, \bar{\tt f}: \bar{\tt T} \vdash 
-                   \bar{\tt T} \subtype \bar{\tt Z}$, and
-             $\sigma(\Gamma, \bar{\tt f}: \bar{\tt T}) \vdash_{\cal C} 
-                   \inv({\tt C},\theta)$.
+             $\Gamma,{\tt z}:{\tt C} \vdash
+                \fields(z)=\bar{\tt f}: \bar{\tt U}$.
+             $\Gamma, {\tt z}: {\tt C}, \bar{\tt z}: \bar{\tt T} \vdash 
+                   \bar{\tt T} \subtype \bar{\tt U}$, and
+             $\Gamma, {\tt z}: {\tt C}, \bar{\tt z}: \bar{\tt T} \vdash 
+                   \inv({\tt C},{\tt z})$.
 
              From $\Gamma \vdash \bar{\tt e}: \bar{\tt T}$, we have
              $\Gamma \vdash {\tt e}_i: {\tt T}_i$.
@@ -493,7 +501,8 @@ of $\Gamma \vdash e: T$.
              %%%% XXX (missing step)
 
              Finally, it is straightforward to show
-             $$\Gamma \vdash S \subtype \tt (z_0: T_0; z_0.f_i = \self; U_i).$$
+             $\Gamma \vdash {\tt S} \subtype
+                ({\tt z}_0: {\tt U}_i\{\self{\tt ==}{\tt z}_0.{\tt f}\})$.
    \item
    \RCField: For the expression ${\tt e.f}_i$, we have from \TField\ that
              $\Gamma \vdash {\tt e}: {\tt T}_0$ and
@@ -523,18 +532,28 @@ of $\Gamma \vdash e: T$.
             we have from $\TInvk$ that
             $\Gamma \vdash \new\ {\tt C}(\bar{\tt e}): {\tt T}_0$,
             $\Gamma \vdash {\tt d}_{1:n}: {\tt T}_{1:n}$,
-            $\mtype({\tt T}_0,{\tt m},{\tt z}_0) = 
-               \tt {\tt z}_{1:n}: {\tt Z}_{1:n}:c \rightarrow {\tt U}$,
-            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash 
-                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$, and
-            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n}) \vdash_{\cal C}                          {\tt c}$, 
+            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
+                {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e}$,
+            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
+                {\tt T}_{1:n} \subtype {\tt U}_{1:n}$,
+            and
+            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt c}$,
             where ${\tt z}_{0:n}$ is fresh, and
-            $T_0 = C\{\bar{f}: \bar{A}; self.\bar{f} = \bar{f}\}$ and
+            $T_0 = C\{\bar{f}: \bar{A}; \self.\bar{f} = \bar{f}\}$ and
             $\Gamma \vdash \bar{e}: \bar{A}$.
 
             For simplicity, define $d_0 = \new\ {\tt C}(\bar{\tt e})$.
+            From \RInvk, we have
+            $d_0.m(\tbar{d}) \derives {\tt e}[{\tt d}_0,\tbar{d}/\this,\tbar{z}]$.
+
+            From \rn{Method OK}, 
+        $\this: {\tt C}, \tbar{x}: \tbar{U}, {\tt c} \vdash {\tt e}: {\tt V}, {\tt V} \subtype {\tt S}$.
+
+            \eat{
             Additionally, we have from \RInvk\ that
-            ${\mathit{mbody}({\tt m},{\tt C})=\bar{x}. {\tt e}_0}$.
+            $\Gamma, {\tt z}_{0}: {\tt C} \vdash
+                {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt
+                U}_{1:n})\{c\}: {\tt S} = {\tt e}_0$,
 
             From Lemma~\ref{body-type}, 
             $\mtype({\tt T}_0,{\tt m},{\tt z}_0) =
@@ -543,6 +562,7 @@ of $\Gamma \vdash e: T$.
             we have $D,V$ such that $C \subtype D$, $V \subtype U$, and
             ${\tt z}_{1:n}: \bar{\tt Z}_{1:n},\this: {\tt D} \vdash 
                   {\tt e}: {\tt V}$.
+                  }
 
             From \rn{S-Trans} and Lemma~\ref{weakening},
             $T_0 = C\{\bar{f}: \bar{A}; \self.\bar{f} = \bar{f}\},$ 

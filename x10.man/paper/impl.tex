@@ -37,11 +37,11 @@ To interoperate, the constraint solvers must share a common
 vocabulary: constraint terms \xcd{t} range over the properties of the
 base type, the final variables in scope at the type (including
 \xcd{this}), the special variable \xcd{self} representing
-the a value of the type, and field selections \xcd{t.f}.
+a value of the type, and field selections \xcd{t.f}.
 All
 constraint systems are required to support the trivial
 constraint
-\xcd{true}, conjunction, existential quantification and equality on
+\xcd{true}, conjunction, existential quantification, and equality on
 constraint terms.
 
 
@@ -130,7 +130,7 @@ After constraint-checking, the \Xten{} code is translated to
 Java in a straightforward manner.  Each dependent class
 is translated into a single class of the same name without dependent
 types. The explicit properties of the dependent class are translated
-into \xcd{public final} (instance) fields of the target class.
+into \xcd{public final} instance fields of the target class.
 A \xcd{property} statement in a constructor is translated to a
 sequence of assignments to initialize the property fields.
 
