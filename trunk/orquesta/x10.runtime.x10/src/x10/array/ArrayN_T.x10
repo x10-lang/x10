@@ -97,4 +97,31 @@ final class ArrayN_T extends BaseArray_T {
         }
 
     }
+
+
+    //
+    // restriction view
+    //
+
+    public Array_T restriction(Region r) {
+        return new ArrayN_T(this, r);
+    }
+
+    ArrayN_T(final ArrayN_T a, Region r) {
+
+        super(a.dist.restriction(r), a.value);
+
+        raws = new T[place.MAX_PLACES][];
+        layouts = new RectLayout[place.MAX_PLACES];
+
+        finish {
+            for (int i=0; i<dist.places().length; i++) {
+                async (dist.places()[i]) {
+                    this.layouts[here.id] = a.layouts[here.id];
+                    this.raws[here.id] = a.raws[here.id];
+                }
+            }
+        }
+    }
+
 }

@@ -89,4 +89,26 @@ final class Array1_T extends BaseArray_T {
         }
     }
 
+
+    //
+    // restriction view
+    //
+
+    public Array_T restriction(Region r) {
+        return new Array1_T(this, r);
+    }
+
+    Array1_T(final Array1_T a, Region r) {
+
+        super(a.dist.restriction(r), a.value);
+
+        finish {
+            for (int i=0; i<dist.places().length; i++) {
+                async (dist.places()[i]) {
+                    this.layout = a.layout;
+                    this.raw = a.raw;
+                }
+            }
+        }
+    }
 }
