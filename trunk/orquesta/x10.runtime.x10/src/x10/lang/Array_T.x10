@@ -51,7 +51,7 @@ public abstract value class Array_T(
     // views
     //
 
-    public abstract Array_T view(Region r);
+    public abstract Array_T restriction(Region r);
 
 
     //

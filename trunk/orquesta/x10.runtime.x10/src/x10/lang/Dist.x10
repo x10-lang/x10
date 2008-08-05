@@ -99,7 +99,7 @@ public abstract value class Dist(
     public abstract Dist intersection(Dist d);
     public abstract Dist overlay(Dist d);
     public abstract boolean isSubDistribution(Dist d);
-    public abstract Dist restriction(Dist d);
+    public abstract Dist restriction(Region r);
 
 
     //
