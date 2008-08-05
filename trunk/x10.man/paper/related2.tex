@@ -2,12 +2,12 @@
 
 \paragraph{Constraint-based type systems.}
 
-The use of constraints for type inference and subtyping has a history
-going back to Mitchell~\cite{mitchell84} and by
+The use of constraints in type systems has a history
+going back to Mitchell~\cite{mitchell84} and
 Reynolds~\cite{reynolds85}.  These and subsequent systems
 are based on
 constraints over types, but not over values.
-Constraint-baed type systems for ML-like
+Constraint-based type systems for ML-like
 languages~\cite{trifonov96,pottier96simplifying}
 % Trifonov and
 % Smith~\cite{trifonov96} proposed a type system in which types are
@@ -18,7 +18,7 @@ lead to \hmx~\cite{sulzmann97type}, a constraint-based framework for
 Hindley--Milner-style type systems.
 The framework is parametrized on
 the specific constraint system $X$; instantiating $X$ yields
-extensions of the HM type system.  
+extensions of the HM type system.
 The \hmx{} approach is an important precursor to
 our constrained types approach. The principal difference is that
 \hmx{} applies to functional languages and does not integrate
@@ -39,22 +39,18 @@ RCC($\cal C$)~\cite{DBLP:conf/fsttcs/JagadeesanNS05}.
 
 Dependent type
 systems~\cite{xi99dependent,calc-constructions,epigram,cayenne}
-param\-etrize types on values.  Refinement type
-systems~\cite{refinement-types,conditional-types,jones94,sized-types,flanagan-popl06,flanagan-fool06,liquid-types},
-introduced by Freeman and Pfenning~\cite{refinement-types}, are dependent type
-systems that extend a base type system through constraints on values.  These
-systems do not treat value and type constraints uniformly.
+param\-etrize types on values.  Constrained types are a form of refinement
+type~\cite{refinement-types,conditional-types,jones94,sized-types,flanagan-popl06,flanagan-fool06,liquid-types}.
+Introduced by Freeman and Pfenning~\cite{refinement-types},
+refinement types
+are dependent types that extend a base type system through constraints on values.
 
 Our work is closely related to DML, \cite{xi99dependent}, an
 extension of ML with dependent types. DML is also built
 parametrically on a constraint solver. Types are refinement types;
 they do not affect the operational semantics and erasing the
-constraints yields a legal DML program.  This differs from generic constrained
-types, where erasure of subtyping constraints can prevent the program from
-type-checking.
-DML does not permit any run-time checking of constraints
-(dynamic casts).
-
+constraints yields a legal DML program.
+%
 The most obvious distinction between DML and constrained types
 lies in the target
 domain: DML is designed for functional programming
@@ -115,7 +111,7 @@ encoded in constrained types.
 Logically qualified types, or liquid types~\cite{liquid-types},
 permit types in a base Hindley--Milner-style type system to be refined with
 conjunctions of logical qualifiers.  The subtyping relation is similar to
-\Xten{}'s, that is, two liquid types are in the subtyping relation if their base
+\Xten{}'s: two liquid types are in the subtyping relation if their base
 types are and if one type's qualifier implies the other's.
 The Hindley--Milner type
 inference algorithm is used to infer base types; these types are used as templates for inference of the liquid types.
@@ -168,18 +164,22 @@ have dependent types defined over final access paths~\cite{ernst99-gbeta,scala-o
 In many of these languages, dependent path types are used to
 enforce type soundness for virtual
 classes~\cite{beta,mp89-virtual-classes,ernst06-virtual} or
-similar mechanisms.
+similar mechanisms.  Jif~\cite{myers-popl99,jif3}
+uses dependent types over final access paths to enforce
+security properties: the security policy of an expression may depend on the
+policies of other variables in the program.
+Aspects of these type systems can be encoded using equality
+constraints in \Xten{}.
 % Two dependent types indexed by the same
 % access path are guaranteed to have the same run-time type.
-\eat{
-For a final access path \xcd{p}, {\tt p.type}
+For example,
+for a final access path \xcd{p}, {\tt p}.{\tt type}
 in Scala is the singleton type containing the object \xcd{p}.
 % In J\&, {\tt p.class} is a type containing all objects
 % whose run-time class is the same as \xcd{p}'s.
-Scala's {\tt p.type} can be encoded in \Xten{} using an equality
-constraint \xcd{C(:self == p)}, where \xcd{C} is a supertype of
+Scala's {\tt p}.{\tt type} can be encoded in \Xten{} using an equality
+constraint \xcd{C\{self == p\}}, where \xcd{C} is a supertype of
 \xcd{p}'s static type.
-}
 
 \eat{
 These types can be encoded in CFJ by introducing a
