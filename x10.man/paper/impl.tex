@@ -63,7 +63,7 @@ formula containing constraint-system-specific atomic functions
 \xcd{g} and predicates \xcd{p}.  
 
 For example, given the constrained type
-\xcd{Node(:self.x >= 0 \& reachable(self).contains(y))},
+\xcd{Node\{self.x >= 0 \& reachable(self).contains(y)\}},
 Presburger constraint system interprets the formula as:
 
 a Presburger constraint \xcd{self.x >= 0}
@@ -78,9 +78,9 @@ The base system sees \xcd{'>='(self, 0) \&\& 'reachable-contains'(self,y)}
 
 Need to propagate implied bindings between terms.  For instance:
 
-\xcd{int(:self >= x \&\& self <= x)}
+\xcd{int\{self >= x \&\& self <= x\}}
 should be equivalent to the type
-\xcd{int(:self == x)}.
+\xcd{int\{self == x\}}.
 
 By ensuring constraint systems share the same vocabulary and all
 support equality on constraint terms, we can propagate
@@ -109,7 +109,7 @@ The constraints are checked for consistency as follows.
 
 During type-checking, the type checker needs to determine if the
 type
-\xcd{C(:c)} is a subtype of \xcd{D(:d)}.  This is true if 
+\xcd{C\{c\}} is a subtype of \xcd{D\{d\}}.  This is true if 
 the base type \xcd{C} is a subtype of \xcd{D} and if the
 constraint \xcd{c} entails \xcd{d}.
 %
@@ -153,7 +153,7 @@ by evaluating the constraint with
 For example, casts are translated as:
 \eat{
 \begin{code}
-  $\Lb$e instanceof C(:c)$\Rb$ = 
+  $\Lb$e instanceof C\{c\}$\Rb$ = 
     new Object() \{
       boolean check(Object o) \{
         if (o instanceof C) \{
@@ -166,11 +166,11 @@ For example, casts are translated as:
 \end{code}
 }
 \begin{code}
-  $\Lb$(C(:c)) e$\Rb$ = 
-    \textbf{new} Object() \{
+  $\Lb$e as C\{c\}$\Rb$ = 
+    new Object() \{
       C cast(C self) \{
-        \textbf{if} ($\Lb$c$\Rb$) \textbf{return} self;
-        \textbf{throw new} ClassCastException(); \}
+        if ($\Lb$c$\Rb$) return self;
+        throw new ClassCastException(); \}
     \}.cast((C) $\Lb$e$\Rb$)
 \end{code}
 \noindent Wrapping the evaluation of \xcd{c} in an anonymous class
