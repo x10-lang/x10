@@ -75,10 +75,10 @@ abstract public class BaseArray_T extends Array_T {
 
 
     //
-    //
+    // views
     //
 
-    public Array_T view(Region r) {
+    public Array_T restriction(Region r) {
         throw U.unsupported();
     }
 
