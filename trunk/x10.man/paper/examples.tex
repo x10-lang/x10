@@ -145,7 +145,11 @@ $n$-dimensional arrays are indexed only be $n$-dimensional
 index points, the array access operation requires that the
 array's \xcd{rank} property be equal to the index's \xcd{rank}.
 
-
+Equality constraints specified in the X10 run-time library are used by the
+compiler to generate efficient code.  For instance, an iteration over
+the points in a region can be optimized to a set of nested loops
+if the constraint on the region's type specifies that the region
+is rectangular and of constant rank.
 
 
 \eat{
@@ -270,22 +274,22 @@ The function then declares two more regions \tcd{d0} and \tcd{d1},
 where ${\tt d}_i$ is set of points ${\tt x}_i$ where
 $({\tt x}_0, {\tt x}_1)$ is in \tcd{inner}.  The function
 iterates multiple times over points \tcd{i} in \tcd{d0}.
-The syntax \tcd{finish} \tcd{foreach} (line 20) tells the
+The syntax \tcd{finish} \tcd{foreach} (line 22) tells the
 compiler to execute each loop iteration in parallel and to wait
 for all concurrent activities to terminate.
-The inner loop (lines 22--26) iterates over a subregion of
+The inner loop (lines 24--28) iterates over a subregion of
 \tcd{inner}.
 
 The type checker establishes that the \tcd{region} property of
-the point \tcd{ij} (line 22) is \tcd{inner}
-\xcd{&}~\xcd{[i:i,d1min:d1max]}, and that this region is a
+the point \tcd{ij} (line 24) is \tcd{inner}
+\xcd{&}~\xcd{[i..i,d1min..d1max]}, and that this region is a
 subset of \tcd{inner}, which is in turn a subset of \tcd{outer},
 the region of the array \tcd{G}.
 Thus, the accesses to the array in the loop body
 do not violate the bounds of the array.
 
 A key to making the program type-check is that the region
-intersection that defines \tcd{inner} (lines 8--9)
+intersection that defines \tcd{inner} (lines 10--11)
 is explicitly intersected with \tcd{outer} so that the 
 constraint solver can determine that
 the result is a subset of \tcd{outer}.

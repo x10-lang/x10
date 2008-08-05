@@ -2,7 +2,7 @@ This section describes constrained types in \Xten{}.
 
 \subsection{Properties}
 
-A property is a \xcd{public} \xcd{final} instance field of the
+A property is a \xcd{public} final instance field of the
 class that cannot be overridden by subclassing. Like any other field,
 a property is typed, and its type need not necessarily be
 primitive. Thus, properties capture the immutable public state of an
@@ -31,30 +31,30 @@ the object reference graph, rooted at the current object and utilizing
 objects at user-defined types, may be specified.
 
 \subsection{Constraints}
-A constrained type is of the form \xcd{C(:e)}, consisting of a
+A constrained type is of the form \xcd{C\{e\}}, consisting of a
 {\em base class} \xcd{C} and a {\em condition} \xcd{e}, a
 boolean expression on the properties of the base class and the
-\xcd{final} variables in scope at the type.  Constraints specify
+final variables in scope at the type.  Constraints specify
 (possibly) partial information about the variables of interest.
-The type \xcd{C(:e)} represents the set of all
+The type \xcd{C\{e\}} represents the set of all
 instances of \xcd{C} whose immutable state satisfies the
 condition \xcd{e}.
 
 Constraints may use the special variable \xcd{self} to stand for
-the object whose type is being defined. Thus, \xcd{int(:self >= 0)} is
-the set of natural numbers, and \xcd{point(:x*x + y*y <= 1.0)}
-represents the interior of a circle (for a class \xcd{point} with two
-\xcd{float} properties \xcd{x} and \xcd{y}). The type \xcd{C(:self !=
-null)} represents all instances of \xcd{C}. When there is no
+the object whose type is being defined. Thus, \xcd{int\{self>=0\}} is
+the set of natural numbers, and \xcd{Point\{x*x+y*y <= 1.0\}}
+represents the interior of a circle (for a class \xcd{Point} with two
+\xcd{float} properties \xcd{x} and \xcd{y}). The type
+\xcd{C\{self != null\}} represents all instances of \xcd{C}. When there is no
 ambiguity, a property reference \xcd{self.x} may be abbreviated
-to \xcd{x}. The type \xcd{int(:self==v)} represents a ``singleton'' type, an
+to \xcd{x}. The type \xcd{int\{self==v\}} represents a ``singleton'' type, an
 \xcd{int} is of this type only if it has the same value as \xcd{v}.
 
 To be clear, \xcd{self} is not the same as \xcd{this}.  In the
 \xcd{List} example of Figure~\ref{fig:list-example}, the
 \xcd{filter} method (line 24) returns
 a list with type
-\xcd{List(:self.n <= this.n)}; the term
+\xcd{List\{self.n <= this.n\}}; the term
 \xcd{self.n} is the length of
 the returned \xcd{List}; the term \xcd{this.n} is the length of the 
 receiver of the call to \xcd{filter}.
@@ -79,7 +79,7 @@ decidable.
 The condition of a constrained type must be a pure
 function only of the properties of the base class.
 Because properties are
-\xcd{final} instance fields of the object,
+final instance fields of the object,
 this requirement
 ensures that whether or not an object belongs to a constrained type does
 not depend on the {\em mutable} state of the object.
@@ -95,12 +95,10 @@ instance, it may use some scheme of tagged pointers to implicitly
 encode the values of these fields.
 
 Further, by requiring that the programmer distinguish certain
-\xcd{
-final} fields of a class as properties, we ensure that the programmer
-consciously controls {\em which} \xcd{final} fields should be available for
+final fields of a class as properties, we ensure that the programmer
+consciously controls {\em which} final fields should be available for
 constructing constrained types. A field that is ``accidentally''
-\xcd{
-final} may not be used in the construction of a constrained type. It must be
+final may not be used in the construction of a constrained type. It must be
 declared as a property.
 
 
@@ -108,13 +106,13 @@ declared as a property.
 Constrained types come equipped with a subtype relation that
 combines the nominal subtyping relation of classes and interfaces with
 the logical entailment relation of the constraint system. Namely, a
-constraint \xcd{C(:c)} is a subtype of \xcd{D(:d)} if \xcd{C} is a
+constraint \xcd{C\{c\}} is a subtype of \xcd{D\{d\}} if \xcd{C} is a
 subtype of \xcd{D} and every value in \xcd{C} that satisfies \xcd{c}
 also satisfies \xcd{d}.
 
 % Thus, the set of constrained types on a base
 % type \xcd{C} inherits a lattice structure from the underlying
-% constraint system. The maximal element is \xcd{C(:true)}, which is
+% constraint system. The maximal element is \xcd{C\{true\}}, which is
 % just \xcd{C}, and the minimal element is the unsatisfiable constraint.
 
 % Constrained types come equipped with a {\em subtyping
@@ -123,22 +121,24 @@ also satisfies \xcd{d}.
 This definition 
 % satisfies Liskov's Substitution Principle~\cite{liskov-behaviors}) and
 implies that
-\xcd{C(:e1)} is a subtype of \xcd{C(:e2)} if \xcd{e1} implies \xcd{e2}.
+\xcd{C\{e$_1$\}} is a subtype of \xcd{C\{e$_2$\}} if \xcd{e$_1$}
+implies \xcd{e$_2$}.
 In particular, for all conditions \xcd{e},
-\xcd{C(:e)} is a subtype of \xcd{C}.
-\xcd{C(:e)} is empty exactly
+\xcd{C\{e\}} is a subtype of \xcd{C}.
+\xcd{C\{e\}} is empty exactly
 when \xcd{e} conjoined with \xcd{C}'s class invariant is inconsistent.
 
-Two constrained types \xcd{C1(:e1)} and \xcd{C2(:e2)} are considered
-equivalent if \xcd{C1} and \xcd{C2} are the same base type and
-\xcd{
-e1} and \xcd{e2} are equivalent when considered as logical
-expressions. Thus, \xcd{C(:x*x==4)} and \xcd{C(:x==2 || x==-2)} are
+Two constrained types
+\xcd{C$_1$\{e$_1$\}} and \xcd{C$_2$\{e$_2$\}}
+are considered
+equivalent if \xcd{C$_1$} and \xcd{C$_2$} are the same base type and
+\xcd{e$_1$} and \xcd{e$_2$} are equivalent when considered as logical
+expressions. Thus, \xcd{C\{x*x==4\}} and \xcd{C\{x==2 || x==-2\}} are
 equivalent types.
 
 \subsection{Final variables}
 
-The use of \xcd{final} local variables, formal parameters, and
+The use of final local variables, formal parameters, and
 fields in constrained
 types has proven to be particularly valuable in practice. The same
 variable that is being used in computation can also be used to specify
@@ -146,10 +146,14 @@ types. There is no need to introduce separate, universally and
 existentially quantified ``index'' variables as in, for
 instance, \DML{}~\cite{xi99dependent}.
 %
-During type-checking, \xcd{final} variables are turned into symbolic
+During type-checking, final variables are turned into symbolic
 variables---some fixed but unknown value---of the same type.
 Computation is performed in a constraint-based fashion on such
 variables.
+
+Because of the usefulness of final variables in \Xten{}, variables
+and parameters declared without an explicit \xcd{var} or \xcd{val}
+keyword are considered final.
 
 \subsection{Method and constructor preconditions}
 
@@ -171,20 +175,20 @@ of the class and not others.
 The
 return type of a method may also contain expressions involving the
 arguments to the method.  Any argument used in this way must
-be declared \xcd{final},
+be declared final,
 ensuring it is not mutated by the method body.  For instance,
-the following is a valid method declaration:
+the following is a valid method declaration in a class
+\xcd{Region} with a \xcd{boolean} property \xcd{rect}:
 \begin{xten}
-List(arg.length-1)
-  tail(final List arg: arg.length > 0) {
-     ...
-}
+def product(r: Region{rect}){this.rect}:
+        Region{rect} = ...
 \end{xten}
 \noindent
-The precondition
+The method is intended to compute the Cartesian product of two
+rectangular regions (sets of $n$-dimensional points).
+The precondition \xcd{this.rect}
 says that
-\xcd{tail} must be passed a non-empty list.  The method returns a list
-whose length is one less than its argument.
+the receiver must be rectangular for the method to be invoked.
 
 \subsection{Method overloading and overriding}
 
@@ -257,9 +261,9 @@ class and its superclasses and superinterfaces hold.
 For instance, the
 nullary constructor for \xcd{List} ensures that the property
 \xcd{length} has the value \xcd{0}:
-\begin{xten}
-    public List(0)() { property(0); }
-\end{xten}
+\begin{xtennoindent}
+  public def this(): List(0) { property(0); }
+\end{xtennoindent}
 The \xcd{property} statement is used to set all the properties
 of the new object simultaneously.  Capturing this assignment in
 a single statement simplifies checking that the constructor
@@ -293,7 +297,7 @@ by the instances.
 \subsection{Extending dependent classes}
 
 A class may extend a constrained class, e.g.,
-\xcd{class} \xcd{C($\dots$)} \xcd{extends} \xcd{D(:d)}.
+\xcd{class} \xcd{C($\dots$)} \xcd{extends} \xcd{D\{d\}}.
 This documents the programmer's intention that
 every call to \xcd{super} in a constructor for \xcd{C} must ensure
 that the invariant \xcd{d} is established on the state of the class
@@ -316,36 +320,44 @@ since properties play a central role in the specification of
 refinements of a type, it makes sense to permit interfaces to specify
 properties.
 Similarly, an interface
-definition may specify an invariant on its properties.  Methods
-in the body of an interface may have method constraints
-as well.
+definition may specify an invariant on its properties: all
+classes implementing the interface must satisfy the invariant.  Methods
+in the body of an interface may have constraints on their
+parameters as well.
 
 All classes implementing an interface must have a property
 with the same name and
 type (either declared in the class or inherited from the superclass)
 for each property in the interface. If a class implements
-multiple interfaces and more than one of them specify a property
+multiple interfaces and more than one of them specifies a property
 with the same name, then they must all agree on the type of the
-property. The class must have a single property with the given name
+property. The class must declare a single property with the given name
 and type.
 
-The general form of a class declaration is now:
-\begin{xten}
-class C(T$_1$ x$_1$, ..., T$_k$ x$_k$)
-      extends B(:c)
-      implements I$_1$(:c$_1$), ..., I$_n$(:c$_n$) {...}
-\end{xten}
-\noindent
-For such a declaration to type-check, it must be that the class
-invariant of \xcd{C} implies \inv(${\tt I}_i$)\xcd{\ & c}$_i$, where
-\inv(${\tt I}_i$) is the
-invariant associated with interface \xcd{I}$_i$.  Again, a constrained
-class or interface \xcd{I} is taken as shorthand for \xcd{I(:true)}.
 Further, every method specified in the interface must have a
 corresponding method in the class with the same signature whose
 precondition, if any, is implied by the precondition of the method in
 the interface.
 
+The general form of a class declaration is thus:
+\begin{xten}
+class C(x$_1$: C$_1${c$_1$}, ..., x$_k$: C$_k${c$_k$}){c}
+  extends D{d}
+  implements I$_1${c$_1$}, ..., I$_n${c$_n$} {...}
+\end{xten}
+\noindent
+For all instances of \xcd{C}, the class invariant \xcd{c},
+the invariants of the superclass and superinterfaces,
+as well as the constraints \xcd{d} and \xcd{c$_i$} must hold.
+\eat{
+For such a declaration to type-check, it must be that the class
+invariant of \xcd{C}, \inv(\xcd{C}) implies
+\inv({\tt D})\xcd{\ &\ d}\xcd{\ &\ }\inv({\tt I}$_i$)\xcd{\ & c}$_i$, where
+\inv({\tt T}) is the
+invariant associated with the class or interface \xcd{T}.
+Again, a constrained
+class or interface \xcd{I} is taken as shorthand for \xcd{I\{true\}}.
+}
 
 \subsection{Separation between compile-time and run-time computation}
 
@@ -364,7 +376,7 @@ variable will have a concrete value and will perform ``arithmetic''
 (calculations) where the compiler performed ``algebra'' (symbolic
 analysis).
 
-Constrained types may occur in a class cast \xcd{(T)}\;\xcd{e}.  Code is
+Constrained types may occur in a run-time cast \xcd{e as T}.  Code is
 generated to check at run time that the expression \xcd{e}
 satisfies any constraints in \xcd{T}.
 
@@ -375,27 +387,27 @@ system.
 All constraint systems installed using plugins must support at least the core
 equality-based constraints.
 Constraints are conjunctions of equalities between
-constraint terms: properties, \xcd{final} variables,
+constraint terms: properties, final variables,
 compile-time constants, and \xcd{self}:
 
 {\small
 \begin{tabular}{r@{\quad}rcl}
 \\
-    (C Term) & \xcd{t} &{::=}& \xcd{x} \alt \xcd{this} \alt
-    \xcd{self} \alt \xcd{t.f} \alt $n$ \\
-(Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true} \alt \xcd{t ==
-t}
+    (C Term) & \xcd{t} &{::=}& \xcd{x} \alt \xcd{self} \alt
+    \xcd{this} \alt \xcd{t.f} \alt $n$ \\
+(Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true}
+        \alt \xcd{t==t}
 \alt
 \xcd{c & c}
 %\alt
 \\ & & \alt &
-\xcd{T x; c} \\
+$\xcd{x} : \tcd{T};~\tcd{c}$ \\
 \\
 \end{tabular}
 }
 
 \noindent
-We use the syntax \xcd{T x; c} for the constraint obtained by existentially
+We use the syntax \xcd{x: T; c} for the constraint obtained by existentially
 quantifying the variable \xcd{x} of type \xcd{T} in \xcd{c}.
 
 \subsection{Existential quantification}
@@ -412,9 +424,8 @@ requires a constraint system capable of reasoning about integer
 multiplication and
 division.  We have not yet implemented such a system.}
 \begin{xten}
-int(:int x; int y; a==x*self & b==y*self)
-  gcd(final int a, final int b)
-{
+def gcd(a: int, b: int):
+      int{x: int, y: int; a==x*self & b==y*self) {
     if (b == 0) return a;
     else return gcd(b, a % b);
 }
@@ -425,17 +436,17 @@ Operations on values of constrained type
 propagate constraints
 to the operation result by introducing existentially quantified
 variables.  Consider the assignment to \tcd{c} below:
-\begin{xten}
-int(:self >= 0) a = ...;
-int(:self >= 0) b = ...;
-int(:self >= 0) c = a*b;
-\end{xten}
+\begin{xtennoindent}
+  a: int{self >= 0} = ...;
+  b: int{self >= 0} = ...;
+  c: int{self >= 0} = a*b;
+\end{xtennoindent}
 During type-checking, the type of \xcd{a*b} is
 computed from the types of \xcd{a} and \xcd{b} to be
 the type:
-\begin{xten}
-int(:int x; int y; self==x*y & x>=0 & y>=0)
-\end{xten}
+\begin{xtennoindent}
+  int{x: int, y: int; self==x*y & x>=0 & y>=0)
+\end{xtennoindent}
 That is, there exist non-negative \tcd{int}s \tcd{x} and \tcd{y} 
 whose product is \tcd{self}.
 The constraint on this type is strong enough to establish the
@@ -452,22 +463,23 @@ in this graph are base types (class and interface names). There is an
 edge from node \xcd{A} to node \xcd{B} if \xcd{A} has a property whose
 base type is \xcd{B}.
 
-Let us define the {\em real clause} of a constrained type \xcd{C(:c)} to be
+Let us define the {\em real clause} of a constrained type
+\xcd{C\{c\}} to be
 the set of constraints that must be satisfied by any instance of
-\xcd{C(:c)}. This includes not only the condition \xcd{c} but also
+\xcd{C\{c\}}. This includes not only the condition \xcd{c} but also
 constraints that hold for all instances of \xcd{C}, as
 determined by \xcd{C}'s class invariant. Let 
-$\rc({\tt C(:c)})$ denote the {\em real clause} of \xcd{C(:c)}.
+$\rc({\tt C\{c\}})$ denote the {\em real clause} of \xcd{C\{c\}}.
 For simplicity, we consider only top-level classes; thus, the
 only free variable
-in $\rc({\tt C(:c)})$ is \xcd{self}.  We draw out \xcd{self} as a
-formal parameter and write $\rc({\tt C(:c)}, {\tt z})$
-for $\rc({\tt C(:c}[{\tt z}/\mbox{\xcd{self}}]))$.
+in $\rc({\tt C\{c\}})$ is \xcd{self}.  We draw out \xcd{self} as a
+formal parameter and write $\rc({\tt C\{c\}}, {\tt z})$
+for $\rc({\tt C\{c}[{\tt z}/\mbox{\xcd{self}}]\})$.
 
 Consider a general class definition:
 \begin{xten}
-class C(C$_1$(:c$_1$) x$_1$, ..., C$_k$(:c$_k$) x$_k$: c)
-  extends D(:d) { ... }
+class C(x$_1$: C$_1${c$_1$}, ..., x$_k$: C$_k${c$_k$}){c}
+  extends D{d} { ... }
 \end{xten}
 
 \noindent From this, we get:
@@ -476,8 +488,8 @@ $$\rc({\tt C},{\tt z}) ~ \iff \!\!\!\!\!\!\!\!\!\!
 \begin{array}{l}
 \quad  ({\tt c} \wedge {\tt d})[{\tt z}/{\tt self},{\tt z}/\this]
 \;\wedge\; \rc({\tt D},{\tt z}) \;\wedge \\
-\quad  \rc(\mbox{\tcd{C$_1$(:c$_1$)}}, {\tt z.x}_1) \;\wedge\; \cdots
-\;\wedge\; \rc(\mbox{\tcd{C$_k$(:c$_k$)}}, {\tt z.x}_k)
+\quad  \rc(\mbox{\tcd{C$_1$\{c$_1$\}}}, {\tt z.x}_1) \;\wedge\; \cdots
+\;\wedge\; \rc(\mbox{\tcd{C$_k$\{c$_k$\}}}, {\tt z.x}_k)
 \end{array}
 $$
 
@@ -487,7 +499,7 @@ defined in a mutually recursive fashion through the Clark completion
 of a Horn clause theory (over an underlying constraint system).
 
 The central algorithmic question now becomes whether given a
-constrained clause {\tt d}, does $\rc(\mbox{\tt C(:c)},{\tt z})$ entail {\tt d}? 
+constrained clause {\tt d}, does $\rc(\mbox{\tt C\{c\}},{\tt z})$ entail {\tt d}? 
 %
 From the above formulation the question is clearly semi-decidable. It
 is not clear however whether it is decidable. This is a direction for
@@ -523,7 +535,7 @@ types wherever appropriate.
 \subsection{Parametric consistency}
 
 Consider the set of final variables that are referenced in a type
-\xcd{T} = \xcd{C(:c)}. These are the {\em parameters} of the type. A
+\xcd{T} = \xcd{C\{c\}}. These are the {\em parameters} of the type. A
 type is said to be {\em parametrically consistent} if its
 (class)
 invariant
@@ -539,9 +551,10 @@ the type system.}
 
 Consider a variation of \xcd{List} from Figure~\ref{fig:list-example}:
 \begin{xten}
-class List(int(:self >= 0) n) {
-  Object head;
-  List(:self!=null & self.n==this.n-1) tail;
+class List(n: int{self >= 0}) {
+  var head: Object;
+  var tail: List{self!=null &
+                 self.n==this.n-1};
   ...
 }
 \end{xten}
