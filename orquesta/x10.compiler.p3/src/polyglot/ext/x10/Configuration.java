@@ -11,6 +11,7 @@
 package polyglot.ext.x10;
 
 import x10.runtime.util.ConfigurationError;
+import x10.runtime.util.OptionError;
 
 /**
  * This class provides the configuration for the X10 compiler.
@@ -63,10 +64,11 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	 * configuration file and the defaults).
 	 *
 	 * @param arg the current argument, e.g., -STATISTICS_DISABLE=all
-	 * @return true if the argument is recognized; false otherwise
+	 * @throws OptionError if the argument is not recognized
+	 * @throws ConfigurationError if there was a problem processing the argument
 	 */
-	public static boolean parseArgument(String arg) {
-		return parseArgument(Configuration.class, arg);
+	public static void parseArgument(String arg) throws OptionError, ConfigurationError {
+		parseArgument(Configuration.class, arg);
 	}
 
 	/**
