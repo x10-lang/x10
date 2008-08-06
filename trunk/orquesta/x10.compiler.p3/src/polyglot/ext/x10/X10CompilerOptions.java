@@ -14,6 +14,8 @@ import java.util.Set;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
+import x10.runtime.util.ConfigurationError;
+import x10.runtime.util.OptionError;
 
 public class X10CompilerOptions extends polyglot.main.Options {
 
@@ -27,9 +29,23 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		int i = super.parseCommand(args, index, source);
 		if (i != index) return i;
 
-		if (Configuration.parseArgument(args[index]))
+		try {
+			Configuration.parseArgument(args[index]);
 			return ++index;
+		}
+		catch (OptionError e) { }
+		catch (ConfigurationError e) { }
 		return index;
+	}
+
+	public int checkCommand(String args[], int index, Set source)
+		throws UsageError, Main.TerminationException, OptionError, ConfigurationError
+	{
+		int i = super.parseCommand(args, index, source);
+		if (i != index) return i;
+		
+		Configuration.parseArgument(args[index]);
+		return ++index;
 	}
 
 	/**
