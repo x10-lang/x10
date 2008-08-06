@@ -265,7 +265,7 @@ type as a syntactic expression).
 The rules for well-formedness of types are straightforward, given 
 the assumption that constraints are of type {\tt o}.
 
-\paragraph{Type judgment rules.}
+\paragraph{Typing rules.}
 {\sc T-Var} is as expected, except that it asserts the constraint {\tt
 self==x} which records the fact that any value of this type is known
 statically to be equal to {\tt x}. This constraint is actually 
@@ -326,7 +326,7 @@ The theorem needs the Substitution Lemma:
 \begin{lemma} The following is a derived rule:
 \infrule[Subst]
 {\Gamma \vdash \bar{\tt d}:\bar{\tt U} \andalso \Gamma, \bar{\tt x}:\bar{\tt U} \vdash \bar{\tt U}\subtype\bar{\tt V} \andalso \Gamma, \bar{\tt x}:\bar{\tt V} \vdash {\tt e:T}}
-{\Gamma \vdash {\tt e[\bar{\tt d}/\bar{\tt x}]:S}, {\tt S \subtype \bar{\tt x}:\bar{\tt A};T}}
+{\Gamma \vdash {\tt e[\bar{\tt d}/\bar{\tt x}]:S}, {\tt S \subtype \bar{\tt x}:\bar{\tt V};T}}
 \end{lemma}
 
 We let values be of the form $\tt v ::= \new\ C(\bar{\tt v})$. 
