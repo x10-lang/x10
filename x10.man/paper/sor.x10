@@ -4,14 +4,14 @@ const WEST:  point{rank==2} = [0,1];
 def sor(omega: double,
         G: Array[double]{rank==2},
         iter: int): void {
-  outer: region{self==G.region & rank==2} = G.region;
-  inner: region{G.region.contains(self) &
+  outer: Region{self==G.region, rank==2} = G.region;
+  inner: Region{G.region.contains(self),
                 rank==G.region.rank}
           = outer & (outer-NORTH) & (outer+NORTH)
                   & (outer-WEST)  & (outer+WEST);
 
-  d0: region = inner.rank(0); // {i | (i,j) in inner}
-  d1: region = inner.rank(1); // {j | (i,j) in inner}
+  d0: Region = inner.rank(0); // {i | (i,j) in inner}
+  d1: Region = inner.rank(1); // {j | (i,j) in inner}
   
   if (d1.size() == 0) return;
   
