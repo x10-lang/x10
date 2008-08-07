@@ -1,2 +1,0 @@
-// SYNOPSIS: #0[#1], and #2 is the runtime type of array #0
-(((#2)(#0)).arr_[#1])

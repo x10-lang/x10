@@ -1,2 +1,0 @@
-// SYNOPSIS: new #0[#1] {#2} #3=is_safe #4=is_value #5=value_elements
-x10Array.factory.#0(#1,#2,#3,#4,#5)
