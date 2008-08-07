@@ -2,21 +2,21 @@ This section describes constrained types in \Xten{}.
 
 \subsection{Properties}
 
-A property is a \xcd{public} final instance field of the
+A property is a public final instance field of a
 class that cannot be overridden by subclassing. Like any other field,
 a property is typed, and its type need not necessarily be
-primitive. Thus, properties capture the immutable public state of an
+primitive. Properties thus capture the immutable public state of an
 object, initialized when the object is created, that can be
 classified by constrained types. Syntactically, properties are
 specified in a parameter list right after the name of the class in a
 class definition. The class body may contain specifications of other
-fields; these fields are considered mutable.
+fields; these fields may be mutable.
 
 Properties may be of arbitrary type. For instance, the class
-\tcd{region} has an \tcd{int} property called \tcd{rank}. In turn, the
-class \tcd{dist} has a \tcd{region} property, called \tcd{region}, and
-also an \tcd{int} property \tcd{rank}.  The invariant for \tcd{dist}
-ensures that \tcd{rank == region.rank}. Similarly, an array has
+\tcd{Region} in Figure~\ref{fig:region} has an \tcd{int} property called \tcd{rank}. In turn, the
+class \tcd{Dist} has a \tcd{Region} property, called \tcd{region}, and
+also an \tcd{int} property \tcd{rank}.  The invariant for \tcd{Dist}
+ensures that \tcd{rank == region.rank}. Similarly, an \xcd{Array} has
 properties \tcd{dist}, \tcd{region}, and \tcd{rank}
 and appropriate constraints ensuring that the statically available
 information about them is consistent.\footnote{All constraint
@@ -49,6 +49,31 @@ represents the interior of a circle (for a class \xcd{Point} with two
 ambiguity, a property reference \xcd{self.x} may be abbreviated
 to \xcd{x}. The type \xcd{int\{self==v\}} represents a ``singleton'' type, an
 \xcd{int} is of this type only if it has the same value as \xcd{v}.
+
+\begin{figure}[t]
+{
+\footnotesize
+\begin{xtenlines}
+class Region(rank: int) {
+  def contains(p: Point{rank==this.rank}):
+      boolean { ... }
+  ...
+}
+
+class Dist(region: Region, rank: int)
+    {rank == region.rank} { ... }
+
+class Array[T](dist: Dist, region: Region, rank: int)
+    {region == dist.region, rank == dist.rank}
+{
+  def get(p: Point{region.contains(self)}: T { ... }
+  ...
+}
+\end{xtenlines}
+}
+
+\caption{Sketch of \Xten{} support for regions, distributions, and arrays}\label{fig:region}
+\end{figure}
 
 To be clear, \xcd{self} is not the same as \xcd{this}.  In the
 \xcd{List} example of Figure~\ref{fig:list-example}, the
@@ -206,18 +231,19 @@ clauses in their types are erased.
 A class \xcd{C} inherits from its direct superclass and
 superinterfaces all their methods that are visible according to the access
 modifiers and that are not hidden or overridden. A method
-\xcd{m1} in a class \xcd{C} overrides a method \xcd{m2} in a
-superclass \xcd{D} if \xcd{m1} and \xcd{m2} have signatures
+\xcd{m$_1$} in a class \xcd{C} overrides a method \xcd{m$_2$} in a
+superclass \xcd{D} if \xcd{m$_1$} and \xcd{m$_2$} have signatures
 with equivalent (unerased) formal parameter types.
-It is a static error if \xcd{m1}'s erased signature is the same
-as \xcd{m2}'s, but \xcd{m1} does not override \xcd{m2}.
+It is a static error if \xcd{m$_1$}'s erased signature is the same
+as \xcd{m$_2$}'s, but \xcd{m$_1$} does not override \xcd{m$_2$}.
 
-It is also a static error if the method precondition on \xcd{m2} does
-not entail the precondition on \xcd{m1}.  This restriction
+It is also a static error if the method precondition on
+\xcd{m$_2$} does
+not entail the precondition on \xcd{m$_1$}.  This restriction
 ensures that if the a call
-is type-checked against \xcd{m2} at the superclass type \xcd{D},
+is type-checked against \xcd{m$_2$} at the superclass type \xcd{D},
 the precondition is satisfied if the method is dispatched to the
-method \xcd{m1} in the subclass \xcd{C}.
+method \xcd{m$_1$} in the subclass \xcd{C}.
 
 Method dispatch takes only the class hierarchy into account, not 
 dependent type information.  Thus, \Xten{} does not provide a

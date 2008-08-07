@@ -124,9 +124,9 @@ the user to state constraints on type variables).
 	{{\tt class\ C(\ldots)\ extends\ D\{\ldots\}}\in P}
 	{\tt\vdashO C \subtype D}
 &
-\infrule[S-Const-L]
-	{\Gamma\tt,  {\tt c} \vdashO {\tt S}\; \subtype\; {\tt T}}
-	{\Gamma\tt  \vdashO {\tt S\{c\}}\;\subtype\; {\tt T}}
+\infrule[S-Const-L]      %%% changed from POPL
+	{\Gamma \vdash {\tt T}\{{\tt c}\}~\type}
+	{\Gamma\tt  \vdashO {\tt T\{c\}}\subtype {\tt T}}
 \end{tabular}
 \quad\\[-12pt]
 \begin{tabular}{p{0.32\textwidth}p{0.38\textwidth}p{0.31\textwidth}}
@@ -141,11 +141,11 @@ the user to state constraints on type variables).
 	  \Gamma \vdashO {\tt S} \subtype {\tt T}
           \andalso
           \mbox{({\tt x} fresh})}
-	{\Gamma\tt  \vdashO {\tt x:U;S}\;\subtype\; {\tt T}}
+	{\Gamma\tt  \vdashO {\tt x:U; S} \subtype {\tt T}}
 &
 \infrule[S-Exists-R]
 	{\Gamma\tt  \vdash t:{\tt U} \andalso \Gamma \vdashO {\tt S}\; \subtype\; {\tt T}[{\tt t}/{\tt x}]}
-	{\Gamma\tt  \vdashO {\tt S}\;\subtype\; {\tt x;U:T}}
+	{\Gamma\tt  \vdashO {\tt S} \subtype {\tt x:U; T}}
 \end{tabular}}
 
 For a class {\tt C} and variable {\tt x}, ${\tt \inv(C,x)}$ stands for the conjunction of class invariants for {\tt C} and its supertypes, with {\tt this} replaced by {\tt x}.
@@ -195,9 +195,10 @@ projection}, $\sigma(\Gamma)$ is defined as allows.
 
 \begin{tabular}{l}
 $\sigma(\epsilon) = {\tt true}$\\
-$\sigma({\tt x}:{\tt T\{c\}}, \Gamma)$ = {\tt c}[{\tt x}/\self], $\sigma(\Gamma)$\\
+$\sigma({\tt x}:{\tt C}, \Gamma)$ = $\sigma(\Gamma)$\\
+$\sigma({\tt x}:{\tt T\{c\}}, \Gamma)$ = {\tt c}[{\tt x}/\self], $\sigma({\tt x}:{\tt T}, \Gamma)$\\
 $\sigma({\tt x}:{\tt (y:S;T)}, \Gamma)$ = $\sigma({\tt y:S}, {\tt x}:{\tt T},\Gamma)$\\
-$\sigma(c,\Gamma)$ = c, $\sigma(\Gamma)$
+$\sigma({\tt c},\Gamma)$ = {\tt c}, $\sigma(\Gamma)$
 \end{tabular}
 
 \noindent Above, in the third rule we assume that
@@ -319,7 +320,8 @@ involve run-time constraint solving using the fields of the object.
 \subsection{Results}
 The following results hold for \FXD.
 
-\begin{theorem}[Subject Reduction] If $\Gamma \vdash {\tt e:T}$ and ${\tt e} \derives {\tt e'}$ then for some type {\tt S}, $\Gamma \vdash {\tt e':S},{S \subtype T}$.
+\begin{theorem}[Subject Reduction] If $\Gamma \vdash {\tt e:T}$
+and ${\tt e} \derives {\tt e'}$ then for some type {\tt S}, $\Gamma \vdash {\tt e':S},{\tt S \subtype T}$.
 \end{theorem}
 
 The theorem needs the Substitution Lemma:
