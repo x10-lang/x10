@@ -68,7 +68,6 @@ $\Gamma, {\tt x} \ty {\tt S} \vdash {\tt e} \ty {\tt T}$.
 Straightforward.
 \end{proof}
 
-\eat{
 % Unchanged from FJ
 \begin{lemma}[Method body type]
 \label{body-type}
@@ -96,7 +95,7 @@ $\this:{\tt C},\tbar{z}:\tbar{U}[\this/{\tt z}],{\tt c}[\this/{\tt z}] \vdash {\
 
 Straightforward.
 \end{proof}
-}
+
 \begin{lemma}
 \label{existential-subtyping}
 If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
@@ -669,10 +668,10 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
             $$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e},$$
             and 
             $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt U}_{1:n}$,
-            by Lemma~\ref{body-type}, we have
-            $\Gamma {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt e}: {\tt S}$.
+            by Lemma~\ref{body-type}, we have for some ${\tt S}'$
+            $\Gamma {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt e}: {\tt S}',{\tt S}' \subtype S$.
 
-            Choose ${\tt V} = ({\tt z}_{0:n}: {\tt T}_{0:n};\ {\tt S})$.
+            Choose ${\tt V} = ({\tt z}_{0:n}: {\tt T}_{0:n};\ {\tt S}')$.
 
             From \RInvk, we have
             ${\tt d}_0.{\tt m}(\tbar{d}) \derives {\tt e}[{\tt d}_0,\tbar{d}/\this,\tbar{z}]$.
