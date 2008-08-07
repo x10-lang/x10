@@ -215,11 +215,13 @@ condition \xcd{e}.
 We write \xcd{C} for 
 the vacuously constrained type \xcd{C\{true\}}, and
 write
-\tcd{C(${\tt e}_1,\ldots,{\tt e}_k$)} for
+\xcd{C(${\tt e}_1,\ldots,{\tt e}_k$)} for
 the type
 \xcd{C\{${\tt f}_1$==${\tt e}_1,\ldots,{\tt f}_k$==${\tt e}_k$\}}
 where \xcd{C} declares the $k$ properties
-${\tt f}_1,\ldots,{\tt f}_k$.
+${\tt f}_1,\ldots,{\tt f}_k$.  Also, for brevity, a constraint
+may be written as a comma-separated list of conjuncts, e.g.,
+\xcd{Point\{x>0,y<=0\}}.
 
 Constrained types may occur wherever normal types occur. In
 particular, they may be used to specify the types of properties,

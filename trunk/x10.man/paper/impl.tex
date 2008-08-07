@@ -130,7 +130,7 @@ After constraint-checking, the \Xten{} code is translated to
 Java in a straightforward manner.  Each dependent class
 is translated into a single class of the same name without dependent
 types. The explicit properties of the dependent class are translated
-into \xcd{public final} instance fields of the target class.
+into \xcd{public} \xcd{final} instance fields of the target class.
 A \xcd{property} statement in a constructor is translated to a
 sequence of assignments to initialize the property fields.
 
@@ -145,7 +145,10 @@ Usually, constrained types are simply translated to
 non-constrained types by erasure; constraints are checked
 statically and need no run-time representation.
 However, dependent types may be used in casts
-and \xcd{instanceof} expressions.  The language does not allow
+and \xcd{instanceof} expressions.  
+The values of the properties of the object whose type is being tested
+are sufficient to implement the test.
+The language does not allow
 existential constraints to be used in run-time type tests; this
 allows the tests of constrained types to be implemented
 by evaluating the constraint with
