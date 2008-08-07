@@ -124,7 +124,8 @@ the user to state constraints on type variables).
 	{{\tt class\ C(\ldots)\ extends\ D\{\ldots\}}\in P}
 	{\tt\vdashO C \subtype D}
 &
-\infrule[S-Const-L]      %%% changed from POPL
+\infrule[S-Const-L]     %%% XXX changed from POPL, was : G, c |- S <: T  ==>  G |- S{c} <: T
+                        %%% XXX couldn't get constraint-lemma to go thru with that rule
 	{\Gamma \vdash {\tt T}\{{\tt c}\}~\type}
 	{\Gamma\tt  \vdashO {\tt T\{c\}}\subtype {\tt T}}
 \end{tabular}
