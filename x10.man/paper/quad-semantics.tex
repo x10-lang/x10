@@ -326,10 +326,15 @@ and ${\tt e} \derives {\tt e'}$ then for some type {\tt S}, $\Gamma \vdash {\tt 
 \end{theorem}
 
 The theorem needs the Substitution Lemma:
-\begin{lemma} The following is a derived rule:
-\infrule[Subst]
-{\Gamma \vdash \bar{\tt d}:\bar{\tt U} \andalso \Gamma, \bar{\tt x}:\bar{\tt U} \vdash \bar{\tt U}\subtype\bar{\tt V} \andalso \Gamma, \bar{\tt x}:\bar{\tt V} \vdash {\tt e:T}}
-{\Gamma \vdash {\tt e[\bar{\tt d}/\bar{\tt x}]:S}, {\tt S \subtype \bar{\tt x}:\bar{\tt V};T}}
+\begin{lemma}
+If 
+$\Gamma \vdash \tbar{d}:\tbar{U}$,
+$\Gamma, \bar{\tt x}:\tbar{U} \vdash \tbar{U}\subtype\tbar{V}$,
+and
+$\Gamma, \tbar{x}:\tbar{V} \vdash {\tt e:T}$,
+then for some type {\tt S},
+$\Gamma \vdash {\tt e[\tbar{d}/\tbar{x}]:S}, {\tt S \subtype
+\tbar{x}:\tbar{V};T}.$
 \end{lemma}
 
 We let values be of the form $\tt v ::= \new\ C(\bar{\tt v})$. 
