@@ -68,33 +68,35 @@ $\Gamma, {\tt x} \ty {\tt S} \vdash {\tt e} \ty {\tt T}$.
 Straightforward.
 \end{proof}
 
+\eat{
 % Unchanged from FJ
 \begin{lemma}[Method body type]
 \label{body-type}
 If
-$$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{{\tt c}\}: {\tt S} = {\tt e},$$
+$$\Gamma, {\tt z}:{\tt T} \vdash {\tt z}\ \has\ {\tt m}(\bar{\tt z} \ty \bar{\tt U})\{{\tt c}\}: {\tt S} = {\tt e},$$
 and 
-$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt U}_{1:n}$,
-then
-$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt e}: {\tt S}$.
+$\Gamma, {\tt z}:{\tt T},\bar{\tt z}: \bar{\tt T} \vdash \bar{\tt T} \subtype \bar{\tt U}$,
+then for some type ${\tt S}'$ it is the case that 
+$\Gamma, {\tt z}:{\tt T},\bar{\tt z}: \bar{\tt T} \vdash {\tt e}: {\tt S}',{\tt S}'\ty {\tt S}$.
 \end{lemma}
 
+%%vj. Updated above formulation to use bars. Proof below needs to be fixed.
 \begin{proof}
 \eat{
 From
-$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{{\tt c}\}: {\tt S} = {\tt e}$,
-it is easy to show that for some {\tt C} such that $\Gamma \vdash {\tt T}_0 \subtype {\tt C}$,
-${\tt def}\ {\tt m}(\tbar{z}:\tbar{U}[\this/{\tt z}_0])\{{\tt c[\this/{\tt z}_0]}\}:{\tt S}[\this/{\tt z}_0] = {\tt e} \in P$.
+$\Gamma, {\tt z}: {\tt T} \vdash {\tt z}\ \has\ {\tt m}(\bar{\tt z} \ty \bar{\tt U})\{{\tt c}\}: {\tt S} = {\tt e}$,
+it is easy to show that for some {\tt C} such that $\Gamma \vdash {\tt T} \subtype {\tt C}$,
+${\tt def}\ {\tt m}(\tbar{z}:\tbar{U}[\this/{\tt z}])\{{\tt c[\this/{\tt z}]}\}:{\tt S}[\this/{\tt z}] = {\tt e} \in P$.
 
 By \rn{Method OK},
 $\this:{\tt C}\vdash {\tt c}:{\tt o}$
 and
-$\this:{\tt C},\tbar{z}:\tbar{U}[\this/{\tt z}_0],{\tt c}[\this/{\tt z}_0] \vdash {\tt S}[\this/{\tt z}_0] \ \type, \tbar{U}[\this/{\tt z}_0] \ \type, {\tt e}:{\tt V}, {\tt V} \subtype {\tt S}[\this/{\tt z}_0]$.
+$\this:{\tt C},\tbar{z}:\tbar{U}[\this/{\tt z}],{\tt c}[\this/{\tt z}] \vdash {\tt S}[\this/{\tt z}] \ \type, \tbar{U}[\this/{\tt z}] \ \type, {\tt e}:{\tt V}, {\tt V} \subtype {\tt S}[\this/{\tt z}]$.
 }
 
 Straightforward.
 \end{proof}
-
+}
 \begin{lemma}
 \label{existential-subtyping}
 If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
