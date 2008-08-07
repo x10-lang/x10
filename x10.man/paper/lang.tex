@@ -44,45 +44,18 @@ Constraints may use the special variable \xcd{self} to stand for
 the object whose type is being defined. Thus, \xcd{int\{self>=0\}} is
 the set of natural numbers, and \xcd{Point\{x*x+y*y <= 1.0\}}
 represents the interior of a circle (for a class \xcd{Point} with two
-\xcd{float} properties \xcd{x} and \xcd{y}). The type
-\xcd{C\{self != null\}} represents all instances of \xcd{C}. When there is no
+\xcd{float} properties \xcd{x} and \xcd{y}). When there is no
 ambiguity, a property reference \xcd{self.x} may be abbreviated
 to \xcd{x}. The type \xcd{int\{self==v\}} represents a ``singleton'' type, an
 \xcd{int} is of this type only if it has the same value as \xcd{v}.
 
-\begin{figure}[t]
-{
-\footnotesize
-\begin{xtenlines}
-class Region(rank: int) {
-  def contains(p: Point{rank==this.rank}):
-      boolean { ... }
-  ...
-}
-
-class Dist(region: Region, rank: int)
-    {rank == region.rank} { ... }
-
-class Array[T](dist: Dist, region: Region, rank: int)
-    {region == dist.region, rank == dist.rank}
-{
-  def get(p: Point{region.contains(self)}: T { ... }
-  ...
-}
-\end{xtenlines}
-}
-
-\caption{Sketch of \Xten{} support for regions, distributions, and arrays}\label{fig:region}
-\end{figure}
-
-To be clear, \xcd{self} is not the same as \xcd{this}.  In the
-\xcd{List} example of Figure~\ref{fig:list-example}, the
-\xcd{filter} method (line 24) returns
-a list with type
-\xcd{List\{self.n <= this.n\}}; the term
-\xcd{self.n} is the length of
-the returned \xcd{List}; the term \xcd{this.n} is the length of the 
-receiver of the call to \xcd{filter}.
+To be clear, \xcd{self} is not the same as \xcd{this}.
+In the code fragment in Figure~\ref{fig:region}, the
+method \xcd{contains} (line 2) has a parameter \xcd{p}
+with type \xcd{Point\{self.rank==this.rank\}}.  
+In the condition, \xcd{self} refers to the \xcd{Point} \xcd{p};
+\xcd{this} refers to the method receiver, an instance
+of the enclosing class \xcd{Region}.
 
 Constraints are specified in terms of an underlying
 constraint system~\cite{cccc}---a pre-defined logical vocabulary of
@@ -125,6 +98,31 @@ consciously controls {\em which} final fields should be available for
 constructing constrained types. A field that is ``accidentally''
 final may not be used in the construction of a constrained type. It must be
 declared as a property.
+
+\begin{figure}[t]
+{
+\footnotesize
+\begin{xtenlines}
+class Region(rank: int) {
+  def contains(p: Point{self.rank==this.rank}):
+      boolean { ... }
+  ...
+}
+
+class Dist(region: Region, rank: int)
+    {rank == region.rank} { ... }
+
+class Array[T](dist: Dist, region: Region, rank: int)
+    {region == dist.region, rank == dist.rank}
+{
+  def get(p: Point{region.contains(self)}: T { ... }
+  ...
+}
+\end{xtenlines}
+}
+
+\caption{Fragment of \Xten{} support for regions, distributions, and arrays}\label{fig:region}
+\end{figure}
 
 
 \subsection{Subtyping}
