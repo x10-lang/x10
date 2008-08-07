@@ -68,91 +68,25 @@ $\Gamma, {\tt x} \ty {\tt S} \vdash {\tt e} \ty {\tt T}$.
 Straightforward.
 \end{proof}
 
-\eat{
 % Unchanged from FJ
 \begin{lemma}[Body type]
 \label{body-type}
-If $\mtype(C(:d),{\tt m},z_0)=\tbar{T}\ \tbar{x} : {\tt c}
-\rightarrow {\tt S}$, and $mbody({\tt m}, C)=\tbar{x}.{\tt e}$, 
-then there exists ${\tt U}, {\tt V}$ such that
-$C \subtype {\tt U}$, ${\tt V}\subtype {\tt S}$, and
-$\tbar{T}\ \tbar{x},{\tt U}\ \this \vdash {\tt V}\ {\tt e}$.
+If
+$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e}$,
+and 
+$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt U}_{1:n}$,
+then
+$\Gamma \vdash {\tt e}: ({\tt z}_{0:n}: {\tt T}_{0:n};\ {\tt S})$.
 \end{lemma}
 
 \begin{proof}
 Straightforward.
-\end{proof}
-}
-
-\eat{
-\subsection{Erasure}
-
-Constrained types in \CFJ{} are a form of {\em refinement
-type}~\cite{refinement-types}.  If constraints are erased from a
-well-typed program,
-the resulting program will behave identically to the original unerased
-program except that the original program might be unable to take
-a step on a cast.
-
-Let $\Lb {\tt e} \Rb$ be the erasure of ${\tt e}$ defined as follows:
-\begin{align*}
-\Lb {\tt x} \Rb &= {\tt x} \\
-\Lb {\tt e}.{\tt f} \Rb &= \Lb {\tt e} \Rb.{\tt f} \\
-\Lb {\tt e}.{\tt m}(\tbar{e}) \Rb &= \Lb {\tt e} \Rb.{\tt m}(\bar{\Lb {\tt e} \Rb}) \\
-\Lb {\tt new}~{\tt C}(\tbar{e}) \Rb &= {\tt new}~{\tt C}(\bar{\Lb {\tt e} \Rb}) \\
-\Lb {\tt e}~{\tt as}~{\tt C}\{{\tt c}\} \Rb &=
-\Lb {\tt e} \Rb~{\tt as}~{\tt C}
-\end{align*}
-
-\begin{theorem}[Erasure]
-
-If $\vdash {\tt C}(:{\tt c})\ {\tt e}$ and ${\tt e} \starderives {\tt v}$,
-then $\vdash {\tt C}\ \Lb {\tt e} \Rb$ and $\Lb
-{\tt e} \Rb \starderives \Lb {\tt v} \Rb$.
-
-\end{theorem}
-}
-
-\eat{
-\begin{lemma}
-\label{subtyping}
-We have $\Gamma \vdash T \subtype T$.
-If $\Gamma \vdash T_1 \subtype T_2$ and $\Gamma \vdash T_2 \subtype T_3$,
-then $\Gamma \vdash T_1 \subtype T_3$.
-\end{lemma}
-
-\begin{proof}
-Straightforward.
-\end{proof}
-}
-
-\begin{lemma}
-\label{fields-lemma} % 1. 
-If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
-and  $\Gamma, {\tt z}: {\tt S} \vdash \fields({\tt z}) = \tbar{F}_1$,
-and  $\Gamma, {\tt z}: {\tt T} \vdash \fields({\tt z}) = \tbar{F}_2$,
-then $\tbar{F}_2$ is a prefix of $\tbar{F}_1$.
-\end{lemma}
-
-\begin{proof}
-Immediate from the rules of $\cal O$.
-\end{proof}
-
-\begin{lemma}
-\label{has-lemma} % 2. 
-If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
-and  $\Gamma, {\tt z}: {\tt T} \vdash {\tt z}\ \has\ {\tt I}$,
-then $\Gamma, {\tt z}: {\tt T} \vdash {\tt z}\ \has\ {\tt I}$.
-\end{lemma}
-
-\begin{proof}
-Immediate from the rules of $\cal O$.
 \end{proof}
 
 \begin{lemma}
 \label{existential-subtyping}
 If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
-then $$({\tt z}:{\tt S};~{\tt c}_0)[{\tt x}/\self] \vdash_{\cal C} ({\tt z}:{\tt T};~{\tt c}_0)[{\tt x}/\self]$$
+then $$({\tt z}:{\tt S};~{\tt c}_0)[{\tt x}/\self] \vdashO ({\tt z}:{\tt T};~{\tt c}_0)[{\tt x}/\self]$$
 where {\tt x} is fresh.
 \end{lemma}
 
@@ -160,42 +94,159 @@ where {\tt x} is fresh.
 Straightforward.
 \end{proof}
 
+\eat{
 \begin{lemma}
-\label{constraint-lemma} % 4. 
-If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
-and  $\sigma(\Gamma,{\tt f}: {\tt T}) \vdash_{\cal C} {\tt c}_0$,
-then $\sigma(\Gamma,{\tt f}: {\tt S}) \vdash_{\cal C} {\tt c}_0$,
+\label{erased-subtyping}
+If   $\Gamma \vdash \xcd{C\{c\}} \subtype \xcd{D\{d\}}$,
+then $\Gamma \vdash \xcd{C} \subtype \xcd{D}$.
 \end{lemma}
 
 \begin{proof}
-From   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
-we must have ${\tt S} = \xcd{C\{c\}}$ and ${\tt T} = \xcd{D\{d\}}$
-where
-${\tt C} \subtype {\tt D}$
-and
-$\sigma(\Gamma, {\tt x}: \xcd{C\{c\}}) \vdash_{\cal C} {\tt d}[{\tt x}/\self]$
-with ${\tt x}$ fresh.
+From \rn{S-Id} and \rn{S-Const-L}, we have
+$\Gamma \vdash \xcd{D\{d\}} \subtype \xcd{D}$.
+From \rn{S-Const-R}
+$\Gamma \vdash \xcd{C\{c\}} \subtype \xcd{D}$
+.
+\end{proof}
+}
+
+\eat{
+\begin{lemma}
+\label{subst-in-assumption}
+If   $\Gamma, {\tt x}: {\tt U}, {\tt c} \vdashO {\tt c}_0$
+and  $\Gamma \vdash {\tt t}: {\tt U}$,
+then $\Gamma, {\tt c}[{\tt t}/{\tt x}] \vdashO {\tt c}_0[{\tt t}/{\tt x}]$.
+\end{lemma}
+
+\begin{proof}
+Straightforward.
+\end{proof}
+}
+
+\begin{lemma}
+\label{constraint-lemma} % 4. 
+If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+and  $\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$,
+then $\sigma(\Gamma,{\tt f}: {\tt S}) \vdashO {\tt c}_0$.
+\end{lemma}
+
+\begin{proof}
+By induction on the derivation of 
+     $\Gamma \vdash {\tt S} \subtype {\tt T}$.
+We proceed by cases for the last judgment in the derivation.
+\begin{itemize}
+\item \textsc{S-Id}.
+Trivial.
+\item \textsc{S-Trans}.
+Straightforward from the induction hypothesis.
+\item \textsc{S-Extends}.
+We have
+${\tt S} = {\tt C}$ and ${\tt T} = {\tt D}$.
 From the definition of $\sigma(\cdot)$ we have
-    $$\sigma(\Gamma,{\tt f}: {\tt S}) =
-      \sigma(\Gamma), c[{\tt f}/\self], \inv(C,{\tt f})$$ and
-    $$\sigma(\Gamma,{\tt f}: {\tt T}) =
-      \sigma(\Gamma), d[{\tt f}/\self], \inv(D,{\tt f}).$$
-From $\Gamma \vdash S \subtype T$ we have 
-$\sigma(\Gamma, x: C\{c\}) \vdash_{\cal C} d[f/\self]$.
-Additionally, from the definition of $\inv(C,f)$ and
-from $C \subtype D$, 
-we have that $\inv(C,f)$ is a constraint that has $\inv(D,f)$ as a conjunct so 
-$\inv(C,f) \vdash_{\cal C} \inv(D,f)$.
-We conclude
-$\sigma(\Gamma,{\tt f}: {\tt S}) \vdash_{\cal C}
-\sigma(\Gamma,{\tt f}: {\tt T}).$
-We have that $\vdash_{\cal C}$ is transitive so 
-from $\sigma(\Gamma,{\tt f}: {\tt S}) \vdash_{\cal C}
-\sigma(\Gamma,{\tt f}: {\tt T})$
+    $$\sigma(\Gamma,{\tt f}: {\tt C}) = \sigma(\Gamma)$$
+    and
+    $$\sigma(\Gamma,{\tt f}: {\tt D}) = \sigma(\Gamma).$$
+The conclusion follows easily.
+
+\item \textsc{S-Const-L}.
+We have
+${\tt S} = {\tt T\{c\}}$.
+Assume
+$\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: {\tt T\{c\}}) = 
+      \sigma({\tt f}: {\tt T}, \Gamma), {\tt c}[{\tt f}/\self].$$
+Since
+$\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$, it follows immediately that
+$\sigma(\Gamma,{\tt f}: {\tt T}), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$.
+
+\item \textsc{S-Const-R}.
+We have
+${\tt T} = {\tt U\{c\}}$ and $\Gamma \vdash {\tt S} \subtype {\tt U}$
+and $\Gamma, \self: {\tt S} \vdash {\tt c}$.
+
+Assume
+$\sigma(\Gamma,{\tt f}: {\tt U\{c\}}) \vdashO {\tt c}_0$.
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: {\tt U\{c\}}) = 
+      \sigma({\tt f}: {\tt U}, \Gamma), {\tt c}[{\tt f}/\self].$$
+Thus,
+    $\sigma({\tt f}: {\tt U}, \Gamma), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$.
+
+Since
+$\Gamma, \self: {\tt S} \vdash {\tt c}$,
+we have
+$\Gamma, {\tt f}: {\tt S} \vdash {\tt c}[{\tt f}/\self]$,
+and hence
+$\sigma(\Gamma, {\tt f}: {\tt S}) \vdashO {\tt c}[{\tt f}/\self]$.
+
+Since 
+$\Gamma \vdash {\tt S} \subtype {\tt U}$,
+applying the induction hypothesis to ${\tt c}[{\tt f}/\self]$, we have
+$\sigma(\Gamma, {\tt f}: {\tt U}) \vdashO {\tt c}[{\tt f}/\self]$.
+
+Therefore, in the judgment
+$\sigma({\tt f}: {\tt U}, \Gamma), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$,
+${\tt c}[{\tt }/\self]$ is redundant and we can conclude
+    $\sigma({\tt f}: {\tt U}, \Gamma) \vdashO {\tt c}_0$.
+
+Finally,
+applying the induction hypothesis to ${\tt c}_0$, we have
+$\sigma(\Gamma,{\tt f}: {\tt S}) \vdashO {\tt c}_0$.
+
+\item \textsc{S-Exists-L}.
+We have
+${\tt S} = {\tt x}: {\tt U};~{\tt V}$
+    and
+    $\Gamma \vdash {\tt U}~\type$
+    and
+    $\Gamma \vdashO {\tt V} \subtype {\tt T}$
+    where {\tt x} is fresh.
+
+Assume $\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
+
+By the induction hypothesis,
+$\sigma(\Gamma,{\tt f}: {\tt V}) \vdashO {\tt c}_0$.
+
+Adding ${\tt f}: {\tt V}$ to the assumptions,
+we can conclude
+$\sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}) \vdashO {\tt c}_0$.
+
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: ({\tt x}: {\tt U};~{\tt V})) =
+      \sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}).$$
+
+Thus,
+$\sigma(\Gamma,{\tt f}: {\tt S}) \vdashO {\tt c}_0$.
+
+\item \textsc{S-Exists-R}.
+We have
+${\tt T} = {\tt x}: {\tt U}; {\tt V}$
+    and
+    $\Gamma \vdash {\tt t}: {\tt U}$
+    and
+    $\Gamma \vdashO {\tt S} \subtype {\tt V}[{\tt t}/{\tt x}$.
+
+Assume
+$\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
+
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: ({\tt x}: {\tt U};~{\tt V})) =
+      \sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}).$$
+
+Thus,
+$\sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}) \vdashO {\tt c}_0$.
+Since
+$\Gamma \vdash {\tt x}: {\tt U}$, we can show  % XXX can we?
+$\sigma(\Gamma, {\tt f}: {\tt V[{\tt t}/{\tt x}}) \vdashO {\tt c}_0$.
+
+Since,
+$\Gamma \vdashO {\tt S} \subtype {\tt V}[{\tt t}/{\tt x}$
 and
-$\sigma(\Gamma,{\tt f}: {\tt T}) \vdash_{\cal C} c_0$,
-we have 
-$\sigma(\Gamma,{\tt f}: {\tt S}) \vdash_{\cal C} c_0$.
+$\sigma(\Gamma, {\tt f}: {\tt V[{\tt t}/{\tt x}}) \vdashO {\tt c}_0$,
+by the induction hypothesis, we have
+$\sigma(\Gamma, {\tt f}: {\tt S}) \vdashO {\tt c}_0$.
+\end{itemize}
 \end{proof}
 
 \begin{lemma}
@@ -207,22 +258,22 @@ then $\Gamma, {\tt f}: {\tt S} \vdash U \subtype U'$.
 
 \begin{proof}
 From $\Gamma, {\tt f}: {\tt T} \vdash U \subtype U'$
-we must have $U = C\{c\}$ and $U' = D\{d\}$
+we must have $U = {\tt C}\{c\}$ and $U' = D\{d\}$
 where
 $C \subtype D$
 and 
-$$\sigma(\Gamma, {\tt f}: {\tt T}, x: C\{c\}) \vdash_{\cal C} d[x/\self]$$
+$$\sigma(\Gamma, {\tt f}: {\tt T}, x: C\{c\}) \vdashO d[x/\self]$$
 with $x$ fresh.
 From Lemma~\ref{constraint-lemma},
 $\Gamma \vdash S \subtype T$,
 and
-$$\sigma(\Gamma, {\tt f}: {\tt T}, x: C\{c\}) \vdash_{\cal C} d[x/\self],$$
+$$\sigma(\Gamma, {\tt f}: {\tt T}, x: C\{c\}) \vdashO d[x/\self],$$
 we have
-$$\sigma(\Gamma, {\tt f}: {\tt S}, x: C\{c\}) \vdash_{\cal C} d[x/\self].$$
+$$\sigma(\Gamma, {\tt f}: {\tt S}, x: C\{c\}) \vdashO d[x/\self].$$
 So we can use 
 $C \subtype D$
 and
-$$\sigma(\Gamma, {\tt f}: {\tt S}, x: C\{c\}) \vdash_{\cal C} d[x/\self]$$
+$$\sigma(\Gamma, {\tt f}: {\tt S}, x: C\{c\}) \vdashO d[x/\self]$$
 to derive 
 $\Gamma, {\tt f}: {\tt S} \vdash U \subtype U'$.
 \end{proof}
@@ -236,7 +287,7 @@ then $\Gamma \vdash E\{z: S; c_0\} \subtype E\{z: T; c_0\}$.
 \begin{proof}
 To prove the desired conclusion $E\{z: S; c_0\} \subtype E\{z: T; c_0\}$ 
 we need to show that
-$$\sigma(\Gamma, x: E\{z: S; c_0)\}) \vdash_{\cal C} (z: T; c_0)[x/\self].$$
+$$\sigma(\Gamma, x: E\{z: S; c_0)\}) \vdashO (z: T; c_0)[x/\self].$$
 %
 We have 
 $$\sigma(\Gamma, x: E\{z: S; c_0\}) = 
@@ -244,13 +295,13 @@ $$\sigma(\Gamma, x: E\{z: S; c_0\}) =
 From Lemma~\ref{existential-subtyping} and
 $\Gamma \vdash S \subtype T$, 
 we have
-$$(z:S; c_0)[x/\self] \vdash_{\cal C} (z:T; c_0)[x/\self].$$
+$$(z:S; c_0)[x/\self] \vdashO (z:T; c_0)[x/\self].$$
 From $$\sigma(\Gamma, x: E\{z: S; c_0\}) =
  \sigma(\Gamma), (z: S; c_0)[x/\self], inv(E,x)$$
 and
-$$(z:S; c_0)[x/\self] \vdash_{\cal C} (z:T; c_0)[x/\self],$$
+$$(z:S; c_0)[x/\self] \vdashO (z:T; c_0)[x/\self],$$
 we conclude 
-$$\sigma(\Gamma, x: E\{z: S; c_0\}) \vdash_{\cal C} (z: T; c_0)[x/\self].$$
+$$\sigma(\Gamma, x: E\{z: S; c_0\}) \vdashO (z: T; c_0)[x/\self].$$
 \end{proof}
 
 % \begin{lemma}
@@ -259,7 +310,7 @@ $$\sigma(\Gamma, x: E\{z: S; c_0\}) \vdash_{\cal C} (z: T; c_0)[x/\self].$$
 % $\theta = [\tbar{f} / \this.\tbar{f}]$,
 % $\fields(C,\theta) = \tbar{Z} \tbar{f}$,
 % $\Gamma, \tbar{U}\ \tbar{f} \vdash \tbar{U} \subtype \tbar{Z}$,
-% $\sigma(\Gamma, \tbar{U}\ \tbar{f}) \vdash_{\cal C} inv(C,\theta)$,
+% $\sigma(\Gamma, \tbar{U}\ \tbar{f}) \vdashO inv(C,\theta)$,
 % $\vdash C \subtype T[new C(\tbar{d}) / \self]$,
 % then $\Gamma \vdash C(: \tbar{U}\ \tbar{f}; \self.\tbar{f} = 
 %      \tbar{f}) \subtype T$.
@@ -291,7 +342,7 @@ $$\sigma(\Gamma, x: E\{z: S; c_0\}) \vdash_{\cal C} (z: T; c_0)[x/\self].$$
 % particular object} $o$ is of the type that it has been cast to.
 % 
 % But we have just checked this condition, i.e. 
-% $type(o) \subtype D and \vdash_{\cal C} d[o/\self]$. 
+% $type(o) \subtype D and \vdashO d[o/\self]$. 
 % So we are done.
 % 
 % Note about the proof:
@@ -350,9 +401,36 @@ $$\sigma(\Gamma, x: E\{z: S; c_0\}) \vdash_{\cal C} (z: T; c_0)[x/\self].$$
 % variables but are assumed to be closed under instantiation.
 % \end{proof}
 
+\begin{lemma}
+\label{fields-lemma} % 1. 
+If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+and  $\Gamma, {\tt z}: {\tt S} \vdash \fields({\tt z}) = \tbar{F}_1$,
+and  $\Gamma, {\tt z}: {\tt T} \vdash \fields({\tt z}) = \tbar{F}_2$,
+then $\tbar{F}_2$ is a prefix of $\tbar{F}_1$.
+\end{lemma}
+
+\begin{proof}
+Follows from Lemma~\ref{constraint-lemma} and rules for $\fields$  in ${\cal O}$.
+\end{proof}
+
+\begin{lemma}
+\label{has-lemma} % 2. 
+If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+and  $\Gamma, {\tt z}: {\tt T} \vdash {\tt z}\ \has\ {\tt I}$,
+then $\Gamma, {\tt z}: {\tt S} \vdash {\tt z}\ \has\ {\tt I}$.
+\end{lemma}
+
+\begin{proof}
+Follows from Lemma~\ref{constraint-lemma}.
+\end{proof}
+
 \begin{lemma}\label{existslemma}
 $\Gamma \vdash ({\tt x}: {\tt S}; \xcd{T\{c\}}) \equiv \xcd{T\{x: S; c\}})$.
 \end{lemma}
+
+\begin{proof}
+Straightforward.
+\end{proof}
 
 
 \begin{theorem}[Subject Reduction] 
@@ -392,7 +470,7 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
             \end{array}
             $$
 
-            Lemma~\ref{existslemma},
+            From Lemma~\ref{existslemma},
             $$
             \begin{array}{r}
             \Gamma \vdash {{\tt C}\{\tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}} \\
@@ -601,7 +679,7 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
             \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash 
                   {\tt T}_{1:n} \subtype {\tt Z}_{1:n}, \mbox{and} \\
             \sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n})
-                  \vdash_{\cal C} {\tt c} \\
+                  \vdashO {\tt c} \\
             \end{array}$$
             where ${\tt z}_{0:n}$ is fresh.
 
@@ -628,10 +706,10 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
 
             From Lemma~\ref{constraint-lemma}, 
             $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, and
-            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n}) \vdash_{\cal C}
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n}) \vdashO
                               {\tt c}$
             we have
-            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdash_{\cal C}
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdashO
                               {\tt c}.$
 
             We now choose 
@@ -642,8 +720,7 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
                \tt {\tt z}_{1:n}: {\tt Z}_{1:n}:c \rightarrow {\tt U}$,
             $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash
                   {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$, and
-            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdash_{\cal C}
-                  {\tt c}$,
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdashO {\tt c}$,
             and \TInvk\ we derive
             $\Gamma \vdash {\tt S}\ {\tt e_0.m(e_{1:n}')}$.
             We have 
@@ -664,7 +741,7 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
                \tt {\tt z}_{1:n}: {\tt Z}_{1:n}:c \rightarrow {\tt U}$,
             $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash 
                   {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$, and
-            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt Z}_{0:n}) \vdash_{\cal C}                          {\tt c}$, 
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt Z}_{0:n}) \vdashO {\tt c}$, 
             where ${\tt z}_{0:n}$ is fresh.
 
             Additionally, from \RCInvkArg\ we have that, for $i>0$,
@@ -702,10 +779,10 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
 
             From Lemma~\ref{constraint-lemma}, 
             $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, and
-            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n}) \vdash_{\cal C}
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n}) \vdashO
                               {\tt c}$
             we have
-            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdash_{\cal C}
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdashO
                               {\tt c}.$
 
             We now choose 
@@ -716,7 +793,7 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
                \tt {\tt z}_{1:n}: {\tt Z}_{1:n}:c \rightarrow {\tt U}$,
             $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash
                   {\tt S}_{1:n} \subtype {\tt Z}_{1:n}$, and
-            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdash_{\cal C}
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdashO
                   {\tt c}$,
             and \TInvk\ we derive
             $\Gamma \vdash {\tt e_0.m(e_{1:n}')}: {\tt S}$.
