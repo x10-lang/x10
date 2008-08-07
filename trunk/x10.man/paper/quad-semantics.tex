@@ -328,11 +328,11 @@ and ${\tt e} \derives {\tt e'}$ then for some type {\tt S}, $\Gamma \vdash {\tt 
 The theorem needs the Substitution Lemma:
 \begin{lemma}
 If 
-$\Gamma \vdash \tbar{d}:\tbar{U}$,
+$\Gamma \vdash \tbar{d}:\tbar{U}$, and
 $\Gamma, \bar{\tt x}:\tbar{U} \vdash \tbar{U}\subtype\tbar{V}$,
 and
 $\Gamma, \tbar{x}:\tbar{V} \vdash {\tt e:T}$,
-then for some type {\tt S},
+then for some type {\tt S}, it is the case that
 $\Gamma \vdash {\tt e[\tbar{d}/\tbar{x}]:S}, {\tt S \subtype
 \tbar{x}:\tbar{V};T}.$
 \end{lemma}
