@@ -2,13 +2,13 @@ Here we prove a soundness theorem for \CFJ{}.
 
 \begin{lemma}[Substitution Lemma]
 \label{substitution}
-The following is a derived rule:
-\infrule[Subst]
-{\Gamma \vdash \tbar{d}:\tbar{U} \andalso \Gamma, \bar{\tt
-x}:\tbar{U} \vdash \tbar{U}\subtype\tbar{V} \andalso
-\Gamma, \tbar{x}:\tbar{V} \vdash {\tt e:T}}
-{\Gamma \vdash {\tt e[\tbar{d}/\tbar{x}]:S}, {\tt S
-\subtype \tbar{x}:\tbar{V};T}}
+If
+$\Gamma \vdash \tbar{d}:\tbar{U}$,
+$\Gamma, \bar{\tt x}:\tbar{U} \vdash \tbar{U}\subtype\tbar{V}$,
+and
+$\Gamma, \tbar{x}:\tbar{V} \vdash {\tt e:T}$,
+then for some type {\tt S},
+$\Gamma \vdash {\tt e[\tbar{d}/\tbar{x}]:S}, {\tt S \subtype \tbar{x}:\tbar{V};T}.$
 \end{lemma}
 
 \begin{proof}
@@ -69,17 +69,29 @@ Straightforward.
 \end{proof}
 
 % Unchanged from FJ
-\begin{lemma}[Body type]
+\begin{lemma}[Method body type]
 \label{body-type}
 If
-$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e}$,
+$$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{{\tt c}\}: {\tt S} = {\tt e},$$
 and 
 $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt U}_{1:n}$,
 then
-$\Gamma \vdash {\tt e}: ({\tt z}_{0:n}: {\tt T}_{0:n};\ {\tt S})$.
+$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt e}: {\tt S}$.
 \end{lemma}
 
 \begin{proof}
+\eat{
+From
+$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{{\tt c}\}: {\tt S} = {\tt e}$,
+it is easy to show that for some {\tt C} such that $\Gamma \vdash {\tt T}_0 \subtype {\tt C}$,
+${\tt def}\ {\tt m}(\tbar{z}:\tbar{U}[\this/{\tt z}_0])\{{\tt c[\this/{\tt z}_0]}\}:{\tt S}[\this/{\tt z}_0] = {\tt e} \in P$.
+
+By \rn{Method OK},
+$\this:{\tt C}\vdash {\tt c}:{\tt o}$
+and
+$\this:{\tt C},\tbar{z}:\tbar{U}[\this/{\tt z}_0],{\tt c}[\this/{\tt z}_0] \vdash {\tt S}[\this/{\tt z}_0] \ \type, \tbar{U}[\this/{\tt z}_0] \ \type, {\tt e}:{\tt V}, {\tt V} \subtype {\tt S}[\this/{\tt z}_0]$.
+}
+
 Straightforward.
 \end{proof}
 
@@ -105,23 +117,20 @@ then $\Gamma \vdash \xcd{C} \subtype \xcd{D}$.
 From \rn{S-Id} and \rn{S-Const-L}, we have
 $\Gamma \vdash \xcd{D\{d\}} \subtype \xcd{D}$.
 From \rn{S-Const-R}
-$\Gamma \vdash \xcd{C\{c\}} \subtype \xcd{D}$
-.
+$\Gamma \vdash \xcd{C\{c\}} \subtype \xcd{D}$.
 \end{proof}
 }
 
-\eat{
 \begin{lemma}
 \label{subst-in-assumption}
 If   $\Gamma, {\tt x}: {\tt U}, {\tt c} \vdashO {\tt c}_0$
 and  $\Gamma \vdash {\tt t}: {\tt U}$,
-then $\Gamma, {\tt c}[{\tt t}/{\tt x}] \vdashO {\tt c}_0[{\tt t}/{\tt x}]$.
+then $$\Gamma, {\tt c}[{\tt t}/{\tt x}] \vdashO {\tt c}_0[{\tt t}/{\tt x}].$$
 \end{lemma}
 
 \begin{proof}
 Straightforward.
 \end{proof}
-}
 
 \begin{lemma}
 \label{constraint-lemma} % 4. 
@@ -143,9 +152,8 @@ Straightforward from the induction hypothesis.
 We have
 ${\tt S} = {\tt C}$ and ${\tt T} = {\tt D}$.
 From the definition of $\sigma(\cdot)$ we have
-    $$\sigma(\Gamma,{\tt f}: {\tt C}) = \sigma(\Gamma)$$
-    and
-    $$\sigma(\Gamma,{\tt f}: {\tt D}) = \sigma(\Gamma).$$
+    $$\sigma(\Gamma,{\tt f}: {\tt C}) =
+    \sigma(\Gamma,{\tt f}: {\tt D}) = \sigma(\Gamma).$$
 The conclusion follows easily.
 
 \item \textsc{S-Const-L}.
@@ -155,7 +163,7 @@ Assume
 $\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
 From the definition of $\sigma(\cdot)$ we have
     $$\sigma(\Gamma,{\tt f}: {\tt T\{c\}}) = 
-      \sigma({\tt f}: {\tt T}, \Gamma), {\tt c}[{\tt f}/\self].$$
+      \sigma(\Gamma, {\tt f}: {\tt T}), {\tt c}[{\tt f}/\self].$$
 Since
 $\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$, it follows immediately that
 $\sigma(\Gamma,{\tt f}: {\tt T}), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$.
@@ -169,9 +177,9 @@ Assume
 $\sigma(\Gamma,{\tt f}: {\tt U\{c\}}) \vdashO {\tt c}_0$.
 From the definition of $\sigma(\cdot)$ we have
     $$\sigma(\Gamma,{\tt f}: {\tt U\{c\}}) = 
-      \sigma({\tt f}: {\tt U}, \Gamma), {\tt c}[{\tt f}/\self].$$
+      \sigma(\Gamma, {\tt f}: {\tt U}), {\tt c}[{\tt f}/\self].$$
 Thus,
-    $\sigma({\tt f}: {\tt U}, \Gamma), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$.
+    $\sigma(\Gamma, {\tt f}: {\tt U}), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$.
 
 Since
 $\Gamma, \self: {\tt S} \vdash {\tt c}$,
@@ -184,11 +192,11 @@ Since
 $\Gamma \vdash {\tt S} \subtype {\tt U}$,
 applying the induction hypothesis to ${\tt c}[{\tt f}/\self]$, we have
 $\sigma(\Gamma, {\tt f}: {\tt U}) \vdashO {\tt c}[{\tt f}/\self]$.
-
+%
 Therefore, in the judgment
-$\sigma({\tt f}: {\tt U}, \Gamma), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$,
-${\tt c}[{\tt }/\self]$ is redundant and we can conclude
-    $\sigma({\tt f}: {\tt U}, \Gamma) \vdashO {\tt c}_0$.
+$\sigma(\Gamma, {\tt f}: {\tt U}), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$,
+${\tt c}[{\tt f}/\self]$ is redundant and we can conclude
+    $\sigma(\Gamma, {\tt f}: {\tt U}) \vdashO {\tt c}_0$.
 
 Finally,
 applying the induction hypothesis to ${\tt c}_0$, we have
@@ -204,18 +212,18 @@ ${\tt S} = {\tt x}: {\tt U};~{\tt V}$
     where {\tt x} is fresh.
 
 Assume $\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
-
+%
 By the induction hypothesis,
 $\sigma(\Gamma,{\tt f}: {\tt V}) \vdashO {\tt c}_0$.
-
-Adding ${\tt f}: {\tt V}$ to the assumptions,
+%
+Adding ${\tt x}: {\tt U}$ to the assumptions,
 we can conclude
 $\sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}) \vdashO {\tt c}_0$.
 
 From the definition of $\sigma(\cdot)$ we have
     $$\sigma(\Gamma,{\tt f}: ({\tt x}: {\tt U};~{\tt V})) =
       \sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}).$$
-
+%
 Thus,
 $\sigma(\Gamma,{\tt f}: {\tt S}) \vdashO {\tt c}_0$.
 
@@ -225,21 +233,27 @@ ${\tt T} = {\tt x}: {\tt U}; {\tt V}$
     and
     $\Gamma \vdash {\tt t}: {\tt U}$
     and
-    $\Gamma \vdashO {\tt S} \subtype {\tt V}[{\tt t}/{\tt x}$.
+    $\Gamma \vdashO {\tt S} \subtype {\tt V}[{\tt t}/{\tt x}]$.
 
 Assume
 $\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
-
+%
 From the definition of $\sigma(\cdot)$ we have
     $$\sigma(\Gamma,{\tt f}: ({\tt x}: {\tt U};~{\tt V})) =
       \sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}).$$
-
+%
 Thus,
 $\sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}) \vdashO {\tt c}_0$.
 Since
-$\Gamma \vdash {\tt x}: {\tt U}$, we can show  % XXX can we?
-$\sigma(\Gamma, {\tt f}: {\tt V[{\tt t}/{\tt x}}) \vdashO {\tt c}_0$.
+$\Gamma \vdash {\tt x}: {\tt U}$, we can show via Lemma~\ref{subst-in-assumption} that
+$\sigma(\Gamma, {\tt f}: {\tt V[{\tt t}/{\tt x}]}) \vdashO {\tt c}_0[{\tt t}/{\tt x}]$.
 
+% XXX is this right?
+Since $\Gamma \vdash {\tt c}_0 : {\tt o}$, {\tt x} is not free in ${\tt c}_0$.
+Thus ${\tt c}_0[{\tt t}/{\tt x}] = {\tt c}_0$
+and
+$\sigma(\Gamma, {\tt f}: {\tt V[{\tt t}/{\tt x}]}) \vdashO {\tt c}_0$.
+%
 Since,
 $\Gamma \vdashO {\tt S} \subtype {\tt V}[{\tt t}/{\tt x}$
 and
@@ -251,57 +265,42 @@ $\sigma(\Gamma, {\tt f}: {\tt S}) \vdashO {\tt c}_0$.
 
 \begin{lemma}
 \label{subtype-lemma} % 3. 
-if   $\Gamma, {\tt f}: {\tt T} \vdash U \subtype U'$,
-and  $\Gamma \vdash S \subtype T$,
-then $\Gamma, {\tt f}: {\tt S} \vdash U \subtype U'$.
+if   $\Gamma, {\tt f}: {\tt T} \vdash {\tt U} \subtype {\tt U}'$,
+and  $\Gamma \vdash {\tt S} \subtype {\tt T}$, then $\Gamma, {\tt f}: {\tt S} \vdash {\tt U} \subtype {\tt U}'$.
 \end{lemma}
 
 \begin{proof}
-From $\Gamma, {\tt f}: {\tt T} \vdash U \subtype U'$
-we must have $U = {\tt C}\{c\}$ and $U' = D\{d\}$
-where
-$C \subtype D$
-and 
-$$\sigma(\Gamma, {\tt f}: {\tt T}, x: C\{c\}) \vdashO d[x/\self]$$
-with $x$ fresh.
-From Lemma~\ref{constraint-lemma},
-$\Gamma \vdash S \subtype T$,
-and
-$$\sigma(\Gamma, {\tt f}: {\tt T}, x: C\{c\}) \vdashO d[x/\self],$$
-we have
-$$\sigma(\Gamma, {\tt f}: {\tt S}, x: C\{c\}) \vdashO d[x/\self].$$
-So we can use 
-$C \subtype D$
-and
-$$\sigma(\Gamma, {\tt f}: {\tt S}, x: C\{c\}) \vdashO d[x/\self]$$
-to derive 
-$\Gamma, {\tt f}: {\tt S} \vdash U \subtype U'$.
+Follows From Lemma~\ref{constraint-lemma}.
 \end{proof}
 
 \begin{lemma}
 \label{subtyping-in-existential-lemma} % 5. 
-if   $\Gamma \vdash S \subtype T$,
-then $\Gamma \vdash E\{z: S; c_0\} \subtype E\{z: T; c_0\}$.
+if   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+then $\Gamma \vdash {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\} \subtype {\tt E}\{{\tt z}: {\tt T}; {\tt c}_0\}$.
 \end{lemma}
 
 \begin{proof}
-To prove the desired conclusion $E\{z: S; c_0\} \subtype E\{z: T; c_0\}$ 
+To prove the desired conclusion 
+$$\Gamma \vdash {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\} \subtype {\tt E}\{{\tt z}: {\tt T}; {\tt c}_0\},$$
 we need to show that
-$$\sigma(\Gamma, x: E\{z: S; c_0)\}) \vdashO (z: T; c_0)[x/\self].$$
+$$\sigma(\Gamma, {\tt x}: {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\}) \vdashO ({\tt z}: {\tt T}; {\tt c}_0)[{\tt x}/\self].$$
 %
 We have 
-$$\sigma(\Gamma, x: E\{z: S; c_0\}) = 
- \sigma(\Gamma), (z: S; c_0)[x/\self], \inv(E,x).$$
+$$
+\sigma(\Gamma, {\tt x}: {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\})
+                                                        = \sigma(\Gamma, ({\tt z}: {\tt S}; {\tt c}_0)[{\tt x}/\self])
+$$
 From Lemma~\ref{existential-subtyping} and
-$\Gamma \vdash S \subtype T$, 
+$\Gamma \vdash {\tt S} \subtype {\tt T}$, 
 we have
-$$(z:S; c_0)[x/\self] \vdashO (z:T; c_0)[x/\self].$$
-From $$\sigma(\Gamma, x: E\{z: S; c_0\}) =
- \sigma(\Gamma), (z: S; c_0)[x/\self], inv(E,x)$$
+$$({\tt z}: {\tt S}; {\tt c}_0)[{\tt x}/\self] \vdashO ({\tt z}: {\tt T}; {\tt c}_0)[{\tt x}/\self].$$
+From $$
+\sigma(\Gamma, {\tt x}: {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\})
+                                                        = \sigma(\Gamma, ({\tt z}: {\tt S}; {\tt c}_0)[{\tt x}/\self])$$
 and
-$$(z:S; c_0)[x/\self] \vdashO (z:T; c_0)[x/\self],$$
+$$({\tt z}: {\tt S}; {\tt c}_0)[{\tt x}/\self] \vdashO ({\tt z}: {\tt T}; {\tt c}_0)[{\tt x}/\self],$$
 we conclude 
-$$\sigma(\Gamma, x: E\{z: S; c_0\}) \vdashO (z: T; c_0)[x/\self].$$
+$$\sigma(\Gamma, {\tt x}: {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\}) \vdashO ({\tt z}: {\tt T}; {\tt c}_0)[{\tt x}/\self].$$
 \end{proof}
 
 % \begin{lemma}
@@ -425,10 +424,24 @@ Follows from Lemma~\ref{constraint-lemma}.
 \end{proof}
 
 \begin{lemma}\label{existslemma}
-$\Gamma \vdash ({\tt x}: {\tt S}; \xcd{T\{c\}}) \equiv \xcd{T\{x: S; c\}})$.
+If 
+$\Gamma \vdash ({\tt x}: {\tt S}; \xcd{T\{c\}})\ \type$, then
+$\Gamma \vdash ({\tt x}: {\tt S}; \xcd{T\{c\}}) \subtype \xcd{T\{x: S; c\}})$.
 \end{lemma}
 
 \begin{proof}
+% From S-Const-L
+% G, x:S |- T{c} <: T
+% Then from S-Exists-L
+% G |- x:S; T{c} <: T
+% By definition of \sigma and c |- c,
+% G,self:(x:S; T{c}) |-O {x: S; c},
+% From
+% G |- x:S; T{c} <: T
+% and
+% G,self:(x:S; T{c}) |-O {x: S; c},
+% by S-Const-R we have
+% G |- x: S; T{c} <: T{x: S; c}
 Straightforward.
 \end{proof}
 
@@ -460,8 +473,6 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
             We now choose 
             $${\tt V}' = {{\tt C}\{\tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}}.$$
 
-            % XXX
-
             From \rn{S-Exists-L},
             $$
             \begin{array}{r}
@@ -473,12 +484,15 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
             From Lemma~\ref{existslemma},
             $$
             \begin{array}{r}
-            \Gamma \vdash {{\tt C}\{\tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}} \\
-            \equiv \tbar{z}: \tbar{T}; {{\tt C}\{\new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}}
+            \Gamma \vdash
+            \tbar{z}: \tbar{T}; {{\tt C}\{\new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}} \\
+            \subtype
+                {{\tt C}\{\tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}}
             \end{array}
             $$
 
-            From \rn{S-Trans}, $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
+        Thus,
+            from \rn{S-Trans}, $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
    \item
    \RCCast: For the expression {\tt o~as~V}, we have from \TCast\ that
             $\Gamma \vdash {\tt o}: {\tt U}$.
@@ -499,10 +513,13 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
    \item
    \RCNewArg: For the expression ${\new\ {\tt C}(\tbar{e})}$,
             we have from \TNew\ that
-            $\Gamma \vdash \tbar{e}: \tbar{T}$,
-            $\vdash \class(C)$,
-            $\Gamma \vdash {\tt z}: {\tt C} \vdash \fields({\tt z}) = \tbar{f}: \tbar{S}$,
-            $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}, \inv({\tt C}, {\tt z})$.
+            $$
+            \begin{array}{l}
+            \Gamma \vdash \tbar{e}: \tbar{T}, \\
+            \vdash \class({\tt C}), \\
+            \Gamma \vdash {\tt z}: {\tt C} \vdash \fields({\tt z}) = \tbar{f}: \tbar{S}, \\
+            \Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}, \inv({\tt C}, {\tt z}).
+            \end{array}$$
 
             We choose
             ${\tt V} = {\tt C}\{ \tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C}, \self)\}$.
@@ -519,7 +536,7 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
             $\Gamma \vdash \tbar{U} \subtype \tbar{T}$.
 
             From Lemma~\ref{weakening}, we have
-            $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{U} \subtype \tbar{T}$.
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{U} \subtype \tbar{T}.$$
 
             % From Lemma~\ref{subtype-lemma},
             % $\Gamma, \tbar{f}: \tbar{T} \vdash \tbar{T} \subtype \tbar{Z}$,
@@ -530,23 +547,23 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
 
             From \TNew,
             we have
-            $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}$.
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}.$$
             From Lemma~\ref{subtype-lemma},
-            $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}$.
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}.$$
 
             From \rn{S-Trans},
             we have
-            $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{U} \subtype \tbar{S}$.
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{U} \subtype \tbar{S}.$$
 
             From \TNew,
-            $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \inv({\tt C}, {\tt z})$.
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \inv({\tt C}, {\tt z}).$$
             From Lemma~\ref{subtype-lemma},
-            $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \inv({\tt C}, {\tt z})$.
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \inv({\tt C}, {\tt z}).$$
 
             Thus, by \TNew,
-            $\Gamma \vdash {\new\ {\tt C}(\tbar{e}')} : {\tt C}\{ \tbar{z}: \tbar{U}; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C}, \self)\}$
+            $$\Gamma \vdash {\new\ {\tt C}(\tbar{e}')} : {\tt C}\{ \tbar{z}: \tbar{U}; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C}, \self)\}$$
             and we choose
-            ${\tt V}' = {\tt C}\{ \tbar{z}: \tbar{U}; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C}, \self)\}$.
+            $${\tt V}' = {\tt C}\{ \tbar{z}: \tbar{U}; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C}, \self)\}.$$
 
             From Lemma~\ref{existential-subtyping}, we have
             $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
@@ -557,8 +574,11 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
    \item
    \RField:  For the expression ${\tt (\new\ C(\tbar{e})).f_i}$, 
              we have from \TField\ that
-             $\Gamma \vdash {\tt e}: {\tt S}$ and
-             $\Gamma, {\tt z}: {\tt S} \vdash {\tt z}\ \has\ {\tt f}_i: {\tt U}_i$.
+             $$
+             \begin{array}{l}
+             \Gamma \vdash {\tt e}: {\tt S}, \\
+             \Gamma, {\tt z}: {\tt S} \vdash {\tt z}\ \has\ {\tt f}_i: {\tt U}_i. \\
+             \end{array}$$
              Let ${\tt V} = ({\tt z}: {\tt S}; {\tt U}_i\{\self{\tt ==}{\tt z}.{\tt f}_i\})$.
              ${\tt z}$ is fresh.
 
@@ -566,7 +586,7 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
              % ${\tt z}: {\tt C} \vdash \fields({\tt z}) = \tbar{f}: \tbar{T}$.
 
              We have 
-             ${\tt S} = {\tt C}\{\tbar{z}: \tbar{T}{\tt ; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C},\self)}\}$.
+             $${\tt S} = {\tt C}\{\tbar{z}: \tbar{T}{\tt ; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C},\self)}\}.$$
 
              From \TNew, we have
              $\Gamma \vdash \tbar{e}: \tbar{T}$
@@ -574,24 +594,24 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
              %$\vdash \class(C)$,
              %$\Gamma \vdash {\tt z}: {\tt C} \vdash \fields({\tt z}) = \tbar{f}: \tcd{U}_i$,
              and
-             $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i$.
+             $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i.$$
 
              From $\Gamma \vdash \tbar{e}: \tbar{T}$, we have
              $\Gamma \vdash {\tt e}_i: {\tt T}_i$.
              We now choose ${\tt V}' = {\tt T}_i$.
 
              By \TNew,
-             $\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i$.
+             $$\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i.$$
 
              By \rn{S-Const-R},
-             $\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i\{\self = {\tt z}_i\}$.
+             $$\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i\{\self = {\tt z}_i\}.$$
 
-             Since ${\tt z}.{\tt f}_i = {\tt z}_i$, by application of \rn{S-Const-R}, \rn{S-Const-L}, and \rn{S-Id}, we have
-             $\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i\{\self = {\tt z}.{\tt f}_i\}$.
+             Since ${\tt z}.{\tt f}_i = {\tt z}_i$, by application of \rn{S-Id}, \rn{S-Const-L}, and \rn{S-Const-R}, we have
+             $$\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i\{\self = {\tt z}.{\tt f}_i\}.$$
 
              % XXX leap of logic: need to simplify the environment; it should be fine since the zs are fresh and not used
-             We can then show via \rn{S-Exists-R},
-             $\Gamma \vdash {\tt T}_i \subtype ({\tt z}: {\tt S}; {\tt U}_i\{\self = {\tt z}.{\tt f}_i\})$,
+             We can then show via \rn{S-Exists-R} that
+             $$\Gamma \vdash {\tt T}_i \subtype ({\tt z}: {\tt S}; {\tt U}_i\{\self = {\tt z}.{\tt f}_i\}),$$
              or more simply
              $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
 
@@ -632,28 +652,23 @@ of $\Gamma \vdash {\tt e}: {\tt T}$.
             \begin{array}{l}
             \Gamma \vdash {\tt d}_0: {\tt T}_0 \\
             \Gamma \vdash {\tt d}_{1:n}: {\tt T}_{1:n} \\
-            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
-                {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e} \\
-            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
-                {\tt T}_{1:n} \subtype {\tt U}_{1:n} \\
-            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
-                {\tt c} \\
+            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e} \\
+            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt U}_{1:n} \\
+            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt c} \\
             \end{array}
             $$
             \noindent
             where ${\tt z}_{0:n}$ is fresh.  By \TNew, we have
             $\Gamma \vdash \tbar{e}: \tbar{A}$
             and
-            ${\tt T}_0 = {\tt C}\{\tbar{z}: \tbar{A}; \self = \new\ {\tt C}(\tbar{z}), \inv({\tt C},\self)\}$.
+            $${\tt T}_0 = {\tt C}\{\tbar{z}: \tbar{A}; \self = \new\ {\tt C}(\tbar{z}), \inv({\tt C},\self)\}.$$
 
             Since
-            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
-                {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e}$,
+            $$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e},$$
             and 
-            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
-                {\tt T}_{1:n} \subtype {\tt U}_{1:n}$,
+            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt U}_{1:n}$,
             by Lemma~\ref{body-type}, we have
-            $\Gamma \vdash {\tt e}: ({\tt z}_{0:n}: {\tt T}_{0:n};\ {\tt S})$.
+            $\Gamma {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt e}: {\tt S}$.
 
             Choose ${\tt V} = ({\tt z}_{0:n}: {\tt T}_{0:n};\ {\tt S})$.
 

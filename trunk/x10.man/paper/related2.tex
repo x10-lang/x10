@@ -24,10 +24,10 @@ our constrained types approach. The principal difference is that
 \hmx{} applies to functional languages and does not integrate
 dependent types.
 
-% Sulzmann and Stuckey~\cite{sulzmann-hmx-clpx} showed that the
-% type inference algorithm for \hmx can be encoded as a
-% constraint logic program parametrized by the constraint system
-% $X$. This is very much in spirit with our approach.
+Sulzmann and Stuckey~\cite{sulzmann-hmx-clpx} showed that the
+type inference algorithm for \hmx can be encoded as a
+constraint logic program parametrized by the constraint system
+$X$. This is very much in spirit with our approach.
 Constrained types permit {\em user-defined}
 predicates and functions, allowing the user to enrich
 the constraint system, and hence the power of the compile-time type-checker,
@@ -242,6 +242,14 @@ or JavaCOP~\cite{javacop-oopsla06}
 allow programmers to 
 declaratively specify new typing rules in a meta language rather
 than through plugins.
+We have focused on defining
+constraint-checking rules for the control constructs in the basic language;
+additional rules can be defined for type-checking additional control constructs
+in the language.  For instance, rules can be defined to ensure that distributed constructs in \Xten{} are place-type safe.
+Such type-checking rules may be
+implemented in JavaCOP, provided that it is extended with the underlying
+constraint solver.
+
 
 % Holt, Cordy, the Turing programming language
 
