@@ -81,6 +81,21 @@ public abstract class TestArray extends Test {
 
     }
             
+    abstract class E {
+
+        E(String test) {
+            try {
+                run();
+            } catch (Throwable e) {
+                pr(test + ": " + e.getMessage());
+                return;
+            }
+            pr(test + ": expected exception not thrown");
+        }
+
+        abstract void run();
+    }
+            
     class Grid {
 
         nullable<Object> [] os = new Object[10];
@@ -230,6 +245,13 @@ public abstract class TestArray extends Test {
         grid.pr(r.rank);
     }
 
+
+    void prPoint(String test, Point p) {
+        int sum = 0;
+        for (int i=0; i<p.rank; i++)
+            sum += p.get(i);
+        pr(test + " " + p + " sum=" + sum);
+    }
 
     void pr(String s) {
         out.println(s);
