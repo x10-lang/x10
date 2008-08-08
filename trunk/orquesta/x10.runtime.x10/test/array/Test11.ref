@@ -1,0 +1,9 @@
+--- Test11: full region
+rank 3
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() unsupported operation
+x10.array.FullRegion
+x10.array.UnboundedRegionException: axis 2 has no minimum
