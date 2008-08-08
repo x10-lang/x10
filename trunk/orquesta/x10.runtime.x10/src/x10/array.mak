@@ -6,10 +6,12 @@ endif
 
 
 LANG=\
-lang/Arithmetic_T.x10\
+lang/ArithmeticOps_T.x10\
+lang/ComparisonOps_T.x10\
 lang/Array_T.x10\
 lang/Dist.x10\
 lang/IllegalOperationException.x10\
+lang/RankMismatchException.x10\
 lang/Indexable_T.x10\
 lang/Point.x10\
 lang/Region.x10\
@@ -25,10 +27,14 @@ gen/Indexable_Object.x10\
 gen/Indexable_int.x10\
 gen/Settable_double.x10\
 gen/Settable_Object.x10\
-gen/Arithmetic_Array_double.x10\
-gen/Arithmetic_Array_Object.x10\
-gen/Arithmetic_Array_T.x10\
-gen/Arithmetic_Point.x10
+gen/ArithmeticOps_Array_double.x10\
+gen/ArithmeticOps_Array_Object.x10\
+gen/ArithmeticOps_Array_T.x10\
+gen/ArithmeticOps_Point.x10\
+gen/ComparisonOps_Array_double.x10\
+gen/ComparisonOps_Array_Object.x10\
+gen/ComparisonOps_Array_T.x10\
+gen/ComparisonOps_Point.x10
 
 ARRAY_GEN=\
 gen/BaseArray_double.x10\
