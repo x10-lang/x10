@@ -19,7 +19,7 @@ public abstract value class Array_T(
     boolean constant,
     nullable<place> onePlace
 
-) implements Indexable_T, Settable_T, Arithmetic_Array_T {
+) implements Indexable_T, Settable_T, ArithmeticOps_Array_T {
 
 
     //
