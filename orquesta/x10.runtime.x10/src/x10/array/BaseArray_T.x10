@@ -87,60 +87,52 @@ abstract public class BaseArray_T extends Array_T {
     //
     //
 
-    public Array_T add(Array_T x) {
+    public Array_T $plus() {
         throw U.unsupported();
     }
 
-    public Array_T sub(Array_T x) {
+    public Array_T $minus() {
         throw U.unsupported();
     }
 
-    public Array_T mul(Array_T x) {
+    public Array_T $plus(Array_T x) {
         throw U.unsupported();
     }
 
-    public Array_T div(Array_T x) {
+    public Array_T $minus(Array_T x) {
         throw U.unsupported();
     }
 
-    public Array_T cosub(Array_T x) {
+    public Array_T $times(Array_T x) {
         throw U.unsupported();
     }
 
-    public Array_T codiv(Array_T x) {
-        throw U.unsupported();
-    }
-
-    public Array_T neginv() {
-        throw U.unsupported();
-    }
-
-    public Array_T mulinv() {
+    public Array_T $over(Array_T x) {
         throw U.unsupported();
     }
 
 
-    public boolean eq(Array_T x) {
+    public boolean $eq(Array_T x) {
         throw U.unsupported();
     }
 
-    public boolean lt(Array_T x) {
+    public boolean $lt(Array_T x) {
         throw U.unsupported();
     }
 
-    public boolean gt(Array_T x) {
+    public boolean $gt(Array_T x) {
         throw U.unsupported();
     }
 
-    public boolean le(Array_T x) {
+    public boolean $le(Array_T x) {
         throw U.unsupported();
     }
 
-    public boolean ge(Array_T x) {
+    public boolean $ge(Array_T x) {
         throw U.unsupported();
     }
 
-    public boolean ne(Array_T x) {
+    public boolean $ne(Array_T x) {
         throw U.unsupported();
     }
 
