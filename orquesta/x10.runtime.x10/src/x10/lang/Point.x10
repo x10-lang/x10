@@ -2,7 +2,7 @@ package x10.lang;
 
 import x10.array.U;
 
-public class Point(int rank) implements /*Indexable_int,*/ Arithmetic_Point {
+public class Point(int rank) implements /*Indexable_int,*/ ArithmeticOps_Point, ComparisonOps_Point {
 
 
     //
@@ -36,62 +36,82 @@ public class Point(int rank) implements /*Indexable_int,*/ Arithmetic_Point {
 
 
     //
-    // ops from Arithmetic_Point
+    // from ArithmeticOps_Point
     //
 
-    public Point add(Point x) {
+    public Point $plus() {
+        return this;
+    }
+
+    public Point $minus() {
+        int [] cs = new int[rank];
+        for (int i=0; i<rank; i++)
+            cs[i] = -this.coords[i];
+        return Point.make(cs);
+    }
+
+    public Point $plus(Point that) {
+        if (this.rank!=that.rank)
+            throw new RankMismatchException(this.rank, that.rank);
+        int [] cs = new int[rank];
+        for (int i=0; i<rank; i++)
+            cs[i] = this.coords[i]+that.coords[i];
+        return Point.make(cs);
+    }
+
+    public Point $minus(Point that) {
+        if (this.rank!=that.rank)
+            throw new RankMismatchException(this.rank, that.rank);
+        int [] cs = new int[rank];
+        for (int i=0; i<rank; i++)
+            cs[i] = this.coords[i]-that.coords[i];
+        return Point.make(cs);
+    }
+
+    public Point $times(Point that) {
+        if (this.rank!=that.rank)
+            throw new RankMismatchException(this.rank, that.rank);
+        int [] cs = new int[rank];
+        for (int i=0; i<rank; i++)
+            cs[i] = this.coords[i]*that.coords[i];
+        return Point.make(cs);
+    }
+
+    public Point $over(Point that) {
+        if (this.rank!=that.rank)
+            throw new RankMismatchException(this.rank, that.rank);
+        int [] cs = new int[rank];
+        for (int i=0; i<rank; i++)
+            cs[i] = this.coords[i]/that.coords[i];
+        return Point.make(cs);
+    }
+
+
+    //
+    // from ComparisonOps_Point
+    //
+
+    public boolean $eq(Point x) {
         throw U.unsupported();
     }
 
-    public Point sub(Point x) {
+    public boolean $lt(Point x) {
         throw U.unsupported();
     }
 
-    public Point mul(Point x) {
+    public boolean $gt(Point x) {
         throw U.unsupported();
     }
 
-    public Point div(Point x) {
+    public boolean $le(Point x) {
         throw U.unsupported();
     }
 
-    public Point cosub(Point x) {
+    public boolean $ge(Point x) {
         throw U.unsupported();
     }
 
-    public Point codiv(Point x) {
-        throw U.unsupported();
-    }
-
-    public Point neginv() {
-        throw U.unsupported();
-    }
-
-    public Point mulinv() {
-        throw U.unsupported();
-    }
-
-    public boolean eq(Point x) {
-        throw U.unsupported();
-    }
-
-    public boolean lt(Point x) {
-        throw U.unsupported();
-    }
-
-    public boolean gt(Point x) {
-        throw U.unsupported();
-    }
-
-    public boolean le(Point x) {
-        throw U.unsupported();
-    }
-
-    public boolean ge(Point x) {
-        throw U.unsupported();
-    }
-
-    public boolean ne(Point x) {
+    public boolean $ne(Point x) {
         throw U.unsupported();
     }
 
