@@ -1,5 +1,7 @@
 package x10.array;
 
+import java.io.PrintStream;
+
 import x10.util.Iterator_Scanner;
 
 import x10.lang.Point;
@@ -159,8 +161,8 @@ public abstract class BaseRegion extends Region {
     // debugging
     //
 
-    public void printInfo(String label) {
-        U.pr(label + ": BaseRegion");
+    public void printInfo(PrintStream out) {
+        out.println("Region " + this.getClass().getName());
     }
 
 

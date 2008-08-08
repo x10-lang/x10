@@ -58,7 +58,7 @@ import x10.util.Iterator_Constraint;
 //
 
 
-final class PolyScanner implements Region.Scanner {
+public final class PolyScanner implements Region.Scanner {
 
     private final int rank;
 
@@ -76,17 +76,17 @@ final class PolyScanner implements Region.Scanner {
         minSum = new int[rank][][];
         maxSum = new int[rank][][];
 
-        cl.printInfo(System.out, "axis " + (rank-1));
+        //cl.printInfo(System.out, "axis " + (rank-1));
         init(cl, rank-1);
         for (int k=rank-2; k>=0; k--) {
             cl = cl.FME(k+1);
-            cl.printInfo(System.out, "axis " + k);
+            //cl.printInfo(System.out, "axis " + k);
             init(cl, k);
         }
-        printInfo(System.out);
+        //printInfo(System.out);
     }
 
-    void printInfo(PrintStream ps) {
+    public void printInfo(PrintStream ps) {
         for (int k=0; k<min.length; k++) {
             ps.printf("axis %d\n", k);
             ps.printf("  min\n");
