@@ -292,4 +292,15 @@ class PolyRegion extends BaseRegion {
     int [] max() {
         return ((BaseRegion)boundingBox()).max();
     }
+
+
+    //
+    // debugging
+    //
+
+    public void printInfo(PrintStream out) {
+        constraints.printInfo(out, this.getClass().getName());
+    }
+
 }
+

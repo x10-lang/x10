@@ -133,13 +133,6 @@ public abstract value class Region(
 
 
     //
-    // debugging
-    //
-
-    public abstract void printInfo(String label);
-
-
-    //
     //
     //
 

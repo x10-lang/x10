@@ -48,6 +48,15 @@ public abstract value class Array_T(
 
 
     //
+    //
+    //
+
+    public Region.Iterator iterator() {
+        return region.iterator();
+    }
+
+
+    //
     // views
     //
 

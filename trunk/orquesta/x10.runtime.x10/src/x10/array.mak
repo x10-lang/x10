@@ -1,8 +1,9 @@
 SHELL=/bin/bash
 
-#
-# expects JAVA_HOME and X10_HOME to be passed in from environment
-#
+ifndef X10C
+  X10C = x10c
+endif
+
 
 LANG=\
 lang/Arithmetic_T.x10\
