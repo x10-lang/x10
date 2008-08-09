@@ -140,6 +140,10 @@ public abstract class BaseRegion extends Region {
         throw U.unsupported();
     }
 
+    public boolean $eq(Region that) {
+        return equals(that);
+    }
+
 
     //
     // pointwise
