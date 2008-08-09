@@ -75,6 +75,17 @@ public value class Constraint implements java.lang.Comparable {
 
 
     //
+    // determine whether point satisfies constraint
+    //
+    boolean contains(Point p) {
+        int [] ps = p.coords();
+        int sum = cs[rank];
+        for (int i=0; i<rank; i++)
+            sum += cs[i]*ps[i];
+        return sum <= 0;
+    }
+
+    //
     // print a constraint in both matrix and equation form
     //
     public void printInfo(PrintStream ps) {

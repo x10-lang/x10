@@ -86,6 +86,8 @@ public abstract value class Region(
     public abstract boolean contains(Region that);
     public abstract boolean equals(Region that);
 
+    public abstract boolean contains(Point p);
+
 
     //
     // efficient scanning - rank is known at compile time
