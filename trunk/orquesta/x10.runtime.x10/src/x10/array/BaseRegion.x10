@@ -35,30 +35,30 @@ public abstract class BaseRegion extends Region {
         return RectRegion.make(min, max);
     }        
 
-    static public Region makeDiagonal(int size, int upper, int lower) {
-        return PolyRegion.makeDiagonal(size, upper, lower);
+    static public Region makeBanded(int size, int upper, int lower) {
+        return PolyRegion.makeBanded(size, upper, lower);
     }
 
-    static public Region makeDiagonal(int size) {
-        return PolyRegion.makeDiagonal(size, 1, 1);
+    static public Region makeBanded(int size) {
+        return PolyRegion.makeBanded(size, 1, 1);
     }
 
     static public Region makeUpperTriangular(int size) {
         // XXX
-        return PolyRegion.makeDiagonal(size, size, 1);
+        return PolyRegion.makeBanded(size, size, 1);
     }
 
     static public Region makeLowerTriangular(int size) {
         // XXX
-        return PolyRegion.makeDiagonal(size, 1, size);
+        return PolyRegion.makeBanded(size, 1, size);
     }
 
     static public Region makeUpperTriangular(int rowMin, int colMin, int size) {
-        return PolyRegion.makeDiagonal(rowMin, colMin, size, true);
+        return PolyRegion.makeBanded(rowMin, colMin, size, true);
     }
 
     static public Region makeLowerTriangular(int rowMin, int colMin, int size) {
-        return PolyRegion.makeDiagonal(rowMin, colMin, size, false);
+        return PolyRegion.makeBanded(rowMin, colMin, size, false);
     }
 
     static public Region make(Region [] regions) {
@@ -73,8 +73,8 @@ public abstract class BaseRegion extends Region {
     // XXX testing only; add to Region if needed externally
     //
 
-    static public Region makeDiagonal(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
-        return PolyRegion.makeDiagonal(rowMin, colMin, rowMax, colMax, upper, lower);
+    static public Region makeBanded(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
+        return PolyRegion.makeBanded(rowMin, colMin, rowMax, colMax, upper, lower);
     }
 
     static public PolyRegion make(ConstraintList cl) {
@@ -139,6 +139,16 @@ public abstract class BaseRegion extends Region {
     public boolean equals(Region r) {
         throw U.unsupported();
     }
+
+
+    //
+    // pointwise
+    //
+
+    public boolean contains(Point p) {
+        throw U.unsupported();
+    }
+
 
 
     //

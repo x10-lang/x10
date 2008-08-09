@@ -46,12 +46,12 @@ public abstract value class Region(
         return BaseRegion.makeRectangular(min, max);
     }        
 
-    public static Region makeDiagonal(int size, int upper, int lower) {
-        return BaseRegion.makeDiagonal(size, upper, lower);
+    public static Region makeBanded(int size, int upper, int lower) {
+        return BaseRegion.makeBanded(size, upper, lower);
     }
 
-    public static Region makeDiagonal(int size) {
-        return BaseRegion.makeDiagonal(size);
+    public static Region makeBanded(int size) {
+        return BaseRegion.makeBanded(size);
     }
 
     public static Region makeUpperTriangular(int size) {
