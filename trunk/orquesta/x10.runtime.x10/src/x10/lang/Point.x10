@@ -51,8 +51,7 @@ public class Point(int rank) implements /*Indexable_int,*/ ArithmeticOps_Point, 
     }
 
     public Point $plus(Point that) {
-        if (this.rank!=that.rank)
-            throw new RankMismatchException(this.rank, that.rank);
+        chkRank(that);
         int [] cs = new int[rank];
         for (int i=0; i<rank; i++)
             cs[i] = this.coords[i]+that.coords[i];
@@ -60,8 +59,7 @@ public class Point(int rank) implements /*Indexable_int,*/ ArithmeticOps_Point, 
     }
 
     public Point $minus(Point that) {
-        if (this.rank!=that.rank)
-            throw new RankMismatchException(this.rank, that.rank);
+        chkRank(that);
         int [] cs = new int[rank];
         for (int i=0; i<rank; i++)
             cs[i] = this.coords[i]-that.coords[i];
@@ -69,8 +67,7 @@ public class Point(int rank) implements /*Indexable_int,*/ ArithmeticOps_Point, 
     }
 
     public Point $times(Point that) {
-        if (this.rank!=that.rank)
-            throw new RankMismatchException(this.rank, that.rank);
+        chkRank(that);
         int [] cs = new int[rank];
         for (int i=0; i<rank; i++)
             cs[i] = this.coords[i]*that.coords[i];
@@ -78,41 +75,63 @@ public class Point(int rank) implements /*Indexable_int,*/ ArithmeticOps_Point, 
     }
 
     public Point $over(Point that) {
-        if (this.rank!=that.rank)
-            throw new RankMismatchException(this.rank, that.rank);
+        chkRank(that);
         int [] cs = new int[rank];
         for (int i=0; i<rank; i++)
             cs[i] = this.coords[i]/that.coords[i];
         return Point.make(cs);
     }
 
-
     //
     // from ComparisonOps_Point
     //
 
-    public boolean $eq(Point x) {
-        throw U.unsupported();
+    public boolean $eq(Point that) {
+        chkRank(that);
+        for (int i=0; i<rank; i++)
+            if (!(this.coords[i]==that.coords[i]))
+                return false;
+        return true;
     }
 
-    public boolean $lt(Point x) {
-        throw U.unsupported();
+    public boolean $lt(Point that) {
+        chkRank(that);
+        for (int i=0; i<rank; i++)
+            if (!(this.coords[i]<that.coords[i]))
+                return false;
+        return true;
     }
 
-    public boolean $gt(Point x) {
-        throw U.unsupported();
+    public boolean $gt(Point that) {
+        chkRank(that);
+        for (int i=0; i<rank; i++)
+            if (!(this.coords[i]>that.coords[i]))
+                return false;
+        return true;
     }
 
-    public boolean $le(Point x) {
-        throw U.unsupported();
+    public boolean $le(Point that) {
+        chkRank(that);
+        for (int i=0; i<rank; i++)
+            if (!(this.coords[i]<=that.coords[i]))
+                return false;
+        return true;
     }
 
-    public boolean $ge(Point x) {
-        throw U.unsupported();
+    public boolean $ge(Point that) {
+        chkRank(that);
+        for (int i=0; i<rank; i++)
+            if (!(this.coords[i]>=that.coords[i]))
+                return false;
+        return true;
     }
 
-    public boolean $ne(Point x) {
-        throw U.unsupported();
+    public boolean $ne(Point that) {
+        chkRank(that);
+        for (int i=0; i<rank; i++)
+            if (!(this.coords[i]!=that.coords[i]))
+                return false;
+        return true;
     }
 
 
@@ -141,5 +160,12 @@ public class Point(int rank) implements /*Indexable_int,*/ ArithmeticOps_Point, 
         this.coords = coords;
         this.rank = coords.length;
     }
+
+    private void chkRank(Point that) {
+        if (this.rank!=that.rank)
+            throw new RankMismatchException(this.rank, that.rank);
+    }
+
+
 
 }
