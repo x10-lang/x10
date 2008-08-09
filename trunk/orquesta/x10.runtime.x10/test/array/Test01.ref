@@ -5,13 +5,7 @@ zeroBased false
 rail false
 isConvex() true
 size() 24
-x10.array.RectRegion
-    [  -1   0   0 |   1 ]   x0 >= 1
-    [   0  -1   0 |   2 ]   x1 >= 2
-    [   0   0  -1 |   3 ]   x2 >= 3
-    [   0   0   1 |  -6 ]   x2 <= 6
-    [   0   1   0 |  -4 ]   x1 <= 4
-    [   1   0   0 |  -2 ]   x0 <= 2
+region: [1..2,2..4,3..6]
   poly
     --- 1
     2  . . . 6 8 0 2 . . . 
