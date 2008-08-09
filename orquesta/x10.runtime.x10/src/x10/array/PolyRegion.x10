@@ -225,6 +225,22 @@ class PolyRegion extends BaseRegion {
 
 
     //
+    // point
+    //
+
+    public boolean contains(Point p) {
+        Iterator_Constraint it = constraints.iterator();
+        while (it.hasNext()) {
+            Constraint c = it.next();
+            if (!c.contains(p))
+                return false;
+        }
+        return true;
+    }
+
+
+
+    //
     // lower==1 and lower==1 include the diagonal
     // lower==size and upper==size includes entire size x size square
     //
@@ -238,7 +254,7 @@ class PolyRegion extends BaseRegion {
     private static final int ROW = ConstraintList.X(0);
     private static final int COL = ConstraintList.X(1);
 
-    public static Region makeDiagonal(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
+    public static Region makeBanded(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
         ConstraintList cl = new ConstraintList(2);
         cl.add(ROW, cl.GE, rowMin);
         cl.add(ROW, cl.LE, rowMax);
@@ -249,11 +265,11 @@ class PolyRegion extends BaseRegion {
         return PolyRegion.make(cl);
     }
 
-    public static Region makeDiagonal(int size, int upper, int lower) {
-        return makeDiagonal(0, 0, size-1, size-1, upper, lower);
+    public static Region makeBanded(int size, int upper, int lower) {
+        return makeBanded(0, 0, size-1, size-1, upper, lower);
     }
 
-    public static Region makeDiagonal(int rowMin, int colMin, int size, boolean upper) {
+    public static Region makeBanded(int rowMin, int colMin, int size, boolean upper) {
         if (upper) {
             ConstraintList cl = new ConstraintList(2);
             cl.add(ROW, cl.GE, rowMin);
