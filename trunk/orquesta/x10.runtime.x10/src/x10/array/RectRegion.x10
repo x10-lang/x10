@@ -153,4 +153,46 @@ final class RectRegion extends PolyRegion {
         return constraints.rectMax();
     }
 
+
+    public boolean equals(Region that) {
+
+        // we only handle rect==rect
+        if (!(that instanceof RectRegion))
+            return super.equals(that);
+
+        // ranks must match
+        if (this.rank!=that.rank)
+            return false;
+
+        // fetch bounds
+        int [] thisMin = this.min();
+        int [] thisMax = this.max();
+        int [] thatMin = ((RectRegion)that).min();
+        int [] thatMax = ((RectRegion)that).max();
+
+        // compare 'em
+        for (int i=0; i<rank; i++) {
+            if (thisMin[i]!=thatMin[i] || thisMax[i]!=thatMax[i])
+                return false;
+        }
+        return true;
+    }
+
+
+    //
+    //
+    //
+
+    public String toString() {
+        int [] min = min();
+        int [] max = max();
+        String s = "[";
+        for (int i=0; i<rank; i++) {
+            if (i>0) s += ",";
+            s += min[i] + ".." + max[i];
+        }
+        s += "]";
+        return s;
+    }
+
 }

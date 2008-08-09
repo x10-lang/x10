@@ -88,6 +88,8 @@ public abstract value class Region(
 
     public abstract boolean contains(Point p);
 
+    public abstract boolean $eq(Region that);
+
 
     //
     // efficient scanning - rank is known at compile time
