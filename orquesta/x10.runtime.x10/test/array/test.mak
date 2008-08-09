@@ -15,3 +15,6 @@ default:
 	$(X10C) -cp ../classes -d ../classes *.x10
 	$(X10) -cp ../classes Tester $(TESTS)
 	rm *.out
+
+bless:
+	for file in *.out; do mv $${file} $${file%.out}.ref; done

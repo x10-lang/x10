@@ -5,8 +5,4 @@ zeroBased false
 rail false
 isConvex() true
 size() axis 1 has no minimum
-x10.array.RectRegion
-    [  -1   0 |   0 ]   x0 >= 0
-    [   0   1 |  -1 ]   x1 <= 1
-    [   1   0 |  -3 ]   x0 <= 3
 x10.array.UnboundedRegionException: axis 1 has no minimum

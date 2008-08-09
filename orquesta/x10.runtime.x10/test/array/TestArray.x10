@@ -165,13 +165,16 @@ public abstract class TestArray extends Test {
         new R("isConvex()")	{String run() {return "" + r.isConvex();}};
         new R("size()")		{String run() {return "" + r.size();}};
 
-        ((BaseRegion)r).printInfo(out);
+        //((BaseRegion)r).printInfo(out);
+        pr("region: " + r);
 
         // probe for unbounded
         if (probe) {
             Region.Scanner s = (Region.Scanner) r.scanners().next();
+            /*
             if (s instanceof PolyScanner)
                 ((PolyScanner)s).printInfo(out);
+            */
             Region.Iterator i = r.iterator();
         }
     }
@@ -189,8 +192,10 @@ public abstract class TestArray extends Test {
         while (it.hasNext()) {
             Region.Scanner s = (Region.Scanner) it.next();
             pr("  poly");
+            /*
             if (s instanceof PolyScanner)
                 ((PolyScanner)s).printInfo(out);
+            */
             if (r.rank==0) {
                 pr("ERROR rank==0");
             } else if (r.rank==1) {
