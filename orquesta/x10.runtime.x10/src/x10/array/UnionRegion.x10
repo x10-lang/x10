@@ -28,9 +28,14 @@ class UnionRegion extends BaseRegion {
             if (r instanceof PolyRegion) {
                 if (!r.isEmpty())
                     rs.add((PolyRegion) r);
-            } else if (r instanceof UnionRegion)
-                throw new Error("not yet");
+            } else if (r instanceof UnionRegion) {
+                UnionRegion u = (UnionRegion) r;
+                for (int j=0; j<u.regions.length; j++)
+                    rs.add(u.regions[j]);
+            } else
+                throw new Error("unknown region type " + r);
         }
+
         return new UnionRegion(rank, rs.toArray());
     }
 
