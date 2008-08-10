@@ -14,7 +14,11 @@ TESTS = $(FILES:.x10=) CG
 default:
 	$(X10C) -cp ../classes -d ../classes *.x10
 	$(X10) -cp ../classes Tester $(TESTS)
-	rm *.out
+#	rm *.out
 
 bless:
 	for file in *.out; do mv $${file} $${file%.out}.ref; done
+
+%: %.x10
+	$(X10) -cp ../classes Tester $*
+	cat $*.out

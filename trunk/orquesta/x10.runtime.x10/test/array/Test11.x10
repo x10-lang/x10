@@ -7,10 +7,6 @@ class Test11 extends TestArray {
 
     public void run() {
         Region r = Region.makeFull(3);
-        try {
-            prRegion("full region", r, true);
-        } catch (Throwable e) {
-            pr(e.toString());
-        }
+        prUnbounded("full region", r);
     }
 }

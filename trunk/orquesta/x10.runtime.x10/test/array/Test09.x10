@@ -17,10 +17,6 @@ class Test09 extends TestArray {
         cl.add(COL+ROW, cl.GE, 3);
         cl.add(COL-ROW, cl.LE, 1);
         Region r = BaseRegion.make(cl);
-        try {
-            prRegion("unbounded diamond", r, true);
-        } catch (Throwable e) {
-            pr(e.toString());
-        }
+        prUnbounded("unbounded diamond", r);
     }
 }
