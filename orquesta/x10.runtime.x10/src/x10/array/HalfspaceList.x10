@@ -34,14 +34,14 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
 
     public void add(int coeff, int op, int k) {
         coeff += ZERO;
-        int [] cs = new int[rank+1];
+        int [] as = new int[rank+1];
         for (int i=0; i<rank; i++) {
-            int c = (coeff&3) - 2;
-            cs[i] = op==LE? c : - c;
+            int a = (coeff&3) - 2;
+            as[i] = op==LE? a : - a;
             coeff = coeff >> 2;
         }
-        cs[rank] = op==LE? -k : k;
-        add(new Halfspace(cs));
+        as[rank] = op==LE? -k : k;
+        add(new Halfspace(as));
     }
 
 
