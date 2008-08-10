@@ -189,3 +189,107 @@ region: ([0..1,0..5] || [2..3,0..1] || [4..5,0..0] || [5..5,3..5])
     3  0 3 . . . . . . . . 
     4  0 . . . . . . . . . 
     5  0 . . 5 0 5 . . . . 
+--- Test20: r3.union(r6)
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() unsupported operation
+size() unsupported operation
+region: ([0..5,0..5] || [2..7,6..7] || [6..7,2..5])
+  poly
+  poly
+  poly
+    0  0 0 0 0 0 0 . . . . 
+    1  0 1 2 3 4 5 . . . . 
+    2  0 2 4 6 8 0 2 4 . . 
+    3  0 3 6 9 2 5 8 1 . . 
+    4  0 4 8 2 6 0 4 8 . . 
+    5  0 5 0 5 0 5 0 5 . . 
+    6  . . 2 8 4 0 6 2 . . 
+    7  . . 4 1 8 5 2 9 . . 
+  iterator
+    0  0 0 0 0 0 0 . . . . 
+    1  0 1 2 3 4 5 . . . . 
+    2  0 2 4 6 8 0 2 4 . . 
+    3  0 3 6 9 2 5 8 1 . . 
+    4  0 4 8 2 6 0 4 8 . . 
+    5  0 5 0 5 0 5 0 5 . . 
+    6  . . 2 8 4 0 6 2 . . 
+    7  . . 4 1 8 5 2 9 . . 
+--- Test20: r6.union(r3)
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() unsupported operation
+size() unsupported operation
+region: ([2..7,2..7] || [0..1,0..5] || [2..5,0..1])
+  poly
+  poly
+  poly
+    0  0 0 0 0 0 0 . . . . 
+    1  0 1 2 3 4 5 . . . . 
+    2  0 2 4 6 8 0 2 4 . . 
+    3  0 3 6 9 2 5 8 1 . . 
+    4  0 4 8 2 6 0 4 8 . . 
+    5  0 5 0 5 0 5 0 5 . . 
+    6  . . 2 8 4 0 6 2 . . 
+    7  . . 4 1 8 5 2 9 . . 
+  iterator
+    0  0 0 0 0 0 0 . . . . 
+    1  0 1 2 3 4 5 . . . . 
+    2  0 2 4 6 8 0 2 4 . . 
+    3  0 3 6 9 2 5 8 1 . . 
+    4  0 4 8 2 6 0 4 8 . . 
+    5  0 5 0 5 0 5 0 5 . . 
+    6  . . 2 8 4 0 6 2 . . 
+    7  . . 4 1 8 5 2 9 . . 
+--- Test20: r3.union(r8)
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() unsupported operation
+size() unsupported operation
+region: ([0..5,0..5] || [2..4,6..7])
+  poly
+  poly
+    0  0 0 0 0 0 0 . . . . 
+    1  0 1 2 3 4 5 . . . . 
+    2  0 2 4 6 8 0 2 4 . . 
+    3  0 3 6 9 2 5 8 1 . . 
+    4  0 4 8 2 6 0 4 8 . . 
+    5  0 5 0 5 0 5 . . . . 
+  iterator
+    0  0 0 0 0 0 0 . . . . 
+    1  0 1 2 3 4 5 . . . . 
+    2  0 2 4 6 8 0 2 4 . . 
+    3  0 3 6 9 2 5 8 1 . . 
+    4  0 4 8 2 6 0 4 8 . . 
+    5  0 5 0 5 0 5 . . . . 
+--- Test20: r8.union(r3)
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() unsupported operation
+size() unsupported operation
+region: ([2..4,2..7] || [0..1,0..5] || [2..5,0..1] || [5..5,2..5])
+  poly
+  poly
+  poly
+  poly
+    0  0 0 0 0 0 0 . . . . 
+    1  0 1 2 3 4 5 . . . . 
+    2  0 2 4 6 8 0 2 4 . . 
+    3  0 3 6 9 2 5 8 1 . . 
+    4  0 4 8 2 6 0 4 8 . . 
+    5  0 5 0 5 0 5 . . . . 
+  iterator
+    0  0 0 0 0 0 0 . . . . 
+    1  0 1 2 3 4 5 . . . . 
+    2  0 2 4 6 8 0 2 4 . . 
+    3  0 3 6 9 2 5 8 1 . . 
+    4  0 4 8 2 6 0 4 8 . . 
+    5  0 5 0 5 0 5 . . . . 

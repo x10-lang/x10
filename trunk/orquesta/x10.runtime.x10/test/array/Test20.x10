@@ -1,6 +1,6 @@
 /**
- * Inverse and difference for some basic rectangular regions. Includes
- * Os, Ls, Us, and a non-connected region.
+ * Inverse, difference and union for some basic rectangular
+ * regions. Includes Os, Ls, Us, and a non-connected region.
  */
 
 class Test20 extends TestArray {
@@ -37,6 +37,14 @@ class Test20 extends TestArray {
 
         Region r11 = r9.difference(r10);
         prArray("r11=r9.difference(r10)", r11);
+
+        prArray("r3.union(r6)", r3.union(r6));
+
+        prArray("r6.union(r3)", r6.union(r3));
+
+        prArray("r3.union(r8)", r3.union(r8));
+
+        prArray("r8.union(r3)", r8.union(r3));
     }
 }
 
