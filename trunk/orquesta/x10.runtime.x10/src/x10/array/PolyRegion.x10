@@ -231,6 +231,23 @@ public class PolyRegion extends BaseRegion {
     }
 
 
+    //
+    // XXX is this correct?
+    // XXX more efficient way?
+    //
+
+    public boolean isEmpty() {
+        Scanner s = scanner();
+        for (int axis=0; axis<rank; axis++) {
+            int min = s.min(axis);
+            if (min > s.max(axis))
+                return true;
+            if (axis<rank-1)
+                s.set(axis, min);
+        }
+        return false;
+    }
+
 
     //
     // Bounding box is computed by taking the project on each
