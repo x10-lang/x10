@@ -148,8 +148,13 @@ public abstract class TestArray extends Test {
     }
 
     Array_double prArray(String test, final Region r) {
-        Array_double a = Array_double.make(r, new Init());
-        prArray(test, a);
+        return prArray(test, r, false);
+    }
+
+    Array_double prArray(String test, final Region r, boolean bump) {
+        Indexable_double init = bump? Array_double.NO_INIT : new Init();
+        Array_double a = Array_double.make(r, init);
+        prArray(test, a, bump);
         return a;
     }
 
@@ -183,6 +188,10 @@ public abstract class TestArray extends Test {
     
 
     void prArray(String test, Array_double a) {
+        prArray(test, a, false);
+    }
+
+    void prArray(String test, Array_double a, boolean bump) {
 
         final Region r = a.region;
 
@@ -199,8 +208,10 @@ public abstract class TestArray extends Test {
             } else if (r.rank==1) {
                 int min0 = s.min(0);
                 int max0 = s.max(0);
-                for (int i0=min0; i0<=max0; i0++)
+                for (int i0=min0; i0<=max0; i0++) {
+                    if (bump) a.set(i0, a.get(i0)+1);
                     grid.set(i0, a.get(i0));
+                }
             } else if (r.rank==2) {
                 int min0 = s.min(0);
                 int max0 = s.max(0);
@@ -208,8 +219,10 @@ public abstract class TestArray extends Test {
                     s.set(0, i0);
                     int min1 = s.min(1);
                     int max1 = s.max(1);
-                    for (int i1=min1; i1<=max1; i1++)
+                    for (int i1=min1; i1<=max1; i1++) {
+                        if (bump) a.set(i0, i1, a.get(i0, i1)+1);
                         grid.set(i0, i1, a.get(i0,i1));
+                    }
                 }
             } else if (r.rank==3) {
                 int min0 = s.min(0);
@@ -222,8 +235,10 @@ public abstract class TestArray extends Test {
                         s.set(1, i1);
                         int min2 = s.min(2);
                         int max2 = s.max(2);
-                        for (int i2=min2; i2<=max2; i2++)
+                        for (int i2=min2; i2<=max2; i2++) {
+                            if (bump) a.set(i0, i2, i2, a.get(i0, i1, i2)+1);
                             grid.set(i0, i1, i2, a.get(i0,i1,i2));
+                        }
                     }
                 }
             }
@@ -238,12 +253,16 @@ public abstract class TestArray extends Test {
             int [] x = ri.next();
             Point p = Point.make(x);
             double v = a.get(p);
-            if (x.length==1)
+            if (x.length==1) {
+                if (bump) a.set(x[0], (a.get(x[0])+1));
                 grid.set(x[0], v);
-            else if (x.length==2)
+            } else if (x.length==2) {
+                if (bump) a.set(x[0], x[1], (a.get(x[0], x[1])+1));
                 grid.set(x[0], x[1], v);
-            else if (x.length==3)
+            } else if (x.length==3) {
+                if (bump) a.set(x[0], x[1], x[2], (a.get(x[0], x[1], x[2])+1));
                 grid.set(x[0], x[1], x[2], v);
+            }
         }
         grid.pr(r.rank);
     }
