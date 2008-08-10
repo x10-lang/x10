@@ -8,6 +8,8 @@ import x10.lang.Point;
 import x10.lang.Region;
 import x10.lang.IllegalOperationException;
 
+import x10.util.ArrayList_PolyRegion;
+
 
 public abstract class BaseRegion extends Region {
 
@@ -107,20 +109,23 @@ public abstract class BaseRegion extends Region {
     // region composition
     //
 
-    public Region inverse() {
-        throw U.unsupported();
+    public Region union(Region that) {
+        ArrayList_PolyRegion rs = new ArrayList_PolyRegion();
+        UnionRegion.add(rs, this);
+        UnionRegion.add(rs, that.difference(this));
+        return new UnionRegion(rank, rs.toArray());
     }
 
-    public Region union(Region that) {
+    public Region difference(Region that) {
+        return this.intersection(that.inverse());
+    }
+
+    public Region inverse() {
         throw U.unsupported();
     }
 
     public Region intersection(Region that) {
         throw U.unsupported();
-    }
-
-    public Region difference(Region that) {
-        return this.intersection(that.inverse());
     }
 
     public Region product(Region that) {
