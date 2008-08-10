@@ -7,7 +7,7 @@ import x10.lang.Region;
 import x10.util.Iterator_Scanner;
 
 //
-// XXX re-implement as PolyRegion w/ non-overlapping constraints to
+// XXX re-implement as PolyRegion w/ non-overlapping halfspaces to
 // pick up all ops
 //
 

@@ -2,16 +2,16 @@ package x10.array;
 
 import java.io.PrintStream;
 
-import x10.util.Iterator_Constraint;
+import x10.util.Iterator_Halfspace;
 
 
 //
 // Here's the general scheme for the information used in scanning,
 // illustrated for a region of rank r=4. Each axis Xi is bounded by
-// two sets of constraints, min[i] and max[i], obtained from the
-// region constraints by FME (resulting in the 0 coefficients as
+// two sets of halfspaces, min[i] and max[i], obtained from the
+// region halfspaces by FME (resulting in the 0 coefficients as
 // shown). Computing the bounds for Xi requires substituting X0 up to
-// Xi-1 into each constraint (as shown for the min[i]s) and taking
+// Xi-1 into each halfspace (as shown for the min[i]s) and taking
 // mins and maxes.
 //
 //           0   1   2   r-1
@@ -38,8 +38,8 @@ import x10.util.Iterator_Constraint;
 //
 // In the innermost loop the bounds for X3 could be computed by
 // substituting the known values of X0 through X2 into each
-// constraint. However, part of that computation can be pulled out of
-// the inner loop by keeping track for each constraint in in min[k]
+// halfspace. However, part of that computation can be pulled out of
+// the inner loop by keeping track for each halfspace in in min[k]
 // and each constraing in max[k] a set of partial sums of the form
 //
 //     minSum[0] = B
@@ -54,7 +54,7 @@ import x10.util.Iterator_Constraint;
 //     minSum[i+1] := sum[i] + Ai*Xi
 //
 // The loop bounds for Xk are then obtained by computing mins and
-// maxes over the sum[k]/Ak for the constraints in elim[k].
+// maxes over the sum[k]/Ak for the halfspaces in elim[k].
 //
 
 
@@ -67,7 +67,7 @@ public final class PolyScanner implements Region.Scanner {
     private final int [][][] minSum;
     private final int [][][] maxSum;
 
-    PolyScanner(ConstraintList cl) {
+    PolyScanner(HalfspaceList cl) {
 
         this.rank = cl.rank;
 
@@ -112,15 +112,15 @@ public final class PolyScanner implements Region.Scanner {
         }
     }
 
-    private final void init(ConstraintList cl, int axis) {
+    private final void init(HalfspaceList cl, int axis) {
 
         // count
         int imin=0, imax=0;
-        Iterator_Constraint it = cl.iterator();
+        Iterator_Halfspace it = cl.iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
-            if (c.cs[axis]<0) imin++;
-            if (c.cs[axis]>0) imax++;
+            Halfspace h = (Halfspace) it.next();
+            if (h.cs[axis]<0) imin++;
+            if (h.cs[axis]>0) imax++;
         }
 
         // complain if unbounded
@@ -140,21 +140,21 @@ public final class PolyScanner implements Region.Scanner {
         imin=0; imax=0;
         it = cl.iterator();
         while (it.hasNext()) {
-            Constraint c = (Constraint) it.next();
-            if (c.cs[axis]<0) {
+            Halfspace h = (Halfspace) it.next();
+            if (h.cs[axis]<0) {
                 min[axis][imin] = new int [axis+1];
                 minSum[axis][imin] = new int[axis+1];
                 for (int i=0; i<=axis; i++)
-                    min[axis][imin][i] = c.cs[i];
-                minSum[axis][imin][0] = c.cs[rank];
+                    min[axis][imin][i] = h.cs[i];
+                minSum[axis][imin][0] = h.cs[rank];
                 imin++;
             }
-            if (c.cs[axis]>0) {
+            if (h.cs[axis]>0) {
                 max[axis][imax] = new int [axis+1];
                 maxSum[axis][imax] = new int[axis+1];
                 for (int i=0; i<=axis; i++)
-                    max[axis][imax][i] = c.cs[i];
-                maxSum[axis][imax][0] = c.cs[rank];
+                    max[axis][imax][i] = h.cs[i];
+                maxSum[axis][imax][0] = h.cs[rank];
                 imax++;
             }
         }
@@ -206,10 +206,10 @@ older version - keep for reference
 
 private class Scanner implements Region.Scanner {
 
-    ConstraintList [] elim = new ConstraintList[rank];
+    HalfspaceList [] elim = new HalfspaceList[rank];
 
     Scanner() {
-        ConstraintList cl = constraints;
+        HalfspaceList cl = halfspaces;
         elim[rank-1] = cl.init(rank-1);
         for (int k=rank-2; k>=0; k--) {
             cl = cl.FME(k+1);
