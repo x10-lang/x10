@@ -192,7 +192,7 @@ public class PolyRegion extends BaseRegion {
     private static void copy(HalfspaceList to, HalfspaceList from, int offset) {
         Iterator_Halfspace it = from.iterator();
         while (it.hasNext()) {
-            int [] f = it.next().cs;
+            int [] f = it.next().as;
             int [] t = new int[to.rank+1];
             for (int i=0; i<from.rank; i++)
                 t[offset+i] = f[i];

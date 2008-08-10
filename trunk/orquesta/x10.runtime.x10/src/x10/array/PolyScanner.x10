@@ -119,8 +119,8 @@ public final class PolyScanner implements Region.Scanner {
         Iterator_Halfspace it = cl.iterator();
         while (it.hasNext()) {
             Halfspace h = (Halfspace) it.next();
-            if (h.cs[axis]<0) imin++;
-            if (h.cs[axis]>0) imax++;
+            if (h.as[axis]<0) imin++;
+            if (h.as[axis]>0) imax++;
         }
 
         // complain if unbounded
@@ -141,20 +141,20 @@ public final class PolyScanner implements Region.Scanner {
         it = cl.iterator();
         while (it.hasNext()) {
             Halfspace h = (Halfspace) it.next();
-            if (h.cs[axis]<0) {
+            if (h.as[axis]<0) {
                 min[axis][imin] = new int [axis+1];
                 minSum[axis][imin] = new int[axis+1];
                 for (int i=0; i<=axis; i++)
-                    min[axis][imin][i] = h.cs[i];
-                minSum[axis][imin][0] = h.cs[rank];
+                    min[axis][imin][i] = h.as[i];
+                minSum[axis][imin][0] = h.as[rank];
                 imin++;
             }
-            if (h.cs[axis]>0) {
+            if (h.as[axis]>0) {
                 max[axis][imax] = new int [axis+1];
                 maxSum[axis][imax] = new int[axis+1];
                 for (int i=0; i<=axis; i++)
-                    max[axis][imax][i] = h.cs[i];
-                maxSum[axis][imax][0] = h.cs[rank];
+                    max[axis][imax][i] = h.as[i];
+                maxSum[axis][imax][0] = h.as[rank];
                 imax++;
             }
         }
