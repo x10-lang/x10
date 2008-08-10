@@ -5,6 +5,7 @@ package x10.util;
 // eventually going away anyway...
 import x10.lang.Region.Scanner;
 import x10.array.Halfspace;
+import x10.array.PolyRegion;
 
 public interface Iterator_T {
     boolean hasNext();

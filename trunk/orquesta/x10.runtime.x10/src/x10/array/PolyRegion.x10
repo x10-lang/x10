@@ -209,7 +209,7 @@ public class PolyRegion extends BaseRegion {
 
     public Region inverse() {
         
-        PolyRegion [] rs = new PolyRegion[halfspaces.n()];
+        PolyRegion [] rs = new PolyRegion[halfspaces.size()];
         int r = 0;
 
         Iterator_Halfspace i = halfspaces.iterator();
