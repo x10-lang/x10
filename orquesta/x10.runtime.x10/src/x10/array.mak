@@ -49,9 +49,11 @@ gen/ArrayV_Object.x10
 UTIL_GEN=\
 gen/Iterator_Halfspace.x10\
 gen/Iterator_Scanner.x10\
+gen/Iterator_PolyRegion.x10\
 gen/Map_place_Region.x10\
 gen/Set_place.x10\
-gen/ArrayList_PolyRegion.x10
+gen/ArrayList_PolyRegion.x10\
+gen/ArrayList_Halfspace.x10
 
 X10C_OPTS = -BAD_PLACE_RUNTIME_CHECK=false -ARRAY_OPTIMIZATIONS=true
 
@@ -103,6 +105,11 @@ gen/%_Scanner.x10: %_T.x10
 gen/%_PolyRegion.x10: %_T.x10
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1PolyRegion\2/g" <$< >$@
+	@chmod -w $@
+
+gen/%_Halfspace.x10: %_T.x10
+	@rm -f $@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Halfspace\2/g" <$< >$@
 	@chmod -w $@
 
 gen/%_place.x10: %_T.x10
