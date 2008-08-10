@@ -86,6 +86,24 @@ public value class Constraint implements java.lang.Comparable {
     }
 
     //
+    // given
+    //    a0*x0 + ... +ar   <=  0
+    // inverse is
+    //    a0*x0 + ... +ar   >   0
+    //   -a0*x0 - ... -ar   <   0
+    //   -a0*x0 - ... -ar   <= -1
+    //   -a0*x0 - ... -ar+1 <=  0
+    //
+    Constraint inverse() {
+        int [] cs = new int[rank+1];
+        for (int i=0; i<rank; i++)
+            cs[i] = -this.cs[i];
+        cs[rank] = -this.cs[rank]+1;
+        return new Constraint(cs);
+    }
+
+
+    //
     // print a constraint in both matrix and equation form
     //
     public void printInfo(PrintStream ps) {
@@ -95,6 +113,14 @@ public value class Constraint implements java.lang.Comparable {
             if (i==cs.length-2) ps.printf(" |");
         }
         ps.printf(" ]   ");
+        printEqn(ps, " ");
+        ps.printf("\n");
+    }
+
+    //
+    // print a constraint in equation form
+    //
+    private void printEqn(PrintStream ps, String spc) {
         int sgn = 0;
         boolean first = true;
         for (int i=0; i<cs.length-1; i++) {
@@ -118,17 +144,16 @@ public value class Constraint implements java.lang.Comparable {
                 first = false;
         }
         if (sgn>0)
-            ps.printf(" <= %d", -cs[cs.length-1]);
+            ps.printf("%s<=%s%d", spc, spc, -cs[cs.length-1]);
         else
-            ps.printf(" >= %d", cs[cs.length-1]);
-        ps.printf("\n");
+            ps.printf("%s>=%s%d", spc, spc, cs[cs.length-1]);
     }
-
 
     public String toString() {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(os);
-        printInfo(ps);
+        //printInfo(ps);
+        printEqn(ps, "");
         return os.toString();
     }
 }

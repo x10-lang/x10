@@ -86,7 +86,7 @@ public abstract class BaseRegion extends Region {
     // basic information
     //
 
-    public boolean disjoint(Region r) {
+    public boolean disjoint(Region that) {
         throw U.unsupported();
     }
 
@@ -103,19 +103,23 @@ public abstract class BaseRegion extends Region {
     // region composition
     //
 
-    public Region union(Region r) {
+    public Region inverse() {
         throw U.unsupported();
     }
 
-    public Region intersection(Region r) {
+    public Region union(Region that) {
         throw U.unsupported();
     }
 
-    public Region difference(Region r) {
+    public Region intersection(Region that) {
         throw U.unsupported();
     }
 
-    public Region product(Region r) {
+    public Region difference(Region that) {
+        return this.intersection(that.inverse());
+    }
+
+    public Region product(Region that) {
         throw U.unsupported();
     }
 
@@ -132,11 +136,11 @@ public abstract class BaseRegion extends Region {
     // region comparison operations
     //
 
-    public boolean contains(Region r) {
+    public boolean contains(Region that) {
         throw U.unsupported();
     }
 
-    public boolean equals(Region r) {
+    public boolean equals(Region that) {
         throw U.unsupported();
     }
 
