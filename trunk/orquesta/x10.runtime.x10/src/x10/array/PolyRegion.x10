@@ -322,17 +322,22 @@ public class PolyRegion extends BaseRegion {
         return makeBanded(0, 0, size-1, size-1, upper, lower);
     }
 
-    public static Region makeBanded(int rowMin, int colMin, int size, boolean upper) {
-        if (upper) {
-            HalfspaceList hl = new HalfspaceList(2);
-            hl.add(ROW, hl.GE, rowMin);
-            hl.add(COL, hl.LE, colMin+size-1);
-            hl.add(COL-ROW, hl.GE, colMin-rowMin);
-            return PolyRegion.make(hl);
-        } else {
-            throw U.unsupported();
-        }
+    public static Region makeUpperTriangular(int rowMin, int colMin, int size) {
+        HalfspaceList hl = new HalfspaceList(2);
+        hl.add(ROW, hl.GE, rowMin);
+        hl.add(COL, hl.LE, colMin+size-1);
+        hl.add(COL-ROW, hl.GE, colMin-rowMin);
+        return PolyRegion.make(hl);
     }
+
+    public static Region makeLowerTriangular(int rowMin, int colMin, int size) {
+        HalfspaceList hl = new HalfspaceList(2);
+        hl.add(COL, hl.GE, colMin);
+        hl.add(ROW, hl.LE, rowMin+size-1);
+        hl.add(ROW-COL, hl.GE, rowMin-colMin);
+        return PolyRegion.make(hl);
+    }
+
 
 
     //

@@ -3,14 +3,14 @@
  * an array from it, and examine it.
  */
 
-import x10.array.BaseRegion;
+import x10.array.PolyRegion;
 import x10.array.HalfspaceList;
 
 class Test03 extends TestArray {
 
     public void run() {
 
-        Region r1 = BaseRegion.makeUpperTriangular(2, 1, 7);
+        Region r1 = PolyRegion.makeUpperTriangular(2, 1, 7);
         prArray("tri", r1);
 
         int [] min = {3, 3};
