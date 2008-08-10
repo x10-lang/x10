@@ -231,6 +231,7 @@ public class PolyRegion extends BaseRegion {
     }
 
 
+
     //
     // XXX is this correct?
     // XXX more efficient way?
@@ -339,6 +340,7 @@ public class PolyRegion extends BaseRegion {
     // special-case subclasses, such as RectRegion, for efficiency
     //
     // XXX special-case isEmpty() etc.?
+    // XXX empty PolyRegion (with backwards bounds) is probably not handled correctly
     //
 
     public static PolyRegion make(ConstraintList cl) {

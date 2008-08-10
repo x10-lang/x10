@@ -10,6 +10,8 @@ import x10.util.ArrayList_PolyRegion;
 // i.e. CNF
 //
 
+import x10.util.ArrayList_PolyRegion;
+
 class UnionRegion extends BaseRegion {
 
     private PolyRegion [] regions;
@@ -20,23 +22,22 @@ class UnionRegion extends BaseRegion {
     }
 
     public Region intersection(Region that) {
-
         ArrayList_PolyRegion rs = new ArrayList_PolyRegion();
-
-        for (int i=0; i<regions.length; i++) {
-            Region r = regions[i].intersection(that);
-            if (r instanceof PolyRegion) {
-                if (!r.isEmpty())
-                    rs.add((PolyRegion) r);
-            } else if (r instanceof UnionRegion) {
-                UnionRegion u = (UnionRegion) r;
-                for (int j=0; j<u.regions.length; j++)
-                    rs.add(u.regions[j]);
-            } else
-                throw new Error("unknown region type " + r);
-        }
-
+        for (int i=0; i<regions.length; i++)
+            add(rs, regions[i].intersection(that));
         return new UnionRegion(rank, rs.toArray());
+    }
+
+    static void add(ArrayList_PolyRegion rs, Region r) {
+        if (r instanceof PolyRegion) {
+            if (!r.isEmpty())
+                rs.add((PolyRegion) r);
+        } else if (r instanceof UnionRegion) {
+            UnionRegion u = (UnionRegion) r;
+            for (int j=0; j<u.regions.length; j++)
+                rs.add(u.regions[j]);
+        } else
+            throw new Error("unknown region type " + r);
     }
 
 
