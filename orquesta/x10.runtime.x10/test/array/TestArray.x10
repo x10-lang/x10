@@ -9,6 +9,7 @@ import java.io.*;
 
 import x10.array.BaseRegion;
 import x10.array.PolyScanner;
+import x10.array.UnboundedRegionException;
 
 
 public abstract class TestArray extends Test {
@@ -153,7 +154,18 @@ public abstract class TestArray extends Test {
     }
 
 
-    void prRegion(String test, final Region r, boolean probe) {
+    void prUnbounded(String test, final Region r) {
+        try {
+            prRegion(test, r);
+            Region.Scanner s = (Region.Scanner) r.scanners().next();
+            Region.Iterator i = r.iterator();
+        } catch (UnboundedRegionException e) {
+            pr(e.toString());
+        }
+    }
+
+
+    void prRegion(String test, final Region r) {
 
         pr("--- " + testName + ": " + test);
 
@@ -165,18 +177,8 @@ public abstract class TestArray extends Test {
         new R("isConvex()")	{String run() {return "" + r.isConvex();}};
         new R("size()")		{String run() {return "" + r.size();}};
 
-        //((BaseRegion)r).printInfo(out);
         pr("region: " + r);
 
-        // probe for unbounded
-        if (probe) {
-            Region.Scanner s = (Region.Scanner) r.scanners().next();
-            /*
-            if (s instanceof PolyScanner)
-                ((PolyScanner)s).printInfo(out);
-            */
-            Region.Iterator i = r.iterator();
-        }
     }
     
 
@@ -184,7 +186,7 @@ public abstract class TestArray extends Test {
 
         final Region r = a.region;
 
-        prRegion(test, r, false);
+        prRegion(test, r);
 
         // scanner api
         Grid grid = new Grid();
@@ -192,10 +194,6 @@ public abstract class TestArray extends Test {
         while (it.hasNext()) {
             Region.Scanner s = (Region.Scanner) it.next();
             pr("  poly");
-            /*
-            if (s instanceof PolyScanner)
-                ((PolyScanner)s).printInfo(out);
-            */
             if (r.rank==0) {
                 pr("ERROR rank==0");
             } else if (r.rank==1) {

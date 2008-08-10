@@ -17,10 +17,6 @@ class Test10 extends TestArray {
         cl.add(ROW, cl.LE, 3);
         cl.add(COL, cl.LE, 1);
         Region r = BaseRegion.make(cl);
-        try {
-            prRegion("unbounded rectangle", r, true);
-        } catch (Throwable e) {
-            pr(e.toString());
-        }
+        prUnbounded("unbounded rectangle", r);
     }
 }
