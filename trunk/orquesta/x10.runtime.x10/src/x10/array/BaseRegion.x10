@@ -110,10 +110,10 @@ public abstract class BaseRegion extends Region {
     //
 
     public Region union(Region that) {
-        ArrayList_PolyRegion rs = new ArrayList_PolyRegion();
-        UnionRegion.add(rs, this);
-        UnionRegion.add(rs, that.difference(this));
-        return new UnionRegion(rank, rs.toArray());
+        PolyRegionList rs = new PolyRegionList(rank);
+        rs.add(this);
+        rs.add(that.difference(this));
+        return new UnionRegion(rs);
     }
 
     public Region difference(Region that) {
