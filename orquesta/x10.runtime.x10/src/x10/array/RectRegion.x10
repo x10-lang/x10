@@ -19,8 +19,8 @@ final class RectRegion extends PolyRegion {
 
     private int size = -1;
 
-    RectRegion(ConstraintList cl) {
-        super(cl);
+    RectRegion(HalfspaceList hl) {
+        super(hl);
     }
 
     static RectRegion make(int [] min, int [] max) {
@@ -28,13 +28,13 @@ final class RectRegion extends PolyRegion {
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
 
-        ConstraintList cl = new ConstraintList(min.length);
+        HalfspaceList hl = new HalfspaceList(min.length);
         for (int i=0; i<min.length; i++) {
-            cl.add(cl.X(i), cl.GE, min[i]);
-            cl.add(cl.X(i), cl.LE, max[i]);
+            hl.add(hl.X(i), hl.GE, min[i]);
+            hl.add(hl.X(i), hl.LE, max[i]);
         }
 
-        return new RectRegion(cl);
+        return new RectRegion(hl);
     }
 
 
@@ -44,8 +44,8 @@ final class RectRegion extends PolyRegion {
 
     public int size() {
         if (size < 0) {
-            int [] min = constraints.rectMin();
-            int [] max = constraints.rectMax();
+            int [] min = halfspaces.rectMin();
+            int [] max = halfspaces.rectMax();
             size = 1;
             for (int i=0; i<rank; i++)
                 size *= max[i] - min[i] + 1;
@@ -64,8 +64,8 @@ final class RectRegion extends PolyRegion {
         private final int [] max;
 
         Scanner(PolyRegion r) {
-            min = r.constraints.rectMin();
-            max = r.constraints.rectMax();
+            min = r.halfspaces.rectMin();
+            max = r.halfspaces.rectMax();
         }
 
         final public void set(int axis, int position) {
@@ -106,8 +106,8 @@ final class RectRegion extends PolyRegion {
 
         Iterator(final RectRegion r) {
             rank = r.rank;
-            min = r.constraints.rectMin();
-            max = r.constraints.rectMax();
+            min = r.halfspaces.rectMin();
+            max = r.halfspaces.rectMax();
             x = new int[rank];
             for (int i=0; i<rank; i++)
                 x[i] = min[i];
@@ -146,11 +146,11 @@ final class RectRegion extends PolyRegion {
     }
 
     int [] min() {
-        return constraints.rectMin();
+        return halfspaces.rectMin();
     }
 
     int [] max() {
-        return constraints.rectMax();
+        return halfspaces.rectMax();
     }
 
 

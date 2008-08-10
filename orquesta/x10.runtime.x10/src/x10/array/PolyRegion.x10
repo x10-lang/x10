@@ -7,7 +7,7 @@ import java.io.PrintStream;
 import x10.lang.Region;
 import x10.lang.Point;
 import x10.util.Iterator_Scanner;
-import x10.util.Iterator_Constraint;
+import x10.util.Iterator_Halfspace;
 
 
 // XXX shouldn't be public - temp to support ArrayList_PolyRegion
@@ -52,7 +52,7 @@ public class PolyRegion extends BaseRegion {
     }
 
     protected Region.Scanner scanner() {
-        return new PolyScanner(constraints);
+        return new PolyScanner(halfspaces);
     }
 
 
@@ -119,10 +119,10 @@ public class PolyRegion extends BaseRegion {
 
 
     //
-    // constraints
+    // halfspaces
     //
 
-    protected ConstraintList constraints;
+    protected HalfspaceList halfspaces;
 
 
     //
@@ -135,20 +135,20 @@ public class PolyRegion extends BaseRegion {
 
             // start
             PolyRegion that = (PolyRegion) t; // XXX
-            ConstraintList cl = new ConstraintList(rank);
+            HalfspaceList hl = new HalfspaceList(rank);
 
-            // these constraints
-            Iterator_Constraint it = this.constraints.iterator();
+            // these halfspaces
+            Iterator_Halfspace it = this.halfspaces.iterator();
             while (it.hasNext())
-                cl.add(it.next());
+                hl.add(it.next());
 
-            // those constraints
-            it = that.constraints.iterator();
+            // those halfspaces
+            it = that.halfspaces.iterator();
             while (it.hasNext())
-                cl.add(it.next());
+                hl.add(it.next());
 
             // done
-            return PolyRegion.make(cl);
+            return PolyRegion.make(hl);
 
         } else if (t instanceof UnionRegion) {
 
@@ -166,16 +166,16 @@ public class PolyRegion extends BaseRegion {
     //
 
     public Region projection(int axis) {
-        ConstraintList cl = constraints;
+        HalfspaceList hl = halfspaces;
         for (int k=0; k<rank; k++)
             if (k!=axis)
-                cl = cl.FME(k);
-        return Region.makeRectangular(cl.rectMin(axis), cl.rectMax(axis));
+                hl = hl.FME(k);
+        return Region.makeRectangular(hl.rectMin(axis), hl.rectMax(axis));
     }
 
 
     //
-    // Cartesian product requires copying the constraint matrices into
+    // Cartesian product requires copying the halfspace matrices into
     // the result blockwise
     //
 
@@ -183,21 +183,21 @@ public class PolyRegion extends BaseRegion {
         if (!(r instanceof PolyRegion))
             throw U.unsupported();
         PolyRegion that = (PolyRegion) r;
-        ConstraintList result = new ConstraintList(this.rank + that.rank);
-        copy(result, this.constraints, 0);         // padded w/ 0s on the right
-        copy(result, that.constraints, this.rank); // padded w/ 0s on the left
+        HalfspaceList result = new HalfspaceList(this.rank + that.rank);
+        copy(result, this.halfspaces, 0);         // padded w/ 0s on the right
+        copy(result, that.halfspaces, this.rank); // padded w/ 0s on the left
         return PolyRegion.make(result);
     }
 
-    private static void copy(ConstraintList to, ConstraintList from, int offset) {
-        Iterator_Constraint it = from.iterator();
+    private static void copy(HalfspaceList to, HalfspaceList from, int offset) {
+        Iterator_Halfspace it = from.iterator();
         while (it.hasNext()) {
             int [] f = it.next().cs;
             int [] t = new int[to.rank+1];
             for (int i=0; i<from.rank; i++)
                 t[offset+i] = f[i];
             t[to.rank] = f[from.rank];
-            to.add(new Constraint(t));
+            to.add(new Halfspace(t));
         }
     }
 
@@ -209,22 +209,22 @@ public class PolyRegion extends BaseRegion {
 
     public Region inverse() {
         
-        PolyRegion [] rs = new PolyRegion[constraints.n()];
+        PolyRegion [] rs = new PolyRegion[halfspaces.n()];
         int r = 0;
 
-        Iterator_Constraint i = constraints.iterator();
+        Iterator_Halfspace i = halfspaces.iterator();
         while (i.hasNext()) {
-            Constraint ci = i.next();
-            ConstraintList cl = new ConstraintList(rank);
-            cl.add(ci.inverse());
-            Iterator_Constraint j = constraints.iterator();
+            Halfspace hi = i.next();
+            HalfspaceList hl = new HalfspaceList(rank);
+            hl.add(hi.inverse());
+            Iterator_Halfspace j = halfspaces.iterator();
             while (j.hasNext()) {
-                Constraint cj = j.next();
-                if (cj==ci)
+                Halfspace hj = j.next();
+                if (hj==hi)
                     break;
-                cl.add(cj);
+                hl.add(hj);
             }
-            rs[r++] = PolyRegion.make(cl);
+            rs[r++] = PolyRegion.make(hl);
         }
 
         return new UnionRegion(rank, rs);
@@ -262,14 +262,14 @@ public class PolyRegion extends BaseRegion {
         if (boundingBox==null) {
             int [] min = new int[rank];
             int [] max = new int[rank];        
-            ConstraintList cl = constraints;
+            HalfspaceList hl = halfspaces;
             for (int axis=0; axis<rank; axis++) {
-                ConstraintList x = cl;
+                HalfspaceList x = hl;
                 for (int k=axis+1; k<rank; k++)
                     x = x.FME(k);
                 min[axis] = x.rectMin(axis);
                 max[axis] = x.rectMax(axis);
-                cl = cl.FME(axis);
+                hl = hl.FME(axis);
             }
             boundingBox = Region.makeRectangular(min, max);
         }
@@ -282,10 +282,10 @@ public class PolyRegion extends BaseRegion {
     //
 
     public boolean contains(Point p) {
-        Iterator_Constraint it = constraints.iterator();
+        Iterator_Halfspace it = halfspaces.iterator();
         while (it.hasNext()) {
-            Constraint c = it.next();
-            if (!c.contains(p))
+            Halfspace h = it.next();
+            if (!h.contains(p))
                 return false;
         }
         return true;
@@ -304,18 +304,18 @@ public class PolyRegion extends BaseRegion {
     // col-row <= colMin-rowMin + (upper-1)
     //
 
-    private static final int ROW = ConstraintList.X(0);
-    private static final int COL = ConstraintList.X(1);
+    private static final int ROW = HalfspaceList.X(0);
+    private static final int COL = HalfspaceList.X(1);
 
     public static Region makeBanded(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
-        ConstraintList cl = new ConstraintList(2);
-        cl.add(ROW, cl.GE, rowMin);
-        cl.add(ROW, cl.LE, rowMax);
-        cl.add(COL, cl.GE, colMin);
-        cl.add(COL, cl.LE, colMax);
-        cl.add(COL-ROW, cl.GE, colMin-rowMin-(lower-1));
-        cl.add(COL-ROW, cl.LE, colMin-rowMin+(upper-1));
-        return PolyRegion.make(cl);
+        HalfspaceList hl = new HalfspaceList(2);
+        hl.add(ROW, hl.GE, rowMin);
+        hl.add(ROW, hl.LE, rowMax);
+        hl.add(COL, hl.GE, colMin);
+        hl.add(COL, hl.LE, colMax);
+        hl.add(COL-ROW, hl.GE, colMin-rowMin-(lower-1));
+        hl.add(COL-ROW, hl.LE, colMin-rowMin+(upper-1));
+        return PolyRegion.make(hl);
     }
 
     public static Region makeBanded(int size, int upper, int lower) {
@@ -324,11 +324,11 @@ public class PolyRegion extends BaseRegion {
 
     public static Region makeBanded(int rowMin, int colMin, int size, boolean upper) {
         if (upper) {
-            ConstraintList cl = new ConstraintList(2);
-            cl.add(ROW, cl.GE, rowMin);
-            cl.add(COL, cl.LE, colMin+size-1);
-            cl.add(COL-ROW, cl.GE, colMin-rowMin);
-            return PolyRegion.make(cl);
+            HalfspaceList hl = new HalfspaceList(2);
+            hl.add(ROW, hl.GE, rowMin);
+            hl.add(COL, hl.LE, colMin+size-1);
+            hl.add(COL-ROW, hl.GE, colMin-rowMin);
+            return PolyRegion.make(hl);
         } else {
             throw U.unsupported();
         }
@@ -336,23 +336,23 @@ public class PolyRegion extends BaseRegion {
 
 
     //
-    // here's where we examine the constraints and generate
+    // here's where we examine the halfspaces and generate
     // special-case subclasses, such as RectRegion, for efficiency
     //
     // XXX special-case isEmpty() etc.?
     // XXX empty PolyRegion (with backwards bounds) is probably not handled correctly
     //
 
-    public static PolyRegion make(ConstraintList cl) {
-        if (cl.isRect() && cl.isBounded())
-            return new RectRegion(cl);
+    public static PolyRegion make(HalfspaceList hl) {
+        if (hl.isRect() && hl.isBounded())
+            return new RectRegion(hl);
         else
-            return new PolyRegion(cl);
+            return new PolyRegion(hl);
     }
 
-    protected PolyRegion(ConstraintList cl) {
-        super(cl.rank, cl.isRect(), cl.isZeroBased());
-        this.constraints = cl.reduce();
+    protected PolyRegion(HalfspaceList hl) {
+        super(hl.rank, hl.isRect(), hl.isZeroBased());
+        this.halfspaces = hl.reduce();
     }
 
     int [] min() {
@@ -369,11 +369,11 @@ public class PolyRegion extends BaseRegion {
     //
 
     public void printInfo(PrintStream out) {
-        constraints.printInfo(out, this.getClass().getName());
+        halfspaces.printInfo(out, this.getClass().getName());
     }
 
     public String toString() {
-        return constraints.toString();
+        return halfspaces.toString();
     }
 
 }

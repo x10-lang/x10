@@ -79,8 +79,8 @@ public abstract class BaseRegion extends Region {
         return PolyRegion.makeBanded(rowMin, colMin, rowMax, colMax, upper, lower);
     }
 
-    static public PolyRegion make(ConstraintList cl) {
-        return PolyRegion.make(cl);
+    static public PolyRegion make(HalfspaceList hl) {
+        return PolyRegion.make(hl);
     }
 
 

@@ -4,7 +4,7 @@
  */
 
 import x10.array.BaseRegion;
-import x10.array.ConstraintList;
+import x10.array.HalfspaceList;
 
 class Test03 extends TestArray {
 

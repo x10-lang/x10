@@ -47,7 +47,7 @@ gen/ArrayV_double.x10\
 gen/ArrayV_Object.x10
 
 UTIL_GEN=\
-gen/Iterator_Constraint.x10\
+gen/Iterator_Halfspace.x10\
 gen/Iterator_Scanner.x10\
 gen/Map_place_Region.x10\
 gen/Set_place.x10\
@@ -90,9 +90,9 @@ gen/%_Point.x10: %_T.x10
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Point\2/g" <$< >$@
 	@chmod -w $@
 
-gen/%_Constraint.x10: %_T.x10
+gen/%_Halfspace.x10: %_T.x10
 	@rm -f $@
-	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Constraint\2/g" <$< >$@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Halfspace\2/g" <$< >$@
 	@chmod -w $@
 
 gen/%_Scanner.x10: %_T.x10
