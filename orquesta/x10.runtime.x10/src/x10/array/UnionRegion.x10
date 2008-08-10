@@ -14,30 +14,22 @@ import x10.util.ArrayList_PolyRegion;
 
 class UnionRegion extends BaseRegion {
 
-    private PolyRegion [] regions;
+    PolyRegion [] regions;
 
     UnionRegion(int rank, PolyRegion [] regions) {
         super(rank, false, false);
         this.regions = regions;
     }
 
-    public Region intersection(Region that) {
-        ArrayList_PolyRegion rs = new ArrayList_PolyRegion();
-        for (int i=0; i<regions.length; i++)
-            add(rs, regions[i].intersection(that));
-        return new UnionRegion(rank, rs.toArray());
+    UnionRegion(PolyRegionList rs) {
+        this(rs.rank, rs.toArray());
     }
 
-    static void add(ArrayList_PolyRegion rs, Region r) {
-        if (r instanceof PolyRegion) {
-            if (!r.isEmpty())
-                rs.add((PolyRegion) r);
-        } else if (r instanceof UnionRegion) {
-            UnionRegion u = (UnionRegion) r;
-            for (int j=0; j<u.regions.length; j++)
-                rs.add(u.regions[j]);
-        } else
-            throw new Error("unknown region type " + r);
+    public Region intersection(Region that) {
+        PolyRegionList rs = new PolyRegionList(rank);
+        for (int i=0; i<regions.length; i++)
+            rs.add(regions[i].intersection(that));
+        return new UnionRegion(rs);
     }
 
 
