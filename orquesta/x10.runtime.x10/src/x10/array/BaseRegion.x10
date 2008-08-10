@@ -94,6 +94,10 @@ public abstract class BaseRegion extends Region {
         throw U.unsupported();
     }
 
+    public boolean isEmpty() {
+        throw U.unsupported();
+    }
+
     public int size() {
         throw U.unsupported();
     }
