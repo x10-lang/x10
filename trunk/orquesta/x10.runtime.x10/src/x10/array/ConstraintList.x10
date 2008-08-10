@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import x10.util.Iterator_Constraint;
 
 
+// XXX use ArrayList
+
 public class ConstraintList(int rank) {
 
     private Constraint [] constraints = new Constraint[4];
@@ -44,6 +46,10 @@ public class ConstraintList(int rank) {
         constraints[nconstraints++] = c;
     }
             
+    int n() {
+        return nconstraints;
+    }
+
 
     //
     // a simple mechanism of somewhat dubious utility to allow
@@ -335,6 +341,18 @@ public class ConstraintList(int rank) {
         return true;
     }
 
+    boolean isBounded() {
+        try {
+            for (int i=0; i<rank; i++) {
+                rectMin(i);
+                rectMax(i);
+            }
+        } catch (UnboundedRegionException e) {
+            return false;
+        }
+        return true;
+    }
+
 
     //
     //
@@ -347,6 +365,20 @@ public class ConstraintList(int rank) {
             ps.printf("    ");
             ((Constraint)it.next()).printInfo(ps);
         }
+    }
+
+    public String toString() {
+        String s = "(";
+        Iterator_Constraint it = iterator();
+        boolean first = true;
+        while (it.hasNext()) {
+            Constraint c = it.next();
+            if (!first) s += " && ";
+            s += c.toString();
+            first = false;
+        }
+        s += ")";
+        return s;
     }
 }            
 

@@ -14,4 +14,8 @@ class FullRegion extends PolyRegion {
     FullRegion(int rank) {
         super(new ConstraintList(rank));
     }
+
+    public String toString() {
+        return "(full)";
+    }
 }

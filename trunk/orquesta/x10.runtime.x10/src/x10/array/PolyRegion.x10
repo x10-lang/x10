@@ -10,7 +10,8 @@ import x10.util.Iterator_Scanner;
 import x10.util.Iterator_Constraint;
 
 
-class PolyRegion extends BaseRegion {
+// XXX shouldn't be public - temp to support ArrayList_PolyRegion
+public class PolyRegion extends BaseRegion {
 
     //
     //
@@ -149,6 +150,10 @@ class PolyRegion extends BaseRegion {
             // done
             return PolyRegion.make(cl);
 
+        } else if (t instanceof UnionRegion) {
+
+            return t.intersection(this);
+
         } else {
             throw U.unsupported();
         }
@@ -195,6 +200,36 @@ class PolyRegion extends BaseRegion {
             to.add(new Constraint(t));
         }
     }
+
+
+    //
+    //
+    // -H0 || -H1 && H0 || -H2 && H1 && H0 || ...
+    //
+
+    public Region inverse() {
+        
+        PolyRegion [] rs = new PolyRegion[constraints.n()];
+        int r = 0;
+
+        Iterator_Constraint i = constraints.iterator();
+        while (i.hasNext()) {
+            Constraint ci = i.next();
+            ConstraintList cl = new ConstraintList(rank);
+            cl.add(ci.inverse());
+            Iterator_Constraint j = constraints.iterator();
+            while (j.hasNext()) {
+                Constraint cj = j.next();
+                if (cj==ci)
+                    break;
+                cl.add(cj);
+            }
+            rs[r++] = PolyRegion.make(cl);
+        }
+
+        return new UnionRegion(rank, rs);
+    }
+
 
 
     //
@@ -290,7 +325,7 @@ class PolyRegion extends BaseRegion {
     //
 
     public static PolyRegion make(ConstraintList cl) {
-        if (cl.isRect())
+        if (cl.isRect() && cl.isBounded())
             return new RectRegion(cl);
         else
             return new PolyRegion(cl);
@@ -316,6 +351,10 @@ class PolyRegion extends BaseRegion {
 
     public void printInfo(PrintStream out) {
         constraints.printInfo(out, this.getClass().getName());
+    }
+
+    public String toString() {
+        return constraints.toString();
     }
 
 }
