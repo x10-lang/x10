@@ -25,9 +25,10 @@ class UnionRegion extends BaseRegion {
 
         for (int i=0; i<regions.length; i++) {
             Region r = regions[i].intersection(that);
-            if (r instanceof PolyRegion)
-                rs.add((PolyRegion) r);
-            else if (r instanceof UnionRegion)
+            if (r instanceof PolyRegion) {
+                if (!r.isEmpty())
+                    rs.add((PolyRegion) r);
+            } else if (r instanceof UnionRegion)
                 throw new Error("not yet");
         }
         return new UnionRegion(rank, rs.toArray());
