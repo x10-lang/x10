@@ -19,6 +19,7 @@ public abstract value class Region(
 
     public abstract int size();
     public abstract boolean isConvex();
+    public abstract boolean isEmpty();
     public abstract boolean disjoint(Region that);
 
 
