@@ -46,21 +46,11 @@ public abstract class BaseRegion extends Region {
     }
 
     static public Region makeUpperTriangular(int size) {
-        // XXX
-        return PolyRegion.makeBanded(size, size, 1);
+        return PolyRegion.makeUpperTriangular(0, 0, size);
     }
 
     static public Region makeLowerTriangular(int size) {
-        // XXX
-        return PolyRegion.makeBanded(size, 1, size);
-    }
-
-    static public Region makeUpperTriangular(int rowMin, int colMin, int size) {
-        return PolyRegion.makeBanded(rowMin, colMin, size, true);
-    }
-
-    static public Region makeLowerTriangular(int rowMin, int colMin, int size) {
-        return PolyRegion.makeBanded(rowMin, colMin, size, false);
+        return PolyRegion.makeLowerTriangular(0, 0, size);
     }
 
     static public Region make(Region [] regions) {
