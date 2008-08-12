@@ -35,15 +35,15 @@ public class BaseDist extends Dist implements Map_place_Region {
     }
 
     public static Dist makeCyclic(Region r, int axis) {
-        throw U.unsupported();
+        throw U.unsupported("Dist.makeCyclic");
     }
 
     public static Dist makeBlock(Region r, int axis) {
-        throw U.unsupported();
+        throw U.unsupported("Dist.makeBlock");
     }
 
     public static Dist makeBlockCyclic(Region r, int axis, int blockSize) {
-        throw U.unsupported();
+        throw U.unsupported("Dist.makeBlockCyclic");
     }
 
 
@@ -52,7 +52,7 @@ public class BaseDist extends Dist implements Map_place_Region {
     //
 
     public static Dist makeUnique(Set_place ps) {
-        throw U.unsupported();
+        throw U.unsupported("makeUnique");
     }
 
     public static Dist makeConstant(Region r, place p) {
@@ -61,15 +61,15 @@ public class BaseDist extends Dist implements Map_place_Region {
     }
 
     public static Dist makeCyclic(Region r, int axis, Set_place ps) {
-        throw U.unsupported();
+        throw U.unsupported("makeCyclic");
     }
 
     public static Dist makeBlock(Region r, int axis, Set_place ps) {
-        throw U.unsupported();
+        throw U.unsupported("makeBlock");
     }
 
     public static Dist makeBlockCyclic(Region r, int axis, int blockSize, Set_place ps) {
-        throw U.unsupported();
+        throw U.unsupported("makeBlockCyclic");
     }
 
 
@@ -99,31 +99,31 @@ public class BaseDist extends Dist implements Map_place_Region {
     //
 
     public  Dist difference(Region r) {
-        throw U.unsupported();
+        throw U.unsupported(this, "difference(Region)");
     }
 
     public  Dist difference(Dist d) {
-        throw U.unsupported();
+        throw U.unsupported(this, "difference(Dist)");
     }
 
     public  Dist union(Dist d) {
-        throw U.unsupported();
+        throw U.unsupported(this, "union(Dist)");
     }
 
     public  Dist intersection(Region r) {
-        throw U.unsupported();
+        throw U.unsupported(this, "intersection(Region)");
     }
 
     public  Dist intersection(Dist d) {
-        throw U.unsupported();
+        throw U.unsupported(this, "intersection(Dist)");
     }
 
     public  Dist overlay(Dist d) {
-        throw U.unsupported();
+        throw U.unsupported(this, "overlay(Dist)");
     }
 
     public  boolean isSubDistribution(Dist d) {
-        throw U.unsupported();
+        throw U.unsupported(this, "isSubDistribution(Dist)");
     }
 
     public Dist restriction(Region r) {
