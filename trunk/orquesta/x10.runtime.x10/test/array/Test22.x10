@@ -80,10 +80,5 @@ class Test22 extends TestArray {
         pr("r1a2.boundingBox().$eq(r1a2) checks " + r1a2.boundingBox().$eq(r1a2));
     }
 
-    Region r(int a, int b, int c, int d) {
-        int [] min = new int [] {a,c};
-        int [] max = new int [] {b,d};
-        return Region.makeRectangular(min, max);
-    }
 }
 
