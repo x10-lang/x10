@@ -7,12 +7,11 @@
  */
 package x10.constraint;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class XLit_c extends XTerm_c implements XLit {
-	Object val;
+	protected Object val;
 
 	public XLit_c(Object l) {
 		val = l;
@@ -46,6 +45,17 @@ public class XLit_c extends XTerm_c implements XLit {
 	}
 	
 	public XTerm subst(XTerm y, XRoot x) {
+	        // HACK: handle embedded constraints
+	        if (val instanceof XConstraint) {
+	            XConstraint c = (XConstraint) val;
+	            if (x instanceof XSelf) // don't subst for self since it's rebound by the constraint
+	        	return this;
+	            try {
+			return XTerms.makeLit(c.substitute(y, x));
+		    }
+		    catch (XFailure e) {
+		    }
+	        }
 		return this;
 	}
 	
@@ -130,8 +140,8 @@ public class XLit_c extends XTerm_c implements XLit {
 		return this;
 	}
 
-	public void replaceDescendant(XPromise y, XPromise x, XRoot root) {
-	// nothing to do.
+	public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
+	    // nothing to do.
 	}
 
 	public XPromise value() {

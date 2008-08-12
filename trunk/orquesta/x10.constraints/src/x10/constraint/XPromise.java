@@ -126,10 +126,12 @@ public interface XPromise extends Cloneable {
 
 	/**
 	 * Replace a reference to any descendant that is equal to x with a reference to y.
+	 * xroot is the root of the x in the constraint, returning a NEW promise.
 	 * @param y
 	 * @param x
+	 * @param c TODO
 	 */
-	void replaceDescendant(XPromise y, XPromise x, XRoot root);
+	void replaceDescendant(XPromise y, XPromise x, XConstraint c);
 
 	XPromise value();
 

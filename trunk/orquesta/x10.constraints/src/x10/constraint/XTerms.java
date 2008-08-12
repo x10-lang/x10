@@ -46,6 +46,14 @@ public class XTerms {
 	}
 	
 	public static XTerm makeAtom(XName op, XTerm... terms) {
+	    assert op != null;
+	    assert terms != null;
+	    XFormula f = new XFormula_c(op, terms);
+	    f.markAsAtomicFormula();
+	    return f;
+	}
+	
+	public static XTerm makeAtom(XName op, List<XTerm> terms) {
 		assert op != null;
 		assert terms != null;
 		XFormula f = new XFormula_c(op, terms);
