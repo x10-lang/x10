@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import polyglot.ext.x10.types.TypeProperty.Variance;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassDef_c;
@@ -39,8 +40,12 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
+    protected List<Variance> variances;
+
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
         super(ts, fromSource);
+        this.variances = new ArrayList<TypeProperty.Variance>();
+        this.typeParameters = new ArrayList<ParameterType>();
         this.typeProperties = new ArrayList<TypeProperty>();
         this.typeMembers = new ArrayList<TypeDef>();
     }
@@ -110,7 +115,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		    if (computing) {
 			    this.rootXClause = new XConstraint_c();
 			    this.rootClauseInvalid = 
-				    new SemanticException("The real clause is recursive.", position());
+				    new SemanticException("The real clause of " + this + " depends upon itself.", position());
 			    return rootXClause;
 		    }
 		    
@@ -179,10 +184,21 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    catch (XFailure f) {
 				    result.setInconsistent();
 				    this.rootXClause = result;
-				    this.rootClauseInvalid = new SemanticException("The class invariant and property constraints are inconsistent.", position());
+				    this.rootClauseInvalid = new SemanticException("The class invariant and property constraints of " + this + " are inconsistent.", position());
 			    }
 			    
-			    if (result.consistent()) {
+			    // Now, set the root clause and mark that we're no longer computing.
+			    this.rootXClause = result;
+			    this.computing = false;
+			    
+			    // Now verify that the root clause entails the assertions of the properties.
+			    // We need to set the root clause first, to avoid a spurious report of a cyclic dependency.
+			    // This can happen when one of the properties is subtype of this type:
+			    // class Ref(location: Place) { }
+			    // class Place extends Ref { ... }
+			    
+			    // Disable this for now since it can cause an infinite loop.
+			    if (false && result.consistent()) {
 				    // Verify that the realclause, as it stands, entails the assertions of the 
 				    // property.
 				    for (X10FieldDef fi : properties) {
@@ -200,8 +216,6 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    }
 				    }
 			    }
-			    
-			    this.rootXClause = result;
 		    }
 		    catch (XFailure e) {
 			    this.rootXClause = new XConstraint_c();
@@ -262,6 +276,21 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
                 return o instanceof X10FieldDef && ((X10FieldDef) o).isProperty();
             }
         });
+    }
+    
+    List<ParameterType> typeParameters;
+    
+    public List<ParameterType> typeParameters() {
+	return Collections.unmodifiableList(typeParameters);
+    }
+    
+    public List<Variance> variances() {
+	return Collections.unmodifiableList(variances);
+    }
+    
+    public void addTypeParameter(ParameterType p, TypeProperty.Variance v) {
+	typeParameters.add(p);
+	variances.add(v);
     }
     
     List<TypeProperty> typeProperties;
@@ -456,7 +485,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		if (oldType instanceof ArrayType) {
 		    ArrayType at = (ArrayType) oldType;
 		    Type base = fixType(at.base(), typeArg);
-		    return ts.x10Array(base, false);
+		    return X10TypeMixin.instantiate(ts.Rail(), base);
 		}
 		else if (oldType instanceof ClassType) {
 			ClassType ct = (ClassType) oldType;
@@ -471,5 +500,14 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		}
 		
 		return oldType;
+	}
+	
+	@Override
+	public String toString() {
+	    if (name.equals("package") && outer != null)
+		return outer.toString();
+	    if (name.equals("package") && package_ != null)
+		return package_.toString();
+	    return super.toString();
 	}
 }

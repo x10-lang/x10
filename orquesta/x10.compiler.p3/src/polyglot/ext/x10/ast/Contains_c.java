@@ -12,6 +12,7 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -19,9 +20,13 @@ import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.x10.types.PathType_c;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.types.ClassDef;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
@@ -107,25 +112,52 @@ public class Contains_c extends Expr_c implements Contains {
 		Type itemType = item.type();
 		Type collType = collection.type();
 
-		if (itemType.isSubtype(ts.Point()) && collType.isSubtype(ts.Region()))
+		// Check if there is a method with the appropriate name and type with the left operand as receiver.   
+		try {
+		    List<Type> args = Collections.singletonList(itemType);
+		    ClassDef curr = tc.context().currentClassDef();
+		    X10MethodInstance mi = (X10MethodInstance) ts.findMethod(collType, ts.MethodMatcher(collType, "$in", args), curr);
+		    return type(mi.returnType());
+		}
+		catch (SemanticException e) {
+		    // Cannot find the method.  Fall through.
+		    System.out.println(e);
+		}
+
+/*
+		if (itemType.isImplicitCastValid(ts.Point()) && collType.isImplicitCastValid(ts.Region()))
 		    return isSubsetTest(false).type(ts.Boolean());
 		
-		if (itemType.isSubtype(ts.Region()) && collType.isSubtype(ts.Region()))
+		if (itemType.isImplicitCastValid(ts.Region()) && collType.isImplicitCastValid(ts.Region()))
 		    return isSubsetTest(true).type(ts.Boolean());
-		
-		if (collType.isSubtype(ts.Contains())) {
-		    Type paramType = X10TypeMixin.getParameterType(collType, "T");
-		    if (paramType != null && itemType.isSubtype(paramType))
+
+		if (! X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
+		    if (collType.isImplicitCastValid(ts.Contains())) {
+			Type paramType = X10TypeMixin.getParameterType(collType, "T");
+			if (paramType != null && itemType.isSubtype(paramType))
+			    return isSubsetTest(false).type(ts.Boolean());
+		    }
+
+		    if (collType.isImplicitCastValid(ts.ContainsAll())) {
+			Type paramType = X10TypeMixin.getParameterType(collType, "T");
+			if (paramType != null && itemType.isSubtype(paramType))
+			    return isSubsetTest(true).type(ts.Boolean());
+		    }
+		}
+		else {
+		    Type contains = X10TypeMixin.instantiate(ts.Contains(), itemType);
+		    if (collType.isImplicitCastValid(contains)) {
 			return isSubsetTest(false).type(ts.Boolean());
-		}
-
-		if (collType.isSubtype(ts.ContainsAll())) {
-		    Type paramType = X10TypeMixin.getParameterType(collType, "T");
-		    if (paramType != null && itemType.isSubtype(paramType))
+		    }
+		    
+		    Type containsAll = X10TypeMixin.instantiate(ts.Contains(), itemType);
+		    if (collType.isImplicitCastValid(containsAll)) {
 			return isSubsetTest(true).type(ts.Boolean());
+		    }
 		}
+*/
 
-		throw new SemanticException("Operands of 'in' operator must have types T and Contains[T] or ContainsAll[T].", position());
+		throw new SemanticException("Collection " + collType + " does not support the 'in' operator for " + itemType + ".", position());
 	}
 
 	public boolean isConstant() {

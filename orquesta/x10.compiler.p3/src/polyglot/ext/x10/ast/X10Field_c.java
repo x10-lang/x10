@@ -12,10 +12,14 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
+
+import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field_c;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.MacroType;
@@ -23,15 +27,18 @@ import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
@@ -94,7 +101,7 @@ public class X10Field_c extends Field_c {
 //						"Field \"" + name + "\" not found in type \"" +
 //						tType + "\".");
 
-			FieldInstance fi = ts.findField(tType, name.id(), c.currentClassDef());
+			FieldInstance fi = ts.findField(tType, ts.FieldMatcher(tType, name.id()), c.currentClassDef());
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",
@@ -119,13 +126,6 @@ public class X10Field_c extends Field_c {
 				retType = X10TypeMixin.xclause(retType, newRC);
 				fi = fi.type(retType);
 			}
-			// FIXME: [IP] HACK!
-			if (xts.typeEquals(fi.container(), xts.Dist()) && fi.name().equals("UNIQUE")) {
-				Type ud = fi.type();
-				ud = X10ArraysMixin.setUniqueDist(ud);
-				fi = fi.type(ud);
-				retType = fi.type();
-			}
 			result = (X10Field_c)fieldInstance(fi).type(retType);  
 			result.checkConsistency(c);
 			
@@ -135,30 +135,30 @@ public class X10Field_c extends Field_c {
 			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
         } catch (NoMemberException e) {
-            if (e.getKind() != NoMemberException.FIELD || this.target == null)
-                throw e;
-// ### [NN] should be handled by the new 1.7 runtime
-//            if (xts.isX10Array(tType)) {
-//            	// Special fields on arrays
-//            	if (name().equals(X10TypeSystem.DIST_FIELD) || name().equals(X10TypeSystem.REGION_FIELD)) {
-//            		Type array = xts.array();
-//            		TypeNode typenode = xnf.CanonicalTypeNode(position(), array);
-//            		return this.target(xnf.Cast(position(), typenode, (Expr) target).type(array)).del().typeCheck(tc);
-//            	}
-//            } else if (xts.isValueType(tType)) {
-//            	 if (name().equals(X10TypeSystem.LOCATION_FIELD)) {
-//            		 // TODO
-////            		 return xnf.Here(position()).typeCheck(tc);
-//            		 return xnf.Cast(position, xnf.CanonicalTypeNode(position(),
-//            				 xts.boxOf(position(), Types.ref((X10NamedType)xts.place()))),
-//            				 (Expr) xnf.NullLit(position()).typeCheck(tc)).typeCheck(tc);
-//            	 }
-//            }
+            if (target instanceof Expr) {
+        	Context c = tc.context();
+        	NodeFactory nf = tc.nodeFactory();
+        	TypeSystem ts = tc.typeSystem();
+        	Position pos = position();
+        	
+        	// Now try 0-ary property methods.
+        	try {
+        	    MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.EMPTY_LIST), c.currentClassDef());
+        	    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+        		Call call = nf.Call(pos, target, this.name);
+        		call = call.methodInstance(mi);
+        		call = (Call) call.type(mi.returnType());
+        		return call;
+        	    }
+        	}
+        	catch (SemanticException ex) {
+        	}
+            }
             throw e;
         }
-		catch (XFailure e) {
-			throw new SemanticException(e.getMessage(), position());
-	}
+        catch (XFailure e) {
+            throw new SemanticException(e.getMessage(), position());
+        }
 	}
 
 	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, TypeChecker tc) 

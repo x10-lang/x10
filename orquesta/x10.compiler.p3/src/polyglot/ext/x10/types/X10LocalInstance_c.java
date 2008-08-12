@@ -46,10 +46,6 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
 
-    public int positionInArgList() {
-        return x10Def().positionInArgList();
-    }
-    
     public Type type() {
         // If the local variable is final, replace T by T(:self==t), 
         // do this even if depclause==null

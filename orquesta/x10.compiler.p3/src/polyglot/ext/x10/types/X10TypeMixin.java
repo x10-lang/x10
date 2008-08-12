@@ -11,12 +11,14 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
+import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
@@ -42,7 +44,47 @@ import x10.constraint.XVar;
  * @author nystrom
  */
 public class X10TypeMixin {
-	public static XConstraint realX(Type t) {
+    
+    public static Type instantiate(Type t, Type... typeArg) {
+	if (X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
+	    if (t instanceof X10ParsedClassType) {
+		X10ParsedClassType ct = (X10ParsedClassType) t;
+		return ct.typeArguments(Arrays.asList(typeArg));
+	    }
+	    else {
+		throw new InternalCompilerError("Cannot instantiate non-class " + t);
+	    }
+	}
+	else {
+	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+	    XConstraint c = new XConstraint_c();
+	    
+	    for (int i = 0; i < typeArg.length; i++) {
+		Type prop;
+		if (t instanceof X10ClassType) {
+		    X10ClassType ct = (X10ClassType) t;
+		    prop = ct.typeProperties().get(i);
+		}
+		else {
+		    throw new InternalCompilerError("Cannot instantiate type " + t);
+		}
+		try {
+		    c.addBinding(ts.xtypeTranslator().trans(prop), ts.xtypeTranslator().trans(typeArg[i]));
+		}
+		catch (XFailure e) {
+		    throw new InternalCompilerError("Cannot instantiate type " + t, e);
+		}
+	    }
+	    return xclause(t, c);
+	}
+    }
+    
+    public static Type instantiate(Type t, Ref<? extends Type> typeArg) {
+	// TODO: should not deref now, since could be called by class loader
+	return instantiate(t, Types.get(typeArg));
+    }
+
+    public static XConstraint realX(Type t) {
 		if (t instanceof ConstrainedType) {
 			ConstrainedType	ct = (ConstrainedType) t;
 
@@ -70,7 +112,8 @@ public class X10TypeMixin {
 		}
 		else if (t instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) t;
-			return ct.x10Def().getRootXClause();
+			XConstraint c = ct.x10Def().getRootXClause();
+			return X10ParsedClassType_c.reinstantiateConstraint(ct, c);
 		}
 		else if (t instanceof MacroType) {
 		    MacroType mt = (MacroType) t;
@@ -281,14 +324,25 @@ public class X10TypeMixin {
 		return null;
 	}
 	
-	public static Type getParameterType(Type theType, String prop) {
+	public static Type getParameterType(Type theType, int i) {
+	    Type b = baseType(theType);
+	    if (b instanceof X10ClassType) {
+		X10ClassType ct = (X10ClassType) b;
+		if (i < ct.typeArguments().size()) {
+		    return ct.typeArguments().get(i);
+		}
+	    }
+	    return null;
+	}
+	
+	public static Type getPropertyType(Type theType, String prop) {
 		XConstraint c = realX(theType);
 		if (c == null)
 			return null;
-		return getParameterType(theType, c, prop);
+		return getPropertyType(theType, c, prop);
 	}
 
-	private static Type getParameterType(Type theType, XConstraint c, String prop) {
+	private static Type getPropertyType(Type theType, XConstraint c, String prop) {
 	        theType = X10TypeMixin.baseType(theType);
 	        if (theType instanceof ClassType) {
 	            ClassType ct = (ClassType) theType;
@@ -301,14 +355,14 @@ public class X10TypeMixin {
 	            }
 	            Type sup = ct.superClass();
 	            if (sup != null)
-	        	return getParameterType(sup, c, prop);
+	        	return getPropertyType(sup, c, prop);
 	        }
 	        else if (theType instanceof PathType) {
 	            PathType pt = (PathType) theType;
 	            Type baseType = pt.baseType();
-	            Type t = getParameterType(baseType, pt.property().name());
+	            Type t = getPropertyType(baseType, pt.property().name());
 	            if (t != null)
-	        	return getParameterType(t, c, prop);
+	        	return getPropertyType(t, c, prop);
 	        }
 		return null;
 	}

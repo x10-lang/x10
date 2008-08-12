@@ -2,16 +2,17 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Id;
 import polyglot.ast.Term;
+import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.TypeProperty;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 
 public interface TypeParamNode extends Term {
-	Id id();
-	TypeParamNode id(Id id);
+	Id name();
+	TypeParamNode name(Id id);
 
-	/**
-	 * Return the type of this node, or null if no type has been
-	 * assigned yet.
-	 */
-	Ref<? extends Type> typeRef();
+	ParameterType type();
+	TypeParamNode type(ParameterType type);
+	public TypeProperty.Variance variance();
+	public TypeParamNode variance(TypeProperty.Variance variance);
 }

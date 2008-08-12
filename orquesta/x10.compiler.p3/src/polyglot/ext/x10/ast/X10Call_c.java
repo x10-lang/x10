@@ -29,6 +29,7 @@ import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -42,6 +43,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -140,7 +142,7 @@ public class X10Call_c extends Call_c implements X10Call {
         X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
-
+        
         if (this.target != null && this.target.type().isPrimitive() &&
                 nameString().equals("getLocation") && arguments().isEmpty())
         {
@@ -166,7 +168,7 @@ public class X10Call_c extends Call_c implements X10Call {
         	    Expr e = (Expr) n;
         	    if (ts.isFunction(e.type())) {
         		ClosureCall cc = nf.ClosureCall(position(), e, typeArguments(), arguments());
-        		ClosureInstance ci = ts.createClosureInstance(position(), new ErrorRef_c<ClosureDef>(ts, position()));
+        		ClosureInstance ci = ts.createClosureInstance(position(), new ErrorRef_c<ClosureDef>(ts, position(), "Cannot get ClosureDef before type-checking closure call."));
         		cc = cc.closureInstance(ci);
         		cc = (ClosureCall) cc.disambiguate(tc);
         		cc = (ClosureCall) cc.typeCheck(tc);
@@ -198,82 +200,127 @@ public class X10Call_c extends Call_c implements X10Call {
         	if (this.target == null) {
         		return this.typeCheckNullTarget(tc, typeArgs, argTypes);
         	}
-
+        	
         	StructType targetType = this.findTargetType();
         	String name = this.name.id();
 		ClassDef currentClassDef = c.currentClassDef();
-		MethodInstance mi = xts.findMethod(targetType, 
-        	                                   name,
-        	                                   typeArgs,
-        	                                   argTypes, currentClassDef);
 
-        	/* This call is in a static context if and only if
-        	 * the target (possibly implicit) is a type node.
-        	 */
-        	boolean staticContext = (this.target instanceof TypeNode);
+		{
+		    MethodInstance mi;
 
-        	if (staticContext && !mi.flags().isStatic()) {
-        		throw new SemanticException("Cannot call non-static method " + name
-        		                            + " of " + target.type() + " in static "
-        		                            + "context.", this.position());
-        	}
+		    try {
+			mi = xts.findMethod(targetType, 
+			                    xts.MethodMatcher(targetType, name, typeArgs, argTypes),
+			                    currentClassDef);
+		    }
+		    catch (SemanticException e) {
+			// Look for a method that will take a rail of a bunch of args.
+			MethodInstance vmi = null;
+			List<Expr> newArgs = new ArrayList<Expr>();
 
-        	// If the target is super, but the method is abstract, then complain.
-        	if (this.target instanceof Special && 
-        			((Special)this.target).kind() == Special.SUPER &&
-        			mi.flags().isAbstract()) {
-        		throw new SemanticException("Cannot call an abstract method " +
-        		                            "of the super class", this.position());            
-        	}
+			for (int numVarArgs = 1; numVarArgs < argTypes.size(); numVarArgs++) {
+			    List<Type> newArgTypes = new ArrayList<Type>();
+			    Expr rail = null;
+			    Type railBase = null;
+			    List<Expr> railArgs = new ArrayList<Expr>();
+			    for (int i = 0; i < argTypes.size() - numVarArgs; i++) {
+				newArgTypes.add(argTypes.get(i));
+				newArgs.add(arguments.get(i));
+			    }
+			    for (int i = argTypes.size() - numVarArgs; i < argTypes.size(); i++) {
+				if (railBase == null)
+				    railBase = argTypes.get(i);
+				else
+				    railBase = xts.leastCommonAncestor(railBase, argTypes.get(i));
+				railArgs.add(arguments.get(i));
+				
+			    }
+			    if (railBase != null) {
+				Type railType = xts.ValRail();
+				railType = X10TypeMixin.instantiate(railType, railBase);
+				newArgTypes.add(railType);
+				rail = ((X10NodeFactory) tc.nodeFactory()).Tuple(position(), railArgs);
+			    }
 
-        	// Copy the method instance so we can modify it.
-        	X10Call_c result = (X10Call_c) this.methodInstance((MethodInstance) mi.copy()).type(mi.returnType());
+			    try {
+				vmi = xts.findMethod(targetType, 
+				                     xts.MethodMatcher(targetType, name, typeArgs, newArgTypes),
+				                     currentClassDef);
+			    }
+			    catch (SemanticException ex) {
+				continue;
+			    }
+			}
 
-        	/////////////////////////////////////////////////////////////////////
-        	// End inlined super call.
-        	/////////////////////////////////////////////////////////////////////
+			if (vmi != null)
+			    mi = vmi;
+			else
+			    throw e;
+		    }
 
-        	// If we found a method, the call must type check, so no need to check
-        	// the arguments here.
-        	result.checkConsistency(c);
-//        	result = result.adjustMI(tc);
-//        	result.checkWhereClause(tc);
-        	result.checkAnnotations(tc);
-        	
-        	// Expr r = result.setDeptypeForBuiltInCalls(xts);
-        	Expr r =result;
+		    /* This call is in a static context if and only if
+		     * the target (possibly implicit) is a type node.
+		     */
+		    boolean staticContext = (this.target instanceof TypeNode);
 
-        	return r;
+		    if (staticContext && !mi.flags().isStatic()) {
+			throw new SemanticException("Cannot call non-static method " + name
+			                            + " of " + target.type() + " in static "
+			                            + "context.", this.position());
+		    }
+
+		    // If the target is super, but the method is abstract, then complain.
+		    if (this.target instanceof Special && 
+			    ((Special)this.target).kind() == Special.SUPER &&
+			    mi.flags().isAbstract()) {
+			throw new SemanticException("Cannot call an abstract method " +
+			                            "of the super class", this.position());            
+		    }
+
+		    // Copy the method instance so we can modify it.
+		    X10Call_c result = (X10Call_c) this.methodInstance((MethodInstance) mi.copy()).type(mi.returnType());
+
+		    /////////////////////////////////////////////////////////////////////
+		    // End inlined super call.
+		    /////////////////////////////////////////////////////////////////////
+
+		    // If we found a method, the call must type check, so no need to check
+		    // the arguments here.
+		    result.checkConsistency(c);
+		    //	        	result = result.adjustMI(tc);
+		    //	        	result.checkWhereClause(tc);
+		    result.checkAnnotations(tc);
+
+		    return result;
+		}
         }
         catch (NoMemberException e) {
-            if (e.getKind() != NoMemberException.METHOD || this.target == null)
-                throw e;
-            Type type = target.type();
-            String name = nameString();
-            List arguments = arguments();
-            StructType java_io_PrintStream = (StructType) xts.forName("java.io.PrintStream");
-            // FIXME: [IP] HACK: do not typecheck printf beyond the first argument
-            if (xts.typeEquals(type, java_io_PrintStream)) {
-                if (name.equals("printf") && arguments.size() >= 1 &&
-                        xts.isSubtype(((Expr) arguments.get(0)).type(), xts.String()))
-                {
-                    try {
-                        MethodInstance new_mi = xts.findMethod(java_io_PrintStream,
-                                "printf",
-                                Arrays.asList(new Type[] { xts.String(), xts.arrayOf(xts.Object()) }), tc.context().currentClassDef());
-                        return (X10Call_c)this.methodInstance(new_mi).type(new_mi.returnType());
-                    } catch (NoMemberException f) {
-                        // For Java 1.4, we need to emulate this method
-                        // TODO: generate a call to x10.lang.Runtime.printf(PrintStream, String, Object[]) instead
-                    }
-                }
-            }
+//            if (e.getKind() != NoMemberException.METHOD || this.target == null)
+//                throw e;
+//            Type type = target.type();
+//            String name = nameString();
+//            List arguments = arguments();
+//            StructType java_io_PrintStream = (StructType) xts.forName("java.io.PrintStream");
+//            // FIXME: [IP] HACK: do not typecheck printf beyond the first argument
+//            if (xts.typeEquals(type, java_io_PrintStream)) {
+//                if (name.equals("printf") && arguments.size() >= 1 &&
+//                        xts.isSubtype(((Expr) arguments.get(0)).type(), xts.String()))
+//                {
+//                    try {
+//                        MethodInstance new_mi = xts.findMethod(java_io_PrintStream,
+//                                "printf",
+//                                Arrays.asList(new Type[] { xts.String(), xts.arrayOf(xts.Object()) }), tc.context().currentClassDef());
+//                        return (X10Call_c)this.methodInstance(new_mi).type(new_mi.returnType());
+//                    } catch (NoMemberException f) {
+//                        // For Java 1.4, we need to emulate this method
+//                        // TODO: generate a call to x10.lang.Runtime.printf(PrintStream, String, Object[]) instead
+//                    }
+//                }
+//            }
             throw e;
-        } finally {
-        
         }
     }
-
+    
     /**
      * Compute the new resulting type for the method call by replacing this and 
      * any argument variables that occur in the rettype depclause with new
@@ -330,5 +377,21 @@ public class X10Call_c extends Call_c implements X10Call {
 	private Node superTypeCheck(TypeChecker tc) throws SemanticException {
         return super.typeCheck(tc);
     }
+	
+	@Override
+	public String toString() {
+	    StringBuffer sb = new StringBuffer();
+	    sb.append(targetImplicit ? "" : target.toString() + ".");
+	    sb.append(name);
+	    if (typeArguments != null && typeArguments.size() > 0) {
+		sb.append("[");
+		sb.append(CollectionUtil.listToString(typeArguments));
+		sb.append("]");
+	    }
+	    sb.append("(");
+	    sb.append(CollectionUtil.listToString(arguments));
+	    sb.append(")");
+	    return sb.toString();
+	}
 }
 

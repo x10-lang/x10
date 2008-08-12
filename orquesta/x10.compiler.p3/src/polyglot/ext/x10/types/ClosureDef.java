@@ -11,6 +11,8 @@ import polyglot.types.Type;
 
 public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
     
+    public ClosureType asType();
+    
     /** Set a flag indicating we should infer the return type. */
     boolean inferReturnType();
     void inferReturnType(boolean r);

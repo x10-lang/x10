@@ -22,6 +22,7 @@ import polyglot.types.Flags;
  */
 public class X10Flags extends Flags {
         public static final Set X10_FLAGS = new TreeSet();
+        public static final Flags EXTERN       = createFlag("extern", null);
         public static final Flags VALUE        = createFlag("value", null);
         public static final Flags REFERENCE    = createFlag("reference", null);
         public static final Flags ATOMIC       = createFlag("atomic", null);
@@ -101,6 +102,32 @@ public class X10Flags extends Flags {
             return f;
         }
 
+        /**
+         * Return a copy of this <code>this</code> with the <code>value</code>
+         * flag set.
+         * @param flags TODO
+         */
+        public X10Flags Extern() {
+            return setX(EXTERN);
+        }
+        /**
+         * Return a copy of this <code>this</code> with the <code>value</code>
+         * flag clear.
+         * @param flags TODO
+         */
+        public  X10Flags clearExtern() {
+            return clearX(EXTERN);
+        }
+        /**
+         * Return true if <code>this</code> has the <code>value</code> flag set.
+         * @param flags TODO
+         */
+        public  boolean isExtern() {
+            return contains(EXTERN);
+        }
+        public  static boolean isExtern(Flags flags) {
+            return flags.contains(EXTERN);
+        }
         /**
              * Return a copy of this <code>this</code> with the <code>value</code>
              * flag set.

@@ -168,7 +168,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	            
 	            // Found a class which has a method of the right name.
 	            // Now need to check if the method is of the correct type.
-	            return ts.findMethod(t, name, argTypes, this.currentClassDef());
+	            return ts.findMethod(t, ts.MethodMatcher(t, name, argTypes), this.currentClassDef());
 	        }
 
 	        if (outer != null) {
@@ -369,7 +369,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	    public Named findInThisScope(String name) {
 	        if (types != null) {
-	        Named t = (Named) types.get(name);
+	            Named t = (Named) types.get(name);
 	            if (t != null)
 	        	return t;
 	        }
@@ -415,7 +415,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		catch (SemanticException e) {
 		}
 		try {
-		    return ts.findTypeDef(container, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, currentClassDef);
+		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST), currentClassDef);
 		}
 		catch (SemanticException e) {
 		}
@@ -452,7 +452,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		try {
 			if (depType instanceof X10ClassType) {
 				X10ClassType dep = (X10ClassType) this.depType;
-				FieldInstance myVi = ts.findField(dep, name, currentClassDef());
+				FieldInstance myVi = ts.findField(dep, ts.FieldMatcher(dep, name), currentClassDef());
 				if (myVi != null) {
 					return myVi;
 				}

@@ -28,6 +28,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -122,9 +123,15 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
-        	typeParameters.add(tpn.typeRef());
+        	typeParameters.add(Types.ref(tpn.type()));
         }
         ci.setTypeParameters(typeParameters);
+        
+        List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
+        for (Formal f : n.formals()) {
+            formalNames.add(f.localDef());
+        }
+        ci.setFormalNames(formalNames);
         
         return n;
     }
@@ -183,24 +190,25 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         nn = (X10ConstructorDecl) nn.formals(processedFormals);
         if (tc.hasErrors()) throw new SemanticException();
         
-        for (Formal n : processedFormals) {
-    		Ref<Type> ref = (Ref<Type>) n.type().typeRef();
-    		Type newType = ref.get();
-    		
-    		if (n.localDef().flags().isFinal()) {
-    			XConstraint c = X10TypeMixin.xclause(newType);
-    			if (c == null) c = new XConstraint_c();
-    			try {
-				c.addSelfBinding(xts.xtypeTranslator().trans(n.localDef().asInstance()));
-			}
-			catch (XFailure e) {
-				throw new SemanticException(e.getMessage(), position());
-			}
-    			newType = X10TypeMixin.xclause(newType, c);
-    		}
-    		
-    		ref.update(newType);
-        }
+        // [NN]: Don't do this here, do it on lookup of the formal.  We don't want spurious self constraints in the signature.
+//        for (Formal n : processedFormals) {
+//    		Ref<Type> ref = (Ref<Type>) n.type().typeRef();
+//    		Type newType = ref.get();
+//    		
+//    		if (n.localDef().flags().isFinal()) {
+//    			XConstraint c = X10TypeMixin.xclause(newType);
+//    			if (c == null) c = new XConstraint_c();
+//    			try {
+//				c.addSelfBinding(xts.xtypeTranslator().trans(n.localDef().asInstance()));
+//			}
+//			catch (XFailure e) {
+//				throw new SemanticException(e.getMessage(), position());
+//			}
+//    			newType = X10TypeMixin.xclause(newType, c);
+//    		}
+//    		
+//    		ref.update(newType);
+//        }
         
         // Step I.b.  Check the where clause.
         if (nn.whereClause() != null) {

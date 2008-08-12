@@ -11,6 +11,7 @@ import polyglot.types.LocalDef_c;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 
@@ -22,14 +23,33 @@ import polyglot.util.TypedList;
  *
  */
 public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
-    int positionInArgList;
-    
     public X10LocalDef_c(TypeSystem ts, Position pos,
             Flags flags, 
             Ref<? extends Type> type,
             String name) {
         super(ts, pos, flags, type, name);
-        positionInArgList = -1;
+    }
+    
+    public String toString() {
+	ConstantValue cv = constantRef.getCached();
+	String cvStr = "";
+	
+	if (cv != null && cv.isConstant()) {
+		Object v = cv.value();
+		if (v instanceof String) {
+			String s = (String) v;
+	
+			if (s.length() > 8) {
+				s = s.substring(0, 8) + "...";
+			}
+	
+			v = "\"" + s + "\"";
+		}
+	
+		cvStr = " = " + v;
+	}
+	
+	return "local " + flags.translate() + name + ": " + type + cvStr;
     }
 
     // BEGIN ANNOTATION MIXIN
@@ -55,12 +75,4 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN
-    
-    public int positionInArgList() {
-        return positionInArgList;
-    }
-    public void setPositionInArgList(int i) {
-        positionInArgList = i;
-    }
-
 }

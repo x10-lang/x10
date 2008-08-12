@@ -50,30 +50,7 @@ public class X10Boxer extends AscriptionVisitor
 		}
 
 		Position p = e.position();
-
-
-
-		if (e instanceof Call) {
-			// for calls to method force() on Objects of type Future,
-			// make sure that the corresponding cast occurs (from Object
-			// to the primitive type),
-
-			Call call_n = (Call) e;
-			String m_name = call_n.name().id();
-			Type target_t = call_n.target().type();
-			if (m_name.equals("force") && xts.isFuture(target_t)) {
-				if (fromType.isPrimitive() && ! fromType.isVoid()) {
-					Type boxed_t = xts.boxedType(fromType.toPrimitive());
-					call_n = (Call) call_n.type(xts.X10Object()); // set the type to object to avoid a type error when flattening
-					ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
-				} else {
-					call_n = (Call) call_n.type(xts.X10Object()); // set the type to object to avoid a type error when flattening
-					ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
-				}
-				return ret_notype.type(fromType);
-			}
-		}
-
+		
 		// This avoids that the int value in code like "String" + 2
 		// is boxed. The toType of the IntLit node that represents "2"
 		// is actually a ParsedClassType for java.lang.String.
@@ -81,7 +58,7 @@ public class X10Boxer extends AscriptionVisitor
 		// the expression "String" + 2 + 3.
 
 		// A better way to fix this problem would be to modify the type system and
-		// annotatioon such that it understand that operator "+" for Strings
+		// annotation such that it understand that operator "+" for Strings
 		// and primitives is fine and would not ask for a String here.
 		// see line 405 in polyglot.ext.jl.as.Binary_c
 		// TODO  I leave this up to whoever implements the type system/checker
@@ -91,9 +68,10 @@ public class X10Boxer extends AscriptionVisitor
 		// correct boxing/unboxing code.
 
 		if (!is_String_type && fromType.isPrimitive() && toType.isReference()) {
-			ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, toType), e);
+			ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, toType), e).type(toType);
 			return ret_notype.type(toType);
 		}
+		
 		return e;
 	}
 

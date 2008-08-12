@@ -20,6 +20,7 @@ import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -86,7 +87,6 @@ public class X10New_c extends New_c implements X10New {
 	 */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-		TypeSystem ts = tc.typeSystem();
 		
         	/////////////////////////////////////////////////////////////////////
         	// Inline the super call here and handle type arguments.
@@ -116,10 +116,10 @@ public class X10New_c extends New_c implements X10New {
 		        c = c.pushClass(anonType, anonType.asType());
 		    }
 		    ClassDef currentClassDef = c.currentClassDef();
-		    ci = xts.findConstructor(ct, typeArgs, argTypes, currentClassDef);
+		    ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, typeArgs, argTypes), currentClassDef);
 		}
 		else {
-		    ConstructorDef dci = ts.defaultConstructor(this.position(), Types.<ClassType>ref(ct));
+		    ConstructorDef dci = xts.defaultConstructor(this.position(), Types.<ClassType>ref(ct));
 		    ci = (X10ConstructorInstance) dci.asInstance();
 		}
 		

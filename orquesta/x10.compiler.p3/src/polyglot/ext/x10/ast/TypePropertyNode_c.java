@@ -27,28 +27,38 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 
 public class TypePropertyNode_c extends Node_c implements TypePropertyNode {
-	Id id;
+	protected Id name;
 	protected TypeProperty.Variance variance;
 	protected TypeProperty prop;
 
-	public TypePropertyNode_c(Position pos, Id id, TypeProperty.Variance variance) {
+	public TypePropertyNode_c(Position pos, Id name, TypeProperty.Variance variance) {
 		super(pos);
-		this.id = id;
+		this.name = name;
 		this.variance = variance;
 	}
 
-	public String name() {
-		return id.id();
+	public String nameString() {
+		return name.id();
+	}
+	
+	public Id name() {
+	    return name;
+	}
+	
+	public TypePropertyNode name(Id name) {
+	    TypePropertyNode_c n = (TypePropertyNode_c) copy();
+	    n.name = name;
+	    return n;
 	}
 
-	public Id id() {
-		return id;
+	public TypeProperty.Variance variance() {
+	    return variance;
 	}
 
-	public TypePropertyNode id(Id id) {
-		TypePropertyNode_c n = (TypePropertyNode_c) copy();
-		n.id = id;
-		return n;
+	public TypePropertyNode variance(TypeProperty.Variance variance) {
+	    TypePropertyNode_c n = (TypePropertyNode_c) copy();
+	    n.variance = variance;
+	    return n;
 	}
 
 	public TypeProperty typeProperty() {
@@ -65,22 +75,22 @@ public class TypePropertyNode_c extends Node_c implements TypePropertyNode {
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		X10TypeSystem xts = (X10TypeSystem) tb.typeSystem();
 		X10ClassDef cd = (X10ClassDef) tb.currentClass();
-		TypeProperty prop = new TypeProperty_c(xts, position(), Types.ref((X10ClassType) cd.asType()), id.id(), variance);
+		TypeProperty prop = new TypeProperty_c(xts, position(), Types.ref((X10ClassType) cd.asType()), name.id(), variance);
 		cd.addTypeProperty(prop);
 		return typeProperty(prop);
 	}
 
 	public String toString() {
 		if (variance == TypeProperty.Variance.CONTRAVARIANT)
-			return "-" + name();
+			return "-" + nameString();
 		if (variance == TypeProperty.Variance.COVARIANT)
-			return "+" + name();
-		return name();
+			return "+" + nameString();
+		return nameString();
 	}
 
 	public Node visitChildren(NodeVisitor v) {
-		Id id = (Id) visitChild(this.id, v);
-		if (id != this.id) return id(id);
+		Id id = (Id) visitChild(this.name, v);
+		if (id != this.name) return name(id);
 		return this;
 	}
 }

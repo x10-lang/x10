@@ -21,6 +21,8 @@ import polyglot.types.ArrayType;
 import polyglot.types.DerefTransform;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.MethodInstance_c;
 import polyglot.types.NullType;
@@ -41,6 +43,8 @@ import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
+import x10.constraint.XLocal;
+import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XPromise;
 import x10.constraint.XRef_c;
@@ -115,7 +119,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    return n;
 	}
 	
-
 	    public List<Type> typeParameters;
 
 	    public List<Type> typeParameters() {
@@ -130,6 +133,26 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    X10MethodInstance_c n = (X10MethodInstance_c) copy();
 		    n.typeParameters = typeParameters;
 		    return n;
+	    }
+
+	    public List<LocalInstance> formalNames;
+	    
+	    public List<LocalInstance> formalNames() {
+		if (this.formalNames == null) {
+		    this.formalNames = new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
+			public LocalInstance transform(LocalDef o) {
+			    return o.asInstance();
+			}
+		    });
+		}
+		
+		return formalNames;
+	    }
+	    
+	    public X10MethodInstance formalNames(List<LocalInstance> formalNames) {
+		X10MethodInstance_c n = (X10MethodInstance_c) copy();
+		n.formalNames = formalNames;
+		return n;
 	    }
 
 	public void checkOverride(MethodInstance mj) throws SemanticException {
@@ -211,7 +234,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		// me should have been instantiated correctly; if so, the call is valid
 	    if (true) return true;
 	    try {
-			instantiate(me, thisType, args);
+		assert false : "need to rewrite";
+			instantiate(me, thisType, Collections.EMPTY_LIST, args);
 			return true;
 		}
 		catch (SemanticException e) {
@@ -243,50 +267,60 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
     
     public String signature() {
-	    return name() + (typeParameters().isEmpty() ? "" : "[" + CollectionUtil.listToString(typeParameters()) + "]") + "(" + CollectionUtil.listToString(formalTypes()) + ")";
-    }
-    
-    @Override
-    public MethodInstance instantiate(Type receiverType,
-    		List<Type> argumentTypes) throws SemanticException {
-
-	    return instantiate(this, receiverType, argumentTypes);
-    }
-
-    public static <PI extends X10ProcedureInstance<?>> PI instantiate(PI me, Type thisType, final List<Type> args) throws SemanticException {
-	List<Type> actualTypes = new ArrayList<Type>();
-	List<Type> actuals = new ArrayList<Type>();
-	X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
-	
-	    // We've smuggled the type args in with the actual args.  Pull them out again.
-	    for (Type t : args) {
-		    Type base = X10TypeMixin.baseType(t);
-		    if (base.typeEquals(((X10TypeSystem_c) xts).TypeType())) {
-			    // t should be type{self==C}.  Add C to the typeActuals list.
-			    XConstraint c = X10TypeMixin.xclause(t);
-			    XVar v = X10TypeMixin.selfVar(c);
-			    if (v instanceof XLit) {
-				    XLit lit = (XLit) v;
-				    if (lit.val() instanceof Type) {
-					    actualTypes.add((Type) lit.val());
-					    continue;
-				    }
-			    }
-			    throw new InternalCompilerError("Could not extract smuggled type argument from " + t + ".", t.position());
-		    }
-		    else {
-			    actuals.add(t);
-		    }
+	StringBuilder sb = new StringBuilder();
+	sb.append(name != null ? name : def().name());
+	List<String> params = new ArrayList<String>();
+	if (typeParameters != null) {
+	    for (int i = 0; i < typeParameters.size(); i++) {
+		params.add(typeParameters.get(i).toString());
 	    }
-
-	    return instantiate(me, thisType, actualTypes, actuals);
+	}
+	else {
+	    for (int i = 0; i < x10Def().typeParameters().size(); i++) {
+		params.add(x10Def().typeParameters().get(i).toString());
+	    }
+	}
+	if (params.size() > 0) {
+	    sb.append("[");
+	    sb.append(CollectionUtil.listToString(params));
+	    sb.append("]");
+	}
+	List<String> formals = new ArrayList<String>();
+	if (formalTypes != null) {
+	    for (int i = 0; i < formalTypes.size(); i++) {
+		String s = "";
+		String t = formalTypes.get(i).toString();
+		if (formalNames != null && i < formalNames.size()) {
+		    LocalInstance a = formalNames.get(i);
+		    if (a != null && ! a.name().equals(""))
+			s = a.name() + ": " + t; 
+		    else
+			s = t;
+		}
+		else {
+		    s = t;
+		}
+		formals.add(s);
+	    }
+	}
+	else {
+	    for (int i = 0; i < def().formalTypes().size(); i++) {
+		formals.add(def().formalTypes().get(i).toString());
+	    }
+	}
+	sb.append("(");
+	sb.append(CollectionUtil.listToString(formals));
+	sb.append(")");
+	if (whereClause != null)
+	    sb.append(whereClause);
+	return sb.toString();
     }
-    
-    public static <PI extends X10ProcedureInstance<?>> PI instantiate(PI me, Type thisType, List<Type> actualTypes, final List<Type> args) throws SemanticException {
+
+    public static <PI extends X10ProcedureInstance<?>> PI instantiate(PI me, Type thisType, List<Type> actualTypeArgs, final List<Type> actuals) throws SemanticException {
 	    X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
 	    final List<Type> formals = me.formalTypes();
+	    final List<LocalInstance> formalNames = me.formalNames();
 	    final List<Type> typeFormals = me.typeParameters();
-	    final List<Type> actuals = args;
 	    List<XVar> actualTypeVars = new ArrayList<XVar>();
 
 	    for (Type type : me.throwTypes()) {
@@ -323,13 +357,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    throw new SemanticException("Call not valid; incorrect number of actual arguments.", me.position());
 	    }
 	    
-	    if (actualTypes.size() != 0 && actualTypes.size() != typeFormals.size()) {
+	    if (actualTypeArgs.size() != 0 && actualTypeArgs.size() != typeFormals.size()) {
 		    throw new SemanticException("Call not valid; incorrect number of actual type arguments.", me.position());
 	    }
 	    
 	    XConstraint env  = new XConstraint_c();
 	    
-	    for (Type t : actualTypes) {
+	    for (Type t : actualTypeArgs) {
 		XVar lit = (XVar) xts.xtypeTranslator().trans(t);
 		actualTypeVars.add(lit);
 	    }
@@ -370,7 +404,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    X[i] = xi;
 		    Y[i] = yi;
 	    }
-
+	    
 	    for (int i = 0; i < formals.size(); i++) {
 		    Type xtype = formals.get(i);
 		    Type ytype = actuals.get(i);
@@ -390,11 +424,24 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
 		    XConstraint xc = X10TypeMixin.realX(xtype);
 		    XVar self = X10TypeMixin.selfVar(xc);
-		    if (self instanceof XRoot)
+		    
+		    xi = null;
+		    
+		    if (self instanceof XRoot) {
 			    xi = (XRoot) self;
-		    else
-			    xi = (XRoot) xts.xtypeTranslator().genEQV(env, xtype, false);
-
+		    }
+		    else if (i < formalNames.size() && formalNames.get(i) != null) {
+			try {
+			    xi = xts.xtypeTranslator().trans(formalNames.get(i));
+			}
+			catch (SemanticException e) {
+			}
+		    }
+		    
+		    if (xi == null) {
+			xi = xts.xtypeTranslator().genEQV(env, xtype, false);
+		    }
+		    
 		    try {
 			    XConstraint yc2 = yc.substitute(yi, XSelf.Self);
 			    env.addIn(yc2);
@@ -456,7 +503,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    XVar yi = y[i];
 		    XRoot xi = x[i];
 
-		    Type ti = formals.get(i);
+		    Type ti = xtype;
 
 		    XConstraint query = X10TypeMixin.realX(ti);
 
@@ -469,7 +516,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
 				    boolean result = env.entails(query5);
 				    if (! result)
-					    throw new SemanticException("Call invalid; actual parameter of type " + ytype + " is not a subtype of the formal parameter type " + xtype + ".");
+					    throw new SemanticException("Call invalid; actual parameter of type " + ytype + " does not entail the real clause of the formal parameter type " + xtype + ".");
 
 				    bigquery.addIn(query5);
 			    }
@@ -515,20 +562,18 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    
 		    for (int i = 0; i < actualTypeVars.size(); i++) {
 			    XVar v = actualTypeVars.get(i);
-			    XLit lit = null;
 
 			    XPromise p = env.lookup(v);
 
-			    if (p != null && p.term() instanceof XLit) {
-				    lit = (XLit) p.term();
+			    if (p != null && p.term() instanceof XVar) {
+				Type ptype = getType((XVar) p.term());
+				if (ptype != null) {
+				    Y[i] = (XVar) p.term();
+				    continue;
+				}
 			    }
-
-			    if (lit != null && lit.val() instanceof Type) {
-				    Y[i] = lit;
-			    }
-			    else {
-				    throw new SemanticException("Could not infer type for type parameter " + typeFormals.get(i) + ".", me.position());
-			    }
+			    
+			    throw new SemanticException("Could not infer type for type parameter " + typeFormals.get(i) + ".", me.position());
 		    }
 		    
 		    XRoot[] x2 = new XRoot[x.length+1];
@@ -575,14 +620,28 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
     
     static Type getType(XVar Y) {
-	    if (Y instanceof XLit) {
-		    XLit lit = (XLit) Y;
-		    if (lit.val() instanceof Type)
-			    return (Type) lit.val();
+	if (Y instanceof XLit) {
+	    XLit lit = (XLit) Y;
+
+	    if (lit != null && lit.val() instanceof Type) {
+		return (Type) lit.val();
 	    }
-	    return null;
+	}
+	if (Y instanceof XLocal) {
+	    // A type parameter.
+	    XLocal local = (XLocal) Y;
+	    XName name = local.name();
+	    if (name instanceof XNameWrapper) {
+		XNameWrapper w = (XNameWrapper) name;
+		if (w.val() instanceof Type) {
+		    return (Type) w.val();
+		}
+	    }
+	}
+
+	return null;
     }
-    
+
     private static XConstraint subst(XConstraint c, XVar[] y, XRoot[] x, XVar[] Y, XRoot[] X, List<Type> typeFormals) throws SemanticException {
 	    assert y.length == x.length;
 	    assert Y.length == X.length;
@@ -632,6 +691,15 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    ArrayType at = (ArrayType) t;
 		    Type newBase = subst(at.base(), actual, var);
 		    return at.base(Types.ref(newBase));
+	    }
+	    if (t instanceof PathType) {
+		PathType pt = (PathType) t;
+		Type baseType = subst(pt.baseType(), actual, var);
+		    XVar v2 = pt.base();
+		    for (int i = 0; i < actual.length; i++) {
+			    v2 = (XVar) v2.subst(actual[i], var[i]);
+		    }
+		    return pt.base(v2, baseType);
 	    }
 	    if (t instanceof ParametrizedType) {
 		    ParametrizedType pt = (ParametrizedType) t;

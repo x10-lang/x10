@@ -15,6 +15,8 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
@@ -138,7 +140,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		Position pos = position();
 		Job job = tc.job();
 		if (! (ctx.inCode()) || ! (ctx.currentCode() instanceof X10ConstructorDef))
-			throw new SemanticException("The statement property(...) must occur only in the body of a constructor.",
+			throw new SemanticException("A property statement may only occur in the body of a constructor.",
 					position());
 		X10ConstructorDef thisConstructor = null;
 		thisConstructor = (X10ConstructorDef) ctx.currentCode();
@@ -151,15 +153,13 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		int pSize = definedProperties.size();
 		int aSize = arguments.size();
 		if (aSize != pSize) {
-		    throw new SemanticException("The property initializer must have the same " 
-		                                + " number of arguments as properties for the class.",
+		    throw new SemanticException("The property initializer must have the same number of arguments as properties for the class.",
 		                                position());
 		}
 		int tpSize = definedTypeProperties.size();
 		int taSize = typeArgs.size();
 		if (taSize != tpSize) {
-		    throw new SemanticException("The property initializer must have the same " 
-		                                + " number of type arguments as type properties for the class.",
+		    throw new SemanticException("The property initializer must have the same number of type arguments as type properties for the class.",
 		                                position());
 		}
 		
@@ -168,17 +168,14 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		 List<Stmt> s = new ArrayList<Stmt>(pSize);
 
 		 for (int i=0; i < aSize; i++) {
-		     Expr l = nf.Field(pos,nf.This(pos), nf.Id(pos, definedProperties.get(i).name()));
-		     l = (Expr) this.visitChild(l, tc);
-
 		     //				 We fudge type checking of the generating code as follows.
 		     // X10 Typechecking of the assignment statement is problematic since 	
 		     // the type of the field may have references to other fields, hence may use this,
 		     // But this doesn't exist yet. We will check all the properties simultaneously
 		     // in AssignPropertyBody. So we do not need to check it here. 
 		     Expr arg = arguments.get(i);
-		     Expr as = nf.Assign(pos, l, Assign.ASSIGN, arg);
-		     as = (Expr) as.type(arg.type()); // Fake the type.
+		     FieldAssign as = nf.FieldAssign(pos, nf.This(pos), nf.Id(pos, definedProperties.get(i).name()), Assign.ASSIGN, arg);
+		     as = (FieldAssign) this.visitChild(as, tc);
 		     Stmt a = (Stmt) nf.Eval(pos, as);
 		     a = (Stmt) a.disambiguate(tc);
 		     // a = (Stmt) a.visit(tc); Do not type-check the statement a.
@@ -216,17 +213,20 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 		        	// Add in the real clause of the initializer with [self.prop/self]
 		        	XConstraint c = X10TypeMixin.realX(initType);
-		        	if (c==null) {
-		        	    c=new XConstraint_c();
-		        	    XTerm t = ts.xtypeTranslator().trans(initializer);
-		        	    c.addBinding(prop, t);
-		        	    known.addIn(c);
+		        	XTerm initVar = null;
+		        	try {
+		        	    initVar = ts.xtypeTranslator().trans(initializer);
 		        	}
-		        	else {
-		        	    // self==u { self.unique / self } = self.unique.unique == u  ERROR
-				    XConstraint c2 = c.substitute(prop, XSelf.Self);
-				    known.addIn(c2);
+		        	catch (SemanticException e) {
 		        	}
+		        	if (c == null)
+		        	    c = new XConstraint_c();
+		        	else 
+		        	    c = c.copy();
+		        	c = c.substitute(prop, XSelf.Self);
+		        	if (initVar != null)
+		        	    c.addBinding(prop, initVar);
+		        	known.addIn(c);
 		            }
 
 		            for (int i = 0; i < typeArgs.size(); i++) {

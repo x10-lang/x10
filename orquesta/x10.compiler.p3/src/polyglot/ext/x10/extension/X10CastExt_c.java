@@ -61,14 +61,6 @@ public class X10CastExt_c extends X10Ext_c {
 			newCast.setPrimitiveCast(sourceCast.isPrimitiveCast());
 			boolean notNullBoolean = true;
 			
-			if (c.expr() instanceof Call) {
-				Call call = (Call) c.expr();
-				// Avoid null checking when dealing with future.
-				String m_name = call.name().id();
-				X10Type target_t = (X10Type) call.target().type();
-				// when unboxing, expr should always be different from null
-				notNullBoolean = !(m_name.equals("force") && ((X10TypeSystem)ts).isFuture(target_t));
-			}
 			newCast.setNotNullRequired(notNullBoolean);
 			
 			// adding parenthesis to surround cast operation

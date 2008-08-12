@@ -8,8 +8,8 @@ public class TypeDefAsMacroTypeTransform implements Transformation<TypeDef, Type
     public Type transform(TypeDef def) {
 	X10TypeSystem xts = (X10TypeSystem) def.typeSystem();
 	MacroType mt = def.asType();
-	if (!mt.flags().isStatic()) {
-	    throw new InternalCompilerError("unimplemented");
+	if (mt.container() != null && !mt.flags().isStatic()) {
+	    throw new InternalCompilerError("non-static member typedefs are unimplemented");
 	}
 	return mt;
     }

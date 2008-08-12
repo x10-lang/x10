@@ -19,6 +19,7 @@ import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.types.MacroType;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
@@ -132,7 +133,7 @@ public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
           }
     
           if (typeDefContainer != null) {
-              MacroType mt = ts.findTypeDef(typeDefContainer, name.id(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, tc.context().currentClassDef());
+              MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), Collections.EMPTY_LIST, Collections.EMPTY_LIST), tc.context().currentClassDef());
               
               LazyRef<Type> sym = (LazyRef<Type>) type;
               sym.update(mt);
@@ -152,11 +153,18 @@ public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
       try {
           Disamb disamb = ar.nodeFactory().disamb();
           Node n = disamb.disambiguate(this, ar, pos, prefix, name);
-    
+
           if (n instanceof TypeNode) {
               TypeNode tn = (TypeNode) n;
               LazyRef<Type> sym = (LazyRef<Type>) type;
-              sym.update(tn.typeRef().get());
+              sym.update(tn.type());
+
+              if (tn.type() instanceof X10ParsedClassType) {
+        	  X10ParsedClassType ct = (X10ParsedClassType) tn.type();
+        	  if (ct.x10Def().typeParameters().size() != 0) {
+        	      throw new SemanticException("Invalid type " + ct + "; incorrect number of type arguments.", position());
+        	  }
+              }
               
               // Reset the resolver goal to one that can run when the ref is deserialized.
               Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
@@ -179,7 +187,7 @@ public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
     
       throw ex;
   }
-
+  
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
     if (qual != null) {
         print(qual, w, tr);

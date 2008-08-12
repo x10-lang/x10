@@ -6,6 +6,7 @@ import java.util.List;
 import polyglot.types.CodeInstance;
 import polyglot.types.Def_c;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
@@ -23,21 +24,21 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected String name;
 	protected Ref<? extends Package> package_;
 	protected List<Ref<? extends Type>> typeParameters;
-	protected List<String> formalNames;
+	protected List<LocalDef> formalNames;
 	protected List<Ref<? extends Type>> formalTypes;
 	protected Ref<XConstraint> whereClause;
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, String name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
-			List<String> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> whereClause, Ref<? extends Type> type) {
+			List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> whereClause, Ref<? extends Type> type) {
 
 		super(ts, pos);
 		this.container = container;
 		this.name = name;
 		this.flags = flags;
 		this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
-		this.formalNames = TypedList.copyAndCheck(formalNames, String.class, true);
+		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
 		this.whereClause = whereClause;
 		this.type = type;
@@ -144,12 +145,12 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.type = type;
 	}
 	
-	public List<String> formalNames() {
+	public List<LocalDef> formalNames() {
 		return Collections.unmodifiableList(formalNames);
 	}
 	
-	public void setFormalNames(List<String> formalNames) {
-		this.formalNames = TypedList.copyAndCheck(formalNames, String.class, true);
+	public void setFormalNames(List<LocalDef> formalNames) {
+		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 	}
 	
 	/* (non-Javadoc)

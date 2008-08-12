@@ -49,7 +49,6 @@ import polyglot.ast.Field_c;
 import polyglot.ast.FloatLit_c;
 import polyglot.ast.For_c;
 import polyglot.ast.Formal_c;
-import polyglot.ast.Id;
 import polyglot.ast.Id_c;
 import polyglot.ast.If_c;
 import polyglot.ast.Import_c;
@@ -87,7 +86,66 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode_c;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
-import polyglot.ext.x10.ast.*;
+import polyglot.ext.x10.ast.AmbDepTypeNode_c;
+import polyglot.ext.x10.ast.AnnotationNode_c;
+import polyglot.ext.x10.ast.AssignPropertyBody_c;
+import polyglot.ext.x10.ast.AssignPropertyCall_c;
+import polyglot.ext.x10.ast.Async_c;
+import polyglot.ext.x10.ast.AtEach_c;
+import polyglot.ext.x10.ast.AtomicMethodDecl_c;
+import polyglot.ext.x10.ast.Atomic_c;
+import polyglot.ext.x10.ast.Await_c;
+import polyglot.ext.x10.ast.ClosureCall_c;
+import polyglot.ext.x10.ast.Closure_c;
+import polyglot.ext.x10.ast.ConstantDistMaker_c;
+import polyglot.ext.x10.ast.DepCast_c;
+import polyglot.ext.x10.ast.DepInstanceof_c;
+import polyglot.ext.x10.ast.DepParameterExpr_c;
+import polyglot.ext.x10.ast.Finish_c;
+import polyglot.ext.x10.ast.ForEach_c;
+import polyglot.ext.x10.ast.ForLoop_c;
+import polyglot.ext.x10.ast.Future_c;
+import polyglot.ext.x10.ast.Here_c;
+import polyglot.ext.x10.ast.Next_c;
+import polyglot.ext.x10.ast.Now_c;
+import polyglot.ext.x10.ast.ParExpr_c;
+import polyglot.ext.x10.ast.PlaceCast_c;
+import polyglot.ext.x10.ast.PropertyDecl_c;
+import polyglot.ext.x10.ast.Range_c;
+import polyglot.ext.x10.ast.RectRegionMaker_c;
+import polyglot.ext.x10.ast.RegionMaker_c;
+import polyglot.ext.x10.ast.Region_c;
+import polyglot.ext.x10.ast.SettableAssign_c;
+import polyglot.ext.x10.ast.StmtSeq_c;
+import polyglot.ext.x10.ast.Tuple_c;
+import polyglot.ext.x10.ast.When_c;
+import polyglot.ext.x10.ast.X10Binary_c;
+import polyglot.ext.x10.ast.X10BooleanLit_c;
+import polyglot.ext.x10.ast.X10Call_c;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
+import polyglot.ext.x10.ast.X10Cast_c;
+import polyglot.ext.x10.ast.X10CharLit_c;
+import polyglot.ext.x10.ast.X10ClassBody_c;
+import polyglot.ext.x10.ast.X10ClassDecl_c;
+import polyglot.ext.x10.ast.X10ClockedLoop_c;
+import polyglot.ext.x10.ast.X10Conditional_c;
+import polyglot.ext.x10.ast.X10ConstructorDecl_c;
+import polyglot.ext.x10.ast.X10FieldDecl_c;
+import polyglot.ext.x10.ast.X10Field_c;
+import polyglot.ext.x10.ast.X10FloatLit_c;
+import polyglot.ext.x10.ast.X10Formal_c;
+import polyglot.ext.x10.ast.X10If_c;
+import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10IntLit_c;
+import polyglot.ext.x10.ast.X10LocalDecl_c;
+import polyglot.ext.x10.ast.X10Local_c;
+import polyglot.ext.x10.ast.X10Loop_c;
+import polyglot.ext.x10.ast.X10MethodDecl_c;
+import polyglot.ext.x10.ast.X10New_c;
+import polyglot.ext.x10.ast.X10Special_c;
+import polyglot.ext.x10.ast.X10StringLit_c;
+import polyglot.ext.x10.ast.X10Unary_c;
+import polyglot.ext.x10.ast.X10While_c;
 
 /**
  * Visitor on the AST nodes that dispatches to the appropriate
@@ -104,7 +162,7 @@ public class X10DelegatingVisitor {
 	public void visitAppropriate(JL n) {
 		if (n instanceof Id_c) { visit((Id_c)n); return; }
 		if (n instanceof AnnotationNode_c) { visit((AnnotationNode_c)n); return; }
-		if (n instanceof X10ArrayTypeNode_c) { visit((X10ArrayTypeNode_c)n); return; }
+		if (n instanceof X10CanonicalTypeNode_c) { visit((X10CanonicalTypeNode_c)n); return; }
 		if (n instanceof CanonicalTypeNode_c) { visit((CanonicalTypeNode_c)n); return; }
 		if (n instanceof ArrayTypeNode_c) { visit((ArrayTypeNode_c)n); return; }
 		if (n instanceof AmbDepTypeNode_c) { visit((AmbDepTypeNode_c)n); return; }
@@ -167,7 +225,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof Special_c) { visit((Special_c)n); return; }
 		if (n instanceof Region_c) { visit((Region_c)n); return; }
 		if (n instanceof Range_c) { visit((Range_c)n); return; }
-		if (n instanceof Point_c) { visit((Point_c)n); return; }
 		if (n instanceof PlaceCast_c) { visit((PlaceCast_c)n); return; }
 		if (n instanceof ParExpr_c) { visit((ParExpr_c)n); return; }
 		if (n instanceof Now_c) { visit((Now_c)n); return; }
@@ -207,7 +264,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof RectRegionMaker_c) { visit((RectRegionMaker_c)n); return; }
 		if (n instanceof ConstantDistMaker_c) { visit((ConstantDistMaker_c)n); return; }
 		if (n instanceof X10Call_c) { visit((X10Call_c)n); return; }
-		if (n instanceof RemoteCall_c) { visit((RemoteCall_c)n); return; }
 		if (n instanceof Call_c) { visit((Call_c)n); return; }
 		if (n instanceof X10Binary_c) { visit((X10Binary_c)n); return; }
 		if (n instanceof Binary_c) { visit((Binary_c)n); return; }
@@ -226,7 +282,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof X10ConstructorDecl_c) { visit((X10ConstructorDecl_c)n); return; }
 		if (n instanceof ConstructorDecl_c) { visit((ConstructorDecl_c)n); return; }
 		if (n instanceof X10ClassDecl_c) { visit((X10ClassDecl_c)n); return; }
-		if (n instanceof ValueClassDecl_c) { visit((ValueClassDecl_c)n); return; }
 		if (n instanceof ClassDecl_c) { visit((ClassDecl_c)n); return; }
 		if (n instanceof X10ClassBody_c) { visit((X10ClassBody_c)n); return; }
 		if (n instanceof ClassBody_c) { visit((ClassBody_c)n); return; }
@@ -262,7 +317,6 @@ public class X10DelegatingVisitor {
 			public void visit(ClassBody_c n) { visit((Term_c)n); }
 				public void visit(X10ClassBody_c n) { visit((ClassBody_c)n); }
 			public void visit(ClassDecl_c n) { visit((Term_c)n); }
-				public void visit(ValueClassDecl_c n) { visit((ClassDecl_c)n); }
 				public void visit(X10ClassDecl_c n) { visit((ClassDecl_c)n); }
 			public void visit(ConstructorDecl_c n) { visit((Term_c)n); }
 				public void visit(X10ConstructorDecl_c n) { visit((ConstructorDecl_c)n); }
@@ -279,7 +333,6 @@ public class X10DelegatingVisitor {
 				public void visit(Binary_c n) { visit((Expr_c)n); }
 					public void visit(X10Binary_c n) { visit((Binary_c)n); }
 				public void visit(Call_c n) { visit((Expr_c)n); }
-					public void visit(RemoteCall_c n) { visit((Call_c)n); }
 					public void visit(X10Call_c n) { visit((Call_c)n); }
 						public void visit(ConstantDistMaker_c n) { visit((X10Call_c)n); }
 						public void visit(RectRegionMaker_c n) { visit((X10Call_c)n); }
@@ -319,7 +372,6 @@ public class X10DelegatingVisitor {
 				public void visit(Now_c n) { visit((Expr_c)n); }
 				public void visit(ParExpr_c n) { visit((Expr_c)n); }
 				public void visit(PlaceCast_c n) { visit((Expr_c)n); }
-				public void visit(Point_c n) { visit((Expr_c)n); }
 				public void visit(Range_c n) { visit((Expr_c)n); }
 				public void visit(Region_c n) { visit((Expr_c)n); }
 				public void visit(Special_c n) { visit((Expr_c)n); }
@@ -383,8 +435,8 @@ public class X10DelegatingVisitor {
 				public void visit(AmbTypeNode_c n) { visit((TypeNode_c)n); }
 				public void visit(ArrayTypeNode_c n) { visit((TypeNode_c)n); }
 				public void visit(CanonicalTypeNode_c n) { visit((TypeNode_c)n); }
+				public void visit(X10CanonicalTypeNode_c n) { visit((CanonicalTypeNode_c)n); }
 				public void visit(AmbDepTypeNode_c n) { visit((TypeNode_c)n); }
-				public void visit(X10ArrayTypeNode_c n) { visit((TypeNode_c)n); }
 			public void visit(AnnotationNode_c n) { visit((Node_c) n); }
 			public void visit(Id_c n) { visit((Node_c) n); }
 }

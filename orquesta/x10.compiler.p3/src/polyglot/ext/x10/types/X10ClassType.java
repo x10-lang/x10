@@ -35,6 +35,8 @@ public interface X10ClassType extends ClassType, X10Type, X10Use<X10ClassDef> {
     Expr propertyInitializer(int i);
     X10ClassType propertyInitializers(List<Expr> inits);
     
+    boolean isIdentityInstantiation();
+    
     /**
      * The list of properties of the class. 
      * @return
@@ -48,6 +50,8 @@ public interface X10ClassType extends ClassType, X10Type, X10Use<X10ClassDef> {
      * @return
      */
     List<FieldInstance> definedProperties();
+    
+    List<Type> typeArguments();
     
     List<Type> typeProperties();
     Named typePropertyNamed(String name);

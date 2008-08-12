@@ -8,6 +8,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Disamb;
@@ -141,7 +142,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
     }
     
     public String toString() {
-    	return (prefix != null ? prefix.toString() + "." : "") + name.toString() + (typeArgs.isEmpty() ? "" : typeArgs) + (args.isEmpty() ? "" : "(" + CollectionUtil.listToString(args) + ")") + (dep != null ? "{" + dep + "}" : "");
+    	return (prefix != null ? prefix.toString() + "." : "") + name.toString() + (typeArgs.isEmpty() ? "" : typeArgs) + (args.isEmpty() ? "" : "(" + CollectionUtil.listToString(args) + ")") + (dep != null ? dep.toString() : "");
     }
 
     protected TypeNode disambiguateBase(TypeChecker ar) throws SemanticException {
@@ -156,8 +157,15 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         // First look for a typedef.
 	try {
             X10ParsedClassType typeDefContainer = null;
-
-            if (prefix instanceof PackageNode || prefix == null) {
+            
+            if (prefix == null) {
+        	String dummyName = "package";
+        	Named n = ar.context().find(dummyName);
+        	if (n instanceof X10ParsedClassType) {
+        	    typeDefContainer = (X10ParsedClassType) n;
+        	}
+            }
+            else if (prefix instanceof PackageNode) {
         	PackageNode pn = (PackageNode) prefix;
         	String dummyName = "package";
         	String fullName = (pn != null ? Types.get(pn.package_()).fullName() + "." : "") + dummyName;
@@ -189,7 +197,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
                     argTypes.add(e.type());
                 }
 
-                MacroType mt = ts.findTypeDef(typeDefContainer, name.id(), typeArgs, argTypes, tc.context().currentClassDef());
+                MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), typeArgs, argTypes), tc.context().currentClassDef());
                 LazyRef<Type> sym = (LazyRef<Type>) type;
                 sym.update(mt);
                 
@@ -209,7 +217,8 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
 	    Node n = disamb.disambiguate(this, ar, pos, prefix, name);
 
             if (n instanceof TypeNode) {
-        	return (TypeNode) n;
+        	TypeNode tn = (TypeNode) n;
+        	return tn;
             }
 
             ex = new SemanticException("Could not find type \"" +
@@ -238,6 +247,11 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
 
         n = (AmbDepTypeNode_c) n.prefix(prefix);
         n = (AmbDepTypeNode_c) n.name(name);
+
+        List<TypeNode> typeArgs = visitList(n.typeArgs, childtc);
+        List<Expr> args = visitList(n.args, childtc);
+        n = (AmbDepTypeNode_c) n.typeArgs(typeArgs);
+        n = (AmbDepTypeNode_c) n.args(args);
         
         TypeNode tn;
         
@@ -257,15 +271,31 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
             sym.update(ts.unknownType(position()));
             return n;
         }
+        
+        if (! typeArgs.isEmpty()) {
+            if (t instanceof X10ParsedClassType) {
+        	X10ParsedClassType ct = (X10ParsedClassType) t;
+        	int numParams = ct.x10Def().typeParameters().size();
+        	if (numParams > 0) {
+        	    if (numParams == typeArgs.size()) {
+        		List<Type> typeArgsTypes = new ArrayList<Type>();
+        		for (TypeNode tni : typeArgs) {
+        		    typeArgsTypes.add(tni.type());
+        		}
+        		t = ct.typeArguments(typeArgsTypes);
+        	        n = (AmbDepTypeNode_c) n.typeArgs(Collections.EMPTY_LIST);
+        	        typeArgs = Collections.EMPTY_LIST;
+        	    }
+        	    else {
+        		throw new SemanticException("Number of type arguments (" + typeArgs.size() + ") for " + t + " is not the same as number of type parameters (" + numParams + ").", position());
+        	    }
+        	}
+            }
+        }
 
         // Update the symbol with the base type so that if we try to get the type while checking the constraint, we don't get a cyclic
         // dependency error, but instead get a less precise type.
         sym.update(t);
-        
-        List<TypeNode> typeArgs = visitList(n.typeArgs, childtc);
-        List<Expr> args = visitList(n.args, childtc);
-        n = (AmbDepTypeNode_c) n.typeArgs(typeArgs);
-        n = (AmbDepTypeNode_c) n.args(args);
         
         DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
         
@@ -287,17 +317,17 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	t = mt.definedType();
             }
             else {
-        	throw new SemanticException("Could not instantiate type definition; incorrect number of arguments.", position());
+        	throw new SemanticException("Could not instantiate type definition " + mt.fullName() + "; incorrect number of arguments.", position());
             }
         }
-
         // Desugar the type args list [T1,...,Tn] into {X1==T1,...,Xn==Tn}
         if (! typeArgs.isEmpty()) {
         	List<TypeProperty> typeProps = X10TypeMixin.typeProperties(t);
         	if (typeProps.size() != typeArgs.size()) {
         		throw new SemanticException("Number of type property initializers (" + typeArgs.size() + ") for " + t + " is not the same as number of type properties (" + typeProps.size() + ").", position());
         	}
-        	if (c == null) c = new XConstraint_c();
+        	if (c == null)
+        	    c = new XConstraint_c();
         	for (int i = 0; i < typeProps.size(); i++) {
         		TypeProperty pi = typeProps.get(i);
         		TypeNode tni = typeArgs.get(i);
@@ -347,40 +377,6 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	t = X10TypeMixin.xclause(ct, (XConstraint) null);
         }
         
-//        if (ts.typeEquals(t, ts.Box())) {
-//        	if (c != null) {
-//        		List<TypeProperty> typeProps = X10TypeMixin.typeProperties(t);
-//        		if (typeProps.size() == 1) {
-//        			TypeProperty pi = typeProps.get(0);
-//        			try {
-//        				XPromise p = c.lookup(pi.asVar());
-//        				if (p != null && p.term() instanceof XLit && ((XLit) p.term()).val() instanceof Type) {
-//        					Type arg = (Type) ((XLit) p.term()).val();
-//        					if (ts.descendsFrom(X10TypeMixin.xclause(arg, null), ts.Ref())) {
-//        						// type Box[T]{T <: Ref} = T;
-//        						// We could just return T, but error reporting will change Box[T] to T, which might
-//        						// be confusing.
-//        						MacroType mt = new MacroType_c(ts, position(), Types.ref(ts.BoxRefTypeDef()));
-//        						mt = (MacroType) mt.typeParams(Collections.singletonList(arg));
-//        						mt = mt.definedType(arg);
-//        						mt = (MacroType) mt.whereClause(new XConstraint_c());
-//        						XConstraint c2 = Types.get(dep.xconstraint());
-//							t = X10TypeMixin.xclause(mt, c2);
-//        					}
-//        					else {
-//        						// Really box!
-//        						t = ts.boxOf(Types.ref(arg));
-//        					}
-//        					sym.update(t);
-//        					return nf.CanonicalTypeNode(position(), t);
-//        				}
-//        			}
-//        			catch (XFailure e) {
-//        			}
-//        		}
-//        	}
-//        }
-
         if (c != null)
         	t = X10TypeMixin.xclause(t, c);
 

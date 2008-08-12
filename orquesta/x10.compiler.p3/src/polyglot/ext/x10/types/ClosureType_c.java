@@ -10,6 +10,8 @@ import java.util.List;
 
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
+import polyglot.types.LazyRef;
+import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
@@ -22,106 +24,81 @@ import x10.constraint.XConstraint;
 import polyglot.types.Types;
 
 public class ClosureType_c extends X10ParsedClassType_c implements ClosureType {
-    private static final long serialVersionUID= 2768150875334536668L;
+    private static final long serialVersionUID = 2768150875334536668L;
 
-    protected Ref<? extends Type> returnType;
-    protected List<Ref<? extends Type>> typeParams;
-    protected List<Ref<? extends Type>> argumentTypes;
-    protected Ref<? extends XConstraint> whereClause;
-    protected List<Ref<? extends Type>> throwTypes;
+    protected ClosureInstance ci;
 
-//    public ClosureType_c() {
-//	super();
-//    }
-//
-//    public ClosureType_c(TypeSystem ts, Position pos) {
-//	super(ts, pos);
-//    }
+    // public ClosureType_c() {
+    // super();
+    // }
+    //
+    // public ClosureType_c(TypeSystem ts, Position pos) {
+    // super(ts, pos);
+    // }
 
-    public ClosureType_c(X10TypeSystem ts, Position pos, Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes) {
-	this(ts, pos, returnType, new ArrayList<Ref<? extends Type>>(), argTypes, null, new ArrayList<Ref<? extends Type>>());
+    public ClosureType_c(final X10TypeSystem ts, Position pos, final ClosureInstance ci) {
+	super(ts, pos, null);
+	final LazyRef<ClassDef> cd = Types.lazyRef(null);
+	cd.setResolver(new Runnable() {
+	    public void run() {
+		cd.update(ts.closureInterfaceDef(ci.def()));
+	    }
+	});
+	this.def = cd;
+	this.ci = ci;
     }
     
-    public ClosureType_c(X10TypeSystem ts, Position pos, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, Ref<? extends XConstraint> whereClause, List<Ref<? extends Type>> throwTypes) {
-	super(ts, pos, Types.ref(ts.closureInterfaceDef(typeParams.size(), argTypes.size())));
-	this.returnType = returnType;
-	this.typeParams = typeParams;
-        this.argumentTypes = argTypes;
-        this.whereClause = whereClause;
-        this.throwTypes = throwTypes;
-    }
-    
-    public Ref<? extends Type> returnType() {
-	return returnType;
+    public ClosureInstance closureInstance() {
+	return ci;
     }
 
-    public void returnType(Ref<? extends Type> returnType) {
-	this.returnType= returnType;
+    public ClosureType closureInstance(ClosureInstance ci) {
+	ClosureType_c n = (ClosureType_c) copy();
+	n.ci = ci;
+	return n;
     }
     
-    public Ref<? extends XConstraint> whereClause() {
-	    return whereClause;
-    }
-    
-    public void setWhereClause(Ref<? extends XConstraint> whereClause) {
-	    this.whereClause = whereClause;
-    }
-    
-    public List<Ref<? extends Type>> typeParameters() {
-	    return Collections.unmodifiableList(typeParams);
-    }
-    
-    public void setTypeParameters(List<Ref<? extends Type>> typeParams) {
-	    this.typeParams= typeParams;
-    }
-    
-
-    public List<Ref<? extends Type>> argumentTypes() {
-	return Collections.unmodifiableList(argumentTypes);
+    public ClosureDef closureDef() {
+	return ci.def();
     }
 
-    public void argumentTypes(List<Ref<? extends Type>> argTypes) {
-	this.argumentTypes= argTypes;
+    public Type returnType() {
+	return ci.returnType();
     }
 
-    public List<Ref<? extends Type>> throwTypes() {
-	return Collections.unmodifiableList(throwTypes);
+    public XConstraint whereClause() {
+	return ci.whereClause();
     }
 
-    public void throwTypes(List<Ref<? extends Type>> argTypes) {
-	this.throwTypes= argTypes;
+    public List<Type> typeParameters() {
+	return ci.typeParameters();
+    }
+
+    public List<LocalInstance> formalNames() {
+	return ci.formalNames();
+    }
+    
+    public List<Type> argumentTypes() {
+	return ci.formalTypes();
+    }
+
+    public List<Type> throwTypes() {
+	return ci.throwTypes();
     }
 
     @Override
     public String translate(Resolver c) {
-	// Just combine the result of calling translate() on each of the component types?
-        throw new InternalCompilerError("Fix Me: cannot translate() a closure type yet.");
+	// Just combine the result of calling translate() on each of the
+	// component types?
+	throw new InternalCompilerError("Fix Me: cannot translate() a closure type yet.");
     }
 
     public boolean safe() {
-        return true;
+	return true;
     }
-    
+
     @Override
     public String toString() {
-	StringBuffer buff= new StringBuffer();
-	buff.append('(');
-	for(Iterator<Ref<? extends Type>> iter= argumentTypes.iterator(); iter.hasNext(); ) {
-	    Ref<? extends Type> type= iter.next();
-	    buff.append(type.toString());
-	    if (iter.hasNext()) buff.append(',');
-	}
-	buff.append(')');
-	if (throwTypes.size() > 0) {
-	    buff.append(" throws ");
-	    for(Iterator<Ref<? extends Type>> iter= throwTypes.iterator(); iter.hasNext(); ) {
-	        Ref<? extends Type> type= iter.next();
-		buff.append(type.toString());
-		if (iter.hasNext()) buff.append(',');
-	    }
-	}
-	buff.append(" => ");
-	buff.append(returnType.toString());
-	return buff.toString();
+	return ci.signature() + " => " + ci.returnType();
     }
 }
