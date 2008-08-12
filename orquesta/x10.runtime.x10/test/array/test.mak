@@ -12,7 +12,7 @@ FILES = $(wildcard Test[0-9][0-9]*.x10)
 TESTS = $(FILES:.x10=) CG
 
 default:
-	$(X10C) -cp ../classes -d ../classes *.x10
+	$(X10C) -J-Xmx1024m -cp ../classes -d ../classes *.x10
 	$(X10) -cp ../classes Tester $(TESTS)
 #	rm *.out
 
