@@ -145,11 +145,11 @@ final class RectRegion extends PolyRegion {
         return this;
     }
 
-    int [] min() {
+    public int [] min() {
         return halfspaces.rectMin();
     }
 
-    int [] max() {
+    public int [] max() {
         return halfspaces.rectMax();
     }
 

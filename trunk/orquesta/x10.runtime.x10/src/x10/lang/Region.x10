@@ -80,6 +80,9 @@ public abstract value class Region(
     public abstract Region projection(int axis);
     public abstract Region boundingBox();
 
+    public abstract int [] min();
+    public abstract int [] max();
+
 
     //
     // set ops

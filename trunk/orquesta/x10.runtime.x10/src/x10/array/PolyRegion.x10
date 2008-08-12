@@ -346,12 +346,12 @@ public class PolyRegion extends BaseRegion {
         this.halfspaces = hl.reduce();
     }
 
-    int [] min() {
-        return ((BaseRegion)boundingBox()).min();
+    public int [] min() {
+        return boundingBox().min();
     }
 
-    int [] max() {
-        return ((BaseRegion)boundingBox()).max();
+    public int [] max() {
+        return boundingBox().max();
     }
 
 
