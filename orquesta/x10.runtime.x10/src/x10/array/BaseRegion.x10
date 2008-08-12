@@ -86,7 +86,7 @@ public abstract class BaseRegion extends Region {
         PolyRegionList rs = new PolyRegionList(rank);
         rs.add(this);
         rs.add(that.difference(this));
-        return new UnionRegion(rs);
+        return UnionRegion.make(rs);
     }
 
     public Region difference(Region that) {
@@ -178,11 +178,11 @@ public abstract class BaseRegion extends Region {
         super(rank, rect, zeroBased);
     }
 
-    int [] min() {
+    public int [] min() {
         throw U.unsupported(this, "min()");
     }
 
-    int [] max() {
+    public int [] max() {
         throw U.unsupported(this, "max()");
     }
 }
