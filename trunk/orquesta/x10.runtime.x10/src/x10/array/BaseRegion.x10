@@ -90,15 +90,15 @@ public abstract class BaseRegion extends Region {
     }
 
     public Region difference(Region that) {
-        return this.intersection(that.inverse());
+        return this.intersection(that.complement());
     }
 
     public boolean disjoint(Region that) {
         return this.intersection(that).isEmpty();
     }
 
-    public Region inverse() {
-        throw U.unsupported(this, "inverse");
+    public Region complement() {
+        throw U.unsupported(this, "complement");
     }
 
     public Region intersection(Region that) {

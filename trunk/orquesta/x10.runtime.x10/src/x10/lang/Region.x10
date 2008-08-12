@@ -72,7 +72,7 @@ public abstract value class Region(
     // region operations
     //
 
-    public abstract Region inverse();
+    public abstract Region complement();
     public abstract Region union(Region that);
     public abstract Region intersection(Region that);
     public abstract Region difference(Region that);
@@ -89,7 +89,7 @@ public abstract value class Region(
     //
 
     public Region $not() {
-        return inverse();
+        return complement();
     }
 
     public Region $and(Region that) {
