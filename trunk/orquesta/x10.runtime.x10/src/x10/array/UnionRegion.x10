@@ -16,16 +16,28 @@ class UnionRegion extends BaseRegion {
 
     PolyRegion [] regions;
 
-    UnionRegion(PolyRegionList rs) {
+    protected UnionRegion(PolyRegionList rs) {
         super(rs.rank, false, false);
         this.regions = rs.toArray();
     }
+
+    static Region make(PolyRegionList rs) {
+        if (rs.size()==1)
+            return rs.get(0);
+        else
+            return new UnionRegion(rs);
+    }
+
+
+    //
+    // algebra
+    //
 
     public Region intersection(Region that) {
         PolyRegionList rs = new PolyRegionList(rank);
         for (int i=0; i<regions.length; i++)
             rs.add(regions[i].intersection(that));
-        return new UnionRegion(rs);
+        return make(rs);
     }
 
     public Region inverse() {
@@ -135,12 +147,12 @@ class UnionRegion extends BaseRegion {
         return (Region) boundingBox;
     }
 
-    int [] min() {
-        return ((BaseRegion)boundingBox()).min();
+    public int [] min() {
+        return boundingBox().min();
     }
 
-    int [] max() {
-        return ((BaseRegion)boundingBox()).max();
+    public int [] max() {
+        return boundingBox().max();
     }
 
 
