@@ -30,21 +30,34 @@ public class BaseDist extends Dist implements Map_place_Region {
     }
 
 
+    public static Dist makeBlockCyclic(Region r, int axis, int blockSize) {
+
+        Region b = r.boundingBox();
+        int min = b.min()[axis];
+        int max = b.max()[axis];
+
+        Region [] regions = new Region[place.MAX_PLACES];
+        place [] places = new place[place.MAX_PLACES];
+        for (int i=0; i<place.MAX_PLACES; i++) {
+            regions[i] = Region.makeEmpty(r.rank);
+            places[i] = place.factory.place(i);
+        }
+
+        for (int i=min, p=0; i<=max; i+=blockSize, p++) {
+            Region r1 = Region.makeFull(axis);
+            Region r2 = Region.makeRectangular(i, i+blockSize-1);
+            Region r3 = Region.makeFull(r.rank-axis-1);
+            Region rr = r1.product(r2).product(r3).intersection(r);
+            regions[p%place.MAX_PLACES] = regions[p%place.MAX_PLACES].union(rr);
+        }
+
+        return new BaseDist(r, places, regions);
+    }
+
     public static Dist makeConstant(Region r) {
         return makeConstant(r, here);
     }
 
-    public static Dist makeCyclic(Region r, int axis) {
-        throw U.unsupported("Dist.makeCyclic");
-    }
-
-    public static Dist makeBlock(Region r, int axis) {
-        throw U.unsupported("Dist.makeBlock");
-    }
-
-    public static Dist makeBlockCyclic(Region r, int axis, int blockSize) {
-        throw U.unsupported("Dist.makeBlockCyclic");
-    }
 
 
     //
@@ -90,7 +103,10 @@ public class BaseDist extends Dist implements Map_place_Region {
     }
 
     public Region get(place p) {
-        return regionMap[p.id]; // XXX check?
+        Region r = regionMap[p.id]==null?
+            Region.makeEmpty(rank) :
+            (Region) regionMap[p.id];
+        return r;
     }
 
 
@@ -144,6 +160,12 @@ public class BaseDist extends Dist implements Map_place_Region {
         return new BaseDist(r, ps, rs);
     }
 
+    public Dist restriction(place p) {
+        place [] ps = new place[] {p};
+        Region [] rs = new Region[] {get(p)};
+        return new BaseDist(region.intersection(rs[0]), ps, rs);
+    }
+
 
     //
     //
@@ -152,7 +174,8 @@ public class BaseDist extends Dist implements Map_place_Region {
     protected place [] places;
     protected Region [] regions;
 
-    private Region [] regionMap = new Region[place.MAX_PLACES];
+    // XXX missing regions should be null or EmptyRegion??
+    private nullable<Region> [] regionMap = new Region[place.MAX_PLACES];
 
     protected void initRegionMap() {
         for (int i=0; i<places.length; i++)
@@ -192,6 +215,20 @@ public class BaseDist extends Dist implements Map_place_Region {
         this.places = places;
         this.regions = regions;
         initRegionMap();
+    }
+
+    public String toString() {
+        String s = "Dist(";
+        boolean first = true;
+        for (int i=0; i<regionMap.length; i++) {
+            if (regionMap[i]!=null && !regionMap[i].isEmpty()) {
+                if (!first) s += ",";
+                s += i + "->" + regionMap[i];
+                first = false;
+            }
+        }
+        s += ")";
+        return s;
     }
 
 }    
