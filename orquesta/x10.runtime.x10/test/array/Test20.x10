@@ -14,8 +14,8 @@ class Test20 extends TestArray {
         Region r1 = Region.makeRectangular(new int [] {2,2}, new int [] {3,4});
         prRegion("r1", r1);
 
-        Region r2 = r1.inverse();
-        prUnbounded("r2=r1.inverse()", r2);
+        Region r2 = r1.complement();
+        prUnbounded("r2=r1.complement()", r2);
 
         Region r3 = Region.makeRectangular(new int [] {0,0}, new int [] {5,5});
         Region r4 = r3.intersection(r2);
