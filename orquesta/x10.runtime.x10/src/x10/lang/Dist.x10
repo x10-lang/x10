@@ -37,11 +37,13 @@ public abstract value class Dist(
     }
 
     public static Dist makeCyclic(Region r, int axis) {
-        return BaseDist.makeCyclic(r, axis);
+        return BaseDist.makeBlockCyclic(r, axis, 1);
     }
 
     public static Dist makeBlock(Region r, int axis) {
-        return BaseDist.makeBlock(r, axis);
+        int n = r.max()[axis] - r.min()[axis] + 1;
+        int bs = (n + place.MAX_PLACES - 1) / place.MAX_PLACES;
+        return BaseDist.makeBlockCyclic(r, axis, bs);
     }
 
     public static Dist makeBlockCyclic(Region r, int axis, int blockSize) {
@@ -100,6 +102,16 @@ public abstract value class Dist(
     public abstract Dist overlay(Dist d);
     public abstract boolean isSubDistribution(Dist d);
     public abstract Dist restriction(Region r);
+    public abstract Dist restriction(place p);
+
+    public Dist $bar(Region r) {
+        return restriction(r);
+    }
+
+    public Dist $bar(place p) {
+        return restriction(p);
+    }
+
 
 
     //
