@@ -2,25 +2,22 @@ package x10.lang;
 
 import x10.compiler.ArithmeticOps;
 
-public abstract value class Array[T] (
+public abstract value class Array[T] (dist: Dist)
+    implements Indexable[Point,T], Settable[Point,T], ArithmeticOps[Array[T]] {
 
-    region: Region,
-    rank: int,
-    rect: boolean,
-    zeroBased: boolean,
-    rail: boolean,
+    property region: Region = dist.region;
+    property rank: int = dist.rank;
+    property rect: boolean = dist.rect;
+    property zeroBased: boolean = dist.zeroBased;
+    property rail: boolean = dist.rail;
+    property unique: boolean = dist.unique;
+    property constant: boolean = dist.constant;
+    property onePlace: Place = dist.onePlace;
 
-    dist: Dist,
-    unique: boolean,
-    constant: boolean,
-    onePlace: Place
-
-) implements Indexable[Point,T], Settable[Point,T], ArithmeticOps[Array[T]] {
-
-    incomplete public static def make(dist: Dist, init: Indexable[nat,T]): Array[T];
-    incomplete public static def make(region: Region, init: Indexable[nat,T]): Array[T];
-    incomplete public static def make(region: Region, init: Indexable[nat,T], value: boolean): Array[T];
-    incomplete public static def make(r: Rail[T]): Array[T];
+    incomplete public static def make[T](dist: Dist, init: Indexable[nat,T]): Array[T];
+    incomplete public static def make[T](region: Region, init: Indexable[nat,T]): Array[T];
+    incomplete public static def make[T](region: Region, init: Indexable[nat,T], value: boolean): Array[T];
+    incomplete public static def make[T](r: Rail[T]): Array[T];
 
     public abstract def restriction(r: Region): Array[T];
 
@@ -45,23 +42,10 @@ public abstract value class Array[T] (
     incomplete public def $bar(r: Region): Array[T];
     incomplete public def $bar(p: Place): Array[T];
 
-    incomplete public static def $convert(r: Rail[T]): Array[T];    
-
+    incomplete public static def $convert[T](r: Rail[T]): Array[T];    
 
     protected def this[T](dist: Dist) = {
-
-        property(
-            dist,
-            dist.unique,
-            dist.constant,
-            dist.onePlace,
-
-            dist.region,
-            region.rank,
-            region.rect,
-            region.zeroBased,
-            region.rail
-        );
+        property(dist);
     }
 
 }

@@ -17,6 +17,7 @@ interface Ops[B,C] {
     def $minus(that: B): C;      // a-b
     def $times(that: B): C;      // a*b
     def $over(that: B): C;       // a/b
+    def $percent(that: B): C;    // a%b
 
     def $eq(that: B): boolean;   // value comparison op TBD
     def $ne(that: B): boolean;   // value comparison op TBD
@@ -37,7 +38,8 @@ interface Ops[B,C] {
     def $right(that: B): C;      // a>>c
 
     def $in(): C;                // a in b
-    def $instanceof(that: B): C; // a instanceof b
-    def $cast(that: B): C;       // (b)a
+    
+    static def $instanceof(that: B): C; // a instanceof b
+    static def $cast(that: B): C;       // (b)a
 }
 

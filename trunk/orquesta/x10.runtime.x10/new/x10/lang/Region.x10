@@ -6,9 +6,10 @@ import x10.compiler.SetOps;
 public abstract value Region(
     rank: int,
     rect: boolean,
-    zeroBased: boolean,
-    rail: boolean
+    zeroBased: boolean
 ) implements SetOps[Region] {
+
+    property rail = rank==1 && rect && zeroBased;
 
     public abstract def size(): int;
     public abstract def isConvex(): boolean;
@@ -52,7 +53,7 @@ public abstract value Region(
     public abstract def printInfo(label: String): void;
 
     protected def this(rank: int, rect: boolean, zeroBased: boolean) = {
-        property(rank, rect, zeroBased, rank==1 && rect && zeroBased);
+        property(rank, rect, zeroBased);
     }
 }
 
