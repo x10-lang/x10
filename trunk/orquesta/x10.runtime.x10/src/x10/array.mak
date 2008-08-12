@@ -31,6 +31,7 @@ gen/ArithmeticOps_Array_double.x10\
 gen/ArithmeticOps_Array_Object.x10\
 gen/ArithmeticOps_Array_T.x10\
 gen/ArithmeticOps_Point.x10\
+gen/SetOps_Region.x10\
 gen/ComparisonOps_Array_double.x10\
 gen/ComparisonOps_Array_Object.x10\
 gen/ComparisonOps_Array_T.x10\
@@ -90,6 +91,11 @@ gen/%_Object.x10: %_T.x10
 gen/%_Point.x10: %_T.x10
 	@rm -f $@
 	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Point\2/g" <$< >$@
+	@chmod -w $@
+
+gen/%_Region.x10: %_T.x10
+	@rm -f $@
+	sed "s/\([^a-zA-Z]\)T\([^a-zA-Z]\)/\1Region\2/g" <$< >$@
 	@chmod -w $@
 
 gen/%_Halfspace.x10: %_T.x10
