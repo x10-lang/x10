@@ -1,59 +1,16 @@
 package x10.array;
 
-import java.util.NoSuchElementException;
-
-import x10.lang.Point;
-import x10.lang.Region;
-import x10.util.Iterator_Scanner;
-
 //
-// XXX re-implement as PolyRegion w/ non-overlapping halfspaces to
-// pick up all ops
+// Implemented as a UnionRegion with no regions.
 //
 
-class EmptyRegion extends BaseRegion implements Iterator_Scanner {
-
+class EmptyRegion extends UnionRegion {
 
     EmptyRegion(int rank) {
-        super(rank, true, true);
+        super(new PolyRegionList(rank));
     }
 
-
-    //
-    // public region API - basic information
-    //
-
-    public boolean disjoint(Region that) {
-        return true;
+    public String toString() {
+        return "empty(" + rank + ")";
     }
-
-    public boolean isConvex() {
-        return true;
-    }
-
-    public int size() {
-        return 0;
-    }
-
-
-    //
-    // Scanner Iterator
-    //
-
-    public boolean hasNext() {
-        return false;
-    }
-
-    public Scanner next() {
-        throw new NoSuchElementException();
-    }
-
-    public void remove() {
-        throw U.unsupported();
-    }
-
-    public Iterator_Scanner scanners() {
-        return this;
-    }
-
 }
