@@ -27,11 +27,11 @@ public class Point(int rank) implements /*Indexable_int,*/ ArithmeticOps_Point, 
     }
 
     public static Point makeConstant(int rank, int c) {
-        throw U.unsupported();
+        throw U.unsupported("Point.makeConstant");
     }
 
     public static Point makeZero(int rank) {
-        throw U.unsupported();
+        throw U.unsupported("Point.makeZero");
     }
 
 
