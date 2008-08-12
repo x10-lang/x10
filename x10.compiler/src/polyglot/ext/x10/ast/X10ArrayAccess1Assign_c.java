@@ -227,7 +227,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
       
       /** Write the expression to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		assert false;
+//		assert false;
         Expr array = ((X10ArrayAccess1) left).array();
         Expr index = ((X10ArrayAccess1) left).index();
           X10Type pt = ( X10Type) type;
