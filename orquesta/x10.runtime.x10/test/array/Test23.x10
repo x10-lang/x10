@@ -44,11 +44,5 @@ class Test23 extends TestArray {
         pr("r6.disjoint(r3) checks " + r6.disjoint(r3));
     }
 
-
-    Region r(int a, int b, int c, int d) {
-        int [] min = new int [] {a,c};
-        int [] max = new int [] {b,d};
-        return Region.makeRectangular(min, max);
-    }
 }
 

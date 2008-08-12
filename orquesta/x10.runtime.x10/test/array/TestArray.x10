@@ -170,6 +170,20 @@ public abstract class TestArray extends Test {
         return a;
     }
 
+    void prDistributed(final String test, final Array_double a) {
+        place [] ps = a.dist.places();
+        for (int i=0; i<ps.length; i++) {
+            final place p = ps[i];
+            finish {
+                async (p) {
+                    prArray(test + " at " + p + " (by place)", a.$bar(p));
+                    Region r = a.dist.get(p);
+                    prArray(test + " at " + p + " (by region)", a.$bar(r));
+                }
+            }
+        }
+    }
+
 
     void prUnbounded(String test, final Region r) {
         try {
@@ -257,10 +271,14 @@ public abstract class TestArray extends Test {
         }
         grid.pr(r.rank);
 
-        // iterator api
         pr("  iterator");
-        grid = new Grid();
-        Region.Iterator ri = r.iterator();
+        prArray1(a, bump);
+    }
+
+    void prArray1(Array_double a, boolean bump) {
+        // iterator api
+        Grid grid = new Grid();
+        Region.Iterator ri = a.region.iterator();
         while (ri.hasNext()) {
             int [] x = ri.next();
             Point p = Point.make(x);
@@ -276,7 +294,7 @@ public abstract class TestArray extends Test {
                 grid.set(x[0], x[1], x[2], v);
             }
         }
-        grid.pr(r.rank);
+        grid.pr(a.rank);
     }
 
 
@@ -287,9 +305,40 @@ public abstract class TestArray extends Test {
         pr(test + " " + p + " sum=" + sum);
     }
 
+
+    class InitM implements Indexable_double {
+        public double get(Point pt) {
+            return -1;
+        }
+    }
+
+    void prDist(String test, Dist d) {
+        pr("--- " + test + ": " + d);
+        Array_double a = Array_double.make(d.region, new InitM());
+        place [] ps = d.places();
+        for (int i=0; i<ps.length; i++) {
+            Region r = d.get(ps[i]);
+            Region.Iterator it = r.iterator();
+            while (it.hasNext()) {
+                Point p = Point.make(it.next());
+                a.set(p, a.get(p)+ps[i].id+1);
+            }
+        }
+        prArray1(a, false);
+    }
+        
+
     void pr(String s) {
         out.println(s);
     }
+
+    // substitute for [a:b,c:d]
+    Region r(int a, int b, int c, int d) {
+        int [] min = new int [] {a,c};
+        int [] max = new int [] {b,d};
+        return Region.makeRectangular(min, max);
+    }
+
 
 }
 
