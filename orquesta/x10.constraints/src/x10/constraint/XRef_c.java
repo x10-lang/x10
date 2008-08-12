@@ -8,4 +8,7 @@ public abstract class XRef_c<T> {
 	return result;
     }
     public abstract T compute();
+    public String toString() {
+	return String.valueOf(result);
+    }
 }

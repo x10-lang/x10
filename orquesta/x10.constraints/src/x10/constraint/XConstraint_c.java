@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * A representation of constraints of the form X1=t1 && ... Xk == tk.
@@ -623,17 +624,58 @@ public class XConstraint_c implements XConstraint, Cloneable {
 		}
 	}
 	public void applySubstitution(XTerm y, XRoot x) throws XFailure {
-		if (roots == null)
+		if (roots == null) {
 			// nothing to substitute
 			return;
+		}
+		
+		// Get the node for p.
 		XPromise p = (XPromise) roots.get(x);
-		if (p == null)
-			// nothing to substitute
-			return;
-		// Remove this now so that you avoid alpha capture issues. y may be the same as x. 
+		
+		if (p == null) {
+		    // nothing to substitute
+		    return;	
+		}
+		
+		// Remove x to avoid variable capture issues (y may be contain or be equal to x).
 		roots.remove(x);
-		XPromise q = intern(y); 
-		replace(q, p, x);
+		
+		// Get the node for y.  Since q may contain references to p or nodes reachable from p, interning y
+		// may add back x to the root set.  For example, we might be replacing self with self.location.
+		XPromise q = intern(y);
+		
+		// Replace references to p with references to q.
+		replace(q, p);
+		
+		{
+		    HashMap<XName, XPromise> pfields = p.fields();
+		    HashMap<XName, XPromise> qfields = q.fields();
+		    
+		    if (pfields != null && qfields != null)
+			for (XName field : pfields.keySet()) {
+			    XPromise pf = pfields.get(field);
+			    XPromise qf = qfields.get(field);
+			    if (qf != null)
+				replace(qf, pf);
+			}
+		}
+		
+		// Substitute y for x in the promise terms.
+		{
+		    Collection<XPromise> rootPs = roots.values();
+		    for (Map.Entry<XTerm, XPromise> e : roots.entrySet()) {
+			if (!e.getKey().equals(p.term())) {
+			    XPromise px = e.getValue();
+			    XTerm t = px.term();
+			    t = t.subst(q.term(), x);
+			    XPromise tp = intern(t);
+			    if (tp != px)
+				px.setTerm(tp.term());
+			}
+		    }
+		}
+
+		// Now, add back x as a root, if we can.
 		if (q.term().equals(x)) {
 			// Cannot replace x with x.  Instead,
 			// introduce an EQV and substitute that for x.
@@ -654,57 +696,93 @@ public class XConstraint_c implements XConstraint, Cloneable {
 
 			return;
 		}
+		
 		if (p instanceof XLit) {
-			//			try {
 			q.bind(p);
-			//			} catch (Failure f) {
-			//				throw new InternalCompilerError("Error in replacing " + x 
-			//						+ " with " + y + " in " + this + ": binding failure with "  + p);
-			//			}
 			return;
 		}
+		
 		XPromise xf = p.value();
+		
 		if (xf != null) {
-			//addBinding(y, xf.term());
 			q.bind(xf);
-		} else {
-			HashMap<XName,XPromise> fields = p.fields(); 
-			if (fields != null) {
-				for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
-					XName s = entry.getKey();
-					XPromise orphan = entry.getValue();
-					q.addIn(s, orphan);
-					XField oldTerm = (XField) orphan.term();
-					XName oldField = oldTerm.field();
-					if (q.term() instanceof XVar) {
-						orphan.setTerm(XTerms.makeField((XVar) q.term(), oldField));
-					}
-					else {
-						orphan.setTerm(XTerms.makeAtom(oldField, q.term()));
-					}
-				}
-			}
 		}
+		else {
+		    // p is no longer a root, but fields reachable from p may still mention x rather than y (or more precisely, q.term()).
+		    // Replace the term in p with q's term; this will fix up fields of x to be fields of y.
+		    HashMap<XName,XPromise> fields = p.fields(); 
+		    if (fields != null) {
+		    	for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
+		    		XPromise p1 = entry.getValue();
+		    		if (p1.term() instanceof XField) {
+		    			XName field = ((XField) p1.term()).field();
+		    			XTerm t = XConstraint_c.makeField(q.term(), field);
+		    			XPromise q1 = intern(t);
+		    			if (q1 == p1) {
+		    			    p1.setTerm(t);
+		    			}
+		    			else {
+		    			    // The old field node was replaced and so unifies with a different node.
+		    			    p1.setTerm(q1.term());
+		    			}
+		    			if (p1.value() == p1) {
+		    			    ((XPromise_c) p1).value = null;
+		    			}
+		    		}
+		    	}
+		    }
+		    
+//		    if (fields != null) {
+//			for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
+//			    XName s = entry.getKey();
+//			    XPromise orphan = entry.getValue();
+//			    orphan.replaceDescendant(q, p);
+//			    XField oldTerm = (XField) orphan.term();
+//			    XName oldField = oldTerm.field();
+//			    XTerm t = makeField(q.term(), oldField);
+//			    XPromise tp = intern(t);
+//			    orphan.setTerm(tp.term());
+//			    q.addIn(s, orphan);
+//			}
+//		    }
+		}
+	}
+	
+	static XTerm makeField(XTerm target, XName field) {
+	    XTerm t;
+	    if (target instanceof XVar) {
+		t = XTerms.makeField((XVar) target, field);
+	    }
+	    else {
+		t = XTerms.makeAtom(field, target);
+	    }
+	    return t;
 	}
 	
 	/** Replace all pointers entering x in this constraint with pointers entering y.
 	 * 
 	 * @param y
 	 * @param x
+	 * @param c TODO
 	 */
-	public void replace(XPromise y, XPromise x, XRoot root) {
-		Collection<XPromise> rootPs = roots.values();
-		for (Map.Entry<XTerm, XPromise> e : roots.entrySet()) {
-			if (!e.getKey().equals(x.term())) {
-				XPromise p = e.getValue();
-				p.replaceDescendant(y, x, root);
-			}
-		}
-//		for (XPromise p : rootPs) {
-//			if (! p.equals(x)) {
-//				p.replaceDescendant(y, x);
-//			}
+	private void replace(XPromise y, XPromise x) throws XFailure {
+//		HashMap<XPromise, XPromise> renaming = new HashMap<XPromise,XPromise>();
+//		renaming.put(x, y);
+//
+//		for (Map.Entry<XTerm, XPromise> m : roots.entrySet()) {
+//			XTerm var = m.getKey();
+//			XPromise p2 = m.getValue();
+//			XPromise q2 = p2.cloneRecursively(renaming);
+//			m.setValue(q2);
 //		}
+	    
+	    Collection<XPromise> rootPs = roots.values();
+	    for (Map.Entry<XTerm, XPromise> e : roots.entrySet()) {
+		if (!e.getKey().equals(x.term())) {
+		    XPromise p = e.getValue();
+		    p.replaceDescendant(y, x, this);
+		}
+	    }
 	}
 
 	public boolean hasVar(XRoot v) {

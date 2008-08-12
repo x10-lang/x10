@@ -87,10 +87,7 @@ public class XPromise_c implements XPromise, Serializable {
 				XPromise p = entry.getValue();
 				if (p.term() != null) {
 					XName field = ((XField) p.term()).field();
-					if (term instanceof XVar)
-						p.setTerm(XTerms.makeField((XVar) term, field));
-					else
-						p.setTerm(XTerms.makeAtom(field, term));
+					p.setTerm(XConstraint_c.makeField(term, field));
 				}
 			}
 		}
@@ -240,7 +237,7 @@ public class XPromise_c implements XPromise, Serializable {
 	}
 
 	public boolean bind(/* @nonnull */XPromise target) throws XFailure {
-		if (!target.equals(value)) {
+		if (!target.equals(value) && !target.equals(var)) {
 			if (forwarded())
 				throw new XFailure("The promise " + this + " is already bound to " + value + "; cannot bind it to " + target + ".");
 			if (this == target) // nothing to do!
@@ -309,28 +306,35 @@ public class XPromise_c implements XPromise, Serializable {
 		return var + ((value != null) ? "->" + value : ((fields != null) ? fields.toString() : ""));
 	}
 
-	public void replaceDescendant(XPromise y, XPromise x, XRoot root) {
-		var = var.subst(y.term(), root);
-
+	public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
 		if (value != null) {
 			if (value.equals(x)) {
-				value = y;
+			        if (this.equals(y)) {
+			            // don't create a self-cycle; it's redundant!
+			            value = null;
+			        }
+			        else {
+			            value = y;
+			        }
 			}
 			else {
-				value.replaceDescendant(y, x, root);
+				value.replaceDescendant(y, x, c);
 			}
 		}
+		
 		if (fields != null) {
-			for (Map.Entry<XName, XPromise> p : fields.entrySet()) {
-				XName key = p.getKey();
-				XPromise value = p.getValue();
-				if (value.equals(x)) {
-					p.setValue(y);
-				}
-				else {
-					value.replaceDescendant(y, x, root);
-				}
+		    for (Map.Entry<XName, XPromise> p : fields.entrySet()) {
+			XName key = p.getKey();
+			XPromise val = p.getValue();
+			// doing this / self, and val == self.location -> this.location
+			// add this.location / self.location to the replacements to perform
+			if (val.equals(x)) {
+			    p.setValue(y);
 			}
+			else {
+			    val.replaceDescendant(y, x, c);
+			}
+		    }
 		}
 	}
 
