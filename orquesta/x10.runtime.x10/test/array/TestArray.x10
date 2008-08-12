@@ -120,11 +120,23 @@ public abstract class TestArray extends Test {
         }
 
         void pr(int rank) {
+            int min = os.length;
+            int max = 0;
+            for (int i=0; i<os.length; i++) {
+                if (os[i]!=null) {
+                    if (i<min) min = i;
+                    else if (i>max) max = i;
+                }
+            }
             for (int i=0; i<os.length; i++) {
                 nullable<Object> o = os[i];
                 if (o==null) {
                     if (rank==1)
                         out.print(".");
+                    else if (rank==2) {
+                        if (min<=i && i<=max)
+                            out.print("    " + i + "\n");
+                    }
                 } else if (o instanceof Grid) {
                     if (rank==2)
                         out.print("    " + i + "  ");
