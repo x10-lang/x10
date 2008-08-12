@@ -79,8 +79,16 @@ abstract public class BaseArray_T extends Array_T {
     //
 
     public Array_T restriction(Region r) {
-        throw U.unsupported(this, "restriction");
+        return restriction(dist.restriction(r));
     }
+
+    public Array_T restriction(place p) {
+        return restriction(dist.restriction(p));
+    }
+
+    // must be internal only - assumes Dist places match
+    protected abstract Array_T restriction(Dist d);
+
 
 
     //
@@ -146,8 +154,7 @@ abstract public class BaseArray_T extends Array_T {
     //
 
     protected RectLayout layout(Region r) {
-        BaseRegion br = (BaseRegion) r;
-        return (RectLayout) RectLayout.make(br.min(), br.max());
+        return (RectLayout) RectLayout.make(r.min(), r.max());
     }
 
     //
@@ -159,5 +166,9 @@ abstract public class BaseArray_T extends Array_T {
     protected BaseArray_T(final Dist dist, boolean value) {
         super(dist);
         this.value = value;
+    }
+
+    public String toString() {
+        return "Array(T," + dist + ")";
     }
 }
