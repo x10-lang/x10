@@ -6,7 +6,7 @@ rail false
 isConvex() true
 size() 6
 region: [2..3,2..4]
---- Test20: r2=r1.inverse()
+--- Test20: r2=r1.complement()
 rank 2
 rect false
 zeroBased false
