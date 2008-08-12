@@ -88,13 +88,13 @@ final class ArrayV_T extends BaseArray_T {
     // restriction view
     //
 
-    public Array_T restriction(Region r) {
-        return new ArrayV_T(this, r);
+    public Array_T restriction(Dist d) {
+        return new ArrayV_T(this, d);
     }
 
-    ArrayV_T(final ArrayV_T a, Region r) {
+    ArrayV_T(final ArrayV_T a, Dist d) {
 
-        super(a.dist.restriction(r), a.value);
+        super(d, a.value);
 
         this.layout = a.layout;
         this.raw = a.raw;

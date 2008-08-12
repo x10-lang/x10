@@ -103,13 +103,13 @@ final class ArrayN_T extends BaseArray_T {
     // restriction view
     //
 
-    public Array_T restriction(Region r) {
-        return new ArrayN_T(this, r);
+    public Array_T restriction(Dist d) {
+        return new ArrayN_T(this, d);
     }
 
-    ArrayN_T(final ArrayN_T a, Region r) {
+    ArrayN_T(final ArrayN_T a, Dist d) {
 
-        super(a.dist.restriction(r), a.value);
+        super(d, a.value);
 
         raws = new T[place.MAX_PLACES][];
         layouts = new RectLayout[place.MAX_PLACES];
