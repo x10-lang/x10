@@ -43,7 +43,7 @@ public class PolyRegion extends BaseRegion {
         }
 
         public void remove() {
-            throw U.unsupported();
+            throw U.unsupported(this, "remove");
         }
     };
 
@@ -155,7 +155,7 @@ public class PolyRegion extends BaseRegion {
             return t.intersection(this);
 
         } else {
-            throw U.unsupported();
+            throw U.unsupported(this, "intersection(" + t.getClass().getName() + ")");
         }
     }
                           
@@ -181,7 +181,7 @@ public class PolyRegion extends BaseRegion {
 
     public Region product(Region r) {
         if (!(r instanceof PolyRegion))
-            throw U.unsupported();
+            throw U.unsupported(this, "product(" + r.getClass().getName() + ")");
         PolyRegion that = (PolyRegion) r;
         HalfspaceList result = new HalfspaceList(this.rank + that.rank);
         copy(result, this.halfspaces, 0);         // padded w/ 0s on the right
@@ -209,8 +209,7 @@ public class PolyRegion extends BaseRegion {
 
     public Region inverse() {
         
-        PolyRegion [] rs = new PolyRegion[halfspaces.size()];
-        int r = 0;
+        PolyRegionList rl = new PolyRegionList(rank);
 
         Iterator_Halfspace i = halfspaces.iterator();
         while (i.hasNext()) {
@@ -224,29 +223,14 @@ public class PolyRegion extends BaseRegion {
                     break;
                 hl.add(hj);
             }
-            rs[r++] = PolyRegion.make(hl);
+            rl.add(PolyRegion.make(hl));
         }
 
-        return new UnionRegion(rank, rs);
+        return new UnionRegion(rl);
     }
 
-
-
-    //
-    // XXX is this correct?
-    // XXX more efficient way?
-    //
-
     public boolean isEmpty() {
-        Scanner s = scanner();
-        for (int axis=0; axis<rank; axis++) {
-            int min = s.min(axis);
-            if (min > s.max(axis))
-                return true;
-            if (axis<rank-1)
-                s.set(axis, min);
-        }
-        return false;
+        return halfspaces.isEmpty();
     }
 
 
@@ -348,8 +332,10 @@ public class PolyRegion extends BaseRegion {
     // XXX empty PolyRegion (with backwards bounds) is probably not handled correctly
     //
 
-    public static PolyRegion make(HalfspaceList hl) {
-        if (hl.isRect() && hl.isBounded())
+    public static Region make(HalfspaceList hl) {
+        if (hl.isEmpty()) {
+            return new EmptyRegion(hl.rank);
+        } else if (hl.isRect() && hl.isBounded())
             return new RectRegion(hl);
         else
             return new PolyRegion(hl);
