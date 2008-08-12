@@ -61,7 +61,16 @@ public abstract value class Array_T(
     //
 
     public abstract Array_T restriction(Region r);
+    public abstract Array_T restriction(place p);
+    
+    public Array_T $bar(Region r) {
+        return restriction(r);
+    }
 
+    public Array_T $bar(place p) {
+        return restriction(p);
+    }
+    
 
     //
     // value access
