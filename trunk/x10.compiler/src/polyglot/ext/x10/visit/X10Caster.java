@@ -790,7 +790,7 @@ public class X10Caster extends AscriptionVisitor {
 						nf.Cast(p, xnf.Nullable(p,nf.CanonicalTypeNode(p,exprToReturn.type())), nf.NullLit(p))));
 				Expr condition = xnf.ParExpr(p, nf.Binary(p,conditionLeft, Binary.COND_OR, constraintExpr)); 
 				// ((objToCast == null) || constraintExpr)
-				Expr alternative = xnf.ParExpr(p, nf.Cast(p, toType, this.throwClassCastExceptionExpr(p, exprToReturn, "Constraint not meet")));
+				Expr alternative = xnf.ParExpr(p, nf.Cast(p, toType, this.throwClassCastExceptionExpr(p, exprToReturn, "Constraint not satisfied.")));
 				retExpr = nf.Conditional(p, condition, castExprToReturn, alternative);
 				// ((objToCast == null) || constraint) ? object : throw new ClassCastException("Constraint not meet");
 			}
@@ -801,7 +801,7 @@ public class X10Caster extends AscriptionVisitor {
 		private Expr constraintCheckingExpr(Expr castExpr, Expr constraintExpr, TypeNode toType) {
 			// regular checking
 			Expr nestedConsequence = castExpr;
-			Expr nestedAlternative = nf.Cast(p, toType, this.throwClassCastExceptionExpr(p, castExpr, "Constraint is not meet"));
+			Expr nestedAlternative = nf.Cast(p, toType, this.throwClassCastExceptionExpr(p, castExpr, "Constraint not satisfied."));
 			return nf.Conditional(p, constraintExpr, nestedConsequence, nestedAlternative);			
 		}
 		
@@ -975,7 +975,7 @@ public class X10Caster extends AscriptionVisitor {
 		 * Visit a field.
 		 * Here we rewrite 'self' and properties referring to this
 		 * The expression to use as a replacement for 'self' has been provided
-		 * at ConstraintBuilder instanciation time.
+		 * at ConstraintBuilder instantiation time.
 		 * Also we rewrite calls to this, using the fully qualified class name.
 		 * this.p -> CurrentClass.this.p
 		 * @param field expression to visit
@@ -1007,11 +1007,16 @@ public class X10Caster extends AscriptionVisitor {
 		 * @throws SemanticException
 		 */
 		private Expr visit(X10Special special) throws SemanticException {
-			return this.self;
+			if (special.kind() == X10Special.SELF)
+				return this.self;
+			if (special.qualifier() != null)
+				return special;
+			TypeNode tn = nf.CanonicalTypeNode(special.position(), context.currentClass());
+			return special.qualifier(tn);
 		}
 		
 		/**
-		 * Method used to transform simple constraint such as litteral.
+		 * Method used to transform simple constraint such as literal.
 		 * This code is needed when constraint are declared using shortcuts.
 		 * For example some array's properties like rect, can be declared simply
 		 * using 'rect' in the clause and not the full expression 'rect==true'.
@@ -1025,7 +1030,7 @@ public class X10Caster extends AscriptionVisitor {
 		private Expr constraintToExpr(C_Term term, Position p) throws SemanticException {
 			Expr res = null;
 
-			// LITTERALS
+			// LITERALS
 			if (term instanceof C_Lit) {
 				C_Lit lit = (C_Lit) term;
 				if (lit.type().isInt()) {
