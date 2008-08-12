@@ -62,36 +62,19 @@ public abstract class BaseRegion extends Region {
 
 
     //
-    // XXX testing only; add to Region if needed externally
-    //
-
-    static public Region makeBanded(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
-        return PolyRegion.makeBanded(rowMin, colMin, rowMax, colMax, upper, lower);
-    }
-
-    static public PolyRegion make(HalfspaceList hl) {
-        return PolyRegion.make(hl);
-    }
-
-
-    //
     // basic information
     //
 
-    public boolean disjoint(Region that) {
-        throw U.unsupported();
-    }
-
     public boolean isConvex() {
-        throw U.unsupported();
+        throw U.unsupported(this, "isConvex");
     }
 
     public boolean isEmpty() {
-        throw U.unsupported();
+        throw U.unsupported(this, "isEmpty");
     }
 
     public int size() {
-        throw U.unsupported();
+        throw U.unsupported(this, "size");
     }
 
 
@@ -110,24 +93,28 @@ public abstract class BaseRegion extends Region {
         return this.intersection(that.inverse());
     }
 
+    public boolean disjoint(Region that) {
+        return this.intersection(that).isEmpty();
+    }
+
     public Region inverse() {
-        throw U.unsupported();
+        throw U.unsupported(this, "inverse");
     }
 
     public Region intersection(Region that) {
-        throw U.unsupported();
+        throw U.unsupported(this, "intersection");
     }
 
     public Region product(Region that) {
-        throw U.unsupported();
+        throw U.unsupported(this, "product");
     }
 
     public Region projection(int axis) {
-        throw U.unsupported();
+        throw U.unsupported(this, "projection");
     }
 
     public Region boundingBox() {
-        throw U.unsupported();
+        throw U.unsupported(this, "boundingBox");
     }
 
 
@@ -136,11 +123,11 @@ public abstract class BaseRegion extends Region {
     //
 
     public boolean contains(Region that) {
-        throw U.unsupported();
+        return that.difference(this).isEmpty();
     }
 
     public boolean equals(Region that) {
-        throw U.unsupported();
+        return this.contains(that) && that.contains(this);
     }
 
     public boolean $eq(Region that) {
@@ -153,7 +140,7 @@ public abstract class BaseRegion extends Region {
     //
 
     public boolean contains(Point p) {
-        throw U.unsupported();
+        throw U.unsupported(this, "contains(Point)");
     }
 
 
@@ -166,11 +153,11 @@ public abstract class BaseRegion extends Region {
     //
 
     public Iterator_Scanner scanners() {
-        throw U.unsupported();
+        throw U.unsupported(this, "scanners()");
     }
 
     public Region.Iterator iterator() {
-        throw U.unsupported();
+        throw U.unsupported(this, "iterator()");
     }
 
 
@@ -192,11 +179,11 @@ public abstract class BaseRegion extends Region {
     }
 
     int [] min() {
-        throw U.unsupported();
+        throw U.unsupported(this, "min()");
     }
 
     int [] max() {
-        throw U.unsupported();
+        throw U.unsupported(this, "max()");
     }
 }
 
