@@ -88,13 +88,13 @@ public value class Halfspace implements java.lang.Comparable {
     //
     // given
     //    a0*x0 + ... +ar   <=  0
-    // inverse is
+    // complement is
     //    a0*x0 + ... +ar   >   0
     //   -a0*x0 - ... -ar   <   0
     //   -a0*x0 - ... -ar   <= -1
     //   -a0*x0 - ... -ar+1 <=  0
     //
-    Halfspace inverse() {
+    Halfspace complement() {
         int [] as = new int[rank+1];
         for (int i=0; i<rank; i++)
             as[i] = -this.as[i];

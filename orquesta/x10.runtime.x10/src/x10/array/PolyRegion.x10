@@ -207,7 +207,7 @@ public class PolyRegion extends BaseRegion {
     // -H0 || -H1 && H0 || -H2 && H1 && H0 || ...
     //
 
-    public Region inverse() {
+    public Region complement() {
         
         PolyRegionList rl = new PolyRegionList(rank);
 
@@ -215,7 +215,7 @@ public class PolyRegion extends BaseRegion {
         while (i.hasNext()) {
             Halfspace hi = i.next();
             HalfspaceList hl = new HalfspaceList(rank);
-            hl.add(hi.inverse());
+            hl.add(hi.complement());
             Iterator_Halfspace j = halfspaces.iterator();
             while (j.hasNext()) {
                 Halfspace hj = j.next();

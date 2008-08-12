@@ -40,10 +40,10 @@ class UnionRegion extends BaseRegion {
         return make(rs);
     }
 
-    public Region inverse() {
+    public Region complement() {
         Region r = Region.makeFull(rank);
         for (int i=0; i<regions.length; i++)
-            r = r.intersection(regions[i].inverse());
+            r = r.intersection(regions[i].complement());
         return r;
     }
 
