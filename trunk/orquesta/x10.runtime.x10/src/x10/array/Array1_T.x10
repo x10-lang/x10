@@ -94,13 +94,13 @@ final class Array1_T extends BaseArray_T {
     // restriction view
     //
 
-    public Array_T restriction(Region r) {
-        return new Array1_T(this, r);
+    public Array_T restriction(Dist d) {
+        return new Array1_T(this, d);
     }
 
-    Array1_T(final Array1_T a, Region r) {
+    Array1_T(final Array1_T a, Dist d) {
 
-        super(a.dist.restriction(r), a.value);
+        super(d, a.value);
 
         finish {
             for (int i=0; i<dist.places().length; i++) {
