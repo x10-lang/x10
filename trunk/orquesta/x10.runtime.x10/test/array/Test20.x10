@@ -1,8 +1,10 @@
 /**
  * Inverse, difference and union for some basic rectangular
- * regions. Includes Os, Ls, Us, and a non-connected region.  Uses
- * "bump" argument to prArray to probe for whether constituent regions
- * of UnionRegion are disjoint.
+ * regions. Includes Os, Ls, Us, and a non-connected region.
+ *
+ * Uses "bump" argument to prArray to probe for whether constituent
+ * regions of UnionRegion are disjoint: all array elements in region
+ * should be bumped once and therefore all should be 1.
  */
 
 class Test20 extends TestArray {

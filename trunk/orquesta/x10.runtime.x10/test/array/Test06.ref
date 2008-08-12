@@ -4,7 +4,7 @@ rect false
 zeroBased false
 rail false
 isConvex() true
-size() unsupported operation
+size() x10.array.PolyRegion does not support size
 region: (x0>=1 && x1-x2>=0 && x2>=0 && x1<=2 && x0<=2)
   poly
     --- 1

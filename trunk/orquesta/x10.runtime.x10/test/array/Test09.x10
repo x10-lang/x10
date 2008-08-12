@@ -3,7 +3,7 @@
  * UnboundedRegionException when attempting to scan it.
  */
 
-import x10.array.BaseRegion;
+import x10.array.PolyRegion;
 import x10.array.HalfspaceList;
 
 class Test09 extends TestArray {
@@ -16,7 +16,7 @@ class Test09 extends TestArray {
         hl.add(COL+ROW, hl.LE, 7);
         hl.add(COL+ROW, hl.GE, 3);
         hl.add(COL-ROW, hl.LE, 1);
-        Region r = BaseRegion.make(hl);
+        Region r = PolyRegion.make(hl);
         prUnbounded("unbounded diamond", r);
     }
 }

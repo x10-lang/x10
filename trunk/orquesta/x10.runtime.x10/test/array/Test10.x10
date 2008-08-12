@@ -3,7 +3,7 @@
  * observe UnboundedRegionException when attempting to scan it
  */
 
-import x10.array.BaseRegion;
+import x10.array.PolyRegion;
 import x10.array.HalfspaceList;
 
 class Test10 extends TestArray {
@@ -16,7 +16,7 @@ class Test10 extends TestArray {
         hl.add(ROW, hl.GE, 0);
         hl.add(ROW, hl.LE, 3);
         hl.add(COL, hl.LE, 1);
-        Region r = BaseRegion.make(hl);
+        Region r = PolyRegion.make(hl);
         prUnbounded("unbounded rectangle", r);
     }
 }
