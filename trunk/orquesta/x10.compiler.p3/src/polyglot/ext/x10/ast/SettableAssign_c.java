@@ -231,7 +231,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	public void translate(CodeWriter w, Translator tr) {
     Type at = array.type();
 
-     Type result = X10TypeMixin.getParameterType(at, "T");
+     Type result = X10TypeMixin.getPropertyType(at, "T");
      if (result != null) {
      	w.write("((");
      	print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED, Types.ref(result)), w, tr);

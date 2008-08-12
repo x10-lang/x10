@@ -1,6 +1,7 @@
 package polyglot.ext.x10.types;
 
 import polyglot.types.Def;
+import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
@@ -32,7 +33,11 @@ public class ParameterType_c extends Type_c implements ParameterType {
 	
 	@Override
 	public String toString() {
-		return name;
+	    String old = null;
+	    if (def != null && def.getCached() instanceof Named) {
+		old = ((Named) def.getCached()).fullName();
+	    }
+	    return name + (old == null ? "" : " (in " + old + ")");
 	}
 
 	@Override

@@ -5,8 +5,10 @@ import polyglot.ast.Node;
 import polyglot.ext.x10.types.TypeProperty;
 
 public interface TypePropertyNode extends Node {
-	Id id();
-	TypePropertyNode id(Id id);
+	Id name();
+	TypePropertyNode name(Id id);
 	
 	TypeProperty typeProperty();
+	public TypeProperty.Variance variance();
+	public TypePropertyNode variance(TypeProperty.Variance variance);
 }

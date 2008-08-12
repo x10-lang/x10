@@ -35,6 +35,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
+import polyglot.ext.x10.types.TypeProperty.Variance;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.FieldInstance;
 import polyglot.util.Position;
@@ -63,6 +64,7 @@ public interface X10NodeFactory extends NodeFactory {
 
     UnknownTypeNode UnknownTypeNode(Position pos);
     TypeParamNode TypeParamNode(Position pos, Id name);
+    TypeParamNode TypeParamNode(Position pos, Id name, Variance variance);
     TypePropertyNode TypePropertyNode(Position pos, Id name, TypeProperty.Variance variance);
     TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr where, TypeNode returnType, List<TypeNode> throwTypes);   
     Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
@@ -92,16 +94,12 @@ public interface X10NodeFactory extends NodeFactory {
 	Now Now(Position pos, Expr expr, Stmt stmt);
 
     X10ClassDecl X10ClassDecl(Position pos, FlagsNode flags, Id name,
+	    List<TypeParamNode> typeParameters,
 		    List<TypePropertyNode> typeProperties,
               List<PropertyDecl> properties, DepParameterExpr ci,
               TypeNode superClass, List<TypeNode> interfaces,
               ClassBody body);
-	ValueClassDecl ValueClassDecl(Position pos, FlagsNode flags, Id name,
-            List<TypePropertyNode> typeProperties, List<PropertyDecl> properties, 
-            DepParameterExpr ci, TypeNode superClass,
-			List<TypeNode> interfaces, ClassBody body);
 	Await Await(Position pos, Expr expr);
-	Point Point(Position pos, List<Expr> expr);
 
 	X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
 	X10Loop ForEach(Position pos, Formal formal, Expr domain, List<Expr> clocks,
@@ -119,13 +117,9 @@ public interface X10NodeFactory extends NodeFactory {
     		TypeNode returnType, Id name, List<TypeParamNode> typeParams,
     		List<Formal> formals, DepParameterExpr where, List<TypeNode> throwTypes, Block body);
     FieldDecl FieldDecl(Position pos, DepParameterExpr thisClause, FlagsNode flags, TypeNode type, Id name, Expr init);
-	X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base,
-									  boolean isValueType,
-									  DepParameterExpr indexedSet);
 	SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);
 
 	Tuple Tuple(Position pos, List<Expr> args);
-	TypeNode array(TypeNode n, Position pos, int dims);
 	Formal Formal(Position pos, FlagsNode flags, TypeNode type, Id name);
 	X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
 				  List<Formal> vars);

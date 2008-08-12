@@ -98,43 +98,46 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		Type base = baseType.getCached();
 		XConstraint c = constraint.getCached();
 		if (base instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) base;
-			if (ct.typeProperties().size() > 0) {
-				sb.append("[");
-				String sep = "";
-				for (TypeProperty p : ct.x10Def().typeProperties()) {
-					XVar v = p.asVar();
-					XTerm b = c.bindingForVar(v);
-					sb.append(sep);
-					sep = ", ";
-					if (b != null) {
-						sb.append(b);
-						c = c.removeVarBindings(v);
-					}
-					else {
-						sb.append("self." + p.name());
-					}
-				}
-				sb.append("]");
+		    X10ClassType ct = (X10ClassType) base;
+		    if (ct.typeProperties().size() > 0) {
+			StringBuilder sb2 = new StringBuilder();
+			String sep = "";
+			for (TypeProperty p : ct.x10Def().typeProperties()) {
+			    XVar v = p.asVar();
+			    XTerm b = c.bindingForVar(v);
+			    if (b != null) {
+				sb2.append(sep);
+				sb2.append(b);
+				sep = ", ";
+				c = c.removeVarBindings(v);
+			    }
 			}
-			if (ct.definedProperties().size() > 0) {
-				sb.append("(");
-				String sep = "";
-				for (FieldInstance p : ct.definedProperties()) {
-					XVar v = XTerms.makeField(XSelf.Self, XTerms.makeName(p, p.name()));
-					XTerm b = c.bindingForVar(v);
-					sb.append(sep);
-					sep = ", ";
-					if (b != null) {
-						sb.append(b);
-						c = c.removeVarBindings(v);
-					}
-					else {
-						sb.append("self." + p.name());
-					}
-				}
-				sb.append(")");
+			if (sb2.length() > 0) {
+			    sb.append("[");
+			    sb.append(sb2);
+			    sb.append("]");
 			}
+		    }
+		    if (ct.definedProperties().size() > 0) {
+			StringBuilder sb2 = new StringBuilder();
+			String sep = "";
+			for (FieldInstance p : ct.definedProperties()) {
+			    XVar v = XTerms.makeField(XSelf.Self, XTerms.makeName(p, p.name()));
+			    XTerm b = c.bindingForVar(v);
+			    if (b != null) {
+				sb2.append(sep);
+				sb2.append(b);
+				sep = ", ";
+				c = c.removeVarBindings(v);
+			    }
+			}
+			if (sb2.length() > 0) {
+			    sb.append("(");
+			    sb.append(sb2);
+			    sb.append(")");
+			}
+
+		    }
 		}
 		if (c != null && ! c.valid()) {
 			sb.append(c);

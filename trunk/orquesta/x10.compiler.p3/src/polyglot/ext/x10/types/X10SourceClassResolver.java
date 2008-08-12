@@ -12,6 +12,7 @@ import polyglot.types.MethodDef;
 import polyglot.types.Named;
 import polyglot.types.SemanticException;
 import polyglot.types.SourceClassResolver;
+import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.reflect.ClassFileLoader;
 import polyglot.util.Position;
@@ -39,23 +40,48 @@ public class X10SourceClassResolver extends SourceClassResolver {
 		
 	        X10TypeSystem ts = (X10TypeSystem) this.ts;
 	        
-//	        if (name.equals("x10.lang.NativeRail")) return ts.NativeRail();
-//	        if (name.equals("x10.lang.NativeValRail")) return ts.NativeValRail();
+		Map<String,String> classMap = new HashMap<String, String>();
+		classMap.put("x10.lang.String", "java.lang.String");
+		classMap.put("x10.lang.Class", "java.lang.Class");
+		classMap.put("x10.lang.Throwable", "java.lang.Throwable");
+		classMap.put("x10.lang.Exception", "java.lang.Exception");
+		classMap.put("x10.lang.Error", "java.lang.Error");
+		classMap.put("x10.lang.RuntimeException", "java.lang.RuntimeException");
+		classMap.put("x10.lang.NullPointerException", "java.lang.NullPointerException");
+		classMap.put("x10.lang.ArrayIndexOutOfBoundsException", "java.lang.ArrayIndexOutOfBoundsException");
+		classMap.put("x10.lang.ArithmeticException", "java.lang.ArithmeticException");
+		classMap.put("x10.lang.Cloneable", "java.lang.Cloneable");
+		classMap.put("x10.io.Serializable", "java.io.Serializable");
+		classMap.put("x10.lang.ClassCastException", "java.lang.ClassCastException");
+		classMap.put("x10.lang.ArrayStoreException", "java.lang.ArrayStoreException");
+
+		Map<String,String> revMap = new HashMap<String, String>();
+		for (Map.Entry<String, String> e : classMap.entrySet()) {
+		    revMap.put(e.getValue(), e.getKey());
+		}
+		
+		if (revMap.get(name) != null) {
+	            return find(revMap.get(name));
+	        }
+	        
+	        if (name.equals("x10.lang.Value")) return (Named) ts.Value();
+	        if (name.equals("x10.lang.Box")) return (Named) ts.Box();
 	        
 		if (name.equals("x10.lang.Void")) return (Named) ts.Void();
 		if (name.equals("x10.lang.Boolean")) return(Named) ts.Boolean();
-		if (name.equals("x10.lang.Byte")) return (Named)ts.Byte();
+		if (name.equals("x10.lang.Byte")) return (Named) ts.Byte();
 		if (name.equals("x10.lang.Short")) return(Named) ts.Short();
-		if (name.equals("x10.lang.Char")) return (Named)ts.Char();
+		if (name.equals("x10.lang.Char")) return (Named) ts.Char();
 		if (name.equals("x10.lang.Int")) return(Named) ts.Int();
-		if (name.equals("x10.lang.Long")) return (Named)ts.Long();
+		if (name.equals("x10.lang.Long")) return (Named) ts.Long();
 		if (name.equals("x10.lang.Float")) return(Named) ts.Float();
+		if (name.equals("x10.lang.Double")) return(Named) ts.Double();
 		if (name.equals("x10.lang.UByte")) return (Named)ts.UByte();
 		if (name.equals("x10.lang.UShort")) return(Named) ts.UShort();
 		if (name.equals("x10.lang.UInt")) return(Named) ts.UInt();
 		if (name.equals("x10.lang.ULong")) return(Named) ts.ULong();
 	
-		// Change java.lang.Object to x10.lang.Object
+		// Change java.lang.Object to x10.lang.Object.
 		if (name.equals("x10.lang.Object")) {
 			Named n = super.find("java.lang.Object");
 			if (n instanceof X10ParsedClassType) {
@@ -80,50 +106,25 @@ public class X10SourceClassResolver extends SourceClassResolver {
 				return n;
 			}
 		}
-		
-//		// Change x10.lang.Array to x10.lang.GenericReferenceArray
-//		if (name.equals("x10.lang.Array")) {
-//		    Named n = super.find("x10.lang.GenericReferenceArray");
-//		    if (n instanceof X10ParsedClassType) {
-//			X10ParsedClassType ct = (X10ParsedClassType) n;
-//			X10ClassDef cd = ct.x10Def();
-//			n = cd.asType();
-//			return n;
-//		    }
-//		}
-//		
-//		// Change x10.lang.ValArray to x10.lang.genericArray
-//		if (name.equals("x10.lang.ValArray")) {
-//		    Named n = super.find("x10.lang.genericArray");
-//		    if (n instanceof X10ParsedClassType) {
-//			X10ParsedClassType ct = (X10ParsedClassType) n;
-//			X10ClassDef cd = ct.x10Def();
-//			n = cd.asType();
-//			return n;
-//		    }
-//		}
-		
-		Map<String,String> classMap = new HashMap<String, String>();
-		classMap.put("x10.lang.String", "java.lang.String");
-		classMap.put("x10.lang.Throwable", "java.lang.Throwable");
-		classMap.put("x10.lang.Exception", "java.lang.Exception");
-		classMap.put("x10.lang.RuntimeException", "java.lang.RuntimeException");
-		
+
 		String newName = classMap.get(name);
 		
 		if (newName != null) {
-			Named n = super.find(newName);
-			if (n instanceof X10ParsedClassType) {
-				X10ParsedClassType ct = (X10ParsedClassType) n;
-				X10ClassDef cd = ct.x10Def();
-				
-				String newPackage = StringUtil.getPackageComponent(newName);
-				cd.setPackage(Types.ref(ts.packageForName(newPackage)));
-				
-				assert cd.asType() == n;
-				n = cd.asType();
-				return n;
-			}
+		    Named n = ts.systemResolver().check(newName);
+		    if (n == null) {
+			n = super.find(newName);
+		    }
+		    if (n instanceof X10ParsedClassType) {
+			X10ParsedClassType ct = (X10ParsedClassType) n;
+			X10ClassDef cd = ct.x10Def();
+
+			String newPackage = StringUtil.getPackageComponent(name);
+			cd.setPackage(Types.ref(ts.packageForName(newPackage)));
+			
+			ts.systemResolver().install(newName, n);
+			ts.systemResolver().install(name, n);
+		    }
+		    return n;
 		}
 
 		return super.find(name);

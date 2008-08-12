@@ -6,11 +6,15 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.Term_c;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.ParameterType_c;
 import polyglot.ext.x10.types.TypeDef;
+import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.TypeProperty_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.TypeProperty.Variance;
+import polyglot.types.ClassDef;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
@@ -29,44 +33,46 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 
 public class TypeParamNode_c extends Term_c implements TypeParamNode {
-	Id id;
-	protected Ref<? extends Type> type;
+	protected Id name;
+	protected ParameterType type;
+	TypeProperty.Variance variance;
 
-	public TypeParamNode_c(Position pos, Id id) {
+	public TypeParamNode_c(Position pos, Id name, TypeProperty.Variance variance) {
 		super(pos);
-		this.id = id;
+		this.name = name;
+		this.variance = variance;
 	}
 
-	public String name() {
-		return id.id();
+	public String nameString() {
+		return name.id();
 	}
 
-	public Id id() {
-		return id;
+	public Id name() {
+		return name;
 	}
 
-	public TypeParamNode id(Id id) {
+	public TypeParamNode name(Id name) {
 		TypeParamNode_c n = (TypeParamNode_c) copy();
-		n.id = id;
+		n.name = name;
 		return n;
 	}
 
-	/** Get the type as a qualifier. */
-	public Ref<? extends Qualifier> qualifierRef() {
-		return typeRef();
+	public TypeProperty.Variance variance() {
+	    return variance;
 	}
 
-	/** Get the type this node encapsulates. */
-	public Ref<? extends Type> typeRef() {
-		return this.type;
+	public TypeParamNode variance(TypeProperty.Variance variance) {
+	    TypeParamNode_c n = (TypeParamNode_c) copy();
+	    n.variance = variance;
+	    return n;
 	}
 
-	public Type type() {
-		return Types.get(this.type);
+	public ParameterType type() {
+	    return this.type;
 	}
 
 	/** Set the type this node encapsulates. */
-	protected TypeParamNode typeRef(Ref<? extends Type> type) {
+	public TypeParamNode type(ParameterType type) {
 		TypeParamNode_c n = (TypeParamNode_c) copy();
 		n.type = type;
 		return n;
@@ -77,12 +83,12 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 		
 	        Def def = tb.def();
 	        
-	        if (! (def instanceof ProcedureDef || def instanceof TypeDef)) {
-	            throw new SemanticException("Type parameter cannot occur outside method, constructor, closure, or type definition.", position());
-	        }
+//	        if (! (def instanceof ProcedureDef || def instanceof TypeDef)) {
+//	            throw new SemanticException("Type parameter cannot occur outside method, constructor, closure, or type definition.", position());
+//	        }
 	        
-		Type t = new ParameterType_c(xts, position(), name(), Types.ref(def));
-		return typeRef(Types.ref(t));
+	        ParameterType t = new ParameterType_c(xts, position(), nameString(), Types.ref(def));
+	        return type(t);
 	}
 
 	public Term firstChild() {
@@ -94,7 +100,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	}
 
 	public String toString() {
-		return name();
+		return nameString();
 	}
 
 	public void addDecls(Context c) {
@@ -103,8 +109,8 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	}
 
 	public Node visitChildren(NodeVisitor v) {
-		Id id = (Id) visitChild(this.id, v);
-		if (id != this.id) return id(id);
+		Id id = (Id) visitChild(this.name, v);
+		if (id != this.name) return name(id);
 		return this;
 	}
 }

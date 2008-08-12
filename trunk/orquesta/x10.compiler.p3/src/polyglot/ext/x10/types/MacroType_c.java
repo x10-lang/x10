@@ -7,6 +7,8 @@ import java.util.List;
 import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
@@ -101,6 +103,26 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) t;
 	}
 	
+	    public List<LocalInstance> formalNames;
+	    
+	    public List<LocalInstance> formalNames() {
+		if (this.formalNames == null) {
+		    this.formalNames = new TransformingList(def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
+			public LocalInstance transform(LocalDef o) {
+			    return o.asInstance();
+			}
+		    });
+		}
+		
+		return formalNames;
+	    }
+	    
+	    public MacroType formalNames(List<LocalInstance> formalNames) {
+		MacroType_c n = (MacroType_c) copy();
+		n.formalNames = formalNames;
+		return n;
+	    }
+	
 	public boolean hasFormals(List<Type> formalTypes) {
 	        return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals());
 	}
@@ -162,18 +184,18 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	
 	public static class FormalToVarTransform implements Transformation<Integer, XVar> {
 
-		List<String> formalNames;
+		List<LocalDef> formalNames;
 		List<Ref<? extends Type>> formalTypes;
 
-		public FormalToVarTransform(List<String> formalNames, List<Ref<? extends Type>> formalTypes) {
+		public FormalToVarTransform(List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes) {
 			this.formalNames = formalNames;
 			this.formalTypes = formalTypes;
 		}
 
 		public XVar transform(Integer i) {
 			final Ref<? extends Type> r = formalTypes.get(i);
-			String name = formalNames.get(i);
-			XVar v = XTerms.makeLocal(new XNameWrapper<String>(name));
+			LocalDef li = formalNames.get(i);
+			XVar v = XTerms.makeLocal(new XNameWrapper<LocalDef>(li, li.name()));
 			v.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return X10TypeMixin.realX(r.get()); } });
 			return v;
 		}
@@ -243,8 +265,10 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			sb.append("(");
 		    if (i != 0)
 			sb.append(", ");
-		    sb.append(formals.get(i));
-		    sb.append(": ");
+		    if (! formals.get(i).equals("")) {
+			sb.append(formals.get(i));
+			sb.append(": ");
+		    }
 		    sb.append(formalTypes.get(i));
 		    if (i == formals.size()-1)
 			sb.append(")");
@@ -341,11 +365,11 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public Type returnType() {
-	    return ts.Void();
+	    return definedType();
 	}
 	
 	public MacroType returnType(Type t) {
-	    return this;
+	    return definedType(t);
 	}
 	
 	public MacroType throwTypes(List<Type> throwTypes) {

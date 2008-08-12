@@ -5,6 +5,7 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
+import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
@@ -15,53 +16,38 @@ import x10.constraint.XConstraint;
  * @author rfuhrer
  */
 public interface ClosureType extends X10ClassType {
+    ClosureDef closureDef();
+    
+    ClosureInstance closureInstance();
+    ClosureType closureInstance(ClosureInstance ci);
+
     /**
      * @return the type of value returned by an invocation of the closure. cannot be void.
      */
-    Ref<? extends Type> returnType();
+    Type returnType();
+
+    /**
+     * @return the list of formal argument types of the closure, in declaration order. may be empty.
+     */
+    List<Type> typeParameters();
+
+    /**
+     * @return the list of formal argument types of the closure, in declaration order. may be empty.
+     */
+    List<Type> argumentTypes();
+
+    /**
+     * @return the list of formal argument names of the closure, in declaration order. may be empty.
+     */
+    List<LocalInstance> formalNames();
     
-    /**
-     * @return the list of formal argument types of the closure, in declaration order. may be empty.
-     */
-    List<Ref<? extends Type>> typeParameters();
-
-    /**
-     * @return the list of formal argument types of the closure, in declaration order. may be empty.
-     */
-    List<Ref<? extends Type>> argumentTypes();
-
     /**
      * @return the where clause for the closure.
      */
-    Ref<? extends XConstraint> whereClause();
-    
+    XConstraint whereClause();
+
     /**
      * @return the list of exception types that this closure may throw from an invocation. may be empty.
      */
-    List<Ref<? extends Type>> throwTypes();
-    
-    /**
-     * Sets the formal argument types of this closure
-     */
-    void setTypeParameters(List<Ref<? extends Type>> typeParams);
-
-    /**
-     * Sets the formal argument types of this closure
-     */
-    void argumentTypes(List<Ref<? extends Type>> argTypes);
-
-    /**
-     * Sets the return type of this closure
-     */
-    void returnType(Ref<? extends Type> returnType);
-
-    /**
-     * Sets the where clause for the closure.
-     */
-    void setWhereClause(Ref<? extends XConstraint> whereClause);
-    
-    /**
-     * Sets the throwable exception types of this closure
-     */
-    void throwTypes(List<Ref<? extends Type>> throwTypes);
+    List<Type> throwTypes();
 }

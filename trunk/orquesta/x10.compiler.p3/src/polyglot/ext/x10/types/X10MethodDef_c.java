@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.MethodDef_c;
 import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
@@ -36,8 +37,9 @@ import x10.constraint.XVar;
  *
  */
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
-    protected Ref<? extends XConstraint> whereClause;
+    Ref<XConstraint> whereClause;
     List<Ref<? extends Type>> typeParameters;
+    List<LocalDef> formalNames;
     Ref<XTerm> body;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
@@ -47,14 +49,23 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             String name,
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
-            Ref<? extends XConstraint> whereClause,
-            List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
+            List<LocalDef> formalNames,
+            Ref<XConstraint> whereClause, List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
         super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
         this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
+        this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.whereClause = whereClause;
         this.body = body;
     }
-    
+
+    public List<LocalDef> formalNames() {
+	return Collections.unmodifiableList(formalNames);
+    }
+
+    public void setFormalNames(List<LocalDef> formalNames) {
+	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+    }
+
     public Ref<XTerm> body() {
         return body;
     }
@@ -92,11 +103,11 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     // END ANNOTATION MIXIN
     
     /** Constraint on formal parameters. */
-    public Ref<? extends XConstraint> whereClause() {
+    public Ref<XConstraint> whereClause() {
         return whereClause;
     }
 
-    public void setWhereClause(Ref<? extends XConstraint> s) {
+    public void setWhereClause(Ref<XConstraint> s) {
         this.whereClause = s;
     }
     

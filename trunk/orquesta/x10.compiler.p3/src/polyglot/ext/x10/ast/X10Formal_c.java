@@ -119,35 +119,6 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		}
 	}
 
-	// TODO: vj -- implement exploded variables appearing in depclause of return
-	// type of method.
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
-		X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
-		
-		// Set the position of this formal in its LocalInstance.
-		// This can be retrieved by X10Call_c and used to replace the
-		// type of the formal by the type of the actual when computing
-		// the actual return type of the method.
-		((X10LocalDef)n.localDef()).setPositionInArgList(positionInArgList());
-		
-		return n;
-	}
-
-//	 public Node typeCheck(TypeChecker tc) throws SemanticException {
-//			X10Formal_c result= (X10Formal_c) super.typeCheck(tc);
-//			// Ensure that the LocalInstance is updated with the 
-//			// possibly new type (w/ depclause)
-//			X10LocalInstance li = (X10LocalInstance) result.li;
-//			final X10Type declType= (X10Type) declType();
-//			li.setType(declType);
-//			boolean changed = li.setSelfClauseIfFinal();
-//			if (changed) {
-//				result = (X10Formal_c) result.type(result.type().type(li.type()));
-//			}
-//			return result;
-//		
-//	 }
-
 	 private String translateVars() {
 		StringBuffer sb = new StringBuffer();
 		if (! vars.isEmpty()) {

@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -35,13 +33,14 @@ import polyglot.ast.Special;
 import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
+import polyglot.ast.Unary_c;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
 import polyglot.ext.x10.ast.Clocked;
-import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
@@ -51,8 +50,8 @@ import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.Now_c;
 import polyglot.ext.x10.ast.PropertyDecl_c;
-import polyglot.ext.x10.ast.RemoteCall_c;
 import polyglot.ext.x10.ast.SettableAssign_c;
+import polyglot.ext.x10.ast.TypeDecl_c;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.TypePropertyNode;
 import polyglot.ext.x10.ast.When_c;
@@ -62,17 +61,20 @@ import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
-import polyglot.ext.x10.ast.X10Field_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
+import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.X10ArraysMixin;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -82,7 +84,6 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoClassException;
-import polyglot.types.NoMemberException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
@@ -140,7 +141,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		for (Iterator i = n.typeParameters().iterator(); i.hasNext(); ) {
 		    TypeParamNode p = (TypeParamNode) i.next();
 		    w.write("x10.runtime.Type ");
-		    n.print(p.id(), w, tr);
+		    n.print(p.name(), w, tr);
 		    
 		    if (i.hasNext() || n.formals().size() > 0) {
 			w.write(",");
@@ -185,16 +186,49 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    w.write(";");
 		}
 	}
+	
+	public void visit(TypeDecl_c n) {
+	    // Do not write anything.
+	    return;
+	}
 
 	public void visit(X10ClassDecl_c n) {
+	    X10ClassDef def = (X10ClassDef) n.classDef();
+	    StringBuilder sb = new StringBuilder();
+	    for (TypeParamNode t : n.typeParameters()) {
+		if (sb.length() > 0) {
+		    sb.append(", ");
+		}
+		sb.append("\"");
+		sb.append(t.name().id());
+		sb.append("\"");
+	    }
+	    
+	    if (sb.length() > 0) {
+		w.write("@x10.generics.Parameters({");
+		w.write(sb.toString());
+		w.write("})");
+		w.allowBreak(0);
+	    }
+	    
+//	    @Parameters({"T"})
+//	    public class List implements Runnable {
+//	    	public class T {};
+//	    	public List() { }
+//	    	@Synthetic public List(Class T) { this(); }
+//	    	@Synthetic public static boolean instanceof$(Object o, String constraint) { assert(false); return true; }
+//	    	public static boolean instanceof$(Object o, String constraint, boolean b) { /*check constraint*/; return b; }
+//	    	public static Object cast$(Object o, String constraint) { /*check constraint*/; return (List)o; }
+//	    	T x;
+	    	
 		Flags flags = n.flags().flags();
 		
 		w.begin(0);
 		if (flags.isInterface()) {
-		    w.write(flags.clearInterface().clearAbstract().translate());
+		    w.write(X10Flags.toX10Flags(flags.clearInterface().clearAbstract()).translate());
 		}
 		else {
-		    w.write(flags.translate());
+		    w.write(X10Flags.toX10Flags(flags).translate());
 		}
 		
 		if (flags.isInterface()) {
@@ -205,6 +239,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		
 		tr.print(n, n.name(), w);
+		
+//		if (n.typeParameters().size() > 0) {
+//		    w.write("<");
+//		    w.begin(0);
+//		    String sep = "";
+//		    for (TypeParamNode tp : n.typeParameters()) {
+//			w.write(sep);
+//			w.write(tp.name().id());
+//			sep = ", ";
+//		    }
+//		    w.end();
+//		    w.write(">");
+//		}
 		
 		if (n.superClass() != null) {
 		    w.allowBreak(0);
@@ -236,33 +283,37 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.unifiedBreak(0);
 		w.end();
 		w.write("{");
-		int i = 0;
 		if (n.typeProperties().size() > 0) {
+		    w.newline(4);
+		    w.begin(0);
+		    for (TypePropertyNode tp : n.typeProperties()) {
+			w.write("@x10.generics.Synthetic public class ");
+			n.print(tp.name(), w, tr);
+			w.write(" { }");
+			w.newline();
+		    }
+		    if (! n.flags().flags().isInterface()) {
+			for (TypePropertyNode tp : n.typeProperties()) {
+			    w.write("@x10.generics.Synthetic private final x10.runtime.Type ");
+			    n.print(tp.name(), w, tr);
+			    w.write(";");
+			    w.newline();
+			}
+		    }
+		    w.end();
+		}
+		if (! n.flags().flags().isInterface()) {
+		    if (n.typeParameters().size() > 0) {
 			w.newline(4);
 			w.begin(0);
-			for (TypePropertyNode tp : n.typeProperties()) {
-				i++;
-				//			w.write("@TypeProperty(");
-				//			w.write("" + i);
-				//			w.write(") ");
-				//			w.allowBreak(0, " ");
-				w.write("public class ");
-				n.print(tp.id(), w, tr);
-				w.write(" { }");
+			for (TypeParamNode tp : n.typeParameters()) {
+			    w.write("@x10.generics.Synthetic private final x10.runtime.Type ");
+			    n.print(tp.name(), w, tr);
+			    w.write(";");
+			    w.newline();
 			}
-			w.newline();
-			for (TypePropertyNode tp : n.typeProperties()) {
-				i++;
-				//			w.write("@TypeProperty(");
-				//			w.write("" + i);
-				//			w.write(") ");
-				//			w.allowBreak(0, " ");
-				w.write("private final x10.runtime.Type ");
-				n.print(tp.id(), w, tr);
-				w.write(";");
-			}
-			w.newline();
 			w.end();
+		    }
 		}
 		n.print(n.body(), w, tr);
 		w.write("}");
@@ -289,11 +340,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		visit((Node) n);
 	}
 
-	public void visit(RemoteCall_c c) {
-		// TODO assert false - that is not implemented yet
-		throw new InternalCompilerError("not implemented", c.position());
-	}
-	
 	public void visit(X10Call_c c) {
 		// add a check that verifies if the target of the call is in place 'here'
 		Receiver target = c.target();
@@ -339,9 +385,39 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 			w.end();
 			w.write(")");
-		} else
+		} else {
+		    if (target instanceof TypeNode) {
+			if (t instanceof ConstrainedType) {
+			    t = X10TypeMixin.baseType(t);
+			}
+			if (t instanceof X10ClassType) {
+			    t.print(w);
+			}
+			else {
+			    printType(t);
+			}
+			w.write(".");
+			w.write(c.nameString());
+			w.write("(");
+			w.begin(0);
+			List l = c.arguments();
+			for (Iterator i = l.iterator(); i.hasNext(); ) {
+				Expr e = (Expr) i.next();
+				c.print(e, w, tr);
+				if (i.hasNext()) {
+					w.write(",");
+					w.allowBreak(0, " ");
+				}
+			}
+			w.end();
+			w.write(")");
+
+		    }
+		    else {
 			// WARNING: it's important to delegate to the appropriate visit() here!
 			visit((Node)c);
+		    }
+		}
 	}
 
 	/**
@@ -361,8 +437,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(Closure_c n) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+		List formalTypes = new ArrayList();
+		for (Formal f : n.formals()) {
+		    formalTypes.add(f.type());
+		}
 		new Template("closure", new Object[] {
-		    n.returnType(), new Join("\n", n.formals()), n.body()
+		    n.returnType(), new Join("\n", n.formals()), n.body(), n.formals().size(), new Join(", ", formalTypes)
 	    }).expand(tr2);
 	}
 
@@ -712,7 +792,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	private TypeNode getParameterType(Type at) {
 		if (X10TypeMixin.isConstrained(at)) {
 			NodeFactory nf = tr.nodeFactory();
-			Type parameterType = X10TypeMixin.getParameterType(at, "T");
+			Type parameterType = X10TypeMixin.getPropertyType(at, "T");
 			if (parameterType != null)
 				return nf.CanonicalTypeNode(Position.COMPILER_GENERATED,
 						parameterType);
@@ -786,33 +866,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (index.size() == 1) {
 		String operator = a.operator().toString();
 		Expr theIndex = index.get(0);
+		X10TypeSystem ts = (X10TypeSystem) array.type().typeSystem();
 		Template template;
-		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) && theIndex.type().isPrimitive() ) {
-			// Array being accesses has isZeroBased = isRankOne = isRect = true, and array index is an int (not a point)
-			Type base_type = array.type();
-			X10TypeSystem xt = (X10TypeSystem) base_type.typeSystem();
-			
-			if (xt.isPrimitiveTypeArray(base_type)) {
-//				 Create template optimized for primitive base type with direct access to arr_ field
-				String arrayClass = runtimeClassNameForPrimitiveArray(xt, base_type);
-				template = new Template("array_set_primitive_rect_rank_1_low_0", new Object[] { array, theIndex, a.right(), operator, arrayClass});
-			}
-			else if ( xt.isX10Array(base_type)) {
-				// Create template with call to getBackingArray()
-				template = new Template("array_set_rect_rank_1_low_0", new Object[] { array, theIndex, a.right(), operator});
-			}
-			else 
-				// Some other kind of array e.g., distribution ==> use general template
-				template = new Template("array_set", new Object[] { array, theIndex, a.right(), a.opString(a.operator())});
+		if (ts.isRail(array.type()) || ts.isValRail(array.type())) {
+		    Type baseType = X10ArraysMixin.arrayBaseType(array.type());
+		    template = new Template("rail_set", new Object[] { array, theIndex, a.right(), operator });		    
 		}
 		else {
 			// Use general template
-			template = new Template("array_set", new Object[] { array, theIndex, a.right(), a.opString(a.operator())});
+		    template = new Template("array_set", new Object[] { array, theIndex, a.right(), a.opString(a.operator())});
 		}
 
-		TypeNode elt_type = getParameterType((X10Type)a.type());
-		if (elt_type != null)
-			template = new Template("parametric", elt_type, template);
 		template.expand();
 		
 		//new Template("array_set",
@@ -952,17 +1016,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 */
 	private void printType(Type type) {
-//		X10Type t = (X10Type) type;
-//		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-//		if (ts.isNullable(t)) {
-//			w.write("/"+"*"+"nullable"+"*"+"/");
-//			printType(X10Type_c.toNullable(t).base());
-//		} else if (t.isArray()) {
-//			printType(t.toArray().base());
-//			w.write("[]");
-//		} else
-//			w.write(t.toString());
-		
 		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
 		
 		String s = null;
@@ -973,7 +1026,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		
 		if (type instanceof ParameterType) {
-		    s = "java.lang.Object";
+		    s = ((ParameterType) type).name();
+//		    s = "java.lang.Object";
+		}
+		
+		if (type instanceof ClosureType) {
+		    ClosureType ct = (ClosureType) type;
+		    int numValArgs = ct.argumentTypes().size();
+		    s = "x10.runtime.Fun_0_" + numValArgs;
 		}
 		
 		if (type instanceof PathType) {
@@ -987,9 +1047,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    printType(mt.definedType());
 		    return;
 		}
-
-		if (xts.isSubtype(type, xts.NativeRail()) || xts.isSubtype(type, xts.NativeValRail())) {
-			Type T = X10TypeMixin.getParameterType((X10Type) type, "T");
+		
+		if (xts.isRail(type) || xts.isValRail(type)) {
+			Type T = X10TypeMixin.getParameterType((X10Type) type, 0);
 			if (T == null) {
 				s = "Object[]";
 			} else if (T.isBoolean()) {
@@ -1010,11 +1070,109 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				s = "double[]";
 			}
 		}
+		
+		{
+		    Type T = type;
+
+		    if (T.isBoolean()) {
+			s = "boolean";
+		    } else if (T.isByte()) {
+			s = "byte";
+		    } else if (T.isShort()) {
+			s = "short";
+		    } else if (T.isChar()) {
+			s = "char";
+		    } else if (T.isInt()) {
+			s = "int";
+		    } else if (T.isLong()) {
+			s = "long";
+		    } else if (T.isFloat()) {
+			s = "float";
+		    } else if (T.isDouble()) {
+			s = "double";
+		    }
+		}
+		
+		{
+		    if (xts.isSubtype(type, xts.UByte())) {
+			s = "byte";
+		    } else if (xts.isSubtype(type, xts.UShort())) {
+			s = "short";
+		    } else if (xts.isSubtype(type, xts.UInt())) {
+			s = "int";
+		    } else if (xts.isSubtype(type, xts.ULong())) {
+			s = "long";
+		    }
+		}
+
+		if (xts.typeEquals(type, xts.Object()))
+		    s = "java.lang.Object";
+		if (xts.typeEquals(type, xts.String()))
+		    s = "java.lang.String";
+		if (xts.typeEquals(type, xts.Class()))
+		    s = "java.lang.Class";
+		if (xts.typeEquals(type, xts.Cloneable()))
+		    s = "java.lang.Cloneable";
+		if (xts.typeEquals(type, xts.Serializable()))
+		    s = "java.io.Serializable";
+		if (xts.typeEquals(type, xts.Throwable()))
+		    s = "java.lang.Throwable";
+		if (xts.typeEquals(type, xts.Exception()))
+		    s = "java.lang.Exception";
+		if (xts.typeEquals(type, xts.RuntimeException()))
+		    s = "java.lang.RuntimeException";
+		if (xts.typeEquals(type, xts.NullPointerException()))
+		    s = "java.lang.NullPointerException";
+		if (xts.typeEquals(type, xts.ArrayStoreException()))
+		    s = "java.lang.ArrayStoreException";
+		if (xts.typeEquals(type, xts.ArithmeticException()))
+		    s = "java.lang.ArithmeticException";
 
 		if (s != null)
-			w.write(s);
-		else
-			type.print(w);
+		    w.write(s);
+		else {
+		    type.print(w);
+
+//		    if (type instanceof X10ClassType) {
+//			X10ClassType ct = (X10ClassType) type;
+//			if (ct.typeArguments().size() > 0) {
+//			    w.write("<");
+//			    String sep = "";
+//			    for (Type t : ct.typeArguments()) {
+//				w.write(sep);
+//				if (t.isBoolean()) {
+//				    w.write("java.lang.Boolean");
+//				}
+//				else if (t.isByte() || xts.isSubtype(t, xts.UByte())) {
+//				    w.write("java.lang.Byte");
+//				}
+//				else if (t.isShort() || xts.isSubtype(t, xts.UShort())) {
+//				    w.write("java.lang.Short");
+//				}
+//				else if (t.isChar()) {
+//				    w.write("java.lang.Character");
+//				}
+//				else if (t.isInt() || xts.isSubtype(t, xts.UInt())) {
+//				    w.write("java.lang.Integer");
+//				}
+//				else if (t.isLong() || xts.isSubtype(t, xts.ULong())) {
+//				    w.write("java.lang.Long");
+//				}
+//				else if (t.isFloat()) {
+//				    w.write("java.lang.Float");
+//				}
+//				else if (t.isDouble()) {
+//				    w.write("java.lang.Double");
+//				}
+//				else {
+//				    printType(t);
+//				}
+//				sep = ", ";
+//			    }
+//			    w.write(">");
+//			}
+//		    }
+		}
 	}
 
 	public void visit(CanonicalTypeNode_c n) {
@@ -1027,6 +1185,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			visit((Node)n);
 	}
 
+	public void visit(X10Unary_c n) {
+		Expr left = n.expr();
+		X10Type l = (X10Type) left.type();
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		NodeFactory nf = tr.nodeFactory();
+		Unary.Operator op = n.operator();
+		
+		if (l.isNumeric() || l.isBoolean()) {
+		    visit((Unary_c)n);
+		    return;
+		}
+		
+		String methodName = X10Unary_c.unaryMethodName(op);
+		generateStaticOrInstanceCall(n.position(), left, methodName);
+		return;
+	}
+	
 	public void visit(X10Binary_c n) {
 		Expr left = n.left();
 		X10Type l = (X10Type) left.type();
@@ -1035,65 +1210,84 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
 		Binary.Operator op = n.operator();
-
-		Binary.Operator GT = Binary.GT;
-		Binary.Operator LT = Binary.LT;
-		Binary.Operator GE = Binary.GE;
-		Binary.Operator LE = Binary.LE;
-		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
-			String name = op == GT ? "gt" : op == LT ? "lt" : op == GE ? "ge" : "le";
-			generateStaticOrInstanceCall(n.position(), left, name, right);
-			return;
+		
+		if (l.isNumeric() && r.isNumeric()) {
+		    visit((Binary_c)n);
+		    return;
 		}
-
-		Binary.Operator COND_OR = Binary.COND_OR;
-		Binary.Operator COND_AND = Binary.COND_AND;
-		if (op == COND_OR && (xts.isDistribution(l) ||
-				xts.isRegion(l) || xts.isPrimitiveTypeArray(l)))
-		{
-			generateStaticOrInstanceCall(n.position(), left, "union", right);
-			return;
+		if (l.isBoolean() && r.isBoolean()) {
+		    visit((Binary_c)n);
+		    return;
 		}
-		if (op == COND_AND && (xts.isRegion(l) || xts.isDistribution(l))) {
-			generateStaticOrInstanceCall(n.position(), left, "intersection", right);
-			return;
+		
+		if (l.isSubtype(xts.String()) || r.isSubtype(xts.String())) {
+		    visit((Binary_c)n);
+		    return;
 		}
-
-		Binary.Operator BIT_OR = Binary.BIT_OR;
-		Binary.Operator BIT_AND = Binary.BIT_AND;
-		// New for X10.
-		if (op == BIT_OR && (xts.isDistribution(l) ||
-					xts.isDistributedArray(l) || xts.isPlace(l))) {
-			generateStaticOrInstanceCall(n.position(), left, "restriction", right);
-			return;
-		}
-
-		Binary.Operator SUB = Binary.SUB;
-		Binary.Operator ADD = Binary.ADD;
-		Binary.Operator MUL = Binary.MUL;
-		Binary.Operator DIV = Binary.DIV;
-		// Modified for X10.
-		if (op == SUB && (xts.isDistribution(l) || xts.isRegion(l)) && ! xts.isPoint(r)) {
-			generateStaticOrInstanceCall(n.position(), left, "difference", right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPrimitiveTypeArray(l)) {
-			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
-			generateStaticOrInstanceCall(n.position(), left, name, right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.isSubtype(r, xts.String())) {
-			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
-			generateStaticOrInstanceCall(n.position(), left, name, right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.isSubtype(l, xts.String())) {
-			String name = "inv" + (op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
-			generateStaticOrInstanceCall(n.position(), right, name, left);
-			return;
-		}
-		// WARNING: it's important to delegate to the appropriate visit() here!
-		visit((Binary_c)n);
+		
+		String methodName = X10Binary_c.binaryMethodName(op);
+		generateStaticOrInstanceCall(n.position(), left, methodName, right);
+		return;
+		
+		
+//		Binary.Operator GT = Binary.GT;
+//		Binary.Operator LT = Binary.LT;
+//		Binary.Operator GE = Binary.GE;
+//		Binary.Operator LE = Binary.LE;
+//		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
+//			String name = op == GT ? "gt" : op == LT ? "lt" : op == GE ? "ge" : "le";
+//			generateStaticOrInstanceCall(n.position(), left, name, right);
+//			return;
+//		}
+//
+//		Binary.Operator COND_OR = Binary.COND_OR;
+//		Binary.Operator COND_AND = Binary.COND_AND;
+//		if (op == COND_OR && (xts.isDistribution(l) ||
+//				xts.isRegion(l) || xts.isPrimitiveTypeArray(l)))
+//		{
+//			generateStaticOrInstanceCall(n.position(), left, "union", right);
+//			return;
+//		}
+//		if (op == COND_AND && (xts.isRegion(l) || xts.isDistribution(l))) {
+//			generateStaticOrInstanceCall(n.position(), left, "intersection", right);
+//			return;
+//		}
+//
+//		Binary.Operator BIT_OR = Binary.BIT_OR;
+//		Binary.Operator BIT_AND = Binary.BIT_AND;
+//		// New for X10.
+//		if (op == BIT_OR && (xts.isDistribution(l) ||
+//					xts.isDistributedArray(l) || xts.isPlace(l))) {
+//			generateStaticOrInstanceCall(n.position(), left, "restriction", right);
+//			return;
+//		}
+//
+//		Binary.Operator SUB = Binary.SUB;
+//		Binary.Operator ADD = Binary.ADD;
+//		Binary.Operator MUL = Binary.MUL;
+//		Binary.Operator DIV = Binary.DIV;
+//		// Modified for X10.
+//		if (op == SUB && (xts.isDistribution(l) || xts.isRegion(l)) && ! xts.isPoint(r)) {
+//			generateStaticOrInstanceCall(n.position(), left, "difference", right);
+//			return;
+//		}
+//		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPrimitiveTypeArray(l)) {
+//			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
+//			generateStaticOrInstanceCall(n.position(), left, name, right);
+//			return;
+//		}
+//		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.isSubtype(r, xts.String())) {
+//			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
+//			generateStaticOrInstanceCall(n.position(), left, name, right);
+//			return;
+//		}
+//		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.isSubtype(l, xts.String())) {
+//			String name = "inv" + (op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
+//			generateStaticOrInstanceCall(n.position(), right, name, left);
+//			return;
+//		}
+//		// WARNING: it's important to delegate to the appropriate visit() here!
+//		visit((Binary_c)n);
 	}
 
 	/**
@@ -1102,39 +1296,34 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	 * @param name
 	 * @param right TODO
 	 */
-	private void generateStaticOrInstanceCall(Position pos, Expr left, String name, Expr right) {
+	private void generateStaticOrInstanceCall(Position pos, Expr left, String name, Expr... right) {
+	    List<Expr> sargs = new ArrayList();
+	    List<Type> stypes = new ArrayList();
+	    sargs.add(left);
+	    stypes.add(left.type());
+	    for (Expr e: right) {
+		sargs.add(e);
+		stypes.add(e.type());
+	    }
+	    List<Type> types = stypes.subList(1, stypes.size());
+	    List<Expr> args = sargs.subList(1, sargs.size());
+	    
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
-		StructType lType = (StructType) left.type();
-		Type rType = right.type();
 		try {
 		    ClassDef objectDef = ((ClassType) xts.Object()).def();
-			try {
-				MethodInstance mi = xts.findMethod(lType,
-						name, Collections.singletonList(rType), objectDef);
-				tr.print(null, nf.Call(pos, left, nf.Id(pos, name), right).methodInstance(mi).type(mi.returnType()), w);
-//				printSubExpr(left, true, w, tr);
-//				w.write(".");
-//				w.write(name);
-//				w.write("(");
-//				printSubExpr(right, false, w, tr);
-//				w.write(")");
-			} catch (NoMemberException e) {
-				MethodInstance mi = xts.findMethod(xts.ArrayOperations(),
-						name, Arrays.asList(new Type[] {lType, rType}), objectDef);
-				tr.print(null, nf.Call(pos, nf.CanonicalTypeNode(pos, xts.ArrayOperations()),
-						nf.Id(pos, name), left, right).methodInstance(mi), w);
-//				w.write("x10.lang.ArrayOperations.");
-//				w.write(name);
-//				w.write("(");
-//				printSubExpr(left, false, w, tr);
-//				w.write(", ");
-//				printSubExpr(right, false, w, tr);
-//				w.write(")");
-				return;
-			}
-		} catch (SemanticException e) {
-			throw new InternalCompilerError(e.getMessage(), pos, e);
+		    MethodInstance mi = xts.findMethod(left.type(),
+		                                       xts.MethodMatcher(left.type(), name, types), objectDef);
+		    tr.print(null, nf.Call(pos, left, nf.Id(pos, name), args).methodInstance(mi).type(mi.returnType()), w);
+		    //				printSubExpr(left, true, w, tr);
+		    //				w.write(".");
+		    //				w.write(name);
+		    //				w.write("(");
+		    //				printSubExpr(right, false, w, tr);
+		    //				w.write(")");
+		}
+		catch (SemanticException e) {
+		    throw new InternalCompilerError(e.getMessage(), pos, e);
 		}
 	}
 

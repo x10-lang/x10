@@ -9,6 +9,7 @@ import java.util.List;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef_c;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -26,24 +27,23 @@ import x10.constraint.XConstraint;
  */
 public class X10ConstructorDef_c extends ConstructorDef_c implements X10ConstructorDef {
     Ref<? extends ClassType> returnType;
-    protected Ref<? extends XConstraint> supClause;
-    protected Ref<? extends XConstraint> whereClause;
+    protected Ref<XConstraint> supClause;
+    protected Ref<XConstraint> whereClause;
+    List<LocalDef> formalNames;
 
     public X10ConstructorDef_c(TypeSystem ts, Position pos,
             Ref<? extends ClassType> container,
             Flags flags, 
             Ref<? extends ClassType> returnType,
             List<Ref<? extends Type>> typeParameters,
-            List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> excTypes) {
-        super(ts, pos, container, flags, formalTypes, excTypes);
+            List<Ref<? extends Type>> formalTypes, 
+            List<LocalDef> formalNames, Ref<XConstraint> whereClause,
+            List<Ref<? extends Type>> throwTypes) {
+        super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
         this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
-    }
-
-    public X10ConstructorDef_c(TypeSystem ts, Position pos,
-            Ref<? extends X10ClassType> container,
-            Flags flags, List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> excTypes) {
-        this(ts, pos, container, flags, container, Collections.EMPTY_LIST, formalTypes, excTypes);
+	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+	this.whereClause = whereClause;
     }
 
     // BEGIN ANNOTATION MIXIN
@@ -78,21 +78,29 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.returnType = r;
     }
 	
-    /** Constraint on superclass constructor call return type. */
-    public Ref<? extends XConstraint> supClause() {
-        return supClause;
+    public List<LocalDef> formalNames() {
+	return Collections.unmodifiableList(formalNames);
     }
 
-    public void setSupClause(Ref<? extends XConstraint> s) {
-        this.supClause = s;
+    public void setFormalNames(List<LocalDef> formalNames) {
+	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+    }
+    
+    /** Constraint on superclass constructor call return type. */
+    public Ref<XConstraint> supClause() {
+	return supClause;
+    }
+    
+    public void setSupClause(Ref<XConstraint> s) {
+	this.supClause = s;
     }
 
     /** Constraint on formal parameters. */
-    public Ref<? extends XConstraint> whereClause() {
+    public Ref<XConstraint> whereClause() {
         return whereClause;
     }
 
-    public void setWhereClause(Ref<? extends XConstraint> s) {
+    public void setWhereClause(Ref<XConstraint> s) {
         this.whereClause = s;
     }
 	

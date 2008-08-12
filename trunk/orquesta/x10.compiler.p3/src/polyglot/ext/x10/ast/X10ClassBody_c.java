@@ -12,6 +12,8 @@ import java.util.Iterator;
 
 import polyglot.types.MethodDef;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
+
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.List;
@@ -51,20 +53,21 @@ public class X10ClassBody_c extends ClassBody_c {
 								md.position());
 					
 					for (Formal parameter : md.formals()) {
-						if (!parameter.declType().isPrimitive()) {
-							boolean isOk = true;
-							if (parameter.declType().isArray()) { 
-								isOk = false;
-							}
-							else {
-								ClassType_c ct = (ClassType_c)parameter.declType().toClass();
-								isOk = xts.isX10Array(ct);
-							}
-							if (!isOk)
-								throw new SemanticException(parameter+
-										":parameters to extern calls must be either X10 arrays or primitives.",
-										parameter.position());
+						Type declType = parameter.declType();
+						boolean isOk = true;
+						if (!declType.isPrimitive()) {
+						    isOk = false;
 						}
+						else if (declType.isArray()) { 
+						    isOk = false;
+						}
+						else if (declType.isClass()) {
+						    isOk = xts.isX10Array(declType);
+						}
+						if (!isOk)
+						    throw new SemanticException(parameter+
+						                                ":parameters to extern calls must be either X10 arrays or primitives.",
+						                                parameter.position());
 					}
 				}
 			}

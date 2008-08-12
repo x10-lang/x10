@@ -25,7 +25,7 @@ public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
      * to super in the body of this constructor. 
      * @return
      */
-    Ref<? extends XConstraint> supClause();
+    Ref<XConstraint> supClause();
     
     /** Set the constraint on properties obtained from
      * the return type of the call to super. Set when type-checking
@@ -33,7 +33,7 @@ public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
      * 
      * @param c
      */
-    void setSupClause(Ref<? extends XConstraint> c);
+    void setSupClause(Ref<XConstraint> c);
 
 //    /**
 //     * Return an instance of this, specialized with (a) any references

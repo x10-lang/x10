@@ -10,9 +10,15 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
+import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
+import polyglot.types.CodeInstance;
+import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.LazyRef;
+import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -25,6 +31,7 @@ import polyglot.util.TypedList;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
 
 public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
@@ -50,20 +57,36 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	    X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
 	    FunctionTypeNode_c n = this;
 	    List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
-	    for (TypeParamNode p : n.typeParameters()) {
-		typeParams.add(p.typeRef());
+	    for (TypeParamNode tpn : n.typeParameters()) {
+		typeParams.add(Types.ref(tpn.type()));
 	    }
 	    List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
 	    for (Formal f : n.formals()) {
 		formalTypes.add(f.type().typeRef());
 	    }
-
+	    List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
+	    for (Formal f : n.formals()) {
+		formalNames.add(f.localDef());
+	    }
 	    List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(n.throwTypes().size());
 	    for (TypeNode tn : n.throwTypes()) {
 		throwTypes.add(tn.typeRef());
 	    }
-
-	    Type t = ts.closure(position(), returnType.typeRef(), typeParams, formalTypes, whereClause != null ? whereClause.xconstraint() : null, throwTypes);
+	    
+	    Context c = ar.context();
+	    ClassType ct = c.currentClass();
+	    CodeDef code = c.currentCode();
+	    ClosureDef cd = ts.closureDef(position(),
+	                                  Types.ref(ct), 
+	                                  code == null ? null : Types.ref(code.asInstance()),
+	                                  returnType.typeRef(),
+	                                  typeParams,
+	                                  formalTypes, 
+	                                  formalNames, 
+	                                  whereClause != null ? whereClause.xconstraint() : null,
+	                                  throwTypes);
+	    
+	    Type t = cd.asType();
 	    ((LazyRef<Type>) typeRef()).update(t);
 	    return nf.CanonicalTypeNode(position(), t);
 	}

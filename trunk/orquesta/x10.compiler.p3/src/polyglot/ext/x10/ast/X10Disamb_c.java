@@ -10,36 +10,32 @@ package polyglot.ext.x10.ast;
 import java.util.Collections;
 
 import polyglot.ast.Ambiguous;
+import polyglot.ast.Call;
 import polyglot.ast.Disamb_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
-import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del;
-import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.PathType_c;
-import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10NamedType;
-import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.frontend.Globals;
-import polyglot.frontend.Goal;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
-import polyglot.types.LazyRef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MemberInstance;
+import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
-import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
@@ -79,38 +75,48 @@ public class X10Disamb_c extends Disamb_c {
 	    		}
 
 	    		// Now try properties.
-	    		if (t instanceof StructType) {
-	    			try {
-	    				FieldInstance fi = ts.findField((StructType) t, this.name.id(), c.currentClassDef());
-	    				if (fi instanceof X10FieldInstance) {
-	    					X10FieldInstance xfi = (X10FieldInstance) fi;
-	    					if (xfi.isProperty()) {
-	    						Field f = nf.Field(pos, makeMissingPropertyTarget(fi), this.name);
-	    						f = f.fieldInstance(fi);
-	    						f = (Field) f.type(fi.type());
-	    						return f;
-	    					}
-	    				}
+	    		try {
+	    		    FieldInstance fi = ts.findField(t, ts.FieldMatcher(t, this.name.id()), c.currentClassDef());
+	    		    if (fi instanceof X10FieldInstance) {
+	    			X10FieldInstance xfi = (X10FieldInstance) fi;
+	    			if (xfi.isProperty()) {
+	    			    Field f = nf.Field(pos, makeMissingPropertyTarget(fi, t), this.name);
+	    			    f = f.fieldInstance(fi);
+	    			    f = (Field) f.type(fi.type());
+	    			    return f;
 	    			}
-	    			catch (SemanticException e) {
-	    			}
+	    		    }
+	    		}
+	    		catch (SemanticException e) {
+	    		}
+
+	    		if (vi != null) {
+	    		    Node n = disambiguateVarInstance(vi);
+	    		    if (n != null) return n;
 	    		}
 	    		
-	    		if (vi != null) {
-	    			Node n = disambiguateVarInstance(vi);
-	    			if (n != null) return n;
+	    		// Now try 0-ary property methods.
+	    		try {
+	    		    MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.EMPTY_LIST), c.currentClassDef());
+	    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+	    			Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
+	    			call = call.methodInstance(mi);
+	    			call = (Call) call.type(mi.returnType());
+	    			return call;
+	    		    }
+	    		}
+	    		catch (SemanticException e) {
 	    		}
 	    	}
 	    	
 	        if (typeOK()) {
 	            try {
 	        	Type ct = ts.findMemberType(t, this.name.id());
-	        	
 	        	return makeTypeNode(ct);
 	            }
 	            catch (SemanticException e) {
 	            }
-
+	            
 //	            try {
 //	        	X10TypeSystem xts = (X10TypeSystem) ts;
 //	        	Type pt = xts.findTypeProperty(t, this.name.id(), c.currentClassDef());
@@ -138,6 +144,20 @@ public class X10Disamb_c extends Disamb_c {
 		    Node n = disambiguateVarInstance(vi);
 		    if (n != null) return n;
 		}
+		
+    		
+    		// Now try 0-ary property methods.
+    		try {
+    		    MethodInstance mi = c.findMethod(name.id(), Collections.EMPTY_LIST);
+    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+    			Call call = nf.Call(pos, makeMissingFieldTarget(mi), this.name);
+    			call = call.methodInstance(mi);
+    			call = (Call) call.type(mi.returnType());
+    			return call;
+    		    }
+    		}
+    		catch (SemanticException e) {
+    		}
 	    }
 
 	    // no variable found. try types.
@@ -182,8 +202,6 @@ public class X10Disamb_c extends Disamb_c {
 	    if (packageOK()) {
 	        return nf.PackageNode(pos, Types.ref(ts.packageForName(name.id())));
 	    }
-	    
-
 	    
 	    return null;
 	}
@@ -232,10 +250,29 @@ public class X10Disamb_c extends Disamb_c {
 				}
 			}
 		}
-
-		return super.disambiguateExprPrefix(e);
+		
+		if (exprOK()) {
+		    try {
+			return super.disambiguateExprPrefix(e);
+		    }
+		    catch (SemanticException ex) {
+		    }
+		    // Now try 0-ary property methods.
+		    try {
+			MethodInstance mi = ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.EMPTY_LIST), c.currentClassDef());
+			if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+			    Call call = nf.Call(pos, e, this.name);
+			    call = call.methodInstance(mi);
+			    call = (Call) call.type(mi.returnType());
+			    return call;
+			}
+		    }
+		    catch (SemanticException ex) {
+		    }
+		}
+		
+		return null;
 	}
-
 
 	@Override
 	public Node disambiguate(Ambiguous amb, ContextVisitor v, Position pos, Node prefix, Id name) throws SemanticException {
@@ -247,21 +284,21 @@ public class X10Disamb_c extends Disamb_c {
 		return n;
 	}
 	
-	protected Receiver makeMissingPropertyTarget(FieldInstance fi) throws SemanticException {
-        Receiver r;
-
-        if (fi.flags().isStatic()) {
-            r = nf.CanonicalTypeNode(pos.startOf(), fi.container());
-        }
-        else {
-            // The field is non-static, so we must prepend with self.
-            X10Context xc = (X10Context) c;
-           
-            Expr e = ((X10NodeFactory) nf).Self(pos); 
-            e = e.type(xc.currentDepType());
-            r = e;
-        }
-        		
-        return r;
-    }
+	protected Receiver makeMissingPropertyTarget(MemberInstance<?> fi, Type currentDepType) throws SemanticException {
+	    Receiver r;
+	    
+	    if (fi.flags().isStatic()) {
+		r = nf.CanonicalTypeNode(pos.startOf(), fi.container());
+	    }
+	    else {
+		// The field is non-static, so we must prepend with self.
+		X10Context xc = (X10Context) c;
+		
+		Expr e = ((X10NodeFactory) nf).Self(pos); 
+		e = e.type(currentDepType);
+		r = e;
+	    }
+	    
+	    return r;
+	}
 }

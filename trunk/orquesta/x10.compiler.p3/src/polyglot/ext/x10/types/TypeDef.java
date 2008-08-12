@@ -10,8 +10,8 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 
-public interface TypeDef extends X10Def, MemberDef, ProcedureDef {
-	public abstract MacroType asType();
+public interface TypeDef extends X10Def, MemberDef, X10ProcedureDef {
+	public MacroType asType();
 
 	public Ref<? extends Package> package_();
 	public void setPackage(Ref<? extends Package> pkg);
@@ -19,18 +19,15 @@ public interface TypeDef extends X10Def, MemberDef, ProcedureDef {
 	public String name();
 	public void setName(String name);
 
-	public abstract List<Ref<? extends Type>> typeParameters();
-	public abstract void setTypeParameters(List<Ref<? extends Type>> typeParameters);
+	public List<Ref<? extends Type>> typeParameters();
+	public void setTypeParameters(List<Ref<? extends Type>> typeParameters);
 	
-	public abstract List<String> formalNames();
-	public abstract void setFormalNames(List<String> formalNames);
-	
-	public abstract List<Ref<? extends Type>> formalTypes();
-	public abstract void setFormalTypes(List<Ref<? extends Type>> formalTypes);
+	public List<Ref<? extends Type>> formalTypes();
+	public void setFormalTypes(List<Ref<? extends Type>> formalTypes);
 
-	public abstract Ref<XConstraint> whereClause();
-	public abstract void setWhereClause(Ref<XConstraint> whereClause);
+	public Ref<XConstraint> whereClause();
+	public void setWhereClause(Ref<XConstraint> whereClause);
 
-	public abstract Ref<? extends Type> definedType();
-	public abstract void setType(Ref<? extends Type> type);
+	public Ref<? extends Type> definedType();
+	public void setType(Ref<? extends Type> type);
 }

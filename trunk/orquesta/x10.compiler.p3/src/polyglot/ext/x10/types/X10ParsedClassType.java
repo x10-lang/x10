@@ -10,7 +10,10 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.List;
+
 import polyglot.types.ParsedClassType;
+import polyglot.types.Type;
 
 /**
  * @author vj
@@ -19,14 +22,8 @@ import polyglot.types.ParsedClassType;
  */
 public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10NamedType {
 
-    /**
-     * The root of the superclass hierarchy -- either ts.X10Object() or ts.Object().
-     * Must return ts.X10Object() if it encounters ts.x10Object() on its way
-     * from this type up the superType() links. Otherwise must return ts.Object()
-     * @return
-     */
-    X10ClassType superClassRoot();
-
+    X10ParsedClassType typeArguments(List<Type> typeArgs);
+    
     /** Returns true iff superClassRoot() equals ts.Object().
      * @return
      */

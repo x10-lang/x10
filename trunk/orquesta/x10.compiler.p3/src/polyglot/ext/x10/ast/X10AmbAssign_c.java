@@ -20,7 +20,7 @@ public class X10AmbAssign_c extends AmbAssign_c {
     @Override
     public Node disambiguate(TypeChecker ar) throws SemanticException {
 	if (left instanceof Call) {
-	    Call c= (Call) left;
+	    Call c = (Call) left;
 	    if (c.target() instanceof Expr) {
 		X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
 		return nf.SettableAssign(position(), (Expr) c.target(), c.arguments(), operator(), right());

@@ -3,12 +3,16 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.ConstructorInstance_c;
 import polyglot.types.DerefTransform;
+import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
@@ -20,6 +24,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
+import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XConstraint;
 
@@ -117,12 +122,25 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 	    n.typeParameters = typeParameters;
 	    return n;
     }
-    
-    @Override
-    public ConstructorInstance instantiate(Type receiverType,
-    		List<Type> argumentTypes) throws SemanticException {
 
-	    return X10MethodInstance_c.instantiate(this, receiverType, argumentTypes);
+    public List<LocalInstance> formalNames;
+    
+    public List<LocalInstance> formalNames() {
+	if (this.formalNames == null) {
+	    this.formalNames = new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
+		public LocalInstance transform(LocalDef o) {
+		    return o.asInstance();
+		}
+	    });
+	}
+	
+	return formalNames;
+    }
+    
+    public X10ConstructorInstance formalNames(List<LocalInstance> formalNames) {
+	X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
+	n.formalNames = formalNames;
+	return n;
     }
 
     public String toString() {
@@ -136,7 +154,52 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     
     public String signature() {
-	    X10ConstructorDef_c def = (X10ConstructorDef_c) def();
-	    return "this" + (typeParameters().isEmpty() ? "" : "[" + CollectionUtil.listToString(typeParameters()) + "]") + "(" + CollectionUtil.listToString(formalTypes()) + ")";
+	StringBuilder sb = new StringBuilder();
+	sb.append("this");
+	List<String> params = new ArrayList<String>();
+	if (typeParameters != null) {
+	    for (int i = 0; i < typeParameters.size(); i++) {
+		params.add(typeParameters.get(i).toString());
+	    }
+	}
+	else {
+	    for (int i = 0; i < x10Def().typeParameters().size(); i++) {
+		params.add(x10Def().typeParameters().get(i).toString());
+	    }
+	}
+	if (params.size() > 0) {
+	    sb.append("[");
+	    sb.append(CollectionUtil.listToString(params));
+	    sb.append("]");
+	}
+	List<String> formals = new ArrayList<String>();
+	if (formalTypes != null) {
+	    for (int i = 0; i < formalTypes.size(); i++) {
+		String s = "";
+		String t = formalTypes.get(i).toString();
+		if (formalNames != null && i < formalNames.size()) {
+		    LocalInstance a = formalNames.get(i);
+		    if (a != null && ! a.name().equals(""))
+			s = a.name() + ": " + t; 
+		    else
+			s = t;
+		}
+		else {
+		    s = t;
+		}
+		formals.add(s);
+	    }
+	}
+	else {
+	    for (int i = 0; i < def().formalTypes().size(); i++) {
+		formals.add(def().formalTypes().get(i).toString());
+	    }
+	}
+	sb.append("(");
+	sb.append(CollectionUtil.listToString(formals));
+	sb.append(")");
+	if (whereClause != null)
+	    sb.append(whereClause);
+	return sb.toString();
     }
 }

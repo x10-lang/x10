@@ -120,6 +120,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			return typeToCString(theType);
 		}
 		else if (theType.isArray()){
+		    // XYZ
 	 	   return typeToCType(theType.toArray().base())+"*";
                 }
 		else // theType.isClass()
@@ -159,6 +160,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			throw new Error("Unexpected type" + theType.toString());
 		}
 		else {
+		    // XYZ
+		    // if (NativeRail || NativeValRail) ...
                    if(!theType.isArray()) throw new Error("Unexpected type"+theType.toString());
                    Type baseType = theType.toArray().base();
                    if(!baseType.isPrimitive()) throw new Error("Only primitive arrays are supported, not "+theType.toString());
@@ -192,6 +195,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "V";
 			throw new Error("Unexpected type" + theType.toString());
 		} else {
+		    // XYZ
               
                    if(!theType.isArray()) throw new Error("Only java arrays are supported, not "+theType.toString());
               
@@ -210,6 +214,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			Formal_c parameter = (Formal_c) i.next(); 
                         if(parameter.declType().isPrimitive() ||
                            parameter.declType().isArray())
+                            // XYZ
                            signature += typeToJavaSigString(parameter.declType());
                         else {
                         // assume this is an X10 array object.  Determine backing array type and add
@@ -218,6 +223,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                            MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
                            if(null == backingMethod) throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ct);
                            signature += typeToJavaSigString(backingMethod.returnType());
+                           // XYZ: array type
                            signature +=typeToJavaSigString( typeSystem.arrayOf(parameter.position(),
                                                                                typeSystem.Int()));
 
@@ -362,6 +368,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		MethodDecl_c newNative = (MethodDecl_c)nativeMethod.nameString(nativeName);
 		ArrayList newFormals = new ArrayList();
 
+		// XYZ: array type
 		TypeNode longType = nf.CanonicalTypeNode(nativeMethod.position(), typeSystem.Long());
 		TypeNode arrayOfIntType = nf.CanonicalTypeNode(nativeMethod.position(), 
 							       typeSystem.arrayOf(nativeMethod.position(),typeSystem.Int()));
@@ -757,6 +764,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "void";
                         throw new Error("Unhandled type:"+theType);
 		} else {
+		    // XYZ
 		   if(theType.isArray())
 		      return typeToJNIString((theType.toArray()).base())+"Array";
                 }

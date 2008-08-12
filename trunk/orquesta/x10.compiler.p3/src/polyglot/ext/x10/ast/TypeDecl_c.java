@@ -14,6 +14,7 @@ import java.util.List;
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl_c;
+import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
@@ -33,6 +34,7 @@ import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.TypeDef_c;
 import polyglot.ext.x10.types.TypeProperty_c;
 import polyglot.ext.x10.types.X10ClassDef;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -40,9 +42,11 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
+import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
 import polyglot.types.Named;
 import polyglot.types.Package;
@@ -172,13 +176,46 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		n = (TypeDecl_c) n.type(type);
 		return n;
 	}
+	
+	public Context enterScope(Context c) {
+	    return c.pushCode(typeDef);
+	}
+
+	public Context enterChildScope(Node child, Context c) {
+	    if (! formals.isEmpty() && child != type) {
+		// Push formals so they're in scope in the types of the other formals.
+		c = c.pushBlock();
+		for (Formal f : formals) {
+		    f.addDecls(c);
+		}
+	    }
+
+	    X10Context cc = (X10Context) super.enterChildScope(child, c);
+
+	    if (child == this.type) {
+		if (cc == c) cc = (X10Context) c.copy();
+		cc.setVarWhoseTypeIsBeingElaborated(null);
+	    }
+
+	    return cc;
+	}
 
 	@Override
 	public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
 		final X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
-
+		X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
+		
+//		// Generate a wrapper class and rename the typedef to "this".
+//		if (! name.id().equals("this")) {
+//		    TypeDecl_c td = (TypeDecl_c) this.name(nf.Id(position(), "this"));
+//		    X10ClassDecl cd = nf.X10ClassDecl(position(), flags(), name(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null, Collections.EMPTY_LIST, nf.ClassBody(position(), Collections.<ClassMember>singletonList(td)));
+//		    return cd.visit(tb);
+//		}
+		
 		X10ClassDef ct = (X10ClassDef) tb.currentClass();
-
+		
+		boolean topLevel = ct == null;
+		
 		// If this is a top-level typedef, add it to a dummy class for the package.
 		// When looking up types, we'll look for the package class then walk through the members.
 		Package package_ = tb.currentPackage();
@@ -205,7 +242,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		if (ct == null)
 		    throw new SemanticException("Could not find enclosing class or package for type definition \"" + name.id() + "\".", position());
 
-		TypeDef typeDef = new TypeDef_c(ts, position(), flags.flags(), name.id(), Types.ref(ct.asType()),
+		TypeDef typeDef = new TypeDef_c(ts, position(), topLevel ? flags.flags().Static() : flags.flags(), name.id(), Types.ref(ct.asType()),
 		                                                                           Collections.EMPTY_LIST,
 		                                                                           Collections.EMPTY_LIST,
 		                                                                           Collections.EMPTY_LIST, null, null);
@@ -219,12 +256,12 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 
 	        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
 	        for (TypeParamNode tpn : n.typeParameters()) {
-	        	typeParameters.add(tpn.typeRef());
+	        	typeParameters.add(Types.ref(tpn.type()));
 	        }
 	        typeDef.setTypeParameters(typeParameters);
 	        
 	        List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>();
-	        List<String> formalNames = new ArrayList<String>();
+	        List<LocalDef> formalNames = new ArrayList<LocalDef>();
 	        for (Formal f : n.formals()) {
 	            final Formal f2 = f;
 	            final LazyRef<XConstraint> cref = Types.<XConstraint>lazyRef(new XConstraint_c());
@@ -243,7 +280,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        	}
 	            });
 	            formalTypes.add(f.type().typeRef());
-	            formalNames.add(f.name().id());
+	            formalNames.add(f.localDef());
 	        }
 	        typeDef.setFormalTypes(formalTypes);
 	        typeDef.setFormalNames(formalNames);
@@ -336,17 +373,17 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	    sb.append(flags().flags().translate());
 	    sb.append("type ");
 	    sb.append(name());
-	    if (typeParameters().size() == 0) {
+	    if (typeParameters().size() > 0) {
 		String sep = "";
 		sb.append("[");
-		for (Formal f : formals()) {
+		for (TypeParamNode f : typeParameters()) {
 		    sb.append(sep);
 		    sep = ",";
 		    sb.append(f);
 		}
 		sb.append("]");
 	    }
-	    if (formals().size() == 0) {
+	    if (formals().size() > 0) {
 		String sep = "";
 		sb.append("(");
 		for (Formal f : formals()) {

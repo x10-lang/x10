@@ -33,6 +33,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
@@ -72,7 +73,23 @@ public class X10Local_c extends Local_c {
 							position());
 				}
 			}
-
+			
+			// Add in self==x to local variable x.
+			if (result.localInstance().flags().isFinal()) {
+			    Type t = result.type();
+			    XConstraint c = X10TypeMixin.xclause(t);
+			    c = (c == null) ? new XConstraint_c() : c.copy();
+			    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+			    try {
+				XLocal resultTerm = xts.xtypeTranslator().trans(result);
+				c.addSelfBinding(resultTerm);
+				t = X10TypeMixin.xclause(t, c);
+				result = (X10Local_c) result.type(t);
+			    }
+			    catch (SemanticException e) {
+			    }
+			}
+			
 			// Fold in the method's where clause.
 			CodeDef ci = xtc.currentCode();
 			if (ci instanceof X10ProcedureDef) {
@@ -94,8 +111,8 @@ public class X10Local_c extends Local_c {
         			XConstraint dep = X10TypeMixin.xclause(t);
         			if (dep == null) dep = new XConstraint_c();
         			else dep = dep.copy();
-        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
-        			dep.addSelfBinding((XVar) resultTerm);
+//        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
+//        			dep.addSelfBinding((XVar) resultTerm);
         			dep.addIn(c);
         			
         			t = X10TypeMixin.xclause(t, dep);

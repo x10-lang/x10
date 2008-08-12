@@ -45,7 +45,7 @@ public class QueryEngine {
 	
 	/**
 	 * @param a Array variable being used in one-dimensional access
-	 * @return true iff a is a dense one-diemnsional array with zero origin
+	 * @return true iff a is a dense one-dimensional array with zero origin
 	 */
 	public boolean isRectangularRankOneLowZero(SettableAssign a) {
 		Type t = a.array().type();
@@ -62,11 +62,9 @@ public class QueryEngine {
 		   To be removed when the generation is completely disabled. */
 		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
 			return false;
-        if (t instanceof X10Type) {
             X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
             if (ts.isPoint(t)) return true;
             if (ts.isValueType(t))  return false;
-        }
 		return true;
 	}
 

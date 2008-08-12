@@ -7,6 +7,7 @@ import java.util.List;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Def_c;
+import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -23,8 +24,9 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected Ref<? extends Type> returnType;
     protected List<Ref<? extends Type>> typeParameters;
     protected List<Ref<? extends Type>> formalTypes;
+    protected List<LocalDef> formalNames;
     protected List<Ref<? extends Type>> throwTypes;
-    protected Ref<? extends XConstraint> whereClause;
+    protected Ref<XConstraint> whereClause;
     protected CodeInstance<?> asInstance;
 
     public ClosureDef_c(TypeSystem ts, Position pos, 
@@ -33,7 +35,8 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             Ref<? extends Type> returnType,
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
-            Ref<? extends XConstraint> whereClause,
+            List<LocalDef> formalNames,
+            Ref<XConstraint> whereClause, 
             List<Ref<? extends Type>> throwTypes) {
 
         super(ts, pos);
@@ -42,8 +45,18 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.returnType = returnType;
         this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
+        this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.whereClause = whereClause;
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
+    }
+    
+    ClosureType asType;
+    
+    public ClosureType asType() {
+	if (asType == null) {
+	    asType = new ClosureType_c((X10TypeSystem) ts, position(), asInstance());
+	}
+	return asType;
     }
     
     protected boolean inferReturnType;
@@ -74,11 +87,11 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     }
     // END ANNOTATION MIXIN
 
-    public CodeInstance<?> asInstance() {
+    public ClosureInstance asInstance() {
         if (asInstance == null) {
             asInstance = ((X10TypeSystem) ts).createClosureInstance(position(), Types.ref(this));
         }
-        return asInstance;
+        return (ClosureInstance) asInstance;
     }
     
     public Ref<? extends ClassType> typeContainer() {
@@ -92,12 +105,20 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
 	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
     }
+    
+    public List<LocalDef> formalNames() {
+	return Collections.unmodifiableList(formalNames);
+    }
 
-    public Ref<? extends XConstraint> whereClause() {
+    public void setFormalNames(List<LocalDef> formalNames) {
+	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+    }
+
+    public Ref<XConstraint> whereClause() {
 	    return whereClause;
     }
     
-    public void setWhereClause(Ref<? extends XConstraint> s) {
+    public void setWhereClause(Ref<XConstraint> s) {
 	    this.whereClause = s;
     }
     

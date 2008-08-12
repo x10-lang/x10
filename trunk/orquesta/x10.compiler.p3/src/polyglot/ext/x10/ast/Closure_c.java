@@ -29,8 +29,10 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
+import polyglot.types.DerefTransform;
 import polyglot.types.FieldDef;
 import polyglot.types.LazyRef;
+import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -41,6 +43,7 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.SubtypeSet;
+import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
@@ -214,6 +217,7 @@ public class Closure_c extends Expr_c implements Closure {
         ClosureDef mi = ts.closureDef(position(), Types.ref(ct.asType()), Types.ref(code.asInstance()), returnType.typeRef(),
                                       Collections.<Ref<? extends Type>>emptyList(),
                                          Collections.<Ref<? extends Type>>emptyList(),
+                                         Collections.<LocalDef>emptyList(),
                                          null, Collections.<Ref<? extends Type>>emptyList());
 
         if (returnType() instanceof UnknownTypeNode) {
@@ -231,12 +235,17 @@ public class Closure_c extends Expr_c implements Closure {
         
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
-        	typeParameters.add(tpn.typeRef());
+            typeParameters.add(Types.ref(tpn.type()));
         }
 
         List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
         for (Formal f : n.formals()) {
              formalTypes.add(f.type().typeRef());
+        }
+        
+        List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
+        for (Formal f : n.formals()) {
+            formalNames.add(f.localDef());
         }
 
         List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(n.throwTypes().size());
@@ -244,6 +253,7 @@ public class Closure_c extends Expr_c implements Closure {
             throwTypes.add(tn.typeRef());
         }
         
+        mi.setFormalNames(formalNames);
         mi.setReturnType(n.returnType().typeRef());
         mi.setTypeParameters(typeParameters);
         mi.setFormalTypes(formalTypes);
@@ -301,8 +311,7 @@ public class Closure_c extends Expr_c implements Closure {
         }
 
         ClosureDef def = this.closureDef;
-        ClosureType closureType = x10ts.closure(position(), def.returnType(), def.typeParameters(), def.formalTypes(), null, def.throwTypes());
-        return type(closureType);
+        return type(def.asType());
     }
 
     public Term firstChild() {

@@ -17,7 +17,6 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.AmbDepTypeNode;
 import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.X10ArrayTypeNode;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.frontend.Job;
 import polyglot.frontend.SetResolverGoal;
@@ -56,13 +55,6 @@ public class CastRewriter extends ContextVisitor {
 			TypeNode xn = (TypeNode) nn.castType();
 			DepParameterExpr e = null;
 			
-			if (xn instanceof X10ArrayTypeNode) {
-				X10ArrayTypeNode xatn = (X10ArrayTypeNode) xn;
-				TypeNode base = xatn.dep(null);
-				DepParameterExpr dep = xatn.dep();
-				return nf.DepCast(n.position(), base, dep, nn.expr());
-			}
-			
 			if (xn instanceof AmbDepTypeNode) {
 			    AmbDepTypeNode adtn = (AmbDepTypeNode) xn;
 			    TypeNode base = nf.X10AmbTypeNode(xn.position(), adtn.prefix(), adtn.name());
@@ -75,13 +67,6 @@ public class CastRewriter extends ContextVisitor {
 			Instanceof nn = (Instanceof) n;
                         TypeNode xn = (TypeNode) nn.compareType();
                         DepParameterExpr e = null;
-                        
-            			if (xn instanceof X10ArrayTypeNode) {
-            				X10ArrayTypeNode xatn = (X10ArrayTypeNode) xn;
-            				TypeNode base = xatn.dep(null);
-            				DepParameterExpr dep = xatn.dep();
-            				return nf.DepInstanceof(n.position(), base, dep, nn.expr());
-            			}
                         
                         if (xn instanceof AmbDepTypeNode) {
                             AmbDepTypeNode adtn = (AmbDepTypeNode) xn;
