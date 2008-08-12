@@ -72,10 +72,10 @@ public final class DoubleArray1d_c extends DoubleArray_c {
 		if (d.rank != 1)
 			throw new RankMismatchException(d, 1);
 		region r = d.region;
-		B = r.rank(0).low();
+		B = r.size()==0? 0: r.rank(0).low();
 		//if (r.size() > 0 && B != 0)
 		//	throw new IllegalArgumentException("Region "+d.region+" is not 0-based");
-		I = r.size()==0? -1: d.region.rank(0).high()+1;
+		I = r.size()==0? -1: r.rank(0).high()+1;
 	}
 
 	/**
