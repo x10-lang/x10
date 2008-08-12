@@ -16,13 +16,9 @@ class UnionRegion extends BaseRegion {
 
     PolyRegion [] regions;
 
-    UnionRegion(int rank, PolyRegion [] regions) {
-        super(rank, false, false);
-        this.regions = regions;
-    }
-
     UnionRegion(PolyRegionList rs) {
-        this(rs.rank, rs.toArray());
+        super(rs.rank, false, false);
+        this.regions = rs.toArray();
     }
 
     public Region intersection(Region that) {
@@ -30,6 +26,28 @@ class UnionRegion extends BaseRegion {
         for (int i=0; i<regions.length; i++)
             rs.add(regions[i].intersection(that));
         return new UnionRegion(rs);
+    }
+
+    public Region inverse() {
+        Region r = Region.makeFull(rank);
+        for (int i=0; i<regions.length; i++)
+            r = r.intersection(regions[i].inverse());
+        return r;
+    }
+
+    public boolean isEmpty() {
+        return regions.length==0;
+    }
+
+    public boolean isConvex() {
+        return false;
+    }
+
+    public int size() {
+        int size = 0;
+        for (int i=0; i<regions.length; i++)
+            size += regions[i].size();
+        return size;
     }
 
 
