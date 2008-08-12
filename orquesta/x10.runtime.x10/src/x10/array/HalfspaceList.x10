@@ -223,10 +223,8 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
         while (it.hasNext()) {
             Halfspace h = it.next();
             int a = h.as[axis];
-            if (a < 0) {
-                assert h.isRect();
+            if (a < 0)
                 return -h.as[rank()] / a;
-            }
         }
         String msg = "axis " + axis + " has no minimum";
         throw new UnboundedRegionException(msg);
@@ -237,10 +235,8 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
         while (it.hasNext()) {
             Halfspace h = it.next();
             int a = h.as[axis];
-            if (a > 0) {
-                assert h.isRect();
+            if (a > 0)
                 return -h.as[rank()] / a;
-            }
         }
         String msg = "axis " + axis + " has no maximum";
         throw new UnboundedRegionException(msg);
@@ -283,6 +279,29 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
             return false;
         }
         return true;
+    }
+
+
+
+    //
+    // XXX is this correct?
+    // XXX more efficient way?
+    //
+
+    boolean isEmpty() {
+        try {
+            PolyScanner s = new PolyScanner(this);
+            for (int axis=0; axis<rank; axis++) {
+                int min = s.min(axis);
+                if (min > s.max(axis))
+                    return true;
+                if (axis<rank-1)
+                    s.set(axis, min);
+            }
+        } catch (UnboundedRegionException e) {
+            return false;
+        }
+        return false;
     }
 
 
