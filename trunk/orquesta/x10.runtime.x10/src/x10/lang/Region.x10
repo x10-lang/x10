@@ -10,7 +10,7 @@ public abstract value class Region(
     boolean rect,
     boolean zeroBased,
     boolean rail
-) {
+) implements SetOps_Region {
 
 
     //
@@ -79,6 +79,27 @@ public abstract value class Region(
     public abstract Region product(Region that);
     public abstract Region projection(int axis);
     public abstract Region boundingBox();
+
+
+    //
+    // set ops
+    //
+
+    public Region $not() {
+        return inverse();
+    }
+
+    public Region $and(Region that) {
+        return intersection(that);
+    }
+
+    public Region $or(Region that) {
+        return union(that);
+    }
+
+    public Region $minus(Region that) {
+        return difference(that);
+    }
 
 
     //
