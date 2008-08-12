@@ -3,16 +3,17 @@ package x10.lang;
 public abstract value Dist(
 
     region: Region,
-    rank: int,
-    rect: boolean,
-    zeroBased: boolean,
-    rail: boolean,
 
     unique: boolean,
     constant: boolean,
     onePlace: Place
 
 ) {
+
+    property rank: int = region.rank;
+    property rect: boolean = region.rect;
+    property zeroBased: boolean = region.zeroBased;
+    property rail: boolean = region.rail;
 
     //public static final UNIQUE: Dist = makeUnique();
 
@@ -51,11 +52,6 @@ public abstract value Dist(
 
         property(
             region,
-            region.rank,
-            region.rect,
-            region.zeroBased,
-            region.rail,
-
             unique,
             constant,
             onePlace
