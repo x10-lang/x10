@@ -11,8 +11,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() x10.array.PolyRegion does not support size
 region: ((x0<=1) || (x0>=2 && x1<=1) || (x0>=2 && x1>=5) || (x0>=4 && x1>=2 && x1<=4))
 x10.array.UnboundedRegionException: axis 1 has no minimum
 --- Test20: r4=r3.intersection(r2)
@@ -20,8 +20,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 30
 region: ([0..1,0..5] || [2..5,0..1] || [2..5,5..5] || [4..5,2..4])
   poly
   poly
@@ -45,8 +45,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 30
 region: ([0..1,0..5] || [2..5,0..1] || [2..5,5..5] || [4..5,2..4])
   poly
   poly
@@ -92,8 +92,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 20
 region: ([0..1,0..5] || [2..5,0..1])
   poly
   poly
@@ -131,8 +131,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 24
 region: ([0..1,0..5] || [2..5,0..1] || [5..5,2..5])
   poly
   poly
@@ -169,8 +169,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 21
 region: ([0..1,0..5] || [2..3,0..1] || [4..5,0..0] || [5..5,3..5])
   poly
   poly
@@ -194,8 +194,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 56
 region: ([0..5,0..5] || [2..7,6..7] || [6..7,2..5])
   poly
   poly
@@ -222,8 +222,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 56
 region: ([2..7,2..7] || [0..1,0..5] || [2..5,0..1])
   poly
   poly
@@ -250,8 +250,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 42
 region: ([0..5,0..5] || [2..4,6..7])
   poly
   poly
@@ -273,8 +273,8 @@ rank 2
 rect false
 zeroBased false
 rail false
-isConvex() unsupported operation
-size() unsupported operation
+isConvex() false
+size() 42
 region: ([2..4,2..7] || [0..1,0..5] || [2..5,0..1] || [5..5,2..5])
   poly
   poly

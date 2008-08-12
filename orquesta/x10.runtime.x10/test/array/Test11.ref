@@ -4,6 +4,6 @@ rect true
 zeroBased false
 rail false
 isConvex() true
-size() unsupported operation
-region: (full)
+size() x10.array.FullRegion does not support size
+region: full(3)
 x10.array.UnboundedRegionException: axis 2 has no minimum

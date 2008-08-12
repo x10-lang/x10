@@ -3,7 +3,7 @@
  * out of it, and examine it.
  */
 
-import x10.array.BaseRegion;
+import x10.array.PolyRegion;
 import x10.array.HalfspaceList;
 
 class Test08 extends TestArray {
@@ -17,7 +17,7 @@ class Test08 extends TestArray {
         hl.add(COL+ROW, hl.GE, 3);
         hl.add(COL-ROW, hl.LE, 1);
         hl.add(COL-ROW, hl.GE, -1);
-        Region r = BaseRegion.make(hl);
+        Region r = PolyRegion.make(hl);
         prArray("diamond", r);
     }
 }
