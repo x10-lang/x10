@@ -66,11 +66,11 @@ abstract public class BaseArray_T extends Array_T {
     }
 
     public final void set(Point pt, Indexable_T f) {
-        throw U.unsupported();
+        throw U.unsupported(this, "set");
     }
 
     public final void localSet(Point pt, Indexable_T f) {
-        throw U.unsupported();
+        throw U.unsupported(this, "localSet");
     }
 
 
@@ -79,7 +79,7 @@ abstract public class BaseArray_T extends Array_T {
     //
 
     public Array_T restriction(Region r) {
-        throw U.unsupported();
+        throw U.unsupported(this, "restriction");
     }
 
 
@@ -88,52 +88,52 @@ abstract public class BaseArray_T extends Array_T {
     //
 
     public Array_T $plus() {
-        throw U.unsupported();
+        throw U.unsupported(this, "+");
     }
 
     public Array_T $minus() {
-        throw U.unsupported();
+        throw U.unsupported(this, "-");
     }
 
     public Array_T $plus(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, "+");
     }
 
     public Array_T $minus(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, "-");
     }
 
     public Array_T $times(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, "*");
     }
 
     public Array_T $over(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, "/");
     }
 
 
     public boolean $eq(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, "==");
     }
 
     public boolean $lt(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, "<");
     }
 
     public boolean $gt(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, ">");
     }
 
     public boolean $le(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, "<=");
     }
 
     public boolean $ge(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, ">=");
     }
 
     public boolean $ne(Array_T x) {
-        throw U.unsupported();
+        throw U.unsupported(this, "!=");
     }
 
 
