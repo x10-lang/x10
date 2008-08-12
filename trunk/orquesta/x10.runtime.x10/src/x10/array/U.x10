@@ -17,8 +17,8 @@ public class U {
         new java.lang.Exception(s).printStackTrace();
     }
 
-    public static RuntimeException unsupported() {
-        return unsupported("unsupported operation");
+    public static RuntimeException unsupported(java.lang.Object o, String op) {
+        return unsupported(o.getClass().getName() + " does not support " + op);
     }
 
     public static RuntimeException illegal() {
