@@ -94,7 +94,7 @@ public abstract value class Dist(
     // region operations
     //
 
-    public abstract boolean isSubDistribution(Dist d);
+    public abstract boolean isSubdistribution(Dist d);
 
     public abstract Dist intersection(Region r);
     public abstract Dist difference(Region r);

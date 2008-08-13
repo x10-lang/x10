@@ -230,8 +230,12 @@ public class BaseDist extends Dist implements Map_place_Region {
         return new BaseDist(overall, ps, rs);
     }
 
-    public  boolean isSubDistribution(Dist d) {
-        throw U.unsupported(this, "isSubDistribution(Dist)");
+    public  boolean isSubdistribution(Dist that) {
+        place [] ps = allPlaces();
+        for (int i=0; i<ps.length; i++)
+            if (!that.get(ps[i]).contains(this.get(ps[i])))
+                return false;
+        return true;
     }
 
 
