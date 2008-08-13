@@ -31,6 +31,7 @@ import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
@@ -39,7 +40,9 @@ import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 
@@ -78,7 +81,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new Error("Problems writing to " + wrapperFile);
+			throw new InternalCompilerError("Problems writing to " + wrapperFile);
 		}
 	}
 
@@ -90,7 +93,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			wrapperFile.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new Error("Problems with " + wrapperFile );
+			throw new InternalCompilerError("Problems with " + wrapperFile );
 		}
 	}
 
@@ -111,7 +114,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new Error("Problems writing to "+wrapperFile);
+			throw new InternalCompilerError("Problems writing to "+wrapperFile);
 		}
 	}
 
@@ -119,18 +122,15 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		if (theType.isPrimitive()) {
 			return typeToCString(theType);
 		}
-		else if (theType.isArray()){
-		    // XYZ
-	 	   return typeToCType(theType.toArray().base())+"*";
-                }
 		else // theType.isClass()
 		{
-			if (typeSystem.isX10Array(theType)) {
-				Type base = typeSystem.arrayBaseType(theType);
-				if (!base.isPrimitive())
-					return "jobject*";
-				return typeToCString(base)+"*";
-			}
+			   X10TypeSystem ts = typeSystem;
+			   if (ts.isRail(theType) || ts.isValRail(theType)) {
+			       Type base = X10TypeMixin.getParameterType(theType, 0);
+			       if (! base.isPrimitive())
+				   return "jobject*";
+			       return typeToCString(base)+"*";
+			   }
 			return "jobject";
 		}
 	}
@@ -157,16 +157,17 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			if (theType.isVoid())
 				return "void";
 
-			throw new Error("Unexpected type" + theType.toString());
+			throw new InternalCompilerError("Unexpected type" + theType.toString());
 		}
 		else {
-		    // XYZ
-		    // if (NativeRail || NativeValRail) ...
-                   if(!theType.isArray()) throw new Error("Unexpected type"+theType.toString());
-                   Type baseType = theType.toArray().base();
-                   if(!baseType.isPrimitive()) throw new Error("Only primitive arrays are supported, not "+theType.toString());
-                   return typeToCString(baseType)+"Array";
-                   
+			   X10TypeSystem ts = typeSystem;
+			   if (ts.isRail(theType) || ts.isValRail(theType)) {
+			       Type base = X10TypeMixin.getParameterType(theType, 0);
+			       if (base.isPrimitive())
+				   return typeToCString(base)+"Array";
+			       throw new InternalCompilerError("Only primitive arrays are supported, not "+theType.toString());
+			   }
+			   throw new InternalCompilerError("Unexpected type"+theType.toString());
                 }
 	}
 
@@ -193,16 +194,17 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "D";
 			if (theType.isVoid())
 				return "V";
-			throw new Error("Unexpected type" + theType.toString());
+			throw new InternalCompilerError("Unexpected type" + theType.toString());
 		} else {
-		    // XYZ
-              
-                   if(!theType.isArray()) throw new Error("Only java arrays are supported, not "+theType.toString());
-              
-                   Type baseType = theType.toArray().base();
-                   if(!baseType.isPrimitive()) throw new Error("Only primitive arrays are supported, not "+theType.toString()); 
-                   return "["+typeToJavaSigString(baseType);
-                   
+		    X10TypeSystem ts = typeSystem;
+			   if (ts.isRail(theType) || ts.isValRail(theType)) {
+			       Type base = X10TypeMixin.getParameterType(theType, 0);
+			       if (base.isPrimitive())
+				   return "["+typeToJavaSigString(base);
+			       throw new InternalCompilerError("Only primitive arrays are supported, not "+theType.toString());
+			   }
+
+			   throw new InternalCompilerError("Only java arrays are supported, not "+theType.toString());
                 }
 	}
 
@@ -212,20 +214,19 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 		for (ListIterator i = method.formals().listIterator(); i.hasNext();) {
 			Formal_c parameter = (Formal_c) i.next(); 
-                        if(parameter.declType().isPrimitive() ||
-                           parameter.declType().isArray())
-                            // XYZ
+			X10TypeSystem ts = typeSystem;
+                        if(parameter.declType().isPrimitive() || 	
+			   ts.isRail(parameter.declType()) || ts.isValRail(parameter.declType())) {
                            signature += typeToJavaSigString(parameter.declType());
+                        }
                         else {
                         // assume this is an X10 array object.  Determine backing array type and add
                         // descriptor signature
                            ClassType_c ct = (ClassType_c)parameter.declType().toClass();
                            MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
-                           if(null == backingMethod) throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ct);
+                           if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
                            signature += typeToJavaSigString(backingMethod.returnType());
-                           // XYZ: array type
-                           signature +=typeToJavaSigString( typeSystem.arrayOf(parameter.position(),
-                                                                               typeSystem.Int()));
+                           signature +=typeToJavaSigString( typeSystem.Rail(typeSystem.Int()));
 
                         }
 		}
@@ -368,10 +369,9 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		MethodDecl_c newNative = (MethodDecl_c)nativeMethod.nameString(nativeName);
 		ArrayList newFormals = new ArrayList();
 
-		// XYZ: array type
 		TypeNode longType = nf.CanonicalTypeNode(nativeMethod.position(), typeSystem.Long());
 		TypeNode arrayOfIntType = nf.CanonicalTypeNode(nativeMethod.position(), 
-							       typeSystem.arrayOf(nativeMethod.position(),typeSystem.Int()));
+							       typeSystem.Rail(typeSystem.Int()));
 		boolean seenNonPrimitive = false;
 		/* 
                  * determine type of backing array as pass it as well
@@ -385,7 +385,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			  seenNonPrimitive = true;
 			  ClassType_c ct = (ClassType_c)parameter.declType().toClass();
 			  MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
-			  if(null == backingMethod) throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ct);
+			  if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
 			  TypeNode theReturnType = nf.CanonicalTypeNode(nativeMethod.position(),backingMethod.returnType());
 			  newFormals.add(parameter.type(theReturnType));
 			  Formal_c paramDescriptor = (Formal_c)parameter.nameString(parameter.nameString() + KdescriptorNameSuffix);
@@ -481,7 +481,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			} else {
 				ClassType_c ct = (ClassType_c)parameter.declType().toClass();
 				if (null == ct)
-					throw new Error("Problems with array "+parameter.nameString());
+					throw new InternalCompilerError("Problems with array "+parameter.nameString());
 
 				if (trace)System.out.println("Processing "+parameter.nameString()+"::"+parameter);
 
@@ -526,9 +526,9 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					currentClass = (ClassType_c)currentClass.superClass();
 				}
 				if (null == arrayDescriptorMI) 
-					throw new Error("Could not find "+descriptorName+" in class "+ ct.fullName());
+					throw new InternalCompilerError("Could not find "+descriptorName+" in class "+ ct.fullName());
 				if (null == backingArrayMI)
-					throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ ct.fullName());
+					throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ ct.fullName());
 				
 
 				Local getAddrTarget= nf.Local(pos, nf.Id(pos, parameter.nameString()));
@@ -675,7 +675,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			   
 			   ClassType_c ct = (ClassType_c)parameter.declType().toClass();
 			   MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
-			   if(null == backingMethod) throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ct);
+			   if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
 
 			   jniCall += ", " + typeToJNIString(backingMethod.returnType())
 					   + " " + parameter.nameString();
@@ -732,7 +732,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					 + newName + "\")));\n#endif\n\n");
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new Error("Problems writing file");
+			throw new InternalCompilerError("Problems writing file");
 		}
 	}
 
@@ -762,11 +762,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "jdouble";
 			if (theType.isVoid())
 				return "void";
-                        throw new Error("Unhandled type:"+theType);
+                        throw new InternalCompilerError("Unhandled type:"+theType);
 		} else {
-		    // XYZ
-		   if(theType.isArray())
-		      return typeToJNIString((theType.toArray()).base())+"Array";
+		   X10TypeSystem ts = typeSystem;
+		   if (ts.isRail(theType) || ts.isValRail(theType)) {
+		       Type base = X10TypeMixin.getParameterType(theType, 0);
+		       return typeToJNIString(base)+"Array";
+		   }
                 }
 	
 		return "<unknown>";
