@@ -94,15 +94,20 @@ public abstract value class Dist(
     // region operations
     //
 
+    public abstract boolean isSubDistribution(Dist d);
+
+    public abstract Dist intersection(Region r);
     public abstract Dist difference(Region r);
+
+    public abstract Dist intersection(Dist d);
     public abstract Dist difference(Dist d);
     public abstract Dist union(Dist d);
-    public abstract Dist intersection(Region r);
-    public abstract Dist intersection(Dist d);
     public abstract Dist overlay(Dist d);
-    public abstract boolean isSubDistribution(Dist d);
+
     public abstract Dist restriction(Region r);
     public abstract Dist restriction(place p);
+
+    public abstract boolean equals(Dist d);
 
     public Dist $bar(Region r) {
         return restriction(r);
@@ -112,6 +117,17 @@ public abstract value class Dist(
         return restriction(p);
     }
 
+    public Dist $and(Dist d) {
+        return intersection(d);
+    }
+
+    public Dist $or(Dist d) {
+        return union(d);
+    }
+
+    public Dist $minus(Dist d) {
+        return difference(d);
+    }
 
 
     //

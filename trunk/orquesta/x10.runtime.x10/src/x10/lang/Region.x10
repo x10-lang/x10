@@ -74,6 +74,7 @@ public abstract value class Region(
 
     public abstract Region complement();
     public abstract Region union(Region that);
+    public abstract Region disjointUnion(Region that);
     public abstract Region intersection(Region that);
     public abstract Region difference(Region that);
     public abstract Region product(Region that);
