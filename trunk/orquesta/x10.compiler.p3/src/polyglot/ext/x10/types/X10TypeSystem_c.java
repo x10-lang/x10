@@ -1864,16 +1864,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		
 		// Can convert if there is a static method toType.make(fromType)
 		try {
-		    MethodInstance mi = findMethod(toType, new X10TypeSystem_c.X10MethodMatcher(toType, "$convert", Collections.singletonList(fromType)), (ClassDef) null);
-		    if (mi.flags().isStatic())
+		    MethodInstance mi = findMethod(toType, MethodMatcher(toType, "$convert", Collections.singletonList(fromType)), (ClassDef) null);
+		    if (mi.flags().isStatic() && mi.returnType().isSubtype(toType))
 			return true;
 		}
 		catch (SemanticException e) {
 		}
 		
 		try {
-		    MethodInstance mi = findMethod(toType, new X10TypeSystem_c.X10MethodMatcher(toType, "make", Collections.singletonList(fromType)), (ClassDef) null);
-		    if (mi.flags().isStatic())
+		    MethodInstance mi = findMethod(toType, MethodMatcher(toType, "make", Collections.singletonList(fromType)), (ClassDef) null);
+		    if (mi.flags().isStatic() && mi.returnType().isSubtype(toType))
 			return true;
 		}
 		catch (SemanticException e) {
