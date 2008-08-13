@@ -8,6 +8,8 @@
 package polyglot.ext.x10.visit;
 
 
+import java.util.Collections;
+
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
@@ -16,7 +18,10 @@ import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.frontend.Job;
+import polyglot.types.ClassDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -50,6 +55,35 @@ public class X10Boxer extends AscriptionVisitor
 		}
 
 		Position p = e.position();
+		
+		// If can coerce from fromType to toType, but is not a subtype, then insert a coercion.
+		if (ts.isImplicitCastValid(fromType, toType) && ! ts.isSubtype(fromType, toType)) {
+			// Can convert if there is a static method toType.make(fromType)
+		        MethodInstance mi = null;
+		        
+			try {
+			    mi = ts.findMethod(toType, ts.MethodMatcher(toType, "$convert", Collections.singletonList(fromType)), (ClassDef) null);
+			}
+			catch (SemanticException ex) {
+			}
+
+			if (mi == null) {
+			    try {
+				mi = ts.findMethod(toType, ts.MethodMatcher(toType, "make", Collections.singletonList(fromType)), (ClassDef) null);
+			    }
+			    catch (SemanticException ex) {
+			    }
+			}
+			
+			if (mi != null) {
+			    if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
+				Call c = nf.Call(p, nf.Id(p, mi.name()), e);
+				c = c.methodInstance(mi);
+				c = (Call) c.type(mi.returnType());
+				return c;
+			    }
+			}
+		}
 		
 		// This avoids that the int value in code like "String" + 2
 		// is boxed. The toType of the IntLit node that represents "2"
