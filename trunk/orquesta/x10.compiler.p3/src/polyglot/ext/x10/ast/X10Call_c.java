@@ -205,6 +205,8 @@ public class X10Call_c extends Call_c implements X10Call {
         	String name = this.name.id();
 		ClassDef currentClassDef = c.currentClassDef();
 
+		X10Call_c n = this;
+		
 		{
 		    MethodInstance mi;
 
@@ -216,10 +218,11 @@ public class X10Call_c extends Call_c implements X10Call {
 		    catch (SemanticException e) {
 			// Look for a method that will take a rail of a bunch of args.
 			MethodInstance vmi = null;
-			List<Expr> newArgs = new ArrayList<Expr>();
+			X10Call_c newCall = null;
 
 			for (int numVarArgs = 1; numVarArgs < argTypes.size(); numVarArgs++) {
 			    List<Type> newArgTypes = new ArrayList<Type>();
+			    List<Expr> newArgs = new ArrayList<Expr>();
 			    Expr rail = null;
 			    Type railBase = null;
 			    List<Expr> railArgs = new ArrayList<Expr>();
@@ -240,20 +243,26 @@ public class X10Call_c extends Call_c implements X10Call {
 				railType = X10TypeMixin.instantiate(railType, railBase);
 				newArgTypes.add(railType);
 				rail = ((X10NodeFactory) tc.nodeFactory()).Tuple(position(), railArgs);
+				rail = rail.type(railType);
+				newArgs.add(rail);
 			    }
 
 			    try {
 				vmi = xts.findMethod(targetType, 
 				                     xts.MethodMatcher(targetType, name, typeArgs, newArgTypes),
 				                     currentClassDef);
+				newCall = (X10Call_c) this.arguments(newArgs);
+				break;
 			    }
 			    catch (SemanticException ex) {
 				continue;
 			    }
 			}
 
-			if (vmi != null)
+			if (vmi != null) {
 			    mi = vmi;
+			    n = newCall;
+			}
 			else
 			    throw e;
 		    }
@@ -261,24 +270,24 @@ public class X10Call_c extends Call_c implements X10Call {
 		    /* This call is in a static context if and only if
 		     * the target (possibly implicit) is a type node.
 		     */
-		    boolean staticContext = (this.target instanceof TypeNode);
+		    boolean staticContext = (n.target instanceof TypeNode);
 
 		    if (staticContext && !mi.flags().isStatic()) {
 			throw new SemanticException("Cannot call non-static method " + name
-			                            + " of " + target.type() + " in static "
+			                            + " of " + n.target.type() + " in static "
 			                            + "context.", this.position());
 		    }
 
 		    // If the target is super, but the method is abstract, then complain.
-		    if (this.target instanceof Special && 
-			    ((Special)this.target).kind() == Special.SUPER &&
+		    if (n.target instanceof Special && 
+			    ((Special) n.target).kind() == Special.SUPER &&
 			    mi.flags().isAbstract()) {
 			throw new SemanticException("Cannot call an abstract method " +
 			                            "of the super class", this.position());            
 		    }
 
 		    // Copy the method instance so we can modify it.
-		    X10Call_c result = (X10Call_c) this.methodInstance((MethodInstance) mi.copy()).type(mi.returnType());
+		    X10Call_c result = (X10Call_c) n.methodInstance(mi).type(mi.returnType());
 
 		    /////////////////////////////////////////////////////////////////////
 		    // End inlined super call.
@@ -321,40 +330,6 @@ public class X10Call_c extends Call_c implements X10Call {
         }
     }
     
-    /**
-     * Compute the new resulting type for the method call by replacing this and 
-     * any argument variables that occur in the rettype depclause with new
-     * variables whose types are determined by the static type of the receiver
-     * and the actual arguments to the call.
-     * @param tc
-     * @return
-     * @throws SemanticException
-     */
-    private X10Call_c adjustMI(TypeChecker tc) throws SemanticException {
-	    return this;
-//    	if (mi == null) return this;
-//    	X10MethodInstance xmi = (X10MethodInstance) mi;
-//    	Type type = mi.returnType();
-//    	Type retType = X10New_c.instantiateType(xmi, type, target, typeArguments, arguments);
-//    	if (retType != type) {
-//    		xmi = (X10MethodInstance) xmi.returnType(retType);
-//    	}
-//    	if (xmi.whereClause() != null) {
-//    		XConstraint where = X10New_c.instantiateConstraint(xmi, xmi.whereClause(), target, typeArguments, arguments);
-//    		xmi = (X10MethodInstance) xmi.whereClause(where);
-//    	}
-//    	return (X10Call_c) this.type(retType);
-    }
-    private void checkWhereClause(TypeChecker tc) throws SemanticException {
-//    	X10Context c = (X10Context) tc.context();
-//    	X10MethodInstance mi = (X10MethodInstance) methodInstance();
-//    	if (mi !=null) {
-//    		XConstraint where = mi.whereClause();
-//    		if (where != null && ! where.consistent()) {
-//    			throw new SemanticException(mi + ": Method's dependent clause not satisfied by caller.", position());
-//    		}
-//    	}
-    }
     private void checkAnnotations(TypeChecker tc) throws SemanticException {
     	X10Context c = (X10Context) tc.context();
     	X10MethodInstance mi = (X10MethodInstance) methodInstance();
