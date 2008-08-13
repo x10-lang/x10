@@ -121,6 +121,19 @@ public class X10Context_c extends Context_c implements X10Context {
 	private static final Collection TOPICS =
 		CollectionUtil.list(Report.types, Report.context);
 
+	public CodeInstance definingCodeDef(String name) {
+		if ((isBlock() || isCode()) &&
+				(findVariableInThisScope(name) != null || findInThisScope(name) != null)) {
+			return currentCode();
+		}
+
+		if (outer instanceof X10Context) {
+			return ((X10Context) outer).definingCodeDef(name);
+		}
+
+		return null;
+	}
+
 	/**
 	 * Returns whether the particular symbol is defined locally.  If it isn't
 	 * in this scope, we ask the parent scope, but don't traverse to enclosing
