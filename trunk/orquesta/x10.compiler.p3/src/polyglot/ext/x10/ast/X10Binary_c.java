@@ -26,42 +26,26 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Precedence;
 import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10LocalDef_c;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.ExprFlattener.Flattener;
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.visit.CFGBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
-import x10.constraint.XFailure;
-import x10.constraint.XLocal;
-import x10.constraint.XSelf;
-import x10.constraint.XTerm;
-import x10.constraint.XTerms;
-import x10.lang.dist;
-import x10.lang.place;
-import x10.lang.region;
 
 /**
  * An immutable representation of a binary operation Expr op Expr.
@@ -359,16 +343,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		//Report.report(1, "X10Binary_c: returning " + ldRef3);
 		return ldRef3;
 		
-	}
-	public List acceptCFG(CFGBuilder v, List succs) {
-		if ((op == COND_OR && (left instanceof dist || left instanceof region))
-				|| (op == COND_AND && left instanceof region))
-		{
-			v.visitCFG(left, right, ENTRY);
-			v.visitCFG(right, this, EXIT);
-			return succs;
-		}
-		return super.acceptCFG(v, succs);
 	}
 }
 
