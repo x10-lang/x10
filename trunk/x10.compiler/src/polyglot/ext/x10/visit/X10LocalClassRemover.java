@@ -4,6 +4,7 @@
 package polyglot.ext.x10.visit;
 
 import polyglot.ast.NodeFactory;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.frontend.Job;
 import polyglot.types.CodeInstance;
 import polyglot.types.Context;
@@ -18,7 +19,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
 	
 
     protected boolean isLocal(Context c, String name) {
-    	CodeInstance ci = c.definingCodeDef(name);
+    	CodeInstance ci = ((X10Context) c).definingCodeDef(name);
     	if (ci == null) return false;
     	while (c != null) {
     		CodeInstance curr = c.currentCode();

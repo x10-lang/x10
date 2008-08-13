@@ -11,6 +11,7 @@ import java.util.List;
 
 import polyglot.ast.Stmt;
 import polyglot.types.ClassType;
+import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
@@ -78,5 +79,6 @@ public interface X10Context extends Context {
 	boolean inAnnotation();
 	void setAnnotation();
 	void clearAnnotation();
-   
+	
+	CodeInstance definingCodeDef(String name);
 }
