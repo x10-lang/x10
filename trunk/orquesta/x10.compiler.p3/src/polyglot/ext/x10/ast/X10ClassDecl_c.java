@@ -9,14 +9,18 @@ package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
@@ -62,6 +66,7 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
@@ -554,7 +559,102 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    }
     	}
     	((X10ClassDef) type).checkRealClause();
-	    	
+	    
+//    	checkVariance();
+    	
     	return result;
     }
+    
+//    protected void checkVariance() throws SemanticException {
+//	final Map<String,TypeProperty.Variance> vars = new HashMap<String, TypeProperty.Variance>();
+//	for (int i = 0; i < typeParameters.size(); i++) {
+//	    TypeParamNode pn = typeParameters.get(i);
+//	    TypeProperty.Variance v = pn.variance();
+//	    vars.put(pn.name().id(), v);
+//	}
+//	
+//	for (final TypeParamNode pn : typeParameters) {
+//	    class VarianceChecker extends NodeVisitor {
+//		// null means variance doesn't matter
+//		TypeProperty.Variance variance = null;
+//
+//		public NodeVisitor flip() {
+//		    if (variance == null)
+//			return this;
+//		    switch (variance) {
+//		    case CONTRAVARIANT:
+//			return variance(TypeProperty.Variance.COVARIANT);
+//		    case COVARIANT:
+//			return variance(TypeProperty.Variance.CONTRAVARIANT);
+//		    default:
+//			return this;
+//		    }
+//		}
+//		
+//		public NodeVisitor variance(TypeProperty.Variance variance) {
+//		    if (this.variance == variance)
+//			return this;
+//		    VarianceChecker v = (VarianceChecker) copy();
+//		    v.variance = variance;
+//		    return v;
+//		}
+//		
+//		@Override
+//		public NodeVisitor enter(Node parent, Node n) {
+//		    if (parent instanceof X10MethodDecl) {
+//			X10MethodDecl md = (X10MethodDecl) parent;
+//			if (n == md.returnType())
+//			    return this; // Don't change variance
+//			if (n instanceof Formal)
+//			    return flip();
+//			if (n == md.whereClause())
+//			    return flip();
+//			return variance(null);
+//		    }
+//		    if (parent instanceof X10FieldDecl) {
+//			X10FieldDecl md = (X10FieldDecl) parent;
+//			if (n == md.type())
+//			    return variance(md.flags().flags().isFinal() ? TypeProperty.Variance.COVARIANT : TypeProperty.Variance.INVARIANT); 
+//			return variance(null);
+//		    }
+////		    if (parent instanceof SubtypeTest) {
+////			// CHECK THIS:
+////			// In a method guard, {T1 <: T2}, T1 must be covariant or invariant, T2 must be contravariant or invariant
+////			SubtypeTest s = (SubtypeTest) parent;
+////			if (n == s.subtype())
+////			    return flip();
+//////			if (n == s.supertype())
+//////			    return flip();
+////			return variance(null);
+////		    }
+//		    if (n instanceof ClassBody)
+//			return variance(null);
+//		    if (n instanceof ConstructorDecl)
+//			return variance(null);
+//		    if (n instanceof Stmt)
+//			return variance(null);
+//		    return this;
+//		}
+//		
+//		public Node leave(Node old, Node n, NodeVisitor v) {
+//		    if (n instanceof CanonicalTypeNode) {
+//			Type t = ((CanonicalTypeNode) n).type();
+//			if (t instanceof ParameterType) {
+//			    ParameterType pt = (ParameterType) t;
+//			    if (pt.def() == type) {
+//				TypeProperty.Variance declared = vars.get(pt.name());
+//				if (declared == TypeProperty.Variance.COVARIANT && variance == TypeProperty.Variance.CONTRAVARIANT)
+//				    throw new SemanticException("Cannot use covariant parameter " + pt + " in a negative position.");
+//				if (declared == TypeProperty.Variance.CONTRAVARIANT && variance == TypeProperty.Variance.COVARIANT)
+//				    throw new SemanticException("Cannot use contravariant parameter " + pt + " in a positive position.");
+//			    }
+//			}
+//		    }
+//		    return n;
+//		}
+//	    }
+//	    
+//	    body().visit(new VarianceChecker());
+//	}
+//    }
 } 

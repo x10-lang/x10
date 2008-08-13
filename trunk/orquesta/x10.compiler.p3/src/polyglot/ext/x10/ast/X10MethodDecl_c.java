@@ -10,8 +10,10 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Block;
 import polyglot.ast.CanonicalTypeNode;
@@ -27,6 +29,12 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.ConstrainedType;
+import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.ParameterType_c;
+import polyglot.ext.x10.types.TypeProperty;
+import polyglot.ext.x10.types.X10ClassDef;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodDef;
@@ -34,6 +42,7 @@ import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.Goal;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.main.Report;
 import polyglot.types.Context;
@@ -288,8 +297,94 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	if (! ok)
         	    throw new SemanticException("Property method body must be a constraint expression.", position());
             }
+            
+            checkVariance(tc);
 
             return n;
+        }
+        
+        protected static void checkVariancesOfType(Position pos, Type t, TypeProperty.Variance requiredVariance, String desc, Map<String,TypeProperty.Variance> vars, TypeChecker tc) throws SemanticException {
+            if (t instanceof ParameterType) {
+        	ParameterType pt = (ParameterType) t;
+        	TypeProperty.Variance actualVariance = vars.get(pt.name());
+        	if (actualVariance == null)
+        	    return;
+        	switch (actualVariance) {
+        	case INVARIANT:
+        	    break;
+        	case COVARIANT:
+        	    switch (requiredVariance) {
+        	    case INVARIANT:
+        		throw new SemanticException("Cannot use covariant parameter " + pt + " " + desc + "; must be invariant.", pos);
+        	    case COVARIANT:
+        		break;
+        	    case CONTRAVARIANT:
+        		throw new SemanticException("Cannot use covariant parameter " + pt + " " + desc + "; must be contravariant or invariant.", pos);
+        	    }
+        	    break;
+        	case CONTRAVARIANT:
+        	    switch (requiredVariance) {
+        	    case INVARIANT:
+        		throw new SemanticException("Cannot use contravariant parameter " + pt + " " + desc + "; must be invariant.", pos);
+        	    case COVARIANT:
+        		throw new SemanticException("Cannot use contravariant parameter " + pt + " " + desc + "; must be covariant or invariant.", pos);
+        	    case CONTRAVARIANT:
+        		break;
+        	    }
+        	    break;
+        	}
+            }
+            if (t instanceof X10ClassType) {
+        	X10ClassType ct = (X10ClassType) t;
+        	X10ClassDef def = ct.x10Def();
+        	for (int i = 0; i < ct.typeArguments().size(); i++) {
+        	    Type at = ct.typeArguments().get(i);
+        	    ParameterType pt = def.typeParameters().get(i);
+        	    TypeProperty.Variance v = def.variances().get(i);
+        	    TypeProperty.Variance newVariance;
+        	    
+        	    switch (v) {
+        	    case INVARIANT:
+        		checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
+        		break;
+        	    case COVARIANT:
+        		checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
+        		break;
+        	    case CONTRAVARIANT:
+        		switch (requiredVariance) {
+        		case INVARIANT:
+        		    checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
+        		    break;
+        		case COVARIANT:
+        		    checkVariancesOfType(pos, at, TypeProperty.Variance.CONTRAVARIANT, desc, vars, tc);
+        		    break;
+        		case CONTRAVARIANT:
+        		    checkVariancesOfType(pos, at, TypeProperty.Variance.COVARIANT, desc, vars, tc);
+        		    break;
+        		}
+        		break;
+        	    }
+        	}
+            }
+            if (t instanceof ConstrainedType) {
+        	ConstrainedType ct = (ConstrainedType) t;
+        	Type at = Types.get(ct.baseType());
+        	checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
+            }
+        }
+        
+        protected void checkVariance(TypeChecker tc) throws SemanticException {
+            X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
+            final Map<String,TypeProperty.Variance> vars = new HashMap<String, TypeProperty.Variance>();
+            for (int i = 0; i < cd.typeParameters().size(); i++) {
+        	ParameterType pt = cd.typeParameters().get(i);
+        	TypeProperty.Variance v = cd.variances().get(i);
+        	vars.put(pt.name(), v);
+            }
+            checkVariancesOfType(returnType.position(), returnType.type(), TypeProperty.Variance.COVARIANT, "as a method return type", vars, tc);
+            for (Formal f : formals) {
+        	checkVariancesOfType(f.type().position(), f.declType(), TypeProperty.Variance.CONTRAVARIANT, "as a method parameter type", vars, tc);
+            }
         }
 
         public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
@@ -306,6 +401,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             nn = (X10MethodDecl) nn.typeParameters(processedTypeParams);
             List<Formal> processedFormals = nn.visitList(nn.formals(), childtc);
             nn = (X10MethodDecl) nn.formals(processedFormals);
+            
+            // FIXME: Don't do this!  hasErrors() returns true even if the error is in a different file.
             if (tc.hasErrors()) throw new SemanticException();
             
             // [NN]: Don't do this here, do it on lookup of the formal.  We don't want spurious self constraints in the signature.
@@ -355,10 +452,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
             				// Fold the formal's constraint into the where clause.
             				XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
-            				XConstraint dep = X10TypeMixin.xclause(newType).copy();
-            				XPromise p = dep.intern(var);
-            				dep = dep.substitute(p.term(), XSelf.Self);
-            				c.addIn(dep);
+            				XConstraint dep = X10TypeMixin.xclause(newType);
+            				if (dep != null) {
+            				    dep = dep.copy();
+            				    XPromise p = dep.intern(var);
+            				    dep = dep.substitute(p.term(), XSelf.Self);
+            				    c.addIn(dep);
+            				}
 
             				ref.update(newType);
             			}
