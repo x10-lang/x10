@@ -89,8 +89,21 @@ public abstract class BaseRegion extends Region {
         return UnionRegion.make(rs);
     }
 
+    public Region disjointUnion(Region that) {
+        if (!this.intersection(that).isEmpty())
+            throw U.illegal("regions are not disjoint");
+        PolyRegionList rs = new PolyRegionList(rank);
+        rs.add(this);
+        rs.add(that);
+        return UnionRegion.make(rs);
+    }
+
     public Region difference(Region that) {
-        return this.intersection(that.complement());
+        // complement might be expensive so we do some special casing
+        if (this.isEmpty() || that.isEmpty())
+            return this;
+        else
+            return this.intersection(that.complement());
     }
 
     public boolean disjoint(Region that) {

@@ -59,10 +59,14 @@ UTIL_GEN=\
 gen/Iterator_Halfspace.x10\
 gen/Iterator_Scanner.x10\
 gen/Iterator_PolyRegion.x10\
+gen/Iterator_Region.x10\
+gen/Iterator_place.x10\
 gen/Map_place_Region.x10\
 gen/Set_place.x10\
 gen/ArrayList_PolyRegion.x10\
-gen/ArrayList_Halfspace.x10
+gen/ArrayList_Halfspace.x10\
+gen/ArrayList_Region.x10\
+gen/ArrayList_place.x10
 
 X10C_OPTS = -BAD_PLACE_RUNTIME_CHECK=false -ARRAY_OPTIMIZATIONS=true
 

@@ -22,7 +22,9 @@ class UnionRegion extends BaseRegion {
     }
 
     static Region make(PolyRegionList rs) {
-        if (rs.size()==1)
+        if (rs.size()==0)
+            return Region.makeEmpty(rs.rank);
+        else if (rs.size()==1)
             return rs.get(0);
         else
             return new UnionRegion(rs);

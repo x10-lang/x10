@@ -4,9 +4,21 @@ import x10.lang.*;
 
 import x10.util.Map_place_Region;
 import x10.util.Set_place;
+import x10.util.ArrayList_Region;
+import x10.util.ArrayList_place;
 
 
 public class BaseDist extends Dist implements Map_place_Region {
+
+    // XXX make this a static variable - but that tickles 1.5 compiler
+    // crash so do this for now
+    private static place [] allPlaces() {
+        place [] ps = new place[place.MAX_PLACES];
+        for (int i=0; i<place.MAX_PLACES; i++)
+            ps[i] = place.factory.place(i);
+        return ps;
+    }
+
 
     //
     // factories - place is all applicable places
@@ -14,19 +26,18 @@ public class BaseDist extends Dist implements Map_place_Region {
 
     public static Dist makeUnique() {
 
-        Region r = Region.makeRectangular(0,place.MAX_PLACES-1);
+        // overall region
+        Region overall = Region.makeRectangular(0,place.MAX_PLACES-1);
 
         // places
-        place [] places = new place[place.MAX_PLACES];
-        for (int i=0; i<place.MAX_PLACES; i++)
-            places[i] = place.factory.place(i);
+        place [] places = allPlaces();
 
         // regions
         Region [] regions = new Region[place.MAX_PLACES];
         for (int i=0; i<place.MAX_PLACES; i++)
             regions[i] = Region.makeRectangular(i, i);
 
-        return new BaseDist(r, places, regions);
+        return new BaseDist(overall, places, regions);
     }
 
 
@@ -36,12 +47,11 @@ public class BaseDist extends Dist implements Map_place_Region {
         int min = b.min()[axis];
         int max = b.max()[axis];
 
+        place [] places = allPlaces();
+
         Region [] regions = new Region[place.MAX_PLACES];
-        place [] places = new place[place.MAX_PLACES];
-        for (int i=0; i<place.MAX_PLACES; i++) {
+        for (int i=0; i<place.MAX_PLACES; i++)
             regions[i] = Region.makeEmpty(r.rank);
-            places[i] = place.factory.place(i);
-        }
 
         for (int i=min, p=0; i<=max; i+=blockSize, p++) {
             Region r1 = Region.makeFull(axis);
@@ -103,44 +113,15 @@ public class BaseDist extends Dist implements Map_place_Region {
     }
 
     public Region get(place p) {
-        Region r = regionMap[p.id]==null?
-            Region.makeEmpty(rank) :
-            (Region) regionMap[p.id];
-        return r;
+        return regionMap[p.id];
     }
+
 
 
     //
-    // region operations
+    // Dist op Region
+    // Dist op Place
     //
-
-    public  Dist difference(Region r) {
-        throw U.unsupported(this, "difference(Region)");
-    }
-
-    public  Dist difference(Dist d) {
-        throw U.unsupported(this, "difference(Dist)");
-    }
-
-    public  Dist union(Dist d) {
-        throw U.unsupported(this, "union(Dist)");
-    }
-
-    public  Dist intersection(Region r) {
-        throw U.unsupported(this, "intersection(Region)");
-    }
-
-    public  Dist intersection(Dist d) {
-        throw U.unsupported(this, "intersection(Dist)");
-    }
-
-    public  Dist overlay(Dist d) {
-        throw U.unsupported(this, "overlay(Dist)");
-    }
-
-    public  boolean isSubDistribution(Dist d) {
-        throw U.unsupported(this, "isSubDistribution(Dist)");
-    }
 
     public Dist restriction(Region r) {
 
@@ -166,21 +147,97 @@ public class BaseDist extends Dist implements Map_place_Region {
         return new BaseDist(region.intersection(rs[0]), ps, rs);
     }
 
-
-    //
-    //
-    //
-
-    protected place [] places;
-    protected Region [] regions;
-
-    // XXX missing regions should be null or EmptyRegion??
-    private nullable<Region> [] regionMap = new Region[place.MAX_PLACES];
-
-    protected void initRegionMap() {
-        for (int i=0; i<places.length; i++)
-            regionMap[places[i].id] = regions[i];
+    public  Dist intersection(Region r) {
+        throw U.unsupported(this, "intersection(Region)");
     }
+
+    public  Dist difference(Region r) {
+        throw U.unsupported(this, "intersection(Region)");
+    }
+
+
+
+    //
+    // Dist op Dist
+    //
+
+    public Dist intersection(Dist that) {
+
+        // places
+        place [] ps = new place[this.places.length];
+        for (int i=0; i<this.places.length; i++)
+            ps[i] = this.places[i];
+
+        // regions
+        Region [] rs = new Region[this.regions.length];
+        Region overall = Region.makeEmpty(rank);
+        for (int i=0; i<this.regions.length; i++) {
+            Region r = this.regions[i].intersection(that.get(this.places[i]));
+            rs[i] = r;
+            overall = overall.union(r);
+        }
+
+        return new BaseDist(overall, ps, rs);
+    }
+
+    public Dist difference(Dist that) {
+
+        // places
+        place [] ps = new place[this.places.length];
+        for (int i=0; i<this.places.length; i++)
+            ps[i] = this.places[i];
+
+        // regions
+        Region [] rs = new Region[this.regions.length];
+        Region overall = Region.makeEmpty(rank);
+        for (int i=0; i<this.regions.length; i++) {
+            Region r = this.regions[i].difference(that.get(this.places[i]));
+            rs[i] = r;
+            overall = overall.union(r);
+        }
+
+        return new BaseDist(overall, ps, rs);
+    }
+
+    public Dist overlay(Dist that) {
+
+        // places
+        place [] ps = allPlaces();
+
+        // regions
+        Region [] rs = new Region[ps.length];
+        for (int i=0; i<ps.length; i++) {
+            place p = ps[i];
+            rs[i] = this.get(p).difference(that.region).union(that.get(p));
+        }
+
+        return new BaseDist(this.region.union(that.region), ps, rs);
+    }
+
+    public Dist union(Dist that) {
+
+        // places
+        place [] ps = allPlaces();
+
+        // regions
+        Region [] rs = new Region[ps.length];
+        Region overall = Region.makeEmpty(rank);
+        for (int i=0; i<ps.length; i++) {
+            rs[i] = this.get(ps[i]).union(that.get(ps[i]));
+            overall = overall.disjointUnion(rs[i]);
+        }
+
+        return new BaseDist(overall, ps, rs);
+    }
+
+    public  boolean isSubDistribution(Dist d) {
+        throw U.unsupported(this, "isSubDistribution(Dist)");
+    }
+
+
+    //
+    // basic info
+    //
 
     // XXX should allow places to be in any order??
     protected static boolean isUnique(place [] places) {
@@ -206,26 +263,65 @@ public class BaseDist extends Dist implements Map_place_Region {
         return places[0];
     }
 
+    public boolean equals(Dist that) {
+        for (int i=0; i<place.MAX_PLACES; i++) {
+            place p = place.factory.place(i);
+            if (!this.get(p).equals(that.get(p)))
+                return false;
+        }
+        return true;
+    }
+
+
+    //
+    // places, regions, and regionMap only contain entries places
+    // actually mapped by this Dist. This is guaranteed by the
+    // constructor.
+    //
+
+    protected place [] places;
+    protected Region [] regions;
+    private Region [] regionMap = new Region[place.MAX_PLACES];
+
     protected BaseDist(Region region, boolean unique, boolean constant, nullable<place> onePlace) {
         super(region, unique, constant, onePlace);
     }
 
-    protected BaseDist(Region r, place [] places, Region [] regions) {
-        this(r, isUnique(places), isConstant(places), onePlace(places));
-        this.places = places;
-        this.regions = regions;
-        initRegionMap();
+    protected BaseDist(Region r, place [] ps, nullable<Region> [] rs) {
+
+        this(r, isUnique(ps), isConstant(ps), onePlace(ps));
+
+        // remove empty regions
+        ArrayList_Region rl = new ArrayList_Region();
+        ArrayList_place pl = new ArrayList_place();
+        for (int i=0; i<rs.length; i++) {
+            if (rs[i]!=null && !rs[i].isEmpty()) {
+                rl.add((Region)rs[i]);
+                pl.add(ps[i]);
+            }
+        }
+        this.regions = rl.toArray();
+        this.places = pl.toArray();
+
+        // compute the map
+        for (int i=0; i<regionMap.length; i++)
+            regionMap[i] = Region.makeEmpty(rank);
+        for (int i=0; i<this.places.length; i++)
+            regionMap[this.places[i].id] = this.regions[i];
     }
+
+
+    //
+    //
+    //
 
     public String toString() {
         String s = "Dist(";
         boolean first = true;
-        for (int i=0; i<regionMap.length; i++) {
-            if (regionMap[i]!=null && !regionMap[i].isEmpty()) {
-                if (!first) s += ",";
-                s += i + "->" + regionMap[i];
-                first = false;
-            }
+        for (int i=0; i<places.length; i++) {
+            if (!first) s += ",";
+            s += places[i].id + "->" + get(places[i]);
+            first = false;
         }
         s += ")";
         return s;
