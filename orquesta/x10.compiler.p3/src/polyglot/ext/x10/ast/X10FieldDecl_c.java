@@ -7,14 +7,21 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.FlagsNode;
+import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.TypeProperty;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
@@ -97,7 +104,34 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             throw new SemanticException("Cannot declare static non-final field.",
                                         this.position());
         }
+        
+        FieldDef fi = fieldDef();
+        StructType ref = fi.container().get();
+
+        X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
+        if (xts.isValueType(ref) && !fi.flags().isFinal()) {
+            throw new SemanticException("Cannot declare a non-final field in a value class.", position());
+        }
+
+        checkVariance(tc);
+        
         return result;
+    }
+    
+    protected void checkVariance(TypeChecker tc) throws SemanticException {
+        X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
+        final Map<String,TypeProperty.Variance> vars = new HashMap<String, TypeProperty.Variance>();
+        for (int i = 0; i < cd.typeParameters().size(); i++) {
+    	ParameterType pt = cd.typeParameters().get(i);
+    	TypeProperty.Variance v = cd.variances().get(i);
+    	vars.put(pt.name(), v);
+        }
+        if (flags().flags().isFinal()) {
+            X10MethodDecl_c.checkVariancesOfType(type.position(), type.type(), TypeProperty.Variance.COVARIANT, "as the type of a final field", vars, tc);
+        }
+        else {
+            X10MethodDecl_c.checkVariancesOfType(type.position(), type.type(), TypeProperty.Variance.INVARIANT, "as the type of a non-final field", vars, tc);
+        }
     }
 
     @Override
@@ -154,23 +188,5 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    return super.setResolverOverride(parent, v);
 	    }
 
-    public Node disambiguate(TypeChecker ar) throws SemanticException {
-        X10FieldDecl_c f = (X10FieldDecl_c) super.disambiguate(ar);
-
-        // [IP] All fields in value types should be final
-        // [IP] FIXME: this will produce an "assignment to final" message --
-        //      is that good enough?
-
-        FieldDef fi = f.fieldDef();
-        StructType ref = fi.container().get();
-
-        X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
-        if (xts.isValueType(ref) && !fi.flags().isFinal()) {
-            fi.setFlags(fi.flags().Final());
-            f = (X10FieldDecl_c) f.flags(f.flags().flags(fi.flags()));
-        }
-
-        return f;
-    }
 }
 
