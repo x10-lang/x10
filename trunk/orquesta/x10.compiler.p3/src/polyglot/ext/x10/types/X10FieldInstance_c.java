@@ -38,7 +38,16 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     public X10FieldDef x10Def() {
         return (X10FieldDef) def();
     }
-    
+
+    /** Constraint on formal parameters. */
+    protected XConstraint whereClause;
+    public XConstraint whereClause() { return whereClause; }
+    public X10FieldInstance whereClause(XConstraint s) { 
+	X10FieldInstance_c n = (X10FieldInstance_c) copy();
+	n.whereClause = s; 
+	return n;
+    }
+
     public List<X10ClassType> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }

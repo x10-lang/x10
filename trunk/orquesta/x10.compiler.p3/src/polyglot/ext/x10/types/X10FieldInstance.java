@@ -11,6 +11,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Receiver;
 import polyglot.types.FieldInstance;
 import polyglot.types.Type;
+import x10.constraint.XConstraint;
 
 /**
  * Represents information about a Property. A property has the same
@@ -26,4 +27,7 @@ public interface X10FieldInstance extends FieldInstance, X10TypeObject, X10Use<X
 	
 	/** Is this field a property? */
 	boolean isProperty();
+	
+	XConstraint whereClause();
+	X10FieldInstance whereClause(XConstraint where);
 }

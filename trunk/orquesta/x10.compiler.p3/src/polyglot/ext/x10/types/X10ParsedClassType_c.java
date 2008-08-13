@@ -284,7 +284,7 @@ implements X10ParsedClassType
 	private X10FieldInstance reinstantiateFI(X10FieldInstance t) {
 	    X10FieldInstance fi = (X10FieldInstance) t.copy();
 	    fi = (X10FieldInstance) fi.type(reinstantiate(fi.type()));
-//	    fi = (X10FieldInstance) fi.whereClause(reinstantiate(fi.whereClause()));
+	    fi = (X10FieldInstance) fi.whereClause(reinstantiate(fi.whereClause()));
 	    return fi;
 	}
 
