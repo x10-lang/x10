@@ -63,7 +63,7 @@ zeroBased false
 rail false
 isConvex() false
 size() 0
-region: ()
+region: empty(2)
   iterator
 --- Test21: r1.difference(r2)
 rank 2
@@ -115,7 +115,7 @@ zeroBased false
 rail false
 isConvex() false
 size() 0
-region: ()
+region: empty(2)
   iterator
 --- Test21: r2.difference(r2)
 rank 2
@@ -124,7 +124,7 @@ zeroBased false
 rail false
 isConvex() false
 size() 0
-region: ()
+region: empty(2)
   iterator
 --- Test21: r2.difference(r3)
 rank 2
@@ -149,7 +149,7 @@ zeroBased false
 rail false
 isConvex() false
 size() 0
-region: ()
+region: empty(2)
   iterator
 --- Test21: r3.difference(r2)
 rank 2
@@ -178,5 +178,5 @@ zeroBased false
 rail false
 isConvex() false
 size() 0
-region: ()
+region: empty(2)
   iterator
