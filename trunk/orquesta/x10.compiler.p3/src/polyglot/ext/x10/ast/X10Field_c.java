@@ -50,6 +50,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XSelf;
 import x10.constraint.XTerm;
@@ -126,12 +127,17 @@ public class X10Field_c extends Field_c {
 				retType = X10TypeMixin.xclause(retType, newRC);
 				fi = fi.type(retType);
 			}
-			result = (X10Field_c)fieldInstance(fi).type(retType);  
+			result = (X10Field_c)fieldInstance(fi).type(retType);
 			result.checkConsistency(c);
+			
+			// Check the guard
+			XConstraint where = ((X10FieldInstance) result.fieldInstance()).whereClause();
+			if (where != null && ! new XConstraint_c().entails(where)) {
+			    throw new SemanticException("Cannot access field.  Field guard not satisfied.", position());
+			}
 			
 			checkFieldAccessesInDepClausesAreFinal(result, tc);
 			
-			result = checkArrayFields(result);
 			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
         } catch (NoMemberException e) {
@@ -186,81 +192,4 @@ public class X10Field_c extends Field_c {
 			}
 		}
 	}
-	protected X10Field_c checkArrayFields(X10Field_c result) {
-		Type aType = result.target.type();
-		X10TypeSystem xts = (X10TypeSystem) aType.typeSystem();
-		/*
-		if (result.nameString().equals("distribution") && xts.isX10Array(aType)) {
-			Type aType1 = aType;
-			Type type = result.type();
-			//Report.report(1, "X10Field_c aType1=" + aType1 + " " + aType1.getClass());
-			XTerm rank = X10ArraysMixin.rank(aType1);
-			if (rank != null) {
-				type = X10ArraysMixin.setRank(type, rank);
-				//Report.report(1, "X10Field_c: set rank of .distribution to " + rank);
-			}
-			if (X10ArraysMixin.isRect(aType1)) type = X10ArraysMixin.setRect(type);
-			if (X10ArraysMixin.isZeroBased(aType1)) type = X10ArraysMixin.setZeroBased(type);
-			XTerm place = X10ArraysMixin.onePlace(aType1);
-			if (place != null)
-				type = X10ArraysMixin.setOnePlace(type, place);
-
-			// Add the constraint on the target into the type.
-	    		XConstraint c = X10TypeMixin.xclause(aType1);
-			if (c != null) {
-				try {
-					XConstraint myC = X10TypeMixin.xclause(type).copy();
-					XVar outer = myC.genEQV();
-					myC.addIn(c.copy().substitute(outer, XSelf.Self));
-					XVar f = (XVar) xts.xtypeTranslator().trans(outer, result.fieldInstance());
-					myC.addSelfBinding(f);
-					type = X10TypeMixin.xclause(type, myC);
-				}
-				catch (SemanticException e) {
-				}
-				catch (XFailure e) {
-				}
-			}
-			
-			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
-			return result;
-		}
-		if (nameString().equals(X10TypeSystem.REGION_FIELD) && (xts.isX10Array(aType) || xts.isDistribution(aType)) ) {
-			Type aType1 = (aType instanceof NullableType ? 
-					((NullableType) aType).base() : aType);
-			Type type = result.type();
-			XTerm aRank = X10ArraysMixin.rank(aType1);
-			if (aRank !=null) type = X10ArraysMixin.setRank(type, aRank);
-			if (X10ArraysMixin.isRect(aType1)) type = X10ArraysMixin.setRect(type);
-			if (X10ArraysMixin.isZeroBased(aType1)) type = X10ArraysMixin.setZeroBased(type);
-			
-			// Add the constraint on the target into the type.
-	    		XConstraint c = X10TypeMixin.xclause(aType1);
-			if (c != null) {
-				try {
-					XConstraint myC = X10TypeMixin.xclause(type).copy();
-					XVar outer = myC.genEQV();
-					myC.addIn(c.copy().substitute(outer, XSelf.Self));
-					XVar f = (XVar) xts.xtypeTranslator().trans(outer, result.fieldInstance());
-					myC.addSelfBinding(f);
-					type = X10TypeMixin.xclause(type, myC);
-				}
-				catch (SemanticException e) {
-				}
-				catch (XFailure e) {
-				}
-			}
-			
-			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
-			return result;
-		}
-		*/
-		return result;
-	}
-//
-//	public boolean equals(Object o) {
-//		if (!(o instanceof Field_c)) return false;
-//		Field_c other = (Field_c) o;
-//		return target.equals(other.target()) && name().equals(other.name());
-//	}
 }
