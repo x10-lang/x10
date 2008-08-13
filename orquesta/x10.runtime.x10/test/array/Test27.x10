@@ -76,9 +76,14 @@ class Test27 extends TestArray {
         final Dist d3 = d123x0.$bar(r3);
         prDist("d3 = d123x0 | r3", d3);
         pr("d1.equals(d3) checks " + d1.equals(d3));
+        pr("d1.isSubdistribution(d123x0) checks " + d1.isSubdistribution(d123x0));
+        pr("!d123x0.isSubdistribution(d1) checks " + !d123x0.isSubdistribution(d1));
 
         final Dist d1x = d123x0.$minus(d123x1r12m3);
         prDist("d1x = d123x0 - d123x1r12m3", d1x);
+        pr("d1x.isSubdistribution(d123x0) checks " + d1x.isSubdistribution(d123x0));
+        pr("!d123x0.isSubdistribution(d1x) checks " + !d123x0.isSubdistribution(d1x));
+
 
         //
         // dist && dist
