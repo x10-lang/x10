@@ -3,13 +3,16 @@ package x10.lang;
 import x10.compiler.ArithmeticOps;
 
 public abstract value class Array[T] (dist: Dist)
-    implements Indexable[Point,T], Settable[Point,T], ArithmeticOps[Array[T]] {
-
+    implements Indexable[Point,T], Settable[Point,T], ArithmeticOps[Array[T]]
+{
+    // region
     property region: Region = dist.region;
     property rank: int = dist.rank;
     property rect: boolean = dist.rect;
     property zeroBased: boolean = dist.zeroBased;
     property rail: boolean = dist.rail;
+
+    // dist
     property unique: boolean = dist.unique;
     property constant: boolean = dist.constant;
     property onePlace: Place = dist.onePlace;
@@ -43,6 +46,10 @@ public abstract value class Array[T] (dist: Dist)
     incomplete public def $bar(p: Place): Array[T];
 
     incomplete public static def $convert[T](r: Rail[T]): Array[T];    
+
+    //
+    //
+    //
 
     protected def this[T](dist: Dist) = {
         property(dist);
