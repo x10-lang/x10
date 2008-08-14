@@ -36,6 +36,8 @@ public abstract value Region(
     public abstract def contains(that: Region): boolean;
     public abstract def equals(that: Region): boolean;
 
+    public abstract def contains(p: Point): boolean;
+
     incomplete public def $not(): Region;
     incomplete public def $and(that: Region): Region;
     incomplete public def $or(that: Region): Region;
