@@ -5,6 +5,6 @@ package x10.lang;
  * parameter of type T, and if s implements Iterable[T].
  */
 
-public interface Iterable[T] {
+public interface Iterable[+T] {
     def iterator(): Iterator[T];
 }
