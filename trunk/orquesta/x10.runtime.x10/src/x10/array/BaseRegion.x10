@@ -17,47 +17,47 @@ public abstract class BaseRegion extends Region {
     // factories
     //
 
-    static public Region makeEmpty(int rank) {
+    static public Region(:self.rank==rank) makeEmpty(final int rank) {
         return new EmptyRegion(rank);
     }
 
-    static public Region makeFull(int rank) {
+    static public Region(:self.rank==rank) makeFull(final int rank) {
         return new FullRegion(rank);
     }
 
-    static public Region makeUnit() {
+    static public Region(:self.rank==0) makeUnit() {
         return new FullRegion(0);
     }
 
-    static public Region makeRectangular(int [] min, int [] max) {
+    static public Region(:self.rank==min.length) makeRectangular(final int [] min, final int [] max) {
         return RectRegion.make(min, max);
     }        
 
-    static public Region makeRectangular(int min, int max) {
-        return RectRegion.make(min, max);
+    static public Region(:rank==1) makeRectangular(int min, int max) {
+        return (Region(:rank==1)) RectRegion.make(min, max);
     }        
 
-    static public Region makeBanded(int size, int upper, int lower) {
+    static public Region(:rank==2) makeBanded(int size, int upper, int lower) {
         return PolyRegion.makeBanded(size, upper, lower);
     }
 
-    static public Region makeBanded(int size) {
+    static public Region(:rank==2) makeBanded(int size) {
         return PolyRegion.makeBanded(size, 1, 1);
     }
 
-    static public Region makeUpperTriangular(int size) {
+    static public Region(:rank==2) makeUpperTriangular(int size) {
         return PolyRegion.makeUpperTriangular(0, 0, size);
     }
 
-    static public Region makeLowerTriangular(int size) {
+    static public Region(:rank==2) makeLowerTriangular(int size) {
         return PolyRegion.makeLowerTriangular(0, 0, size);
     }
 
-    static public Region make(Region [] regions) {
+    static public Region(:rank==regions.length) make(final Region [] regions) {
         Region r = regions[0];
         for (int i=1; i<regions.length; i++)
             r = r.product(regions[i]);
-        return r;
+        return (Region(:rank==regions.length)) r;
     }
 
 

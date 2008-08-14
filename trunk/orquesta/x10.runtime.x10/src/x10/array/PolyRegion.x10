@@ -291,8 +291,8 @@ public class PolyRegion extends BaseRegion {
     private static final int ROW = HalfspaceList.X(0);
     private static final int COL = HalfspaceList.X(1);
 
-    public static Region makeBanded(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
-        HalfspaceList hl = new HalfspaceList(2);
+    public static Region(:rank==2) makeBanded(int rowMin, int colMin, int rowMax, int colMax, int upper, int lower) {
+        HalfspaceList(:rank==2) hl = new HalfspaceList(2);
         hl.add(ROW, hl.GE, rowMin);
         hl.add(ROW, hl.LE, rowMax);
         hl.add(COL, hl.GE, colMin);
@@ -302,20 +302,20 @@ public class PolyRegion extends BaseRegion {
         return PolyRegion.make(hl);
     }
 
-    public static Region makeBanded(int size, int upper, int lower) {
+    public static Region(:rank==2) makeBanded(int size, int upper, int lower) {
         return makeBanded(0, 0, size-1, size-1, upper, lower);
     }
 
-    public static Region makeUpperTriangular(int rowMin, int colMin, int size) {
-        HalfspaceList hl = new HalfspaceList(2);
+    public static Region(:rank==2) makeUpperTriangular(int rowMin, int colMin, int size) {
+        HalfspaceList(:rank==2) hl = new HalfspaceList(2);
         hl.add(ROW, hl.GE, rowMin);
         hl.add(COL, hl.LE, colMin+size-1);
         hl.add(COL-ROW, hl.GE, colMin-rowMin);
         return PolyRegion.make(hl);
     }
 
-    public static Region makeLowerTriangular(int rowMin, int colMin, int size) {
-        HalfspaceList hl = new HalfspaceList(2);
+    public static Region(:rank==2) makeLowerTriangular(int rowMin, int colMin, int size) {
+        HalfspaceList(:rank==2) hl = new HalfspaceList(2);
         hl.add(COL, hl.GE, colMin);
         hl.add(ROW, hl.LE, rowMin+size-1);
         hl.add(ROW-COL, hl.GE, rowMin-colMin);
@@ -332,7 +332,7 @@ public class PolyRegion extends BaseRegion {
     // XXX empty PolyRegion (with backwards bounds) is probably not handled correctly
     //
 
-    public static Region make(HalfspaceList hl) {
+    public static Region(:rank==hl.rank) make(final HalfspaceList hl) {
         if (hl.isEmpty()) {
             return new EmptyRegion(hl.rank);
         } else if (hl.isRect() && hl.isBounded())
@@ -341,7 +341,7 @@ public class PolyRegion extends BaseRegion {
             return new PolyRegion(hl);
     }
 
-    protected PolyRegion(HalfspaceList hl) {
+    protected PolyRegion(:rank==hl.rank)(final HalfspaceList hl) {
         super(hl.rank, hl.isRect(), hl.isZeroBased());
         this.halfspaces = hl.reduce();
     }
