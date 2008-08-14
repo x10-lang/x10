@@ -4440,7 +4440,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             case 335: {
                 
                 //#line 2742 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN.Native())));
+                setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
                 break;
             }
      

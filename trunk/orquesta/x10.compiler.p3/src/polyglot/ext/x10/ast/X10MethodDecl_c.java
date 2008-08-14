@@ -236,8 +236,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             if (xf.isIncomplete() && body != null) {
         	throw new SemanticException("An incomplete method cannot have a body.", position());
             }
+            if (xf.isExtern() && body != null) {
+        	throw new SemanticException("An extern method cannot have a body.", position());
+            }
 
-            if (xf.isIncomplete())
+            // Set the native flag if incomplete or extern so super.checkFlags doesn't complain.
+            if (xf.isIncomplete() || xf.isExtern())
         	super.checkFlags(tc, xf.Native());
             else
         	super.checkFlags(tc, xf);

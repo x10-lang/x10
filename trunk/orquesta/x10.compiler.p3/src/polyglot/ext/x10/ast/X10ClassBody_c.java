@@ -25,6 +25,7 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Formal_c;
 import polyglot.types.ClassType_c;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.MethodInstance;
@@ -46,8 +47,7 @@ public class X10ClassBody_c extends ClassBody_c {
 			if (o instanceof MethodDecl) {
 				MethodDecl_c md = (MethodDecl_c) o;
 				MethodDef mi = md.methodDef();
-				if(mi.flags().isNative()){
-					
+				if(X10Flags.toX10Flags(mi.flags()).isExtern()){
 					if (!mi.returnType().get().isPrimitive())
 						throw new SemanticException("extern return type \""+mi.returnType()+"\" is not a primitive type.",
 								md.position());
@@ -62,11 +62,10 @@ public class X10ClassBody_c extends ClassBody_c {
 						    isOk = false;
 						}
 						else if (declType.isClass()) {
-						    isOk = xts.isX10Array(declType);
+						    isOk = xts.isRail(declType) || xts.isValRail(declType);
 						}
 						if (!isOk)
-						    throw new SemanticException(parameter+
-						                                ":parameters to extern calls must be either X10 arrays or primitives.",
+						    throw new SemanticException("Parameters to extern calls must be either X10 arrays or primitives.",
 						                                parameter.position());
 					}
 				}

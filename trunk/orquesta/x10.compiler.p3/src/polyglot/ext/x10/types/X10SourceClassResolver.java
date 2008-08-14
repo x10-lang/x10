@@ -20,27 +20,19 @@ import polyglot.util.StringUtil;
 import sun.text.CompactShortArray.Iterator;
 
 public class X10SourceClassResolver extends SourceClassResolver {
+    Map<String, String> classMap;
+    Map<String, String> revMap;
 
 	public X10SourceClassResolver(Compiler compiler, ExtensionInfo ext, String classpath, ClassFileLoader loader, boolean allowRawClasses,
 			boolean compileCommandLineOnly, boolean ignoreModTimes) {
 		super(compiler, ext, classpath, loader, allowRawClasses, compileCommandLineOnly, ignoreModTimes);
-		// TODO Auto-generated constructor stub
-	}
 
-	@Override
-	public Named find(String name) throws SemanticException {
-//		if (name.equals("x10.lang.Box")) {
-//			Named n = super.find(name);
-//			X10TypeSystem xts = (X10TypeSystem) ts;
-//			if (n instanceof X10ParsedClassType)
-//				return xts.createBoxFromTemplate(((X10ParsedClassType) n).x10Def());
-//			else
-//				throw new SemanticException("Could not load " + name + ".");
-//		}
-		
 	        X10TypeSystem ts = (X10TypeSystem) this.ts;
 	        
-		Map<String,String> classMap = new HashMap<String, String>();
+		classMap = new HashMap<String, String>();
+		revMap = new HashMap<String, String>();
+
+		classMap.put("x10.lang.Object", "java.lang.Object");
 		classMap.put("x10.lang.String", "java.lang.String");
 		classMap.put("x10.lang.Class", "java.lang.Class");
 		classMap.put("x10.lang.Throwable", "java.lang.Throwable");
@@ -55,16 +47,30 @@ public class X10SourceClassResolver extends SourceClassResolver {
 		classMap.put("x10.lang.ClassCastException", "java.lang.ClassCastException");
 		classMap.put("x10.lang.ArrayStoreException", "java.lang.ArrayStoreException");
 
-		Map<String,String> revMap = new HashMap<String, String>();
 		for (Map.Entry<String, String> e : classMap.entrySet()) {
 		    revMap.put(e.getValue(), e.getKey());
 		}
-		
-		if (revMap.get(name) != null) {
-	            return find(revMap.get(name));
+	}
+
+	@Override
+	public Named find(String name) throws SemanticException {
+//		if (name.equals("x10.lang.Box")) {
+//			Named n = super.find(name);
+//			X10TypeSystem xts = (X10TypeSystem) ts;
+//			if (n instanceof X10ParsedClassType)
+//				return xts.createBoxFromTemplate(((X10ParsedClassType) n).x10Def());
+//			else
+//				throw new SemanticException("Could not load " + name + ".");
+//		}
+	    
+	        X10TypeSystem ts = (X10TypeSystem) this.ts;
+				
+		String revName = revMap.get(name);
+		if (revName != null) {
+	            return find(revName);
 	        }
 	        
-	        if (name.equals("x10.lang.Value")) return (Named) ts.Value();
+//	        if (name.equals("x10.lang.Value")) return (Named) ts.Value();
 	        if (name.equals("x10.lang.Box")) return (Named) ts.Box();
 	        
 		if (name.equals("x10.lang.Void")) return (Named) ts.Void();
@@ -82,36 +88,6 @@ public class X10SourceClassResolver extends SourceClassResolver {
 		if (name.equals("x10.lang.ULong")) return(Named) ts.ULong();
 	
 		// Change java.lang.Object to x10.lang.Object.
-		if (name.equals("x10.lang.Object")) {
-			Named n = super.find("java.lang.Object");
-			if (n instanceof X10ParsedClassType) {
-				X10ParsedClassType ct = (X10ParsedClassType) n;
-				X10ClassDef cd = ct.x10Def();
-				
-				cd.setPackage(Types.ref(ts.packageForName(ts.packageForName("x10"), "lang")));
-				
-				// Object is X10 is an interface!
-				cd.flags(cd.flags().Interface());
-				
-				List<MethodDef> methods = new ArrayList<MethodDef>();
-				for (MethodDef m : cd.methods()) {
-//				    m.setFlags(m.flags().Abstract().clearNative());
-				    if (m.name().equals("equals"))
-					methods.add(m);
-				    if (m.name().equals("hashCode"))
-					methods.add(m);
-				    if (m.name().equals("toString"))
-					methods.add(m);
-				    m.setFlags(m.flags().clearNative().Abstract());
-				}
-				cd.setMethods(methods);
-
-				assert cd.asType() == n;
-				n = cd.asType();
-				return n;
-			}
-		}
-
 		String newName = classMap.get(name);
 		
 		if (newName != null) {
@@ -128,7 +104,25 @@ public class X10SourceClassResolver extends SourceClassResolver {
 			
 			ts.systemResolver().install(newName, n);
 			ts.systemResolver().install(name, n);
+			
+			if (name.equals("x10.lang.Object")) {
+			    // Object is X10 is an interface!
+			    cd.flags(cd.flags().Interface());
+
+			    List<MethodDef> methods = new ArrayList<MethodDef>();
+			    for (MethodDef m : cd.methods()) {
+				if (m.name().equals("equals"))
+				    methods.add(m);
+				if (m.name().equals("hashCode"))
+				    methods.add(m);
+				if (m.name().equals("toString"))
+				    methods.add(m);
+				m.setFlags(m.flags().clearNative().Abstract());
+			    }
+			    cd.setMethods(methods);
+			}
 		    }
+
 		    return n;
 		}
 

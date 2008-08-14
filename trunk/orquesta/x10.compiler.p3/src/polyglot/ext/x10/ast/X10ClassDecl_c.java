@@ -224,27 +224,46 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         Type t = ts.Object();
         String objectName = ((ClassType) t).fullName();
+        
 
-        if (superClass != null || thisType.asType().typeEquals(ts.Object()) || thisType.fullName().equals(objectName)) {
-            super.setSuperClass(ts, thisType);
+        if (thisType.fullName().equals("x10.lang.Ref")) {
+            thisType.superType(null);
         }
-        else if (X10Flags.toX10Flags(flags().flags()).isValue()) {
+        else if (thisType.fullName().equals("x10.lang.Value")) {
+            thisType.superType(null);
+        }
+        else if (thisType.fullName().equals("x10.lang.Object")) {
+            thisType.superType(null);
+        }
+        else if (flags().flags().isInterface()) {
+            thisType.superType(null);
+        }
+        else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isValue()) {
             thisType.superType(Types.<Type>ref(xts.Value()));
         }
-        else {
+        else if (superClass == null) {
             thisType.superType(Types.<Type>ref(xts.Ref()));
+        }
+        else {
+            super.setSuperClass(ts, thisType);
         }
     }
     
     @Override
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
-	super.setInterfaces(ts, thisType);
-
-//	if (X10Flags.toX10Flags(thisType.flags()).isValue() && ! thisType.flags().isInterface()) {
-//	    X10TypeSystem xts = (X10TypeSystem) ts;
-//	    if (! thisType.fullName().equals("x10.lang.Value"))
-//		thisType.addInterface(Types.ref(xts.Value()));
-//	}
+        if (thisType.fullName().equals("x10.lang.Ref")) {
+            thisType.addInterface(Types.ref(ts.Object()));
+        }
+        else if (thisType.fullName().equals("x10.lang.Value")) {
+            thisType.addInterface(Types.ref(ts.Object()));
+        }
+        else if (thisType.fullName().equals("x10.lang.Object")) {
+        }
+        else if (interfaces.isEmpty() && flags().flags().isInterface()) {
+        }
+        else {
+            super.setInterfaces(ts, thisType);
+        }
     }
 
     public Node disambiguate(TypeChecker ar) throws SemanticException {
@@ -553,22 +572,27 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
 
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	
+    	Type superClass = type.asType().superClass();
 
-    	if (X10Flags.toX10Flags(flags.flags()).isValue()) {
-    	    if (! ts.isSubtype(type.asType(), ts.Value())) {
-    		throw new SemanticException("Value class " + type + " must extend " + ts.Value() + ".", position());
+    	if (! flags.flags().isInterface()) {
+    	    if (X10Flags.toX10Flags(flags.flags()).isValue()) {
+    		if (superClass != null && ! ts.isValueType(superClass)) {
+    		    throw new SemanticException("Value class " + type + " cannot extend reference class " + superClass + ".", position());
+    		}
     	    }
-    	    if (ts.isSubtype(type.asType(), ts.Ref())) {
-    		throw new SemanticException("Value class " + type + " cannot extend " + ts.Ref() + ".", position());
+    	    else {
+    		if (superClass != null && ts.isValueType(superClass)) {
+    		    throw new SemanticException("Reference class " + type + " cannot extend value class " + superClass + ".", position());
+    		}
     	    }
     	}
     	else {
-    	    if (! ts.isSubtype(type.asType(), ts.Ref())) {
-    		throw new SemanticException("Reference class " + type + " must extend " + ts.Ref() + ".", position());
-    	    }
-    	    if (ts.isSubtype(type.asType(), ts.Value())) {
-    		throw new SemanticException("Reference class " + type + " cannot extend " + ts.Value() + ".", position());
-    	    }
+            if (superClass != null) {
+        	throw new SemanticException("Interface \"" + this.type + "\" cannot have a superclass.",
+        	                            superClass.position());
+            }
+
     	}
     	((X10ClassDef) type).checkRealClause();
 	    

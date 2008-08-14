@@ -31,6 +31,7 @@ import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
+import polyglot.ext.x10.visit.X10InitImportsVisitor;
 import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.Compiler;
@@ -52,6 +53,7 @@ import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
+import polyglot.visit.InitImportsVisitor;
 import polyglot.visit.PruningVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -190,7 +192,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            goals.add(Parsed(job));
            goals.add(TypesInitialized(job));
-//           goals.add(TypesInitializedForCommandLine());
            goals.add(ImportTableInitialized(job));
 
            if (job.source() != null && job.source().path().endsWith(XML_FILE_DOT_EXTENSION)) {
@@ -206,6 +207,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(RegisterPlugins(job));
            
            goals.add(PreTypeCheck(job));
+           goals.add(TypesInitializedForCommandLine());
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
            
@@ -228,6 +230,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            
            return goals;
        }
+
+//       @Override
+//       public Goal ImportTableInitialized(Job job) {
+//	   TypeSystem ts = job.extensionInfo().typeSystem();
+//	   NodeFactory nf = job.extensionInfo().nodeFactory();
+//	   Goal g = new VisitorGoal("ImportTableInitialized", job, new X10InitImportsVisitor(job, ts, nf));
+//	   Goal g2 = g.intern(this);
+//	   if (g == g2) {
+//	       g.addPrereq(TypesInitializedForCommandLine());
+//	   }
+//	   return g2;
+//       }
+
        public Goal LoadPlugins() {
            return new LoadPlugins((ExtensionInfo) extInfo).intern(this);
        }
@@ -250,6 +265,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("PropagateAnnotations", job, new PruningVisitor()).intern(this);
        }
        
+       @Override
        public Goal CodeGenerated(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();

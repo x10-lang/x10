@@ -539,6 +539,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 //	    X10ConstructorDef ci = constructorDef(Position.COMPILER_GENERATED, Types.ref(cd.asType()), Flags.PUBLIC, Types.ref(returnType), params, formals, Collections.EMPTY_LIST);
 //	    cd.addConstructor(ci);
 	    
+	    systemResolver().install(cd.fullName(), cd.asType());
+
 	    return (BoxType_c) cd.asType();
 	}
 	
@@ -552,6 +554,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public X10ParsedClassType createRefType() {
+	    if (true) return (X10ParsedClassType) load("x10.lang.Ref");
+	    
 	    X10ClassDef cd = (X10ClassDef) createClassDef();
 	    cd.name("Ref");
 	    cd.position(Position.COMPILER_GENERATED);
@@ -578,11 +582,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		throw new InternalCompilerError(e);
 	    }
 	    
+	    systemResolver().install(cd.fullName(), cd.asType());
+
 	    return (X10ParsedClassType) cd.asType();
 	}
 	
-	
 	public X10ParsedClassType createValueType() {
+	    if (true) return (X10ParsedClassType) load("x10.lang.Value");
+	    
 	    X10ClassDef cd = (X10ClassDef) createClassDef();
 	    cd.name("Value");
 	    cd.position(Position.COMPILER_GENERATED);
@@ -608,6 +615,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    catch (SemanticException e) {
 		throw new InternalCompilerError(e);
 	    }
+	    
+	    systemResolver().install(cd.fullName(), cd.asType());
 	    
 	    return (X10ParsedClassType) cd.asType();
 	}
@@ -1969,52 +1978,44 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		Type t1 = fromType;
 		Type t2 = toType;
 		
-		if (t2 instanceof ConstrainedType) {
-			ConstrainedType ct2 = (ConstrainedType) t2;
-			Type baseType2 = ct2.baseType().get();
-			XConstraint c2 = ct2.constraint().get();
-			c2 = c2.copy();
-			c2 = c2.removeVarBindings(XSelf.Self);
-			t2 = X10TypeMixin.xclause(baseType2, c2);
+		// When checking if can assign C{c1, self==x1} to C{c2, self==x2}, we need to unify self in the constraints
+		// since self==x1 does not entail self==x2.
+		// Introduce an existential and add self==q to both constraints.
+		Type baseType1 = X10TypeMixin.baseType(t1);
+		XConstraint c1 = X10TypeMixin.xclause(t1);
+		Type baseType2 = X10TypeMixin.baseType(t2);
+		XConstraint c2 = X10TypeMixin.xclause(t2);
+		
+		if (c2 != null) {
+		    XVar self2 = X10TypeMixin.selfVar(c2);
+		    if (self2 != null) {
+			try {
+			    c1 = c1 == null ? new XConstraint_c() : c1.copy();
+			    c1.addSelfBinding(self2);
+			}
+			catch (XFailure e) { }
+		    }
+		    t1 = X10TypeMixin.xclause(baseType1, c1);
+		    t2 = X10TypeMixin.xclause(baseType2, c2);
 		}
 		
-		if (t1 instanceof ConstrainedType && t2 instanceof ConstrainedType) {
-			ConstrainedType ct1 = (ConstrainedType) t1;
-			ConstrainedType ct2 = (ConstrainedType) t2;
-			Type baseType1 = ct1.baseType().get();
-			Type baseType2 = ct2.baseType().get();
-			XConstraint c1 = ct1.constraint().get();
-			XConstraint c2 = ct2.constraint().get();
+		if (c1 != null || c2 != null) {		
+		    boolean result = true;
+		    result &= isImplicitCastValid(baseType1, baseType2);
 
-			boolean result = true;
-			result &= isImplicitCastValid(baseType1, baseType2);
+		    if (c1 != null && c2 != null) {
 			try {
-				result &= c1.entails(c2);
+			    result &= c1.entails(c2);
 			}
 			catch (XFailure e) {
-				result = false;
+			    result = false;
 			}
-			return result;
-		}
-		
-		if (t1 instanceof ConstrainedType) {
-			ConstrainedType ct1 = (ConstrainedType) t1;
-			Type baseType1 = ct1.baseType().get();
-			
-			boolean result = true;
-			result &= isImplicitCastValid(baseType1, t2);
-			return result;
-		}
-		
-		if (t2 instanceof ConstrainedType) {
-			ConstrainedType ct2 = (ConstrainedType) t2;
-			Type baseType2 = ct2.baseType().get();
-			XConstraint c2 = ct2.constraint().get();
-			
-			boolean result = true;
-			result &= isImplicitCastValid(t1, baseType2);
+		    }
+		    else if (c2 != null) {
 			result &= c2.valid();
-			return result;
+		    }
+
+		    return result;
 		}
 
 		if (isValueType(fromType) && isValueType(toType)) {
@@ -2036,6 +2037,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			return isShort(toType) || isInt(toType) || isLong(toType) || isFloat(toType) || isDouble(toType);
 		    if (isByte(fromType))
 			return isByte(toType) || isShort(toType) || isInt(toType) || isLong(toType) || isFloat(toType) || isDouble(toType);
+		    
+		    if (typeEquals(fromType, toType))
+			return true;
 		    
 		    // Note: cannot implicitly coerce a value type to a superclass.
 		    return false;

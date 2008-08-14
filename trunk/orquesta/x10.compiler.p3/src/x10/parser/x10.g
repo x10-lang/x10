@@ -2739,7 +2739,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
                      | extern
         /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN.Native())));
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
           $EndJava
         ./
                      | safe

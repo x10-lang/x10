@@ -502,12 +502,12 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		return oldType;
 	}
 	
-	@Override
-	public String toString() {
-	    if (name.equals("package") && outer != null)
-		return outer.toString();
-	    if (name.equals("package") && package_ != null)
-		return package_.toString();
-	    return super.toString();
-	}
+//	@Override
+//	public String toString() {
+////	    if (name.equals("package") && outer != null)
+////		return outer.toString();
+////	    if (name.equals("package") && package_ != null)
+////		return package_.toString();
+//	    return super.toString();
+//	}
 }
