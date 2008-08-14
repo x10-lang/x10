@@ -229,7 +229,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             super.setSuperClass(ts, thisType);
         }
         else if (X10Flags.toX10Flags(flags().flags()).isValue()) {
-            thisType.superType(Types.<Type>ref(xts.Object()));
+            thisType.superType(Types.<Type>ref(xts.Value()));
         }
         else {
             thisType.superType(Types.<Type>ref(xts.Ref()));
@@ -240,11 +240,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
 	super.setInterfaces(ts, thisType);
 
-	if (X10Flags.toX10Flags(thisType.flags()).isValue() && ! thisType.flags().isInterface()) {
-	    X10TypeSystem xts = (X10TypeSystem) ts;
-	    if (! thisType.fullName().equals("x10.lang.Value"))
-		thisType.addInterface(Types.ref(xts.Value()));
-	}
+//	if (X10Flags.toX10Flags(thisType.flags()).isValue() && ! thisType.flags().isInterface()) {
+//	    X10TypeSystem xts = (X10TypeSystem) ts;
+//	    if (! thisType.fullName().equals("x10.lang.Value"))
+//		thisType.addInterface(Types.ref(xts.Value()));
+//	}
     }
 
     public Node disambiguate(TypeChecker ar) throws SemanticException {
@@ -552,109 +552,26 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
 
+    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
     	if (X10Flags.toX10Flags(flags.flags()).isValue()) {
-    	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	    if (! ts.isSubtype(type.asType(), ts.Value())) {
+    		throw new SemanticException("Value class " + type + " must extend " + ts.Value() + ".", position());
+    	    }
+    	    if (ts.isSubtype(type.asType(), ts.Ref())) {
+    		throw new SemanticException("Value class " + type + " cannot extend " + ts.Ref() + ".", position());
+    	    }
+    	}
+    	else {
+    	    if (! ts.isSubtype(type.asType(), ts.Ref())) {
+    		throw new SemanticException("Reference class " + type + " must extend " + ts.Ref() + ".", position());
+    	    }
+    	    if (ts.isSubtype(type.asType(), ts.Value())) {
     		throw new SemanticException("Reference class " + type + " cannot extend " + ts.Value() + ".", position());
     	    }
     	}
     	((X10ClassDef) type).checkRealClause();
 	    
-//    	checkVariance();
-    	
     	return result;
     }
-    
-//    protected void checkVariance() throws SemanticException {
-//	final Map<String,TypeProperty.Variance> vars = new HashMap<String, TypeProperty.Variance>();
-//	for (int i = 0; i < typeParameters.size(); i++) {
-//	    TypeParamNode pn = typeParameters.get(i);
-//	    TypeProperty.Variance v = pn.variance();
-//	    vars.put(pn.name().id(), v);
-//	}
-//	
-//	for (final TypeParamNode pn : typeParameters) {
-//	    class VarianceChecker extends NodeVisitor {
-//		// null means variance doesn't matter
-//		TypeProperty.Variance variance = null;
-//
-//		public NodeVisitor flip() {
-//		    if (variance == null)
-//			return this;
-//		    switch (variance) {
-//		    case CONTRAVARIANT:
-//			return variance(TypeProperty.Variance.COVARIANT);
-//		    case COVARIANT:
-//			return variance(TypeProperty.Variance.CONTRAVARIANT);
-//		    default:
-//			return this;
-//		    }
-//		}
-//		
-//		public NodeVisitor variance(TypeProperty.Variance variance) {
-//		    if (this.variance == variance)
-//			return this;
-//		    VarianceChecker v = (VarianceChecker) copy();
-//		    v.variance = variance;
-//		    return v;
-//		}
-//		
-//		@Override
-//		public NodeVisitor enter(Node parent, Node n) {
-//		    if (parent instanceof X10MethodDecl) {
-//			X10MethodDecl md = (X10MethodDecl) parent;
-//			if (n == md.returnType())
-//			    return this; // Don't change variance
-//			if (n instanceof Formal)
-//			    return flip();
-//			if (n == md.whereClause())
-//			    return flip();
-//			return variance(null);
-//		    }
-//		    if (parent instanceof X10FieldDecl) {
-//			X10FieldDecl md = (X10FieldDecl) parent;
-//			if (n == md.type())
-//			    return variance(md.flags().flags().isFinal() ? TypeProperty.Variance.COVARIANT : TypeProperty.Variance.INVARIANT); 
-//			return variance(null);
-//		    }
-////		    if (parent instanceof SubtypeTest) {
-////			// CHECK THIS:
-////			// In a method guard, {T1 <: T2}, T1 must be covariant or invariant, T2 must be contravariant or invariant
-////			SubtypeTest s = (SubtypeTest) parent;
-////			if (n == s.subtype())
-////			    return flip();
-//////			if (n == s.supertype())
-//////			    return flip();
-////			return variance(null);
-////		    }
-//		    if (n instanceof ClassBody)
-//			return variance(null);
-//		    if (n instanceof ConstructorDecl)
-//			return variance(null);
-//		    if (n instanceof Stmt)
-//			return variance(null);
-//		    return this;
-//		}
-//		
-//		public Node leave(Node old, Node n, NodeVisitor v) {
-//		    if (n instanceof CanonicalTypeNode) {
-//			Type t = ((CanonicalTypeNode) n).type();
-//			if (t instanceof ParameterType) {
-//			    ParameterType pt = (ParameterType) t;
-//			    if (pt.def() == type) {
-//				TypeProperty.Variance declared = vars.get(pt.name());
-//				if (declared == TypeProperty.Variance.COVARIANT && variance == TypeProperty.Variance.CONTRAVARIANT)
-//				    throw new SemanticException("Cannot use covariant parameter " + pt + " in a negative position.");
-//				if (declared == TypeProperty.Variance.CONTRAVARIANT && variance == TypeProperty.Variance.COVARIANT)
-//				    throw new SemanticException("Cannot use contravariant parameter " + pt + " in a positive position.");
-//			    }
-//			}
-//		    }
-//		    return n;
-//		}
-//	    }
-//	    
-//	    body().visit(new VarianceChecker());
-//	}
-//    }
 } 

@@ -17,6 +17,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.AmbDepTypeNode;
 import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.frontend.Job;
 import polyglot.frontend.SetResolverGoal;
@@ -50,8 +51,8 @@ public class CastRewriter extends ContextVisitor {
 		
 	    Node result = n;
 		
-		if (n instanceof Cast) {
-			Cast nn = (Cast) n;
+		if (n instanceof X10Cast) {
+			X10Cast nn = (X10Cast) n;
 			TypeNode xn = (TypeNode) nn.castType();
 			DepParameterExpr e = null;
 			
@@ -60,7 +61,7 @@ public class CastRewriter extends ContextVisitor {
 			    TypeNode base = nf.X10AmbTypeNode(xn.position(), adtn.prefix(), adtn.name());
 			    base = base.typeRef(Types.lazyRef(ts.unknownType(base.position()), new SetResolverGoal(job)));
 			    DepParameterExpr dep = adtn.constraint();
-			    return nf.DepCast(n.position(), base, dep, nn.expr());
+			    return nf.DepCast(n.position(), base, dep, nn.expr(), nn.convert());
 			}
 		}
 		if (n instanceof Instanceof) {

@@ -130,7 +130,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (UnknownTypeNode_c)n.del(delFactory().delTypeNode());
 		return n;
 	}
-	
+
 	public Return X10Return(Position pos, Expr expr, boolean implicit) {
 		Return n = new X10Return_c(pos, expr, implicit);
 		n = (Return)n.ext(extFactory().extReturn());
@@ -138,8 +138,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+	@Override
 	public Return Return(Position pos, Expr expr) {
-		return X10Return(pos, expr, false);
+	    return X10Return(pos, expr, false);
 	}
 
 	public TypePropertyNode TypePropertyNode(Position pos, Id name, TypeProperty.Variance variance) {
@@ -471,12 +472,22 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, DepParameterExpr e) {
+	    X10CanonicalTypeNode tn = (X10CanonicalTypeNode) CanonicalTypeNode(pos, type);
+	    return tn.constraintExpr(e);
+	}
+
+	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> type, DepParameterExpr e) {
+	    X10CanonicalTypeNode tn = (X10CanonicalTypeNode) CanonicalTypeNode(pos, type);
+	    return tn.constraintExpr(e);
+	}
+
 	@Override
 	public CanonicalTypeNode CanonicalTypeNode(Position pos, Ref<? extends Type> type) {
-	CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
-	n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
-	n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
-	return n;
+	    CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
+	    n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+	    n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+	    return n;
 	}
 
 	public X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
@@ -521,16 +532,22 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public Cast Cast(Position pos, TypeNode type, Expr expr) {
-		Cast n = new X10Cast_c(pos, type, expr);
-		n = (Cast)n.ext(extFactory().extCast());
-		n = (Cast)n.del(delFactory().delCast());
-		return n;
+	
+	public Cast X10Cast(Position pos, TypeNode castType, Expr expr, boolean convert) {
+	    Cast n = new X10Cast_c(pos, castType, expr, convert);
+	    n = (Cast)n.ext(extFactory().extCast());
+	    n = (Cast)n.del(delFactory().delCast());
+	    return n;
+	}
+
+	@Override
+	public Cast Cast(Position pos, TypeNode castType, Expr expr) {
+	    return X10Cast(pos, castType, expr, false);
 	}
 
 	public Cast DepCast(Position pos, TypeNode compareType,
-			DepParameterExpr d, Expr expr) {
-		Cast n = new DepCast_c(pos, compareType, d, expr);
+			DepParameterExpr d, Expr expr, boolean convert) {
+		Cast n = new DepCast_c(pos, compareType, d, expr, convert);
 		n = (Cast)n.ext(extFactory().extCast());
 		n = (Cast)n.del(delFactory().delCast());
 		return n;
