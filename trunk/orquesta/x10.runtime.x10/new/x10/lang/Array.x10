@@ -21,15 +21,15 @@ public abstract value class Array[T] (dist: Dist)
 
     public abstract def restriction(r: Region): Array[T];
 
-    public abstract def get(pt: Point): T;
-    public abstract def get(i0: int): T;
-    public abstract def get(i0: int, i1: int): T;
-    public abstract def get(i0: int, i1: int, i2: int): T;
+    public abstract def get(pt: Point{rank==this.rank}): T;
+    public abstract def get(i0: int){rank==1}: T;
+    public abstract def get(i0: int, i1: int){rank==2}: T;
+    public abstract def get(i0: int, i1: int, i2: int){rank==3}: T;
 
-    public abstract def set(pt: Point, v: T): void;
-    public abstract def set(i0: int, v: T): void;
-    public abstract def set(i0: int, i1: int, v: T): void;
-    public abstract def set(i0: int, i1: int, i2: int, v: T): void;
+    public abstract def set(pt: Point{rank==this.rank}, v: T): void;
+    public abstract def set(i0: int, v: T){rank==1}: void;
+    public abstract def set(i0: int, i1: int, v: T){rank==2}: void;
+    public abstract def set(i0: int, i1: int, i2: int, v: T){rank==3}: void;
 
     incomplete public def $plus(): Array[T];
     incomplete public def $minus(): Array[T];

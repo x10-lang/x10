@@ -1,7 +1,10 @@
 package x10.lang;
 
 /**
- * Value interface, automatically implemented by all value classes.
- * It is illegal for a subclass of Ref, except Box, to implement Value.
+ * Base class of all value classes.
  */
-public interface Value {}
+public value Value {
+    public native def equals(Object): boolean;
+    public native def hashCode(): int;
+    public native def toString(): String;
+}
