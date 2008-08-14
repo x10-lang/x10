@@ -90,14 +90,19 @@ public class X10SourceClassResolver extends SourceClassResolver {
 				
 				cd.setPackage(Types.ref(ts.packageForName(ts.packageForName("x10"), "lang")));
 				
+				// Object is X10 is an interface!
+				cd.flags(cd.flags().Interface());
+				
 				List<MethodDef> methods = new ArrayList<MethodDef>();
 				for (MethodDef m : cd.methods()) {
-					if (m.name().equals("equals"))
-						methods.add(m);
-					if (m.name().equals("hashCode"))
-						methods.add(m);
-					if (m.name().equals("toString"))
-						methods.add(m);
+//				    m.setFlags(m.flags().Abstract().clearNative());
+				    if (m.name().equals("equals"))
+					methods.add(m);
+				    if (m.name().equals("hashCode"))
+					methods.add(m);
+				    if (m.name().equals("toString"))
+					methods.add(m);
+				    m.setFlags(m.flags().clearNative().Abstract());
 				}
 				cd.setMethods(methods);
 

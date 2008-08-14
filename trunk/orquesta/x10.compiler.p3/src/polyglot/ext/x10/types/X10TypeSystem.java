@@ -96,9 +96,13 @@ public interface X10TypeSystem extends TypeSystem {
 	Type Point(); // needed for destructuring assignment
 	Type Dist();
 	Type Clock(); // needed for clocked loops
-	Type Value(); // needed for value types
 	@Deprecated 
 	Type Runtime(); // used by asyncCodeInstance
+
+	Type Value();
+	Type Ref();
+//	Type X10Object(); // x10.lang.Object
+	Type Object();    // java.lang.Object -- not really visible to programmers
 
 	XLit FALSE();
 	XLit TRUE();
@@ -173,7 +177,6 @@ public interface X10TypeSystem extends TypeSystem {
 	Type Settable(Type domain, Type range);
 	boolean isSettable(Type me);
 	
-	
 	      boolean isX10Array(Type me) ;
 	      boolean isBooleanArray(Type me);
 	     boolean isCharArray(Type me) ;
@@ -190,7 +193,6 @@ public interface X10TypeSystem extends TypeSystem {
 
 	      boolean isValueType( Type me);
 
-	
 	// RMF 7/11/2006 - Added so that the parser can create a canonical type node
 	// for "primitive types", which otherwise will cause disambiguation to fail.
 	//
@@ -209,9 +211,6 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @return true iff the given name is that of a "primitive type".
 	 */
 	public boolean isPrimitiveTypeName(String name);
-
-	/** Return the method instance for runtime.Primitive.equals */
-	 MethodInstance primitiveEquals();
 
 	/** Return the method instance for runtime.T.tValue() */
 	 MethodInstance getter(PrimitiveType t);
@@ -278,8 +277,6 @@ public interface X10TypeSystem extends TypeSystem {
    Type Box();
    Type boxOf(Ref<? extends Type> base);
    boolean isBox(Type type);
-
-   Type Ref();
 
    TypeDef BoxRefTypeDef();
 

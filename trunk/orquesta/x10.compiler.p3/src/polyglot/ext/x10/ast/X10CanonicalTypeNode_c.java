@@ -18,10 +18,21 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 
-public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements CanonicalTypeNode {
-
+public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode {
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
 	super(pos, type);
+    }
+    
+    DepParameterExpr expr;
+    
+    public DepParameterExpr constraintExpr() {
+	return expr;
+    }
+    
+    public X10CanonicalTypeNode constraintExpr(DepParameterExpr e) {
+	X10CanonicalTypeNode_c n = (X10CanonicalTypeNode_c) copy();
+	n.expr = e;
+	return n;
     }
     
     @Override

@@ -2672,7 +2672,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1749 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 1751 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(nf.Cast(pos(), Type, ConditionalExpression));
+                setResult(nf.X10Cast(pos(), Type, ConditionalExpression, false));
                 break;
             }
      
@@ -2685,7 +2685,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1754 "/Users/nystrom/work/x10/cvs/p3/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 1756 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(nf.Cast(pos(), Type, ConditionalExpression));
+                setResult(nf.X10Cast(pos(), Type, ConditionalExpression, true));
                 break;
             }
      
@@ -6997,19 +6997,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             // Rule 595:  Superopt ::= $Empty
             //
-            case 595: {
-                
-                //#line 4184 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-               setResult(nf.TypeNodeFromQualifiedName(pos(), "x10.lang.Object"));
+            case 595:
+                setResult(null);
                 break;
-            }
-     
+ 
             //
             // Rule 597:  TypeParametersopt ::= $Empty
             //
             case 597: {
                 
-                //#line 4191 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4188 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                 break;
             }
@@ -7019,7 +7016,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 599: {
                 
-                //#line 4198 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4195 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
@@ -7029,7 +7026,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 601: {
                 
-                //#line 4205 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4202 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                 break;
             }
@@ -7039,7 +7036,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 603: {
                 
-                //#line 4212 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4209 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
@@ -7049,7 +7046,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 605: {
                 
-                //#line 4219 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4216 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
@@ -7073,7 +7070,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 611: {
                 
-                //#line 4234 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4231 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -7083,7 +7080,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 613: {
                 
-                //#line 4241 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4238 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypePropertyNode.class, false));
                 break;
             }
@@ -7093,7 +7090,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 615: {
                 
-                //#line 4248 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4245 "/Users/nystrom/work/x10/cvs/p3/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                 break;
             }

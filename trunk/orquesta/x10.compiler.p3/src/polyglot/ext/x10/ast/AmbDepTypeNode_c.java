@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.Binary;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
@@ -33,6 +35,7 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef;
 import polyglot.types.Named;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -234,7 +237,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
       
     public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	NodeFactory nf = tc.nodeFactory();
+	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	
 	AmbDepTypeNode_c n = this;
 	
@@ -310,7 +313,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	    t = X10TypeMixin.xclause(t, c);
 
         	sym.update(t);
-        	return nf.CanonicalTypeNode(position(), sym);
+        	return nf.X10CanonicalTypeNode(position(), (Ref) sym, dep);
             }
             
             if (mt.formals().size() == 0 && mt.typeParameters().size() == 0) {
@@ -320,6 +323,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	throw new SemanticException("Could not instantiate type definition " + mt.fullName() + "; incorrect number of arguments.", position());
             }
         }
+        
+        List<Expr> moreConstraints = new ArrayList<Expr>();
+        
         // Desugar the type args list [T1,...,Tn] into {X1==T1,...,Xn==Tn}
         if (! typeArgs.isEmpty()) {
         	List<TypeProperty> typeProps = X10TypeMixin.typeProperties(t);
@@ -334,7 +340,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
 			Type ti = tni.type();
         		try {
 				c.addBinding(pi.asVar(), ts.xtypeTranslator().trans(ti));
-			}
+				Expr test = (Expr) nf.SubtypeTest(position(), nf.CanonicalTypeNode(position(),pi.asType()), tni, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+				moreConstraints.add(test);
+        		}
 			catch (XFailure e) {
 				throw new SemanticException("Cannot bind type property " + pi.name() + " to " + ti + "; " + e.getMessage(), tni.position());
 			}
@@ -353,6 +361,8 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         		Expr ei = args.get(i);
         		try {
 				c.addBinding(ts.xtypeTranslator().trans(XSelf.Self, pi), ts.xtypeTranslator().trans(ei));
+				Expr test = (Expr) nf.Binary(position(), nf.Field(position(), nf.Self(position()).type(t), nf.Id(position(), pi.name())).fieldInstance(pi).type(pi.type()), Binary.EQ, ei).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+				moreConstraints.add(test);
 			}
 			catch (XFailure e) {
 				throw new SemanticException("Cannot bind value property " + pi.name() + " to " + ei + "; " + e.getMessage(), ei.position());
@@ -382,7 +392,21 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
 
         sym.update(t);
 
-        return nf.CanonicalTypeNode(position(), sym);
+        Expr cond = dep != null ? dep.condition() : null;
+        for (Expr e : moreConstraints) {
+            if (cond == null)
+        	cond = e;
+            else
+        	cond =  nf.Binary(position(), cond, Binary.COND_AND, e).type(ts.Boolean());
+        }
+        if (dep != null && cond != dep.condition()) {
+            dep = dep.condition(cond);
+        }
+        else if (dep == null && cond != null) {
+            dep = nf.DepParameterExpr(position(), cond);
+        }
+        
+        return nf.X10CanonicalTypeNode(position(), sym, dep);
     }
     
     public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {

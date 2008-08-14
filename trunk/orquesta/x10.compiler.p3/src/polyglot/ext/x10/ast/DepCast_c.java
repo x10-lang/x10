@@ -45,8 +45,8 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	protected DepParameterExpr dep;
 	
 	public DepCast_c(Position pos, TypeNode castType, DepParameterExpr d,
-			Expr expr) {
-		super(pos, castType, expr);
+			Expr expr, boolean convert) {
+		super(pos, castType, expr, convert);
 		this.dep = d;
 	}
 

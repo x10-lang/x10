@@ -38,6 +38,8 @@ import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.TypeProperty.Variance;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.FieldInstance;
+import polyglot.types.Ref;
+import polyglot.types.Type;
 import polyglot.util.Position;
 
 /**
@@ -53,14 +55,18 @@ public interface X10NodeFactory extends NodeFactory {
 
     X10AmbQualifierNode X10AmbQualifierNode(Position pos, Prefix prefix, Id name);
     X10AmbTypeNode X10AmbTypeNode(Position pos, Prefix prefix, Id name);
-    
-	 ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
-	 ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
-	 ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
-	 ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
-	 ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
 
-	 Return X10Return(Position pos, Expr expr, boolean implicit);
+    ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
+    ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
+
+    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type t, DepParameterExpr e);
+    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> t, DepParameterExpr e);
+
+    Cast X10Cast(Position pos, TypeNode castType, Expr expr, boolean convert);
+    Return X10Return(Position pos, Expr expr, boolean implicit);
 
     UnknownTypeNode UnknownTypeNode(Position pos);
     TypeParamNode TypeParamNode(Position pos, Id name);
@@ -141,7 +147,7 @@ public interface X10NodeFactory extends NodeFactory {
             List<Formal> formals, DepParameterExpr where, List<TypeNode> throwTypes, Block body);
     AssignPropertyCall AssignPropertyCall(Position pos, List<TypeNode> typeArgs, List<Expr> argList);
 
-	Cast DepCast(Position position, TypeNode xn, DepParameterExpr e, Expr expr);
+	Cast DepCast(Position position, TypeNode xn, DepParameterExpr e, Expr expr, boolean convert);
 
 	Instanceof DepInstanceof(Position position, TypeNode xn, DepParameterExpr e, Expr expr);
 

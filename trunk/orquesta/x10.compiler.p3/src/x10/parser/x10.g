@@ -1748,12 +1748,12 @@ public static class MessageHandler implements IMessageHandler {
     CastExpression ::=
          ConditionalExpression as Type
         /.$BeginJava
-                    setResult(nf.Cast(pos(), Type, ConditionalExpression));
+                    setResult(nf.X10Cast(pos(), Type, ConditionalExpression, false));
           $EndJava
         ./
        | ConditionalExpression to Type
         /.$BeginJava
-                    setResult(nf.Cast(pos(), Type, ConditionalExpression));
+                    setResult(nf.X10Cast(pos(), Type, ConditionalExpression, true));
           $EndJava
         ./
        | ConditionalExpression ! Expression
@@ -4180,10 +4180,7 @@ public static class MessageHandler implements IMessageHandler {
                     | Interfaces
 
     Superopt ::= %Empty
-        /.$BeginJava
-                   setResult(nf.TypeNodeFromQualifiedName(pos(), "x10.lang.Object"));
-          $EndJava
-        ./
+        /.$NullAction./
                | Super
 
     TypeParametersopt ::= %Empty
