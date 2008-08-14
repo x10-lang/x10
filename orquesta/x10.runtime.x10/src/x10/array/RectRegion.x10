@@ -19,16 +19,16 @@ final class RectRegion extends PolyRegion {
 
     private int size = -1;
 
-    RectRegion(HalfspaceList hl) {
+    RectRegion(:rank==hl.rank)(final HalfspaceList hl) {
         super(hl);
     }
 
-    static RectRegion make(int [] min, int [] max) {
+    public static Region(:rank==min.length) make(final int [] min, final int [] max) {
 
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
 
-        HalfspaceList hl = new HalfspaceList(min.length);
+        HalfspaceList(:rank==min.length) hl = new HalfspaceList(min.length);
         for (int i=0; i<min.length; i++) {
             hl.add(hl.X(i), hl.GE, min[i]);
             hl.add(hl.X(i), hl.LE, max[i]);
@@ -38,8 +38,8 @@ final class RectRegion extends PolyRegion {
     }
 
 
-    static RectRegion make(int min, int max) {
-        return make(new int [] {min}, new int [] {max});
+    public static Region(:rank==1) make(int min, int max) {
+        return (RectRegion(:rank==1)) make(new int [] {min}, new int [] {max});
     }
 
     public int size() {

@@ -27,43 +27,47 @@ public abstract value class Region(
     // factories
     //
 
-    public static Region makeEmpty(int rank) {
+    public static Region(:self.rank==rank) makeEmpty(final int rank) {
         return BaseRegion.makeEmpty(rank);
     }
 
-    public static Region makeFull(int rank) {
+    public static Region(:self.rank==rank) makeFull(final int rank) {
         return BaseRegion.makeFull(rank);
     }
 
-    public static Region makeUnit() {
+    public static Region(:self.rank==0) makeUnit() {
         return BaseRegion.makeUnit();
     }
 
-    public static Region makeRectangular(int [] min, int [] max) {
+    public static Region(:self.rank==min.length) makeRectangular(final int [] min, final int [] max) {
         return BaseRegion.makeRectangular(min, max);
     }        
 
-    public static Region makeRectangular(int min, int max) {
+    public static Region(:rank==1) makeRectangular(int min, int max) {
         return BaseRegion.makeRectangular(min, max);
     }        
 
-    public static Region makeBanded(int size, int upper, int lower) {
+    public static Region(:rank==2) makeBanded(int size, int upper, int lower) {
         return BaseRegion.makeBanded(size, upper, lower);
     }
 
-    public static Region makeBanded(int size) {
+    public static Region(:rank==2) makeBanded(int size) {
         return BaseRegion.makeBanded(size);
     }
 
-    public static Region makeUpperTriangular(int size) {
+    public static Region(:rank==2) makeUpperTriangular(int size) {
         return BaseRegion.makeUpperTriangular(size);
     }
 
-    public static Region makeLowerTriangular(int size) {
+    public static Region(:rank==2) makeLowerTriangular(int size) {
         return BaseRegion.makeLowerTriangular(size);
     }
 
-    public static Region make(Region [] regions) {
+    public static Region(:rank==1) make(int min, int max) {
+        return BaseRegion.makeRectangular(min, max);
+    }
+
+    public static Region(:rank==regions.length) make(final Region [] regions) {
         return BaseRegion.make(regions);
     }
 

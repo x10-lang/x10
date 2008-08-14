@@ -6,7 +6,7 @@ package x10.array;
 
 class FullRegion extends PolyRegion {
 
-    FullRegion(int rank) {
+    FullRegion(:self.rank==rank)(final int rank) {
         super(new HalfspaceList(rank));
     }
 

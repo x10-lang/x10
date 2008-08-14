@@ -6,7 +6,7 @@ package x10.array;
 
 class EmptyRegion extends UnionRegion {
 
-    EmptyRegion(int rank) {
+    EmptyRegion(:self.rank==rank)(final int rank) {
         super(new PolyRegionList(rank));
     }
 

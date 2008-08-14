@@ -9,7 +9,7 @@ import x10.util.ArrayList_Halfspace;
 
 public class HalfspaceList(int rank) extends ArrayList_Halfspace {
 
-    public HalfspaceList(int rank) {
+    public HalfspaceList(:self.rank==rank)(final int rank) {
         this.rank = rank;
     }
 
