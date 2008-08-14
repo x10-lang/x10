@@ -1,13 +1,10 @@
 package x10.lang;
 
 public abstract value Dist(
-
     region: Region,
-
     unique: boolean,
     constant: boolean,
     onePlace: Place
-
 ) {
 
     property rank: int = region.rank;
@@ -49,12 +46,6 @@ public abstract value Dist(
     incomplete public def $bar(p: Place): Dist;
 
     protected def this(region: Region, unique: boolean, constant: boolean, onePlace: Place) = {
-
-        property(
-            region,
-            unique,
-            constant,
-            onePlace
-        );
+        property(region, unique, constant, onePlace);
     }
 }
