@@ -14,7 +14,6 @@ public class X10InnerClassRemover extends InnerClassRemover {
 		super(job, ts, nf);
 	}
 	
-	@Override
 	protected ContextVisitor localClassRemover() {
 		return new X10LocalClassRemover(job, ts, nf);
 	}
