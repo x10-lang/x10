@@ -18,9 +18,13 @@ public abstract class TestArray extends Test {
     String testName;
 
     public boolean execute() throws java.lang.Exception {
-        System.setProperty("line.separator", "\n");
+
         testName = this.getClass().getName();
         String refName = testName + ".ref";
+
+        if (Tester.dbg!=null)
+            Tester.dbg.println("--- " + testName);
+
         if (!(new File(refName)).exists()) {
             out = new PrintStream(new FileOutputStream(refName));
             System.out.println("creating " + refName);
@@ -190,6 +194,8 @@ public abstract class TestArray extends Test {
             prRegion(test, r);
             Region.Scanner s = (Region.Scanner) r.scanners().next();
             Region.Iterator i = r.iterator();
+            if (Tester.dbg!=null && s instanceof PolyScanner)
+                ((PolyScanner)s).printInfo((PrintStream)Tester.dbg);
         } catch (UnboundedRegionException e) {
             pr(e.toString());
         }
@@ -210,6 +216,8 @@ public abstract class TestArray extends Test {
 
         pr("region: " + r);
 
+        if (Tester.dbg!=null && r instanceof BaseRegion)
+            ((BaseRegion)r).printInfo((PrintStream)Tester.dbg);
     }
     
 
@@ -228,6 +236,8 @@ public abstract class TestArray extends Test {
         Iterator_Scanner it = r.scanners();
         while (it.hasNext()) {
             Region.Scanner s = (Region.Scanner) it.next();
+            if (Tester.dbg!=null && s instanceof PolyScanner)
+                ((PolyScanner)s).printInfo((PrintStream)Tester.dbg);
             pr("  poly");
             if (r.rank==0) {
                 pr("ERROR rank==0");
