@@ -10,6 +10,10 @@ class FullRegion extends PolyRegion {
         super(new HalfspaceList(rank));
     }
 
+    public Region boundingBox() {
+        return this;
+    }
+
     public String toString() {
         return "full(" + rank + ")";
     }

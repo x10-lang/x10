@@ -10,6 +10,10 @@ class EmptyRegion extends UnionRegion {
         super(new PolyRegionList(rank));
     }
 
+    public Region boundingBox() {
+        return this;
+    }
+
     public String toString() {
         return "empty(" + rank + ")";
     }
