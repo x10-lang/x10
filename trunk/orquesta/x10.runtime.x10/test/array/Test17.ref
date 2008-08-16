@@ -5,7 +5,7 @@ zeroBased false
 rail false
 isConvex() true
 size() x10.array.PolyRegion does not support size
-region: (x0>=0 && x0-x1>=0 && x1>=0 && x1<=4 && x0-x1<=0 && x0<=4)
+region: (x0-x1>=0 && x1>=0 && x0-x1<=0 && x0<=4)
   poly
     0  0 . . . . . . . . . 
     1  . 1 . . . . . . . . 
@@ -27,7 +27,7 @@ zeroBased false
 rail false
 isConvex() true
 size() x10.array.PolyRegion does not support size
-region: (x0>=0 && x0-x1>=0 && x1>=0 && x1<=4 && x0-x1<=1 && x0<=4)
+region: (x0-x1>=0 && x1>=0 && x0-x1<=1 && x0<=4)
   poly
     0  0 . . . . . . . . . 
     1  0 1 . . . . . . . . 
@@ -47,7 +47,7 @@ zeroBased false
 rail false
 isConvex() true
 size() x10.array.PolyRegion does not support size
-region: (x0>=0 && x0-x1>=-1 && x1>=0 && x1<=4 && x0-x1<=0 && x0<=4)
+region: (x0>=0 && x0-x1>=-1 && x1<=4 && x0-x1<=0)
   poly
     0  0 0 . . . . . . . . 
     1  . 1 2 . . . . . . . 
