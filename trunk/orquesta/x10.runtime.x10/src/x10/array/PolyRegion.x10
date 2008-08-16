@@ -311,6 +311,7 @@ public class PolyRegion extends BaseRegion {
         hl.add(ROW, hl.GE, rowMin);
         hl.add(COL, hl.LE, colMin+size-1);
         hl.add(COL-ROW, hl.GE, colMin-rowMin);
+        hl.isSimplified = true;
         return PolyRegion.make(hl);
     }
 
@@ -319,6 +320,7 @@ public class PolyRegion extends BaseRegion {
         hl.add(COL, hl.GE, colMin);
         hl.add(ROW, hl.LE, rowMin+size-1);
         hl.add(ROW-COL, hl.GE, rowMin-colMin);
+        hl.isSimplified = true;
         return PolyRegion.make(hl);
     }
 
