@@ -169,7 +169,7 @@ public class PolyRegion extends BaseRegion {
         HalfspaceList hl = halfspaces;
         for (int k=0; k<rank; k++)
             if (k!=axis)
-                hl = hl.FME(k);
+                hl = hl.FME(k, true);
         return Region.makeRectangular(hl.rectMin(axis), hl.rectMax(axis));
     }
 
@@ -250,10 +250,10 @@ public class PolyRegion extends BaseRegion {
             for (int axis=0; axis<rank; axis++) {
                 HalfspaceList x = hl;
                 for (int k=axis+1; k<rank; k++)
-                    x = x.FME(k);
+                    x = x.FME(k, true);
                 min[axis] = x.rectMin(axis);
                 max[axis] = x.rectMax(axis);
-                hl = hl.FME(axis);
+                hl = hl.FME(axis, true);
             }
             boundingBox = Region.makeRectangular(min, max);
         }
@@ -342,8 +342,12 @@ public class PolyRegion extends BaseRegion {
     }
 
     protected PolyRegion(:rank==hl.rank)(final HalfspaceList hl) {
+
         super(hl.rank, hl.isRect(), hl.isZeroBased());
-        this.halfspaces = hl.reduce();
+
+        // simplifyAll catches more (all) stuff, but may be expensive.
+        //this.halfspaces = hl.simplifyParallel();
+        this.halfspaces = hl.simplifyAll();
     }
 
     public int [] min() {
