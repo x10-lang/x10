@@ -33,6 +33,7 @@ final class RectRegion extends PolyRegion {
             hl.add(hl.X(i), hl.GE, min[i]);
             hl.add(hl.X(i), hl.LE, max[i]);
         }
+        hl.isSimplified = true;
 
         return new RectRegion(hl);
     }

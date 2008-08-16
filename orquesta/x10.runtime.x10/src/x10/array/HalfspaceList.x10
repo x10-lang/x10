@@ -71,15 +71,20 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
 
 
     //
-    // A halfspace is redundant iff negating it yields an empty region
-    // (equivalently a constraint is implied by other constraints if
-    // negating it produces a contradiction).
+    // Determine whether a halfspace is redundant by reductio ad
+    // absurdum: assume the negation of H, and if the result is the
+    // empty set then H is implied by the other halfspaces.
     //
-    // This is guaranteed to remove redundant constraints, but it may
+    // This is guaranteed to remove redundant halfspaces, but it may
     // be expensive.
     //
+
+    boolean isSimplified = false;
+
     HalfspaceList simplifyAll() {
         sort(); // not needed but helps w/ debugging to keep in sorted order
+        if (isSimplified)
+            return this;
         HalfspaceList result = new HalfspaceList(rank);
         boolean [] removed = new boolean[size()];
         for (int i=0; i<size(); i++) {
@@ -93,6 +98,7 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
             else
                 removed[i] = true;
         }
+        result.isSimplified = true;
         return result;
     }
 
