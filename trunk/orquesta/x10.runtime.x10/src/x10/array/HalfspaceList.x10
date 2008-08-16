@@ -46,13 +46,13 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
 
 
     //
-    // eliminate redundant parallel halfspaces. Since halfspaces
+    // Eliminate redundant parallel halfspaces. Since halfspaces
     // with equal coefficients are sorted in increasing order of
     // the constant (which is the least significant part of the
     // key) taking the last of a set of parallel halfspaces
     // captures the strongest halfspace.
     //
-    HalfspaceList reduce() {
+    HalfspaceList simplifyParallel() {
         sort();
         Iterator_Halfspace it = iterator();
         if (!it.hasNext())
@@ -71,41 +71,69 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
 
 
     //
-    // apply Fourier-Motzkin Elimination to eliminate variable k:
+    // A halfspace is redundant iff negating it yields an empty region
+    // (equivalently a constraint is implied by other constraints if
+    // negating it produces a contradiction).
     //
-    // copy each halfspace whose kth coefficient is already 0
+    // This is guaranteed to remove redundant constraints, but it may
+    // be expensive.
     //
-    // for each pair of halfspaces such that the kth coefficient
-    // is of opposite sign, construct a new halfspace by adding
-    // the two original halfspaces with appropriate positive
-    // multipliers to obtain a halfspace with a kth coefficent of 0
+    HalfspaceList simplifyAll() {
+        sort(); // not needed but helps w/ debugging to keep in sorted order
+        HalfspaceList result = new HalfspaceList(rank);
+        boolean [] removed = new boolean[size()];
+        for (int i=0; i<size(); i++) {
+            Halfspace h = get(i);
+            HalfspaceList trial = new HalfspaceList(rank);
+            for (int j=0; j<size(); j++)
+                if (!removed[j])
+                    trial.add(i==j? h.complement() : get(j));
+            if (!trial.isEmpty())
+                result.add(h);
+            else
+                removed[i] = true;
+        }
+        return result;
+    }
+
+
     //
-    // the result is a set of halfspaces that describe the
-    // polyhedron that is the projection of the polyhedron
-    // described by the original halfspaces onto a rank-1
-    // dimensional subspace obtained by eliminating axis k
+    // Apply Fourier-Motzkin Elimination to eliminate variable k:
     //
-    HalfspaceList FME(int k) {
+    // Copy each halfspace whose kth coefficient is already 0
+    //
+    // For each pair of halfspaces such that the kth coefficient is of
+    // opposite sign, construct a new halfspace by adding the two
+    // original halfspaces with appropriate positive multipliers to
+    // obtain a halfspace with a kth coefficent of 0.
+    //
+    // The result is a set of halfspaces that describe the polyhedron
+    // that is the projection of the polyhedron described by the
+    // original halfspaces onto a rank-1 dimensional subspace obtained
+    // by eliminating axis k
+    //
+    HalfspaceList FME(int k, boolean simplifyDegenerate) {
         HalfspaceList result = new HalfspaceList(rank);
         for (int i=0; i<size(); i++) {
             Halfspace ih = get(i);
-            int ic = ih.as[k];
-            if (ic==0) {
+            int ia = ih.as[k];
+            if (ia==0) {
                 result.add(ih);
             } else {
                 for (int j=i+1; j<size(); j++) {
                     Halfspace jh = get(j);
-                    int jc = jh.as[k];
+                    int ja = jh.as[k];
                     int [] as = new int[rank+1];
-                    if (ic>0 && jc<0) {
+                    if (ia>0 && ja<0) {
                         for (int l=0; l<=rank; l++)
-                            as[l] = ic*jh.as[l] - jc*ih.as[l];
-                    } else if (ic<0 && jc>0) {
+                            as[l] = ia*jh.as[l] - ja*ih.as[l];
+                    } else if (ia<0 && ja>0) {
                         for (int l=0; l<=rank; l++)
-                            as[l] = jc*ih.as[l] - ic*jh.as[l];
+                            as[l] = ja*ih.as[l] - ia*jh.as[l];
                     }
+                    int lim = simplifyDegenerate? rank : rank+1;
                     boolean degenerate = true;
-                    for (int l=0; l<rank; l++)
+                    for (int l=0; l<lim; l++)
                         if (as[l]!=0)
                             degenerate = false;
                     if (!degenerate) {
@@ -115,98 +143,20 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
                 }
             }
         }
-        result = result.reduce();
+        result = result.simplifyParallel();
         return result;
     }
 
 
     //
-    // scanner support
-    // 
-    // no longer used - now done in PolyScanner
-    // keep this for reference for now
-    //
-
-    /*
-    HalfspaceList init(int axis) {
-        HalfspaceList cl = new HalfspaceList(rank);
-        Iterator it = iterator();
-        while (it.hasNext()) {
-            Halfspace h = it.next();
-            if (h.as[axis]!=0) {
-                h.sum[0] = h.as[rank];
-                cl.add(c);
-            }
-        }
-        cl.axis = axis;
-        return cl;
-    }
-
-    void set(int axis, int position) {
-        Iterator it = iterator();
-        while (it.hasNext()) {
-            Halfspace h = it.next();
-            h.sum[axis+1] = h.as[axis]*position + h.sum[axis];
-        }
-    }
-
-
-    // XXX should get these from Integer but they are missing from
-    // x10.lang.Integer in the Java runtime so just put them here
-    final static int MAX_VALUE = 2147483647;
-    final static int MIN_VALUE = -2147483648;
-
-
-    //
-    // halfspaces of the form a x + b <= 0, where a<0
-    // imply x >= -b / a
-    //
-    int min() {
-        int min = Integer.MIN_VALUE;
-        Iterator_Halfspace it = iterator();
-        while (it.hasNext()) {
-            Halfspace h = it.next();
-            int a = h.as[axis];
-            if (a < 0) {
-                int b = h.sum[axis];
-                int m = -b / a;
-                if (m > min) min = m;
-            }
-        }
-        return min;
-    }
-
-    //
-    // halfspaces of the form a x + b <= 0, where a>0
-    // imply x <= -b / a
-    //
-    int max() {
-        int max = Integer.MAX_VALUE;
-        Iterator_Halfspace it = iterator();
-        while (it.hasNext()) {
-            Halfspace h = it.next();
-            int a = h.as[axis];
-            if (a > 0) {
-                int b = h.sum[axis];
-                int m = -b / a;
-                if (m < max) max = m;
-            }
-        }
-        return max;
-    }
-    */
-
-
-    //
-    // support for constructing rectangular regions: determining
+    // Support for constructing rectangular regions: determining
     // whether or not a cl is rectangular, and computing min/max along
-    // each axis if it is
+    // each axis if it is.
     //
     // XXX cache these for efficiency during region construction
-    // XXX assume halfspaces have been sorted and reduced - check/enforce
+    // XXX assume halfspaces have been sorted and simplified - check/enforce
     // XXX rectMin/Max only work if isRect is true - check/enforce
     // XXX cache rectMin/rectMax/isZeroBased for performance
-    //
 
     boolean isRect() {
         Iterator_Halfspace it = iterator();
@@ -284,22 +234,22 @@ public class HalfspaceList(int rank) extends ArrayList_Halfspace {
 
 
     //
-    // XXX is this correct?
-    // XXX more efficient way?
+    // A set of halfspaces is empty iff, after eliminating all
+    // variables with FME, we are left with a contradiction, i.e. a
+    // halfspace k<=0 where k>0.
     //
-
     boolean isEmpty() {
-        try {
-            PolyScanner s = new PolyScanner(this);
-            for (int axis=0; axis<rank; axis++) {
-                int min = s.min(axis);
-                if (min > s.max(axis))
-                    return true;
-                if (axis<rank-1)
-                    s.set(axis, min);
-            }
-        } catch (UnboundedRegionException e) {
-            return false;
+
+        // eliminate all variables
+        HalfspaceList hl = this;
+        for (int i=0; i<rank; i++)
+            hl = hl.FME(i, false);
+    
+        // look for contradictions
+        for (int i=0; i<hl.size(); i++) {
+            Halfspace h = hl.get(i);
+            if (h.as[rank]>0)
+                return true;
         }
         return false;
     }
