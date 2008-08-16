@@ -79,7 +79,7 @@ public final class PolyScanner implements Region.Scanner {
         //cl.printInfo(System.out, "axis " + (rank-1));
         init(cl, rank-1);
         for (int k=rank-2; k>=0; k--) {
-            cl = cl.FME(k+1);
+            cl = cl.FME(k+1, true);
             //cl.printInfo(System.out, "axis " + k);
             init(cl, k);
         }
