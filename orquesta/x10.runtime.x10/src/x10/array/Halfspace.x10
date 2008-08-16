@@ -143,6 +143,8 @@ public value class Halfspace implements java.lang.Comparable {
             if (c!=0)
                 first = false;
         }
+        if (first)
+            ps.printf("0");
         if (sgn>0)
             ps.printf("%s<=%s%d", spc, spc, -as[as.length-1]);
         else
