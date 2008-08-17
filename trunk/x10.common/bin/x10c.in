@@ -70,11 +70,6 @@ else
 fi
 extargs="-ext ${ext}"
 extargs="$extargs -assert"
-# FIXME: HACK (at Vijay's request)
-# To be removed once serialization of types is fixed in x10c
-# HACK!!! HACK!!! HACK!!! vvv
-extargs="$extargs -noserial"
-# HACK!!! HACK!!! HACK!!! ^^^
 
 classpath="${CP_OVERRIDE}"
 [ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
