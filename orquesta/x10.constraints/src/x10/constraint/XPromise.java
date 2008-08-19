@@ -9,6 +9,7 @@ package x10.constraint;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * All nodes that occur in the graph maintained by a constraint
@@ -123,6 +124,7 @@ public interface XPromise extends Cloneable {
 	 * @param term
 	 */
 	void setTerm(XTerm term);
+	void setTerm(XTerm term, Set<XPromise> visited);
 
 	/**
 	 * Replace a reference to any descendant that is equal to x with a reference to y.

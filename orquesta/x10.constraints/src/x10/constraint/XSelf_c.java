@@ -13,12 +13,6 @@ import java.util.List;
 public class XSelf_c extends XVar_c implements XSelf {
 	public XSelf_c() {}
 
-	public XTerm subst(XTerm y, XRoot x) {
-		if (x.equals(this))
-			return y;
-		return this;
-	}
-
 	public boolean rootVarIsSelf() {
 		return true;
 	}

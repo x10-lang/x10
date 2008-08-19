@@ -428,10 +428,10 @@ public class XConstraint_c implements XConstraint, Cloneable {
 	public boolean entails(List<XTerm> conjuncts) throws XFailure {
 		XConstraint me = saturate();
 		Set<XTerm> visited = new HashSet<XTerm>();
-//		visited.addAll(conjuncts);
 		for (XTerm term : conjuncts) {
-			term.saturate(me, visited);
+		    term.saturate(me, visited);
 		}
+		visited = null; // free up for gc
 		for (XTerm term : conjuncts) {
 			if (! me.entails(term))
 				return false;
@@ -575,9 +575,14 @@ public class XConstraint_c implements XConstraint, Cloneable {
 		if (y.equals(x)) return this;
 		XPromise last = lookupPartialOk(x);
 		if (last == null) return this; 	// x does not occur in this
-		XConstraint_c result = clone();
-		result.valid = true;
-		result.applySubstitution(y,x);
+		XConstraint_c result = new XConstraint_c();
+		for (XTerm term : constraints()) {
+		    XTerm t = term.subst(y, x, true);
+		    result.addTerm(t);
+		}
+//		XConstraint_c result = clone();
+//		result.valid = true;
+//		result.applySubstitution(y,x);
 		return result;
 	}
 	public XConstraint substitute(HashMap<XRoot, XTerm> subs) throws XFailure {
@@ -603,18 +608,13 @@ public class XConstraint_c implements XConstraint, Cloneable {
 	public XConstraint substitute(XTerm[] ys, XRoot[] xs, boolean propagate) throws XFailure {
 		assert xs.length == ys.length;
 		final int n = xs.length;
-		XConstraint_c result = this;
+		XConstraint result = this;
 		for (int i=0; i < n; i++) {
 			XRoot x = xs[i];
 			XTerm y = ys[i];
-			if (! (y.equals(x) || lookupPartialOk(x) == null)) {
-				if (result==this)
-					result = clone();
-				result.valid = true;
-				result.applySubstitution(y, x);
-			}
+			result = result.substitute(y, x);
 		}
-		return result==null ? this : result;
+		return result;
 	}
 	public void applySubstitution(HashMap<XRoot, XTerm> subs) throws XFailure {
 		for (Map.Entry<XRoot, XTerm> e : subs.entrySet()) {
@@ -663,7 +663,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
 		// Substitute y for x in the promise terms.
 		{
 		    Collection<XPromise> rootPs = roots.values();
-		    for (Map.Entry<XTerm, XPromise> e : roots.entrySet()) {
+		    for (Map.Entry<XTerm, XPromise> e : ((Map<XTerm,XPromise>) roots.clone()).entrySet()) {
 			if (!e.getKey().equals(p.term())) {
 			    XPromise px = e.getValue();
 			    XTerm t = px.term();

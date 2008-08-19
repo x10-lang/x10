@@ -10,7 +10,9 @@ package x10.constraint;
 import java.io.Serializable;
 import java.util.Set;
 
-public interface XTerm extends Serializable {
+public interface XTerm extends Serializable, Cloneable {
+        public XTerm clone();
+        
 	boolean hasVar(XVar v);
 	
 	/** Get the constraint on the term's value. */
@@ -71,4 +73,5 @@ public interface XTerm extends Serializable {
 	 * @return the term with the substitution applied
 	 */
 	XTerm subst(XTerm y, XRoot x);
+	XTerm subst(XTerm y, XRoot x, boolean propagate);
 }

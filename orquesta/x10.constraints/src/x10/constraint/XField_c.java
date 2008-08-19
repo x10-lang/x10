@@ -20,11 +20,12 @@ public class XField_c extends XVar_c implements XField {
 		this.field = field;
 	}
 
-	public XTerm subst(XTerm y, XRoot x) {
+	public XTerm subst(XTerm y, XRoot x, boolean propagate) {
 		XVar newReceiver = (XVar) receiver.subst(y, x);
+		XField_c n = (XField_c) super.subst(y, x, propagate);
 		if (newReceiver == receiver)
-		    return this;
-		XField_c n = (XField_c) clone();
+		    return n;
+		if (n == this) n = clone();
 		n.receiver = newReceiver;
 		return n;
 	}
@@ -76,7 +77,7 @@ public class XField_c extends XVar_c implements XField {
 	}
 
 	@Override
-	protected XField_c clone() {
+	public XField_c clone() {
 		XField_c n = (XField_c) super.clone();
 		n.vars = null;
 		return n;
