@@ -58,7 +58,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
         lexParser.parseCharacters(monitor);  // Lex the input characters
             
         int i = getStreamIndex();
-        prsStream.makeToken(i, i, TK_EOF_TOKEN); // and end with the end of file token
+        prsStream.makeToken(i, i, X10Parsersym.TK_EOF_TOKEN); // and end with the end of file token
         prsStream.setStreamLength(prsStream.getSize());
             
         return;
@@ -81,14 +81,14 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
     public X10Lexer(String filename) throws java.io.IOException
     {
         this(filename, ECLIPSE_TAB_VALUE);
-        this.kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
+        this.kwLexer = new X10KWLexer(getInputChars(), X10Parsersym.TK_IDENTIFIER);
     }
 
     public void initialize(char [] content, String filename)
     {
         super.initialize(content, filename);
         if (this.kwLexer == null)
-             this.kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
+             this.kwLexer = new X10KWLexer(getInputChars(), X10Parsersym.TK_IDENTIFIER);
         else this.kwLexer.setInputChars(getInputChars());
     }
     
@@ -129,7 +129,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
         int startOffset = getLeftSpan(),
             endOffset = getRightSpan(),
             kwKind = kwLexer.lexer(startOffset, endOffset);
-        if (kwKind == TK_IDENTIFIER)
+        if (kwKind == X10Parsersym.TK_IDENTIFIER)
           kwKind = defaultKind;
         makeToken(startOffset, endOffset, kwKind);
         if (printTokens) printValue(startOffset, endOffset);
@@ -328,7 +328,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
         assert(size == 0);
     
         initialize(buffer, filename);
-        kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
+        kwLexer = new X10KWLexer(getInputChars(), X10Parsersym.TK_IDENTIFIER);
     }
 
     public void ruleAction( int ruleNumber)
@@ -348,7 +348,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 2:  Token ::= " SLBody "
             //
             case 2: { 
-                makeToken(TK_StringLiteral);
+                makeToken(X10Parsersym.TK_StringLiteral);
                 break;
             }
      
@@ -356,7 +356,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 3:  Token ::= ' NotSQ '
             //
             case 3: { 
-                makeToken(TK_CharacterLiteral);
+                makeToken(X10Parsersym.TK_CharacterLiteral);
                 break;
             }
      
@@ -364,7 +364,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 4:  Token ::= IntegerLiteral
             //
             case 4: { 
-                makeToken(TK_IntegerLiteral);
+                makeToken(X10Parsersym.TK_IntegerLiteral);
                 break;
             }
      
@@ -372,7 +372,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 5:  Token ::= LongLiteral
             //
             case 5: { 
-                makeToken(TK_LongLiteral);
+                makeToken(X10Parsersym.TK_LongLiteral);
                 break;
             }
      
@@ -380,7 +380,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 6:  Token ::= FloatingPointLiteral
             //
             case 6: { 
-                makeToken(TK_FloatingPointLiteral);
+                makeToken(X10Parsersym.TK_FloatingPointLiteral);
                 break;
             }
      
@@ -388,7 +388,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 7:  Token ::= DoubleLiteral
             //
             case 7: { 
-                makeToken(TK_DoubleLiteral);
+                makeToken(X10Parsersym.TK_DoubleLiteral);
                 break;
             }
      
@@ -404,7 +404,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 11:  Token ::= +
             //
             case 11: { 
-                makeToken(TK_PLUS);
+                makeToken(X10Parsersym.TK_PLUS);
                 break;
             }
      
@@ -412,7 +412,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 12:  Token ::= -
             //
             case 12: { 
-                makeToken(TK_MINUS);
+                makeToken(X10Parsersym.TK_MINUS);
                 break;
             }
      
@@ -420,7 +420,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 13:  Token ::= *
             //
             case 13: { 
-                makeToken(TK_MULTIPLY);
+                makeToken(X10Parsersym.TK_MULTIPLY);
                 break;
             }
      
@@ -428,7 +428,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 14:  Token ::= /
             //
             case 14: { 
-                makeToken(TK_DIVIDE);
+                makeToken(X10Parsersym.TK_DIVIDE);
                 break;
             }
      
@@ -436,7 +436,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 15:  Token ::= (
             //
             case 15: { 
-                makeToken(TK_LPAREN);
+                makeToken(X10Parsersym.TK_LPAREN);
                 break;
             }
      
@@ -444,7 +444,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 16:  Token ::= )
             //
             case 16: { 
-                makeToken(TK_RPAREN);
+                makeToken(X10Parsersym.TK_RPAREN);
                 break;
             }
      
@@ -452,7 +452,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 17:  Token ::= =
             //
             case 17: { 
-                makeToken(TK_EQUAL);
+                makeToken(X10Parsersym.TK_EQUAL);
                 break;
             }
      
@@ -460,7 +460,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 18:  Token ::= ,
             //
             case 18: { 
-                makeToken(TK_COMMA);
+                makeToken(X10Parsersym.TK_COMMA);
                 break;
             }
      
@@ -468,7 +468,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 19:  Token ::= :
             //
             case 19: { 
-                makeToken(TK_COLON);
+                makeToken(X10Parsersym.TK_COLON);
                 break;
             }
      
@@ -476,7 +476,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 20:  Token ::= ;
             //
             case 20: { 
-                makeToken(TK_SEMICOLON);
+                makeToken(X10Parsersym.TK_SEMICOLON);
                 break;
             }
      
@@ -484,7 +484,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 21:  Token ::= ^
             //
             case 21: { 
-                makeToken(TK_XOR);
+                makeToken(X10Parsersym.TK_XOR);
                 break;
             }
      
@@ -492,7 +492,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 22:  Token ::= %
             //
             case 22: { 
-                makeToken(TK_REMAINDER);
+                makeToken(X10Parsersym.TK_REMAINDER);
                 break;
             }
      
@@ -500,7 +500,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 23:  Token ::= ~
             //
             case 23: { 
-                makeToken(TK_TWIDDLE);
+                makeToken(X10Parsersym.TK_TWIDDLE);
                 break;
             }
      
@@ -508,7 +508,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 24:  Token ::= |
             //
             case 24: { 
-                makeToken(TK_OR);
+                makeToken(X10Parsersym.TK_OR);
                 break;
             }
      
@@ -516,7 +516,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 25:  Token ::= &
             //
             case 25: { 
-                makeToken(TK_AND);
+                makeToken(X10Parsersym.TK_AND);
                 break;
             }
      
@@ -524,7 +524,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 26:  Token ::= <
             //
             case 26: { 
-                makeToken(TK_LESS);
+                makeToken(X10Parsersym.TK_LESS);
                 break;
             }
      
@@ -532,7 +532,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 27:  Token ::= >
             //
             case 27: { 
-                makeToken(TK_GREATER);
+                makeToken(X10Parsersym.TK_GREATER);
                 break;
             }
      
@@ -540,7 +540,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 28:  Token ::= .
             //
             case 28: { 
-                makeToken(TK_DOT);
+                makeToken(X10Parsersym.TK_DOT);
                 break;
             }
      
@@ -548,7 +548,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 29:  Token ::= !
             //
             case 29: { 
-                makeToken(TK_NOT);
+                makeToken(X10Parsersym.TK_NOT);
                 break;
             }
      
@@ -556,7 +556,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 30:  Token ::= [
             //
             case 30: { 
-                makeToken(TK_LBRACKET);
+                makeToken(X10Parsersym.TK_LBRACKET);
                 break;
             }
      
@@ -564,7 +564,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 31:  Token ::= ]
             //
             case 31: { 
-                makeToken(TK_RBRACKET);
+                makeToken(X10Parsersym.TK_RBRACKET);
                 break;
             }
      
@@ -572,7 +572,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 32:  Token ::= {
             //
             case 32: { 
-                makeToken(TK_LBRACE);
+                makeToken(X10Parsersym.TK_LBRACE);
                 break;
             }
      
@@ -580,7 +580,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 33:  Token ::= }
             //
             case 33: { 
-                makeToken(TK_RBRACE);
+                makeToken(X10Parsersym.TK_RBRACE);
                 break;
             }
      
@@ -588,7 +588,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 34:  Token ::= ?
             //
             case 34: { 
-                makeToken(TK_QUESTION);
+                makeToken(X10Parsersym.TK_QUESTION);
                 break;
             }
      
@@ -596,7 +596,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 35:  Token ::= @
             //
             case 35: { 
-                makeToken(TK_AT);
+                makeToken(X10Parsersym.TK_AT);
                 break;
             }
      
@@ -604,7 +604,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 36:  Token ::= + +
             //
             case 36: { 
-                makeToken(TK_PLUS_PLUS);
+                makeToken(X10Parsersym.TK_PLUS_PLUS);
                 break;
             }
      
@@ -612,7 +612,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 37:  Token ::= - -
             //
             case 37: { 
-                makeToken(TK_MINUS_MINUS);
+                makeToken(X10Parsersym.TK_MINUS_MINUS);
                 break;
             }
      
@@ -620,7 +620,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 38:  Token ::= = =
             //
             case 38: { 
-                makeToken(TK_EQUAL_EQUAL);
+                makeToken(X10Parsersym.TK_EQUAL_EQUAL);
                 break;
             }
      
@@ -628,7 +628,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 39:  Token ::= < =
             //
             case 39: { 
-                makeToken(TK_LESS_EQUAL);
+                makeToken(X10Parsersym.TK_LESS_EQUAL);
                 break;
             }
      
@@ -636,7 +636,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 40:  Token ::= > =
             //
             case 40: { 
-                makeToken(TK_GREATER_EQUAL);
+                makeToken(X10Parsersym.TK_GREATER_EQUAL);
                 break;
             }
      
@@ -644,7 +644,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 41:  Token ::= ! =
             //
             case 41: { 
-                makeToken(TK_NOT_EQUAL);
+                makeToken(X10Parsersym.TK_NOT_EQUAL);
                 break;
             }
      
@@ -652,7 +652,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 42:  Token ::= < <
             //
             case 42: { 
-                makeToken(TK_LEFT_SHIFT);
+                makeToken(X10Parsersym.TK_LEFT_SHIFT);
                 break;
             }
      
@@ -660,7 +660,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 43:  Token ::= > >
             //
             case 43: { 
-                makeToken(TK_RIGHT_SHIFT);
+                makeToken(X10Parsersym.TK_RIGHT_SHIFT);
                 break;
             }
      
@@ -668,7 +668,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 44:  Token ::= > > >
             //
             case 44: { 
-                makeToken(TK_UNSIGNED_RIGHT_SHIFT);
+                makeToken(X10Parsersym.TK_UNSIGNED_RIGHT_SHIFT);
                 break;
             }
      
@@ -676,7 +676,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 45:  Token ::= + =
             //
             case 45: { 
-                makeToken(TK_PLUS_EQUAL);
+                makeToken(X10Parsersym.TK_PLUS_EQUAL);
                 break;
             }
      
@@ -684,7 +684,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 46:  Token ::= - =
             //
             case 46: { 
-                makeToken(TK_MINUS_EQUAL);
+                makeToken(X10Parsersym.TK_MINUS_EQUAL);
                 break;
             }
      
@@ -692,7 +692,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 47:  Token ::= * =
             //
             case 47: { 
-                makeToken(TK_MULTIPLY_EQUAL);
+                makeToken(X10Parsersym.TK_MULTIPLY_EQUAL);
                 break;
             }
      
@@ -700,7 +700,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 48:  Token ::= / =
             //
             case 48: { 
-                makeToken(TK_DIVIDE_EQUAL);
+                makeToken(X10Parsersym.TK_DIVIDE_EQUAL);
                 break;
             }
      
@@ -708,7 +708,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 49:  Token ::= & =
             //
             case 49: { 
-                makeToken(TK_AND_EQUAL);
+                makeToken(X10Parsersym.TK_AND_EQUAL);
                 break;
             }
      
@@ -716,7 +716,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 50:  Token ::= | =
             //
             case 50: { 
-                makeToken(TK_OR_EQUAL);
+                makeToken(X10Parsersym.TK_OR_EQUAL);
                 break;
             }
      
@@ -724,7 +724,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 51:  Token ::= ^ =
             //
             case 51: { 
-                makeToken(TK_XOR_EQUAL);
+                makeToken(X10Parsersym.TK_XOR_EQUAL);
                 break;
             }
      
@@ -732,7 +732,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 52:  Token ::= % =
             //
             case 52: { 
-                makeToken(TK_REMAINDER_EQUAL);
+                makeToken(X10Parsersym.TK_REMAINDER_EQUAL);
                 break;
             }
      
@@ -740,7 +740,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 53:  Token ::= < < =
             //
             case 53: { 
-                makeToken(TK_LEFT_SHIFT_EQUAL);
+                makeToken(X10Parsersym.TK_LEFT_SHIFT_EQUAL);
                 break;
             }
      
@@ -748,7 +748,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 54:  Token ::= > > =
             //
             case 54: { 
-                makeToken(TK_RIGHT_SHIFT_EQUAL);
+                makeToken(X10Parsersym.TK_RIGHT_SHIFT_EQUAL);
                 break;
             }
      
@@ -756,7 +756,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 55:  Token ::= > > > =
             //
             case 55: { 
-                makeToken(TK_UNSIGNED_RIGHT_SHIFT_EQUAL);
+                makeToken(X10Parsersym.TK_UNSIGNED_RIGHT_SHIFT_EQUAL);
                 break;
             }
      
@@ -764,7 +764,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 56:  Token ::= | |
             //
             case 56: { 
-                makeToken(TK_OR_OR);
+                makeToken(X10Parsersym.TK_OR_OR);
                 break;
             }
      
@@ -772,7 +772,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 57:  Token ::= & &
             //
             case 57: { 
-                makeToken(TK_AND_AND);
+                makeToken(X10Parsersym.TK_AND_AND);
                 break;
             }
      
@@ -780,7 +780,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 58:  Token ::= . . .
             //
             case 58: { 
-                makeToken(TK_ELLIPSIS);
+                makeToken(X10Parsersym.TK_ELLIPSIS);
                 break;
             }
      
@@ -789,8 +789,8 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             //
             case 73: { 
                 if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
-                     makeComment(TK_DocComment);
-                else makeComment(TK_MlComment);
+                     makeComment(X10Parsersym.TK_DocComment);
+                else makeComment(X10Parsersym.TK_MlComment);
                 break;
             }
      
@@ -798,7 +798,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 80:  SingleLineComment ::= SLC
             //
             case 80: { 
-                makeComment(TK_SlComment);
+                makeComment(X10Parsersym.TK_SlComment);
                 break;
             }
      
@@ -806,7 +806,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 361:  Token ::= . .
             //
             case 361: { 
-                  makeToken(TK_RANGE);
+                  makeToken(X10Parsersym.TK_RANGE);
                   break;
             }
        
@@ -814,7 +814,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 362:  Token ::= - >
             //
             case 362: { 
-                makeToken(TK_ARROW);
+                makeToken(X10Parsersym.TK_ARROW);
                 break;
             }
      
@@ -822,7 +822,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 363:  Token ::= = >
             //
             case 363: { 
-                makeToken(TK_DARROW);
+                makeToken(X10Parsersym.TK_DARROW);
                 break;
             }
      
@@ -830,7 +830,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 364:  Token ::= < :
             //
             case 364: { 
-                makeToken(TK_SUBTYPE);
+                makeToken(X10Parsersym.TK_SUBTYPE);
                 break;
             }
      
@@ -838,7 +838,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 365:  Token ::= : >
             //
             case 365: { 
-                makeToken(TK_SUPERTYPE);
+                makeToken(X10Parsersym.TK_SUPERTYPE);
                 break;
             }
      
@@ -846,8 +846,8 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             // Rule 366:  IntLiteralAndRange ::= Integer . .
             //
             case 366: { 
-                 makeToken(getToken(1), getToken(1), TK_IntegerLiteral);
-                 makeToken(getToken(2), getToken(3), TK_RANGE);
+                 makeToken(getToken(1), getToken(1), X10Parsersym.TK_IntegerLiteral);
+                 makeToken(getToken(2), getToken(3), X10Parsersym.TK_RANGE);
                  break;
             }
      

@@ -36,7 +36,7 @@ public interface X10KWLexersym {
       Char_z = 25,
       Char_EOF = 26;
 
-      public final static String orderedTerminalSymbols[] = {
+    public final static String orderedTerminalSymbols[] = {
                  "",
                  "e",
                  "t",
@@ -67,5 +67,6 @@ public interface X10KWLexersym {
                  "j"
              };
 
+    public final static int numTokenKinds = orderedTerminalSymbols.length;
     public final static boolean isValidForParser = true;
 }
