@@ -12,8 +12,8 @@ public abstract class XVar_c extends XTerm_c implements XVar {
 		super();
 	}
 
-	public XTerm subst(XTerm value, XRoot var) {
-		return equals(var) ? value : this;
+	public XTerm subst(XTerm y, XRoot x, boolean propagate) {
+		return equals(x) ? y : super.subst(y, x, propagate);
 	}
 
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {

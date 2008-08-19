@@ -29,18 +29,19 @@ public class XFormula_c extends XTerm_c implements XFormula {
 		}
 	}
 	
-	public XTerm subst(XTerm y, XRoot x) {
+	public XTerm subst(XTerm y, XRoot x, boolean propagate) {
 		List<XTerm> newArgs = new ArrayList<XTerm>();
 		boolean changed = false;
 		for (XTerm arg: this.arguments()) {
-			XTerm a = arg.subst(y, x);
+			XTerm a = arg.subst(y, x, propagate);
 			if (a != arg)
 				changed = true;
 			newArgs.add(a);
 		}
+		XFormula_c n = (XFormula_c) super.subst(y, x, propagate);
 		if (! changed)
-			return this;
-		XFormula_c n = (XFormula_c) clone();
+			return n;
+		if (n == this) n = (XFormula_c) clone();
 		n.arguments = newArgs;
 		return n;
 	}

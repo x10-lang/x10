@@ -9,6 +9,7 @@ package x10.constraint;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class XLit_c extends XTerm_c implements XLit {
 	protected Object val;
@@ -44,19 +45,8 @@ public class XLit_c extends XTerm_c implements XLit {
 		return val == null ? o == null : val.equals(other.val);
 	}
 	
-	public XTerm subst(XTerm y, XRoot x) {
-	        // HACK: handle embedded constraints
-	        if (val instanceof XConstraint) {
-	            XConstraint c = (XConstraint) val;
-	            if (x instanceof XSelf) // don't subst for self since it's rebound by the constraint
-	        	return this;
-	            try {
-			return XTerms.makeLit(c.substitute(y, x));
-		    }
-		    catch (XFailure e) {
-		    }
-	        }
-		return this;
+	public XTerm subst(XTerm y, XRoot x, boolean propagate) {
+	    return super.subst(y, x, propagate);
 	}
 	
 	// methods from Promise
@@ -125,6 +115,7 @@ public class XLit_c extends XTerm_c implements XLit {
 	}
 
 	public void setTerm(XTerm term) { /* ignore */}
+	public void setTerm(XTerm term, Set<XPromise> visited) { /* ignore */}
 
 	public String instance() {
 		return toString();

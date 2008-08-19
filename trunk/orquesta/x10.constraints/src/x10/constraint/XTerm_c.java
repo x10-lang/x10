@@ -7,9 +7,6 @@
  */
 package x10.constraint;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public abstract class XTerm_c implements XTerm, Cloneable {
@@ -17,8 +14,39 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 		super();
 	}
 	
+	public final XTerm subst(XTerm y, XRoot x) {
+	    return subst(y, x, true);
+	}
+	
+	public XTerm subst(final XTerm y, final XRoot x, boolean propagate) {
+	    XTerm t = this;
+	    if (propagate && ! x.equals(XSelf.Self)) {
+		if (selfConstraint != null) {
+		    t = clone();
+		    // Wrap the self constraint in a substitution.
+		    t.setSelfConstraint(new XRef_c<XConstraint>() {
+			@Override
+			public XConstraint compute() {
+			    XConstraint c = selfConstraint != null ? selfConstraint.get() : null;
+			    if (c != null) {
+				try {
+				    c = c.substitute(y, x);
+				}
+				catch (XFailure e) {
+				    // fatal error
+				    throw new RuntimeException("Cannot perform substitution on self constraint: " + e.getMessage()); 
+				}
+			    }
+			    return c;
+			}
+		    });
+		}
+	    }
+	    return t;
+	}
+
 	@Override
-	protected XTerm_c clone() {
+	public XTerm_c clone() {
 		try {
 			XTerm_c n = (XTerm_c) super.clone();
 			return n;
@@ -44,6 +72,7 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 		visited.add(this);
 		XConstraint self = this.selfConstraint();
 		if (self != null) {
+//		    self = self.saturate();
 			if (this instanceof XVar) {
 				self = self.substitute(this, XSelf.Self);
 			}

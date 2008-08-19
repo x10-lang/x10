@@ -22,12 +22,6 @@ public class XLocal_c extends XVar_c implements XLocal {
 		this.name = name;
 	}
 
-	public XTerm subst(XTerm y, XRoot x) {
-		if (x.equals(this))
-			return y;
-		return this;
-	}
-
 	public XVar[] vars() {
 		return new XVar[] { this };
 	}

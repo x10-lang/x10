@@ -12,9 +12,11 @@ package x10.constraint;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 /**
@@ -80,14 +82,30 @@ public class XPromise_c implements XPromise, Serializable {
 	}
 
 	public void setTerm(XTerm term) {
+	    HashSet<XPromise> visited = new HashSet<XPromise>();
+	    visited.add(this);
+	    setTerm(term, visited);
+	}
+	
+	public void setTerm(XTerm term, Set<XPromise> visited) {
 		var = term;
 		if (var != null && fields != null) {
 			for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
 				XName key = entry.getKey();
 				XPromise p = entry.getValue();
-				if (p.term() != null) {
-					XName field = ((XField) p.term()).field();
-					p.setTerm(XConstraint_c.makeField(term, field));
+				if (visited.contains(p))
+				    continue;
+				visited.add(p);
+				if (p.term() instanceof XField) {
+				    XField f = (XField) p.term();
+				    XName field = f.field();
+				    if (field.equals(key))
+					p.setTerm(XConstraint_c.makeField(term, field), visited);
+				    else
+					System.out.println(term + "." + key + " = " + p + " (different field)");
+				}
+				else {
+				    System.out.println(term + "." + key + " = " + p + " (not a field)");
 				}
 			}
 		}
