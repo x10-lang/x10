@@ -111,7 +111,7 @@ public interface X10Lexersym {
       Char_Equal = 15,
       Char_EOF = 97;
 
-      public final static String orderedTerminalSymbols[] = {
+    public final static String orderedTerminalSymbols[] = {
                  "",
                  "0",
                  "1",
@@ -217,5 +217,6 @@ public interface X10Lexersym {
                  "CtlCharNotWS"
              };
 
+    public final static int numTokenKinds = orderedTerminalSymbols.length;
     public final static boolean isValidForParser = true;
 }
