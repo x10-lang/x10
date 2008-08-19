@@ -31,7 +31,7 @@ import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
-import polyglot.ext.x10.visit.X10InitImportsVisitor;
+import polyglot.ext.x10.visit.X10InitChecker;
 import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.Compiler;
@@ -48,12 +48,10 @@ import polyglot.main.Report;
 import polyglot.types.LoadedClassResolver;
 import polyglot.types.MemberClassResolver;
 import polyglot.types.SemanticException;
-import polyglot.types.SourceClassResolver;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
-import polyglot.visit.InitImportsVisitor;
 import polyglot.visit.PruningVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -149,7 +147,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	            TopLevelResolver r = lr;
 
 	            // Resolver to handle lookups of member classes.
-	            if (TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+	            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
 	                MemberClassResolver mcr = new MemberClassResolver(ts, lr, true);
 	                r = mcr;
 	            }
@@ -211,6 +209,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
            
+           goals.add(ConformanceChecked(job));
            goals.add(X10Boxed(job));
            goals.add(X10Casted(job));
            
@@ -264,7 +263,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            // ###
            return new VisitorGoal("PropagateAnnotations", job, new PruningVisitor()).intern(this);
        }
-       
+
+       @Override
+       public Goal InitializationsChecked(Job job) {
+	   TypeSystem ts = job.extensionInfo().typeSystem();
+	   NodeFactory nf = job.extensionInfo().nodeFactory();
+	   return new VisitorGoal("InitializationsChecked", job, new X10InitChecker(job, ts, nf)).intern(this);
+       }
+
        @Override
        public Goal CodeGenerated(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();

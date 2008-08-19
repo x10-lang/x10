@@ -62,6 +62,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
@@ -148,45 +149,47 @@ public class X10Context_c extends Context_c implements X10Context {
 	     * Looks up a method with name "name" and arguments compatible with
 	     * "argTypes".
 	     */
-	    public MethodInstance superFindMethod(String name, List<Type> argTypes) throws SemanticException {
+	    public MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
 	        if (Report.should_report(TOPICS, 3))
-	          Report.report(3, "find-method " + name + argTypes + " in " + this);
+	          Report.report(3, "find-method " + matcher.signature() + " in " + this);
 
 	        // Check for any method with the appropriate name.
 	        // If found, stop the search since it shadows any enclosing
 	        // classes method of the same name.
 	        ClassType currentClass = this.currentClass();
 		if (currentClass != null &&
-	            ts.hasMethodNamed(currentClass, name)) {
+	            ts.hasMethodNamed(currentClass, matcher.name())) {
 	            if (Report.should_report(TOPICS, 3))
-	              Report.report(3, "find-method " + name + argTypes + " -> " +
+	              Report.report(3, "find-method " + matcher.signature() + " -> " +
 	                                currentClass);
 	            
+	            // Override to change the type from C to C{self==this}.
 	            Type t = currentClass;
 	            X10TypeSystem xts = (X10TypeSystem) ts;
+//	            t = X10TypeMixin.setSelfVar(t, xts.xtypeTranslator().transThis(currentClass));
 	            t = X10TypeMixin.setSelfVar(t, xts.xtypeTranslator().transThisWithoutTypeConstraint());
 	            
-	            // Found a class which has a method of the right name.
+	            // Found a class that has a method of the right name.
 	            // Now need to check if the method is of the correct type.
-	            return ts.findMethod(t, ts.MethodMatcher(t, name, argTypes), this.currentClassDef());
+	            return ts.findMethod(t, matcher.container(t), this.currentClassDef());
 	        }
 
 	        if (outer != null) {
-	            return outer.findMethod(name, argTypes);
+	            return outer.findMethod(matcher);
 	        }
 
-	        throw new SemanticException("Method " + name + " not found.");
+	        throw new SemanticException("Method " + matcher.signature() + " not found.");
 	    }
 	    
 	/**
 	 * Looks up a method with name "name" and arguments compatible with
 	 * "argTypes".
 	 */
-	public MethodInstance findMethod(String name, List<Type> argTypes) throws SemanticException {
-		MethodInstance result = depType == null ? superFindMethod(name, argTypes) : pop().findMethod(name, argTypes);
+	public MethodInstance findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
+		MethodInstance result = depType == null ? superFindMethod(matcher) : pop().findMethod(matcher);
 		return result;
 	}
-
+	
 	/**
 	 * Gets a local variable of a particular name.
 	 */
@@ -389,11 +392,11 @@ public class X10Context_c extends Context_c implements X10Context {
 	            Named t = findMemberTypeInThisScope(name, container);
 	            if (t != null) return t;
 	        }
-	        if (supertypeDeclarationType() != null) {
-	            ClassType container = supertypeDeclarationType().asType();
-	            Named t = findMemberTypeInThisScope(name, container);
-	            if (t != null) return t;
-	        }
+//	        if (supertypeDeclarationType() != null) {
+//	            ClassType container = supertypeDeclarationType().asType();
+//	            Named t = findMemberTypeInThisScope(name, container);
+//	            if (t != null) return t;
+//	        }
 	        return null;
 	    }
 

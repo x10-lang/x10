@@ -31,10 +31,10 @@ import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
-import polyglot.visit.TypeChecker;
 
 /**
  * @author vj Feb 4, 2005
@@ -107,7 +107,7 @@ public class Contains_c extends Expr_c implements Contains {
 	}
 
 	/** Type check the statement. */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Type itemType = item.type();
 		Type collType = collection.type();

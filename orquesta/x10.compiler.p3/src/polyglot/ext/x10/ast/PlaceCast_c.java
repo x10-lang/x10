@@ -25,8 +25,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
 
 /** An immutable representation of the X10 construct (@place) expr. 
  * @author vj May 18, 2005
@@ -121,7 +121,7 @@ public class PlaceCast_c extends Expr_c implements PlaceCast {
 		n.expr = expr;
 		return n;
 	}
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 
 	    return type(expr.type());
 	}

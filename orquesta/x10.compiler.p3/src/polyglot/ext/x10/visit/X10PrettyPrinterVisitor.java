@@ -25,13 +25,16 @@ import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
+import polyglot.ast.Formal_c;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Node_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
+import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
@@ -42,6 +45,7 @@ import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
 import polyglot.ext.x10.ast.Clocked;
 import polyglot.ext.x10.ast.Closure_c;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.ForLoop_c;
@@ -57,6 +61,8 @@ import polyglot.ext.x10.ast.TypePropertyNode;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
@@ -75,9 +81,11 @@ import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
@@ -93,6 +101,7 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.UniqueID;
 import polyglot.visit.Translator;
 
 
@@ -126,6 +135,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Node n) {
+                // Don't call through del; that would be recursive.
 		n.translate(w, tr);
 	}
 	
@@ -321,13 +331,46 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(X10Cast_c c) {
-		// [IP] FIXME: process type correctly
-		visit((Node)c);
+	        TypeNode tn = c.castType();
+	        
+	        if (tn instanceof X10CanonicalTypeNode) {
+	            X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+	            Type t = X10TypeMixin.baseType(xtn.type());
+	            DepParameterExpr dep = xtn.constraintExpr();
+	            if (dep != null) {
+	        	new Template("cast_deptype", new Object[] { xtn.typeRef(Types.ref(t)), c.expr(), dep.condition() }).expand();
+	            }
+	            else {
+	        	visit((Node)c);
+	            }
+	        }
+	        else {
+	            visit((Node)c);
+	        }
 	}
 	
 	public void visit(X10Instanceof_c c) {
-		// [IP] FIXME: process type correctly
-		visit((Node) c);
+	        TypeNode tn = c.compareType();
+	        
+	        if (tn instanceof X10CanonicalTypeNode) {
+	            X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+	            Type t = X10TypeMixin.baseType(xtn.type());
+	            DepParameterExpr dep = xtn.constraintExpr();
+	            if (dep != null) {
+	        	if (t.isPrimitive()) {
+	        	    new Template("instanceof_primitive_deptype", new Object[] { xtn.typeRef(Types.ref(t)), c.expr(), dep.condition() }).expand();
+	        	}
+	        	else {
+	        	    new Template("instanceof_deptype", new Object[] { xtn.typeRef(Types.ref(t)), c.expr(), dep.condition() }).expand();
+	        	}
+	            }
+	            else {
+	        	visit((Node)c);
+	            }
+	        }
+	        else {
+	            visit((Node)c);
+	        }
 	}
 
 	public void visit(Special_c n) {
@@ -345,6 +388,30 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Receiver target = c.target();
 		Type t = target.type();
 		boolean base = false;
+		
+		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+
+		try {
+		    X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+		    Type java = (Type) xts.systemResolver().find(xts.TypeMatcher("x10.compiler.Native"));
+		    for (Type at : mi.annotationsMatching(java)) {
+			String lang = getPropertyInit(at, 0);
+			String lit = getPropertyInit(at, 1);
+			if (lang != null && lang.equals("java")) {
+			    String pat = lit;
+			    Object[] components = new Object[c.arguments().size() + 1];
+			    int i = 0;
+			    components[i++] = c.target();
+			    for (Expr e : c.arguments()) {
+				components[i++] = e;
+			    }
+			    dumpRegex("native", components, tr, pat);
+			    return;
+			}
+
+		    }
+		}
+		catch (SemanticException e) {}
 
 		// access to method x10.lang.Object.getLocation should not be checked
 		boolean is_location_access;
@@ -352,7 +419,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		StructType f_container = c.methodInstance().container();
 		is_location_access = f_name != null && "getLocation".equals(f_name) && f_container instanceof ReferenceType;
 
-		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 		boolean is_check_cast;
 		is_check_cast = f_name != null && "checkCast".equals(f_name) && f_container instanceof ReferenceType;
 		
@@ -468,7 +534,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// Nate's code. This one.
 		if (o.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) o.ext();
-			X10ClassType baseType = (X10ClassType) ts.systemResolver().find(name);
+			X10ClassType baseType = (X10ClassType) ts.systemResolver().find(ts.TypeMatcher(name));
 			List<X10ClassType> ats = ext.annotationMatching(baseType);
 			if (ats.size() > 1) {
 				throw new SemanticException("Expression has more than one " + name + " annotation.", o.position());
@@ -499,7 +565,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (hasAnnotation(n, "x10.lang.shared")) {
 			w.write ("volatile ");
 		}
-		n.translate(w, tr);
+		visit((Node) n);
 	}
 
 	public void visit(MethodDecl_c dec) {
@@ -569,6 +635,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Future_c f) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		new Template("Future", f.place(), f.returnType(), f.body()).expand(tr2);
+	}
+	
+	public void visit(Formal_c f) {
+	    if (f.name().id().equals(""))
+		f = (Formal_c) f.name(f.name().id(UniqueID.newID("a")));
+	    visit((Node) f);
 	}
 
 	public void visit(ForLoop_c f) {
@@ -800,20 +872,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		return null;
 	}
 	
-	private String runtimeClassNameForPrimitiveArray(X10TypeSystem xt, Type base_type) {
-		String arrayClass;
-		if (xt.isBooleanArray(base_type)) arrayClass = "x10.array.sharedmemory.BooleanArray_c";
-		else if (xt.isCharArray(base_type)) arrayClass = "x10.array.sharedmemory.CharArray_c";
-		else if (xt.isByteArray(base_type)) arrayClass = "x10.array.sharedmemory.ByteArray_c";
-		else if (xt.isShortArray(base_type)) arrayClass = "x10.array.sharedmemory.ShortArray_c";
-		else if (xt.isIntArray(base_type)) arrayClass = "x10.array.sharedmemory.IntArray_c";
-		else if (xt.isLongArray(base_type)) arrayClass = "x10.array.sharedmemory.LongArray_c";
-		else if (xt.isFloatArray(base_type)) arrayClass = "x10.array.sharedmemory.FloatArray_c";
-		else if (xt.isDoubleArray(base_type)) arrayClass = "x10.array.sharedmemory.DoubleArray_c";
-		else throw new Error("Unknown primitive array type.");
-		return arrayClass;
-	}
-
 	/*
 	public void visit(X10ArrayAccess1_c a) {
 		Template template;
@@ -869,7 +927,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10TypeSystem ts = (X10TypeSystem) array.type().typeSystem();
 		Template template;
 		if (ts.isRail(array.type()) || ts.isValRail(array.type())) {
-		    Type baseType = X10ArraysMixin.arrayBaseType(array.type());
+		    Type baseType = X10ArraysMixin.railBaseType(array.type());
 		    template = new Template("rail_set", new Object[] { array, theIndex, a.right(), operator });		    
 		}
 		else {
@@ -884,7 +942,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//				 left.array(), left.index(), a.right(),
 		//				 a.opString(a.operator())
 		//			 }).expand();
-	}
+	    }
 	    else {
 		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
 						  ? "array_set" : "array_set"; //"array_set_noplacecheck";
@@ -1015,6 +1073,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//			 a.opString(a.operator())).expand();
 	}
 */
+	
+	String getPropertyInit(Type at, int index) {
+	    if (at instanceof X10ClassType) {
+		X10ClassType act = (X10ClassType) at;
+		if (index < act.propertyInitializers().size()) {
+		    Expr e = act.propertyInitializer(index);
+		    if (e instanceof StringLit) {
+			StringLit lit = (StringLit) e;
+			String s = lit.value();
+			return s;
+		    }
+		}
+	    }
+	    return null;
+	}
+
 	private void printType(Type type) {
 		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
 		
@@ -1068,6 +1142,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				s = "float[]";
 			} else if (T.isDouble()) {
 				s = "double[]";
+			} else {
+			        printType(T);
+			        w.write("[]");
+			        return;
 			}
 		}
 		
@@ -1093,40 +1171,57 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		}
 		
-		{
-		    if (xts.isSubtype(type, xts.UByte())) {
+		if (X10TypeSystem_c.SUPPORT_UNSIGNED) {
+		    if (xts.isUByte(type)) {
 			s = "byte";
-		    } else if (xts.isSubtype(type, xts.UShort())) {
+		    } else if (xts.isUShort(type)) {
 			s = "short";
-		    } else if (xts.isSubtype(type, xts.UInt())) {
+		    } else if (xts.isUInt(type)) {
 			s = "int";
-		    } else if (xts.isSubtype(type, xts.ULong())) {
+		    } else if (xts.isULong(type)) {
 			s = "long";
 		    }
 		}
-
-		if (xts.typeEquals(type, xts.Object()))
-		    s = "java.lang.Object";
-		if (xts.typeEquals(type, xts.String()))
-		    s = "java.lang.String";
-		if (xts.typeEquals(type, xts.Class()))
-		    s = "java.lang.Class";
-		if (xts.typeEquals(type, xts.Cloneable()))
-		    s = "java.lang.Cloneable";
-		if (xts.typeEquals(type, xts.Serializable()))
-		    s = "java.io.Serializable";
-		if (xts.typeEquals(type, xts.Throwable()))
-		    s = "java.lang.Throwable";
-		if (xts.typeEquals(type, xts.Exception()))
-		    s = "java.lang.Exception";
-		if (xts.typeEquals(type, xts.RuntimeException()))
-		    s = "java.lang.RuntimeException";
-		if (xts.typeEquals(type, xts.NullPointerException()))
-		    s = "java.lang.NullPointerException";
-		if (xts.typeEquals(type, xts.ArrayStoreException()))
-		    s = "java.lang.ArrayStoreException";
-		if (xts.typeEquals(type, xts.ArithmeticException()))
-		    s = "java.lang.ArithmeticException";
+		
+		if (type instanceof X10ClassType) {
+		    X10ClassDef cd = ((X10ClassType) type).x10Def();
+		    try {
+			Type rep = (Type) xts.systemResolver().find(xts.TypeMatcher("x10.compiler.NativeRep"));
+			List<Type> as = cd.annotationsMatching(rep);
+			for (Type at : as) {
+			    String lang = getPropertyInit(at, 0);
+			    String lit = getPropertyInit(at, 1);
+			    if (lang != null && lang.equals("java")) {
+				s = lit;
+				break;
+			    }
+			}
+		    }
+		    catch (SemanticException e) {}
+		}
+		
+//		if (xts.typeEquals(type, xts.Object()))
+//		    s = "java.lang.Object";
+//		if (xts.typeEquals(type, xts.String()))
+//		    s = "java.lang.String";
+//		if (xts.typeEquals(type, xts.Class()))
+//		    s = "java.lang.Class";
+//		if (xts.typeEquals(type, xts.Cloneable()))
+//		    s = "java.lang.Cloneable";
+//		if (xts.typeEquals(type, xts.Serializable()))
+//		    s = "java.io.Serializable";
+//		if (xts.typeEquals(type, xts.Throwable()))
+//		    s = "java.lang.Throwable";
+//		if (xts.typeEquals(type, xts.Exception()))
+//		    s = "java.lang.Exception";
+//		if (xts.typeEquals(type, xts.RuntimeException()))
+//		    s = "java.lang.RuntimeException";
+//		if (xts.typeEquals(type, xts.NullPointerException()))
+//		    s = "java.lang.NullPointerException";
+//		if (xts.typeEquals(type, xts.ArrayStoreException()))
+//		    s = "java.lang.ArrayStoreException";
+//		if (xts.typeEquals(type, xts.ArithmeticException()))
+//		    s = "java.lang.ArithmeticException";
 
 		if (s != null)
 		    w.write(s);
@@ -1352,28 +1447,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	 */
 	private void dump(String id, Object[] components, Translator tr) {
 		String regex = translate(id);
-		int len = regex.length();
-		int pos = 0;
-		int start = 0;
-		while (pos < len) {
-			if (regex.charAt(pos) == '\n') {
-				w.write(regex.substring(start, pos));
-				w.newline(0);
-				start = pos+1;
-			}
-			else
-			if (regex.charAt(pos) == '#') {
-				w.write(regex.substring(start, pos));
-				Integer idx = new Integer(regex.substring(pos+1,pos+2));
-				pos++;
-				start = pos+1;
-				if (idx.intValue() >= components.length)
-					throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
-				prettyPrint(components[idx.intValue()], tr);
-			}
-			pos++;
-		}
-		w.write(regex.substring(start));
+		dumpRegex(id, components, tr, regex);
+	}
+
+	private void dumpRegex(String id, Object[] components, Translator tr, String regex) {
+	    int len = regex.length();
+	    int pos = 0;
+	    int start = 0;
+	    while (pos < len) {
+	    	if (regex.charAt(pos) == '\n') {
+	    		w.write(regex.substring(start, pos));
+	    		w.newline(0);
+	    		start = pos+1;
+	    	}
+	    	else
+	    	if (regex.charAt(pos) == '#') {
+	    		w.write(regex.substring(start, pos));
+	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
+	    		pos++;
+	    		start = pos+1;
+	    		if (idx.intValue() >= components.length)
+	    			throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
+	    		prettyPrint(components[idx.intValue()], tr);
+	    	}
+	    	pos++;
+	    }
+	    w.write(regex.substring(start));
 	}
 
 	/**
@@ -1565,7 +1664,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			is.close();
 			return trans;
 		} catch (IOException io) {
-			throw new Error("No translation for " + id + " found!", io);
+			throw new InternalCompilerError("No translation for " + id + " found!", io);
 		}
 	}
 } // end of X10PrettyPrinterVisitor

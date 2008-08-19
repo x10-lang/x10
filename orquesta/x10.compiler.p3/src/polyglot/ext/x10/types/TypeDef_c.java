@@ -26,12 +26,12 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected List<Ref<? extends Type>> typeParameters;
 	protected List<LocalDef> formalNames;
 	protected List<Ref<? extends Type>> formalTypes;
-	protected Ref<XConstraint> whereClause;
+	protected Ref<XConstraint> guard;
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, String name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
-			List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> whereClause, Ref<? extends Type> type) {
+			List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> guard, Ref<? extends Type> type) {
 
 		super(ts, pos);
 		this.container = container;
@@ -40,30 +40,31 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
-		this.whereClause = whereClause;
+		this.guard = guard;
 		this.type = type;
 	}
 	
 	// BEGIN ANNOTATION MIXIN
-	List<Ref<? extends X10ClassType>> annotations;
+	List<Ref<? extends Type>> annotations;
 
-	public List<Ref<? extends X10ClassType>> defAnnotations() {
+	public List<Ref<? extends Type>> defAnnotations() {
+		if (annotations == null) return Collections.EMPTY_LIST;
 		return Collections.unmodifiableList(annotations);
 	}
 
-	public void setDefAnnotations(List<Ref<? extends X10ClassType>> annotations) {
-		this.annotations = TypedList.<Ref<? extends X10ClassType>> copyAndCheck(annotations, Ref.class, true);
+	public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
+		this.annotations = TypedList.<Ref<? extends Type>> copyAndCheck(annotations, Ref.class, true);
 	}
 
-	public List<X10ClassType> annotations() {
+	public List<Type> annotations() {
 		return X10TypeObjectMixin.annotations(this);
 	}
 
-	public List<X10ClassType> annotationsMatching(Type t) {
+	public List<Type> annotationsMatching(Type t) {
 		return X10TypeObjectMixin.annotationsMatching(this, t);
 	}
 
-	public List<X10ClassType> annotationsNamed(String fullName) {
+	public List<Type> annotationsNamed(String fullName) {
 		return X10TypeObjectMixin.annotationsNamed(this, fullName);
 	}
 
@@ -110,17 +111,17 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	}
 
 	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.TypeDef#whereClause()
+	 * @see polyglot.ext.x10.types.TypeDef#guard()
 	 */
-	public Ref<XConstraint> whereClause() {
-		return whereClause;
+	public Ref<XConstraint> guard() {
+		return guard;
 	}
 
 	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.TypeDef#setWhereClause(polyglot.types.Ref)
+	 * @see polyglot.ext.x10.types.TypeDef#setGuard(polyglot.types.Ref)
 	 */
-	public void setWhereClause(Ref<XConstraint> whereClause) {
-		this.whereClause = whereClause;
+	public void setGuard(Ref<XConstraint> guard) {
+		this.guard = guard;
 	}
 
 	/* (non-Javadoc)

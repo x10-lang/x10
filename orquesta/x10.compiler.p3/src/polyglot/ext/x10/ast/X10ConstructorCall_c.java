@@ -16,13 +16,18 @@ import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.TypeBuilder;
 import x10.constraint.XConstraint;
 
 /**
@@ -46,6 +51,25 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 		
 	}
 	
+	// Override to remove reference to ts.Object(), which will cause resolver loop.
+	@Override
+	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	    TypeSystem ts = tb.typeSystem();
+
+	    // Remove super() calls for java.lang.Object.
+	    if (kind == SUPER && tb.currentClass().fullName().equals("x10.lang.Ref")) {
+		return tb.nodeFactory().Empty(position());
+	    }
+	    if (kind == SUPER && tb.currentClass().fullName().equals("x10.lang.Value")) {
+		return tb.nodeFactory().Empty(position());
+	    }
+
+	    ConstructorCall_c n = this;
+
+	    ConstructorInstance ci = ts.createConstructorInstance(position(), new ErrorRef_c<ConstructorDef>(ts, position(), "Cannot get ConstructorDef before type-checking constructor call."));
+	    return n.constructorInstance(ci);
+	}
+	
 	@Override
 	public Node visitChildren(NodeVisitor v) {
 		Expr qualifier = (Expr) visitChild(this.qualifier, v);
@@ -64,7 +88,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    }
 	    
 
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10ConstructorCall_c n = (X10ConstructorCall_c) super.typeCheck(tc);
 		if (kind().equals(ConstructorCall.SUPER)) {
 			Context ctx = tc.context();
@@ -83,9 +107,9 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 //			Type retType = X10New_c.instantiateType(ci, type, typeArguments, arguments);
 //			XConstraint c = X10TypeMixin.realX(retType);
 //			
-//		    	if (ci.whereClause() != null) {
-//		    		XConstraint where = X10New_c.instantiateConstraint(ci, ci.whereClause(), null, typeArguments, arguments);
-//		    		ci = (X10ConstructorInstance) ci.whereClause(where);
+//		    	if (ci.guard() != null) {
+//		    		XConstraint guard = X10New_c.instantiateConstraint(ci, ci.guard(), null, typeArguments, arguments);
+//		    		ci = (X10ConstructorInstance) ci.guard(guard);
 //		    	}
 			
 			// The constructor *within which this super call happens*.

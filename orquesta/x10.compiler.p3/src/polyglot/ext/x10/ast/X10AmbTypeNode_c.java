@@ -8,30 +8,37 @@
 
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
+import polyglot.ast.AmbTypeNode_c;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
+import polyglot.ast.QualifierNode;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.LazyRef;
 import polyglot.types.Named;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
@@ -40,87 +47,89 @@ import polyglot.visit.TypeChecker;
  * An <code>AmbTypeNode</code> is an ambiguous AST node composed of
  * dot-separated list of identifiers that must resolve to a type.
  */
-public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
-	protected Prefix qual;
-	protected Id name;
-
-//  protected Expr dummy;
-  
+public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
   public X10AmbTypeNode_c(Position pos, Prefix qual,
                        Id name) {
-    super(pos);
+    super(pos, qual, name);
     assert(name != null); // qual may be null
-    this.qual = qual;
-    this.name = name;
-  }
-
-  public Id id() {
-      return this.name;
   }
   
-  public X10AmbTypeNode id(Id name) {
-      X10AmbTypeNode_c n = (X10AmbTypeNode_c) copy();
-      n.name = name;
-      return n;
-  }
-  
-  public Prefix qual() {
-    return this.qual;
-  }
-
-  public X10AmbTypeNode qual(Prefix qual) {
-    X10AmbTypeNode_c n = (X10AmbTypeNode_c) copy();
-    n.qual = qual;
-    return n;
-  }
-
-  protected X10AmbTypeNode_c reconstruct(Prefix qual, Id name) {
-    if (qual != this.qual || name != this.name) {
-      X10AmbTypeNode_c n = (X10AmbTypeNode_c) copy();
-      n.qual = qual;
-      n.name = name;
-      return n;
-    }
-
-    return this;
-  }
-
-  public Node visitChildren(NodeVisitor v) {
-      Prefix qual = (Prefix) visitChild(this.qual, v);
-      Id name = (Id) visitChild(this.name, v);
-
-//      Expr dummy = (Expr) visitChild(this.dummy, v);
-//      if (dummy != this.dummy) {
-//          AmbTypeNode_c tn = (AmbTypeNode_c) reconstruct(qual, name).copy();
-//          tn.dummy = dummy;
-//          return tn;
-//      }
-
-      return reconstruct(qual, name);
-  }
-  
-  public Node disambiguate(TypeChecker ar) throws SemanticException {
-      SemanticException ex;
-    
+  protected TypeNode disambiguateAnnotation(ContextVisitor tc) throws SemanticException {
       Position pos = position();
-      TypeChecker tc = ar;
+
+      X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+      X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+      X10Context c = (X10Context) tc.context();
+
+      if (! c.inAnnotation())
+	  return null;
+
+      SemanticException ex;
+
+      Prefix prefix = this.prefix;
+
+      // Look for a simply-named type.
+      try {
+	  Disamb disamb = tc.nodeFactory().disamb();
+	  Node n = disamb.disambiguate(this, tc, pos, prefix, name);
+
+	  if (n instanceof TypeNode) {
+	      TypeNode tn = (TypeNode) n;
+	      Ref<Type> tref = (Ref<Type>) tn.typeRef();
+	      Type t = tref.get();
+	      if (t instanceof X10ParsedClassType) {
+		  X10ParsedClassType ct = (X10ParsedClassType) t;
+		  if (ct.flags().isInterface()) {
+		      return tn;
+		  }
+	      }
+
+	      throw new SemanticException("Annotation type must be an interface.", position());
+	  }
+
+	  ex = new SemanticException("Could not find type \"" +
+	                             (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +
+	                             "\".", pos);
+      }
+      catch (SemanticException e) {
+	  ex = e;
+      }
+
+      throw ex;
+  }
+
+  public Node disambiguate(ContextVisitor ar) throws SemanticException {
+      SemanticException ex;
+      
+      Position pos = position();
+      ContextVisitor tc = ar;
     
       X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
       X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
     
-      Prefix       prefix = qual;
+      try {
+	  TypeNode tn = disambiguateAnnotation(tc);
+	  if (tn != null)
+	      return tn;
+      }
+      catch (SemanticException e) {
+	  ((Ref<Type>) type).update(ts.unknownType(pos));
+	  return this;
+      }
+
+      Prefix prefix = this.prefix;
       // First look for a typedef.
       try {
           X10ParsedClassType typeDefContainer = null;
     
           if (prefix instanceof PackageNode || prefix == null) {
-              PackageNode pn = (PackageNode) prefix;
-              String dummyName = "package";
-              String fullName = (pn != null ? Types.get(pn.package_()).fullName() + "." : "") + dummyName;
-              Named n = ts.systemResolver().find(fullName);
-              if (n instanceof X10ParsedClassType) {
-        	  typeDefContainer = (X10ParsedClassType) n;
-              }
+//              PackageNode pn = (PackageNode) prefix;
+//              String dummyName = "package";
+//              String fullName = (pn != null ? Types.get(pn.package_()).fullName() + "." : "") + dummyName;
+//              Named n = ts.systemResolver().find(fullName);
+//              if (n instanceof X10ParsedClassType) {
+//        	  typeDefContainer = (X10ParsedClassType) n;
+//              }
           }
           else if (prefix instanceof TypeNode) {
               TypeNode tn = (TypeNode) prefix;
@@ -189,8 +198,8 @@ public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
   }
   
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-    if (qual != null) {
-        print(qual, w, tr);
+    if (prefix != null) {
+        print(prefix, w, tr);
         w.write(".");
 	w.allowBreak(2, 3, "", 0);
     }
@@ -199,12 +208,12 @@ public class X10AmbTypeNode_c extends TypeNode_c implements X10AmbTypeNode {
   }
 
   public String toString() {
-    return (qual == null
+    return (prefix == null
             ? name.toString()
-            : qual.toString() + "." + name.toString()) + "{amb}";
+            : prefix.toString() + "." + name.toString()) + "{amb}";
   }
   
-  public String name() {
+  public String nameString() {
       return name.id();
   }
 }

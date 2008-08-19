@@ -41,7 +41,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	List<Type> typeParams;
 	List<XVar> formals;
 	List<Type> formalTypes;
-	XConstraint whereClause;
+	XConstraint guard;
 	Type definedType;
 
 	public MacroType_c(TypeSystem ts, Position pos, Ref<TypeDef> def) {
@@ -158,15 +158,15 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) t;
 	}
 	
-	public XConstraint whereClause() {
-		if (whereClause == null)
-			whereClause = Types.get(def().whereClause());
-		return whereClause;
+	public XConstraint guard() {
+		if (guard == null)
+			guard = Types.get(def().guard());
+		return guard;
 	}
 	
-	public MacroType whereClause(XConstraint whereClause) {
+	public MacroType guard(XConstraint guard) {
 		MacroType_c t = (MacroType_c) copy();
-		t.whereClause = whereClause;
+		t.guard = guard;
 		return (MacroType) t;
 	}
 
@@ -274,8 +274,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			sb.append(")");
 		}
 	    }
-	    if (whereClause != null)
-	    	sb.append(whereClause);
+	    if (guard != null)
+	    	sb.append(guard);
 	    return sb.toString();
 	}
 
@@ -323,14 +323,6 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
 	}
 	
-	public MacroType instantiate(Type receiverType, List<Type> argumentTypes) throws SemanticException {
-	    return X10MethodInstance_c.<MacroType>instantiate(this, receiverType, Collections.EMPTY_LIST, argumentTypes);
-	}
-
-	public MacroType instantiate(Type receiverType, List<Type> typeArgs, List<Type> argumentTypes) throws SemanticException {
-	    return X10MethodInstance_c.<MacroType>instantiate(this, receiverType, typeArgs, argumentTypes);
-	}
-
 	public boolean moreSpecific(ProcedureInstance<TypeDef> pi) {
 	        ProcedureInstance<TypeDef> p1 = this;
 	        ProcedureInstance<TypeDef> p2 = pi;

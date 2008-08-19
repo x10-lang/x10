@@ -45,38 +45,44 @@ public class CastRewriter extends ContextVisitor {
 	public CastRewriter(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
 	}
+	
+	// DISABLE the pass
+	@Override
+	public Node override(Node parent, Node n) {
+	    return n;
+	}
 
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
 	    X10NodeFactory nf = (X10NodeFactory) this.nf;
 		
 	    Node result = n;
 		
-		if (n instanceof X10Cast) {
-			X10Cast nn = (X10Cast) n;
-			TypeNode xn = (TypeNode) nn.castType();
-			DepParameterExpr e = null;
-			
-			if (xn instanceof AmbDepTypeNode) {
-			    AmbDepTypeNode adtn = (AmbDepTypeNode) xn;
-			    TypeNode base = nf.X10AmbTypeNode(xn.position(), adtn.prefix(), adtn.name());
-			    base = base.typeRef(Types.lazyRef(ts.unknownType(base.position()), new SetResolverGoal(job)));
-			    DepParameterExpr dep = adtn.constraint();
-			    return nf.DepCast(n.position(), base, dep, nn.expr(), nn.convert());
-			}
-		}
-		if (n instanceof Instanceof) {
-			Instanceof nn = (Instanceof) n;
-                        TypeNode xn = (TypeNode) nn.compareType();
-                        DepParameterExpr e = null;
-                        
-                        if (xn instanceof AmbDepTypeNode) {
-                            AmbDepTypeNode adtn = (AmbDepTypeNode) xn;
-                            TypeNode base = nf.X10AmbTypeNode(xn.position(), adtn.prefix(), adtn.name());
-                            base = base.typeRef(Types.lazyRef(ts.unknownType(base.position()), new SetResolverGoal(job)));
-                            DepParameterExpr dep = adtn.constraint();
-                            return nf.DepInstanceof(n.position(), base, dep, nn.expr());
-                        }
-		}
+//		if (n instanceof X10Cast) {
+//			X10Cast nn = (X10Cast) n;
+//			TypeNode xn = (TypeNode) nn.castType();
+//			DepParameterExpr e = null;
+//			
+//			if (xn instanceof AmbDepTypeNode) {
+//			    AmbDepTypeNode adtn = (AmbDepTypeNode) xn;
+//			    TypeNode base = nf.X10AmbTypeNode(xn.position(), adtn.prefix(), adtn.name());
+//			    base = base.typeRef(Types.lazyRef(ts.unknownType(base.position()), new SetResolverGoal(job)));
+//			    DepParameterExpr dep = adtn.constraint();
+//			    return nf.DepCast(n.position(), base, dep, nn.expr(), nn.convert());
+//			}
+//		}
+//		if (n instanceof Instanceof) {
+//			Instanceof nn = (Instanceof) n;
+//                        TypeNode xn = (TypeNode) nn.compareType();
+//                        DepParameterExpr e = null;
+//                        
+//                        if (xn instanceof AmbDepTypeNode) {
+//                            AmbDepTypeNode adtn = (AmbDepTypeNode) xn;
+//                            TypeNode base = nf.X10AmbTypeNode(xn.position(), adtn.prefix(), adtn.name());
+//                            base = base.typeRef(Types.lazyRef(ts.unknownType(base.position()), new SetResolverGoal(job)));
+//                            DepParameterExpr dep = adtn.constraint();
+//                            return nf.DepInstanceof(n.position(), base, dep, nn.expr());
+//                        }
+//		}
 		return result;
 	}   
 

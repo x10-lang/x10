@@ -12,13 +12,10 @@ public interface X10ClassDecl extends ClassDecl {
 	
 	List<TypeParamNode> typeParameters();
 	X10ClassDecl typeParameters(List<TypeParamNode> typeParameters);
-	
+
 	List<TypePropertyNode> typeProperties();
 	X10ClassDecl typeProperties(List<TypePropertyNode> typeProperties);
-
-	TypeNode constrainedSuperClass();
-	X10ClassDecl constrainedSuperClass(TypeNode tn);
 	
-	List<TypeNode> constrainedInterfaces();
-	X10ClassDecl constrainedInterfaces(List<TypeNode> ts);
+	List<PropertyDecl> properties();
+	X10ClassDecl properties(List<PropertyDecl> ps);
 }

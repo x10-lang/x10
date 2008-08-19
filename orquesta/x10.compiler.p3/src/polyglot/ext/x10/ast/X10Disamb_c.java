@@ -18,17 +18,22 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.PathType_c;
+import polyglot.ext.x10.types.TypeProperty;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10NamedType;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
@@ -56,6 +61,7 @@ public class X10Disamb_c extends Disamb_c {
 	@Override
 	protected Node disambiguateNoPrefix() throws SemanticException {
 	    X10Context c = (X10Context) this.c;
+	    
 	    if (c.inDepType()) {
 	    	X10NamedType t = c.currentDepType();
 	    	
@@ -148,7 +154,7 @@ public class X10Disamb_c extends Disamb_c {
     		
     		// Now try 0-ary property methods.
     		try {
-    		    MethodInstance mi = c.findMethod(name.id(), Collections.EMPTY_LIST);
+    		    MethodInstance mi = c.findMethod(ts.MethodMatcher(null, name.id(), Collections.EMPTY_LIST));
     		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
     			Call call = nf.Call(pos, makeMissingFieldTarget(mi), this.name);
     			call = call.methodInstance(mi);
@@ -163,7 +169,7 @@ public class X10Disamb_c extends Disamb_c {
 	    // no variable found. try types.
 	    if (typeOK()) {
 		try {
-		    Named n = c.find(name.id());
+		    Named n = c.find(ts.TypeMatcher(name.id()));
 		    if (n instanceof Type) {
 			Type type = (Type) n;
 			return makeTypeNode(type);
@@ -221,14 +227,74 @@ public class X10Disamb_c extends Disamb_c {
 	@Override
 	protected Node disambiguateExprPrefix(Expr e) throws SemanticException {
 		// TODO: typedef members
+	    
+		Type t = e.type();
+
+	        X10Context xc = (X10Context) this.c;
+		X10TypeSystem xts = (X10TypeSystem) ts;
+
+		// If in a class header, don't search the supertypes of this class.
+		if (xc.inSuperTypeDeclaration()) {
+		    Type tType = t;
+		    Type tBase = X10TypeMixin.baseType(tType);
+		    if (tBase instanceof X10ClassType) {
+			X10ClassType tCt = (X10ClassType) tBase;
+			    
+			if (tCt.def() == xc.supertypeDeclarationType()) {
+			    if (typeOK()) {
+				for (TypeProperty p : tCt.x10Def().typeProperties()) {
+				    if (p.name().equals(name.id())) {
+					PathType pt = p.asType();
+					XTerm term = null;
+					try {
+						term = xts.xtypeTranslator().trans(e);
+					}
+					catch (SemanticException ex) {
+					}
+					if (term == null) {
+						XConstraint c = new XConstraint_c();
+						term = xts.xtypeTranslator().genEQV(c, t, false);
+					}
+					
+					if (term instanceof XVar) {
+						XVar v = (XVar) term;
+						Type pt2 = PathType_c.pathBase(pt, v, e.type());
+				        	return makeTypeNode(pt2);
+					}
+				    }
+				}
+				
+				// Nothing to see here.
+				return null;
+			    }
+			    
+			    if (exprOK()) {
+				// The only fields in scope here are the ones explicitly declared here.
+				for (FieldDef fd : tCt.x10Def().properties()) {
+				    if (fd.name().equals(name.id())) {
+					FieldInstance fi = fd.asInstance();
+					fi = ts.FieldMatcher(tType, name.id()).instantiate(fi);
+					if (fi != null) {
+					    // Found!
+					    X10Field_c result = (X10Field_c) nf.Field(pos, e, name);
+					    result = (X10Field_c) result.fieldInstance(fi).type(fi.type());
+					    return result;
+					}
+				    }
+				}
+				
+				return null;
+			    }
+			}
+		    }
+		}
+
 
 		if (typeOK()) {
-			Type t = e.type();
 			if (t.isClass()) {
 				ClassType ct = t.toClass();
 				try {
-					X10TypeSystem xts = (X10TypeSystem) ts;
-					PathType pt = xts.findTypeProperty(ct, this.name.id(), c.currentClassDef());
+					PathType pt = xts.findTypeProperty(ct, this.name.id(), xc.currentClassDef());
 					XTerm term = null;
 					try {
 						term = xts.xtypeTranslator().trans(e);
@@ -259,7 +325,7 @@ public class X10Disamb_c extends Disamb_c {
 		    }
 		    // Now try 0-ary property methods.
 		    try {
-			MethodInstance mi = ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.EMPTY_LIST), c.currentClassDef());
+			MethodInstance mi = ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.EMPTY_LIST), xc.currentClassDef());
 			if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 			    Call call = nf.Call(pos, e, this.name);
 			    call = call.methodInstance(mi);

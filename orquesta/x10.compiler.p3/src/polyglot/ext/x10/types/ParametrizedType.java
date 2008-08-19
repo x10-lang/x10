@@ -30,7 +30,7 @@ public interface ParametrizedType extends X10NamedType, ReferenceType {
 	List<Type> typeParameters();
 	List<XVar> formals();
 	List<Type> formalTypes();
-	XConstraint whereClause();
+	XConstraint guard();
 	
 	Def def();
 

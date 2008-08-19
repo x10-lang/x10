@@ -12,18 +12,15 @@ import polyglot.ast.TypeNode;
 import polyglot.types.Type;
 
 public interface X10CastInfo {
+    public boolean notNullRequired();
 
-	public boolean isPrimitiveCast();
+    public boolean isDepTypeCheckingNeeded();
 
-	public boolean notNullRequired();
+    public Type type();
 
-	public boolean isDepTypeCheckingNeeded();
-	
-	public Type type();
+    public boolean isToTypeNullable();
 
-	public boolean isToTypeNullable();
-	
     public TypeNode getTypeNode();
 
-	public Expr expr();
+    public Expr expr();
 }

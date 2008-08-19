@@ -39,10 +39,10 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         return (X10LocalDef) def();
     }
     
-    public List<X10ClassType> annotations() {
+    public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }
-    public List<X10ClassType> annotationsMatching(Type t) {
+    public List<Type> annotationsMatching(Type t) {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
 
@@ -71,4 +71,11 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         
         return super.type();
     }
+    
+
+    public String toString() {
+	String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + type();
+	return s;
+    }
+
 }

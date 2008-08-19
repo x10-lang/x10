@@ -11,39 +11,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ast.Block;
-import polyglot.ast.ClassBody;
-import polyglot.ast.ClassDecl_c;
-import polyglot.ast.ClassMember;
-import polyglot.ast.ConstructorDecl;
-import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
-import polyglot.ast.Stmt;
-import polyglot.ast.StringLit;
 import polyglot.ast.Term;
 import polyglot.ast.Term_c;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del_c;
+import polyglot.ext.x10.types.AnnotatedType;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.TypeDef_c;
-import polyglot.ext.x10.types.TypeProperty_c;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10FieldDef;
-import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
-import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
@@ -54,13 +43,12 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
-import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -68,7 +56,7 @@ import x10.constraint.XSelf;
 
 public class TypeDecl_c extends Term_c implements TypeDecl {
 	private TypeNode type;
-	private DepParameterExpr whereClause;
+	private DepParameterExpr guard;
 	private List<Formal> formals;
 	private List<TypeParamNode> typeParams;
 	private Id name;
@@ -76,13 +64,13 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	
 	private TypeDef typeDef;
 
-	public TypeDecl_c(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr where, TypeNode type) {
+	public TypeDecl_c(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr guard, TypeNode type) {
 		super(pos);
 		this.flags = flags;
 		this.name = name;
 		this.typeParams = TypedList.copyAndCheck(typeParameters, TypeParamNode.class, true);
 		this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
-		this.whereClause = where;
+		this.guard = guard;
 		this.type = type;
 	}
 
@@ -136,13 +124,13 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		return n;
 	}
 
-	public DepParameterExpr whereClause() {
-		return whereClause;
+	public DepParameterExpr guard() {
+		return guard;
 	}
 
-	public TypeDecl whereClause(DepParameterExpr where) {
+	public TypeDecl guard(DepParameterExpr guard) {
 		TypeDecl_c n = (TypeDecl_c) copy();
-		this.whereClause = where;
+		this.guard = guard;
 		return n;
 	}
 
@@ -152,9 +140,9 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
 		List<TypeParamNode> typeParams = this.visitList(this.typeParams, v);
 		List<Formal> formals = this.visitList(this.formals, v);
-		DepParameterExpr where = (DepParameterExpr) this.visitChild(this.whereClause, v);
+		DepParameterExpr guard = (DepParameterExpr) this.visitChild(this.guard, v);
 		TypeNode type = (TypeNode) this.visitChild(this.type, v);
-		return reconstruct(flags, id, typeParams, formals, where, type);
+		return reconstruct(flags, id, typeParams, formals, guard, type);
 	}
 	/** Visit the children of the method. */
 	public Node visitSignature(NodeVisitor v) {
@@ -162,17 +150,17 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
 		List<TypeParamNode> typeParams = this.visitList(this.typeParams, v);
 		List<Formal> formals = this.visitList(this.formals, v);
-		DepParameterExpr where = (DepParameterExpr) this.visitChild(this.whereClause, v);
-		return reconstruct(flags, id, typeParams, formals, where, this.type);
+		DepParameterExpr guard = (DepParameterExpr) this.visitChild(this.guard, v);
+		return reconstruct(flags, id, typeParams, formals, guard, this.type);
 	}
 
-	protected Node reconstruct(FlagsNode flags, Id name, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr where, TypeNode type) {
+	protected Node reconstruct(FlagsNode flags, Id name, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode type) {
 		TypeDecl_c n = this;
 		n = (TypeDecl_c) n.flags(flags);
 		n = (TypeDecl_c) n.name(name);
 		n = (TypeDecl_c) n.typeParameters(typeParams);
 		n = (TypeDecl_c) n.formals(formals);
-		n = (TypeDecl_c) n.whereClause(where);
+		n = (TypeDecl_c) n.guard(guard);
 		n = (TypeDecl_c) n.type(type);
 		return n;
 	}
@@ -182,22 +170,18 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	}
 
 	public Context enterChildScope(Node child, Context c) {
-	    if (! formals.isEmpty() && child != type) {
-		// Push formals so they're in scope in the types of the other formals.
-		c = c.pushBlock();
-		for (Formal f : formals) {
-		    f.addDecls(c);
-		}
-	    }
+	        if (child != type) {
+	            // Push formals so they're in scope in the types of the other formals.
+	            c = c.pushBlock();
+	            for (TypeParamNode f : typeParams) {
+	                f.addDecls(c);
+	            }
+	            for (Formal f : formals) {
+	                f.addDecls(c);
+	            }
+	        }
 
-	    X10Context cc = (X10Context) super.enterChildScope(child, c);
-
-	    if (child == this.type) {
-		if (cc == c) cc = (X10Context) c.copy();
-		cc.setVarWhoseTypeIsBeingElaborated(null);
-	    }
-
-	    return cc;
+	        return super.enterChildScope(child, c);
 	}
 
 	@Override
@@ -205,38 +189,39 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		final X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
 		
-//		// Generate a wrapper class and rename the typedef to "this".
-//		if (! name.id().equals("this")) {
-//		    TypeDecl_c td = (TypeDecl_c) this.name(nf.Id(position(), "this"));
-//		    X10ClassDecl cd = nf.X10ClassDecl(position(), flags(), name(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null, Collections.EMPTY_LIST, nf.ClassBody(position(), Collections.<ClassMember>singletonList(td)));
-//		    return cd.visit(tb);
-//		}
-		
 		X10ClassDef ct = (X10ClassDef) tb.currentClass();
+		Package package_ = tb.currentPackage();
 		
 		boolean topLevel = ct == null;
 		
-		// If this is a top-level typedef, add it to a dummy class for the package.
-		// When looking up types, we'll look for the package class then walk through the members.
-		Package package_ = tb.currentPackage();
-		String dummyName = "package";
-		String dummyClass = (package_ != null ? package_.fullName() + "." : "") + "package";
+		final boolean ALLOW_TOP_LEVEL_TYPEDEFS = false;
+		final String DUMMY_CLASS_NAME = "package";
 		
-		if (ct == null) {
-		    Named n = ts.systemResolver().check(dummyClass);
-		    if (n instanceof X10ParsedClassType) {
-			ct = ((X10ParsedClassType) n).x10Def();
-		    }
+		if (ct == null && ! ALLOW_TOP_LEVEL_TYPEDEFS) {
+		    throw new SemanticException("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", position());
 		}
-		
-		if (ct == null) {
-		    ct = (X10ClassDef) ts.createClassDef();
-		    ct.kind(ClassDef.TOP_LEVEL);
-		    ct.setPackage(package_ != null ? Types.ref(package_) : null);
-		    ct.name(dummyName);
-		    ct.superType(Types.ref(ts.Object()));
-		    ct.flags(Flags.PUBLIC.Abstract());
-		    ts.systemResolver().install(dummyClass, ct.asType());
+
+		if (ALLOW_TOP_LEVEL_TYPEDEFS) {
+		    // If this is a top-level typedef, add it to a dummy class for the package.
+		    // When looking up types, we'll look for the package class then walk through the members.
+		    String dummyClass = (package_ != null ? package_.fullName() + "." : "") + "package";
+
+		    if (ct == null) {
+			Named n = ts.systemResolver().check(dummyClass);
+			if (n instanceof X10ParsedClassType) {
+			    ct = ((X10ParsedClassType) n).x10Def();
+			}
+		    }
+
+		    if (ct == null) {
+			ct = (X10ClassDef) ts.createClassDef();
+			ct.kind(ClassDef.TOP_LEVEL);
+			ct.setPackage(package_ != null ? Types.ref(package_) : null);
+			ct.name(DUMMY_CLASS_NAME);
+			ct.superType(Types.ref(ts.Object()));
+			ct.flags(Flags.PUBLIC.Abstract());
+			ts.systemResolver().install(dummyClass, ct.asType());
+		    }
 		}
 		
 		if (ct == null)
@@ -253,6 +238,8 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        TypeDecl_c n = (TypeDecl_c) copy();
 	        TypeBuilder tb2 = tb.pushDef(typeDef);
 		n = (TypeDecl_c) n.visitSignature(tb2);
+		
+	        n = (TypeDecl_c) X10Del_c.visitAnnotations(n, tb2);
 
 	        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
 	        for (TypeParamNode tpn : n.typeParameters()) {
@@ -285,8 +272,8 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        typeDef.setFormalTypes(formalTypes);
 	        typeDef.setFormalNames(formalNames);
 	        
-	        if (n.whereClause != null)
-	        	typeDef.setWhereClause(n.whereClause.xconstraint());
+	        if (n.guard != null)
+	        	typeDef.setGuard(n.guard.xconstraint());
 
 	        if (n.type != null) {
 	        	TypeNode tn = (TypeNode) n.visitChild(n.type, tb2);
@@ -299,10 +286,13 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        // Add to the system resolver if the type def takes no arguments.
 	        // Otherwise, we'll search through the container.
 	        if (ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
-	            if (ct.name().equals(dummyName) && ct.package_() != null)
-	        	ts.systemResolver().install(ct.package_().get().fullName() + "." + name.id(), typeDef.asType());
-	            else if (ct.name().equals(dummyName) && ct.package_() == null)
-	        	ts.systemResolver().install(name.id(), typeDef.asType());
+	            if (ALLOW_TOP_LEVEL_TYPEDEFS) {
+	        	if (ct.name().equals(DUMMY_CLASS_NAME) && ct.package_() != null)
+	        	    ts.systemResolver().install(ct.package_().get().fullName() + "." + name.id(), typeDef.asType());
+	        	else if (ct.name().equals(DUMMY_CLASS_NAME) && ct.package_() == null)
+	        	    ts.systemResolver().install(name.id(), typeDef.asType());
+	            }
+	            
 		    ts.systemResolver().install(ct.fullName() + "." + name.id(), typeDef.asType());
 		}
 		
@@ -310,7 +300,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	}
 	
 	@Override
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    checkCycles(type.type());
 	    return this;
 	}
@@ -334,6 +324,10 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	    }
 	    if (type instanceof PathType) {
 		PathType ct = (PathType) type;
+		checkCycles(ct.baseType());
+	    }
+	    if (type instanceof AnnotatedType) {
+		AnnotatedType ct = (AnnotatedType) type;
 		checkCycles(ct.baseType());
 	    }
 	}

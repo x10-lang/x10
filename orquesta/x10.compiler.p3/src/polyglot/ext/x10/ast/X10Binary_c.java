@@ -44,7 +44,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 
 /**
@@ -91,17 +91,20 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		if (lt == null || rt == null)
 			return false;
 		if (operator() == Binary.EQ || operator() == Binary.NE) {
-		if ( xts.isValueType(lt) && rt.isNull())
-		    return true;
-		if ( xts.isValueType(rt) && lt.isNull())
-		    return true;
+		    if (xts.isValueType(lt) && xts.isReferenceType(rt))
+			return true;
+		    if (xts.isReferenceType(lt) && xts.isValueType(rt))
+			return true;
+		    if ( xts.isValueType(lt) && rt.isNull())
+			return true;
+		    if ( xts.isValueType(rt) && lt.isNull())
+			return true;
 		}
 		return false;
 	}
 
 	// TODO: take care of the base cases for regions, distributions, points and places.
 	public Object constantValue() {
-
 		Object result = super.constantValue();
 		if (result != null)
 			return result;
@@ -114,14 +117,23 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		Type rt = right.type();
 		X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
 
+		
 		// [IP] An optimization: an value and null can never be equal
 		if (op == EQ) {
+		    if (xts.isValueType(lt) && xts.isReferenceType(rt))
+			return Boolean.FALSE;
+		    if (xts.isReferenceType(lt) && xts.isValueType(rt))
+			return Boolean.FALSE;
 		    if ( xts.isValueType(lt) && rt.isNull())
 			return Boolean.FALSE;
 		    if ( xts.isValueType(rt) && lt.isNull())
 			return Boolean.FALSE;
 		}
 		if (op == NE) {
+		    if (xts.isValueType(lt) && xts.isReferenceType(rt))
+			return Boolean.TRUE;
+		    if (xts.isReferenceType(lt) && xts.isValueType(rt))
+			return Boolean.TRUE;
 		    if ( xts.isValueType(lt) && rt.isNull())
 			return Boolean.TRUE;
 		    if ( xts.isValueType(rt) && lt.isNull())
@@ -202,7 +214,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	
 	// HACK: T1==T2 can sometimes be parsed as e1==e2.  Correct that.
 	@Override
-	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	    if (op == EQ) {
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		Receiver t1 = toReceiver(nf, left);
@@ -251,18 +263,22 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	 * An alternative implementation strategy is to resolve each into a method
 	 * call.
 	 */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		
 		Type l = left.type();
 		Type r = right.type();
-		//Report.report(1, "X10Binary_c: l=" + l + " r=" + r + " op=" + op);
+
 		if (op == EQ || op == NE) {
-		    l = X10TypeMixin.xclause(l, (XConstraint) null);
-		    r = X10TypeMixin.xclause(r, (XConstraint) null);
+//		    l = X10TypeMixin.baseType(l);
+//		    r = X10TypeMixin.baseType(r);
+		    if (xts.isNumeric(l) && xts.isNumeric(r)) {
+			return type(xts.Boolean());
+		    }
+
 		    if (! xts.isCastValid(l, r) && ! xts.isCastValid(r, l)) {
 			throw new SemanticException("The " + op +
-			                            " operator must have operands of similar type.",
+			                            " operator must have operands of comparable type; the types " + l + " and " + r + " do not share any values.",
 			                            position());
 		    }
 

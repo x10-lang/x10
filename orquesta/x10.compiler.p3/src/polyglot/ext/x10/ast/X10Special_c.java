@@ -22,57 +22,44 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 
 public class X10Special_c extends Special_c implements X10Special {
 
-	boolean isSelf=false;
 	public X10Special_c(Position pos, Kind kind, TypeNode qualifier) {
 		super(pos, kind, qualifier);
-		isSelf = kind.equals(SELF);
 	}
 	
 	
 	public static X10Special self(Position pos) {
 		X10Special_c	self = new X10Special_c(pos, SELF, null);
-		self.isSelf=true;
 		return self;
 	}
-	public boolean isSelf() { return isSelf;}
-//	public boolean equals(Object other) {
-//		if (! (other instanceof X10Special_c)) return false;
-//		X10Special_c o = (X10Special_c) other;
-//		return isSelf == o.isSelf && kind.equals(o.kind) && 
-//		(qualifier == null ? o.qualifier==null : qualifier.equals(o.qualifier));
-//	}
-//	public int hashCode() {
-//		return kind.hashCode();
-//	}
-	 /** Type check the expression. */
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
+
+	public boolean isSelf() { return kind == SELF; }
+
+	/** Type check the expression. */
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
         X10Context c = (X10Context) tc.context();
 
-        if (isSelf) {
-    		Type tt = c.currentDepType();
-    		if (tt == null) {
-    			   throw new SemanticException("self may only be used within a dependent type", 
-    					   position());
-    		}
-        	if (c.inSuperTypeDeclaration()) {
-        		tt = c.supertypeDeclarationType().asType();
-        	}
-        	
-        	// The type of self should not include a dep clause; otherwise
-        	// self in C(:c) could have type C(:c), causing an infinite regress
-        	// later in type checking.
-        	tt = X10TypeMixin.xclause(tt, (XConstraint) null);
-    	
-        	assert tt != null;
-        	return type(tt);
+        if (isSelf()) {
+            Type tt = c.currentDepType();
+
+            if (tt == null) {
+        	throw new SemanticException("self may only be used within a dependent type", position());
+            }
+
+            // The type of self should not include a dep clause; otherwise
+            // self in C{c} could have type C{c}, causing an infinite regress
+            // later in type checking.
+            tt = X10TypeMixin.baseType(tt);
+
+            assert tt != null;
+            return type(tt);
     	}
         
         ClassType t = null;
@@ -81,8 +68,11 @@ public class X10Special_c extends Special_c implements X10Special {
             // an unqualified "this" 
             t = c.currentClass();
             
-            // If in the supertype declaration, make this refer to the current class, not the enclosing class (or null).
+            // If in the class header declaration, make this refer to the current class, not the enclosing class (or null).
             if (c.inSuperTypeDeclaration()) {
+        	if (kind == SUPER) {
+        	    throw new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header.");
+        	}
         	t = c.supertypeDeclarationType().asType();
             }
             
@@ -125,28 +115,28 @@ public class X10Special_c extends Special_c implements X10Special {
         X10TypeSystem xts = (X10TypeSystem) ts;
 
         if (kind == THIS) {
-        	Type tt = t;
-        	tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
+            Type tt = t;
+            tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
-        	Type tt = t.superClass();
-        	tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
+            Type tt = t.superClass();
+            tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
             result = (X10Special) type(tt);
         }
         
         assert result.type() != null;
 
-        // Fold in the method's where clause.
+        // Fold in the method's guard, if any.
         CodeDef ci = c.currentCode();
         if (ci instanceof X10ProcedureDef) {
             X10ProcedureDef pi = (X10ProcedureDef) ci;
-            XConstraint where = Types.get(pi.whereClause());
-            if (where != null) {
+            XConstraint guard = Types.get(pi.guard());
+            if (guard != null) {
                 Type newType = result.type();
                 XConstraint dep = X10TypeMixin.xclause(newType).copy();
                 try {
-			dep.addIn(where);
+			dep.addIn(guard);
 		}
 		catch (XFailure e) {
 			throw new SemanticException(e.getMessage(), position());

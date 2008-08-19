@@ -10,6 +10,7 @@ package polyglot.ext.x10.ast;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.ArrayInit;
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
@@ -21,6 +22,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
@@ -28,17 +30,18 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
+import polyglot.types.UnknownType;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 
 public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
-	MethodDecl getter;
-	MethodDecl abstractGetter;
-	
     public PropertyDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, X10NodeFactory nf) {
         this(pos, flags, type, name, null, nf);
     }
+    
     public PropertyDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init, X10NodeFactory nf) {
         super(pos, flags, type, name, init);
@@ -46,7 +49,8 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 
     @Override
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
-        PropertyDecl_c n = (PropertyDecl_c) super.buildTypesOverride(tb);
+        assert tb.currentClass() != null;
+	PropertyDecl_c n = (PropertyDecl_c) super.buildTypesOverride(tb);
         X10FieldDef fi = (X10FieldDef) n.fieldDef();
         fi.setProperty();
         return n;
@@ -60,19 +64,13 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     * @param body   -- the body of the class or interface
     * @return body, with properties and getters added.
     */
-    public static ClassBody addProperties(List<PropertyDecl> properties, ClassBody body,
+    public static ClassBody addPropertyGetters(List<PropertyDecl> properties, ClassBody body,
     		X10NodeFactory nf) {
-    	
-    	if (properties != null && ! properties.isEmpty()) {
-    		int n = properties.size();
-    		for (int i=0; i < n; i++) {
-    		
-    			PropertyDecl  p =  properties.get(i);
-    			MethodDecl getter = ((PropertyDecl_c) p).getter(nf);
-    			body = body.addMember(getter);
-    			body = body.addMember(p);
-    		}
-    	}
+	if (properties != null) {
+	    for (PropertyDecl p : properties) {
+		body = body.addMember(((PropertyDecl_c) p).getter(nf));
+	    }
+	}
     	return body;
     }
     
@@ -84,24 +82,13 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * @param body   -- the body of the class or interface
      * @return body, with properties and getters added.
      */
-    public static ClassBody addGetters(List<PropertyDecl> properties, ClassBody body, X10NodeFactory nf) {
-        if (properties != null && ! properties.isEmpty()) {
-        	int n = properties.size();
-    		for (int i=0; i < n; i++) {
-                PropertyDecl  p = properties.get(i);
-                body = body.addMember(((PropertyDecl_c) p).abstractGetter(nf));
-                body = body.addMember(p);
-            }
-        }
+    public static ClassBody addAbstractGetters(List<PropertyDecl> properties, ClassBody body, X10NodeFactory nf) {
+        if (properties != null) {
+            for (PropertyDecl p : properties) {
+		body = body.addMember(((PropertyDecl_c) p).abstractGetter(nf));
+	    }
+	}
         return body;
-    }
-   
-   /**
-    * Return the synthetic getter metod for this property.
-    * @return -- the getter method for this property.
-    */
-    public MethodDecl getter() {
-	    return getter;
     }
    
     protected MethodDecl getter(X10NodeFactory nf) {
@@ -115,8 +102,8 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         
         Stmt s = nf.Return(pos, e);
         Block body = nf.Block(pos, s);
-        getter = nf.MethodDecl(pos, nf.FlagsNode(pos, flags), type, name, formals, throwTypes, body);
-
+        
+        MethodDecl getter = nf.MethodDecl(pos, nf.FlagsNode(pos, flags), type, name, formals, throwTypes, body);
         return getter;
     }
     
@@ -126,18 +113,8 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * Any class implementing the interface has to have the same property 
      * <RAJ> 
      */
-    public MethodDecl abstractGetter() {
-    	return abstractGetter;
-    }
-
-    /**
-     * For Interfaces with properties, an abstract method signature for each property 
-     * is generated in the interface body.
-     * Any class implementing the interface has to have the same property 
-     * <RAJ> 
-     */
     protected MethodDecl abstractGetter(X10NodeFactory nf) {
-      abstractGetter = nf.MethodDecl(Position.COMPILER_GENERATED, nf.FlagsNode(Position.COMPILER_GENERATED, Flags.PUBLIC.Abstract()), type, name, 
+      MethodDecl abstractGetter = nf.MethodDecl(Position.COMPILER_GENERATED, nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.PROPERTY.Public().Abstract()), type, name, 
                               Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
       return abstractGetter;
     }

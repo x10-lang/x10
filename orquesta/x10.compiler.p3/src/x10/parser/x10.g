@@ -905,7 +905,10 @@ public static class MessageHandler implements IMessageHandler {
     
     Property ::=  Annotationsopt Identifier : Type
         /.$BeginJava
-                    setResult(nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), Type, Identifier));
+                    List annotations = extractAnnotations(Annotationsopt);
+                    PropertyDecl cd = nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), Type, Identifier);
+                    cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
+                    setResult(cd);
           $EndJava
         ./
 
@@ -1319,11 +1322,11 @@ public static class MessageHandler implements IMessageHandler {
                             Position pos = (Position) o[0];
                             Id name = (Id) o[1];
                             List exploded = (List) o[2];
-                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
                             if (type == null) type = nf.UnknownTypeNode(name.position());
                             Expr init = (Expr) o[5];
-                            FieldDecl ld = nf.FieldDecl(pos, where, fn,
+                            FieldDecl ld = nf.FieldDecl(pos, guard, fn,
                                                type, name, init);
                             ld = (FieldDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(FieldModifiersopt));
                             l.add(ld);
@@ -2560,7 +2563,7 @@ public static class MessageHandler implements IMessageHandler {
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
                    List exploded = (List) o[2];
-                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
                             if (type == null) type = nf.UnknownTypeNode(name.position());
                             List explodedFormals = new ArrayList();
@@ -2581,7 +2584,7 @@ public static class MessageHandler implements IMessageHandler {
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
                    List exploded = (List) o[2];
-                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
                                                         if (type == null) type = nf.UnknownTypeNode(name.position());
                                                         List explodedFormals = new ArrayList();
@@ -2603,7 +2606,7 @@ public static class MessageHandler implements IMessageHandler {
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
                    List exploded = (List) o[2];
-                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
                             if (type == null) type = nf.UnknownTypeNode(name.position());
                             Expr init = (Expr) o[5];
@@ -2625,7 +2628,7 @@ public static class MessageHandler implements IMessageHandler {
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
                    List exploded = (List) o[2];
-                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
                                                         if (type == null) type = nf.UnknownTypeNode(name.position());
                             Expr init = (Expr) o[5];
@@ -2865,6 +2868,11 @@ public static class MessageHandler implements IMessageHandler {
                           | private
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
+          $EndJava
+        ./
+                          | native
+        /.$BeginJava
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
           $EndJava
         ./
     
@@ -3204,7 +3212,7 @@ public static class MessageHandler implements IMessageHandler {
                             Position pos = (Position) o[0];
                             Id name = (Id) o[1];
                             List exploded = (List) o[2];
-                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
                                                         if (type == null) type = nf.UnknownTypeNode(name.position());
                             Expr init = (Expr) o[5];
@@ -3236,7 +3244,7 @@ public static class MessageHandler implements IMessageHandler {
                             Position pos = (Position) o[0];
                             Id name = (Id) o[1];
                             List exploded = (List) o[2];
-                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
                                                         if (type == null) type = nf.UnknownTypeNode(name.position());
                             Expr init = (Expr) o[5];
@@ -3268,7 +3276,7 @@ public static class MessageHandler implements IMessageHandler {
                             Position pos = (Position) o[0];
                             Id name = (Id) o[1];
                             List exploded = (List) o[2];
-                            DepParameterExpr where = (DepParameterExpr) o[3];
+                            DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
                                                         if (type == null) type = nf.UnknownTypeNode(name.position());
                             Expr init = (Expr) o[5];

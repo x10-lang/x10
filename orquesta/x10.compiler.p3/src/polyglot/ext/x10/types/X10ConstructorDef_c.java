@@ -28,7 +28,7 @@ import x10.constraint.XConstraint;
 public class X10ConstructorDef_c extends ConstructorDef_c implements X10ConstructorDef {
     Ref<? extends ClassType> returnType;
     protected Ref<XConstraint> supClause;
-    protected Ref<XConstraint> whereClause;
+    protected Ref<XConstraint> guard;
     List<LocalDef> formalNames;
 
     public X10ConstructorDef_c(TypeSystem ts, Position pos,
@@ -37,35 +37,36 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             Ref<? extends ClassType> returnType,
             List<Ref<? extends Type>> typeParameters,
             List<Ref<? extends Type>> formalTypes, 
-            List<LocalDef> formalNames, Ref<XConstraint> whereClause,
+            List<LocalDef> formalNames, Ref<XConstraint> guard,
             List<Ref<? extends Type>> throwTypes) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
         this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
 	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
-	this.whereClause = whereClause;
+	this.guard = guard;
     }
 
     // BEGIN ANNOTATION MIXIN
-    List<Ref<? extends X10ClassType>> annotations;
+    List<Ref<? extends Type>> annotations;
 
-    public List<Ref<? extends X10ClassType>> defAnnotations() {
+    public List<Ref<? extends Type>> defAnnotations() {
+	if (annotations == null) return Collections.EMPTY_LIST;
         return Collections.unmodifiableList(annotations);
     }
     
-    public void setDefAnnotations(List<Ref<? extends X10ClassType>> annotations) {
-        this.annotations = TypedList.<Ref<? extends X10ClassType>>copyAndCheck(annotations, Ref.class, true);
+    public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
+        this.annotations = TypedList.<Ref<? extends Type>>copyAndCheck(annotations, Ref.class, true);
     }
     
-    public List<X10ClassType> annotations() {
+    public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }
     
-    public List<X10ClassType> annotationsMatching(Type t) {
+    public List<Type> annotationsMatching(Type t) {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<X10ClassType> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(String fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN
@@ -96,12 +97,12 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
 
     /** Constraint on formal parameters. */
-    public Ref<XConstraint> whereClause() {
-        return whereClause;
+    public Ref<XConstraint> guard() {
+        return guard;
     }
 
-    public void setWhereClause(Ref<XConstraint> s) {
-        this.whereClause = s;
+    public void setGuard(Ref<XConstraint> s) {
+        this.guard = s;
     }
 	
     List<Ref<? extends Type>> typeParameters;
@@ -114,7 +115,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
 
     public String toString() {
-	    String s = designator() + " " + flags().translate() + container() + "." + signature() + (whereClause() != null ? whereClause() : "") + ": " + returnType();
+	    String s = designator() + " " + flags().translate() + container() + "." + signature() + (guard() != null ? guard() : "") + ": " + returnType();
 
 	    if (!throwTypes().isEmpty()) {
 		    s += " throws " + CollectionUtil.listToString(throwTypes());

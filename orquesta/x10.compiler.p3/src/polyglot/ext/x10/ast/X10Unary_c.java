@@ -30,8 +30,8 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeChecker;
 
 /**
  * An immutable representation of a unary operation op Expr.
@@ -61,7 +61,7 @@ public class X10Unary_c extends Unary_c {
 	 * An alternative implementation strategy is to resolve each into a method
 	 * call.
 	 */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
 	        Type t = expr.type();

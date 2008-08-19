@@ -17,9 +17,11 @@ import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.ast.SettableAssign;
 import polyglot.ext.x10.types.X10ArraysMixin;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ArrayType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 
 /**
@@ -42,7 +44,7 @@ public class QueryEngine {
 	private QueryEngine(ExtensionInfo ext) {
 		this.ext = ext;
 	}
-	
+
 	/**
 	 * @param a Array variable being used in one-dimensional access
 	 * @return true iff a is a dense one-dimensional array with zero origin
@@ -50,7 +52,7 @@ public class QueryEngine {
 	public boolean isRectangularRankOneLowZero(SettableAssign a) {
 		Type t = a.array().type();
 	        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-	        if (ts.isX10Array(t))
+	        if (X10ArraysMixin.isX10Array(t))
 	            return X10ArraysMixin.isRail(t) || (X10ArraysMixin.isZeroBased(t) && X10ArraysMixin.isRankOne(t) && X10ArraysMixin.isRect(t));
 	        else
 	            return false;
@@ -79,7 +81,7 @@ public class QueryEngine {
 	public boolean needsHereCheck(SettableAssign a) {
 		Type lt = a.leftType();
 		X10TypeSystem ts = (X10TypeSystem) lt.typeSystem();
-		if (ts.isX10Array(lt)) {
+	        if (X10ArraysMixin.isX10Array(lt)) {
 			return needsHereCheck(X10ArraysMixin.arrayBaseType(lt));
 		}
 		return false;

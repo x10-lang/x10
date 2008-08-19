@@ -7,9 +7,9 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.TypeNode;
 
 public interface X10MethodDecl extends MethodDecl {
-	// The method's where clause.
-	DepParameterExpr whereClause();
-	X10MethodDecl whereClause(DepParameterExpr e);
+	// The method's guard.
+	DepParameterExpr guard();
+	X10MethodDecl guard(DepParameterExpr e);
 	
 	List<TypeParamNode> typeParameters();
 	X10MethodDecl typeParameters(List<TypeParamNode> typeParams);

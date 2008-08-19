@@ -32,6 +32,7 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
@@ -147,7 +148,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
       }
     
     @Override
-    public Node disambiguate(TypeChecker ar) throws SemanticException {
+    public Node disambiguate(ContextVisitor ar) throws SemanticException {
     	DepParameterExpr_c n = (DepParameterExpr_c) super.disambiguate(ar);
     	
     	if (((X10Context) ar.context()).inAnnotation() && condition == null) {
@@ -162,7 +163,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     /** Type check the statement. 
      */
     @Override
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
       //Report.report(1, "DepParameterExpr: Typechecking " + this + this.getClass() + " " + condition);
         

@@ -17,7 +17,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 
 public class Next_c extends Stmt_c implements Next {
 
@@ -38,7 +38,7 @@ public class Next_c extends Stmt_c implements Next {
         // TODO:
         return succs;
     }
-    public Node typeCheck(TypeChecker tc) throws SemanticException {    	
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {    	
     	X10Context c = (X10Context) tc.context();
     	if (c.inNonBlockingCode())
     		throw new SemanticException("The next statement cannot be used in nonblocking code.", position());

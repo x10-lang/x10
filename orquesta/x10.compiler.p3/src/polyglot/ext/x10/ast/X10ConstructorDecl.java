@@ -21,8 +21,8 @@ public interface X10ConstructorDecl extends ConstructorDecl {
 	TypeNode returnType();
 	X10ConstructorDecl returnType(TypeNode returnType);
 	
-	DepParameterExpr whereClause();
-	X10ConstructorDecl whereClause(DepParameterExpr e);
+	DepParameterExpr guard();
+	X10ConstructorDecl guard(DepParameterExpr e);
 	
 	List<TypeParamNode> typeParameters();
 	X10ConstructorDecl typeParameters(List<TypeParamNode> typeParams);

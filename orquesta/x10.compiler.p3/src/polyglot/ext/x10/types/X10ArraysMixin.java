@@ -1,5 +1,6 @@
 package polyglot.ext.x10.types;
 
+import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
@@ -16,11 +17,53 @@ import x10.constraint.XVar;
 
 public class X10ArraysMixin {
 	
-            public static Type arrayBaseType(Type t) {
-        	X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-        	return xts.arrayBaseType(t);
-            }
+	
+	public static boolean isX10Array(Type t) {
+	    return isVarArray(t) || isValArray(t);
+	}
+	
+	public static boolean isVarArray(Type t) {
+	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		Type at = ts.Array();
+		return t.descendsFrom(at);
+	}
+	
+	public static boolean isValArray(Type t) {
+	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+	    Type at = ts.ValArray();
+	    return t.descendsFrom(at);
+	}
+
+	public static Type arrayBaseType(Type t) {
+	    t = X10TypeMixin.baseType(t);
+	    if (t instanceof X10ClassType) {
+		X10ClassType ct = (X10ClassType) t;
+		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		ClassType a = (ClassType) ts.Array();
+		ClassType v = (ClassType) ts.ValArray();
+		if (ct.def() == a.def() || ct.def() == v.def())
+		    return ct.typeArguments().get(0);
+		else
+		    arrayBaseType(ct.superClass());
+	    }
+	    return null;
+	}
             
+	public static Type railBaseType(Type t) {
+	    t = X10TypeMixin.baseType(t);
+	    if (t instanceof X10ClassType) {
+		X10ClassType ct = (X10ClassType) t;
+		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		ClassType a = (ClassType) ts.Rail();
+		ClassType v = (ClassType) ts.ValRail();
+		if (ct.def() == a.def() || ct.def() == v.def())
+		    return ct.typeArguments().get(0);
+		else
+		    arrayBaseType(ct.superClass());
+	    }
+	    return null;
+	}
+	
 	    protected static Type addBinding(Type t, XVar v1, XVar v2) {
 	        return X10TypeMixin.addBinding(t, v1, v2);
 	    }
@@ -103,7 +146,7 @@ public class X10ArraysMixin {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	        if (isRail(t))
 	           return xts.ONE();
-	        return findOrSythesize(t, X10TypeSystem.RANK_FIELD);
+	        return findOrSythesize(t, "rank");
 	    }
 
 	    private static XTerm findOrSythesize(Type t, String propName) {

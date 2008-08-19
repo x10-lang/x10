@@ -9,6 +9,7 @@ package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Variable;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.X10ArraysMixin;
@@ -47,6 +49,7 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
@@ -83,15 +86,11 @@ public class X10Call_c extends Call_c implements X10Call {
    }
    
    @Override
-   public Node disambiguate(TypeChecker tc) throws SemanticException {
+   public Node disambiguate(ContextVisitor tc) throws SemanticException {
        return this;
    }
    
-	protected Node typeCheckNullTarget(TypeChecker tc, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
-		return super.typeCheckNullTarget(tc, argTypes);
-	}
-
-	    protected Node typeCheckNullTarget(TypeChecker tc, List<Type> argTypes) throws SemanticException {
+	protected Node typeCheckNullTarget(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
 	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	        NodeFactory nf = tc.nodeFactory();
 	        Context c = tc.context();
@@ -100,7 +99,7 @@ public class X10Call_c extends Call_c implements X10Call {
 	        // let's find the target, using the context, and
 	        // set the target appropriately, and then type check
 	        // the result
-	        MethodInstance mi = c.findMethod(this.name.id(), argTypes);
+	        MethodInstance mi = c.findMethod(ts.MethodMatcher(null, name.id(), typeArgs, argTypes));
 	        
 	        XLocal this_ = ts.xtypeTranslator().transThisWithoutTypeConstraint();
 	        
@@ -127,10 +126,8 @@ public class X10Call_c extends Call_c implements X10Call {
 	            }
 	        }
 
-	        // we call computeTypes on the reciever too.
 	        Call_c call = (Call_c) this.targetImplicit(true).target(r);       
 	        call = (Call_c)call.methodInstance(mi).type(mi.returnType());
-//	        call = (Call_c) call.methodInstance(mi);
 	        return call;
 	    }
 
@@ -138,7 +135,7 @@ public class X10Call_c extends Call_c implements X10Call {
      * Rewrite getLocation() to Here for value types and operator calls for
      * array types, otherwise leave alone.
      */
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
@@ -160,23 +157,31 @@ public class X10Call_c extends Call_c implements X10Call {
             else
         	f = nf.AmbExpr(position(), name());
 
+            Expr e = null;
+
             try {
-        	Node n = f.del().disambiguate(tc);
+        	Node n;
+        	n = f.del().disambiguate(tc);
         	n = n.del().typeCheck(tc);
         	n = n.del().checkConstants(tc);
-        	if (n instanceof Expr) {
-        	    Expr e = (Expr) n;
-        	    if (ts.isFunction(e.type())) {
-        		ClosureCall cc = nf.ClosureCall(position(), e, typeArguments(), arguments());
-        		ClosureInstance ci = ts.createClosureInstance(position(), new ErrorRef_c<ClosureDef>(ts, position(), "Cannot get ClosureDef before type-checking closure call."));
-        		cc = cc.closureInstance(ci);
-        		cc = (ClosureCall) cc.disambiguate(tc);
-        		cc = (ClosureCall) cc.typeCheck(tc);
-        		return cc;
+        	if (n instanceof Expr && n instanceof Variable) {
+        	    e = (Expr) n;
+        	    if (! ts.isFunction(e.type())) {
+        		e = null;
         	    }
         	}
             }
-            catch (SemanticException e) {
+            catch (SemanticException ex) {
+            }
+
+            if (e != null) {
+        	ClosureCall cc = nf.ClosureCall(position(), e, typeArguments(), arguments());
+        	ClosureInstance ci = ts.createClosureInstance(position(), new ErrorRef_c<ClosureDef>(ts, position(), "Cannot get ClosureDef before type-checking closure call."));
+        	cc = cc.closureInstance(ci);
+        	Node n = cc;
+        	n = n.del().disambiguate(tc);
+        	n = n.del().typeCheck(tc);
+        	return n;
             }
         }
      
@@ -330,7 +335,7 @@ public class X10Call_c extends Call_c implements X10Call {
         }
     }
     
-    private void checkAnnotations(TypeChecker tc) throws SemanticException {
+    private void checkAnnotations(ContextVisitor tc) throws SemanticException {
     	X10Context c = (X10Context) tc.context();
     	X10MethodInstance mi = (X10MethodInstance) methodInstance();
     	if (mi !=null) {
@@ -349,7 +354,7 @@ public class X10Call_c extends Call_c implements X10Call {
     					position());
     	}
     }
-	private Node superTypeCheck(TypeChecker tc) throws SemanticException {
+	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {
         return super.typeCheck(tc);
     }
 	

@@ -18,6 +18,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
@@ -36,6 +37,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
@@ -52,17 +54,17 @@ import x10.constraint.XVar;
  */
 public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10ConstructorDecl {
    
-    protected DepParameterExpr whereClause; // ignored for now.
+    protected DepParameterExpr guard; // ignored for now.
     protected TypeNode returnType;
     protected List<TypeParamNode> typeParameters;
     
     public X10ConstructorDecl_c(Position pos, FlagsNode flags, 
             Id name, TypeNode returnType, 
             List<TypeParamNode> typeParams, List<Formal> formals, 
-            DepParameterExpr whereClause, List<TypeNode> throwTypes, Block body) {
+            DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
         super(pos, flags,  name, formals, throwTypes, body);
         this.returnType = returnType;
-        this.whereClause = whereClause;
+        this.guard = guard;
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
     }
     
@@ -70,13 +72,13 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return returnType;
     }
 
-    public DepParameterExpr whereClause() {
-        return whereClause;
+    public DepParameterExpr guard() {
+        return guard;
     }
 
-    public X10ConstructorDecl whereClause(DepParameterExpr e) {
+    public X10ConstructorDecl guard(DepParameterExpr e) {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
-        n.whereClause = e;
+        n.guard = e;
         return n;
     }
     
@@ -106,9 +108,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 	
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.buildTypesOverride(tb);
         
+        n = (X10ConstructorDecl_c) X10Del_c.visitAnnotations(n, tb);
+
         ClassDef currentClass = tb.currentClass();
 
         // Set the constructor name to the short name of the class, to shut up the Java type-checker.
+        // The X10 parser has "this" for the name.
 	n = (X10ConstructorDecl_c) n.name(nf.Id(n.position(), currentClass.name()));
         
         X10ConstructorDef ci = (X10ConstructorDef) n.constructorDef();
@@ -118,8 +123,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         ci.setReturnType((Ref<? extends X10ClassType>) n.returnType().typeRef());
         
-        if (n.whereClause() != null)
-            ci.setWhereClause(n.whereClause().xconstraint());
+        if (n.guard() != null)
+            ci.setGuard(n.guard().xconstraint());
 
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
@@ -140,22 +145,18 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         // We should have entered the constructor scope already.
         assert c.currentCode() == this.constructorDef();
 
-        if (! formals.isEmpty() && child != body) {
+        if (child != body) {
             // Push formals so they're in scope in the types of the other formals.
             c = c.pushBlock();
+            for (TypeParamNode f : typeParameters) {
+                f.addDecls(c);
+            }
             for (Formal f : formals) {
                 f.addDecls(c);
             }
         }
 
-        X10Context cc = (X10Context) super.enterChildScope(child, c);
-
-        if (child == this.returnType) {
-            if (cc == c) cc = (X10Context) c.copy();
-            cc.setVarWhoseTypeIsBeingElaborated(null);
-        }
-
-        return cc;
+        return super.enterChildScope(child, c);
     }
 
     /** Visit the children of the method. */
@@ -167,14 +168,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	TypeNode returnType = (TypeNode) visitChild(result.returnType, v);
     	if (returnType != result.returnType)
     	    result = (X10ConstructorDecl_c) result.returnType(returnType);
-    	DepParameterExpr whereClause = (DepParameterExpr) visitChild(result.whereClause, v);
-    	if (whereClause != result.whereClause)
-    	    result = (X10ConstructorDecl_c) result.whereClause(whereClause);
+    	DepParameterExpr guard = (DepParameterExpr) visitChild(result.guard, v);
+    	if (guard != result.guard)
+    	    result = (X10ConstructorDecl_c) result.guard(guard);
     	return result;
     }
 
 
-    public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
     	X10ConstructorDecl nn = this;
     	X10ConstructorDecl old = nn;
 
@@ -190,6 +191,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         nn = (X10ConstructorDecl) nn.formals(processedFormals);
         if (tc.hasErrors()) throw new SemanticException();
         
+        nn = (X10ConstructorDecl) X10Del_c.visitAnnotations(nn, childtc);
+
         // [NN]: Don't do this here, do it on lookup of the formal.  We don't want spurious self constraints in the signature.
 //        for (Formal n : processedFormals) {
 //    		Ref<Type> ref = (Ref<Type>) n.type().typeRef();
@@ -210,10 +213,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 //    		ref.update(newType);
 //        }
         
-        // Step I.b.  Check the where clause.
-        if (nn.whereClause() != null) {
-        	DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.whereClause(), childtc);
-        	nn = (X10ConstructorDecl) nn.whereClause(processedWhere);
+        // Step I.b.  Check the guard.
+        if (nn.guard() != null) {
+        	DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), childtc);
+        	nn = (X10ConstructorDecl) nn.guard(processedWhere);
         	if (tc.hasErrors()) throw new SemanticException();
         
         	// Now build the new formal arg list.
@@ -223,7 +226,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         	
         	//List newFormals = new ArrayList(formals.size());
         	X10ProcedureDef pi = (X10ProcedureDef) nn.memberDef();
-        	XConstraint c = pi.whereClause().get();
+        	XConstraint c = pi.guard().get();
             	try {
             		if (c != null) {
             			c = c.copy();
@@ -232,7 +235,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             				Ref<Type> ref = (Ref<Type>) n.type().typeRef();
             				X10Type newType = (X10Type) ref.get();
 
-            				// Fold the formal's constraint into the where clause.
+            				// Fold the formal's constraint into the guard.
             				XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
             				XConstraint dep = X10TypeMixin.xclause(newType).copy();
             				XPromise p = dep.intern(var);
@@ -245,7 +248,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
             		// Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
 
-            		// Fold this's constraint (the class invariant) into the where clause.
+            		// Fold this's constraint (the class invariant) into the guard.
             		{
             			X10Type t = (X10Type) tc.context().currentClass();
             			XConstraint dep = X10TypeMixin.xclause(t);
@@ -261,10 +264,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             		throw new SemanticException(e.getMessage(), position());
             	}
 
-        	// Check if the where clause is consistent.
+        	// Check if the guard is consistent.
         	if (c != null && ! c.consistent()) {
         		throw new SemanticException("The constructor's dependent clause is inconsistent.",
-        				 whereClause != null ? whereClause.position() : position());
+        				 guard != null ? guard.position() : position());
         	}
         }
 
@@ -317,8 +320,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     }
    
 
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
-        X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.typeCheck(tc);
+    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+        X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         Type retTypeBase = X10TypeMixin.xclause(n.returnType().type(), (XConstraint) null);

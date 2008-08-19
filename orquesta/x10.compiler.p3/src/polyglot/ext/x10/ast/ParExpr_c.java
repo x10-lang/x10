@@ -22,9 +22,9 @@ import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeChecker;
 
 /**
  * @author vj Feb 4, 2005
@@ -68,7 +68,7 @@ public class ParExpr_c extends Expr_c implements ParExpr {
     }
     
     /** Type check the statement. */
-    public Node typeCheck(TypeChecker tc) throws SemanticException {  	
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {  	
     	return type(expr.type());
     }
     

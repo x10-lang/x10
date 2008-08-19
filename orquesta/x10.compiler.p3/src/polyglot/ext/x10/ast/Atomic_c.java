@@ -28,9 +28,9 @@ import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeChecker;
 
 /**
  * @author Philippe Charles
@@ -98,7 +98,7 @@ implements Atomic {
 	}
 	
 	/** Type check the statement. */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {		
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {		
 		/*
 		 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
 		 throw new SemanticException(

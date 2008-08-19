@@ -11,12 +11,14 @@ import java.util.List;
 
 import polyglot.types.FieldInstance_c;
 import polyglot.types.Flags;
+import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.constraint.XConstraint;
@@ -40,18 +42,18 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     }
 
     /** Constraint on formal parameters. */
-    protected XConstraint whereClause;
-    public XConstraint whereClause() { return whereClause; }
-    public X10FieldInstance whereClause(XConstraint s) { 
+    protected XConstraint guard;
+    public XConstraint guard() { return guard; }
+    public X10FieldInstance guard(XConstraint s) { 
 	X10FieldInstance_c n = (X10FieldInstance_c) copy();
-	n.whereClause = s; 
+	n.guard = s; 
 	return n;
     }
 
-    public List<X10ClassType> annotations() {
+    public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }
-    public List<X10ClassType> annotationsMatching(Type t) {
+    public List<Type> annotationsMatching(Type t) {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
 
@@ -114,6 +116,25 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 
         return t;
     }
-    
+
+    public String containerString() {
+	Type container = container();
+	container = X10TypeMixin.baseType(container);
+	if (container instanceof ClosureType) {
+	    return "(" + container.toString() + ")";
+	}
+	if (container instanceof Named) {
+	    Named n = (Named) container;
+	    return n.fullName();
+	}
+	return container.toString();
+    }
+
+    public String toString() {
+	String typeString = type != null ? type.toString() : def().type().toString();
+	String s = "field " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + name() + (guard() != null ? guard() : "") + ": " + typeString;
+	return s;
+    }
+
     
 }

@@ -92,14 +92,11 @@ import polyglot.ext.x10.ast.AssignPropertyBody_c;
 import polyglot.ext.x10.ast.AssignPropertyCall_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
-import polyglot.ext.x10.ast.AtomicMethodDecl_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
 import polyglot.ext.x10.ast.ClosureCall_c;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.ConstantDistMaker_c;
-import polyglot.ext.x10.ast.DepCast_c;
-import polyglot.ext.x10.ast.DepInstanceof_c;
 import polyglot.ext.x10.ast.DepParameterExpr_c;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
@@ -209,7 +206,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof Block_c) { visit((Block_c)n); return; }
 		if (n instanceof AbstractBlock_c) { visit((AbstractBlock_c)n); return; }
 		if (n instanceof Stmt_c) { visit((Stmt_c)n); return; }
-		if (n instanceof AtomicMethodDecl_c) { visit((AtomicMethodDecl_c)n); return; }
 		if (n instanceof X10MethodDecl_c) { visit((X10MethodDecl_c)n); return; }
 		if (n instanceof MethodDecl_c) { visit((MethodDecl_c)n); return; }
 		if (n instanceof Initializer_c) { visit((Initializer_c)n); return; }
@@ -247,7 +243,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof X10BooleanLit_c) { visit((X10BooleanLit_c)n); return; }
 		if (n instanceof BooleanLit_c) { visit((BooleanLit_c)n); return; }
 		if (n instanceof Lit_c) { visit((Lit_c)n); return; }
-		if (n instanceof DepInstanceof_c) { visit((DepInstanceof_c)n); return; }
 		if (n instanceof X10Instanceof_c) { visit((X10Instanceof_c)n); return; }
 		if (n instanceof Instanceof_c) { visit((Instanceof_c)n); return; }
 		if (n instanceof Here_c) { visit((Here_c)n); return; }
@@ -257,7 +252,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof DepParameterExpr_c) { visit((DepParameterExpr_c)n); return; }
 		if (n instanceof X10Conditional_c) { visit((X10Conditional_c)n); return; }
 		if (n instanceof Conditional_c) { visit((Conditional_c)n); return; }
-		if (n instanceof DepCast_c) { visit((DepCast_c)n); return; }
 		if (n instanceof X10Cast_c) { visit((X10Cast_c)n); return; }
 		if (n instanceof Cast_c) { visit((Cast_c)n); return; }
 		if (n instanceof RegionMaker_c) { visit((RegionMaker_c)n); return; }
@@ -339,7 +333,6 @@ public class X10DelegatingVisitor {
 						public void visit(RegionMaker_c n) { visit((X10Call_c)n); }
 				public void visit(Cast_c n) { visit((Expr_c)n); }
 					public void visit(X10Cast_c n) { visit((Cast_c)n); }
-					    public void visit(DepCast_c n) { visit((X10Cast_c)n); }
 				public void visit(Conditional_c n) { visit((Expr_c)n); }
 					public void visit(X10Conditional_c n) { visit((Conditional_c)n); }
 				public void visit(DepParameterExpr_c n) { visit((Node_c)n); }
@@ -349,7 +342,6 @@ public class X10DelegatingVisitor {
 				public void visit(Here_c n) { visit((Expr_c)n); }
 				public void visit(Instanceof_c n) { visit((Expr_c)n); }
 					public void visit(X10Instanceof_c n) { visit((Instanceof_c)n); }
-				    	public void visit(DepInstanceof_c n) { visit((X10Instanceof_c)n); }
 				public void visit(Lit_c n) { visit((Expr_c)n); }
 					public void visit(BooleanLit_c n) { visit((Lit_c)n); }
 						public void visit(X10BooleanLit_c n) { visit((BooleanLit_c)n); }
@@ -389,7 +381,6 @@ public class X10DelegatingVisitor {
 			public void visit(Initializer_c n) { visit((Term_c)n); }
 			public void visit(MethodDecl_c n) { visit((Term_c)n); }
 				public void visit(X10MethodDecl_c n) { visit((MethodDecl_c)n); }
-					public void visit(AtomicMethodDecl_c n) { visit((X10MethodDecl_c)n); }
 			public void visit(Stmt_c n) { visit((Term_c)n); }
 				public void visit(AbstractBlock_c n) { visit((Stmt_c)n); }
 					public void visit(Block_c n) { visit((AbstractBlock_c)n); }

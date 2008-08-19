@@ -27,10 +27,10 @@ import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeChecker;
 
 /**
  * An immutable representation of the when statement.
@@ -106,7 +106,7 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 
 	/** Type check the statement. */
 	// TODO: cvp -> vj implement this
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 
     	X10Context c = (X10Context) tc.context();
     	if (c.inNonBlockingCode())

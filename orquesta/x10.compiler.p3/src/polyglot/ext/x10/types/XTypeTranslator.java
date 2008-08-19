@@ -253,22 +253,6 @@ public class XTypeTranslator {
 	    return XTerms.makeAtom(XTerms.makeName(def), terms);
 	}
 
-	private XTerm transConstrainedType(ConstrainedType ct) {
-	    // [[ T{c} ]] = [[ T ]] selfConstraint==c  ??
-	    Type t = X10TypeMixin.baseType(ct);
-	    XConstraint c = X10TypeMixin.xclause(ct);
-	    XTerm term = trans(t);
-	    List<XTerm> terms = new ArrayList<XTerm>();
-	    terms.add(term);
-	    terms.add(XTerms.makeLit(c));
-//	    XRoot self = XTerms.makeLocal(XTerms.makeName("SELF"));
-//	    for (XTerm ti : c.constraints()) {
-//		XTerm ti2 = ti.subst(self, XSelf.Self);
-//		terms.add(ti2);
-//	    }
-	    return XTerms.makeAtom(XTerms.makeName("CONSTRAINT"), terms);
-	}
-
 	public XLit trans(int t) {
 		return XTerms.makeLit(t);
 	}
@@ -293,8 +277,10 @@ public class XTypeTranslator {
 	    return XTypeTranslator.hasVar(type(), v);
 	    }
 
-	    public XTerm subst(XTerm y, XRoot x) {
-		XTypeLit_c n = new XTypeLit_c(XTypeTranslator.subst(type(), y, x));
+	    public XTerm subst(XTerm y, XRoot x, boolean propagate) {
+		XTypeLit_c n = (XTypeLit_c) super.subst(y, x, propagate);
+		if (n == this) n = (XTypeLit_c) clone();
+		n.val = XTypeTranslator.subst(type(), y, x);
 		return n;
 	    }
 
@@ -370,10 +356,12 @@ public class XTypeTranslator {
 		return transSubtype(left.type(), right.type());
 	}
 	public XTerm trans(Call t) throws SemanticException {
-	    Flags f = t.methodInstance().flags();
+	    X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
+	    Flags f = xmi.flags();
 	    if (X10Flags.toX10Flags(f).isProperty()) {
 		XTerm r = trans(t.target());
-		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
+		// FIXME: should just return the atom, and add atom==body to the real clause of the class
+		// FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
 		XTerm body = xmi.body();
 		if (body != null) {
 		    body = body.subst(r, transThis(xmi.container()));
@@ -385,12 +373,28 @@ public class XTypeTranslator {
 		    return body;
 		}
 		else {
-		    List<XTerm> terms = new ArrayList<XTerm>();
-		    terms.add(r);
-		    for (Expr e : t.arguments()) {
-			terms.add(trans(e));
+		    if (t.arguments().size() == 0) {
+			XName field = XTerms.makeName(xmi.def(), xmi.name() + "()");
+			XTerm v;
+			if (r instanceof XVar) {
+				v = XTerms.makeField((XVar) r, field);
+			}
+			else {
+				v = XTerms.makeAtom(field, r);
+			}
+			addTypeToEnv(v, xmi.returnType());
+			return v;
 		    }
-		    XTerms.makeAtom(XTerms.makeName(xmi, xmi.name()), terms);
+		    else {
+			List<XTerm> terms = new ArrayList<XTerm>();
+			terms.add(r);
+			for (Expr e : t.arguments()) {
+			    terms.add(trans(e));
+			}
+			XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name()), terms);
+			addTypeToEnv(v, xmi.returnType());
+			return v;
+		    }
 		}
 	    }
 	

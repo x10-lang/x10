@@ -401,6 +401,9 @@ public class X10Flags extends Flags {
 
                 return sb.toString();
             }
+            public String prettyPrint() {
+        	return super.translate();
+            }
             public boolean hasAllAnnotationsOf(X10Flags f) {
                 boolean result =
                         ((! f.isSequential()) || isSequential() || isSafe())

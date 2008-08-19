@@ -16,10 +16,10 @@ import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
-import polyglot.visit.TypeChecker;
 
 public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 	public UnknownTypeNode_c(Position pos) {
@@ -36,7 +36,7 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 		return this;
 	}
 
-	public Node disambiguate(TypeChecker ar) throws SemanticException {
+	public Node disambiguate(ContextVisitor ar) throws SemanticException {
 		SemanticException ex;
 		NodeFactory nf = ar.nodeFactory();
 

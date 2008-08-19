@@ -92,13 +92,6 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		return unnamed;
 	}
 
-	int positionInArgList = -1;
-	public void setPositionInArgList(int i) {
-		positionInArgList = i;
-	}
-	public int positionInArgList() {
-		return positionInArgList;
-	}
 	/** Get the local instances of the bound variables. */
 	public LocalDef[] localInstances() {
 	    LocalDef[] lis = new LocalDef[vars.size()];

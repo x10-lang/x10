@@ -39,9 +39,12 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.ast.DepCast;
+import polyglot.ext.x10.ast.Closure;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.X10Binary;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode;
+import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10CastInfo;
 import polyglot.ext.x10.ast.X10DepCastInfo;
 import polyglot.ext.x10.ast.X10NodeFactory;
@@ -64,7 +67,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
@@ -78,10 +82,12 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 
 /**
- * Visitor that inserts boxing and unboxing code into the AST.
+ * Visitor that rewrites casts to dependent types.
  */
-public class X10Caster extends AscriptionVisitor {
+public class X10Caster extends ContextVisitor {
 	X10TypeSystem xts;
+	X10NodeFactory xnf;
+	
 	boolean castCheckClassNotLoaded = true;
 	private static String RUNTIME_CAST_CHECKER_CLASSNAME = "x10.runtime.RuntimeCastChecker";
 	private static String RUNTIME_CAST_CHECKER_CONSTRAINT_CLASSNAME = "x10.runtime.RuntimeConstraint";
@@ -89,6 +95,13 @@ public class X10Caster extends AscriptionVisitor {
 	public X10Caster(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
 		xts = (X10TypeSystem) ts;
+		xnf = (X10NodeFactory) nf;
+	}
+	
+	// Disable the pass
+	@Override
+	public Node override(Node n) {
+	    return n;
 	}
 
 	/**
@@ -99,87 +112,74 @@ public class X10Caster extends AscriptionVisitor {
 	 * 
 	 * @throws SemanticException
 	 */
-	public Expr ascribe(Expr e, Type toType) throws SemanticException {
-		Type fromType = e.type();
-		Expr ret_notype = e;
-
-		if (this.castCheckClassNotLoaded) {
-			((Type) ts.systemResolver().find(RUNTIME_CAST_CHECKER_CLASSNAME)).toClass();
-			castCheckClassNotLoaded = false;
+	public Node leaveCallDisable(Node old, Node n, NodeVisitor v) throws SemanticException {
+	    Position p = n.position();
+	    if (n instanceof X10Cast) {
+		X10Cast c = (X10Cast) n;
+		TypeNode tn = c.castType();
+		
+		DepParameterExpr dep = null;
+		if (tn instanceof X10CanonicalTypeNode) {
+		    X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+		    dep = xtn.constraintExpr();
 		}
 		
-		if (toType == null) {
-			return e;
+		TypeBuilder tb = new TypeBuilder(job, ts, nf);
+		tb = tb.pushClass(context.currentClassDef());
+		tb = tb.pushCode(context.currentCode());
+		TypeChecker tc = new TypeChecker(job, ts, nf, new HashMap<Node, Node>());
+		tc = (TypeChecker) tc.context(context);
+		
+		Expr e = c.expr();
+		Type fromType = e.type();
+		Type toType = tn.type();
+		
+		// Optimize away casts of null.
+		if (fromType.isNull()) {
+		    if (xts.isReferenceType(toType)) {
+			// 'null as R' is just 'null'
+			return xnf.NullLit(p).type(fromType);
+		    }
+		    else {
+			// 'null as V' should always fail
+			// translate to '(() => { throw new ClassCastException("V"); })()'.
+			Expr neu = xnf.New(p, xnf.CanonicalTypeNode(p, Types.ref(ts.ClassCastException())), Collections.EMPTY_LIST);
+			Stmt s = xnf.Throw(p, neu);
+			Block body = xnf.Block(p, s);
+			Closure closure = xnf.Closure(p, Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, tn, Collections.EMPTY_LIST, body);
+			Expr cc = xnf.ClosureCall(p, closure, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+			cc = (Expr) cc.visit(tb);
+			cc = (Expr) cc.visit(tc);
+			return cc;
+		    }
 		}
-
-		Position p = e.position();
-		if ((e instanceof Cast) || (e instanceof Instanceof)) {
-			TypeBuilder tb = new TypeBuilder(job, ts, nf);
-			TypeChecker tc = new TypeChecker(job, ts, nf, new HashMap<Node,Node>());
-			tb = tb.pushClass(context().currentClassDef());
-			tb = tb.pushCode(context().currentCode());
-			tc = (TypeChecker) tc.context(context());
-			
-			X10CastInfo cast = (X10CastInfo) ret_notype;
-
-			// First some checks related to nullable, 
-			// that may avoid to perform a runtime check
-			if (cast.isToTypeNullable()) {
-				// Check expression like litteral null to nullable type
-				if (e instanceof Instanceof) {
-					if (cast.expr().type().isNull()) {
-						// null instanceof nullable<T> || T is always false
-						return (Expr) nf.BooleanLit(p,false).visit(tc);
-					}
-				}
-
-				if (e instanceof Cast) { // obviously it is cast
-					if (cast.expr().type().isNull()) {
-						// target type is nullable hence cast is always valid, we rewrite the node
-						return (Expr) nf.NullLit(p).visit(tc);
-					}
-				}
-			}
-
-			if (cast.isDepTypeCheckingNeeded()) {
-				// dynamic cast is needed which means toType may 
-				// have constraint we must check at runtime
-				X10CastInfo castOrInstanceof = (X10CastInfo) e;
-				AbstractRuntimeChecking mc;
-
-				boolean codeIsInlinable = 
-					X10CastHelper.isSideEffectFree(castOrInstanceof.expr());
-				
-				if (e instanceof DepCast) {
-					if (codeIsInlinable) {
-						mc = new InlineCastChecking(tb, tc, p);
-					} else {						
-						mc = new InnerClassCastChecking(tb, tc, p);
-					}
-				} else {
-					if (codeIsInlinable) {
-						mc = new InlineInstanceofChecking(tb, tc, p);
-					} else {						
-						mc = new InnerClassInstanceofChecking(tb, tc, p);
-					}
-				}
-
-				// runtime checking expression generated
-				Expr runtimeCheckingExpr = (Expr) mc.getRuntimeCheckingExpression((X10CastInfo)e);
-
-				return runtimeCheckingExpr;
-
-			} else {
-				if (cast.notNullRequired() && (e instanceof Cast)) {
-					// Here type cast is T <-- nullable<T>
-					// Hence we don't want the regulat java cast (T) NullType) works. 
-					AbstractRuntimeChecking mc = new InlineCastChecking(tb, tc, p);	
-					return mc.checking.getNonNullableCheckingExpr(ret_notype);
-				}
-			}
+		
+		Expr baseTypeCast = xnf.Cast(p, xnf.CanonicalTypeNode(p, Types.ref(X10TypeMixin.baseType(toType))), e);
+		
+		if (xts.isValueType(fromType) && xts.isReferenceType(toType)) {
+		    // box
 		}
+		
+		if (xts.isReferenceType(fromType) && xts.isValueType(toType)) {
+		    // unbox
+		}
+		
+		if (dep != null) {
+		    // dynamic cast is needed which means toType may 
+		    // have constraint we must check at runtime
+		    boolean codeIsInlinable = X10CastHelper.isSideEffectFree(e);
+		    AbstractRuntimeChecking mc;
 
-		return e;
+		    mc = codeIsInlinable ? new InlineCastChecking(tb, tc, p) : new InnerClassCastChecking(tb, tc, p);
+		    
+		    Expr runtimeCheckingExpr = (Expr) mc.getRuntimeCheckingExpression((X10CastInfo) baseTypeCast);
+		}
+		else {
+		    return baseTypeCast;
+		}
+	    }
+
+	    return n;
 	}
 		 
 	private abstract class AbstractRuntimeChecking {
@@ -280,7 +280,7 @@ public class X10Caster extends AscriptionVisitor {
 			// ***************************************************************
 			// exprToCheck has already been casted to cast's target type.
 			Expr constraintCheckExpr = this.constraintBuilder.buildConstraint(
-					((X10NodeFactory) nf).ParExpr(p,exprToCheck),
+					xnf.ParExpr(p,exprToCheck),
 					this.getConstraintsToCheck(checkingConstrainedType),
 					((X10DepCastInfo) castOrInstanceof).getTypeNode());			
 
@@ -316,7 +316,7 @@ public class X10Caster extends AscriptionVisitor {
 			Block methodBody = nf.Block(p,statements);
 			
 			// ***************************************************************
-			// Begining inner class code generation 
+			// Beginning inner class code generation 
 			// ***************************************************************
 			
 			// we have generated runtime cast checking method body, now we generate the method.			
@@ -584,23 +584,26 @@ public class X10Caster extends AscriptionVisitor {
 		boolean notNullRequired = castOrInstanceof.notNullRequired();
 		boolean isToTypeNullable = castOrInstanceof.isToTypeNullable();
 
-		boolean isBoxedCode = 
-			((X10TypeSystem) ts).isBoxedType(this.checking.getToType(castOrInstanceof).type()); 
+		boolean isBoxedCode = false;
+		
+//		boolean isBoxedCode = 
+//			((X10TypeSystem) ts).isBoxedType(this.checking.getToType(castOrInstanceof).type()); 
 
 		if (isBoxedCode) {
-			// this code handle either boxed integer runtime checking
-			// this code is needed when expr to cast's type is a primitive nullable.
-			X10Type incomingExprType = ((X10Type)incomingExpr.type()); 
-			if (xts.isBox(incomingExprType)) {
-				NullableType nullType = (NullableType) incomingExprType;
-				if (nullType.base().isPrimitive()) {
-					nullType = nullType.base(Types.ref(xts.boxedType((X10PrimitiveType)nullType.base())));
-					// we change incomingExpr type from nullable<Primitive> to nullable<BoxedPrimitive>
-					incomingExpr =  incomingExpr.type(nullType);
-				}
-			}
-			// Expression to check against deptype constraint is the unboxed primitive.
-			exprToCheck = nf.Call(p,castedExpr,nf.Id(p, ((X10TypeSystem) ts).getGetterName(destType.type())));
+		    exprToCheck = castedExpr;
+//			// this code handle either boxed integer runtime checking
+//			// this code is needed when expr to cast's type is a primitive nullable.
+//			X10Type incomingExprType = ((X10Type)incomingExpr.type()); 
+//			if (xts.isBox(incomingExprType)) {
+//				NullableType nullType = (NullableType) incomingExprType;
+//				if (nullType.base().isPrimitive()) {
+//					nullType = nullType.base(Types.ref(xts.boxedType((X10PrimitiveType)nullType.base())));
+//					// we change incomingExpr type from nullable<Primitive> to nullable<BoxedPrimitive>
+//					incomingExpr =  incomingExpr.type(nullType);
+//				}
+//			}
+//			// Expression to check against deptype constraint is the unboxed primitive.
+//			exprToCheck = nf.Call(p,castedExpr,nf.Id(p, ((X10TypeSystem) ts).getGetterName(destType.type())));
 		} else {
 			// Expression to check against deptype constraint is the casted expr
 			exprToCheck = castedExpr;
@@ -617,7 +620,7 @@ public class X10Caster extends AscriptionVisitor {
 		// ***************************************************************
 		// exprToCheck has already been casted to cast's target type.
 		Expr constraintCheckExpr = this.constraintBuilder.buildConstraint(
-				((X10NodeFactory) nf).ParExpr(p,exprToCheck),
+				xnf.ParExpr(p,exprToCheck),
 				this.getConstraintsToCheck(checkingConstrainedType),
 				((X10DepCastInfo) castOrInstanceof).getTypeNode());			
 
@@ -825,7 +828,7 @@ public class X10Caster extends AscriptionVisitor {
 			// TODO Always performing the null checking should be better
 			// TODO There should be always some weird case where a non-nullable could be null
 			// TODO for example using uninitialized java array.
-			retExpr = ((X10NodeFactory) nf).ParExpr(p, retExpr);
+			retExpr = xnf.ParExpr(p, retExpr);
 			// 	((objToCast != null) && (isAssignable) && (constraintCheck))
 			// OR
 			// 	((isAssignable) && (constraintCheck))

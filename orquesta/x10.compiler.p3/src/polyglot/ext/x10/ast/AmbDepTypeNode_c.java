@@ -22,9 +22,15 @@ import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
+import polyglot.ext.x10.extension.X10Del;
+import polyglot.ext.x10.extension.X10Del_c;
+import polyglot.ext.x10.extension.X10Ext;
+import polyglot.ext.x10.types.AnnotatedType;
+import polyglot.ext.x10.types.AnnotatedType_c;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.TypeProperty;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -35,6 +41,7 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef;
 import polyglot.types.Named;
+import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -46,6 +53,7 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -147,23 +155,101 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
     public String toString() {
     	return (prefix != null ? prefix.toString() + "." : "") + name.toString() + (typeArgs.isEmpty() ? "" : typeArgs) + (args.isEmpty() ? "" : "(" + CollectionUtil.listToString(args) + ")") + (dep != null ? dep.toString() : "");
     }
+    
+    protected TypeNode disambiguateAnnotation(ContextVisitor tc) throws SemanticException {
+	Position pos = position();
+	
+	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        X10Context c = (X10Context) tc.context();
 
-    protected TypeNode disambiguateBase(TypeChecker ar) throws SemanticException {
+        if (! c.inAnnotation())
+            return null;
+        
+        SemanticException ex;
+        
+        // Look for a simply-named type.
+        try {
+            Disamb disamb = tc.nodeFactory().disamb();
+	    Node n = disamb.disambiguate(this, tc, pos, prefix, name);
+
+            if (n instanceof TypeNode) {
+        	TypeNode tn = (TypeNode) n;
+        	Ref<Type> tref = (Ref<Type>) tn.typeRef();
+        	Type t = tref.get();
+        	if (t instanceof X10ParsedClassType) {
+        	    X10ParsedClassType ct = (X10ParsedClassType) t;
+        	    if (ct.flags().isInterface()) {
+        		List<Type> typeArgs2 = new ArrayList<Type>();
+        		for (TypeNode a : typeArgs) {
+        		    typeArgs2.add(a.type());
+        		}
+        		if (ct.x10Def().typeParameters().size() == typeArgs.size()) {
+        		    ct = ct.typeArguments(typeArgs2);
+        		}
+        		else {
+        		    throw new SemanticException("Incorrect number of type arguments for annotation type " + ct + ".", position());
+        		}
+        		if (args().size() > 0) {
+        		    ct = (X10ParsedClassType) ct.propertyInitializers(args());
+        		}
+        		tref.update(ct);
+        		return tn;
+        	    }
+        	}
+
+        	throw new SemanticException("Annotation type must be an interface.", position());
+            }
+
+            ex = new SemanticException("Could not find type \"" +
+                                       (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +
+                                       "\".", pos);
+        }
+        catch (SemanticException e) {
+            ex = e;
+        }
+
+        throw ex;
+        
+    }
+
+    protected TypeNode disambiguateBase(ContextVisitor tc) throws SemanticException {
 	SemanticException ex;
 	
 	Position pos = position();
-	TypeChecker tc = ar;
 	
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        X10Context c = (X10Context) tc.context();
 
+        List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
+
+        for (TypeNode tn2 : this.typeArgs) {
+            typeArgs.add(tn2.type());
+        }
+
+        List<Type> argTypes = new ArrayList<Type>(this.args.size());
+
+        for (Expr e : this.args) {
+            argTypes.add(e.type());
+        }
+        
         // First look for a typedef.
 	try {
             X10ParsedClassType typeDefContainer = null;
             
             if (prefix == null) {
+        	// Search the context.
+            }
+            if (prefix == null) {
         	String dummyName = "package";
-        	Named n = ar.context().find(dummyName);
+        	Package p = tc.context().package_();
+        	Named n;
+        	if (p == null)
+        	    n = ts.systemResolver().find(ts.TypeMatcher(dummyName));
+        	else {
+        	    n = ts.packageContextResolver(p).find(ts.TypeMatcher(dummyName));
+        	}
         	if (n instanceof X10ParsedClassType) {
         	    typeDefContainer = (X10ParsedClassType) n;
         	}
@@ -172,7 +258,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	PackageNode pn = (PackageNode) prefix;
         	String dummyName = "package";
         	String fullName = (pn != null ? Types.get(pn.package_()).fullName() + "." : "") + dummyName;
-        	Named n = ts.systemResolver().find(fullName);
+        	Named n = ts.systemResolver().find(ts.TypeMatcher(fullName));
         	if (n instanceof X10ParsedClassType) {
         	    typeDefContainer = (X10ParsedClassType) n;
         	}
@@ -186,20 +272,8 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
             else if (prefix instanceof Expr) {
         	throw new InternalCompilerError("non-static type members not implemented", pos);
             }
-
+            
             if (typeDefContainer != null) {
-                List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
-
-                for (TypeNode tn2 : this.typeArgs) {
-                    typeArgs.add(tn2.type());
-                }
-
-                List<Type> argTypes = new ArrayList<Type>(this.args.size());
-
-                for (Expr e : this.args) {
-                    argTypes.add(e.type());
-                }
-
                 MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), typeArgs, argTypes), tc.context().currentClassDef());
                 LazyRef<Type> sym = (LazyRef<Type>) type;
                 sym.update(mt);
@@ -209,15 +283,16 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
                 resolver.update(Goal.Status.SUCCESS);
                 sym.setResolver(resolver);
 
-                return nf.CanonicalTypeNode(pos, sym);            }
+                return nf.CanonicalTypeNode(pos, sym);
+            }
         }
         catch (SemanticException e) {
         }
         
         // Otherwise, look for a simply-named type.
         try {
-            Disamb disamb = ar.nodeFactory().disamb();
-	    Node n = disamb.disambiguate(this, ar, pos, prefix, name);
+            Disamb disamb = tc.nodeFactory().disamb();
+	    Node n = disamb.disambiguate(this, tc, pos, prefix, name);
 
             if (n instanceof TypeNode) {
         	TypeNode tn = (TypeNode) n;
@@ -235,13 +310,14 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         throw ex;
     }
       
-    public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	
 	AmbDepTypeNode_c n = this;
 	
 	LazyRef<Type> sym = (LazyRef<Type>) n.type;
+	assert sym != null;
 
         TypeChecker childtc = (TypeChecker) tc.enter(parent, n);
         
@@ -259,6 +335,16 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         TypeNode tn;
         
         try {
+            tn = n.disambiguateAnnotation(tc);
+            if (tn != null)
+        	return postprocess((CanonicalTypeNode) tn, n, childtc);
+        }
+        catch (SemanticException e) {
+            // Mark the type resolved to prevent us from trying to resolve this again and again.
+            sym.update(ts.unknownType(position()));
+            throw e;
+        }
+        try {
             tn = n.disambiguateBase(tc);
         }
         catch (SemanticException e) {
@@ -272,7 +358,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         if (t instanceof UnknownType) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
             sym.update(ts.unknownType(position()));
-            return n;
+            return postprocess(nf.CanonicalTypeNode(position(), sym), n, childtc);
         }
         
         if (! typeArgs.isEmpty()) {
@@ -313,7 +399,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	    t = X10TypeMixin.xclause(t, c);
 
         	sym.update(t);
-        	return nf.X10CanonicalTypeNode(position(), (Ref) sym, dep);
+        	return postprocess(nf.X10CanonicalTypeNode(position(), (Ref) sym, dep), n, childtc);
             }
             
             if (mt.formals().size() == 0 && mt.typeParameters().size() == 0) {
@@ -405,8 +491,18 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         else if (dep == null && cond != null) {
             dep = nf.DepParameterExpr(position(), cond);
         }
+
+        CanonicalTypeNode result = nf.X10CanonicalTypeNode(position(), sym, dep);
+        return postprocess(result, n, childtc);   
+    }
+    
+    Node postprocess(CanonicalTypeNode result, AmbDepTypeNode_c n, ContextVisitor childtc) throws SemanticException {
+        n = (AmbDepTypeNode_c) X10Del_c.visitAnnotations(n, childtc);
         
-        return nf.X10CanonicalTypeNode(position(), sym, dep);
+        result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
+	result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
+
+	return result.del().typeCheck(childtc);
     }
     
     public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {

@@ -30,10 +30,10 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
-import polyglot.visit.TypeChecker;
 
 /** 
  * An immutable representation of the X10 rail constructor [e1, ..., ek]. 
@@ -87,11 +87,13 @@ public class Tuple_c extends Expr_c implements Tuple {
         
         X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
         
-        if (! t.isSubtype(ts.ValRail())) {
-            throw new InternalCompilerError("Type of rail constructor must be " + ts.ValRail() + ".", position());
+        if (! ts.isValRail(t)) {
+            return child.type();
+            // Don't complain when we have implicit coercions!
+//            throw new InternalCompilerError("Type of rail constructor must be a " + ts.ValRail() + ", not " + t + ".", position());
         }
         
-        Type base = X10TypeMixin.getPropertyType(t, "T");
+        Type base = X10TypeMixin.getParameterType(t, 0);
 
         for (Expr e : elements) {
             if (e == child) {
@@ -107,33 +109,6 @@ public class Tuple_c extends Expr_c implements Tuple {
         return child.type();
     }
 
-    public void typeCheckElements(TypeChecker tc, Type lhsType) throws SemanticException {
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-    	
-        if (!lhsType.isSubtype(ts.ValRail())) {
-	    throw new SemanticException("Cannot initialize " + lhsType + " with " + type + ".", position());
-	}
-
-        // Check if we can assign each individual element.
-        Type t = X10TypeMixin.getPropertyType(lhsType, "T");
-
-        for (Iterator<Expr> i = elements.iterator(); i.hasNext(); ) {
-            Expr e = (Expr) i.next();
-            Type s = e.type();
-
-            if (e instanceof Tuple) {
-                ((Tuple) e).typeCheckElements(tc, t);
-                continue;
-            }
-
-            if (! ts.isImplicitCastValid(s, t) &&
-                ! ts.typeEquals(s, t) &&
-                ! ts.numericConversionValid(t, e.constantValue())) {
-                throw new SemanticException("Cannot assign " + s + " to " + t + ".", e.position());
-	    }
-        }
-    }
-
     public Term firstChild() {
         return listChild(elements, null);
     }
@@ -144,17 +119,17 @@ public class Tuple_c extends Expr_c implements Tuple {
     }
 
 	/** Type check the initializer. */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
 	    Type type = null;
 
 	    for (Expr e : elements) {
 		if (type == null) {
-		    type = e.type();
+		    type = X10TypeMixin.baseType(e.type());
 		}
 		else {
-		    type = ts.leastCommonAncestor(type, e.type());
+		    type = ts.leastCommonAncestor(type, X10TypeMixin.baseType(e.type()));
 		}
 	    }
 

@@ -3,6 +3,7 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.types.LocalInstance;
@@ -15,7 +16,7 @@ import x10.constraint.XConstraint;
  * return type and throwable exception types).
  * @author rfuhrer
  */
-public interface ClosureType extends X10ClassType {
+public interface ClosureType extends X10ParsedClassType {
     ClosureDef closureDef();
     
     ClosureInstance closureInstance();
@@ -42,12 +43,24 @@ public interface ClosureType extends X10ClassType {
     List<LocalInstance> formalNames();
     
     /**
-     * @return the where clause for the closure.
+     * @return the guard for the closure.
      */
-    XConstraint whereClause();
+    XConstraint guard();
 
     /**
      * @return the list of exception types that this closure may throw from an invocation. may be empty.
      */
     List<Type> throwTypes();
+    
+    public ClosureType returnType(Type l);
+
+    public ClosureType guard(XConstraint l);
+
+    public ClosureType typeParameters(List<Type> l);
+
+    public ClosureType argumentTypes(List<Type> l);
+
+    public ClosureType throwTypes(List<Type> l);
+
+    public List<Type> typeArguments();
 }

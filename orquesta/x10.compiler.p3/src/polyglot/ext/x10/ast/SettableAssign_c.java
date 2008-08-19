@@ -13,6 +13,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,22 +25,27 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Flags;
+import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
+import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 /** An immutable representation of an X10 array access update: a[point] op= expr;
@@ -56,7 +62,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    	protected Expr array;
    	protected List<Expr> index;
 
-
 	/**
 	 * @param pos
 	 * @param left
@@ -71,8 +76,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	}
 	
 	public Type leftType() {
-	    assert false : "unimplemented";
-	return array.type();
+	    return right.type();
 	}
 
 	@Override
@@ -141,7 +145,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    		
    		return child.type();
    	}
-   	
    	    
 	public String opString(Operator op) {
 		if (op == ASSIGN ) return "set";
@@ -159,16 +162,42 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		throw new InternalCompilerError("Unknown assignment operator");
 	}
 	
-	public Assign typeCheckLeft(TypeChecker tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	MethodInstance mi;
+	
+	MethodInstance methodInstance() {
+	    return mi;
+	}
+	SettableAssign_c methodInstance(MethodInstance mi) {
+	    SettableAssign_c n = (SettableAssign_c) copy();
+	    n.mi = mi;
+	    return n;
+	}
+	
+	@Override
+	public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    X10TypeSystem xts = ts;
 
-   		Type type = array.type();
-   		
-   		if (! type.isSubtype(ts.Settable())) {
-   		    throw new SemanticException("Can only assign to an element of x10.lang.Settable.", position());
-   		}
-   		
-   		return this;
+	    List<Type> argTypes = new ArrayList<Type>();
+	    for (Expr e : index) {
+		argTypes.add(e.type());
+	    }
+	    argTypes.add(right.type());
+	    
+	    String methodName = opString(op);
+	    MethodMatcher methodMatcher = xts.MethodMatcher(array.type(), methodName, argTypes);
+
+	    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
+	    try {
+		X10MethodInstance mi = xts.findMethod(array.type(), methodMatcher, tc.context().currentClassDef());
+		if (! mi.flags().isStatic())
+		    return methodInstance(mi);
+		throw new SemanticException("Cannot assign to element of " + array.type() + "; " + mi + " cannot be static.", position()); 
+	    }
+	    catch (SemanticException e) {
+		// Cannot find the method.  Fall through.
+		throw new SemanticException("Cannot assign to element of " + array.type() + "; " + e.getMessage(), position()); 
+	    }
 	}	
 	
 	public Term firstChild() {
@@ -190,13 +219,25 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		List l = new ArrayList(super.throwTypes(ts));
 		l.add(ts.NullPointerException());
 		l.add(ts.OutOfBoundsException());
-		
 		return l;
 	}
 
 	public String toString() {
-        return array + "(" + index + ")" +   opString(op) +"(" + right + ")";
-    }
+	    StringBuilder sb = new StringBuilder();
+	    sb.append(array.toString());
+	    sb.append("(");
+	    String sep = "";
+	    for (Expr e : index) {
+		sb.append(sep);
+		sep = ", ";
+		sb.append(e);
+	    }
+	    sb.append(") ");
+	    sb.append(op);
+	    sb.append(" ");
+	    sb.append(right.toString());
+	    return sb.toString();
+	}
     
     /** Write the expression to an output file. */
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {

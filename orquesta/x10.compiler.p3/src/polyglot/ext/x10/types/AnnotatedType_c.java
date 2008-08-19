@@ -2,62 +2,54 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
-import polyglot.ast.Expr;
-import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.Type_c;
-import polyglot.types.Types;
+import polyglot.util.Position;
+import polyglot.util.TypedList;
 
 public class AnnotatedType_c extends Type_c implements AnnotatedType {
-    protected Ref<? extends Type> rootType;
-    protected List<Expr> propertyExprs;
+    Type baseType;
+    List<Type> annotations;
 
-    public Ref<? extends Type> rootType() {
-        return rootType;
+    public AnnotatedType_c(X10TypeSystem ts, Position pos, Type baseType, List<Type> annotations) {
+	super(ts, pos);
+	this.baseType = baseType;
+	this.annotations = TypedList.copyAndCheck(annotations, Type.class, true);
     }
 
-    public AnnotatedType rootType(Ref<? extends Type> rootType) {
+    public Type baseType() {
+        return baseType;
+    }
+
+    public AnnotatedType baseType(Type baseType) {
         AnnotatedType_c t = (AnnotatedType_c) copy();
-        t.rootType = rootType;
+        t.baseType = baseType;
         return t;        
     }
 
-    public List<Expr> propertyExprs() {
-        return propertyExprs;
+    public List<Type> annotations() {
+        return annotations;
     }
 
-    public Expr propertyExpr(int i) {
-        List<Expr> l = this.propertyExprs();
-        if (i < l.size()) {
-            return (Expr) l.get(i);
-        }
-        return null;
-    }
-
-    public AnnotatedType propertyExprs(List<Expr> l) {
-        if (l == null || l.isEmpty()) {
-            return this;
-        }
-
+    public AnnotatedType annotations(List<Type> annotations) {
         AnnotatedType_c t = (AnnotatedType_c) copy();
-        t.propertyExprs = l;
+        t.annotations = TypedList.copyAndCheck(annotations, Type.class, true);
         return t;
     }
     
     public String translate(Resolver c) {
-        return Types.get(rootType).translate(c);
+        return baseType.translate(c);
     }
     
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        
-        for (Expr e : propertyExprs) {
-            if (sb.length() > 0)
-                sb.append(", ");
-            sb.append(e.toString());
+        StringBuilder sb = new StringBuilder();
+        for (Type ct : annotations) {
+            sb.append("@");
+            sb.append(ct);
+            sb.append(" ");
         }
-        
-        return rootType.toString() + "(" + sb.toString() + ")";
+        sb.append(baseType);
+        return sb.toString();
     }
 }

@@ -17,25 +17,30 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ClosureType;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
-import polyglot.visit.TypeChecker;
 
 public class ClosureCall_c extends Expr_c implements ClosureCall {
     protected Expr target;
@@ -160,41 +165,70 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     }
     
     @Override
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	Type targetType = target.type();
 
-	X10TypeSystem x10ts = (X10TypeSystem) tc.typeSystem();
+	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
-	if (! x10ts.isFunction(targetType)) {
+	if (! ts.isFunction(targetType)) {
 	    throw new SemanticException("The target of a closure call must be a function type, not " + targetType + ".", target.position());
 	}
 	
-	ClosureType closureType = x10ts.toFunction(targetType);
-	
-	if (closureType == null) {
-	    throw new SemanticException("The target of a closure call must be a function type, not " + targetType + ".", target.position());
+	List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
+
+	for (TypeNode tn : this.typeArgs) {
+		typeArgs.add(tn.type());
 	}
 	
-	class RefTransform implements Transformation<Type, Ref<? extends Type>> {
-	    public Ref<? extends Type> transform(Type o) {
-		return Types.ref(o);
-	    }
-	};
-	
-	ClosureInstance ci = closureType.closureInstance();
-
 	List<Type> actualTypes = new ArrayList<Type>();
 	for (Expr ei : arguments) {
 	    actualTypes.add(ei.type());
 	}
-
-	ClosureInstance ci2 = X10MethodInstance_c.instantiate(ci, targetType, Collections.EMPTY_LIST, actualTypes);
 	
-//	if (! ci.callValid(targetType, actualTypes)) {
-//	    throw new SemanticException("Invalid closure call.", position());
+	// Find the most-specific closure type.
+	X10MethodInstance mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, "apply", typeArgs, actualTypes), tc.context().currentClassDef());
+	
+	if (mi.container() instanceof ClosureType) {
+	    ClosureInstance ci = ((ClosureType) mi.container()).closureInstance();
+	    return this.closureInstance(ci).type(ci.returnType());
+	}
+	else {
+	    // TODO: add ts.Function and uncomment this.
+	    // Check that the target actually is of a function type of the appropriate type and doesn't just coincidentally implement an
+	    // apply method.
+//	    ClosureType ct = ts.Function(mi.typeParameters(), mi.formalTypes(), mi.returnType());
+//	    if (! targetType.isSubtype(ct))
+//		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
+	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	    X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), nf.Id(position(), mi.name()), typeArgs(), arguments());
+	    n = (X10Call_c) n.methodInstance(mi);
+	    n = (X10Call_c) n.type(mi.returnType());
+	    return n;
+	}
+	
+//	List<ClosureType> functionTypes = x10ts.getFunctionSupertypes(newTargetType);
+//	
+//	if (functionTypes.isEmpty()) {
+//	    throw new SemanticException("The target of a closure call must be a function type, not " + newTargetType + ".", target.position());
 //	}
-
-	return this.closureInstance(ci2).type(ci2.returnType());
+//	
+//	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+//	
+//	for (ClosureType ct: functionTypes) {
+//	    if (ts.typeEquals(ct.returnType(), mi.returnType()) && CollectionUtil.allElementwise(ct.argumentTypes(), mi.formalTypes(), new TypeSystem_c.TypeEquals())) {
+//		try {
+//		    ClosureInstance ci = ct.closureInstance();
+//		    ClosureInstance ci2 = X10MethodInstance_c.instantiate(ci, targetType, typeArgs, actualTypes);
+//		    return this.closureInstance(ci2).type(ci2.returnType());
+//		}
+//		catch (SemanticException e) {
+//		    if (functionTypes.size() == 1)
+//			throw e;
+//		}
+//	    }
+//	}
+//	
+//	throw new SemanticException("Invalid closure call.", position());
     }
 
     public String toString() {

@@ -19,6 +19,7 @@ import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
@@ -36,6 +37,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
@@ -43,13 +45,13 @@ import polyglot.visit.TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
-    DepParameterExpr thisClause;
+    DepParameterExpr guard;
 
-    public X10FieldDecl_c(Position pos, DepParameterExpr thisClause, FlagsNode flags, TypeNode type,
+    public X10FieldDecl_c(Position pos, DepParameterExpr guard, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
         super(pos, flags, type, name, init);
-        this.thisClause = thisClause;
+        this.guard = guard;
     }
     
     protected X10FieldDecl_c(Position pos,  FlagsNode flags, TypeNode type,
@@ -57,8 +59,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         this(pos, null, flags, type, name, init);
     }
     
-    public DepParameterExpr thisClause() {
-        return thisClause;
+    public DepParameterExpr guard() {
+        return guard;
     }
 
 	public Context enterChildScope(Node child, Context c) {
@@ -73,30 +75,23 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		return cc;
 	}
 
-    public X10FieldDecl thisClause(DepParameterExpr thisClause) {
-        if (thisClause == this.thisClause)
+    public X10FieldDecl guard(DepParameterExpr guard) {
+        if (guard == this.guard)
             return this;
         X10FieldDecl_c n = (X10FieldDecl_c) copy();
-        n.thisClause = thisClause;
+        n.guard = guard;
         return n;
     }
     
     @Override
     public Node visitSignature(NodeVisitor v) {
-        DepParameterExpr thisClause = (DepParameterExpr) visitChild(this.thisClause, v);
         X10FieldDecl_c n = (X10FieldDecl_c) super.visitSignature(v);
-        return n.thisClause(thisClause);
+        DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
+        return n.guard(guard);
     }
 
-    @Override
-    public Node visitChildren(NodeVisitor v) {
-        DepParameterExpr thisClause = (DepParameterExpr) visitChild(this.thisClause, v);
-        X10FieldDecl_c n = (X10FieldDecl_c) super.visitChildren(v);
-        return n.thisClause(thisClause);
-    }
-
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
-        Node result = super.typeCheck(tc);
+    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+        Node result = super.conformanceCheck(tc);
 
         // Any occurrence of a non-final static field in X10
         // should be reported as an error.
@@ -118,8 +113,13 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         return result;
     }
     
-    protected void checkVariance(TypeChecker tc) throws SemanticException {
-        X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
+    protected void checkVariance(ContextVisitor tc) throws SemanticException {
+	X10Context c = (X10Context) tc.context();
+	X10ClassDef cd;
+	if (c.inSuperTypeDeclaration())
+	    cd = c.supertypeDeclarationType();
+	else
+	    cd = (X10ClassDef) c.currentClassDef();
         final Map<String,TypeProperty.Variance> vars = new HashMap<String, TypeProperty.Variance>();
         for (int i = 0; i < cd.typeParameters().size(); i++) {
     	ParameterType pt = cd.typeParameters().get(i);
@@ -141,6 +141,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         X10FieldDecl_c n = (X10FieldDecl_c) super.buildTypesOverride(tb);
         
+        n = (X10FieldDecl_c) X10Del_c.visitAnnotations(n, tb);
+
         FieldDef fi = n.fieldDef();
 
         // Clear the static bit on properties

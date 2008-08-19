@@ -19,6 +19,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
@@ -43,9 +44,10 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 	public List<FieldInstance> fieldInstances() { return fi; }
 
 	@Override
-	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 		return this;
 	}
+	
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Context ctx = tc.context();
@@ -56,6 +58,7 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 //		n.checkReturnType(ts);
 		return n;
 	}
+	
 	protected void checkReturnType(X10TypeSystem ts) throws SemanticException {
 	    if (Types.get(ci.returnType()) instanceof UnknownType) {
 	        throw new SemanticException();
@@ -66,7 +69,7 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 	    XConstraint known = Types.get(ci.supClause());
 	    known = (known==null ? new XConstraint_c() : known.copy());
 	    try {
-		    known.addIn(Types.get(ci.whereClause()));
+		    known.addIn(Types.get(ci.guard()));
 
 		    //		result = result.substitute(self, self2);
 

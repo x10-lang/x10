@@ -37,6 +37,7 @@ import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
@@ -133,7 +134,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		return sb.toString();
 	}
 	
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		TypeSystem ts = tc.typeSystem();
 		Context ctx = tc.context();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
@@ -186,7 +187,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		 return nf.AssignPropertyBody(pos, s, thisConstructor, definedProperties).del().typeCheck(tc);
 	}
 
-	protected void checkAssignments(TypeChecker tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties, List<Type> definedTypeProperties)
+	protected void checkAssignments(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties, List<Type> definedTypeProperties)
 		throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		    Context ctx = tc.context();
@@ -201,7 +202,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 			XConstraint known = Types.get(thisConstructor.supClause());
 			known = (known==null ? new XConstraint_c() : known.copy());
 			try {
-		            known.addIn(Types.get(thisConstructor.whereClause()));
+		            known.addIn(Types.get(thisConstructor.guard()));
 		            
 		            for (int i = 0; i < arguments.size(); i++) {
 		        	Expr initializer = arguments.get(i);
