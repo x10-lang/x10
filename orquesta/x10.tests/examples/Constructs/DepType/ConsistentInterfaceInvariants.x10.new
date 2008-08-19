@@ -1,0 +1,149 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+//Interface invariants are not currently implemented.
+/** Tests that invariants due to a super constraint and a sub constraint are 
+ * consistent with each other.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;;
+
+public class ConsistentInterfaceInvariants extends x10Test { 
+
+    interface public static interface Test(public val l: int, public val m: int, , public const m == l: Test{m == l} = m == l)Test{m == l} /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+//Interface invariants are not currently implemented.
+/** Tests that invariants due to a super constraint and a sub constraint are 
+ * consistent with each other.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class ConsistentInterfaceInvariants extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public public def put()(): int;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+//Interface invariants are not currently implemented.
+/** Tests that invariants due to a super constraint and a sub constraint are 
+ * consistent with each other.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class ConsistentInterfaceInvariants extends x10Test { 
+
+    public static interface Test (int lint l/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+//Interface invariants are not currently implemented.
+/** Tests that invariants due to a super constraint and a sub constraint are 
+ * consistent with each other.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class ConsistentInterfaceInvariants extends x10Test { 
+
+    public static interface Test (int l, int mint m : m == l ) {
+     public int put();
+    }
+    
+    interface public static interface Test1(public val n: int, , public const l == n && m == n: Test1{l == n && m == n} = l == n && m == n)Test1{l == n && m == n} extends Test /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+//Interface invariants are not currently implemented.
+/** Tests that invariants due to a super constraint and a sub constraint are 
+ * consistent with each other.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class ConsistentInterfaceInvariants extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public int put();
+    }
+    
+    public static interface Test1 (int n: l == n && m == n) extends Test { 
+     public public def foo()(): int;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+//Interface invariants are not currently implemented.
+/** Tests that invariants due to a super constraint and a sub constraint are 
+ * consistent with each other.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class ConsistentInterfaceInvariants extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public int put();
+    }
+    
+    public static interface Test1 (int nint n: l == n && m == n) extends Test { 
+     public int foo();
+    }
+    
+    public def run(): boolean = { 
+	 return true;
+    }
+	
+    public static def main(var args: Rail[String]): void = {
+        new ConsistentInterfaceInvariants().execute();
+    }
+   
+
+		
+}
