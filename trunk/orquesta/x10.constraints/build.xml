@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
-<project name="x10.runtime" default="dist" basedir=".">
+<project name="x10.constraints" default="build" basedir=".">
     &buildfile;
-    <property name="x10.home" value=".."/>
-    <property name="x10.common.location" value="${x10.home}/x10.common"/>
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
-    <property name="lib" location="${x10.common.location}/lib"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10constraints.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
-        <path refid="x10.common.classpath"/>
     </path>
     <path id="mainproject.classpath">
         <pathelement location="${build}"/>
     </path>
-    <path id="x10.common.classpath"/>
     <!-- get the environment variables -->
     <property environment="env"/>
 
@@ -38,16 +36,23 @@
     </target>
     <target name="build" depends="init">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <!-- <javac destdir="${build}" source="1.4" target="1.4" debug="on"> -->
-        <javac srcdir="${src}" destdir="${build}" source="1.5" target="1.5" debug="on" includes="x10/**" excludes="x10/constraint/test/**">
-        <!-- <javac destdir="${build}" debug="on"> -->
-            <!--<compilerarg value="-Xlint:unchecked"/>-->
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+            <src path="${src}"/>
+            <include name="x10/**"/>
+            <exclude name="x10/constraint/test/**"/>
             <classpath>
-              <path refid="project.classpath"/>
-              <!--<pathelement location="${lib}/backport-util-concurrent.jar"/>-->
+                <path refid="project.classpath"/>
             </classpath>
         </javac>
     </target>
-    <target name="buildall" depends="build"
-            description="Use this target to build thread support libraries"/>
+    <target name="tests" depends="init,build">
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+            <src path="${src}"/>
+            <include name="x10/constraint/test/**"/>
+            <classpath>
+                <path refid="project.classpath"/>
+                <!--TODO <path refid="junit.classpath"/>-->
+            </classpath>
+        </javac>
+    </target>
 </project>
