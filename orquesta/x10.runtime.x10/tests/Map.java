@@ -5,8 +5,8 @@ import x10.runtime.Runtime;
 
 @Parameters({"K","V"})
 public class Map implements Runnable {
-	public class K {};
-	public class V {};
+	public static class K {};
+	public static class V {};
 	public static K EMPTY;
 	public static V NONE;
 	public K key;
