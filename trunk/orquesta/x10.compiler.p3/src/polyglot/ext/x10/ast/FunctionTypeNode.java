@@ -25,9 +25,9 @@ public interface FunctionTypeNode extends TypeNode {
 	/** Set the formals of the method. */
 	public abstract FunctionTypeNode formals(List<Formal> formals);
 
-	public abstract DepParameterExpr whereClause();
+	public abstract DepParameterExpr guard();
 
-	public abstract FunctionTypeNode whereClause(DepParameterExpr where);
+	public abstract FunctionTypeNode guard(DepParameterExpr guard);
 
 	/** Get the exception types of the method. */
 	public abstract List<TypeNode> throwTypes();

@@ -17,7 +17,7 @@ import polyglot.ast.While_c;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 
 /**
  * @author VijaySaraswat
@@ -36,7 +36,7 @@ public class X10While_c extends While_c {
 	}
 	
 	 /** Type check the statement. */
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	TypeSystem ts = tc.typeSystem();
 	
 	if (! ts.isSubtype(cond.type(), ts.Boolean())) {

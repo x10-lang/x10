@@ -11,11 +11,11 @@ import x10.constraint.XConstraint;
 
 public interface X10ClassDef extends X10Def, ClassDef {
     /** Conjunction of the class invariant and property invariants. */
-    XConstraint getRootXClause();
+    XConstraint getRootClause();
     void checkRealClause() throws SemanticException;
 
     /** The class invariant. */
-    Ref<XConstraint> xclassInvariant();
+    Ref<XConstraint> classInvariant();
     void setXClassInvariant(Ref<XConstraint> classInvariant);
     
     /** Properties defined in the class.  Subset of fields(). */

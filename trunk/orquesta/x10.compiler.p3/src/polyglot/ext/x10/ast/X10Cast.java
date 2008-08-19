@@ -11,17 +11,8 @@ import polyglot.ast.Cast;
 
 public interface X10Cast extends Cast {
     
-    public boolean convert();
+    public boolean isConversion();
 
 	public boolean notNullRequired();
-
-	public boolean isPrimitiveCast();
-	
 	public boolean isToTypeNullable();
-
-	public void setToTypeNullable(boolean b);
-
-	public void setPrimitiveCast(boolean b);
-
-	public void setNotNullRequired(boolean b);
 }

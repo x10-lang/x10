@@ -5,12 +5,11 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.types.Ref;
 import polyglot.types.Type;
+import polyglot.util.TypedList;
 
 public interface AnnotatedType extends Type {
-    Ref<? extends Type> rootType();
-    AnnotatedType rootType(Ref<? extends Type> rootType);
-    
-    List<Expr> propertyExprs();
-    AnnotatedType propertyExprs(List<Expr> l);
-    Expr propertyExpr(int i);
+    public Type baseType();
+    public AnnotatedType baseType(Type baseType);
+    public List<Type> annotations();
+    public AnnotatedType annotations(List<Type> annotations);
 }

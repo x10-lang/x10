@@ -135,7 +135,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 		return Collections.<Type>singletonList(baseType());
 	}
 
-	public XConstraint whereClause() {
+	public XConstraint guard() {
 		return null;
 	}
 	

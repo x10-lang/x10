@@ -33,10 +33,10 @@ import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.ReachChecker;
-import polyglot.visit.TypeChecker;
 
 
 /** A <code>Future </code> is a representation of the X10 future construct:
@@ -83,7 +83,7 @@ public class Future_c extends Closure_c
     }
 
     /** Type check the expression. */
-    public Node typeCheck( TypeChecker tc ) throws SemanticException {
+    public Node typeCheck( ContextVisitor tc ) throws SemanticException {
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 

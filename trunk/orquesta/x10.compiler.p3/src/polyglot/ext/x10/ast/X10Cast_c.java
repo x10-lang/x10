@@ -10,9 +10,11 @@ package polyglot.ext.x10.ast;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.Call;
 import polyglot.ast.Cast_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -25,7 +27,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 
 /**
  * Represent java cast operation.
@@ -38,9 +40,6 @@ import polyglot.visit.TypeChecker;
  *
  */
 public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
-    protected boolean primitiveType = false;
-    protected boolean notNullRequired = false;
-    protected boolean toTypeNullable = false;
     protected boolean convert;
 
     public X10Cast_c(Position pos, TypeNode castType, Expr expr, boolean convert) {
@@ -48,23 +47,21 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	this.convert = convert;
     }
     
-    public boolean convert() {
+    public boolean isConversion() {
 	return convert;
     }
     
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	X10Cast_c n = (X10Cast_c) copy();
 
 	Type toType = n.castType.type();
 	Type fromType = n.expr.type();
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
-	n.primitiveType = false;
-	n.toTypeNullable = false;
-	n.notNullRequired = false;
-
-	Expr result = n.type(toType);
 	boolean conversionAllowed = false;
+	boolean coercionAllowed = false;
+	
+	MethodInstance converter = null;
 	
 	if (ts.isBoolean(fromType) && ts.isBoolean(toType))
 	    conversionAllowed = true;
@@ -78,13 +75,23 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    // Can convert if there is a static method toType.$convert(fromType)
 	    try {
 		MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, "$convert", Collections.singletonList(fromType)), (ClassDef) null);
-		if (mi.flags().isStatic() && mi.returnType().isSubtype(toType))
+		if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
 		    conversionAllowed = true;
+		    converter = mi;
+		}
 	    }
 	    catch (SemanticException e) {
 	    }
 	}
+	
+	coercionAllowed = true;
+	
+	if (! ts.isCastValid(fromType, toType))
+	    coercionAllowed = false;
 
+	if (coercionAllowed)
+	    conversionAllowed = true;
+	
 	if (convert) {
 	    if (! conversionAllowed) {
 		throw new SemanticException("Cannot convert expression of type \"" 
@@ -92,34 +99,35 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 		                            + toType + "\".",
 		                            position());
 	    }
-	}
-	else {
-	    if (ts.isValueType(fromType) && ts.isValueType(toType)) {
-		if (! ts.typeBaseEquals(fromType, toType)) {
-		    throw new SemanticException("Cannot coerce expression of type \"" 
-		                                + fromType + "\" to type \"" 
-		                                + toType + "\"" + (conversionAllowed ? "; use an explicit conversion with 'to'." : "."),
-		                                position());
+	    
+	    if (converter != null) {
+		NodeFactory nf = tc.nodeFactory();
+		MethodInstance mi = converter;
+		Position p = position();
+		Expr e = expr;
+		
+		// Do the conversion.
+		Call c = nf.Call(p, nf.Id(p, mi.name()), e);
+		c = c.methodInstance(mi);
+		c = (Call) c.type(mi.returnType());
+		
+		// Now, do a coercion if needed to check any additional constraints on the type.
+		if (! mi.returnType().isSubtype(toType)) {
+		    X10Cast_c n1 = (X10Cast_c) copy();
+		    n1.expr = c;
+		    n1.convert = false;
+		    return n1.type(toType);
+		}
+		else {
+		    return c;
 		}
 	    }
-	    
-	    if (ts.isValueType(fromType) && ts.isBox(toType))
+	}
+	else {
+	    if (! coercionAllowed) {
 		throw new SemanticException("Cannot coerce expression of type \"" 
 		                            + fromType + "\" to type \"" 
 		                            + toType + "\"" + (conversionAllowed ? "; use an explicit conversion with 'to'." : "."),
-		                            position());
-
-	    if (ts.isBox(fromType) && ts.isValueType(toType))
-		throw new SemanticException("Cannot coerce expression of type \"" 
-		                            + fromType + "\" to type \"" 
-		                            + toType + "\"" + (conversionAllowed ? "; use an explicit conversion with 'to'." : "."),
-		                            position());
-
-	    // check java cast is valid and dependent type constraint are meet
-	    if (! ts.isCastValid(fromType, toType)) {
-		throw new SemanticException("Cannot coerce expression of type \"" 
-		                            + fromType + "\" to type \"" 
-		                            + toType + "\".",
 		                            position());
 	    }
 	}
@@ -132,31 +140,20 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     }
 
     public boolean notNullRequired() {
-	return notNullRequired;
-    }
-
-    public boolean isPrimitiveCast() {
-	return primitiveType;
+	Type fromType = expr.type();
+	Type toType = castType.type();
+	X10TypeSystem ts = (X10TypeSystem) fromType.typeSystem();
+	return ts.isReferenceType(fromType) && ts.isValueType(toType);
     }
 
     public boolean isToTypeNullable() {
-	return this.toTypeNullable;
+	Type toType = castType.type();
+	X10TypeSystem ts = (X10TypeSystem) toType.typeSystem();
+	return ts.isReferenceType(toType);
     }
 
     public TypeNode getTypeNode() {
 	return (TypeNode) this.castType().copy();
-    }
-
-    public void setToTypeNullable(boolean b) {
-	this.toTypeNullable = b;
-    }
-
-    public void setPrimitiveCast(boolean b) {
-	this.primitiveType = b;
-    }
-
-    public void setNotNullRequired(boolean b) {
-	this.notNullRequired = b;
     }
 
     public String toString() {
@@ -165,10 +162,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     
     @Override
     public List<Type> throwTypes(TypeSystem ts) {
-	// 'e as T' can throw ClassCastException
-	// 'e to T' cannot throw an exception
-	if (convert)
-	    return Collections.EMPTY_LIST;
+	// 'e as T' and 'e to T' can throw ClassCastException
         return super.throwTypes(ts);
     }
 }

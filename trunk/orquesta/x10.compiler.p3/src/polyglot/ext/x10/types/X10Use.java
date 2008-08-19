@@ -7,6 +7,6 @@ import polyglot.types.Type;
 
 public interface X10Use<T extends X10Def> {
     public T x10Def();
-    public List<X10ClassType> annotations();
-    public List<X10ClassType> annotationsMatching(Type t);
+    public List<Type> annotations();
+    public List<Type> annotationsMatching(Type t);
 }

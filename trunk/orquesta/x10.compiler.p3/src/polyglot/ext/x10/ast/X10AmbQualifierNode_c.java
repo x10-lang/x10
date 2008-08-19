@@ -8,6 +8,7 @@
 
 package polyglot.ext.x10.ast;
 
+import polyglot.ast.AmbQualifierNode_c;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Node_c;
@@ -23,6 +24,7 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -34,46 +36,28 @@ import polyglot.visit.TypeChecker;
  * An <code>X10AmbQualifierNode</code> is an ambiguous AST node composed of
  * dot-separated list of identifiers that must resolve to a type qualifier.
  */
-public class X10AmbQualifierNode_c extends Node_c implements X10AmbQualifierNode {
+public class X10AmbQualifierNode_c extends AmbQualifierNode_c implements X10AmbQualifierNode {
 	protected LazyRef<Qualifier> qualifier;
-	protected Prefix qual;
-	protected Id name;
 
 	public X10AmbQualifierNode_c(Position pos, Prefix qual, Id name) {
-		super(pos);
+		super(pos, qual, name);
 		assert (name != null); // qual may be null
-
-		this.qual = qual;
-		this.name = name;
 	}
 
 	public LazyRef<? extends Qualifier> qualifierRef() {
 		return this.qualifier;
 	}
 
-	public Id id() {
-		return this.name;
-	}
-
-	public X10AmbQualifierNode id(Id name) {
-		X10AmbQualifierNode_c n = (X10AmbQualifierNode_c) copy();
-		n.name = name;
-		return n;
-	}
-
-	public String name() {
+	public String nameString() {
 		return this.name.id();
 	}
 
-	public X10AmbQualifierNode name(String name) {
-		return id(this.name.id(name));
-	}
 
-	public Prefix qual() {
+	public Prefix prefix() {
 		return this.qual;
 	}
 
-	public X10AmbQualifierNode qual(Prefix qual) {
+	public X10AmbQualifierNode prefix(Prefix qual) {
 		X10AmbQualifierNode_c n = (X10AmbQualifierNode_c) copy();
 		n.qual = qual;
 		return n;
@@ -118,7 +102,7 @@ public class X10AmbQualifierNode_c extends Node_c implements X10AmbQualifierNode
 		r.setResolver(new TypeCheckFragmentGoal(parent, this, tc, r, false));
 	}
 
-	public Node disambiguate(TypeChecker ar) throws SemanticException {
+	public Node disambiguate(ContextVisitor ar) throws SemanticException {
 		SemanticException ex;
 
 		try {

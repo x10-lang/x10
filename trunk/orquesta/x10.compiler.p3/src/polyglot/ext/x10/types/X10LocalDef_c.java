@@ -53,25 +53,26 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
     }
 
     // BEGIN ANNOTATION MIXIN
-    List<Ref<? extends X10ClassType>> annotations;
+    List<Ref<? extends Type>> annotations;
 
-    public List<Ref<? extends X10ClassType>> defAnnotations() {
+    public List<Ref<? extends Type>> defAnnotations() {
+	if (annotations == null) return Collections.EMPTY_LIST;
         return Collections.unmodifiableList(annotations);
     }
     
-    public void setDefAnnotations(List<Ref<? extends X10ClassType>> annotations) {
-        this.annotations = TypedList.<Ref<? extends X10ClassType>>copyAndCheck(annotations, Ref.class, true);
+    public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
+        this.annotations = TypedList.<Ref<? extends Type>>copyAndCheck(annotations, Ref.class, true);
     }
     
-    public List<X10ClassType> annotations() {
+    public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }
     
-    public List<X10ClassType> annotationsMatching(Type t) {
+    public List<Type> annotationsMatching(Type t) {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<X10ClassType> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(String fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN

@@ -18,6 +18,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Local_c;
 import polyglot.ast.Node;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -29,7 +30,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -43,7 +44,7 @@ public class X10Local_c extends Local_c {
 		super(pos, name);
 		
 	}
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		
 		try {
 			Context context = tc.context();
@@ -52,10 +53,9 @@ public class X10Local_c extends Local_c {
 			// if the local is defined in an outer class, then it must be final
 			if (!context.isLocal(li.name())) {
 				// this local is defined in an outer class
-				if (!li.flags().isFinal()) {
+				if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
 					throw new SemanticException("Local variable \"" + li.name() + 
-							"\" is accessed from an inner class or a closure, and must be declared " +
-							"final.",
+							"\" is accessed from an inner class or a closure, and must be declared final or shared.",
 							this.position());                     
 				}
 			}
@@ -90,22 +90,22 @@ public class X10Local_c extends Local_c {
 			    }
 			}
 			
-			// Fold in the method's where clause.
+			// Fold in the method's guard.
 			CodeDef ci = xtc.currentCode();
 			if (ci instanceof X10ProcedureDef) {
 			    X10ProcedureDef pi = (X10ProcedureDef) ci;
-				XConstraint c = Types.get(pi.whereClause());
+				XConstraint c = Types.get(pi.guard());
 				if (c != null) {
 					X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
-					// Substitute self for x (this local) in the where clause.
+					// Substitute self for x (this local) in the guard.
 //					C_Var var = new TypeTranslator(xts).trans(localInstance());
 //        			Promise p = c.intern(var);
 //        			System.out.println("before = " + c);
 //        			c = c.substitute(p.term(), C_Special.Self);
 //        			System.out.println("after = " + c);
 
-      			    // Add the where clause into the constraint for this type. 
+      			    // Add the guard into the constraint for this type. 
         			Type t = result.type();
 
         			XConstraint dep = X10TypeMixin.xclause(t);

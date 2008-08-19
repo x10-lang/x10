@@ -63,6 +63,8 @@ public class X10Boxer extends AscriptionVisitor
 		        
 			try {
 			    mi = ts.findMethod(toType, ts.MethodMatcher(toType, "$convert", Collections.singletonList(fromType)), (ClassDef) null);
+			    if (! mi.flags().isStatic())
+				mi = null;
 			}
 			catch (SemanticException ex) {
 			}
@@ -70,6 +72,8 @@ public class X10Boxer extends AscriptionVisitor
 			if (mi == null) {
 			    try {
 				mi = ts.findMethod(toType, ts.MethodMatcher(toType, "make", Collections.singletonList(fromType)), (ClassDef) null);
+				if (! mi.flags().isStatic())
+				    mi = null;
 			    }
 			    catch (SemanticException ex) {
 			    }
@@ -77,7 +81,7 @@ public class X10Boxer extends AscriptionVisitor
 			
 			if (mi != null) {
 			    if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
-				Call c = nf.Call(p, nf.Id(p, mi.name()), e);
+				Call c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
 				c = c.methodInstance(mi);
 				c = (Call) c.type(mi.returnType());
 				return c;

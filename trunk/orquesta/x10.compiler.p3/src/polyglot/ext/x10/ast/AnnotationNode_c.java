@@ -16,10 +16,10 @@ import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
-import polyglot.visit.TypeChecker;
 
 /**
  * A node representing an annotation.  Every X10 Node has an associated list of AnnotationNodes.
@@ -78,16 +78,7 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 //	}
 	
 	@Override
-	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
-		// Don't elaborate types in annotation nodes.
-	    // ###
-//		if (tc instanceof TypeElaborator)
-//			return this;
-		return super.typeCheckOverride(parent, tc);
-	}
-
-	@Override
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 //		System.out.println("Type checking " + this);
 		if (! tn.type().isClass() || ! tn.type().toClass().flags().isInterface()) {
 			throw new SemanticException("Annotation must be an interface type.", position());

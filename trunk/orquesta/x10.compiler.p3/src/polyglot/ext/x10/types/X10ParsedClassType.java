@@ -28,11 +28,4 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
      * @return
      */
     boolean isJavaType();
-
-    /**
-     * Returns true iff this type is an X10 array.
-     * @return
-     */
-    boolean isX10Array();
-
 }

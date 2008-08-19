@@ -16,6 +16,7 @@ import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -32,6 +33,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
@@ -63,7 +65,9 @@ public class X10New_c extends New_c implements X10New {
 	public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
 	X10New_c n = (X10New_c) super.buildTypesOverride(tb);
         List<TypeNode> typeArgs = (List<TypeNode>) n.visitList(n.typeArguments(), tb);
-        return n.typeArguments(typeArgs);
+        n = (X10New_c) n.typeArguments(typeArgs);
+        n = (X10New_c) X10Del_c.visitAnnotations(n, tb);
+        return n;
 	}
 	
 	    List<TypeNode> typeArguments;
@@ -85,7 +89,7 @@ public class X10New_c extends New_c implements X10New {
 	 * Rewrite pointwiseOp construction to use Operator.Pointwise, otherwise
 	 * leave alone.
 	 */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		
         	/////////////////////////////////////////////////////////////////////
@@ -129,7 +133,7 @@ public class X10New_c extends New_c implements X10New {
 		}
 		
         	// Copy the method instance so we can modify it.
-        	X10New_c result = (X10New_c) this.constructorInstance((X10ConstructorInstance) ci.copy()).type(ci.returnType());
+        	X10New_c result = (X10New_c) this.constructorInstance(ci);
 
         	/////////////////////////////////////////////////////////////////////
         	// End inlined super call.
@@ -137,16 +141,16 @@ public class X10New_c extends New_c implements X10New {
 
         	result.checkWhereClause(tc);
 		result = result.adjustCI(tc);
-		return result;
+		return result.type(ci.returnType());
 	}
 
-	    private void checkWhereClause(TypeChecker tc) throws SemanticException {
+	    private void checkWhereClause(ContextVisitor tc) throws SemanticException {
 		    	X10Context c = (X10Context) tc.context();
 		    	X10ConstructorInstance ci = (X10ConstructorInstance) constructorInstance();
 		    	if (ci !=null) {
-		    		XConstraint where = ci.whereClause();
-		    		if (where != null && ! where.consistent()) {
-		    			throw new SemanticException(ci + ": Constructor's dependent clause not satisfied by caller.", position());
+		    		XConstraint guard = ci.guard();
+		    		if (guard != null && ! guard.consistent()) {
+		    			throw new SemanticException("Constructor guard not satisfied by caller.", position());
 		    		}
 		    	}
 		    }
@@ -160,7 +164,7 @@ public class X10New_c extends New_c implements X10New {
      * @return
      * @throws SemanticException
      */
-    private X10New_c adjustCI(TypeChecker tc) throws SemanticException {
+    private X10New_c adjustCI(ContextVisitor tc) throws SemanticException {
     	if (ci == null) return this;
     	X10ConstructorInstance xci = (X10ConstructorInstance) ci;
     	Type type = xci.returnType();

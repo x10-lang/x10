@@ -17,6 +17,8 @@ import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.VisitorGoal;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
 
 public class LoadJobPlugins extends VisitorGoal {
@@ -42,15 +44,19 @@ public class LoadJobPlugins extends VisitorGoal {
 				ClassDecl cd = (ClassDecl) n;
 				X10ClassDef ct = (X10ClassDef) cd.classDef();
 				try {
-					X10ClassType baseClass = (X10ClassType) ct.typeSystem().systemResolver().find("x10.lang.annotation.PluginClass");
-					List<X10ClassType> pluginClasses = ct.annotationsMatching(baseClass);
-					for (Iterator<X10ClassType> i = pluginClasses.iterator(); i.hasNext(); ) {
-						X10ClassType pluginClass = i.next();
-						if (pluginClass.propertyInitializers().size() == 1) {
-						    Expr e = (Expr) pluginClass.propertyInitializer(0);
-						    if (e instanceof StringLit) {
-						        StringLit s = (StringLit) e;
-						        LoadPlugins.loadPlugin((ExtensionInfo) job.extensionInfo(), s.value());
+					TypeSystem ts = ct.typeSystem();
+					X10ClassType baseClass = (X10ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotation.PluginClass"));
+					List<Type> pluginClasses = ct.annotationsMatching(baseClass);
+					for (Iterator<Type> i = pluginClasses.iterator(); i.hasNext(); ) {
+						Type pluginType = i.next();
+						if (pluginType instanceof X10ClassType) {
+						    X10ClassType pluginClass = (X10ClassType) pluginType;
+						    if (pluginClass.propertyInitializers().size() == 1) {
+							Expr e = (Expr) pluginClass.propertyInitializer(0);
+							if (e instanceof StringLit) {
+							    StringLit s = (StringLit) e;
+							    LoadPlugins.loadPlugin((ExtensionInfo) job.extensionInfo(), s.value());
+							}
 						    }
 						}
 					}

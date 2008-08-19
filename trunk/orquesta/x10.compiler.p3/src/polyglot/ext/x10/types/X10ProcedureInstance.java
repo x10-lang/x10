@@ -32,6 +32,6 @@ public interface X10ProcedureInstance<T extends ProcedureDef> extends X10TypeObj
      * Return the constraint on the formal parameters, if any.
      * @return
      */
-    XConstraint whereClause();
-    X10ProcedureInstance<T> whereClause(XConstraint where);
+    XConstraint guard();
+    X10ProcedureInstance<T> guard(XConstraint guard);
 }

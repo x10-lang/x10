@@ -21,10 +21,12 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ArraysMixin;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
@@ -36,6 +38,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
@@ -48,6 +51,7 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
@@ -76,31 +80,41 @@ public class X10Field_c extends Field_c {
 		super(pos, target, name);
 	}
 
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		X10Context c = (X10Context) tc.context();
+
 		Type tType = target.type();
 		if (tType == null)
-		assert tType != null : "type of target of |" + this + "| is null";
-		try {
-			//Report.report(1, "X10Field_c.tpeCheck: context" + tc.context());
-			Context c = tc.context();
-			TypeSystem ts = tc.typeSystem();
+		    assert tType != null : "type of target of |" + this + "| is null";
 
-			/*
-			 * In X10, everything is an object.
-			 */
-			//if (! tType.isReference()) 
-			//	throw new SemanticException("Cannot access field \"" + name +
-			//			"\" " + (target instanceof Expr
-			//					? "on an expression "
-			//							: "") +
-			//							"of non-reference type \"" +
-			//							target.type() + "\".", target.position());
-//			if (!(tType instanceof StructType))
-//				throw new NoMemberException(NoMemberException.FIELD,
-//						"Field \"" + name + "\" not found in type \"" +
-//						tType + "\".");
+		if (c.inSuperTypeDeclaration()) {
+		    Type tBase = X10TypeMixin.baseType(tType);
+		    if (tBase instanceof X10ClassType) {
+			X10ClassType tCt = (X10ClassType) tBase;
+			if (tCt.def() == c.supertypeDeclarationType()) {
+			    // The only fields in scope here are the ones explicitly declared here.
+			    for (FieldDef fd : tCt.x10Def().properties()) {
+				if (fd.name().equals(name.id())) {
+				    FieldInstance fi = fd.asInstance();
+				    fi = ts.FieldMatcher(tType, name.id()).instantiate(fi);
+				    if (fi != null) {
+					// Found!
+					X10Field_c result = this;
+					result = (X10Field_c) result.fieldInstance(fi).type(fi.type());
+					return result;
+				    }
+				}
+			    }
+			    
+			    throw new SemanticException("Cannot access field " + name + " of " + tCt + " in class declaration header; the field may be a member of a superclass.",
+			                                position());
+			}
+		    }
+		}
+		
+		try {
 
 			FieldInstance fi = ts.findField(tType, ts.FieldMatcher(tType, name.id()), c.currentClassDef());
 			if (fi == null) {
@@ -116,23 +130,23 @@ public class X10Field_c extends Field_c {
 			
 			Type retType = type;
 
-			// Substitute in the actual target for this.
-			Type thisType = tType;
-			XConstraint rc = X10TypeMixin.realX(retType);
-			if (rc != null) {
-				XVar var= X10TypeMixin.selfVar(thisType);
-				if (var == null) 
-					var = xts.xtypeTranslator().genEQV(rc, thisType);
-				XConstraint newRC = rc.substitute(var, xts.xtypeTranslator().transThis(thisType));
-				retType = X10TypeMixin.xclause(retType, newRC);
-				fi = fi.type(retType);
-			}
+			// Substitute in the actual target for this.  This is done by findField, now.
+//			Type thisType = tType;
+//			XConstraint rc = X10TypeMixin.realX(retType);
+//			if (rc != null) {
+//				XVar var= X10TypeMixin.selfVar(thisType);
+//				if (var == null) 
+//					var = ts.xtypeTranslator().genEQV(rc, thisType);
+//				XConstraint newRC = rc.substitute(var, ts.xtypeTranslator().transThis(thisType));
+//				retType = X10TypeMixin.xclause(retType, newRC);
+//				fi = fi.type(retType);
+//			}
 			result = (X10Field_c)fieldInstance(fi).type(retType);
 			result.checkConsistency(c);
 			
 			// Check the guard
-			XConstraint where = ((X10FieldInstance) result.fieldInstance()).whereClause();
-			if (where != null && ! new XConstraint_c().entails(where)) {
+			XConstraint guard = ((X10FieldInstance) result.fieldInstance()).guard();
+			if (guard != null && ! new XConstraint_c().entails(guard)) {
 			    throw new SemanticException("Cannot access field.  Field guard not satisfied.", position());
 			}
 			
@@ -142,9 +156,6 @@ public class X10Field_c extends Field_c {
 			return result;
         } catch (NoMemberException e) {
             if (target instanceof Expr) {
-        	Context c = tc.context();
-        	NodeFactory nf = tc.nodeFactory();
-        	TypeSystem ts = tc.typeSystem();
         	Position pos = position();
         	
         	// Now try 0-ary property methods.
@@ -167,7 +178,7 @@ public class X10Field_c extends Field_c {
         }
 	}
 
-	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, TypeChecker tc) 
+	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {
 //		 Check that field accesses in dep clauses refer to final fields.
 		X10Context xtc = (X10Context) tc.context();

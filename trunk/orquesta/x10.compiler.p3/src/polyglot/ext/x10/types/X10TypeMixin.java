@@ -85,7 +85,10 @@ public class X10TypeMixin {
     }
 
     public static XConstraint realX(Type t) {
-		if (t instanceof ConstrainedType) {
+	if (t instanceof ParameterType) {
+	    return new XConstraint_c();
+	}
+	else if (t instanceof ConstrainedType) {
 			ConstrainedType	ct = (ConstrainedType) t;
 
 			// Now get the root clause and join it with the dep clause.
@@ -112,13 +115,13 @@ public class X10TypeMixin {
 		}
 		else if (t instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) t;
-			XConstraint c = ct.x10Def().getRootXClause();
-			return X10ParsedClassType_c.reinstantiateConstraint(ct, c);
+			XConstraint c = ct.x10Def().getRootClause();
+			return TypeParamSubst.reinstantiateConstraint(ct, c);
 		}
 		else if (t instanceof MacroType) {
 		    MacroType mt = (MacroType) t;
 		    XConstraint c = realX(mt.definedType());
-		    XConstraint w = mt.whereClause();
+		    XConstraint w = mt.guard();
 		    if (w != null) {
 			c = c.copy();
 			try {
@@ -135,7 +138,7 @@ public class X10TypeMixin {
 		    XVar base = pt.base();
 		    XConstraint c = base.selfConstraint();
 		    TypeProperty p = pt.property();
-		    XConstraint w = pt.whereClause();
+		    XConstraint w = pt.guard();
 		    c = c == null ? new XConstraint_c() : c;
 		    if (w != null) {
 			c = c.copy();
@@ -154,13 +157,29 @@ public class X10TypeMixin {
 	}
 	
 	public static XConstraint xclause(Type t) {
+	        if (t instanceof AnnotatedType) {
+	            AnnotatedType at = (AnnotatedType) t;
+	            return xclause(at.baseType());
+	        }
+	        if (t instanceof MacroType) {
+	                MacroType mt = (MacroType) t;
+	                return xclause(mt.definedType());
+	        }
 		if (t instanceof ConstrainedType) {
-			ConstrainedType  ct = (ConstrainedType) t;
+			ConstrainedType ct = (ConstrainedType) t;
 			return Types.get(ct.constraint());
 		}
 		return null;
 	}
 	public static Type baseType(Type t) {
+	        if (t instanceof AnnotatedType) {
+	            AnnotatedType at = (AnnotatedType) t;
+	            return baseType(at.baseType());
+	        }
+	    if (t instanceof MacroType) {
+		MacroType mt = (MacroType) t;
+		return baseType(mt.definedType());
+	    }
 	    if (t instanceof ConstrainedType) {
 		ConstrainedType ct = (ConstrainedType) t;
 		return baseType(Types.get(ct.baseType()));
@@ -368,6 +387,10 @@ public class X10TypeMixin {
 	}
 	
 	public static List<FieldInstance> properties(Type t) {
+	    if (t instanceof AnnotatedType) {
+		AnnotatedType ct = (AnnotatedType) t;
+		return properties(ct.baseType());
+	    }
 		if (t instanceof ConstrainedType) {
 			ConstrainedType ct = (ConstrainedType) t;
 			return properties(ct.baseType().get());
@@ -383,6 +406,10 @@ public class X10TypeMixin {
 		return Collections.EMPTY_LIST;
 	}
 	public static List<TypeProperty> typeProperties(Type t) {
+	    if (t instanceof AnnotatedType) {
+		AnnotatedType ct = (AnnotatedType) t;
+		return typeProperties(ct.baseType());
+	    }
 		if (t instanceof ConstrainedType) {
 			ConstrainedType ct = (ConstrainedType) t;
 			return typeProperties(ct.baseType().get());

@@ -25,8 +25,8 @@ public interface TypeDef extends X10Def, MemberDef, X10ProcedureDef {
 	public List<Ref<? extends Type>> formalTypes();
 	public void setFormalTypes(List<Ref<? extends Type>> formalTypes);
 
-	public Ref<XConstraint> whereClause();
-	public void setWhereClause(Ref<XConstraint> whereClause);
+	public Ref<XConstraint> guard();
+	public void setGuard(Ref<XConstraint> guard);
 
 	public Ref<? extends Type> definedType();
 	public void setType(Ref<? extends Type> type);

@@ -87,6 +87,35 @@ public class X10Del_c extends JL_c implements X10Del {
 		return ((X10Ext) node().ext()).annotations(annotations);
 	}
 	
+	public static Node visitAnnotations(Node n, NodeVisitor v) {
+	    if (n.del() instanceof X10Del_c) {
+		return ((X10Del_c) n.del()).visitAnnotations(v);
+	    }
+	    return n;
+	}
+
+	public  Node visitAnnotations(NodeVisitor v) {
+		List<AnnotationNode> oldAnnotations = annotations();
+		Node n = node();
+		if (oldAnnotations == null || oldAnnotations.isEmpty()) {
+			return n;
+		}
+		List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, v);
+		if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+			return ((X10Del) n.del()).annotations(newAnnotations);
+		}
+		return n;
+	}
+	
+	public static Node copyAnnotations(Node toNode, Node fromNode) {
+	    if (fromNode.ext() instanceof X10Ext) {
+		List<AnnotationNode> a = ((X10Ext) fromNode.ext()).annotations();
+		if (a != null && ! a.isEmpty())
+		    return ((X10Del) toNode.del()).annotations(a);
+	    }
+	    return toNode;
+	}
+	
 	/** Override visitChildren for all nodes so annotations are visited. */
 	public Node visitChildren(NodeVisitor v) {
 		List<AnnotationNode> oldAnnotations = annotations();

@@ -24,8 +24,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
 
 /** The concrete class implementing the X10 construct await (c);
  * TODO: fill out the methods and the passes.
@@ -82,7 +82,7 @@ public class Await_c extends Stmt_c implements Await {
 	    return expr_;
 	}
 	
-	  public Node typeCheck(TypeChecker tc) throws SemanticException {
+	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	
     	if (! ts.typeBaseEquals(expr_.type(), ts.Boolean()) )

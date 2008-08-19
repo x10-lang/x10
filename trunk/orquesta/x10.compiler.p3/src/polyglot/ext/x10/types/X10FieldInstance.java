@@ -28,6 +28,6 @@ public interface X10FieldInstance extends FieldInstance, X10TypeObject, X10Use<X
 	/** Is this field a property? */
 	boolean isProperty();
 	
-	XConstraint whereClause();
-	X10FieldInstance whereClause(XConstraint where);
+	XConstraint guard();
+	X10FieldInstance guard(XConstraint guard);
 }

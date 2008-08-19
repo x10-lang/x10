@@ -24,8 +24,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
 
 /**
  * Captures the commonality of foreach and ateach loops in X10.
@@ -75,7 +75,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 		Stmt body = (Stmt) visitChild(this.body, v);
 		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
 	}
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	        for (Expr clock : (List<Expr>) clocks) {
 	            if (! ts.isImplicitCastValid(clock.type(), ts.Clock())) {

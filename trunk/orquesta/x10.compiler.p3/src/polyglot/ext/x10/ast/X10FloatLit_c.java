@@ -18,7 +18,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -42,7 +42,7 @@ public class X10FloatLit_c extends FloatLit_c {
 		super(pos, kind, value);
 		
 	}
-	  public Node typeCheck(TypeChecker tc) throws SemanticException {
+	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		  X10Type Type = (X10Type) (kind==FLOAT ? xts.Float() : xts.Double());
 		  

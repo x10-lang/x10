@@ -26,6 +26,4 @@ import polyglot.visit.TypeChecker;
 public interface Tuple extends Expr {
 	List<Expr> arguments();    
 	Tuple arguments(List<Expr> elements);
-
-	void typeCheckElements(TypeChecker tc, Type t) throws SemanticException;
 }

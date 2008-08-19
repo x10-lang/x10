@@ -18,7 +18,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -43,7 +43,7 @@ public class X10IntLit_c extends IntLit_c {
 	
 	}
 	 /** Type check the expression. */
-	  public Node typeCheck(TypeChecker tc) throws SemanticException {
+	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		  if (kind==INT) {
 			  if (value > ((long)Integer.MAX_VALUE)+1  )
 			  throw new SemanticException("Integer literal " + value + " is out of range.",position());

@@ -51,25 +51,27 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     }
     
     // BEGIN ANNOTATION MIXIN
-    List<Ref<? extends X10ClassType>> annotations;
+    List<Ref<? extends Type>> annotations;
 
-    public List<Ref<? extends X10ClassType>> defAnnotations() {
+    public List<Ref<? extends Type>> defAnnotations() {
+	if (annotations == null)
+	    return Collections.EMPTY_LIST;
         return Collections.unmodifiableList(annotations);
     }
     
-    public void setDefAnnotations(List<Ref<? extends X10ClassType>> annotations) {
-        this.annotations = TypedList.<Ref<? extends X10ClassType>>copyAndCheck(annotations, Ref.class, true);
+    public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
+        this.annotations = TypedList.<Ref<? extends Type>>copyAndCheck(annotations, Ref.class, true);
     }
     
-    public List<X10ClassType> annotations() {
+    public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }
     
-    public List<X10ClassType> annotationsMatching(Type t) {
+    public List<Type> annotationsMatching(Type t) {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<X10ClassType> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(String fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     
@@ -92,17 +94,17 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     boolean computing = false;
     
     // Cached realClause of the root type.
-    XConstraint rootXClause;
+    XConstraint rootClause;
     
-    protected Ref<XConstraint> xclassInvariant;
+    protected Ref<XConstraint> classInvariant;
 
     public void setXClassInvariant(Ref<XConstraint> c) {
-        this.xclassInvariant = c;
-        this.rootXClause = null;
+        this.classInvariant = c;
+        this.rootClause = null;
     }
 
-    public Ref<XConstraint> xclassInvariant() {
-        return xclassInvariant;
+    public Ref<XConstraint> classInvariant() {
+        return classInvariant;
     }
     
     public void checkRealClause() throws SemanticException {
@@ -110,13 +112,13 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	    throw rootClauseInvalid;
     }
     
-    public XConstraint getRootXClause() {
-	    if (rootXClause == null) {
+    public XConstraint getRootClause() {
+	    if (rootClause == null) {
 		    if (computing) {
-			    this.rootXClause = new XConstraint_c();
+			    this.rootClause = new XConstraint_c();
 			    this.rootClauseInvalid = 
 				    new SemanticException("The real clause of " + this + " depends upon itself.", position());
-			    return rootXClause;
+			    return rootClause;
 		    }
 		    
 		    computing = true;
@@ -174,7 +176,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    // Finally, add in the class invariant.
 				    // It is important to do this last since we need avoid type-checking constraints
 				    // until after the base type of the supertypes are resolved.
-				    XConstraint ci = Types.get(xclassInvariant);
+				    XConstraint ci = Types.get(classInvariant);
 				    if (ci != null) {
 					ci = ci.substitute(XSelf.Self, oldThis);
 					result.addIn(ci);
@@ -183,12 +185,12 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    }
 			    catch (XFailure f) {
 				    result.setInconsistent();
-				    this.rootXClause = result;
+				    this.rootClause = result;
 				    this.rootClauseInvalid = new SemanticException("The class invariant and property constraints of " + this + " are inconsistent.", position());
 			    }
 			    
 			    // Now, set the root clause and mark that we're no longer computing.
-			    this.rootXClause = result;
+			    this.rootClause = result;
 			    this.computing = false;
 			    
 			    // Now verify that the root clause entails the assertions of the properties.
@@ -209,7 +211,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    c = c.substitute(newSelf, XSelf.Self);
 					    
 					    if (! result.entails(c)) {
-						    this.rootXClause = result;
+						    this.rootClause = result;
 						    this.rootClauseInvalid = 
 							    new SemanticException("The real clause, " + result 
 							                          + ", does not satisfy constraints from " + fi + ".", position());
@@ -218,13 +220,13 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    }
 		    }
 		    catch (XFailure e) {
-			    this.rootXClause = new XConstraint_c();
-			    this.rootXClause.setInconsistent();
+			    this.rootClause = new XConstraint_c();
+			    this.rootClause.setInconsistent();
 			    this.rootClauseInvalid = new SemanticException(e.getMessage(), position());
 		    }
 		    catch (SemanticException e) {
-			    this.rootXClause = new XConstraint_c();
-			    this.rootXClause.setInconsistent();
+			    this.rootClause = new XConstraint_c();
+			    this.rootClause.setInconsistent();
 			    this.rootClauseInvalid = e;
 		    }
 		    finally {
@@ -232,7 +234,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		    }
 	    }
 	    
-	    return rootXClause;
+	    return rootClause;
     }
 
     public boolean isJavaType() {
@@ -321,6 +323,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     	typeMembers.add(t);
     }
     
+    /* This is only type property code.  And is broken.
     boolean valid = false;
     
 	@Override
@@ -457,6 +460,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	
 	private Map<String,Type> primitiveTypes;
 	
+	private Type primitiveType(String name)
 	{
 		primitiveTypes = new HashMap<String, Type>();
 		primitiveTypes.put("x10.lang.Void", ts.Void());
@@ -468,6 +472,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		primitiveTypes.put("x10.lang.Long", ts.Long());
 		primitiveTypes.put("x10.lang.Float", ts.Float());
 		primitiveTypes.put("x10.lang.Double", ts.Double());
+		
+		return primitiveTypes.get(name);
 	}
 	
 	private Type fixType(Type oldType, Type typeArg) {
@@ -494,14 +500,15 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			
 			String name = def.fullName();
 			
-			if (name != null && primitiveTypes.containsKey(name)) {
-				return primitiveTypes.get(name);
+			if (name != null && primitiveType(name) != null) {
+				return primitiveType(name);
 			}
 		}
 		
 		return oldType;
 	}
-	
+	     */
+
 //	@Override
 //	public String toString() {
 ////	    if (name.equals("package") && outer != null)

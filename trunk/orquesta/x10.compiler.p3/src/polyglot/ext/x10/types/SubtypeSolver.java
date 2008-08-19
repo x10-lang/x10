@@ -122,16 +122,16 @@ public class SubtypeSolver implements Solver {
 		return t;
 	    }
 	    
-		public XTerm subst(XTerm y, XRoot x) {
+		public XTerm subst(XTerm y, XRoot x, boolean propagate) {
 			List<XTerm> newArgs = new ArrayList<XTerm>();
 			boolean changed = false;
 			Type left = subtype();
 			Type l = subst(left, y, x);
 			Type right = supertype();
 			Type r = subst(right, y, x);
-			if (l == left && r == right)
+			if (l == left && r == right && ! propagate)
 			    return this;
-			XSubtype_c n = (XSubtype_c) clone();
+			XSubtype_c n = (XSubtype_c) super.subst(y, x, propagate);
 			X10TypeSystem ts = (X10TypeSystem) left.typeSystem();
 			XTerm lterm = ts.xtypeTranslator().trans(l);
 			XTerm rterm = ts.xtypeTranslator().trans(r);

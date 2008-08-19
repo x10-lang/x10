@@ -9,8 +9,8 @@ import polyglot.types.Type;
 import x10.constraint.XConstraint;
 
 public interface X10ProcedureDef extends X10Def, ProcedureDef {
-     Ref<XConstraint> whereClause();
-     void setWhereClause(Ref<XConstraint> s);
+     Ref<XConstraint> guard();
+     void setGuard(Ref<XConstraint> s);
      
      List<Ref<? extends Type>> typeParameters();
      void setTypeParameters(List<Ref<? extends Type>> typeParameters);

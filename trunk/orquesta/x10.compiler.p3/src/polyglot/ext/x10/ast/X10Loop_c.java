@@ -40,6 +40,7 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
@@ -157,7 +158,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	    return formal;
 	}
 	
-	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	    TypeChecker tc1 = (TypeChecker) tc.enter(parent, this);
 	    
 	    Expr domain = (Expr) this.visitChild(this.domain, tc1);
@@ -180,7 +181,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	}
 
 	/** Type check the statement. */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
                 NodeFactory nf = tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10Type domainType = (X10Type) domain.type();

@@ -15,11 +15,9 @@ public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X1
 	Type definedType();
 	MacroType definedType(Type t);
 	
-	MacroType instantiate(Type container, List<Type> typeArgs, List<Type> argTypes) throws SemanticException;
-	
 	MacroType name(String name);
 	MacroType typeParameters(List<Type> typeParams);
 	MacroType formals(List<XVar> formals);
 	MacroType formalTypes(List<Type> formalTypes);
-	MacroType whereClause(XConstraint whereClause);
+	MacroType guard(XConstraint guard);
 }

@@ -81,14 +81,14 @@ public class AnnotationChecker extends ContextVisitor {
 	
 	public void init() throws SemanticException {
 		if (A != null) return;
-		TA = (ClassType) ts.systemResolver().find("x10.lang.annotations.TypeAnnotation");
-		EA = (ClassType) ts.systemResolver().find("x10.lang.annotations.ExpressionAnnotation");
-		SA = (ClassType) ts.systemResolver().find("x10.lang.annotations.StatementAnnotation");
-		MA = (ClassType) ts.systemResolver().find("x10.lang.annotations.MethodAnnotation");
-		FA = (ClassType) ts.systemResolver().find("x10.lang.annotations.FieldAnnotation");
-		CA = (ClassType) ts.systemResolver().find("x10.lang.annotations.ClassAnnotation");
-		IA = (ClassType) ts.systemResolver().find("x10.lang.annotations.ImportAnnotation");
-		PA = (ClassType) ts.systemResolver().find("x10.lang.annotations.PackageAnnotation");
-		A  = (ClassType) ts.systemResolver().find("x10.lang.annotations.Annotation");
+		TA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.TypeAnnotation"));
+		EA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.ExpressionAnnotation"));
+		SA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.StatementAnnotation"));
+		MA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.MethodAnnotation"));
+		FA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.FieldAnnotation"));
+		CA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.ClassAnnotation"));
+		IA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.ImportAnnotation"));
+		PA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.PackageAnnotation"));
+		A  = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.Annotation"));
 	}
 }

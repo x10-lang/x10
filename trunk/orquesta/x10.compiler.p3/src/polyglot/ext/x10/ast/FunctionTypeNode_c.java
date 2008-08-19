@@ -28,31 +28,31 @@ import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 
 public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
 	List<TypeParamNode> typeParams;
 	List<Formal> formals;
-	DepParameterExpr whereClause;
+	DepParameterExpr guard;
 	List<TypeNode> throwTypes;
 	TypeNode returnType;
 
-	public FunctionTypeNode_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr where,
+	public FunctionTypeNode_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr guard,
 			List<TypeNode> throwTypes) {
 		super(pos);
 		this.typeParams = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 		this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 		this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 		this.returnType = returnType;
-		this.whereClause = where;
+		this.guard = guard;
 	}
 	
 	@Override
-	public Node disambiguate(TypeChecker ar) throws SemanticException {
+	public Node disambiguate(ContextVisitor ar) throws SemanticException {
 	    X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
 	    X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
 	    FunctionTypeNode_c n = this;
@@ -83,7 +83,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	                                  typeParams,
 	                                  formalTypes, 
 	                                  formalNames, 
-	                                  whereClause != null ? whereClause.xconstraint() : null,
+	                                  guard != null ? guard.xconstraint() : null,
 	                                  throwTypes);
 	    
 	    Type t = cd.asType();
@@ -136,15 +136,15 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	}
 
 	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.ast.FunctionTypeNode#whereClause()
+	 * @see polyglot.ext.x10.ast.FunctionTypeNode#guard()
 	 */
-	public DepParameterExpr whereClause() {
-		return whereClause;
+	public DepParameterExpr guard() {
+		return guard;
 	}
 
-	public FunctionTypeNode whereClause(DepParameterExpr where) {
+	public FunctionTypeNode guard(DepParameterExpr guard) {
 		FunctionTypeNode_c n = (FunctionTypeNode_c) copy();
-		this.whereClause = where;
+		this.guard = guard;
 		return n;
 	}
 
@@ -166,18 +166,18 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	public Node visitChildren(NodeVisitor v) {
 		List<TypeParamNode> typeParams = this.visitList(this.typeParams, v);
 		List<Formal> formals = this.visitList(this.formals, v);
-		DepParameterExpr where = (DepParameterExpr) this.visitChild(this.whereClause, v);
+		DepParameterExpr guard = (DepParameterExpr) this.visitChild(this.guard, v);
 		TypeNode returnType = (TypeNode) this.visitChild(this.returnType, v);
 		List<TypeNode> throwTypes = this.visitList(this.throwTypes, v);
-		return reconstruct(typeParams, formals, where, returnType, throwTypes);
+		return reconstruct(typeParams, formals, guard, returnType, throwTypes);
 	}
 
-	protected Node reconstruct(List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr where, TypeNode returnType, List<TypeNode> throwTypes) {
+	protected Node reconstruct(List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes) {
 
 		FunctionTypeNode_c n = this;
 		n = (FunctionTypeNode_c) n.typeParameters(typeParams);
 		n = (FunctionTypeNode_c) n.formals(formals);
-		n = (FunctionTypeNode_c) n.whereClause(where);
+		n = (FunctionTypeNode_c) n.guard(guard);
 		n = (FunctionTypeNode_c) n.returnType(returnType);
 		n = (FunctionTypeNode_c) n.throwTypes(throwTypes);
 		return n;
@@ -203,8 +203,8 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		    sep = ", ";
 		}
 	    sb.append(")");
-	    if (whereClause != null)
-		sb.append(whereClause);
+	    if (guard != null)
+		sb.append(guard);
 	    sb.append(" => ");
 	    sb.append(returnType);
 	    return sb.toString();
@@ -255,8 +255,8 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		w.write(")");
 		w.allowBreak(2, 2, " ", 1);
 		
-		if (whereClause != null)
-			print(whereClause, w, tr);
+		if (guard != null)
+			print(guard, w, tr);
 		
 		if (!throwTypes().isEmpty()) {
 			w.allowBreak(6);

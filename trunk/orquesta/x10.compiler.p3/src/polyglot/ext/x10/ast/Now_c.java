@@ -21,8 +21,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
 
 /**
  *
@@ -77,7 +77,7 @@ public class Now_c extends Expr_c implements Now {
     }
     
     /** Type check the statement. */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {		
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {		
 		/*
 		 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
 		 throw new SemanticException(

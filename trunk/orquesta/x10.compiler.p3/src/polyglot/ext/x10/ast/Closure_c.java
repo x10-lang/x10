@@ -18,6 +18,7 @@ import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -46,6 +47,7 @@ import polyglot.util.SubtypeSet;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
@@ -61,7 +63,7 @@ public class Closure_c extends Expr_c implements Closure {
     MethodInstance container;
     ClosureDef closureDef;
     ClassType typeContainer;
-    DepParameterExpr whereClause;
+    DepParameterExpr guard;
 
     private static final Collection TOPICS = 
         CollectionUtil.list(Report.types, Report.context);
@@ -70,12 +72,12 @@ public class Closure_c extends Expr_c implements Closure {
 	super(pos);
     }
 
-    public Closure_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr whereClause, List<TypeNode> throwTypes, Block body) {
+    public Closure_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
 	super(pos);
 	this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 	this.returnType = returnType;
-	this.whereClause = whereClause;
+	this.guard = guard;
 	this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 	this.body = body;
     }
@@ -106,18 +108,18 @@ public class Closure_c extends Expr_c implements Closure {
     }
 
     public Closure returnType(TypeNode returnType) {
-	Closure_c c= (Closure_c) copy();
-	c.returnType= returnType;
+	Closure_c c = (Closure_c) copy();
+	c.returnType = returnType;
 	return c;
     }
     
-    public DepParameterExpr whereClause() {
-	    return whereClause;
+    public DepParameterExpr guard() {
+	    return guard;
     }
 
-    public Closure whereClause(DepParameterExpr whereClause) {
+    public Closure guard(DepParameterExpr guard) {
 	    Closure_c n = (Closure_c) copy();
-	    n.whereClause = whereClause;
+	    n.guard = guard;
 	    return n;
     }
 
@@ -228,10 +230,10 @@ public class Closure_c extends Expr_c implements Closure {
         // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
         TypeBuilder tb2 = tb.pushCode(mi);
 
-        Closure_c n = (Closure_c) this.visitChildren(tb2);
+        Closure_c n = (Closure_c) this.del().visitChildren(tb2);
 
-        if (n.whereClause() != null)
-        	mi.setWhereClause(n.whereClause().xconstraint());
+        if (n.guard() != null)
+        	mi.setGuard(n.guard().xconstraint());
         
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
@@ -294,7 +296,7 @@ public class Closure_c extends Expr_c implements Closure {
     }
 
     @Override
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem x10ts = (X10TypeSystem) tc.typeSystem();
 
         Context c = tc.context();

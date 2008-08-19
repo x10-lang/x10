@@ -45,11 +45,11 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         return (X10ConstructorDef) def();
     }
     
-    public List<X10ClassType> annotations() {
+    public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }
 
-    public List<X10ClassType> annotationsMatching(Type t) {
+    public List<Type> annotationsMatching(Type t) {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
 
@@ -78,18 +78,18 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         return Types.get(x10Def().supClause());
         }
 
-    XConstraint whereClause;
+    XConstraint guard;
     
     /** Constraint on formal parameters. */
-    public XConstraint whereClause() {
-        if (whereClause == null) 
-            whereClause = Types.get(x10Def().whereClause());
-        return whereClause;
+    public XConstraint guard() {
+        if (guard == null) 
+            guard = Types.get(x10Def().guard());
+        return guard;
     }
 
-    public X10ConstructorInstance whereClause(XConstraint c) {
+    public X10ConstructorInstance guard(XConstraint c) {
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
-        n.whereClause = c;
+        n.guard = c;
         return n;
     }
 
@@ -144,7 +144,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     public String toString() {
-	    String s = designator() + " " + flags().translate() + container() + "." + signature() + (whereClause() != null ? whereClause() : "") + ": " + returnType();
+	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature() + (guard() != null ? guard() : "") + ": " + returnType();
 	
 	    if (! throwTypes().isEmpty()) {
 		    s += " throws " + CollectionUtil.listToString(throwTypes());
@@ -198,8 +198,8 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 	sb.append("(");
 	sb.append(CollectionUtil.listToString(formals));
 	sb.append(")");
-	if (whereClause != null)
-	    sb.append(whereClause);
+	if (guard != null)
+	    sb.append(guard);
 	return sb.toString();
     }
 }

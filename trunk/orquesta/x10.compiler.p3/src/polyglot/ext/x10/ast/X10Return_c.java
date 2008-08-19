@@ -22,7 +22,7 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 
 public class X10Return_c extends Return_c {
 
@@ -34,7 +34,7 @@ public class X10Return_c extends Return_c {
 	}
 
 	@Override
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		TypeSystem ts = tc.typeSystem();
 		Context c = tc.context();
 	

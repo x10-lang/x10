@@ -40,7 +40,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 
 /**
@@ -60,7 +60,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 		super(pos, cond, consequent, alternative);
 		
 	}
-	  public Node typeCheck(TypeChecker tc) throws SemanticException {
+	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	        
 	        Expr e1 = consequent;

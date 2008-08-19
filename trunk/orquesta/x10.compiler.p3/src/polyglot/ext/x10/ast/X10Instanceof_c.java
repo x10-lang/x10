@@ -15,7 +15,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
+import polyglot.visit.ContextVisitor;
 
 /**
  * Represent java instanceof operation.
@@ -37,7 +37,7 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
 	}
  
     /** Type check the expression. */
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10Instanceof_c n = (X10Instanceof_c) copy();
         Type toType = n.compareType().type();
         Type fromType = n.expr().type();

@@ -135,15 +135,15 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return me.callValid(thisType, new TransformingList<Type,Type>(argTypes, new NoClauseVariant()));
     }
 
-    XConstraint whereClause;
+    XConstraint guard;
     
-    public XConstraint whereClause() {
-        return whereClause;
+    public XConstraint guard() {
+        return guard;
     }
     
-    public ClosureInstance whereClause(XConstraint where) {
+    public ClosureInstance guard(XConstraint guard) {
         ClosureInstance_c n = (ClosureInstance_c) copy();
-        n.whereClause = where;
+        n.guard = guard;
         return n;
     }
 
