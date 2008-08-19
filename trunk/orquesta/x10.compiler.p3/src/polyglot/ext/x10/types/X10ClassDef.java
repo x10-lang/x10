@@ -19,7 +19,7 @@ public interface X10ClassDef extends X10Def, ClassDef {
     void setXClassInvariant(Ref<XConstraint> classInvariant);
     
     /** Properties defined in the class.  Subset of fields(). */
-    List<FieldDef> properties();
+    List<X10FieldDef> properties();
     
     List<TypeProperty.Variance> variances();
     List<ParameterType> typeParameters();

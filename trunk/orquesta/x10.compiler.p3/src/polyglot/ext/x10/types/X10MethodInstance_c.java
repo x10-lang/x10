@@ -915,7 +915,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			    }
 			    formals.add(v2);
 		    }
-		    t = pt.typeParameters(typeParams).formals(formals).formalTypes(formalTypes);
+		    t = pt.newTypeParameters(typeParams).formals(formals).newFormalTypes(formalTypes);
 	    }
 	    return t;
     }

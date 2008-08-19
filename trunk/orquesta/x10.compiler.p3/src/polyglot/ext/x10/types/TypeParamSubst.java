@@ -206,7 +206,7 @@ public class TypeParamSubst {
 
     public X10ConstructorInstance reinstantiateCI(X10ConstructorInstance t) {
 	X10ConstructorInstance fi = (X10ConstructorInstance) t.copy();
-	fi = fi.returnType(reinstantiate(fi.returnType()));
+	fi = (X10ConstructorInstance) fi.returnType(reinstantiate(fi.returnType()));
 	fi = (X10ConstructorInstance) fi.formalTypes(reinstantiate(fi.formalTypes()));
 	fi = (X10ConstructorInstance) fi.throwTypes(reinstantiate(fi.throwTypes()));
 	fi = (X10ConstructorInstance) fi.guard(reinstantiate(fi.guard()));
@@ -216,7 +216,7 @@ public class TypeParamSubst {
 
     public X10MethodInstance reinstantiateMI(X10MethodInstance t) {
 	X10MethodInstance fi = (X10MethodInstance) t.copy();
-	fi = fi.returnType(reinstantiate(fi.returnType()));
+	fi = (X10MethodInstance) fi.returnType(reinstantiate(fi.returnType()));
 	fi = (X10MethodInstance) fi.formalTypes(new ArrayList<Type>(reinstantiate(fi.formalTypes())));
 	fi = (X10MethodInstance) fi.throwTypes(reinstantiate(fi.throwTypes()));
 	fi = (X10MethodInstance) fi.guard(reinstantiate(fi.guard()));
