@@ -2,17 +2,14 @@ package x10.lang;
 
 import x10.compiler.ArithmeticOps;
 
-public abstract value class Array[T] (dist: Dist)
-    implements Indexable[Point,T], Settable[Point,T], ArithmeticOps[Array[T]]
-{
-    // region
+public abstract value class Array[T](dist: Dist) // note: use dist.region.rank, not rank -- only the properties in the header are in scope
+    implements Indexable[Point{rank==dist.region.rank},T], Settable[Point{rank==dist.region.rank},T], ArithmeticOps[Array[T]] {
+
     property region: Region = dist.region;
     property rank: int = dist.rank;
     property rect: boolean = dist.rect;
     property zeroBased: boolean = dist.zeroBased;
     property rail: boolean = dist.rail;
-
-    // dist
     property unique: boolean = dist.unique;
     property constant: boolean = dist.constant;
     property onePlace: Place = dist.onePlace;
@@ -20,10 +17,13 @@ public abstract value class Array[T] (dist: Dist)
     incomplete public static def make[T](dist: Dist, init: Indexable[nat,T]): Array[T];
     incomplete public static def make[T](region: Region, init: Indexable[nat,T]): Array[T];
     incomplete public static def make[T](region: Region, init: Indexable[nat,T], value: boolean): Array[T];
-    incomplete public static def make[T](r: Rail[T]): Array[T];
+    incomplete public static def make[T](r: Rail[T]): Array[T]{rank==1};
+    incomplete public static def make[T](r: ValRail[T]): Array[T]{rank==1};
 
     public abstract def restriction(r: Region): Array[T];
 
+    public def apply(pt: Point{rank==this.rank}): T = get(pt);
+    
     public abstract def get(pt: Point{rank==this.rank}): T;
     public abstract def get(i0: int){rank==1}: T;
     public abstract def get(i0: int, i1: int){rank==2}: T;
@@ -46,10 +46,7 @@ public abstract value class Array[T] (dist: Dist)
     incomplete public def $bar(p: Place): Array[T];
 
     incomplete public static def $convert[T](r: Rail[T]): Array[T];    
-
-    //
-    //
-    //
+    incomplete public static def $convert[T](r: ValRail[T]): Array[T];    
 
     protected def this[T](dist: Dist) = {
         property(dist);
