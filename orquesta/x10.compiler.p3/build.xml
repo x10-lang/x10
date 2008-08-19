@@ -2,26 +2,31 @@
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
 <project name="x10.compiler" default="dist" basedir=".">
     &buildfile;
-    <property name="x10.home" value=".."/>
-    <property name="lpg.location" value="${x10.home}/org.eclipse.imp.lpg.metatooling"/>
-    <property name="lpg.executable.location" location="${x10.home}/lpg.runtime.java/lpgexe"/>
-    <property name="x10.common.location" value="${x10.home}/x10.common"/>
-    <property name="x10.runtime.location" value="${x10.home}/x10.runtime"/>
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
+    <property name="lpg.location" location="${x10.home}/../cvs/org.eclipse.imp.lpg.metatooling"/>
+    <!--<property name="lpg.location" value="${x10.home}/org.eclipse.imp.lpg.metatooling"/>-->
+    <property name="lpg.executable.location" location="${x10.home}/../cvs/SOURCEFORGE/lpg.generator.win32_x86/lpgexe"/>
+    <!--<property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${arch}/lpgexe"/>-->
+    <property name="x10.common.location" location="${x10.home}/../cvs/SOURCEFORGE/x10.common"/>
+    <!--<property name="x10.common.location" value="${x10.home}/x10.common"/>-->
+    <property name="x10.runtime.location" value="${x10.home}/x10.runtime.x10"/>
+    <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
-    <property name="lib" location="${x10.common.location}/lib"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10c.jar"/>
-    <property name="etc" location="${x10.common.location}/etc"/>
+    <property name="etc" location="${x10.dist.location}/etc"/>
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="polyglot.jar" value="polyglot2.jar"/>
+    <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="runtime.jar" value="x10.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
         <path refid="polyglot.classpath"/>
-        <path refid="x10.common.classpath"/>
         <path refid="x10.runtime.classpath"/>
+        <path refid="x10.constraints.classpath"/>
     </path>
     <path id="mainproject.classpath">
         <pathelement location="${build}"/>
@@ -32,19 +37,17 @@
     <path id="polyglot.classpath">
         <pathelement location="${lib}/${polyglot.jar}"/>
     </path>
-    <path id="x10.common.classpath"/>
     <path id="x10.runtime.classpath">
         <pathelement location="${lib}/${runtime.jar}"/>
     </path>
-    <!-- vj: get the environment variables. -->
-    <!-- vj: This works on Windows/cygwin. -->
+    <path id="x10.constraints.classpath">
+        <pathelement location="${x10.constraints.location}/classes"/>
+    </path>
+    <!-- get the environment variables -->
     <property environment="env"/>
     <target name="init">
         <tstamp/>
         <mkdir dir="${build}"/>
-    </target>
-    <target name="cleanall" depends="clean">
-        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
     <target name="clean">
         <delete dir="${build}"/>
@@ -62,24 +65,26 @@
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
             <fileset dir="${build}" includes="org/**,polyglot/ext/x10/**,x10/parser/**,data/**" excludes="${jar}"/>
-            <fileset dir="${basedir}/../x10.constraints/bin" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
+            <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
         </jar>
     </target>
-    <target name="buildall" depends="init">
-        <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
-        <ant antfile="${x10.runtime.location}/build.xml" target="build" inheritAll="false" dir="${x10.runtime.location}"/>
-    </target>
-    <target name="runtime-jar" depends="init">
-        <ant antfile="${x10.runtime.location}/build.xml" target="dist" inheritAll="false" dir="${x10.runtime.location}"/>
-    </target>
-    <target name="prereq-jars" depends="init,runtime-jar">
-        <ant antfile="${x10.common.location}/build.xml" target="dist" inheritAll="false" dir="${x10.common.location}"/>
+    <target name="prereq-jars">
+        <condition property="runtime.jar.present">
+            <available file="${lib}/${runtime.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${runtime.jar}" unless="runtime.jar.present"/>
+        <condition property="polyglot.jar.present">
+            <available file="${lib}/${polyglot.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${polyglot.jar}" unless="polyglot.jar.present"/>
+        <condition property="lpg.jar.present">
+            <available file="${lib}/${lpg.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${lpg.jar}" unless="lpg.jar.present"/>
     </target>
     <target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <!-- <javac destdir="${build}" source="1.4" target="1.4" debug="on"> -->
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
-        <!-- <javac destdir="${build}" debug="on"> -->
             <src path="${src}"/>
             <include name ="polyglot/ext/x10/ExtensionInfo.java"/>
             <classpath refid="project.classpath"/>
