@@ -175,7 +175,7 @@ public class X10New_c extends New_c implements X10New {
     		ClassDef anonTypeDef = anonType();
     		Type anonType = anonTypeDef.asType();
     		type = X10TypeMixin.xclause(anonType, X10TypeMixin.xclause(type));
-    		xci = xci.returnType(type);
+    		xci = (X10ConstructorInstance) xci.returnType(type);
     	}
     	
     	return (X10New_c) this.constructorInstance(xci).type(type);

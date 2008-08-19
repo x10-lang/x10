@@ -140,9 +140,15 @@ implements X10ParsedClassType
 	public boolean safe() {
 		return X10Flags.toX10Flags(flags()).isSafe();
 	}
-	
+
+	public static class X10FieldAsTypeTransform implements Transformation<X10FieldDef, FieldInstance> {
+	    public FieldInstance transform(X10FieldDef def) {
+		return def.asInstance();
+	    }
+	}
+
 	public List<FieldInstance> definedProperties() {
-	    return new TransformingList<FieldDef, FieldInstance>(x10Def().properties(), new FieldAsTypeTransform());
+	    return new TransformingList<X10FieldDef, FieldInstance>(x10Def().properties(), new X10FieldAsTypeTransform());
 	}
 
 	public List<FieldInstance> properties() {

@@ -8,12 +8,15 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import x10.constraint.XConstraint;
 import x10.constraint.XVar;
 
 public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X10ProcedureInstance<TypeDef>, Named {
 	Type definedType();
 	MacroType definedType(Type t);
+	
+	TypeDef def();
 	
 	MacroType name(String name);
 	MacroType typeParameters(List<Type> typeParams);

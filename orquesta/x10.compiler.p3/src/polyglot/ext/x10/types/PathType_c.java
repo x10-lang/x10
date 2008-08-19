@@ -143,6 +143,9 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 		assert typeParams.size() == 0;
 		return this;
 	}
+	public PathType newTypeParameters(List<Type> typeParams) {
+	    return typeParameters(typeParams);
+	}
 
 	public PathType formals(List<XVar> formals) {
 		assert formals.size() == 1;
@@ -157,7 +160,10 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 		t.baseType = formalTypes.get(0);
 		return t;
 	}
-
+	
+	public PathType newFormalTypes(List<Type> formalTypes) {
+	    return formalTypes(formalTypes);
+	}
 	
 	@Override
 	public String translate(Resolver c) {

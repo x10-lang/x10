@@ -32,7 +32,8 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<
 	 */
 	boolean isSafe();
 	
-	X10MethodInstance returnType(Type returnType);
+	// Use X10MethodInstance as the return type rather than X10MethodInstance
+	MethodInstance returnType(Type returnType);
 	
 	XTerm body();
 	X10MethodInstance body(XTerm body);

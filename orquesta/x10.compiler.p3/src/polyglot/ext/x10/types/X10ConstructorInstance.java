@@ -20,7 +20,7 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	XConstraint constraint();
 	
 	Type returnType();
-	X10ConstructorInstance returnType(Type retType);
+	ConstructorInstance returnType(Type retType);
 	
 	/** Return the constraint on properties, if any,
 	 * obtained from the return type of the call

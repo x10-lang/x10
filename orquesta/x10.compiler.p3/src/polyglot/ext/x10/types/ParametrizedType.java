@@ -34,7 +34,7 @@ public interface ParametrizedType extends X10NamedType, ReferenceType {
 	
 	Def def();
 
-	ParametrizedType typeParameters(List<Type> typeParams);
 	ParametrizedType formals(List<XVar> formals);
-	ParametrizedType formalTypes(List<Type> formalTypes);
+	ParametrizedType newFormalTypes(List<Type> formalTypes); // NOTE: javac reports an error in MacroType if this method is named formalTypes
+	ParametrizedType newTypeParameters(List<Type> typeParams); // NOTE: ditto
 }

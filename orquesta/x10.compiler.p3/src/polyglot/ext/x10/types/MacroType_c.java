@@ -103,6 +103,10 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) t;
 	}
 	
+	public MacroType newTypeParameters(List<Type> typeParams) {
+	    return typeParameters(typeParams);
+	}
+	
 	    public List<LocalInstance> formalNames;
 	    
 	    public List<LocalInstance> formalNames() {
@@ -156,6 +160,10 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		MacroType_c t = (MacroType_c) copy();
 		t.formalTypes = TypedList.copyAndCheck(formalTypes, Type.class, true);
 		return (MacroType) t;
+	}
+
+	public MacroType newFormalTypes(List<Type> formalTypes) {
+	    return formalTypes(formalTypes);
 	}
 	
 	public XConstraint guard() {

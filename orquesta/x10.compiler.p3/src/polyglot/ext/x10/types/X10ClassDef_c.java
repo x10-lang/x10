@@ -28,6 +28,8 @@ import polyglot.util.FilteringList;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Predicate;
+import polyglot.util.Transformation;
+import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
@@ -124,7 +126,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		    computing = true;
 		    
 		    try {
-			    List<? extends X10FieldDef> properties = (List<? extends X10FieldDef>) properties();
+			    List<X10FieldDef> properties = properties();
 			    
 			    X10TypeSystem xts = (X10TypeSystem) ts;
 
@@ -272,10 +274,15 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         }
     }
 
-    public List<FieldDef> properties() {
-        return new FilteringList<FieldDef>(fields(), new Predicate<FieldDef>() {
-            public boolean isTrue(FieldDef o) {
-                return o instanceof X10FieldDef && ((X10FieldDef) o).isProperty();
+    public List<X10FieldDef> properties() {
+	List<X10FieldDef> x10fields = new TransformingList(fields(), new Transformation<FieldDef,X10FieldDef>() {
+	    public X10FieldDef transform(FieldDef o) {
+		return (X10FieldDef) o;
+	    }
+	});
+        return new FilteringList<X10FieldDef>(x10fields, new Predicate<X10FieldDef>() {
+            public boolean isTrue(X10FieldDef o) {
+                return o.isProperty();
             }
         });
     }
