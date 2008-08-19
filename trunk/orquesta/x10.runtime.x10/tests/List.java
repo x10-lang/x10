@@ -4,7 +4,7 @@ import x10.runtime.Runtime;
 
 @Parameters({"T"})
 public class List implements Runnable {
-	public class T {};
+	public static class T {};
 	public List() { }
 	@Synthetic public List(Class T) { this(); }
 	@Synthetic public static boolean instanceof$(Object o, String constraint) { assert(false); return true; }

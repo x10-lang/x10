@@ -5,7 +5,7 @@ import x10.runtime.X10RuntimeClassloader;
 
 @Parameters({"T"})
 public class Recurse implements Runnable {
-	public class T {};
+	public static class T {};
 	public Recurse() { }
 	@Synthetic public Recurse(Class T) { this(); }
 	@Synthetic public static boolean instanceof$(Object o, String constraint) { assert(false); return true; }
