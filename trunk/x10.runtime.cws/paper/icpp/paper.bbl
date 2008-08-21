@@ -27,6 +27,13 @@ J.~Greiner.
 \newblock In {\em Proc.\ 6th Ann.\ Symp.\ Parallel Algorithms and Architectures
   ({SPAA-94})}, pages 16--25, Cape May, NJ, June 1994.
 
+\bibitem{HendlerShavit}
+D.~Hendler and N.~Shavit.
+\newblock Non-blocking steal-half work queues.
+\newblock In {\em PODC '02: Proceedings of the twenty-first annual symposium on
+  Principles of distributed computing}, pages 280--289, New York, NY, USA,
+  2002. ACM.
+
 \bibitem{HRD97}
 T.-S. Hsu, V.~Ramachandran, and N.~Dean.
 \newblock Parallel implementation of algorithms for finding connected

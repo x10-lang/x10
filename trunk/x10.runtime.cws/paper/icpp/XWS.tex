@@ -1,26 +1,84 @@
 \section{\Xten{} work stealing}\label{sec:XWS}
+\subsection{The \CWS{} API}
+
+We give a brief overview of Cilk work-stealing, as implemented as part of \XWS.
+An application programmer may directly write fine-grained concurrent
+code in \Java, using this API.
+
+The programmer initiates computation by creating a {\em pool} of $N$
+{\em workers} ({\tt new Pool(N)}). Each worker is a thread in Java
+that participates in the \XWS{} work-stealing protocol.  Asynchronous
+activities are represented by subclasses of {\tt Frame} -- a frame represents
+a continuation (values for local variables in the current activation frame, and a 
+program counter representing the next instruction to be executed). 
+
+Computation is initiated by submitting a job (containing a reference
+to a frame $F$) to the pool; the thread submitting the job suspends
+until $F$ is executed to completion. The programmer must define a {\tt
+void} method {\tt compute} on subclasses of {\tt Frame}, which takes a
+{\tt Worker w} as argument. The body of the method will be executed by
+the worker {\tt w} when this task is scheduled for execution.
+
+Each worker {\tt w} maintains an internal deque of frames. The
+programmer creates a new task by allocating a new frame; the task can
+be added to the deque of the current worker by invoking {\tt
+w.pushFrame(v)}. The programmer may pop the task of the deque by
+invoking {\tt w.popFrame()}.
+
+\XWS{} implements the basic CWS strategy. Per this strategy, when a
+worker $W$'s deque is empty, it randomly chooses another worker $V$
+and attempts to steal the topmost frame from $V$'s deque. If
+successful, the frame is transferred to $W$'s deque and
+executed. Otherwise the worker continues trying to steal with the next
+worker after $V$.\footnote{Due to lack of space we do not discuss the
+CWS mechanism (``closures'') that permits values to be returned from
+asynchronous tasks.}
+
+
+CWS maintains a tight (one-to-one) linkage between activation frames
+on the call stack and frames on the deque. This is possible because
+Cilk implements ``fully strict'' computations: Cilk requires that all
+tasks spawned within an activation frame must terminate before the
+activation frame returns. Further, Cilk requires that a task spawn is
+treated as a procedure call (that is, when a worker spawns a task $T$ it
+enters the body of $T$ to execute it, after pushing a new frame on
+its deque representing the continuation of $T$). Hence, on
+return from a procedure that may have spawned an async (Cilk marks
+such procedures as {\tt cilk} procedures), the worker {\tt w} must
+call {\tt w.abortOnSteal(x)} (these calls must be introduced
+explicitly by the application compiler; they are introduced
+automatically by the Cilk/\Xten{} compiler). This API call checks
+whether the current frame has been stolen, if so an exception is
+thrown which causes the activation call stack to unwind all the way to
+the top, thereby returning control to the scheduler (which made the
+original call). At this point the worker recognizes that its deque is
+empty and commences stealing.
+
+We note in passing that in contrast to the Cilk (or \Xten{}) programmer,
+the \XWS{} application programmer may choose to push newly created
+tasks onto the deque directly (instead of treating them as method
+calls). Such a strategy does not posses the ``busy leaves'' property
+\cite{cilk} -- and hence may not achieve the space bounds guaranteed
+by Cilk -- but may sometimes be faster. In particular, this strategy
+is used in the manual code for DFS and BFS using \XWS{} (see below).
+
 
 \subsection{Support for improperly nested tasks}
-Cilk requires {\em fully-strict} (properly nested) programs in which a
-task waits for all its descendants to complete before returning.
-
-The \Xten{} runtime system is designed to leverage the Cilk design
-while supporting a larger class of programs. \Xten{} provides support
-for {\em strict} ({improperly nested}) computations, in which an
-ancestor task need not wait for its descendant tasks to be completed.
+\XWS{} supports {\em strict} ({improperly nested}) computations, in
+which an ancestor task need not wait for its descendant tasks to be
+completed.  (Consider, e.g.{} the body of {\tt compute} in
+Example~\ref{example:dfs}.  it may spawn many asyncs, but does not
+wait for any of them to terminate.)
 
 Properly nested tasks $t$ satisfy the property that at the moment when
 the slow version terminates (method:{\java compute()}) the frame at
 the bottom of the worker's dequeue is $t$. Hence the task can be
 completed (i.e., removed from the dequeue) by including a {\java
 w.popFrame()} call at the end of the compute method. In essence, if a
-worker is executing only properly nested tasks (this is true when it
-is executing Cilk code), there is a one-to-one correspondence between
-the frame stack and the tasks being processed.
+worker is executing only properly nested tasks, there is a one-to-one
+correspondence between the frame stack and the tasks being processed.
 
-\Xten{} permits improperly nested tasks. Such tasks $q$ are used, for
-instance, to implement the pseudo-depth-first search discussed in this
-paper. Such a task may add a task $r$ to the deque of its worker (say
+Such a task may add a task $r$ to the deque of its worker (say
 $w$) without necessarily transferring control to $r$. This has two
 consequences. Firstly, recall that as soon as a worker's dequeue
 contains more than one task the worker may be the target of a
@@ -37,6 +95,26 @@ return to the scheduler leaving several tasks on the deque, including
 the task whose {\tt compute} method has just returned. The scheduler must
 now enter a phase in which it executes the task at the bottom of the
 deque until it is empty.
+
+\begin{example}[Psuedo-DFS] \label{example:dfs-xws}
+The parallel exploration of a graph may be implemented quite simply by the following program:
+{\footnotesize
+\begin{verbatim}
+class V  extends VertexFrame {
+   V [] neighbors;
+   V parent;
+   V(int i){super(i);}
+   boolean tryColor(V n) { ... }
+   void compute(Worker w) throws StealAbort {
+     w.popAndReturnFrame();
+     for (V e : neighbors) 
+       if (e.tryColor()) {
+         e.parent = this;
+         w.pushFrame(e);
+       }}}}
+\end{verbatim}}
+\end{example}
+
 
 \subsection{Global quiescence}
 
@@ -92,3 +170,23 @@ discovers the phase has advanced and updates its phase to $k+m$. (The
 algorithm design ensures that $W_i$ may skip phases only if its next
 deque is empty.) 
 
+
+\begin{example}[BFS] \label{example:bfs-xws}
+The breadth-first parallel exploration of a graph may be implemented
+as follows:
+{\footnotesize
+\begin{verbatim}
+class V  extends VertexFrame {
+   V [] neighbors;
+   V parent;
+   V(int i){super(i);}
+   boolean tryColor() { ...}
+   void compute(Worker w) throws StealAbort {
+     w.popAndReturnFrame();
+     for (V e : neighbors) 
+       if (e.tryColor()) {
+         e.parent = this;
+         w.pushFrameNext(e);
+       }}}}
+\end{verbatim}}
+\end{example}

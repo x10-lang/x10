@@ -38,7 +38,7 @@ this scheme, pseudo-DFS shows linear scaling on altair and moxie,
 achieving peak performance of over 220 MEPS on moxie and substantially
 outperforming C and Cilk implementations.
 
-In the following discussion, nodes and vertices of a graph are used interchangeably.
+% In the following discussion, nodes and vertices of a graph are used interchangeably.
 
 \subsection{Challenges in solving large, irregular graph problems}
 %% Rewrite
@@ -112,19 +112,116 @@ concurrent data-structures is difficult and error-prone.
 This suggests packaging the required components in a library or a framework and
 exposing a higher-level interface to programmers.
 
-\subsection{\Xten{} and \XWS}
-The \Xten{} programming language \cite{x10} has
-been designed to address the challenges of ``productivity with
-performance'' on those diverse architectures existing or emerging.  In this paper we
-present the design, implementation and evaluation of a portion of the
-\Xten{} runtime system for multicore and SMPs, \XWS{}. \XWS{}
-implements fine-grained concurrency through an extension of Cilk Work
-Stealing (CWS) \cite{BJKLRZ95}.  Work stealing is a powerful technique
-organized around a collection of workers (threads) that each
-maintains a double-ended queue (deque) of {\em frames} (or tasks). A
-worker pops and pushes frames from the bottom of the deque. When its
-deque is empty, it randomly selects another worker and attempts to
-steal a frame from the top of its deque. CWS is carefully organized to
+\subsection{\Xten{}}
+The \Xten{} programming language \cite{x10} has been designed to
+address the challenges of ``productivity with performance'' on those
+diverse architectures existing or emerging.  \Xten{} augments a core
+sequential modern object-oriented language (very similar to Java$^{\sc
+TM}$ or Scala) with constructs for distribution ({\em places}) and
+concurrency ({\em asyncs}, {\em finish}, {\em atomic} and {\em
+clocks}).\footnote{Discussion of the distribution constructs of
+\Xten{} and advanced concurrency constructs ({\tt when}) is out of
+scope of this paper.}  The statement {\tt async S} spawns a new task
+or activity to execute the statement {\tt S}. The statement {\tt
+finish S} executes {\tt S} and waits for all activities spawned during
+its execution to terminate. The statement {\tt atomic S} causes the
+statement {\tt S} to be executed as if in a single indivisible step
+(with no other activity executing during this step). An \Xten{} clock
+is a data-structure that represents a dynamic barrier. The activity
+creating a clock is said to be registered on that clock. An activity
+that is registered on a clock {\tt c} may create new activities
+registered on {\tt c} by executing {\tt async clocked(c) S}. An
+activity registered on a clock may execute a {\tt next;} operation to
+suspend until such time as all activities registered on the clock have
+executed a {\tt next} operation (barrier behavior).
+
+\Xten{} may be used to implement spanning tree computations in a very straighforward way:
+\begin{example}[Psuedo-DFS] \label{example:dfs}
+The parallel exploration of a graph may be implemented thus:
+{\footnotesize
+\begin{verbatim}
+class V  {
+   V [] neighbors;
+   V parent;
+   V(int i){super(i);}
+   boolean tryColor(V n) {
+     atomic 
+       if (parent==null) 
+         parent = n;
+     return parent==n;
+   }
+   void compute() {
+     for (V e : neighbors) 
+       if (e.tryColor()) 
+             async e.compute();
+   }
+   void dfs() {
+     finish compute();
+   }
+}
+\end{verbatim}}
+Computation is initiated by invoking {\tt r.dfs()} on 
+the root vertex {\tt r}. This visits {\tt r} within the
+scope of a {\tt finish}. When a vertex is visited, each of its
+outgoing edges is examined in sequence. If the vertex reached from
+the edge does not have its parent set, its parent is set atomically, 
+and the vertex is (recursively) visited asynchronously. Thus an
+activity is spawned for each vertex in the connected component
+containing {\tt r}. (This code does not implement
+batching, a batched version is discussed later.)
+\end{example}
+
+\begin{example}[BFS] \label{example:bfs}
+The breadth-first parallel exploration of a graph may be implemented
+as follows:
+{\footnotesize
+\begin{verbatim}
+class V  extends VertexFrame {
+   V [] neighbors;
+   V parent;
+   V(int i){super(i);}
+   boolean tryColor(V n) { ... }
+   void compute(clock c) {
+     for (V e : neighbors) 
+       if (e.tryColor()) 
+         async clocked(c) { 
+            next; 
+            e.compute(c);
+         }
+   }
+   void bfs() {
+     finish async {
+      clock c = new clock();
+      compute(c);
+     }
+   }
+}
+\end{verbatim}}
+Computation is initiated by invoking {\tt r.bfs()} on the root vertex
+{\tt r}. This causes an activity to be launched which creates a new
+clock {\tt c}, and visits {\tt r} (with the clock {\tt c}).  When a
+vertex is visited, each of its outgoing edges is examined in sequence.
+If the vertex reached from the edge does not have its parent set, its
+parent is set atomically, and the vertex is visited (recursively) by a
+new async (clocked on {\tt c}) which waits first for {\tt c} to
+advance to the next phase.  Thus a vertex is visited in phase $n$ of
+the clock only when all vertices reachable in one step from the
+vertices visited in phase $n-1$ of the clock have been marked. This
+ensures that all vertices are visited in breadth-first order.
+\end{example}
+\subsection{\XWS}
+A central challenge in implementing \Xten{} is to efficiently
+load-balance multiple activities, while respecting dependencies
+introduced by clocks and {\tt finish}. This paper presents the design,
+implementation and evaluation of a portion of the \Xten{} runtime
+system for multicore and SMPs, \XWS{}. \XWS{} implements fine-grained
+concurrency through an extension of Cilk Work Stealing (CWS)
+\cite{BJKLRZ95}.  Work stealing is a powerful technique organized
+around a collection of workers (threads) that each maintains a
+double-ended queue (deque) of {\em frames} (or tasks). A worker pops
+and pushes frames from the bottom of the deque. When its deque is
+empty, it randomly selects another worker and attempts to steal a
+frame from the top of its deque. CWS is carefully organized to
 streamline parallel overhead so that execution of the code with a
 single worker incurs a small constant factor overhead over execution
 of the sequential code. The overhead associated with stealing is
@@ -147,73 +244,12 @@ several small tasks. Thieves steal a batch at a time. Depending on the
 algorithm, the batching size may have a dramatic impact on the
 performance of work-stealing -- for instance we have observed that on
 the 32-way Niagara the best performance for batches of size $1$
-(i.e.{} without batching) is approximately $20$ MEPS, whereas with batching it goes up to nearly $240$ MEPS.
+(i.e.{} without batching) is approximately $20$ MEPS, whereas with
+batching it goes up to nearly $240$ MEPS.
+
 \XWS{} permits the programmer to sense key metrics of the current
 execution and use these to adjust batching size dynamically.
 
-\XWS{} may be illustrated by the following sample programs (fragments
-of running programs in Java):
-
-\begin{example}[Psuedo-DFS] \label{example:dfs}
-The parallel exploration of a graph may be implemented quite simply by the following program:
-{\footnotesize
-\begin{verbatim}
-class V  extends VertexFrame {
-   V [] neighbors;
-   V parent;
-   V(int i){super(i);}
-   boolean tryColor() {
-     return UPDATER.compareAndSet(this,0,1);
-   }
-   void compute(Worker w) throws StealAbort {
-     w.popAndReturnFrame();
-     for (V e : neighbors) 
-       if (e.tryColor()) {
-         e.parent = this;
-         w.pushFrame(e);
-       }}}}
-\end{verbatim}}
-The class {\tt V} represents a vertex with an array used to represent
-edges. {\tt V} extends {\tt Frame} and hence can be scheduled by the
-work-stealing scheduler. On being scheduled its {\tt compute} method
-is run, with the worker executing the vertex being passed as the
-argument. The code for {\tt compute} may schedule parallel work by
-invoking {\tt w.pushFrame}. The static variable {\tt UPDATER} from the enclosing context is of type {\tt AtomicIntegerFieldUpdater}.
-
-Note that a parallel frame corresponds to a single vertex; this code
-does not implement batching. (A batched version is discussed later.)
-\end{example}
-
-\begin{example}[BFS] \label{example:bfs}
-The breadth-first parallel exploration of a graph may be implemented
-as follows:
-{\footnotesize
-\begin{verbatim}
-class V  extends VertexFrame {
-   V [] neighbors;
-   V parent;
-   V(int i){super(i);}
-   boolean tryColor() {
-     return UPDATER.compareAndSet(this,0,1);
-   }
-   void compute(Worker w) throws StealAbort {
-     w.popAndReturnFrame();
-     for (V e : neighbors) 
-       if (e.tryColor()) {
-         e.parent = this;
-         w.pushFrameNext(e);
-       }}}}
-\end{verbatim}}
-
-Here the code utilizes the implementation of a global {\em clock} (barrier)
-by \XWS. Each worker maintains two deques, the {\em now} and the {\em
-next} deque. Always the now deque is active, but execution of a frame
-may cause frames to be added to the next deque.  When all the work in
-the current phase has terminated (that is, all now deques across all
-workers are empty), and at least one worker has added a frame to the
-next deque, computation moves to the next phase and causes each worker
-to swap their next and now deques.
-\end{example}
 
 \subsection{Performance experiments}
 

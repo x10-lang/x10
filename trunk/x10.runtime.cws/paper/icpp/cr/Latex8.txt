@@ -1,0 +1,21 @@
+========== file:  LATEX.TXT =======================
+
+The following files contain the LaTeX macros necessary for you to format 
+your paper based on the instructions/measurements in the INSTRUCT.TXT 
+attachment in our standard author kit for 8.5 x 11-inch proceedings. 
+The files appear in the following order:
+
+latex8.sty -- the style file
+latex8.tex -- the main macro set
+latex8.bib -- the sample bibliography macros
+latex8.bst -- the bibliography main macro set
+latex8ps.txt -- this file, when printed out, will give you a sample 
+of how your paper should look when it's finished. This file is in a 
+separate attachment from the first four LaTeX files. Remember to save 
+it as a .ps file and strip out any extraneous lines at the top of the 
+file to enable successful printing.
+
+Note that both current versions of LaTeX, 2e and 2.09, have the same 
+macros -- refer to the start of the latex8.sty file for the opening 
+statement for each. 
+
