@@ -17,6 +17,11 @@ public value class Point(rank: nat) implements
 
     public static def make(cs: ValRail[int]): Point(cs.length) = new Point(cs);
 
+    public static def make(cs: Rail[int]): Point(cs.length) = {
+        val a: ValRail[int](cs.length) = ValRail.make[int](cs.length, cs, true);
+        return make(a);
+    }
+
     public static def makeConstant(rank: nat, c: int): Point(rank) = {
         val a: ValRail[int](rank) = ValRail.make[int](rank, (i:nat)=>c, true);
         return make(a);
