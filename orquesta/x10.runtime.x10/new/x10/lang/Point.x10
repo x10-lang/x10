@@ -49,6 +49,9 @@ public value class Point(rank: nat) implements
     incomplete public def $ge(that: Point(rank)): boolean;
     incomplete public def $ne(that: Point(rank)): boolean;
 
+    public static def $convert(r: Rail[int]): Point(r.length) = make(r);
+    public static def $convert(r: ValRail[int]): Point(r.length) = make(r);
+
     incomplete public def toString(): String;
 
 
