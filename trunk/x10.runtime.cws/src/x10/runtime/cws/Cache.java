@@ -1,7 +1,5 @@
 package x10.runtime.cws;
 
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.QEncoderStream;
-
 /**
  * Package-specific class, used by Worker and Closure to cache
  * the frames for the bottom most closure in a worker's ready deque.
