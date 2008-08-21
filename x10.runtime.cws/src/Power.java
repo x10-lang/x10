@@ -7,7 +7,8 @@ import x10.runtime.cws.Job.GloballyQuiescentJob;
 import x10.runtime.cws.Job.GloballyQuiescentVoidJob;
 
 /**
- * Computes N^M, by counting up in 1s.
+ * Computes N^M, by counting up in 1s. 
+ * A simple test for work-stealing.
  * @author vj
  *
  */

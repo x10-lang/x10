@@ -757,6 +757,9 @@ TODO: Supposrt lazy initialization of nextCache.
 						
 						if (f == null) {
 							assert cache.empty();
+							// Added this 06/30/2008 so that GlobalQuiecence code
+							// does not have to use w.popReturnAndReset() instead of w.popReturn()
+						//	cache.reset();
 							break;
 						}
 						// next statement is a customized Frame.execute(w), with no need
@@ -1127,6 +1130,9 @@ TODO: Supposrt lazy initialization of nextCache.
 	}
 	public void setFrameGenerator(FrameGenerator x) {
 		fg=x;
+	}
+	public void popFrameAndReset() {
+		cache.popFrameAndReset(this);
 	}
 	public Frame popAndReturnFrame() {
 		return cache.popAndReturnFrame(this);

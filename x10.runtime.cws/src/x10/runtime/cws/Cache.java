@@ -179,6 +179,9 @@ class Cache {
 	 * @param w -- the current worker, potentially a victim
 	 * @return
 	 */
+    public void popFrameAndReset(Worker w) {
+	popAndReturnFrame(w);
+    }
 	public Frame popAndReturnFrame(Worker w) {
 		assert w==owner;
 		try {
