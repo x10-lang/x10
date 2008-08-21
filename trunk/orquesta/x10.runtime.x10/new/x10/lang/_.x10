@@ -1,9 +1,7 @@
 package x10.lang;
 
-//public type Box[T]{T <: Ref} = T;
-//public type Box[T]{T <: Value} = x10.lang.Boxed[T];
-
-public class package {
+// Members of the class x10.lang._ are imported automatically.
+public class _ {
     public static type void = Void;
     public static type boolean = Boolean;
     public static type byte = Byte;
