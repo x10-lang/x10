@@ -3,25 +3,30 @@ package x10.lang;
 import x10.compiler.ArithmeticOps;
 import x10.compiler.ComparisonOps;
 
-public value class Point(rank: nat)
-    implements Indexable[nat,int], ArithmeticOps[Point{rank==this.rank}], ComparisonOps[Point{rank==this.rank}]
+public value class Point(rank: nat) implements
+    Indexable[nat,int],
+    ArithmeticOps[Point(this.rank)],
+    ComparisonOps[Point(this.rank)]
 {
-    private val coords: ValRail[int];
-
-    private def this(cs: ValRail[int]): Point{rank==cs.length} = {
-        property(cs.length);
-        this.coords = cs;
-    }
-
     public def apply(i: nat): int = coords(i);
     public def coords(): ValRail[int] = coords;
 
-    public static def make(cs: ValRail[int]): Point{rank==cs.length} = new Point(cs);
-    public static def makeConstant(rank: nat, c: int): Point{self.rank==rank} = {
-        val a: ValRail[int]{length==rank} = ValRail.make[int](rank, (i: nat) => c, true);
+    //
+    // factories
+    //
+
+    public static def make(cs: ValRail[int]): Point(cs.length) = new Point(cs);
+
+    public static def makeConstant(rank: nat, c: int): Point(rank) = {
+        val a: ValRail[int](rank) = ValRail.make[int](rank, (i:nat)=>c, true);
         return make(a);
     }
-    public static def makeZero(rank: nat): Point{self.rank==rank} = makeConstant(rank, 0);
+
+    public static def makeZero(rank: nat): Point(rank) = makeConstant(rank, 0);
+
+    //
+    //
+    //
 
     incomplete public def $plus(): Point(rank);
     incomplete public def $minus(): Point(rank);
@@ -40,4 +45,17 @@ public value class Point(rank: nat)
     incomplete public def $ne(that: Point(rank)): boolean;
 
     incomplete public def toString(): String;
+
+
+    //
+    //
+    //
+
+    private val coords: ValRail[int];
+
+    private def this(cs: ValRail[int]): Point(cs.length) = {
+        property(cs.length);
+        this.coords = cs;
+    }
+
 }
