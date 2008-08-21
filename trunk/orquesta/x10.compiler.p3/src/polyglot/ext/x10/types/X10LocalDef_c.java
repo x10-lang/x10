@@ -8,7 +8,9 @@ import java.util.List;
 
 import polyglot.types.Flags;
 import polyglot.types.LocalDef_c;
+import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarDef_c.ConstantValue;
@@ -26,7 +28,7 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
     public X10LocalDef_c(TypeSystem ts, Position pos,
             Flags flags, 
             Ref<? extends Type> type,
-            String name) {
+            Name name) {
         super(ts, pos, flags, type, name);
     }
     
@@ -72,7 +74,7 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<Type> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(QName fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN

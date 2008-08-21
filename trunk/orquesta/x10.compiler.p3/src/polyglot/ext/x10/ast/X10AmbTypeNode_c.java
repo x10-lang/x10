@@ -124,7 +124,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
     
           if (prefix instanceof PackageNode || prefix == null) {
 //              PackageNode pn = (PackageNode) prefix;
-//              String dummyName = "package";
+//              String dummyName = DUMMY_PACKAGE_CLASS_NAME;
 //              String fullName = (pn != null ? Types.get(pn.package_()).fullName() + "." : "") + dummyName;
 //              Named n = ts.systemResolver().find(fullName);
 //              if (n instanceof X10ParsedClassType) {
@@ -211,9 +211,5 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
     return (prefix == null
             ? name.toString()
             : prefix.toString() + "." + name.toString()) + "{amb}";
-  }
-  
-  public String nameString() {
-      return name.id();
   }
 }

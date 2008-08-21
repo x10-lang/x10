@@ -26,6 +26,7 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
@@ -69,7 +70,7 @@ public class X10Unary_c extends Unary_c {
 //			return type(t);
 //		}
 		
-		String methodName = unaryMethodName(op);
+	        Name methodName = unaryMethodName(op);
 		if (methodName != null) {
 		    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
 		    try {
@@ -92,7 +93,7 @@ public class X10Unary_c extends Unary_c {
 		return n;
 	}
 
-	public static String unaryMethodName(Unary.Operator op) {
+	public static Name unaryMethodName(Unary.Operator op) {
 	    Map<Unary.Operator,String> methodNameMap = new HashMap<Unary.Operator, String>();
 	    methodNameMap.put(NEG, "$minus");
 	    methodNameMap.put(POS, "$plus");
@@ -100,7 +101,7 @@ public class X10Unary_c extends Unary_c {
 	    methodNameMap.put(BIT_NOT, "$tilde");
 	    
 	    String methodName = methodNameMap.get(op);
-	    return methodName;
+	    return Name.make(methodName);
 	}
 }
 

@@ -22,6 +22,7 @@ import polyglot.types.FieldAsTypeTransform;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef;
+import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodAsTypeTransform;
 import polyglot.types.MethodDef;
@@ -30,6 +31,7 @@ import polyglot.types.Named;
 import polyglot.types.ParsedClassType_c;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -167,26 +169,20 @@ implements X10ParsedClassType
 	    return new TransformingList<TypeDef, Type>(x10Def().memberTypes(), new TypeDefAsMacroTypeTransform());
 	}
 	
-	public List<Type> typeMembersNamed(String name) {
-	    List<Type> ts = new ArrayList<Type>();
-	    for (TypeDef p : x10Def().memberTypes()) {
-		if (name.equals(p.name())) {
-		    ts.add(p.asType());
-		}
-	    }
-	    return ts;
-	}
-	
 	public List<Type> typeProperties() {
 	    return new TransformingList<TypeProperty, Type>(x10Def().typeProperties(), new TypePropertyAsPathTypeTransform());
 	}
 	
-	
-	public Named typePropertyNamed(String name) {
+	public PathType typePropertiesMatching(Matcher<Named> matcher) {
 		for (TypeProperty p : x10Def().typeProperties()) {
-			if (name.equals(p.name())) {
-				return (Named) p.asType();
-			}
+		    PathType t = p.asType();
+		    try {
+		        Named n = matcher.instantiate(t);
+		        if (n instanceof PathType)
+		            return (PathType) n;
+		    }
+		    catch (SemanticException e) {
+		    }
 		}
 		return null;
 	}
@@ -207,22 +203,37 @@ implements X10ParsedClassType
 	}
 	
 	@Override
-	public Named memberTypeNamed(String name) {
-	    Named n = super.memberTypeNamed(name);
-	    if (n == null)
-		n = typePropertyNamed(name);
-	    if (n == null) {
-		for (Type t : typeMembersNamed(name)) {
-		    if (t instanceof MacroType) {
-			MacroType mt = (MacroType) t;
-			if (mt.formals().size() == 0 && mt.typeParameters().size() == 0) {
-			    n = mt;
-			    break;
-			}
-		    }
+	public Named memberTypeMatching(Matcher<Named> matcher) {
+	    Named n = super.memberTypeMatching(matcher);
+	    if (n != null)
+	        return n;
+
+	    n = typePropertiesMatching(matcher);
+	    if (n != null)
+	        return n;
+	    
+	    n = typeMemberMatching(matcher);
+	    if (n != null)
+	        return n;
+	    
+	    return null;
+	}
+	
+	public MacroType typeMemberMatching(Matcher<Named> matcher) {
+	    for (Type t : typeMembers()) {
+	        if (t instanceof MacroType) {
+	            MacroType mt = (MacroType) t;
+	            try {
+	                Named n = matcher.instantiate(mt);
+	                if (n instanceof MacroType)
+	                    return (MacroType) n;
+	            }
+	            catch (SemanticException e) {
+	            }
 		}
 	    }
-	    return n;
+	    
+	    return null;
 	}
 	
 	public String toString() {

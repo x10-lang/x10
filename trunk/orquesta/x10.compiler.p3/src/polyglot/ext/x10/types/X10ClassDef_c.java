@@ -19,6 +19,7 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -73,7 +74,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<Type> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(QName fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     
@@ -241,37 +242,6 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
     public boolean isJavaType() {
         return fromJavaClassFile();
-    }
-
-    boolean propertiesInitialized = false;
-    
-    protected void setPropertiesFromMagicString(List<FieldDef> fields) {
-        if (!propertiesInitialized) {
-            propertiesInitialized = true;
-            
-            HashSet<String> set = new HashSet<String>();
-            
-            for (FieldDef fd : fields) {
-                if (fd.name().equals(X10FieldInstance.MAGIC_PROPERTY_NAME)) {
-                    if (fd.isConstant()) {
-                        Object o = fd.constantValue();
-                        if (o instanceof String) {
-                            Scanner s = new Scanner((String) o);
-                            while (s.hasNext()) {
-                                String name = s.next();
-                                set.add(name);
-                            }
-                        }
-                    }
-                }
-            }
-            
-            for (FieldDef fd : fields) {
-                if (set.contains(fd.name())) {
-                    ((X10FieldDef) fd).setProperty();
-                }
-            }
-        }
     }
 
     public List<X10FieldDef> properties() {
@@ -515,13 +485,4 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		return oldType;
 	}
 	     */
-
-//	@Override
-//	public String toString() {
-////	    if (name.equals("package") && outer != null)
-////		return outer.toString();
-////	    if (name.equals("package") && package_ != null)
-////		return package_.toString();
-//	    return super.toString();
-//	}
 }

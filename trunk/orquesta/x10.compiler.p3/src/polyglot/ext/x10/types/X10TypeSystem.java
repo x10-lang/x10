@@ -22,10 +22,10 @@ import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -46,6 +46,8 @@ import x10.constraint.XTerm;
  * @author vj
  */
 public interface X10TypeSystem extends TypeSystem {
+	public Name DUMMY_PACKAGE_CLASS_NAME = Name.make("_");
+	
     /**
      * Add an annotation to a type object, optionally replacing existing
      * annotations that are subtypes of annoType.
@@ -58,7 +60,7 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type futureOf(Position p, Ref<? extends Type> t);
 
-    MethodMatcher MethodMatcher(Type container, String name, List<Type> typeArgs, List<Type> argTypes);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes);
 
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes);
 
@@ -71,7 +73,7 @@ public interface X10TypeSystem extends TypeSystem {
      * @exception SemanticException
      *                    if the method cannot be found or is inaccessible.
      */
-    X10MethodInstance findMethod(Type container, TypeSystem_c.MethodMatcher matcher, ClassDef currClass) throws SemanticException;
+    X10MethodInstance findMethod(Type container, MethodMatcher matcher, ClassDef currClass) throws SemanticException;
 
     /**
      * Find a constructor. We need to pass the class from which the constructor
@@ -145,7 +147,7 @@ public interface X10TypeSystem extends TypeSystem {
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard,
 	    List<Ref<? extends Type>> throwTypes);
 
-    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, String name,
+    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard,
 	    List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
@@ -220,10 +222,7 @@ public interface X10TypeSystem extends TypeSystem {
     /**
      * @return true iff the given name is that of a "primitive type".
      */
-    public boolean isPrimitiveTypeName(String name);
-
-    /** Return the constructor instance for runtime.T.T(t) */
-    ConstructorInstance wrapper(PrimitiveType t);
+    public boolean isPrimitiveTypeName(Name name);
 
     boolean hasSameClassDef(Type t1, Type t2);
 
@@ -267,13 +266,13 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type performUnaryOperation(Type t, Type l, Unary.Operator op);
 
-    X10TypeSystem_c.TypeDefMatcher TypeDefMatcher(Type container, String name, List<Type> typeArgs, List<Type> argTypes);
+    X10TypeSystem_c.TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes);
 
     MacroType findTypeDef(Type t, X10TypeSystem_c.TypeDefMatcher matcher, ClassDef currentClassDef) throws SemanticException;
 
-    List<MacroType> findTypeDefs(Type container, String name, ClassDef currClass) throws SemanticException;
+    List<MacroType> findTypeDefs(Type container, Name name, ClassDef currClass) throws SemanticException;
 
-    PathType findTypeProperty(Type t, String name, ClassDef currClass) throws SemanticException;
+    PathType findTypeProperty(Type t, Name name, ClassDef currClass) throws SemanticException;
 
     Type UByte();
 

@@ -5,16 +5,16 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.parse.Name;
+import polyglot.parse.ParsedName;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 
-public class X10Name extends Name {
-	public X10Name(NodeFactory nf, TypeSystem ts, Position pos, Id name) {
+public class X10ParsedName extends ParsedName {
+	public X10ParsedName(NodeFactory nf, TypeSystem ts, Position pos, Id name) {
 		super(nf, ts, pos, name);
 	}
 
-	public X10Name(NodeFactory nf, TypeSystem ts, Position pos, Name prefix, Id name) {
+	public X10ParsedName(NodeFactory nf, TypeSystem ts, Position pos, ParsedName prefix, Id name) {
 		super(nf, ts, pos, prefix, name);
 	}
 

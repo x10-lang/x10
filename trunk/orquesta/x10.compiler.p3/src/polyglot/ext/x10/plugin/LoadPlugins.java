@@ -14,6 +14,7 @@ import polyglot.frontend.Parser;
 import polyglot.frontend.ParserlessJLExtensionInfo;
 import polyglot.frontend.Source;
 import polyglot.frontend.SourceLoader;
+import polyglot.types.QName;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
@@ -38,7 +39,7 @@ public class LoadPlugins extends AbstractGoal_c {
 		}
 
 		if (exportXML) {
-			loadPlugin(extInfo, "polyglot.ext.x10.dom.ExternalizerPlugin");
+			loadPlugin(extInfo, QName.make("polyglot.ext.x10.dom.ExternalizerPlugin"));
 		}
 
 		String compilerPlugins = Configuration.PLUGINS;
@@ -54,12 +55,12 @@ public class LoadPlugins extends AbstractGoal_c {
 		for (StringTokenizer st = new StringTokenizer(compilerPlugins, ",; \t\n"); st.hasMoreTokens(); ) {
 			String pluginName = st.nextToken();
 			if (pluginName.length() > 0) {
-				loadPlugin(extInfo, pluginName);
+				loadPlugin(extInfo, QName.make(pluginName));
 			}
 		}
 	}
 
-	public static void loadPlugin(ExtensionInfo extInfo, String pluginName) {
+	public static void loadPlugin(ExtensionInfo extInfo, QName pluginName) {
 		ErrorQueue eq = extInfo.compiler().errorQueue();
 		
 		File sourceFile = null;
@@ -98,7 +99,7 @@ public class LoadPlugins extends AbstractGoal_c {
 			// Now load the plugin from the class file.
 			try {
 //				System.out.println("classpath = " + System.getProperty("java.class.path"));
-				Class c = Class.forName(pluginName);
+				Class c = Class.forName(pluginName.toString());
 				Object o = c.newInstance();
 				if (o instanceof CompilerPlugin) {
 					// OK, it's a plugin!

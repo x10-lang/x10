@@ -22,6 +22,7 @@ import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.frontend.Job;
 import polyglot.types.ClassType;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
@@ -81,14 +82,14 @@ public class AnnotationChecker extends ContextVisitor {
 	
 	public void init() throws SemanticException {
 		if (A != null) return;
-		TA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.TypeAnnotation"));
-		EA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.ExpressionAnnotation"));
-		SA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.StatementAnnotation"));
-		MA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.MethodAnnotation"));
-		FA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.FieldAnnotation"));
-		CA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.ClassAnnotation"));
-		IA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.ImportAnnotation"));
-		PA = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.PackageAnnotation"));
-		A  = (ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotations.Annotation"));
+		TA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.TypeAnnotation"));
+		EA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ExpressionAnnotation"));
+		SA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.StatementAnnotation"));
+		MA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.MethodAnnotation"));
+		FA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.FieldAnnotation"));
+		CA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ClassAnnotation"));
+		IA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ImportAnnotation"));
+		PA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.PackageAnnotation"));
+		A  = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.Annotation"));
 	}
 }

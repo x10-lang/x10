@@ -8,6 +8,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Def_c;
 import polyglot.types.LocalDef;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -83,7 +84,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<Type> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(QName fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN

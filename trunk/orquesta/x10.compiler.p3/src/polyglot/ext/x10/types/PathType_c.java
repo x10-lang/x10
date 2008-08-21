@@ -15,6 +15,7 @@ import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
@@ -58,7 +59,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 		return (PathType) super.flags(flags);
 	}
 	
-	public String name() {
+	public Name name() {
 		if (this.name == null) { 
 			this.name = def().name();
 		}
@@ -66,7 +67,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 	}
 	
 	@Override
-	public PathType name(String name) {
+	public PathType name(Name name) {
 		return (PathType) super.name(name);
 	}
 	

@@ -40,6 +40,7 @@ import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -156,7 +157,7 @@ public class X10Disamb_c extends Disamb_c {
     		try {
     		    MethodInstance mi = c.findMethod(ts.MethodMatcher(null, name.id(), Collections.EMPTY_LIST));
     		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
-    			Call call = nf.Call(pos, makeMissingFieldTarget(mi), this.name);
+    			Call call = nf.Call(pos, makeMissingMethodTarget(mi), this.name);
     			call = call.methodInstance(mi);
     			call = (Call) call.type(mi.returnType());
     			return call;
@@ -175,7 +176,7 @@ public class X10Disamb_c extends Disamb_c {
 			return makeTypeNode(type);
 		    }
 		} catch (NoClassException e1) {
-		    if (!name.id().equals(e1.getClassName())) {
+		    if (!name.id().toString().equals(e1.getClassName())) {
 			// hmm, something else must have gone wrong
 			// rethrow the exception
 			throw e1;
@@ -206,7 +207,7 @@ public class X10Disamb_c extends Disamb_c {
 
 	    // Must be a package then...
 	    if (packageOK()) {
-	        return nf.PackageNode(pos, Types.ref(ts.packageForName(name.id())));
+	        return nf.PackageNode(pos, Types.ref(ts.packageForName(QName.make(null, name.id()))));
 	    }
 	    
 	    return null;

@@ -18,6 +18,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Id_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.Field_c;
+import polyglot.types.Name;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
@@ -48,7 +49,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	}
 
 	public Expr getDomain(Expr d) {
-		return new Field_c(position(), d, new Id_c(position(), "distribution"));
+		return new Field_c(position(), d, new Id_c(position(), Name.make("dist")));
 	}
 
 	public String toString() {

@@ -10,6 +10,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -66,7 +67,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<Type> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(QName fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN

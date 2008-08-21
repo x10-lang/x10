@@ -34,6 +34,7 @@ import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -190,7 +191,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		
                     // Check if there is a method with the appropriate name and type with the left operand as receiver.   
                     try {
-                        X10MethodInstance mi = ts.findMethod(domainType, ts.MethodMatcher(domainType, "iterator", Collections.singletonList(formalType)), tc.context().currentClassDef());
+                        X10MethodInstance mi = ts.findMethod(domainType, ts.MethodMatcher(domainType, Name.make("iterator"), Collections.singletonList(formalType)), tc.context().currentClassDef());
                         return this;
                     }
                     catch (SemanticException e) {

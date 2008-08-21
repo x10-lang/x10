@@ -6,6 +6,7 @@ import polyglot.types.Flags;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject_c;
@@ -16,12 +17,12 @@ import x10.constraint.XSelf;
 import x10.constraint.XVar;
 
 public class TypeProperty_c extends TypeObject_c implements TypeProperty {
-	String name;
+        Name name;
 	Variance variance;
 	Ref<? extends X10ClassType> container;
 
 	public TypeProperty_c(X10TypeSystem ts, Position pos,
-			Ref<? extends X10ClassType> container, String name, Variance v) {
+			Ref<? extends X10ClassType> container, Name name, Variance v) {
 		super(ts, pos);
 		this.container = container;
 		this.name = name;
@@ -51,11 +52,11 @@ public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 		return asVar;
 	}
 
-	public String name() {
+	public Name name() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(Name name) {
 		this.name = name;
 	}
 

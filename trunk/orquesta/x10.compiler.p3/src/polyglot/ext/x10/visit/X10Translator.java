@@ -26,6 +26,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.frontend.Job;
 import polyglot.frontend.TargetFactory;
 import polyglot.types.Package;
+import polyglot.types.QName;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -76,7 +77,7 @@ public class X10Translator extends Translator {
 	    	    File of;
 	    	    CodeWriter w;
 	    	    
-	    	    String pkg = "";
+	    	    QName pkg = null;
 	    	    
 	    	    if (sfn.package_() != null) {
 	    	        Package p = sfn.package_().package_().get();

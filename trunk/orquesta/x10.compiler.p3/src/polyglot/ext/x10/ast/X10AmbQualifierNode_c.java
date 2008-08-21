@@ -48,11 +48,6 @@ public class X10AmbQualifierNode_c extends AmbQualifierNode_c implements X10AmbQ
 		return this.qualifier;
 	}
 
-	public String nameString() {
-		return this.name.id();
-	}
-
-
 	public Prefix prefix() {
 		return this.qual;
 	}

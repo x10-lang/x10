@@ -33,6 +33,7 @@ import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -120,7 +121,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    cd = c.supertypeDeclarationType();
 	else
 	    cd = (X10ClassDef) c.currentClassDef();
-        final Map<String,TypeProperty.Variance> vars = new HashMap<String, TypeProperty.Variance>();
+        final Map<Name,TypeProperty.Variance> vars = new HashMap<Name, TypeProperty.Variance>();
         for (int i = 0; i < cd.typeParameters().size(); i++) {
     	ParameterType pt = cd.typeParameters().get(i);
     	TypeProperty.Variance v = cd.variances().get(i);

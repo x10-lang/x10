@@ -125,7 +125,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 	}
 	if (container instanceof Named) {
 	    Named n = (Named) container;
-	    return n.fullName();
+	    return n.fullName().toString();
 	}
 	return container.toString();
     }

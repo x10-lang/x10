@@ -25,6 +25,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
@@ -186,7 +187,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	}
 	
 	// Find the most-specific closure type.
-	X10MethodInstance mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, "apply", typeArgs, actualTypes), tc.context().currentClassDef());
+	X10MethodInstance mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, Name.make("apply"), typeArgs, actualTypes), tc.context().currentClassDef());
 	
 	if (mi.container() instanceof ClosureType) {
 	    ClosureInstance ci = ((ClosureType) mi.container()).closureInstance();
@@ -200,7 +201,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 //	    if (! targetType.isSubtype(ct))
 //		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
 	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	    X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), nf.Id(position(), mi.name()), typeArgs(), arguments());
+	    X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), nf.Id(position(), mi.name().toString()), typeArgs(), arguments());
 	    n = (X10Call_c) n.methodInstance(mi);
 	    n = (X10Call_c) n.type(mi.returnType());
 	    return n;

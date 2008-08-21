@@ -17,6 +17,7 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
@@ -79,14 +80,14 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return definedType.translate(c);
 	}
 
-	public String name() {
+	public Name name() {
 		if (this.name == null) { 
 			this.name = def().name();
 		}
 		return name;
 	}
 
-	public MacroType name(String name) {
+	public MacroType name(Name name) {
 		return (MacroType) super.name(name);
 	}
 
@@ -203,7 +204,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		public XVar transform(Integer i) {
 			final Ref<? extends Type> r = formalTypes.get(i);
 			LocalDef li = formalNames.get(i);
-			XVar v = XTerms.makeLocal(new XNameWrapper<LocalDef>(li, li.name()));
+			XVar v = XTerms.makeLocal(new XNameWrapper<LocalDef>(li, li.name().toString()));
 			v.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return X10TypeMixin.realX(r.get()); } });
 			return v;
 		}
@@ -214,7 +215,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			Type t = r.get();
 			if (t instanceof ParameterType) {
 				ParameterType pt = (ParameterType) t;
-				return XTerms.makeLocal(new XNameWrapper<String>(pt.name()));
+				return XTerms.makeLocal(new XNameWrapper<String>(pt.name().toString()));
 			}
 			throw new InternalCompilerError("Cannot translate non-parameter type into var.", t.position());
 		}
@@ -245,7 +246,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		if (pkg != null) {
 		    Package p = pkg.getCached();
 		    if (p != null) {
-			if (p.name().equals("package")) {
+			if (p.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME)) {
 			    sb.append(p.prefix());
 			}
 			else {

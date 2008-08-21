@@ -58,6 +58,7 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
@@ -203,13 +204,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         // during bootstrapping: Object, refers to Int, refers to Object, ...
         final LazyRef<Type> superRef = Types.lazyRef(null);
 
-        if (thisType.fullName().equals("x10.lang.Ref")) {
+        if (thisType.fullName().equals(QName.make("x10.lang.Ref"))) {
             thisType.superType(null);
         }
-        else if (thisType.fullName().equals("x10.lang.Value")) {
+        else if (thisType.fullName().equals(QName.make("x10.lang.Value"))) {
             thisType.superType(null);
         }
-        else if (thisType.fullName().equals("x10.lang.Object")) {
+        else if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
             thisType.superType(null);
         }
         else if (flags().flags().isInterface()) {
@@ -240,13 +241,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     @Override
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
-        if (thisType.fullName().equals("x10.lang.Ref")) {
+        if (thisType.fullName().equals(QName.make("x10.lang.Ref"))) {
             thisType.addInterface(Types.ref(ts.Object()));
         }
-        else if (thisType.fullName().equals("x10.lang.Value")) {
+        else if (thisType.fullName().equals(QName.make("x10.lang.Value"))) {
             thisType.addInterface(Types.ref(ts.Object()));
         }
-        else if (thisType.fullName().equals("x10.lang.Object")) {
+        else if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         }
         else if (interfaces.isEmpty() && flags().flags().isInterface()) {
         }
@@ -368,8 +369,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         List<AnnotationNode> as = ((X10Del) n.del()).annotations();
         if (as != null) {
-            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>();
-            for (AnnotationNode an : as ) {
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+            for (AnnotationNode an : as) {
         	ats.add(an.annotationType().typeRef());
             }
             ((X10ClassDef) n.type).setDefAnnotations(ats);

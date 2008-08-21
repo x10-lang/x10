@@ -72,7 +72,9 @@ import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
@@ -323,13 +325,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public Expr ConstantDistMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
 		TypeSystem ts = this.extensionInfo().typeSystem();
-		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, "x10.lang.Dist");
+		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, QName.make("x10.lang.Dist"));
 		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
 		l.add(e1);
 		l.add(e2);
 		ConstantDistMaker n = new ConstantDistMaker_c(pos,
 				x10LangDistributionFactory,
-				Id(pos, "makeConstant"), l);
+				Id(pos, Name.make("makeConstant")), l);
 		n = (ConstantDistMaker) n.ext(extFactory().extExpr());
 		return (ConstantDistMaker) n.del(delFactory().delExpr());
 	}
@@ -645,7 +647,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		l.add(e1);
 		l.add(e2);
 
-		Call n = new RegionMaker_c(pos, nf.TypeNodeFromQualifiedName(pos, "x10.lang.Region"), nf.Id(pos, "makeRectangular"), l);
+		Call n = new RegionMaker_c(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.Region")), nf.Id(pos, "makeRectangular"), l);
 		n = (Call) n.ext(extFactory().extExpr());
 		n = (Call) n.del(delFactory().delExpr());
 		return n;

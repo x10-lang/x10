@@ -8,8 +8,10 @@ import polyglot.types.Def_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Package;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -21,7 +23,7 @@ import x10.constraint.XConstraint;
 public class TypeDef_c extends Def_c implements TypeDef {
 	protected Ref<? extends StructType> container;
 	protected Flags flags;
-	protected String name;
+	protected Name name;
 	protected Ref<? extends Package> package_;
 	protected List<Ref<? extends Type>> typeParameters;
 	protected List<LocalDef> formalNames;
@@ -30,7 +32,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
 	
-	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, String name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
+	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
 			List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> guard, Ref<? extends Type> type) {
 
 		super(ts, pos);
@@ -64,7 +66,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		return X10TypeObjectMixin.annotationsMatching(this, t);
 	}
 
-	public List<Type> annotationsNamed(String fullName) {
+	public List<Type> annotationsNamed(QName fullName) {
 		return X10TypeObjectMixin.annotationsNamed(this, fullName);
 	}
 
@@ -172,11 +174,11 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		return "type " + name + typeParameters + "" + formalTypes + " = " + type;
 	}
 
-	public String name() {
+	public Name name() {
 		return name;
 	}
 	
-	public void setName(String name) {
+	public void setName(Name name) {
 		this.name = name;
 	}
 	

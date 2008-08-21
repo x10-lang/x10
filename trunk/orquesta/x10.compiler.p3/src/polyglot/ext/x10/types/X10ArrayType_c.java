@@ -2,7 +2,9 @@ package polyglot.ext.x10.types;
 
 import polyglot.types.ArrayType_c;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -16,8 +18,8 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	    return false;
     }
 	
-    public String name() { return ((Named) base).name();}
-    public String fullName() { return ((Named) base).fullName();}
+    public Name name() { return ((Named) base).name();}
+    public QName fullName() { return ((Named) base).fullName();}
 
     public boolean safe() {
         return true;

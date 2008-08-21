@@ -18,7 +18,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Id;
 import polyglot.ast.NodeFactory;
-import polyglot.parse.Name;
+import polyglot.parse.ParsedName;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import polyglot.types.TypeSystem;
@@ -48,7 +48,7 @@ public class X10VarDeclarator extends VarDeclarator {
 		if (paramList != null) {
 			this.vars = new ArrayList<Formal>(paramList.size());
 			for (int i = 0; i < paramList.size(); i++) {
-				Name ni = (Name) paramList.get(i);
+				ParsedName ni = (ParsedName) paramList.get(i);
 				TypeSystem ts = ni.ts;
 				NodeFactory nf = ni.nf;
 				this.vars.add(nf.Formal(ni.pos, flags == null ? nf.FlagsNode(ni.pos, Flags.NONE) : flags, nf.CanonicalTypeNode(ni.pos, ts.Int()), ni.name));

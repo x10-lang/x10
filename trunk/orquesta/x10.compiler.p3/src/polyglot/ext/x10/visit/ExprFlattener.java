@@ -35,6 +35,7 @@ import polyglot.ext.x10.types.X10Context;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -169,7 +170,7 @@ public class ExprFlattener extends ContextVisitor  {
 				// has been converted to a variable reference.
 				final Type type = e.type();
 				if (! ts.typeEquals(type, ts.Void())) {
-					final String varName = xc.getNewVarName();
+					final Name varName = xc.getNewVarName();
 					final TypeNode tn = nf.CanonicalTypeNode(pos,type);
 					final LocalDef li = ts.localDef(pos, flags, Types.ref(type), varName);
 					final Id varId = nf.Id(n.position(), varName);

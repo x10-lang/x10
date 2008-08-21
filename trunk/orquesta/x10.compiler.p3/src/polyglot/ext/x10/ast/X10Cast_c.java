@@ -23,6 +23,7 @@ import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -74,7 +75,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	else {
 	    // Can convert if there is a static method toType.$convert(fromType)
 	    try {
-		MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, "$convert", Collections.singletonList(fromType)), (ClassDef) null);
+		MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType)), (ClassDef) null);
 		if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
 		    conversionAllowed = true;
 		    converter = mi;

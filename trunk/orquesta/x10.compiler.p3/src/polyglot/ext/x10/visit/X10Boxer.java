@@ -22,7 +22,9 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -62,7 +64,7 @@ public class X10Boxer extends AscriptionVisitor
 		        MethodInstance mi = null;
 		        
 			try {
-			    mi = ts.findMethod(toType, ts.MethodMatcher(toType, "$convert", Collections.singletonList(fromType)), (ClassDef) null);
+			    mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType)), (ClassDef) null);
 			    if (! mi.flags().isStatic())
 				mi = null;
 			}
@@ -71,7 +73,7 @@ public class X10Boxer extends AscriptionVisitor
 
 			if (mi == null) {
 			    try {
-				mi = ts.findMethod(toType, ts.MethodMatcher(toType, "make", Collections.singletonList(fromType)), (ClassDef) null);
+				mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType)), (ClassDef) null);
 				if (! mi.flags().isStatic())
 				    mi = null;
 			    }
@@ -117,10 +119,10 @@ public class X10Boxer extends AscriptionVisitor
 		// FIXME: [IP] HACK: Leave printf alone
 		if (n instanceof Call) {
 			Call call_n = (Call) n;
-			String m_name = call_n.name().id();
+			Name m_name = call_n.name().id();
 			Type target_t = call_n.target().type();
-			if (m_name.equals("printf") && target_t.isClass() &&
-					target_t.toClass().fullName().equals("java.io.PrintStream")) {
+			if (m_name.equals(Name.make("printf")) && target_t.isClass() &&
+					target_t.toClass().fullName().equals(QName.make("java.io.PrintStream"))) {
 				return n;
 			}
 		}

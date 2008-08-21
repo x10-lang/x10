@@ -5,7 +5,7 @@
 %Rules
     TypeName ::= TypeName . ErrorId
             /.$BeginJava
-                        setResult(new Name(nf,
+                        setResult(new ParsedName(nf,
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           TypeName,
@@ -15,7 +15,7 @@
 
     PackageName ::= PackageName . ErrorId
             /.$BeginJava
-                        setResult(new Name(nf,
+                        setResult(new ParsedName(nf,
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           PackageName,
@@ -25,7 +25,7 @@
     
     ExpressionName ::= AmbiguousName . ErrorId
             /.$BeginJava
-                        setResult(new Name(nf,
+                        setResult(new ParsedName(nf,
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           AmbiguousName,
@@ -35,7 +35,7 @@
 
     MethodName ::= AmbiguousName . ErrorId
             /.$BeginJava
-                        setResult(new Name(nf,
+                        setResult(new ParsedName(nf,
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           AmbiguousName,
@@ -45,7 +45,7 @@
 
     PackageOrTypeName ::= PackageOrTypeName . ErrorId
             /.$BeginJava
-                        setResult(new Name(nf,
+                        setResult(new ParsedName(nf,
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           PackageOrTypeName,
@@ -55,7 +55,7 @@
 
     AmbiguousName ::= AmbiguousName . ErrorId
             /.$BeginJava
-                        setResult(new Name(nf,
+                        setResult(new ParsedName(nf,
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           AmbiguousName,
@@ -97,7 +97,7 @@
         ./
                        | MethodClassNameSuperPrefix ( ArgumentListopt )
         /.$BeginJava
-                    Name ClassName = (Name) ((Object[]) MethodClassNameSuperPrefix)[0];
+                    ParsedName ClassName = (ParsedName) ((Object[]) MethodClassNameSuperPrefix)[0];
                     JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
                     polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
                     setResult(nf.Call(pos(), nf.Super(super_pos, ClassName.toType()), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
