@@ -3,6 +3,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+@NativeRep("java", "#1[]")
 public abstract value class Rail[T](length: nat)
     implements Indexable[nat,T], Settable[nat,T]
 {
@@ -18,6 +19,12 @@ public abstract value class Rail[T](length: nat)
     @Native("java", "x10.runtime.Runtime.makeValRail(#0, #1)")
     public static def make[U](r: ValRail[U]): Rail[U]{self.length==r.length} = makeVar[U](r.length, r);
 
-    public abstract def get(i: nat): T;
+    @Native("java", "(#0[#1])")
+    public native def get(i: nat): T;
+
+    @Native("java", "(#0[#1])")
+    public native def apply(i: nat): T;
+
+    @Native("java", "(#0[#1] = #2)")
     public abstract def set(i: nat, v: T): void;
 }
