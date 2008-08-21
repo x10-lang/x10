@@ -276,6 +276,25 @@ public class Closure_c extends Expr_c implements Closure {
     }
 
     @Override
+    public Context enterChildScope(Node child, Context c) {
+        // We should have entered the method scope already.
+        assert c.currentCode() == this.closureDef();
+        
+        if (child != body()) {
+            // Push formals so they're in scope in the types of the other formals.
+            c = c.pushBlock();
+            for (TypeParamNode f : typeParameters) {
+                f.addDecls(c);
+            }
+            for (Formal f : formals) {
+                f.addDecls(c);
+            }
+        }
+
+        return super.enterChildScope(child, c);
+    }
+
+    @Override
     public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
 	    if (returnType() instanceof UnknownTypeNode && body != null) {
 		    UnknownTypeNode tn = (UnknownTypeNode) returnType();
