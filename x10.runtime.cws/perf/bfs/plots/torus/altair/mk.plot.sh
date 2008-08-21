@@ -1,9 +1,9 @@
-#!/usr/bin/ksh
+#!/usr/bin/bash
 
 #
 # (c) IBM Corporation 2008
 #
-# $Id: mk.plot.sh,v 1.2 2008-02-25 15:28:35 srkodali Exp $
+# $Id: mk.plot.sh,v 1.3 2008-08-21 13:38:30 vj0 Exp $
 #
 # Script for generating plots from tables.
 #
@@ -27,9 +27,9 @@ printf "set ytics nomirror\n" >> $tmp_file
 printf "set grid\n" >> $tmp_file
 printf "set size 1,1\n" >> $tmp_file
 printf "set style data linespoints\n" >> $tmp_file
-printf "set terminal png\n" >> $tmp_file
+printf "set terminal pdf\n" >> $tmp_file
 
-printf "set output \"${out_file}.png\"\n" >> $tmp_file
+printf "set output \"${out_file}.pdf\"\n" >> $tmp_file
 printf "set ylabel \"MEdges/Sec\"\n" >> $tmp_file
 printf "set xlabel \"Processes\"\n" >> $tmp_file
 printf "set xrange [1:8]\n" >> $tmp_file

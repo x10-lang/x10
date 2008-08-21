@@ -2,6 +2,46 @@
 
 We consider implementations of breadth-first and depth-first search for spanning trees of a graph.
 
+\begin{figure*}
+\begin{center}
+ \begin{tabular}{ccc}
+\includegraphics[width=10cm]{plots/bfs-kgraph-altair-color.pdf} \\
+\includegraphics[width=10cm] {plots/bfs-random-altair-color.pdf} \\
+\end{tabular}
+\caption{BFS for Opteron}\label{altair}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+ \begin{tabular}{ccc}
+\includegraphics[width=10cm]{plots/dfs-kgraph-altair-color.pdf}\\
+\includegraphics[width=10cm]{plots/dfs-torus-altair-color.pdf}\\
+\end{tabular}
+\caption{DFS for Opteron}\label{altair}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+ \begin{tabular}{ccc}
+\includegraphics[width=10cm]{plots/bfs-kgraph-moxie-color.pdf} \\
+\includegraphics[width=10cm]{plots/bfs-torus-moxie-color.pdf} \\
+ \end{tabular}
+\caption{BFS for Niagara}\label{moxie-1}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+ \begin{tabular}{ccc}
+\includegraphics[width=10cm]{plots/dfs-kgraph-moxie-color.pdf}\\
+\includegraphics[width=10cm]{plots/dfs-torus-moxie-color.pdf}\\
+
+ \end{tabular}
+\caption{DFS for Niagara}\label{moxie-2}
+\end{center}
+\end{figure*}
 
 \subsection{SIMPLE implementation (C)}
 
@@ -290,17 +330,8 @@ We leave for future work the investigation of other adaptive rules which may yie
 
 
 \subsection{Results}
-\begin{figure*}
-\begin{center}
- \begin{tabular}{ccc}
-\includegraphics[width=10cm]{plots/bfs-kgraph-altair-color.pdf} \\
-\includegraphics[width=10cm] {plots/bfs-random-altair-color.pdf} \\
-\includegraphics[width=10cm]{plots/dfs-kgraph-altair-color.pdf}\\
-\includegraphics[width=10cm]{plots/dfs-torus-altair-color.pdf}\\
-\end{tabular}
-\caption{BFS and DFS for Opteron}\label{altair}
-\end{center}
-\end{figure*}
+
+
 
 We present results in Figure~\ref{altair} for runs of BFS (KGraph,
 Random) and DFS (Kgraph, Torus) on Opteron and in Figure~\ref{moxie}

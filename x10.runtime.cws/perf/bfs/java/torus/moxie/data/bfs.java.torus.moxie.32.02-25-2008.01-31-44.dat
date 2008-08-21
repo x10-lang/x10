@@ -1501,7 +1501,7 @@ Completed iterations for N=4000000
 
 ### nproc: 32
 /home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn1.jar -Xms2G -Xmx3G graph.AdaptiveBFS 32 T 2000 4 false false true 1
-Number of procs=32
+Number of h
 graphType=T
 N=2000
 D=4

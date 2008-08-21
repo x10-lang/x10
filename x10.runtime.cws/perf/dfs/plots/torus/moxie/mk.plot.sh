@@ -3,7 +3,7 @@
 #
 # (c) IBM Corporation 2008
 #
-# $Id: mk.plot.sh,v 1.1 2008-02-24 15:01:28 srkodali Exp $
+# $Id: mk.plot.sh,v 1.2 2008-08-21 13:38:30 vj0 Exp $
 #
 # Script for generating plots from tables.
 #
@@ -18,6 +18,7 @@ java_tbl=$1
 c_tbl=$2
 
 out_file=`basename $java_tbl | sed -e 's;.tbl;;'`
+echo $out_file
 tmp_file=/tmp/mk.plot.gnu.$$
 printf "set autoscale x\n" > $tmp_file
 printf "set autoscale y\n" >> $tmp_file
@@ -69,4 +70,4 @@ printf "\n" >> $tmp_file
 
 printf "unset multiplot\n" >> $tmp_file
 gnuplot $tmp_file
-rm -f $tmp_file
+
