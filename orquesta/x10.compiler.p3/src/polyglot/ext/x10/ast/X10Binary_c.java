@@ -40,6 +40,7 @@ import polyglot.ext.x10.visit.ExprFlattener.Flattener;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -233,7 +234,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	    return null;
 	}
 	
-	public static String binaryMethodName(Binary.Operator op) {
+	public static Name binaryMethodName(Binary.Operator op) {
 	    Map<Binary.Operator,String> methodNameMap = new HashMap<Operator, String>();
 		methodNameMap.put(ADD, "$plus");
 		methodNameMap.put(SUB, "$minus");
@@ -254,7 +255,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		methodNameMap.put(GE, "$ge");
 		
 		String methodName = methodNameMap.get(op);
-		return methodName;
+		return Name.make(methodName);
 	}
 
 	/**
@@ -285,7 +286,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		    return type(xts.Boolean());
 		}
 		
-		String methodName = binaryMethodName(op);
+		Name methodName = binaryMethodName(op);
 		
 		if (methodName != null) {
 		    // Check if there is a method with the appropriate name and type with the left operand as receiver.   

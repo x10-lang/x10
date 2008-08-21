@@ -3,17 +3,19 @@ package polyglot.ext.x10.types;
 import polyglot.types.Def;
 import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
+import polyglot.types.Name;
 import polyglot.types.TypeObject;
 import polyglot.types.Type_c;
 import polyglot.util.Position;
 
 public class ParameterType_c extends Type_c implements ParameterType {
-	String name;
+    Name name;
 	Ref<? extends Def> def;
 	
-	public ParameterType_c(X10TypeSystem ts, Position pos, String name, Ref<? extends Def> def) {
+	public ParameterType_c(X10TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
 		super(ts, pos);
 		this.name = name;
 		this.def = def;
@@ -23,11 +25,11 @@ public class ParameterType_c extends Type_c implements ParameterType {
 	    return false;
 	}
 	
-	public String fullName() {
-		return name;
+	public QName fullName() {
+		return QName.make(null, name);
 	}
 	
-	public String name() {
+	public Name name() {
 		return name;
 	}
 	
@@ -35,14 +37,14 @@ public class ParameterType_c extends Type_c implements ParameterType {
 	public String toString() {
 	    String old = null;
 	    if (def != null && def.getCached() instanceof Named) {
-		old = ((Named) def.getCached()).fullName();
+		old = ((Named) def.getCached()).toString();
 	    }
 	    return name + (old == null ? "" : " (in " + old + ")");
 	}
 
 	@Override
 	public String translate(Resolver c) {
-		return name;
+		return name.toString();
 	}
 
 	public boolean safe() {

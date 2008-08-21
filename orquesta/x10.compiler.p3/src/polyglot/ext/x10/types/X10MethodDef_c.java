@@ -11,9 +11,11 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef_c;
 import polyglot.types.MethodInstance;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -46,7 +48,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Ref<? extends StructType> container,
             Flags flags, 
             Ref<? extends Type> returnType,
-            String name,
+            Name name,
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
             List<LocalDef> formalNames,
@@ -98,7 +100,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<Type> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(QName fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN

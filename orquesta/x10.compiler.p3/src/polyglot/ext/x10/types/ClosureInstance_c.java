@@ -85,7 +85,7 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
 		String t = formalTypes.get(i).toString();
 		if (formalNames != null && i < formalNames.size()) {
 		    LocalInstance a = formalNames.get(i);
-		    if (a != null && ! a.name().equals(""))
+		    if (a != null && ! a.name().toString().equals(""))
 			s = a.name() + ": " + t; 
 		    else
 			s = t;

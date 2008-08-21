@@ -18,7 +18,9 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
+import polyglot.types.Matcher;
 import polyglot.types.Named;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.util.TransformingList;
 
@@ -54,9 +56,10 @@ public interface X10ClassType extends ClassType, X10Type, X10Use<X10ClassDef> {
     List<Type> typeArguments();
     
     List<Type> typeProperties();
-    Named typePropertyNamed(String name);
+    PathType typePropertiesMatching(Matcher<Named> name);
     
     List<Type> typeMembers();
-    List<Type> typeMembersNamed(String name);
+
+    MacroType typeMemberMatching(Matcher<Named> matcher);
 
 }

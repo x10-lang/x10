@@ -6,6 +6,7 @@ import java.util.List;
 
 import polyglot.types.DerefTransform;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Use;
@@ -21,7 +22,7 @@ public class X10TypeObjectMixin {
         return annotationsMatching(annotations(o), t);
     }
     
-    public static List<Type> annotationsNamed(X10Def o, String fullName) {
+    public static List<Type> annotationsNamed(X10Def o, QName fullName) {
         return annotationsNamed(annotations(o), fullName);
     }
     
@@ -33,7 +34,7 @@ public class X10TypeObjectMixin {
         return annotationsMatching(annotations(o), t);
     }
     
-    public static List<Type> annotationsNamed(X10Use<? extends X10Def> o, String fullName) {
+    public static List<Type> annotationsNamed(X10Use<? extends X10Def> o, QName fullName) {
         return annotationsNamed(annotations(o), fullName);
     }
 
@@ -48,7 +49,7 @@ public class X10TypeObjectMixin {
         return l;
     }
 
-    public static List<Type> annotationsNamed(List<Type> annotations, String fullName) {
+    public static List<Type> annotationsNamed(List<Type> annotations, QName fullName) {
         List<Type> l = new ArrayList<Type>();
         for (Iterator<Type> i = annotations.iterator(); i.hasNext(); ) {
             Type ct = i.next();

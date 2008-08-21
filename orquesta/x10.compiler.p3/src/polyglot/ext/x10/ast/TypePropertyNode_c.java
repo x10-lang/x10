@@ -21,9 +21,11 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 
 public class TypePropertyNode_c extends Node_c implements TypePropertyNode {
@@ -35,10 +37,6 @@ public class TypePropertyNode_c extends Node_c implements TypePropertyNode {
 		super(pos);
 		this.name = name;
 		this.variance = variance;
-	}
-
-	public String nameString() {
-		return name.id();
 	}
 	
 	public Id name() {
@@ -82,15 +80,20 @@ public class TypePropertyNode_c extends Node_c implements TypePropertyNode {
 
 	public String toString() {
 		if (variance == TypeProperty.Variance.CONTRAVARIANT)
-			return "-" + nameString();
+			return "-" + name().id();
 		if (variance == TypeProperty.Variance.COVARIANT)
-			return "+" + nameString();
-		return nameString();
+			return "+" + name().id();
+		return name().id().toString();
 	}
 
 	public Node visitChildren(NodeVisitor v) {
 		Id id = (Id) visitChild(this.name, v);
 		if (id != this.name) return name(id);
 		return this;
+	}
+	
+	@Override
+	public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
+	    pp.print(this, name, w);
 	}
 }

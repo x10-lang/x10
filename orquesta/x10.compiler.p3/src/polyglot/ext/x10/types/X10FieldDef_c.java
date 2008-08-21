@@ -8,8 +8,10 @@ import java.util.List;
 
 import polyglot.types.FieldDef_c;
 import polyglot.types.Flags;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -30,7 +32,7 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
             Ref<? extends StructType> container,
             Flags flags, 
             Ref<? extends Type> type,
-            String name) {
+            Name name) {
         super(ts, pos, container, flags, type, name);
         isProperty = false;
     }
@@ -55,7 +57,7 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-    public List<Type> annotationsNamed(String fullName) {
+    public List<Type> annotationsNamed(QName fullName) {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN

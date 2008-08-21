@@ -15,6 +15,7 @@ package polyglot.ext.x10.types;
 
 import polyglot.types.PrimitiveType;
 import polyglot.types.PrimitiveType_c;
+import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 
@@ -30,12 +31,12 @@ import polyglot.util.CodeWriter;
 public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveType {
 	protected X10PrimitiveType_c() { }
 
-	public X10PrimitiveType_c(TypeSystem ts, String name) {
+	public X10PrimitiveType_c(TypeSystem ts, Name name) {
 		super(ts, name);
 	}
 
 	public void print(CodeWriter w) {
-		w.write(name());
+		w.write(name().toString());
 	}
 
 	private static String getStackTrace() {
@@ -51,6 +52,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	    sb.append(super.toString());
 	    return sb.toString();
 	}
+	
 	public String typeName() { 
 	    return super.toString();
 	}
@@ -58,6 +60,5 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public boolean isValueType() { return ((X10TypeSystem) typeSystem()).isValueType(this); }
 	
 	/** All primitive types are safe. */
-	
 	public boolean safe() { return true; }
 }

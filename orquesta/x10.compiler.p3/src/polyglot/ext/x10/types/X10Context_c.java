@@ -59,6 +59,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -140,7 +141,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * in this scope, we ask the parent scope, but don't traverse to enclosing
 	 * classes.
 	 */
-	public boolean isLocal(String name) {
+	public boolean isLocal(Name name) {
 		return depType == null ? super.isLocal(name) : pop().isLocal(name);
 	}
 
@@ -193,7 +194,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Gets a local variable of a particular name.
 	 */
-	public LocalInstance findLocal(String name) throws SemanticException {
+	public LocalInstance findLocal(Name name) throws SemanticException {
 		return depType == null ? super.findLocal(name) : pop().findLocal(name);
 	}
 	
@@ -202,7 +203,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Finds the class which added a field to the scope.
 	 */
-	public ClassType findFieldScope(String name) throws SemanticException {
+	public ClassType findFieldScope(Name name) throws SemanticException {
 		VarInstance<?> vi = findVariableInThisScope(name);
 		
 		if (vi instanceof FieldInstance) {
@@ -232,7 +233,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * In fact, it should be an error for this method to be called when
 	 * deptype is true.
 	 */
-	public ClassType findMethodScope(String name) throws SemanticException {
+	public ClassType findMethodScope(Name name) throws SemanticException {
 		ClassType result = super.findMethodScope(name);
 		if (result == null) {
 			// hack. This is null when this context is in a deptype, and the deptype
@@ -247,7 +248,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Gets a field of a particular name.
 	 */
-	public FieldInstance findField(String name) throws SemanticException {
+	public FieldInstance findField(Name name) throws SemanticException {
 		return super.findField(name);
 	}
 
@@ -255,7 +256,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Gets a local or field of a particular name.
 	 */
 	@Override
-	public VarInstance<?> findVariable(String name) throws SemanticException {
+	public VarInstance<?> findVariable(Name name) throws SemanticException {
 		VarInstance<?> vi = super.findVariable(name);
 		return vi;
 	}
@@ -263,7 +264,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Gets a local or field of a particular name.
 	 */
-	public VarInstance findVariableSilent(String name) {
+	public VarInstance findVariableSilent(Name name) {
 		return super.findVariableSilent(name);
 	}
 
@@ -370,7 +371,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		super.addNamed(t);
 	}
 
-	    public Named findInThisScope(String name) {
+	    public Named findInThisScope(Name name) {
 	        if (types != null) {
 	            Named t = (Named) types.get(name);
 	            if (t != null)
@@ -400,7 +401,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	        return null;
 	    }
 
-	    private Named findMemberTypeInThisScope(String name, Type container) {
+	    private Named findMemberTypeInThisScope(Name name, Type container) {
 		X10TypeSystem ts = (X10TypeSystem) this.ts;
 		ClassDef currentClassDef = this.currentClassDef();
 		if (container instanceof MacroType) {
@@ -435,13 +436,13 @@ public class X10Context_c extends Context_c implements X10Context {
 		super.addNamedToThisScope(type);
 	}
 
-	public ClassType findMethodContainerInThisScope(String name) {
+	public ClassType findMethodContainerInThisScope(Name name) {
 //		assert (depType == null);
 		return super.findMethodContainerInThisScope(name);
 
 	}
 
-	public VarInstance<?> findVariableInThisScope(String name) {
+	public VarInstance<?> findVariableInThisScope(Name name) {
 		//if (name.startsWith("val")) Report.report(1, "X10Context_c: searching for |" + name + " in " + this);
 		if (depType == null) return super.findVariableInThisScope(name);
 
@@ -475,7 +476,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	// New lookup methods added for deptypes.
 
-	public X10FieldInstance findProperty(String name) throws SemanticException {
+	public X10FieldInstance findProperty(Name name) throws SemanticException {
 		X10FieldInstance pi = null;
 		FieldInstance fi = findField(name);
 		if (fi instanceof X10FieldInstance) {
@@ -484,7 +485,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		return pi;
 	}
 
-	public ClassType findPropertyScope(String name) throws SemanticException {
+	public ClassType findPropertyScope(Name name) throws SemanticException {
 		return findFieldScope(name);
 	}
 
@@ -515,7 +516,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	static protected int varCount = 0;
 
-	public String getNewVarName() {
-		return MAGIC_VAR_PREFIX + (varCount++);
+	public Name getNewVarName() {
+		return Name.make(MAGIC_VAR_PREFIX + (varCount++));
 	}
 }

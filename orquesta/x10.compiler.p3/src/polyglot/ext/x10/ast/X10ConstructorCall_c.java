@@ -20,6 +20,7 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -57,10 +58,10 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    TypeSystem ts = tb.typeSystem();
 
 	    // Remove super() calls for java.lang.Object.
-	    if (kind == SUPER && tb.currentClass().fullName().equals("x10.lang.Ref")) {
+	    if (kind == SUPER && tb.currentClass().fullName().equals(QName.make("x10.lang.Ref"))) {
 		return tb.nodeFactory().Empty(position());
 	    }
-	    if (kind == SUPER && tb.currentClass().fullName().equals("x10.lang.Value")) {
+	    if (kind == SUPER && tb.currentClass().fullName().equals(QName.make("x10.lang.Value"))) {
 		return tb.nodeFactory().Empty(position());
 	    }
 

@@ -26,6 +26,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassDef;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
@@ -116,7 +117,7 @@ public class Contains_c extends Expr_c implements Contains {
 		try {
 		    List<Type> args = Collections.singletonList(itemType);
 		    ClassDef curr = tc.context().currentClassDef();
-		    X10MethodInstance mi = (X10MethodInstance) ts.findMethod(collType, ts.MethodMatcher(collType, "$in", args), curr);
+		    X10MethodInstance mi = (X10MethodInstance) ts.findMethod(collType, ts.MethodMatcher(collType, Name.make("$in"), args), curr);
 		    return type(mi.returnType());
 		}
 		catch (SemanticException e) {

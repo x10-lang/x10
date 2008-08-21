@@ -18,6 +18,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalInstance;
+import polyglot.types.Matcher;
 import polyglot.types.MethodAsTypeTransform;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
@@ -25,6 +26,7 @@ import polyglot.types.Named;
 import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -173,7 +175,6 @@ public class ClosureType_c extends ClassType_c implements ClosureType {
 
     @Override
     public Kind kind() {
-	// TODO Auto-generated method stub
 	return ClassDef.TOP_LEVEL;
     }
 
@@ -195,7 +196,7 @@ public class ClosureType_c extends ClassType_c implements ClosureType {
     }
 
     @Override
-    public String name() {
+    public Name name() {
 	return def().name();
     }
 
@@ -266,16 +267,16 @@ public class ClosureType_c extends ClassType_c implements ClosureType {
 	return Collections.EMPTY_LIST;
     }
 
-    public List<Type> typeMembersNamed(String name) {
-	return Collections.EMPTY_LIST;
-    }
-
     public List<Type> typeProperties() {
 	return Collections.EMPTY_LIST;
     }
 
-    public Named typePropertyNamed(String name) {
+    public PathType typePropertiesMatching(Matcher<Named> name) {
 	return null;
+    }
+    
+    public MacroType typeMemberMatching(Matcher<Named> name) {
+        return null;
     }
 
     public List<Type> annotations() {

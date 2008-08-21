@@ -39,8 +39,10 @@ import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
 import polyglot.types.Named;
 import polyglot.types.Package;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
@@ -195,7 +197,6 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		boolean topLevel = ct == null;
 		
 		final boolean ALLOW_TOP_LEVEL_TYPEDEFS = false;
-		final String DUMMY_CLASS_NAME = "package";
 		
 		if (ct == null && ! ALLOW_TOP_LEVEL_TYPEDEFS) {
 		    throw new SemanticException("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", position());
@@ -204,20 +205,20 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		if (ALLOW_TOP_LEVEL_TYPEDEFS) {
 		    // If this is a top-level typedef, add it to a dummy class for the package.
 		    // When looking up types, we'll look for the package class then walk through the members.
-		    String dummyClass = (package_ != null ? package_.fullName() + "." : "") + "package";
+		    QName dummyClass = QName.make(package_ != null ? package_.fullName() : null, X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
 
 		    if (ct == null) {
-			Named n = ts.systemResolver().check(dummyClass);
-			if (n instanceof X10ParsedClassType) {
-			    ct = ((X10ParsedClassType) n).x10Def();
-			}
+		    	Named n = ts.systemResolver().check(dummyClass);
+		    	if (n instanceof X10ParsedClassType) {
+		    		ct = ((X10ParsedClassType) n).x10Def();
+		    	}
 		    }
 
 		    if (ct == null) {
 			ct = (X10ClassDef) ts.createClassDef();
 			ct.kind(ClassDef.TOP_LEVEL);
 			ct.setPackage(package_ != null ? Types.ref(package_) : null);
-			ct.name(DUMMY_CLASS_NAME);
+			ct.name(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
 			ct.superType(Types.ref(ts.Object()));
 			ct.flags(Flags.PUBLIC.Abstract());
 			ts.systemResolver().install(dummyClass, ct.asType());
@@ -286,14 +287,14 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        // Add to the system resolver if the type def takes no arguments.
 	        // Otherwise, we'll search through the container.
 	        if (ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
-	            if (ALLOW_TOP_LEVEL_TYPEDEFS) {
-	        	if (ct.name().equals(DUMMY_CLASS_NAME) && ct.package_() != null)
-	        	    ts.systemResolver().install(ct.package_().get().fullName() + "." + name.id(), typeDef.asType());
-	        	else if (ct.name().equals(DUMMY_CLASS_NAME) && ct.package_() == null)
-	        	    ts.systemResolver().install(name.id(), typeDef.asType());
-	            }
+	        	if (ALLOW_TOP_LEVEL_TYPEDEFS) {
+	        		if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() != null)
+	        			ts.systemResolver().install(QName.make(ct.package_().get().fullName(), name.id()), typeDef.asType());
+	        		else if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() == null)
+	        			ts.systemResolver().install(QName.make(null, name.id()), typeDef.asType());
+	        	}
 	            
-		    ts.systemResolver().install(ct.fullName() + "." + name.id(), typeDef.asType());
+		    ts.systemResolver().install(QName.make(ct.fullName(), name.id()), typeDef.asType());
 		}
 		
 	        return n;
@@ -302,6 +303,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    checkCycles(type.type());
+	    X10MethodDecl_c.dupFormalCheck(typeParams, formals);
 	    return this;
 	}
 
@@ -352,10 +354,6 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		v.visitCFG(type(), this, EXIT);
 
 		return succs;
-	}
-
-	public String nameString() {
-		return name.id();
 	}
 
 	public MemberDef memberDef() {

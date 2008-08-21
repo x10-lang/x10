@@ -16,6 +16,7 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.VisitorGoal;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -45,7 +46,7 @@ public class LoadJobPlugins extends VisitorGoal {
 				X10ClassDef ct = (X10ClassDef) cd.classDef();
 				try {
 					TypeSystem ts = ct.typeSystem();
-					X10ClassType baseClass = (X10ClassType) ts.systemResolver().find(ts.TypeMatcher("x10.lang.annotation.PluginClass"));
+					X10ClassType baseClass = (X10ClassType) ts.systemResolver().find(QName.make("x10.lang.annotation.PluginClass"));
 					List<Type> pluginClasses = ct.annotationsMatching(baseClass);
 					for (Iterator<Type> i = pluginClasses.iterator(); i.hasNext(); ) {
 						Type pluginType = i.next();
@@ -55,7 +56,7 @@ public class LoadJobPlugins extends VisitorGoal {
 							Expr e = (Expr) pluginClass.propertyInitializer(0);
 							if (e instanceof StringLit) {
 							    StringLit s = (StringLit) e;
-							    LoadPlugins.loadPlugin((ExtensionInfo) job.extensionInfo(), s.value());
+							    LoadPlugins.loadPlugin((ExtensionInfo) job.extensionInfo(), QName.make(s.value()));
 							}
 						    }
 						}

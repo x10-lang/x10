@@ -31,6 +31,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -146,20 +147,24 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    		return child.type();
    	}
    	    
+	public Name opString2(Operator op) {
+	    return Name.make(opString(op));
+	}
+	
 	public String opString(Operator op) {
-		if (op == ASSIGN ) return "set";
-		if (op == ADD_ASSIGN) return "addSet";
-		if (op == SUB_ASSIGN) return "subSet";
-		if (op == MUL_ASSIGN) return "mulSet";
-		if (op == DIV_ASSIGN) return "divSet";
-		if (op == MOD_ASSIGN) return "modSet";
-		if (op == BIT_AND_ASSIGN) return "bitAndSet";
-		if (op == BIT_OR_ASSIGN) return "bitOrSet";
-		if (op == BIT_XOR_ASSIGN) return "bitXorSet";
-		if (op == SHL_ASSIGN) return "shlSet";
-		if (op == SHR_ASSIGN) return "shrSet";
-		if (op == USHR_ASSIGN) return "ushrSet";
-		throw new InternalCompilerError("Unknown assignment operator");
+	    if (op == ASSIGN ) return "set";
+	    if (op == ADD_ASSIGN) return "addSet";
+	    if (op == SUB_ASSIGN) return "subSet";
+	    if (op == MUL_ASSIGN) return "mulSet";
+	    if (op == DIV_ASSIGN) return "divSet";
+	    if (op == MOD_ASSIGN) return "modSet";
+	    if (op == BIT_AND_ASSIGN) return "bitAndSet";
+	    if (op == BIT_OR_ASSIGN) return "bitOrSet";
+	    if (op == BIT_XOR_ASSIGN) return "bitXorSet";
+	    if (op == SHL_ASSIGN) return "shlSet";
+	    if (op == SHR_ASSIGN) return "shrSet";
+	    if (op == USHR_ASSIGN) return "ushrSet";
+	    throw new InternalCompilerError("Unknown assignment operator");
 	}
 	
 	MethodInstance mi;
@@ -184,7 +189,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    }
 	    argTypes.add(right.type());
 	    
-	    String methodName = opString(op);
+	    Name methodName = Name.make(opString(op));
 	    MethodMatcher methodMatcher = xts.MethodMatcher(array.type(), methodName, argTypes);
 
 	    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
@@ -272,7 +277,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	public void translate(CodeWriter w, Translator tr) {
     Type at = array.type();
 
-     Type result = X10TypeMixin.getPropertyType(at, "T");
+     Type result = X10TypeMixin.getParameterType(at, 0);
      if (result != null) {
      	w.write("((");
      	print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED, Types.ref(result)), w, tr);

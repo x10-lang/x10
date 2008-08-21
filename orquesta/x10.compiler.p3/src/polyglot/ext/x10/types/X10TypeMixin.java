@@ -24,6 +24,7 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -263,11 +264,11 @@ public class X10TypeMixin {
      * @param name -- the name of the property.
      * @return null if there is no value associated with the property in the type.
      */
-    public static XTerm propVal(X10Type t, String name) {
+    public static XTerm propVal(X10Type t, Name name) {
         XConstraint c = xclause(t);
         if (c == null) return null;
         try {
-		return c.find(new XNameWrapper<String>(name));
+		return c.find(new XNameWrapper<Name>(name));
 	}
 	catch (XFailure e) {
 		return null;
@@ -354,14 +355,14 @@ public class X10TypeMixin {
 	    return null;
 	}
 	
-	public static Type getPropertyType(Type theType, String prop) {
+	public static Type getPropertyType(Type theType, Name prop) {
 		XConstraint c = realX(theType);
 		if (c == null)
 			return null;
 		return getPropertyType(theType, c, prop);
 	}
 
-	private static Type getPropertyType(Type theType, XConstraint c, String prop) {
+	private static Type getPropertyType(Type theType, XConstraint c, Name prop) {
 	        theType = X10TypeMixin.baseType(theType);
 	        if (theType instanceof ClassType) {
 	            ClassType ct = (ClassType) theType;

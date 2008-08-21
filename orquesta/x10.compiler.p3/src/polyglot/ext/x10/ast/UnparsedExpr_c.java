@@ -18,6 +18,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -109,7 +110,7 @@ public class UnparsedExpr_c extends Expr_c {
     interface Prec { boolean lessThan(Prec p); }
     interface OperatorInstance extends MethodInstance {
 	public Type returnType();
-	String name();
+	Name name();
 	List<Element> elements();
 	
 	static class Element {
@@ -145,7 +146,7 @@ public class UnparsedExpr_c extends Expr_c {
 
     private Expr parse(List<Expr> newExprs, List<Boolean> reallyExpr, X10TypeSystem ts) throws SemanticException {
 	List<Type> types = new ArrayList<Type>();
-	Set<String> operators = new HashSet<String>();
+	Set<Name> operators = new HashSet<Name>();
 	for (int i = 0; i < newExprs.size(); i++) {
 	    if (reallyExpr.get(i))
 		types.add(newExprs.get(i).type());
@@ -200,7 +201,7 @@ public class UnparsedExpr_c extends Expr_c {
     }
 
     // Collect all operators that could match the string of expressions and names.
-    private void collectOperators(List<Type> types, Set<String> operators, List<OperatorInstance> mis) {
+    private void collectOperators(List<Type> types, Set<Name> operators, List<OperatorInstance> mis) {
 	LinkedList<Type> worklist = new LinkedList<Type>();
 	worklist.addAll(types);
 	Set<Type> inWorklist = new HashSet<Type>();

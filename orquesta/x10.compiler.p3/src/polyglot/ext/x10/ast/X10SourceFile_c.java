@@ -14,35 +14,32 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 
 public class X10SourceFile_c extends SourceFile_c {
-    
-    public X10SourceFile_c(Position pos, PackageNode package_, List<Import> imports, List<TopLevelDecl> decls) {
-	super(pos, package_, imports, decls);
-    }
-    
-    /** Type check the source file. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	boolean hasPublic = false;
-	
-	// Don't check for more than one public declaration in package.x10.
-//	if (source() != null && source().name().equals("package.x10")) {
-//	    return this;
-//	}
-	
-	// Override method to not check for duplicate declarations.  This will be caught during type building.  But, we need to allow duplicates to handle overloaded typedefs.
-	for (Iterator i = decls.iterator(); i.hasNext();) {
-	    TopLevelDecl d = (TopLevelDecl) i.next();
 
-	    if (d.flags().flags().isPublic()) {
-		if (hasPublic) {
-		    throw new SemanticException(
-			"The source contains more than one public declaration.",
-			d.position());
+	public X10SourceFile_c(Position pos, PackageNode package_, List<Import> imports, List<TopLevelDecl> decls) {
+		super(pos, package_, imports, decls);
+	}
+
+	/** Type check the source file. */
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+		boolean hasPublic = false;
+
+		// Override method to not check for duplicate declarations. This will be
+		// caught during type building. But, we need to allow duplicates to handle
+		// overloaded typedefs.
+		for (Iterator i = decls.iterator(); i.hasNext();) {
+			TopLevelDecl d = (TopLevelDecl) i.next();
+
+			if (d.flags().flags().isPublic()) {
+				if (hasPublic) {
+					throw new SemanticException(
+							"The source contains more than one public declaration.",
+							d.position());
+				}
+
+				hasPublic = true;
+			}
 		}
 
-		hasPublic = true;
-	    }
+		return this;
 	}
-     
-	return this;
-    }
 }

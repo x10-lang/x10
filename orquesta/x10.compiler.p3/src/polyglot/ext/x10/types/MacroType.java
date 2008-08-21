@@ -6,6 +6,7 @@ import polyglot.types.MemberInstance;
 import polyglot.types.Named;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -18,7 +19,7 @@ public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X1
 	
 	TypeDef def();
 	
-	MacroType name(String name);
+	MacroType name(Name name);
 	MacroType typeParameters(List<Type> typeParams);
 	MacroType formals(List<XVar> formals);
 	MacroType formalTypes(List<Type> formalTypes);

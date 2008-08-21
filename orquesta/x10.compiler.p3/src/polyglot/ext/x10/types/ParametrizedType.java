@@ -6,6 +6,7 @@ import polyglot.types.Def;
 import polyglot.types.MemberInstance;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 import x10.constraint.XVar;
@@ -25,7 +26,7 @@ import x10.constraint.XVar;
  *
  */
 public interface ParametrizedType extends X10NamedType, ReferenceType {
-	String name();
+	Name name();
 
 	List<Type> typeParameters();
 	List<XVar> formals();

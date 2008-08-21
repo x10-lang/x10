@@ -4,6 +4,7 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
@@ -68,7 +69,7 @@ public class X10ArraysMixin {
 	        return X10TypeMixin.addBinding(t, v1, v2);
 	    }
 	    
-	    public static X10FieldInstance getProperty(Type t, String propName) {
+	    public static X10FieldInstance getProperty(Type t, Name propName) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 			    try {
 				    X10FieldInstance fi = (X10FieldInstance) xts.findField(t, xts.FieldMatcher(t, propName));
@@ -82,7 +83,7 @@ public class X10ArraysMixin {
 	        return null;
 	    }
 	    
-	    protected static boolean amIProperty(Type t, String propName) {
+	    protected static boolean amIProperty(Type t, Name propName) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 		    XConstraint r = X10TypeMixin.realX(t);
 
@@ -105,14 +106,14 @@ public class X10ArraysMixin {
 	    }
 
 	    public static boolean isRect(Type t) {
-	        return amIProperty(t, "rect");
+	        return amIProperty(t, Name.make("rect"));
 	    }
 
 	    public static XTerm onePlace(Type t) {
-	        return find(t, "onePlace");
+	        return find(t, Name.make("onePlace"));
 	    }
 
-	    private static XTerm findProperty(Type t, String propName) {
+	    private static XTerm findProperty(Type t, Name propName) {
 	        XConstraint c = X10TypeMixin.realX(t);
 	        if (c == null) return null;
 	        try {
@@ -127,33 +128,33 @@ public class X10ArraysMixin {
 	    
 	    public static boolean isZeroBased(Type t) {
 	            if (isRail(t)) return true;
-	            return amIProperty(t, "zeroBased");
+	            return amIProperty(t, Name.make("zeroBased"));
 	    }
 	    
 	    public static boolean isRail(Type t) {
-	        return amIProperty(t, "rail");
+	        return amIProperty(t, Name.make("rail"));
 	    }
 
 	    public static XTerm distribution(Type t) {
-		return findProperty(t, "dist");
+		return findProperty(t, Name.make("dist"));
 	    }
 	    
 	    public static XTerm region(Type t) {
-		return findProperty(t, "region");
+		return findProperty(t, Name.make("region"));
 	    }
 
 	    public static XTerm rank(Type t) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	        if (isRail(t))
 	           return xts.ONE();
-	        return findOrSythesize(t, "rank");
+	        return findOrSythesize(t, Name.make("rank"));
 	    }
 
-	    private static XTerm findOrSythesize(Type t, String propName) {
+	    private static XTerm findOrSythesize(Type t, Name propName) {
 		    return find(t, propName);
 	    }
 
-	    public static XTerm find(Type t, String propName) {
+	    public static XTerm find(Type t, Name propName) {
 		    XTerm val = findProperty(t, propName);
 		    
 		    if (val == null) {

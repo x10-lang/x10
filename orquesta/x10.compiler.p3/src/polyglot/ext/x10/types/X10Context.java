@@ -11,6 +11,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
@@ -30,13 +31,13 @@ public interface X10Context extends Context {
 	 * @return
 	 * @throws SemanticException
 	 */
-	X10FieldInstance findProperty(String name) throws SemanticException;
+	X10FieldInstance findProperty(Name name) throws SemanticException;
 	
 	/**
      * Finds the type which added a property to the scope.
      * This is usually a subclass of <code>findProperty(name).container()</code>.
      */
-    ClassType findPropertyScope(String name) throws SemanticException;
+    ClassType findPropertyScope(Name name) throws SemanticException;
 	
     // Set if we are in a supertype declaration of this type. 
     boolean inSuperTypeDeclaration();
@@ -69,7 +70,7 @@ public interface X10Context extends Context {
     boolean inSequentialCode();
     boolean inNonBlockingCode();
     
-    String getNewVarName();
+    Name getNewVarName();
     
     void setVarWhoseTypeIsBeingElaborated(VarDef var);
     VarDef varWhoseTypeIsBeingElaborated();

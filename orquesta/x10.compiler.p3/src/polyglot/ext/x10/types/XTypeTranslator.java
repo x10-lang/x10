@@ -90,7 +90,7 @@ public class XTypeTranslator {
 	}
 	
 	public XVar trans(XVar target, FieldInstance fi) throws SemanticException {
-		XVar v = XTerms.makeField(target, XTerms.makeName(fi.def(), fi.name()));
+		XVar v = XTerms.makeField(target, XTerms.makeName(fi.def(), fi.name().toString()));
 		addTypeToEnv(v, fi.type());
 		return v;
 	}
@@ -102,7 +102,7 @@ public class XTypeTranslator {
 	
 	public XTerm trans(XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;
-		XName field = XTerms.makeName(fi.def(), fi.name());
+		XName field = XTerms.makeName(fi.def(), fi.name().toString());
 		if (target instanceof XVar) {
 			v = XTerms.makeField((XVar) target, field);
 		}
@@ -133,7 +133,7 @@ public class XTypeTranslator {
 	}
 	
 	public XLocal trans(LocalInstance li, Type t) throws SemanticException {
-		XLocal v = XTerms.makeLocal(XTerms.makeName(li.def(), li.name()));
+		XLocal v = XTerms.makeLocal(XTerms.makeName(li.def(), li.name().toString()));
 		addTypeToEnv(v, t);
 		return v;
 	}
@@ -151,7 +151,7 @@ public class XTypeTranslator {
 	}
 	
 	public XVar transPathType(PathType t) {
-	    XName field = XTerms.makeName(t.property(), t.property().name());
+	    XName field = XTerms.makeName(t.property(), t.property().name().toString());
 	    return XTerms.makeField(t.formals().get(0), field);
 	}
 	
@@ -391,7 +391,7 @@ public class XTypeTranslator {
 			for (Expr e : t.arguments()) {
 			    terms.add(trans(e));
 			}
-			XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name()), terms);
+			XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
 			addTypeToEnv(v, xmi.returnType());
 			return v;
 		    }

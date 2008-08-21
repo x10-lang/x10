@@ -26,10 +26,12 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 
 public class TypeParamNode_c extends Term_c implements TypeParamNode {
@@ -41,10 +43,6 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 		super(pos);
 		this.name = name;
 		this.variance = variance;
-	}
-
-	public String nameString() {
-		return name.id();
 	}
 
 	public Id name() {
@@ -87,7 +85,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 //	            throw new SemanticException("Type parameter cannot occur outside method, constructor, closure, or type definition.", position());
 //	        }
 	        
-	        ParameterType t = new ParameterType_c(xts, position(), nameString(), Types.ref(def));
+	        ParameterType t = new ParameterType_c(xts, position(), name.id(), Types.ref(def));
 	        return type(t);
 	}
 
@@ -100,7 +98,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	}
 
 	public String toString() {
-		return nameString();
+		return name().id().toString();
 	}
 
 	public void addDecls(Context c) {
@@ -112,5 +110,10 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 		Id id = (Id) visitChild(this.name, v);
 		if (id != this.name) return name(id);
 		return this;
+	}
+	
+	@Override
+	public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
+	    pp.print(this, name, w);
 	}
 }

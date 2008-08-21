@@ -62,6 +62,7 @@ import polyglot.frontend.Job;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -89,8 +90,8 @@ public class X10Caster extends ContextVisitor {
 	X10NodeFactory xnf;
 	
 	boolean castCheckClassNotLoaded = true;
-	private static String RUNTIME_CAST_CHECKER_CLASSNAME = "x10.runtime.RuntimeCastChecker";
-	private static String RUNTIME_CAST_CHECKER_CONSTRAINT_CLASSNAME = "x10.runtime.RuntimeConstraint";
+	private static QName RUNTIME_CAST_CHECKER_CLASSNAME = QName.make("x10.runtime.RuntimeCastChecker");
+	private static QName RUNTIME_CAST_CHECKER_CONSTRAINT_CLASSNAME = QName.make("x10.runtime.RuntimeConstraint");
 	
 	public X10Caster(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
@@ -353,7 +354,7 @@ public class X10Caster extends ContextVisitor {
 			ClassBody classBody = nf.ClassBody(p,classBodyMembers);			
 
 			// Getting inner class interface name
-			TypeNode anonClassName = nf.TypeNodeFromQualifiedName(p, X10_RUNTIME_NESTED_CONSTRAINT);		
+			TypeNode anonClassName = nf.TypeNodeFromQualifiedName(p, QName.make(X10_RUNTIME_NESTED_CONSTRAINT));		
 			
 			// Which is instanciated using a given Constructor.
 			New newAnonClass = 
@@ -942,7 +943,7 @@ public class X10Caster extends ContextVisitor {
 		private X10Binary makeBinary(Field f) throws SemanticException {
 			try {
 				Expr constraintRightValue;
-				constraintRightValue = this.constraintToExpr(declaredConstraint.find(XTerms.makeName(f.fieldInstance().def(), f.nameString())), f.position());
+				constraintRightValue = this.constraintToExpr(declaredConstraint.find(XTerms.makeName(f.fieldInstance().def(), f.name().id().toString())), f.position());
 				return (X10Binary) ((X10NodeFactory)nf).Binary(f.position(),f, X10Binary.EQ, constraintRightValue);
 			}
 			catch (XFailure e) {
@@ -1010,8 +1011,8 @@ public class X10Caster extends ContextVisitor {
 				// Getting the fully qualified reference to 'this'
 				// ex: this.p -> CurrentClass.this.p
 				Special thisTarget = nf.This(field.position(), 
-						nf.TypeNodeFromQualifiedName(field.position(),
-								((X10ParsedClassType)field.fieldInstance().container()).name()));
+						nf.CanonicalTypeNode(field.position(),
+								field.fieldInstance().container()));
 				return nf.Field(field.position(), thisTarget, field.name());
 			} else {
 				return field;

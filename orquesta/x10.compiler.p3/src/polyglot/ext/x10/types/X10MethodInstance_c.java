@@ -268,7 +268,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	}
 	if (container instanceof Named) {
 	    Named n = (Named) container;
-	    return n.fullName();
+	    return n.fullName().toString();
 	}
 	return container.toString();
     }
@@ -312,7 +312,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		String t = formalTypes.get(i).toString();
 		if (formalNames != null && i < formalNames.size()) {
 		    LocalInstance a = formalNames.get(i);
-		    if (a != null && ! a.name().equals(""))
+		    if (a != null && ! a.name().toString().equals(""))
 			s = a.name() + ": " + t; 
 		    else
 			s = t;

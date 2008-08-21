@@ -32,6 +32,7 @@
     import java.util.List;
     import java.io.File;
 
+    import polyglot.types.QName;
     import polyglot.ast.AmbExpr;
     import polyglot.ast.AmbTypeNode;
     import polyglot.ast.ArrayInit;
@@ -71,7 +72,7 @@
     import polyglot.ast.TypeNode;
     import polyglot.ast.Unary;
     import polyglot.ast.FlagsNode;
-    import polyglot.parse.Name;
+    import polyglot.parse.ParsedName;
     import polyglot.ext.x10.ast.AnnotationNode;
     import polyglot.ext.x10.ast.Closure;
     import polyglot.ext.x10.ast.ClosureCall;
@@ -517,8 +518,8 @@ public static class MessageHandler implements IMessageHandler {
         }
 
         private void checkTypeName(Id identifier) {
-            String filename = file(),
-                   idname = identifier.id();
+            String filename = file();
+            String idname = identifier.id().toString();
             int dot = filename.lastIndexOf('.'),
                 slash = filename.lastIndexOf('/', dot);
             if (slash == -1)
@@ -914,7 +915,7 @@ public static class MessageHandler implements IMessageHandler {
 
     MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
         /.$BeginJava
-           if (Identifier.id().equals("this")) {
+           if (Identifier.id().toString().equals("this")) {
                        ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                                  extractFlags(MethodModifiersopt),
                                                  nf.Id(pos(3), "this"),
@@ -1027,7 +1028,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
                                       | Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
         /.$BeginJava
-                    Name b = new X10Name(nf, ts, pos(), Identifier);
+                    ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                     if (ClassBodyopt == null)
                          setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
                     else setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
@@ -1035,7 +1036,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
                                       | AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
         /.$BeginJava
-                    Name b = new X10Name(nf, ts, pos(), Identifier);
+                    ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                     if (ClassBodyopt == null)
                          setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
                     else setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
@@ -1115,7 +1116,7 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                 TypeNode type;
                 
-                if (TypeName.name.id().equals("void")) {
+                if (TypeName.name.id().toString().equals("void")) {
                     type = nf.CanonicalTypeNode(pos(), ts.Void());
                 } else
                 if (ts.isPrimitiveTypeName(TypeName.name.id())) {
@@ -1403,15 +1404,15 @@ public static class MessageHandler implements IMessageHandler {
                     boolean eval = true;
                     if (StatementExpression instanceof X10Call) {
                         X10Call c = (X10Call) StatementExpression;
-                        if (c.name().id().equals("property") && c.target() == null) {
+                        if (c.name().id().toString().equals("property") && c.target() == null) {
                             setResult(nf.AssignPropertyCall(c.position(),c.typeArguments(), c.arguments()));
                             eval = false;
                         }
-                        if (c.name().id().equals("super") && c.target() instanceof Expr) {
+                        if (c.name().id().toString().equals("super") && c.target() instanceof Expr) {
                             setResult(nf.X10SuperCall(c.position(), (Expr) c.target(), c.typeArguments(), c.arguments()));
                             eval = false;
                        }
-                       if (c.name().id().equals("this") && c.target() instanceof Expr) {
+                       if (c.name().id().toString().equals("this") && c.target() instanceof Expr) {
                             setResult(nf.X10ThisCall(c.position(), (Expr) c.target(), c.typeArguments(), c.arguments()));
                             eval = false;
                        }
@@ -1743,7 +1744,7 @@ public static class MessageHandler implements IMessageHandler {
 --
 --      Clock ::= Identifier
 --        /.$BeginJava
---                    setResult(new X10Name(nf, ts, pos(), Identifier).toExpr());
+--                    setResult(new X10ParsedName(nf, ts, pos(), Identifier).toExpr());
 --          $EndJava
 --        ./
 
@@ -1989,12 +1990,12 @@ public static class MessageHandler implements IMessageHandler {
 
     TypeName ::= Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf, ts, pos(), Identifier));
+                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
           $EndJava
         ./
                | TypeName . Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf,
+                    setResult(new X10ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       TypeName,
@@ -2030,12 +2031,12 @@ public static class MessageHandler implements IMessageHandler {
 
     PackageName ::= Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf, ts, pos(), Identifier));
+                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
           $EndJava
         ./
                   | PackageName . Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf,
+                    setResult(new X10ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       PackageName,
@@ -2051,12 +2052,12 @@ public static class MessageHandler implements IMessageHandler {
     --
     ExpressionName ::=? Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf, ts, pos(), Identifier));
+                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
           $EndJava
         ./
                      | AmbiguousName . Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf,
+                    setResult(new X10ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
@@ -2066,12 +2067,12 @@ public static class MessageHandler implements IMessageHandler {
 
     MethodName ::=? Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf, ts, pos(), Identifier));
+                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
           $EndJava
         ./
                  | AmbiguousName . Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf,
+                    setResult(new X10ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
@@ -2081,12 +2082,12 @@ public static class MessageHandler implements IMessageHandler {
 
     PackageOrTypeName ::= Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf, ts, pos(), Identifier));
+                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
           $EndJava
         ./
                         | PackageOrTypeName . Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf,
+                    setResult(new X10ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       PackageOrTypeName,
@@ -2096,12 +2097,12 @@ public static class MessageHandler implements IMessageHandler {
 
     AmbiguousName ::=? Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf, ts, pos(), Identifier));
+                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
           $EndJava
         ./
                     | AmbiguousName . Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf,
+                    setResult(new X10ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
@@ -2121,7 +2122,7 @@ public static class MessageHandler implements IMessageHandler {
                                      : getRhsLastTokenIndex($ImportDeclarationsopt)
                                 );
                     Import x10LangImport = 
-                    nf.Import(pos(token_pos), Import.PACKAGE, "x10.lang");
+                    nf.Import(pos(token_pos), Import.PACKAGE, QName.parse("x10.lang"));
                     ImportDeclarationsopt.add(x10LangImport);
                     setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()), PackageDeclarationopt, ImportDeclarationsopt, TypeDeclarationsopt));
           $EndJava
@@ -2174,13 +2175,13 @@ public static class MessageHandler implements IMessageHandler {
 
     SingleTypeImportDeclaration ::= import TypeName ;
         /.$BeginJava
-                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, TypeName.toString()));
+                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.parse(TypeName.toString())));
           $EndJava
         ./
 
     TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
         /.$BeginJava
-                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, PackageOrTypeName.toString()));
+                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.parse(PackageOrTypeName.toString())));
           $EndJava
         ./
     
@@ -2565,11 +2566,11 @@ public static class MessageHandler implements IMessageHandler {
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                            if (type == null) type = nf.UnknownTypeNode(name.position());
+                            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             List explodedFormals = new ArrayList();
                             for (Iterator i = exploded.iterator(); i.hasNext(); ) {
                             	Id id = (Id) i.next();
-                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(name.position()), id));
+                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
                 f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
@@ -2586,11 +2587,11 @@ public static class MessageHandler implements IMessageHandler {
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                                                        if (type == null) type = nf.UnknownTypeNode(name.position());
+                                                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                                                         List explodedFormals = new ArrayList();
                             for (Iterator i = exploded.iterator(); i.hasNext(); ) {
                             	Id id = (Id) i.next();
-                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(name.position()), id));
+                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
                 f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
@@ -2608,12 +2609,12 @@ public static class MessageHandler implements IMessageHandler {
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                            if (type == null) type = nf.UnknownTypeNode(name.position());
+                            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
                             List explodedFormals = new ArrayList();
                             for (Iterator i = exploded.iterator(); i.hasNext(); ) {
                             	Id id = (Id) i.next();
-                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(name.position()), id));
+                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
                 f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
@@ -2630,12 +2631,12 @@ public static class MessageHandler implements IMessageHandler {
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                                                        if (type == null) type = nf.UnknownTypeNode(name.position());
+                                                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
                                                         List explodedFormals = new ArrayList();
                             for (Iterator i = exploded.iterator(); i.hasNext(); ) {
                             	Id id = (Id) i.next();
-                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(name.position()), id));
+                            	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
                 f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
@@ -2833,7 +2834,7 @@ public static class MessageHandler implements IMessageHandler {
       
     SimpleTypeName ::= Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf, ts, pos(), Identifier));
+                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
           $EndJava
         ./
 
@@ -3061,7 +3062,7 @@ public static class MessageHandler implements IMessageHandler {
     
     SimpleName ::= Identifier
         /.$BeginJava
-                    setResult(new X10Name(nf, ts, pos(), Identifier));
+                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
           $EndJava
         ./
         
@@ -3214,7 +3215,7 @@ public static class MessageHandler implements IMessageHandler {
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                                                        if (type == null) type = nf.UnknownTypeNode(name.position());
+                                                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
@@ -3223,7 +3224,7 @@ public static class MessageHandler implements IMessageHandler {
                                                                                     int index = 0;
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(id.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
                             l.add(ld);
@@ -3246,7 +3247,7 @@ public static class MessageHandler implements IMessageHandler {
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                                                        if (type == null) type = nf.UnknownTypeNode(name.position());
+                                                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
@@ -3255,7 +3256,7 @@ public static class MessageHandler implements IMessageHandler {
                                                                                     int index = 0;
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(id.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
                             l.add(ld);
@@ -3278,7 +3279,7 @@ public static class MessageHandler implements IMessageHandler {
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                                                        if (type == null) type = nf.UnknownTypeNode(name.position());
+                                                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
@@ -3287,7 +3288,7 @@ public static class MessageHandler implements IMessageHandler {
                                                                                     int index = 0;
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(name.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(id.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
                             l.add(ld);
@@ -3308,9 +3309,9 @@ public static class MessageHandler implements IMessageHandler {
     Primary ::= Literal
                         | TypeName . class
         /.$BeginJava
-                    if (TypeName instanceof Name)
+                    if (TypeName instanceof ParsedName)
                     {
-                        Name a = (Name) TypeName;
+                        ParsedName a = (ParsedName) TypeName;
                         setResult(nf.ClassLit(pos(), a.toType()));
                     }
                     else assert(false);
@@ -4272,7 +4273,7 @@ public static class MessageHandler implements IMessageHandler {
     TypeNode ::= AnnotatedType
     TypeNode ::= NamedType
     TypeNode ::= ClassType
-    Name ::= SimpleName
+    ParsedName ::= SimpleName
     PackageNode ::= PackageDeclarationopt | PackageDeclaration
     List ::= ImportDeclarationsopt | ImportDeclarations
     List ::= TypeDeclarationsopt | TypeDeclarations
@@ -4389,19 +4390,19 @@ public static class MessageHandler implements IMessageHandler {
     Assign.Operator ::= AssignmentOperator
     Expr ::= Expressionopt | Expression
 
-    Name ::= TypeName
-    Name ::= ClassName
-    Name ::= PackageName
-    Name ::= ExpressionName
-    Name ::= AmbiguousName
-    Name ::= MethodName
-    Name ::= PackageOrTypeName
+    ParsedName ::= TypeName
+    ParsedName ::= ClassName
+    ParsedName ::= PackageName
+    ParsedName ::= ExpressionName
+    ParsedName ::= AmbiguousName
+    ParsedName ::= MethodName
+    ParsedName ::= PackageOrTypeName
     Block ::= InstanceInitializer
     TypeNode ::= ResultType
     List ::= FormalParameters
     List ::= ExceptionTypeList
     TypeNode ::= ExceptionType
-    Name ::= SimpleTypeName
+    ParsedName ::= SimpleTypeName
     Stmt ::= ExplicitConstructorInvocationopt
     List ::= Argumentsopt
            | Arguments

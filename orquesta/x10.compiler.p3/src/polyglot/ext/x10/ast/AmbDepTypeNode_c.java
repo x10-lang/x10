@@ -42,8 +42,10 @@ import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef;
 import polyglot.types.Named;
 import polyglot.types.Package;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -184,8 +186,10 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         		for (TypeNode a : typeArgs) {
         		    typeArgs2.add(a.type());
         		}
-        		if (ct.x10Def().typeParameters().size() == typeArgs.size()) {
-        		    ct = ct.typeArguments(typeArgs2);
+        		if (ct.x10Def().typeParameters().size() == typeArgs2.size()) {
+        		    if (typeArgs2.size() > 0) {
+        		        ct = ct.typeArguments(typeArgs2);
+        		    }
         		}
         		else {
         		    throw new SemanticException("Incorrect number of type arguments for annotation type " + ct + ".", position());
@@ -236,45 +240,47 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         
         // First look for a typedef.
 	try {
-            X10ParsedClassType typeDefContainer = null;
+            MacroType mt = null;
             
             if (prefix == null) {
-        	// Search the context.
+                // Search the context.
+                Named n = c.find(ts.TypeDefMatcher(null, name.id(), typeArgs, argTypes));
+                if (n instanceof MacroType) {
+                    mt = (MacroType) n;
+                }
             }
-            if (prefix == null) {
-        	String dummyName = "package";
-        	Package p = tc.context().package_();
-        	Named n;
-        	if (p == null)
-        	    n = ts.systemResolver().find(ts.TypeMatcher(dummyName));
-        	else {
-        	    n = ts.packageContextResolver(p).find(ts.TypeMatcher(dummyName));
-        	}
-        	if (n instanceof X10ParsedClassType) {
-        	    typeDefContainer = (X10ParsedClassType) n;
-        	}
-            }
-            else if (prefix instanceof PackageNode) {
-        	PackageNode pn = (PackageNode) prefix;
-        	String dummyName = "package";
-        	String fullName = (pn != null ? Types.get(pn.package_()).fullName() + "." : "") + dummyName;
-        	Named n = ts.systemResolver().find(ts.TypeMatcher(fullName));
-        	if (n instanceof X10ParsedClassType) {
-        	    typeDefContainer = (X10ParsedClassType) n;
-        	}
-            }
-            else if (prefix instanceof TypeNode) {
-        	TypeNode tn = (TypeNode) prefix;
-        	if (tn.type() instanceof X10ParsedClassType) {
-        	    typeDefContainer = (X10ParsedClassType) tn.type();
-        	}
-            }
-            else if (prefix instanceof Expr) {
-        	throw new InternalCompilerError("non-static type members not implemented", pos);
+            else {
+//            if (prefix == null) {
+//                Name dummyName = X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME;
+//        	Package p = tc.context().package_();
+//        	Named n;
+//        	if (p == null)
+//        	    n = ts.systemResolver().find(QName.make(null, dummyName));
+//        	else {
+//        	    n = ts.packageContextResolver(p).find(ts.TypeMatcher(dummyName));
+//        	}
+//        	if (n instanceof X10ParsedClassType) {
+//        	    typeDefContainer = (X10ParsedClassType) n;
+//        	}
+//            }
+//                else if (prefix instanceof PackageNode) {
+//                    PackageNode pn = (PackageNode) prefix;
+//                    Name dummyName = X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME;
+//                    QName fullName = QName.make(pn != null ? Types.get(pn.package_()).fullName() : null, dummyName);
+//                    Named n = ts.systemResolver().find(fullName);
+//                    if (n instanceof X10ParsedClassType) {
+//                        typeDefContainer = (X10ParsedClassType) n;
+//                    }
+//                }
+
+                if (prefix instanceof TypeNode) {
+                    TypeNode tn = (TypeNode) prefix;
+                    Type container = tn.type();
+                    mt = ts.findTypeDef(container, ts.TypeDefMatcher(container, name.id(), typeArgs, argTypes), tc.context().currentClassDef());
+                }
             }
             
-            if (typeDefContainer != null) {
-                MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), typeArgs, argTypes), tc.context().currentClassDef());
+            if (mt != null) {
                 LazyRef<Type> sym = (LazyRef<Type>) type;
                 sym.update(mt);
                 
@@ -335,7 +341,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         TypeNode tn;
         
         try {
-            tn = n.disambiguateAnnotation(tc);
+            tn = n.disambiguateAnnotation(childtc);
             if (tn != null)
         	return postprocess((CanonicalTypeNode) tn, n, childtc);
         }

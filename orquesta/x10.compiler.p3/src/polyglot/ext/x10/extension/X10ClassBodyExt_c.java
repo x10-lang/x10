@@ -40,6 +40,7 @@ import polyglot.types.ClassType_c;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.PrimitiveType;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -61,9 +62,9 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	private BufferedWriter wrapperFile;
 	X10TypeSystem typeSystem;
 
-	private final String KgetBackingArrayMethod = "getBackingArray";
+	private final Name KgetBackingArrayMethod = Name.make("getBackingArray");
 
-        private final String KgetDescriptorMethod =  "getDescriptor";
+        private final Name KgetDescriptorMethod =  Name.make("getDescriptor");
 	private final String KdescriptorNameSuffix = "_x10DeScRiPtOr";
 	private final String KPtrNameSuffix = "_x10PoInTeR";
 	String[] wrapperPrologue = {
@@ -235,6 +236,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		return signature;
 	}
 
+	private String JNImangle(Name inName) { return JNImangle(inName.toString()); }
+
 	private static final String zeros = "0000";
 	/**
 	 * replace '_' with '_1'
@@ -305,13 +308,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 * @param isOverloaded
 	 * @return
 	 */
-	private String generateJNIName(MethodDecl_c method, boolean isOverloaded) {
+	private Name generateJNIName(MethodDecl_c method, boolean isOverloaded) {
 		String name = JNI_PREFIX +
 			JNImangle(canonicalTypeString(method.methodDef().container().get())) +
 			"_" + JNImangle(generateX10NativeName(method));
 		if (isOverloaded)
 			name += "__" + JNImangle(generateJavaSignature(method));
-		return name;
+		return Name.make(name);
 	}
 
 	/**
@@ -321,13 +324,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 * @param isOverloaded
 	 * @return
 	 */
-	private String generateJNIAlias(MethodDecl_c method, boolean isOverloaded) {
+	private Name generateJNIAlias(MethodDecl_c method, boolean isOverloaded) {
 		String name = JNI_PREFIX +
 			JNImangle(method.methodDef().container().get().toString()) +
 			"_" + JNImangle(generateX10AliasName(method));
 		if (isOverloaded)
 			name += "__" + JNImangle(generateJavaSignature(method));
-		return name;
+		return Name.make(name);
 	}
 
 	/**
@@ -346,12 +349,12 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		return cl.fullName() + s;
 	}
 
-	private String generateX10NativeName(MethodDecl_c method) {
-		return JNImangle(canonicalTypeString(method.methodDef().container().get())) + "_" + method.nameString();
+	private Name generateX10NativeName(MethodDecl_c method) {
+		return Name.make(JNImangle(canonicalTypeString(method.methodDef().container().get())) + "_" + method.name().id());
 	}
 
-	private String generateX10AliasName(MethodDecl_c method) {
-		return JNImangle(method.methodDef().container().get().toString()) + "_" + method.nameString();
+	private Name generateX10AliasName(MethodDecl_c method) {
+		return Name.make(JNImangle(method.methodDef().container().get().toString()) + "_" + method.name().id());
 	}
 
 	/**
@@ -366,8 +369,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		MethodDef mi = nativeMethod.methodDef();
 
 		// FIXME: [IP] This looks like a bug -- in the stub, we do something else if the method is overloaded
-		String nativeName = generateX10NativeName(nativeMethod);
-		MethodDecl_c newNative = (MethodDecl_c)nativeMethod.nameString(nativeName);
+		Name nativeName = generateX10NativeName(nativeMethod);
+		MethodDecl_c newNative = (MethodDecl_c)nativeMethod.name(nativeMethod.name().id(nativeName));
 		ArrayList newFormals = new ArrayList();
 
 		TypeNode longType = nf.CanonicalTypeNode(nativeMethod.position(), typeSystem.Long());
@@ -389,7 +392,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			  if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
 			  TypeNode theReturnType = nf.CanonicalTypeNode(nativeMethod.position(),backingMethod.returnType());
 			  newFormals.add(parameter.type(theReturnType));
-			  Formal_c paramDescriptor = (Formal_c)parameter.nameString(parameter.nameString() + KdescriptorNameSuffix);
+			  Formal_c paramDescriptor = (Formal_c)parameter.name(parameter.name().id(Name.make(parameter.name().id() + KdescriptorNameSuffix)));
 			  newFormals.add(paramDescriptor.type(arrayOfIntType)); // another for descriptor
 			}
 		}
@@ -402,7 +405,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 /* search for the given method.  The method is expected to be found in the regular hierarchy,
  * but it may be in an interface--if initial search fails, start looking in the interfaces
  */
-        private  MethodInstance findMethod(ClassType_c theClass,String targetName){
+        private  MethodInstance findMethod(ClassType_c theClass,Name targetName){
 		MethodInstance targetMI=null,memberMI=null;
 		final boolean trace=false;
                 ClassType_c currentClass=theClass;
@@ -456,7 +459,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 		ArrayList newArgs = new ArrayList();
 		// FIXME: [IP] This looks like a bug -- in the stub, we do something else if the method is overloaded
-		String jniName = generateX10NativeName(nativeMethod);
+		Name jniName = generateX10NativeName(nativeMethod);
 
 		TypeNode receiver = nf.CanonicalTypeNode(pos, mi.container());
 
@@ -464,27 +467,27 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		jniCall = (Call_c)jniCall.targetImplicit(true);
 		jniCall = (Call_c)jniCall.methodInstance(mi.asInstance());
 
-                String descriptorName = KgetDescriptorMethod;
+                Name descriptorName = KgetDescriptorMethod;
 	
 		ArrayList args = new ArrayList();
 		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext();) {
 			Formal_c parameter = (Formal_c) i.next();
 
 			if (parameter.declType().isPrimitive()) {
-				Local arg= nf.Local(pos, nf.Id(pos, parameter.nameString()));
+				Local arg= nf.Local(pos, parameter.name());
 				// RMF 11/2/2005 - Set the type of the Local. This would normally
 				// be handled by type-checking, but we're past that point now...
 				arg= (Local) arg.type(parameter.declType());
 				// RMF 7/10/2006 - Make sure the Local has an associated LocalInstance;
 				// the InitChecker will need to see it...
-				arg= (Local) arg.localInstance(typeSystem.localDef(pos, parameter.flags().flags(), Types.ref(arg.type()), arg.nameString()).asInstance());
+				arg= (Local) arg.localInstance(typeSystem.localDef(pos, parameter.flags().flags(), Types.ref(arg.type()), arg.name().id()).asInstance());
 				args.add(arg);
 			} else {
 				ClassType_c ct = (ClassType_c)parameter.declType().toClass();
 				if (null == ct)
-					throw new InternalCompilerError("Problems with array "+parameter.nameString());
+					throw new InternalCompilerError("Problems with array "+parameter.name().id());
 
-				if (trace)System.out.println("Processing "+parameter.nameString()+"::"+parameter);
+				if (trace)System.out.println("Processing "+parameter.name().id()+"::"+parameter);
 
 				/**
 				 * Look for the implementation of the getbackingarray method interface.  Start in this method
@@ -532,7 +535,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ ct.fullName());
 				
 
-				Local getAddrTarget= nf.Local(pos, nf.Id(pos, parameter.nameString()));
+				Local getAddrTarget= nf.Local(pos, parameter.name());
 			        // RMF 11/3/2005 - Set the type of getAddr call's target. This
 				// would normally be handled by type-checking, but we're past
 				// that point now...
@@ -541,7 +544,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				// the InitChecker will need to see it...
 				getAddrTarget= (Local) getAddrTarget.localInstance(typeSystem.localDef(pos, parameter.flags().flags(), 
                                                                                                             Types.ref(getAddrTarget.type()), 
-                                                                                                            getAddrTarget.nameString()).asInstance());
+                                                                                                            getAddrTarget.name().id()).asInstance());
 				
                                 Call getAddr = nf.Call(pos, getAddrTarget, nf.Id(pos, KgetBackingArrayMethod));
                                 getAddr = (Call_c)getAddr.methodInstance(backingArrayMI);
@@ -623,9 +626,9 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 */
 	private void generateStub(MethodDecl_c nativeMethod, boolean isOverloaded) {
 
-		String newName = generateX10NativeName(nativeMethod);
+	    Name newName = generateX10NativeName(nativeMethod);
 		if (isOverloaded)
-			newName += "__" + JNImangle(generateJavaSignature(nativeMethod));
+			newName = Name.make(newName + "__" + JNImangle(generateJavaSignature(nativeMethod)));
 
 
 		String jniCall, wrapperCall, wrapperDecl, saveTheValue = "";
@@ -663,23 +666,23 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 			if (parameter.declType().isPrimitive()) { 
 			   jniCall += ", " + typeToJNIString(parameter.declType())
-					   + " " + parameter.nameString();
+					   + " " + parameter.name().id();
 			   wrapperDecl += commaString
 					+ typeToCType(parameter.declType()) + " "
-					+ parameter.nameString();
-			   wrapperCall += commaString + maybeCast(parameter.declType()) + parameter.nameString();
+					+ parameter.name().id();
+			   wrapperCall += commaString + maybeCast(parameter.declType()) + parameter.name().id();
 			}
 			else {
-			   String arrayPtr = parameter.nameString()+KPtrNameSuffix;
-                           acquireStmts += generateAcquireStmt(parameter.nameString(),arrayPtr);
-                           releaseStmts = generateReleaseStmt(parameter.nameString(),arrayPtr) + releaseStmts; // release in reverse order
+			   String arrayPtr = parameter.name().id()+KPtrNameSuffix;
+                           acquireStmts += generateAcquireStmt(parameter.name().id().toString(),arrayPtr);
+                           releaseStmts = generateReleaseStmt(parameter.name().id().toString(),arrayPtr) + releaseStmts; // release in reverse order
 			   
 			   ClassType_c ct = (ClassType_c)parameter.declType().toClass();
 			   MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
 			   if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
 
 			   jniCall += ", " + typeToJNIString(backingMethod.returnType())
-					   + " " + parameter.nameString();
+					   + " " + parameter.name().id();
 			   wrapperDecl += commaString
 					+ typeToCType(backingMethod.returnType()) + " "
 					+ arrayPtr;
@@ -689,7 +692,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 			// if we see an array type there must be a descriptor right after
 			if (!parameter.declType().isPrimitive()) {
-                           String descriptorName = parameter.nameString()+KdescriptorNameSuffix;
+                           String descriptorName = parameter.name().id()+KdescriptorNameSuffix;
                            String descriptorPtrName = descriptorName+KPtrNameSuffix;
                            jniCall += ", jintArray " + descriptorName;
                            acquireStmts += generateAcquireStmt(descriptorName,descriptorPtrName);
@@ -709,7 +712,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		String jniAlias = "";
 		// Only generate the alias if inner class
 		if (nativeMethod.methodDef().container().get().toClass().isNested()) {
-			String aliasName = generateJNIAlias(nativeMethod, isOverloaded);
+		        Name aliasName = generateJNIAlias(nativeMethod, isOverloaded);
 
 			jniAlias = "#ifndef __WIN32__\nextern JNIEXPORT __typeof("
 					 + newName + ") JNICALL\n" + aliasName
@@ -835,7 +838,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					seenNativeMethodDecl = true;
 				}
 
-				boolean isOverLoaded = (null != methodHash.get(md.nameString()));
+				boolean isOverLoaded = (null != methodHash.get(md.name().id()));
 
 				generateStub(md, isOverLoaded);
 				newListOfMembers.add(createNewNative(md, nf));
@@ -855,8 +858,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		return cb;
 	}
 
-	private Map buildNativeMethodHash(List members) {
-		Map methodHash = new HashMap();
+	private Map<Name,MethodDecl> buildNativeMethodHash(List members) {
+		Map<Name,MethodDecl> methodHash = new HashMap();
 		for (ListIterator j = members.listIterator(); j.hasNext();) {
 			Object theObj = j.next();
 			if (!(theObj instanceof MethodDecl))
@@ -865,10 +868,10 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			if (!X10Flags.toX10Flags(methodDecl.methodDef().flags()).isExtern())
 				continue;
 
-			if (methodHash.containsKey(methodDecl.nameString())) {
-				methodHash.put(methodDecl.nameString(), methodDecl); // more than one instance
+			if (methodHash.containsKey(methodDecl.name().id())) {
+				methodHash.put(methodDecl.name().id(), methodDecl); // more than one instance
 			} else {
-				methodHash.put(methodDecl.nameString(), null);
+				methodHash.put(methodDecl.name().id(), null);
 			}
 		}
 		return methodHash;

@@ -41,6 +41,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -118,11 +119,11 @@ public class X10Call_c extends Call_c implements X10Call {
 	            scope = X10TypeMixin.setSelfVar(scope, this_);
 
 	            if (! ts.typeEquals(scope, c.currentClass())) {
-	                r = nf.This(position().startOf(),
-	                            nf.CanonicalTypeNode(position().startOf(), scope)).type(scope);
+	                r = (Special) nf.This(position().startOf(),
+	                            nf.CanonicalTypeNode(position().startOf(), scope)).del().typeCheck(tc);
 	            }
 	            else {
-	                r = nf.This(position().startOf()).type(scope);
+	                r = (Special) nf.This(position().startOf()).del().typeCheck(tc);
 	            }
 	        }
 
@@ -141,7 +142,7 @@ public class X10Call_c extends Call_c implements X10Call {
         X10Context c = (X10Context) tc.context();
         
         if (this.target != null && this.target.type().isPrimitive() &&
-                nameString().equals("getLocation") && arguments().isEmpty())
+                name().id().toString().equals("getLocation") && arguments().isEmpty())
         {
             return xnf.Here(position()).del().typeCheck(tc);
         }
@@ -207,7 +208,7 @@ public class X10Call_c extends Call_c implements X10Call {
         	}
         	
         	StructType targetType = this.findTargetType();
-        	String name = this.name.id();
+        	Name name = this.name.id();
 		ClassDef currentClassDef = c.currentClassDef();
 
 		X10Call_c n = this;

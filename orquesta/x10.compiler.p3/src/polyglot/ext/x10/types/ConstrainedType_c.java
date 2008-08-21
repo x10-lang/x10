@@ -11,11 +11,13 @@ import polyglot.types.Named;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.PrimitiveType;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.ReferenceType_c;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
@@ -122,7 +124,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 			StringBuilder sb2 = new StringBuilder();
 			String sep = "";
 			for (FieldInstance p : ct.definedProperties()) {
-			    XVar v = XTerms.makeField(XSelf.Self, XTerms.makeName(p, p.name()));
+			    XVar v = XTerms.makeField(XSelf.Self, XTerms.makeName(p, p.name().toString()));
 			    XTerm b = c.bindingForVar(v);
 			    if (b != null) {
 				sb2.append(sep);
@@ -181,7 +183,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return null;
 	}
 
-	public String fullName() {
+	public QName fullName() {
 		Type base = baseType.get();
 		if (base instanceof Named) {
 			return ((Named) base).fullName();
@@ -189,7 +191,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return null;
 	}
 
-	public String name() {
+	public Name name() {
 		Type base = baseType.get();
 		if (base instanceof Named) {
 			return ((Named) base).name();

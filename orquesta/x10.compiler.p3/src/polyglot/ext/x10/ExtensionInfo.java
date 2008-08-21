@@ -47,6 +47,7 @@ import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.LoadedClassResolver;
 import polyglot.types.MemberClassResolver;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
@@ -66,7 +67,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         Topics t = new Topics();
     }
     
-    protected Map<String,CompilerPlugin> plugins;
+    protected Map<QName,CompilerPlugin> plugins;
 
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
@@ -328,21 +329,21 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	return new X10CompilerOptions(this);
     }
     
-    public Map<String,CompilerPlugin> plugins() {
+    public Map<QName,CompilerPlugin> plugins() {
     	if (plugins == null) {
     		return Collections.emptyMap();
     	}
     	return plugins;
     }
     
-	public void addPlugin(String pluginName, CompilerPlugin plugin) {
+	public void addPlugin(QName pluginName, CompilerPlugin plugin) {
 		if (plugins == null) {
-			plugins = new HashMap<String,CompilerPlugin>();
+			plugins = new HashMap<QName,CompilerPlugin>();
 		}
 		plugins.put(pluginName, plugin);
 	}
 	
-	public CompilerPlugin getPlugin(String pluginName) {
+	public CompilerPlugin getPlugin(QName pluginName) {
 		if (plugins == null) {
 			return null;
 		}

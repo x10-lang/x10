@@ -11,10 +11,12 @@ import polyglot.types.Flags;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.ReferenceType_c;
 import polyglot.types.Resolver;
+import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
@@ -34,7 +36,7 @@ import x10.constraint.XVar;
 public abstract class ParametrizedType_c extends ReferenceType_c implements ParametrizedType {
 	StructType container;
 	Flags flags;
-	String name;
+	Name name;
 
 	public ParametrizedType_c(TypeSystem ts, Position pos) {
 		super(ts, pos);
@@ -66,7 +68,7 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 		return t;
 	}
 	
-	public ParametrizedType name(String name) {
+	public ParametrizedType name(Name name) {
 		ParametrizedType_c t = (ParametrizedType_c) copy();
 		t.name = name;
 		return t;
@@ -81,11 +83,11 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 
 	public abstract MemberDef def();
 	
-	public String fullName() {
+	public QName fullName() {
 		if (container() instanceof Named) {
-			return ((Named) container()).fullName() + "." + name();
+			return QName.make(((Named) container()).fullName(), name());
 		}
-		return name();
+		return QName.make(null, name());
 	}
 	
 	@Override

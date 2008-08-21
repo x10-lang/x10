@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.CanonicalTypeNode;
@@ -59,6 +62,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -333,7 +337,40 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             
             n = (X10MethodDecl_c) n.superTypeCheck(tc);
 
+            dupFormalCheck(typeParameters, formals);
+            
             return n;
+        }
+        
+        public static void dupFormalCheck(List<TypeParamNode> typeParams, List<Formal> formals) throws SemanticException {
+            Set<Name> pnames = new HashSet<Name>();
+            for (TypeParamNode p : typeParams) {
+                Name name = p.name().id();
+                if (pnames.contains(name))
+                    throw new SemanticException("Type parameter \"" + name + "\" multiply defined.", p.position());
+                pnames.add(name);
+            }
+            
+            // Check for duplicate formals. This isn't caught in Formal_c
+            // because we add all the formals into the scope before visiting a
+            // formal, so the lookup of a duplicate formal returns itself rather
+            // than the previous formal.
+            Set<Name> names = new HashSet<Name>();
+            LinkedList<Formal> q = new LinkedList<Formal>();
+            q.addAll(formals);
+            while (! q.isEmpty()) {
+                Formal f = q.removeFirst();
+                Name name = f.name().id();
+                if (! name.equals(Name.make(""))) {
+                    if (names.contains(name))
+                        throw new SemanticException("Local variable \"" + name + "\" multiply defined.", f.position());
+                    names.add(name);
+                }
+                if (f instanceof X10Formal) {
+                    X10Formal ff = (X10Formal) f;
+                    q.addAll(ff.vars());
+                }
+            }
         }
         
         protected X10MethodDecl_c superTypeCheck(ContextVisitor tc) throws SemanticException {
@@ -377,7 +414,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             return super.conformanceCheck(tc);
         }
 
-        protected static void checkVariancesOfType(Position pos, Type t, TypeProperty.Variance requiredVariance, String desc, Map<String,TypeProperty.Variance> vars, ContextVisitor tc) throws SemanticException {
+        protected static void checkVariancesOfType(Position pos, Type t, TypeProperty.Variance requiredVariance, String desc, Map<Name,TypeProperty.Variance> vars, ContextVisitor tc) throws SemanticException {
             if (t instanceof ParameterType) {
         	ParameterType pt = (ParameterType) t;
         	X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
@@ -459,7 +496,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	return;
             
             X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
-            final Map<String,TypeProperty.Variance> vars = new HashMap<String, TypeProperty.Variance>();
+            final Map<Name,TypeProperty.Variance> vars = new HashMap<Name, TypeProperty.Variance>();
             for (int i = 0; i < cd.typeParameters().size(); i++) {
         	ParameterType pt = cd.typeParameters().get(i);
         	TypeProperty.Variance v = cd.variances().get(i);

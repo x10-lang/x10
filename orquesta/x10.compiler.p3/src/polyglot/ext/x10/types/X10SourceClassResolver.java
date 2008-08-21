@@ -14,8 +14,10 @@ import polyglot.types.LazyRef;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Name;
 import polyglot.types.SourceClassResolver;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -63,48 +65,31 @@ public class X10SourceClassResolver extends SourceClassResolver {
 	}
 
 	@Override
-	public Named find(Matcher<Named> matcher) throws SemanticException {
+	public Named find(QName name) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) this.ts;
 		
-		if (! (matcher instanceof TypeMatcher)) {
-		    throw new SemanticException("Cannot find " + matcher.signature());
-		}
-	        
-		String name = matcher.name();
-		
-		String revName = revMap.get(name);
+		String revName = revMap.get(name.toString());
 		if (revName != null) {
-	            return find(ts.TypeMatcher(revName));
+	            return find(QName.make(revName));
 	        }
 	        
-	        if (name.equals("x10.lang.Box")) return (Named) ts.Box();
-		if (name.equals("x10.lang.Void")) return (Named) ts.Void();
-//		if (name.equals("x10.lang.Boolean")) return(Named) ts.Boolean();
-//		if (name.equals("x10.lang.Byte")) return (Named) ts.Byte();
-//		if (name.equals("x10.lang.Short")) return(Named) ts.Short();
-//		if (name.equals("x10.lang.Char")) return (Named) ts.Char();
-//		if (name.equals("x10.lang.Int")) return(Named) ts.Int();
-//		if (name.equals("x10.lang.Long")) return (Named) ts.Long();
-//		if (name.equals("x10.lang.Float")) return(Named) ts.Float();
-//		if (name.equals("x10.lang.Double")) return(Named) ts.Double();
-//		if (name.equals("x10.lang.UByte")) return (Named)ts.UByte();
-//		if (name.equals("x10.lang.UShort")) return(Named) ts.UShort();
-//		if (name.equals("x10.lang.UInt")) return(Named) ts.UInt();
-//		if (name.equals("x10.lang.ULong")) return(Named) ts.ULong();
+		if (name.equals(QName.make("x10.lang.Box"))) return (Named) ts.Box();
+		if (name.equals(QName.make("x10.lang.Void"))) return (Named) ts.Void();
 	
 		// Change java.lang.Object to x10.lang.Object.
-		String newName = classMap.get(name);
+		QName newName = QName.make(classMap.get(name.toString()));
 		
 		if (newName != null) {
 		    Named n = ts.systemResolver().check(newName);
 		    if (n == null) {
-			n = super.find(ts.TypeMatcher(newName));
+		        n = super.find(newName);
 		    }
-		    if (n instanceof X10ParsedClassType) {
-			X10ParsedClassType ct = (X10ParsedClassType) n;
-			X10ClassDef cd = ct.x10Def();
 
-			String newPackage = StringUtil.getPackageComponent(name);
+		    if (n instanceof X10ParsedClassType) {
+		        X10ParsedClassType ct = (X10ParsedClassType) n;
+		        X10ClassDef cd = ct.x10Def();
+
+			QName newPackage = name.qualifier();
 			cd.setPackage(Types.ref(ts.packageForName(newPackage)));
 			
 			ts.systemResolver().install(newName, n);
@@ -113,19 +98,20 @@ public class X10SourceClassResolver extends SourceClassResolver {
 			// Modify x10.lang.Object from java.lang.Object:
 			// 1. Object is an interface.
 			// 2. Object has only equals, hashCode, toString methods.
-			if (name.equals("x10.lang.Object")) {
+			if (name.equals(QName.make("x10.lang.Object"))) {
 			    cd.flags(cd.flags().Interface());
 
 			    List<MethodDef> methods = new ArrayList<MethodDef>();
 			    for (MethodDef m : cd.methods()) {
-				if (m.name().equals("equals"))
+				if (m.name().equals(Name.make("equals")))
 				    methods.add(m);
-				if (m.name().equals("hashCode"))
+				if (m.name().equals(Name.make("hashCode")))
 				    methods.add(m);
-				if (m.name().equals("toString"))
+				if (m.name().equals(Name.make("toString")))
 				    methods.add(m);
 				m.setFlags(m.flags().clearNative().Abstract());
 			    }
+			    
 			    cd.setMethods(methods);
 			}
 			
@@ -149,7 +135,7 @@ public class X10SourceClassResolver extends SourceClassResolver {
 				    Type actual = Types.get(oldSup);
 				    if (actual instanceof ClassType) {
 					ClassDef acd = ((ClassType) actual).def();
-					if (acd.fullName().equals("x10.lang.Object"))
+					if (acd.fullName().equals(QName.make("x10.lang.Object")))
 					    actual = xts.Ref();
 				    }
 				    sup.update(actual);

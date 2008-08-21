@@ -316,9 +316,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (childtc2.hasErrors()) throw new SemanticException();
         nn = (X10ConstructorDecl) childtc2.leave(parent, old, nn, childtc2);
         
+        X10MethodDecl_c.dupFormalCheck(typeParameters, formals);
+
         return nn;
     }
-   
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
