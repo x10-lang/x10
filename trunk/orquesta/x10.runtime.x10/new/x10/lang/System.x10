@@ -7,7 +7,7 @@ public class System {
     // Hide the constructor.
     private def this() = { }
     
-    private incomplete def fakeIt[T](): T;
+    private static incomplete def fakeIt[T](): T;
     
     @Native("java", "java.lang.System.out")
     public const out: x10.io.PrintStream = fakeIt[x10.io.PrintStream]();

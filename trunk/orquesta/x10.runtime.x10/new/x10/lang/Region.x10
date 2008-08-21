@@ -18,7 +18,7 @@ public abstract value Region(
     incomplete public static def makeEmpty(rank: int): Region;
     incomplete public static def makeFull(rank: int): Region;
     incomplete public static def makeUnit(): Region;
-    incomplete public static def makeRectangular(min: Rail[int], min: Rail[int]): Region;
+    incomplete public static def makeRectangular(min: Rail[int], max: Rail[int]): Region;
     incomplete public static def makeRectangular(min: int, max: int): Region;
     incomplete public static def makeBanded(size: int, upper: int, lower: int): Region;
     incomplete public static def makeBanded(size: int): Region;
