@@ -3,6 +3,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+@NativeRep("java", "java.lang.System")
 public class System {
     // Hide the constructor.
     private def this() = { }
@@ -22,7 +23,7 @@ public class System {
     public static native def exit(code: Int): void;
     
     @Native("java", "java.lang.System.currentTimeMillis()")
-    public static native def milliTime(): Long;
+    public static native def currentTimeMillis(): Long;
     
     @Native("java", "java.lang.System.nanoTime()")
     public static native def nanoTime(): Long;
