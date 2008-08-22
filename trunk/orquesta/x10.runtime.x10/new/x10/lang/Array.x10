@@ -60,7 +60,7 @@ public abstract value class Array[T](dist: Dist) implements
     // private/protected
     //
 
-    protected def this[T](dist: Dist) = {
+    protected def this(dist: Dist) = {
         property(dist);
     }
 }
