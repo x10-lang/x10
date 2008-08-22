@@ -18,7 +18,9 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
@@ -108,7 +110,18 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 	
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.buildTypesOverride(tb);
         
+        X10ConstructorDef ci = (X10ConstructorDef) n.constructorDef();
+
         n = (X10ConstructorDecl_c) X10Del_c.visitAnnotations(n, tb);
+
+        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+        if (as != null) {
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+            for (AnnotationNode an : as) {
+                ats.add(an.annotationType().typeRef());
+            }
+            ci.setDefAnnotations(ats);
+        }
 
         ClassDef currentClass = tb.currentClass();
 
@@ -116,7 +129,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         // The X10 parser has "this" for the name.
 	n = (X10ConstructorDecl_c) n.name(nf.Id(n.position(), currentClass.name()));
         
-        X10ConstructorDef ci = (X10ConstructorDef) n.constructorDef();
         
         if (returnType == null)
         	n = (X10ConstructorDecl_c) n.returnType(nf.CanonicalTypeNode(n.position(), currentClass.asType()));

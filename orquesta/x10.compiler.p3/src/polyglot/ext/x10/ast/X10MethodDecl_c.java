@@ -34,6 +34,7 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
@@ -108,38 +109,47 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10MethodDecl_c n = (X10MethodDecl_c) super.buildTypesOverride(tb);
         
-        n = (X10MethodDecl_c) X10Del_c.visitAnnotations(n, tb);
+        X10MethodDef mi = (X10MethodDef) n.methodDef();
 
-        X10MethodDef ci = (X10MethodDef) n.methodDef();
+        n = (X10MethodDecl_c) X10Del_c.visitAnnotations(n, tb);
+        
+        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+        if (as != null) {
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+            for (AnnotationNode an : as) {
+                ats.add(an.annotationType().typeRef());
+            }
+            mi.setDefAnnotations(ats);
+        }
         
         // Type of formal x contains {self==x}, we need to remove that constraint.
         
         if (returnType() instanceof UnknownTypeNode) {
-            ci.inferReturnType(true);
+            mi.inferReturnType(true);
         }
 
         if (n.guard() != null)
-            ci.setGuard(n.guard().xconstraint());
+            mi.setGuard(n.guard().xconstraint());
 
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
         	typeParameters.add(Types.ref(tpn.type()));
         }
-        ci.setTypeParameters(typeParameters);
+        mi.setTypeParameters(typeParameters);
         
         List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
         for (Formal f : n.formals()) {
             formalNames.add(f.localDef());
         }
-        ci.setFormalNames(formalNames);
+        mi.setFormalNames(formalNames);
         
         if (returnType instanceof UnknownTypeNode && body == null)
         	throw new SemanticException("Cannot infer method return type; method has no body.", position());
 
-        if (X10Flags.toX10Flags(ci.flags()).isProperty()) {
+        if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
             final LazyRef<XTerm> bodyRef = Types.lazyRef(null);
             bodyRef.setResolver(new SetResolverGoal(tb.job()));
-            ci.body(bodyRef);
+            mi.body(bodyRef);
         }
         
         // property implies public, final
@@ -149,7 +159,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	xf = X10Flags.toX10Flags(xf.Public());
             else
         	xf = X10Flags.toX10Flags(xf.Public().Final());
-            ci.setFlags(xf);
+            mi.setFlags(xf);
             n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
         }
         
