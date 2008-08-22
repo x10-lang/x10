@@ -7,7 +7,9 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.Expr;
@@ -19,11 +21,13 @@ import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
@@ -31,6 +35,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
+import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
@@ -139,12 +144,20 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
-
         X10FieldDecl_c n = (X10FieldDecl_c) super.buildTypesOverride(tb);
         
+        X10FieldDef fi = (X10FieldDef) n.fieldDef();
+
         n = (X10FieldDecl_c) X10Del_c.visitAnnotations(n, tb);
 
-        FieldDef fi = n.fieldDef();
+        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+        if (as != null) {
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+            for (AnnotationNode an : as) {
+                ats.add(an.annotationType().typeRef());
+            }
+            fi.setDefAnnotations(ats);
+        }
 
         // Clear the static bit on properties
         if (this instanceof PropertyDecl) {

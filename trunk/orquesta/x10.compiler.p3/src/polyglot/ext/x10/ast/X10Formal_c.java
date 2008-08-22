@@ -27,6 +27,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10LocalDef;
 import polyglot.ext.x10.types.X10LocalInstance;
@@ -36,7 +37,9 @@ import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -122,6 +125,24 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		}
 		return sb.toString();
 	}
+
+	 @Override
+	 public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	     X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
+
+	     X10LocalDef fi = (X10LocalDef) n.localDef();
+
+	     List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+	     if (as != null) {
+	         List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+	         for (AnnotationNode an : as) {
+	             ats.add(an.annotationType().typeRef());
+	         }
+	         fi.setDefAnnotations(ats);
+	     }
+
+	     return n;
+	 }
 
     public String toString() {
 	StringBuffer sb = new StringBuffer();

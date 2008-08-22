@@ -7,6 +7,9 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
@@ -14,12 +17,17 @@ import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Del;
+import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10FieldDef;
+import polyglot.ext.x10.types.X10LocalDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -44,7 +52,21 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		// This can be fixed later for local variables by doing better type inference.  This should never be done for fields.
 		if (type instanceof UnknownTypeNode && ! flags.flags().isFinal())
 			throw new SemanticException("Cannot infer type of non-final variable.", position());
-		return super.buildTypes(tb);
+		
+		X10LocalDecl_c n = (X10LocalDecl_c) super.buildTypes(tb);
+
+		X10LocalDef fi = (X10LocalDef) n.localDef();
+
+	        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+	        if (as != null) {
+	            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+	            for (AnnotationNode an : as) {
+	                ats.add(an.annotationType().typeRef());
+	            }
+	            fi.setDefAnnotations(ats);
+	        }
+	        
+	        return n;
 	}
 
 	    @Override
