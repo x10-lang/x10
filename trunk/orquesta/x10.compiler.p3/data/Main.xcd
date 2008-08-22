@@ -1,23 +1,34 @@
 // SYNOPSIS: main(#0) #1
 
 public static class Main extends x10.runtime.Activity {
-	private final String[] form;
-	public Main(String[] args) {
+	private final x10.runtime.Rail<java.lang.String> form;
+	public Main(java.lang.String[] args) {
 		super("Main Activity");
-		this.form = args;
+		this.form = x10.runtime.Runtime.<java.lang.String>makeRailFromJavaArray(args);
 	}
 	public void runX10Task() {
 		main(form);
 	}
 }
 
+private static final boolean __X10_RUNTIME_IS_GO__ = false;
+
+public static void main(java.lang.String[] args) {
+        if (__X10_RUNTIME_IS_GO__) {
+                java.lang.System.err.println("Please use the 'x10' script to invoke X10 programs, or see the generated");
+                java.lang.System.err.println("Java code for alternate invocation instructions.");
+                java.lang.System.exit(128);
+        }
+        else {
+                // Just invoke the main method
+                final x10.runtime.Rail<java.lang.String> form;
+                form = x10.runtime.Runtime.<java.lang.String>makeRailFromJavaArray(args);
+                main(form);
+        }
+}
+
 // the original app-main method
 public static void main(#0) {
-	if (x10.lang.Runtime.runtime == null) {
-		java.lang.System.err.println("Please use the 'x10' script to invoke X10 programs, or see the generated");
-		java.lang.System.err.println("Java code for alternate invocation instructions.");
-		java.lang.System.exit(128);
-	}
 #1
 }
 

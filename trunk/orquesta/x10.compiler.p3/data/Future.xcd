@@ -1,5 +1,5 @@
 // SYNOPSIS: future(#0) #1 #2
-(x10.lang.Runtime.asPlace(#0)).runFuture(new x10.runtime.Future_c.Activity() {
+(x10.runtime.Runtime.asPlace(#0)).runFuture(new x10.runtime.Future_c.Activity() {
   private x10.lang.Object x10_result_;
   public #1 eval() {
         #2
