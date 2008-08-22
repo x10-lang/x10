@@ -141,12 +141,6 @@ public class X10Call_c extends Call_c implements X10Call {
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
         
-        if (this.target != null && this.target.type().isPrimitive() &&
-                name().id().toString().equals("getLocation") && arguments().isEmpty())
-        {
-            return xnf.Here(position()).del().typeCheck(tc);
-        }
-
         {
             // Check if target.name is a field or local of function type; if so, convert to a closure call.
             X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
