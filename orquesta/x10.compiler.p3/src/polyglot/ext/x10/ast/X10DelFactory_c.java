@@ -47,69 +47,6 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	};
 
 	public JL delNodeImpl() {
-		return new X10Del_c();
-	}
-
-	/**
-	 * For each term, add the delegate that redirects translate to the
-	 * X10PrettyPrinterVisitor.
-	 */
-	public JL delTermImpl() {
-		return new TD();
-	}
-	
-	/**
-	 * For each term, add the delegate that redirects translate to the
-	 * X10PrettyPrinterVisitor.
-	 */
-	public JL delFormalImpl() {
-	    return new TD();
-	}
-
-	/**
-	 * For each method declaration, add the delegate that redirects translate
-	 * to the X10PrettyPrinterVisitor.
-	 */
-	public JL delMethodDeclImpl() {
-		return new TD();
-	}
-
-	/**
-	 * For each field declaration, add the delegate that redirects translate
-	 * to the X10PrettyPrinterVisitor.
-	 */
-	public JL delFieldDeclImpl() {
-		return new TD();
-	}
-
-	/**
-	 * For ternaries, also implement a separate typeCheck method.
-	 */
-	public JL delConditionalImpl() {
-		return new TD();
-	}
-
-	/**
-	 * For each canonical type node, add the delegate that redirects translate
-	 * to the X10PrettyPrinterVisitor.
-	 */
-	public JL delCanonicalTypeNodeImpl() {
-		return new TD();
-	}
-
-	/**
-	 * For each nullable type node, add the delegate that redirects translate
-	 * to the X10PrettyPrinterVisitor.
-	 */
-	public JL delNullableNodeImpl() {
-		return new TD();
-	}
-
-	/**
-	 * For each future type node, add the delegate that redirects translate
-	 * to the X10PrettyPrinterVisitor.
-	 */
-	public JL delFutureNodeImpl() {
 		return new TD();
 	}
 
