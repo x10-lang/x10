@@ -720,11 +720,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	public ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
-		return X10ConstructorCall(pos, ConstructorCall.THIS, outer, typeArgs, args);
+		return X10ConstructorCall(pos, ConstructorCall.SUPER, outer, typeArgs, args);
 	}
 
 	public ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
-		return X10ConstructorCall(pos, ConstructorCall.THIS, null, typeArgs, args);
+		return X10ConstructorCall(pos, ConstructorCall.SUPER, null, typeArgs, args);
 	}
 
 	public ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {

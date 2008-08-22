@@ -138,6 +138,11 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (n.guard() != null)
             ci.setGuard(n.guard().xconstraint());
 
+        if (X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
+            if (n.typeParameters().size() > 0)
+                throw new SemanticException("Constructors cannot have type parameters.", n.position());
+        }
+        
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
         	typeParameters.add(Types.ref(tpn.type()));
