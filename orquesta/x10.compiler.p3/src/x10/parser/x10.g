@@ -33,6 +33,7 @@
     import java.io.File;
 
     import polyglot.types.QName;
+    import polyglot.types.Name;
     import polyglot.ast.AmbExpr;
     import polyglot.ast.AmbTypeNode;
     import polyglot.ast.ArrayInit;
@@ -2122,7 +2123,7 @@ public static class MessageHandler implements IMessageHandler {
                                      : getRhsLastTokenIndex($ImportDeclarationsopt)
                                 );
                     Import x10LangImport = 
-                    nf.Import(pos(token_pos), Import.PACKAGE, QName.parse("x10.lang"));
+                    nf.Import(pos(token_pos), Import.PACKAGE, QName.make("x10.lang"));
                     ImportDeclarationsopt.add(x10LangImport);
                     setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()), PackageDeclarationopt, ImportDeclarationsopt, TypeDeclarationsopt));
           $EndJava
@@ -2175,13 +2176,13 @@ public static class MessageHandler implements IMessageHandler {
 
     SingleTypeImportDeclaration ::= import TypeName ;
         /.$BeginJava
-                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.parse(TypeName.toString())));
+                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
           $EndJava
         ./
 
     TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
         /.$BeginJava
-                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.parse(PackageOrTypeName.toString())));
+                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.make(PackageOrTypeName.toString())));
           $EndJava
         ./
     
@@ -3668,6 +3669,10 @@ public static class MessageHandler implements IMessageHandler {
                     else if (Primary instanceof AmbExpr) {
                         AmbExpr f = (AmbExpr) Primary;
                         setResult(nf.X10Call(pos(), null, f.name(), TypeArgumentsopt, ArgumentListopt));
+                    }
+                    else if (Primary instanceof Here) {
+                        Here f = (Here) Primary;
+                        setResult(nf.X10Call(pos(), null, nf.Id(Primary.position(), Name.make("here")), TypeArgumentsopt, ArgumentListopt));
                     }
                     else {
                         setResult(nf.ClosureCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
