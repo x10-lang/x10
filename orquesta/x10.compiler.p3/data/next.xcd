@@ -1,4 +1,4 @@
 // SYNOPSIS: next;
 
-x10.lang.Runtime.getCurrentActivity().doNext();
+x10.runtime.Runtime.getCurrentActivity().doNext();
 
