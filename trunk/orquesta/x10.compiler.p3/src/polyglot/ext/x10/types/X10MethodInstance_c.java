@@ -143,10 +143,11 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    
 	    public List<LocalInstance> formalNames() {
 		if (this.formalNames == null) {
-		    this.formalNames = new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
-			public LocalInstance transform(LocalDef o) {
-			    return o.asInstance();
-			}
+		    this.formalNames = new TransformingList<LocalDef,LocalInstance>(x10Def().formalNames(),
+		            new Transformation<LocalDef,LocalInstance>() {
+		        public LocalInstance transform(LocalDef o) {
+		            return o.asInstance();
+		        }
 		    });
 		}
 		
@@ -161,7 +162,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
 	public void checkOverride(MethodInstance mj) throws SemanticException {
 	    //  Report.report(1, "X10MethodInstance_c: " + this + " canOverrideImpl " + mj);
-	    super.checkOverride(mj);
+	    super.checkOverride(mj, true);
 	    MethodInstance mi = this;
 	    X10Flags miF = X10Flags.toX10Flags(mi.flags());
 	    X10Flags mjF = X10Flags.toX10Flags(mj.flags());
@@ -426,7 +427,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
 	    for (Type type : me.throwTypes()) {
 		XConstraint rc = X10TypeMixin.xclause(type);
-		if (! rc.valid())
+		if (rc != null && ! rc.valid())
 		    throw new SemanticException("Cannot throw a dependent type.", me.position());
 	    }
 	    
