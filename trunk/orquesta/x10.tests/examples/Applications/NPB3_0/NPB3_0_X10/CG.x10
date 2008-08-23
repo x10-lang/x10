@@ -93,7 +93,7 @@ public class CG {
 	var t_names: Rail[String];
 	var timer_read: double;
 	var timeron: boolean;
-	const public t_init: int = 1;
+	public const t_init: int = 1;
         public const t_bench: int = 2;
         public const t_conj_grad: int = 3;
         public const t_last: int = 3;

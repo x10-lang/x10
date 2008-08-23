@@ -116,7 +116,7 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2 
 
 		row = new Array[int](Dist.makeConstant([0..rowt.length-1], here), (var point [i]: point): int => { return rowt(i); });
 		col = new Array[int](Dist.makeConstant([0..colt.length-1], here), (var point [i]: point): int => { return colt(i); });
-		val = new Array[double](Dist.makeConstant([0..valt.length-1], here), (var point [i]: point): double => { return valt(i); });
+		val = new Array[double]([0..valt.length-1]->here, (var point [i]: point): double => { return valt(i); });
 		lowsum = new Array[int](Dist.makeConstant([0..lowsumin.length-1], here), (var point [i]: point): int => { return lowsumin(i); });
 		highsum = new Array[int](Dist.makeConstant([0..highsumin.length-1], here), (var point [i]: point): int => { return highsumin(i); });
 		//row = intArray.factory.intValueArray(rowt);

@@ -436,7 +436,7 @@ public class RatePath extends PathId {
 			var aDate: int = Integer.parseInt("19"+field(0));
 			//
 			// static double Double.parseDouble() method is a feature of JDK1.2!
-			var aPathValue: double = Double.valueOf(field(datumfield)).doubleValue();
+			var aPathValue: double = Double.valueOf(field(datumfield));
 			if ((aDate <= MINIMUMDATE) || (Math.abs(aPathValue) < EPSILON)) {
 				dbgPrintln("Skipped erroneous data in "+filename+" indexed by date = "+field(0)+".");
 			} else {
