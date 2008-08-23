@@ -59,7 +59,7 @@ not be saved (to allow developers more time to fix the errors).
 
 An X10 test case file *.x10 contains a single public class, which
 has a \"public boolean run()\" instance method, and a \"public
-static void main(String args[])\" method.  The run method must
+static def main(args: Rail[String])\" method.  The run method must
 contain the actual test and must return true if the test passed.
 run() must throw an exception or return false to indicate failure.
 The main method must create the class with an empty constructor,
@@ -81,7 +81,7 @@ directory, and are executed in the same order as returned by GNU
 find.
 
 To avoid treating an *.x10 file as a test case, do not put a
-\"public static void main\" method in it.  This is the way to
+\"public static def main\" method in it.  This is the way to
 define auxiliary classes that are not themselves test cases.
 
 It is possible to specify that a test case must fail. You
@@ -265,7 +265,7 @@ testForMain() {
     local f="$1"
     local tail="$2"
     if [[ "$tail" != *.x10 ]] ; then return 1; fi
-    egrep '(public[[:space:]]+static|static[[:space:]]+public)[[:space:]]+void[[:space:]]+main\b' "$f" >/dev/null
+    egrep '(public[[:space:]]+static|static[[:space:]]+public)[[:space:]]+def[[:space:]]+main\b' "$f" >/dev/null
     return $?
 }
 
@@ -703,7 +703,7 @@ doTest() {
 
   let "nTotal = (( $nTotal + 1 ))"
 
-  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
+  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
 
   if [[ $? != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
