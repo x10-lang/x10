@@ -87,7 +87,7 @@ public class MG extends MGBase {
 	}
 
 	public static def entryPoint(var argv: Rail[String]): void = {
-		var mg: nullable<MG> = null;
+		var mg: MG = null;
 
 		BMArgs.ParseCmdLineArgs(argv, BMName);
 		var CLSS: char = BMArgs.CLASS.val;
@@ -342,10 +342,10 @@ fmt.format(t*100./tmax)+"%)");
 		//double xx, x0, x1;
 		var ten: Rail[double] = new Rail[double](mm*2);
 		var best: double;
-		int var j1: Rail[int] = new Rail[int](mm*2),
+		var j1: Rail[int] = new Rail[int](mm*2),
 			var j2: Rail[int] = new Rail[int](mm*2),
 			var j3: Rail[int] = new Rail[int](mm*2);
-		int var jg: Rail[int] = new Rail[int](4*mm*2);
+		var jg: Rail[int] = new Rail[int](4*mm*2);
 		//int jg_temp = new int[4];
 
 		zero3(z, 0, n1, n2, n3);
@@ -463,7 +463,7 @@ fmt.format(t*100./tmax)+"%)");
 			rnmu = dmax1(rnmu, a);
 		}
 
-		rnm2 = Math.sqrt(rnm2 / ((double) nx*ny*nz));
+		rnm2 = Math.sqrt(rnm2 / ((nx*ny*nz) to double));
 		if (timeron) timer.stop(T_norm2);
 		return rnm2;
 	}
@@ -471,7 +471,7 @@ fmt.format(t*100./tmax)+"%)");
 	public def TestNorm(var r: Rail[double], var n1: int, var n2: int, var n3: int): double = {
 		var rnm2: double = 0.0;
 		for (val (i3,i2,i1): point in [1..n3-2, 1..n2-2, 1..n1-2]) rnm2 += r(i1+n1*(i2+n2*i3))*r(i1+n1*(i2+n2*i3));
-		rnm2 = Math.sqrt(rnm2 / ((double)n1*n2*n3));
+		rnm2 = Math.sqrt(rnm2 / ((n1*n2*n3) to double));
 		System.out.println("*****TestNorm  "+rnm2);
 		return rnm2;
 	}
@@ -588,7 +588,8 @@ fmt.format(t*100./tmax)+"%)");
 //			c---------------------------------------------------------------------
 			psinv(r, ir(k), u, ir(k), m1(k), m2(k), m3(k));
 		}
-		val j: int = lt - 2val k: int = lt-1;
+		val j: int = lt - 2;
+                val k: int = lt-1;
 		interp(u, ir(j), m1(j), m2(j), m3(j), 0, n1, n2, n3);
 		resid(u, v, r, 0, n1, n2, n3);
 		psinv(r, 0, u, 0, n1, n2, n3);
@@ -647,7 +648,8 @@ fmt.format(t*100./tmax)+"%)");
 //		c     based machines.
 //		c---------------------------------------------------------------------
 //		double precision r(m1k,m2k,m3k), s(m1j,m2j,m3j)
-		var x1: Rail[double] = new Rail[double](nm+1), var y1: Rail[double] = new Rail[double](nm+1);
+		var x1: Rail[double] = new Rail[double](nm+1);
+                var y1: Rail[double] = new Rail[double](nm+1);
 
 		if (timeron) timer.start(T_rprj3);
 		Rprj.rprj3(r, roff, m1k, m2k, m3k, zoff, m1j, m2j, m3j, x1, y1, 2, m3j-1);
@@ -657,7 +659,9 @@ fmt.format(t*100./tmax)+"%)");
 
 	public def interp(var u: Rail[double], var zoff: int, var mm1: int, var mm2: int, var mm3: int, var uoff: int, var n1: int, var n2: int, var n3: int): void = {
 		val m: int = 535;
-		val z1: Rail[double] = new Rail[double](m), val z2: Rail[double] = new Rail[double](m), val z3: Rail[double] = new Rail[double](m);
+		val z1: Rail[double] = new Rail[double](m);
+                val z2: Rail[double] = new Rail[double](m);
+                val z3: Rail[double] = new Rail[double](m);
 		if (timeron) timer.start(T_interp);
 		Interp.interp(u, zoff, mm1, mm2, mm3, uoff, n1, n2, n3, z1, z2, z3, 1, mm3);
 		if (timeron) timer.stop(T_interp);

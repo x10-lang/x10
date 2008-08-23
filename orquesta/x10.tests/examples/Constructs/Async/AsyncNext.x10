@@ -31,6 +31,6 @@ public class AsyncNext extends x10Test {
 	}
 
 	static class T {
-		var val: Object;
+		var val: Ref;
 	}
 }

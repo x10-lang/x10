@@ -157,8 +157,8 @@ public class RayTracer {
 			for (val point[pixCounter]: point in my_dist.region) {
 				var y: int = pixCounter / interval.width;
 				var x: int = pixCounter % interval.width;
-				var ylen: double = (double)(2.0 * y) / (double)interval.width - 1.0;
-				var xlen: double = (double)(2.0 * x) / (double)interval.width - 1.0;
+				var ylen: double = (2.0 * y) / interval.width - 1.0;
+				var xlen: double = (2.0 * x) / interval.width - 1.0;
 				r = r.d (Vec.comb(xlen, leftVec, ylen, upVec).added(viewVec).normalized());
 				var col: Vec = trace(0, 1.0, r, new Isect(), new Ray());
 

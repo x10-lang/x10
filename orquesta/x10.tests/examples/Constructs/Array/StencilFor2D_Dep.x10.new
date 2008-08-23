@@ -16,10 +16,14 @@ import harness.x10Test;;
 public class StencilFor2D_Dep extends x10Test {
 	
         public def run(): boolean = {
-        	final val R: region{rank==2} = [-1..256, -1..256]val r: region{rank==2} = [0..255, 0..255];
+        	val R: region{rank==2} = [-1..256, -1..256];
+                val r: region{rank==2} = [0..255, 0..255];
         	//final point(:rank==2) north=[0,1], south=[0,-1], west=[-1,0], east=[1,0];
-        	final val north: point = [0, 1]val south: point = [0, -1]val west: point = [-1, 0]val east: point = [1, 0];//the rank is not a property of point
-        	final val D: dist{rank==2} = Dist.makeConstant(R, here);
+        	val north: point = [0, 1];
+                val south: point = [0, -1];
+                val west: point = [-1, 0];
+                val east: point = [1, 0];//the rank is not a property of point
+        	val D: dist{rank==2} = R->here;
         	//final double [:rank==2] A=new double [R]; //this statement should work.
         	final val A: Array[double]{rank==2} = new Array[double](D);
         	final val h: double = 0.1;

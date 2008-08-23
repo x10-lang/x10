@@ -162,7 +162,7 @@ public class SeriesTest {
 
 		// Finish computation.
 
-		rvalue = (rvalue + thefunction(x1, omegan, select) / (double)2.0) * dx;
+		rvalue = (rvalue + thefunction(x1, omegan, select) / 2.0) * dx;
 		return (rvalue);
 	}
 
