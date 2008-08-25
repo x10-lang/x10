@@ -161,8 +161,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    }
 
 	public void checkOverride(MethodInstance mj) throws SemanticException {
-	    //  Report.report(1, "X10MethodInstance_c: " + this + " canOverrideImpl " + mj);
 	    super.checkOverride(mj, true);
+
 	    MethodInstance mi = this;
 	    X10Flags miF = X10Flags.toX10Flags(mi.flags());
 	    X10Flags mjF = X10Flags.toX10Flags(mj.flags());

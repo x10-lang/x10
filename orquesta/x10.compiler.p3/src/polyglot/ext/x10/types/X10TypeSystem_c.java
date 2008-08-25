@@ -109,6 +109,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		ConstrainedType ct = (ConstrainedType) container;
 		return ct.baseType().get();
 	    }
+	    if (container instanceof ParameterType) {
+	        // go to def() -- may be either X10ClassDef or X10MethodDef or X10ConstructorDef
+	        // look in where clause and compute best bound of parameter
+	    }
 	    return container;
 	}
 	
@@ -732,8 +736,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return false;
 	}
 	
+	public boolean isInterfaceType(Type t) {
+	    t =  X10TypeMixin.baseType(t);
+	    if (t instanceof ClassType)
+	        if (((ClassType) t).flags().isInterface())
+	            return true;
+	    return false;
+	}
+	
 	public boolean isReferenceType(Type t) {
-	    return isX10BaseSubtype(t, Ref());
+	    return isX10BaseSubtype(t, Ref()) ;
 	}
 	
 	public  boolean isValueType(Type t) {
@@ -1452,7 +1464,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (t1 == t2)
 			return true;
 		
-		if (t1.isNull() && (t2.isNull() || isReferenceType(t2))) {
+		if (t1.isNull() && (t2.isNull() || isReferenceType(t2) || isInterfaceType(t2))) {
 		    return true;
 		}
 		
@@ -1895,7 +1907,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		}
 		
 		if (baseType1 instanceof NullType) {
-		    return isReferenceType(baseType2);
+		    return isReferenceType(baseType2) || isInterfaceType(baseType2);
 		}
 		
 		if (isValueType(baseType1) && isValueType(baseType2)) {

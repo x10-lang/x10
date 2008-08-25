@@ -101,6 +101,8 @@ public class X10Unary_c extends Unary_c {
 	    methodNameMap.put(BIT_NOT, "$tilde");
 	    
 	    String methodName = methodNameMap.get(op);
+	    if (methodName == null)
+	        return null;
 	    return Name.make(methodName);
 	}
 }

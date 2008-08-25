@@ -28,17 +28,21 @@ public interface ClosureType extends X10ParsedClassType {
     Type returnType();
 
     /**
-     * @return the list of formal argument types of the closure, in declaration order. may be empty.
+     * @return the list of formal type arguments of the closure, in declaration order. may be empty.
+     * Note: This differs from typeArguments, inherited from X10ClassType.
+     * For [S](T) => U, 
+     * the class type for the closure is Fun_1_1[T,U].
+     * typeParameters is [S] and argumentTypes is (T).  typeArguments is [T,U].
      */
     List<Type> typeParameters();
 
     /**
-     * @return the list of formal argument types of the closure, in declaration order. may be empty.
+     * @return the list of formal value argument types of the closure, in declaration order. may be empty.
      */
     List<Type> argumentTypes();
 
     /**
-     * @return the list of formal argument names of the closure, in declaration order. may be empty.
+     * @return the list of formal value argument names of the closure, in declaration order. may be empty.
      */
     List<LocalInstance> formalNames();
     

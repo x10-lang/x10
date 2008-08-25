@@ -63,9 +63,9 @@ public class TypeParamSubst {
 	    ct = ct.closureInstance(reinstantiate(ct.closureInstance()));
 	    return ct;
 	}
-	if (t instanceof X10ParsedClassType) {
-	    X10ParsedClassType ct = (X10ParsedClassType) t;
-	    ct = (X10ParsedClassType) ct.copy();
+	if (t instanceof X10ClassType) {
+	    X10ClassType ct = (X10ClassType) t;
+	    ct = (X10ClassType) ct.copy();
 	    ct = ct.typeArguments(reinstantiate(ct.typeArguments()));
 	    if (ct.isMember()) {
 		ct = (X10ParsedClassType) ct.container(reinstantiate(ct.container()));
