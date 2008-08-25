@@ -4,7 +4,7 @@ Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
 Bundle-Version: 1.0.69
 Bundle-Localization: plugin
-Require-Bundle: x10.runtime.x10
+Require-Bundle: x10.runtime.17
 Export-Package: polyglot.ext.x10,
  polyglot.ext.x10.ast,
  polyglot.ext.x10.extension,
