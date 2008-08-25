@@ -71,7 +71,7 @@ public abstract class Place implements Comparable, AbstractMetrics {
      *                reference to the closure that encapsulates the code to run
      * @return the placeholder for the future result.
      */
-    public abstract Future runFuture(Future_c.Activity a);
+    public abstract <T> Future<T> runFuture(Future_c.Activity<T> a);
 
     protected Place(int id) {
         this.id = id;

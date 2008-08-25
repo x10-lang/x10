@@ -342,7 +342,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
          */
         Empty(/* nat */int k) {
             // get an empty region of rank 0
-            super(Region.emptyRegion(k), null);
+            super(RegionFactory.makeEmpty(k), null);
         }
 
         /**
@@ -474,7 +474,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
             if (P.equals(place_))
                 return this.region;
 
-            return Region.emptyRegion(this.rank);
+            return RegionFactory.makeEmpty(this.rank);
         }
 
         /**
@@ -608,8 +608,8 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
                 }
             }
             if (index < 0)
-                return Region.emptyRegion(1);
-            return Region.region(index, index);
+                return RegionFactory.makeEmpty(1);
+            return RegionFactory.makeRect(index, index);
         }
 
         public String toString() {
@@ -680,7 +680,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
             }
 
             if (0 == count)
-                return Region.emptyRegion(region.rank);
+                return RegionFactory.makeEmpty(region.rank);
 
             if (1 == count)
                 return newRegions[0]; // we win

@@ -1,10 +1,12 @@
 package x10.lang;
 
-public abstract value class Future[+T] implements ()=>T {
+import x10.compiler.NativeRep;
 
-    public abstract def start(): void;
-    public abstract def started(): boolean;
-    public abstract def force(): T;
-    public abstract def forced(): boolean;
-    public def apply() = force();
+@NativeRep("java", "x10.runtime.Future<#1>")
+public interface Future[+T] extends ()=>T {
+    // public abstract def start(): void;
+    // public abstract def started(): boolean;
+
+    public def force(): T;
+    public def forced(): boolean;
 }
