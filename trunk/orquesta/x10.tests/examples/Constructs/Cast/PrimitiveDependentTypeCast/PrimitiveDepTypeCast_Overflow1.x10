@@ -18,7 +18,7 @@ public class PrimitiveDepTypeCast_Overflow1 extends x10Test {
 	 
 	public def run(): boolean = {
 		// 32777 stored in a short is overflowed to -32759
-		final val overflow: short = aboveShort to short;
+		val overflow: short = aboveShort to short;
 
 		var ss: short{self==overflow} = overflow to short{self==overflow};
 		var sss: short{self==32777} = overflow to short{self==32777};

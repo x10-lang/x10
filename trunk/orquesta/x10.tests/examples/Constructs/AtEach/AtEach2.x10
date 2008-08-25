@@ -17,7 +17,7 @@ public class AtEach2 extends x10Test {
     var nplaces: int = 0;
 
     public def run(): boolean = {
-        final val d: dist = Dist.makeUnique(place.places);
+        val d: dist = Dist.makeUnique(place.places);
         finish ateach (val p: point in d) {
             // remember if here and d[i] disagree
             // at any activity at any place

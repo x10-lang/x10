@@ -18,8 +18,8 @@ public class Long_ConstraintDeclaredAsIntegerOverFlow2_MustFailCompile extends x
 
 	 public def run(): boolean = {
 		var result: boolean = false;
-		final val notAnInt: long = 2147493648L ;
-		final val b: int{self == -2147473648} = notAnInt to int{self== -2147473648};
+		val notAnInt: long = 2147493648L ;
+		val b: int{self == -2147473648} = notAnInt to int{self== -2147473648};
 		System.out.println("" + " bound=" + b
 				+ " notAnInt=" + notAnInt);
 		try {

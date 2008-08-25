@@ -16,7 +16,7 @@ public class AtEachLoopOnArray extends x10Test {
 	var success: boolean = true;
 
 	public def run(): boolean = {
-		final val A: Array[double] =
+		val A: Array[double] =
                         new Array[double]([0..10]->here, ((i): point): double => i to double);
 
 		finish ateach (val (i): point in A)

@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class Short_ConstraintDeclaredAsShort extends x10Test {
 
 	public def run(): boolean = {
-		final val sconstraint: short{self==0} = 0;
+		val sconstraint: short{self==0} = 0;
 		
 		// UPDATE COMMENT WHEN FIXED
 		// not valid: because constraint constant and assigned one have different type

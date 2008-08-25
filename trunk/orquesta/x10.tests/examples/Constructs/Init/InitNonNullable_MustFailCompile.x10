@@ -38,7 +38,7 @@ public class InitNonNullable_MustFailCompile extends x10Test {
 		chk(bna.val(9).data == 19);
 		var tmp7: Node = (bna.val(9).next) as Node;
 		chk(bna.val(9).next.data == 19);
-		final val A: Array[Node] = new Array[Node]([0..9]->here) as Array[Node];
+		val A: Array[Node] = new Array[Node]([0..9]->here) as Array[Node];
 		var tmp8: Node = (A(2)) as Node;
 		chk(A(2).data == 19);
 		var tmp9: Node = (A(2).next) as Node;
