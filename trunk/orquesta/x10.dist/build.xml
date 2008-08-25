@@ -18,7 +18,7 @@
     <property name="x10.compiler.location" location="${x10.home}/x10.compiler.p3"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="config" value="standard.cfg"/>
-    <property name="x10.runtime.location" location="${x10.home}/x10.runtime.x10"/>
+    <property name="x10.runtime.location" location="${x10.home}/x10.runtime.17"/>
     <property name="runtime.jar" value="x10.jar"/>
     <path id="project.classpath"/>
     <!-- get the environment variables -->
