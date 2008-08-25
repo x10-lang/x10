@@ -16,7 +16,7 @@ public class ConditionalAtomicTest extends x10Test {
 	var value2: int = 0;
 
 	public def run(): boolean = {
-		final val c: clock = clock.make();
+		val c: clock = clock.make();
 		async(this) clocked(c) {
 			// this activity waits until value1 and
 			// value2 are equal, then atomically makes

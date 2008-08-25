@@ -5,7 +5,13 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
+
+import java.lang.Class;
+import java.lang.ClassNotFoundException;
+import java.lang.IllegalAccessException;
+import java.lang.InstantiationException;
+import x10.lang.System;
 
 /**
  * Test harness runner.

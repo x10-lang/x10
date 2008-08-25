@@ -19,7 +19,7 @@ public class ValueClass2_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
 		var d: dist = [0..9]->here;
-		final val f: foo = new foo();
+		val f: foo = new foo();
 		var x: myval = new myval(1, new complex(2,3), f, new Array[int](d));
 		var y: myval = new myval(1, new complex(2,3), f, new Array[int](d));
 		//==== > compiler error should occur here

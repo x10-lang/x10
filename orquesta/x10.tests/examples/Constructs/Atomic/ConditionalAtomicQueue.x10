@@ -72,10 +72,10 @@ public class ConditionalAtomicQueue extends x10Test {
 	}
 
 	public def run(): boolean = {
-		final val N: int = T.N;
-		final val NP: int = place.MAX_PLACES;
-		final val D2: dist = MyDist.val(N*NP);
-		final val received: Array[int] = new Array[int](D2);
+		val N: int = T.N;
+		val NP: int = place.MAX_PLACES;
+		val D2: dist = MyDist.val(N*NP);
+		val received: Array[int] = new Array[int](D2);
 
 		finish {
 			// spawn producer activities on each place
@@ -95,7 +95,7 @@ public class ConditionalAtomicQueue extends x10Test {
 					when (!empty()) { t = remove(); }
 					val t1: T = (T)t;
 					async(t1) { t1.consume(); } // consume the T
-					final val m: int = (future(t1) t1.getval()).force();
+					val m: int = (future(t1) t1.getval()).force();
 					received(m) += 1;
 					// remember how many times
 					// we received this item
