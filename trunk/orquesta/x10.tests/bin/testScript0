@@ -717,7 +717,7 @@ doTest() {
   # the output must contain 'Test succeeded'
   # the output must not contain a java stack traceback
   let "x10test_timeout = (( $timeLimit + 30 ))"
-  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/x10 -t -v -mx 128M -classpath \"$testDir\" $classpath -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
+  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10 -t -v -mx 128M -classpath \"$testDir\" $classpath -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   local runRc=$?
 
   echo ""                                    >> logDetail.$tdir.$className
