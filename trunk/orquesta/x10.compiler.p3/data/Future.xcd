@@ -1,13 +1,13 @@
-// SYNOPSIS: future(#0) #1 #2
-(x10.runtime.Runtime.asPlace(#0)).runFuture(new x10.runtime.Future_c.Activity() {
-  private x10.lang.Object x10_result_;
+// SYNOPSIS: future[#1](#0) #2
+(x10.runtime.Runtime.asPlace(#0)).<#1>runFuture(new x10.runtime.Future_c.Activity<#1>() {
+  private #1 x10_result_;
   public #1 eval() {
         #2
   }
   public void runSource() {
      this.x10_result_ = eval();
   }
-  public x10.lang.Object getResult() {
+  public #1 getResult() {
      return x10_result_;
   }
 })

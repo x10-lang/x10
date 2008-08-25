@@ -1,3 +1,0 @@
-// SYNOPSIS: distribution.unique()
-// SYNOPSIS: [IP] I don't think this is used
-(x10.runtime.Runtime.factory.getDistributionFactory().unique())
