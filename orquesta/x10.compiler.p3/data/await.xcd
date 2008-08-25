@@ -6,7 +6,7 @@
 		try {
 			((x10.runtime.ActivityRunner) Thread.currentThread()).getActivity().getPlace().threadBlockedNotification(); // Add a thread for current activity if needed
 			while (!(#0)) {
-				x10.lang.Runtime.here().wait();
+				x10.runtime.Runtime.here().wait();
 			}
 		} catch (java.lang.Throwable tmp#1) {
 			tmp#1.printStackTrace();
