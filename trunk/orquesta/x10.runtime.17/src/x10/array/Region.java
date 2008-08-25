@@ -22,7 +22,7 @@ import x10.core.Value;
  * 
  * @author vj
  */
-public abstract class Region extends Value {
+public abstract class Region extends Value implements Iterable<Point> {
     public static final int UNKNOWN = 0;
     public static final int RANGE = 1;
     public static final int ARBITRARY = 2;
@@ -40,94 +40,6 @@ public abstract class Region extends Value {
     /* property */public final boolean zeroBased;
     /* property */public final boolean rail;
     /* property */public final boolean colMajor;
-
-    public static Region /* (k) */emptyRegion(/* nat */int k) {
-        return new EmptyRegion(k);
-    }
-
-    /**
-     * Construct a 1-dimensional Region_c, low..high with the given stride.
-     * Return an empty region if low > high
-     */
-    public static Region /* (1) */region(int low, int high, int stride) {
-        if (low > high)
-            return emptyRegion(1);
-        
-        return (stride == 1) ? (Region) new ContiguousRange(low, high) : (Region) new StridedRange(low, high, stride);
-    }
-    
-    /**
-     * Construct a 1-dimensional Region_c, low..high with the given stride.
-     * Return an empty region if low > high
-     */
-    public static Region /* (1) */region(int low, int high) {
-        return region(low, high, 1);
-    }
-
-    /**
-     * Construct a Region_c, using the list of Region_c(1)'s passed as arguments
-     * to the constructor.
-     */
-    public static Region/* (regions.length) */region(Region/* (1) */[] regions) {
-        boolean zeroBased = true;
-        for (int i = 0; i < regions.length; i++)
-            zeroBased &= regions[i].zeroBased;
-        return new MultiDimRegion(regions, zeroBased);
-    }
-
-    public static Region/* (2) */region(Region a, Region b) {
-        return new MultiDimRegion(new Region[] { a, b }, a.zeroBased && b.zeroBased);
-    }
-
-    /**
-     * Return an \code{upperTriangular} Region_c for a dim-rankal space of size
-     * \code{size} in each dimension.
-     */
-    public static Region/* (rank) */upperTriangular( /* nat */int rank, /* nat */int size) {
-        Region ret;
-        if (rank != 2)
-            throw new Error("Triangular region of dimension != 2 not supported.");
-        else {
-            ContiguousRange cr = new ContiguousRange(0, size - 1);
-            Region[] r = new Region[] { cr, cr };
-            ret = new TriangularRegion(r, false);
-        }
-        return ret;
-    }
-
-    /**
-     * Return a lowerTriangular Region_c for a rank-dimensional space of size
-     * \code{size} in each dimension.
-     */
-    public static Region/* (rank) */lowerTriangular( /* nat */int rank, /* nat */int size) {
-        Region ret;
-        if (rank != 2)
-            throw new Error("Triangular region of dimension != 2 not supported.");
-        else {
-            ContiguousRange cr = new ContiguousRange(0, size - 1);
-            Region[] r = new Region[] { cr, cr };
-            ret = new TriangularRegion(r, true);
-        }
-        return ret;
-    }
-
-    /**
-     * Return a banded Region_c of width {\code width} for a rank-dimensional
-     * space of size {\code size} in each dimension.
-     */
-    public static Region/* (rank) */banded( /* nat */int rank,
-    /* nat */int size,
-    /* nat */int width) {
-        Region ret;
-        if (rank != 2)
-            throw new Error("Banded region of dimension != 2 not supported.");
-        else {
-            ContiguousRange cr = new ContiguousRange(0, size - 1);
-            Region[] r = new Region[] { cr, cr };
-            ret = new BandedRegion(r, width, true);
-        }
-        return ret;
-    }
 
     protected Region(/* nat long */int rank, boolean rect, boolean zeroB) {
         this(rank, rect, zeroB, false);
@@ -281,7 +193,7 @@ public abstract class Region extends Value {
     }
 
     public Dist/*(:region=this)*/toDistribution() {
-        return Dist.local(this);
+        return DistFactory.makeLocal(this);
     }
 
     public int rank() {

@@ -10,6 +10,7 @@
  */
 package x10.runtime;
 
+import x10.core.fun.Fun_0_0;
 import x10.runtime.Future;
 
 /**
@@ -26,7 +27,7 @@ import x10.runtime.Future;
  * (Note that ModCountDownLatch supports a counting semaphore, as needed by finish, but it also suffices
  * for the binary semaphore functionality needed by futures.)
  */
-public final class Future_c<T> implements Future<T> {
+public final class Future_c<T> implements Future<T>, Fun_0_0<T> {
 
     /**
      * Set if the activity terminated with an exception.
@@ -154,15 +155,15 @@ public final class Future_c<T> implements Future<T> {
     /**
      * An activity used to implement an X10 future.
      */
-    public static abstract class Activity extends x10.runtime.Activity {
+    public static abstract class Activity<T> extends x10.runtime.Activity {
 
-        public Future_c future;
+        public Future_c<T> future;
 
         /**
          * Wait for the completion of this activity and return the
          * return value.
          */
-        public abstract Object getResult();
+        public abstract T getResult();
 
         public abstract void runSource();
 
