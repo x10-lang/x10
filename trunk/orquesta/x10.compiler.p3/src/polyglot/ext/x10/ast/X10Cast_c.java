@@ -72,6 +72,8 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    conversionAllowed = true;
 	else if (ts.isValueType(toType) && ts.isSubtype(fromType, ts.boxOf(Types.ref(toType))))
 	    conversionAllowed = true;
+	else if (ts.isValueType(toType) && ts.descendsFrom(fromType, toType))
+	    conversionAllowed = true;
 	else {
 	    // Can convert if there is a static method toType.$convert(fromType)
 	    try {
@@ -150,7 +152,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     public boolean isToTypeNullable() {
 	Type toType = castType.type();
 	X10TypeSystem ts = (X10TypeSystem) toType.typeSystem();
-	return ts.isReferenceType(toType);
+	return ts.isReferenceType(toType) || ts.isInterfaceType(toType);
     }
 
     public TypeNode getTypeNode() {

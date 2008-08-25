@@ -20,6 +20,7 @@ import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -46,7 +47,7 @@ import polyglot.visit.ReachChecker;
  */
 public class Future_c extends Closure_c
     implements Future {
-
+    
     public Expr place; 
 
     public Future_c(Position p, Expr place, TypeNode returnType, Block body) {
@@ -129,7 +130,7 @@ public class Future_c extends Closure_c
      * term.
      */
     public Term firstChild() {
-        return place;
+        return returnType;
     }
 
     /**
@@ -137,9 +138,23 @@ public class Future_c extends Closure_c
      */
     public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
 	v.visitCFG(returnType, place, ENTRY);
-    	v.visitCFG(place, body, ENTRY);
-    	v.visitCFG(body, this, EXIT);
-    	return succs;
+	
+        // If building the CFG for the enclosing code, don't thread
+        // in the closure body.  Otherwise, we're building the CFG
+        // for the closure itself.
+        if (! succs.isEmpty()) {
+            v.visitCFG(place, this, EXIT);
+        }
+        else {
+            v.visitCFG(place, body, ENTRY);
+            v.visitCFG(body, this, EXIT);
+        }
+
+        /*
+        v.visitCFG(returnType, FlowGraph.EDGE_KEY_TRUE, body, ENTRY,
+                   FlowGraph.EDGE_KEY_FALSE, this, EXIT);
+                   */
+        return succs;
     }
         
 }

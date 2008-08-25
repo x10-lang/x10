@@ -54,6 +54,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
@@ -568,8 +569,28 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	throw new SemanticException("Interface \"" + this.type + "\" cannot have a superclass.",
         	                            superClass.position());
             }
-
     	}
+    	
+    	if (superClass != null) {
+    	    for (PropertyDecl pd : properties()) {
+    	        SemanticException ex = null;
+    	        try {
+    	            FieldInstance fi = ts.findField(superClass, ts.FieldMatcher(type.asType(), pd.name().id()));
+    	            if (fi instanceof X10FieldInstance) {
+    	                X10FieldInstance xfi = (X10FieldInstance) fi;
+    	                if (xfi.isProperty())
+    	                    ex = new SemanticException("Class " + type + " cannot override property " + fi.name() + " of superclass " + Types.get(fi.def().container()) + ".");
+    	            }
+    	        }
+    	        catch (SemanticException e) {
+    	            // not found.  That's good.
+    	            continue;
+    	        }
+    	        
+    	        throw ex;
+    	    }
+    	}
+
     	((X10ClassDef) type).checkRealClause();
 	    
     	return result;

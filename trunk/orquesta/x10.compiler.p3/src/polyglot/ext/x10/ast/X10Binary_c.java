@@ -255,6 +255,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		methodNameMap.put(GE, "$ge");
 		
 		String methodName = methodNameMap.get(op);
+		if (methodName == null)
+		    return null;
 		return Name.make(methodName);
 	}
 

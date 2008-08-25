@@ -297,6 +297,8 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isImplicitCastValid(Type fromType, Type toType, boolean tryCoercionFunction);
 
+    boolean isInterfaceType(Type toType);
+
     // X10NamedType createBoxFromTemplate(X10ClassDef def);
 
 }

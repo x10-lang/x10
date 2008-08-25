@@ -22,10 +22,4 @@ import polyglot.types.Type;
  */
 public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10NamedType {
 
-    X10ParsedClassType typeArguments(List<Type> typeArgs);
-    
-    /** Returns true iff superClassRoot() equals ts.Object().
-     * @return
-     */
-    boolean isJavaType();
 }

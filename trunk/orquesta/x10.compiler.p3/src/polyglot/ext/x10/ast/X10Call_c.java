@@ -201,7 +201,7 @@ public class X10Call_c extends Call_c implements X10Call {
         		return this.typeCheckNullTarget(tc, typeArgs, argTypes);
         	}
         	
-        	StructType targetType = this.findTargetType();
+        	Type targetType = target.type();
         	Name name = this.name.id();
 		ClassDef currentClassDef = c.currentClassDef();
 

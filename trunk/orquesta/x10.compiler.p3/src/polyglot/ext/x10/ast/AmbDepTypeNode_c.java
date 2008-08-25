@@ -179,8 +179,8 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	TypeNode tn = (TypeNode) n;
         	Ref<Type> tref = (Ref<Type>) tn.typeRef();
         	Type t = tref.get();
-        	if (t instanceof X10ParsedClassType) {
-        	    X10ParsedClassType ct = (X10ParsedClassType) t;
+        	if (t instanceof X10ClassType) {
+        	    X10ClassType ct = (X10ClassType) t;
         	    if (ct.flags().isInterface()) {
         		List<Type> typeArgs2 = new ArrayList<Type>();
         		for (TypeNode a : typeArgs) {
@@ -195,7 +195,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         		    throw new SemanticException("Incorrect number of type arguments for annotation type " + ct + ".", position());
         		}
         		if (args().size() > 0) {
-        		    ct = (X10ParsedClassType) ct.propertyInitializers(args());
+        		    ct = ct.propertyInitializers(args());
         		}
         		tref.update(ct);
         		return tn;
