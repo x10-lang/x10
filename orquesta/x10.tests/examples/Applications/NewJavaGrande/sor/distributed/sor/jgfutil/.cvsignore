@@ -1,2 +1,4 @@
-*.class
 *.java
+*.class
+harness
+x10

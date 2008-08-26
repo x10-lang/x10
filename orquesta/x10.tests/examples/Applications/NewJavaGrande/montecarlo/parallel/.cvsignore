@@ -1,4 +1,4 @@
-*.class
 *.java
-jgfutil
+*.class
 harness
+x10
