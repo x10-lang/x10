@@ -5,9 +5,7 @@ import x10.core.fun.Fun_0_2;
 
 public interface Type<T> {
     boolean instanceof$(Object o);
-
-    boolean isSubtypeOf(Type<?> putativeSupertype);
-
+    
     /** Type-specific operators.  Will throw UnsupportedOperationException if the type does not support the given operator. */
     Fun_0_1<T,T>   absOperator();
 
@@ -31,8 +29,9 @@ public interface Type<T> {
 
     T minValue();
     T maxValue();
-    T unitValue();
+
     T zeroValue();
+    T unitValue();
 
     Object makeArray(int length);
     void setArray(Object array, int i, T v);

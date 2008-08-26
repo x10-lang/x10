@@ -17,13 +17,17 @@ public class Equality {
     public static boolean equalsequals(Ref a, Ref b) { return a == b; }
 
     public static boolean equalsequals(Object a, Object b) {
-        if (a == null) return b == null;
-        if (b == null) return false;
-        if (a instanceof Ref) return a == b;
-        if (b instanceof Ref) return false;
+        if (a == b) return true;
+        
+        // Ref equality is pointer equality, which we already tested.
+        if (a == null || b == null) return false;
+        if (a instanceof Ref || b instanceof Ref) return false;
+        
+        // Value equality is structural equality.
         if (a instanceof String) return a.equals(b);
         if (a instanceof Comparable) return ((Comparable) a).compareTo(b) == 0;
         if (a instanceof Value) return a.equals(b);
+        
         return false;
     }
 }

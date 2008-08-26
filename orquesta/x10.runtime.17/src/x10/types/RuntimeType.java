@@ -12,13 +12,9 @@ public class RuntimeType<T> implements Type<T> {
     public RuntimeType(Class<?> c) {
         this.c = c;
     }
-
-    public boolean isSubtypeOf(Type<?> putativeSupertype) {
-        if (putativeSupertype instanceof RuntimeType) {
-            RuntimeType<?> that = (RuntimeType<?>) putativeSupertype;
-            return that.c.isAssignableFrom(c);
-        }
-        return false;
+    
+    public Type<T> reinstantiate(Type<T> rtt, java.lang.Object o) {
+        return null;
     }
 
     public boolean instanceof$(Object o) {
