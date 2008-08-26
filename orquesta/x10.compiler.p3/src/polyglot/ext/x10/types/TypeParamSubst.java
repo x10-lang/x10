@@ -1,6 +1,7 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.types.LazyRef;
@@ -21,9 +22,11 @@ public class TypeParamSubst {
     X10TypeSystem ts;
 
     public TypeParamSubst(X10TypeSystem ts, List<Type> typeArguments2, List<ParameterType> typeParameters2) {
+        typeArguments2 = typeArguments2 == null ? (List) typeParameters2 : (List) typeArguments2; 
+        assert (typeParameters2 == null ? typeArguments2 == null : typeArguments2.size() == typeParameters2.size());
 	this.ts = ts;
-	this.typeArguments = typeArguments2;
-	this.typeParameters = typeParameters2;
+	this.typeArguments = typeArguments2 == null ? Collections.EMPTY_LIST : typeArguments2;
+	this.typeParameters = typeParameters2 == null ? Collections.EMPTY_LIST : typeParameters2;
     }
 
     public static boolean isSameParameter(ParameterType pt1, ParameterType pt2) {
@@ -74,12 +77,10 @@ public class TypeParamSubst {
 	}
 	return t;
     }
-
+    
     public boolean isIdentityInstantiation() {
+        if (typeArguments == null) return true;
 	int n = typeParameters.size();
-	if (n == 0 && typeArguments == null) return true;
-	if (typeArguments == null) return false;
-	if (n == 0 && typeArguments.size() == 0) return true;
 	if (n != typeArguments.size()) return false;
 	for (int i = 0; i < n; i++) {
 	    ParameterType pt = typeParameters.get(i);
@@ -244,8 +245,6 @@ public class TypeParamSubst {
     }
 
     public String toString() {
-	if (typeArguments == null)
-	    return "[id]";
 	StringBuilder sb = new StringBuilder();
 	sb.append("[");
 	sb.append(typeArguments);
