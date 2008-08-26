@@ -14,31 +14,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
-import polyglot.ast.Block;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
-import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Import_c;
-import polyglot.ast.Instanceof_c;
-import polyglot.ast.JL;
-import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Node_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
@@ -67,6 +59,7 @@ import polyglot.ext.x10.ast.Now_c;
 import polyglot.ext.x10.ast.PropertyDecl;
 import polyglot.ext.x10.ast.PropertyDecl_c;
 import polyglot.ext.x10.ast.SettableAssign_c;
+import polyglot.ext.x10.ast.SubtypeTest_c;
 import polyglot.ext.x10.ast.Tuple_c;
 import polyglot.ext.x10.ast.TypeDecl_c;
 import polyglot.ext.x10.ast.TypeParamNode;
@@ -75,13 +68,11 @@ import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
-import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10ConstructorCall_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
-import polyglot.ext.x10.ast.X10Field_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
@@ -92,7 +83,6 @@ import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ClosureType;
-import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.PathType;
@@ -109,23 +99,19 @@ import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
-import polyglot.ext.x10.types.X10TypeObject;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.MemberDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -134,10 +120,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.UniqueID;
-import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
-import x10.types.RuntimeType;
 
 
 /**
@@ -622,7 +605,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    printType(n.superClass().type(), true, true, true);
 		}
 		
-		if (! n.interfaces().isEmpty()) {
+		// Filter out x10.lang.Object from the interfaces.
+		List<TypeNode> interfaces = new ArrayList<TypeNode>();
+		
+		for (TypeNode tn: n.interfaces()) {
+		    Type sup = tn.type();
+		    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		    if (! ts.typeBaseEquals(sup, ts.Object()))
+		            interfaces.add(tn);
+		}
+		
+		if (! interfaces.isEmpty()) {
 		    w.allowBreak(2);
 		    if (flags.isInterface()) {
 		        w.write("extends ");
@@ -632,7 +625,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		
 		    w.begin(0);
-		    for (Iterator<TypeNode> i = n.interfaces().iterator(); i.hasNext(); ) {
+		    for (Iterator<TypeNode> i = interfaces.iterator(); i.hasNext(); ) {
 		        TypeNode tn = (TypeNode) i.next();
 		        printType(tn.type(), true, true, true);
 		
@@ -646,6 +639,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.unifiedBreak(0);
 		w.end();
 		w.write("{");
+		
+		// Generate the run-time type.  We have to wrap in a class since n might be an interface
+		// and interfaces can't have static methods.
+		
+		generateRTType(def);
+		
 		if (n.typeProperties().size() > 0) {
 		    w.newline(4);
 		    w.begin(0);
@@ -707,6 +706,134 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("}");
 		w.newline(0);
 	}
+	
+	private String mangle(QName name) {
+	    String mangle = name.toString().replace(".", "$");
+	    return mangle;
+	}
+	
+    private void generateRTType(X10ClassDef def) {
+        w.newline();
+
+        String mangle = mangle(def.fullName());
+
+        if (def.flags().isStatic() || def.isTopLevel()) {
+            w.write("static ");
+        }
+        w.write("public class RTT extends x10.types.RuntimeType<");
+        printType(def.asType(), false, true, false);
+        w.write("> {");
+        w.newline();
+        w.begin(4);
+        for (int i = 0; i <  def.typeParameters().size(); i++) {
+            ParameterType pt = def.typeParameters().get(i);
+            w.write("public final x10.types.Type ");
+            w.write(pt.name().toString());
+            w.write(";");
+            w.newline();
+        }
+        w.write("public RTT(");
+
+        for (int i = 0; i <  def.typeParameters().size(); i++) {
+            ParameterType pt = def.typeParameters().get(i);
+            if (i != 0)
+                w.write(", ");
+            w.write("x10.types.Type ");
+            w.write(pt.name().toString());
+        }
+
+        w.write(	") {");
+        w.begin(4);
+        w.write(				"super(");
+        printType(def.asType(), false, true, false);
+        w.write(".class);");
+        w.newline();
+        for (int i = 0; i <  def.typeParameters().size(); i++) {
+            ParameterType pt = def.typeParameters().get(i);
+            w.write("this.");
+            w.write(pt.name().toString());
+            w.write(" = ");
+            w.write(pt.name().toString());
+            w.write(";");
+            w.newline();
+        }
+        w.end();
+        w.write("}");
+        w.newline();
+        w.write("public boolean instanceof$(java.lang.Object o) {");
+        w.newline();
+        w.begin(4);
+        w.write("if (! (o instanceof ");
+        printType(def.asType(), false, true, false);
+        w.write(")) return false;");
+        //		w.write("RTT ro = (RTT) new RTT(this, o);");
+        //		w.newline();
+        //		w.write("if (ro == null) return false;");
+        //		w.newline();
+        for (int i = 0; i <  def.typeParameters().size(); i++) {
+            ParameterType pt = def.typeParameters().get(i);
+            TypeProperty.Variance var = def.variances().get(i);
+            switch (var) {
+            case INVARIANT:
+            case COVARIANT:
+            case CONTRAVARIANT:
+            }
+            w.write("if (! this.");
+            w.write(pt.name().toString());
+            w.write(".equals(((");
+            printType(def.asType(), false, true, false);
+            w.write(") o)." + mangle +
+            "$type$");
+            w.write(pt.name().toString());
+            w.write("())) return false;");
+            w.newline();
+        }
+        w.write("return true;");
+        w.end();
+        w.write("}");
+        w.end();
+        w.write("}");
+        w.newline();
+
+        // Generate RTTI methods, one for each parameter.
+        for (int i = 0; i <  def.typeParameters().size(); i++) {
+            ParameterType pt = def.typeParameters().get(i);
+            TypeProperty.Variance var = def.variances().get(i);
+
+            w.write("public x10.types.Type<?> " + mangle + "$type$");
+            w.write(pt.name().toString());
+
+            if (def.flags().isInterface()) {
+                w.write("();");
+            }
+            else {
+                w.write("() { return this.");
+                w.write(pt.name().toString());
+                w.write("; }");
+            }
+            w.newline();
+        }
+
+        // Generate RTTI methods for each interface instantiation.
+        if (! def.flags().isInterface()) {
+            for (Type t : def.asType().interfaces()) {
+                Type it = X10TypeMixin.baseType(t);
+                if (it instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) it;
+                   X10ClassDef idef = ct.x10Def();
+                   for (int i = 0; i < idef.typeParameters().size(); i++) {
+                       ParameterType pt = idef.typeParameters().get(i);
+                       w.write("public x10.types.Type<?> " + mangle(idef.fullName()) + "$type$");
+                       w.write(pt.name().toString());
+                       w.write("() { return ");
+                       new RuntimeTypeExpander(ct.typeArguments().get(i)).expand();
+                       w.write("; }");
+                       w.newline();
+                   }
+                }
+            }
+        }
+    }
 
 	public void visit(X10Cast_c c) {
 	        TypeNode tn = c.castType();
@@ -832,8 +959,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 
 	    w.write("new ");
-	    printType(n.objectType().type(), true, false, false);
-
+	    
+	    if (n.qualifier() == null) {
+	        printType(n.objectType().type(), true, false, false);
+	    }
+	    else {
+	        printType(n.objectType().type(), true, false, false, true);
+	    }
+	    
 	    w.write("(");
 	    w.begin(0);
 
@@ -1438,6 +1571,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	
 	private void printType(Type type, boolean printTypeParams, boolean box, boolean inSuper) {
+	    printType(type, printTypeParams, box, inSuper, false);
+	}
+	
+	private void printType(Type type, boolean printTypeParams, boolean box, boolean inSuper, boolean ignoreQual) {
 		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
 		
 		type = X10TypeMixin.baseType(type);
@@ -1551,8 +1688,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		
 		// Print the class name
-		type.print(w);
-		
+		if (ignoreQual) {
+		    if (type instanceof X10ClassType) {
+		        w.write(((X10ClassType) type).name().toString());
+		    }
+		    else {
+		        type.print(w);
+		    }
+		}
+		else {
+		    type.print(w);
+		}
+
                 if (printTypeParams && USE_JAVA_GENERICS) {
                     if (type instanceof X10ClassType) {
                         X10ClassType ct = (X10ClassType) type;
@@ -1611,6 +1758,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else
 		    throw new InternalCompilerError("No method to implement " + n, n.position());
 		return;
+	}
+	
+	public void visit(SubtypeTest_c n) {
+	    // TODO: generate a real run-time test: if sub and sup are parameters, then this should test the actual parameters.
+	    TypeNode sub = n.subtype();
+	    TypeNode sup = n.supertype();
+	    if (sub.type().isSubtype(sup.type())) {
+	        w.write("true");
+	    }
+	    else {
+	        w.write("false");
+	    }
 	}
 	
 	public void visit(X10Binary_c n) {
@@ -1819,13 +1978,45 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        String s = typeof(at);
 	        if (s != null) {
 	            w.write(s);
+	            return;
 	        }
-	        else {
-	            w.write("x10.types.Type.runtimeType(");
-	            printType(at, false, false, false);
-	            w.write(".class");
-	            w.write(")");
+	        
+	        if (at instanceof X10ClassType) {
+	            X10ClassType ct = (X10ClassType) at;
+	            X10ClassDef cd = ct.x10Def();
+	            String pat = getJavaRep(cd);
+	            if (pat == null) {
+
+	                if (ct.isMember() && ! ct.flags().isStatic()) {
+	                    w.write("new ");
+	                    w.write(ct.fullName().toString());
+	                    w.write(".");
+	                }
+	                else if (! ct.isAnonymous()) {
+//	                    print enclosing instance -- where does it come from?
+//	                    w.write(".");
+	                    w.write("new ");
+	                    w.write(ct.name().toString());
+	                    w.write(".");
+	                }
+	                else {
+	                    w.write("new ");
+	                }
+	                w.write("RTT(");
+	                for (int i = 0; i < ct.typeArguments().size(); i++) {
+	                    if (i != 0)
+	                        w.write(", ");
+	                    new RuntimeTypeExpander(ct.typeArguments().get(i)).expand(tr);
+	                }
+	                w.write(")");
+	                return;
+	            }
 	        }
+
+	        w.write("x10.types.Types.runtimeType(");
+	        printType(at, false, false, false);
+	        w.write(".class");
+	        w.write(")");
 	    }
 
 	    String typeof(Type t) {
