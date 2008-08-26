@@ -110,6 +110,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
@@ -643,7 +644,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// Generate the run-time type.  We have to wrap in a class since n might be an interface
 		// and interfaces can't have static methods.
 		
-		generateRTType(def);
+		if (def.isTopLevel() || def.isLocal())
+		    generateRTType(def);
+		generateRTTMethods(def);
 		
 		if (n.typeProperties().size() > 0) {
 		    w.newline(4);
@@ -717,10 +720,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         String mangle = mangle(def.fullName());
 
-        if (def.flags().isStatic() || def.isTopLevel()) {
+        if (def.asType().isGloballyAccessible()) {
             w.write("static ");
         }
-        w.write("public class RTT extends x10.types.RuntimeType<");
+        w.write("public class " + rttShortName(def) + " extends x10.types.RuntimeType<");
         printType(def.asType(), false, true, false);
         w.write("> {");
         w.newline();
@@ -732,7 +735,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(";");
             w.newline();
         }
-        w.write("public RTT(");
+        w.write("public " + rttShortName(def) + "(");
 
         for (int i = 0; i <  def.typeParameters().size(); i++) {
             ParameterType pt = def.typeParameters().get(i);
@@ -773,34 +776,66 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         for (int i = 0; i <  def.typeParameters().size(); i++) {
             ParameterType pt = def.typeParameters().get(i);
             TypeProperty.Variance var = def.variances().get(i);
+            w.write("if (! ");
             switch (var) {
             case INVARIANT:
+                w.write("this.");
+                w.write(pt.name().toString());
+                w.write(".equals(");
+                w.write("((");
+                printType(def.asType(), false, true, false);
+                w.write(") o)." + "rtt_" + mangle(def.fullName()) + "_");
+                w.write(pt.name().toString());
+                w.write("()");
+                w.write(")");
+                break;
             case COVARIANT:
+                w.write("this.");
+                w.write(pt.name().toString());
+                w.write(".isSubtype(");
+                w.write("((");
+                printType(def.asType(), false, true, false);
+                w.write(") o)." + "rtt_" + mangle(def.fullName()) + "_");
+                w.write(pt.name().toString());
+                w.write("()");
+                w.write(")");
+                break;
             case CONTRAVARIANT:
+                w.write("((");
+                printType(def.asType(), false, true, false);
+                w.write(") o)." + "rtt_" + mangle(def.fullName()) + "_");
+                w.write(pt.name().toString());
+                w.write("()");
+                w.write(".isSubtype(");
+                w.write("this.");
+                w.write(pt.name().toString());
+                w.write(")");
+                break;
             }
-            w.write("if (! this.");
-            w.write(pt.name().toString());
-            w.write(".equals(((");
-            printType(def.asType(), false, true, false);
-            w.write(") o)." + mangle +
-            "$type$");
-            w.write(pt.name().toString());
-            w.write("())) return false;");
+            w.write(") return false;");
             w.newline();
         }
         w.write("return true;");
         w.end();
         w.write("}");
         w.end();
+        
+        for (Ref<? extends ClassType> mtref : def.memberClasses()) {
+            X10ClassType mt = (X10ClassType) Types.get(mtref);
+            generateRTType(mt.x10Def());
+        }
+        
         w.write("}");
         w.newline();
-
+    }
+    
+    void generateRTTMethods(X10ClassDef def) {
         // Generate RTTI methods, one for each parameter.
         for (int i = 0; i <  def.typeParameters().size(); i++) {
             ParameterType pt = def.typeParameters().get(i);
             TypeProperty.Variance var = def.variances().get(i);
 
-            w.write("public x10.types.Type<?> " + mangle + "$type$");
+            w.write("public x10.types.Type<?> " + "rtt_" + mangle(def.fullName()) + "_");
             w.write(pt.name().toString());
 
             if (def.flags().isInterface()) {
@@ -820,16 +855,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 Type it = X10TypeMixin.baseType(t);
                 if (it instanceof X10ClassType) {
                     X10ClassType ct = (X10ClassType) it;
-                   X10ClassDef idef = ct.x10Def();
-                   for (int i = 0; i < idef.typeParameters().size(); i++) {
-                       ParameterType pt = idef.typeParameters().get(i);
-                       w.write("public x10.types.Type<?> " + mangle(idef.fullName()) + "$type$");
-                       w.write(pt.name().toString());
-                       w.write("() { return ");
-                       new RuntimeTypeExpander(ct.typeArguments().get(i)).expand();
-                       w.write("; }");
-                       w.newline();
-                   }
+                    X10ClassDef idef = ct.x10Def();
+                    for (int i = 0; i < idef.typeParameters().size(); i++) {
+                        ParameterType pt = idef.typeParameters().get(i);
+                        w.write("public x10.types.Type<?> " + "rtt_" + mangle(idef.fullName()) + "_");
+                        w.write(pt.name().toString());
+                        w.write("() { return ");
+                        new RuntimeTypeExpander(ct.typeArguments().get(i)).expand();
+                        w.write("; }");
+                        w.newline();
+                    }
                 }
             }
         }
@@ -949,7 +984,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 	    
 	    w.end();
-	    w.write(")");	
+	    w.write(");");	
 	}
 	public void visit(X10New_c c) {
 	    X10New_c n = c;
@@ -1966,6 +2001,26 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 	    w.write(regex.substring(start));
 	}
+	
+	String rttShortName(X10ClassDef cd) {
+	    if (cd.isMember())
+	        return cd.name() + "$RTT";
+	    else
+	        return "RTT";
+	}
+	
+	String rttName(X10ClassDef cd) {
+	    if (cd.isTopLevel())
+	        return cd.fullName() + "." + rttShortName(cd);
+	    if (cd.isLocal())
+	        return cd.fullName() + "." + rttShortName(cd);
+	    if (cd.isMember()) {
+	        X10ClassType container = (X10ClassType) Types.get(cd.container());
+	        return rttName(container.x10Def()) + "." + rttShortName(cd);
+	    }
+	    assert false : "expected class " + cd;
+	    return "";
+	}
 
 	private final class RuntimeTypeExpander extends Expander {
 	    private final Type at;
@@ -1986,23 +2041,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            X10ClassDef cd = ct.x10Def();
 	            String pat = getJavaRep(cd);
 	            if (pat == null) {
-
-	                if (ct.isMember() && ! ct.flags().isStatic()) {
-	                    w.write("new ");
-	                    w.write(ct.fullName().toString());
-	                    w.write(".");
-	                }
-	                else if (! ct.isAnonymous()) {
-//	                    print enclosing instance -- where does it come from?
+	                w.write("new ");
+	                w.write(rttName(cd));
+	                w.write("(");
+//	                if (ct.isMember() && ! ct.flags().isStatic()) {
+//	                    w.write("new ");
+//	                    w.write(ct.fullName().toString());
 //	                    w.write(".");
-	                    w.write("new ");
-	                    w.write(ct.name().toString());
-	                    w.write(".");
-	                }
-	                else {
-	                    w.write("new ");
-	                }
-	                w.write("RTT(");
+//	                }
+//	                else if (! ct.isAnonymous()) {
+////	                    print enclosing instance -- where does it come from?
+////	                    w.write(".");
+//	                    w.write("new ");
+//	                    w.write(ct.name().toString());
+//	                    w.write(".");
+//	                }
+//	                else {
+//	                    w.write("new ");
+//	                }
+//	                String mangle = mangle(cd.fullName());
+//	                w.write(mangle);
+//	                w.write("$RTT(");
 	                for (int i = 0; i < ct.typeArguments().size(); i++) {
 	                    if (i != 0)
 	                        w.write(", ");

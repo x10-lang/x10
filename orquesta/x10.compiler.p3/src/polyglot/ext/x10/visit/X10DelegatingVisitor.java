@@ -126,6 +126,7 @@ import polyglot.ext.x10.ast.X10ClassBody_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop_c;
 import polyglot.ext.x10.ast.X10Conditional_c;
+import polyglot.ext.x10.ast.X10ConstructorCall_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
 import polyglot.ext.x10.ast.X10FieldDecl_c;
 import polyglot.ext.x10.ast.X10Field_c;
@@ -191,6 +192,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Finish_c) { visit((Finish_c)n); return; }
 		if (n instanceof Eval_c) { visit((Eval_c)n); return; }
 		if (n instanceof Empty_c) { visit((Empty_c)n); return; }
+		if (n instanceof X10ConstructorCall_c) { visit((X10ConstructorCall_c)n); return; }
 		if (n instanceof ConstructorCall_c) { visit((ConstructorCall_c)n); return; }
 		if (n instanceof Catch_c) { visit((Catch_c)n); return; }
 		if (n instanceof Case_c) { visit((Case_c)n); return; }
@@ -396,6 +398,7 @@ public class X10DelegatingVisitor {
 				public void visit(Case_c n) { visit((Stmt_c)n); }
 				public void visit(Catch_c n) { visit((Stmt_c)n); }
 				public void visit(ConstructorCall_c n) { visit((Stmt_c)n); }
+				        public void visit(X10ConstructorCall_c n) { visit((ConstructorCall_c)n); }
 				public void visit(Empty_c n) { visit((Stmt_c)n); }
 				public void visit(Eval_c n) { visit((Stmt_c)n); }
 				public void visit(Finish_c n) { visit((Stmt_c)n); }
