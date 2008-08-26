@@ -480,7 +480,31 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
     	
-        n = (X10ClassDecl_c) X10Del_c.visitAnnotations(n, childtc);
+    	n = (X10ClassDecl_c) X10Del_c.visitAnnotations(n, childtc);
+
+    	// Make sure the node and type are consistent WRT super types.
+        NodeFactory nf = tc.nodeFactory();
+        
+        if (n.superClass == null && type.superType() != null)
+            n = (X10ClassDecl_c) n.superClass(nf.CanonicalTypeNode(position(), type.superType()));
+        
+        List<TypeNode> newInterfaces = new ArrayList<TypeNode>();
+        for (Ref<? extends Type> t : type.interfaces()) {
+            boolean added = false;
+            for (int i = 0; i < n.interfaces.size(); i++) {
+                TypeNode tn = n.interfaces.get(i);
+                if (tn.typeRef() == t) {
+                    newInterfaces.add(tn);
+                    added = true;
+                    continue;
+                }
+            }
+            if (! added) {
+                TypeNode tn = nf.CanonicalTypeNode(position(), t);
+                newInterfaces.add(tn);
+            }
+        }
+        n = (X10ClassDecl_c) n.interfaces(newInterfaces);
         
     	return n;
     }
