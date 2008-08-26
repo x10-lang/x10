@@ -14,8 +14,8 @@ import harness.x10Test;
  */
 public class Variance3 extends x10Test {
         class Set[-T] { var x: T;
-                        def this(y: T) = { x = y }
-                        def set(y: T): void = { x = y }  }
+                        def this(y: T) = { x = y; }
+                        def set(y: T): void = { x = y; }  }
 
         class A { }
         class B extends A { }
