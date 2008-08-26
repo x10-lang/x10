@@ -6,6 +6,9 @@ import x10.core.fun.Fun_0_2;
 public interface Type<T> {
     boolean instanceof$(Object o);
     
+    boolean equals(Object o);
+    boolean isSubtype(Type<?> o);
+    
     /** Type-specific operators.  Will throw UnsupportedOperationException if the type does not support the given operator. */
     Fun_0_1<T,T>   absOperator();
 

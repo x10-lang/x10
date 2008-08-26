@@ -13,6 +13,22 @@ public class RuntimeType<T> implements Type<T> {
         this.c = c;
     }
     
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof RuntimeType) {
+            RuntimeType<?> rt = (RuntimeType<?>) o;
+            if (c.equals(rt.c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean isSubtype(Type<?> o) {
+        // TODO
+        return equals(o);
+    }
+    
     public Type<T> reinstantiate(Type<T> rtt, java.lang.Object o) {
         return null;
     }
