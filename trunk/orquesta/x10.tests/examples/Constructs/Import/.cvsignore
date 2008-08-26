@@ -1,6 +1,4 @@
-*.Jacobi
-logDetail.*
-*.class
 *.java
-testPackage
+*.class
 harness
+x10

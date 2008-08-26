@@ -1,9 +1,4 @@
-*.Jacobi
-logDetail.*
-*.class
 *.java
+*.class
 harness
-*_x10stub.c
-*.o
-*.so
-*.dll
+x10
