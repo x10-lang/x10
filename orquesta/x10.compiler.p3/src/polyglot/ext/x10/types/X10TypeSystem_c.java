@@ -264,8 +264,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	                return null;
 	            if (mi instanceof MacroType) {
 	                MacroType xmi = (MacroType) mi;
+	                Type c = container != null ? container : xmi.container();
 	                if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-	                    return X10MethodInstance_c.instantiate(xmi, container, typeArgs, argTypes, true);
+	                    return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, true);
 	            }
 	        }
 	        return null;
@@ -2684,7 +2685,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    if (fi == null)
 			return null;
 		    Type t = fi.type();
-		    XVar v = X10TypeMixin.selfVar(container);
+		    Type c = container != null ? container : fi.container();
+		    XVar v = X10TypeMixin.selfVar(c);
 		    if (v == null) v = new XConstraint_c().genEQV();
 		    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 		    XLocal oldThis = ts.xtypeTranslator().transThisWithoutTypeConstraint();
@@ -2722,8 +2724,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    return null;
 		if (mi instanceof X10MethodInstance) {
 		    X10MethodInstance xmi = (X10MethodInstance) mi;
+		    Type c = container != null ? container : xmi.container();
 		    if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-			return X10MethodInstance_c.instantiate(xmi, container, typeArgs, argTypes, tryCoercionFunction);
+			return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, tryCoercionFunction);
 		}
 		return null;
 	    }
@@ -2775,8 +2778,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    return null;
 		if (ci instanceof X10ConstructorInstance) {
 		    X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
+		    Type c = container != null ? container : xmi.container();
 		    if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-			return X10MethodInstance_c.instantiate(xmi, container, typeArgs, argTypes, true);
+			return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, true);
 		}
 		return null;
 	    }
