@@ -188,6 +188,8 @@ public class X10TypeMixin {
 	    return t;
 	}
 	public static Type xclause(Type t, XConstraint c) {
+	    if (t == null)
+	        return null;
 	        if (c == null || c.valid()) {
 	            return baseType(t);
 	        }
@@ -196,6 +198,9 @@ public class X10TypeMixin {
 	public static Type xclause(Ref<? extends Type> t, Ref<XConstraint> c) {
 	    if (c == null) {
 		c = Types.<XConstraint>ref(new XConstraint_c());
+	    }
+	    if (t == null) {
+	        return null;
 	    }
 	    if (t.known() && t.get() instanceof ConstrainedType) {
 		ConstrainedType ct = (ConstrainedType) t.get();
