@@ -13,8 +13,12 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Subclassing4 extends x10Test {
-        class Get[T] { x: T; def this(y: T) = { x = y } def get(): T = x; }
-        class Getint extends Get[int] { def this(y: int) = { super(y); } }
+        class Get[T] {
+                val x: T;
+                def this(y: T) = { x = y; }
+                def get(): T = x; }
+        class Getint extends Get[int] {
+                def this(y: int) = { super(y); } }
 
 	public def run(): boolean = {
                 new Get[int](0);

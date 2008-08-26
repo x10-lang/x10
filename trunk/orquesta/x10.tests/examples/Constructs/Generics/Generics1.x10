@@ -8,18 +8,21 @@
 import harness.x10Test;
 
 /**
- * Region algebra.
+ * Test a generics class with an invariant parameter.
  *
  * @author nystrom 8/2008
  */
 public class Generics1 extends x10Test {
-        class Get[T] { x: T; def this(y: T) = { x = y } def get(): T = x; }
+        class Get[T] {
+                val x: T;
+                def this(y: T) = { x = y; }
+                def get(): T = x; }
 
 	public def run(): boolean = {
-                val a: int = new Get[int](0).get();
-                val b: String = new Get[String]("").get();
                 val c: Generics1 = new Get[Generics1](this).get();
-		return a == 0 && b == "" && c == this;
+                System.out.println("c = " + c);
+                System.out.println("this = " + this);
+		return c == this;
 	}
 
 	public static def main(var args: Rail[String]): void = {
