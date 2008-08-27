@@ -37,6 +37,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
 import polyglot.types.ReferenceType;
@@ -171,7 +172,7 @@ public class X10Call_c extends Call_c implements X10Call {
 
             if (e != null) {
         	ClosureCall cc = nf.ClosureCall(position(), e, typeArguments(), arguments());
-        	ClosureInstance ci = ts.createClosureInstance(position(), new ErrorRef_c<ClosureDef>(ts, position(), "Cannot get ClosureDef before type-checking closure call."));
+        	X10MethodInstance ci = (X10MethodInstance) ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking closure call."));
         	cc = cc.closureInstance(ci);
         	Node n = cc;
         	n = n.del().disambiguate(tc);

@@ -21,6 +21,7 @@ import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
@@ -48,7 +49,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     protected List<TypeNode> typeArgs;
     protected List<Expr> arguments;
 
-    protected ClosureInstance ci;
+    protected X10MethodInstance ci;
 
     public ClosureCall_c(Position pos, Expr target, List<TypeNode> typeArgs, List<Expr> arguments) {
 	super(pos);
@@ -95,12 +96,12 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     }
 
     /** Get the method instance of the call. */
-    public ClosureInstance closureInstance() {
+    public X10MethodInstance closureInstance() {
 	return this.ci;
     }
 
     /** Set the method instance of the call. */
-    public ClosureCall closureInstance(ClosureInstance ci) {
+    public ClosureCall closureInstance(X10MethodInstance ci) {
 	if (ci == this.ci)
 	    return this;
 	ClosureCall_c n = (ClosureCall_c) copy();
@@ -159,10 +160,10 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
 	ClosureCall_c n= (ClosureCall_c) super.buildTypes(tb);
 
-	X10TypeSystem x10ts = (X10TypeSystem) tb.typeSystem();
+	X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
-	ClosureInstance ci = x10ts.createClosureInstance(position(), new ErrorRef_c<ClosureDef>(x10ts, position(), "Cannot get ClosureDef before type-checking closure call."));
-	return n.closureInstance(ci);
+	X10MethodInstance mi = (X10MethodInstance) ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking closure call."));
+	return n.closureInstance(mi);
     }
     
     @Override
@@ -190,7 +191,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	X10MethodInstance mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, Name.make("apply"), typeArgs, actualTypes), tc.context().currentClassDef());
 	
 	if (mi.container() instanceof ClosureType) {
-	    ClosureInstance ci = ((ClosureType) mi.container()).closureInstance();
+	    X10MethodInstance ci = ((ClosureType) mi.container()).applyMethod();
 	    return this.closureInstance(ci).type(ci.returnType());
 	}
 	else {

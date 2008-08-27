@@ -291,13 +291,16 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isFunction(Type type);
 
-    X10ClassDef closureInterfaceDef(ClosureDef def);
+    X10ClassDef closureAnonymousClassDef(ClosureDef def);
 
     List<ClosureType> getFunctionSupertypes(Type type);
 
     boolean isImplicitCastValid(Type fromType, Type toType, boolean tryCoercionFunction);
 
     boolean isInterfaceType(Type toType);
+
+    ClosureType closureType(Position position, Ref<? extends Type> typeRef, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> formalTypes,
+            List<LocalDef> formalNames, Ref<XConstraint> ref, List<Ref<? extends Type>> throwTypes);
 
     // X10NamedType createBoxFromTemplate(X10ClassDef def);
 

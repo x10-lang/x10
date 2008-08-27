@@ -31,6 +31,7 @@ import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.Def;
 import polyglot.types.DerefTransform;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -148,63 +149,124 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    throw new NoClassException(name.toString(), container);
 	}
 
-	public X10ClassDef closureInterfaceDef(final ClosureDef def) {
-	    int numTypeParams = def.typeParameters().size();
-	    int numValueParams = def.formalTypes().size();
-	    
-	    X10TypeSystem ts = this;
-	    Position pos = Position.COMPILER_GENERATED;
-	    String name = "Fun_" + numTypeParams + "_" + numValueParams;
+	public X10ClassDef closureAnonymousClassDef(final ClosureDef def) {
+	    final X10TypeSystem xts = this;
+	    final Position pos = def.position();
 
-	    // Check if the class has already been defined.
-	    Named n = ts.systemResolver().check(QName.make("x10.lang", name));
-	    
-	    if (n instanceof X10ClassType) {
-		X10ClassType ct = (X10ClassType) n;
-		return ct.x10Def();
-	    }
-
-	    X10ClassDef cd = new X10ClassDef_c(this, null) {
-		{
-		    // Initialize asType to ClosureType so we don't return a X10ParsedClassType instead.
-		    asType = new ClosureType_c(X10TypeSystem_c.this, Position.COMPILER_GENERATED, this, (ClosureInstance) def.asInstance());
+	    X10ClassDef cd = new X10ClassDef_c(this, null);
+	    /*
+	     * {
+	        @Override
+	        public ClassType asType() {
+	            if (asType == null) {
+	                // Initialize asType to ClosureType so we don't return a X10ParsedClassType instead.
+	                asType = new ClosureType_c(xts, pos, this, (ClosureInstance) def.asInstance());
+	            }
+	            return asType;
 		}
 	    };
+*/
 	    
+	    cd.position(pos);
+	    cd.name(null);
+	    cd.setPackage(null);
+	    cd.kind(ClassDef.ANONYMOUS);
+	    cd.flags(Flags.NONE);
+
+	    int numTypeParams = def.typeParameters().size();
+	    int numValueParams = def.formalTypes().size();
+
+	    // Add type parameters.
+	    List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
+	    List<Type> typeArgs = new ArrayList<Type>();
+	    
+	    ClosureInstance ci = (ClosureInstance) def.asInstance();
+	    typeArgs.addAll(ci.formalTypes());
+	    typeArgs.add(ci.returnType());
+
+//	    for (int i = 0; i < numValueParams; i++) {
+//		ParameterType t = new ParameterType_c(this, pos, Name.make("Z" + (i+1)), Types.ref(cd));
+//		cd.addTypeParameter(t, TypeProperty.Variance.CONTRAVARIANT);
+//		typeArgs.add(t);
+//	    }
+//
+//	    ParameterType returnType = new ParameterType_c(this, pos, Name.make("U"), Types.ref(cd));
+//	    cd.addTypeParameter(returnType, TypeProperty.Variance.COVARIANT);
+//	    typeArgs.add(returnType);
+	    
+	    // Instantiate the super type on the new parameters.
+	    X10ClassType sup = (X10ClassType) closureBaseInterfaceDef(numTypeParams, numValueParams).asType();
+	    assert sup.x10Def().typeParameters().size() == typeArgs.size();
+	    sup = sup.typeArguments(typeArgs);
+	    
+	    cd.superType(Types.ref(Value())); // Closures are values.
+	    cd.addInterface(Types.ref(sup));
+	    
+	    return cd;
+	}
+	
+	public X10ClassDef closureBaseInterfaceDef(final int numTypeParams, final int numValueParams) {
+	    final X10TypeSystem xts = this;
+	    final Position pos = Position.COMPILER_GENERATED;
+	    String name = "Fun_" + numTypeParams + "_" + numValueParams;
+	    
+	    // Check if the class has already been defined.
+	    QName fullName = QName.make("x10.lang", name);
+	    Named n = xts.systemResolver().check(fullName);
+	    
+	    if (n instanceof X10ClassType) {
+	        X10ClassType ct = (X10ClassType) n;
+	        return ct.x10Def();
+	    }
+
+	    X10ClassDef cd = (X10ClassDef) new X10ClassDef_c(this, null) {
+	        @Override
+	        public ClassType asType() {
+	            if (asType == null) {
+	                X10ClassDef cd = this;
+	                asType = new ClosureType_c(xts, pos, this);
+	            }
+	            return asType;
+	        }
+	    };
+	        
 	    cd.position(pos);
 	    cd.name(Name.make(name));
 	    try {
-		cd.setPackage(Types.ref(ts.packageForName(QName.make("x10.lang"))));
+	        cd.setPackage(Types.ref(xts.packageForName(fullName.qualifier())));
 	    }
 	    catch (SemanticException e) {
-		assert false;
+	        assert false;
 	    }
+	    
 	    cd.kind(ClassDef.TOP_LEVEL);
 	    cd.superType(null); // interfaces have no superclass
 	    cd.flags(Flags.PUBLIC.Abstract().Interface());
-	    ts.systemResolver().install(QName.make("x10.lang", name), cd.asType());
 
-	    // Add type properties and build the apply method.
-	    List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
-	    List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-	    List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>();
-	    Ref<XConstraint> guard = null; // hmmm.... should be false since it has to imply all subtype constraints -- need to have a boolean property for the constraint?
+	    final List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
+	    final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+            
+            for (int i = 0; i < numTypeParams; i++) {
+                Type t = new ParameterType_c(xts, pos, Name.make("X" + i), Types.ref(cd));
+                typeParams.add(Types.ref(t));
+            }
+
+            for (int i = 0; i < numValueParams; i++) {
+                ParameterType t = new ParameterType_c(xts, pos, Name.make("Z" + (i+1)), Types.ref(cd));
+                argTypes.add(Types.ref(t));
+                cd.addTypeParameter(t, TypeProperty.Variance.CONTRAVARIANT);
+            }
+
+            ParameterType returnType = new ParameterType_c(xts, pos, Name.make("U"), Types.ref(cd));
+            cd.addTypeParameter(returnType, TypeProperty.Variance.COVARIANT);
+
+            // NOTE: don't call cd.asType() until after the type parameters are added.
+            ClosureType ct = (ClosureType) cd.asType();
+            xts.systemResolver().install(fullName, ct);
 	    
-	    for (int i = 0; i < numTypeParams; i++) {
-		Type t = new ParameterType_c(this, pos, Name.make("X" + i), Types.ref(cd));
-		typeParams.add(Types.ref(t));
-	    }
-
-	    for (int i = 0; i < numValueParams; i++) {
-		ParameterType t = new ParameterType_c(this, pos, Name.make("Z" + (i+1)), Types.ref(cd));
-		cd.addTypeParameter(t, TypeProperty.Variance.CONTRAVARIANT);
-		argTypes.add(Types.ref(t));
-	    }
-
-	    ParameterType returnType = new ParameterType_c(this, pos, Name.make("U"), Types.ref(cd));
-	    cd.addTypeParameter(returnType, TypeProperty.Variance.COVARIANT);
-	    
-	    X10MethodDef mi = ts.methodDef(pos, Types.ref(cd.asType()), Flags.PUBLIC, Types.ref(returnType), Name.make("apply"), typeParams, argTypes, dummyLocalDefs(argTypes), guard, throwTypes, null);
+	    X10MethodDef mi = methodDef(pos, Types.ref(ct), Flags.PUBLIC.Abstract(),
+	                                Types.ref(returnType), Name.make("apply"), typeParams, argTypes,
+	                                dummyLocalDefs(argTypes), null, Collections.EMPTY_LIST, null);
 	    cd.addMethod(mi);
 	    
 	    return cd;
@@ -957,6 +1019,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
 	    return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType, typeParams, argTypes, formalNames, guard, throwTypes);
+	}
+	
+	public ClosureType closureType(Position p, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
+	    X10ClassDef def = closureBaseInterfaceDef(typeParams.size(), argTypes.size());
+	    ClosureType ct = (ClosureType) def.asType();
+	    List<Type> typeArgs = new ArrayList<Type>();
+	    for (Ref<? extends Type> ref : argTypes) {
+	        typeArgs.add(Types.get(ref));
+	    }
+	    typeArgs.add(Types.get(returnType));
+	    return (ClosureType) ct.typeArguments(typeArgs);
 	}
 
 	protected NullType createNull() {

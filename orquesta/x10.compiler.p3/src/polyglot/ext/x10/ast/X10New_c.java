@@ -89,7 +89,29 @@ public class X10New_c extends New_c implements X10New {
 	    protected New_c typeCheckHeader(TypeChecker childtc) throws SemanticException {
 		X10New_c n = (X10New_c) super.typeCheckHeader(childtc);
 		List<TypeNode> typeArguments = visitList(n.typeArguments, childtc);
-		return (X10New_c) n.typeArguments(typeArguments);
+		n = (X10New_c) n.typeArguments(typeArguments);
+		
+		if (n.body != null) {
+		    Ref<? extends Type> ct = n.tn.typeRef();
+		    ClassDef anonType = n.anonType();
+
+		    assert anonType != null;
+
+		    X10TypeSystem ts = (X10TypeSystem) childtc.typeSystem();
+
+		    if (! ct.get().toClass().flags().isInterface()) {
+		        anonType.superType(ct);
+		        anonType.addInterface(Types.<Type>ref(ts.Object()));
+		    }
+		    else {
+		        anonType.superType(Types.<Type>ref(ts.Ref()));
+		    }
+
+		    assert anonType.superType() != null;
+		    assert anonType.interfaces().size() == 1;
+		}
+
+		return n;
 	    }
 	    
 	    public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {

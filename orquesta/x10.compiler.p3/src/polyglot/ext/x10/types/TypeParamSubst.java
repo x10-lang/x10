@@ -60,12 +60,12 @@ public class TypeParamSubst {
 	    mt = mt.definedType(reinstantiate(mt.definedType()));
 	    return mt;
 	}
-	if (t instanceof ClosureType) {
-	    ClosureType ct = (ClosureType) t;
-	    ct = (ClosureType) ct.copy();
-	    ct = ct.closureInstance(reinstantiate(ct.closureInstance()));
-	    return ct;
-	}
+//	if (t instanceof ClosureType) {
+//	    ClosureType ct = (ClosureType) t;
+//	    ct = (ClosureType) ct.copy();
+//	    ct = ct.closureInstance(reinstantiate(ct.applyMethod()));
+//	    return ct;
+//	}
 	if (t instanceof X10ClassType) {
 	    X10ClassType ct = (X10ClassType) t;
 	    ct = (X10ClassType) ct.copy();

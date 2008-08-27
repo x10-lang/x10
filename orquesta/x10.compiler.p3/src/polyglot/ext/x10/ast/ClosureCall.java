@@ -3,11 +3,9 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.List;
-
 import polyglot.ast.Expr;
 import polyglot.ast.ProcedureCall;
-import polyglot.ext.x10.types.ClosureInstance;
+import polyglot.ext.x10.types.X10MethodInstance;
 
 public interface ClosureCall extends Expr, ProcedureCall {
     /**
@@ -22,8 +20,8 @@ public interface ClosureCall extends Expr, ProcedureCall {
     ClosureCall target(Expr target);
 
     /** Get the method instance of the call. */
-    public ClosureInstance closureInstance();
+    public X10MethodInstance closureInstance();
 
     /** Set the method instance of the call. */
-    public ClosureCall closureInstance(ClosureInstance ci);
+    public ClosureCall closureInstance(X10MethodInstance ci);
 }
