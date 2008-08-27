@@ -14,34 +14,27 @@ import harness.x10Test;;
 public class CommentTest extends x10Test {
 	/**
 	 * Testing a comment before instance field.
-	 * Testing a comment before instance field.
 	 */
-	public var val: int;
+	public var v: int;
 
 	/**
 	 * Testing a comment before nullary constructor.
-	 * Testing a comment before nullary constructor.
-	 * Testing a comment before nullary constructor.
 	 */
 	public def this(): CommentTest = {
-		val = 10;
+		v = 10;
 	}
 
 	/**
 	 * Testing a comment before unary constructor.
-	 * Testing a comment before unary constructor.
-	 * Testing a comment before unary constructor.
 	 */
 	public def this(var x: int): CommentTest = {
-		val = x;
+		v = x;
 	}
 
 	/**
 	 * Testing comments for run
 	 */
-	public def run(): boolean = {
-		return val == 10;
-	}
+	public def run(): boolean = v == 10;
 
 	/**
 	 * Testing comments for main
