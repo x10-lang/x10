@@ -102,8 +102,14 @@ Linking with native code is supported.
 
 {}\XtenCurrVer{} adds to Version~1.1 the following features:
 The syntax of the language is more concise.
+\iftypeparams
+The dependent type system is extended to support genericity and
+constraints on types.
+\else
 The dependent type system is extended to support genericity through
-constraints on type properties.  Type definitions and local type inference are
+constraints on type properties.
+\fi
+Type definitions and local type inference are
 supported.  Arrays and futures are defined in the language library, rather than
 as type constructors.  Closures and function types are supported.
 

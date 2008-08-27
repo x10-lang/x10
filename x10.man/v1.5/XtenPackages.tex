@@ -18,8 +18,12 @@ PackageName   \: Identifier \\
 
 While not enforced by the compiler, classes and interfaces
 in the \Xten{} library support the following naming conventions.
-Names of types---including classes, type properties, type
-parameters, and type specified by type definitions---are in
+Names of types---including classes,
+\iftypeparams\else
+type properties,
+\fi
+type
+parameters, and types specified by type definitions---are in
 CamelCase and begin with an uppercase letter.  For backward
 compatibility with languages such as C and \java{}, type
 definitions are provided to allow primitive value types
