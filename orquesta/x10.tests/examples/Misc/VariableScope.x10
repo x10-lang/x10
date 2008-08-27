@@ -26,7 +26,7 @@ public class VariableScope extends x10Test {
 			}
 
 		for (val p: point in d) {
-			var q: nullable<point> = null;
+			var q: point = null;
 			n++;
 		}
 

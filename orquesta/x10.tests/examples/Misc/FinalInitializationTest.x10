@@ -42,18 +42,14 @@ public class FinalInitializationTest extends x10Test {
 			this.re = re;
 			this.im = im;
 		}
-		def add(var other: complex): complex = {
-			return new complex(this.re+other.re,this.im+other.im);
-		}
-		def eq(var other: complex): boolean = {
-			return this.re == other.re && this.im == other.im;
-		}
+		def add(var other: complex) = new complex(this.re+other.re,this.im+other.im);
+		def eq(var other: complex) = this.re == other.re && this.im == other.im;
 	}
 
 	public def run(): boolean = {
-		var f: foo = new foo();
-		var x: myval = new myval(1, new complex(2, 3), f);
-		var y: myval = new myval(1, (new complex(1, 4)).add(new complex(1, -1)), f);
+		var f = new foo();
+		var x  = new myval(1, new complex(2, 3), f);
+		var y  = new myval(1, (new complex(1, 4)).add(new complex(1, -1)), f);
 		return (x.eq(y));
 	}
 

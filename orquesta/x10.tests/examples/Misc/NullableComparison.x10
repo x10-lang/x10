@@ -16,10 +16,10 @@ import harness.x10Test;;
 public class NullableComparison extends x10Test {
 
 	public const N: int = 6;
-	public const objList: Rail[nullable<java.lang.Object>] = new Array[java.lang.Object](N);
+	public const objList: Rail[Object] = new Array[Object](N);
 
 	public def run(): boolean = {
-		final val obj: java.lang.Object = new java.lang.Object();
+		val obj: Object = new Ref();
 		var i: int = N - 1;
 		while (i > 0 && (obj != objList(i))) {
 			i--;

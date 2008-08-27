@@ -15,10 +15,10 @@ import x10.lang.Integer;;
 public class ListTest extends x10Test {
 	public static class List {
 		public val n: int;
-		protected var value: nullable<Integer>;
-		protected var tail: nullable<List>;
+		protected var value: Integer;
+		protected var tail: List;
   
-		public def this(var o: Integer, var t: List): List = {
+		public def this(o: Integer, t: List): List = {
 			n=t.n+1;
 			tail = t;
 			value = o;
@@ -28,26 +28,24 @@ public class ListTest extends x10Test {
 			value=null;
 			tail=null;
 		}
-		public def append(var l: List): List = {
-			return (n==0)? l : new List((Integer) value, tail.append(l)); // this cast should not be needed.
+		public def append(l: List): List = {
+			return (n==0)? l : new List(value, tail.append(l)); // this cast should not be needed.
 		}
-		public def nth(var k: int): Integer = {
+		public def nth(k: int): Integer = {
 			// vj: Replacing the line below with the line after that removes the
 			// infinite loop in the compiler.
 			//return k==1 ? value : tail.nth(k-1);
-			return k==1 ? (Integer) value : tail.nth(k-1);
+			return k==1 ? value : tail.nth(k-1);
      
 		}
  
-		public def gen(var k: int): List = {
+		public def gen(k: int): List = {
 			return k==0 ? new List() : new List(new Integer(k), gen(k-1));
 		}
 	}
 		public def run(): boolean = {
-			
-			var a: List = new List(new Integer(1), new List(new Integer(2), new List()));
-			var b: Integer = a.nth(2);
-			
+			a: List = new List(new Integer(1), new List(new Integer(2), new List()));
+			b: Integer = a.nth(2);
 			return b.val==2;
 		}
 	

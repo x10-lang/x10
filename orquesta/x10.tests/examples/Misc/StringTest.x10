@@ -12,14 +12,14 @@ import harness.x10Test;;
  */
 public class StringTest extends x10Test {
 
-	public var val: int;
+	public var v: int;
 	public def this(): StringTest = {
-		val = 10;
+		v = 10;
 	}
 
 	public def run(): boolean = {
-		var foo: String = "the number is "+val;
-		if (!(val == 10 && foo.equals("the number is "+"10"))) return false;
+		var foo: String = "the number is "+v;
+		if (!(v == 10 && foo.equals("the number is "+"10"))) return false;
 		if (foo.charAt(2) != 'e') return false;
 		return true;
 	}

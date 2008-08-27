@@ -7,8 +7,5 @@
  */
 
 public class Temp {
-	def m(var a: region{rank==3}): region{rank==3} = {
-
-		return a;
-	}
+    def m(a: region{rank==3}): region{rank==3} = a;
 }

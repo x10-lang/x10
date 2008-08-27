@@ -16,10 +16,10 @@ public class AssignIntToChar extends x10Test {
 	 * Testing comments for run
 	 */
 	public def run(): boolean = {
-		var a: Array[char] = new Array[char](4);
-		var bit1: boolean = true;
-		var bit2: boolean = false;
-		a(1) = (bit2 ? 'A' : 'C') ;
+	    		 a: Array[char] = new VarArray[char](4);
+	    //		var bit1: boolean = true;
+	    //var bit2: boolean = false;
+		//		a(1) = (bit2 ? 'A' : 'C') ;
 		return true;
 	}
 
