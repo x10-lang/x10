@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
@@ -17,10 +18,12 @@ import x10.constraint.XConstraint;
  * @author rfuhrer
  */
 public interface ClosureType extends X10ParsedClassType {
-    ClosureDef closureDef();
+//    ClosureDef closureDef();
     
-    ClosureInstance closureInstance();
-    ClosureType closureInstance(ClosureInstance ci);
+//    ClosureInstance closureInstance();
+//    ClosureType closureInstance(ClosureInstance ci);
+    
+    X10MethodInstance applyMethod();
 
     /**
      * @return the type of value returned by an invocation of the closure. cannot be void.
@@ -56,15 +59,15 @@ public interface ClosureType extends X10ParsedClassType {
      */
     List<Type> throwTypes();
     
-    public ClosureType returnType(Type l);
-
-    public ClosureType guard(XConstraint l);
-
-    public ClosureType typeParameters(List<Type> l);
-
-    public ClosureType argumentTypes(List<Type> l);
-
-    public ClosureType throwTypes(List<Type> l);
-
-    public List<Type> typeArguments();
+//    public ClosureType returnType(Type l);
+//
+//    public ClosureType guard(XConstraint l);
+//
+//    public ClosureType typeParameters(List<Type> l);
+//
+//    public ClosureType argumentTypes(List<Type> l);
+//
+//    public ClosureType throwTypes(List<Type> l);
+//
+//    public List<Type> typeArguments();
 }

@@ -35,6 +35,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -331,8 +332,10 @@ public class Closure_c extends Expr_c implements Closure {
             }
         }
 
+        // Create an anonymous subclass of the closure type.
         ClosureDef def = this.closureDef;
-        return type(def.asType());
+        ClassDef cd = x10ts.closureAnonymousClassDef(def);
+        return type(cd.asType());
     }
 
     public Term firstChild() {

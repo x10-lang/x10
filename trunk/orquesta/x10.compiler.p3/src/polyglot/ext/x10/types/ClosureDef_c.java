@@ -55,7 +55,8 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     
     public ClosureType asType() {
 	if (asType == null) {
-	    asType = new ClosureType_c((X10TypeSystem) ts, position(), asInstance());
+	    X10TypeSystem ts = (X10TypeSystem) this.ts;
+	    asType = ts.closureType(position(), returnType, typeParameters, formalTypes, formalNames, guard, throwTypes);
 	}
 	return asType;
     }
@@ -180,6 +181,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      }
 
      public String toString() {
-         return designator() + " " + this.returnType() + " " + signature();
+         return designator() + " " + signature() + " => " + returnType();
      }
 }

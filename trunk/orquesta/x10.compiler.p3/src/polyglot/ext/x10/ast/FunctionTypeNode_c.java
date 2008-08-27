@@ -11,6 +11,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.types.ClosureDef;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -73,22 +74,34 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		throwTypes.add(tn.typeRef());
 	    }
 	    
-	    Context c = ar.context();
-	    ClassType ct = c.currentClass();
-	    CodeDef code = c.currentCode();
-	    ClosureDef cd = ts.closureDef(position(),
-	                                  Types.ref(ct), 
-	                                  code == null ? null : Types.ref(code.asInstance()),
-	                                  returnType.typeRef(),
-	                                  typeParams,
-	                                  formalTypes, 
-	                                  formalNames, 
-	                                  guard != null ? guard.xconstraint() : null,
-	                                  throwTypes);
+	    if (throwTypes.size() != 0)
+	        throw new SemanticException("Function types with throws clauses are currently unsupported.", position());
+	    if (guard != null)
+	        throw new SemanticException("Function types with guards are currently unsupported.", position());
 	    
-	    Type t = cd.asType();
-	    ((LazyRef<Type>) typeRef()).update(t);
-	    return nf.CanonicalTypeNode(position(), t);
+	    Type result = ts.closureType(position(), returnType.typeRef(),
+	                                 typeParams, formalTypes, formalNames, 
+	                                 guard != null ? guard.xconstraint() : null,
+	                                 throwTypes);
+	    
+//	    Context c = ar.context();
+//	    ClassType ct = c.currentClass();
+//	    CodeDef code = c.currentCode();
+//	    ClosureDef cd = ts.closureDef(position(),
+//	                                  Types.ref(ct), 
+//	                                  code == null ? null : Types.ref(code.asInstance()),
+//	                                  returnType.typeRef(),
+//	                                  typeParams,
+//	                                  formalTypes, 
+//	                                  formalNames, 
+//	                                  guard != null ? guard.xconstraint() : null,
+//	                                  throwTypes);
+//	    
+//	    Type t = cd.asType();
+//	    Type result = t;
+
+	    ((LazyRef<Type>) typeRef()).update(result);
+	    return nf.CanonicalTypeNode(position(), typeRef());
 	}
 
 	/*
