@@ -49,7 +49,7 @@ public abstract value Region(
 @Native("java", "(#0).intersection(#1)")
     public abstract def intersection(that: Region): Region;
 @Native("java", "(#0).difference(#1)")
-    public abstract def difference(that: Region): Region;
+    public abstract def difference(that: Region{rank==this.rank}): Region{rank==this.rank};
 @Native("java", "(#0).product(#1)")
     public abstract def product(that: Region): Region;
 @Native("java", "(#0).projection(#1)")
