@@ -1252,7 +1252,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("public ");
 		ret.expand(tr2);
 		w.write(" apply(");
-		new Join("\n", formals).expand(tr2);
+		new Join(", ", formals).expand(tr2);
 		w.write(") { ");
 		tr2.print(n, n.body(), w);
 		w.write("}");
