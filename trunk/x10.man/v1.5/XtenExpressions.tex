@@ -47,6 +47,13 @@ innermost enclosing class, or the qualifying class,
 constrained by the class invariant and the
 method where clause, if any.
 
+The \xcd"this" expression may also be used within constraints in
+a class or interface header (the class invariant and
+\xcd"extends" and \xcd"implements" clauses).  Here, the type of
+\xcd"this" is restricted so that only properties declared in the
+class header itself, and specifically not any members declared in the class
+body or in supertypes, are accessible through \xcd"this".
+
 \section{Local variables}
 
 

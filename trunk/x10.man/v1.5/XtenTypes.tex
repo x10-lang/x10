@@ -38,12 +38,20 @@ may be either a reference class or a value class.
 (\Sref{InterfaceTypes}).
 \item The \emph{boxed type} constructor produces a reference
 type from a value type (\Sref{BoxedTypes}).
+\iftypeparams\else
 \item Classes and interface have \emph{type properties}, which
 are instance members and introduce \emph{path types}
 (\Sref{PathTypes}).
 A class or interface with one or more type properties is a
 \emph{generic class} or \emph{generic interface}
 (\Sref{Generics}).
+\fi
+\iftypeparams
+\item Classes and interface have \emph{type parameters}.
+A class or interface with one or more type parameters is a
+\emph{generic class} or \emph{generic interface}
+(\Sref{Generics}).
+\fi
 \item New type constructors may be defined with \emph{type
 definitions} (\Sref{TypeDefs}).
 \item Methods, constructors, closures, and type definitions may
@@ -116,10 +124,21 @@ InterfaceBaseType \: TypeName \\
 
         Class instances are created via
         constructor calls.  Class instances have fields and
-        methods, type members, and value and type properties bound at
-        construction time.  In addition, classes have static
+        methods, type members, and
+\iftypeparams
+        value properties bound at construction time.
+\else
+        value and type properties bound at construction time.
+\fi
+        In addition, classes have static
         members: constant fields, type definitions, and member
         classes and member interfaces.
+
+\iftypeparams
+        A class with type parameters is {\em generic}.  A class
+        type is legal only if all of its parameters are instantiated
+        on concrete types.
+\fi
 
 \Xten{} does
 not
@@ -132,18 +151,22 @@ singleton classes to carry mutable static state.
 
         Classes
         are structured in a
-        single-inheritance hierarchy;
-         rooted at \xcd"x10.lang.Object"; that is,
-        classes are declared to extend a single
-        superclass (except for \xcd"Object", which extends no other class),
-        and zero or more interfaces.
+        single-inheritance hierarchy.  All reference classes
+        extend the class \xcd"x10.lang.Ref".
+        All value classes extend the class \xcd"x10.lang.Value".
+        Classes are declared to extend a single
+        superclass (except for \xcd"Ref" and \xcd"Value", which extend
+        no other class),
+        All classes implement the
+        interface \xcd"x10.lang.Object"
+        and zero or more other interfaces.
 
 \xcd"Object" has the following signature:
 
 \begin{xten}
 package x10.lang;
 
-public class Object {
+public interface Object {
     public def toString(): String;
     public def equals(Object): Boolean;
     public def hashCode(): Int;
@@ -172,12 +195,12 @@ variables of value class type may not be \xcd"null".
 %
         All reference classes extend the
         \xcd"x10.lang.Ref" class; all value classes
-        implement the \xcd"x10.lang.Value" interface.
+        extend the \xcd"x10.lang.Value" class.
 
         It is a static error if a value class extends
         \xcd"Ref" (or any subclass of \xcd"Ref").
-        It is a static error if a reference class implements
-        \xcd"Value".
+        It is a static error if a reference class extends
+        \xcd"Value" (or any subclass of \xcd"Value").
 
 \xcd"Ref" and \xcd"Value" have the following signatures:
 
@@ -188,7 +211,7 @@ public class Ref(location: Place) {
     public Ref() { property(here); }
 }
 
-public interface Value { }
+public class Value { }
 \end{xten}
 
 
@@ -219,6 +242,7 @@ public interface Value { }
         and member classes and interfaces.
 
         An interface may extend multiple interfaces.
+        All interfaces extend \xcd"x10.lang.Object".
 
 Classes may be declared to implement 
 multiple interfaces. 
@@ -252,6 +276,9 @@ class Point(x: Int, y: Int) {
         \xcd"Point{x==0}" is the set of all points whose \xcd"x"
         property is \xcd"0".
 
+
+\iftypeparams
+\else
 
 \subsection{Type properties}
 \label{TypeProperties}
@@ -306,7 +333,10 @@ Within the body of a class, a property name \xcd"X" resolves
 to \xcd"this.X" (or to \xcd"C.this.X" if \xcd"X" is a property of
 an enclosing class \xcd"C"), just as value property names are
 resolved.
+\fi
 
+\iftypeparams
+\else
 \subsection{Final access paths}
 \label{FinalAccessPath}
 \index{final access path}
@@ -316,6 +346,7 @@ resolved.
 	path}, either a final local variable or formal parameter
 	(including the special variables \xcd"this" and \xcd"self"),
 	or a final field or value property of a final access path.
+\fi
 
 \section{Type parameters}
 \label{TypeParameters}
@@ -328,21 +359,114 @@ resolved.
 \index{parametrized constructors}
 \index{parametrized closures}
 
+\iftypeparams
+        A class, interface, method, or closure may have type parameters
+        whose scope is the signature and body of the declaring
+        class, interface, method,
+        or closure.
+\else
         A method, constructor, or closure may have type parameters
         whose scope is the signature and body of the declaring method,
-        constructor or closure. Similarly, a type definition may have
+        constructor or closure.
+\fi
+        Similarly, a type definition may have
         type parameters that scope over the body of the type
         definition.
 
-        Type parameters may be constrained by a {\em where
-        clause} on the declaration
-        (\Sref{TypeDefWhereClause},\Sref{ConstructorWhereClause},\Sref{MethodWhereClause},\Sref{ClosureWhereClause}).
-        The type parameters of methods, constructors, and
-        closures, must be bound to
+        Type parameters may be constrained by a {\em guard} on the declaration
+        (\Sref{ClassWhereClause}, \Sref{TypeDefWhereClause},
+\iftypeparams\else
+        \Sref{ConstructorWhereClause},
+\fi
+        \Sref{MethodWhereClause},\Sref{ClosureWhereClause}).
+\iftypeparams
+        The type parameters of classes and interfaces must be
+        bound to concrete types (possibly to a type parameter)
+        for the type to be legal; thus \xcd"List[int]" and
+        \xcd"List[C]" are legal types, but \xcd"List" alone is
+        not.
+        The type parameters of
+        methods and closures
+\else
+        The type parameters of
+        methods, constructors, and closures,
+\fi
+        must be bound to
         concrete types at invocation.
         Parametrized type definitions specify new type
         constructors; the type parameters of a type definition must be bound
         to yield a type.
+
+\iftypeparams
+
+\subsection{Generic types}
+\label{Generics}
+\index{types!generic types}
+        A {\em generic class} is a class
+        declared with one or more type parameters.  Generic
+        classes can be instantiated by instantiating the type
+        parameters of the base type.
+
+Consider the following declaration of a \xcd"Cell" class.
+\begin{xten}
+class Cell[X] {
+    var x: X;
+    def this(x: X) { this.x = x; }
+    def get(): X = x;
+    def set(x: X) = { this.x = x: }
+}
+\end{xten}
+
+This declares a class \xcd"Cell" with a type parameter \xcd"X".
+\xcd"Cell" may be used as a type by instantiating \xcd"X".
+
+\xcd"Cell[int]" is the type of all \xcd"Cell" containing an
+\xcd"int".  The \xcd"get" method returns an \xcd"int"; the
+\xcd"set" method takes an \xcd"int" as argument.  Note that
+\xcd"Cell" alone is not a legal type because the parameter is
+not bound.
+
+Parameters may be declares as invariant, covariant, or
+contravariant.  The \xcd"X" parameter of \xcd"Cell" above is
+invariant.  
+Consider the following classes:
+\begin{xten}
+class Get[+X] {
+    var x: X;
+    def this(x: X) { this.x = x; }
+    def get(): X = x;
+}
+
+class Set[-X] {
+    var x: X;
+    def this(x: X) { this.x = x; }
+    def set(x: X) = { this.x = x: }
+}
+\end{xten}
+The \xcd"X" parameter of the \xcd"Get" class is covariant;
+the \xcd"X" parameter of the \xcd"Set" class is contravariant.
+
+Given types \xcd"S" and \xcd"T".
+\begin{itemize}
+\item
+If the parameter of \xcd"Get" is covariant, then
+\xcd"Get[S]" is a subtype of \xcd"Get[T]" if
+\xcd"S" is a {\em subtype} of \xcd"T".
+
+\item
+If the parameter of \xcd"Set" is covariant, then
+\xcd"Set[S]" is a subtype of \xcd"Set[T]" if
+\xcd"S" is a {\em supertype} of \xcd"T".
+
+\item
+If the parameter of \xcd"Cell" is invariant, then
+\xcd"Cell[S]" is a subtype of \xcd"Cell[T]" if
+\xcd"S" is a {\em equal} to \xcd"T".
+\end{itemize}
+
+\fi
+
+
 
 \section{Type definitions}
 \label{TypeDefs}
@@ -414,19 +538,31 @@ is a type.
 \index{types!path types}
 \index{final access path}
 
-Type properties and instance member type definitions 
+\iftypeparams
+Instance member type definitions declare \emph{path types}.
+\else
+Type properties and
+instance member type definitions 
 declare \emph{path types}.
+\fi
 If the type definition is parametrized, the definition specifies
 a type constructor; instantiating the parameters yields a type.
 A path type (constructor)
 is of the form \xcd"p.X", and consists of a final access path
 \xcd"p", and a type
-member or type property \xcd"X".
+member
+\iftypeparams\else
+or type property
+\fi
+\xcd"X".
 The final access path \xcd"p" must be either \xcd"this", \xcd"self", a final
 local variable, or a final field or value property whose target
 is itself a final access path.  The path must type-check 
 as a normal expression in the scope in which it appears.
-The type member or property
+The type member
+\iftypeparams
+or property
+\fi
 \xcd"X" must be an instance member of the type of the
 path \xcd"p".
 
@@ -435,6 +571,18 @@ resolution rules for fields and local variables.
 If an identifier \xcd"X" resolves to a type member or property
 of an enclosing class or interface \xcd"T", then \xcd"X" is equivalent to
 the path type \xcd"T.this.X".
+
+\iftypeparams
+\subsection{Final access paths}
+\label{FinalAccessPath}
+\index{final access path}
+
+        To ensure soundness of the type system, the expression \xcd"e"
+	used in a path type \xcd"e.X" must be a \emph{final access
+	path}, either a final local variable or formal parameter
+	(including the special variables \xcd"this" and \xcd"self"),
+	or a final field or value property of a final access path.
+\fi
 
 \section{Constrained types}
 \label{ConstrainedTypes}
@@ -450,7 +598,11 @@ the path type \xcd"T.this.X".
 
         Given a type \xcd"T", a {\em constrained type}
         \xcd"T{e}" may be
-        constructed by constraining its type and value properties with a
+        constructed by constraining its
+        \iftypeparams\else
+        type and value
+        \fi
+        properties with a
         boolean expression \xcd"e".
 
         \xcd"T{e}" is a {\em dependent type}, that is, a type
@@ -462,15 +614,26 @@ the path type \xcd"T.this.X".
 
 For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
+\iftypeparams
+A type may also be constrained using argument lists.
+The syntax 
+\xcdmath"C(e$_1$,$\dots$,e$_n$)" is sugar for
+\xcdmath"C{x$_1$==e$_1$,$\dots$,x$_n$==e$_n$}"
+where the \xcdmath"x$_i$" are the
+value properties of \xcd"C".  
+If the list of arguments is empty, it may be omitted.
+\else
 A type may also be constrained using lists of type arguments and
 value arguments.
 The syntax 
 \xcdmath"C[T$_1$,$\dots$,T$_m$](e$_1$,$\dots$,e$_n$)" is sugar for
 \xcdmath"C{X$_1$==T$_1$,$\dots$,X$_m$==T$_m$,x$_1$==e$_1$,$\dots$,x$_n$==e$_n$}"
-where \xcd"Xi" are the type properties and \xcd"xi" are the
+where \xcdmath"X$_i$" are the type properties and \xcdmath"x$_i$" are the
 value properties of \xcd"C".  
 If either list of properties is empty, it may be omitted.
+\fi
 
+\iftypeparams\else
 In this shortened syntax, a type \xcd"T" used may also be annotated
 with
 a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
@@ -478,6 +641,7 @@ if \xcd"X" is a type property, then
 the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
 \xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
 \xcd"C[T]" is sugar \xcd"C{X==T}".
+\fi
 
 Constraints on properties induce a natural subtyping relationship:
 \xcd"C{c}" is a subtype of
@@ -499,6 +663,20 @@ Constraints must be of type \xcd"Boolean".
 The
 compiler supports the following constraint syntax.
 
+\iftypeparams
+
+\begin{grammar}
+Constraint \: ValueArguments     WhereClause\opt \\
+           \| ValueArguments\opt WhereClause     \\
+           \\
+ValueArguments   \:  \xcd"(" ArgumentList\opt \xcd")" \\
+ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
+WhereClause        \: \xcd"{" DepExpression \xcd"}" \\
+DepExpression \: ( Formal \xcd";" )\star ArgumentList \\
+\end{grammar}
+
+\else
+
 \begin{grammar}
 Constraint \: TypeArguments     ValueArguments\opt WhereClause\opt \\
            \| TypeArguments\opt ValueArguments     WhereClause\opt \\
@@ -511,6 +689,8 @@ WhereClause        \: \xcd"{" DepExpression \xcd"}" \\
 DepExpression \: ( Formal \xcd";" )\star ArgumentList \\
 \end{grammar}
 
+\fi
+
 The default \Xten{} constraint system supports equality expressions
 (\xcd"=="), conjunction (\xcd"&&"), and subtyping and supertyping (\xcd"<:" and
 \xcd":>") expressions over constants, final access paths, and
@@ -519,15 +699,17 @@ types, and existential quantification over typed variables.
 \emph{
 Subsequent implementations are intended to support boolean algebra,
 arithmetic, relational algebra, etc., to permit types over regions and
-distributions. We envision this as a major step towards removing most
-(if not all) dynamic array bounds and places check from \Xten{}.
+distributions. We envision this as a major step towards removing most,
+if not all, dynamic array bounds and place checks from \Xten{}.
 }
 
+
+\iftypeparams
+\else
 
 \subsection{Generic types}
 \label{Generics}
 \index{types!generic types}
-
         A {\em generic class} is a class
         declared with one or more type properties.  Generic
         classes can be instantiated by constraining the type
@@ -605,6 +787,8 @@ supertype of \xcd"String"; the return type of the \xcd"get"
 method is known to be a
 supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
 \end{itemize}
+
+\fi
 
 
 
@@ -698,15 +882,27 @@ objects that belong to \xcd"C{c}".
 A class or interface declaration may specify a
 \grammarrule{WhereClause}, an invariant on all
 instances of that type.
-All the properties in the list, together with inherited properties,
-may appear in the class invariant. A where clause \xcd"c" with
-type property list \xcdmath"X$_1$, $\dots$, X$_k$"
-and value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
+All the properties of the type, together with inherited properties,
+may appear in the class invariant.
+\iftypeparams
+The class invariant may also constrain the class's type parameters.
+\fi
+A where clause \xcd"c" with
+\iftypeparams\else
+type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
+\fi
+value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
 for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
 consistent and the constraint
+\iftypeparams
+\begin{xtenmath}
+$\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
+\end{xtenmath}
+\else
 \begin{xtenmath}
 $\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
 \end{xtenmath}
+\fi
 \noindent is valid (always true).
 
 With every defined class or interface \xcd"T" we associate a {\em type
@@ -740,7 +936,7 @@ type invariant associated with a class entail the type invariants of
 each interface that it implements.
 
 It is guaranteed that for any variable \xcd"v" of
-type \xcd'T{c}' (where \xcd"T" is an interface name or a class name) the only
+type \xcd"T{c}" (where \xcd"T" is an interface name or a class name) the only
 objects \xcd"o" that may be stored in \xcd"v" are such that \xcd"o" satisfies
 $\mathit{inv}(\mbox{\xcd"T"}[\mbox{\xcd"o"}/\mbox{\xcd"this"}])
 \wedge \mbox{\xcd"c"}[\mbox{\xcd"o"}/\mbox{\xcd"self"}]$.
@@ -877,7 +1073,12 @@ is consistent.
         exceptions of 
         types S$_i$.
 
-The type and value parameters
+The
+\iftypeparams
+properties
+\else
+type and value properties
+\fi
 are in scope throughout the function signature---they may be
 used
 in the types of other formal parameters and in the return type.
@@ -1057,8 +1258,28 @@ equivalent to \xcd"C{true}".
 \paragraph{Path types.}
 
 A path type \xcd"p.X" is a subtype of a type \xcd"T" if
-\xcd"p" has type \xcd"C{c}" (where \xcd"C" has a type property
+\xcd"p" has type \xcd"C{c}" (where \xcd"C" has a type member
 \xcd"X") and \xcd"c" implies that \xcd"self.X" is a subtype of \xcd"T".
+
+\paragraph{Type parameters.}
+
+A type parameter \xcd"X" of a class or interface \xcd"C"
+is a subtype of a type \xcd"T" if
+the 
+class invariant of \xcd"C" implies that \xcd"X" is a subtype of \xcd"T".
+Similarly, \xcd"T" is a subtype of parameter \xcd"X" if the
+class invariant implies the relationship.
+
+A type parameter \xcd"X" of a method
+\iftypeparams\else
+or constructor
+\fi
+\xcd"m"
+is a subtype of a type \xcd"T" if
+the 
+where clause of \xcd"m" implies that \xcd"X" is a subtype of \xcd"T".
+Similarly, \xcd"T" is a subtype of parameter \xcd"X" if the
+where clause implies the relationship.
 
 
 \section{Least common ancestor of types}
@@ -1071,13 +1292,15 @@ and of rail constructors
 must be computed.
 
 The least common ancestor of two  types
-\xcd"T$_1$" and \xcd"T$_2$"
+\xcdmath"T$_1$" and \xcdmath"T$_2$"
 is the
 unique most-specific type
 that is a supertype of both
-\xcd"T$_1$" and \xcd"T$_2$".
+\xcdmath"T$_1$" and \xcdmath"T$_2$".
 
-If the most-specific interface is not unique, the
+If the most-specific type is not unique (which can happen when
+\xcdmath"T$_1$" and \xcdmath"T$_2$" both implement two
+or more incomparable interfaces), then
 least common ancestor type is \xcd"x10.lang.Object".
 
 \input{Coercions}
@@ -1090,17 +1313,17 @@ least common ancestor type is \xcd"x10.lang.Object".
 The package \xcd"x10.lang" provides a number of built-in class and
 interface declarations that can be used to construct types.
 
-\subsection{The class \Xcd{Object}}
+\subsection{The interface \Xcd{Object}}
 \label{Object}\index{\Xcd{Object}}\index{\Xcd{x10.lang.Object}}
 
-The class \xcd"x10.lang.Object" is the superclass of all
+The interface \xcd"x10.lang.Object" is the supertype of all
 reference and value classes.
 A variable of this type can hold a reference to an instance of any
 reference type, including boxed value types.
 
 \begin{xten}
 package x10.lang;
-public class Object {
+public interface Object {
   def toString(): String {...}
   def equals(o: Object): Boolean {...}
   def hashCode(): Int {...}
@@ -1112,21 +1335,20 @@ and are defined as in \java. The default implementation of \xcd"equals"
 is stable equality, \Sref{StableEquality}. This method may be overridden
 in a (value or reference) subclass.
 
-\subsection{The interface \Xcd{Ref}}
+\subsection{The class \Xcd{Ref}}
 \label{Ref}\index{\Xcd{Ref}}\index{\Xcd{x10.lang.Ref}}
 
-The interface \xcd"x10.lang.Ref" is implemented by all reference
+The class \xcd"x10.lang.Ref" is the superclass of all reference
 classes, including the \xcd"Box" class.
 A variable of this type can hold a reference to an instance of any
 reference type, including boxed value types.
 
-\subsection{The interface \Xcd{Value}}
+\subsection{The class \Xcd{Value}}
 \label{Value}\index{\Xcd{Value}}\index{\Xcd{x10.lang.Value}}
 
-The interface \xcd"x10.lang.Value" is implemented by all value
+The class \xcd"x10.lang.Value" is the superclass of by all value
 classes.
-A variable of this type can hold a reference to an instance of any
-boxed value type.
+A variable of this type can hold an instance value type.
 
 \subsection{The class \Xcd{String}}
 \label{String}\index{\Xcd{String}}\index{\Xcd{x10.lang.String}}

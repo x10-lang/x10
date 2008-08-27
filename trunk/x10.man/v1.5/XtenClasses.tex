@@ -2,13 +2,50 @@
 \label{XtenClasses}\index{class}
 
 The {\em class declaration} has
-a list of type properties, value properties, 
-a  constraint (the {\em class invariant}, a single superclass,
+a list of type \params,
+value properties, 
+a constraint (the {\em class invariant}, a single superclass,
 one or more interfaces, and a class body containing the
 the definition of
 fields, methods, and member types.
 Each such declaration introduces a class
 type (\Sref{ReferenceTypes}).
+
+\iftypeparams
+
+\begin{grammar}
+NormalClassDeclaration \:
+      ClassModifiers\opt \xcd"class" Identifier  \\
+   && TypeParameterList\opt PropertyList\opt WhereClause\opt \\
+   && Super\opt Interfaces\opt ClassBody \\
+\\
+TypeParameterList     \:  \xcd"[" TypeParameters \xcd"]" \\
+TypeParameters        \:  TypeParameter ( \xcd"," Typearameter )\star \\
+TypeParameter         \:  Variance\opt Annotation\star Identifier     \\
+Variance \: \xcd"+" \\
+         && \xcd"-" \\
+\\
+PropertyList     \:  \xcd"(" Properties \xcd")" \\
+Properties       \:  Property ( \xcd"," Property )\star \\
+Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
+\\
+Super \: \xcd"extends" ClassType \\
+Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
+\\
+ClassBody \: ClassMember\star \\
+ClassMember \: ClassDeclaration \\
+            \| InterfaceDeclaration \\
+            \| FieldDeclaration \\
+            \| MethodDeclaration \\
+            \| ConstructorDeclaration \\
+\end{grammar}
+
+A type parameter declaration is given by an optional variance
+tag and an identifier.
+A type parameter must be
+bound to a concrete type when an instance of the class is created.
+
+\else
 
 \begin{grammar}
 NormalClassDeclaration \:
@@ -41,6 +78,9 @@ an instance \xcd"e" of the class, \xcd"e.T" is a type.
 A type property must be
 bound to a concrete type when the instance is created.
 
+\fi
+
+
 A value property has a name and a type.   Value properties
 are accessible in the same way as \xcd"public" \xcd"final"
 fields.
@@ -49,9 +89,11 @@ fields.
 It is a compile-time error for a class
 defining a value property \xcd"x: T" to have an ancestor class that defines
 a value property with the name \xcd"x".  
+\iftypeparams\else
 It is a compile-time error for a class
 defining a type property \xcd"X" to have an ancestor class that defines
 a type property with the name \xcd"X".   
+\fi
 \end{staticrule*}
 
 Each class \xcd"C" defining a property \xcd"x: T" implicitly has a field
@@ -94,7 +136,8 @@ in \Sref{DepType:Where}.
    constructor returns.
 \end{staticrule*}
 
-Type properties are used to define generic classes and
+Type \params{}
+are used to define generic classes and
 interfaces, as described in \Sref{Generics}.
 
 Classes are structured in a single-inheritance code
@@ -317,6 +360,22 @@ In the general case, the production for \grammarrule{NormalClassDeclaration}
 specifies that the list of properties may be followed by a
 \grammarrule{WhereClause}.
 
+\iftypeparams
+
+\begin{grammar}
+NormalClassDeclaration \:
+      ClassModifiers\opt \xcd"class" Identifier  \\
+   && TypeParameterList\opt PropertyList\opt WhereClause\opt \\
+   && Extends\opt Interfaces\opt ClassBody \\
+\\
+NormalInterfaceDeclaration \:
+      InterfaceModifiers\opt \xcd"interface" Identifier  \\
+   && TypeParameterList\opt PropertyList\opt WhereClause\opt \\
+   && ExtendsInterfaces\opt InterfaceBody \\
+\end{grammar}
+
+\else
+
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
@@ -329,15 +388,25 @@ NormalInterfaceDeclaration \:
    && ExtendsInterfaces\opt InterfaceBody \\
 \end{grammar}
 
+\fi
+
 All the properties in the list, together with inherited properties,
 may appear in the \grammarrule{WhereClause}. A where clause \xcd"c" with
-type property list \xcdmath"X$_1$, $\dots$, X$_k$"
-and value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
+\iftypeparams\else
+type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
+\fi
+value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
 for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
 consistent and the constraint
+\iftypeparams
+\begin{xtenmath}
+$\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
+\end{xtenmath}
+\else
 \begin{xtenmath}
 $\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
 \end{xtenmath}
+\fi
 \noindent is valid (always true).
 
 \section{Class definitions}

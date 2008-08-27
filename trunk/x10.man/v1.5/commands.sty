@@ -1,5 +1,16 @@
 \usepackage{xspace}
 
+\newif\iftypeparams
+\typeparamstrue
+
+\iftypeparams
+\newcommand\param{parameter}
+\newcommand\params{parameters}
+\else
+\newcommand\param{property}
+\newcommand\params{properties}
+\fi
+
 % Macros for R^nRS.
 
 \def\@makechapterhead#1{%
