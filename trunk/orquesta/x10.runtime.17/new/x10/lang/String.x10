@@ -14,6 +14,9 @@ public final value String implements (nat) => Char {
     
     @Native("java", "#0.charAt(#1)")
     public native def apply(index: nat): Char;
+
+    @Native("java", "#0.charAt(#1)")
+    public native def charAt(index: nat): Char;
     
     @Native("java", "#0.substring(#1, #2)")
     public native def substring(fromIndex: nat, toIndex: nat): String;

@@ -5,7 +5,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 // note: use dist.region.rank, not rank -- only the properties in the
-// header are in scope
+// header are in scope in the header.
 
 @NativeRep("java", "x10.array.Array")
 public abstract value class Array[T](dist: Dist) implements
@@ -26,10 +26,11 @@ public abstract value class Array[T](dist: Dist) implements
     property onePlace: Place = dist.onePlace;
 
     @Native("java", "x10.array.ArrayFactory.make(#1, #2)")
-    native public static def make[T](dist: Dist, init: Indexable[nat,T]): Array[T];
+    native public static def make[T](dist: Dist, init: Indexable[nat,T]): Array[T]{self.dist==dist};
     
     @Native("java", "x10.array.ArrayFactory.makeLocal(#1, #2)")
-    native public static def make[T](region: Region, init: Indexable[nat,T]): Array[T];
+    native public static def make[T](region: Region, init: Indexable[nat,T])
+	: Array[T]{self.region==region};
     
     // @Native("java", "x10.array.ArrayFactory.make(#1, #2)")
     // native public static def make[T](region: Region, init: Indexable[nat,T], value: boolean): Array[T];
@@ -41,7 +42,7 @@ public abstract value class Array[T](dist: Dist) implements
     native public static def make[T](r: ValRail[T]): Array[T]{rank==1};
     
     @Native("java", "(#0).restriction(#1)")
-    public native def restriction(r: Region): Array[T];
+    public native def restriction(r: Region): Array[T]{region==r};
     
     @Native("java", "(#0).get(#1)")
     public native def apply(pt: Point(this.rank)): T;
@@ -65,27 +66,27 @@ public abstract value class Array[T](dist: Dist) implements
     public native def set(i0: int, i1: int, i2: int, v: T){rank==3}: void;
                      
     @Native("java", "(#0)")
-    native public def $plus(): Array[T];
+    native public def $plus(): Array[T]{dist==this.dist};
     @Native("java", "(#0).neg()")
-    native public def $minus(): Array[T];
+    native public def $minus(): Array[T]{dist==this.dist};
 
     @Native("java", "(#0).add(#1)")
-    native public def $plus(that: Array[T]): Array[T];
+    native public def $plus(that: Array[T]{dist==this.dist}): Array[T]{dist==this.dist};
     
     @Native("java", "(#0).sub(#1)")
-    native public def $minus(that: Array[T]): Array[T];
+    native public def $minus(that: Array[T]{dist==this.dist}): Array[T]{dist==this.dist};
     
     @Native("java", "(#0).mul(#1)")
-    native public def $times(that: Array[T]): Array[T];
+    native public def $times(that: Array[T]{dist==this.dist}): Array[T]{dist==this.dist};
     
     @Native("java", "(#0).div(#1)")
-    native public def $over(that: Array[T]): Array[T];
+    native public def $over(that: Array[T]{dist==this.dist}): Array[T]{dist==this.dist};
 
     @Native("java", "(#0).restriction(#1)")
-    native public def $bar(r: Region): Array[T];
+    native public def $bar(r: Region): Array[T]{region==r};
     
     @Native("java", "(#0).restriction(#1)")
-    native public def $bar(p: Place): Array[T];
+    native public def $bar(p: Place): Array[T]{onePlace==here};
 
     @Native("java", "x10.array.ArrayFactory.makeFromRail(#1)")
     native public static def $convert[T](r: Rail[T]): Array[T];
