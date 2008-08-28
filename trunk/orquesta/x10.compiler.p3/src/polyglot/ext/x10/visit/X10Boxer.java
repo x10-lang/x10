@@ -115,19 +115,19 @@ public class X10Boxer extends AscriptionVisitor
 		return e;
 	}
 
-	public Node override(Node parent, Node n) {
-		// FIXME: [IP] HACK: Leave printf alone
-		if (n instanceof Call) {
-			Call call_n = (Call) n;
-			Name m_name = call_n.name().id();
-			Type target_t = call_n.target().type();
-			if (m_name.equals(Name.make("printf")) && target_t.isClass() &&
-					target_t.toClass().fullName().equals(QName.make("java.io.PrintStream"))) {
-				return n;
-			}
-		}
-		return super.override(parent, n);
-	}
+//	public Node override(Node parent, Node n) {
+//		// FIXME: [IP] HACK: Leave printf alone
+//		if (n instanceof Call) {
+//			Call call_n = (Call) n;
+//			Name m_name = call_n.name().id();
+//			Type target_t = call_n.target().type();
+//			if (m_name.equals(Name.make("printf")) && target_t.isClass() &&
+//					target_t.toClass().fullName().equals(QName.make("java.io.PrintStream"))) {
+//				return n;
+//			}
+//		}
+//		return super.override(parent, n);
+//	}
 
 	public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
 		n = super.leaveCall(old, n, v);
