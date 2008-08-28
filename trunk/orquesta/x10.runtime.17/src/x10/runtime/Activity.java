@@ -13,7 +13,6 @@ import java.util.Stack;
 import x10.core.MultipleExceptions;
 import x10.runtime.abstractmetrics.AbstractMetrics;
 import x10.runtime.abstractmetrics.AbstractMetricsFactory;
-import x10.runtime.clock.Clock;
 import x10.runtime.clock.ClockManager;
 import x10.runtime.clock.ClockManagerFactory;
 import x10.runtime.clock.ClockUseException;

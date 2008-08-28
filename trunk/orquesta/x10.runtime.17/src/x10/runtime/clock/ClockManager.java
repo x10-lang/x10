@@ -7,6 +7,8 @@
  */
 package x10.runtime.clock;
 
+import x10.runtime.Clock;
+
 /**
  * Defines the interface between: 
  * - An Activity and his Clock Manager.

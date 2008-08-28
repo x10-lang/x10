@@ -10,6 +10,7 @@ package x10.runtime.clock;
 import java.util.List;
 
 import x10.runtime.Activity;
+import x10.runtime.Clock;
 /**
  * Instantiate the default Clock Manager implementation.
  * 
