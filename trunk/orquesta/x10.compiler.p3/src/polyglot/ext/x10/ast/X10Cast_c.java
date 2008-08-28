@@ -110,7 +110,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 		Expr e = expr;
 		
 		// Do the conversion.
-		Call c = nf.Call(p, nf.Id(p, mi.name()), e);
+		Call c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
 		c = c.methodInstance(mi);
 		c = (Call) c.type(mi.returnType());
 		
