@@ -6,10 +6,12 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Goal;
 import polyglot.frontend.SchedulerException;
 import polyglot.types.LazyRef;
+import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
 import polyglot.visit.TypeChecker;
 
@@ -48,7 +50,17 @@ public class TypeCheckExprGoal extends AbstractGoal_c {
 			Node m = parent.visitChild(n, v);
 			v.job().nodeMemo().put(n, m);
 			if (m instanceof Expr) {
-				r.update(((Expr) m).type());
+			    Type t = ((Expr) m).type();
+			    if (t instanceof X10ClassType) {
+			        X10ClassType ct = (X10ClassType) t;
+			        if (ct.isAnonymous()) {
+			            if (ct.interfaces().size() > 0)
+			                t = ct.interfaces().get(0);
+			            else
+			                t = ct.superClass();
+			        }
+			    }
+			    r.update(t);
 			}
 			return r.known();
 		}
