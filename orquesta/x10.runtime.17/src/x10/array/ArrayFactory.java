@@ -22,7 +22,7 @@ public class ArrayFactory {
         return a;
     }
 
-    public static <T> ValArray<T> makeValArray(Type<T> type, Dist d, Fun_0_1<Point, T> init) {
+    public static <T> ValArray<T> makeValArray(Type< T> type, Dist d, Fun_0_1<Point, T> init) {
         ValArray<T> a = new GenericValArray<T>(type, d);
         for (Point p : d) {
             a.set(p, init.apply(p));
@@ -30,11 +30,19 @@ public class ArrayFactory {
         return a;
     }
 
-    public static <T> ValArray<T> makeValArray(Type<T> type, Region r) {
+    public static <T> ValArray<T> makeValArray(Type< T> type, Region r) {
         return makeValArray(type, r.toDistribution());
     }
 
-    public static <T> ValArray<T> makeValArray(Type<T> type, Region r, Fun_0_1<Point, T> init) {
+    public static <T> ValArray<T> makeValArray(Type< T> type, Region r, Fun_0_1<Point, T> init) {
         return makeValArray(type, r.toDistribution(), init);
+    }
+
+    public static <T> Array<T> makeVarArray(Type<  T> type, Region r) {
+        return makeVarArray(type, r.toDistribution());
+    }
+
+    public static <T> Array<T> makeVarArray(Type< T> type, Region r, Fun_0_1<Point, T> init) {
+        return makeVarArray(type, r.toDistribution(), init);
     }
 }
