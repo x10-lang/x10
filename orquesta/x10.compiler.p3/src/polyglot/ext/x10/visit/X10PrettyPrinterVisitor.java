@@ -1103,13 +1103,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	             *     o.m[A, B](a, b);
 	             * #0 = o
 	             * #1 = A
-	             * #2 = B
-	             * #5 = boxed representation of A
-	             * #6 = boxed representation of B
-	             * #7 = run-time Type object for A
-	             * #8 = run-time Type object for B
-	             * #3 = a
-	             * #4 = b
+	             * #2 = boxed representation of A
+	             * #3 = run-time Type object for A
+	             * #4 = B
+	             * #5 = boxed representation of B
+	             * #6 = run-time Type object for B
+	             * #7 = a
+	             * #8 = b
                      */
 		String pat = getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
@@ -1118,11 +1118,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    components[i++] = c.target();
 		    for (Type at : mi.typeParameters()) {
 		        components[i++] = new TypeExpander(at, true, false, false);
-		    }
-		    for (Type at : mi.typeParameters()) {
 		        components[i++] = new TypeExpander(at, true, true, false);
-		    }
-		    for (final Type at : mi.typeParameters()) {
 		        components[i++] = new RuntimeTypeExpander(at);
 		    }
 		    for (Expr e : c.arguments()) {
