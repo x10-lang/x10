@@ -5,17 +5,14 @@
  *  This file is part of X10 Language.
  *
  */
-package x10.runtime.clock;
+package x10.runtime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import x10.runtime.Activity;
-import x10.runtime.PoolRunner;
-import x10.runtime.Report;
-import x10.runtime.Runtime;
-import x10.runtime.VMInterface;
+import x10.runtime.clock.AbstractClock;
+import x10.runtime.clock.ClockUseException;
 
 /**
  * Implementation of Clock.  Technically the spec says that this is
