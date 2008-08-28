@@ -13,16 +13,15 @@ import harness.x10Test;;
  * compile or hang.
  */
 public class ClockTest extends x10Test {
+    public def run(): boolean = {
+	c: Clock = new Clock();
+	next;
+	c.resume();
+	c.drop();
+	return true;
+    }
 
-	public def run(): boolean = {
-		var c: clock = clock.factory.clock();
-		next;
-		c.resume();
-		c.drop();
-		return true;
-	}
-
-	public static def main(var args: Rail[String]): void = {
-		new ClockTest().execute();
-	}
+    public static def main(var args: Rail[String]): void = {
+	new ClockTest().execute();
+    }
 }

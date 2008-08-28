@@ -31,17 +31,17 @@ public class ClockTest11 extends x10Test {
 
 	public def run(): boolean = {
 		try {
-			finish async {
-				final val c: clock = clock.factory.clock();
-				final val d: clock = clock.factory.clock();
-				async clocked(d) {
-					async clocked(c) { System.out.println("hello"); }
-				}
+		    finish async {
+			val c = new Clock();
+			val d = new Clock();
+			async clocked(d) {
+			    async clocked(c) { System.out.println("hello"); }
 			}
-			return false;
+		    }
+		    return false;
 		} catch (var e: MultipleExceptions) {
-			// Expecting only one exception
-			return false;
+		    // Expecting only one exception
+		    return false;
 		} catch (var e: ClockUseException) {
 		}
 		return true;
