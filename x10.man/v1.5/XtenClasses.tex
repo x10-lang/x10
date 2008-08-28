@@ -16,7 +16,7 @@ type (\Sref{ReferenceTypes}).
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypeParameterList\opt PropertyList\opt WhereClause\opt \\
+   && TypeParameterList\opt PropertyList\opt Guard\opt \\
    && Super\opt Interfaces\opt ClassBody \\
 \\
 TypeParameterList     \:  \xcd"[" TypeParameters \xcd"]" \\
@@ -50,7 +50,7 @@ bound to a concrete type when an instance of the class is created.
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
+   && TypePropertyList\opt PropertyList\opt Guard\opt \\
    && Super\opt Interfaces\opt ClassBody \\
 \\
 TypePropertyList     \:  \xcd"[" TypeProperties \xcd"]" \\
@@ -124,7 +124,7 @@ the signature \xcd"x(): T".
 Properties are used to build dependent types from classes, as
 described in \Sref{DepType:DepType}.
 
-The \grammarrule{WhereClause} in a class or interface declaration specifies an
+The \grammarrule{Guard} in a class or interface declaration specifies an
 explicit condition on the properties of the type, and is discussed further
 in \Sref{DepType:Where}.
 
@@ -198,7 +198,7 @@ compiler allows the programmer to omit the keyword \xcd"class" after
 \begin{grammar}
 ValueClassDeclaration \:
       ClassModifiers\opt \xcd"value" \xcd"class"\opt Identifier  \\
-   && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
+   && TypePropertyList\opt PropertyList\opt Guard\opt \\
    && Super\opt Interfaces\opt ValueClassBody \\
 \end{grammar}
 
@@ -300,9 +300,9 @@ value Complex {
 \end{xten}
 \end{example}
 
-\section{Type invariants}\label{DepType:WhereClauses}
+\section{Type invariants}\label{DepType:Guard}
 \index{type invariants}
-\index{where clauses}
+\index{guards}
 
 There is a general recipe for constructing a list of parameters or
 properties \xcdmath"x$_1$: T$_1${c$_1$}, $\dots$, x$_k$: T$_k${c$_k$}" that must satisfy a given
@@ -345,7 +345,7 @@ class Triangle (a: Line, b: Line, c: Line)
          c.end == a.start} = { ... }
 class SolvableQuad(a: Int, b: Int, c: Int)
                    {a*x*x+b*x+c==0} = { ... }
-class Circle (r: Int, x: Int, y: Int) where
+class Circle (r: Int, x: Int, y: Int)
               {r > 0 && r*r==x*x+y*y} = { ... }
 class NonEmptyList extends List{n > 0} {...}
 \end{xten}
@@ -358,19 +358,19 @@ Further, every instance of \xcd"Line" must satisfy the constraint that
 
 In the general case, the production for \grammarrule{NormalClassDeclaration}
 specifies that the list of properties may be followed by a
-\grammarrule{WhereClause}.
+\grammarrule{Guard}.
 
 \iftypeparams
 
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypeParameterList\opt PropertyList\opt WhereClause\opt \\
+   && TypeParameterList\opt PropertyList\opt Guard\opt \\
    && Extends\opt Interfaces\opt ClassBody \\
 \\
 NormalInterfaceDeclaration \:
       InterfaceModifiers\opt \xcd"interface" Identifier  \\
-   && TypeParameterList\opt PropertyList\opt WhereClause\opt \\
+   && TypeParameterList\opt PropertyList\opt Guard\opt \\
    && ExtendsInterfaces\opt InterfaceBody \\
 \end{grammar}
 
@@ -379,19 +379,19 @@ NormalInterfaceDeclaration \:
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
+   && TypePropertyList\opt PropertyList\opt Guard\opt \\
    && Extends\opt Interfaces\opt ClassBody \\
 \\
 NormalInterfaceDeclaration \:
       InterfaceModifiers\opt \xcd"interface" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt WhereClause\opt \\
+   && TypePropertyList\opt PropertyList\opt Guard\opt \\
    && ExtendsInterfaces\opt InterfaceBody \\
 \end{grammar}
 
 \fi
 
 All the properties in the list, together with inherited properties,
-may appear in the \grammarrule{WhereClause}. A where clause \xcd"c" with
+may appear in the \grammarrule{Guard}. A guard \xcd"c" with
 \iftypeparams\else
 type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
 \fi
@@ -445,17 +445,17 @@ the form of a constrained type (the ``return type'' of the constructor):
 \begin{grammar}
 ConstructorDeclarator \:
   \xcd"def" \xcd"this" TypeParameterList\opt \xcd"(" FormalParameterList\opt \xcd")" \\
-  && ReturnType\opt WhereClause\opt Throws\opt \\
+  && ReturnType\opt Guard\opt Throws\opt \\
 ReturnType    \: \xcd":" Type \\
-WhereClause   \: "{" DepExpression "}" \\
+Guard   \: "{" DepExpression "}" \\
 Throws    \: \xcd"throws" ExceptionType  ( \xcd"," ExceptionType )\star \\
 ExceptionType \: ClassBaseType Annotation\star \\
 \end{grammar}
 
-\label{ConstructorWhereClause}
+\label{ConstructorGuard}
 
 The parameter list for the constructor
-may specify a \emph{where clause} that is to be satisfied by the parameters
+may specify a \emph{guard} that is to be satisfied by the parameters
 to the list.
 
 \begin{example}
@@ -531,7 +531,7 @@ constructor is type correct: each argument \xcdmath"e$_i$" must have a static ty
 that is a subtype of the declared type \xcdmath"T$_i$" for the $i$th
 argument of the
 constructor, and the conjunction of static types of the argument must
-entail the \grammarrule{WhereClause} in the parameter list of the constructor.
+entail the \grammarrule{Guard} in the parameter list of the constructor.
 \end{staticrule}
 
 \section{Field definitions}
@@ -545,12 +545,12 @@ Consider the class \xcd"List" used earlier.  Here all instances of \xcd"List"
 returned by the second constructor do not need the fields \xcd"value" and
 \xcd"tail"; their value is set to null.
 
-\label{FieldWhereClause}
+\label{FieldGuard}
 
 \Xten{} permits a much cleaner solution that does not require default
 values such as null to be stored in such fields. \Xten{} permits fields to
-be {\em guarded} with a \emph{where clause}, that is defined only if a certain constraint on the
-properties of the class, called the \emph{guard} of that field, is true.
+be {\em guarded} with a constraint.  The field is accessible
+only if the \emph{guard} constraint is satisified.
 
 \begin{grammar}
 FieldDeclaration  \:
@@ -599,7 +599,7 @@ The fields \xcd"value" and \xcd"tail" do not exist for instances of the class
 \end{example}
 
 It is a compile-time error for a class to have two fields of the same
-name, even if their where clauses are different. A class \xcd"C" with a field
+name, even if their guards are different. A class \xcd"C" with a field
 named \xcd"f" is said to {\em hide} a field in a superclass named \xcd"f".
 
 \begin{staticrule*}
@@ -619,7 +619,7 @@ the subclass via the reference \xcd"super.f".
 
 \eat{
 The definition of field hiding does not take
-\grammar{WhereClauses} into
+\grammar{Guard} into
 account. Suppose a class \xcd"C" has a field
 
 \begin{xten}
@@ -649,7 +649,7 @@ and \xcd"D". This bears further investigation.
 
 \Xten{} permits guarded method definitions, similar to guarded
 field definitions. Additionally, the parameter list for a method may
-contain a \grammarrule{WhereClause}.
+contain a \grammarrule{Guard}.
 
 \begin{grammar}
 MethodDeclaration \: MethodHeader \xcd";" \\
@@ -657,7 +657,7 @@ MethodDeclaration \: MethodHeader \xcd";" \\
 MethodHeader \:  
   MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \\
 && \xcd"(" 
-  FormalParameterList\opt \xcd")" WhereClause\opt \\
+  FormalParameterList\opt \xcd")" Guard\opt \\
   && ReturnType\opt Throws\opt \\
 \end{grammar}
 
@@ -665,9 +665,9 @@ In the formal parameter list, variables may be declared with
 \xcd"val" or \xcd"var".  If neither is specified, the variable
 is \xcd"val".
 
-\label{MethodWhereClause}
+\label{MethodGuard}
 
-The guard (specified by \grammarrule{WhereClause})
+The guard (specified by \grammarrule{Guard})
 specifies a constraint \xcd"c" on the
 properties of the class \xcd"C" on which the method is being defined. The
 method exists only for those instances of \xcd"C" which satisfy \xcd"c".  It is
@@ -708,20 +708,19 @@ Consider the program:
 public class List(n: Int{n>=0}) {
   protected val head{n>0}: Object;
   protected val tail{n>0}: List(n-1);
-  public def this(o: Object, t: List): List(t.n+1) {
+  public def this(o: Object, t: List): List(t.n+1) = {
      property(t.n+1);
      head=o;
      tail=t;
   }
-  public def this(): List(0) {
+  public def this(): List(0) = {
      property(0);
   }
-  public def append(l: List): List{self.n==this.n+l.n} {
+  public def append(l: List): List{self.n==this.n+l.n} = {
       return (n==0)? l
          : new List(head, tail.append(l)); 
   }
-  public def nth(k: Int{1 <= k && k <= n}): Object
-    where n > 0 {
+  public def nth(k: Int{1 <= k && k <= n}){n > 0}: Object = {
       return k==1 ? head : tail.nth(k-1);
   }
 }
@@ -729,9 +728,9 @@ public class List(n: Int{n>=0}) {
 
 The following code fragment
 \begin{xten}
-List{self.n==3} u = ...
-List{self.n==x} t = ...;
-List{self.n==x+3} s = t.append(u);
+u: List{self.n==3} = ...
+t: List{self.n==x} = ...;
+s: List{self.n==x+3} = t.append(u);
 \end{xten}
 \noindent will typecheck. The type of the expression \xcd"t.append(u)" is 
 \begin{xten}
@@ -747,6 +746,25 @@ List{self.n==x+3}
 The method body is either an expression, a block of statements,
 or a block ending with an expression.
 
+\subsection{Property methods}
+
+A method declared with the modifier \xcd"property" may be used
+in constraints.  A property method declared in a class must have
+a body and must not be \xcd"void".  The body of the method must
+consist of only a single \xcd"return" statement or a single
+expression.  It is a static error of the expression cannot be
+represented in the constraint system.
+
+Property methods in classes are implicitly \xcd"final"; they cannot be
+overridden.
+
+A property method definition may omit the formal parameters and
+the \xcd"def" keyword.  That is, the following are equivalent:
+
+\begin{xten}
+property def rail(): boolean = rect && onePlace == here && zeroBased;
+property rail: boolean = rect && onePlace == here && zeroBased;
+\end{xten}
 
 \subsection{Method overloading, overriding, hiding, shadowing and obscuring}
 \label{MethodOverload}
@@ -783,15 +801,15 @@ equivalent to the types \xcdmath"C{sc}, S$_1${t$_1$}, $\dots$, T$_n${t$_n$}"
 respectively.
 \end{staticrule*}
 
-In addition, the where clause of a overriding method must be 
-no stronger than the where clause of the overridden method.   This
+In addition, the guard of a overriding method must be 
+no stronger than the guard of the overridden method.   This
 ensures that any virtual call to the method
-satisfies the where clause of the callee.
+satisfies the guard of the callee.
 
 \begin{staticrule*}
   If a class \xcd"C" overrides a method of a class or interface
-  \xcd"B", the where clause of the method in \xcd"B" must entail
-  the where clause of the method in \xcd"C".
+  \xcd"B", the guard of the method in \xcd"B" must entail
+  the guard of the method in \xcd"C".
 \end{staticrule*}
 
 A class \xcd"C" inherits from its direct superclass and superinterfaces all

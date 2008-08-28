@@ -98,9 +98,9 @@ the type may be omitted and
 inferred from the initializer type (\Sref{TypeInference}).
 Mutable fields must be declared with a type.
 A field declaration may have an optional
-\grammarrule{WhereClause}, restricting how the field may be accessed.
+\grammarrule{Guard}, restricting how the field may be accessed.
 The compiler is free to not allocate storage for the field if
-the where clause of a field cannot be satisfied for a given containing
+the guard of a field cannot be satisfied for a given containing
 object.
 
 \begin{grammar}
@@ -113,7 +113,7 @@ FieldDeclarators
         \: FieldDeclaratorsWithType \\
         \: FieldDeclaratorWithInit \\
 FieldDeclaratorId
-        \: Identifier WhereClause\opt \\
+        \: Identifier Guard\opt \\
 FieldDeclaratorWithInit
         \: FieldDeclaratorId Init \\
         \| FieldDeclaratorId ResultType Init \\
