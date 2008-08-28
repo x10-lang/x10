@@ -8,6 +8,7 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 import polyglot.ast.Binary;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
+import polyglot.ext.x10.types.SubtypeSolver.XSubtype_c;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
@@ -68,8 +70,10 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.util.TransformingList;
+import polyglot.util.WorkList;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
+import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
@@ -79,6 +83,7 @@ import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.Equality;
 
 /**
  * A TypeSystem implementation for X10.
@@ -96,31 +101,167 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations) {
 	    return new AnnotatedType_c(this, pos, baseType, annotations);
 	}
-
-	public Type bound(Type container) {
-	    container = expandMacros(container);
-//	    if (container instanceof PathType) {
-//		PathType pt = (PathType) container;
-//		XConstraint c = pt.base().selfConstraint();
-//		for (XTerm t : c.constraints()) {
-//		}
-//		return xxx;
+	
+	public boolean equalsStruct(Type l, Type r) {
+//	    if (l instanceof ParameterType && r instanceof ParameterType) {
+//	        return TypeParamSubst.isSameParameter((ParameterType) l, (ParameterType) r);
 //	    }
-	    if (container instanceof ConstrainedType) {
-		ConstrainedType ct = (ConstrainedType) container;
-		return ct.baseType().get();
-	    }
-	    if (container instanceof ParameterType) {
-	        // go to def() -- may be either X10ClassDef or X10MethodDef or X10ConstructorDef
-	        // look in where clause and compute best bound of parameter
-	    }
-	    return container;
+	    return equals((TypeObject) l, (TypeObject) r);
 	}
 	
+    public List<Type> getBoundsFromConstraint(Type pt, XConstraint c, Bound dir) {
+	    if (c == null)
+	        return Collections.EMPTY_LIST;
+
+	    List<Type> upper = new ArrayList<Type>();
+	    List<Type> lower = new ArrayList<Type>();
+	    
+	    for (XTerm term : c.constraints()) {
+	        if (term instanceof XEquals) {
+	            XEquals eq = (XEquals) term;
+	            Type l = SubtypeSolver.getType(eq.left());
+	            Type r = SubtypeSolver.getType(eq.right());
+	            if (l != null && r != null) {
+	                if (equalsStruct(l, pt)) {
+	                    upper.add(r);
+	                    lower.add(r);
+	                }
+	                if (equalsStruct(r, pt)) {
+	                    upper.add(l);
+	                    lower.add(l);
+	                }
+	            }
+	        }
+	        if (term instanceof XSubtype_c) {
+	            XSubtype_c s = (XSubtype_c) term;
+	            Type l = s.subtype();
+	            Type r = s.supertype();
+	            if (l != null && r != null) {
+	                if (equalsStruct(l, pt))
+	                    upper.add(r);
+	                if (equalsStruct(r, pt))
+	                    lower.add(l);
+	            }
+	        }
+	    }
+	    
+	    switch (dir) {
+	    case UPPER:
+	        return upper;
+	    case LOWER:
+	        return lower;
+	    case EQUAL:
+	        Set<Type> equals = new HashSet<Type>();
+	        equals.addAll(upper);
+	        equals.retainAll(lower);
+	        return new ArrayList<Type>(equals);
+	    }
+	    
+	    return Collections.EMPTY_LIST;
+	}
+    
+    enum Bound {
+        UPPER, LOWER, EQUAL
+    }
+    
+    public List<Type> upperBounds(Type t) {
+        return bounds(t, Bound.UPPER);
+    }
+    public List<Type> lowerBounds(Type t) {
+        return bounds(t, Bound.LOWER);
+    }
+    public List<Type> equalBounds(Type t) {
+        return bounds(t, Bound.EQUAL);
+    }
+
+	/** List the statically known supertypes or subtypes. */
+	protected List<Type> bounds(Type t, Bound dir) {
+	    List<Type> result = new ArrayList<Type>();
+	    Set<Type> visited = new HashSet<Type>();
+	    
+	    LinkedList<Type> worklist = new LinkedList<Type>();
+	    worklist.add(t);
+
+	    while (! worklist.isEmpty()) {
+	        Type w = worklist.removeFirst();
+	        
+	        // Expand macros, remove constraints
+	        Type expanded = X10TypeMixin.baseType(w);
+	        
+                if (visited.contains(expanded)) {
+                    continue;
+                }
+                
+                visited.add(expanded);
+                
+                if (expanded instanceof PathType) {
+                    // p: C{self.T<:S}  implies  p.T <: S
+                    PathType pt1 = (PathType) expanded;
+                    TypeProperty px = pt1.property();
+                    XVar base = PathType_c.pathBase(pt1);
+                    if (base != null) {
+                        final XConstraint c = base.selfConstraint();
+                        if (c != null) {
+                            try {
+                                // Check if the constraint on the base p implies that p.T <: S
+                                // Avoid infinite recursion by removing selfConstraint on base.
+                                XConstraint c1 = c.substitute(base, XSelf.Self);
+                                List<Type> b = getBoundsFromConstraint(pt1, c1, dir);
+                                worklist.addAll(b);
+                            }
+                            catch (XFailure e) {
+                            }
+                        }
+                    }
+                    
+                    continue;
+                }
+                
+	        if (expanded instanceof ParameterType) {
+	            ParameterType pt = (ParameterType) expanded;
+	            Def def = Types.get(pt.def());
+	            if (def instanceof X10ClassDef) {
+	                X10ClassDef cd = (X10ClassDef) def;
+	                XConstraint c = X10TypeMixin.realX(cd.asType());
+	                List<Type> b = getBoundsFromConstraint(pt, c, dir);
+	                worklist.addAll(b);
+	            }
+	            if (def instanceof X10MethodDef) {
+	                X10MethodDef md = (X10MethodDef) def;
+	                XConstraint c = Types.get(md.guard());
+	                List<Type> b = getBoundsFromConstraint(pt, c, dir);
+	                worklist.addAll(b);
+	            }
+	            if (def instanceof X10ConstructorDef) {
+	                X10ConstructorDef cd = (X10ConstructorDef) def;
+	                XConstraint c = Types.get(cd.guard());
+	                List<Type> b = getBoundsFromConstraint(pt, c, dir);
+	                worklist.addAll(b);
+	            }
+	            continue;
+	        }
+	        
+                result.add(expanded);
+	    }
+	    
+	    if (dir == Bound.UPPER && result.isEmpty())
+	        return Collections.singletonList(Object());
+	    
+	    return new ArrayList<Type>(result);
+	}
+	
+	@Override
 	protected Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
-		assert_(container);
-		container = bound(container);
-		return super.findFields(container, matcher);
+	    assert_(container);
+
+	    Set<FieldInstance> candidates = new HashSet<FieldInstance>();
+
+	    for (Type t : upperBounds(container)) {
+	        Set<FieldInstance> fs = super.findFields(t, matcher);
+	        candidates.addAll(fs);
+	    }
+
+	    return candidates;
 	}
 	
 	public TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
@@ -129,23 +270,25 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
 	@Override
 	public Type findMemberType(Type container, Name name, ClassDef currClass) throws SemanticException {
-	    container = bound(container);
-	    try {
-		return super.findMemberType(container, name, currClass);
+	    // FIXME: check for ambiguities
+	    for (Type t : upperBounds(container)) {
+	        try {
+	            return super.findMemberType(t, name, currClass);
+	        }
+	        catch (SemanticException e) {
+	        }
+	        try {
+	            return this.findTypeDef(t, this.TypeDefMatcher(t, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST), currClass);
+	        }
+	        catch (SemanticException e) {
+	        }
+	        try {
+	            return this.findTypeProperty(t, name, currClass);
+	        }
+	        catch (SemanticException e) {
+	        }
 	    }
-	    catch (SemanticException e) {
-	    }
-	    try {
-		return this.findTypeDef(container, this.TypeDefMatcher(container, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST), currClass);
-	    }
-	    catch (SemanticException e) {
-	    }
-	    try {
-		return this.findTypeProperty(container, name, currClass);
-	    }
-	    catch (SemanticException e) {
-	    }
-	    
+
 	    throw new NoClassException(name.toString(), container);
 	}
 
@@ -343,8 +486,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    throws SemanticException {
 	    assert_(container);
 	    
-	    container = bound(container);
-	    
 	    SemanticException error = null;
 	    
 	    // The list of acceptable methods. These methods are accessible from
@@ -361,87 +502,87 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    Set<Type> visitedTypes = new HashSet<Type>();
 	    
 	    LinkedList<Type> typeQueue = new LinkedList<Type>();
-	    typeQueue.addLast(container);
 	    
+	    // Get the upper bound of the container.
+	    typeQueue.addAll(upperBounds(container));
+
 	    while (! typeQueue.isEmpty()) {
-	    	Type t = typeQueue.removeFirst();
-	    
-	    	if (! (t instanceof X10ParsedClassType)) {
-	    		continue;
-	    	}
-	    
-	    	X10ParsedClassType type = (X10ParsedClassType) t;
-	    
-	    	if (visitedTypes.contains(type)) {
-	    		continue;
-	    	}
-	    
-	    	visitedTypes.add(type);
-	    
-	    	if (Report.should_report(Report.types, 2))
-	    		Report.report(2, "Searching type " + type + " for method " +
-	    				matcher.signature());
-	    
-	    	for (Iterator<Type> i = type.typeMembers().iterator(); i.hasNext(); ) {
-	    	    Type ti = i.next();
-	    		
-	    	    if (!(ti instanceof MacroType)) {
-	    		continue;	    		
-	    	    }
-	    	    
-	    	    MacroType mi = (MacroType) ti;
-	    	    
-	    		if (Report.should_report(Report.types, 3))
-	    			Report.report(3, "Trying " + mi);
-	    
-	    		try {
-	    			mi = matcher.instantiate(mi);
+	        Type t = typeQueue.removeFirst();
 
-	    			if (mi == null) {
-	    			    continue;
-	    			}
-	    			
-	    			if (isAccessible(mi, currClass)) {
-	    			    if (Report.should_report(Report.types, 3)) {
-	    				Report.report(3, "->acceptable: " + mi + " in "
-	    				              + mi.container());
-	    			    }
+	        if (t instanceof X10ParsedClassType) {
+	            X10ParsedClassType type = (X10ParsedClassType) t;
 
-	    			    acceptable.add(mi);
-	    			}
-	    			else {
-	    			    // method call is valid, but the method is
-	    			    // unacceptable.
-	    			    unacceptable.add(mi);
-	    			    if (error == null) {
-	    				error = new NoMemberException(NoMemberException.METHOD,
-	    				                              "Method " + mi.signature() +
-	    				                              " in " + container +
-	    				" is inaccessible."); 
-	    			    }
-	    			}
+	            if (visitedTypes.contains(type)) {
+	                continue;
+	            }
 
-	    			continue;
-	    		}
-	    		catch (SemanticException e) {
-	    		}
-	    
-	    		if (error == null) {
-	    			error = new SemanticException("Type definition " + mi.name() +
-	    			                              " in " + container +
-	    			                              " cannot be instantiated with arguments " + matcher.argumentString() + ".");
-	    		}
-	    	}
-	    	
-	    	if (type instanceof ObjectType) {
-	    	    ObjectType ot = (ObjectType) type;
-	    
-	    	    if (ot.superClass() != null) {
-	    		typeQueue.addLast(ot.superClass());
-	    	    }
-	    
-	    	    typeQueue.addAll(ot.interfaces());
-	    	}
+	            visitedTypes.add(type);
+
+	            if (Report.should_report(Report.types, 2))
+	                Report.report(2, "Searching type " + type + " for method " +
+	                              matcher.signature());
+
+	            for (Iterator<Type> i = type.typeMembers().iterator(); i.hasNext(); ) {
+	                Type ti = i.next();
+
+	                if (!(ti instanceof MacroType)) {
+	                    continue;	    		
+	                }
+
+	                MacroType mi = (MacroType) ti;
+
+	                if (Report.should_report(Report.types, 3))
+	                    Report.report(3, "Trying " + mi);
+
+	                try {
+	                    mi = matcher.instantiate(mi);
+
+	                    if (mi == null) {
+	                        continue;
+	                    }
+
+	                    if (isAccessible(mi, currClass)) {
+	                        if (Report.should_report(Report.types, 3)) {
+	                            Report.report(3, "->acceptable: " + mi + " in "
+	                                          + mi.container());
+	                        }
+
+	                        acceptable.add(mi);
+	                    }
+	                    else {
+	                        // method call is valid, but the method is
+	                        // unacceptable.
+	                        unacceptable.add(mi);
+	                        if (error == null) {
+	                            error = new NoMemberException(NoMemberException.METHOD,
+	                                                          "Method " + mi.signature() +
+	                                                          " in " + container +
+	                            " is inaccessible."); 
+	                        }
+	                    }
+
+	                    continue;
+	                }
+	                catch (SemanticException e) {
+	                }
+
+	                if (error == null) {
+	                    error = new SemanticException("Type definition " + mi.name() +
+	                                                  " in " + container +
+	                                                  " cannot be instantiated with arguments " + matcher.argumentString() + ".");
+	                }
+	            }
+	        }
+
+	        if (t instanceof ObjectType) {
+	            ObjectType ot = (ObjectType) t;
+
+	            if (ot.superClass() != null) {
+	                typeQueue.addLast(ot.superClass());
+	            }
+
+	            typeQueue.addAll(ot.interfaces());
+	        }
 	    }
 	    
 	    if (error == null) {
@@ -526,17 +667,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
 	
 	public PathType findTypeProperty(Type container, Name name, ClassDef currClass) throws SemanticException {
-		assert_(container);
-		
-		Type bound = bound(container);
-		
-		Named n = classContextResolver(bound, currClass).find(MemberTypeMatcher(container, name));
-		
-		if (n instanceof PathType) {
-			return (PathType) n;
-		}
-		
-		throw new NoClassException(name.toString(), container);
+	    assert_(container);
+
+	    // FIXME: look for ambiguities.
+	    for (Type bound : upperBounds(container)) {
+	        Named n = classContextResolver(bound, currClass).find(MemberTypeMatcher(container, name));
+
+	        if (n instanceof PathType) {
+	            return (PathType) n;
+	        }
+	    }
+
+	    throw new NoClassException(name.toString(), container);
 	}
 	
 	private final static Set<String> primitiveTypeNames = new HashSet<String>();
@@ -1605,6 +1747,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 				return true;
 		}
 
+/*
 		if (t1 instanceof ParametrizedType && t2 instanceof ParametrizedType) {
 			ParametrizedType pt1 = (ParametrizedType) t1;
 			ParametrizedType pt2 = (ParametrizedType) t2;
@@ -1656,7 +1799,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 				}
 			}
 		}
-
+*/
 		
 		// if T implements I, Box[T] is a subtype of I
 		if (isBox(t1)) {
@@ -1709,6 +1852,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			return true;
 		    }
 		}
+		
+                if (t1 instanceof ParameterType || t1 instanceof PathType) {
+                    for (Type s1 : upperBounds(t1)) {
+                        if (isSubtype(s1, t2))
+                            return true;
+                    }
+                }
+                if (t2 instanceof ParameterType || t2 instanceof PathType) {
+                    for (Type s2 : lowerBounds(t2)) {
+                        if (isSubtype(t1, s2))
+                            return true;
+                    }
+                }
 
 		return descendsFrom(t1, t2);
 	}
@@ -1717,7 +1873,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public boolean typeEquals(Type t1, Type t2) {
 	    t1 = expandMacros(t1);
 	    t2 = expandMacros(t2);
-
+	    
 		if (t1 == t2)
 			return true;
 		
@@ -1769,55 +1925,72 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 				return true;
 		}
 		
-		if (t1 instanceof ParametrizedType && t2 instanceof ParametrizedType) {
-		    if (t1.equals((TypeObject) t2))
-			return true;
+//		if (t1 instanceof ParametrizedType && t2 instanceof ParametrizedType) {
+//		    if (t1.equals((TypeObject) t2))
+//			return true;
+//		}
+//		
+//		// p: C{self.T==S}  implies  p.T == S
+//		if (t1 instanceof PathType) {
+//			PathType pt1 = (PathType) t1;
+//			TypeProperty px = pt1.property();
+//			XVar base = PathType_c.pathBase(pt1);
+//			if (base != null) {
+//				XConstraint c = base.selfConstraint();
+//				if (c != null) {
+//					try {
+//						// Check if the constraint on the base p implies that T1==T2
+//						c = c.substitute(base, XSelf.Self);
+//						XConstraint equals = new XConstraint_c();
+//						equals.addBinding(xtypeTranslator().trans(t1), xtypeTranslator().trans(t2));
+//						boolean result = c.entails(equals);
+//						if (result)
+//							return true;
+//					}
+//					catch (XFailure e) {
+//					}
+//				}
+//			}
+//		}
+//
+//		// p: C{self.T==S}  implies  p.T == S
+//		if (t2 instanceof PathType) {
+//			PathType pt2 = (PathType) t2;
+//			TypeProperty px = pt2.property();
+//			XVar base = PathType_c.pathBase(pt2);
+//			if (base != null) {
+//				XConstraint c = base.selfConstraint();
+//				if (c != null) {
+//					try {
+//						// Check if the constraint on the base p implies that T1==T2
+//						c = c.substitute(base, XSelf.Self);
+//						XConstraint equals = new XConstraint_c();
+//						equals.addBinding(xtypeTranslator().trans(t1), xtypeTranslator().trans(t2));
+//						boolean result = c.entails(equals);
+//						if (result)
+//							return true;
+//					}
+//					catch (XFailure e) {
+//					}
+//				}
+//			}
+//		}
+		
+		
+		if (t1 instanceof ParameterType || t1 instanceof PathType) {
+		    for (Type s1 : equalBounds(t1)) {
+		        if (typeEquals(s1, t2)) {
+		            return true;
+		        }
+		    }
 		}
 		
-		// p: C{self.T==S}  implies  p.T == S
-		if (t1 instanceof PathType) {
-			PathType pt1 = (PathType) t1;
-			TypeProperty px = pt1.property();
-			XVar base = PathType_c.pathBase(pt1);
-			if (base != null) {
-				XConstraint c = base.selfConstraint();
-				if (c != null) {
-					try {
-						// Check if the constraint on the base p implies that T1==T2
-						c = c.substitute(base, XSelf.Self);
-						XConstraint equals = new XConstraint_c();
-						equals.addBinding(xtypeTranslator().trans(t1), xtypeTranslator().trans(t2));
-						boolean result = c.entails(equals);
-						if (result)
-							return true;
-					}
-					catch (XFailure e) {
-					}
-				}
-			}
-		}
-
-		// p: C{self.T==S}  implies  p.T == S
-		if (t2 instanceof PathType) {
-			PathType pt2 = (PathType) t2;
-			TypeProperty px = pt2.property();
-			XVar base = PathType_c.pathBase(pt2);
-			if (base != null) {
-				XConstraint c = base.selfConstraint();
-				if (c != null) {
-					try {
-						// Check if the constraint on the base p implies that T1==T2
-						c = c.substitute(base, XSelf.Self);
-						XConstraint equals = new XConstraint_c();
-						equals.addBinding(xtypeTranslator().trans(t1), xtypeTranslator().trans(t2));
-						boolean result = c.entails(equals);
-						if (result)
-							return true;
-					}
-					catch (XFailure e) {
-					}
-				}
-			}
+		if (t2 instanceof ParameterType || t2 instanceof PathType) {
+		    for (Type s2 : equalBounds(t2)) {
+		        if (typeEquals(t1, s2)) {
+		            return true;
+		        }
+		    }
 		}
 		
 		if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
@@ -2709,6 +2882,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return false;
 	}
 	
+	@Override
+	protected List<MethodInstance> findAcceptableMethods(Type container, MethodMatcher matcher, ClassDef currClass)
+               throws SemanticException {
+
+	    List<MethodInstance> candidates = new ArrayList<MethodInstance>();
+
+	    for (Type t : upperBounds(container)) {
+	        List<MethodInstance> ms = super.findAcceptableMethods(t, matcher, currClass);
+	        candidates.addAll(ms);
+	    }
+
+	    return candidates;
+	}
 
 	@Override
 	public X10MethodInstance findMethod(Type container, MethodMatcher matcher, ClassDef currClass) throws SemanticException {

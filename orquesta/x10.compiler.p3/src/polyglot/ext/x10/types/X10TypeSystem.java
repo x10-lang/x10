@@ -302,6 +302,10 @@ public interface X10TypeSystem extends TypeSystem {
     ClosureType closureType(Position position, Ref<? extends Type> typeRef, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> formalTypes,
             List<LocalDef> formalNames, Ref<XConstraint> ref, List<Ref<? extends Type>> throwTypes);
 
+    
+    List<Type> upperBounds(Type t);
+    List<Type> lowerBounds(Type t);
+
     // X10NamedType createBoxFromTemplate(X10ClassDef def);
 
 }

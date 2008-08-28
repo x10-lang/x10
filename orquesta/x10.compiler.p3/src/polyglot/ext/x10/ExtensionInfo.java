@@ -34,6 +34,8 @@ import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.ext.x10.visit.X10InitChecker;
 import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
+import polyglot.frontend.AllBarrierGoal;
+import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Goal;
@@ -225,10 +227,20 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(X10Expanded(job));
 
            goals.add(Serialized(job));
+           goals.add(CodeGenBarrier());
            goals.add(CodeGenerated(job));
            goals.add(End(job));
            
            return goals;
+       }
+       
+       public Goal CodeGenBarrier() {
+           return new AllBarrierGoal("CodeGenBarrier", this) {
+               @Override
+               public Goal prereqForJob(Job job) {
+                   return Serialized(job);
+               }
+           };
        }
 
 //       @Override

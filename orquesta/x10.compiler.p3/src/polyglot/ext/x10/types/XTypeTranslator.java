@@ -1,9 +1,7 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
@@ -23,7 +21,6 @@ import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.SubtypeTest;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.X10Special;
-import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
@@ -37,7 +34,6 @@ import x10.constraint.XLit;
 import x10.constraint.XLit_c;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
-import x10.constraint.XPromise;
 import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
 import x10.constraint.XSelf;
@@ -353,8 +349,12 @@ public class XTypeTranslator {
 	public XTerm trans(SubtypeTest t) throws SemanticException {
 		TypeNode left = t.subtype();
 		TypeNode right = t.supertype();
-		return transSubtype(left.type(), right.type());
+		if (t.equals())
+		    return XTerms.makeEquals(trans(left.type()), trans(right.type()));
+		else
+		    return transSubtype(left.type(), right.type());
 	}
+	
 	public XTerm trans(Call t) throws SemanticException {
 	    X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
 	    Flags f = xmi.flags();
