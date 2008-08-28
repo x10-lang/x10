@@ -27,7 +27,7 @@ public class Box<T> extends Ref {
             return null;
         if (v instanceof Ref)
             return (Ref) v;
-        return new Box<S>(Types.<S>runtimeType(v.getClass()), v);
+        return new Box<S>(Types./*<S>*/runtimeType(v.getClass()), v);
     }
     
     public Object value() { return value; }
