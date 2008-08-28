@@ -12,7 +12,7 @@ public class Types {
         return o;
     }
 
-    public static <T> Type<T> runtimeType(Class c) {
+    public static Type runtimeType(Class c) {
         return new RuntimeType(c);
     }
 
