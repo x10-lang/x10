@@ -74,10 +74,10 @@ public class ClockPascal extends x10Test {
 	//const int EXPECTED_CHECKSUM = 251; // (for N = 5)
 	public const DELAY: int = 2000;
 	public def run(): boolean = {
-		final val D: dist = Dist.makeConstant([0..N-1, 0..N-1], here);
-		final val Dinner: dist{rank==D.rank} = D|[1..N-1, 1..N-1];
-		final val Dboundary: dist = D-Dinner;
-		final val A: Array[int] = new Array[int](D, (var point [i,j]: point): int => { return Dboundary.contains([i, j]) ? 1 : 0; });
+		val D: dist = Dist.makeConstant([0..N-1, 0..N-1], here);
+		val Dinner: dist{rank==D.rank} = D|[1..N-1, 1..N-1];
+		val Dboundary: dist = D-Dinner;
+		val A: Array[int] = new Array[int](D, (var point [i,j]: point): int => { return Dboundary.contains([i, j]) ? 1 : 0; });
 		finish async {
 			// (nullable clock)[.] N = does not work
 			// clock[.] N = new clock[D]; should not work but does.
@@ -91,10 +91,10 @@ public class ClockPascal extends x10Test {
 			//   clocked(N[i-1,j], W[i,j-1], N[i,j], W[i,j]) { ... }
 			// does not work -- this is a workaround for this bug.
 			for (val (i,j): point in Dinner) {
-				final val n01: clock = N(i-1, j);
-				final val w10: clock = W(i, j-1);
-				final val n11: clock = N(i, j);
-				final val w11: clock = W(i, j);
+				val n01: clock = N(i-1, j);
+				val w10: clock = W(i, j-1);
+				val n11: clock = N(i, j);
+				val w11: clock = W(i, j);
 				async clocked(n01, w10, n11, w11) {
 					for (val (n): point in [3..(i+j)]) {
 						randDelay(DELAY);
@@ -179,7 +179,7 @@ public class ClockPascal extends x10Test {
 	}
 
 	static class boxedInt {
-		var val: int;
-		def this(var x: int): boxedInt = { val = x; }
+		var v: int;
+		def this(var x: int): boxedInt = { v = x; }
 	}
 }
