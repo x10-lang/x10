@@ -1,7 +1,9 @@
 package x10.core;
 
+import x10.array.Point;
 import x10.core.fun.Fun_0_1;
 import x10.types.Type;
+import x10.types.Types;
 
 public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T> {
     public final int length;
@@ -18,6 +20,9 @@ public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T> {
         this.type = type;
         this.value = array;
     }
+    
+    public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
+    public Type<?> rtt_x10$lang$Fun_0_1_U()  { return type; }
     
     // Methods to get the backing array.   May be called by generated code.
     public Object getBackingArray() { return value; }

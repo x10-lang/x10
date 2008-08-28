@@ -30,6 +30,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) (x > 0 ? x : -x);
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
         };
     }
     @Override
@@ -38,6 +40,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) (x * k);
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
         };
     }
     
@@ -47,6 +51,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x + y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
     @Override
@@ -55,6 +62,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x - y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
     @Override
@@ -63,6 +73,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x * y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
     @Override
@@ -71,6 +84,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x / y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
     @Override
@@ -79,6 +95,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x % y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
     @Override
@@ -87,6 +106,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (x > y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
     @Override
@@ -95,6 +117,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (x < y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
     
@@ -104,6 +129,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x & y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
 
@@ -113,6 +141,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x | y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
     
@@ -122,6 +153,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x ^ y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
         };
     }
 
@@ -131,6 +165,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) -x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
         };
     }
     
@@ -140,6 +176,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) +x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
         };
     }
     
@@ -149,6 +187,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) ~x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
         };
     }
     

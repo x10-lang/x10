@@ -30,6 +30,8 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x) {
                 return (x > 0 ? x : -x);
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.LONG; }
         };
     }
     @Override
@@ -38,6 +40,8 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x) {
                 return (x * k);
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.LONG; }
         };
     }
     
@@ -47,6 +51,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x + y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
     @Override
@@ -55,6 +62,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x - y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
     @Override
@@ -63,6 +73,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x * y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
     @Override
@@ -71,6 +84,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x / y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
     @Override
@@ -79,6 +95,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x % y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
     @Override
@@ -87,6 +106,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x > y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
     @Override
@@ -95,6 +117,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x < y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
     
@@ -104,6 +129,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x & y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
 
@@ -113,6 +141,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x | y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
     
@@ -122,6 +153,9 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x, Long y) {
                 return (x ^ y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.LONG; }
         };
     }
 
@@ -131,6 +165,8 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x) {
                 return -x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.LONG; }
         };
     }
     
@@ -140,6 +176,8 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x) {
                 return +x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.LONG; }
         };
     }
     
@@ -149,6 +187,8 @@ public class LongType extends RuntimeType<Long> {
             public Long apply(Long x) {
                 return ~x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.LONG; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.LONG; }
         };
     }
     

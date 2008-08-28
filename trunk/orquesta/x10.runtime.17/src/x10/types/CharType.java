@@ -25,68 +25,14 @@ public class CharType extends RuntimeType<Character> {
     }
     
     @Override
-    public Fun_0_1<Character, Character> absOperator() {
-        return new Fun_0_1<Character, Character>() {
-            public Character apply(Character x) {
-                return (char) (x > 0 ? x : -x);
-            }
-        };
-    }
-    @Override
-    public Fun_0_1<Character, Character> scaleOperator(final int k) {
-        return new Fun_0_1<Character, Character>() {
-            public Character apply(Character x) {
-                return (char) (x * k);
-            }
-        };
-    }
-    
-    @Override
-    public Fun_0_2<Character, Character, Character> addOperator() {
-        return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
-                return (char) (x + y);
-            }
-        };
-    }
-    @Override
-    public Fun_0_2<Character, Character, Character> subOperator() {
-        return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
-                return (char) (x - y);
-            }
-        };
-    }
-    @Override
-    public Fun_0_2<Character, Character, Character> mulOperator() {
-        return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
-                return (char) (x * y);
-            }
-        };
-    }
-    @Override
-    public Fun_0_2<Character, Character, Character> divOperator() {
-        return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
-                return (char) (x / y);
-            }
-        };
-    }
-    @Override
-    public Fun_0_2<Character, Character, Character> modOperator() {
-        return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
-                return (char) (x % y);
-            }
-        };
-    }
-    @Override
     public Fun_0_2<Character, Character, Character> maxOperator() {
         return new Fun_0_2<Character, Character, Character>() {
             public Character apply(Character x, Character y) {
                 return (x > y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.CHAR; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.CHAR; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.CHAR; }
         };
     }
     @Override
@@ -95,60 +41,9 @@ public class CharType extends RuntimeType<Character> {
             public Character apply(Character x, Character y) {
                 return (x < y ? x : y);
             }
-        };
-    }
-    
-    @Override
-    public Fun_0_2<Character, Character, Character> andOperator() {
-        return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
-                return (char) (x & y);
-            }
-        };
-    }
-
-    @Override
-    public Fun_0_2<Character, Character, Character> orOperator() {
-        return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
-                return (char) (x | y);
-            }
-        };
-    }
-    
-    @Override
-    public Fun_0_2<Character, Character, Character> xorOperator() {
-        return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
-                return (char) (x ^ y);
-            }
-        };
-    }
-
-    @Override
-    public Fun_0_1<Character, Character> negOperator() {
-        return new Fun_0_1<Character, Character>() {
-            public Character apply(Character x) {
-                return (char) -x;
-            }
-        };
-    }
-    
-    @Override
-    public Fun_0_1<Character, Character> posOperator() {
-        return new Fun_0_1<Character, Character>() {
-            public Character apply(Character x) {
-                return (char) +x;
-            }
-        };
-    }
-    
-    @Override
-    public Fun_0_1<Character, Character> invOperator() {
-        return new Fun_0_1<Character, Character>() {
-            public Character apply(Character x) {
-                return (char) ~x;
-            }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.CHAR; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.CHAR; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.CHAR; }
         };
     }
     

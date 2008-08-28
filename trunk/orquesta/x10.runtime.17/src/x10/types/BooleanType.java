@@ -30,6 +30,9 @@ public class BooleanType extends RuntimeType<Boolean> {
             public Boolean apply(Boolean x, Boolean y) {
                 return x & y;
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BOOLEAN; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BOOLEAN; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BOOLEAN; }
         };
     }
 
@@ -39,6 +42,9 @@ public class BooleanType extends RuntimeType<Boolean> {
             public Boolean apply(Boolean x, Boolean y) {
                 return x | y;
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BOOLEAN; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BOOLEAN; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BOOLEAN; }
         };
     }
 
@@ -48,6 +54,8 @@ public class BooleanType extends RuntimeType<Boolean> {
             public Boolean apply(Boolean x) {
                 return !x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BOOLEAN; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BOOLEAN; }
         };
     }
 }

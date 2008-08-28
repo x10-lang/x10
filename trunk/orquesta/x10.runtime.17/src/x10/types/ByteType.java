@@ -30,6 +30,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) (x > 0 ? x : -x);
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
         };
     }
     @Override
@@ -38,6 +40,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) (x * k);
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
         };
     }
     
@@ -47,6 +51,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x + y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
     @Override
@@ -55,6 +62,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x - y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
     @Override
@@ -62,7 +72,10 @@ public class ByteType extends RuntimeType<Byte> {
         return new Fun_0_2<Byte, Byte, Byte>() {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x * y);
-            }
+            }         
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
     @Override
@@ -71,6 +84,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x / y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
     @Override
@@ -79,6 +95,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x % y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
     @Override
@@ -87,6 +106,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (x > y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
     @Override
@@ -95,6 +117,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (x < y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
     
@@ -104,6 +129,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x & y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
 
@@ -113,6 +141,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x | y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
     
@@ -122,6 +153,9 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x ^ y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
         };
     }
 
@@ -131,6 +165,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) -x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
         };
     }
     
@@ -140,6 +176,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) +x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
         };
     }
     
@@ -149,6 +187,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) ~x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
         };
     }
     
