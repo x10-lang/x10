@@ -2,3 +2,8 @@
 *.class
 harness
 x10
+*.swp
+*.swp
+.*.swp
+*.swo
+.*.swo
