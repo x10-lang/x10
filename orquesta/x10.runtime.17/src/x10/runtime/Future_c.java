@@ -12,6 +12,8 @@ package x10.runtime;
 
 import x10.core.fun.Fun_0_0;
 import x10.runtime.Future;
+import x10.types.Type;
+import x10.types.Types;
 
 /**
  * This class encapsulates the return value of a local async
@@ -38,14 +40,18 @@ public final class Future_c<T> implements Future<T>, Fun_0_0<T> {
 
     private T result_;
     private boolean completed_;
+    private Type<T> type;
 
     /**
      * CountDownLatch for signaling and wait -- can be replaced by a boolean latch
      */
     private ModCountDownLatch cdl = new ModCountDownLatch(1);
 
-    public Future_c() {
+    public Future_c(Type<T> type) {
+        this.type = type;
     }
+
+    public Type<?> rtt_x10$lang$Fun_0_0_U()  { return type; }
 
     /**
      * Set the result value returned by this async call.
@@ -156,8 +162,12 @@ public final class Future_c<T> implements Future<T>, Fun_0_0<T> {
      * An activity used to implement an X10 future.
      */
     public static abstract class Activity<T> extends x10.runtime.Activity {
-
+        public Type<T> type;
         public Future_c<T> future;
+        
+        public Activity(Type<T> type) {
+            this.type = type;
+        }
 
         /**
          * Wait for the completion of this activity and return the

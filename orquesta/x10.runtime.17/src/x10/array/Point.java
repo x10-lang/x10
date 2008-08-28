@@ -10,6 +10,8 @@ package x10.array;
 import x10.core.Rail;
 import x10.core.ValRail;
 import x10.core.Value;
+import x10.types.Type;
+import x10.types.Types;
 
 public class Point extends Value implements x10.core.Indexable<Integer,java.lang.Integer>, Comparable<Point>
 {
@@ -261,6 +263,28 @@ public class Point extends Value implements x10.core.Indexable<Integer,java.lang
         sb.append("]");
         return sb.toString();
     }
+    
+    //
+    // Runtime type information
+    //
+    
+    static public class RTT extends x10.types.RuntimeType<Point> {
+        public static final RTT it = new RTT();
+        
+        public RTT() {
+            super(Point.class);
+        }
+
+        public boolean instanceof$(java.lang.Object o) {
+            if (!(o instanceof Point))
+                return false;
+            return true;
+        }
+    }
+
+    public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
+    public Type<?> rtt_x10$lang$Fun_0_1_U()  { return Types.INT; }
+
 }
 
 

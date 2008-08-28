@@ -30,6 +30,8 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x) {
                 return (x > 0 ? x : -x);
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
         };
     }
     @Override
@@ -38,6 +40,8 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x) {
                 return (x * k);
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
         };
     }
     
@@ -47,6 +51,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x + y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
     @Override
@@ -55,6 +62,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x - y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
     @Override
@@ -63,6 +73,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x * y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
     @Override
@@ -71,6 +84,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x / y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
     @Override
@@ -79,6 +95,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x % y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
     @Override
@@ -87,6 +106,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x > y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
     @Override
@@ -95,6 +117,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x < y ? x : y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
     
@@ -104,6 +129,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x & y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
 
@@ -113,6 +141,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x | y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
     
@@ -122,6 +153,9 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x, Integer y) {
                 return (x ^ y);
             }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.INT; }
         };
     }
 
@@ -131,6 +165,8 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x) {
                 return -x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
         };
     }
     
@@ -140,6 +176,8 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x) {
                 return +x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
         };
     }
     
@@ -149,6 +187,8 @@ public class IntType extends RuntimeType<Integer> {
             public Integer apply(Integer x) {
                 return ~x;
             }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.INT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
         };
     }
     

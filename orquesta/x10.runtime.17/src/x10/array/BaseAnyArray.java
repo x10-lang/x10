@@ -36,6 +36,9 @@ abstract public class BaseAnyArray<T> extends BaseArray {
         super(D, mutable);
         this.T = T;
     }
+    
+    public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Point.RTT.it; }
+    public Type<?> rtt_x10$lang$Fun_0_1_U()  { return T; }
 
     public abstract Object getBackingArray();
 
@@ -638,10 +641,13 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             java.lang.reflect.Array.set(handle, p.get(i), arg);
                             return arg;
                     }
+                    
+                    public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Point.RTT.it; }
+                    public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return T; }
+                    public Type<?> rtt_x10$lang$Fun_0_2_U()  { return T; }
             });
             return ret;
     }
-
 
     /**
      * Return an immutable copy of this array. Note: The implementation actually returns a copy

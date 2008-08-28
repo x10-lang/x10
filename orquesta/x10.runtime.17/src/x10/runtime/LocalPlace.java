@@ -112,9 +112,10 @@ public class LocalPlace extends Place {
 	 * Run the given activity asynchronously.  Return a handle that
 	 * can be used to force the future result.
 	 */
-	public Future runFuture(final Future_c.Activity a) {
+	public <T> Future<T> runFuture(final Future_c.Activity<T> a) {
 		
-		Future_c result = a.future = new Future_c();
+		Future_c<T> result = new Future_c<T>(a.type);
+		a.future = result;
 		runAsync(a);
 		
 		return result;
