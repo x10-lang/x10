@@ -16,12 +16,12 @@ import x10.lang.annotations.FieldAnnotation;
  *     o.m[A, B](a, b);
  * #0 = o
  * #1 = A
- * #2 = B
- * #3 = a
- * #4 = b
- * #5 = boxed representation of A
- * #6 = boxed representation of B
- * #7 = run-time Type object for A
- * #8 = run-time Type object for B
+ * #2 = boxed representation of A
+ * #3 = run-time Type object for A
+ * #4 = B
+ * #5 = boxed representation of B
+ * #6 = run-time Type object for B
+ * #7 = a
+ * #8 = b
  */
 public interface Native(lang: String, code: String) extends MethodAnnotation, FieldAnnotation { }
