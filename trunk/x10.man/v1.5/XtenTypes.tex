@@ -374,11 +374,11 @@ resolved.
         definition.
 
         Type parameters may be constrained by a {\em guard} on the declaration
-        (\Sref{ClassWhereClause}, \Sref{TypeDefWhereClause},
+        (\Sref{ClassGuard}, \Sref{TypeDefGuard},
 \iftypeparams\else
-        \Sref{ConstructorWhereClause},
+        \Sref{ConstructorGuard},
 \fi
-        \Sref{MethodWhereClause},\Sref{ClosureWhereClause}).
+        \Sref{MethodGuard},\Sref{ClosureGuard}).
 \iftypeparams
         The type parameters of classes and interfaces must be
         bound to concrete types (possibly to a type parameter)
@@ -495,16 +495,16 @@ are the type parameters of \xcd"X";
 \xcdmath"x$_1$", \dots, \xcdmath"x$_n$"
 are the value parameters of \xcd"X" with types
 \xcdmath"T$_1$", \dots, \xcdmath"T$_n$".
-The constraint \xcd"c" is called the \emph{where clause} of
+The constraint \xcd"c" is called the \emph{guard} of
 \xcd"X".  Finally, \xcd"U" is the defining type of \xcd"X".
-\label{TypeDefWhereClause}
+\label{TypeDefGuard}
 
 The expresion \xcdmath"X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
 denotes a type whenever 
 \xcdmath"S$_1$", \dots, \xcdmath"S$_m$" are type arguments and 
 \xcdmath"e$_1$", \dots, \xcdmath"e$_n$" are value arguments with
 types \xcdmath"T$_1$", \dots, \xcdmath"T$_n$"
-such that the where clause \xcd"c" holds. The type denoted is
+such that the guard \xcd"c" holds. The type denoted is
 the defining type \xcd"U" with the appropriate substitutions applied:
 \xcdmath"U[S$_1$/Y$_1$,$\dots$,S$_m$/Y$_m$,e$_1$/x$_1$,$\dots$,e$_n$/x$_n$)".
 
@@ -648,6 +648,8 @@ Constraints on properties induce a natural subtyping relationship:
 \xcd"D{d}" if \xcd"C" is a subclass of \xcd"D" and
 \xcd"c" entails \xcd"d".
 
+Type parameters cannot be constrained.
+
 \subsection{Constraints}
 
 \def\withmath#1{\relax\ifmmode#1\else{$#1$}\fi}
@@ -666,27 +668,27 @@ compiler supports the following constraint syntax.
 \iftypeparams
 
 \begin{grammar}
-Constraint \: ValueArguments     WhereClause\opt \\
-           \| ValueArguments\opt WhereClause     \\
+Constraint \: ValueArguments     Guard\opt \\
+           \| ValueArguments\opt Guard     \\
            \\
 ValueArguments   \:  \xcd"(" ArgumentList\opt \xcd")" \\
 ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
-WhereClause        \: \xcd"{" DepExpression \xcd"}" \\
-DepExpression \: ( Formal \xcd";" )\star ArgumentList \\
+Guard            \: \xcd"{" DepExpression \xcd"}" \\
+DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
 \end{grammar}
 
 \else
 
 \begin{grammar}
-Constraint \: TypeArguments     ValueArguments\opt WhereClause\opt \\
-           \| TypeArguments\opt ValueArguments     WhereClause\opt \\
-           \| TypeArguments\opt ValueArguments\opt WhereClause     \\
+Constraint \: TypeArguments     ValueArguments\opt Guard\opt \\
+           \| TypeArguments\opt ValueArguments     Guard\opt \\
+           \| TypeArguments\opt ValueArguments\opt Guard     \\
            \\
 TypeArguments    \:  \xcd"[" Type ( \xcd"," Type )\star \xcd"]" \\
 ValueArguments   \:  \xcd"(" ArgumentList\opt \xcd")" \\
 ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
-WhereClause        \: \xcd"{" DepExpression \xcd"}" \\
-DepExpression \: ( Formal \xcd";" )\star ArgumentList \\
+Guard            \: \xcd"{" DepExpression \xcd"}" \\
+DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
 \end{grammar}
 
 \fi
@@ -877,17 +879,17 @@ use the function \LL{\mbox{\Xcd{C\{c\}}}} to denote the set of
 objects that belong to \xcd"C{c}". 
 
 \subsection{Type invariants}\label{DepType:TypeInvariant}\index{Type invariant}
-\label{DepType:Where}
+\label{DepType:Guard}
 
-A class or interface declaration may specify a
-\grammarrule{WhereClause}, an invariant on all
+A class or interface declaration may specify a {\em guard},
+an invariant on all
 instances of that type.
 All the properties of the type, together with inherited properties,
 may appear in the class invariant.
 \iftypeparams
 The class invariant may also constrain the class's type parameters.
 \fi
-A where clause \xcd"c" with
+A guard \xcd"c" with
 \iftypeparams\else
 type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
 \fi
@@ -913,7 +915,7 @@ invariant associated with \xcd"x10.lang.Object" is
 The type invariant associated with any interface \xcd"I" that extends
 interfaces \xcdmath"I$_1$, $\dots$, I$_k$" and defines properties
 \xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
-specifies a where clause \xcd"c" is given by:
+specifies a guard \xcd"c" is given by:
 
 \begin{xtenmath}
 $\mathit{inv}$(I$_1$) && $\dots$ && $\mathit{inv}$(I$_k$)
@@ -924,7 +926,7 @@ Similarly the type invariant associated with any class \xcd"C" that
 implements interfaces \xcdmath"I$_1$, $\dots$, I$_k$",
 extends class \xcd"D" and defines properties
 \xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
-specifies a where clause \xcd"c" is
+specifies a guard \xcd"c" is
 given by:
 \begin{xtenmath}
 $\mathit{inv}$(D) && $\mathit{inv}$(I$_1$) && $\dots$ && $\mathit{inv}$(I$_k$)
@@ -1068,7 +1070,7 @@ is consistent.
         \xcdmath"x$_i$"
         of types
         \xcdmath"T$_i$"
-        such that the where clause \xcd"c" holds
+        such that the guard \xcd"c" holds
         and returns a value of type \xcd"T" or throws
         exceptions of 
         types S$_i$.
@@ -1277,9 +1279,9 @@ or constructor
 \xcd"m"
 is a subtype of a type \xcd"T" if
 the 
-where clause of \xcd"m" implies that \xcd"X" is a subtype of \xcd"T".
+guard of \xcd"m" implies that \xcd"X" is a subtype of \xcd"T".
 Similarly, \xcd"T" is a subtype of parameter \xcd"X" if the
-where clause implies the relationship.
+guard implies the relationship.
 
 
 \section{Least common ancestor of types}

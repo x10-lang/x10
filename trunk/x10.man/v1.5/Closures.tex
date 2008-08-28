@@ -12,7 +12,8 @@ ClosureExpression \:
         \xcd"("
         Formals\opt
         \xcd")"
-        WhereClause\opt
+\\ &&
+        Guard\opt
         ReturnType\opt
         Throws\opt
         \xcd"=>" ClosureBody \\
@@ -29,10 +30,12 @@ closure body has the same syntax as a method body; it may be
 either an expression, a block of statements, or a block
 terminated by an expression to return.
 
-\label{ClosureWhereClause}
+\label{ClosureGuard}
 
-As with methods, a closure may declare a where clause to
-constraint the actual parameters with which it may be invoked.
+As with methods, a closure may declare a guard to
+constrain the actual parameters with which it may be invoked.
+The guard may refer to the type parameters, formal parameters,
+and any final variables in scope at the closure expression.
 
 The body of the closure is evaluated when the closure is
 invoked by a call expression (\Sref{Call}), not at the closure's

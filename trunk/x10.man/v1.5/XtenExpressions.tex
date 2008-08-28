@@ -45,7 +45,7 @@ represents an instance of that enclosing class.
 The type of a \xcd"this" expression is the
 innermost enclosing class, or the qualifying class,
 constrained by the class invariant and the
-method where clause, if any.
+method guard, if any.
 
 The \xcd"this" expression may also be used within constraints in
 a class or interface header (the class invariant and
@@ -136,7 +136,7 @@ type parameters that would have to be inferred.
 Type arguments may be omitted and inferred, as described in
 \Sref{TypeInference}.
 
-It is a static error if a method's \grammarrule{WhereClause} is not satisfied by the caller.
+It is a static error if a method's \grammarrule{Guard} is not satisfied by the caller.
 
 \section{Assignment}\index{assignment}\label{AssignmentStatement}
 
