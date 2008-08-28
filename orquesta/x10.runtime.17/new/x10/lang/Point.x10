@@ -11,10 +11,10 @@ public final value class Point(rank: nat) implements
     ArithmeticOps[Point(this.rank)],
     ComparisonOps[Point(this.rank)]
 {
-    @Native("java", "(#1).get(#1)")
+    @Native("java", "(#0).get(#1)")
     public native def apply(i: nat): int;
 
-    @Native("java", "(#1).coordsRail()")
+    @Native("java", "(#0).coordsRail()")
     public native def coords(): ValRail[int];
 
     //
