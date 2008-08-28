@@ -4,3 +4,7 @@ ErrorsLog
 *.class
 *.java
 TMP_XXX_*
+*.swp
+.*.swp
+*.swo
+.*.swo
