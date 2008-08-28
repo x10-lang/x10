@@ -17,6 +17,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.frontend.Job;
@@ -62,24 +63,28 @@ public class X10Boxer extends AscriptionVisitor
 		if (ts.isImplicitCastValid(fromType, toType) && ! ts.isSubtype(fromType, toType)) {
 			// Can convert if there is a static method toType.make(fromType)
 		        MethodInstance mi = null;
-		        
-			try {
-			    mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType)), (ClassDef) null);
-			    if (! mi.flags().isStatic())
-				mi = null;
-			}
-			catch (SemanticException ex) {
-			}
 
-			if (mi == null) {
-			    try {
-				mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType)), (ClassDef) null);
-				if (! mi.flags().isStatic())
-				    mi = null;
-			    }
-			    catch (SemanticException ex) {
-			    }
-			}
+		        try {
+		            mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType)), (ClassDef) null);
+		            if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType)))
+		                ;
+		            else
+		                mi = null;
+		        }
+		        catch (SemanticException ex) {
+		        }
+
+		        if (mi == null) {
+		            try {
+		                mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType)), (ClassDef) null);
+		                if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType)))
+		                    ;
+		                else
+		                    mi = null;
+		            }
+		            catch (SemanticException ex) {
+		            }
+		        }
 			
 			if (mi != null) {
 			    if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
