@@ -4,6 +4,8 @@ import polyglot.ast.Expr;
 import polyglot.ast.TypeNode;
 
 public interface SubtypeTest extends Expr {
+    
+    boolean equals();
 
 	public TypeNode supertype();
 

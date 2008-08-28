@@ -14,17 +14,21 @@ package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
+import polyglot.ast.Binary;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
+import polyglot.ast.Assign.Operator;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -146,26 +150,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    		
    		return child.type();
    	}
-   	    
-	public Name opString2(Operator op) {
-	    return Name.make(opString(op));
-	}
-	
-	public String opString(Operator op) {
-	    if (op == ASSIGN ) return "set";
-	    if (op == ADD_ASSIGN) return "addSet";
-	    if (op == SUB_ASSIGN) return "subSet";
-	    if (op == MUL_ASSIGN) return "mulSet";
-	    if (op == DIV_ASSIGN) return "divSet";
-	    if (op == MOD_ASSIGN) return "modSet";
-	    if (op == BIT_AND_ASSIGN) return "bitAndSet";
-	    if (op == BIT_OR_ASSIGN) return "bitOrSet";
-	    if (op == BIT_XOR_ASSIGN) return "bitXorSet";
-	    if (op == SHL_ASSIGN) return "shlSet";
-	    if (op == SHR_ASSIGN) return "shrSet";
-	    if (op == USHR_ASSIGN) return "ushrSet";
-	    throw new InternalCompilerError("Unknown assignment operator");
-	}
 	
 	MethodInstance mi;
 	
@@ -189,21 +173,28 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    }
 	    argTypes.add(right.type());
 	    
-	    Name methodName = Name.make(opString(op));
+	    Name methodName = Name.make("set");
+
 	    MethodMatcher methodMatcher = xts.MethodMatcher(array.type(), methodName, argTypes);
 
 	    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
 	    try {
-		X10MethodInstance mi = xts.findMethod(array.type(), methodMatcher, tc.context().currentClassDef());
-		if (! mi.flags().isStatic())
-		    return methodInstance(mi);
-		throw new SemanticException("Cannot assign to element of " + array.type() + "; " + mi + " cannot be static.", position()); 
+	        X10MethodInstance mi = xts.findMethod(array.type(), methodMatcher, tc.context().currentClassDef());
+	        if (! mi.flags().isStatic() )
+	            return (Assign) methodInstance(mi);
+	        throw new SemanticException("Cannot assign to element of " + array.type() + "; " + mi + " cannot be static.", position()); 
 	    }
 	    catch (SemanticException e) {
-		// Cannot find the method.  Fall through.
-		throw new SemanticException("Cannot assign to element of " + array.type() + "; " + e.getMessage(), position()); 
+	        // Cannot find the method.  Fall through.
+	        throw new SemanticException("Cannot assign to element of " + array.type() + "; " + e.getMessage(), position()); 
 	    }
 	}	
+	
+	@Override
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	    SettableAssign_c a = (SettableAssign_c) super.typeCheck(tc);
+	    return a.type(a.mi.returnType());
+	}
 	
 	public Term firstChild() {
 	    return array;
@@ -262,7 +253,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
       }
       
       w.write(" ");
-      w.write(opString(op));
+      w.write(op.toString());
       w.write(" ");
       
       print(right, w, tr);
@@ -273,34 +264,22 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
  	}
   
 	
-	/** Write the expression to an output file. */
-	public void translate(CodeWriter w, Translator tr) {
-    Type at = array.type();
-
-     Type result = X10TypeMixin.getParameterType(at, 0);
-     if (result != null) {
-     	w.write("((");
-     	print(new CanonicalTypeNode_c(Position.COMPILER_GENERATED, Types.ref(result)), w, tr);
-     	w.write(")");
-     }
-     printSubExpr(array, w, tr);
-     w.write (".set(");
-     w.begin(0);
-
-     for(Iterator i = index.iterator(); i.hasNext();) {
-     	Expr e = (Expr) i.next();
-     	print(e, w, tr);
-         
-             w.write(",");
-             w.allowBreak(0, " ");
-     }
-     
-     print(right, w, tr);
-     
-     w.end();
-    
-     w.write (")");
-     if (result != null) { w.write (")");}
-	}
+    public static Binary.Operator binaryOp(Assign.Operator op) {
+        Map<Assign.Operator, Binary.Operator> map = new HashMap<Assign.Operator, Binary.Operator>();
+        map.put(Assign.ADD_ASSIGN, Binary.ADD);
+        map.put(Assign.SUB_ASSIGN, Binary.SUB);
+        map.put(Assign.MUL_ASSIGN, Binary.MUL);
+        map.put(Assign.DIV_ASSIGN, Binary.DIV);
+        map.put(Assign.MOD_ASSIGN, Binary.MOD);
+        map.put(Assign.BIT_AND_ASSIGN, Binary.BIT_AND);
+        map.put(Assign.BIT_OR_ASSIGN, Binary.BIT_OR);
+        map.put(Assign.BIT_XOR_ASSIGN, Binary.BIT_AND);
+        map.put(Assign.SHL_ASSIGN, Binary.SHL);
+        map.put(Assign.SHR_ASSIGN, Binary.SHR);
+        map.put(Assign.USHR_ASSIGN, Binary.USHR);
+        Binary.Operator binop = map.get(op);
+        assert binop != null;
+        return binop;
+    }
 
 }
