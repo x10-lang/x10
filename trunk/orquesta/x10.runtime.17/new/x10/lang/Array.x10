@@ -25,21 +25,25 @@ public abstract value class Array[T](dist: Dist) implements
     property constant: boolean = dist.constant;
     property onePlace: Place = dist.onePlace;
 
-    @Native("java", "x10.array.ArrayFactory.make(#1, #2)")
-    native public static def make[T](dist: Dist, init: Indexable[nat,T]): Array[T]{self.dist==dist};
+    @Native("java", "x10.array.ArrayFactory.make(#2, #4,#5)")
+    native public static def make[T](dist: Dist, init: (nat)=>T): Array[T]{self.dist==dist};
     
-    @Native("java", "x10.array.ArrayFactory.makeLocal(#1, #2)")
-    native public static def make[T](region: Region, init: Indexable[nat,T])
+    @Native("java", "x10.array.ArrayFactory.makeVarArray(#2, #4,#5)")
+    native public static def make[T](region: Region, init: (nat)=>T)
 	: Array[T]{self.region==region};
-    
+
     // @Native("java", "x10.array.ArrayFactory.make(#1, #2)")
     // native public static def make[T](region: Region, init: Indexable[nat,T], value: boolean): Array[T];
     
-    @Native("java", "x10.array.ArrayFactory.makeFromRail(#1, #2)")
+    @Native("java", "x10.array.ArrayFactory.makeFromRail(#2, #4)")
     native public static def make[T](r: Rail[T]): Array[T]{rank==1};
-    
-    @Native("java", "x10.array.ArrayFactory.makeFromValRail(#1, #2)")
+
+
+    @Native("java", "x10.array.ArrayFactory.makeFromValRail(#2, #4)")
     native public static def make[T](r: ValRail[T]): Array[T]{rank==1};
+
+    public static def make[T](n: nat, init:(nat)=>T): Array[T]
+	=make[T](0..n-1,init);
     
     @Native("java", "(#0).restriction(#1)")
     public native def restriction(r: Region): Array[T]{region==r};
