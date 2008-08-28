@@ -1,0 +1,54 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Tests that free variables used in e in future { e }
+ * are declared final.
+ *
+ * Expected result: must fail at compile time.
+ *
+ * @author kemal 4/2005
+ */
+public class FutureTest4_MustFailCompile extends x10Test {
+
+	public const N: int = 8;
+
+	/**
+	 * testing free variables in future expression
+	 */
+	public def run(): boolean = {
+		final val A: Array[int] = new Array[int](distmakeBlock([0..N-1, 0..N-1]), (var point [i,j]: point): int => { return N*i+j; });
+		var x: int;
+		var s: int;
+		x = 0;
+		s = 0;
+		for (var i: int = 0; i < N; i++) {
+			s += i;
+			//=== >compiler error: i, s not final
+			x += future(A.dist(i, s%N)) { A(i, s%N) }.force();
+		}
+		System.out.println("x = "+x);
+		if (x != 252) return false;
+		x = 0;
+		s = 0;
+		for (var i: int = 0; i < N; i++) {
+			s += i;
+			{ final val I: int = i; final val S: int = s;
+				// no compiler error
+				x += future(A.dist(I, S%N)) { A(I, S%N) }.force();
+			}
+		}
+		System.out.println("x = "+x);
+		return (x == 252);
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new FutureTest4_MustFailCompile().execute();
+	}
+}

@@ -1,0 +1,127 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that property syntax is accepted for value classes.
+ *
+ * @author pvarma, vj
+ */
+public value ValueProp1(int i, int j : i == j) extends x10Test/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that property syntax is accepted for value classes.
+ *
+ * @author pvarma, vj
+ */
+public value ValueProp1(int i, int j : i == j) extends x10Test {
+
+	public def this(var k: int): ValueProp1 = {
+	    property(k,k);
+	}
+	public def run(): boolean = {
+	    return true;
+	}
+	public static def main(var args: Rail[String]): void = {
+		new ValueProp1(2).execute();
+	}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that property syntax is accepted for value classes.
+ *
+ * @author pvarma, vj
+ */
+public value ValueProp1(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that property syntax is accepted for value classes.
+ *
+ * @author pvarma, vj
+ */
+public value ValueProp1(int ipublic val i: int/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that property syntax is accepted for value classes.
+ *
+ * @author pvarma, vj
+ */
+public value ValueProp1(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that property syntax is accepted for value classes.
+ *
+ * @author pvarma, vj
+ */
+public value ValueProp1(int i, int jpublic val j: int*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that property syntax is accepted for value classes.
+ *
+ * @author pvarma, vj
+ */
+public value ValueProp1(int i, int j : public const i == j: ValueProp1{i == j} = i == j) extends x10Test {
+
+	public ValueProp1(int k) {
+	    property(k,k);
+	}
+	public boolean run() {
+	    return true;
+	}
+	public static void main(String[] args) {
+		new ValueProp1(2).execute();
+	}
+}
