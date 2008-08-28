@@ -12,5 +12,10 @@ public class Runtime {
     public native static def exit(code: int): void;
 
     @Native("java", "x10.runtime.Runtime.setExitCode(#1)")
-    public native static def setExitCode(code: int): void;
+	public native static def setExitCode(code: int): void;
+
+    @Native("java", "x10.runtime.Runtime.here()")
+	public native static def here():Place;
+
+	
 }
