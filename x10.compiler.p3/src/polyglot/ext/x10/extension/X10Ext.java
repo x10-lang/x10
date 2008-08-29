@@ -42,8 +42,6 @@ public interface X10Ext extends Ext {
       */
     public Node setComment(String comment);
     
-    public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info);
-    
     /**
      * Annotation on the node.
      * @return

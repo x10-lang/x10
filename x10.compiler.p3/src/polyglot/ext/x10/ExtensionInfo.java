@@ -28,6 +28,7 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.AssignPropertyChecker;
 import polyglot.ext.x10.visit.CastRewriter;
 import polyglot.ext.x10.visit.ExprFlattener;
+import polyglot.ext.x10.visit.RewriteExternVisitor;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
@@ -214,7 +215,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            
            goals.add(ConformanceChecked(job));
            goals.add(X10Boxed(job));
-           goals.add(X10Casted(job));
+           goals.add(X10RewriteExtern(job));
            
            goals.add(ReachabilityChecked(job));
            goals.add(ExceptionsChecked(job));
@@ -303,10 +304,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("X10Boxed", job, new X10Boxer(job, ts, nf)).intern(this);
        }
        
-       public Goal X10Casted(Job job) {
+       public Goal X10RewriteExtern(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10Casted", job, new X10Caster(job, ts, nf)).intern(this);
+           return new VisitorGoal("X10RewriteExtern", job, new RewriteExternVisitor(job, ts, nf)).intern(this);
        }
        
        public Goal X10ExprFlattened(Job job) {

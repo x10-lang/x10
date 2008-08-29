@@ -76,14 +76,27 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    conversionAllowed = true;
 	else {
 	    // Can convert if there is a static method toType.$convert(fromType)
-	    try {
-		MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType)), (ClassDef) null);
-		if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
-		    conversionAllowed = true;
-		    converter = mi;
-		}
+	    if (converter == null) {
+	        try {
+	            MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType), false), (ClassDef) null);
+	            if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
+	                conversionAllowed = true;
+	                converter = mi;
+	            }
+	        }
+	        catch (SemanticException e) {
+	        }
 	    }
-	    catch (SemanticException e) {
+	    if (converter == null) {
+	        try {
+	            MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false), (ClassDef) null);
+	            if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
+	                conversionAllowed = true;
+	                converter = mi;
+	            }
+	        }
+	        catch (SemanticException e) {
+	        }
 	    }
 	}
 	
