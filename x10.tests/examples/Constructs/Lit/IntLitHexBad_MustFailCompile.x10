@@ -14,12 +14,12 @@ import harness.x10Test;
 
 public class IntLitHexBad_MustFailCompile extends x10Test {
 
-	public def run(): boolean {
+	public def run(): boolean ={
 		System.out.println(0xR);
 		return true;
 	}
 
-	public static def main(args: Rail[String]): void {
+	public static def main(args: Rail[String]): void= {
 		new IntLitHexBad_MustFailCompile().execute();
 	}
 
