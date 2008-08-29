@@ -10,7 +10,7 @@ import harness.x10Test;
  * by an expression to return.
  */
 
-public class ClosureBody1 extends ClosureTest {
+public class ClosureBody1c extends ClosureTest {
 
     var x:int = 0;
 
@@ -22,24 +22,15 @@ public class ClosureBody1 extends ClosureTest {
 
     public def run(): boolean = {
         
-        // expression
-        val f = ()=>1+1;
-        check("f()", f(), 2);
-
-        // block
-	//        val g = ()=>{x(1);};
-	//        g();
-	//        check("x after g()", x(), 1);
-
         // block terminated by return expression
-	//        val h = ()=>{x(2);x()+1};
-	//        check("h()", h(), 3);
-	//        check("x after h()", x(), 2);
+        val h = ()=>{x(2);x()+1};
+        check("h()", h(), 3);
+        check("x after h()", x(), 2);
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new ClosureBody1().execute();
+        new ClosureBody1c().execute();
     }
 }
