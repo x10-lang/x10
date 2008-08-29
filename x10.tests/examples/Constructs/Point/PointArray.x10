@@ -15,8 +15,10 @@ import harness.x10Test;;
 public class PointArray extends x10Test {
 
 	public def run(): boolean = {
-		var p: Rail[point] = new Rail[point](1);
-		p(0) = [1, 2];
+		var p: Rail[point] 
+		            = Rail.makeVar[point](1, 
+		            		(x:nat)=>Point.make(0));
+		p(0) = Point.make(1, 2);
 
 		return (p(0)(0) == 1 && p(0)(1) == 2);
 	}
