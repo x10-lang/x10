@@ -26,6 +26,27 @@ public final value class Point(rank: nat) implements
 
     @Native("java", "x10.array.Point.makeFromVarRail(#1)")
     public native static def make(cs: Rail[int]): Point(cs.length);
+    
+    @Native("java", "x10.array.Point.makeFromVarArgs(#1)")
+    public native static def make(x0:nat): Point(1);
+    
+    @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2)")
+    public native static def make(x0:nat, x1:nat): Point(2);
+    
+     @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3)")
+    public native static def make(x0:nat, x1:nat, x2:nat): Point(3);
+    
+     @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3,#4)")
+    public native static def make(x0:nat, x1:nat, x2:nat, x3:nat): Point(4);
+    
+     @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3,#4,#5)")
+    public native static def make(x0:nat, x1:nat, x2:nat, x3:nat, x4:nat): Point(5);
+    
+      @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3,#4,#5,#6)")
+    public native static def make(x0:nat, x1:nat, x2:nat, x3:nat, x4:nat,x5:nat): Point(6);
+    
+      @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3,#4,#5,#6,#7)")
+    public native static def make(x0:nat, x1:nat, x2:nat, x3:nat, x4:nat,x5:nat,x6:nat): Point(7);
 
     @Native("java", "x10.array.Point.makeConstant(#1, #2)")
     public native static def makeConstant(rank: nat, c: int): Point(rank);
