@@ -18,13 +18,14 @@ public class PointArithmetic extends x10Test {
 
 	public def run(): boolean = {
 		var sum: int = 0;
-		var p: point = [2, 2, 2, 2, 2];
-		var q: point = [1, 1, 1, 1, 1];
+		val p = [2, 2, 2, 2, 2] to point;
+		val q = [1, 1, 1, 1, 1] to point;
 		var c: int = 2;
 
 		// First test that the point/point arithmetic works
 
-		var a: point = p + q;
+		var a: point{rank==p.rank} = p + q;
+		/*
 		sum = 0;
 		for (var i: int = 0; i < DIM; i++)
 			sum += a(i);
@@ -129,7 +130,7 @@ public class PointArithmetic extends x10Test {
 		// Now test that the dimensionality is properly checked
 
 		var gotException: boolean;
-		var r: point = [1, 2, 3, 4];
+		var r: point = [1, 2, 3, 4] to point;
 
 		gotException = false;
 		sum = 0;
@@ -218,7 +219,7 @@ public class PointArithmetic extends x10Test {
 			gotException = true;
 		}
 		if (!(sum == 0 && gotException)) return false;
-
+*/
 		return true;
 	}
 

@@ -19,7 +19,7 @@ public class PointAdd extends x10Test {
 		val p  = [2, 2, 2, 2, 2] to point;
 		val q = [1, 1, 1, 1, 1] to point;
 	
-		val a = p + q;
+		var a:point{p.rank==rank} = p + q;
 		return true;
 		}
 
