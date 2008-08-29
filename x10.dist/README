@@ -1,0 +1,13 @@
+(c) IBM Corporation
+
+This program is controlled by the Eclipse Public Licence v1.0.
+
+This directory contains the 1.7 release of X10.
+
+Before running the ant script, make sure that 
+the following environment variables are set correctly:
+
+JAVA_HOME: <directory where you find bin/java>
+
+August 19, 2008
+
