@@ -16,7 +16,7 @@ public class Bounds5 extends x10Test {
         class A { }
         class B extends A { }
 
-        class C[T]{T<:A}
+        class C[T]{T<:A} {
                 var x: T;
                 def this(y: T) = { x = y; }
         }
