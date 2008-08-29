@@ -3,9 +3,6 @@
  * (C) Copyright IBM Corporation 2008
  *
  *  This file is part of X10 Test.
- *
- *
- * @author bdlucas 8/2008
  */
 import harness.x10Test;
 
