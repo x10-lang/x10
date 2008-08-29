@@ -21,6 +21,14 @@ import harness.x10Test;
  *
  * But that would have a name conflict with int m().
  *
+ * We should instead generate:
+ *
+ *     class I<T> { T m$(); }
+ *     class C { public int m() { return 0; } }
+ *     class D extends C implements I<Integer> {
+ *         public Integer m$() { return this.m(); }
+ *     }
+ *
  * @author nystrom 8/2008
  */
 public class GenericsInheritance1 extends x10Test {
