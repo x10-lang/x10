@@ -1058,15 +1058,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
 	/** All flags allowed for a method. */
 	public Flags legalMethodFlags() {
-		X10Flags x = X10Flags.toX10Flags( legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
-		x = x.Safe().Local().NonBlocking().Sequential().Incomplete().Property().Pure().Extern();
+		X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
+		x = x.Safe().Local().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic();
 		return x;
 		
 	}
 	
 	 public Flags legalAbstractMethodFlags() {
-	     X10Flags x = X10Flags.toX10Flags( legalAccessFlags().clear(Private()).Abstract());
-	     x = x.Safe().Local().NonBlocking().Sequential().Property().Pure();
+	     X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
+	     x = x.Safe().Local().NonBlocking().Sequential().Property().Pure().Atomic();
 	     return x;
 	 }
 
