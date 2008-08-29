@@ -15,6 +15,7 @@ import harness.x10Test;
  * is the signature and body of the declaring method, constructor or
  * closure.
  * 
+ * @author bdlucas 8/2008
  */
 
 public class ClosureTypeParameters1a extends ClosureTest {

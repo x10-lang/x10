@@ -8,6 +8,8 @@ import harness.x10Test;
  * The closure body has the same syntax as a method body; it may be
  * either an expression, a block of statements, or a block terminated
  * by an expression to return.
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureBody1b extends ClosureTest {

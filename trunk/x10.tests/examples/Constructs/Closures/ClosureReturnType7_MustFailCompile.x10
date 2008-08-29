@@ -6,6 +6,8 @@ import harness.x10Test;
 
 /**
  * if the method does not return a value, the inferred type is Void
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureReturnType7_MustFailCompile extends ClosureTest {

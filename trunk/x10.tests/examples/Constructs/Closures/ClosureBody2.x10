@@ -8,6 +8,8 @@ import harness.x10Test;
  * The body of the closure is evaluated when the closure is invoked by
  * a call expression (§12.8), not at the closure’s place in the
  * program text.
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureBody2 extends ClosureTest {
