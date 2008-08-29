@@ -79,6 +79,7 @@ public class Point extends Value implements x10.core.Indexable<Integer,java.lang
 
     public int[] val() { return val; }
 
+    
     public Point(int[] val) {
         this.rank = val.length;
         this.val = val;
