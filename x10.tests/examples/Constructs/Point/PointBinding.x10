@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class PointBinding extends x10Test {
 
 	public def run(): boolean = {
-		var p(i,j): point = [1, 2];
+		var p(i,j): point = Point.make(1, 2);
 		return (i == 1 && j == 2);
 	}
 
