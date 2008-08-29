@@ -1,0 +1,146 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Conway's game of life
+ *
+ * @author kemal
+ * @author vj 12/2004
+ */
+public class GameOfLife extends x10Test {
+
+	// this constructor is necessary to run this test in the TestCompiler harness.
+	public def this(): GameOfLife = { }
+
+	/**
+	 * Conway's game of life test.
+	 * <code>
+	 put this "glider" pattern in top left corner of the matrix
+
+	 001
+	 101
+	 011
+
+	 and let it move with periodic shape changes
+	 to the bottom right to converge at the
+	 4-cell block stable pattern:
+
+	 000
+	 011
+	 011
+
+	 * </code>
+	 */
+	public def run(): boolean = {
+		final val N: int = 6;
+
+		final val R: region = [0..(N+1), 0..(N+1)];
+		final val R_inner: region{rank==2} = [1..N, 1..N];
+
+		// Distribution D includes in its domain the
+		// boundary rows and columns, as well as the inner
+		// region of the cell matrix.
+
+		final val D: dist{rank==2} = (dist{rank==2})) distmakeBlock(R);
+
+		// Distribution D_inner implements the same index->place
+		// mapping as D, but does not include boundaries in its domain.
+
+		final val D_inner: dist{rank==2} = D | R_inner;
+
+		// D_boundary is (D-D_inner)
+
+		final val D_boundary: dist = D-R_inner;
+
+		final val EXPECTED_ITER: int = 15;
+		final val EXPECTED_SUM: int = 4;
+
+		// isAlive[i,j] is true iff the cell (i,j) is alive
+		final val isAlive: Array[int] = new Array[int](D);
+
+		//initialize the matrix
+		init(isAlive, 1, 1,
+			 new Array[String] {
+				 "001",
+				 "101",
+				 "011",
+			 });
+
+		var nIter: int = 0;
+		pr("isAlive", isAlive | D_inner);
+
+		while (true) {
+			// nn[i,j] = number of live neighbors of cell(i,j)
+			final val nn: Array[int] = new Array[int](D_inner, (var p: point[i,j]): int => { return (isAlive | [Region.makeRange((i-1), (i+1)), Region.makeRange((j-1), (j+1))]).sum()-isAlive(i, j); });
+			// Now recompute if each cell is still alive.
+			// A live cell survives iff it has exactly 2 or 3 live neighbors.
+			// A dead cell is born again iff it has exactly 3 live neighbors.
+			final val temp: Array[int]{distribution==D_inner} = new Array[int](D_inner, (var p: point[i,j]): int => { return b2i(((isAlive(i, j) != 0) & (nn(i, j) == 2)) | (nn(i, j) == 3)); });
+			pr("temp", temp);
+			if (((isAlive | D_inner)-temp).abs().sum() == 0) break;
+			isAlive.update(temp);
+			nIter++;
+		}
+		var sum: int = isAlive.sum();
+		System.out.println("Converged after "+nIter+" iterations");
+		System.out.println("sum = "+sum);
+		return nIter == EXPECTED_ITER && sum == EXPECTED_SUM;
+	}
+
+	/**
+	 * Convert a boolean to an integer
+	 */
+	private static def b2i(var b: boolean): int = { return b ? 1 : 0; }
+
+	/**
+	 * method for initializing isAlive starting at (x0,y0)
+	 * as the upper left corner of the given pattern.
+	 *
+	 * Example:
+	 * <code>
+	 init(isAlive, 1, 1, new String[] {
+	 "001",
+	 "101",
+	 "011" });
+	 * </code>
+	 * overlays the given pattern on isAlive at position (1,1)
+	 * as the upper left corner of the pattern
+	 */
+	private static def init(val isAlive: Array[int], val x0: int, val y0: int, val s: Rail[String]): void = {
+		final val d: dist = isAlive.dist;
+		finish
+			for (val p: point[i] in [0..s.length-1]) {
+				for (val q: point[j] in [0..s(i.length()-1)]) {
+					if (s(i).charAt(j) != '0') {
+						async(d(i+x0, j+y0)) { isAlive(i+x0, j+y0) = 1; }
+					}
+				}
+			}
+	}
+
+	/**
+	 * print a matrix
+	 */
+	private static def pr(var s: String, val y: Array[int]): void = {
+		System.out.println(s+":");
+		var d: dist = y.dist;
+		var r: region = d.region;
+		var nCol: int = r.rank(1).high()-r.rank(1).low()+1;
+		var n: int = 0;
+		for (val p: point[i,j] in d) {
+			System.out.print(future(d(i, j)) { y(i, j) }.force()+" ");
+			n++;
+			if (n%nCol == 0) System.out.println("");
+		}
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new GameOfLife().execute();
+	}
+}
