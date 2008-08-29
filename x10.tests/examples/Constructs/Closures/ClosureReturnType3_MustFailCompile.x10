@@ -9,6 +9,8 @@ import harness.x10Test;
  * the method’s return type is expliclty declared Void, the method may
  * return without a value; otherwise, it must return a value of the
  * appropriate type.
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureReturnType3_MustFailCompile extends ClosureTest {

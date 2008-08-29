@@ -6,6 +6,8 @@ import harness.x10Test;
 
 /**
  * As with a normal method, the closure may have a throws clause
+ *
+ * @author bdlucas 8/2008
  */
 
 

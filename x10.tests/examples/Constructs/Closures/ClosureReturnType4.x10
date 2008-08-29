@@ -8,6 +8,8 @@ import harness.x10Test;
  * The inferred type of a method or closure body is the least common
  * ancestor of the types of the expressions in return statements in the
  * body.
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureReturnType4 extends ClosureTest {

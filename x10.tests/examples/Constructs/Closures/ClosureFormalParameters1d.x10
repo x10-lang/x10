@@ -6,6 +6,8 @@ import harness.x10Test;
 
 /**
  * Closure expressions have zero or more formal parameters
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureFormalParameters1d extends ClosureTest {

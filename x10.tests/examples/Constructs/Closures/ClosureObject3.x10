@@ -10,6 +10,8 @@ import harness.x10Test;
  * apply[X1, . . ., Xk](x1: Y1, . . ., xn: Yn): Z;
  *
  * A closure call e(. . .) is shorthand for a method call e.apply(. . .).
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureObject3 extends ClosureTest {

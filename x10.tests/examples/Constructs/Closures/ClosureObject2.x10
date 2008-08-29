@@ -8,6 +8,8 @@ import harness.x10Test;
  * As objects, the closure body may refer to this, which is a
  * reference to the current function, and use it to invoke the closure
  * recursively.
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureObject2 extends ClosureTest {

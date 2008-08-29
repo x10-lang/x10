@@ -6,6 +6,8 @@ import harness.x10Test;
 
 /**
  * "Where" constraints on var parameters are not allowed.
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureWhere6_MustFailCompile extends ClosureTest {

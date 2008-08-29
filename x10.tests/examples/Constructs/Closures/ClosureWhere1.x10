@@ -7,6 +7,8 @@ import harness.x10Test;
 /**
  * As with methods, a closure may declare a where clause to constraint
  * the actual parameters with which it may be invoked.
+ *
+ * @author bdlucas 8/2008
  */
 
 

@@ -7,6 +7,8 @@ import harness.x10Test;
 /**
  * As with methods, a closure with return type Void cannot have a
  * terminating expression.
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureReturnType6_MustFailCompile extends ClosureTest {

@@ -6,6 +6,8 @@ import harness.x10Test;
 /**
  * It is a static error if a checked exception is thrown that is not
  * declared in the throws clause.
+ *
+ * @author bdlucas 8/2008
  */
 
 public class ClosureException2_MustFailCompile extends ClosureTest {

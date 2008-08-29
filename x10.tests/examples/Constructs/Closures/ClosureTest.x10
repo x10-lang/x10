@@ -3,6 +3,12 @@
 
 import harness.x10Test;
 
+/**
+ * Not a test. Convenience class to simplify debugging the test
+ * cases. Perhaps this should be in x10Test
+ *
+ * @author bdlucas 8/2008
+ */
 
 abstract class ClosureTest extends x10Test {
 
