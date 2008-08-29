@@ -41,10 +41,6 @@ public class X10Ext_c extends Ext_c implements X10Ext {
         return n.ext(this.comment(comment));
     }
     
-    public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
-        return node();
-    }
-    
     public List<AnnotationNode> annotations() {
     	if (this.annotations == null) {
     		return Collections.EMPTY_LIST;

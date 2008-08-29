@@ -56,13 +56,6 @@ public class X10Del_c extends JL_c implements X10Del {
 	}
 
 	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.extension.X10Ext#rewrite(polyglot.ext.x10.types.X10TypeSystem, polyglot.ast.NodeFactory, polyglot.frontend.ExtensionInfo)
-	 */
-	public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
-		return ((X10Ext) node().ext()).rewrite(ts, nf, info);
-	}
-
-	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.extension.X10Ext#annotations()
 	 */
 	public List<AnnotationNode> annotations() {

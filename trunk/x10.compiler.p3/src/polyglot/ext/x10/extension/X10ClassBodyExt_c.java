@@ -24,6 +24,7 @@ import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.ClassBody_c;
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
@@ -36,13 +37,10 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
-import polyglot.types.ClassType_c;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
-import polyglot.types.PrimitiveType;
 import polyglot.types.Name;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -214,17 +212,18 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		MethodDef mi = method.methodDef();
 		String signature = "";// "("
 
-		for (ListIterator i = method.formals().listIterator(); i.hasNext();) {
-			Formal_c parameter = (Formal_c) i.next(); 
+		for (ListIterator<Formal> i = method.formals().listIterator(); i.hasNext();) {
+			Formal parameter = i.next(); 
 			X10TypeSystem ts = typeSystem;
-                        if(parameter.declType().isPrimitive() || 	
+
+			if(parameter.declType().isPrimitive() || 	
 			   ts.isRail(parameter.declType()) || ts.isValRail(parameter.declType())) {
                            signature += typeToJavaSigString(parameter.declType());
                         }
                         else {
                         // assume this is an X10 array object.  Determine backing array type and add
                         // descriptor signature
-                           ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+                           ClassType ct = (ClassType)parameter.declType().toClass();
                            MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
                            if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
                            signature += typeToJavaSigString(backingMethod.returnType());
@@ -387,7 +386,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				newFormals.add(parameter);
 			else {
 			  seenNonPrimitive = true;
-			  ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+			  ClassType ct = (ClassType)parameter.declType().toClass();
 			  MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
 			  if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
 			  TypeNode theReturnType = nf.CanonicalTypeNode(nativeMethod.position(),backingMethod.returnType());
@@ -405,10 +404,10 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 /* search for the given method.  The method is expected to be found in the regular hierarchy,
  * but it may be in an interface--if initial search fails, start looking in the interfaces
  */
-        private  MethodInstance findMethod(ClassType_c theClass,Name targetName){
+        private  MethodInstance findMethod(ClassType ct,Name targetName){
 		MethodInstance targetMI=null,memberMI=null;
 		final boolean trace=false;
-                ClassType_c currentClass=theClass;
+                ClassType currentClass=ct;
                 while(currentClass!=null) {
                    if(trace) System.out.println("Searching class "+currentClass);
    		   List methods = currentClass.methods();
@@ -418,16 +417,16 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                    if (memberMI.name().equals(targetName))
                       return memberMI;
                    }
-                   currentClass = (ClassType_c)currentClass.superClass();
+                   currentClass = (ClassType)currentClass.superClass();
                 }
                 /* now start looking in the interfaces...*/ 
                 if(trace) System.out.println("Search the interfaces....");
-                currentClass = theClass;
+                currentClass = ct;
                 while(currentClass!=null) {
                    List interfaceMethods = currentClass.interfaces();
 
                    for (ListIterator j = interfaceMethods.listIterator(); j.hasNext();) {
-                      ClassType_c implementationClass = (ClassType_c)j.next();
+                      ClassType implementationClass = (ClassType)j.next();
                       if(trace)System.out.println("looking at interface "+implementationClass);
                       List methods = implementationClass.methods();
 
@@ -438,7 +437,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                             return memberMI;
                       }
                    }
-                   currentClass = (ClassType_c)currentClass.superClass();
+                   currentClass = (ClassType)currentClass.superClass();
                 }
 		return null;
         }
@@ -483,7 +482,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				arg= (Local) arg.localInstance(typeSystem.localDef(pos, parameter.flags().flags(), Types.ref(arg.type()), arg.name().id()).asInstance());
 				args.add(arg);
 			} else {
-				ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+				ClassType ct = (ClassType)parameter.declType().toClass();
 				if (null == ct)
 					throw new InternalCompilerError("Problems with array "+parameter.name().id());
 
@@ -495,14 +494,14 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				 */
 				MethodInstance memberMI = null;
 				MethodInstance  arrayDescriptorMI = null, backingArrayMI=null;
-				ClassType_c currentClass = ct;
+				ClassType currentClass = ct;
 				boolean doneSearch = false;
                                
 				while (currentClass != null && !doneSearch) {
 					List interfaceMethods = currentClass.interfaces();
                                
 					for (ListIterator j = interfaceMethods.listIterator(); j.hasNext();) {
-						ClassType_c implementationClass = (ClassType_c)j.next();
+						ClassType implementationClass = (ClassType)j.next();
                                                 if(trace)System.out.println("looking at interface "+implementationClass);
 						List methods = implementationClass.methods();
 						for (ListIterator k = methods.listIterator(); k.hasNext();) {
@@ -527,7 +526,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					if (arrayDescriptorMI != null && (backingArrayMI !=null)){
 						doneSearch = true;
 					}
-					currentClass = (ClassType_c)currentClass.superClass();
+					currentClass = (ClassType)currentClass.superClass();
 				}
 				if (null == arrayDescriptorMI) 
 					throw new InternalCompilerError("Could not find "+descriptorName+" in class "+ ct.fullName());
@@ -642,9 +641,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		String parm = nativeMethod.flags().flags().isStatic()
 						? "jclass cls" : "jobject obj";
 
-		jniCall = "JNIEXPORT "
-				+ typeToJNIString(nativeMethod.methodDef().returnType().get())
-				+ " JNICALL\n" + newName + "(JNIEnv *env, " + parm;
+		jniCall = "JNIEXPORT " + typeToJNIString(nativeMethod.methodDef().returnType().get()) + " JNICALL\n"
+		        + newName + "(JNIEnv *env, " + parm;
 
 		String returnedValue="";
 		if (!nativeMethod.methodDef().returnType().get().isVoid()){
@@ -677,7 +675,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                            acquireStmts += generateAcquireStmt(parameter.name().id().toString(),arrayPtr);
                            releaseStmts = generateReleaseStmt(parameter.name().id().toString(),arrayPtr) + releaseStmts; // release in reverse order
 			   
-			   ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+			   ClassType ct = (ClassType)parameter.declType().toClass();
 			   MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
 			   if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
 
@@ -714,26 +712,33 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		if (nativeMethod.methodDef().container().get().toClass().isNested()) {
 		        Name aliasName = generateJNIAlias(nativeMethod, isOverloaded);
 
-			jniAlias = "#ifndef __WIN32__\nextern JNIEXPORT __typeof("
-					 + newName + ") JNICALL\n" + aliasName
-					 + "\n__attribute((alias(\""
-					 + newName + "\")));\n#endif\n\n";
+			jniAlias = "#ifndef __WIN32__\n" 
+			         + "extern JNIEXPORT __typeof(" + newName + ") JNICALL\n"
+			         + aliasName + "\n"
+			         + "__attribute((alias(\"" + newName + "\")));\n"
+			         + "#endif\n"
+			         + "\n";
 		}
 
 		try {
-			wrapperFile.write("\n/* * * * * * * */\n"+wrapperDecl + "\n"+jniCall + " {\n" +
-                                          acquireStmts+"\n"+
-					  "\n"+
-                                          saveTheValue + wrapperCall
-                                          + ";\n\n"+
-                                          releaseStmts+
-					  returnedValue+
-                                          "}\n" + jniAlias);
-			// Also generate the underscored alias for retarded Win32 loaders
-			wrapperFile.write("#ifndef __WIN32__\nextern JNIEXPORT __typeof("
-					 + newName + ") JNICALL\n_" + newName
-					 + "\n__attribute((alias(\""
-					 + newName + "\")));\n#endif\n\n");
+			wrapperFile.write("\n"
+					+ "/* * * * * * * */\n"
+					+ wrapperDecl + "\n"
+					+ jniCall + " {\n"
+					+ acquireStmts+"\n"
+					+ "\n"
+					+ saveTheValue + wrapperCall + ";\n"
+					+ "\n"
+					+ releaseStmts + returnedValue + "}\n"
+					+ jniAlias);
+			// Also generate the underscored alias for retarded
+                        // Win32 loaders
+			wrapperFile.write("#ifndef __WIN32__\n"
+			                + "extern JNIEXPORT __typeof(" + newName + ") JNICALL\n"
+			                + "_" + newName + "\n"
+			                + "__attribute((alias(\"" + newName + "\")));\n" 
+			                + "#endif\n" 
+			                + "\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new InternalCompilerError("Problems writing file");

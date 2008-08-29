@@ -61,6 +61,7 @@ public interface X10TypeSystem extends TypeSystem {
     Type futureOf(Position p, Ref<? extends Type> t);
 
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, boolean tryCoercionFunction);
 
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes);
 

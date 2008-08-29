@@ -10,6 +10,7 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,7 @@ import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10Use;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -59,6 +61,7 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.Named;
+import polyglot.types.ObjectType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
@@ -505,6 +508,35 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             }
         }
         n = (X10ClassDecl_c) n.interfaces(newInterfaces);
+
+        // Check for duplicate interfaces
+        List<X10ClassType> supers = new ArrayList<X10ClassType>();
+        LinkedList<Type> worklist = new LinkedList<Type>();
+        worklist.add(type.asType());
+        while (! worklist.isEmpty()) {
+            Type t = worklist.removeFirst();
+            if (t instanceof X10ClassType) {
+                supers.add((X10ClassType) t);
+            }
+            if (t instanceof ObjectType) {
+                ObjectType ot = (ObjectType) t;
+                worklist.add(ot.superClass());
+                worklist.addAll(ot.interfaces());
+            }
+        }
+        
+        Map<X10ClassDef,X10ClassType> map = new HashMap<X10ClassDef, X10ClassType>();
+        for (X10ClassType ct : supers) {
+            X10ClassType t = map.get(ct.x10Def());
+            if (t != null) {
+                if (!t.typeEquals(ct)) {
+                    String kind = ct.flags().isInterface() ? "interface" : "class";
+                    throw new SemanticException("Cannot extend different instantiations of the same " + kind + "; " + type + " extends both " + t + " and "
+                                                + ct + ".", position());
+                }
+            }
+            map.put(ct.x10Def(), ct);
+        }
         
     	return n;
     }
