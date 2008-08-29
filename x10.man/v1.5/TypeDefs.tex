@@ -33,7 +33,7 @@ As the two definitions of \xcd"Int" demonstrate, type definitions may
 be overloaded: two type definitions with different numbers of type
 parameters or with different types of value
 parameters, according to the method overloading rules
-(\Sref{MethodOverload}), define distinct types.
+(\Sref{MethodOverload}), define distinct type constructors.
 
 Type definitions may appear as class members or in the body of a
 method, constructor, or initializer.
@@ -49,11 +49,12 @@ a: A = 3;
 b: B = new C("Hi");
 c: C = b + ", Mom!";
 \end{xten}
-An instance of a defined type with no type parameters and no
-value parameters may 
-A \xcd"new" expression may be used to instantiate an instance
-of a type with a defining class type
-by a type definition.
+% An instance of a defined type with no type parameters and no
+% value parameters may 
+If a type definition has no type parameters and no value
+parameters and is an alias for a class type, then 
+a \xcd"new" expression may be used to create an instance
+of the class using the type definition's name.
 The type
 has the same constructors with the same signature as its defining type;
 however, a
