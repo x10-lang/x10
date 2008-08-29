@@ -19,12 +19,6 @@ abstract class ClosureTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    /*
-    def check(test:String, actual:int, expected:int) = {
-        pr(test + " " + expected + " " + actual + " " + (expected==actual));
-    }
-    */
-
     def pr(s:String):void = {
         System.out.println(s);
     }
