@@ -16,9 +16,10 @@ import harness.x10Test;;
 public class PointIndex extends x10Test {
 
 	public def run(): boolean = {
-		var sum: int = 0;
+		var sum:int = 0;
 		var gotException: boolean;
-		var p: point = [1, 2];
+		var p: point = [1, 2] to point;
+		
 
 		gotException = false;
 		try {
