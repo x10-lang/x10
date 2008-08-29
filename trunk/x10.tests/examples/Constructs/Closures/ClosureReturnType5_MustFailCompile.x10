@@ -22,6 +22,6 @@ public class ClosureReturnType6_MustFailCompile extends ClosureTest {
 
 
     public static def main(var args: Rail[String]): void = {
-        new ClosureReturnType6_MustFailCompile().execute();
+        new ClosureReturnType5_MustFailCompile().execute();
     }
 }
