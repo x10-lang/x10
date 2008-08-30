@@ -194,11 +194,12 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		X10ClassDef ct = (X10ClassDef) tb.currentClass();
 		Package package_ = tb.currentPackage();
 		
+		boolean local = tb.inCode();
 		boolean topLevel = ct == null;
 		
 		final boolean ALLOW_TOP_LEVEL_TYPEDEFS = false;
 		
-		if (ct == null && ! ALLOW_TOP_LEVEL_TYPEDEFS) {
+		if (! local && ct == null && ! ALLOW_TOP_LEVEL_TYPEDEFS) {
 		    throw new SemanticException("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", position());
 		}
 
@@ -225,14 +226,24 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    }
 		}
 		
-		if (ct == null)
-		    throw new SemanticException("Could not find enclosing class or package for type definition \"" + name.id() + "\".", position());
+		TypeDef typeDef;
+		
+		if (local) {
+		    typeDef = new TypeDef_c(ts, position(), Flags.NONE, name.id(), null,
+		                            Collections.EMPTY_LIST,
+		                            Collections.EMPTY_LIST,
+		                            Collections.EMPTY_LIST, null, null);
+		}
+		else {		
+		    if (ct == null)
+		        throw new SemanticException("Could not find enclosing class or package for type definition \"" + name.id() + "\".", position());
 
-		TypeDef typeDef = new TypeDef_c(ts, position(), topLevel ? flags.flags().Static() : flags.flags(), name.id(), Types.ref(ct.asType()),
-		                                                                           Collections.EMPTY_LIST,
-		                                                                           Collections.EMPTY_LIST,
-		                                                                           Collections.EMPTY_LIST, null, null);
-		ct.addMemberType(typeDef);
+		    typeDef = new TypeDef_c(ts, position(), topLevel ? flags.flags().Static() : flags.flags(), name.id(), Types.ref(ct.asType()),
+		                                                     Collections.EMPTY_LIST,
+		                                                     Collections.EMPTY_LIST,
+		                                                     Collections.EMPTY_LIST, null, null);
+		    ct.addMemberType(typeDef);
+		}
 		
 		typeDef.setPackage(package_ != null ? Types.ref(package_) : null);
 
@@ -286,7 +297,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        
 	        // Add to the system resolver if the type def takes no arguments.
 	        // Otherwise, we'll search through the container.
-	        if (ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
+	        if (! local && ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
 	        	if (ALLOW_TOP_LEVEL_TYPEDEFS) {
 	        		if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() != null)
 	        			ts.systemResolver().install(QName.make(ct.package_().get().fullName(), name.id()), typeDef.asType());

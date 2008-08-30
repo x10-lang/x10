@@ -78,7 +78,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	public MacroType asType() {
 		if (asType == null) {
 			asType = new MacroType_c((X10TypeSystem) ts, position(), Types.<TypeDef>ref(this));
-			asType = (MacroType) asType.container(container.get());
+			asType = (MacroType) asType.container(Types.get(container));
 		}
 		return asType;
 	}

@@ -27,6 +27,7 @@ import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 
@@ -41,46 +42,58 @@ import polyglot.visit.ContextVisitor;
  *
  */
 public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
-    protected boolean convert;
+    protected ConversionType convert;
 
-    public X10Cast_c(Position pos, TypeNode castType, Expr expr, boolean convert) {
+    public X10Cast_c(Position pos, TypeNode castType, Expr expr, ConversionType convert) {
 	super(pos, castType, expr);
 	this.convert = convert;
     }
     
     public boolean isConversion() {
-	return convert;
+	return convert != ConversionType.COERCION;
+    }
+    
+    public ConversionType conversionType() {
+        return convert;
+    }
+    
+    public X10Cast conversionType(ConversionType convert) {
+        X10Cast_c n = (X10Cast_c) copy();
+        n.convert = convert;
+        return n;
     }
     
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	X10Cast_c n = (X10Cast_c) copy();
-
-	Type toType = n.castType.type();
-	Type fromType = n.expr.type();
+	Type toType = castType.type();
+	Type fromType = expr.type();
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
-	boolean conversionAllowed = false;
 	boolean coercionAllowed = false;
+	ConversionType conversionType = convert == ConversionType.COERCION ? convert : ConversionType.UNKNOWN_CONVERSION;
 	
 	MethodInstance converter = null;
 	
-	if (ts.isBoolean(fromType) && ts.isBoolean(toType))
-	    conversionAllowed = true;
-	else if (ts.isNumeric(fromType) && ts.isNumeric(toType))
-	    conversionAllowed = true;
-	else if (ts.isValueType(fromType) && ts.isSubtype(ts.boxOf(Types.ref(fromType)), toType))
-	    conversionAllowed = true;
-	else if (ts.isValueType(toType) && ts.isSubtype(fromType, ts.boxOf(Types.ref(toType))))
-	    conversionAllowed = true;
-	else if (ts.isValueType(toType) && ts.descendsFrom(fromType, toType))
-	    conversionAllowed = true;
+	if (ts.isBoolean(fromType) && ts.isBoolean(toType)) {
+	    conversionType = ConversionType.PRIMITIVE;
+	}
+	else if (ts.isNumeric(fromType) && ts.isNumeric(toType)) {
+	    conversionType = ConversionType.PRIMITIVE;
+	}
+	else if (ts.isValueType(fromType) && ts.isSubtype(ts.boxOf(Types.ref(fromType)), toType)) {
+	    conversionType = ConversionType.BOXING;
+	}
+	else if (ts.isValueType(toType) && ts.isSubtype(fromType, ts.boxOf(Types.ref(toType)))) {
+	    conversionType = ConversionType.UNBOXING;
+	}
+	else if (ts.isValueType(toType) && ts.descendsFrom(fromType, toType)) {
+	    conversionType = ConversionType.TRUNCATION;
+	}
 	else {
 	    // Can convert if there is a static method toType.$convert(fromType)
 	    if (converter == null) {
 	        try {
 	            MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType), false), (ClassDef) null);
 	            if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
-	                conversionAllowed = true;
 	                converter = mi;
 	            }
 	        }
@@ -91,12 +104,15 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        try {
 	            MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false), (ClassDef) null);
 	            if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
-	                conversionAllowed = true;
 	                converter = mi;
 	            }
 	        }
 	        catch (SemanticException e) {
 	        }
+	    }
+
+	    if (converter != null) {
+	        conversionType = ConversionType.CALL;
 	    }
 	}
 	
@@ -106,10 +122,11 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    coercionAllowed = false;
 
 	if (coercionAllowed)
-	    conversionAllowed = true;
+	    if (conversionType == ConversionType.UNKNOWN_CONVERSION) 
+	        conversionType = ConversionType.COERCION;
 	
-	if (convert) {
-	    if (! conversionAllowed) {
+	if (convert != ConversionType.COERCION) {
+	    if (conversionType == ConversionType.UNKNOWN_CONVERSION) {
 		throw new SemanticException("Cannot convert expression of type \"" 
 		                            + fromType + "\" to type \"" 
 		                            + toType + "\".",
@@ -131,7 +148,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 		if (! mi.returnType().isSubtype(toType)) {
 		    X10Cast_c n1 = (X10Cast_c) copy();
 		    n1.expr = c;
-		    n1.convert = false;
+		    n1.convert = ConversionType.COERCION;
 		    return n1.type(toType);
 		}
 		else {
@@ -143,11 +160,15 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    if (! coercionAllowed) {
 		throw new SemanticException("Cannot coerce expression of type \"" 
 		                            + fromType + "\" to type \"" 
-		                            + toType + "\"" + (conversionAllowed ? "; use an explicit conversion with 'to'." : "."),
+		                            + toType + "\"" + (conversionType != ConversionType.UNKNOWN_CONVERSION ? "; use an explicit conversion with 'to'." : "."),
 		                            position());
 	    }
+	    
+	    conversionType = ConversionType.COERCION;
 	}
 
+	X10Cast_c n = (X10Cast_c) copy();
+	n.convert = conversionType;
 	return n.type(toType);
     }
 
@@ -173,7 +194,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     }
 
     public String toString() {
-	return expr.toString() + (convert ? " to " : " as ") + castType.toString();
+	return expr.toString() + (isConversion() ? " to " : " as ") + castType.toString();
     }
     
     @Override

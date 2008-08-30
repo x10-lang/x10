@@ -9,14 +9,12 @@ package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.AmbAssign;
 import polyglot.ast.AmbQualifierNode;
 import polyglot.ast.AmbTypeNode;
-import polyglot.ast.AmbTypeNode_c;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
@@ -56,7 +54,6 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.NodeFactory_c;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
-import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.SourceFile;
@@ -72,9 +69,9 @@ import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
@@ -105,7 +102,14 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public Disamb disamb() {
 		return new X10Disamb_c();
 	}
-	
+
+	public LocalTypeDef LocalTypeDef(Position pos, TypeDecl typeDefDeclaration) {
+	    LocalTypeDef_c n = new LocalTypeDef_c(pos, typeDefDeclaration);
+	    n = (LocalTypeDef_c) n.ext(extFactory().extStmt());
+	    n = (LocalTypeDef_c) n.del(delFactory().delStmt());
+	    return n;
+	}
+
 	    public AmbTypeNode AmbTypeNode(Position pos, Prefix qualifier, Id name) {
 		X10AmbTypeNode_c n = new X10AmbTypeNode_c(pos, qualifier, name);
 	        n = (X10AmbTypeNode_c)n.ext(extFactory().extAmbTypeNode());
@@ -534,7 +538,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	
 	public Cast X10Cast(Position pos, TypeNode castType, Expr expr, boolean convert) {
-	    Cast n = new X10Cast_c(pos, castType, expr, convert);
+	    Cast n = new X10Cast_c(pos, castType, expr, convert ? X10Cast.ConversionType.UNKNOWN_CONVERSION : X10Cast.ConversionType.COERCION);
 	    n = (Cast)n.ext(extFactory().extCast());
 	    n = (Cast)n.del(delFactory().delCast());
 	    return n;
