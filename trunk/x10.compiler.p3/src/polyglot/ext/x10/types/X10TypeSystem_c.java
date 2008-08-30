@@ -665,7 +665,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    throw new NoClassException(name.toString(), container);
 	}
 	
-	
 	public PathType findTypeProperty(Type container, Name name, ClassDef currClass) throws SemanticException {
 	    assert_(container);
 
@@ -757,14 +756,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return refType_;
 	}
 
-	private X10ParsedClassType boxType_;
+	private BoxType boxType_;
 	public Type Box() {
 		if (boxType_ == null)
 			boxType_ = createBoxType();
 		return boxType_;
 	}
 	
-	public X10ParsedClassType createBoxType() {
+	public BoxType createBoxType() {
 	    X10ClassDef cd = new X10ClassDef_c(this, null) {
 		{
 		    // Initialize asType to BoxType so we don't return a X10ParsedClassType instead.
@@ -809,7 +808,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    
 	    systemResolver().install(QName.make(cd.fullName()), cd.asType());
 
-	    return (BoxType_c) cd.asType();
+	    return (BoxType) cd.asType();
 	}
 	
 
@@ -897,23 +896,29 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return boxOf(Position.COMPILER_GENERATED, base);
 	}
 	
+	public List<Type> superTypes(ObjectType t) {
+	    Type sup = t.superClass();
+	    if (sup == null)
+	        return t.interfaces();
+	    List<Type> ts = new ArrayList<Type>();
+	    ts.add(sup);
+	    ts.addAll(t.interfaces());
+	    return ts;
+	}
+	
 	public List<ClosureType> getFunctionSupertypes(Type t) {
 	    if (t == null)
 		return Collections.EMPTY_LIST;
+	    
 	    t = X10TypeMixin.baseType(t);
-	    t = expandMacros(t);
+	    
 	    if (t instanceof ClosureType)
 		return Collections.singletonList((ClosureType) t);
+	    
 	    if (t instanceof ObjectType) {
 		List<ClosureType> l = Collections.EMPTY_LIST;
 		ObjectType ot = (ObjectType) t;
-		Type sup = ot.superClass();
-		if (sup != null) {
-		    List<ClosureType> supFunctions = getFunctionSupertypes(sup);
-		    if (! supFunctions.isEmpty())
-			l = supFunctions;
-		}
-		for (Type ti : ot.interfaces()) {
+		for (Type ti : superTypes(ot)) {
 		    List<ClosureType> supFunctions = getFunctionSupertypes(ti);
 		    if (! supFunctions.isEmpty()) {
 			if (l.isEmpty())
@@ -924,8 +929,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			}
 		    }
 		}
+		
 		return l;
 	    }
+	    
 	    return Collections.EMPTY_LIST;
 	}
 	
@@ -934,7 +941,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 
 	public boolean isBox(Type t) {
-	    return hasSameClassDef(t, this.Box());
+	    return X10TypeMixin.baseType(t) instanceof BoxType;
+//	    return hasSameClassDef(t, this.Box());
 	}
 	
 	public boolean isInterfaceType(Type t) {
@@ -1523,14 +1531,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return super.isLongOrLess(t) || isUByte(t) || isUShort(t) || isUInt(t);
 	}
 
-	/** Return true if box[t1] is a subtype of t2.  t1 must be a value type */
+	/** Return true if Box[t1] is a subtype of t2.  t1 must be a value type */
 	public boolean isUnboxedSubtype(Type t1, Type t2) {
 	    t1 = expandMacros(t1);
 	    t2 = expandMacros(t2);
-		
-	    if (t1 == t2)
-			return true;
-		
+	    
 		if (t1 instanceof ConstrainedType && t2 instanceof ConstrainedType) {
 			ConstrainedType ct1 = (ConstrainedType) t1;
 			ConstrainedType ct2 = (ConstrainedType) t2;
@@ -1574,66 +1579,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 				return true;
 		}
 
-		if (t1 instanceof ParametrizedType && t2 instanceof ParametrizedType) {
-			ParametrizedType pt1 = (ParametrizedType) t1;
-			ParametrizedType pt2 = (ParametrizedType) t2;
-			
-			boolean result = true;
-			result &= pt1.def() == pt2.def();
-			result &= typeListEquals(pt1.typeParameters(), pt2.typeParameters());
-			result &= typeListEquals(pt1.formalTypes(), pt2.formalTypes());
-			result &= listEquals(pt1.formals(), pt2.formals()); 
-			if (result)
-				return true;
-		}
-		
-		// p: C{self.T<:S}  implies  p.T <: S
-		if (t1 instanceof PathType) {
-			PathType pt1 = (PathType) t1;
-			TypeProperty px = pt1.property();
-			XVar base = PathType_c.pathBase(pt1);
-			if (base != null) {
-			    final XConstraint c = base.selfConstraint();
-//			    if (c != null) {
-//				c = c.copy();
-//			    }
-//			    else {
-//				c = new XConstraint_c();
-//			    }
-//			    try {
-//				c.addIn(X10TypeMixin.realX(pt1.baseType()));
-//			    }
-//			    catch (XFailure e1) {
-//			    }
-			    if (c != null) {
-					try {
-						// Check if the constraint on the base p implies that p.T <: S
-						// Avoid infinite recursion by removing selfConstraint on base.
-						base.setSelfConstraint(null);
-						XConstraint c1 = c.substitute(base, XSelf.Self);
-						XConstraint c2 = new XConstraint_c();
-						c2.addAtom(xtypeTranslator().transSubtype(boxOf(Types.ref(t1)), t2));
-						boolean result = c1.entails(c2);
-						if (result)
-							return true;
-					}
-					catch (XFailure e) {
-					}
-					finally {
-						base.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return c; } });
-					}
-				}
-			}
-		}
-
-		if (t1 instanceof PrimitiveType && t2.typeEquals(Object())) {
-			return true;
-		}
-		
-		if (t1 instanceof PrimitiveType && t2.typeEquals(Value())) {
+		if (t2.typeEquals(Object()) || t2.typeEquals(Ref())) {
 		    return true;
 		}
 		
+		if (isInterfaceType(t2))
+		    if (isSubtype(t1, t2))
+		        return true;
+		
+		/*
 		if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
 		    X10ClassType ct1 = (X10ClassType) t1;
 		    X10ClassType ct2 = (X10ClassType) t2;
@@ -1664,8 +1618,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			return true;
 		    }
 		}
+		*/
+	              
+                if (t1 instanceof ParameterType || t1 instanceof PathType) {
+                    for (Type s1 : upperBounds(t1)) {
+                        if (isUnboxedSubtype(s1, t2))
+                            return true;
+                    }
+                }
+                if (t2 instanceof ParameterType || t2 instanceof PathType) {
+                    for (Type s2 : lowerBounds(t2)) {
+                        if (isUnboxedSubtype(t1, s2))
+                            return true;
+                    }
+                }
 		
-		return descendsFrom(t1, t2);
+                return false;
 	}
 
 	@Override
@@ -2070,7 +2038,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return isImplicitCastValid(fromType, toType, true);
 	}
 	
-	Type expandMacros(Type t) {
+	public Type expandMacros(Type t) {
 	    if (t instanceof AnnotatedType)
 		return expandMacros(((AnnotatedType) t).baseType());
 	    if (t instanceof MacroType)
@@ -2667,76 +2635,78 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public Type leastCommonAncestor(Type type1, Type type2)
 	throws SemanticException
 	{
-		assert_(type1);
-		assert_(type2);
-		try { 
-		if (typeBaseEquals(type1, type2)) {
-			Type base1 = X10TypeMixin.xclause(type1, (XConstraint) null);
-			return base1;
-		}
-		
-		if (type1.isNumeric() && type2.isNumeric()) {
-			if (isImplicitCastValid(type1, type2)) {
-				return type2;
-			}
-			
-			if (isImplicitCastValid(type2, type1)) {
-				return type1;
-			}
-			
-			if (type1.isChar() && type2.isByte() ||
-					type1.isByte() && type2.isChar()) {
-				return Int();
-			}
-			
-			if (type1.isChar() && type2.isShort() ||
-					type1.isShort() && type2.isChar()) {
-				return Int();
-			}
-		}
-		
-		// TODO: handle covariant instantiated types.
-		// XYZ
-		if (type1.isArray() && type2.isArray()) {
-			return arrayOf(leastCommonAncestor(
-					type1.toArray().base(), type2.toArray().base()));
-		}
-		
-		if (type1.isReference() && type2.isNull()) return type1;
-		if (type2.isReference() && type1.isNull()) return type2;
-		
-			// Don't consider interfaces.
-			if (type1.isClass() && type1.toClass().flags().isInterface()) {
-				return Object();
-			}
-			
-			if (type2.isClass() && type2.toClass().flags().isInterface()) {
-				return Object();
-			}
-			
-			// Check against Object to ensure superType() is not null.
-			if (typeEquals(type1, Object())) return type1;
-			if (typeEquals(type2, Object())) return type2;
-			
-			if (isSubtype(type1, type2)) return type2;
-			if (isSubtype(type2, type1)) return type1;
-			
-			if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
-			// Walk up the hierarchy
-			Type t1 = leastCommonAncestor(((ObjectType) type1).superClass(), type2);
-			Type t2 = leastCommonAncestor(((ObjectType) type2).superClass(), type1);
-			
-			if (typeEquals(t1, t2)) return t1;
-			
-			return Object();
-		}
-		} finally {
-			//Report.report(1, "X10TypeSystem_c: The LCA of "  + type1 + " " + type2 + " is " + result + ".");
-		}
-		throw new SemanticException(
-				"No least common ancestor found for types \"" + type1 +
-				"\" and \"" + type2 + "\".");
+	    assert_(type1);
+	    assert_(type2);
+	    try { 
+	        if (typeBaseEquals(type1, type2)) {
+	            Type base1 = X10TypeMixin.xclause(type1, (XConstraint) null);
+	            return base1;
+	        }
+
+	        if (type1.isNumeric() && type2.isNumeric()) {
+	            if (isImplicitCastValid(type1, type2)) {
+	                return type2;
+	            }
+
+	            if (isImplicitCastValid(type2, type1)) {
+	                return type1;
+	            }
+
+	            if (type1.isChar() && type2.isByte() ||
+	                    type1.isByte() && type2.isChar()) {
+	                return Int();
+	            }
+
+	            if (type1.isChar() && type2.isShort() ||
+	                    type1.isShort() && type2.isChar()) {
+	                return Int();
+	            }
+	        }
+
+	        // TODO: handle covariant instantiated types.
+	        // XYZ
+	        if (type1.isArray() && type2.isArray()) {
+	            return arrayOf(leastCommonAncestor(
+	                                               type1.toArray().base(), type2.toArray().base()));
+	        }
+
+	        if (type1.isReference() && type2.isNull()) return type1;
+	        if (type2.isReference() && type1.isNull()) return type2;
+
+	        // Don't consider interfaces.
+	        if (type1.isClass() && type1.toClass().flags().isInterface()) {
+	            return Object();
+	        }
+
+	        if (type2.isClass() && type2.toClass().flags().isInterface()) {
+	            return Object();
+	        }
+
+	        // Check against Object to ensure superType() is not null.
+	        if (typeEquals(type1, Object())) return type1;
+	        if (typeEquals(type2, Object())) return type2;
+
+	        if (isSubtype(type1, type2)) return type2;
+	        if (isSubtype(type2, type1)) return type1;
+
+	        if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
+	            // Walk up the hierarchy
+	            Type t1 = leastCommonAncestor(((ObjectType) type1).superClass(), type2);
+	            Type t2 = leastCommonAncestor(((ObjectType) type2).superClass(), type1);
+
+	            if (typeEquals(t1, t2)) return t1;
+
+	            return Object();
+	        }
+	    }
+	    finally {
+	        //Report.report(1, "X10TypeSystem_c: The LCA of "  + type1 + " " + type2 + " is " + result + ".");
+	    }
+	    
+	    throw new SemanticException("No least common ancestor found for types \"" + type1 +
+	                                "\" and \"" + type2 + "\".");
 	}
+
 	 public boolean typeBaseEquals(Type type1, Type type2) {
 	        assert_(type1);
 	        assert_(type2);

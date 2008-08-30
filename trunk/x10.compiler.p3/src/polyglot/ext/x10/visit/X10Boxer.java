@@ -10,6 +10,7 @@ package polyglot.ext.x10.visit;
 
 import java.util.Collections;
 
+import polyglot.ast.Assign;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
@@ -47,12 +48,36 @@ public class X10Boxer extends AscriptionVisitor
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
     }
-
+    
     private boolean needsExplicitConversion(Type fromType, Type toType) {
         if (ts.isImplicitCastValid(fromType, toType) && !ts.isSubtype(fromType, toType)) {
             return true;
         }
         return false;
+    }
+
+    /** Override to workaround problem with Assign to a boxed numeric from a constant. */
+    public NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
+        Type t = null;
+        
+        if (parent instanceof Assign) {
+            Assign a = (Assign) parent;
+            if (n == a.right()) {
+                t = a.leftType();
+            }
+        }
+        
+        if (t == null) {
+            if (parent != null && n instanceof Expr) {
+                t = parent.childExpectedType((Expr) n, this);
+            }
+        }
+
+        X10Boxer v = (X10Boxer) copy();
+        v.outerAscriptionVisitor = this;
+        v.type = t;
+
+        return v;
     }
 
     /**
