@@ -30,7 +30,7 @@ public class Box<T> extends Ref {
         return new Box<S>(Types./*<S>*/runtimeType(v.getClass()), v);
     }
     
-    public Object value() { return value; }
+    public T value() { return value; }
 
     public boolean equals(Object o) {
         if (o instanceof Box) {
