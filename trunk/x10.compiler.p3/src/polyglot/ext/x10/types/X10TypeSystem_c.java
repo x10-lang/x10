@@ -934,11 +934,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 
 	public boolean isBox(Type t) {
-		X10TypeSystem ts = this;
-		if (ts.descendsFrom(X10TypeMixin.baseType(t), ts.Box())) {
-			return true;
-		}
-		return false;
+	    return hasSameClassDef(t, this.Box());
 	}
 	
 	public boolean isInterfaceType(Type t) {

@@ -885,7 +885,6 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
-        
     Properties ::= ( PropertyList )
       /.$BeginJava
        setResult(PropertyList);
@@ -2818,6 +2817,11 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Block);
           $EndJava
         ./
+                  | Block
+        /.$BeginJava
+                    setResult(Block);
+          $EndJava
+        ./
                       | ;
         /.$NullAction./
     
@@ -2883,6 +2887,27 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(ConstructorBlock);
           $EndJava
         ./
+                      | ConstructorBlock
+        /.$BeginJava
+                    setResult(ConstructorBlock);
+          $EndJava
+        ./
+                    | = ExplicitConstructorInvocation
+        /.$BeginJava
+                    List l;
+                    l = new TypedList(new LinkedList(), Stmt.class, false);
+                    l.add(ExplicitConstructorInvocation);
+                    setResult(nf.Block(pos(), l));
+          $EndJava
+        ./
+                    | = AssignPropertyCall
+        /.$BeginJava
+                    List l;
+                    l = new TypedList(new LinkedList(), Stmt.class, false);
+                    l.add(AssignPropertyCall);
+                    setResult(nf.Block(pos(), l));
+          $EndJava
+        ./
                       | ;
         /.$NullAction./
 
@@ -2899,22 +2924,6 @@ public static class MessageHandler implements IMessageHandler {
                         l.add(ExplicitConstructorInvocationopt);
                     }
                     l.addAll(BlockStatementsopt);
-                    setResult(nf.Block(pos(), l));
-          $EndJava
-        ./
-                    | ExplicitConstructorInvocation
-        /.$BeginJava
-                    List l;
-                    l = new TypedList(new LinkedList(), Stmt.class, false);
-                    l.add(ExplicitConstructorInvocation);
-                    setResult(nf.Block(pos(), l));
-          $EndJava
-        ./
-                    | AssignPropertyCall
-        /.$BeginJava
-                    List l;
-                    l = new TypedList(new LinkedList(), Stmt.class, false);
-                    l.add(AssignPropertyCall);
                     setResult(nf.Block(pos(), l));
           $EndJava
         ./
@@ -3136,6 +3145,13 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(l);
           $EndJava
         ./
+                     | TypeDefDeclaration
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), Stmt.class, false);
+                    l.add(nf.LocalTypeDef(pos(), TypeDefDeclaration));
+                    setResult(l);
+          $EndJava
+        ./
                      | Statement
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Stmt.class, false);
@@ -3216,19 +3232,20 @@ public static class MessageHandler implements IMessageHandler {
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                                                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+                            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
                             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
-                                                                                    List explodedFormals = new ArrayList();
-                                                                                    int index = 0;
+                            int index = 0;
+                            l.add(ld);
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(id.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	// HACK: if the local is non-final, assume the type is point and the component is int
+                            	TypeNode tni = fn.flags().isFinal() ? nf.UnknownTypeNode(id.position()) : nf.CanonicalTypeNode(id.position(), ts.Int());
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
-                            l.add(ld);
                         }
                     l.addAll(s); 
                     setResult(l);
@@ -3248,19 +3265,20 @@ public static class MessageHandler implements IMessageHandler {
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
-                                                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+                            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
                             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
-                                                                                    List explodedFormals = new ArrayList();
-                                                                                    int index = 0;
+                            int index = 0;
+                            l.add(ld);
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(id.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	// HACK: if the local is non-final, assume the type is point and the component is int
+                            	TypeNode tni = fn.flags().isFinal() ? nf.UnknownTypeNode(id.position()) : nf.CanonicalTypeNode(id.position(), ts.Int());
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
-                            l.add(ld);
                         }
                     l.addAll(s); 
                     setResult(l);
@@ -3285,14 +3303,15 @@ public static class MessageHandler implements IMessageHandler {
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
                             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
-                                                                                    List explodedFormals = new ArrayList();
-                                                                                    int index = 0;
+                            int index = 0;
+                            l.add(ld);
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	explodedFormals.add(nf.LocalDecl(id.position(), fn, nf.UnknownTypeNode(id.position()), id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	// HACK: if the local is non-final, assume the type is point and the component is int
+                            	TypeNode tni = fn.flags().isFinal() ? nf.UnknownTypeNode(id.position()) : nf.CanonicalTypeNode(id.position(), ts.Int());
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
-                            l.add(ld);
                         }
                     l.addAll(s); 
                     setResult(l);

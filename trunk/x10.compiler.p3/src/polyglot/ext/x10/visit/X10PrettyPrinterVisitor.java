@@ -24,6 +24,7 @@ import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
 import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Cast;
 import polyglot.ast.ConstructorCall;
@@ -515,33 +516,38 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     private boolean methodUsesClassParameter(MethodInstance mi) {
-        boolean usesParameter = false;
         Type container = mi.container();
         container = X10TypeMixin.baseType(container);
         if (container instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) container).x10Def();
-            if (cd.typeParameters().size() > 0) {
-                for (Ref<? extends Type> tref : mi.def().formalTypes()) {
-                    Type t = Types.get(tref);
-                    if (t instanceof ParameterType) {
-                        ParameterType pt = (ParameterType) t;
-                        Def d = Types.get(pt.def());
-                        if (d == cd) {
-                            usesParameter = true;
-                        }
-                    }
-                }
-                Type t = Types.get(mi.def().returnType());
+            
+            if (cd.typeParameters().size() == 0)
+                return false;
+
+            if (getJavaRep(cd) != null)
+                return false;
+
+            for (Ref<? extends Type> tref : mi.def().formalTypes()) {
+                Type t = Types.get(tref);
                 if (t instanceof ParameterType) {
                     ParameterType pt = (ParameterType) t;
                     Def d = Types.get(pt.def());
                     if (d == cd) {
-                        usesParameter = true;
+                        return true;
                     }
                 }
             }
+            Type t = Types.get(mi.def().returnType());
+            if (t instanceof ParameterType) {
+                ParameterType pt = (ParameterType) t;
+                Def d = Types.get(pt.def());
+                if (d == cd) {
+                    return true;
+                }
+            }
         }
-        return usesParameter;
+
+        return false;
     }
 	
 	private void generateMethodDecl(X10MethodDecl_c n, boolean boxx, boolean dispatxxch) {
@@ -1126,20 +1132,45 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(X10Cast_c c) {
 	        TypeNode tn = c.castType();
+	        assert tn instanceof CanonicalTypeNode;
 	        
-	        if (tn instanceof X10CanonicalTypeNode) {
-	            X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
-	            Type t = X10TypeMixin.baseType(xtn.type());
-	            DepParameterExpr dep = xtn.constraintExpr();
-	            if (dep != null) {
-	        	new Template("cast_deptype", xtn.typeRef(Types.ref(t)), c.expr(), dep.condition()).expand();
+	        switch (c.conversionType()) {
+	        case COERCION:
+	        case PRIMITIVE:
+	            if (tn instanceof X10CanonicalTypeNode) {
+	                X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+	                Type t = X10TypeMixin.baseType(xtn.type());
+	                DepParameterExpr dep = xtn.constraintExpr();
+	                if (dep != null) {
+	                    new Template("cast_deptype", xtn.typeRef(Types.ref(t)), c.expr(), dep.condition()).expand();
+	                }
+	                else {
+	                    visit((Node)c);
+	                }
 	            }
 	            else {
-	        	visit((Node)c);
+	                visit((Node)c);
 	            }
-	        }
-	        else {
-	            visit((Node)c);
+	            break;
+	        case BOXING:
+	            w.write("x10.core.Box.make(");
+	            tr.print(c, c.expr(), w);
+	            w.write(")");
+	            break;
+	        case UNBOXING:
+	            w.write("((x10.core.Box<");
+	            printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+	            w.write(">) ");
+	            tr.print(c, c.expr(), w);
+	            w.write(").value()");
+	            break;
+	        case TRUNCATION:
+	            // TODO: Value truncation not implemented.
+	            break;
+	        case UNKNOWN_CONVERSION:
+	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
+	        case CALL:
+	            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
 	        }
 	}
 	
@@ -1349,8 +1380,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
 
-		boolean superUsesClassParameter = ! mi.flags().isStatic() && overridesMethodThatUsesClassParameter(mi);
-
 	            
 		/*
 		 * For "java" annotations:
@@ -1434,6 +1463,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //		    }
 		    
 		    if (USE_JAVA_GENERICS) {
+		        boolean superUsesClassParameter = ! mi.flags().isStatic() && overridesMethodThatUsesClassParameter(mi);
+		        // FIXME: this test is too imprecise.
 		        callUnboxedMethod = superUsesClassParameter;
 		    }
 
@@ -2090,6 +2121,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
 		
 		type = X10TypeMixin.baseType(type);
+		
+		if (xts.isBox(type)) {
+		    X10ClassType ct = (X10ClassType) type;
+		    Type arg = ct.typeArguments().get(0);
+		    if (xts.isReferenceType(arg)) {
+		        type = arg;
+		    }
+		    else {
+		        w.write("x10.core.Box<? extends ");
+		        printType(arg, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+		        w.write(">");
+		        return;
+		    }
+		}
 
                 if (type.isBoolean() || type.isNumeric() || type.isVoid()) {
                     String s = null;

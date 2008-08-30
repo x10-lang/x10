@@ -41,6 +41,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.Position;
+import x10.parser.X10Parser.JPGPosition;
 
 /**
  * NodeFactory for x10 extension.
@@ -158,4 +159,6 @@ public interface X10NodeFactory extends NodeFactory {
 	X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments);
 	X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body);
 	X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments);
+
+    LocalTypeDef LocalTypeDef(Position pos, TypeDecl typeDefDeclaration);
 }
