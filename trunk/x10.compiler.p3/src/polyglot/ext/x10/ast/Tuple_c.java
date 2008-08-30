@@ -19,8 +19,11 @@ import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.FieldInstance;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
@@ -34,6 +37,12 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XLit;
+import x10.constraint.XSelf;
+import x10.constraint.XVar;
 
 /** 
  * An immutable representation of the X10 rail constructor [e1, ..., ek]. 
@@ -138,7 +147,19 @@ public class Tuple_c extends Expr_c implements Tuple {
 	    }
 	    else {
 		Type r = ts.ValRail();
-		Type t = X10TypeMixin.instantiate(r, type);
+		X10ClassType t = (X10ClassType) X10TypeMixin.instantiate(r, type);
+		XConstraint c = new XConstraint_c();
+		FieldInstance lengthField = ((X10ClassType) t).fieldNamed(Name.make("length"));
+		if (lengthField == null)
+		    throw new InternalCompilerError("Could not find length field of " + t, position());
+		try {
+		    XVar selfLength = ts.xtypeTranslator().trans(XSelf.Self, lengthField);
+		    XLit sizeLiteral = ts.xtypeTranslator().trans(elements.size());
+		    c.addBinding(selfLength, sizeLiteral);
+		}
+		catch (XFailure e) {
+		    throw new SemanticException(e);
+		}
 		return type(t);
 	    }
 	}
