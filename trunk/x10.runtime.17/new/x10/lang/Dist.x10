@@ -21,7 +21,7 @@ public abstract value Dist(
 @Native("java", "x10.array.DistFactory.makeUnique()")
     incomplete public static def makeUnique(): Dist;
 @Native("java", "x10.array.DistFactory.makeLocal(#1)")
-    incomplete public static def makeConstant(r: Region): Dist;
+    incomplete public static def makeConstant(r: Region): Dist{region==r,onePlace==here};
 @Native("java", "x10.array.DistFactory.makeCyclic(#1, #2)")
     incomplete public static def makeCyclic(r: Region, axis: int): Dist;
 @Native("java", "x10.array.DistFactory.makeBlock(#1, #2)")
@@ -33,7 +33,7 @@ public abstract value Dist(
 
     incomplete public static def makeUnique(ps: Set[Place]): Dist;
 @Native("java", "x10.array.DistFactory.makeConstant(#1, #2)")
-    incomplete public static def makeConstant(r: Region, p: Place): Dist;
+    incomplete public static def makeConstant(r: Region, p: Place): Dist{region==r,onePlace==here};
     incomplete public static def makeCyclic(r: Region, axis: int, ps: Set[Place]): Dist;
     incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place]): Dist;
     incomplete public static def makeBlockCyclic(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist;
