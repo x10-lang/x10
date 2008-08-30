@@ -43,6 +43,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
@@ -64,6 +65,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             Id name, Expr init) {
         this(pos, null, flags, type, name, init);
     }
+    
     
     public DepParameterExpr guard() {
         return guard;
@@ -204,5 +206,13 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    return super.setResolverOverride(parent, v);
 	    }
 
+	    public Type childExpectedType(Expr child, AscriptionVisitor av) {
+	        if (child == init) {
+	            TypeSystem ts = av.typeSystem();
+	            return type.type();
+	        }
+
+	        return child.type();
+	    }
 }
 

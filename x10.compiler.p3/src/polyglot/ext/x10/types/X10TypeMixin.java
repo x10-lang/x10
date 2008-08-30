@@ -298,6 +298,7 @@ public class X10TypeMixin {
     public static boolean equalsIgnoreClause(X10Type t1, X10Type t2) {
         return t1.typeEquals(t2);
     }
+    
     public static X10PrimitiveType promote(Unary.Operator op, X10PrimitiveType t) throws SemanticException {
         TypeSystem ts = t.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t);
@@ -393,48 +394,26 @@ public class X10TypeMixin {
 	}
 	
 	public static List<FieldInstance> properties(Type t) {
-	    if (t instanceof AnnotatedType) {
-		AnnotatedType ct = (AnnotatedType) t;
-		return properties(ct.baseType());
+	    t = baseType(t);
+	    if (t instanceof X10ClassType) {
+	        X10ClassType ct = (X10ClassType) t;
+	        return ct.properties();
 	    }
-		if (t instanceof ConstrainedType) {
-			ConstrainedType ct = (ConstrainedType) t;
-			return properties(ct.baseType().get());
-		}
-		if (t instanceof MacroType) {
-			MacroType mt = (MacroType) t;
-			return properties(mt.definedType());
-		}
-		if (t instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) t;
-			return ct.properties();
-		}
-		return Collections.EMPTY_LIST;
+	    return Collections.EMPTY_LIST;
 	}
 	public static List<TypeProperty> typeProperties(Type t) {
-	    if (t instanceof AnnotatedType) {
-		AnnotatedType ct = (AnnotatedType) t;
-		return typeProperties(ct.baseType());
+	    t = baseType(t);
+	    if (t instanceof X10ClassType) {
+	        X10ClassType ct = (X10ClassType) t;
+	        X10ClassDef def = ct.x10Def();
+	        Type sup = Types.get(def.superType());
+	        List<TypeProperty> ps = new ArrayList<TypeProperty>();
+	        if (sup != null) {
+	            ps.addAll(typeProperties(sup));
+	        }
+	        ps.addAll(ct.x10Def().typeProperties());
+	        return ps;
 	    }
-		if (t instanceof ConstrainedType) {
-			ConstrainedType ct = (ConstrainedType) t;
-			return typeProperties(ct.baseType().get());
-		}
-		if (t instanceof MacroType) {
-			MacroType mt = (MacroType) t;
-			return typeProperties(mt.definedType());
-		}
-		if (t instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) t;
-			X10ClassDef def = ct.x10Def();
-			Type sup = Types.get(def.superType());
-			List<TypeProperty> ps = new ArrayList<TypeProperty>();
-			if (sup != null) {
-				ps.addAll(typeProperties(sup));
-			}
-			ps.addAll(ct.x10Def().typeProperties());
-			return ps;
-		}
-		return Collections.EMPTY_LIST;
+	    return Collections.EMPTY_LIST;
 	}
 }

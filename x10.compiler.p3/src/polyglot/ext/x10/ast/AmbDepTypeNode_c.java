@@ -27,6 +27,7 @@ import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.AnnotatedType;
 import polyglot.ext.x10.types.AnnotatedType_c;
+import polyglot.ext.x10.types.BoxType;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.TypeProperty;
@@ -382,12 +383,21 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         	        typeArgs = Collections.EMPTY_LIST;
         	    }
         	    else {
-        		throw new SemanticException("Number of type arguments (" + typeArgs.size() + ") for " + t + " is not the same as number of type parameters (" + numParams + ").", position());
+        		throw new SemanticException("Number of type arguments (" + typeArgs.size() + ") for " + ct.fullName() + " is not the same as number of type parameters (" + numParams + ").", position());
         	    }
         	}
             }
         }
-
+        
+        // Box[T] is T for non-value types.
+        while (t instanceof BoxType) {
+            BoxType box = (BoxType) t;
+            if (ts.isValueType(box.arg())) {
+                break;
+            }
+            t = box.arg();
+        }
+        
         // Update the symbol with the base type so that if we try to get the type while checking the constraint, we don't get a cyclic
         // dependency error, but instead get a less precise type.
         sym.update(t);

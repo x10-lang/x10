@@ -32,6 +32,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
@@ -111,4 +112,12 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		return cc;
 	}
 	
+        public Type childExpectedType(Expr child, AscriptionVisitor av) {
+            if (child == init) {
+                TypeSystem ts = av.typeSystem();
+                return type.type();
+            }
+
+            return child.type();
+        }
 }

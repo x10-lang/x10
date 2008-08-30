@@ -307,6 +307,8 @@ public interface X10TypeSystem extends TypeSystem {
     List<Type> upperBounds(Type t);
     List<Type> lowerBounds(Type t);
 
+    Type expandMacros(Type arg);
+
     // X10NamedType createBoxFromTemplate(X10ClassDef def);
 
 }

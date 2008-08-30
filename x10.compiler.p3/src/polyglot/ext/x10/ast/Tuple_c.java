@@ -147,7 +147,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 	    }
 	    else {
 		Type r = ts.ValRail();
-		X10ClassType t = (X10ClassType) X10TypeMixin.instantiate(r, type);
+		Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
 		XConstraint c = new XConstraint_c();
 		FieldInstance lengthField = ((X10ClassType) t).fieldNamed(Name.make("length"));
 		if (lengthField == null)
@@ -156,6 +156,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 		    XVar selfLength = ts.xtypeTranslator().trans(XSelf.Self, lengthField);
 		    XLit sizeLiteral = ts.xtypeTranslator().trans(elements.size());
 		    c.addBinding(selfLength, sizeLiteral);
+    		    t = X10TypeMixin.xclause(t, c);
 		}
 		catch (XFailure e) {
 		    throw new SemanticException(e);
