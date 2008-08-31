@@ -14,7 +14,7 @@ import harness.x10Test;;
  */
 public class Prop(i: int,  j: int) extends x10Test  {
 
-	public def this(i: int, j: int): Prop = {
+	public def this(i: int, j: int): Prop{self.i==i,self.j==j} = {
 	    property(i,j);
 	}
 	public def run(): boolean = true;
