@@ -408,6 +408,18 @@ public class XConstraint_c implements XConstraint, Cloneable {
 		}
 		return result;
 	}
+	public List<XTerm> extConstraints() {
+		return extConstraints(new ArrayList<XTerm>(), null);
+	}
+	
+	public List<XTerm> extConstraints(List<XTerm> result, XTerm prefix) {
+		if (roots == null)
+			return result;
+		for (XPromise p : roots.values()) {
+			p.extDump(result, prefix);
+		}
+		return result;
+	}
 
 	public List<XTerm> constraints(XTerm y) throws XFailure {
 		XPromise p = lookup(y);
@@ -552,7 +564,14 @@ public class XConstraint_c implements XConstraint, Cloneable {
 	}
 
 	public String toString() { 
-		String str = constraints().toString();
+	    String str = " failure ";
+	    try {
+	    	XConstraint c = saturate();
+	    	
+		str = c.extConstraints().toString();
+	    } catch (XFailure z) {
+		
+	    }
 		str = str.substring(1, str.length()-1);
 		return  "{" + str + "}"; // + " roots=" + roots ;
 	}

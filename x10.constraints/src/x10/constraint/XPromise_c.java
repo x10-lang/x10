@@ -190,7 +190,7 @@ public class XPromise_c implements XPromise, Serializable {
 		return p.lookup(vars, index + 1);
 	}
 
-	public XPromise lookup() throws XFailure {
+	public XPromise lookup()  {
 		if (value != null)
 			return value.lookup();
 		return this;
@@ -319,6 +319,29 @@ public class XPromise_c implements XPromise, Serializable {
 				p.dump(result, prefix);
 			}
 	}
+	public void extDump(List<XTerm> result, XTerm prefix) {
+		XTerm t1 = term();
+		if (t1 == null)
+			return;
+		if (t1.isAtomicFormula()) {
+			if (prefix != null && !(prefix.prefixes(t1)))
+				return;
+			result.add(t1);
+		}
+
+		if (value != null && ! t1.isEQV()) {
+			XTerm t2 = lookup().var();
+		//	if (prefix != null && !(prefix.prefixes(t1) || prefix.prefixes(t2)))
+		//		return;
+			// Report.report(1, "Promise_c: dumping " + t1 + "=" + t2);
+			result.add(XTerms.makeEquals(t1, t2));
+			return;
+		}
+		if (fields != null)
+			for (XPromise p : fields.values()) {
+				p.extDump(result, prefix);
+			}
+	}
 
 	public String toString() {
 		return var + ((value != null) ? "->" + value : ((fields != null) ? fields.toString() : ""));
@@ -358,6 +381,9 @@ public class XPromise_c implements XPromise, Serializable {
 
 	public XPromise value() {
 		return value;
+	}
+	public XTerm var() {
+		return var;
 	}
 
 	public HashMap<XName, XPromise> fields() {

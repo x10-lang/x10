@@ -21,6 +21,9 @@ public class XLit_c extends XTerm_c implements XLit {
 	public Object val() {
 		return val;
 	}
+	public XTerm var() {
+		return this;
+	}
 
 	public String toString() {
 		if (val == null)
@@ -106,6 +109,9 @@ public class XLit_c extends XTerm_c implements XLit {
 		return this;
 	}
 
+	public void extDump(List<XTerm> result, XTerm prefix) {
+		// nothing to dump.
+	}
 	public void dump(List<XTerm> result, XTerm prefix) {
 		// nothing to dump.
 	}
