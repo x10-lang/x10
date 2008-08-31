@@ -213,6 +213,14 @@ public interface XConstraint extends java.io.Serializable {
 	 * @throws XFailure
 	 */
 	List<XTerm> constraints();
+	/**
+	 * Return in HashMap a set of bindings t1-> t2 equivalent to the current
+	 * constraint except that equalities involving EQV variables are ignored.
+	 * 
+	 * @return
+	 * @throws XFailure
+	 */
+	List<XTerm> extConstraints();
 
 	/**
 	 * Return in HashMap a set of bindings t1 -> t2 entailed by the current

@@ -57,9 +57,9 @@ public interface XPromise extends Cloneable {
 	 */
 	XPromise lookup(XVar[] vars, int index) throws XFailure;
 
-	XPromise lookup(XName s) throws XFailure;
+	XPromise lookup(XName s) throws XFailure ;
 
-	XPromise lookup() throws XFailure;
+	XPromise lookup();
 
 	/**
 	 * An eq link entering this has just been established. Now the 
@@ -101,10 +101,16 @@ public interface XPromise extends Cloneable {
 
 	/**
 	 * Traverse the subtree under this promise, and add t1 -> t2 into result for any term t1 
-	 * which has an outgoing edge to a term tw.
+	 * which has an outgoing edge to a term t2.
 	 * @param result
 	 */
 	void dump(List<XTerm> result, XTerm prefix);
+	/**
+	 * Traverse the subtree under this promise, and add t1 -> t2 into result for any term t1 
+	 * which has an outgoing edge to a term t2, and is not an EQV.
+	 * @param result
+	 */
+	void extDump(List<XTerm> result, XTerm prefix);
 
 	/**
 	 * Return the term that labels this promise. This term is intended to be the canonical C_Var
@@ -145,4 +151,10 @@ public interface XPromise extends Cloneable {
 	 * @param x
 	 */
 	XPromise cloneRecursively(HashMap<XPromise, XPromise> env);
+	
+	/**
+	 * The externally visible term (if any) that this term represents.
+	 * @return null -- if this promise is forwarded.
+	 */
+	XTerm var();
 }
