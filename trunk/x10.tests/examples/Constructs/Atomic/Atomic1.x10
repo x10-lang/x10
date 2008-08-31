@@ -28,23 +28,23 @@ public class Atomic1 extends x10Test {
 	}
 
 	public def run(): boolean = {
-		var a: Future[int] = future(this) threadRun();
-		var b: Future[int] = future(this) threadRun();
-		var c: Future[int] = future(this) threadRun();
-		var d: Future[int] = future(this) threadRun();
-		var e: Future[int] = future(this) threadRun();
-		var f: Future[int] = future(this) threadRun();
-		var g: Future[int] = future(this) threadRun();
-		var h: Future[int] = future(this) threadRun();
-		var i: int = a.force();
-		var j: int = b.force();
-		var k: int = c.force();
-		var l: int = d.force();
-		var m: int = e.force();
-		var n: int = f.force();
-		var o: int = g.force();
-		var p: int = h.force();
-		var t1: int;
+		val a = future(this) threadRun();
+		val b = future(this) threadRun();
+		val c = future(this) threadRun();
+		val d = future(this) threadRun();
+		val e = future(this) threadRun();
+		val f = future(this) threadRun();
+		val g = future(this) threadRun();
+		val h = future(this) threadRun();
+		val i = a.force();
+		val j = b.force();
+		val k = c.force();
+		val l = d.force();
+		val m = e.force();
+		val n = f.force();
+		val o = g.force();
+		val p = h.force();
+		var t1;
 		var t2: int;
 		atomic t1 = cnt;
 		atomic t2 = cnt_broken;

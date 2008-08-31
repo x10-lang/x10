@@ -21,13 +21,13 @@ public class ArrayCopy1 extends x10Test {
 	 * whose regions are equal.
 	 */
 	public def arrayEqual(val A: Array[int], val B: Array[int]): void = {
-		final val D: dist = A.dist;
-		final val E: dist = B.dist;
+		val D = A.dist;
+		val E = B.dist;
 		// Spawn an activity for each index to
 		// fetch the B[i] value
 		// Then compare it to the A[i] value
 		finish
-			ateach (val p: point in D) chk(A(p) == future(E(p)){B(p)}.force());
+			ateach (val p in D) chk(A(p) == future(E(p)){B(p)}.force());
 	}
 
 	/**
@@ -37,34 +37,35 @@ public class ArrayCopy1 extends x10Test {
 	 * Throws an error iff some assertion failed.
 	 */
 	public def arrayCopy(val A: Array[int], val B: Array[int]): void = {
-		final val D: dist = A.dist;
-		final val E: dist = B.dist;
+		final val D = A.dist;
+		final val E = B.dist;
 		// Spawn an activity for each index to
 		// fetch and copy the value
 		finish
-			ateach (val p: point in D) {
+			ateach (val p in D) {
 				chk(D(p) == here);
 				async(E(p)) chk(E(p) == here);
 				A(p) = future(E(p)){B(p)}.force();
 			}
 	}
 
-	public const N: int = 3;
+	const N = 3;
 
 	/**
 	 * For all combinations of dists of arrays B and A,
 	 * do an array copy from B to A, and verify.
 	 */
 	public def run(): boolean = {
-		final val R: region = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
-		final val TestDists: region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
+		val R: region = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
+		val TestDists: region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
 
 		for (val distP: point[dX,dY] in TestDists) {
-			final val D: dist = dist2.getDist(dX, R);
-			final val E: dist = dist2.getDist(dY, R);
+			val D = dist2.getDist(dX, R);
+			val E = dist2.getDist(dY, R);
 			chk(D.region.equals(E.region) && D.region.equals(R));
-			final val A: Array[int] = new Array[int](D);
-			final val B: Array[int] = new Array[int](E, (var p: point[i,j,k,l]): int => { var x: int = ((i*N+j)*N+k)*N+l; return x*x+1; });
+			val A = new Array[int](D);
+			val B = new Array[int](E,
+			 (var p(i,j,k,l): point): int => { var x: int = ((i*N+j)*N+k)*N+l; return x*x+1; });
 			arrayCopy(A, B);
 			arrayEqual(A, B);
 		}
@@ -80,18 +81,18 @@ public class ArrayCopy1 extends x10Test {
 	 * a dist type int value and a region
 	 */
 	static class dist2 {
-		public const BLOCK: int = 0;
-		public const CYCLIC: int = 1;
-		public const BLOCKCYCLIC: int = 2;
-		public const CONSTANT: int = 3;
-		public const RANDOM: int = 4;
-		public const ARBITRARY: int = 5;
-		public const N_DIST_TYPES: int = 6;
+		const BLOCK: int = 0;
+		const CYCLIC: int = 1;
+		const BLOCKCYCLIC: int = 2;
+		const CONSTANT: int = 3;
+		const RANDOM: int = 4;
+		const ARBITRARY: int = 5;
+		const N_DIST_TYPES: int = 6;
 
 		/**
 		 * Return a dist with region r, of type disttype
 		 */
-		public static def getDist(var distType: int, var r: region): dist = {
+		public static def getDist(distType: int, r: region): dist = {
 			switch(distType) {
 				case BLOCK:case BLOCK: return distmakeBlock(r);
 				case CYCLIC:case CYCLIC: return dist.factory.cyclic(r);

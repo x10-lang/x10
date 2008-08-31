@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class PointAddC extends x10Test {
 
 	public def run(): boolean = {
-		var p:point = [2, 2, 2, 2, 2] to point;
+		val p:point = [2, 2, 2, 2, 2] to point;
 		var c:int = 2;
 		val a = p + c;
 		var sum: int= 0;
