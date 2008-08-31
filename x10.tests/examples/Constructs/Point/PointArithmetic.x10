@@ -25,7 +25,6 @@ public class PointArithmetic extends x10Test {
 		// First test that the point/point arithmetic works
 
 		var a: point{rank==p.rank} = p + q;
-		/*
 		sum = 0;
 		for (var i: int = 0; i < DIM; i++)
 			sum += a(i);
@@ -219,7 +218,6 @@ public class PointArithmetic extends x10Test {
 			gotException = true;
 		}
 		if (!(sum == 0 && gotException)) return false;
-*/
 		return true;
 	}
 
