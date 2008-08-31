@@ -7,6 +7,8 @@
  */
 package x10.array;
 
+import x10.core.ValRail;
+
 
 /**
  * A region represents a (sparse or dense) k-dimensional space of points. A
@@ -41,6 +43,9 @@ public class RegionFactory {
      */
     public static Region /* (1) */makeRect(int low, int high) {
         return makeRectStrided(low, high, 1);
+    }
+    public static Region makeRect(ValRail<Integer> zero, ValRail<Integer> diag) {
+    	return new MultiDimRegion(zero, diag);
     }
 
     /**

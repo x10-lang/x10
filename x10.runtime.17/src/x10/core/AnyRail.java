@@ -48,4 +48,12 @@ public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T> {
     public T apply(Integer i) {
         return type.getArray(value, i);
     }
+    public boolean isZero() {
+    	boolean zero=true;
+    	for (int i=0; i < length && zero; ++i) {
+    		zero &= get(i)==type.zeroValue();
+    	}
+    	return zero;
+    		
+    }
 }
