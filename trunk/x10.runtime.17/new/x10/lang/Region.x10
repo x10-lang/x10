@@ -30,8 +30,8 @@ public abstract value Region(
     native public static def makeUnit(): Region;
 
 @Native("java", "x10.array.RegionFactory.makeRect(#1, #2)")
-    native public static def makeRectangular(min: Rail[int], 
-                       max: Rail[int]{self.length==min.length})
+    native public static def makeRectangular(min: ValRail[int], 
+                       max: ValRail[int]{self.length==min.length})
     : Region{self.rank==min.length};
 
 @Native("java", "x10.array.RegionFactory.makeRect(#1, #2)")
