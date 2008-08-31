@@ -12,6 +12,8 @@ package x10.array;
 
 import java.util.Iterator;
 
+import x10.core.ValRail;
+
 
 /**
  * Implementation of Region. Instance of this class are immutable!
@@ -28,6 +30,26 @@ public class MultiDimRegion extends Region implements Rectangular {
 	final int[] base_;
 	final int card;
 
+	public MultiDimRegion( ValRail<Integer> zero, ValRail<Integer> diag) {
+		super(zero.length(), true, zero);
+		assert zero.length() == diag.length();
+		dims_ = new Region[zero.length];
+		for (int i=0;i < dims_.length; ++i) {
+			dims_[i] = RegionFactory.makeRect(zero.get(i), diag.get(i));
+			assert (!zeroBased || dims_[i].zeroBased);
+		}
+		
+		int tmp_card = 1;
+		base_ = new int[dims_.length];
+		// row major ordering (C conventions)
+		for (int i = rank-1; i >= 0; --i) {
+			base_[i] = tmp_card;
+			tmp_card *= dims_[i].size();
+		}
+		card = tmp_card;
+		
+		
+	}
 	public MultiDimRegion(final Region[] d, boolean zeroBased) {
 		super(d.length, true,zeroBased);
 		assert d != null;

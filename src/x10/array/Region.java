@@ -10,6 +10,7 @@ package x10.array;
 import java.util.Iterator;
 
 import x10.core.Value;
+import x10.core.ValRail;
 
 /**
  * A region represents a (sparse or dense) k-dimensional space of points. A
@@ -45,6 +46,9 @@ public abstract class Region extends Value implements Iterable<Point> {
         this(rank, rect, zeroB, false);
     }
 
+    protected Region(int rank, boolean rect, ValRail<Integer> zero) {
+    	this(rank, rect, zero.isZero());
+    }
     protected Region(/* nat long */int rank, boolean rect, boolean zeroB, boolean colMajor) {
         assert rank >= 1;
         this.rank = rank;
