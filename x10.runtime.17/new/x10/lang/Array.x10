@@ -26,11 +26,12 @@ public abstract value class Array[T](dist: Dist) implements
     property onePlace: Place = dist.onePlace;
 
     @Native("java", "x10.array.ArrayFactory.make(#2, #4,#5)")
-    native public static def make[T](dist: Dist, init: (nat)=>T): Array[T]{self.dist==dist};
+    native public static def make[T](d: Dist, init: (Point)=>T)
+       : Array[T]{self.dist==d};
     
     @Native("java", "x10.array.ArrayFactory.makeVarArray(#2, #4,#5)")
-    native public static def make[T](region: Region, init: (nat)=>T)
-	: Array[T]{self.region==region};
+    native public static def makeFromR[T](r: Region, init: (Point)=>T)
+	   : Array[T]{self.region==r,onePlace==here};
 
     // @Native("java", "x10.array.ArrayFactory.make(#1, #2)")
     // native public static def make[T](region: Region, init: Indexable[nat,T], value: boolean): Array[T];
