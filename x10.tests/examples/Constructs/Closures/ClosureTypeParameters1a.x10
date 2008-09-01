@@ -22,8 +22,8 @@ public class ClosureTypeParameters1a extends ClosureTest {
 
     public def run(): boolean = {
         
-        val f = [T]() => 0;
-        check("f[String]()", f[String](), 0);
+        class X[T] {val f = () => 0;}
+        check("new X[String]().f()", new X[String]().f(), 0);
 
         return result;
     }

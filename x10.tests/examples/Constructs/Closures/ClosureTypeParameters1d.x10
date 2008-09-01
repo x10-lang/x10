@@ -23,8 +23,8 @@ public class ClosureTypeParameters1d extends ClosureTest {
 
     public def run(): boolean = {
         
-        val f = [T](x:T,y:T) => x.toString() + y.toString();
-        check("f[int](1,1)", f[int](1,1), "11");
+        class X[T] {val f = (x:T,y:T) => x.toString() + y.toString();}
+        check("new X[int].f(1,1)", new X[int]().f(1,1), "11");
 
         return result;
     }
