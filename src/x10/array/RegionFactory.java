@@ -52,10 +52,10 @@ public class RegionFactory {
      * Construct a Region_c, using the list of Region_c(1)'s passed as arguments
      * to the constructor.
      */
-    public static Region/* (regions.length) */make(Region/* (1) */[] regions) {
+    public static Region/* (regions.length) */make(ValRail<Region> regions) {
         boolean zeroBased = true;
         for (int i = 0; i < regions.length; i++)
-            zeroBased &= regions[i].zeroBased;
+            zeroBased &= regions.get(i).zeroBased;
         return new MultiDimRegion(regions, zeroBased);
     }
 

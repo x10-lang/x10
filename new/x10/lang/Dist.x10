@@ -96,6 +96,7 @@ public abstract value Dist(
 @Native("java", "x10.array.DistFactory.makeBlock(#1, #2)")
     public native static def makeBlock(r: Region, axis: int)
     : Dist{region==r};
+    public static def makeBlock(r:Region)=makeBlock(r,1);
     
 /**
    Return a block distribution of the given region, blocked along the given dimension 

@@ -72,6 +72,28 @@ public class MultiDimRegion extends Region implements Rectangular {
 		}
 		card = tmp_card;
 	}
+	public MultiDimRegion(final ValRail<Region> d, boolean zeroBased) {
+		super(d.length, true,zeroBased);
+		assert d != null;
+		// assert that all dims are actually Ranges
+		dims_ = new Region[d.length];
+		for (int i = 0; i < dims_.length; ++i) {
+			// this assertion is too sharp -- e.g. Constructs/DepTypes/StaticReturn
+			// assert d[i] instanceof Range;
+			dims_[i] = d.get(i);
+			if (zeroBased) assert d.get(i).zeroBased;
+		}
+
+		
+		int tmp_card = 1;
+		base_ = new int[dims_.length];
+		// row major ordering (C conventions)
+		for (int i = rank-1; i >= 0; --i) {
+			base_[i] = tmp_card;
+			tmp_card *= dims_[i].size();
+		}
+		card = tmp_card;
+	}
 	/** Creates zero based region, zero to d[i], inclusive. */
 	public MultiDimRegion(final int[] d) {
 		super(d.length, true, true);
