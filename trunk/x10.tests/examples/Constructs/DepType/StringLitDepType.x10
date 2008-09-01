@@ -12,7 +12,7 @@ import harness.x10Test;;
  */
 public class StringLitDepType extends x10Test {
 	public def run(): boolean = {
-		var f: String("abc") = "abc";
+		var f: String{self=="abc"} = "abc";
 		return true;
 	}
 
