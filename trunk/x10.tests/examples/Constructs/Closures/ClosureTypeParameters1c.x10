@@ -21,9 +21,16 @@ import harness.x10Test;
 
 public class ClosureTypeParameters1c extends ClosureTest {
 
+    class V           {static val name = "V";};
+    class W extends V {static val name = "W";}
+    class X extends V {static val name = "X";};
+    class Y extends X {static val name = "Y";};
+    class Z extends X {static val name = "Z";};
+
     public def run(): boolean = {
         
-        check("([T](x:T,y:T)=>x+y)[String](\"1\",\"1\")", ([T](x:T,y:T)=>x+y)[String]("1","1"), "11");
+        val f = [T](x:T,y:T) => x.toString() + y.toString();
+        check("f[String](\"1\",\"1\")", f[String]("1","1"), "11");
 
         return result;
     }

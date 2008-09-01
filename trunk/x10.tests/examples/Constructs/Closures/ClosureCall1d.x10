@@ -15,10 +15,16 @@ import harness.x10Test;
 
 public class ClosureCall1d extends ClosureTest {
 
+    class V           {static val name = "V";};
+    class W extends V {static val name = "W";}
+    class X extends V {static val name = "X";};
+    class Y extends X {static val name = "Y";};
+    class Z extends X {static val name = "Z";};
+
     public def run(): boolean = {
 
-        val d = [T,U](t:T,u:U) => (t+t)+(u+u);
-        check("d(\"1\",1)", d("1",1), "112");
+        val d = [T,U](t:T,u:U){T<:X && U<:X} => T.name + U.name;
+        check("d(new Y(), new Z())", d(new Y(), new Z()), "YZ");
 
         return result;
     }

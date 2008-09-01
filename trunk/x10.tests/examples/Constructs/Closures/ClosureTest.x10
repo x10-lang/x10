@@ -29,4 +29,8 @@ abstract class ClosureTest extends x10Test {
         System.out.println(s);
     }
 
+    //
+    // handy for testing
+    //
+
 }

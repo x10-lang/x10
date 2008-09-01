@@ -15,11 +15,17 @@ import harness.x10Test;
 
 public class ClosureCall1b extends ClosureTest {
 
+    class V           {static val name = "V";};
+    class W extends V {static val name = "W";}
+    class X extends V {static val name = "X";};
+    class Y extends X {static val name = "Y";};
+    class Z extends X {static val name = "Z";};
+
     public def run(): boolean = {
 
-        val b = [T](t:T) => t+t;
-        check("b(\"1\")", b("1"), "11");
-        check("b(1)", b(1), 2);
+        val b = [T](t:T){T<:X} => T.name;
+        check("b(new Y())", b(new Y()), "Y");
+        check("b(new Z())", b(new Z()), "Z");
 
         return result;
     }
