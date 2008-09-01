@@ -17,11 +17,9 @@ import harness.x10Test;
 
 public class ClosureFunctionType1 extends ClosureTest {
 
-    class X {};
+    var f: [T,U] (x:String, y:T) {y<0 && T<:X && U<:Exception} => T throws U, Exception;
 
-    var f: [T,U] (x:String, y:T) {y<0 && T<:X} => T throws U, Exception;
-
-    def set(ff: [V,W] (a:String, b:V) {b<0 && V<:X} => V throws W, Exception) {
+    def set(ff: [V,W] (a:String, b:V) {b<0 && V<:X && W<:Exception} => V throws W, Exception) {
         f = ff;
     }
 

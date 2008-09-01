@@ -15,10 +15,16 @@ import harness.x10Test;
 
 public class ClosureCall1a_MustFailCompile extends ClosureTest {
 
+    class V           {static val name = "V";};
+    class W extends V {static val name = "W";}
+    class X extends V {static val name = "X";};
+    class Y extends X {static val name = "Y";};
+    class Z extends X {static val name = "Z";};
+
     public def run(): boolean = {
 
         // must fail compile
-        val a = [T]() => new T();
+        val a = [T](){T<:X} => T.name;
         a();
 
         return result;

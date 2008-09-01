@@ -15,13 +15,13 @@ import harness.x10Test;
 
 public class ClosureCall1c extends ClosureTest {
 
-    public def run(): boolean = {
+    class V           {static val name = "V";};
+    class W extends V {static val name = "W";}
+    class X extends V {static val name = "X";};
+    class Y extends X {static val name = "Y";};
+    class Z extends X {static val name = "Z";};
 
-        class V           {static val name = "V";};
-        class W extends V {static val name = "W";}
-        class X extends V {static val name = "X";};
-        class Y extends X {static val name = "Y";};
-        class Z extends X {static val name = "Z";};
+    public def run(): boolean = {
 
         val v = new V();
         val w = new W();
@@ -29,7 +29,7 @@ public class ClosureCall1c extends ClosureTest {
         val y = new Y();
         val z = new Z();
 
-        val c = [T](t1:T,t2:T) => T.name;
+        val c = [T](t1:T,t2:T){T<:V} => T.name;
 
         check("c(v,z)", c(v,z), "V");
         check("c(w,z)", c(v,z), "V");

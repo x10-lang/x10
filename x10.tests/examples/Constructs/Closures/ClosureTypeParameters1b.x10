@@ -23,7 +23,8 @@ public class ClosureTypeParameters1b extends ClosureTest {
 
     public def run(): boolean = {
         
-        check("([T](x:T)=>x)[String](\"1\")", ([T](x:T)=>x)[String]("1"), "1");
+        val f = [T](x:T) => x;
+        check("f[String](\"1\")", f[String]("1"), "1");
 
         return result;
     }
