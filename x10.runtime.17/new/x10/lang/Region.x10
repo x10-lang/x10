@@ -55,7 +55,7 @@ public abstract value Region(
 @Native("java", "x10.array.RegionFactory.make(#1,#2)")
     public static native def make(a: Region, b:Region): Region;
 
-@Native("java", "x10.array.RegionFactory.makeFromValRail(#1)")
+@Native("java", "x10.array.RegionFactory.make(#1)")
     public native static def make(regions: ValRail[Region]): Region;
 
 @Native("java", "(#0).union(#1)")
@@ -77,7 +77,7 @@ public abstract value Region(
     public abstract def boundingBox(): Region;
 
 @Native("java", "(#0).contains(#1)")
-    public abstract def contains(that: Region): boolean;
+    public abstract def contains(that: Region{rank==this.rank}): boolean;
 @Native("java", "(#0).equals(#1)")
     public abstract def equals(that: Region): boolean;
 
@@ -86,10 +86,12 @@ public abstract value Region(
 
 @Native("java", "(#0).complement()")
     native public def $not(): Region;
+    
 @Native("java", "(#0).intersection(#1)")
-    native public def $and(that: Region): Region;
+    native public def $and(that: Region{rank==this.rank}): Region{rank==this.rank};
+    
 @Native("java", "(#0).union(#1)")
-    native public def $or(that: Region): Region;
+    native public def $or(that: Region{rank==this.rank}): Region{rank==this.rank};
 
 /*
     public abstract def scanners(): Iterator[Scanner];
