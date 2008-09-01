@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * Test a generics class with an invariant parameter.
+ * Test type defs in method bodies.
  *
  * @author nystrom 8/2008
  */
