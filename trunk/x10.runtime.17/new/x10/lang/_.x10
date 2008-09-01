@@ -11,6 +11,21 @@ public class _ {
     public static type long = Long;
     public static type float = Float;
     public static type double = Double;
+    
+    public static type true = boolean{self==true};
+    public static type false = boolean{self==false};
+    
+    public static type boolean(b:boolean) = Boolean{self==b};
+    public static type byte(b:byte) = Byte{self==b};
+    public static type short(b:short) = Short{self==b};
+    public static type char(b:char) = Char{self==b};
+    public static type int(b:int) = Int{self==b};
+    public static type long(b:long) = Long{self==b};
+    public static type float(b:float) = Float{self==b};
+    public static type double(b:double) = Double{self==b};
+    public static type string(s:String) = String{self==s};
+    public static 
+   
 
 /*
     // UNCOMMENT IF UNSIGNED INTEGERS SUPPORTED
