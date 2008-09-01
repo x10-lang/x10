@@ -15,11 +15,11 @@ import harness.x10Test;
 
 public class ClosureCall1c extends ClosureTest {
 
-    class V           {static val name = "V";};
-    class W extends V {static val name = "W";}
-    class X extends V {static val name = "X";};
-    class Y extends X {static val name = "Y";};
-    class Z extends X {static val name = "Z";};
+    class V           {const name = "V";};
+    class W extends V {const name = "W";}
+    class X extends V {const name = "X";};
+    class Y extends X {const name = "Y";};
+    class Z extends X {const name = "Z";};
 
     public def run(): boolean = {
 
@@ -29,13 +29,17 @@ public class ClosureCall1c extends ClosureTest {
         val y = new Y();
         val z = new Z();
 
-        val c = [T](t1:T,t2:T){T<:V} => T.name;
+        val vz = ([T](t1:T,t2:T){T<:V} => T.name)(v,z);
+        val wz = ([T](t1:T,t2:T){T<:V} => T.name)(w,z);
+        val xy = ([T](t1:T,t2:T){T<:V} => T.name)(x,y);
+        val yz = ([T](t1:T,t2:T){T<:V} => T.name)(y,z);
+        val yy = ([T](t1:T,t2:T){T<:V} => T.name)(y,y);
 
-        check("c(v,z)", c(v,z), "V");
-        check("c(w,z)", c(v,z), "V");
-        check("c(x,y)", c(x,y), "X");
-        check("c(y,z)", c(y,z), "X");
-        check("c(y,y)", c(y,z), "Y");
+        check("vz", vz, "V");
+        check("wz", wz, "V");
+        check("xy", xy, "X");
+        check("yz", yz, "X");
+        check("yy", yy, "Y");
 
         return result;
     }
