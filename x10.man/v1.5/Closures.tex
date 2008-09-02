@@ -1,5 +1,6 @@
 \section{Closures}
 \label{Closures}
+\index{Closures}
 
 \Xten{} provides first-class, typed functions, including
 \emph{closures},
@@ -23,12 +24,14 @@ ClosureBody \:
         \| \xcd"{" Statement\star Expression \xcd"}" \\
 \end{grammar}
 
-Closure expressions have zero or more type parameters,
-zero or more formal parameters, an an optional return type and
-optional set of exceptions throws by the closure body.  The
-closure body has the same syntax as a method body; it may be
-either an expression, a block of statements, or a block
-terminated by an expression to return.
+Closure expressions have zero or more type parameters, zero or more
+formal parameters, an optional return type and optional set of
+exceptions throws by the closure body.  The closure body has the same
+syntax as a method body; it may be either an expression, a block of
+statements, or a block terminated by an expression to return. In
+particular, a value may be returned from the body of the closure using
+a return statement (\Sref{ReturnStatement}). The type of a closure is a
+function type (\Sref{FunctionType}).
 
 \label{ClosureGuard}
 
@@ -45,36 +48,37 @@ As with methods, a closure with return type \xcd"Void" cannot
 have a terminating expression. 
 If the return type is omitted, it is inferred, as described in
 \Sref{TypeInference}.
-It is a static error if the return type cannot be inferred.
+It is a static error if the return type cannot be inferred. 
+
 
 \begin{example}
 The following method takes a function parameter and uses it to
 test each element of the list, returning the first matching
 element.
 \begin{xten}
-def find[T](f: T => Boolean, xs: List[T]): T {
+def find[T](f: T => Boolean, xs: List[T]): T = {
   for (x: T in xs)
     if (f(x)) return x;
   null
 }
 \end{xten}
 
-The method may be invoked with a closure:
+The method may be invoked thus:
 \begin{xten}
 xs: List[Int] = ...;
-x: Int = find((x: Int) => (x>0), xs);
+x: Int = find((x: Int) => x>0, xs);
 \end{xten}
 \end{example}
 
-As with a normal method, the closure may have a \xcd"throws" clause. It is a
-static error if a checked exception is thrown that is not declared in
-the \xcd"throws" clause.
+As with a normal method, the closure may have a \xcd"throws"
+clause. It is a static error if the body of the closure throws a
+checked exception that is not declared in the closure's \xcd"throws"
+clause.
 
 \subsection{Closures are objects}
 
 Closures, like all first-class functions in \Xten{} are
-objects
-(\Sref{FunctionsAreObjects}).
+objects (\Sref{FunctionsAreObjects}).
 As objects, the closure body may refer to
 \xcd"this", which is a reference to the current function,
 and use it to invoke the closure recursively.
@@ -83,28 +87,29 @@ and use it to invoke the closure recursively.
 The following method uses a closure to compute the $n$th
 Fibonacci number.
 \begin{xten}
-def fib(n: Int): Int {
-    val f = (n: Int) : Point {
-        if (n < 1) return new Point(1,0);
-        val (n,n1): Point = this(n-1);
-        new Point(n+n1,n)
+def fib(n: Int): Int = {
+    val f = (n: Int) : Point => {
+        if (n < 1) return [1,0];
+        val (r,r1): Point = this(n-1);
+        [r+r1,r]
     }
-    val (n,n1): Point = f(n);
-    n
+    val (r,r1): Point = f(n);
+    r
 }
 \end{xten}
 \end{example}
 
 \subsection{Outer variable access}
 
-The body \xcd"s" in a function
-\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => { s }"
-may access fields
-of enclosing classes and local variable declared in an outer scope.
+In a closure
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => { s }"
+the types \xcdmath"T$_i$", the guard \xcd"c" and the body \xcd"s"
+may access fields of enclosing classes and local variables and type
+parameters declared in an outer scope.
 
 Recall that languages such as \java{} require that methods may
 access only those local variables declared in an enclosing scope
-("outer variables") which are final. This is valuable in
+(``outer variables'') which are final. This is valuable in
 preventing accidental races between multiple closures reading
 and writing the same outer variable. At the same time, it is
 desirable to support the following common idiom of expression:
@@ -112,7 +117,7 @@ desirable to support the following common idiom of expression:
 \begin{xten}
 def allPositive(c: Collection): Boolean {
   shared var result: Boolean = true;
-  c.applyToAll((x: Int) => { if (x < result) atomic {result=false;}});
+  c.applyToAll((x: Int) => { if (x < 0) atomic {result=false;}});
   return result;
 }
 \end{xten}
@@ -134,16 +139,17 @@ enclosing class.
 \begin{note}
 The main activity may run in parallel with any
 closures it creates. Hence even the read of an outer variable by the
-body of a closure may result in a race condition, Since closures are
+body of a closure may result in a race condition. Since closures are
 first-class, the analysis of whether a closure may execute in parallel
-with the activity that created it is very difficult.
+with the activity that created it may be difficult.
 \end{note}
 
-\begin{note}
-The rule for accessing outer variables from closure bodies
-should be the same as the rule for accessing outer variables from local
-or anonymous classes.
-\end{note}
+%% vj: This should be verified.
+%\begin{note}
+%The rule for accessing outer variables from closure bodies
+%should be the same as the rule for accessing outer variables from local
+%or anonymous classes.
+%\end{note}
 
 \section{Methods selectors}
 \label{MethodSelectors}
