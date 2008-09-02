@@ -7,3 +7,8 @@ x10
 .*.swp
 .*.swo
 classes
+makefile
+junk
+*.txt
+
+
