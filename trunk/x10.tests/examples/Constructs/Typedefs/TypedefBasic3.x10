@@ -9,7 +9,7 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefBasic1 extends TypedefTest {
+public class TypedefBasic3 extends TypedefTest {
 
     public def run(): boolean = {
         
@@ -32,6 +32,6 @@ public class TypedefBasic1 extends TypedefTest {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefBasic1().execute();
+        new TypedefBasic3().execute();
     }
 }
