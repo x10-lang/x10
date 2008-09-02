@@ -1322,6 +1322,7 @@ public static class MessageHandler implements IMessageHandler {
                             Object[] o = (Object[]) i.next();
                             Position pos = (Position) o[0];
                             Id name = (Id) o[1];
+                            if (name == null) name = nf.Id(pos, Name.makeFresh());
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -2563,6 +2564,7 @@ public static class MessageHandler implements IMessageHandler {
                 Object[] o = LoopIndexDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
+                if (name == null) name = nf.Id(pos, Name.makeFresh());
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -2584,6 +2586,7 @@ public static class MessageHandler implements IMessageHandler {
                 Object[] o = LoopIndexDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
+                                if (name == null) name = nf.Id(pos, Name.makeFresh());
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -2606,6 +2609,7 @@ public static class MessageHandler implements IMessageHandler {
                 Object[] o = FormalDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
+                                if (name == null) name = nf.Id(pos, Name.makeFresh());
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -2628,6 +2632,7 @@ public static class MessageHandler implements IMessageHandler {
                 Object[] o = FormalDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
+                                if (name == null) name = nf.Id(pos, Name.makeFresh());
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -2646,7 +2651,7 @@ public static class MessageHandler implements IMessageHandler {
                       | Type
         /.$BeginJava
                 Formal f;
-                f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), ""), Collections.EMPTY_LIST);
+                f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh()), Collections.EMPTY_LIST);
                 setResult(f);
           $EndJava
         ./
@@ -3229,6 +3234,7 @@ public static class MessageHandler implements IMessageHandler {
                             Object[] o = (Object[]) i.next();
                             Position pos = (Position) o[0];
                             Id name = (Id) o[1];
+                            if (name == null) name = nf.Id(pos, Name.makeFresh());
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -3262,6 +3268,7 @@ public static class MessageHandler implements IMessageHandler {
                             Object[] o = (Object[]) i.next();
                             Position pos = (Position) o[0];
                             Id name = (Id) o[1];
+                            if (name == null) name = nf.Id(pos, Name.makeFresh());
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -3295,6 +3302,7 @@ public static class MessageHandler implements IMessageHandler {
                             Object[] o = (Object[]) i.next();
                             Position pos = (Position) o[0];
                             Id name = (Id) o[1];
+                            if (name == null) name = nf.Id(pos, Name.makeFresh());
                             List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
