@@ -35,11 +35,11 @@ parameters or with different types of value
 parameters, according to the method overloading rules
 (\Sref{MethodOverload}), define distinct type constructors.
 
-Type definitions may appear as class members or in the body of a
-method, constructor, or initializer.
+Type definitions may appear as a class or interface member or
+in a block statement.
 
 Type definitions are applicative, not generative; that is, they
-define aliases for types and do not introduce new types.
+define aliases for types but do not introduce new types.
 Thus, the following code is legal:
 \begin{xten}
 type A = Int;
@@ -52,19 +52,27 @@ c: C = b + ", Mom!";
 % An instance of a defined type with no type parameters and no
 % value parameters may 
 If a type definition has no type parameters and no value
-parameters and is an alias for a class type, then 
-a \xcd"new" expression may be used to create an instance
-of the class using the type definition's name.
-The type
-has the same constructors with the same signature as its defining type;
-however, a
-constructor may not be invoked using a given defined type 
-name if the constructor return type is not a subtype of the
-defined type.
+parameters and is an alias for a class type, then a \xcd"new"
+expression may be used to create an instance of the class using
+the type definition's name.
+Given the following type definition
+\begin{xtenmath}
+type A = C[T$_1$, $\dots$, T$_k$]{c};
+\end{xtenmath}
+where 
+\xcdmath"C[T$_1$, $\dots$, T$_k$]" is a
+class type, a constructor of \xcdmath"C" may be invoked with
+as \xcdmath"new A(e$_1$, $\dots$, e$_n$)" if the
+invocation
+\xcdmath"new C[T$_1$, $\dots$, T$_k$](e$_1$, $\dots$, e$_n$)" is
+legal and if the constructor return type is a subtype of
+\xcd"A".
 
+\if 0
 All type definitions are members of their enclosing package or
 class.  A compilation unit may have one or more type definitions
 or class or interface declarations with the same name, as long
 as the definitions have distinct parameters according to the
 method overloading rules (\Sref{MethodOverload}).
+\fi
 
