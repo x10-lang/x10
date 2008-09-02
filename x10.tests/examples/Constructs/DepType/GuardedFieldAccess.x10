@@ -17,15 +17,15 @@ import harness.x10Test;
 public class GuardedFieldAccess extends x10Test { 
 
     class Test(i:int, j:int) {
-		public var v: int{i==j} = 5;
+		var v{i==j}:Int = 5;
 		def this(i:int, j:int):Test{self.i==i,self.j==j} = {
 			property(i,j);
 		}
 	}
 	
 	public def run(): boolean = {
-		var t: Test{i==j} = new Test(5, 5);
-		t.val = t.val + 1;
+		t: Test{i==j} = new Test(5, 5);
+		t.v = t.v + 1;
 	   return true;
 	}  
 	
