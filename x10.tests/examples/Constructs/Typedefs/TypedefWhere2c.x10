@@ -1,4 +1,4 @@
-// (C) Copyright IBM Corporation 2006
+// (C) Copyright IBM Corporation 2008
 // This file is part of X10 Test. *
 
 import harness.x10Test;
