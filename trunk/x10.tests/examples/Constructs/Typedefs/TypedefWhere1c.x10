@@ -8,7 +8,7 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefWhere1a extends TypedefTest {
+public class TypedefWhere1c extends TypedefTest {
 
     class X           {def name() = "X";}
     class Y extends X {def name() = "Y";}
@@ -16,14 +16,14 @@ public class TypedefWhere1a extends TypedefTest {
 
     public def run(): boolean = {
         
-        type A[T]{T==Y} = T;
-        a:A[Y] = new Y();
-        check("a.name()", a.name(), "Y");
+        type C[T]{T<:Y} = T;
+        c:C[X] = new X();
+        check("c.name()", c.name(), "X");
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefWhere1a().execute();
+        new TypedefWhere1c().execute();
     }
 }
