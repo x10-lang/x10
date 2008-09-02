@@ -55,14 +55,14 @@ If a type definition has no type parameters and no value
 parameters and is an alias for a class type, then a \xcd"new"
 expression may be used to create an instance of the class using
 the type definition's name.
-Given the following type definition
+Given the following type definition:
 \begin{xtenmath}
 type A = C[T$_1$, $\dots$, T$_k$]{c};
 \end{xtenmath}
 where 
 \xcdmath"C[T$_1$, $\dots$, T$_k$]" is a
 class type, a constructor of \xcdmath"C" may be invoked with
-as \xcdmath"new A(e$_1$, $\dots$, e$_n$)" if the
+\xcdmath"new A(e$_1$, $\dots$, e$_n$)", if the
 invocation
 \xcdmath"new C[T$_1$, $\dots$, T$_k$](e$_1$, $\dots$, e$_n$)" is
 legal and if the constructor return type is a subtype of
