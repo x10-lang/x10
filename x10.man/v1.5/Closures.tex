@@ -92,7 +92,7 @@ def fib(n: Int): Int = {
         if (n < 1) return [1,0];
         val (r,r1): Point = this(n-1);
         [r+r1,r]
-    }
+    };
     val (r,r1): Point = f(n);
     r
 }
