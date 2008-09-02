@@ -1077,20 +1077,19 @@ is consistent.
 
 The
 \iftypeparams
-properties
+type and value parameters
 \else
 type and value properties
 \fi
 are in scope throughout the function signature---they may be
 used
 in the types of other formal parameters and in the return type.
-value parameter types and in the return type.
-The value parameters names (but not types) may be omitted if
+Value parameters names (but not types) may be omitted if
 they are not used. 
 Like other types, function types may be constrained.
 
 \begin{grammar}
-FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
+FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")" Constraint\opt
 \xcd"=>" Type Throws\opt \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter
 )\star \xcd"]" \\
