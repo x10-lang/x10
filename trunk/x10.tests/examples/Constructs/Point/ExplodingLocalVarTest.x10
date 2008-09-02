@@ -10,12 +10,12 @@ import harness.x10Test;;
 /**
  * Testing exploding syntax for local variables.
  *
- * @author vj 08/29/08
+ * @author vj 09/02/08
  */
 public class ExplodingLocalVarTest extends x10Test {
 
 	public def run(): boolean = {
-		val p(x,y): Point  = [2, 2];
+		val p(x,y):Point  = [2, 2];
 		return x+y==4;
 		}
 
