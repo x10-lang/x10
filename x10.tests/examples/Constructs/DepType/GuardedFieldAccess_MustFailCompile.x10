@@ -19,7 +19,7 @@ import harness.x10Test;
 public class GuardedFieldAccess_MustFailCompile extends x10Test { 
 
 	class Test(i:int, j:int) {
-		public var v: int{i==j} = 5;
+		public var v{i==j}: int = 5;
 		def this(i:int, j:int) = {
 			property(i,j);
 		}
@@ -27,7 +27,7 @@ public class GuardedFieldAccess_MustFailCompile extends x10Test {
 		
 	public def run():boolean= {
 		val t = new Test(6, 5);
-		t.value = t.value + 1; // Must fail. t needs to be of type Test(:i==j).
+		t.v = t.v + 1; // Must fail. t needs to be of type Test(:i==j).
 	   return true;
 	}  
 	
