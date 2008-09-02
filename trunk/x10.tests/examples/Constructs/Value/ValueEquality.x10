@@ -21,7 +21,7 @@ public class ValueEquality extends x10Test {
 		new ValueEquality().execute();
 	}
 
-	static value V extends x10.lang.Object {
+	static value V {
 		var v: int;
 		def this(i: int): V = {
 			this.v = i;

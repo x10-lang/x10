@@ -88,7 +88,7 @@ public class ValueClass extends x10Test {
                         this.re = re;
                         this.im = im;
                 }
-                def add (complex other): complex {
+                def add (other: complex): complex {
                         return new complex(this.re+other.re, this.im+other.im); 
                 }
         }
