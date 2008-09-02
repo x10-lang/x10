@@ -132,7 +132,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 
 	public TypeDecl guard(DepParameterExpr guard) {
 		TypeDecl_c n = (TypeDecl_c) copy();
-		this.guard = guard;
+		n.guard = guard;
 		return n;
 	}
 
@@ -395,6 +395,9 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    sb.append(f);
 		}
 		sb.append(")");
+	    }
+	    if (guard() != null) {
+	        sb.append(guard());
 	    }
 	    sb.append(" = ");
 	    sb.append(type());
