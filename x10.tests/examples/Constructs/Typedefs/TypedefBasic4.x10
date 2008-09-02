@@ -13,7 +13,7 @@ public class TypedefBasic4 extends TypedefTest {
 
     public def run(): boolean = {
         
-        class X(i:int,s:String) {def this(i:int,s:String) = property(i,s);}
+        class X(i:int,s:String) {def this(i:int,s:String):X(i,s) = property(i,s);}
 
         type A(i:int,s:String) = X(i,s);
         a:A(1,"1") = new X(1,"1");
