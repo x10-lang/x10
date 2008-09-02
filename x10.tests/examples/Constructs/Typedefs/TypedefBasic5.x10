@@ -6,6 +6,9 @@ import harness.x10Test;
 /**
  * Basic typdefs and type equivalence.
  *
+ * Type definitions are applicative, not generative; that is, they define
+ * aliases for types and do not introduce new types.
+ *
  * @author bdlucas 9/2008
  */
 
