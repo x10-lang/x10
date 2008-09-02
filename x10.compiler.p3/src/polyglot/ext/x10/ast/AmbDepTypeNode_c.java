@@ -38,6 +38,7 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
+import polyglot.frontend.SetResolverGoal;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef;
@@ -506,6 +507,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         }
         else if (dep == null && cond != null) {
             dep = nf.DepParameterExpr(position(), cond);
+            XConstraint cc = (XConstraint) ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, cond);
+            dep = dep.xconstraint(Types.ref(cc));
+            dep = (DepParameterExpr) dep.disambiguate(tc).typeCheck(tc).checkConstants(tc);
         }
 
         CanonicalTypeNode result = nf.X10CanonicalTypeNode(position(), sym, dep);

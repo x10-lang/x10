@@ -34,4 +34,5 @@ public interface DepParameterExpr extends Ambiguous {
 	DepParameterExpr condition(Expr cond);
 
 	Ref<XConstraint> xconstraint();
+	DepParameterExpr xconstraint(Ref<XConstraint> c);
 }
