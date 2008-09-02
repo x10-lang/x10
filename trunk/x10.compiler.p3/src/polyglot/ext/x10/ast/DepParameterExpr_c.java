@@ -99,6 +99,12 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 		return xconstraint;
     }
     
+    public DepParameterExpr xconstraint(Ref<XConstraint> c) {
+            DepParameterExpr_c n = (DepParameterExpr_c) copy();
+            n.xconstraint = c;
+            return n;
+    }
+    
     public List<Formal> formals() {
     	return this.formals;
     }
@@ -142,8 +148,9 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
       public void setResolver(Node parent, final TypeCheckPreparer v) {
     	  TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     	  tc = (TypeChecker) tc.context(v.context().freeze());
-
+    	  
     	  LazyRef<XConstraint> xr = (LazyRef<XConstraint>) xconstraint;
+    	  assert xr != null : "setResolver pass run before buildTypes for " + this;
     	  xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
       }
     
