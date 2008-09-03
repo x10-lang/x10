@@ -657,6 +657,56 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    throw new NoClassException(name.toString(), container);
 	}
 	
+	static class X10TypeMatcher extends TypeMatcher {
+	    protected X10TypeMatcher(Name name) {
+	        super(name);
+	    }
+
+	    @Override
+	    public Named instantiate(Named t) throws SemanticException {
+	        Named n = super.instantiate(t);
+	        // Also check that the name is simple.
+	        if (n instanceof MacroType) {
+	            MacroType mt = (MacroType) n;
+	            if (mt.formalTypes().size() != 0)
+	                return null;
+	            if (mt.typeParameters().size() != 0)
+	                return null;
+	        }
+	        return n;
+	    }
+	}
+	
+	static class X10MemberTypeMatcher extends MemberTypeMatcher {
+	    protected X10MemberTypeMatcher(Type container, Name name) {
+	        super(container, name);
+	    }
+	    
+	    @Override
+	    public Named instantiate(Named t) throws SemanticException {
+	        Named n = super.instantiate(t);
+	        // Also check that the name is simple.
+	        if (n instanceof MacroType) {
+	            MacroType mt = (MacroType) n;
+	            if (mt.formalTypes().size() != 0)
+	                return null;
+	            if (mt.typeParameters().size() != 0)
+	                return null;
+	        }
+	        return n;
+	    }
+	}
+	
+	@Override
+	public Matcher<Named> TypeMatcher(Name name) {
+	    return new X10TypeMatcher(name);
+	}
+	
+	@Override
+	public Matcher<Named> MemberTypeMatcher(Type container, Name name) {
+	    return new X10MemberTypeMatcher(container, name);
+	}
+	
 	public PathType findTypeProperty(Type container, Name name, ClassDef currClass) throws SemanticException {
 	    assert_(container);
 
