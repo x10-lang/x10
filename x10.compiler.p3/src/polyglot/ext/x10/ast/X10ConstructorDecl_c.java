@@ -20,7 +20,6 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
-import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
@@ -30,7 +29,6 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
-import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -44,10 +42,8 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XPromise;
-import x10.constraint.XSelf;
 import x10.constraint.XVar;
 /**
  * An X10ConstructorDecl differs from a ConstructorDecl in that it has a returnType.
@@ -253,11 +249,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             				X10Type newType = (X10Type) ref.get();
 
             				// Fold the formal's constraint into the guard.
-            				XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
-            				XConstraint dep = X10TypeMixin.xclause(newType).copy();
-            				XPromise p = dep.intern(var);
-            				dep = dep.substitute(p.term(), XSelf.Self);
-            				c.addIn(dep);
+            				XVar var = xts.xtypeTranslator().trans(c, n.localDef().asInstance());
+            				XConstraint dep = X10TypeMixin.xclause(newType);
+            				if (dep != null) {
+            				    dep = dep.copy();
+            				    XPromise p = dep.intern(var);
+            				    dep = dep.substitute(p.term(), c.self());
+            				    c.addIn(dep);
+            				}
 
             				ref.update(newType);
             			}
@@ -272,7 +271,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             			if (c != null && dep != null) {
             				dep = dep.copy();
             				XPromise p = dep.intern(xts.xtypeTranslator().transThis(t));
-            				dep = dep.substitute(p.term(), XSelf.Self);
+            				dep = dep.substitute(p.term(), c.self());
             				c.addIn(dep);
             			}
             		}

@@ -301,13 +301,18 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	   xc.addNamed(t);
                }
                
-               for (ClassMember cm : body.members()) {
-        	   if (cm instanceof PropertyDecl) {
-        	       PropertyDecl pd = (PropertyDecl) cm;
-        	       FieldDef fd = pd.fieldDef();
-        	       xc.addVariable(fd.asInstance());
-        	   }
+               for (PropertyDecl pd : properties) {
+                   FieldDef fd = pd.fieldDef();
+                   xc.addVariable(fd.asInstance());
                }
+               
+//               for (ClassMember cm : body.members()) {
+//        	   if (cm instanceof PropertyDecl) {
+//        	       PropertyDecl pd = (PropertyDecl) cm;
+//        	       FieldDef fd = pd.fieldDef();
+//        	       xc.addVariable(fd.asInstance());
+//        	   }
+//               }
                
                // For X10, also add the properties.
 //               for (TypeProperty t : type.typeProperties()) {

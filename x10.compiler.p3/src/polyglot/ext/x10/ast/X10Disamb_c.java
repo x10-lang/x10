@@ -248,7 +248,7 @@ public class X10Disamb_c extends Disamb_c {
 					PathType pt = p.asType();
 					XTerm term = null;
 					try {
-						term = xts.xtypeTranslator().trans(e);
+						term = xts.xtypeTranslator().trans((XConstraint) null, e);
 					}
 					catch (SemanticException ex) {
 					}
@@ -298,7 +298,7 @@ public class X10Disamb_c extends Disamb_c {
 					PathType pt = xts.findTypeProperty(ct, this.name.id(), xc.currentClassDef());
 					XTerm term = null;
 					try {
-						term = xts.xtypeTranslator().trans(e);
+						term = xts.xtypeTranslator().trans((XConstraint) null, e);
 					}
 					catch (SemanticException ex) {
 					}
@@ -351,6 +351,70 @@ public class X10Disamb_c extends Disamb_c {
 		return n;
 	}
 	
+	    protected Receiver makeMissingFieldTarget(FieldInstance fi) throws SemanticException {
+	        Receiver r;
+	        
+	               X10Context c = (X10Context) this.c;
+	                ClassType cur  =c.currentClass();
+	                if (c.inSuperTypeDeclaration())
+	                    cur = c.supertypeDeclarationType().asType();
+
+	        if (fi.flags().isStatic()) {
+	            r = nf.CanonicalTypeNode(pos.startOf(), fi.container());
+	        } else {
+	            // The field is non-static, so we must prepend with
+	            // "this", but we need to determine if the "this"
+	            // should be qualified.  Get the enclosing class which
+	            // brought the field into scope.  This is different
+	            // from fi.container().  fi.container() returns a super
+	            // type of the class we want.
+	            ClassType scope = c.findFieldScope(name.id());
+	            assert scope != null;
+	            
+	            if (! ts.typeEquals(scope, cur)) {
+	                r = (Special) nf.This(pos.startOf(), nf.CanonicalTypeNode(pos.startOf(), scope)).del().typeCheck(v);
+	            }
+	            else {
+	                r = (Special) nf.This(pos.startOf()).del().typeCheck(v);
+	            }
+	            
+	        }
+	        
+	        return r;
+	    }
+	    
+	    protected Receiver makeMissingMethodTarget(MethodInstance mi) throws SemanticException {
+	        Receiver r;
+	        
+	        X10Context c = (X10Context) this.c;
+	        ClassType cur  =c.currentClass();
+	        if (c.inSuperTypeDeclaration())
+	            cur = c.supertypeDeclarationType().asType();
+
+	        if (mi.flags().isStatic()) {
+	            r = nf.CanonicalTypeNode(pos.startOf(), mi.container());
+	        } else {
+	            // The field is non-static, so we must prepend with
+	            // "this", but we need to determine if the "this"
+	            // should be qualified.  Get the enclosing class which
+	            // brought the field into scope.  This is different
+	            // from fi.container().  fi.container() returns a super
+	            // type of the class we want.
+	            ClassType scope = c.findMethodScope(name.id());
+	            assert scope != null;
+
+	            if (! ts.typeEquals(scope, cur)) {
+	                r = (Special) nf.This(pos.startOf(), nf.CanonicalTypeNode(pos.startOf(), scope)).del().typeCheck(v);
+	            }
+	            else {
+	                r = (Special) nf.This(pos.startOf()).del().typeCheck(v);
+	            }
+	            
+	        }
+
+	        return r;
+	    }
+	    
 	protected Receiver makeMissingPropertyTarget(MemberInstance<?> fi, Type currentDepType) throws SemanticException {
 	    Receiver r;
 	    

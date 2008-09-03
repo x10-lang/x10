@@ -1,36 +1,21 @@
 package polyglot.ext.x10.types;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ext.x10.types.MacroType_c.FormalToVarTransform;
-import polyglot.types.Def;
-import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
-import polyglot.types.ObjectType;
-import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.Resolver;
-import polyglot.types.SemanticException;
 import polyglot.types.Name;
+import polyglot.types.ObjectType;
+import polyglot.types.Resolver;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
-import polyglot.types.Type_c;
 import polyglot.types.Types;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.TransformingList;
-import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
-import x10.constraint.XFailure;
-import x10.constraint.XSelf;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public class PathType_c extends ParametrizedType_c implements PathType {

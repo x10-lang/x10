@@ -60,7 +60,7 @@ public class X10Local_c extends Local_c {
 				}
 			}
 
-			X10Local_c result= (X10Local_c) super.typeCheck(tc);
+			X10Local_c result = (X10Local_c) super.typeCheck(tc);
 			
 			// Permit occurrences of local variables in the type of the variable.
 			X10Context xtc = (X10Context) tc.context();
@@ -81,7 +81,7 @@ public class X10Local_c extends Local_c {
 			    c = (c == null) ? new XConstraint_c() : c.copy();
 			    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 			    try {
-				XLocal resultTerm = xts.xtypeTranslator().trans(result);
+				XLocal resultTerm = xts.xtypeTranslator().trans(c, result);
 				c.addSelfBinding(resultTerm);
 				t = X10TypeMixin.xclause(t, c);
 				result = (X10Local_c) result.type(t);

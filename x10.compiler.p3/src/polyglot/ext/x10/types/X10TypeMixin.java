@@ -22,9 +22,9 @@ import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
+import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -36,7 +36,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XPromise;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
@@ -137,21 +136,22 @@ public class X10TypeMixin {
 		else if (t instanceof PathType) {
 		    PathType pt = (PathType) t;
 		    XVar base = pt.base();
-		    XConstraint c = base.selfConstraint();
-		    TypeProperty p = pt.property();
-		    XConstraint w = pt.guard();
-		    c = c == null ? new XConstraint_c() : c;
-		    if (w != null) {
-			c = c.copy();
-			try {
-			    c.addIn(w);
-			}
-			catch (XFailure e) {
-			    c.setInconsistent();
-			    return c;
-			}
+		    try {
+		        XConstraint c = base.selfConstraint();
+		        TypeProperty p = pt.property();
+		        XConstraint w = pt.guard();
+		        c = c == null ? new XConstraint_c() : c;
+		        if (w != null) {
+		            c = c.copy();
+		            c.addIn(w);
+		        }
+		        return c;
 		    }
-		    return c;
+		    catch (XFailure e) {
+		        XConstraint c = new XConstraint_c();
+		        c.setInconsistent();
+		        return c;
+		    }
 		}
 
 		return new XConstraint_c();
@@ -221,8 +221,11 @@ public class X10TypeMixin {
             if (c == null) {
                 c = new XConstraint_c();
             }
-            XConstraint c2 = c.addBinding(t1, t2);
-            return xclause(t, c2);
+            else {
+                c = c.copy();
+            }
+            c.addBinding(t1, t2);
+            return xclause(t, c);
         }
         catch (XFailure f) {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
@@ -242,7 +245,7 @@ public class X10TypeMixin {
 
     public static XVar selfVar(XConstraint c) {
 	    if (c == null) return null;
-	    return c.bindingForVar(XSelf.Self);
+	    return c.bindingForVar(c.self());
     }
 
     public static Type setSelfVar(Type t, XVar v) throws SemanticException {

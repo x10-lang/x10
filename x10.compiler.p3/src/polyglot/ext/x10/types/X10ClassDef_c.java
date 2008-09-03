@@ -2,23 +2,13 @@ package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
 
 import polyglot.ext.x10.types.TypeProperty.Variance;
 import polyglot.frontend.Source;
-import polyglot.types.ArrayType;
 import polyglot.types.ClassDef_c;
-import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
-import polyglot.types.MethodDef;
-import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -26,8 +16,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.FilteringList;
-import polyglot.util.InternalCompilerError;
-import polyglot.util.Position;
 import polyglot.util.Predicate;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -35,12 +23,8 @@ import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XLit;
 import x10.constraint.XRoot;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
-import x10.constraint.XVar;
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected List<Variance> variances;
@@ -144,7 +128,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    if (type != null) {
 						XConstraint rs = X10TypeMixin.realX(type);
 						if (rs != null) {
-						    rs = rs.substitute(XSelf.Self, oldThis);
+						    rs = rs.substitute(rs.self(), oldThis);
 						    result.addIn(rs);
 						}
 					    }
@@ -157,7 +141,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    // no need to change self, and no occurrence of this is possible in 
 					    // a type's base constraint.
 					    if (rs != null) {
-						    rs = rs.substitute(XSelf.Self, oldThis);
+						    rs = rs.substitute(rs.self(), oldThis);
 						    result.addIn(rs);
 					    }
 				    }
@@ -169,9 +153,9 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    if (rs != null) {
 						    // Given: C(:c) f
 						    // Add in: c[self.f/self,self/this]
-						    XTerm newSelf = xts.xtypeTranslator().trans(XSelf.Self, fi.asInstance());
-						    XConstraint rs1 = rs.substitute(newSelf, XSelf.Self);
-						    XConstraint rs2 = rs1.substitute(XSelf.Self, oldThis);
+						    XTerm newSelf = xts.xtypeTranslator().trans(rs, rs.self(), fi.asInstance());
+						    XConstraint rs1 = rs.substitute(newSelf, rs.self());
+						    XConstraint rs2 = rs1.substitute(rs1.self(), oldThis);
 						    result.addIn(rs2);
 					    }
 				    }
@@ -181,7 +165,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    // until after the base type of the supertypes are resolved.
 				    XConstraint ci = Types.get(classInvariant);
 				    if (ci != null) {
-					ci = ci.substitute(XSelf.Self, oldThis);
+					ci = ci.substitute(ci.self(), oldThis);
 					result.addIn(ci);
 				    }
 				    
@@ -210,8 +194,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    Type ftype = fi.asInstance().type();
 					    
 					    XConstraint c = X10TypeMixin.realX(ftype);
-					    XTerm newSelf = xts.xtypeTranslator().trans(XSelf.Self, fi.asInstance());
-					    c = c.substitute(newSelf, XSelf.Self);
+					    XTerm newSelf = xts.xtypeTranslator().trans(c, c.self(), fi.asInstance());
+					    c = c.substitute(newSelf, c.self());
 					    
 					    if (! result.entails(c)) {
 						    this.rootClause = result;

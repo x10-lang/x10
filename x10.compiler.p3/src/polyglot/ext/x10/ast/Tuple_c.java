@@ -41,7 +41,6 @@ import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XSelf;
 import x10.constraint.XVar;
 
 /** 
@@ -153,7 +152,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 		if (lengthField == null)
 		    throw new InternalCompilerError("Could not find length field of " + t, position());
 		try {
-		    XVar selfLength = ts.xtypeTranslator().trans(XSelf.Self, lengthField);
+		    XVar selfLength = ts.xtypeTranslator().trans(c, c.self(), lengthField);
 		    XLit sizeLiteral = ts.xtypeTranslator().trans(elements.size());
 		    c.addBinding(selfLength, sizeLiteral);
     		    t = X10TypeMixin.xclause(t, c);

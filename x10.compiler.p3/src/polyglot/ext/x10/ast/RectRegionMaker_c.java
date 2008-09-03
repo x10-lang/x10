@@ -15,23 +15,8 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
-import polyglot.ast.Node;
 import polyglot.ast.Receiver;
-import polyglot.ext.x10.types.X10ArraysMixin;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeMixin;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.types.FieldInstance;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
-import x10.constraint.XFailure;
-import x10.constraint.XSelf;
-import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 
 /**
  * This needs to be pulled out in a separate class because the typeCheck code
@@ -78,7 +63,7 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 //				FieldInstance fi = X10ArraysMixin.getProperty(tp, "rank");
 //				XConstraint c = new XConstraint_c();
 //				try {
-//					c.addTerm(XTerms.makeEquals(xts.ONE(), xts.xtypeTranslator().trans(XSelf.Self, fi)));
+//					c.addTerm(XTerms.makeEquals(xts.ONE(), xts.xtypeTranslator().trans(c.self(), fi)));
 //					if (! X10TypeMixin.xclause(tp).entails(c)) {
 //						throw new SemanticException("The argument, " + e + ", should be of type region{rank==1} instead of " + t
 //						                            +".", position());
