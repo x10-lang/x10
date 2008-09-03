@@ -23,7 +23,7 @@ public class PrimitiveDepTypeAssignmentOverflow extends x10Test {
 		
 		 var res: boolean = false;
 		 
-		var l1: int{self==overIntMaxAsInt} = overMaxInt to int{self==overIntMaxAsInt};
+		var l1: int{self==overIntMaxAsInt} = overIntMax to int{self==overIntMaxAsInt};
 		
 		var iNeg: int = -2147473649;
 
