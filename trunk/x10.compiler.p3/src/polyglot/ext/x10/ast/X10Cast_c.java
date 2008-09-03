@@ -16,6 +16,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.BoxType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -67,7 +68,41 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	Type toType = castType.type();
 	Type fromType = expr.type();
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
+	// Handle some boxing coercions stepwise.
+	if (convert != ConversionType.COERCION) {
+	    if (ts.isBox(fromType) && ts.isBox(toType)) {
+	        // Reboxing a value.  Unbox and then box again.
+	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
+	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
+	        Position p = position();
+	        X10Cast unbox = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	        X10Cast box = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), unbox, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	        return this.expr(box).typeCheck(tc);
+	    }
+
+	    if (ts.isValueType(fromType) && ts.isBox(toType)) {
+	        // Boxing a value type.  First coerce to the boxed type, then box.
+	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
+	        Position p = position();
+	        if (! ts.isSubtype(fromType, toBox.arg())) {
+	            X10Cast box = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	            return this.expr(box).typeCheck(tc);
+	        }
+	    }
+	    
+	    if (ts.isValueType(toType) && ts.isBox(fromType)) {
+	        // Unboxing a value type.  First coerce to the boxed type, then unbox.
+	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
+	        Position p = position();
+	        if (! ts.isSubtype(fromBox.arg(), toType)) {
+	            X10Cast unbox = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	            return this.expr(unbox).typeCheck(tc);
+	        }
+	    }
+	}
+	
 	boolean coercionAllowed = false;
 	ConversionType conversionType = convert == ConversionType.COERCION ? convert : ConversionType.UNKNOWN_CONVERSION;
 	
@@ -134,7 +169,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    }
 	    
 	    if (converter != null) {
-		NodeFactory nf = tc.nodeFactory();
 		MethodInstance mi = converter;
 		Position p = position();
 		Expr e = expr;
