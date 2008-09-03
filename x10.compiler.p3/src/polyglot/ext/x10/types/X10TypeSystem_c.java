@@ -1906,6 +1906,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
 	@Override
 	public boolean isCastValid(Type fromType, Type toType) {
+	    if (isImplicitCastValid(fromType, toType))
+	        return true;
+	    
 	    fromType = expandMacros(fromType);
 	    toType = expandMacros(toType);
 
@@ -1916,7 +1919,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    return toType.isNull() || ! isValueType(toType);
 		}
 		
-		// For now, can always cast from one parameter type to another.
+		// For now, can always cast to or from a parameter type.
 		if (fromType instanceof ParameterType || toType instanceof ParameterType) {
 		    return true;
 		}
@@ -1969,6 +1972,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	    if (ts.isPrimitiveConversionValid(fromType, toType)) {
 	        return toType;
+	    }
+	    
+	    if (isBox(toType) && isValueType(fromType)) {
+	        BoxType box = (BoxType) X10TypeMixin.baseType(toType);
+	        Type t = coerceType(fromType, box.arg());
+	        if (t != null) {
+	            return boxOf(Types.ref(t));
+	        }
 	    }
 
 	    // Can convert if there is a static method toType.make(fromType)
@@ -2736,17 +2747,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	            return Object();
 	        }
 
-	        // Check against Object to ensure superType() is not null.
-	        if (typeEquals(type1, Object())) return type1;
-	        if (typeEquals(type2, Object())) return type2;
-
 	        if (isSubtype(type1, type2)) return type2;
 	        if (isSubtype(type2, type1)) return type1;
 
 	        if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
 	            // Walk up the hierarchy
-	            Type t1 = leastCommonAncestor(((ObjectType) type1).superClass(), type2);
-	            Type t2 = leastCommonAncestor(((ObjectType) type2).superClass(), type1);
+	            Type sup1 = ((ObjectType) type1).superClass();
+	            Type sup2 = ((ObjectType) type2).superClass();
+	            
+	            if (sup1 == null) return Object();
+	            if (sup2 == null) return Object();
+
+	            Type t1 = leastCommonAncestor(sup1, type2);
+	            Type t2 = leastCommonAncestor(sup2, type1);
 
 	            if (typeEquals(t1, t2)) return t1;
 

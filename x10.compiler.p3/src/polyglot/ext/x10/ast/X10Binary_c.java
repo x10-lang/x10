@@ -273,19 +273,17 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		Type r = right.type();
 
 		if (op == EQ || op == NE) {
-//		    l = X10TypeMixin.baseType(l);
-//		    r = X10TypeMixin.baseType(r);
 		    if (xts.isNumeric(l) && xts.isNumeric(r)) {
-			return type(xts.Boolean());
+		        return type(xts.Boolean());
 		    }
 
-		    if (! xts.isCastValid(l, r) && ! xts.isCastValid(r, l)) {
-			throw new SemanticException("The " + op +
-			                            " operator must have operands of comparable type; the types " + l + " and " + r + " do not share any values.",
-			                            position());
+		    if (xts.isCastValid(l, r) || xts.isCastValid(r, l)) {
+		        return type(xts.Boolean());
 		    }
 
-		    return type(xts.Boolean());
+		    throw new SemanticException("The " + op +
+		                                " operator must have operands of comparable type; the types " + l + " and " + r + " do not share any values.",
+		                                position());
 		}
 		
 		Name methodName = binaryMethodName(op);
