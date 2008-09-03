@@ -21,7 +21,16 @@ public class XTerms {
 	static final XName equalsName = new XNameWrapper<String>("===");
 	static final XName andName = new XNameWrapper<String>("&&&");
 	static final XName notName = new XNameWrapper<String>("!!!");
-
+	
+	static int nextId = 0;
+	
+	public static final XName makeFreshName() {
+	    return makeFreshName("_");
+	}
+	public static final XName makeFreshName(String prefix) {
+	    return new XNameWrapper<Object>(new Object(), prefix + (nextId++));
+	}
+	
 	public static final <T> XName makeName(T name) {
 		return new XNameWrapper<T>(name);
 	}

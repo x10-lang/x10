@@ -17,30 +17,58 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 	public final XTerm subst(XTerm y, XRoot x) {
 	    return subst(y, x, true);
 	}
+
+	int nextId = 0;
 	
-	public XTerm subst(final XTerm y, final XRoot x, boolean propagate) {
-	    XTerm t = this;
-	    if (propagate && ! x.equals(XSelf.Self)) {
-		if (selfConstraint != null) {
-		    t = clone();
-		    // Wrap the self constraint in a substitution.
-		    t.setSelfConstraint(new XRef_c<XConstraint>() {
-			@Override
-			public XConstraint compute() {
-			    XConstraint c = selfConstraint != null ? selfConstraint.get() : null;
-			    if (c != null) {
-				try {
-				    c = c.substitute(y, x);
-				}
-				catch (XFailure e) {
-				    // fatal error
-				    throw new RuntimeException("Cannot perform substitution on self constraint: " + e.getMessage()); 
-				}
-			    }
-			    return c;
-			}
-		    });
-		}
+	public XTerm subst(XTerm y, final XRoot x, boolean propagate) {
+	    XTerm_c t = this;
+	    
+	    if (propagate && selfConstraint != null) {
+	        /*
+	        // t : c
+	        // ->
+	        // t[y/x] : c[y/x]
+	        if (x.equals(XSelf.Self)) {
+	            // t[y/self] : c[y/self] -- self is rebound by c, do don't subst
+	            return t;
+	        }
+	        
+	        if (y.equals(XSelf.Self)) {
+	            // t[self/x] : c[self/x] -- will capture another self in c, do subst in a fresh var instead
+	            // NOTE: we should give each term its own self variable rather than using just XSelf.Self.
+	            if (false) {
+	                t = clone();
+	                t.setSelfConstraint(null);
+	                return t;
+	            }
+	            XRoot newSelf = new XEQV_c(XTerms.makeName("__self" + (nextId++) + "__"), true);
+	            y = newSelf;
+	        }
+*/
+	        t = clone();
+	        
+	        final XTerm yy = y;
+	        
+	        // Wrap the self constraint in a substitution.
+	        t.setSelfConstraint(new XRef_c<XConstraint>() {
+	            @Override
+	            public XConstraint compute() {
+	                XConstraint c = selfConstraint != null ? selfConstraint.get() : null;
+	                if (c != null) {
+	                    try {
+	                        c = c.substitute(yy, x);
+	                    }
+	                    catch (XFailure e) {
+	                        // fatal error
+	                        XConstraint c2 = new XConstraint_c();
+	                        c2.setInconsistent();
+	                        return c2;
+	                        //				    throw new RuntimeException("Cannot perform substitution on self constraint: " + e.getMessage()); 
+	                    }
+	                }
+	                return c;
+	            }
+	        });
 	    }
 	    return t;
 	}
@@ -58,8 +86,11 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 
 	protected XRef_c<XConstraint> selfConstraint;
 	
-	public XConstraint selfConstraint() {
-		return selfConstraint != null ? selfConstraint.get() : null;
+	public XConstraint selfConstraint() throws XFailure {
+	    XConstraint c = selfConstraint != null ? selfConstraint.get() : null;
+	    if (c != null && ! c.consistent())
+	        throw new XFailure("self constraint of " + this + " is inconsistent.");
+	    return c;
 	}
 	
 	public void setSelfConstraint(XRef_c<XConstraint> c) {
@@ -72,19 +103,20 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 		visited.add(this);
 		XConstraint self = this.selfConstraint();
 		if (self != null) {
-//		    self = self.saturate();
-			if (this instanceof XVar) {
-				self = self.substitute(this, XSelf.Self);
-			}
-			else {
-				XEQV v = self.genEQV(true);
-				self = self.substitute(v, XSelf.Self);
-				self = self.addBinding(v, this);
-			}
-			for (XTerm term : self.constraints()) {
-				term.saturate(c, visited);
-			}
-			c.addIn(self);
+		    //		    self = self.saturate();
+		    self = self.copy();
+		    if (this instanceof XVar) {
+		        self = self.substitute(this, self.self());
+		    }
+		    else {
+		        XEQV v = self.genEQV(true);
+		        self = self.substitute(v, self.self());
+		        self.addBinding(v, this);
+		    }
+		    for (XTerm term : self.constraints()) {
+		        term.saturate(c, visited);
+		    }
+		    c.addIn(self);
 		}
 		return true;
 	}
@@ -102,7 +134,7 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 	}
 
 	public boolean prefersBeingBound() {
-		return isEQV() || this instanceof XSelf;
+		return isEQV();
 	}
 
 	protected boolean isAtomicFormula = false;

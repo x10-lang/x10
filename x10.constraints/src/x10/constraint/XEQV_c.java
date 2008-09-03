@@ -27,4 +27,5 @@ public class XEQV_c extends XLocal_c implements XEQV {
 	public boolean isEQV() {
 		return hidden;
 	}
+	
 }

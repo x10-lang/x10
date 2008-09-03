@@ -103,14 +103,16 @@ public interface XPromise extends Cloneable {
 	 * Traverse the subtree under this promise, and add t1 -> t2 into result for any term t1 
 	 * which has an outgoing edge to a term t2.
 	 * @param result
+	 * @param oldSelf TODO
 	 */
-	void dump(List<XTerm> result, XTerm prefix);
+	void dump(List<XTerm> result, XRoot oldSelf);
 	/**
 	 * Traverse the subtree under this promise, and add t1 -> t2 into result for any term t1 
 	 * which has an outgoing edge to a term t2, and is not an EQV.
 	 * @param result
+	 * @param oldSelf 
 	 */
-	void extDump(List<XTerm> result, XTerm prefix);
+	void extDump(List<XTerm> result, XRoot oldSelf);
 
 	/**
 	 * Return the term that labels this promise. This term is intended to be the canonical C_Var

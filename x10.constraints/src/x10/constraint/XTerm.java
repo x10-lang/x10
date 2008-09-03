@@ -15,8 +15,9 @@ public interface XTerm extends Serializable, Cloneable {
         
 	boolean hasVar(XVar v);
 	
-	/** Get the constraint on the term's value. */
-	XConstraint selfConstraint();
+	/** Get the constraint on the term's value. 
+	 * @throws XFailure if the self constraint is inconsistent. */
+	XConstraint selfConstraint() throws XFailure;
 	
 	/** Set the constraint on the term's value. */
 	void setSelfConstraint(XRef_c<XConstraint> c);
