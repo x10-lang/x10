@@ -9,7 +9,6 @@ package x10.constraint;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An implementation of a simple constraint system. The only constraints
@@ -22,6 +21,11 @@ import java.util.Map;
  * 
  */
 public interface XConstraint extends java.io.Serializable {
+        /**
+         * Variable to use for self in the constraint.
+         */
+        XRoot self();
+    
 	/**
 	 * Is the consistent consistent? That is, does it have a solution?
 	 * 
@@ -57,7 +61,7 @@ public interface XConstraint extends java.io.Serializable {
 	 */
 	boolean entails(XTerm t) throws XFailure;
 
-	boolean entails(List<XTerm> list) throws XFailure;
+	boolean entails(List<XTerm> list, XRoot self) throws XFailure;
 
 	/**
 	 * this is entailedby t iff t entails this.
@@ -110,7 +114,7 @@ public interface XConstraint extends java.io.Serializable {
 	 * @return new constraint with t1=t2 added.
 	 * @throws XFailure
 	 */
-	XConstraint addBinding(XTerm var, XTerm val) throws XFailure;
+	void addBinding(XTerm var, XTerm val) throws XFailure;
 
 	/**
 	 * For each pair (t1,t2) in result, add t1 -> t2 to the constraint, and
@@ -125,8 +129,8 @@ public interface XConstraint extends java.io.Serializable {
 	/** Deep copy the constraint. */
 	XConstraint copy();
 
-	/** Shallow copy the constraint. */
-	XConstraint clone();
+//	/** Shallow copy the constraint. */
+//	XConstraint clone();
 
 	/**
 	 * Add constraint c into this, and return this.
@@ -144,8 +148,8 @@ public interface XConstraint extends java.io.Serializable {
 	 * @return new constraint with term=true added.
 	 * @throws SemanticException
 	 */
-	XConstraint addTerm(XTerm term) throws XFailure;
-	XConstraint addTerms(List<XTerm> term) throws XFailure;
+	void addTerm(XTerm term) throws XFailure;
+	void addTerms(List<XTerm> term) throws XFailure;
 
 	/**
 	 * Add an atomic formula to the constraint.
@@ -153,7 +157,7 @@ public interface XConstraint extends java.io.Serializable {
 	 * @return
 	 * @throws XFailure
 	 */
-	XConstraint addAtom(XTerm term) throws XFailure;
+	void addAtom(XTerm term) throws XFailure;
 
 	/** Return x where this constraint has v==x. */
 	XVar bindingForVar(XVar v);
@@ -223,26 +227,14 @@ public interface XConstraint extends java.io.Serializable {
 	List<XTerm> extConstraints();
 
 	/**
-	 * Return in HashMap a set of bindings t1 -> t2 entailed by the current
-	 * constraint, where y is a variable that occurs in this, and all terms
-	 * t1 are of the form y.p, for some possibly empty path (sequence of
-	 * fields) p.
-	 * 
-	 * @param y
-	 * @return
-	 * @throws XFailure
-	 */
-	List<XTerm> constraints(XTerm y) throws XFailure;
-
-	/**
 	 * Generate a new existentially quantified variable scoped to this
 	 * constraint, with the given type.
 	 * 
 	 * @return
 	 */
 	XEQV genEQV();
-
 	XEQV genEQV(boolean hidden);
+	XEQV genEQV(XName name, boolean hidden);
 
 	/**
 	 * If y equals x, or x does not occur in this, return this, else copy

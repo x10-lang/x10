@@ -28,6 +28,14 @@ public class XLit_c extends XTerm_c implements XLit {
 	public String toString() {
 		if (val == null)
 			return "null";
+		if (val instanceof String)
+		    return "\"" + val.toString() + "\"";
+		if (val instanceof Character)
+		    return "'" + val.toString() + "'";
+		if (val instanceof Float)
+		    return val.toString() + "F";
+		if (val instanceof Long)
+		    return val.toString() + "L";
 		return val.toString();
 	}
 
@@ -109,10 +117,11 @@ public class XLit_c extends XTerm_c implements XLit {
 		return this;
 	}
 
-	public void extDump(List<XTerm> result, XTerm prefix) {
+	public void extDump(List<XTerm> result, XRoot oldSelf) {
 		// nothing to dump.
 	}
-	public void dump(List<XTerm> result, XTerm prefix) {
+	
+	public void dump(List<XTerm> result, XRoot oldSelf) {
 		// nothing to dump.
 	}
 
@@ -120,8 +129,8 @@ public class XLit_c extends XTerm_c implements XLit {
 		throw new XFailure("Cannot add an " + s + " child " + orphan + " to a literal, " + this + ".");
 	}
 
-	public void setTerm(XTerm term) { /* ignore */}
-	public void setTerm(XTerm term, Set<XPromise> visited) { /* ignore */}
+	public void setTerm(XTerm term) { /* ignore */ }
+	public void setTerm(XTerm term, Set<XPromise> visited) { /* ignore */ }
 
 	public String instance() {
 		return toString();
