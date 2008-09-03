@@ -33,10 +33,10 @@ public class IntArrayIndexing extends x10Test {
 		range3D = [0..11, 0..6, 0..7]; // reducing size further
 
 		var start: long = System.currentTimeMillis();
-		_intArray1D = new Array[int](dist.factory.constant(range1D,here));
-		_intArray2D = new Array[int](dist.factory.constant(range2D,here));
-		_intArray3D = new Array[int](dist.factory.constant(range3D,here));
-		_intArray4D = new Array[int](dist.factory.constant(range4D,here));
+		_intArray1D = Array.make[int](dist.factory.constant(range1D,here));
+		_intArray2D = Array.make[int](dist.factory.constant(range2D,here));
+		_intArray3D = Array.make[int](dist.factory.constant(range3D,here));
+		_intArray4D = Array.make[int](dist.factory.constant(range4D,here));
 		var stop: long = System.currentTimeMillis();
 		System.out.println("int arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
 	}

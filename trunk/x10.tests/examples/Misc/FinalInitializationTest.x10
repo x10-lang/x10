@@ -47,9 +47,9 @@ public class FinalInitializationTest extends x10Test {
 	}
 
 	public def run(): boolean = {
-		var f = new foo();
-		var x  = new myval(1, new complex(2, 3), f);
-		var y  = new myval(1, (new complex(1, 4)).add(new complex(1, -1)), f);
+		val f = new foo();
+		val x  = new myval(1, new complex(2, 3), f);
+		val y  = new myval(1, (new complex(1, 4)).add(new complex(1, -1)), f);
 		return (x.eq(y));
 	}
 

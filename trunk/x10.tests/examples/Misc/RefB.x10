@@ -8,9 +8,9 @@
 import harness.x10Test;;
 	
 public class RefB(f2: RefA) extends x10Test {
-	public RefB(f2: RefA) { 
+	public def this(f2: RefA) { 
 		this.f2=f2;
 	}
 	
-	public boolean run() { return true;}
+	public def run(): boolean { return true;}
 }
