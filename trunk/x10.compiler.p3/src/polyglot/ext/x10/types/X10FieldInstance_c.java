@@ -87,11 +87,11 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                 	receiver = xts.xtypeTranslator().transThis(container());
                 }
                 
+                XConstraint c = rc.copy();
+
                 // ### pass in the type rather than letting C_Field call fi.type();
                 // otherwise, we'll get called recursively.
-                XTerm self = xts.xtypeTranslator().trans(receiver, this, t);
-
-                XConstraint c = rc.copy();
+                XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
                 c.addSelfBinding(self);
 
                 return X10TypeMixin.xclause(t, c);

@@ -48,6 +48,8 @@ import x10.constraint.XTerm;
 public interface X10TypeSystem extends TypeSystem {
 	public Name DUMMY_PACKAGE_CLASS_NAME = Name.make("_");
 	
+    boolean isSubtype(Type t1, Type t2, List<XTerm> env);
+    
     /**
      * Add an annotation to a type object, optionally replacing existing
      * annotations that are subtypes of annoType.
@@ -309,6 +311,10 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type expandMacros(Type arg);
 
-    // X10NamedType createBoxFromTemplate(X10ClassDef def);
+    /** Return true if fromType and toType are primitive types and there is a conversion from one to the other. */
+    boolean isPrimitiveConversionValid(Type fromType, Type toType);
+
+    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
+    Type coerceType(Type fromType, Type toType);
 
 }

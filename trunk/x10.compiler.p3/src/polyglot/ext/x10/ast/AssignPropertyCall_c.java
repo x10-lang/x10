@@ -15,7 +15,6 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
@@ -39,13 +38,11 @@ import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
@@ -183,7 +180,6 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		     s.add(a);
 		 }
 
-		 
 		 return nf.AssignPropertyBody(pos, s, thisConstructor, definedProperties).del().typeCheck(tc);
 	}
 
@@ -208,42 +204,38 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	Expr initializer = arguments.get(i);
 		        	Type initType = initializer.type();
 		        	final FieldInstance fii = definedProperties.get(i);
-		        	XVar prop = (XVar) ts.xtypeTranslator().trans(XSelf.Self, fii);
+		        	XVar prop = (XVar) ts.xtypeTranslator().trans(known, known.self(), fii);
 		        	prop.setSelfConstraint(new XRef_c<XConstraint>() {
 		        	    public XConstraint compute() { return X10TypeMixin.realX(fii.type()); } });
 
 		        	// Add in the real clause of the initializer with [self.prop/self]
 		        	XConstraint c = X10TypeMixin.realX(initType);
-		        	XTerm initVar = null;
+		        	if (c != null)
+		        	    known.addIn(c.substitute(prop, c.self()));
+		        	
 		        	try {
-		        	    initVar = ts.xtypeTranslator().trans(initializer);
+		        	    XTerm initVar = ts.xtypeTranslator().trans(known, initializer);
+		        	    known.addBinding(prop, initVar);
 		        	}
 		        	catch (SemanticException e) {
 		        	}
-		        	if (c == null)
-		        	    c = new XConstraint_c();
-		        	else 
-		        	    c = c.copy();
-		        	c = c.substitute(prop, XSelf.Self);
-		        	if (initVar != null)
-		        	    c.addBinding(prop, initVar);
-		        	known.addIn(c);
 		            }
 
 		            for (int i = 0; i < typeArgs.size(); i++) {
 		        	TypeNode tn = typeArgs.get(i);
 		        	Type pt = definedTypeProperties.get(i);
 		        	XVar prop = (XVar) ts.xtypeTranslator().trans(pt);
-		        	prop = (XVar) prop.subst(XSelf.Self, (XRoot) prop.rootVar());
+		        	prop = (XVar) prop.subst(known.self(), (XRoot) prop.rootVar());
 
 		        	// Add in the real clause of the initializer with [self.prop/self]
-		        	XConstraint c = new XConstraint_c();
-		        	XTerm t = ts.xtypeTranslator().trans(tn);
-		        	c.addBinding(prop, t);
-		        	known.addIn(c);
+		        	XTerm t = ts.xtypeTranslator().trans(known, tn);
+		        	known.addBinding(prop, t);
 		            }
+		            
+		            // bind this==self; sup clause may constrain this.
+		            known.addSelfBinding(ts.xtypeTranslator().transThisWithoutTypeConstraint());
 
-		            if (! known.copy().entails(result)) {
+		            if (! known.entails(result)) {
 		        	    throw new SemanticException("Instances created by this constructor satisfy " + known 
 		        	                                + "; this is not strong enough to entail the return constraint " + result,
 		        	                                position());

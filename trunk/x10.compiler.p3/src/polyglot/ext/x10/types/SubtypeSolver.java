@@ -1,25 +1,16 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import polyglot.ext.x10.types.XTypeTranslator.XTypeLit_c;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
-import polyglot.util.Pair;
-
 import x10.constraint.Solver;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
-import x10.constraint.XEquals;
-import x10.constraint.XEquals_c;
+import x10.constraint.XEQV_c;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
@@ -29,9 +20,7 @@ import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
-import x10.constraint.XTerm_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
@@ -58,15 +47,15 @@ public class SubtypeSolver implements Solver {
             return getType(right());
         }
 
-        Type subst(Type t, XTerm y, XRoot x) {
+      public static Type subst(Type t, XTerm y, XRoot x) {
             if (t instanceof ConstrainedType) {
                 Type ct = t;
                 Type base = X10TypeMixin.baseType(ct);
                 XConstraint c = X10TypeMixin.xclause(ct);
                 Type newBase = subst(base, y, x);
-                if (x instanceof XSelf) {
-                    return X10TypeMixin.xclause(newBase, c);
-                }
+//                if (x instanceof XSelf) {
+//                    return X10TypeMixin.xclause(newBase, c);
+//                }
                 try {
                     return X10TypeMixin.xclause(newBase, c.substitute(y, x));
                 }
@@ -77,11 +66,16 @@ public class SubtypeSolver implements Solver {
             if (t instanceof ParameterType) {
                 X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
                 XTerm tt = ts.xtypeTranslator().trans(t);
-                if (x.equals(tt))
-                    return SubtypeSolver.getType(y);
+                if (x.equals(tt)) {
+                    Type yt = SubtypeSolver.getType(y);
+                    if (yt != null)
+                        return yt;
+                    assert false;
+                    return ts.unknownType(t.position());
+                }
             }
-            if (t instanceof X10ParsedClassType) {
-                X10ParsedClassType ct = (X10ParsedClassType) t;
+            if (t instanceof X10ClassType) {
+                X10ClassType ct = (X10ClassType) t;
                 if (ct.isIdentityInstantiation()) {
                     List<Type> args = new ArrayList<Type>();
                     boolean changed = false;
@@ -122,7 +116,8 @@ public class SubtypeSolver implements Solver {
                     return pt;
                 if (newBase instanceof XVar)
                     return pt.base((XVar) newBase, subst(baseType, y, x));
-                return pt;
+                else
+                    return pt.base(new XEQV_c(XTerms.makeName(newBase.toString()), true), subst(baseType, y, x));
             }
             return t;
         }
@@ -177,18 +172,18 @@ public class SubtypeSolver implements Solver {
             XSubtype_c f = (XSubtype_c) t;
             // A bit of a hack: apply substitutions to capture any equality constraints in the atoms.
             // Should really pass the constraint into isSubtype and use as an oracle; this would include any subtyping constraints also.
-            for (XTerm term : atoms) {
-                if (term instanceof XEquals) {
-                    XEquals eq = (XEquals) term;
-                    if (eq.left() instanceof XRoot)
-                        f = (XSubtype_c) f.subst(eq.right(), (XRoot) eq.left());
-                    else if (eq.right() instanceof XRoot)
-                        f = (XSubtype_c) f.subst(eq.left(), (XRoot) eq.right());
-                }
-            }
+//            for (XTerm term : atoms) {
+//                if (term instanceof XEquals) {
+//                    XEquals eq = (XEquals) term;
+//                    if (eq.left() instanceof XRoot)
+//                        f = (XSubtype_c) f.subst(eq.right(), (XRoot) eq.left());
+//                    else if (eq.right() instanceof XRoot)
+//                        f = (XSubtype_c) f.subst(eq.left(), (XRoot) eq.right());
+//                }
+//            }
             Type t1 = f.subtype();
             Type t2 = f.supertype();
-            if (t1 != null && t2 != null && ts.isSubtype(t1, t2)) {
+            if (t1 != null && t2 != null && ts.isSubtype(t1, t2, atoms)) {
                 return true;
             }
         }

@@ -57,7 +57,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         	    XConstraint c = X10TypeMixin.xclause(t);
         	    if (c == null) c = new XConstraint_c();
         	    X10TypeSystem xts = (X10TypeSystem) ts;
-        	    XLocal var = xts.xtypeTranslator().trans(this, t);
+        	    XLocal var = xts.xtypeTranslator().trans(c, this, t);
         	    c.addSelfBinding(var);
         	    return X10TypeMixin.xclause(t, c);
             }

@@ -1,19 +1,15 @@
 package polyglot.ext.x10.types;
 
 
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.SemanticException;
 import polyglot.types.Name;
+import polyglot.types.Ref;
+import polyglot.types.SemanticException;
 import polyglot.types.StructType;
-import polyglot.types.Type;
 import polyglot.types.TypeObject_c;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import x10.constraint.XSelf;
 import x10.constraint.XVar;
 
 public class TypeProperty_c extends TypeObject_c implements TypeProperty {
@@ -36,10 +32,17 @@ public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 	PathType asType = null;
 	
 	public PathType asType() {
-		if (asType == null) {
-			asType = new PathType_c(ts, position, XSelf.Self, Types.get(container()), this);
-		}
-		return asType;
+	    if (asType == null) {
+	        X10TypeSystem ts = (X10TypeSystem) this.ts;
+	        StructType container = Types.get(container());
+	        try {
+	            asType = new PathType_c(ts, position, ts.xtypeTranslator().transThis(container), container, this);
+	        }
+	        catch (SemanticException e) {
+	            throw new InternalCompilerError(e);
+	        }
+	    }
+	    return asType;
 	}
 	
 	XVar asVar = null;

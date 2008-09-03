@@ -26,7 +26,6 @@ import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.TypeDef_c;
 import polyglot.ext.x10.types.X10ClassDef;
-import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -42,7 +41,6 @@ import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
@@ -54,7 +52,6 @@ import polyglot.visit.TypeBuilder;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XSelf;
 
 public class TypeDecl_c extends Term_c implements TypeDecl {
 	private TypeNode type;
@@ -269,7 +266,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        	public void run() {
 	        	    XConstraint c = new XConstraint_c();
 	        	    try {
-	        		c = c.addBinding(XSelf.Self, ts.xtypeTranslator().trans(f2.localDef().asInstance()));
+	        		c.addSelfBinding(ts.xtypeTranslator().trans(c, f2.localDef().asInstance()));
 	        	    }
 	        	    catch (XFailure e) {
 	        	    }

@@ -22,7 +22,6 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 
 /**
@@ -45,7 +44,7 @@ public class X10BooleanLit_c extends BooleanLit_c {
 		  X10Type Boolean = (X10Type) xts.Boolean();
 		 
 		  XConstraint c = new XConstraint_c();
-		  XTerm term = xts.xtypeTranslator().trans(this.type(Boolean));
+		  XTerm term = xts.xtypeTranslator().trans(c, this.type(Boolean));
 		  try {
 			  c.addSelfBinding(term);
 		  }

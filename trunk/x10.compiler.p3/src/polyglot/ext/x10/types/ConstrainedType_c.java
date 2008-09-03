@@ -7,24 +7,22 @@ import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.PrimitiveType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
 import polyglot.types.ReferenceType_c;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import x10.constraint.XConstraint;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -124,7 +122,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 			StringBuilder sb2 = new StringBuilder();
 			String sep = "";
 			for (FieldInstance p : ct.definedProperties()) {
-			    XVar v = XTerms.makeField(XSelf.Self, XTerms.makeName(p, p.name().toString()));
+			    XVar v = XTerms.makeField(c.self(), XTerms.makeName(p, p.name().toString()));
 			    XTerm b = c.bindingForVar(v);
 			    if (b != null) {
 				sb2.append(sep);

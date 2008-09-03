@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +23,6 @@ import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
-import polyglot.ast.Initializer_c;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New;
 import polyglot.ast.Node;
@@ -39,7 +36,6 @@ import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.ParameterType_c;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
@@ -51,7 +47,6 @@ import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.frontend.Goal;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.main.Report;
 import polyglot.types.Context;
@@ -59,11 +54,9 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
-import polyglot.types.Qualifier;
+import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -78,10 +71,8 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XPromise;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
@@ -331,7 +322,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	    if (s instanceof Return) {
         		Return r = (Return) s;
         		if (r.expr() != null) {
-        		    XTerm v = ts.xtypeTranslator().trans(r.expr());
+        		    XTerm v = ts.xtypeTranslator().trans((XConstraint) null, r.expr());
         		    ok = true;
         		    X10MethodDef mi = (X10MethodDef) this.mi;
         		    if (mi.body() instanceof LazyRef) {
@@ -585,12 +576,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             				X10Type newType = (X10Type) ref.get();
 
             				// Fold the formal's constraint into the guard.
-            				XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
+            				XVar var = xts.xtypeTranslator().trans(c, n.localDef().asInstance());
             				XConstraint dep = X10TypeMixin.xclause(newType);
             				if (dep != null) {
             				    dep = dep.copy();
             				    XPromise p = dep.intern(var);
-            				    dep = dep.substitute(p.term(), XSelf.Self);
+            				    dep = dep.substitute(p.term(), c.self());
             				    c.addIn(dep);
             				}
 
@@ -607,7 +598,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             			if (c != null && dep != null) {
             				dep = dep.copy();
             				XPromise p = dep.intern(xts.xtypeTranslator().transThis(t));
-            				dep = dep.substitute(p.term(), XSelf.Self);
+            				dep = dep.substitute(p.term(), c.self());
             				c.addIn(dep);
             			}
             		}

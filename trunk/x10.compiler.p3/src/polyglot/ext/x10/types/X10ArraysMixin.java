@@ -2,16 +2,13 @@ package polyglot.ext.x10.types;
 
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
-import polyglot.types.ReferenceType;
-import polyglot.types.SemanticException;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -90,8 +87,8 @@ public class X10ArraysMixin {
 		    X10FieldInstance fi = getProperty(t, propName);
 		    if (fi != null) {
 			    try {
-				    XVar term = xts.xtypeTranslator().trans(XSelf.Self, fi);
 				    XConstraint c = new XConstraint_c();
+				    XVar term = xts.xtypeTranslator().trans(c, c.self(), fi);
 				    c.addBinding(term, xts.xtypeTranslator().trans(true));
 				    return r.entails(c);
 			    }
@@ -167,7 +164,7 @@ public class X10ArraysMixin {
 					    if (fi != null) {
 						    try {
 							    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-							    val = xts.xtypeTranslator().trans(var, fi);
+							    val = xts.xtypeTranslator().trans(c, var, fi);
 						    }
 						    catch (SemanticException e) {
 							    throw new InternalCompilerError(e.getMessage(), e);

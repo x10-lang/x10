@@ -24,6 +24,7 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 
@@ -43,7 +44,7 @@ public class X10Special_c extends Special_c implements X10Special {
 
 	/** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
 
         if (isSelf()) {
@@ -80,6 +81,7 @@ public class X10Special_c extends Special_c implements X10Special {
             if (c.currentDepType() == null && c.currentCode() instanceof X10ConstructorDef) {
             	X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
             	Type returnType = cd.returnType().get();
+            	returnType = ts.expandMacros(returnType);
             	if (returnType.isClass()) {
             		t = returnType.toClass();
             	}
@@ -115,13 +117,29 @@ public class X10Special_c extends Special_c implements X10Special {
         X10TypeSystem xts = (X10TypeSystem) ts;
 
         if (kind == THIS) {
-            Type tt = t;
-            tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
+            Type tt = X10TypeMixin.baseType(t);
+            XConstraint cc = X10TypeMixin.xclause(t);
+            cc = cc == null ? new XConstraint_c() : cc.copy();
+            try {
+                cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this));
+            }
+            catch (XFailure e) {
+                throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
+            }
+            tt = X10TypeMixin.xclause(tt, cc);
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
-            Type tt = t.superClass();
-            tt = X10TypeMixin.setSelfVar(tt, (XVar) xts.xtypeTranslator().trans(this));
+            Type tt = X10TypeMixin.baseType(t.superClass());
+            XConstraint cc = X10TypeMixin.xclause(t.superClass());
+            cc = cc == null ? new XConstraint_c() : cc.copy();
+            try {
+                cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this));
+            }
+            catch (XFailure e) {
+                throw new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position());
+            }
+            tt = X10TypeMixin.xclause(tt, cc);
             result = (X10Special) type(tt);
         }
         

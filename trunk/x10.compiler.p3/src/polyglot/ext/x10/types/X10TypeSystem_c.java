@@ -8,7 +8,6 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -43,6 +42,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
@@ -53,37 +53,29 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
-import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.VarDef;
-import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.StringUtil;
 import polyglot.util.TransformingList;
-import polyglot.util.WorkList;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
-import x10.constraint.XSelf;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.types.Equality;
 
 /**
  * A TypeSystem implementation for X10.
@@ -200,17 +192,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                     TypeProperty px = pt1.property();
                     XVar base = PathType_c.pathBase(pt1);
                     if (base != null) {
-                        final XConstraint c = base.selfConstraint();
-                        if (c != null) {
-                            try {
+                        try {
+                            final XConstraint c = base.selfConstraint();
+                            if (c != null) {
                                 // Check if the constraint on the base p implies that p.T <: S
                                 // Avoid infinite recursion by removing selfConstraint on base.
-                                XConstraint c1 = c.substitute(base, XSelf.Self);
+                                XConstraint c1 = c.substitute(base, c.self());
                                 List<Type> b = getBoundsFromConstraint(pt1, c1, dir);
                                 worklist.addAll(b);
                             }
-                            catch (XFailure e) {
-                            }
+                        }
+                        catch (XFailure e) {
                         }
                     }
                     
@@ -782,16 +774,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		throw new InternalCompilerError(e);
 	    }
 	    
-	    Type pt;
 	    if (X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
 		ParameterType param = new ParameterType_c(this, Position.COMPILER_GENERATED, Name.make("T"), Types.ref(cd));
 		cd.addTypeParameter(param, TypeProperty.Variance.COVARIANT);
-		pt = param;
 	    }
 	    else {
 		TypeProperty prop = new TypeProperty_c(this, Position.COMPILER_GENERATED, Types.ref((X10ClassType) cd.asType()), Name.make("T"), TypeProperty.Variance.INVARIANT);
 		cd.addTypeProperty(prop);
-		pt = prop.asType();
 	    }
 
 //	    X10FieldDef fi = (X10FieldDef) fieldDef(Position.COMPILER_GENERATED, Types.ref(cd.asType()), Flags.FINAL.Public(), Types.ref(pt), "value");
@@ -801,7 +790,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 //	    ParameterType pt = new ParameterType_c(this, Position.COMPILER_GENERATED, "T", null);
 //	    XConstraint c = new XConstraint_c();
 //	    c.addBinding(prop.asVar(), param);
-//	    c.addBinding(xtypeTranslator().trans(XSelf.Self, fi), value);
+//	    c.addBinding(xtypeTranslator().trans(c.self(), fi), value);
 //	    Type returnType = X10TypeMixin.xclause(Types.ref(cd.asType()), c);
 //	    X10ConstructorDef ci = constructorDef(Position.COMPILER_GENERATED, Types.ref(cd.asType()), Flags.PUBLIC, Types.ref(returnType), params, formals, Collections.EMPTY_LIST);
 //	    cd.addConstructor(ci);
@@ -1556,8 +1545,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			if (result)
 				return true;
 		}
-		
-		if (t1 instanceof ConstrainedType) {
+		else if (t1 instanceof ConstrainedType) {
 			ConstrainedType ct1 = (ConstrainedType) t1;
 			Type baseType1 = ct1.baseType().get();
 			
@@ -1566,8 +1554,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			if (result)
 				return true;
 		}
-		
-		if (t2 instanceof ConstrainedType) {
+		else if (t2 instanceof ConstrainedType) {
 			ConstrainedType ct2 = (ConstrainedType) t2;
 			Type baseType2 = ct2.baseType().get();
 			XConstraint c2 = ct2.constraint().get();
@@ -1587,39 +1574,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    if (isSubtype(t1, t2))
 		        return true;
 		
-		/*
-		if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
-		    X10ClassType ct1 = (X10ClassType) t1;
-		    X10ClassType ct2 = (X10ClassType) t2;
-		    if (ct1.def() == ct2.def()) {
-			X10ClassDef def = ct1.x10Def();
-			if (ct1.typeArguments().size() != def.typeParameters().size())
-			    return false;
-			if (ct2.typeArguments().size() != def.typeParameters().size())
-			    return false;
-			if (def.variances().size() != def.typeParameters().size())
-			    return false;
-			for (int i = 0; i < def.typeParameters().size(); i++) {
-			    Type a1 = ct1.typeArguments().get(i);
-			    Type a2 = ct2.typeArguments().get(i);
-			    TypeProperty.Variance v = def.variances().get(i);
-			    switch (v) {
-			    case COVARIANT:
-				if (! isSubtype(a1, a2)) return false;
-				break;
-			    case CONTRAVARIANT:
-				if (! isSubtype(a2, a1)) return false;
-				break;
-			    case INVARIANT:
-				if (! typeEquals(a1, a2)) return false;
-				break;
-			    }
-			}
-			return true;
-		    }
-		}
-		*/
-	              
                 if (t1 instanceof ParameterType || t1 instanceof PathType) {
                     for (Type s1 : upperBounds(t1)) {
                         if (isUnboxedSubtype(s1, t2))
@@ -1635,15 +1589,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		
                 return false;
 	}
-
+	
 	@Override
 	public boolean isSubtype(Type t1, Type t2) {
+	    return isSubtype(t1, t2, Collections.EMPTY_LIST);
+	}
+
+	public boolean isSubtype(Type t1, Type t2, List<XTerm> env) {
+	    assert t1 != null;
+	    assert t2 != null;
 	    t1 = expandMacros(t1);
 	    t2 = expandMacros(t2);
 
 		if (t1 == t2)
 			return true;
-		
+
 		if (t1.isNull() && (t2.isNull() || isReferenceType(t2) || isInterfaceType(t2))) {
 		    return true;
 		}
@@ -1652,119 +1612,65 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    return false;
 		}
 		
-		if (t1 instanceof ClosureType && t2 instanceof ClosureType) {
-			// Permit covariance in the return type, so that a closure that returns a more
-			// specific type can be assigned to a closure variable with a less specific
-			// return type. Don't permit covariance in the throw types or argument types.
-			
-			ClosureType ct1 = (ClosureType) t1;
-			ClosureType ct2 = (ClosureType) t2;
-			
-			boolean result = true;
-			result &= typeListEquals(ct1.argumentTypes(), ct2.argumentTypes());
-			result &= typeListEquals(ct1.throwTypes(), ct2.throwTypes());           // XXX: ORDER shouldn't matter
-			result &= isSubtype(ct1.returnType(), ct2.returnType());
-			if (result)
-				return true;
-		}
+	        // DO NOT check if env.entails(t1 <: t2); it would be recursive
+		// Instead, iterate through the environment.
+                for (int i = 0; i < env.size(); i++) {
+                    XTerm term = env.get(i);
+                    List<XTerm> newEnv = new ArrayList<XTerm>();
+                    if (0 <= i-1 && i-1 < env.size()) newEnv.addAll(env.subList(0, i-1));
+                    if (0 <= i+1 && i+1 < env.size()) newEnv.addAll(env.subList(i+1, env.size()));
+//                    newEnv = env;
+                    newEnv = Collections.EMPTY_LIST;
 
-		if (t1 instanceof ConstrainedType && t2 instanceof ConstrainedType) {
-			ConstrainedType ct1 = (ConstrainedType) t1;
-			ConstrainedType ct2 = (ConstrainedType) t2;
-			XConstraint c1 = ct1.constraint().get();
-			XConstraint c2 = ct2.constraint().get();
-			Type baseType1 = ct1.baseType().get();
-			Type baseType2 = ct2.baseType().get();
+                    if (term instanceof XSubtype_c) {
+                        XSubtype_c s = (XSubtype_c) term;
+                        Type l = s.subtype();
+                        Type r = s.supertype();
+                        if (isSubtype(t1, l, newEnv) && isSubtype(r, t2, newEnv)) {
+                            return true;
+                        }
+                    }
+                    
+                    if (term instanceof XEquals) {
+                        XEquals eq = (XEquals) term;
+                        Type l = SubtypeSolver.getType(eq.left());
+                        Type r = SubtypeSolver.getType(eq.right());
+                        if (l == null || r == null)
+                            continue;
+                        if (isSubtype(t1, l, newEnv) && isSubtype(r, t2, newEnv)) {
+                            return true;
+                        }
+                        if (isSubtype(t1, r, newEnv) && isSubtype(l, t2, newEnv)) {
+                            return true;
+                        }
+                    }
+                }
+                
+                Type baseType1 = X10TypeMixin.baseType(t1);
+                Type baseType2 = X10TypeMixin.baseType(t2);
+                XConstraint c1 = X10TypeMixin.realX(t1);
+                XConstraint c2 = X10TypeMixin.realX(t2);
 
-			boolean result = true;
-			result &= isSubtype(baseType1, baseType2);
-			try {
-				result &= c1.entails(c2);
-			}
-			catch (XFailure e) {
-				result = false;
-			}
-			
-			if (result)
-				return true;
-		}
-		
-		if (t1 instanceof ConstrainedType) {
-			ConstrainedType ct1 = (ConstrainedType) t1;
-			Type baseType1 = ct1.baseType().get();
-			
-			boolean result = true;
-			result &= isSubtype(baseType1, t2);
-			if (result)
-				return true;
-		}
-		
-		if (t2 instanceof ConstrainedType) {
-			ConstrainedType ct2 = (ConstrainedType) t2;
-			Type baseType2 = ct2.baseType().get();
-			XConstraint c2 = ct2.constraint().get();
-			
-			boolean result = true;
-			result &= isSubtype(t1, baseType2);
-			result &= c2.valid();
-			if (result)
-				return true;
-		}
+                if (c1 != null && c1.valid()) { c1 = null; }
+                if (c2 != null && c2.valid()) { c2 = null; }
 
-/*
-		if (t1 instanceof ParametrizedType && t2 instanceof ParametrizedType) {
-			ParametrizedType pt1 = (ParametrizedType) t1;
-			ParametrizedType pt2 = (ParametrizedType) t2;
-			
-			boolean result = true;
-			result &= pt1.def() == pt2.def();
-			result &= typeListEquals(pt1.typeParameters(), pt2.typeParameters());
-			result &= typeListEquals(pt1.formalTypes(), pt2.formalTypes());
-			result &= listEquals(pt1.formals(), pt2.formals()); 
-			if (result)
-				return true;
-		}
-		
-		// p: C{self.T<:S}  implies  p.T <: S
-		if (t1 instanceof PathType) {
-			PathType pt1 = (PathType) t1;
-			TypeProperty px = pt1.property();
-			XVar base = PathType_c.pathBase(pt1);
-			if (base != null) {
-			    final XConstraint c = base.selfConstraint();
-//			    if (c != null) {
-//				c = c.copy();
-//			    }
-//			    else {
-//				c = new XConstraint_c();
-//			    }
-//			    try {
-//				c.addIn(X10TypeMixin.realX(pt1.baseType()));
-//			    }
-//			    catch (XFailure e1) {
-//			    }
-			    if (c != null) {
-					try {
-						// Check if the constraint on the base p implies that p.T <: S
-						// Avoid infinite recursion by removing selfConstraint on base.
-						base.setSelfConstraint(null);
-						XConstraint c1 = c.substitute(base, XSelf.Self);
-						XConstraint c2 = new XConstraint_c();
-						c2.addAtom(xtypeTranslator().transSubtype(t1, t2));
-						boolean result = c1.entails(c2);
-						if (result)
-							return true;
-					}
-					catch (XFailure e) {
-					}
-					finally {
-						base.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return c; } });
-					}
-				}
-			}
-		}
-*/
-		
+                try {
+                    if (! env.isEmpty()) {
+                        c1 = c1 == null ? new XConstraint_c() : c1.copy();
+                        for (XTerm term : env)
+                            c1.addTerm(term);
+                    }
+                    if (! entails(c1, c2))
+                        return false;
+                }
+                catch (XFailure e) {
+                    return false;
+                }
+
+                if (baseType1 != t1 || baseType2 != t2)
+                    if (isSubtype(baseType1, baseType2, env))
+                        return true;
+
 		// if T implements I, Box[T] is a subtype of I
 		if (isBox(t1)) {
 		    Type boxed1 = X10TypeMixin.getParameterType(t1, 0);
@@ -1773,16 +1679,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			    return true;
 		    }
 		    else {
-			if (isSubtype(boxed1, t2))
+			if (isSubtype(boxed1, t2, env))
 			    return true;
 		    }
 		}
 
-		if (t1 instanceof PrimitiveType && t2.typeEquals(Object())) {
+		if (t1 instanceof PrimitiveType && typeEquals(t2, Object(), env)) {
 		    return true;
 		}
 		
-		if (t1 instanceof PrimitiveType && t2.typeEquals(Value())) {
+		if (t1 instanceof PrimitiveType && typeEquals(t2, Value(), env)) {
 		    return true;
 		}
 		
@@ -1800,46 +1706,79 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			for (int i = 0; i < def.typeParameters().size(); i++) {
 			    Type a1 = ct1.typeArguments().get(i);
 			    Type a2 = ct2.typeArguments().get(i);
+			    if (a1 == null || a2 == null)
+			        assert false;
 			    TypeProperty.Variance v = def.variances().get(i);
 			    switch (v) {
 			    case COVARIANT:
-				if (! isSubtype(a1, a2)) return false;
+				if (! isSubtype(a1, a2, env)) return false;
 				break;
 			    case CONTRAVARIANT:
-				if (! isSubtype(a2, a1)) return false;
+				if (! isSubtype(a2, a1, env)) return false;
 				break;
 			    case INVARIANT:
-				if (! typeEquals(a1, a2)) return false;
+				if (! typeEquals(a1, a2, env)) return false;
 				break;
 			    }
 			}
 			return true;
 		    }
+
+		    return descendsFrom(t1, t2);
 		}
 		
                 if (t1 instanceof ParameterType || t1 instanceof PathType) {
                     for (Type s1 : upperBounds(t1)) {
-                        if (isSubtype(s1, t2))
+                        if (isSubtype(s1, t2, env))
                             return true;
                     }
                 }
                 if (t2 instanceof ParameterType || t2 instanceof PathType) {
                     for (Type s2 : lowerBounds(t2)) {
-                        if (isSubtype(t1, s2))
+                        if (isSubtype(t1, s2, env))
                             return true;
                     }
                 }
-
-		return descendsFrom(t1, t2);
+                
+                return false;
 	}
 	
 	@Override
 	public boolean typeEquals(Type t1, Type t2) {
+	    return typeEquals(t1, t2, Collections.EMPTY_LIST);
+	}
+	
+	public boolean typeEquals(Type t1, Type t2, List<XTerm> env) {
 	    t1 = expandMacros(t1);
 	    t2 = expandMacros(t2);
 	    
 		if (t1 == t2)
 			return true;
+		
+		// DO NOT check if env.entails(t1 == t2); it would be recursive
+                // Instead, iterate through the environment.
+                for (int i = 0; i < env.size(); i++) {
+                    XTerm term = env.get(i);
+                    List<XTerm> newEnv = new ArrayList<XTerm>();
+                    if (0 <= i-1 && i-1 < env.size()) newEnv.addAll(env.subList(0, i-1));
+                    if (0 <= i+1 && i+1 < env.size()) newEnv.addAll(env.subList(i+1, env.size()));
+//                    newEnv = env;
+                    newEnv = Collections.EMPTY_LIST;
+                    
+                    if (term instanceof XEquals) {
+                        XEquals eq = (XEquals) term;
+                        Type l = SubtypeSolver.getType(eq.left());
+                        Type r = SubtypeSolver.getType(eq.right());
+                        if (l == null || r == null)
+                            continue;
+                        if (typeEquals(t1, l, newEnv) && typeEquals(r, t2, newEnv)) {
+                            return true;
+                        }
+                        if (typeEquals(t1, r, newEnv) && typeEquals(l, t2, newEnv)) {
+                            return true;
+                        }
+                    }
+                }
 		
 		Type baseType1 = X10TypeMixin.baseType(t1);
 		Type baseType2 = X10TypeMixin.baseType(t2);
@@ -1850,100 +1789,42 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		
 		if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
 		if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
-		
-		if (c1 != null && c2 == null) {
-		    // one is valid and the other is not
+
+		try {
+		    XConstraint c = c1;
+		    if (! env.isEmpty()) {
+		        c = c == null ? new XConstraint_c() : c.copy();
+		        for (XTerm term : env)
+		            c.addTerm(term);
+		    }
+		    if (! entails(c, c2))
+		        return false;
+		}
+		catch (XFailure e) {
 		    return false;
 		}
 		
-		if (c1 == null && c2 != null) {
-		    // one is valid and the other is not
+		try {
+		    XConstraint c = c2;
+		    if (! env.isEmpty()) {
+		        c = c == null ? new XConstraint_c() : c.copy();
+		        for (XTerm term : env)
+		            c.addTerm(term);
+		    }
+		    if (! entails(c, c1))
+		        return false;
+		}
+		catch (XFailure e) {
 		    return false;
 		}
-		
-		if (c1 != null && c2 != null) {
-			boolean result = true;
-			
-			result &= typeEquals(baseType1, baseType2);
 
-			try {
-			    result &= c1.equiv(c2);
-			}
-			catch (XFailure e) {
-			    result = false;
-			}
-
-			if (result)
-				return true;
-		}
-
-		if (t1 instanceof ClosureType && t2 instanceof ClosureType) {
-			ClosureType ct1 = (ClosureType) t1;
-			ClosureType ct2 = (ClosureType) t2;
-			
-			boolean result = true;
-			result &= typeListEquals(ct1.argumentTypes(), ct2.argumentTypes());
-			result &= typeListEquals(ct1.throwTypes(), ct2.throwTypes());           // XXX: ORDER shouldn't matter
-			result &= typeEquals(ct1.returnType(), ct2.returnType());
-			if (result)
-				return true;
-		}
-		
-//		if (t1 instanceof ParametrizedType && t2 instanceof ParametrizedType) {
-//		    if (t1.equals((TypeObject) t2))
-//			return true;
-//		}
-//		
-//		// p: C{self.T==S}  implies  p.T == S
-//		if (t1 instanceof PathType) {
-//			PathType pt1 = (PathType) t1;
-//			TypeProperty px = pt1.property();
-//			XVar base = PathType_c.pathBase(pt1);
-//			if (base != null) {
-//				XConstraint c = base.selfConstraint();
-//				if (c != null) {
-//					try {
-//						// Check if the constraint on the base p implies that T1==T2
-//						c = c.substitute(base, XSelf.Self);
-//						XConstraint equals = new XConstraint_c();
-//						equals.addBinding(xtypeTranslator().trans(t1), xtypeTranslator().trans(t2));
-//						boolean result = c.entails(equals);
-//						if (result)
-//							return true;
-//					}
-//					catch (XFailure e) {
-//					}
-//				}
-//			}
-//		}
-//
-//		// p: C{self.T==S}  implies  p.T == S
-//		if (t2 instanceof PathType) {
-//			PathType pt2 = (PathType) t2;
-//			TypeProperty px = pt2.property();
-//			XVar base = PathType_c.pathBase(pt2);
-//			if (base != null) {
-//				XConstraint c = base.selfConstraint();
-//				if (c != null) {
-//					try {
-//						// Check if the constraint on the base p implies that T1==T2
-//						c = c.substitute(base, XSelf.Self);
-//						XConstraint equals = new XConstraint_c();
-//						equals.addBinding(xtypeTranslator().trans(t1), xtypeTranslator().trans(t2));
-//						boolean result = c.entails(equals);
-//						if (result)
-//							return true;
-//					}
-//					catch (XFailure e) {
-//					}
-//				}
-//			}
-//		}
-		
+		if (t1 != baseType1 || t2 != baseType2)
+		    if (typeEquals(baseType1, baseType2, env))
+		        return true;
 		
 		if (t1 instanceof ParameterType || t1 instanceof PathType) {
 		    for (Type s1 : equalBounds(t1)) {
-		        if (typeEquals(s1, t2)) {
+		        if (typeEquals(s1, t2, env)) {
 		            return true;
 		        }
 		    }
@@ -1951,7 +1832,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		
 		if (t2 instanceof ParameterType || t2 instanceof PathType) {
 		    for (Type s2 : equalBounds(t2)) {
-		        if (typeEquals(t1, s2)) {
+		        if (typeEquals(t1, s2, env)) {
 		            return true;
 		        }
 		    }
@@ -2032,7 +1913,38 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		
 		return super.descendsFrom(child, ancestor);
 	}
-	
+
+	public Type coerceType(Type fromType, Type toType) {
+	    X10TypeSystem ts = this;
+
+	    if (ts.isPrimitiveConversionValid(fromType, toType)) {
+	        return toType;
+	    }
+
+	    // Can convert if there is a static method toType.make(fromType)
+	    try {
+	        MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType), false),
+	                                          (ClassDef) null);
+	        if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
+	            return mi.returnType();
+	        }
+	    }
+	    catch (SemanticException e) {
+	    }
+
+	    try {
+	        MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false),
+	                                          (ClassDef) null);
+	        if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
+	            return mi.returnType();
+	        }
+	    }
+	    catch (SemanticException e) {
+	    }
+
+	    return null;
+	}
+
 	@Override
 	public boolean isImplicitCastValid(Type fromType, Type toType) {
 	    return isImplicitCastValid(fromType, toType, true);
@@ -2043,10 +1955,132 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return expandMacros(((AnnotatedType) t).baseType());
 	    if (t instanceof MacroType)
 		return expandMacros(((MacroType) t).definedType());
+//	    if (t instanceof ConstrainedType) {
+//	        ConstrainedType ct = (ConstrainedType) t;
+//	        Type base = ct.baseType().get();
+//	        XConstraint c = ct.constraint().get();
+//	        return X10TypeMixin.xclause(expandMacros(base), c);
+//	    }
 	    return t;
 	}
 	
 	public boolean isImplicitCastValid(Type fromType, Type toType, boolean tryCoercionFunction) {
+	    if (isSubtype(fromType, toType)) {
+	        return true;
+	    }
+	    
+	    if (tryCoercionFunction) {
+	        Type newFromType = coerceType(fromType, toType);
+	        if (newFromType != null)
+	            return true;
+	    }
+	    
+	    return false;
+	}
+	
+	public boolean entails(XConstraint c1, XConstraint c2) {
+            // When checking if can assign C{c1, self==x1} to C{c2,
+            // self==x2}, we need to unify self in the constraints
+            // since self==x1 does not entail self==x2.
+            if (c2 != null) {
+                XVar self2 = X10TypeMixin.selfVar(c2);
+                if (self2 != null) {
+                    try {
+                        c1 = c1 == null ? new XConstraint_c() : c1.copy();
+                        c1.addSelfBinding(self2);
+                        if (! c1.consistent())
+                            return false;
+                    }
+                    catch (XFailure e) {
+                        return false;
+                    }
+                }
+            }
+            
+            if (c1 != null || c2 != null) {
+                boolean result = true;
+
+                if (c1 != null && c2 != null) {
+                    try {
+                        result = c1.entails(c2);
+                    }
+                    catch (XFailure e) {
+                        result = false;
+                    }
+                }
+                else if (c2 != null) {
+                    result = c2.valid();
+                }
+
+                return result;
+            }
+
+            return true;
+	}
+	
+	/** Return true if there is a conversion from fromType to toType.  Returns false if the two types are not both value types. */
+	public boolean isPrimitiveConversionValid(Type fromType, Type toType) {
+	    Type baseType1 = X10TypeMixin.baseType(fromType);
+	    XConstraint c1 = X10TypeMixin.realX(fromType);
+	    Type baseType2 = X10TypeMixin.baseType(toType);
+	    XConstraint c2 = X10TypeMixin.realX(toType);
+
+	    if (c1 != null && c1.valid()) { c1 = null; }
+	    if (c2 != null && c2.valid()) { c2 = null; }
+
+	    if (! entails(c1, c2))
+	        return false;
+
+	    if (isVoid(baseType1))
+	        return false;
+	    if (isVoid(baseType2))
+	        return false;
+
+	    if (isBoolean(baseType1))
+	        return isBoolean(baseType2);
+
+	    // Allow assignment if the fromType's value can be represented as a toType
+	    if (c1 != null && isNumeric(baseType1) && isNumeric(baseType2)) {
+	        XVar self = X10TypeMixin.selfVar(c1);
+	        if (self instanceof XLit) {
+	            Object val = ((XLit) self).val();
+	            if (numericConversionValid(baseType2, val)) {
+	                return true;
+	            }
+	        }
+	    }
+
+	    if (isDouble(baseType1))
+	        return isDouble(baseType2);
+	    if (isFloat(baseType1))
+	        return isFloat(baseType2) || isDouble(baseType2);
+
+	    // Do not allow conversions to change signedness.
+	    if (isLong(baseType1))
+	        return isLong(baseType2);
+	    if (isInt(baseType1))
+	        return isInt(baseType2) || isLong(baseType2) || isDouble(baseType2);
+	    if (isShort(baseType1))
+	        return isShort(baseType2) || isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
+	    if (isByte(baseType1))
+	        return isByte(baseType2) || isShort(baseType2) || isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
+
+	    if (SUPPORT_UNSIGNED) {
+	        if (isULong(baseType1))
+	            return isULong(baseType2);
+	        if (isUInt(baseType1))
+	            return isUInt(baseType2) || isULong(baseType2) || isDouble(baseType2);
+	        if (isUShort(baseType1))
+	            return isUShort(baseType2) || isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
+	        if (isUByte(baseType1))
+	            return isUByte(baseType2) || isUShort(baseType2) || isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
+	    }
+
+	    // Note: cannot implicitly coerce a value type to a superclass.
+	    return false;
+	}
+	
+	public boolean isImplicitCastValidOld(Type fromType, Type toType, boolean tryCoercionFunction) {
 	    fromType = expandMacros(fromType);
 	    toType = expandMacros(toType);
 	    
@@ -2084,38 +2118,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (c1 != null && c1.valid()) { c1 = null; }
 		if (c2 != null && c2.valid()) { c2 = null; }
 		
-		// When checking if can assign C{c1, self==x1} to C{c2,
-		// self==x2}, we need to unify self in the constraints
-		// since self==x1 does not entail self==x2.
-		if (c2 != null) {
-		    XVar self2 = X10TypeMixin.selfVar(c2);
-		    if (self2 != null) {
-			try {
-			    c1 = c1 == null ? new XConstraint_c() : c1.copy();
-			    c1.addSelfBinding(self2);
-			}
-			catch (XFailure e) { }
-		    }
-		}
-		
-		if (c1 != null || c2 != null) {
-		    boolean result = true;
-
-		    if (c1 != null && c2 != null) {
-			try {
-			    result = c1.entails(c2);
-			}
-			catch (XFailure e) {
-			    result = false;
-			}
-		    }
-		    else if (c2 != null) {
-			result = c2.valid();
-		    }
-
-		    if (! result)
-			return false;
-		}
+		if (! entails(c1, c2))
+		    return false;
 		
 		if (baseType1 instanceof NullType) {
 		    return isReferenceType(baseType2) || isInterfaceType(baseType2);

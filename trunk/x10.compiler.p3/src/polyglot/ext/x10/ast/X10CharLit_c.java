@@ -43,7 +43,7 @@ public class X10CharLit_c extends CharLit_c {
 		Type charType = xts.Char();
 			 
 			  XConstraint c = new XConstraint_c();
-			  XTerm term = xts.xtypeTranslator().trans(this.type(charType));
+			  XTerm term = xts.xtypeTranslator().trans(c, this.type(charType));
 			  try {
 				  c.addSelfBinding(term);
 			  }
