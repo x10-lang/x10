@@ -3247,8 +3247,7 @@ public static class MessageHandler implements IMessageHandler {
                             l.add(ld);
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
-                            	// HACK: if the local is non-final, assume the type is point and the component is int
-                            	TypeNode tni = fn.flags().isFinal() ? nf.UnknownTypeNode(id.position()) : nf.CanonicalTypeNode(id.position(), ts.Int());
+                            	TypeNode tni = nf.UnknownTypeNode(id.position());
                             	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
@@ -3282,7 +3281,7 @@ public static class MessageHandler implements IMessageHandler {
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
                             	// HACK: if the local is non-final, assume the type is point and the component is int
-                            	TypeNode tni = fn.flags().isFinal() ? nf.UnknownTypeNode(id.position()) : nf.CanonicalTypeNode(id.position(), ts.Int());
+                            	TypeNode tni = nf.UnknownTypeNode(id.position());
                             	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
@@ -3316,7 +3315,7 @@ public static class MessageHandler implements IMessageHandler {
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
                             	// HACK: if the local is non-final, assume the type is point and the component is int
-                            	TypeNode tni = fn.flags().isFinal() ? nf.UnknownTypeNode(id.position()) : nf.CanonicalTypeNode(id.position(), ts.Int());
+                            	TypeNode tni = nf.UnknownTypeNode(id.position());
                             	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
