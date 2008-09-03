@@ -17,20 +17,14 @@ import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
-import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
-import polyglot.ext.x10.extension.X10Ext;
-import polyglot.ext.x10.types.AnnotatedType;
-import polyglot.ext.x10.types.AnnotatedType_c;
 import polyglot.ext.x10.types.BoxType;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
-import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -38,16 +32,11 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
-import polyglot.frontend.SetResolverGoal;
 import polyglot.types.Context;
-import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef;
 import polyglot.types.Named;
-import polyglot.types.Package;
-import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -63,9 +52,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XSelf;
 
 
 public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
@@ -427,8 +414,14 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
             }
         }
         
+        if (! typeArgs.isEmpty() || args.isEmpty())
+            throw new SemanticException("Could not find type " + this + ".", position());
+            
         List<Expr> moreConstraints = new ArrayList<Expr>();
         
+        /*        
+        
+        // TODO: subst this in pi.asType() and pi.asVar()
         // Desugar the type args list [T1,...,Tn] into {X1==T1,...,Xn==Tn}
         if (! typeArgs.isEmpty()) {
         	List<TypeProperty> typeProps = X10TypeMixin.typeProperties(t);
@@ -443,7 +436,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
 			Type ti = tni.type();
         		try {
 				c.addBinding(pi.asVar(), ts.xtypeTranslator().trans(ti));
-				Expr test = (Expr) nf.SubtypeTest(position(), nf.CanonicalTypeNode(position(),pi.asType()), tni, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+				Expr test = (Expr) nf.SubtypeTest(position(), nf.CanonicalTypeNode(position(), pi.asType()), tni, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
 				moreConstraints.add(test);
         		}
 			catch (XFailure e) {
@@ -463,7 +456,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         		FieldInstance pi = props.get(i);
         		Expr ei = args.get(i);
         		try {
-				c.addBinding(ts.xtypeTranslator().trans(XSelf.Self, pi), ts.xtypeTranslator().trans(ei));
+				c.addBinding(ts.xtypeTranslator().trans(c, c.self(), pi), ts.xtypeTranslator().trans(c, ei));
 				Expr test = (Expr) nf.Binary(position(), nf.Field(position(), nf.Self(position()).type(t), nf.Id(position(), pi.name())).fieldInstance(pi).type(pi.type()), Binary.EQ, ei).disambiguate(tc).typeCheck(tc).checkConstants(tc);
 				moreConstraints.add(test);
 			}
@@ -472,7 +465,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
 			}
         	}
         }
-
+*/
         if (t instanceof ConstrainedType) {
         	ConstrainedType ct = (ConstrainedType) t;
         	XConstraint ctc = ct.constraint().get();
