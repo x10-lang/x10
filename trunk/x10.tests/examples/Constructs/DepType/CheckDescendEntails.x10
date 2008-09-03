@@ -20,7 +20,7 @@ public class CheckDescendEntails extends x10Test {
      }
   
 	public def run(): boolean = {
-	   var p: Prop = new Prop(1,2);	
+	   val p: Prop = new Prop(1,2);	
 	   var t: Test{a == b} = new Test(p,p);
 	   var u: Test{a.i == b.i} = t;
 	   return true;
