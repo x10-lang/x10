@@ -7,7 +7,7 @@
  */
 //LIMITATION:
 //This test case will not meet expectations. It is a limitation of the current release.
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * @author Christoph von Praun
@@ -21,11 +21,11 @@ public class RemoteAccessCheck extends x10Test {
 			System.out.println("RemoteAccessCheck requires 2 or more places.");
 			return false;
 		}
-		final val a: A = future(d(0)) { new A() }.force();
-		var error: int = future(d(1)) { checkField(a) }.force();
+		val a: A = (future(d(0)) new A()).force();
+		var error: int = (future(d(1)) checkField(a) ).force();
 		if (error != 0)
 			System.out.println(error);
-		var error2: int = future(d(1)) { checkMethod(a) }.force();
+		var error2: int = (future(d(1)) checkMethod(a)).force();
 		if (error2 != 0)
 			System.out.println(error2);
 			System.out.println("error=" + error + " error2=" + error2);

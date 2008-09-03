@@ -57,50 +57,50 @@ public class ArrayIndexing extends x10Test {
 
 		System.out.println("Testing double arrays...");
 		var start: long = System.currentTimeMillis();
-		_doubleArray1D = new Array[double](range1D->here);
-		_doubleArray2D = new Array[double](range2D->here);
-		_doubleArray3D = new Array[double](range3D->here);
-		_doubleArray4D = new Array[double](range4D->here);
+		_doubleArray1D = Array.make[double](range1D->here);
+		_doubleArray2D = Array.make[double](range2D->here);
+		_doubleArray3D = Array.make[double](range3D->here);
+		_doubleArray4D = Array.make[double](range4D->here);
 		var stop: long = System.currentTimeMillis();
 		System.out.println("Double arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
-		_intArray1D = new Array[int](range1D->here);
-		_intArray2D = new Array[int](range2D->here);
-		_intArray3D = new Array[int](range3D->here);
-		_intArray4D = new Array[int](range4D->here);
+		_intArray1D = Array.make[int](range1D->here);
+		_intArray2D = Array.make[int](range2D->here);
+		_intArray3D = Array.make[int](range3D->here);
+		_intArray4D = Array.make[int](range4D->here);
 		stop = System.currentTimeMillis();
 		System.out.println("int arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
-		_longArray3D = new Array[long](range3D->here);
-		_longArray4D = new Array[long](range4D->here);
+		_longArray3D = Array.make[long](range3D->here);
+		_longArray4D = Array.make[long](range4D->here);
 		stop = System.currentTimeMillis();
 		System.out.println("long arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
-		_floatArray3D = new Array[float](range3D->here);
-		_floatArray4D = new Array[float](range4D->here);
+		_floatArray3D = Array.make[float](range3D->here);
+		_floatArray4D = Array.make[float](range4D->here);
 		stop = System.currentTimeMillis();
 		System.out.println("float arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
-		_charArray3D = new Array[char](range3D->here);
-		_charArray4D = new Array[char](range4D->here);
+		_charArray3D = Array.make[char](range3D->here);
+		_charArray4D = Array.make[char](range4D->here);
 		stop = System.currentTimeMillis();
 		System.out.println("char arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
-		_byteArray3D = new Array[byte](range3D->here);
-		_byteArray4D = new Array[byte](range4D->here);
+		_byteArray3D = Array.make[byte](range3D->here);
+		_byteArray4D = Array.make[byte](range4D->here);
 		stop = System.currentTimeMillis();
 		System.out.println("byte arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
-		_genericArray1D = new Array[Generic](range1D->here);
-		_genericArray2D = new Array[Generic](range2D->here);
-		_genericArray3D = new Array[Generic](range3D->here);
-		_genericArray4D = new Array[Generic](range4D->here);
+		_genericArray1D = Array.make[Generic](range1D->here);
+		_genericArray2D = Array.make[Generic](range2D->here);
+		_genericArray3D = Array.make[Generic](range3D->here);
+		_genericArray4D = Array.make[Generic](range4D->here);
 		stop = System.currentTimeMillis();
 		System.out.println("Generic arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
 	}
