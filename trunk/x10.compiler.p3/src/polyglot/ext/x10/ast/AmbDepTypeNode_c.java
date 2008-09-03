@@ -414,7 +414,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
             }
         }
         
-        if (! typeArgs.isEmpty() || args.isEmpty())
+        if (! typeArgs.isEmpty() || ! args.isEmpty())
             throw new SemanticException("Could not find type " + this + ".", position());
             
         List<Expr> moreConstraints = new ArrayList<Expr>();
