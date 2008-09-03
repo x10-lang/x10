@@ -24,7 +24,6 @@ public class _ {
     public static type float(b:float) = Float{self==b};
     public static type double(b:double) = Double{self==b};
     public static type string(s:String) = String{self==s};
-    public static 
    
 
 /*
@@ -54,6 +53,9 @@ public class _ {
     public static type place = Place;
     public static type region = Region;
     public static type dist = Dist;
+    
+    public static type Point(r: int) = Point{rank==r};
+    public static type point(r: int) = Point{rank==r};
 
     public static type ValArray[T] = Array[T];
 }
