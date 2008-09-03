@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Simple array test.
@@ -27,7 +27,7 @@ public class Array1 extends x10Test {
 		ia[i,j] = i+j;
 	    }
 
-		for (val p[i,j] in d) {
+		for (val p(i,j): point in d) {
 		    var q1 = [i,j];
 		    chk(i == q1[0]);
 		    chk(j == q1[1]);
