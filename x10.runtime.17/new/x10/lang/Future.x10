@@ -1,5 +1,6 @@
 package x10.lang;
 
+import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "x10.runtime.Future<#1>")
