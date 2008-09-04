@@ -19,7 +19,7 @@ public class RailAlias extends x10Test {
           var a: Array[double]{rail} 
              = Array.makeFromR[double](r, (x:Point)=>0.0);
           var d: double = a(1);
-          for (val (p) in a) a(p) = 1.0; 
+          for (val (p) in a.region) a(p) = 1.0; 
           return true;
      }
      public static def main(var a: Rail[String]): void = {
