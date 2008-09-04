@@ -25,14 +25,20 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
+import polyglot.ext.x10.extension.X10Del;
+import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10LocalDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
+import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.StructType;
@@ -44,6 +50,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
@@ -304,6 +311,112 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 
 	public Expr cond() { return null; }
 	
+	@Override
+	public Node setResolverOverride(final Node parent, final TypeCheckPreparer v) {
+	    final Expr domain = this.domain;
+	    final X10Loop loop = this;
+	    
+            Formal f = this.formal;
+            X10LocalDef li = (X10LocalDef) f.localDef();
+            if (f.type() instanceof UnknownTypeNode) {
+                UnknownTypeNode tn = (UnknownTypeNode) f.type();
+
+                NodeVisitor childv = v.enter(parent, loop);
+                childv = childv.enter(loop, domain);
+
+                if (childv instanceof TypeCheckPreparer) {
+                    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
+                    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+                    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+                    tc = (TypeChecker) tc.context(tcp.context().freeze());
+                    
+                    // Create a ref and goal for computing the domain type.
+                    final LazyRef<Type> domainTypeRef = Types.lazyRef(null);
+                    domainTypeRef.setResolver(new TypeCheckExprGoal(loop, domain, tc, domainTypeRef));
+                    
+                    final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+                    final ClassDef curr = v.context().currentClassDef();
+                    
+                    // Now, get the index type from the domain.
+                    r.setResolver(new Runnable() { 
+                        Type getIndexType(Type domainType) {
+                            Type base = X10TypeMixin.baseType(domainType);
+                            
+                            if (base instanceof X10ClassType) {
+                                if (ts.hasSameClassDef(base, ts.Iterable())) {
+                                    return X10TypeMixin.getParameterType(base, 0);
+                                }
+                                else {
+                                    Type sup = ts.superClass(domainType);
+                                    if (sup != null) {
+                                        Type t = getIndexType(sup);
+                                        if (t != null) return t;
+                                    }
+                                    for (Type ti : ts.interfaces(domainType)) {
+                                        Type t = getIndexType(ti);
+                                        if (t != null) return t;
+                                    }
+                                }
+                            }
+
+//                            // HACK: need to add iterable
+//                            try {
+//                                X10MethodInstance mi = (X10MethodInstance) ts.findMethod(domainType, ts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST), curr);
+//                                return X10TypeMixin.getParameterType(mi.returnType(), 0);
+//                            }
+//                            catch (SemanticException e) {
+//                            }
+                            
+                            return null;
+                        }
+
+                        public void run() {
+                            Type domainType = domainTypeRef.get();
+                            Type indexType = getIndexType(domainType);                 
+
+                            if (indexType != null) {
+                                r.update(indexType);
+                            }
+                        }
+                    });
+                }
+            }
+            
+//            final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+//
+//	    formal.visitChildren(new NodeVisitor() {
+//	        @Override
+//	        public Node override(final Node parent, Node n) {
+//	            if (n instanceof Formal) {
+//	                Formal f = (Formal) n;
+//	                X10LocalDef li = (X10LocalDef) f.localDef();
+//	                if (f.type() instanceof UnknownTypeNode) {
+//	                    final UnknownTypeNode tn = (UnknownTypeNode) f.type();
+//	                    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+//	                    r.setResolver(new Runnable() {
+//	                        public void run() {
+//	                            if (parent instanceof Formal) {
+//	                                Formal ff = (Formal) parent;
+//	                                Ref<Type> fr = (Ref<Type>) ff.type().typeRef();
+//	                                Type ftype = fr.get();
+//	                                Type t = X10TypeMixin.getParameterType(ftype, 0);
+//	                                r.update(t);
+//	                            }
+//	                            else {
+//	                                r.update(ts.unknownType(tn.position()));
+//	                            }
+//	                        }
+//	                    });
+//	                }
+//	                return null;
+//	            }
+//	            return n;
+//	        }
+//	    });
+
+	    return super.setResolverOverride(parent, v);
+	}
+
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		X10Loop n = (X10Loop) super.buildTypes(tb);
 		

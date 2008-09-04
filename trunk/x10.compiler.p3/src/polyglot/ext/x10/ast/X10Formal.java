@@ -17,7 +17,9 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
+import polyglot.visit.ContextVisitor;
 
 /**
  * @author vj Jan 23, 2005
@@ -39,7 +41,7 @@ public interface X10Formal extends Formal, X10VarDecl {
     * @param s -- the list of statements to be appended.
     * @return
     */
-   List<Stmt> explode(NodeFactory nf, TypeSystem ts, List<Stmt> s, boolean prepend);
-   List<Stmt> explode(NodeFactory nf, TypeSystem ts, Stmt s);
-   List<Stmt> explode(NodeFactory nf, TypeSystem ts);
+   List<Stmt> explode(ContextVisitor tc, List<Stmt> s, boolean prepend) throws SemanticException;
+   List<Stmt> explode(ContextVisitor tc, Stmt s) throws SemanticException;
+   List<Stmt> explode(ContextVisitor tc) throws SemanticException;
 }
