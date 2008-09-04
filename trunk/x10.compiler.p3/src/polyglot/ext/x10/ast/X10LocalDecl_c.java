@@ -76,7 +76,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 			    UnknownTypeNode tn = (UnknownTypeNode) type();
 
 			    NodeVisitor childv = v.enter(parent, this);
-	    	            childv = childv.enter(this, type());
+	    	            childv = childv.enter(this, init);
 	    		    			    
 			    if (childv instanceof TypeCheckPreparer) {
 				    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
