@@ -354,10 +354,6 @@ public class X10Disamb_c extends Disamb_c {
 	    protected Receiver makeMissingFieldTarget(FieldInstance fi) throws SemanticException {
 	        Receiver r;
 	        
-	               X10Context c = (X10Context) this.c;
-	                ClassType cur  =c.currentClass();
-	                if (c.inSuperTypeDeclaration())
-	                    cur = c.supertypeDeclarationType().asType();
 
 	        if (fi.flags().isStatic()) {
 	            r = nf.CanonicalTypeNode(pos.startOf(), fi.container());
@@ -368,7 +364,14 @@ public class X10Disamb_c extends Disamb_c {
 	            // brought the field into scope.  This is different
 	            // from fi.container().  fi.container() returns a super
 	            // type of the class we want.
+
+	            X10Context c = (X10Context) this.c;
+	            ClassType cur = c.currentClass();
 	            ClassType scope = c.findFieldScope(name.id());
+	            if (c.inSuperTypeDeclaration()) {
+	                cur = c.supertypeDeclarationType().asType();
+	                scope = cur;
+	            }
 	            assert scope != null;
 	            
 	            if (! ts.typeEquals(scope, cur)) {
