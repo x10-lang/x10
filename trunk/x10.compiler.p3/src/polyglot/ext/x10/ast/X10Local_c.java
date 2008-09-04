@@ -28,6 +28,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.types.VarDef;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -77,16 +78,18 @@ public class X10Local_c extends Local_c {
 			// Add in self==x to local variable x.
 			if (result.localInstance().flags().isFinal()) {
 			    Type t = result.type();
-			    XConstraint c = X10TypeMixin.xclause(t);
-			    c = (c == null) ? new XConstraint_c() : c.copy();
-			    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-			    try {
-				XLocal resultTerm = xts.xtypeTranslator().trans(c, result);
-				c.addSelfBinding(resultTerm);
-				t = X10TypeMixin.xclause(t, c);
-				result = (X10Local_c) result.type(t);
-			    }
-			    catch (SemanticException e) {
+			    if (! (t instanceof UnknownType)) {
+			        XConstraint c = X10TypeMixin.xclause(t);
+			        c = (c == null) ? new XConstraint_c() : c.copy();
+			        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+			        try {
+			            XLocal resultTerm = xts.xtypeTranslator().trans(c, result);
+			            c.addSelfBinding(resultTerm);
+			            t = X10TypeMixin.xclause(t, c);
+			            result = (X10Local_c) result.type(t);
+			        }
+			        catch (SemanticException e) {
+			        }
 			    }
 			}
 			
