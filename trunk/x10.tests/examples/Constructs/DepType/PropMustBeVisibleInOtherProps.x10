@@ -12,7 +12,7 @@ import harness.x10Test;
  *
  * @author pvarma, vj
  */
-public class PropsMustBeVisibleInOtherProps extends x10Test {
+public class PropMustBeVisibleInOtherProps extends x10Test {
 
    class Value2(i:int, j:int{self==i})  {
 
@@ -25,6 +25,6 @@ public class PropsMustBeVisibleInOtherProps extends x10Test {
 	    return true;
 	}
 	public static def main(var args: Rail[String]): void = {
-		new PropsMustBeVisibleInOtherProps().execute();
+		new PropMustBeVisibleInOtherProps().execute();
 	}
 }
