@@ -15,16 +15,17 @@ public class _ {
     public static type true = boolean{self==true};
     public static type false = boolean{self==false};
     
-    public static type boolean(b:boolean) = Boolean{self==b};
-    public static type byte(b:byte) = Byte{self==b};
-    public static type short(b:short) = Short{self==b};
-    public static type char(b:char) = Char{self==b};
-    public static type int(b:int) = Int{self==b};
-    public static type long(b:long) = Long{self==b};
-    public static type float(b:float) = Float{self==b};
-    public static type double(b:double) = Double{self==b};
+    public static type boolean(b:Boolean) = Boolean{self==b};
+    public static type byte(b:Byte) = Byte{self==b};
+    public static type short(b:Short) = Short{self==b};
+  //  public static type char(b:Char) = Char{self==b};
+    public static type int(b:Int) = Int{self==b};
+    public static type long(b:Long) = Long{self==b};
+    public static type float(b:Float) = Float{self==b};
+    public static type double(b:Double) = Double{self==b};
     public static type string(s:String) = String{self==s};
    
+    public static type Nat = Int;
 
 /*
     // UNCOMMENT IF UNSIGNED INTEGERS SUPPORTED
@@ -33,7 +34,7 @@ public class _ {
     public static type uint = UInt;
     public static type ulong = ULong;
      
-    public static type nat = uint;
+    public static type Nat = uint;
 
     public static type nat8 = ubyte;
     public static type nat16 = ushort;
@@ -56,6 +57,10 @@ public class _ {
     
     public static type Point(r: int) = Point{rank==r};
     public static type point(r: int) = Point{rank==r};
+    public static type Region(r:nat) = Region{rank==r};
+    public static type Dist(r:nat)   = Dist{rank==r};
+    public static type Array[T](r:nat) = Array[T]{rank==r};
 
     public static type ValArray[T] = Array[T];
+    public static type ValRail[T](n:nat) = ValRail[T]{length==n};
 }

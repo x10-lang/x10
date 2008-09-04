@@ -11,7 +11,10 @@ public value class ValRail[+T](length: nat)
     private native def this(n: nat): ValRail[T]{length==n};
     
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
-    public native static def make[T](length: nat, init: (nat) => T, value: boolean): ValRail[T]{self.length==length};
+    public native static def make[T](length: Nat, init: (Nat) => T, value: boolean): ValRail[T](length);
+    
+     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4,true)")
+    public native static def make[T](length: Nat, init: (Nat) => T): ValRail[T](length);
 
     @Native("java", "(#0).get(#1)")
     public native def get(i: nat): T;
