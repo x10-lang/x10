@@ -22,20 +22,23 @@ public class Box<T> extends Ref {
     public static Box<java.lang.Float> make(float v) { return new Box<Float>(Types.FLOAT, v); }
     public static Box<java.lang.Double> make(double v) { return new Box<Double>(Types.DOUBLE, v); }
     
-    public static <S> Ref make(S v) {
+    public static <S> Ref make(Type<S> type, S v) {
         if (v == null)
             return null;
         if (v instanceof Ref)
             return (Ref) v;
-        return new Box<S>(Types./*<S>*/runtimeType(v.getClass()), v);
+        return new Box<S>(type, v);
     }
     
     public T value() { return value; }
 
     public boolean equals(Object o) {
-        if (o instanceof Box) {
+        if (o == null)
+            return false;
+        if (o instanceof Box)
             return value.equals(((Box<?>) o).value);
-        }
+        if (value.equals(o))
+            return true;
         return false;
     }
     
