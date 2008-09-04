@@ -541,22 +541,34 @@ public class XConstraint_c implements XConstraint, Cloneable {
         XPromise result = self.lookup(varName);
         return result==null ? null : result.term();
     }
+    
+    private static boolean printEQV = false;
 
-    public String toString() { 
-        String str = " failure ";
+    public String toString() {
+        XConstraint c = this;
+        
         try {
-//            XConstraint c = this;
-             XConstraint c = saturate();
-            c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
-            str = c.extConstraints().toString();
-//            str = c.constraints().toString();
+            c = saturate();
         }
         catch (XFailure z) {
-            return "{" + z.getMessage() + "}";
         }
 
+        try {
+            c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
+        }
+        catch (XFailure z) {
+        }
+
+        String str;
+
+        if (printEQV)
+            str = c.constraints().toString();
+        else
+            str = c.extConstraints().toString();
+
         str = str.substring(1, str.length() - 1);
-        return "{" + str + "}"; // + " roots=" + roots ;
+
+        return "{" + str + "}";
     }
 
     public XEQV genEQV() {
