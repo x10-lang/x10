@@ -26,7 +26,7 @@ public class DepType1(i:int, j:int) extends x10Test {
     var t:Test;
    
     
-    public def this(i:int, j:int):DepType1 = {
+    public def this(i:int, j:int):DepType1{self.i==i,self.j==j} = {
       property(i,j);
       v=0;
       b=true;
