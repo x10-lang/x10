@@ -23,7 +23,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="polyglot.main.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-ext x10 &quot;${resource_loc}&quot; -sourcepath &quot;${workspace_loc:x10.runtime.17/new}&quot; -sourcepath &quot;${workspace_loc:x10.tests/examples/x10lib}&quot; -noserial -assert -post &quot;javac -source 1.5&quot; -report parser=1"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-ext x10 &quot;${resource_loc}&quot; -sourcepath &quot;${workspace_loc:x10.runtime.17/new}&quot; -sourcepath &quot;${workspace_loc:x10.tests/examples/x10lib}&quot; -noserial -assert -post &quot;javac -source 1.5&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="x10.compiler.p3"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${container_loc}"/>
