@@ -116,7 +116,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    // V to Box[V] to R
 	    if (ts.isValueType(fromType) && ts.isSubtype(ts.boxOf(Types.ref(fromType)), toType)) {
 	        if (! ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
-	            BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
 	            Position p = position();
 	            X10Cast boxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, ts.boxOf(Types.ref(fromType))), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
 	            return this.expr(boxed).typeCheck(tc);
