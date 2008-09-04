@@ -16,7 +16,7 @@ public class TypedefWhere1c extends TypedefTest {
 
     public def run(): boolean = {
         
-        type C[T]{T<:Y} = T;
+        type C[T]{Y<:T} = T;
         c:C[X] = new X();
         check("c.name()", c.name(), "X");
 
