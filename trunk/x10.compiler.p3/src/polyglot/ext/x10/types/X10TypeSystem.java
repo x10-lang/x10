@@ -190,6 +190,9 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type Settable(Type domain, Type range);
 
+    Type Iterable();
+    Type Iterable(Type index);
+
     boolean isSettable(Type me);
 
     boolean isClock(Type me);
