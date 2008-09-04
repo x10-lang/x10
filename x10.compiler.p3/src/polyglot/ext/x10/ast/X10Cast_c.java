@@ -72,33 +72,54 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 
 	// Handle some boxing coercions stepwise.
 	if (convert != ConversionType.COERCION) {
+            // Box[V] to Box[W]
+            // -->
+            // Box[V] to V to W to Box[W]
 	    if (ts.isBox(fromType) && ts.isBox(toType)) {
 	        // Reboxing a value.  Unbox and then box again.
 	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
 	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
 	        Position p = position();
-	        X10Cast unbox = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	        X10Cast box = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), unbox, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	        return this.expr(box).typeCheck(tc);
+	        X10Cast unboxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	        X10Cast coerced = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), unboxed, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	        return this.expr(coerced).typeCheck(tc);
 	    }
 
+            // V to Box[W]
+	    // -->
+	    // V to W to Box[W]
 	    if (ts.isValueType(fromType) && ts.isBox(toType)) {
 	        // Boxing a value type.  First coerce to the boxed type, then box.
 	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
 	        Position p = position();
-	        if (! ts.isSubtype(fromType, toBox.arg())) {
-	            X10Cast box = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	            return this.expr(box).typeCheck(tc);
+	        if (! ts.typeEquals(fromType, toBox.arg())) {
+	            X10Cast coerced = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	            return this.expr(coerced).typeCheck(tc);
 	        }
 	    }
 	    
+	    // Box[V] to W
+	    // -->
+	    // Box[V] to V to W
 	    if (ts.isValueType(toType) && ts.isBox(fromType)) {
 	        // Unboxing a value type.  First coerce to the boxed type, then unbox.
 	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
 	        Position p = position();
-	        if (! ts.isSubtype(fromBox.arg(), toType)) {
-	            X10Cast unbox = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	            return this.expr(unbox).typeCheck(tc);
+	        if (! ts.typeEquals(fromBox.arg(), toType)) {
+	            X10Cast unboxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	            return this.expr(unboxed).typeCheck(tc);
+	        }
+	    }
+	    
+	    // V to R (Box[V] <: R)
+	    // -->
+	    // V to Box[V] to R
+	    if (ts.isValueType(fromType) && ts.isSubtype(ts.boxOf(Types.ref(fromType)), toType)) {
+	        if (! ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
+	            BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
+	            Position p = position();
+	            X10Cast boxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, ts.boxOf(Types.ref(fromType))), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	            return this.expr(boxed).typeCheck(tc);
 	        }
 	    }
 	}
@@ -114,10 +135,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	else if (ts.isNumeric(fromType) && ts.isNumeric(toType)) {
 	    conversionType = ConversionType.PRIMITIVE;
 	}
-	else if (ts.isValueType(fromType) && ts.isSubtype(ts.boxOf(Types.ref(fromType)), toType)) {
+	else if (ts.isValueType(fromType) && ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
 	    conversionType = ConversionType.BOXING;
 	}
-	else if (ts.isValueType(toType) && ts.isSubtype(fromType, ts.boxOf(Types.ref(toType)))) {
+	else if (ts.isValueType(toType) && ts.typeEquals(fromType, ts.boxOf(Types.ref(toType)))) {
 	    conversionType = ConversionType.UNBOXING;
 	}
 	else if (ts.isValueType(toType) && ts.descendsFrom(fromType, toType)) {
