@@ -1172,6 +1172,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            break;
 	        case TRUNCATION:
 	            // TODO: Value truncation not implemented.
+	            visit((Node)c);
 	            break;
 	        case UNKNOWN_CONVERSION:
 	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
