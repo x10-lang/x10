@@ -50,27 +50,7 @@ public interface XConstraint extends java.io.Serializable {
 	 * @return
 	 * @throws XFailure
 	 */
-	boolean entails(XConstraint t) throws XFailure;
-
-	/**
-	 * Does this constraint entail the given atomic formula t?
-	 * 
-	 * @param t
-	 * @return
-	 * @throws XFailure
-	 */
-	boolean entails(XTerm t) throws XFailure;
-
-	boolean entails(List<XTerm> list, XRoot self) throws XFailure;
-
-	/**
-	 * this is entailedby t iff t entails this.
-	 * 
-	 * @param t
-	 * @return
-	 * @throws XFailure
-	 */
-	boolean entailedBy(XConstraint t) throws XFailure;
+	boolean entails(XConstraint c) throws XFailure;
 
 	/**
 	 * Do the two constraints entail each other?
@@ -79,7 +59,7 @@ public interface XConstraint extends java.io.Serializable {
 	 * @return
 	 * @throws XFailure
 	 */
-	boolean equiv(XConstraint t) throws XFailure;
+	boolean equiv(XConstraint c) throws XFailure;
 
 	/**
 	 * Does the constraint entail var=val?
