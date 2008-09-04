@@ -45,7 +45,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
     boolean valid = true;
 
     public XConstraint_c() {
-        self = genEQV(XTerms.makeFreshName("_self"), true);
+        self = genEQV(XTerms.makeFreshName("_self"), false);
     }
 
     /**
@@ -410,8 +410,14 @@ public class XConstraint_c implements XConstraint, Cloneable {
         XConstraint_c me = saturate();
         if (me == this) me = copy();
         
-        Set<XTerm> visited = new HashSet<XTerm>();
+        List<XTerm> subst = new ArrayList<XTerm>(conjuncts.size());
         for (XTerm term : conjuncts) {
+            XTerm t = term.subst(me.self(), self);
+            subst.add(t);            
+        }
+        
+        Set<XTerm> visited = new HashSet<XTerm>();
+        for (XTerm term : subst) {
             term.saturate(me, visited);
         }
         visited = null; // free up for gc
@@ -421,18 +427,22 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
         
         // Add in formulas with existentials.  If an inconsistency results, the entailment is false.
-        for (XTerm term : conjuncts) {
-            XTerm t = term.subst(me.self(), self);
-            if (t.isEQV()) {
-                me.addTerm(t);
+        try {
+            for (XTerm term : subst) {
+                if (term.isEQV()) {
+                    me.addTerm(term);
+                }
             }
         }
-        
-        for (XTerm term : conjuncts) {
-            XTerm t = term.subst(me.self(), self);
-            if (! me.entails(t))
+        catch (XFailure z) {
+            return false;
+        }
+
+        for (XTerm term : subst) {
+            if (! me.entails(term))
                 return false;
         }
+        
         return true;
     }
 
