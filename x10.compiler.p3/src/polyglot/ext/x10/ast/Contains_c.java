@@ -122,7 +122,6 @@ public class Contains_c extends Expr_c implements Contains {
 		}
 		catch (SemanticException e) {
 		    // Cannot find the method.  Fall through.
-		    System.out.println(e);
 		}
 
 /*
