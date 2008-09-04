@@ -530,13 +530,16 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		Type xtype = formals.get(i);
 		Type ytype = actuals.get(i);
 	    
-		final XConstraint yc = X10TypeMixin.realX(ytype);
-
+		// Be sure to copy the constraints since we use the self vars
+		// in other constraints and don't want to conflate them if
+		// realX returns the same constraint twice.
+		final XConstraint yc = X10TypeMixin.realX(ytype).copy();
+		
 		XRoot xi;
 		XVar yi;
 
 		yi = X10TypeMixin.selfVar(yc);
-
+		
 		if (yi == null) {
 		    // This must mean that yi was not final, hence it cannot occur in 
 		    // the dependent clauses of downstream yi's.
@@ -566,18 +569,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		catch (XFailure f) {
 		}
 
-		XConstraint xc = X10TypeMixin.realX(xtype);
+		XConstraint xc = X10TypeMixin.realX(xtype).copy();
 		XVar self = X10TypeMixin.selfVar(xc);
-
-//		if (xi == null) {
-//		    xi = xts.xtypeTranslator().genEQV(env, xtype, false);
-//		}
-		
 		xi = xc.self();
-
+		
 		try {
 		    if (self instanceof XRoot) {
-		        env.addBinding(xc.self(), self);
+		        env.addBinding(xi, self);
 		    }
 		    if (i < formalNames.size() && formalNames.get(i) != null) {
 		        try {
@@ -587,7 +585,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		        catch (SemanticException e) {
 		        }
 		    }
-
 
 		    XConstraint yc2 = yc.substitute(yi, yc.self());
 		    env.addIn(yc2);
