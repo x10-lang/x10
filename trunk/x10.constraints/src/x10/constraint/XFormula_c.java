@@ -134,6 +134,14 @@ public class XFormula_c extends XTerm_c implements XFormula {
         }
         return hash;
     }
+    
+    public boolean isEQV() {
+        for (XTerm arg: arguments) {
+            if (arg.isEQV())
+                return true;
+        }
+        return false;
+    }
 
     public boolean equals(Object o) {
         if (this == o)

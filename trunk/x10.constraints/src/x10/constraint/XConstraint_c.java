@@ -377,8 +377,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
     public boolean entails(XConstraint other) throws XFailure {
         if (! consistent()) return true;
         if (other == null || other.valid()) return true;
-        boolean result = other.entailedBy(this);
-        return result;
+        return entails(other.constraints(), other.self());
     }
 
     public List<XTerm> constraints() {
@@ -407,30 +406,37 @@ public class XConstraint_c implements XConstraint, Cloneable {
         return result;
     }
 
-    public boolean entailedBy(XConstraint other) throws XFailure {
-        if (! other.consistent() || valid())
-            return true;
-        assert (roots != null);
+    private boolean entails(List<XTerm> conjuncts, XRoot self) throws XFailure {
+        XConstraint_c me = saturate();
+        if (me == this) me = copy();
         
-        List<XTerm> constraints = constraints();
-        return other.entails(constraints, self());
-    }
-
-    public boolean entails(List<XTerm> conjuncts, XRoot self) throws XFailure {
-        XConstraint me = saturate();
         Set<XTerm> visited = new HashSet<XTerm>();
         for (XTerm term : conjuncts) {
             term.saturate(me, visited);
         }
         visited = null; // free up for gc
+        
+        if (! me.consistent()) {
+            return true;
+        }
+        
+        // Add in formulas with existentials.  If an inconsistency results, the entailment is false.
         for (XTerm term : conjuncts) {
-            if (! me.entails(term.subst(me.self(), self)))
+            XTerm t = term.subst(me.self(), self);
+            if (t.isEQV()) {
+                me.addTerm(t);
+            }
+        }
+        
+        for (XTerm term : conjuncts) {
+            XTerm t = term.subst(me.self(), self);
+            if (! me.entails(t))
                 return false;
         }
         return true;
     }
 
-    public XConstraint saturate() throws XFailure {
+    public XConstraint_c saturate() throws XFailure {
         XConstraint_c c = (XConstraint_c) copy();
         Set<XTerm> visited = new HashSet<XTerm>();
         for (XTerm term : constraints()) {
@@ -439,7 +445,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
         return c;
     }
 
-    public boolean entails(XTerm t) throws XFailure {
+    private boolean entails(XTerm t) throws XFailure {
         if (t instanceof XEquals) {
             XEquals f = (XEquals) t;
             XTerm left = f.left();
@@ -460,20 +466,6 @@ public class XConstraint_c implements XConstraint, Cloneable {
     }
 
     private boolean entails(XTerm t1, XTerm t2) throws XFailure {
-        boolean result = entailsImmed(t1, t2);
-
-        if (result)
-            return result;
-
-        // FIXME: need to handle existentials.
-
-        return false;
-
-    }
-
-    private boolean entailsImmed(XTerm t1, XTerm t2) throws XFailure {
-        //Report.report(1, "Constraint_c: Does (:" + this +  ") entail " 
-        //		+ t1 + "=" + t2+ "?");
         if (!consistent)
             return true;
         XPromise p1 = lookupPartialOk(t1);
