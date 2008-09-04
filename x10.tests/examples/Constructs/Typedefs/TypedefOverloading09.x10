@@ -26,14 +26,14 @@ public class TypedefOverloading09 extends TypedefTest {
         class Z[T,U] {}
 
         class U {}
-        class V(i:int) {def this(i:int):V(i) = property(i);}
-        class W(i:int,s:String) {def this(i:int,s:String):W(i,s) = property(i,s);}
+        class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
+        class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i && self.s==s} = property(i,s);}
 
         class A {}
         type A/*B*/(i:int) = int{self>=i};
-        type A/*C*/(s:String) = W(1,s);
-        type A/*D*/(i:int,s:String) = W(i,s);
-        type A/*E*/(s:String,i:int) = W(s,i);
+        type A/*C*/(s:String) = W{self.i==1 && self.s==s};
+        type A/*D*/(i:int,s:String) = W{self.i==i && self.s==s};
+        type A/*E*/(s:String,i:int) = W{self.s==s && self.i==i};
         a1:A = new A();
         a2:A/*B*/(1) = 1;
         a3:A/*C*/("1") = new W(1,"1");

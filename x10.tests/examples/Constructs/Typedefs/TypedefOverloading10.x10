@@ -28,19 +28,19 @@ public class TypedefOverloading10 extends TypedefTest {
         class Z[T,U] {}
 
         class U {}
-        class V(i:int) {def this(i:int):V(i) = property(i);}
-        class W(i:int,s:String) {def this(i:int,s:String):W(i,s) = property(i,s);}
+        class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
+        class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i&&self.s==s} = property(i,s);}
 
-        type A = V(1);
-        type A/*B*/(i:int) = V(i);
-        type A/*C*/(s:String) = W(1,s);
-        type A/*D*/(i:int,s:String) = W(i,s);
+        type A = V{self.i==1};
+        type A/*B*/(i:int) = V{self.i==i};
+        type A/*C*/(s:String) = W{self.i==1 && self.s==s};
+        type A/*D*/(i:int,s:String) = W{self.i==i && self.s==s};
         a1:A = new A();
         a1 = new V(1);
         a2:A/*B*/(1) = a1;
         a3:A/*C*/("1") = new W(1,"1");
         a4:A/*D*/(1,"1") = a3;
-        class Foo(i:int,s:String) implements A/*E*/("1",1) {def this(i:int,s:String):Foo(i,s)=property(i,s);}
+        class Foo(i:int,s:String) implements A/*E*/("1",1) {def this(i:int,s:String):Foo{self.i==i&&self.s==s=property(i,s);}
         a5:A/*E*/("1",1) = new Foo(1,"1");
 
         return result;
