@@ -8,6 +8,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return_c;
 import polyglot.ext.x10.types.ClosureDef;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
@@ -39,6 +40,17 @@ public class X10Return_c extends Return_c {
 		Context c = tc.context();
 	
 		CodeDef ci = c.currentCode();
+		
+		Type exprType = expr != null ? expr.type() : null;
+		if (exprType instanceof X10ClassType) {
+		    X10ClassType ct = (X10ClassType) exprType;
+		    if (ct.isAnonymous()) {
+		        if (ct.interfaces().size() > 0)
+		            exprType = ct.interfaces().get(0);
+		        else
+		            exprType = ct.superClass();
+		    }
+		}
 
 		// If the return type is not yet known, set it to the type of the value being returned.
 		if (ci instanceof FunctionDef) {
@@ -59,7 +71,7 @@ public class X10Return_c extends Return_c {
 			    typeRef.update(ts.Void());
 			}
 			else {
-			    typeRef.update(expr.type());
+			    typeRef.update(exprType);
 			}
 		    }
 
@@ -78,7 +90,7 @@ public class X10Return_c extends Return_c {
 
 		    if (expr != null && merge) {
 			// Merge the types
-			Type t = ts.leastCommonAncestor(typeRef.getCached(), expr.type());
+			Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType);
 			typeRef.update(t);
 		    }
 		}
