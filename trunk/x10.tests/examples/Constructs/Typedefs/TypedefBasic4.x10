@@ -16,9 +16,9 @@ public class TypedefBasic4 extends TypedefTest {
 
     public def run(): boolean = {
         
-        class X(i:int,s:String) {def this(i:int,s:String):X(i,s) = property(i,s);}
+        class X(i:int,s:String) {def this(i:int,s:String):X{self.i==i,self.s==s} = property(i,s);}
 
-        type A(i:int,s:String) = X(i,s);
+        type A(i:int,s:String) = X{self.i==i&&self.s==s};
         a:A(1,"1") = new X(1,"1");
 
         return result;
