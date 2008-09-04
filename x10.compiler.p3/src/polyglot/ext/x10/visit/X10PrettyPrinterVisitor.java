@@ -39,6 +39,7 @@ import polyglot.ast.Formal_c;
 import polyglot.ast.Id;
 import polyglot.ast.Import_c;
 import polyglot.ast.Instanceof;
+import polyglot.ast.JL;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
@@ -89,8 +90,10 @@ import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10ConstructorCall_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
+import polyglot.ext.x10.ast.X10FieldDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10LocalDecl_c;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10New_c;
@@ -98,6 +101,7 @@ import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
+import polyglot.ext.x10.types.BoxType;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
@@ -195,7 +199,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //	               super.visitAppropriate(n);
 //	           }
 //	       }
-
+	
 	public void visit(LocalAssign_c n) {
 	    Local l = n.local();
 	    TypeSystem ts = tr.typeSystem();
@@ -1585,7 +1589,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		return false;
 	}
-
+	
 	public void visit(FieldDecl_c n) {
 		if (hasAnnotation(n, QName.make("x10.lang.shared"))) {
 			w.write ("volatile ");
@@ -2117,15 +2121,34 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    boolean box = (flags & BOX_PRIMITIVES) != 0;
 	    boolean inSuper = (flags & NO_VARIANCE) != 0;
 	    boolean ignoreQual = (flags & NO_QUALIFIER) != 0;
-
+	    
 		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
 		
 		type = X10TypeMixin.baseType(type);
 		
-		if (xts.isBox(type)) {
+		if (type instanceof X10ClassType) { 
 		    X10ClassType ct = (X10ClassType) type;
-		    Type arg = ct.typeArguments().get(0);
-		    if (xts.isReferenceType(arg)) {
+		    if (ct.isAnonymous()) {
+		        if (ct.interfaces().size() > 0) {
+		            printType(ct.interfaces().get(0), flags);
+		            return;
+		        }
+		        else if (ct.superClass() != null) {
+		            printType(ct.interfaces().get(0), flags);
+		            return;
+		        }
+		        else {
+		            assert false;
+		            printType(xts.Object(), flags);
+		            return;
+		        }
+		    }
+		}
+
+		if (xts.isBox(type)) {
+		    BoxType ct = (BoxType) type;
+		    Type arg = ct.arg();
+		    if (xts.isReferenceType(arg) || xts.isInterfaceType(arg)) {
 		        type = arg;
 		    }
 		    else {
