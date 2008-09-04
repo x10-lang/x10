@@ -26,8 +26,8 @@ public class TypedefOverloading03 extends TypedefTest {
         class Z[T,U] {}
 
         class U {}
-        class V(i:int) {def this(i:int):V(i) = property(i);}
-        class W(i:int,s:String) {def this(i:int,s:String):W(i,s) = property(i,s);}
+        class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
+        class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i&&self.s==s} = property(i,s);}
 
         type A = int;
         type A[T] = String;
