@@ -13,8 +13,8 @@ import harness.x10Test;;
 public class Array3Double extends x10Test {
 
 	public def run(): boolean = {
-	    val r:region{rank==2} = [1..10, 1..10];
-	    var ia: Array[Double]{rank==2} = Array.makeFromRegion[Double](r, (x:Point)=>0.0D);
+	    val r:Region(2) = Region.make([1..10, 1..10]);
+	    var ia: Array[Double](2) = Array.makeFromRegion[Double](r, (x:Point)=>0.0D);
 	    ia(1, 1) = 42.0D;
 	   System.out.println("ia(1,1)=" + ia(1,1));
 	    return 42.0D == ia(1,1);
