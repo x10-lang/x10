@@ -9,7 +9,7 @@ public abstract value Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements SetOps[Region] {
+) implements SetOps[Region], Iterable[Rail[Int]] {
 
     property rail = rank==1 && rect && zeroBased;
 
