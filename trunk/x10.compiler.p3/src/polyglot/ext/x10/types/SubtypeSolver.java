@@ -10,6 +10,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import x10.constraint.Solver;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
 import x10.constraint.XEQV_c;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
@@ -158,11 +159,13 @@ public class SubtypeSolver implements Solver {
 
     public void addDerivedEqualitiesInvolving(XConstraint c, XTerm t) throws XFailure {
         if (false && isSubtypeAtom(t)) {
-            XFormula f = (XFormula) t;
+            XSubtype_c f = (XSubtype_c) t;
             XTerm sub = f.left();
             XTerm sup = f.right();
-            XTerm t2 = new XFormula_c(f.operator(), sup, sub);
-            if (c.entails(t2))
+            XTerm t2 = new XSubtype_c(sup, sub);
+            XConstraint c2 = new XConstraint_c();
+            c2.addTerm(t2);
+            if (c.entails(c2))
                 c.addBinding(sub, sup);
         }
     }
