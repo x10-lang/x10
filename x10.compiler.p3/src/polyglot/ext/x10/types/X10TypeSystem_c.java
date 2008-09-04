@@ -1382,6 +1382,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return iterableType_;
 	}
 	
+	public Type Iterable(Type index) {
+	    return X10TypeMixin.instantiate(Iterable(), index);
+	}
+	
 	protected ClassType iteratorType_;
 	public Type Iterator() {
 	    if (iteratorType_ == null)
