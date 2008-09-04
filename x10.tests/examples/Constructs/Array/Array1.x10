@@ -17,31 +17,31 @@ import harness.x10Test;
 public class Array1 extends x10Test {
 
 	public def run(): boolean = {
-	    var e = 1..10;
-	    var r = [e,e];
-	    var d = r->here;
-	    var ia: Array[int] = new Array[int](d);
-	    for (val p[i] in e) 
-	    for (val q[j] in e) {
-		chk(ia.get(i,j) == 0);
-		ia[i,j] = i+j;
+	    val e:Region = 1..10;
+	    val r = [e,e];
+	    val d = r->here;
+	    var ia: Array[int] = Array.make[int](d, (point)=>0);
+	    for (val p(i) in e) 
+	    for (val q(j) in e) {
+		chk(ia(i,j) == 0);
+		ia(i,j) = i+j;
 	    }
 
 		for (val p(i,j): point in d) {
-		    var q1 = [i,j];
-		    chk(i == q1[0]);
-		    chk(j == q1[1]);
-		    chk(ia[i, j] == i+j);
-		    chk(ia[i, j] == ia[p]);
-		    chk(ia[q1] == ia[p]);
-		    ia[p] = ia[p]-1;
-		    chk(ia[p] == i+j-1);
-		    chk(ia[q1] == ia[p]);
+		    var q1:Point = [i,j];
+		    chk(i == q1(0));
+		    chk(j == q1(1));
+		    chk(ia(i, j) == i+j);
+		    chk(ia(i, j) == ia(p));
+		    chk(ia(q1) == ia(p));
+		    ia(p) = ia(p)-1;
+		    chk(ia(p) == i+j-1);
+		    chk(ia(q1) == ia(p));
 		}
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) = {
 		new Array1().execute();
 	}
 }
