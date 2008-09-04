@@ -18,6 +18,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.constraint.XConstraint;
@@ -53,6 +54,9 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
 
         if (flags.isFinal()) {
             X10Type t = (X10Type) super.type();
+            if (t instanceof UnknownType) {
+                return t;
+            }
             try {
         	    XConstraint c = X10TypeMixin.xclause(t);
         	    if (c == null) c = new XConstraint_c();
