@@ -1158,6 +1158,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            break;
 	        case BOXING:
 	            w.write("x10.core.Box.make(");
+	            new RuntimeTypeExpander(((BoxType) X10TypeMixin.baseType(tn.type())).arg()).expand(tr);
+	            w.write(", ");
 	            tr.print(c, c.expr(), w);
 	            w.write(")");
 	            break;
