@@ -26,5 +26,5 @@ public abstract value class Rail[T](length: nat)
     public native def apply(i: nat): T;
 
     @Native("java", "(#0).set(#1, #2)")
-    public native def set(i: nat, v: T): void;
+    public native def set(v: T, i: nat): void;
 }
