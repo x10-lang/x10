@@ -25,8 +25,8 @@ public class ClosureCall1b extends ClosureTest {
 
         val y = ([T](t:T){T<:X} => T.name)(new Y());
         val z = ([T](t:T){T<:X} => T.name)(new Z());
-        check("b", b, "Y");
-        check("b", b, "Z");
+        check("y", y, "Y");
+        check("z", z, "Z");
 
         return result;
     }
