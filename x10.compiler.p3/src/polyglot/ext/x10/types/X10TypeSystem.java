@@ -317,7 +317,12 @@ public interface X10TypeSystem extends TypeSystem {
     /** Return true if fromType and toType are primitive types and there is a conversion from one to the other. */
     boolean isPrimitiveConversionValid(Type fromType, Type toType);
 
-    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
-    Type coerceType(Type fromType, Type toType);
+//    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
+//    Type coerceType(Type fromType, Type toType);
+    
+    /**
+     * Run fromType through a coercion functions to toType, if possible, returning each stepwise conversion along the way.  If the result is non-empty, the first element is the fromType and the last element is the toType.
+     */
+    List<Type> converterChain(Type fromType, Type toType);
 
 }

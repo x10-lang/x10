@@ -1910,8 +1910,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
 	@Override
 	public boolean isCastValid(Type fromType, Type toType) {
-	    if (isImplicitCastValid(fromType, toType))
-	        return true;
+//	    if (isImplicitCastValid(fromType, toType))
+//	        return true;
 	    
 	    fromType = expandMacros(fromType);
 	    toType = expandMacros(toType);
@@ -1942,12 +1942,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (c1 != null && c2 != null && ! clausesConsistent(c1, c2))
 		    return false;
 		
-		if (baseType1 != fromType && baseType2 != toType)
+		if (baseType1 != fromType || baseType2 != toType)
 		    return isCastValid(baseType1, baseType2);
 		
-		if (isValueType(baseType1) && isValueType(baseType2) && ! typeBaseEquals(baseType1, toType))
-		    return false;
-
 		if (isValueType(baseType1) && isReferenceType(baseType2))
 		    return false;
 		
@@ -1970,8 +1967,97 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		
 		return super.descendsFrom(child, ancestor);
 	}
+	
+	/** Return list of conversion functions needed to convert from fromType to toType */
+	public List<Type> converterChain(Type fromType, Type toType) {
+	    X10TypeSystem ts = this;
+	    
+	    if (coerceType(fromType, toType) != null) {
+	        return CollectionUtil.list(fromType, toType);
+	    }
+            
+            class Helper {
+                List<Type> attempt(X10ClassType ct, int i, List<Type>[] alternatives, Type fromType, List<Type> accum, Type toType, boolean changed) {
+                    if (i < alternatives.length) {
+                        accum.add(ct.typeArguments().get(i));
+                        {
+                            List<Type> result = attempt(ct, i+1, alternatives, fromType, accum, toType, changed);
+                            if (result.size() > 0)
+                                return result;
+                        }
+                        for (Type ti : alternatives[i]) {
+                            accum.set(i, ti);
+                            List<Type> result = attempt(ct, i+1, alternatives, fromType, accum, toType, true);
+                            if (result.size() > 0)
+                                return result;
+                        }
+                    }
+                    else if (changed) {
+                        X10ClassType ct2 = ct.typeArguments(accum);
+                        Type newFrom = X10TypeMixin.xclause(ct2, X10TypeMixin.xclause(fromType));
+                        List<Type> result = converterChain(newFrom, toType);
+                        if (result.size() > 0) {
+                            List<Type> l = new ArrayList<Type>();
+                            l.add(fromType);
+                            l.addAll(result);
+                            return l;
+                        }
+                    }
+                    
+                    return Collections.EMPTY_LIST;
+                }
 
-	public Type coerceType(Type fromType, Type toType) {
+                void addSuperTypes(List<Type> l, Type t) {
+                    Type b =  X10TypeMixin.baseType(t);
+                    if (b != t)
+                        l.add(b);
+                    if (t instanceof ObjectType) {
+                        ObjectType o = (ObjectType) t;
+                        if (o.superClass() != null) {
+                            l.add(o.superClass());
+                            addSuperTypes(l, o.superClass());
+                        }
+                        for (Type ti : o.interfaces()) {
+                            l.add(ti);
+                            addSuperTypes(l, ti);
+                        }
+                    }
+                }
+            }
+            
+            // If the fromType has a covariant parameter,
+            // try supertypes of the corresponding argument type.
+            Type baseFrom = X10TypeMixin.baseType(fromType);
+            
+            if (baseFrom instanceof X10ClassType) {
+                X10ClassType ct = (X10ClassType) baseFrom;
+                if (ct.typeArguments().size() > 0) {
+                    List<Type>[] alternatives = new List[ct.typeArguments().size()];
+                    List<Type> newArgs = new ArrayList<Type>(ct.typeArguments().size());
+                    for (int i = 0; i < ct.typeArguments().size(); i++) {
+                        TypeProperty.Variance v = ct.x10Def().variances().get(i);
+                        Type ti = ct.typeArguments().get(i);
+                        switch (v) {
+                        case COVARIANT:
+                            alternatives[i] = new ArrayList<Type>();
+                            new Helper().addSuperTypes(alternatives[i], ti);
+                            break;
+                        default:
+                            alternatives[i] = Collections.EMPTY_LIST;
+                            break;                              
+                        }
+                    }
+                    // Now, try all possible combinations of the alternative type arguments.
+                    List<Type> t = new Helper().attempt(ct, 0, alternatives, fromType, new ArrayList<Type>(ct.typeArguments().size()), toType, false);
+                    if (t.size() > 0)
+                        return t;
+                }
+            }
+
+            return Collections.EMPTY_LIST;
+	}
+
+	private Type coerceType(Type fromType, Type toType) {
 	    X10TypeSystem ts = this;
 
 	    if (ts.isPrimitiveConversionValid(fromType, toType)) {
@@ -1986,29 +2072,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	        }
 	    }
 
-	    // Can convert if there is a static method toType.make(fromType)
-	    try {
-	        MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType), false),
-	                                          (ClassDef) null);
-	        if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
-	            return mi.returnType();
-	        }
-	    }
-	    catch (SemanticException e) {
-	    }
-
-//	    try {
-//	        MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false),
-//	                                          (ClassDef) null);
-//	        if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
-//	            return mi.returnType();
-//	        }
-//	    }
-//	    catch (SemanticException e) {
-//	    }
+            // Can convert if there is a static method toType.make(fromType)
+            try {
+                MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType), false),
+                                                  (ClassDef) null);
+                if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
+                    return mi.returnType();
+                }
+            }
+            catch (SemanticException e) {
+            }
 
 	    return null;
 	}
+	
 
 	@Override
 	public boolean isImplicitCastValid(Type fromType, Type toType) {
@@ -2020,12 +2097,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return expandMacros(((AnnotatedType) t).baseType());
 	    if (t instanceof MacroType)
 		return expandMacros(((MacroType) t).definedType());
-//	    if (t instanceof ConstrainedType) {
-//	        ConstrainedType ct = (ConstrainedType) t;
-//	        Type base = ct.baseType().get();
-//	        XConstraint c = ct.constraint().get();
-//	        return X10TypeMixin.xclause(expandMacros(base), c);
-//	    }
+	    if (t instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) t;
+	        Type base = ct.baseType().get();
+	        Type ebase = expandMacros(base);
+	        if (base == ebase)
+	            return t;
+	        XConstraint c = ct.constraint().get();
+	        return X10TypeMixin.xclause(ebase, c);
+	    }
 	    return t;
 	}
 	
@@ -2035,8 +2115,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    }
 	    
 	    if (tryCoercionFunction) {
-	        Type newFromType = coerceType(fromType, toType);
-	        if (newFromType != null)
+	        List<Type> l = converterChain(fromType, toType);
+	        if (l.size() > 0)
 	            return true;
 	    }
 	    
@@ -2044,23 +2124,23 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public boolean entails(XConstraint c1, XConstraint c2) {
-            // When checking if can assign C{c1, self==x1} to C{c2,
-            // self==x2}, we need to unify self in the constraints
+            // When checking if can assign C{c1, self==x1} to
+	    // C{c2, self==x2}, we need to unify self in the constraints
             // since self==x1 does not entail self==x2.
-            if (c2 != null) {
-                XVar self2 = X10TypeMixin.selfVar(c2);
-                if (self2 != null) {
-                    try {
-                        c1 = c1 == null ? new XConstraint_c() : c1.copy();
-                        c1.addSelfBinding(self2);
-                        if (! c1.consistent())
-                            return false;
-                    }
-                    catch (XFailure e) {
-                        return false;
-                    }
-                }
-            }
+//            if (c2 != null) {
+//                XVar self2 = X10TypeMixin.selfVar(c2);
+//                if (self2 != null) {
+//                    try {
+//                        c1 = c1 == null ? new XConstraint_c() : c1.copy();
+//                        c1.addSelfBinding(self2);
+//                        if (! c1.consistent())
+//                            return false;
+//                    }
+//                    catch (XFailure e) {
+//                        return false;
+//                    }
+//                }
+//            }
             
             if (c1 != null || c2 != null) {
                 boolean result = true;
@@ -2143,113 +2223,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	    // Note: cannot implicitly coerce a value type to a superclass.
 	    return false;
-	}
-	
-	public boolean isImplicitCastValidOld(Type fromType, Type toType, boolean tryCoercionFunction) {
-	    fromType = expandMacros(fromType);
-	    toType = expandMacros(toType);
-	    
-		if (fromType == toType)
-		    return true;
-
-		if (! isValueType(fromType) && ! isValueType(toType))
-		    if (isSubtype(fromType, toType))
-			return true;
-
-		if (tryCoercionFunction) {
-		    // Can convert if there is a static method toType.make(fromType)
-		    try {
-			MethodInstance mi = findMethod(toType, MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType), false), (ClassDef) null);
-			if (mi.flags().isStatic() && mi.returnType().isSubtype(toType))
-			    return true;
-		    }
-		    catch (SemanticException e) {
-		    }
-		
-//		    try {
-//			MethodInstance mi = findMethod(toType, MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false), (ClassDef) null);
-//			if (mi.flags().isStatic() && mi.returnType().isSubtype(toType))
-//			    return true;
-//		    }
-//		    catch (SemanticException e) {
-//		    }
-		}
-		
-		Type baseType1 = X10TypeMixin.baseType(fromType);
-		XConstraint c1 = X10TypeMixin.realX(fromType);
-		Type baseType2 = X10TypeMixin.baseType(toType);
-		XConstraint c2 = X10TypeMixin.realX(toType);
-		
-		if (c1 != null && c1.valid()) { c1 = null; }
-		if (c2 != null && c2.valid()) { c2 = null; }
-		
-		if (! entails(c1, c2))
-		    return false;
-		
-		if (baseType1 instanceof NullType) {
-		    return isReferenceType(baseType2) || isInterfaceType(baseType2);
-		}
-		
-		if (isValueType(baseType1) && isValueType(baseType2)) {
-		    if (isVoid(baseType1))
-			return false;
-		    if (isVoid(baseType2))
-			return false;
-
-		    if (isBoolean(baseType1))
-			return isBoolean(baseType2);
-		    
-		    // Allow assignment if the fromType's value can be represented as a toType
-		    if (c1 != null && isNumeric(baseType1) && isNumeric(baseType2)) {
-			XVar self = X10TypeMixin.selfVar(c1);
-			if (self instanceof XLit) {
-			    Object val = ((XLit) self).val();
-			    if (numericConversionValid(baseType2, val)) {
-				return true;
-			    }
-			}
-		    }
-		    
-		    if (isDouble(baseType1))
-			return isDouble(baseType2);
-		    if (isFloat(baseType1))
-			return isFloat(baseType2) || isDouble(baseType2);
-		   
-		    // Do not allow conversions to change signedness.
-		    if (isLong(baseType1))
-			return isLong(baseType2);
-		    if (isInt(baseType1))
-			return isInt(baseType2) || isLong(baseType2) || isDouble(baseType2);
-		    if (isShort(baseType1))
-			return isShort(baseType2) || isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-		    if (isByte(baseType1))
-			return isByte(baseType2) || isShort(baseType2) || isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-
-		    if (SUPPORT_UNSIGNED) {
-			if (isULong(baseType1))
-			    return isULong(baseType2);
-			if (isUInt(baseType1))
-			    return isUInt(baseType2) || isULong(baseType2) || isDouble(baseType2);
-			if (isUShort(baseType1))
-			    return isUShort(baseType2) || isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-			if (isUByte(baseType1))
-			    return isUByte(baseType2) || isUShort(baseType2) || isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-		    }
-
-		    if (typeEquals(baseType1, baseType2))
-			return true;
-		    
-		    // Note: cannot implicitly coerce a value type to a superclass.
-		    return false;
-		}
-		
-		if (isValueType(baseType1) && ! isValueType(baseType2)) {
-		    Type boxFrom = boxOf(Types.ref(fromType));
-		    if (isImplicitCastValid(boxFrom, baseType2))
-			return true;
-		}
-		
-		return false;
 	}
 	
 	@Override

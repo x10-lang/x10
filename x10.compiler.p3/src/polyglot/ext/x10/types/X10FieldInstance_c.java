@@ -26,6 +26,7 @@ import polyglot.util.Position;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 
 /**
@@ -63,18 +64,24 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
         return x10Def().isProperty();
     }
     
-    public Type type() {
+//    public Type leftType() {
+//        return super.type();
+//    }
+    
+    Type rightType;
+
+    public Type rightType() {
         X10TypeSystem xts = (X10TypeSystem) ts;
 
-        if (type == null) {
-            Type t = super.type();
+        if (rightType == null) {
+            Type t = type();
 
             // If the field is final, replace T by T(:self==t). 
             Flags flags = flags();
 
             if (flags.isFinal()) {
                 if (t instanceof UnknownType) {
-                    type = t;
+                    rightType = t;
                 }
                 else {
                     XConstraint rc = X10TypeMixin.xclause(t);
@@ -98,7 +105,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
                         c.addSelfBinding(self);
 
-                        type = X10TypeMixin.xclause(t, c);
+                        rightType = X10TypeMixin.xclause(t, c);
                     }
                     catch (XFailure f) {
                         throw new InternalCompilerError("Could not add self binding.", f);
@@ -109,13 +116,13 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                 }
             }
             else {
-                type = t;
+                rightType = t;
             }
             
-            assert type != null;
+            assert rightType != null;
         }
 
-        return type;
+        return rightType;
     }
 
     public String containerString() {

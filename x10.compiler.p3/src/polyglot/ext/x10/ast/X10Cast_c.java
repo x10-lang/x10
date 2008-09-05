@@ -7,6 +7,7 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,14 +16,18 @@ import polyglot.ast.Cast_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Precedence;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.BoxType;
+import polyglot.ext.x10.types.TypeProperty;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.ObjectType;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.Type;
@@ -31,6 +36,7 @@ import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.constraint.XConstraint;
 
 /**
  * Represent java cast operation.
@@ -62,6 +68,22 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         X10Cast_c n = (X10Cast_c) copy();
         n.convert = convert;
         return n;
+    }
+    
+    @Override
+    public Precedence precedence() {
+        switch (convert) {
+        case COERCION:
+        case PRIMITIVE:
+        case TRUNCATION:
+            return Precedence.CAST;
+        case BOXING:
+        case UNBOXING:
+        case CALL:
+            return Precedence.LITERAL;
+        default:
+            return Precedence.UNKNOWN;
+        }
     }
     
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
@@ -121,6 +143,16 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	            return this.expr(boxed).typeCheck(tc);
 	        }
 	    }
+	    
+	    List<Type> c = ts.converterChain(fromType, toType);
+	    if (c.size() > 2) {
+	        Position p = position();
+	        Expr n = expr;
+	        for (int i = 1; i < c.size()-1; i++) {
+	            n = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, c.get(i)), n, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	        }
+	        return this.expr(n).typeCheck(tc);
+	    }
 	}
 	
 	boolean coercionAllowed = false;
@@ -143,6 +175,9 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	else if (ts.isValueType(toType) && ts.descendsFrom(fromType, toType)) {
 	    conversionType = ConversionType.TRUNCATION;
 	}
+	else if (ts.isSubtype(fromType, toType)) {
+	    conversionType = ConversionType.COERCION;
+	}
 	else {
 	    // Can convert if there is a static method toType.$convert(fromType)
 	    if (converter == null) {
@@ -155,16 +190,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        catch (SemanticException e) {
 	        }
 	    }
-//	    if (converter == null) {
-//	        try {
-//	            MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false), (ClassDef) null);
-//	            if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
-//	                converter = mi;
-//	            }
-//	        }
-//	        catch (SemanticException e) {
-//	        }
-//	    }
 
 	    if (converter != null) {
 	        conversionType = ConversionType.CALL;
@@ -225,7 +250,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	n.convert = conversionType;
 	return n.type(toType);
     }
-
+    
     public boolean isDepTypeCheckingNeeded() {
 	return false;
     }

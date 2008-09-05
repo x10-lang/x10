@@ -186,7 +186,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         return n;
     }
-
+    
 	    @Override
 	    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
 		    if (type() instanceof UnknownTypeNode && init != null) {
