@@ -18,6 +18,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -63,58 +65,57 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     
     public Type type() {
         X10TypeSystem xts = (X10TypeSystem) ts;
-        
-        Type t = super.type();
-        
-        if (! (t instanceof X10Type)) {
-            return t;
-        }
 
-        // If the field is final, replace T by T(:self==t). 
-        Flags flags = flags();
+        if (type == null) {
+            Type t = super.type();
 
-        if (flags.isFinal()) {
-        	XConstraint rc = X10TypeMixin.xclause(t);
-            if (rc == null) rc = new XConstraint_c();
+            // If the field is final, replace T by T(:self==t). 
+            Flags flags = flags();
 
-            try {
-                XTerm receiver;
-                
-                if (flags.isStatic()) {
-                    receiver = xts.xtypeTranslator().trans(container());
+            if (flags.isFinal()) {
+                if (t instanceof UnknownType) {
+                    type = t;
                 }
                 else {
-                	receiver = xts.xtypeTranslator().transThis(container());
+                    XConstraint rc = X10TypeMixin.xclause(t);
+                    if (rc == null)
+                        rc = new XConstraint_c();
+
+                    try {
+                        XTerm receiver;
+
+                        if (flags.isStatic()) {
+                            receiver = xts.xtypeTranslator().trans(container());
+                        }
+                        else {
+                            receiver = xts.xtypeTranslator().transThis(container());
+                        }
+
+                        XConstraint c = rc.copy();
+
+                        // ### pass in the type rather than letting XField call fi.type();
+                        // otherwise, we'll get called recursively.
+                        XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
+                        c.addSelfBinding(self);
+
+                        type = X10TypeMixin.xclause(t, c);
+                    }
+                    catch (XFailure f) {
+                        throw new InternalCompilerError("Could not add self binding.", f);
+                    }
+                    catch (SemanticException f) {
+                        throw new InternalCompilerError("Could not add self binding.", f);
+                    }
                 }
-                
-                XConstraint c = rc.copy();
-
-                // ### pass in the type rather than letting C_Field call fi.type();
-                // otherwise, we'll get called recursively.
-                XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
-                c.addSelfBinding(self);
-
-                return X10TypeMixin.xclause(t, c);
             }
-            catch (XFailure f) {
-                throw new InternalCompilerError("Could not add self binding.", f);
+            else {
+                type = t;
             }
-            catch (SemanticException f) {
-        	    throw new InternalCompilerError("Could not add self binding.", f);
-            }
+            
+            assert type != null;
         }
-        
-//        StructType container = container();
-//        
-//        // HACK!
-//        if (name().equals("UNIQUE") && container.typeEquals(xts.distribution()) && flags.isStatic()) {
-//            Type ud = t;
-//            ud = X10ArraysMixin.setUniqueDist(ud);
-//            ud = X10ArraysMixin.setRail(ud);
-//            return ud;
-//        }        
 
-        return t;
+        return type;
     }
 
     public String containerString() {
