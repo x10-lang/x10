@@ -134,10 +134,10 @@ public class Tuple_c extends Expr_c implements Tuple {
 
 	    for (Expr e : elements) {
 		if (type == null) {
-		    type = X10TypeMixin.baseType(e.type());
+		    type = e.type();
 		}
 		else {
-		    type = ts.leastCommonAncestor(type, X10TypeMixin.baseType(e.type()));
+		    type = ts.leastCommonAncestor(type, e.type());
 		}
 	    }
 
@@ -155,6 +155,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 		    XVar selfLength = ts.xtypeTranslator().trans(c, c.self(), lengthField);
 		    XLit sizeLiteral = ts.xtypeTranslator().trans(elements.size());
 		    c.addBinding(selfLength, sizeLiteral);
+		    c.toString();
     		    t = X10TypeMixin.xclause(t, c);
 		}
 		catch (XFailure e) {
