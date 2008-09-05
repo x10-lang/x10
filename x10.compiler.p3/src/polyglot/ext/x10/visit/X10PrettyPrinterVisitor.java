@@ -1386,7 +1386,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 
 		X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-
 	            
 		/*
 		 * For "java" annotations:
@@ -1887,135 +1886,135 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 	    return true;
 	}
-	
-	       public void visit(SettableAssign_c n) {
-	           SettableAssign_c a = n;
-	            Expr array = a.array();
-	            List<Expr> index = a.index();
-	            
-	            boolean effects = hasEffects(array);
+
+	public void visit(SettableAssign_c n) {
+	    SettableAssign_c a = n;
+	    Expr array = a.array();
+	    List<Expr> index = a.index();
+
+	    boolean effects = hasEffects(array);
+	    for (Expr e : index) {
+	        if (effects)
+	            break;
+	        if (hasEffects(e))
+	            effects = true;
+	    }
+
+	    TypeSystem ts = tr.typeSystem();
+	    Type t = n.leftType();
+
+	    boolean nativeop = false;
+	    if (t.isNumeric() || t.isBoolean() || t.isSubtype(ts.String())) {
+	        nativeop = true;
+	    }
+
+	    if (n.operator() == Assign.ASSIGN) {
+	        tr.print(n, array, w);
+	        w.write(".set(");
+	        new Join(", ", index).expand(tr);
+	        if (index.size() > 0)
+	            w.write(", ");
+	        tr.print(n, n.right(), w);
+	        w.write(")");
+	    }
+	    else if (! effects) {
+	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
+	        Name methodName = X10Binary_c.binaryMethodName(op);
+	        tr.print(n, array, w);
+	        w.write(".set(");
+	        new Join(", ", index).expand(tr);
+	        if (index.size() > 0)
+	            w.write(", ");
+	        tr.print(n, array, w);
+	        w.write(".apply(");
+	        new Join(", ", index).expand(tr);
+	        w.write(")");
+	        if (nativeop) {
+	            w.write(" ");
+	            w.write(op.toString());
+	            tr.print(n, n.right(), w);
+	        }
+	        else {
+	            w.write(".");
+	            w.write(methodName.toString());
+	            w.write("(");
+	            tr.print(n, n.right(), w);
+	            w.write(")");
+	        }
+	        w.write(")");
+	    }
+	    else {
+	        // new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
+	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
+	        Name methodName = X10Binary_c.binaryMethodName(op);
+	        w.write("new java.lang.Object() { ");
+	        printType(n.type(), PRINT_TYPE_PARAMS);
+	        w.write(" eval(");
+	        printType(array.type(), PRINT_TYPE_PARAMS);
+	        w.write(" array");
+	        {
+	            int i = 0;
 	            for (Expr e : index) {
-	                if (effects)
-	                    break;
-	                if (hasEffects(e))
-	                    effects = true;
-	            }
-
-	            TypeSystem ts = tr.typeSystem();
-	            Type t = n.leftType();
-	            
-	            boolean nativeop = false;
-	            if (t.isNumeric() || t.isBoolean() || t.isSubtype(ts.String())) {
-	                nativeop = true;
-	            }
-	            
-	            if (n.operator() == Assign.ASSIGN) {
-	                tr.print(n, array, w);
-	                w.write(".set(");
-	                new Join(", ", index).expand(tr);
-	                if (index.size() > 0)
-	                    w.write(", ");
-	                tr.print(n, n.right(), w);
-	                w.write(")");
-	            }
-	            else if (! effects) {
-	                Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
-	                Name methodName = X10Binary_c.binaryMethodName(op);
-	                tr.print(n, array, w);
-	                w.write(".set(");
-	                new Join(", ", index).expand(tr);
-	                if (index.size() > 0)
-	                    w.write(", ");
-	                tr.print(n, array, w);
-	                w.write(".apply(");
-	                new Join(", ", index).expand(tr);
-	                w.write(")");
-	                if (nativeop) {
-	                    w.write(" ");
-	                    w.write(op.toString());
-	                    tr.print(n, n.right(), w);
-	                }
-	                else {
-	                    w.write(".");
-	                    w.write(methodName.toString());
-	                    w.write("(");
-	                    tr.print(n, n.right(), w);
-	                    w.write(")");
-	                }
-	                w.write(")");
-	            }
-	            else {
-	                // new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
-	                Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
-	                Name methodName = X10Binary_c.binaryMethodName(op);
-	                w.write("new java.lang.Object() { ");
-	                printType(n.type(), PRINT_TYPE_PARAMS);
-	                w.write(" eval(");
-	                printType(array.type(), PRINT_TYPE_PARAMS);
-	                w.write(" array");
-	                {
-	                    int i = 0;
-	                    for (Expr e : index) {
-	                        w.write(", ");
-	                        printType(e.type(), PRINT_TYPE_PARAMS);
-	                        w.write(" ");
-	                        w.write("i" + i);
-	                        i++;
-	                    }
-	                }
 	                w.write(", ");
-	                printType(n.right().type(), PRINT_TYPE_PARAMS);
-	                w.write(" right) {");
-	                w.newline();
-	                if (! n.type().isVoid()) {
-	                    w.write("return ");
-	                }
-	                w.write("array.set(");
-	                {
-	                    int i = 0;
-	                    for (Expr e : index) {
-	                        if (i != 0)
-	                            w.write(", ");
-	                        w.write("i" + i);
-	                        i++;
-	                    }
-	                }
-	                if (index.size() > 0)
-	                    w.write(", ");
-	                w.write(" array.apply(");
-	                {
-	                    int i = 0;
-	                    for (Expr e : index) {
-	                        if (i != 0)
-	                            w.write(", ");
-	                        w.write("i" + i);
-	                        i++;
-	                    }
-	                }
-	                w.write(")");
-	                if (nativeop) {
-	                    w.write(" ");
-	                    w.write(op.toString());
-	                    w.write(" right");
-	                }
-	                else {
-	                    w.write(".");
-	                    w.write(methodName.toString());
-	                    w.write("(right)");
-	                }
-
-	                w.write(");");
-	                w.newline();
-	                w.write("} }.eval(");
-	                tr.print(n, array, w);
-	                if (index.size() > 0)
-	                    w.write(", ");
-	                new Join(", ", index).expand();
-	                w.write(", ");
-	                tr.print(n, n.right(), w);
-	                w.write(")");
+	                printType(e.type(), PRINT_TYPE_PARAMS);
+	                w.write(" ");
+	                w.write("i" + i);
+	                i++;
 	            }
 	        }
+	        w.write(", ");
+	        printType(n.right().type(), PRINT_TYPE_PARAMS);
+	        w.write(" right) {");
+	        w.newline();
+	        if (! n.type().isVoid()) {
+	            w.write("return ");
+	        }
+	        w.write("array.set(");
+	        {
+	            int i = 0;
+	            for (Expr e : index) {
+	                if (i != 0)
+	                    w.write(", ");
+	                w.write("i" + i);
+	                i++;
+	            }
+	        }
+	        if (index.size() > 0)
+	            w.write(", ");
+	        w.write(" array.apply(");
+	        {
+	            int i = 0;
+	            for (Expr e : index) {
+	                if (i != 0)
+	                    w.write(", ");
+	                w.write("i" + i);
+	                i++;
+	            }
+	        }
+	        w.write(")");
+	        if (nativeop) {
+	            w.write(" ");
+	            w.write(op.toString());
+	            w.write(" right");
+	        }
+	        else {
+	            w.write(".");
+	            w.write(methodName.toString());
+	            w.write("(right)");
+	        }
+
+	        w.write(");");
+	        w.newline();
+	        w.write("} }.eval(");
+	        tr.print(n, array, w);
+	        if (index.size() > 0)
+	            w.write(", ");
+	        new Join(", ", index).expand();
+	        w.write(", ");
+	        tr.print(n, n.right(), w);
+	        w.write(")");
+	    }
+	}
 
 //	public void visxit(SettableAssign_c a) {
 //	    Expr array = a.array();
@@ -2374,7 +2373,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    return;
 		}
 		
-		if (l.isSubtype(xts.String()) || r.isSubtype(xts.String())) {
+		if (op == Binary.ADD && (l.isSubtype(xts.String()) || r.isSubtype(xts.String()))) {
 		    visit((Binary_c)n);
 		    return;
 		}
@@ -2395,66 +2394,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else
 		    throw new InternalCompilerError("No method to implement " + n, n.position());
 		return;
-		
-		
-//		Binary.Operator GT = Binary.GT;
-//		Binary.Operator LT = Binary.LT;
-//		Binary.Operator GE = Binary.GE;
-//		Binary.Operator LE = Binary.LE;
-//		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
-//			String name = op == GT ? "gt" : op == LT ? "lt" : op == GE ? "ge" : "le";
-//			generateStaticOrInstanceCall(n.position(), left, name, right);
-//			return;
-//		}
-//
-//		Binary.Operator COND_OR = Binary.COND_OR;
-//		Binary.Operator COND_AND = Binary.COND_AND;
-//		if (op == COND_OR && (xts.isDistribution(l) ||
-//				xts.isRegion(l) || xts.isPrimitiveTypeArray(l)))
-//		{
-//			generateStaticOrInstanceCall(n.position(), left, "union", right);
-//			return;
-//		}
-//		if (op == COND_AND && (xts.isRegion(l) || xts.isDistribution(l))) {
-//			generateStaticOrInstanceCall(n.position(), left, "intersection", right);
-//			return;
-//		}
-//
-//		Binary.Operator BIT_OR = Binary.BIT_OR;
-//		Binary.Operator BIT_AND = Binary.BIT_AND;
-//		// New for X10.
-//		if (op == BIT_OR && (xts.isDistribution(l) ||
-//					xts.isDistributedArray(l) || xts.isPlace(l))) {
-//			generateStaticOrInstanceCall(n.position(), left, "restriction", right);
-//			return;
-//		}
-//
-//		Binary.Operator SUB = Binary.SUB;
-//		Binary.Operator ADD = Binary.ADD;
-//		Binary.Operator MUL = Binary.MUL;
-//		Binary.Operator DIV = Binary.DIV;
-//		// Modified for X10.
-//		if (op == SUB && (xts.isDistribution(l) || xts.isRegion(l)) && ! xts.isPoint(r)) {
-//			generateStaticOrInstanceCall(n.position(), left, "difference", right);
-//			return;
-//		}
-//		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPrimitiveTypeArray(l)) {
-//			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
-//			generateStaticOrInstanceCall(n.position(), left, name, right);
-//			return;
-//		}
-//		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.isSubtype(r, xts.String())) {
-//			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
-//			generateStaticOrInstanceCall(n.position(), left, name, right);
-//			return;
-//		}
-//		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.isSubtype(l, xts.String())) {
-//			String name = "inv" + (op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
-//			generateStaticOrInstanceCall(n.position(), right, name, left);
-//			return;
-//		}
-//		// WARNING: it's important to delegate to the appropriate visit() here!
-//		visit((Binary_c)n);
 	}
 
 	/**
@@ -2469,29 +2408,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    sargs.add(left);
 	    stypes.add(left.type());
 	    for (Expr e: right) {
-		sargs.add(e);
-		stypes.add(e.type());
+	        sargs.add(e);
+	        stypes.add(e.type());
 	    }
 	    List<Type> types = stypes.subList(1, stypes.size());
 	    List<Expr> args = sargs.subList(1, sargs.size());
-	    
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-		NodeFactory nf = tr.nodeFactory();
-		try {
-		    ClassDef objectDef = ((ClassType) xts.Object()).def();
-		    MethodInstance mi = xts.findMethod(left.type(),
-		                                       xts.MethodMatcher(left.type(), name, types), objectDef);
-		    tr.print(null, nf.Call(pos, left, nf.Id(pos, name), args).methodInstance(mi).type(mi.returnType()), w);
-		    //				printSubExpr(left, true, w, tr);
-		    //				w.write(".");
-		    //				w.write(name);
-		    //				w.write("(");
-		    //				printSubExpr(right, false, w, tr);
-		    //				w.write(")");
-		}
-		catch (SemanticException e) {
-		    throw new InternalCompilerError(e.getMessage(), pos, e);
-		}
+
+	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    NodeFactory nf = tr.nodeFactory();
+	    try {
+	        ClassDef objectDef = ((ClassType) xts.Object()).def();
+	        MethodInstance mi = xts.findMethod(left.type(),
+	                                           xts.MethodMatcher(left.type(), name, types), objectDef);
+	        tr.print(null, nf.Call(pos, left, nf.Id(pos, name), args).methodInstance(mi).type(mi.returnType()), w);
+	    }
+	    catch (SemanticException e) {
+	        throw new InternalCompilerError(e.getMessage(), pos, e);
+	    }
 	}
 
 	/**
