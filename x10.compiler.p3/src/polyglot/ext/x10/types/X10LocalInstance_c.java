@@ -18,6 +18,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -25,6 +26,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
+import x10.constraint.XTerm;
 
 /**
  * @author vj
@@ -48,32 +50,42 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
     }
 
     public Type type() {
-        // If the local variable is final, replace T by T(:self==t), 
-        // do this even if depclause==null
-        Flags flags = flags();
+        if (type == null) {
+            Type t = super.type();
+            
+            // If the local variable is final, replace T by T{self==t}, 
+            // do this even if depclause==null
+            Flags flags = flags();
 
-        if (flags.isFinal()) {
-            X10Type t = (X10Type) super.type();
-            if (t instanceof UnknownType) {
-                return t;
+            if (flags.isFinal()) {
+                if (t instanceof UnknownType) {
+                    type = t;
+                }
+                else {
+                    try {
+                        XConstraint c = X10TypeMixin.xclause(t);
+                        if (c == null) c = new XConstraint_c();
+                        X10TypeSystem xts = (X10TypeSystem) ts;
+                        XLocal var = xts.xtypeTranslator().trans(c, this, t);
+                        c.addSelfBinding(var);
+                        type = X10TypeMixin.xclause(t, c);
+                    }
+                    catch (SemanticException f) {
+                        throw new InternalCompilerError("Could not add self binding.", f);
+                    }
+                    catch (XFailure f) {
+                        throw new InternalCompilerError("Could not add self binding.", f);
+                    }
+                }
             }
-            try {
-        	    XConstraint c = X10TypeMixin.xclause(t);
-        	    if (c == null) c = new XConstraint_c();
-        	    X10TypeSystem xts = (X10TypeSystem) ts;
-        	    XLocal var = xts.xtypeTranslator().trans(c, this, t);
-        	    c.addSelfBinding(var);
-        	    return X10TypeMixin.xclause(t, c);
+            else {
+                type = t;
             }
-            catch (SemanticException f) {
-                throw new InternalCompilerError("Could not add self binding.", f);
-            }
-            catch (XFailure f) {
-        	    throw new InternalCompilerError("Could not add self binding.", f);
-            }
+
+            assert type != null;
         }
-        
-        return super.type();
+
+        return type;
     }
     
 
