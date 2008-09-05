@@ -30,4 +30,7 @@ public interface X10FieldInstance extends FieldInstance, X10TypeObject, X10Use<X
 	
 	XConstraint guard();
 	X10FieldInstance guard(XConstraint guard);
+	
+	/** Type of the field with self==FI. */
+	Type rightType();
 }

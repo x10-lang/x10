@@ -78,12 +78,12 @@ public class X10Field_c extends Field_c {
 			    // The only fields in scope here are the ones explicitly declared here.
 			    for (FieldDef fd : tCt.x10Def().properties()) {
 				if (fd.name().equals(name.id())) {
-				    FieldInstance fi = fd.asInstance();
-				    fi = ts.FieldMatcher(tType, name.id()).instantiate(fi);
+				    X10FieldInstance fi = (X10FieldInstance) fd.asInstance();
+				    fi = (X10FieldInstance) ts.FieldMatcher(tType, name.id()).instantiate(fi);
 				    if (fi != null) {
 					// Found!
 					X10Field_c result = this;
-					result = (X10Field_c) result.fieldInstance(fi).type(fi.type());
+					result = (X10Field_c) result.fieldInstance(fi).type(fi.rightType());
 					return result;
 				    }
 				}
@@ -97,14 +97,14 @@ public class X10Field_c extends Field_c {
 		
 		try {
 
-			FieldInstance fi = ts.findField(tType, ts.FieldMatcher(tType, name.id()), c.currentClassDef());
+			X10FieldInstance fi = (X10FieldInstance) ts.findField(tType, ts.FieldMatcher(tType, name.id()), c.currentClassDef());
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",
 						position());
 			}
 			X10Field_c result = this;
-			Type type = fi.type();
+			Type type = fi.rightType();
 			if (type instanceof UnknownType) {
 			    throw new SemanticException();
 			}

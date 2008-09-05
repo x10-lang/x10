@@ -19,6 +19,7 @@ import polyglot.ast.Local_c;
 import polyglot.ast.Node;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -76,22 +77,7 @@ public class X10Local_c extends Local_c {
 			}
 			
 			// Add in self==x to local variable x.
-			if (result.localInstance().flags().isFinal()) {
-			    Type t = result.type();
-			    if (! (t instanceof UnknownType)) {
-			        XConstraint c = X10TypeMixin.xclause(t);
-			        c = (c == null) ? new XConstraint_c() : c.copy();
-			        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-			        try {
-			            XLocal resultTerm = xts.xtypeTranslator().trans(c, result);
-			            c.addSelfBinding(resultTerm);
-			            t = X10TypeMixin.xclause(t, c);
-			            result = (X10Local_c) result.type(t);
-			        }
-			        catch (SemanticException e) {
-			        }
-			    }
-			}
+			result = (X10Local_c) result.type(((X10LocalInstance) li).rightType());
 			
 			// Fold in the method's guard.
 			CodeDef ci = xtc.currentCode();

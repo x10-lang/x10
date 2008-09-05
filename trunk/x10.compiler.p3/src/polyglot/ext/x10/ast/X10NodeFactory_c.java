@@ -47,6 +47,7 @@ import polyglot.ast.Import;
 import polyglot.ast.Instanceof;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
+import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
@@ -102,6 +103,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public Disamb disamb() {
 		return new X10Disamb_c();
 	}
+	
+	    public LocalAssign LocalAssign(Position pos, Local left, Assign.Operator op, Expr right) {
+	        LocalAssign n = new X10LocalAssign_c(pos, left, op, right);
+	        n = (LocalAssign)n.ext(extFactory().extLocalAssign());
+	        n = (LocalAssign)n.del(delFactory().delLocalAssign());
+	        return n;
+	    }
 
 	public LocalTypeDef LocalTypeDef(Position pos, TypeDecl typeDefDeclaration) {
 	    LocalTypeDef_c n = new LocalTypeDef_c(pos, typeDefDeclaration);

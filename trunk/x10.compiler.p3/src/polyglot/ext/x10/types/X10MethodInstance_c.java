@@ -638,16 +638,15 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	                newActuals.add(ytype);
 	            }
 	            else {
-	                Type newYType = xts.coerceType(ytype, xtype);
+	                List<Type> c = xts.converterChain(ytype, xtype);
 	                // There is no conversion.
-	                if (newYType == null) {
+	                if (c.size() == 0) {
 	                    throw new SemanticException("Call invalid; actual parameter of type " + ytype + " cannot be assigned to formal parameter type " + xtype + ".");
 	                }
 
 	                converted = true;
-	                newActuals.add(newYType);
+	                newActuals.add(c.get(c.size()-1));
 	            }
-
 	        }
 
 	        if (converted) {

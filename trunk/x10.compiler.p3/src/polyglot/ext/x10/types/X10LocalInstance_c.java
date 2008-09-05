@@ -48,10 +48,16 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
     public List<Type> annotationsMatching(Type t) {
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
+    
+//    public Type leftType() {
+//        return super.type();
+//    }
+    
+    Type rightType;
 
-    public Type type() {
-        if (type == null) {
-            Type t = super.type();
+    public Type rightType() {
+        if (rightType == null) {
+            Type t = type();
             
             // If the local variable is final, replace T by T{self==t}, 
             // do this even if depclause==null
@@ -59,7 +65,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
 
             if (flags.isFinal()) {
                 if (t instanceof UnknownType) {
-                    type = t;
+                    rightType = t;
                 }
                 else {
                     try {
@@ -68,7 +74,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
                         X10TypeSystem xts = (X10TypeSystem) ts;
                         XLocal var = xts.xtypeTranslator().trans(c, this, t);
                         c.addSelfBinding(var);
-                        type = X10TypeMixin.xclause(t, c);
+                        rightType = X10TypeMixin.xclause(t, c);
                     }
                     catch (SemanticException f) {
                         throw new InternalCompilerError("Could not add self binding.", f);
@@ -79,15 +85,14 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
                 }
             }
             else {
-                type = t;
+                rightType = t;
             }
 
-            assert type != null;
+            assert rightType != null;
         }
 
-        return type;
+        return rightType;
     }
-    
 
     public String toString() {
 	String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + type();
