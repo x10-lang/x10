@@ -56,8 +56,8 @@ public class XTypeTranslator {
 	    self.setSelfConstraint(new XRef_c<XConstraint>() {
 		public XConstraint compute() {
 		    XConstraint c = X10TypeMixin.realX(t);
-		    Type base = X10TypeMixin.baseType(t);
 		    if (false) {
+		        Type base = X10TypeMixin.baseType(t);
 			if (c != null) {
 			    c = c.copy();
 			}
