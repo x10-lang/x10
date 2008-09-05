@@ -1997,15 +1997,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    catch (SemanticException e) {
 	    }
 
-	    try {
-	        MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false),
-	                                          (ClassDef) null);
-	        if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
-	            return mi.returnType();
-	        }
-	    }
-	    catch (SemanticException e) {
-	    }
+//	    try {
+//	        MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false),
+//	                                          (ClassDef) null);
+//	        if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
+//	            return mi.returnType();
+//	        }
+//	    }
+//	    catch (SemanticException e) {
+//	    }
 
 	    return null;
 	}
@@ -2166,13 +2166,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    catch (SemanticException e) {
 		    }
 		
-		    try {
-			MethodInstance mi = findMethod(toType, MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false), (ClassDef) null);
-			if (mi.flags().isStatic() && mi.returnType().isSubtype(toType))
-			    return true;
-		    }
-		    catch (SemanticException e) {
-		    }
+//		    try {
+//			MethodInstance mi = findMethod(toType, MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false), (ClassDef) null);
+//			if (mi.flags().isStatic() && mi.returnType().isSubtype(toType))
+//			    return true;
+//		    }
+//		    catch (SemanticException e) {
+//		    }
 		}
 		
 		Type baseType1 = X10TypeMixin.baseType(fromType);
