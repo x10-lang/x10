@@ -155,16 +155,16 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        catch (SemanticException e) {
 	        }
 	    }
-	    if (converter == null) {
-	        try {
-	            MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false), (ClassDef) null);
-	            if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
-	                converter = mi;
-	            }
-	        }
-	        catch (SemanticException e) {
-	        }
-	    }
+//	    if (converter == null) {
+//	        try {
+//	            MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("make"), Collections.singletonList(fromType), false), (ClassDef) null);
+//	            if (mi.flags().isStatic() && X10TypeMixin.baseType(mi.returnType()).isSubtype(X10TypeMixin.baseType(toType))) {
+//	                converter = mi;
+//	            }
+//	        }
+//	        catch (SemanticException e) {
+//	        }
+//	    }
 
 	    if (converter != null) {
 	        conversionType = ConversionType.CALL;
