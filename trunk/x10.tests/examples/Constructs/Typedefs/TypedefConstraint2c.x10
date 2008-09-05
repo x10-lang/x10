@@ -7,7 +7,7 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefWhere2b extends TypedefTest {
+public class TypedefConstraint2c extends TypedefTest {
 
     class X           {const name = "X";}
     class Y extends X {const name = "Y";}
@@ -19,14 +19,14 @@ public class TypedefWhere2b extends TypedefTest {
 
     public def run(): boolean = {
         
-        type B[T] = FOO[T]{T<:Y};
-        b:B[Y] = new FOO[Y]();
-        //check("b.name", b.name, "Y");
+        type C[T] = FOO[T]{T<:Y};
+        c:C[X] = new FOO[X]();
+        //check("c.name", c.name, "X");
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefWhere2b().execute();
+        new TypedefConstraint2c().execute();
     }
 }

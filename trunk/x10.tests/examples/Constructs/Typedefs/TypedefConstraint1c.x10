@@ -8,7 +8,7 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefWhere1b_MustFailCompile extends TypedefTest {
+public class TypedefConstraint1c extends TypedefTest {
 
     class X           {def name() = "X";}
     class Y extends X {def name() = "Y";}
@@ -16,14 +16,14 @@ public class TypedefWhere1b_MustFailCompile extends TypedefTest {
 
     public def run(): boolean = {
         
-        type B[T]{T<:Y} = T;
-        b1:B[X] = new X();
-        check("b1.name()", b1.name(), "X");
+        type C[T]{Y<:T} = T;
+        c:C[X] = new X();
+        check("c.name()", c.name(), "X");
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefWhere1b_MustFailCompile().execute();
+        new TypedefConstraint1c().execute();
     }
 }
