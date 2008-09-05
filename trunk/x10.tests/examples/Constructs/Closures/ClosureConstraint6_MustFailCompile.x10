@@ -5,12 +5,12 @@ import harness.x10Test;
 
 
 /**
- * "Where" constraints on var parameters are not allowed.
+ * "Constraint" constraints on var parameters are not allowed.
  *
  * @author bdlucas 8/2008
  */
 
-public class ClosureWhere6_MustFailCompile extends ClosureTest {
+public class ClosureConstraint6_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
         
@@ -22,6 +22,6 @@ public class ClosureWhere6_MustFailCompile extends ClosureTest {
 
 
     public static def main(var args: Rail[String]): void = {
-        new ClosureWhere6_MustFailCompile().execute();
+        new ClosureConstraint6_MustFailCompile().execute();
     }
 }

@@ -11,20 +11,20 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureWhere2_MustFailCompile extends ClosureTest {
+public class ClosureConstraint3_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
         
         val f = (x:int){x==1}=>x;
 
-        var a:int = 1;
-        f(a); // fails compilation
+        val b:int = 1;
+        f(b); // fails compilation
 
         return result;
     }
 
 
     public static def main(var args: Rail[String]): void = {
-        new ClosureWhere2_MustFailCompile().execute();
+        new ClosureConstraint3_MustFailCompile().execute();
     }
 }
