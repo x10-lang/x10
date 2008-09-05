@@ -7,7 +7,7 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-class TypedefWhere3a extends TypedefTest {
+class TypedefConstraint3a extends TypedefTest {
 
     class A(x:int) {def this(x:int):A{self.x==x} = property(x);}
 
@@ -22,6 +22,6 @@ class TypedefWhere3a extends TypedefTest {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefWhere3a().execute();
+        new TypedefConstraint3a().execute();
     }
 }

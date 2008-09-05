@@ -7,16 +7,18 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-class TypedefWhere3g_MustFailCompile extends TypedefTest {
+class TypedefConstraint3e_MustFailCompile extends TypedefTest {
 
     public def run():boolean = {
 
-        type T(var x:int){x==1} = int;
+        type T(x:int){x==1} = int;
+        val zero = 0;
+        var a:T(zero);
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefWhere3g_MustFailCompile().execute();
+        new TypedefConstraint3e_MustFailCompile().execute();
     }
 }
