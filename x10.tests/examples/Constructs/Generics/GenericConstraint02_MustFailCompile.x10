@@ -7,20 +7,20 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class GenericConstraint01_MustFailCompile extends GenericTest {
+public class GenericConstraint02_MustFailCompile extends GenericTest {
 
-    class A[T,U]{T==U} {}
-
+    class A[T,U]{!(T==U)} {}
+    
     class X {};
-    class Y {};
+    static type X1 = X;
 
-    var a:A[X,Y];
+    var a:A[X,X1];
 
     public def run(): boolean = {
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new GenericConstraint01_MustFailCompile().execute();
+        new GenericConstraint02_MustFailCompile().execute();
     }
 }
