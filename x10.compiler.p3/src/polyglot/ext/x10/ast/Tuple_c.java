@@ -18,6 +18,7 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
+import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -55,6 +56,11 @@ public class Tuple_c extends Expr_c implements Tuple {
 	super(pos);
 	assert(elements != null);
 	this.elements = TypedList.copyAndCheck(elements, Expr.class, true);
+    }
+    
+    @Override
+    public Precedence precedence() {
+        return Precedence.LITERAL;
     }
 
     /** Get the elements of the initializer. */
