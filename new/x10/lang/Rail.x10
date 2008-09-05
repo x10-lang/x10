@@ -19,6 +19,9 @@ public abstract value class Rail[T](length: nat)
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     public native static def make[U](r: ValRail[U]): Rail[U]{self.length==r.length};
 
+    @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
+    public native static def $convert[U](r: ValRail[U]): Rail[U]{self.length==r.length};
+
     @Native("java", "(#0).get(#1)")
     public native def get(i: nat): T;
 

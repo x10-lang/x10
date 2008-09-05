@@ -72,7 +72,6 @@ public abstract value Dist(
    */
    public static def make(r: Region)=makeConstant(r,here);
 
-
    // *** unique distributions
    /**
      Make a unique distribution, defined over a region with one point for every
