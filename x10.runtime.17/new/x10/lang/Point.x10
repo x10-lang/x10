@@ -23,7 +23,7 @@ public final value class Point(rank: nat) implements
 
     @Native("java", "x10.array.Point.makeFromValRail(#1)")
     public native static def make(cs: ValRail[int]): Point(cs.length);
-
+    
     @Native("java", "x10.array.Point.makeFromVarRail(#1)")
     public native static def make(cs: Rail[int]): Point(cs.length);
     
@@ -53,21 +53,6 @@ public final value class Point(rank: nat) implements
 
     @Native("java", "x10.array.Point.makeZero(#1)")
     public native static def makeZero(rank: nat): Point(rank);
-
-    @Native("java", "x10.array.Point.makeFromVarArgs()")
-    public native static def makeRank0(): Point(0);
-
-    @Native("java", "x10.array.Point.makeFromVarArgs(#1)")
-    public native static def makeRank1(i: int): Point(1);
-    
-    @Native("java", "x10.array.Point.makeFromVarArgs(#1, #2)")
-    public native static def makeRank2(i: int, j: int): Point(2);
-    
-    @Native("java", "x10.array.Point.makeFromVarArgs(#1, #2, #3)")
-    public native static def makeRank3(i: int, j: int, k: int): Point(3);
-    
-    @Native("java", "x10.array.Point.makeFromVarArgs(#1, #2, #3, #4)")
-    public native static def makeRank4(i: int, j: int, k: int, l: int): Point(4);
 
     //
     // operations

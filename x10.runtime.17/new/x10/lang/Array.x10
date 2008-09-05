@@ -39,12 +39,16 @@ public abstract value class Array[T](dist: Dist) implements
     @Native("java", "x10.array.ArrayFactory.makeFromRail(#2, #4)")
     native public static def make[T](r: Rail[T]): Array[T]{rank==1};
 
+    @Native("java", "x10.array.ArrayFactory.makeFromRail(#2, #4)")
+    native public static def $convert[T](r: Rail[T]): Array[T]{rank==1};
 
     @Native("java", "x10.array.ArrayFactory.makeFromValRail(#2, #4)")
     native public static def make[T](r: ValRail[T]): Array[T]{rank==1};
+    
+    @Native("java", "x10.array.ArrayFactory.makeFromValRail(#2, #4)")
+    native public static def $convert[T](r: ValRail[T]): Array[T]{rank==1};
 
-    public static def make[T](n: nat, init:(point)=>T): Array[T]
-	=make[T](0..n-1,init);
+    public static def make[T](n: nat, init:(point)=>T) = makeFromRegion[T](0..n-1,init);
     
     @Native("java", "(#0).restriction(#1)")
     public native def restriction(r: Region): Array[T]{region==r};

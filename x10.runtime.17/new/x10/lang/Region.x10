@@ -35,7 +35,7 @@ public abstract value Region(
     : Region{self.rank==min.length};
 
 @Native("java", "x10.array.RegionFactory.makeRect(#1, #2)")
-    native public static def makeRectangular(min: int, max: int): Region;
+    native public static def makeRectangular(min: int, max: int): Region{rect,rank==1};
 
 @Native("java", "x10.array.RegionFactory.makeBanded(#1, #2, #3)")
     native public static def makeBanded(size: int, upper: int, lower: int): Region;
@@ -51,12 +51,18 @@ public abstract value Region(
     
 @Native("java", "x10.array.RegionFactory.makeFromRail(#1)")
     native public static def make(regions: Rail[Region]): Region;
+    
+@Native("java", "x10.array.RegionFactory.makeFromRail(#1)")
+    native public static def $convert(regions: Rail[Region]): Region;
 
 @Native("java", "x10.array.RegionFactory.make(#1,#2)")
     public static native def make(a: Region, b:Region): Region;
 
 @Native("java", "x10.array.RegionFactory.make(#1)")
     public native static def make(regions: ValRail[Region]): Region;
+
+@Native("java", "x10.array.RegionFactory.make(#1)")
+    public native static def $convert(regions: ValRail[Region]): Region;
 
 @Native("java", "(#0).union(#1)")
     public abstract def union(that: Region): Region;
