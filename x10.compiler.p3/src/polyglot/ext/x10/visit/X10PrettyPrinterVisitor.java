@@ -85,6 +85,7 @@ import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
+import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
@@ -1168,18 +1169,41 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            }
 	            break;
 	        case BOXING:
+	            if (c.expr() instanceof X10Cast) {
+	                // check for rebox
+	                X10Cast e = (X10Cast) c.expr();
+	                if (e.conversionType() == X10Cast.ConversionType.UNBOXING) {
+	                    // ((Box<T>) Box.make(TYPE, v))
+	                    w.write("((");
+	                    printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+	                    w.write(") ");
+	                    w.write("x10.core.Box.make(");
+	                    new RuntimeTypeExpander(((BoxType) X10TypeMixin.baseType(tn.type())).arg()).expand(tr);
+	                    w.write(", ");
+	                    tr.print(c, e.expr(), w);
+	                    w.write(")");
+	                    w.write(")");
+	                    break;
+	                }
+	            }
+	            // ((Box<T>) Box.make(TYPE, v))
+	            w.write("((");
+	            printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+	            w.write(") ");
 	            w.write("x10.core.Box.make(");
 	            new RuntimeTypeExpander(((BoxType) X10TypeMixin.baseType(tn.type())).arg()).expand(tr);
 	            w.write(", ");
 	            tr.print(c, c.expr(), w);
 	            w.write(")");
+	            w.write(")");
 	            break;
 	        case UNBOXING:
-	            w.write("((x10.core.Box<");
+	            // Box.unbox((Box<T>) v)
+	            w.write("x10.core.Box.unbox((x10.core.Box<");
 	            printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
 	            w.write(">) ");
 	            tr.print(c, c.expr(), w);
-	            w.write(").value()");
+	            w.write(")");
 	            break;
 	        case UNKNOWN_CONVERSION:
 	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
@@ -2335,6 +2359,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
 		Unary.Operator op = n.operator();
+		
+		if (op == Unary.POST_DEC || op == Unary.POST_INC || op == Unary.PRE_DEC || op == Unary.PRE_INC) {
+		}
 		
 		if (l.isNumeric() || l.isBoolean()) {
 		    visit((Unary_c)n);
