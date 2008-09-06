@@ -161,9 +161,28 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (child != body) {
             // Push formals so they're in scope in the types of the other formals.
             c = c.pushBlock();
+
+            boolean isParam = false;
+            for (TypeParamNode f : typeParameters) {
+                if (child == f) {
+                    isParam = true;
+                    break;
+                }
+            }
+            for (Formal f : formals) {
+                if (child == f) {
+                    isParam = true;
+                    break;
+                }
+            }
+
+            if (isParam)
+                c = c.pushStatic(); // the formal parameters are in a static context.
+
             for (TypeParamNode f : typeParameters) {
                 f.addDecls(c);
             }
+            
             for (Formal f : formals) {
                 f.addDecls(c);
             }
