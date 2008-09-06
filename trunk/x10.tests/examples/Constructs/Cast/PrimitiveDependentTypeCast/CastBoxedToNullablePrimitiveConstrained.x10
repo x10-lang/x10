@@ -17,7 +17,7 @@ import harness.x10Test;
 	public def run(): boolean = {
 		// transformed to (nullable<int(:self==3)>) ((BoxedInteger) obj).intValue();
 		// which means the actual value of the boxed integer will be checked.
-		var i: Box[int{self==3}] = mth() as Box[int{self==3}];
+		var i: Box[int{self==3}] = mth() to Box[int{self==3}];
 		return true;
 	}
 	

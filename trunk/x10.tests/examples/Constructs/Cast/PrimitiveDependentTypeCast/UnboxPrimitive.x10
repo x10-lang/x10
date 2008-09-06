@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Purpose: Checks Unboxing from a primitive cast works.
@@ -14,7 +14,8 @@ import harness.x10Test;;
  public class UnboxPrimitive extends x10Test {
 
 	public def run(): boolean = {
-		var res2: boolean = falsevar res4: boolean = false;
+		var res2: boolean = false;
+                var res4: boolean = false;
 		
 		var ni: int = 4;
 		
@@ -33,7 +34,7 @@ import harness.x10Test;;
 		
 		// test 3 to nullable primitive
 		// (nullable<int>) <-- int
-		var case3a: Box[int] = ni to Box[int];; // no check
+		var case3a: Box[int] = ni to Box[int]; // no check
 
 		// test 4 to nullable primitive constrained
 		try {
