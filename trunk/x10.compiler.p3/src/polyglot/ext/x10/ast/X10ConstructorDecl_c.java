@@ -350,6 +350,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                                         + " the type of the class (" + clazz + ") on which the constructor is defined.",
                                         n.position());
         }
+        
+        X10MethodDecl_c.checkVisibility(tc.typeSystem(), tc.context(), this);
+
         return n;
     }
 }

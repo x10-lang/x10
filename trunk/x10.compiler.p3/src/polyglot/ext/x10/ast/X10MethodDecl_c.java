@@ -18,8 +18,12 @@ import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Block;
+import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
+import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
@@ -49,12 +53,21 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.main.Report;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.Def;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
+import polyglot.types.MemberDef;
+import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -411,8 +424,200 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         		throw new SemanticException("Parameters to extern calls must be either X10 arrays or primitives.", parameter.position());
         	}
             }
+            
+            checkVisibility(tc.typeSystem(), tc.context(), this);
 
             return super.conformanceCheck(tc);
+        }
+        
+        final static boolean CHECK_VISIBILITY = false;
+        
+        protected static void checkVisibility(final TypeSystem ts, Context c, final ClassMember mem) throws SemanticException {
+            if (! CHECK_VISIBILITY)
+                return;
+            
+            final SemanticException[] ex = new SemanticException[1];
+            
+            // Check if all fields, methods, etc accessed from the signature of mem are in scope wherever mem can be accessed.
+            // Assumes the fields, methods, etc are accessible from mem, at least.
+            
+            mem.visitChildren(new NodeVisitor() {
+                boolean on = false;
+                
+                @Override
+                public Node override(Node parent, Node n) {
+                    if (! on) {
+                        if (n instanceof DepParameterExpr) {
+                            try {
+                                on = true;
+                                return this.visitEdgeNoOverride(parent, n);
+                            }
+                            finally {
+                                on = false;
+                            }
+                        }
+                        else {
+                            return this.visitEdgeNoOverride(parent, n);
+                        }
+                    }
+                    
+                    
+                    if (n instanceof Stmt) {
+                        return n;
+                    }
+            
+                    if (parent instanceof FieldDecl && n == ((FieldDecl) parent).init()) {
+                        return n;
+                    }
+                    
+                    if (n instanceof Field) {
+                        FieldInstance fi = (((Field) n).fieldInstance());
+                        if (! hasSameScope(fi, mem.memberDef())) {
+                            ex[0] = new SemanticException("Field " + fi.name() + " cannot be used in this signature; not accessible from all contexts in which the member is accessible.", n.position());
+                        }
+                    }
+                    if (n instanceof Call) {
+                        MethodInstance mi = (((Call) n).methodInstance());
+                        if (! hasSameScope(mi, mem.memberDef())) {
+                            ex[0] = new SemanticException("Method " + mi.signature() + " cannot be used in this signature; not accessible from all contexts in which the member is accessible.", n.position());
+                        }
+                    }
+                    if (n instanceof ClosureCall) {
+                        MethodInstance mi = (((ClosureCall) n).closureInstance());
+                        if (! hasSameScope(mi, mem.memberDef())) {
+                            ex[0] = new SemanticException("Method " + mi.signature() + " cannot be used in this signature; not accessible from all contexts in which the member is accessible.", n.position());
+                        }
+                    }
+                    if (n instanceof TypeNode) {
+                        TypeNode tn = (TypeNode) n;
+                        Type t = tn.type();
+                        t = X10TypeMixin.baseType(t);
+                        if (t instanceof X10ClassType) {
+                            X10ClassType ct = (X10ClassType) t;
+                            if (! hasSameScope(ct, mem.memberDef())) {
+                                ex[0] = new SemanticException("Class " + ct.fullName() + " cannot be used in this signature; not accessible from all contexts in which the member is accessible.", n.position());
+                            }
+                        }
+                    }
+                    if (n instanceof New) {
+                        ConstructorInstance ci = (((New) n).constructorInstance());
+                        if (! hasSameScope(ci, mem.memberDef())) {
+                            ex[0] = new SemanticException("Constructor " + ci.signature() + " cannot be used in this signature; not accessible from all contexts in which the member is accessible.", n.position());
+                        }
+                    }
+                    
+                    return null;
+                }
+                
+                Flags getSignatureFlags(MemberDef def) {
+                    Flags sigFlags = def.flags();
+                    if (def instanceof ClassDef) {
+                        ClassDef cd = (ClassDef) def;
+                        if (cd.isTopLevel()) {
+                            return sigFlags;
+                        }
+                        if (cd.isMember()) {
+                            ClassDef outer = Types.get(cd.outer());
+                            Flags outerFlags = getSignatureFlags(outer);
+                            return combineFlagsWithContainerFlags(sigFlags, outerFlags);
+                        }
+                        return Flags.PRIVATE;
+                    }
+                    else {
+                        Type t = Types.get(def.container());
+                        t = X10TypeMixin.baseType(t);
+                        if (t instanceof ClassType) {
+                            ClassType ct = (ClassType) t;
+                            Flags outerFlags = getSignatureFlags(ct.def());
+                            return combineFlagsWithContainerFlags(sigFlags, outerFlags);
+                        }
+                    }
+                    return sigFlags;
+                }
+
+                private Flags combineFlagsWithContainerFlags(Flags sigFlags, Flags outerFlags) {
+                    if (outerFlags.isPrivate() || sigFlags.isPrivate())
+                        return Flags.PRIVATE;
+                    if (outerFlags.isPackage() || sigFlags.isPackage())
+                        return Flags.NONE;
+                    if (outerFlags.isProtected())
+                        return Flags.NONE;
+                    if (sigFlags.isProtected())
+                        return Flags.PROTECTED;
+                    return Flags.PUBLIC;
+                }
+
+                private <T extends Def> boolean hasSameScope(MemberInstance<T> mi, MemberDef signature) {
+                    Flags sigFlags = getSignatureFlags(signature);
+                    if (sigFlags.isPrivate()) {
+                        return true;
+                    }
+                    if (sigFlags.isPackage()) {
+                        if (mi.flags().isPublic())
+                            return true;
+                        if (mi.flags().isProtected() || mi.flags().isPackage()) {
+                            return hasSamePackage(mi.def(), signature);
+                        }
+                        return false;
+                    }
+                    if (sigFlags.isProtected()) {
+                        if (mi.flags().isPublic())
+                            return true;
+                        if (mi.flags().isProtected()) {
+                            return hasSameClass(mi.def(), signature);
+                        }
+                        return false;
+                    }
+                    if (sigFlags.isPublic()) {
+                        if (mi.flags().isPublic())
+                            return true;
+                        return false;
+                    }
+                    return false;
+                }
+                
+                private ClassDef getClass(Def def) {
+                    if (def instanceof ClassDef) {
+                        return (ClassDef) def;
+                    }
+                    if (def instanceof MemberDef) {
+                        MemberDef md = (MemberDef) def;
+                        Type container = Types.get(md.container());
+                        if (container != null) {
+                            container = X10TypeMixin.baseType(container);
+                            if (container instanceof ClassType) {
+                                return ((ClassType) container).def();
+                            }
+                        }
+                    }
+                    return null;
+                }
+
+                private boolean hasSameClass(Def def, MemberDef accessor) {
+                    ClassDef c1 = getClass(def);
+                    ClassDef c2 = getClass(accessor);
+                    if (c1 == null || c2 == null)
+                        return false;
+                    return c1.equals(c2);
+                }
+
+                private boolean hasSamePackage(Def def, MemberDef accessor) {
+                    ClassDef c1 = getClass(def);
+                    ClassDef c2 = getClass(accessor);
+                    if (c1 == null || c2 == null)
+                        return false;
+                    Package p1 = Types.get(c1.package_());
+                    Package p2 = Types.get(c2.package_());
+                    if (p1 == null && p2 == null)
+                        return true;
+                    if (p1 == null || p2 == null)
+                        return false;
+                    return p1.equals(p2);
+                }
+            });
+            
+            if (ex[0] != null)
+                throw ex[0];
         }
 
         protected static void checkVariancesOfType(Position pos, Type t, TypeProperty.Variance requiredVariance, String desc, Map<Name,TypeProperty.Variance> vars, ContextVisitor tc) throws SemanticException {

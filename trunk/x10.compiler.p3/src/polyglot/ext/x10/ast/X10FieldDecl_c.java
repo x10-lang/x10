@@ -118,6 +118,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         checkVariance(tc);
         
+        X10MethodDecl_c.checkVisibility(tc.typeSystem(), tc.context(), this);
+        
         return result;
     }
     
