@@ -8,10 +8,13 @@
 package x10.constraint;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 public interface XTerm extends Serializable, Cloneable {
         public XTerm clone();
+        
+        List<XEQV> eqvs();
         
 	boolean hasVar(XVar v);
 	

@@ -8,6 +8,7 @@
 package x10.constraint;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,14 @@ public class XFormula_c extends XTerm_c implements XFormula {
         for (XTerm arg : args) {
             this.arguments.add(arg);
         }
+    }
+    
+    public List<XEQV> eqvs() {
+        List<XEQV> eqvs = new ArrayList<XEQV>();
+        for (XTerm arg : arguments) {
+            eqvs.addAll(arg.eqvs());
+        }
+        return eqvs;
     }
 
     public XTerm subst(XTerm y, XRoot x, boolean propagate) {

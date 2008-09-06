@@ -7,6 +7,9 @@
  */
 package x10.constraint;
 
+import java.util.Collections;
+import java.util.List;
+
 
 /**
  * @author vj
@@ -27,5 +30,12 @@ public class XEQV_c extends XLocal_c implements XEQV {
 	public boolean isEQV() {
 		return hidden;
 	}
+	
+        public List<XEQV> eqvs() {
+            if (isEQV())
+                return Collections.<XEQV>singletonList(this);
+            return Collections.EMPTY_LIST;
+        }
+
 	
 }

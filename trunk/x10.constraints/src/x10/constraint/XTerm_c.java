@@ -7,13 +7,15 @@
  */
 package x10.constraint;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public abstract class XTerm_c implements XTerm, Cloneable {
 	public XTerm_c() {
 		super();
 	}
-	
+
 	public final XTerm subst(XTerm y, XRoot x) {
 	    return subst(y, x, true);
 	}

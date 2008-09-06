@@ -7,6 +7,7 @@
  */
 package x10.constraint;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -21,9 +22,14 @@ public class XLit_c extends XTerm_c implements XLit {
 	public Object val() {
 		return val;
 	}
+	
 	public XTerm var() {
 		return this;
 	}
+	
+        public List<XEQV> eqvs() {
+            return Collections.EMPTY_LIST;
+        }
 
 	public String toString() {
 		if (val == null)
