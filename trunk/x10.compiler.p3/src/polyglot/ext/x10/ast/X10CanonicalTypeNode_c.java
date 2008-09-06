@@ -13,6 +13,7 @@ import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
@@ -25,6 +26,7 @@ import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.constraint.XConstraint;
 
 public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode {
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
@@ -80,8 +82,22 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	return this;
     }
     
+    @Override
+    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+        Type t = type();
+        
+        XConstraint c = X10TypeMixin.realX(t);
+        
+        if (! c.consistent()) {
+            throw new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position());
+        }
+        
+        return this;
+    }
+    
     public void checkType(Type t) throws SemanticException {
 	if (t == null) throw new SemanticException("Invalid type.", position());
+        
 	if (t instanceof ConstrainedType) {
 	    ConstrainedType ct = (ConstrainedType) t;
 	    Type base = Types.get(ct.baseType());
