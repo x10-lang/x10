@@ -486,7 +486,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    ParameterType pt = (ParameterType) typeFormals.get(i);
 		    Type dummy = new ParameterType_c(xts, pt.position(), Name.makeFresh("__" + pt.name() + "__"), null);
 		    dummyTypes.add(dummy);
-		    XVar v = env.genEQV(XTerms.makeName(dummy), false);
+		    XVar v = env.genEQV(XTerms.makeName(dummy), true);
 		    actualTypeVars.add(v);
 		}
 	    }
@@ -543,7 +543,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		if (yi == null) {
 		    // This must mean that yi was not final, hence it cannot occur in 
 		    // the dependent clauses of downstream yi's.
-		    yi = xts.xtypeTranslator().genEQV(env, ytype, false);
+		    yi = xts.xtypeTranslator().genEQV(env, ytype);
 		}
 		
 		yi = (XVar) yi.clone();
