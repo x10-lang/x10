@@ -13,24 +13,40 @@ public class Box<T> extends Ref {
         this.type = type;
     }
     
-    public static Box<java.lang.Boolean> make(boolean v) { return new Box<Boolean>(Types.BOOLEAN, v); }
-    public static Box<java.lang.Byte> make(byte v) { return new Box<Byte>(Types.BYTE, v); }
-    public static Box<java.lang.Short> make(short v) { return new Box<Short>(Types.SHORT, v); }
-    public static Box<java.lang.Character> make(char v) { return new Box<Character>(Types.CHAR, v); }
-    public static Box<java.lang.Integer> make(int v) { return new Box<Integer>(Types.INT, v); }
-    public static Box<java.lang.Long> make(long v) { return new Box<Long>(Types.LONG, v); }
-    public static Box<java.lang.Float> make(float v) { return new Box<Float>(Types.FLOAT, v); }
-    public static Box<java.lang.Double> make(double v) { return new Box<Double>(Types.DOUBLE, v); }
-    
+    public static Box<Boolean> make(Type<Boolean> type, boolean v) { return new Box<Boolean>(type, v); }
+    public static Box<Byte> make(Type<Byte> type, byte v) { return new Box<Byte>(type, v); }
+    public static Box<Short> make(Type<Short> type, short v) { return new Box<Short>(type, v); }
+    public static Box<Character> make(Type<Character> type, char v) { return new Box<Character>(type, v); }
+    public static Box<Integer> make(Type<Integer> type, int v) { return new Box<Integer>(type, v); }
+    public static Box<Long> make(Type<Long> type, long v) { return new Box<Long>(type, v); }
+    public static Box<Float> make(Type<Float> type, float v) { return new Box<Float>(type, v); }
+    public static Box<Double> make(Type<Double> type, double v) { return new Box<Double>(type, v); }
+
     public static <S> Ref make(Type<S> type, S v) {
         if (v == null)
             return null;
+        if (v instanceof Box) {
+            Box<?> box = (Box<?>) v;
+            if (type.instanceof$(box.value())) {
+                return make(type, (S) box.value());
+            }
+            else {
+                throw new ClassCastException();
+            }
+        }
         if (v instanceof Ref)
             return (Ref) v;
         return new Box<S>(type, v);
     }
     
     public T value() { return value; }
+    
+    public static <T> T unbox(Box<T> box) {
+        if (box != null) {
+            return box.value();
+        }
+        throw new ClassCastException();
+    }
 
     public boolean equals(Object o) {
         if (o == null)
