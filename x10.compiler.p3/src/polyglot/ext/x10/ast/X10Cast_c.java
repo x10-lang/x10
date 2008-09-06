@@ -136,11 +136,31 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    // V to R (Box[V] <: R)
 	    // -->
 	    // V to Box[V] to R
-	    if (ts.isValueType(fromType) && ts.isSubtype(ts.boxOf(Types.ref(fromType)), toType)) {
-	        if (! ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
-	            Position p = position();
-	            X10Cast boxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, ts.boxOf(Types.ref(fromType))), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	            return this.expr(boxed).typeCheck(tc);
+	    if (ts.isValueType(fromType)) {
+	        Type boxOfFrom = null;
+	        
+	        // Don't create a box of an anonymous class
+	        if (fromType instanceof X10ClassType) {
+	            X10ClassType fromCT = (X10ClassType) fromType;
+	            if (fromCT.isAnonymous()) {
+	                if (fromCT.superClass() != null)
+	                    boxOfFrom = ts.boxOf(Types.ref(fromCT.superClass()));
+	                else if (fromCT.interfaces().size() > 0)
+	                    boxOfFrom = ts.boxOf(Types.ref(fromCT.interfaces().get(0)));
+	                else
+	                    boxOfFrom = ts.Object();
+	            }
+	        }
+
+	        if (boxOfFrom == null)
+	            boxOfFrom = ts.boxOf(Types.ref(fromType));
+
+	        if (ts.isSubtype(boxOfFrom, toType)) {
+	            if (! ts.typeEquals(boxOfFrom, toType)) {
+	                Position p = position();
+	                X10Cast boxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, boxOfFrom), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	                return this.expr(boxed).typeCheck(tc);
+	            }
 	        }
 	    }
 	    
