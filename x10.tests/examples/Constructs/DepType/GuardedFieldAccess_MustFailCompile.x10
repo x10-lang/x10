@@ -20,7 +20,7 @@ public class GuardedFieldAccess_MustFailCompile extends x10Test {
 
 	class Test(i:int, j:int) {
 		public var v{i==j}: int = 5;
-		def this(i:int, j:int) = {
+		def this(i:int, j:int): Test{self.i==i,self.j==j} = {
 			property(i,j);
 		}
 	}

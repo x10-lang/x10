@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class DepTypeRef extends x10Test {
 	public def run(): boolean = {
   	  var R: region{rect} = [1..2, 1..2];
-	  var a: Array[double]{rect} =  Array.make[double](R, (p: point) => 1.0);
+	  var a: Array[double]{rect} = Array.makeFromRegion[double](R, (p: point) => 1.0);
 		//System.out.println("" );//+ foo(a));
 	   return true;
 	}
