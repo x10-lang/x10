@@ -525,11 +525,7 @@ public class Edmiston_Parallel3 extends x10Test {
 			when (filled) { t = val; }
 			return t;
 		}
-		safe def wr(var v: int): void = atomic void wr(int v) {
-			if (filled) throw new Error();
-			filled = true;
-			val = v;
-		}{
+		atomic def wr(var v: int): void = {
 			if (filled) throw new Error();
 			filled = true;
 			val = v;

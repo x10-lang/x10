@@ -16,7 +16,7 @@ public class AtomicMethodTest extends x10Test {
 	public const N: int = 1000;
 	var startCount: long = 0;
 	var endCount: long = 0;
-	safe def body(): void = {
+	atomic def body(): void = {
 		startCount = this.val;
 		for (var i: int = 0; i < N; i++) this.val++;
 		endCount = this.val;
