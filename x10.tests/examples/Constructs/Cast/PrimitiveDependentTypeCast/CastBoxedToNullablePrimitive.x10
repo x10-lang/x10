@@ -15,7 +15,7 @@ import harness.x10Test;
 
 	public def run(): boolean = {
 		// transformed to (nullable<int>) ((BoxedInteger) obj).intValue();
-		var i: Box[int] = mth() as Box[int];
+		var i: Box[int] = mth() to Box[int];
 		return true;
 	}
 	
