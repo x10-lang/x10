@@ -172,11 +172,15 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		     // But this doesn't exist yet. We will check all the properties simultaneously
 		     // in AssignPropertyBody. So we do not need to check it here. 
 		     Expr arg = arguments.get(i);
-		     FieldAssign as = nf.FieldAssign(pos, nf.This(pos), nf.Id(pos, definedProperties.get(i).name()), Assign.ASSIGN, arg);
-		     as = (FieldAssign) this.visitChild(as, tc);
+		     
+		     Expr this_ = (Expr) nf.This(pos).del().disambiguate(tc).del().typeCheck(tc).del().checkConstants(tc);
+		     FieldInstance fi = definedProperties.get(i);
+		     FieldAssign as = nf.FieldAssign(pos, this_, nf.Id(pos, fi.name()), Assign.ASSIGN, arg);
+		     // Do not type check the assignment!
+		     as = (FieldAssign) as.type(arg.type());
+		     as = as.fieldInstance(fi);
+//		     as = (FieldAssign) this.visitChild(as, tc);
 		     Stmt a = (Stmt) nf.Eval(pos, as);
-		     a = (Stmt) a.disambiguate(tc);
-		     // a = (Stmt) a.visit(tc); Do not type-check the statement a.
 		     s.add(a);
 		 }
 
