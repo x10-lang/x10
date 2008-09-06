@@ -70,6 +70,14 @@ public class X10Boxer extends AscriptionVisitor {
             fromType = X10TypeMixin.baseType(fromType);
             toType = X10TypeMixin.baseType(toType);
    
+            if (toType.isNumeric() && ! fromType.isNumeric()) {
+                return true;
+            }
+            
+            if (toType.isBoolean() && ! fromType.isBoolean()) {
+                return true;
+            }
+            
             if (fromType instanceof ParameterType || toType instanceof ParameterType) {
                 if (TypeParamSubst.isSameParameter((ParameterType) fromType, (ParameterType) toType))
                     return false;
