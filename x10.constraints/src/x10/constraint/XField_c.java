@@ -29,6 +29,10 @@ public class XField_c extends XVar_c implements XField {
 		n.receiver = newReceiver;
 		return n;
 	}
+	
+	public List<XEQV> eqvs() {
+	    return receiver().eqvs();
+	}
 
 	public XName field() {
 		return field;

@@ -46,6 +46,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
 
     public XConstraint_c() {
         self = genEQV(XTerms.makeFreshName("_self"), false);
+//        self = genEQV(XTerms.makeName(new Object(), "self"), false);
     }
 
     /**
@@ -436,6 +437,25 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
         catch (XFailure z) {
             return false;
+        }
+        
+        if (! me.consistent()) {
+            return false;
+        }
+
+        // Check that all EQVs introduced in the term, and NOT also present in this, are bound to something.
+        for (XTerm term : subst) {
+            if (term.isEQV()) {
+                for (XEQV v : term.eqvs()) {
+                    XPromise q = lookup(v);
+                    if (q == null) {
+                        XPromise p = me.lookup(v);
+                        if (p == null || p.term() == v) {
+                            return false;
+                        }
+                    }
+                }
+            }
         }
 
         for (XTerm term : subst) {

@@ -7,6 +7,7 @@
  */
 package x10.constraint;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,6 +25,10 @@ public class XLocal_c extends XVar_c implements XLocal {
 
 	public XVar[] vars() {
 		return new XVar[] { this };
+	}
+	
+	public List<XEQV> eqvs() {
+	    return Collections.EMPTY_LIST;
 	}
 
 	public XVar rootVar() {
