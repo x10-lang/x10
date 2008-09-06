@@ -334,7 +334,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    assert sup.x10Def().typeParameters().size() == typeArgs.size();
 	    sup = sup.typeArguments(typeArgs);
 	    
-	    cd.superType(Types.ref(Value())); // Closures are values.
+	    cd.superType(Types.ref(Ref())); // Closures are ref types.
 	    cd.addInterface(Types.ref(sup));
 	    
 	    return cd;
@@ -2067,6 +2067,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    if (isBox(toType) && isValueType(fromType)) {
 	        BoxType box = (BoxType) X10TypeMixin.baseType(toType);
 	        Type t = coerceType(fromType, box.arg());
+	        
+	        // Don't create box of an anonymous type.
+	        if (t instanceof X10ClassType) {
+	            X10ClassType fromCT = (X10ClassType) t;
+	            if (fromCT.isAnonymous()) {
+	                if (fromCT.superClass() != null)
+	                    return boxOf(Types.ref(fromCT.superClass()));
+	                else if (fromCT.interfaces().size() > 0)
+	                    return boxOf(Types.ref(fromCT.interfaces().get(0)));
+	                else
+	                    return ts.Object();
+	            }
+	        }
+
 	        if (t != null) {
 	            return boxOf(Types.ref(t));
 	        }
@@ -2124,24 +2138,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public boolean entails(XConstraint c1, XConstraint c2) {
-            // When checking if can assign C{c1, self==x1} to
-	    // C{c2, self==x2}, we need to unify self in the constraints
-            // since self==x1 does not entail self==x2.
-//            if (c2 != null) {
-//                XVar self2 = X10TypeMixin.selfVar(c2);
-//                if (self2 != null) {
-//                    try {
-//                        c1 = c1 == null ? new XConstraint_c() : c1.copy();
-//                        c1.addSelfBinding(self2);
-//                        if (! c1.consistent())
-//                            return false;
-//                    }
-//                    catch (XFailure e) {
-//                        return false;
-//                    }
-//                }
-//            }
-            
             if (c1 != null || c2 != null) {
                 boolean result = true;
 
