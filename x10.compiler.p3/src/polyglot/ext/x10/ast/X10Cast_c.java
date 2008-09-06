@@ -180,11 +180,14 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	
 	MethodInstance converter = null;
 	
-	if (ts.isBoolean(fromType) && ts.isBoolean(toType)) {
-	    conversionType = ConversionType.PRIMITIVE;
-	}
-	else if (ts.isNumeric(fromType) && ts.isNumeric(toType)) {
-	    conversionType = ConversionType.PRIMITIVE;
+	if ((ts.isBoolean(fromType) && ts.isBoolean(toType)) || (ts.isNumeric(fromType) && ts.isNumeric(toType))) {
+	    Type t1 = X10TypeMixin.baseType(fromType);
+	    Type t2 = X10TypeMixin.baseType(toType);
+	    XConstraint c1 = X10TypeMixin.xclause(fromType);
+	    XConstraint c2 = X10TypeMixin.xclause(toType);
+	    if (c1 == null || c2 == null || ts.clausesConsistent(c1, c2)) {
+	        conversionType = ConversionType.PRIMITIVE;
+	    }
 	}
 	else if (ts.isValueType(fromType) && ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
 	    conversionType = ConversionType.BOXING;
@@ -193,7 +196,13 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    conversionType = ConversionType.UNBOXING;
 	}
 	else if (ts.isValueType(toType) && ts.descendsFrom(fromType, toType)) {
-	    conversionType = ConversionType.TRUNCATION;
+	    Type t1 = X10TypeMixin.baseType(fromType);
+	    Type t2 = X10TypeMixin.baseType(toType);
+	    XConstraint c1 = X10TypeMixin.xclause(fromType);
+	    XConstraint c2 = X10TypeMixin.xclause(toType);
+	    if (c1 == null || c2 == null || ts.clausesConsistent(c1, c2)) {
+	        conversionType = ConversionType.TRUNCATION;
+	    }
 	}
 	else if (ts.isSubtype(fromType, toType)) {
 	    conversionType = ConversionType.COERCION;
