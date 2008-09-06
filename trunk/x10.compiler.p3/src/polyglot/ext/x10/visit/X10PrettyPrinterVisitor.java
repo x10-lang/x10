@@ -1141,19 +1141,30 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        switch (c.conversionType()) {
 	        case COERCION:
 	        case PRIMITIVE:
+	        case TRUNCATION:
 	            if (tn instanceof X10CanonicalTypeNode) {
 	                X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+
 	                Type t = X10TypeMixin.baseType(xtn.type());
+	                boolean box = ! (c.expr().type().isBoolean() || c.expr().type().isNumeric());
+	                Expander ex = new TypeExpander(t, PRINT_TYPE_PARAMS | (box ? BOX_PRIMITIVES : 0));
+	                
 	                DepParameterExpr dep = xtn.constraintExpr();
 	                if (dep != null) {
-	                    new Template("cast_deptype", xtn.typeRef(Types.ref(t)), c.expr(), dep.condition()).expand();
+	                    new Template("cast_deptype", ex, c.expr(), dep.condition()).expand();
 	                }
 	                else {
-	                    visit((Node)c);
+	                    w.begin(0);
+	                    w.write("(");
+	                    ex.expand(tr);
+	                    w.write(")");
+	                    w.allowBreak(2, " ");
+	                    c.printSubExpr(c.expr(), w, tr);
+	                    w.end();
 	                }
 	            }
 	            else {
-	                visit((Node)c);
+	                throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
 	            }
 	            break;
 	        case BOXING:
@@ -1169,10 +1180,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            w.write(">) ");
 	            tr.print(c, c.expr(), w);
 	            w.write(").value()");
-	            break;
-	        case TRUNCATION:
-	            // TODO: Value truncation not implemented.
-	            visit((Node)c);
 	            break;
 	        case UNKNOWN_CONVERSION:
 	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
@@ -2499,7 +2506,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        X10ClassType container = (X10ClassType) Types.get(cd.container());
 	        return rttName(container.x10Def()) + "." + rttShortName(cd);
 	    }
-	    assert false : "expected class " + cd;
+	    assert false : "unexpected class " + cd;
 	    return "";
 	}
 
