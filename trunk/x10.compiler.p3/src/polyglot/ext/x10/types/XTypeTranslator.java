@@ -506,7 +506,7 @@ public class XTypeTranslator {
 		if (term == null)
 			return c;
 		
-		if (!ts.isImplicitCastValid(term.type(), ts.Boolean()))
+		if (! term.type().isBoolean())
 			throw new SemanticException("Cannot build constraint from expression |" + term + "| of type " + term.type() + "; not a boolean.");
 		
 		// TODO: handle the formals.
