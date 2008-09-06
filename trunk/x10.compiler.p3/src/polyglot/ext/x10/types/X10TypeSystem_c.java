@@ -1674,7 +1674,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                     if (0 <= i-1 && i-1 < env.size()) newEnv.addAll(env.subList(0, i-1));
                     if (0 <= i+1 && i+1 < env.size()) newEnv.addAll(env.subList(i+1, env.size()));
 //                    newEnv = env;
-                    newEnv = Collections.EMPTY_LIST;
+//                    newEnv = Collections.EMPTY_LIST;
 
                     if (term instanceof XSubtype_c) {
                         XSubtype_c s = (XSubtype_c) term;
@@ -1972,8 +1972,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public List<Type> converterChain(Type fromType, Type toType) {
 	    X10TypeSystem ts = this;
 	    
-	    if (coerceType(fromType, toType) != null) {
-	        return CollectionUtil.list(fromType, toType);
+	    Type coerced = coerceType(fromType, toType);
+	    if (coerced != null) {
+	        return CollectionUtil.list(fromType, coerced);
 	    }
             
             class Helper {
@@ -2048,9 +2049,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                         }
                     }
                     // Now, try all possible combinations of the alternative type arguments.
-                    List<Type> t = new Helper().attempt(ct, 0, alternatives, fromType, new ArrayList<Type>(ct.typeArguments().size()), toType, false);
-                    if (t.size() > 0)
-                        return t;
+                    List<Type> l = new Helper().attempt(ct, 0, alternatives, fromType, new ArrayList<Type>(ct.typeArguments().size()), toType, false);
+                    if (l.size() > 0)
+                        return l;
                 }
             }
 
@@ -2093,8 +2094,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
                     return mi.returnType();
                 }
+//                System.out.println("no match " + mi);
             }
             catch (SemanticException e) {
+//                System.out.println(e);
             }
 
 	    return null;
@@ -2260,6 +2263,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			fits = 0L <= v && v <= Byte.MAX_VALUE;
 		}
 		
+		if (base.isDouble())
+		    fits = Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE;
+//		    fits = v == (long) ((double) v);
+		if (base.isFloat())
+		    fits = Short.MIN_VALUE <= v && v <= Short.MAX_VALUE;
+//		    fits = v == (long) ((float) v);
 		if (base.isLong())
 		    fits = Long.MIN_VALUE <= v && v <= Long.MAX_VALUE;
 		if (base.isInt())
