@@ -325,4 +325,6 @@ public interface X10TypeSystem extends TypeSystem {
      */
     List<Type> converterChain(Type fromType, Type toType);
 
+    boolean clausesConsistent(XConstraint c1, XConstraint c2);
+
 }
