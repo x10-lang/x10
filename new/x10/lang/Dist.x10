@@ -124,7 +124,7 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
     : Dist{region==r};
  //   public abstract def regionMap(): Map[Place,Region];
     
-    @Native("java", "x10.array.DistFactory.makeBlockCyclic(#1, 0, #3)")
+    @Native("java", "x10.array.DistFactory.makeBlockCyclic(#1, 0, #2)")
     public native static def makeBlockCyclic(r: Region,  blockSize: int)
     : Dist{region==r};
    
