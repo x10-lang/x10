@@ -35,7 +35,8 @@ public abstract value Region(
     : Region(min.length);
 
 @Native("java", "x10.array.RegionFactory.makeRect(#1, #2)")
-    native public static def makeRectangular(min: int, max: int): Region{rect,rank==1};
+    native public static def makeRectangular(min: int, max: int)
+    : Region{rect,rank==1,zeroBased==(min==0)};
 
 @Native("java", "x10.array.RegionFactory.makeBanded(#1, #2, #3)")
     native public static def makeBanded(size: int, upper: int, lower: int): Region(1);
