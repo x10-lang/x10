@@ -23,7 +23,10 @@ public class IntArrayIndexing extends x10Test {
 
 	public def this(): IntArrayIndexing = {
 		val kArraySize: int = 30;
-		var range1D: regionvar range2D: regionvar range3D: regionvar range4D: region;
+		var range1D: region;
+                var range2D: region;
+                var range3D: region;
+                var range4D: region;
 
 		// Note: cannot do anything fancy with starting index--assume 0 based
 		range1D = [0..kArraySize];
