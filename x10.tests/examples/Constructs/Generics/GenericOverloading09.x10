@@ -6,6 +6,10 @@ import harness.x10Test;
 import x10.compiler.ArithmeticOps;
 
 /**
+ * Two or more methods of a class or interface may have the same name
+ * if they have a different number of type parameters, or they have
+ * value parameters of different types.
+ *
  * @author bdlucas 8/2008
  */
 
