@@ -21,27 +21,27 @@ public abstract value Region(
     public abstract def disjoint(that: Region): boolean;
 
 @Native("java", "x10.array.RegionFactory.makeEmpty(#1)")
-    native public static def makeEmpty(rank: int): Region;
+    native public static def makeEmpty(rank: int): Region(rank);
 
 @Native("java", "x10.array.RegionFactory.makeFull(#1)")
-    native public static def makeFull(rank: int): Region;
+    native public static def makeFull(rank: int): Region(rank);
 
 @Native("java", "x10.array.RegionFactory.makeUnit()")
     native public static def makeUnit(): Region;
 
 @Native("java", "x10.array.RegionFactory.makeRect(#1, #2)")
-    native public static def makeRectangular(min: ValRail[int], 
-                       max: ValRail[int]{self.length==min.length})
-    : Region{self.rank==min.length};
+    native public static def makeRectangular(min: ValRail[Int], 
+                       max: ValRail[Int](min.length))
+    : Region(min.length);
 
 @Native("java", "x10.array.RegionFactory.makeRect(#1, #2)")
     native public static def makeRectangular(min: int, max: int): Region{rect,rank==1};
 
 @Native("java", "x10.array.RegionFactory.makeBanded(#1, #2, #3)")
-    native public static def makeBanded(size: int, upper: int, lower: int): Region;
+    native public static def makeBanded(size: int, upper: int, lower: int): Region(1);
 
 @Native("java", "x10.array.RegionFactory.makeBanded(#1)")
-    native public static def makeBanded(size: int): Region;
+    native public static def makeBanded(size: int): Region(1);
 
 @Native("java", "x10.array.RegionFactory.makeUpperTriangular(#1)")
     native public static def makeUpperTriangular(size: int): Region;
@@ -51,7 +51,7 @@ public abstract value Region(
     
 @Native("java", "x10.array.RegionFactory.makeFromRail(#1)")
     native public static def make(regions: Rail[Region]): Region;
-    
+
 @Native("java", "x10.array.RegionFactory.makeFromRail(#1)")
     native public static def $convert(regions: Rail[Region]): Region;
 
@@ -59,16 +59,16 @@ public abstract value Region(
     public static native def make(a: Region, b:Region): Region;
 
 @Native("java", "x10.array.RegionFactory.make(#1)")
-    public native static def make(regions: ValRail[Region]): Region;
-
+    public native static def make(regions: ValRail[Region(1)]): Region(regions.length);
 @Native("java", "x10.array.RegionFactory.make(#1)")
-    public native static def $convert(regions: ValRail[Region]): Region;
+    public native static def $convert(regions: ValRail[Region]): Region(regions.length);
+
 
 @Native("java", "(#0).union(#1)")
-    public abstract def union(that: Region): Region;
+    public abstract def union(that: Region(rank)): Region(rank);
 
 @Native("java", "(#0).intersection(#1)")
-    public abstract def intersection(that: Region): Region;
+    public abstract def intersection(that: Region(rank)): Region(rank);
 
 @Native("java", "(#0).difference(#1)")
     public abstract def difference(that: Region{rank==this.rank}): Region{rank==this.rank};

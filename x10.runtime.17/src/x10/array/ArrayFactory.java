@@ -12,7 +12,7 @@ public class ArrayFactory {
     public static <T> Array<T> makeVarArray(Type<T> type, Dist d, Fun_0_1<Point, T> init) {
         Array<T> a = new GenericArray<T>(type, d);
         for (Point p : d) {
-            a.set(p, init.apply(p));
+            a.set(init.apply(p), p);
         }
         return a;
     }
@@ -25,7 +25,7 @@ public class ArrayFactory {
     public static <T> ValArray<T> makeValArray(Type< T> type, Dist d, Fun_0_1<Point, T> init) {
         ValArray<T> a = new GenericValArray<T>(type, d);
         for (Point p : d) {
-            a.set(p, init.apply(p));
+            a.set(init.apply(p), p);
         }
         return a;
     }

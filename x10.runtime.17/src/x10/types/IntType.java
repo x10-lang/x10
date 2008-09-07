@@ -20,8 +20,9 @@ public class IntType extends RuntimeType<Integer> {
     }
     
     @Override
-    public void setArray(Object array, int i, Integer v) {
+    public Integer setArray(Object array, int i, Integer v) {
         ((int[]) array)[i] = v;
+        return v;
     }
     
     @Override

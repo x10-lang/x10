@@ -20,8 +20,9 @@ public class FloatType extends RuntimeType<Float> {
     }
     
     @Override
-    public void setArray(Object array, int i, Float v) {
+    public Float setArray(Object array, int i, Float v) {
         ((float[]) array)[i] = v;
+        return v;
     }
     
     @Override

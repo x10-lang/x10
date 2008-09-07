@@ -20,8 +20,8 @@ public class CharType extends RuntimeType<Character> {
     }
     
     @Override
-    public void setArray(Object array, int i, Character v) {
-        ((char[]) array)[i] = v;
+    public Character setArray(Object array, int i, Character v) {
+        return ((char[]) array)[i] = v;
     }
     
     @Override
