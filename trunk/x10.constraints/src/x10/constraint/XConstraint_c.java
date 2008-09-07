@@ -444,19 +444,21 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
 
         // Check that all EQVs introduced in the term, and NOT also present in this, are bound to something.
-        for (XTerm term : subst) {
-            if (term.isEQV()) {
-                for (XEQV v : term.eqvs()) {
-                    XPromise q = lookup(v);
-                    if (q == null) {
-                        XPromise p = me.lookup(v);
-                        if (p == null || p.term() == v) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
+        // This is broken. [NN]  e.g., _98.length==self.length, lookup _98 and get _98{length=_98.length->2}
+        
+//        for (XTerm term : subst) {
+//            if (term.isEQV()) {
+//                for (XEQV v : term.eqvs()) {
+//                    XPromise q = lookup(v);
+//                    if (q == null) {
+//                        XPromise p = me.lookup(v);
+//                        if (p == null || p.term() == v) {
+//                            return false;
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         for (XTerm term : subst) {
             if (! me.entails(term))
