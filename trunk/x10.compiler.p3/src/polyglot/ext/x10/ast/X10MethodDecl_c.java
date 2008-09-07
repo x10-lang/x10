@@ -433,6 +433,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         final static boolean CHECK_VISIBILITY = false;
         
         protected static void checkVisibility(final TypeSystem ts, Context c, final ClassMember mem) throws SemanticException {
+            // This doesn't work since we've already translated away expressions into constraints.
             if (! CHECK_VISIBILITY)
                 return;
             
@@ -447,7 +448,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 @Override
                 public Node override(Node parent, Node n) {
                     if (! on) {
-                        if (n instanceof DepParameterExpr) {
+                        if (n instanceof TypeNode) {
                             try {
                                 on = true;
                                 return this.visitEdgeNoOverride(parent, n);
@@ -458,9 +459,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                         }
                         else {
                             return this.visitEdgeNoOverride(parent, n);
+                            
                         }
                     }
-                    
                     
                     if (n instanceof Stmt) {
                         return n;
