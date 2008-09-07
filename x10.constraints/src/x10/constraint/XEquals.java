@@ -8,6 +8,8 @@
 
 package x10.constraint;
 
+/** An s==t constraint.
+ */
 public interface XEquals extends XFormula {
 
 }

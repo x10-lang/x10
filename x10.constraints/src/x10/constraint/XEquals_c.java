@@ -7,6 +7,10 @@
  */
 package x10.constraint;
 
+/**
+   Class representing left == right constraints.
+   @author njnystrom
+ */
 public class XEquals_c extends XFormula_c implements XEquals {
 	
 	public XEquals_c(XTerm left, XTerm right) {

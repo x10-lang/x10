@@ -11,55 +11,74 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * XTerms are the basic building blocks of constraints. 
+ * 
+ * @author njnystrom
+ * @author vj
+ *
+ */
 public interface XTerm extends Serializable, Cloneable {
         public XTerm clone();
-        
         List<XEQV> eqvs();
         
+        /** 
+         * Returns true if the variable v occurs in this term.
+         * @param v -- the variable being checked.
+         * @return true if v occurs in this
+         */
 	boolean hasVar(XVar v);
 	
 	/** Get the constraint on the term's value. 
-	 * @throws XFailure if the self constraint is inconsistent. */
+	 * @throws XFailure if the self constraint is inconsistent. 
+	 * */
 	XConstraint selfConstraint() throws XFailure;
 	
 	/** Set the constraint on the term's value. */
 	void setSelfConstraint(XRef_c<XConstraint> c);
 
-	/** Add in the self-constraint to c, and set the self-constraint to null 
+	/** Add in the self-constraint to c, and set the
+	 * self-constraint to null
 	 * @param visited TODO
 	 * @return TODO*/
 	boolean saturate(XConstraint c, Set<XTerm> visited) throws XFailure;
 
 	/**
-	 * Is this an existentially quantified variable in the constraint?
+	 * Is this an existentially quantified variable?
 	 * 
 	 * @return true if it is, false if it isn't.
 	 */
 	boolean isEQV();
 
 	/**
-	 * If true, bind this variable when processing this=term, for any term. In
-	 * case term also prefers being bound, choose any one.
+	 * If true, bind this variable when processing this=t, for
+	 * any term t. In case term also prefers being bound, choose any
+	 * one.
 	 * 
-	 * @return
+	 * @return true if this  prefers being bound in a constraint this==t.
 	 */
 	boolean prefersBeingBound();
 
 	/**
-	 * Is this (= x.f1...fn) a prefix of term, i.e. is term of the form
-	 * x.f1...fn.fn+1...fk?
+	 * Is this (= x.f1...fn, for n >= 0) a prefix of term, i.e. is
+	 * term of the form x.f1...fn.fn+1...fk?
 	 * 
 	 * @return
 	 */
 	boolean prefixes(XTerm term);
 
+    /**
+       Intern this term into constraint and return the promise
+       representing the term. Thorw an XFailure if the resulting
+       constraint is inconsistent.
+     */
 	XPromise internIntoConstraint(XConstraint constraint, XPromise last)
 			throws XFailure;
 
 	/**
-	 * Returns true if this term is an atomic formula, i.e. a constraint. Note
-	 * that, == constraints are represented specially, i.e. binary terms of the
-	 * form t == s are not interned into a constraint as the binary term t==s.
+	 * Returns true if this term is an atomic formula.
+	 *  == constraints are represented
+	 * specially, and not considered atomic formulas.
 	 * 
 	 * @return true -- if this term represents an atomic formula
 	 */

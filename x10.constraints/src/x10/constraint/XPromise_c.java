@@ -29,7 +29,7 @@ import java.util.Map.Entry;
  */
 public class XPromise_c implements XPromise, Serializable {
     /**
-     * The externally visible C_Term that this node represents in the constraint
+     * The externally visible XTerm that this node represents in the constraint
      * graph. May be null, if this promise corresponds to an internal node.
      */
     protected XTerm var;
@@ -51,21 +51,42 @@ public class XPromise_c implements XPromise, Serializable {
      */
     protected HashMap<XName, XPromise> fields;
 
-    public XPromise_c(XTerm c) {
+    /**
+     * Create a new promise labeled with the external term c.
+     * @param c -- the term labeling the promise.
+     */
+    public XPromise_c(XTerm term) {
         super();
         value = null;
-        var = c;
+        var = term;
     }
 
+    /**
+     * Create a new promise with the given fields. 
+     * @param fields -- the fields of the promise
+     */
     public XPromise_c(Map<XName, XPromise> fields) {
         this(fields, null);
     }
 
+    /**
+     * Create a new promise with the given fields, and labeled with the given term.
+     * @param fields -- the fields of the promise
+     * @param term -- the term labeling the promise
+     */
     public XPromise_c(Map<XName, XPromise> fields, XTerm term) {
         this(term, null, fields);
     }
 
+    /**
+     * Create a new promise with the given fields, the given label (var) and
+     * pointing to value. Either value==null || fields==null. var may also be null.
+     * @param var -- the term labeling the promise
+     * @param value -- the XTerm that this promise points to
+     * @param fields -- the fields of the promise.
+     */
     public XPromise_c(XTerm var, XPromise value, Map<XName, XPromise> fields) {
+    	assert value==null || fields == null;
         this.var = var;
         this.value = value;
         if (fields != null)
