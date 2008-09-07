@@ -21,7 +21,7 @@ import java.util.Set;
 public interface XPromise extends Cloneable {
 
 	/**
-	 * vars must be a sequence C_Var, C_Field, ... C_Field, satisfying the property
+	 * vars must be a sequence XVar, XField, ... XField, satisfying the property
 	 * that the receiver of each element (other than the first) is the preceding element.
 	 * this must be the promise corresponding to the index'th element in this list. 
 	 * Return the node in the graph of constraint c obtained
@@ -100,26 +100,27 @@ public interface XPromise extends Cloneable {
 	boolean canReach(/*@nonnull*/XPromise p);
 
 	/**
-	 * Traverse the subtree under this promise, and add t1 -> t2 into result for any term t1 
-	 * which has an outgoing edge to a term t2.
+	 * Traverse the subtree under this promise, and add t1==t2 into result for any term t1 
+	 * which has an outgoing edge to a term t2, and add f(bar t) into result if this is a promise
+	 * for atomic formula f(bar t).
 	 * @param result
 	 * @param oldSelf TODO
 	 */
 	void dump(List<XTerm> result, XRoot oldSelf);
 	/**
-	 * Traverse the subtree under this promise, and add t1 -> t2 into result for any term t1 
-	 * which has an outgoing edge to a term t2, and is not an EQV.
+         * Traverse the subtree under this promise, and add t1==t2 into result for any term t1 
+         * which has an outgoing edge to a term t2 and is not an EQV, and add f(bar t) into result
+         * if this is a promise for atomic formula f(bar t).
 	 * @param result
 	 * @param oldSelf 
 	 */
 	void extDump(List<XTerm> result, XRoot oldSelf);
 
 	/**
-	 * Return the term that labels this promise. This term is intended to be the canonical C_Var
+	 * Return the term that labels this promise. This term is intended to be the canonical XTerm
 	 * labeling this promise, following the direct path from the root node.
 	 * Note: this promise may be forwarded to another; yet the term returned is this's term, 
 	 * not the term corresponding to the target promise.
-	 * TODO: Change its return type to C_Var.
 	 * @return null if this promise is an internal promise.
 	 */
 	XTerm term();
@@ -143,8 +144,10 @@ public interface XPromise extends Cloneable {
 	 */
 	void replaceDescendant(XPromise y, XPromise x, XConstraint c);
 
+	/** A promise to which this promise is bound. */
 	XPromise value();
 
+	/** Map from field names f to promises term().f */
 	HashMap<XName, XPromise> fields();
 
 	/**
