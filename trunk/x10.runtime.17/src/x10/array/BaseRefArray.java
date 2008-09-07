@@ -73,9 +73,9 @@ public abstract class BaseRefArray<T> extends BaseAnyArray<T> implements Settabl
         return super.set(v, d0);
     }
 
-    @Override
+  
     public T set(T v, Point pos, boolean chkPl, boolean chkAOB) {
-        return super.set(v, pos, chkPl, chkAOB);
+        return super.setPoint(v, pos, chkPl, chkAOB);
     }
 
     @Override

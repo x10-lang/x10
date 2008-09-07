@@ -193,12 +193,12 @@ abstract public class BaseAnyArray<T> extends BaseArray {
      */
     protected abstract T setOrdinal(T v, int rawIndex);
 
-    public void set(Point i, T v) {
-        set(v, i);
+    public T set( T v, Point i) {
+        return setPoint(v, i);
     }
 
-    protected T set(T v, Point pos) { return set(v,pos,true,true); }
-    protected T set(T v, Point pos,boolean chkPl,boolean chkAOB) {
+    protected T setPoint(T v, Point pos) { return setPoint(v,pos,true,true); }
+    protected T setPoint(T v, Point pos,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(pos));
             int theIndex = Helper.ordinal(dist,pos,chkAOB);
@@ -213,6 +213,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return setOrdinal(v, theIndex);
     }
 
+    
     protected T set(T v, int d0,int d1) { return set(v,d0,d1,false,false); }
     protected T set(T v, int d0, int d1,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)

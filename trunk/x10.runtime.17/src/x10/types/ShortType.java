@@ -20,8 +20,9 @@ public class ShortType extends RuntimeType<Short> {
     }
     
     @Override
-    public void setArray(Object array, int i, Short v) {
+    public Short setArray(Object array, int i, Short v) {
         ((short[]) array)[i] = v;
+        return v;
     }
     
     @Override

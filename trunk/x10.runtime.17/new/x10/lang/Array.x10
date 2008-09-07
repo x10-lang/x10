@@ -25,30 +25,31 @@ public abstract value class Array[T](dist: Dist) implements
     property constant: boolean = dist.constant;
     property onePlace: Place = dist.onePlace;
 
+ @Native("java", "x10.array.ArrayFactory.makeFromRail(#2, #4)")
+    native public static def $convert[T](r: Rail[T]): Array[T]{rank==1};
+    
+    @Native("java", "x10.array.ArrayFactory.<#1>makeFromValRail(#3, #4)")
+    native public static def $convert[T](r: ValRail[T]): Array[T]{rank==1};
+    
     @Native("java", "x10.array.ArrayFactory.<#2>makeVarArray(#3, #4,#5)")
     native public static def make[T](d: Dist, init: (Point)=>T)
        : Array[T]{self.dist==d};
     
-    @Native("java", "x10.array.ArrayFactory.<#2> makeVarArray(#3, #4,#5)")
-    native public static def makeFromRegion[T](r: Region, init: (Point)=>T)
-	   : Array[T]{self.region==r,onePlace==here};
-
-    @Native("java", "x10.array.ArrayFactory.<#2>make(#3, #4,#5,#6)")
-    native public static def makeFromRegion[T](r: Region, init: (Point)=>T, value: boolean): Array[T]{region==r};
-    
     @Native("java", "x10.array.ArrayFactory.makeFromRail(#2, #4)")
     native public static def make[T](r: Rail[T]): Array[T]{rank==1};
 
-    @Native("java", "x10.array.ArrayFactory.makeFromRail(#2, #4)")
-    native public static def $convert[T](r: Rail[T]): Array[T]{rank==1};
-
-    @Native("java", "x10.array.ArrayFactory.makeFromValRail(#2, #4)")
+    @Native("java", "x10.array.ArrayFactory.<#2>makeFromValRail(#3, #4)")
     native public static def make[T](r: ValRail[T]): Array[T]{rank==1};
     
-    @Native("java", "x10.array.ArrayFactory.makeFromValRail(#2, #4)")
-    native public static def $convert[T](r: ValRail[T]): Array[T]{rank==1};
+    @Native("java", "x10.array.ArrayFactory.<#2>make(#3,x10.array.RegionFactory.makeRect(0,(#4-1)),#5)")
+    native public static def make[T](n: nat, init:(point)=>T):Array[T]{rank==1,rect};
+    
+     @Native("java", "x10.array.ArrayFactory.<#2> makeVarArray(#3, #4,#5)")
+    native public static def makeFromRegion[T](r: Region, init: (Point)=>T)
+	   : Array[T]{region==r,onePlace==here};
 
-    public static def make[T](n: nat, init:(point)=>T) = makeFromRegion[T](0..n-1,init);
+    @Native("java", "x10.array.ArrayFactory.<#2>makeVarArray(#3, #4,#5,#6)")
+    native public static def makeFromRegion[T](r: Region, init: (Point)=>T, value: boolean): Array[T]{region==r,onePlace==here};
     
     @Native("java", "(#0).restriction(#1)")
     public native def restriction(r: Region): Array[T]{region==r};
@@ -109,7 +110,7 @@ public abstract value class Array[T](dist: Dist) implements
     @Native("java", "x10.array.ArrayFactory.makeFromRail(#1)")
     native public static def $convert[T](r: Rail[T]): Array[T];
     
-    @Native("java", "x10.array.ArrayFactory.makeFromValRail(#1)")
+    @Native("java", "x10.array.ArrayFactory.<#2>makeFromValRail(#4)")
     native public static def $convert[T](r: ValRail[T]): Array[T];    
 
     //

@@ -20,8 +20,8 @@ public class ByteType extends RuntimeType<Byte> {
     }
     
     @Override
-    public void setArray(Object array, int i, Byte v) {
-        ((byte[]) array)[i] = v;
+    public Byte setArray(Object array, int i, Byte v) {
+        return ((byte[]) array)[i] = v;
     }
     
     @Override
