@@ -11,7 +11,7 @@ public final class Rail<T> extends AnyRail<T> implements Settable<Integer,T> {
         super(type, length, array);
     }
     
-    public void set(Integer i, T v) {
-        type.setArray(value, i, v);
+    public T set(T v, Integer i) {
+        return type.setArray(value, i, v);
     }
 }

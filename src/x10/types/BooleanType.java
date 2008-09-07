@@ -20,8 +20,8 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
     
     @Override
-    public void setArray(Object array, int i, Boolean v) {
-        ((boolean[]) array)[i] = v;
+    public Boolean setArray(Object array, int i, Boolean v) {
+        return ((boolean[]) array)[i] = v;
     }
     
     @Override

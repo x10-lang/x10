@@ -37,7 +37,7 @@ public interface Type<T> {
     T unitValue();
 
     Object makeArray(int length);
-    void setArray(Object array, int i, T v);
+    T setArray(Object array, int i, T v);
     T getArray(Object array, int i);
 
     Class<?> getJavaClass();

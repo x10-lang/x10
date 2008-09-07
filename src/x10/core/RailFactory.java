@@ -18,7 +18,7 @@ public class RailFactory {
     public static <T> Rail<T> makeVarRail(Type<T> type, int length, Fun_0_1<Integer,T> init) {
         Rail<T> array = new Rail<T>(type, length);
         for (int i = 0; i < length; i++) {
-            array.set(i, init.apply(i));
+            array.set(init.apply(i), i);
         }
         return array;
     }

@@ -117,12 +117,17 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
 
 // *** BlockCyclic distributions
    
-    incomplete public static def makeBlockCyclic(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist;
+ //   incomplete public static def makeBlockCyclic(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist;
     
 @Native("java", "x10.array.DistFactory.makeBlockCyclic(#1, #2, #3)")
     public native static def makeBlockCyclic(r: Region, axis: int, blockSize: int)
     : Dist{region==r};
-    public abstract def regionMap(): Map[Place,Region];
+ //   public abstract def regionMap(): Map[Place,Region];
+    
+    @Native("java", "x10.array.DistFactory.makeBlockCyclic(#1, 0, #3)")
+    public native static def makeBlockCyclic(r: Region,  blockSize: int)
+    : Dist{region==r};
+   
     
 @Native("java", "x10.core.RailFactory.makeFromJavaArray((#0).placesArray())")
     public native def places(): Rail[Place];
