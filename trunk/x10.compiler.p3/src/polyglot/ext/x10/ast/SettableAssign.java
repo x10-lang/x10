@@ -4,6 +4,7 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Expr;
+import polyglot.types.ClassDef;
 import polyglot.types.Type;
 import polyglot.util.TypedList;
 
@@ -19,4 +20,10 @@ public interface SettableAssign extends Assign {
 	
 	/** Set the index of the expression. */
 	public SettableAssign index(List<Expr> index) ;
+	
+	/**
+	 * The ClassDef for the class in which this assignment occurs.
+	 * @return
+	 */
+	public ClassDef invokingClass();
 }

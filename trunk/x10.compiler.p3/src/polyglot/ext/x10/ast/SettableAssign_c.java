@@ -29,9 +29,11 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.Assign.Operator;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassDef;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
@@ -66,6 +68,8 @@ import polyglot.visit.TypeChecker;
 public class SettableAssign_c extends Assign_c implements SettableAssign {
    	protected Expr array;
    	protected List<Expr> index;
+   
+   	protected ClassDef invokingClass; // The class in which this assignment occurs.
 
 	/**
 	 * @param pos
@@ -97,6 +101,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    	/** Get the array of the expression. */
    	public Expr array() {
    		return this.array;
+   	}
+   	public ClassDef invokingClass() {
+   		return invokingClass;
    	}
    	
    	/** Set the array of the expression. */
@@ -153,7 +160,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	
 	MethodInstance mi;
 	
-	MethodInstance methodInstance() {
+	public MethodInstance methodInstance() {
 	    return mi;
 	}
 	SettableAssign_c methodInstance(MethodInstance mi) {
@@ -168,17 +175,19 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    X10TypeSystem xts = ts;
 
 	    List<Type> argTypes = new ArrayList<Type>();
+	   // argTypes.add(array.type());
+	    argTypes.add(right.type());
 	    for (Expr e : index) {
 		argTypes.add(e.type());
 	    }
-	    argTypes.add(right.type());
-	    
+
 	    Name methodName = Name.make("set");
 
 	    MethodMatcher methodMatcher = xts.MethodMatcher(array.type(), methodName, argTypes);
 
 	    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
 	    try {
+	    	// array.type()
 	        X10MethodInstance mi = xts.findMethod(array.type(), methodMatcher, tc.context().currentClassDef());
 	        if (! mi.flags().isStatic() )
 	            return (Assign) methodInstance(mi);
