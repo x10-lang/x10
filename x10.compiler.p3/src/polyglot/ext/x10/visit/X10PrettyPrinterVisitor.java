@@ -83,6 +83,7 @@ import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.TypePropertyNode;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
+import polyglot.ext.x10.ast.X10Call;
 import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10Cast;
@@ -2383,6 +2384,125 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Unary.Operator op = n.operator();
 		
 		if (op == Unary.POST_DEC || op == Unary.POST_INC || op == Unary.PRE_DEC || op == Unary.PRE_INC) {
+		    Expr expr = left;
+		    Type t = left.type();
+
+		    Expr target = null;
+                    List<Expr> args = null;
+                    List<TypeNode> typeArgs = null;
+                    X10MethodInstance mi = null;
+
+                    // Handle a(i)++ and a.apply(i)++
+                    if (expr instanceof ClosureCall) {
+                        ClosureCall e = (ClosureCall) expr;
+                        target = e.target();
+                        args = e.arguments();
+                        typeArgs = e.typeArgs();
+                        mi = e.closureInstance();
+                    }
+                    else if (expr instanceof X10Call) {
+                        X10Call e = (X10Call) expr;
+                        if (e.target() instanceof Expr && e.name().id() == Name.make("apply")) {
+                            target = (Expr) e.target();
+                            args = e.arguments();
+                            typeArgs = e.typeArguments();
+                            mi = (X10MethodInstance) e.methodInstance();
+                        }
+                    }
+                    
+                    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+                    if (mi != null) {
+                        MethodInstance setter = null;
+                        
+                        List<Type> setArgTypes = new ArrayList<Type>();
+                        List<Type> setTypeArgs = new ArrayList<Type>();
+                        for (Expr e : args) {
+                            setArgTypes.add(e.type());
+                        }
+                        setArgTypes.add(expr.type());
+                        for (TypeNode tn : typeArgs) {
+                            setTypeArgs.add(tn.type());
+                        }
+                        try {
+                            setter = ts.findMethod(target.type(), ts.MethodMatcher(t, Name.make("set"), setTypeArgs, setArgTypes), tr.context().currentClassDef());
+                        }
+                        catch (SemanticException e) {
+                        }
+                        
+                        // TODO: handle type args
+                        // TODO: handle setter method
+                        
+                        w.write("new Object() {");
+                        w.allowBreak(0, " ");
+                        printType(t, PRINT_TYPE_PARAMS);
+                        w.write(" eval(");
+                        printType(target.type(), PRINT_TYPE_PARAMS);
+                        w.write(" target");
+                        {int i = 0;
+                        for (Expr e : args) {
+                            w.write(", ");
+                            printType(e.type(), PRINT_TYPE_PARAMS);
+                            w.write(" a" + (i+1));
+                            i++;
+                        }}
+                        w.write(") {");
+                        w.allowBreak(0, " ");
+                        printType(left.type(), PRINT_TYPE_PARAMS);
+                        w.write(" old = ");
+                        String pat = getJavaImplForDef(mi.x10Def());
+                        if (pat != null) {
+                            Object[] components = new Object[args.size()+1];
+                            int j = 0;
+                            components[j++] = "target";
+                            {int i = 0;
+                            for (Expr e : args) {
+                                components[j++] = "a" + (i+1);
+                                i++;
+                            }}
+                            dumpRegex("Native", components, tr, pat);
+                        }
+                        else {
+                            w.write("target.apply(");
+                            {int i = 0;
+                            for (Expr e : args) {
+                                if (i > 0) w.write(", ");
+                                w.write("a" + (i+1));
+                                i++;
+                            }}
+                            w.write(")");
+                        }
+                        w.write(";");
+                        w.allowBreak(0, " ");
+                        printType(left.type(), PRINT_TYPE_PARAMS);
+                        w.write(" neu = (");
+                        printType(left.type(), PRINT_TYPE_PARAMS);
+                        w.write(") old");
+                        w.write((op == Unary.POST_INC || op == Unary.PRE_INC ? "+" : "-") + "1");
+                        w.write(";");
+                        w.allowBreak(0, " ");
+                        w.write("target.set(neu");
+                        {int i = 0;
+                        for (Expr e : args) {
+                            w.write(", ");
+                            w.write("a" + (i+1));
+                            i++;
+                        }}
+                        w.write(");");
+                        w.allowBreak(0, " ");
+                        w.write("return ");
+                        w.write((op == Unary.PRE_DEC || op == Unary.PRE_INC ? "neu" : "old"));
+                        w.write(";");
+                        w.allowBreak(0, " ");
+                        w.write("}");
+                        w.allowBreak(0, " ");
+                        w.write("}.eval(");
+                        tr.print(n, target, w);
+                        w.write(", ");
+                        new Join(", ", args).expand(tr);
+                        w.write(")");
+                        
+                        return;
+                    }
 		}
 		
 		if (l.isNumeric() || l.isBoolean()) {
