@@ -21,7 +21,7 @@ public abstract value Dist(
     unique: boolean,   // true if the distribution maps precisely one point to each place.
     constant: boolean, // this maps all points to onePlace. constant == onePlace !=null.
     onePlace: Place    // if nonNull, this maps all points to onePlace. Implies constant.
-) implements (Point)=> Place 
+) implements (Point)=> Place, Iterable[Point]
 {
 
  /**
@@ -108,6 +108,10 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
 
     
 // *** cyclic distributions
+@Native("java", "x10.array.DistFactory.makeCyclic(#1)")
+    public native static def makeCyclic(r: Region)
+    : Dist{region==r};
+
 @Native("java", "x10.array.DistFactory.makeCyclic(#1, #2)")
     public native static def makeCyclic(r: Region, axis: int)
     : Dist{region==r};
@@ -148,6 +152,10 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
     
 @Native("java", "(#0).get(#1)")
     public native def apply(p: Point): Place;
+
+    
+    @Native("java", "(#0).iterator()")
+    public native def iterator(): Iterator[Point];
 
 // Distribution operations.
 /**
