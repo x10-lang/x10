@@ -50,6 +50,11 @@ public class DistFactory {
     public static Dist makeBlockCyclic(Region r, /*nat*/int p) {
         return makeBlockCyclic(r, p, Runtime.placeSet());
     }
+    
+    public static Dist makeBlockCyclic(Region r, int index, /*nat*/int p) {
+    	if (index ==0) return makeBlockCyclic(r, p);
+    	throw new RuntimeException("makeBlockCyclic(Region r, int index, int p) not implemented yet.");
+    }
 
     /**
      * Create a Distribution where the elements in the Region_c are
