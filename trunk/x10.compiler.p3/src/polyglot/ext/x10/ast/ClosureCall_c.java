@@ -131,7 +131,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     }
     
     /** Set the actual arguments of the call. */
-    public ProcedureCall typeArgs(List<TypeNode> typeArgs) {
+    public ClosureCall typeArgs(List<TypeNode> typeArgs) {
 	    ClosureCall_c n= (ClosureCall_c) copy();
 	    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	    return n;
