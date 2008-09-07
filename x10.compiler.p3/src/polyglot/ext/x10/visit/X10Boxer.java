@@ -17,6 +17,7 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Unary;
 import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.extension.X10Ext;
@@ -60,6 +61,9 @@ public class X10Boxer extends AscriptionVisitor {
         // inserted during Java translation as needed.
         X10TypeSystem ts = xts;
         
+        if (toType.isVoid())
+            return false;
+        
         if (fromType == toType)
             return false;
         
@@ -99,7 +103,7 @@ public class X10Boxer extends AscriptionVisitor {
             if (ts.isSubtype(fromType, toType)) {
                 return false;
             }
-            
+
             return true;
         }
         
@@ -114,7 +118,7 @@ public class X10Boxer extends AscriptionVisitor {
      */
     public NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
         Type t = null;
-
+        
         if (parent instanceof LocalDecl) {
             LocalDecl a = (LocalDecl) parent;
             if (n == a.init()) {
