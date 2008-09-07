@@ -7,6 +7,12 @@
  */     
 package x10.constraint;
 
+/**
+ * Represents the conjunction of two formulas.
+ * @author njnystrom
+ * @author vj
+ *
+ */
 public interface XAnd extends XFormula {
 
 }
