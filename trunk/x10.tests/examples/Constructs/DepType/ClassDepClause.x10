@@ -17,7 +17,7 @@ import harness.x10Test;
   public static type ClassDepClause(i:int, j:int)=ClassDepClause{self.i==i,self.j==j};
   public def this(i: int, j: int): ClassDepClause(i,j) = { property(i,j);}
   public def run(): boolean = { 
-	  var x: ClassDepClause(2,3) =  new ClassDepClause(2,3);
+	  var x: ClassDepClause(2,2) =  new ClassDepClause(2,2);
       return true;
     }
     
