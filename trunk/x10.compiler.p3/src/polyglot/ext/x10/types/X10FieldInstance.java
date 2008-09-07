@@ -33,4 +33,6 @@ public interface X10FieldInstance extends FieldInstance, X10TypeObject, X10Use<X
 	
 	/** Type of the field with self==FI. */
 	Type rightType();
+	X10FieldInstance type(Type type, Type rightType);
+
 }

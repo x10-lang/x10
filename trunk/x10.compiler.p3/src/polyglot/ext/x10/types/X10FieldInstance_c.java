@@ -9,6 +9,7 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
+import polyglot.types.FieldInstance;
 import polyglot.types.FieldInstance_c;
 import polyglot.types.Flags;
 import polyglot.types.Named;
@@ -67,6 +68,20 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 //    public Type leftType() {
 //        return super.type();
 //    }
+    
+    @Override
+    public FieldInstance type(Type type) {
+        // clear the right type so we recompute it.
+        return type(type, null);
+    }
+
+    public X10FieldInstance type(Type type, Type rightType) {
+        X10FieldInstance_c fi =  (X10FieldInstance_c) super.type(type);
+        assert fi != this;
+        // clear the right type so we recompute it.
+        fi.rightType = rightType;
+        return fi;
+    }
     
     Type rightType;
 

@@ -2955,19 +2955,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 		@Override
 		public FieldInstance instantiate(FieldInstance mi) throws SemanticException {
-		    FieldInstance fi =  super.instantiate(mi);
+		    X10FieldInstance fi = (X10FieldInstance) super.instantiate(mi);
 		    if (fi == null)
 			return null;
-		    Type t = fi.type();
+		    
 		    Type c = container != null ? container : fi.container();
 		    XVar v = X10TypeMixin.selfVar(c);
 		    if (v == null) v = new XConstraint_c().genEQV();
-		    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		    X10TypeSystem ts = (X10TypeSystem) fi.typeSystem();
 		    XLocal oldThis = ts.xtypeTranslator().transThisWithoutTypeConstraint();
+
+		    Type t = fi.type();
 		    Type newT = X10MethodInstance_c.subst(t, new XVar[] { v }, new XRoot[] { oldThis });
-		    if (newT != t)
-			return fi.type(newT);
-		    return fi;
+		    
+		    Type rt = fi.rightType();
+		    Type newRT = X10MethodInstance_c.subst(rt, new XVar[] { v }, new XRoot[] { oldThis });
+		    return fi.type(newT, newRT);
 		}
 	    }
 
