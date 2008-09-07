@@ -1409,6 +1409,37 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                          new Join(",", c.arguments())).expand();
 	}
 
+/*
+	 * For "java" annotations:
+	 *
+	 * Given a method with signature:
+	 *     def m[X, Y](x, y);
+	 * and a call
+	 *     o.m[A, B](a, b);
+	 * #0 = o
+	 * #1 = A
+	 * #2 = boxed representation of A
+	 * #3 = run-time Type object for A
+	 * #4 = B
+	 * #5 = boxed representation of B
+	 * #6 = run-time Type object for B
+	 * #7 = a
+	 * #8 = b
+	 */
+	private void emitNativeAnnotation(String pat, Receiver target, List<Type> types, List<Expr> args) {
+		 Object[] components = new Object[1 + types.size() * 3 + args.size()];
+		    int i = 0;
+		    components[i++] = target;
+		    for (Type at : types) {
+		        components[i++] = new TypeExpander(at, true, false, false);
+		        components[i++] = new TypeExpander(at, true, true, false);
+		        components[i++] = new RuntimeTypeExpander(at);
+		    }
+		    for (Expr e : args) {
+		        components[i++] = e;
+		    }
+		    dumpRegex("Native", components, tr, pat);
+	}
 	public void visit(X10Call_c c) {
 		Receiver target = c.target();
 		Type t = target.type();
@@ -1418,38 +1449,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
 	            
-		/*
-		 * For "java" annotations:
-		 *
-		 * Given a method with signature:
-		 *     def m[X, Y](x, y);
-		 * and a call
-		 *     o.m[A, B](a, b);
-		 * #0 = o
-		 * #1 = A
-		 * #2 = boxed representation of A
-		 * #3 = run-time Type object for A
-		 * #4 = B
-		 * #5 = boxed representation of B
-		 * #6 = run-time Type object for B
-		 * #7 = a
-		 * #8 = b
-		 */
 		String pat = getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
-		    Object[] components = new Object[1 + mi.typeParameters().size() * 3 + c.arguments().size()];
-		    int i = 0;
-		    components[i++] = c.target();
-		    for (Type at : mi.typeParameters()) {
-		        components[i++] = new TypeExpander(at, true, false, false);
-		        components[i++] = new TypeExpander(at, true, true, false);
-		        components[i++] = new RuntimeTypeExpander(at);
-		    }
-		    for (Expr e : c.arguments()) {
-		        components[i++] = e;
-		    }
-		    dumpRegex("Native", components, tr, pat);
-		    return;
+			emitNativeAnnotation(pat, target, mi.typeParameters(), c.arguments());
+			return;
 		}
 
 		if (target instanceof TypeNode) {
@@ -1940,13 +1943,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 
 	    if (n.operator() == Assign.ASSIGN) {
-	        tr.print(n, array, w);
-	        w.write(".set(");
-	        new Join(", ", index).expand(tr);
-	        if (index.size() > 0)
-	            w.write(", ");
-	        tr.print(n, n.right(), w);
-	        w.write(")");
+	    	// Look for the appropriate set method on the array and emit native code if there is an
+	    	// @Native annotation on it.
+	    	X10MethodInstance mi= (X10MethodInstance) n.methodInstance();
+	    	List<Expr> args = new ArrayList<Expr>(index.size()+1);
+	    	//args.add(array);
+	    	args.add(n.right());
+	    	for (Expr e : index) args.add(e);
+	    	String pat = getJavaImplForDef(mi.x10Def());
+	    	if (pat != null) {
+	    		emitNativeAnnotation(pat, array, mi.typeParameters(), args);
+	    		return;
+	    	} else {
+	    		// otherwise emit the hardwired code.
+	    		tr.print(n, array, w);
+	    		w.write(".set(");
+	    		new Join(", ", index).expand(tr);
+	    		if (index.size() > 0)
+	    			w.write(", ");
+	    		tr.print(n, n.right(), w);
+	    		w.write(")");
+	    	}
 	    }
 	    else if (! effects) {
 	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
