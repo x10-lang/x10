@@ -14,9 +14,9 @@ public class Boxing3 extends x10Test {
 
         public def run(): boolean = {
                 val x: int = 0;
-                val y: Object = 0;
+                val y: Object = 1;
                 val z: Object = x;
-                val v: Box[int] = 0;
+                val v: Box[int] = 2;
                 val w: Box[int] = x;
                 val u: int = v to int;
                 return true;

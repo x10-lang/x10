@@ -24,6 +24,6 @@ public class Boxing0 extends x10Test {
 	}
 
 	static class X {
-		public static def five(): int = { return 5; }
+		public static def five(): int = 5;
 	}
 }
