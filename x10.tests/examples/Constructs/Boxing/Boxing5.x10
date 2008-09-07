@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * Tests interaction of parentheses and boxing
+ * Tests autoboxing when assigned a value to a variable declared at an interface type.
  */
 public class Boxing5 extends x10Test {
 

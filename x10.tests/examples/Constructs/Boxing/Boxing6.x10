@@ -8,7 +8,8 @@
 import harness.x10Test;
 
 /**
- * Tests interaction of parentheses and boxing
+ * Tests that a value stored in a variable of type Box[C], for C a reference class, 
+ * is in fact an instanceof C.
  */
 public class Boxing6 extends x10Test {
 
