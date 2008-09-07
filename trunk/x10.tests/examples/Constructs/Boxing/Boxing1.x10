@@ -32,7 +32,7 @@ public class Boxing1 extends x10Test {
 		var d2: _dummy = new _dummy();
 		System.out.println("d2 _complex");
 		if (d2 instanceof _complex) return false;
-		var c: _complex = ((_complex)d).add(new _complex(1,1));
+		var c: _complex = (d to _complex).add(new _complex(1,1));
 		System.out.println("c _complex");
 		if (c != (new _complex(2,3))) return false;
 		return true;
@@ -43,6 +43,6 @@ public class Boxing1 extends x10Test {
 	}
 
 	static class X {
-		public static def five(): int = { return 5; }
+		public static def five(): int = 5;
 	}
 }
