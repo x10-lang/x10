@@ -53,6 +53,14 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
 //        return super.type();
 //    }
     
+    public X10LocalInstance type(Type t) {
+        X10LocalInstance_c n = (X10LocalInstance_c) super.type(t);
+        assert n != this;
+        // clear right type so it is recomputed from type
+        n.rightType = null;
+        return n;
+    }
+    
     Type rightType;
 
     public Type rightType() {
