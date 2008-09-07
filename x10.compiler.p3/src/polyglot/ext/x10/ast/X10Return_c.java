@@ -10,6 +10,7 @@ import polyglot.ast.Return_c;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10MethodDef;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -24,6 +25,12 @@ import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XFormula;
+import x10.constraint.XLocal;
+import x10.constraint.XTerm;
 
 public class X10Return_c extends Return_c {
 
@@ -41,21 +48,26 @@ public class X10Return_c extends Return_c {
 	
 		CodeDef ci = c.currentCode();
 		
-		Type exprType = expr != null ? expr.type() : null;
-		if (exprType instanceof X10ClassType) {
-		    X10ClassType ct = (X10ClassType) exprType;
-		    if (ct.isAnonymous()) {
-		        if (ct.interfaces().size() > 0)
-		            exprType = ct.interfaces().get(0);
-		        else
-		            exprType = ct.superClass();
-		    }
-		}
-
 		// If the return type is not yet known, set it to the type of the value being returned.
 		if (ci instanceof FunctionDef) {
 		    FunctionDef fi = (FunctionDef) ci;
+
+		    Type exprType = expr != null ? expr.type() : null;
+
+		    if (exprType instanceof X10ClassType) {
+		        X10ClassType ct = (X10ClassType) exprType;
+		        if (ct.isAnonymous()) {
+		            if (ct.interfaces().size() > 0)
+		                exprType = ct.interfaces().get(0);
+		            else
+		                exprType = ct.superClass();
+		        }
+		    }
 		    
+		    // TODO: exprType should only mention variables in scope at the function signature
+		    // For closures, this includes local variables in scope at the closure.
+		    // For methods and closures, this includes formal parameters (incl. this).
+
 		    boolean merge = false;
 		    if (fi instanceof X10MethodDef) {
 			merge = ((X10MethodDef) fi).inferReturnType();
