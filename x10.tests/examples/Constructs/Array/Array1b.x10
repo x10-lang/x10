@@ -35,7 +35,7 @@ public class Array1b extends x10Test {
 		for (val p: point(2) in ia) {
 			var i: int = p(0);
 			var j: int = p(1);
-			var q1: point = [i, j];
+			var q1: point(2) = [i, j];
 			chk(i == q1(0));
 			chk(j == q1(1));
 			chk(ia(i, j) == i+j);
