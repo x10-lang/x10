@@ -1461,6 +1461,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    w.write(c.name().id().toString());
 		}
 		else {
+		    
 		    // add a check that verifies if the target of the call is in place 'here'
 		    // This is not needed for:
 
@@ -1474,6 +1475,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    // others...
 		    needsHereCheck &= QueryEngine.INSTANCE().needsHereCheck(c);
 
+		    w.write("(");
+
 		    if (needsHereCheck) {
 		        // don't annotate calls with implicit target, or this and super
 		        // the template file only emits the target
@@ -1482,6 +1485,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    else {
 		        tr.print(c, target, w);
 		    }
+		    
+		    w.write(")");
 		    
 		    w.write(".");
 		    
