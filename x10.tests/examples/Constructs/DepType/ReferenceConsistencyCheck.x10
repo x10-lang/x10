@@ -26,7 +26,7 @@ public class ReferenceConsistencyCheck(R: region{rank==2, zeroBased, rect},
 	
 	/** Update the submatrix A[k:m-1, k:n-1]*/
 	def update(k:int):void {
-		finish ateach (var (i,j) in D) A(i,j)++;
+		finish ateach (val (i,j) in D) A(i,j)++;
 	}
 
 	public def run()=true; 
@@ -34,11 +34,11 @@ public class ReferenceConsistencyCheck(R: region{rank==2, zeroBased, rect},
 	public static def main(Rail[String]) = {
 //		set up a test problem
 		val size=10;
-		val R:region =[0..size-1,0..size-1];
-		var D:dist{region==R} =dist.factory.cyclic(R);
+		val R:region{rank==2} =[0..size-1,0..size-1];
+		val D:dist{region==R} = Dist.makeCyclic(R);
 		val A:Array[double]{dist==D} = 
-			   Array.make(D, (x:point) => 
-			      { val res=i%2;
+			   Array.make[double](D, ((i,j):point) => 
+			      { var res: int=i%2;
 			        if (i-1==j) res=i*(res==0?-1:1);
 			        res to double
 			      });
