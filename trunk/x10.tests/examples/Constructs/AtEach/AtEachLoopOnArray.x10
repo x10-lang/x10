@@ -17,7 +17,7 @@ public class AtEachLoopOnArray extends x10Test {
 
 	public def run(): boolean = {
 		val A: Array[double] =
-                        new Array[double]([0..10]->here, ((i): point): double => i to double);
+                        Array.make[double]([0..10]->here, ((i): point): double => i to double);
 
 		finish ateach (val (i): point in A)
                         if (A(i) != i)

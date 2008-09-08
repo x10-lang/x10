@@ -32,8 +32,8 @@ public class ClockTest11 extends x10Test {
 	public def run(): boolean = {
 		try {
 		    finish async {
-			val c = new Clock();
-			val d = new Clock();
+			val c = Clock.make();
+			val d = Clock.make();
 			async clocked(d) {
 			    async clocked(c) { System.out.println("hello"); }
 			}

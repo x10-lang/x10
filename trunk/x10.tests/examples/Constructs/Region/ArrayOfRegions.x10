@@ -21,7 +21,7 @@ public class ArrayOfRegions extends x10Test {
 
 	public def run(): boolean = {
 		val N: int = 3;
-		val ra: Array[region{rank==1}] = new Array[region]([0..N-1], ((i): point): region => { return [1..0]; });
+		val ra: Array[region{rank==1}] = Array.make[region]([0..N-1], ((i): point): region => { return [1..0]; });
 		for (val (i): point in ra) {
 			ra(i) = ((region{rank==1})) ra(i)) || [10*i..10*i+9]; //TODOVJ -- Remove Cast
 			ra(i) = ((region{rank==1})) ra(i)) && [10*i+1..10*i+21];

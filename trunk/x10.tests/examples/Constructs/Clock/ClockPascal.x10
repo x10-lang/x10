@@ -77,15 +77,15 @@ public class ClockPascal extends x10Test {
 		val D: dist = Dist.makeConstant([0..N-1, 0..N-1], here);
 		val Dinner: dist{rank==D.rank} = D|[1..N-1, 1..N-1];
 		val Dboundary: dist = D-Dinner;
-		val A: Array[int] = new Array[int](D, (var point [i,j]: point): int => { return Dboundary.contains([i, j]) ? 1 : 0; });
+		val A: Array[int] = Array.make[int](D, (var (i,j): point): int => { return Dboundary.contains([i, j]) ? 1 : 0; });
 		finish async {
 			// (nullable clock)[.] N = does not work
 			// clock[.] N = new clock[D]; should not work but does.
 			// This is a workaround for this bug.
-			var N: Array[clock] = new Array[clock](D);
-			for (val (i,j): point in D) { N(i, j) = clock.factory.clock(); }
-			var W: Array[clock] = new Array[clock](D);
-			for (val (i,j): point in D) { W(i, j) = clock.factory.clock(); }
+			var N: Array[clock] = Array.make[clock](D);
+			for (val (i,j): point in D) { N(i, j) = Clock.make(); }
+			var W: Array[clock] = Array.make[clock](D);
+			for (val (i,j): point in D) { W(i, j) = Clock.make(); }
 
 			// foreach (point [i,j]: Dinner)
 			//   clocked(N[i-1,j], W[i,j-1], N[i,j], W[i,j]) { ... }
@@ -146,7 +146,7 @@ public class ClockPascal extends x10Test {
 			oo = (w < maxW.val);
 			maxW.val = maxW.val < w ? w : maxW.val;
 		}
-		final val s: String = oo ? " Out of order!" : "";
+		val s: String = oo ? " Out of order!" : "";
 
 		System.out.println(tim()+" sec: About to do next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j)+s);
 	}

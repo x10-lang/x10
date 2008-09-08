@@ -74,15 +74,15 @@ public class ClockPascal2 extends x10Test {
 	//const int EXPECTED_CHECKSUM = 251; // (for N = 5)
 	public const DELAY: int = 2000;
 	public def run(): boolean = {
-		final val D: dist = Dist.makeConstant([0..N-1, 0..N-1], here);
-		final val Dinner: dist{rank==D.rank} = D|[1..N-1, 1..N-1];
-		final val Dboundary: dist = D-Dinner;
-		final val A: Array[int] = new Array[int](D, (var point [i,j]: point): int => { return Dboundary.contains([i, j]) ? 1 : 0; });
+		val D: dist = Dist.makeConstant([0..N-1, 0..N-1], here);
+		val Dinner: dist{rank==D.rank} = D|[1..N-1, 1..N-1];
+		val Dboundary: dist = D-Dinner;
+		val A: Array[int] = Array.make[int](D, (var point [i,j]: point): int => { return Dboundary.contains([i, j]) ? 1 : 0; });
 		finish async {
-			final val N: Array[nullable<clock>] = new Array[nullable<clock>](D);
-			for (val (i,j): point in D) { N(i, j) = clock.factory.clock(); }
-			final val W: Array[nullable<clock>] = new Array[nullable<clock>](D);
-			for (val (i,j): point in D) { W(i, j) = clock.factory.clock(); }
+			val N: Array[nullable<clock>] = Array.make[nullable<clock>](D);
+			for (val (i,j): point in D) { N(i, j) = Clock.make(); }
+			val W: Array[nullable<clock>] = Array.make[nullable<clock>](D);
+			for (val (i,j): point in D) { W(i, j) = Clock.make(); }
 
 			foreach (val (i,j): point in Dinner) {
 					for (val (n): point in [3..(i+j)]) {

@@ -27,8 +27,8 @@ public class ClockFuture extends x10Test {
     }
 
     public def run(): boolean = {
-	c: Clock = new Clock();
-	var f: future[int] = future (here) { m() };
+	c: Clock = Clock.make();
+	var f: Future[int] = future (here) { m() };
 	System.out.print("1 ... ");
 	// this next should not wait on the future
 	next;

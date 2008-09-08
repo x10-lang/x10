@@ -22,8 +22,8 @@ public class ValueClass extends x10Test {
 		var r: region = [0..9];
 		var d: dist = r->here;
 		val f: foo = new foo();
-		var x: myval = new myval(1, new complex(2,3), f, new Array[int](d));
-		var y: myval = new myval(1, new complex(2,3), f, new Array[int](d));
+		var x: myval = new myval(1, new complex(2,3), f, Array.make[int](d));
+		var y: myval = new myval(1, new complex(2,3), f, Array.make[int](d));
 		// even if x and y are different objects
 		// their fields are equal, and thus they are ==
 		System.out.println("1");

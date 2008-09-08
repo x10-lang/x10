@@ -26,11 +26,11 @@ import harness.x10Test;
  * @author kemal 4/2005
  */
 public class ClockTest10 extends x10Test {
-    var varA = Array[int].make(2,(x:nat)=>0);
-    var varB = Array[int].make(2,(x:nat)=>0);
-    var varC = Array[int].make(2,(x:nat)=>0);
-    var varD = Array[int].make(2,(x:nat)=>0);
-    var varE = Array[int].make(2,(x:nat)=>0);
+    var varA = Array.make[int](2,(x:nat)=>0);
+    var varB = Array.make[int](2,(x:nat)=>0);
+    var varC = Array.make[int](2,(x:nat)=>0);
+    var varD = Array.make[int](2,(x:nat)=>0);
+    var varE = Array.make[int](2,(x:nat)=>0);
     public const N: int = 10;
     public const pipeDepth: int = 2;
 
@@ -38,9 +38,9 @@ public class ClockTest10 extends x10Test {
 
     public def run(): boolean = {
 	finish async(here) {
-	    val a = new Clock();
-	    val b = new Clock();
-	    val c = new Clock();
+	    val a = Clock.make();
+	    val b = Clock.make();
+	    val c = Clock.make();
 	    async clocked(a) taskA(a);
 	    async clocked(a, b) taskB(a, b);
 	    async clocked(a, c) taskC(a, c);

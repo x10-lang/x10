@@ -16,7 +16,7 @@ public class Array1Exploded extends x10Test {
 
 	public def run(): boolean = {
 		var d: dist = Dist.makeConstant([1..10, 1..10], here);
-		var ia: Array[int] = new Array[int](d);
+		var ia: Array[int] = Array.make[int](d);
 
 		for (val p: point[i,j] in [1..10, 1..10]) {
 			chk(ia(p) == 0);

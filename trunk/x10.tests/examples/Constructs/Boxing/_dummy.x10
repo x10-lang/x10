@@ -1,4 +1,4 @@
-//*
+/*
  *
  * (C) Copyright IBM Corporation 2006
  *

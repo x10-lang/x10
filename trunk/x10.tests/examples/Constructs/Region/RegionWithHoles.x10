@@ -53,7 +53,7 @@ public class RegionWithHoles extends x10Test {
 		r = r - r1;
 		r = r - r2;
 
-		var a: Array[short] = new Array[short](r);
+		var a: Array[short] = Array.make[short](r);
 
 		// check if r is convex - it should not!
 		System.out.println("convex: " + r.isConvex() + " (should be false)");
@@ -82,7 +82,7 @@ public class RegionWithHoles extends x10Test {
 		r = r - r1;
 		r = r - r2;
 
-		var a: Array[short] = new Array[short](r);
+		var a: Array[short] = Array.make[short](r);
 		chk(!r.isConvex());
 		// check if r is convex - it should not!
 		System.out.println("convex: " + r.isConvex() + " (should be false)");
@@ -110,7 +110,7 @@ public class RegionWithHoles extends x10Test {
 		r = r - r1;
 		r = r - r2;
 
-		var a: Array[short] = new Array[short](r);
+		var a: Array[short] = Array.make[short](r);
 		chk(!r.isConvex());
 		// check if r is convex - it should not!
 		System.out.println("4d:convex: " + r.isConvex() + " (should be false)");
@@ -146,7 +146,7 @@ public class RegionWithHoles extends x10Test {
 		r = r - r1;
 		r = r - r2;
 
-		var a: Array[short] = new Array[short](r);
+		var a: Array[short] = Array.make[short](r);
 		chk(!r.isConvex());
 		// check if r is convex - it should not!
 		System.out.println("convex: " + r.isConvex() + " (should be false)");
