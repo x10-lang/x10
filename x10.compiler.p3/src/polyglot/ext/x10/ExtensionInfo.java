@@ -28,6 +28,7 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.AssignPropertyChecker;
 import polyglot.ext.x10.visit.CastRewriter;
 import polyglot.ext.x10.visit.ExprFlattener;
+import polyglot.ext.x10.visit.RewriteAtomicMethodVisitor;
 import polyglot.ext.x10.visit.RewriteExternVisitor;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
@@ -214,16 +215,18 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ReassembleAST(job));
            
            goals.add(ConformanceChecked(job));
+           
            goals.add(X10Boxed(job));
            goals.add(X10RewriteExtern(job));
+           goals.add(X10RewriteAtomicMethods(job));
            
+           // Data-flow analyses
            goals.add(ReachabilityChecked(job));
            goals.add(ExceptionsChecked(job));
            goals.add(ExitPathsChecked(job));
            goals.add(InitializationsChecked(job));
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
-           
            goals.add(PropertyAssignmentsChecked(job));
            goals.add(X10Expanded(job));
 
@@ -308,6 +311,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10RewriteExtern", job, new RewriteExternVisitor(job, ts, nf)).intern(this);
+       }
+       public Goal X10RewriteAtomicMethods(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("X10RewriteAtomicMethods", job, new RewriteAtomicMethodVisitor(job, ts, nf)).intern(this);
        }
        
        public Goal X10ExprFlattened(Job job) {
