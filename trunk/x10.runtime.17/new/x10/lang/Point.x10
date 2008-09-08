@@ -8,7 +8,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.array.Point")
 public final value class Point(rank: nat) implements
     Indexable[nat,int],
-    ArithmeticOps[Point(this.rank)],
+    ArithmeticOps[Point{rank==this.rank}],
     ComparisonOps[Point(this.rank)]
 {
     @Native("java", "(#0).get(#1)")
@@ -59,35 +59,35 @@ public final value class Point(rank: nat) implements
     //
 
     @Native("java", "#0")
-    native public def $plus(): Point(rank);
+    native public def $plus(): Point{rank==this.rank};
     
     @Native("java", "(#0).neg()")
-    native public def $minus(): Point(rank);
+    native public def $minus(): Point(this.rank);
 
     @Native("java", "(#0).add(#1)")
-    native public def $plus(that: Point(rank)): Point(rank);
+    native public def $plus(that: Point{rank==this.rank}): Point{rank==this.rank};
     @Native("java", "(#0).sub(#1)")
-    native public def $minus(that: Point(rank)): Point(rank);
+    native public def $minus(that: Point(this.rank)): Point(this.rank);
     @Native("java", "(#0).mul(#1)")
-    native public def $times(that: Point(rank)): Point(rank);
+    native public def $times(that: Point(this.rank)): Point(this.rank);
     @Native("java", "(#0).div(#1)")
-    native public def $over(that: Point(rank)): Point(rank);
+    native public def $over(that: Point(this.rank)): Point(this.rank);
     @Native("java", "(#0).mod(#1)")
-    native public def $percent(that: Point(rank)): Point(rank);
+    native public def $percent(that: Point(this.rank)): Point(this.rank);
 
     @Native("java", "(#0).equals(#1)	")
-    native public def $eq(that: Point(rank)): boolean;
+    native public def $eq(that: Point(this.rank)): boolean;
     @Native("java", "(! (#0).equals(#1))")
-    native public def $ne(that: Point(rank)): boolean;
+    native public def $ne(that: Point(this.rank)): boolean;
     
     @Native("java", "(#0).lt(#1)")
-    native public def $lt(that: Point(rank)): boolean;
+    native public def $lt(that: Point(this.rank)): boolean;
     @Native("java", "(#0).gt(#1)")
-    native public def $gt(that: Point(rank)): boolean;
+    native public def $gt(that: Point(this.rank)): boolean;
     @Native("java", "(#0).le(#1)")
-    native public def $le(that: Point(rank)): boolean;
+    native public def $le(that: Point(this.rank)): boolean;
     @Native("java", "(#0).ge(#1)")
-    native public def $ge(that: Point(rank)): boolean;
+    native public def $ge(that: Point(this.rank)): boolean;
 
     @Native("java", "x10.array.Point.makeFromVarRail(#1)")
     public native static def $convert(r: Rail[int]): Point(r.length);
