@@ -207,6 +207,13 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    }
 		    return super.setResolverOverride(parent, v);
 	    }
+	    
+	    @Override
+	        public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	            if (this.type().type().isVoid())
+	                throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
+	            return super.typeCheck(tc);
+	        }
 
 	    public Type childExpectedType(Expr child, AscriptionVisitor av) {
 	        if (child == init) {

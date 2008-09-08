@@ -33,6 +33,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
@@ -68,6 +69,13 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	        }
 	        
 	        return n;
+	}
+	
+	@Override
+	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	    if (this.type().type().isVoid())
+	        throw new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
+	    return super.typeCheck(tc);
 	}
 
 	    @Override
