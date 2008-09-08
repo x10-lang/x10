@@ -1,11 +1,12 @@
 package x10.core;
 
-import x10.array.Point;
+import java.util.Iterator;
+
 import x10.core.fun.Fun_0_1;
 import x10.types.Type;
 import x10.types.Types;
 
-public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T> {
+public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T>, Iterable<T> {
     public final int length;
     
     public final Object value;
@@ -19,6 +20,26 @@ public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T> {
         this.length = length;
         this.type = type;
         this.value = array;
+    }
+    
+    protected class RailIterator implements Iterator<T> {
+        int i = 0;
+        
+        public boolean hasNext() {
+            return i < length;
+        }
+        
+        public T next() {
+            return get(i++);
+        }
+        
+        public void remove() {
+            throw new UnsupportedOperationException("remove");
+        }
+    }
+    
+    public Iterator<T> iterator() {
+        return new RailIterator();
     }
     
     public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
