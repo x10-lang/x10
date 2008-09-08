@@ -148,13 +148,15 @@ public interface XConstraint extends java.io.Serializable {
 	/**
 	 * Return the promise obtained by interning this term in the constraint.
 	 * This may result in new promises being added to the graph maintained
-	 * by the constraint. term: Literal -- return the literal. term:
-	 * LocalVariable, Special, Here Check if term is already in the roots
+	 * by the constraint. 
+	 * <p>term: Literal -- return the literal. 
+	 * <p> term:LocalVariable, Special, Here Check if term is already in the roots
 	 * maintained by the constraint. If so, return the root, if not add a
-	 * promise to the roots and return it. term: C_Field. Start with the
-	 * rootVar x and follow the path f1...fk, if term=x.f1...fk. If the
-	 * graph contains no nodes after fi, for some i < k, add promises into
-	 * the graph from fi+1...fk. Return the last promise.
+	 * promise to the roots and return it. 
+	 * <p> term: XField. Start with the rootVar x and follow the path f1...fk, 
+	 * if term=x.f1...fk. If the graph contains no nodes after fi, 
+	 * for some i < k, add promises into the graph from fi+1...fk. 
+	 * Return the last promise.
 	 * 
 	 * @param term
 	 * @return
