@@ -6,8 +6,14 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.runtime.Clock")
 public value Clock extends Value {
 
-    public native def this():Clock;
-    public native def this(name:String):Clock;
+    @Native("java", "new x10.runtime.Clock()")
+    public native static def make(): Clock;
+    
+    @Native("java", "new x10.runtime.Clock(#1)")
+    public native static def make(name:String): Clock;
+
+    private native def this():Clock;
+    private native def this(name:String):Clock;
 
     @Native("java", "#0.resume()")
     public native def resume():void;
