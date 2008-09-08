@@ -99,6 +99,11 @@ public class XTerms {
 	public static XTerm makeEquals(XTerm left, XTerm right) {
 		assert left != null;
 		assert right != null;
+		if (left instanceof XLit && right instanceof XLit) {
+			XLit l = (XLit) left, r= (XLit) right;
+			return (l.equals(r)) ?
+					XTerms.TRUE : XTerms.FALSE;
+		}
 		return new XEquals_c(left, right);
 	}
 

@@ -103,6 +103,14 @@ public class XFormula_c extends XTerm_c implements XFormula {
 
     public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
         assert last == null;
+        // Evaluate left == right, if both are literals.
+        if (op.equals(XTerms.equalsName)) {
+        	XTerm left = left(), right = right();
+        	if (left instanceof XLit && right instanceof XLit) 
+        		return (left.equals(right)) ?
+        			XTerms.TRUE.internIntoConstraint(c,last)
+        			: XTerms.FALSE.internIntoConstraint(c,last);
+        }
         XPromise result = c.lookup(this);
         if (result != null) // this term has already been interned.
             return result;
