@@ -280,7 +280,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		    if (xts.isCastValid(l, r) || xts.isCastValid(r, l)) {
 		        return type(xts.Boolean());
 		    }
-
+		    
+		    if (xts.isImplicitCastValid(l, r) || xts.isImplicitCastValid(r, l)) {
+		        return type(xts.Boolean());
+		    }
+		    
 		    throw new SemanticException("The " + op +
 		                                " operator must have operands of comparable type; the types " + l + " and " + r + " do not share any values.",
 		                                position());
