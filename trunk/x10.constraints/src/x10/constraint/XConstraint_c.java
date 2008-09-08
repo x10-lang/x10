@@ -345,7 +345,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
     }
 
-    public XConstraint addBindingPromise(XTerm t1, XPromise p)  {
+   public XConstraint addBindingPromise(XTerm t1, XPromise p)  {
         try { 
             assert t1 != null;
             if (!consistent)
@@ -411,6 +411,9 @@ public class XConstraint_c implements XConstraint, Cloneable {
         XConstraint_c me = saturate();
         if (me == this) me = copy();
         
+        if (! me.consistent()) {
+            return true;
+        }
         List<XTerm> subst = new ArrayList<XTerm>(conjuncts.size());
         for (XTerm term : conjuncts) {
             XTerm t = term.subst(me.self(), self);
@@ -423,14 +426,12 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
         visited = null; // free up for gc
         
-        if (! me.consistent()) {
-            return true;
-        }
-        
-        // Add in formulas with existentials.  If an inconsistency results, the entailment is false.
+        // DOES NOT WORK. NEEDS TO BE FIXED.
+        // Fails entailment tests test9 and test10.
+        /* Start Deletion. When deleting, uncomment related section in XPromise_c.dump.*/
         try {
             for (XTerm term : subst) {
-                if (term.isEQV()) {
+                if (term.hasEQV()) {
                     me.addTerm(term);
                 }
             }
@@ -442,25 +443,9 @@ public class XConstraint_c implements XConstraint, Cloneable {
         if (! me.consistent()) {
             return false;
         }
-
-        // Check that all EQVs introduced in the term, and NOT also present in this, are bound to something.
-        // This is broken. [NN]  e.g., _98.length==self.length, lookup _98 and get _98{length=_98.length->2}
-        
-//        for (XTerm term : subst) {
-//            if (term.isEQV()) {
-//                for (XEQV v : term.eqvs()) {
-//                    XPromise q = lookup(v);
-//                    if (q == null) {
-//                        XPromise p = me.lookup(v);
-//                        if (p == null || p.term() == v) {
-//                            return false;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
-        for (XTerm term : subst) {
+        /* Stop Deletion. */
+    
+       for (XTerm term : subst) {
             if (! me.entails(term))
                 return false;
         }
@@ -538,7 +523,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
             if (v1 instanceof XField && v2 instanceof XField) {
                 XField f1 = (XField) v1;
                 XField f2 = (XField) v2;
-                if (! f1.field().equals(f2.field())) {
+                 if (! f1.field().equals(f2.field())) {
                     return false;
                 }
             }
@@ -575,12 +560,14 @@ public class XConstraint_c implements XConstraint, Cloneable {
             c = saturate();
         }
         catch (XFailure z) {
+        	//return " invalid ";
         }
 
         try {
             c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
         }
         catch (XFailure z) {
+        	//return " invalid ";
         }
 
         String str;

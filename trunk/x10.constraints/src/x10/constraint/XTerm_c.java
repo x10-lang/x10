@@ -127,6 +127,9 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 		return false;
 	}
 
+	public boolean hasEQV() {
+		return false;
+	}
 	public boolean isEQV() {
 		return false;
 	}
@@ -136,7 +139,7 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 	}
 
 	public boolean prefersBeingBound() {
-		return isEQV();
+		return hasEQV();
 	}
 
 	protected boolean isAtomicFormula = false;

@@ -333,8 +333,19 @@ public class XPromise_c implements XPromise, Serializable {
             result.add(t1);
         }
 
+      
         if (value != null) {
-            XTerm t2 = value.term();
+        	XTerm t2 = value.term();
+        	  /** Does not work with coercions. Start undelete.
+           if (t1.isEQV()) {
+             return;
+           }
+           
+           if (t2.isEQV())
+        	   t2 = value.lookup().term();
+        	Stop undelete   */
+            /*if (t1.equals(t2)) 
+            	return;*/
             result.add(XTerms.makeEquals(t1, t2));
             return;
         }
@@ -356,7 +367,7 @@ public class XPromise_c implements XPromise, Serializable {
             result.add(t1);
         }
 
-        if (value != null && !t1.isEQV()) {
+        if (value != null && !t1.hasEQV()) {
             XTerm t2 = lookup().var();
             result.add(XTerms.makeEquals(t1, t2));
             return;

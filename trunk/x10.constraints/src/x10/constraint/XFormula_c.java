@@ -152,9 +152,9 @@ public class XFormula_c extends XTerm_c implements XFormula {
         return hash;
     }
     
-    public boolean isEQV() {
+    public boolean hasEQV() {
         for (XTerm arg: arguments) {
-            if (arg.isEQV())
+            if (arg.hasEQV())
                 return true;
         }
         return false;
