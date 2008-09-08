@@ -201,6 +201,8 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	     if (n.type() instanceof UnknownTypeNode || n.type().type() instanceof UnknownType) {
 	         throw new SemanticException("Could not infer type for formal parameter.", position());
 	     }
+	     if (n.type().type().isVoid())
+	         throw new SemanticException("Formal parameter cannot have type " + this.type().type() + ".", position());
 	     return n;
 	}
 
