@@ -36,6 +36,9 @@ public class XEQV_c extends XLocal_c implements XEQV {
                 return Collections.<XEQV>singletonList(this);
             return Collections.EMPTY_LIST;
         }
+        public String toString() {
+        	return (hidden? "exists " : " ") + super.toString();
+        }
 
 	
 }
