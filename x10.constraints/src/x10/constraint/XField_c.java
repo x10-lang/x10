@@ -76,9 +76,10 @@ public class XField_c extends XVar_c implements XField {
 		return (receiver == null ? "" : receiver.toString() + ".") + field;
 	}
 
-	public boolean isEQV() {
-		return receiver().isEQV();
+	public boolean hasEQV() {
+		return receiver().hasEQV();
 	}
+	
 
 	@Override
 	public XField_c clone() {

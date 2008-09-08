@@ -27,12 +27,15 @@ public class XEQV_c extends XLocal_c implements XEQV {
 		this.hidden = hidden;
 	}
 	
+	public boolean hasEQV() {
+		return hidden;
+	}
 	public boolean isEQV() {
 		return hidden;
 	}
 	
         public List<XEQV> eqvs() {
-            if (isEQV())
+            if (hasEQV())
                 return Collections.<XEQV>singletonList(this);
             return Collections.EMPTY_LIST;
         }

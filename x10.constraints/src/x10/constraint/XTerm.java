@@ -44,9 +44,15 @@ public interface XTerm extends Serializable, Cloneable {
 	boolean saturate(XConstraint c, Set<XTerm> visited) throws XFailure;
 
 	/**
-	 * Is this an existentially quantified variable?
+	 * Does this contain an existentially quantified variable?
 	 * 
 	 * @return true if it is, false if it isn't.
+	 */
+	boolean hasEQV();
+	
+	/**
+	 * Is this itself an EQV?
+	 * @return
 	 */
 	boolean isEQV();
 
