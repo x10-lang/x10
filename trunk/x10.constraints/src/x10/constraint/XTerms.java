@@ -100,9 +100,10 @@ public class XTerms {
 		assert left != null;
 		assert right != null;
 		if (left instanceof XLit && right instanceof XLit) {
-			XLit l = (XLit) left, r= (XLit) right;
-			return (l.equals(r)) ?
-					XTerms.TRUE : XTerms.FALSE;
+		        if (left.equals(right))
+		            return XTerms.TRUE;
+		        else
+		            return XTerms.FALSE;
 		}
 		return new XEquals_c(left, right);
 	}
