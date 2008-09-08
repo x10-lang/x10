@@ -13,7 +13,7 @@ import harness.x10Test;;
 public class RegionTest2 extends x10Test {
 
 	public def run(): boolean = {
-		var reg: region = region.make(0, -1); // [0..-1]
+		var reg: region = region.makeRectangular(0, -1); // [0..-1]
 
 		var sum: int = 0;
 		for (val p: point in reg) sum++;
