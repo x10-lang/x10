@@ -24,7 +24,7 @@ public class ClosureBody2 extends ClosureTest {
     public def run(): boolean = {
         
         // not evaluated here
-        val f = () => {x(1);};
+        val f = () => {x(1)};
         check("x after defn", x, 0);
 
         // evaluated here

@@ -25,7 +25,7 @@ public class ClosureBody1b extends ClosureTest {
     public def run(): boolean = {
         
         // block
-        val g = ()=>{x(1);};
+        val g = ()=>{x(1);}; // void
         g();
         check("x after g()", x(), 1);
 
