@@ -11,8 +11,7 @@ import x10.runtime.util.ShowUsageNotification;
 
 public abstract class Runtime {
         public static Runtime runtime;
-
-        static JavaRuntime java;
+        public static JavaRuntime java;
 
 	public static void main(String[] args) {
 	        if (args.length == 0) {
