@@ -19,11 +19,8 @@ import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.ClosureDef;
-import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.frontend.Globals;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -31,12 +28,10 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
-import polyglot.types.DerefTransform;
 import polyglot.types.FieldDef;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
-import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -44,10 +39,8 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.SubtypeSet;
-import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
@@ -84,7 +77,6 @@ public class Closure_c extends Expr_c implements Closure {
 	this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 	this.body = body;
     }
-
     
     public List<TypeParamNode> typeParameters() {
 	    return typeParameters;
@@ -176,11 +168,12 @@ public class Closure_c extends Expr_c implements Closure {
     }
 
     /** Reconstruct the closure. */
-    protected Closure_c reconstruct(List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, List<TypeNode> throwTypes, Block body) {
-	if (! CollectionUtil.allEqual(typeParams, this.typeParameters) || !CollectionUtil.allEqual(formals, this.formals) || returnType != this.returnType || ! CollectionUtil.allEqual(throwTypes, this.throwTypes) || body != this.body) {
+    protected Closure_c reconstruct(List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body) {
+	if (! CollectionUtil.allEqual(typeParams, this.typeParameters) || !CollectionUtil.allEqual(formals, this.formals) || returnType != this.returnType || guard != this.guard || ! CollectionUtil.allEqual(throwTypes, this.throwTypes) || body != this.body) {
 	    Closure_c n = (Closure_c) copy();
 	    n.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	    n.formals = TypedList.copyAndCheck(formals, Formal.class, true);
+	    n.guard = guard;
 	    n.returnType = returnType;
 	    n.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 	    n.body = body;
@@ -193,11 +186,12 @@ public class Closure_c extends Expr_c implements Closure {
     public Node visitChildren(NodeVisitor v) {
 	List<TypeParamNode> typeParams = visitList(this.typeParameters, v);
 	List<Formal> formals = visitList(this.formals, v);
+	DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
 	TypeNode returnType = (TypeNode) visitChild(this.returnType, v);
 	List<TypeNode> throwTypes = visitList(this.throwTypes, v);
 	Block body = (Block) visitChild(this.body, v);
 
-	return reconstruct(typeParams, formals, returnType, throwTypes, body);
+	return reconstruct(typeParams, formals, guard, returnType, throwTypes, body);
     }
 
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
@@ -341,7 +335,7 @@ public class Closure_c extends Expr_c implements Closure {
             ((Ref<Type>) n.returnType().typeRef()).update(ts.Void());
             n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), ts.Void()));
         }
-
+        
         // Create an anonymous subclass of the closure type.
         ClosureDef def = n.closureDef;
         ClassDef cd = x10ts.closureAnonymousClassDef(def);
