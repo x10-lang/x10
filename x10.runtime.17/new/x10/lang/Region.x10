@@ -54,7 +54,7 @@ public abstract value Region(
     native public static def make(regions: Rail[Region]): Region(regions.length);
 
 @Native("java", "x10.array.RegionFactory.makeFromRail(#1)")
-    native public static def $convert(regions: Rail[Region]): Region;
+    native public static def $convert(regions: Rail[Region]): Region(regions.length);
 
 @Native("java", "x10.array.RegionFactory.make(#1,#2)")
     public static native def make(a: Region, b:Region): Region;
