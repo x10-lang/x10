@@ -86,6 +86,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         }
     }
     
+    <T extends Node> T check(T n, ContextVisitor tc) throws SemanticException {
+        return (T) n.del().disambiguate(tc).del().typeCheck(tc).del().checkConstants(tc);
+    }
+
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	Type toType = castType.type();
 	Type fromType = expr.type();
@@ -102,9 +106,9 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
 	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
 	        Position p = position();
-	        X10Cast unboxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	        X10Cast coerced = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), unboxed, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	        return this.expr(coerced).typeCheck(tc);
+                X10Cast unboxed = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true), tc);
+                X10Cast coerced = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), unboxed, true), tc);
+                return this.expr(coerced).typeCheck(tc);
 	    }
 
             // V to Box[W]
@@ -115,50 +119,62 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
 	        Position p = position();
 	        if (! ts.typeEquals(fromType, toBox.arg())) {
-	            X10Cast coerced = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	            X10Cast coerced = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), expr, true), tc);
 	            return this.expr(coerced).typeCheck(tc);
 	        }
 	    }
 	    
-	    // Box[V] to W
-	    // -->
-	    // Box[V] to V to W
+
 	    if (ts.isValueType(toType) && ts.isBox(fromType)) {
 	        // Unboxing a value type.  First coerce to the boxed type, then unbox.
 	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
+
 	        Position p = position();
+
+	        // Box[V]{c} to W
+	        // -->
+	        // Box[V]{c} to Box[V] to W
+	        if (! ts.typeEquals(fromType, fromBox)) {
+	            X10Cast reboxed = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox), expr, true), tc);
+	            return this.expr(reboxed).typeCheck(tc);
+	        }
+	        
+	        // Box[V] to W
+	        // -->
+	        // Box[V] to V to W
 	        if (! ts.typeEquals(fromBox.arg(), toType)) {
-	            X10Cast unboxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	            X10Cast unboxed = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true), tc);
 	            return this.expr(unboxed).typeCheck(tc);
 	        }
+	        
 	    }
 	    
 	    // V to R (Box[V] <: R)
 	    // -->
 	    // V to Box[V] to R
 	    if (ts.isValueType(fromType)) {
-	        Type boxOfFrom = null;
-	        
-	        // Don't create a box of an anonymous class
-	        if (fromType instanceof X10ClassType) {
-	            X10ClassType fromCT = (X10ClassType) fromType;
-	            if (fromCT.isAnonymous()) {
-	                if (fromCT.superClass() != null)
-	                    boxOfFrom = ts.boxOf(Types.ref(fromCT.superClass()));
-	                else if (fromCT.interfaces().size() > 0)
-	                    boxOfFrom = ts.boxOf(Types.ref(fromCT.interfaces().get(0)));
-	                else
-	                    boxOfFrom = ts.Object();
-	            }
-	        }
+                Type boxOfFrom = null;
+                
+                // Don't create a box of an anonymous class
+                if (fromType instanceof X10ClassType) {
+                    X10ClassType fromCT = (X10ClassType) fromType;
+                    if (fromCT.isAnonymous()) {
+                        if (fromCT.superClass() != null)
+                            boxOfFrom = ts.boxOf(Types.ref(fromCT.superClass()));
+                        else if (fromCT.interfaces().size() > 0)
+                            boxOfFrom = ts.boxOf(Types.ref(fromCT.interfaces().get(0)));
+                        else
+                            boxOfFrom = ts.Object();
+                    }
+                }
 
-	        if (boxOfFrom == null)
-	            boxOfFrom = ts.boxOf(Types.ref(fromType));
+                if (boxOfFrom == null)
+                    boxOfFrom = ts.boxOf(Types.ref(fromType));
 
 	        if (ts.isSubtype(boxOfFrom, toType)) {
 	            if (! ts.typeEquals(boxOfFrom, toType)) {
 	                Position p = position();
-	                X10Cast boxed = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, boxOfFrom), expr, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	                X10Cast boxed = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, boxOfFrom), expr, true), tc);
 	                return this.expr(boxed).typeCheck(tc);
 	            }
 	        }
@@ -169,7 +185,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        Position p = position();
 	        Expr n = expr;
 	        for (int i = 1; i < c.size()-1; i++) {
-	            n = (X10Cast) nf.X10Cast(p, nf.CanonicalTypeNode(p, c.get(i)), n, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	            n = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, c.get(i)), n, true), tc);
 	        }
 	        return this.expr(n).typeCheck(tc);
 	    }
