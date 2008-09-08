@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +25,8 @@ import java.util.Set;
  *
  */
 public class XConstraint_c implements XConstraint, Cloneable {
+
+    public static final boolean DUMP_EQV = true;
 
     /** Variable to use for self in the constraint. */
     XRoot self;
@@ -63,31 +64,6 @@ public class XConstraint_c implements XConstraint, Cloneable {
             return c;
         }
     }
-
-    /** 
-     * Clone this constraint, physically. Note that this is the usual default shallow copy.
-     */
-    //	public XConstraint_c clone() {
-    //		try {
-    //			XConstraint_c clone = (XConstraint_c) super.clone();
-    //			if (roots != null) {
-    //				clone.roots = new HashMap<XTerm, XPromise>();
-    //				HashMap<XPromise, XPromise> renaming = new HashMap<XPromise,XPromise>();
-    //				for (Map.Entry<XTerm, XPromise> m : roots.entrySet()) {
-    //					XTerm var = m.getKey();
-    //					XPromise p = m.getValue();
-    //					XPromise q = p.cloneRecursively(renaming);
-    //					clone.roots.put(var, q);
-    //				}
-    //			}
-    //			return clone;
-    //		}
-    //		catch (CloneNotSupportedException z) {
-    //			z.printStackTrace();
-    //			assert false : "Could not clone " + this;
-    //			return null;
-    //		}
-    //	}
 
     /**
      * Return the result of copying this into c. Assume that c will be 
@@ -234,8 +210,6 @@ public class XConstraint_c implements XConstraint, Cloneable {
         XPromise p = (XPromise) roots.get(baseVar);
         if (p == null) {
             p = (replaceP && last != null) ? last : new XPromise_c(baseVar);
-            // Report.report(1, "Constraint_c.intern: adding " + var + " to
-            // roots for (:" + this+").");
             roots.put(baseVar, p);
         }
         return p;
@@ -244,13 +218,13 @@ public class XConstraint_c implements XConstraint, Cloneable {
     public void addPromise(XTerm p, XPromise node) {
         if (roots == null)
             roots = new HashMap<XTerm, XPromise>();
-       
         roots.put(p, node);
     }
 
     public void internRecursively(XVar v) throws XFailure {
         intern(v);
     }
+    
     /**
      * Return the promise obtained by looking up term in this. Does not create new
      * nodes in the constraint graph. Does not return a forwarded promise.
@@ -259,7 +233,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
         XPromise result = lookupPartialOk(term);
         if (!(result instanceof XPromise_c))
             return result;
-        // it must be the case that term is a C_Var.
+        // it must be the case that term is a XVar.
         if (term instanceof XVar) {
             XVar var = (XVar) term;
             XVar[] vars = var.vars();
@@ -269,28 +243,29 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
         return null;
     }
+    
     public XPromise lookupPartialOk(XTerm term) throws XFailure {
         if (term == null)
             return null;
+        
         if (term instanceof XPromise)
             // this is the case for literals, for here
             return (XPromise) term;
+        
         // otherwise it must be a XVar.
         if (roots == null)
             return null;
+        
         if (term instanceof XVar) {
             XVar var = (XVar) term;
             XVar[] vars = var.vars();
             XVar baseVar = vars[0];
-            // Report.report(1, "Constraint_c: c=" + this + "
-            // looking up |" + term + "| var=" + baseVar);
             XPromise p = (XPromise) roots.get(baseVar);
-            // Report.report(1, "Constraint_c: p=" + p+ " : " +
-            // p.getClass());
             if (p == null)
                 return null;
             return p.lookup(vars, 1);
         }
+        
         return null;
     }
 
@@ -345,8 +320,8 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
     }
 
-   public XConstraint addBindingPromise(XTerm t1, XPromise p)  {
-        try { 
+    public XConstraint addBindingPromise(XTerm t1, XPromise p)  {
+        try {
             assert t1 != null;
             if (!consistent)
                 return this;
@@ -356,9 +331,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
             boolean modified = p1.bind(p);
         }
         catch (XFailure z) {
-            consistent=false;
-            //			throw new InternalCompilerError("Adding binding " + t1 + "=" + p + " to " + this 
-            //					+ " has made it inconsistent.");
+            consistent = false;
         }
         return this;
     }
@@ -376,8 +349,10 @@ public class XConstraint_c implements XConstraint, Cloneable {
      * @return
      */
     public boolean entails(XConstraint other) throws XFailure {
-        if (! consistent()) return true;
-        if (other == null || other.valid()) return true;
+        if (!consistent())
+            return true;
+        if (other == null || other.valid())
+            return true;
         return entails(other.constraints(), other.self());
     }
 
@@ -411,9 +386,6 @@ public class XConstraint_c implements XConstraint, Cloneable {
         XConstraint_c me = saturate();
         if (me == this) me = copy();
         
-        if (! me.consistent()) {
-            return true;
-        }
         List<XTerm> subst = new ArrayList<XTerm>(conjuncts.size());
         for (XTerm term : conjuncts) {
             XTerm t = term.subst(me.self(), self);
@@ -426,9 +398,138 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
         visited = null; // free up for gc
         
+        if (! me.consistent()) {
+            return true;
+        }
+        
+        class BruteForceEQVHelper {
+            void put(Map<XTerm,List<XTerm>> m, XTerm v, XTerm t) {
+                if (v.equals(t))
+                    return;
+                List<XTerm> l = m.get(v);
+                if (l == null) {
+                    l = new ArrayList<XTerm>(1);
+                    m.put(v, l);
+                }
+                if (! l.contains(t))
+                    l.add(t);
+            }
+            
+            /** Add mappings for EQVs in the left term by unifying with the right term. */
+            void unify(Map<XTerm,List<XTerm>> m, XTerm left, XTerm right) {
+                if (left.isEQV()) {
+                    put(m, left, right);
+                }
+                if (left instanceof XField && right instanceof XField) {
+                    XField l = (XField) left;
+                    XField r = (XField) right;
+                    if (l.field().equals(r.field())) {
+                        unify(m, l.receiver(), r.receiver());
+                    }
+                }
+                if (left instanceof XEquals && right instanceof XEquals) {
+                    XFormula l = (XFormula) left;
+                    XFormula r = (XFormula) right;
+                    if (DUMP_EQV) {
+                        unify(m, l.left(), r.left());
+                        unify(m, l.right(), r.right());
+                        unify(m, l.right(), r.left());
+                        unify(m, l.left(), r.right());
+                    }
+                    return;
+                }
+                if (left instanceof XFormula && right instanceof XFormula) {
+                    XFormula l = (XFormula) left;
+                    XFormula r = (XFormula) right;
+                    if (l.operator().equals(r.operator()) && l.arguments().size() == r.arguments().size()) {
+                        for (int i = 0; i < l.arguments().size(); i++) {
+                            unify(m, l.arguments().get(i), r.arguments().get(i));
+                        }
+                    }
+                }
+            }
+            void unify(Map<XTerm,List<XTerm>> m, XTerm term, XConstraint c) {
+                // Try to find a term in c that unifies with term.
+                for (XTerm t : c.constraints()) {
+                    unify(m, term, t);
+                }
+            }
+            
+            /** Compute all possible bindings for EQVs in the terms list by unifying with the terms in c.  This should over-approximate the set of bindings. */
+            Map<XTerm, List<XTerm>> eqvBindings(XConstraint c, List<XTerm> terms) {
+                Map<XTerm,List<XTerm>> m = new HashMap<XTerm,List<XTerm>>();
+                for (XTerm term : terms) {
+                    if (term instanceof XEquals) {
+                        XEquals eq = (XEquals) term;
+                        XTerm left = eq.left();
+                        XTerm right = eq.right();
+                        unify(m, left, right);
+                        unify(m, right, left);
+                        if (! DUMP_EQV) {
+                            continue;
+                        }
+                    }
+                    unify(m, term, c);
+                }
+                return m;
+            }
+
+            /** Check if me entails terms (with me.self for self) by trying all possible EQV bindings. */
+            boolean entailsWithEQV(XConstraint_c me, List<XTerm> terms, XRoot self, Map<XTerm, List<XTerm>> eqvBindings) throws XFailure {
+                // If we've bound all the EQVs, check entailment.
+                if (eqvBindings.isEmpty()) {
+                    for (XTerm term : terms) {
+                        XTerm t = term.subst(me.self(), self);
+                        if (! me.entails(t))
+                            return false;
+                    }
+                    return true;
+                }
+                
+                // Otherwise, try all possible bindings for each EQV.
+                // This loop binds one EQV, then recurses, removing that EQV from the map.
+                for (Map.Entry<XTerm, List<XTerm>> e : eqvBindings.entrySet()) {
+                    XTerm v = e.getKey();
+                    List<XTerm> ts = e.getValue();
+                    
+                    Map<XTerm,List<XTerm>> m = new HashMap<XTerm, List<XTerm>>(eqvBindings);
+                    m.remove(v);
+
+                    if (ts == null || ts.size() == 0) {
+                        if (entailsWithEQV(me, terms, self, m))
+                            return true;
+                    }
+                    else {
+                        for (int i = 0; i < ts.size(); i++) {
+                            XTerm t = ts.get(i);
+                            XConstraint_c me2 = me.copy();
+                            try {
+                                me2.addBinding(v, t);
+                            }
+                            catch (XFailure z) {
+                                continue;
+                            }
+                            if (entailsWithEQV(me2, terms, self, m))
+                                return true;
+                        }
+                    }
+                }
+                
+                return false;
+            }
+        }
+        
+        BruteForceEQVHelper helper = new BruteForceEQVHelper();
+        Map<XTerm,List<XTerm>> eqvBindings = helper.eqvBindings(me, conjuncts);
+        
+if (true)
+    return helper.entailsWithEQV(me, conjuncts, self, eqvBindings);
+        
+        
         // DOES NOT WORK. NEEDS TO BE FIXED.
         // Fails entailment tests test9 and test10.
         /* Start Deletion. When deleting, uncomment related section in XPromise_c.dump.*/
+if (false) {
         try {
             for (XTerm term : subst) {
                 if (term.hasEQV()) {
@@ -444,8 +545,9 @@ public class XConstraint_c implements XConstraint, Cloneable {
             return false;
         }
         /* Stop Deletion. */
-    
-       for (XTerm term : subst) {
+}
+
+        for (XTerm term : subst) {
             if (! me.entails(term))
                 return false;
         }
@@ -453,6 +555,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
         return true;
     }
 
+    /** Traverse the terms in the constraint, adding in their self constraints. */
     public XConstraint_c saturate() throws XFailure {
         XConstraint_c c = (XConstraint_c) copy();
         Set<XTerm> visited = new HashSet<XTerm>();
@@ -462,14 +565,17 @@ public class XConstraint_c implements XConstraint, Cloneable {
         return c;
     }
 
+    /** Return true if this constraint entails t. */
     private boolean entails(XTerm t) throws XFailure {
         if (t instanceof XEquals) {
             XEquals f = (XEquals) t;
             XTerm left = f.left();
             XTerm right = f.right();
+            
             if (entails(left, right)) {
                 return true;
             }
+            
         }
 
         List<XTerm> atoms = constraints();
@@ -482,48 +588,56 @@ public class XConstraint_c implements XConstraint, Cloneable {
         return false;
     }
 
+    /** Return true if this constraint entails that t1==t2. */
     private boolean entails(XTerm t1, XTerm t2) throws XFailure {
         if (!consistent)
             return true;
+        
         XPromise p1 = lookupPartialOk(t1);
         if (p1 == null) // No match, the term t1 is not equated to anything by this.
             return false;
 
-        int r1Count=0;
+        int r1Count = 0;
         XVar[] vars1 = null;
         if (p1 instanceof XPromise_c) {
             r1Count = ((XPromise_c) p1).lookupReturnValue();
             vars1 = ((XVar) t1).vars();
         }
+        
         XPromise p2 = lookupPartialOk(t2);
-        if (p2==null) // No match, the term t2 is not equated to anything by this.
+        if (p2 == null) // No match, the term t2 is not equated to anything by this.
             return false;
 
-        int r2Count=0;
+        int r2Count = 0;
         XVar[] vars2 = null;
         if (p2 instanceof XPromise_c) {
             r2Count = ((XPromise_c) p2).lookupReturnValue();
             vars2 = ((XVar) t2).vars();
         }
 
-        if ((r1Count==0 || r1Count == vars1.length) && (r2Count==0 || r2Count == vars2.length)) {
+        if ((r1Count == 0 || r1Count == vars1.length) && (r2Count == 0 || r2Count == vars2.length)) {
             // exact lookups
             return p1.equals(p2);
-        } 
+        }
+
         // at least one of them had a suffix left over
-        // Now the returned promises must match, and they must have the same suffix.
+        // Now the returned promises must match, and they must have the same
+        // suffix.
         if (!p1.equals(p2))
             return false;
-        //	Now ensure that they have the same suffix left over. 
-        int residual1 = vars1.length-r1Count, residual2=vars2.length-r2Count;
-        if (residual1 != residual2) return false;
-        for (int i=0; i < residual1; i++) {
-            XVar v1 = vars1[r1Count+i];
-            XVar v2 = vars2[r2Count+i];
+
+        // Now ensure that they have the same suffix left over.
+        int residual1 = vars1.length - r1Count, residual2 = vars2.length - r2Count;
+        if (residual1 != residual2)
+            return false;
+
+        for (int i = 0; i < residual1; i++) {
+            XVar v1 = vars1[r1Count + i];
+            XVar v2 = vars2[r2Count + i];
             if (v1 instanceof XField && v2 instanceof XField) {
                 XField f1 = (XField) v1;
                 XField f2 = (XField) v2;
-                 if (! f1.field().equals(f2.field())) {
+                if (! f1.field().equals(f2.field())) {
                     return false;
                 }
             }
@@ -531,24 +645,29 @@ public class XConstraint_c implements XConstraint, Cloneable {
                 return false;
             }
         }
+
         return true;
     }
 
     public boolean equiv(XConstraint other) throws XFailure {
-        //Report.report(1, "Constraint: " + this + " equiv " + other + "? " );
         boolean result = entails(other);
-        if (result) result = (other==null)? valid : other.entails(this);
-        //Report.report(1, "Constraint: " + this + " equiv " + other + "? " + result);
+        if (result) {
+            if (other == null)
+                result = valid;
+            else
+                result = other.entails(this);
+        }
         return result;
     }
 
     public XTerm find(XName varName) throws XFailure {
-        if ((! consistent) || roots ==null) return null;
-        // Report.report(1, "Constraint_c.find: roots are " + roots);
+        if (!consistent || roots == null)
+            return null;
         XPromise self = (XPromise) roots.get(self());
-        if (self == null) return null;
+        if (self == null)
+            return null;
         XPromise result = self.lookup(varName);
-        return result==null ? null : result.term();
+        return result == null ? null : result.term();
     }
     
     private static boolean printEQV = false;
@@ -560,14 +679,12 @@ public class XConstraint_c implements XConstraint, Cloneable {
             c = saturate();
         }
         catch (XFailure z) {
-        	//return " invalid ";
         }
 
         try {
             c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
         }
         catch (XFailure z) {
-        	//return " invalid ";
         }
 
         String str;
