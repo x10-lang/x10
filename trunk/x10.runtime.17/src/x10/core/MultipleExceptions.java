@@ -16,8 +16,17 @@ import java.util.List;
 public class MultipleExceptions extends java.lang.RuntimeException {
     public final ArrayList<Throwable> exceptions; // <Throwable>
     
+    public MultipleExceptions(ValRail<Throwable> s) {
+        exceptions = toList(s);
+    }
+    
     public MultipleExceptions(List<Throwable> s) {
+        exceptions = toList(s);
+    }
+    
+    private static ArrayList<Throwable> toList(Iterable<Throwable> s) {
         ArrayList<Throwable> s_actual = new ArrayList<Throwable>();
+
         // cvp: make sure that there are no MultipleExceptions in the stack -- 
         // otherwise toString might result in a stack-overflow.
         for (Throwable t : s) {
@@ -29,7 +38,8 @@ public class MultipleExceptions extends java.lang.RuntimeException {
                 s_actual.add(t);
             }
         }
-        exceptions = s_actual;
+        
+        return s_actual;
     }
     
     public String toString() {
