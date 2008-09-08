@@ -1,11 +1,35 @@
 package x10.core;
 
+import x10.types.RuntimeType;
 import x10.types.Type;
 import x10.types.Types;
 
 public class Box<T> extends Ref {
     Type<T> type;
     T value;
+    
+    public static class RTT extends RuntimeType<Box<?>> {
+        Type<?> type;
+
+        public RTT(Type<?> type) {
+            super(Box.class);
+            this.type = type;
+        }
+        
+        @Override
+        public boolean instanceof$(Object o) {
+            return o instanceof Box && ((Box) o).type.isSubtype(type);
+        }
+        
+        @Override
+        public boolean isSubtype(Type<?> o) {
+            if (o instanceof Box.RTT) {
+                Box.RTT other = (Box.RTT) o;
+                return type.isSubtype(other.type);
+            }
+            return super.isSubtype(o);
+        }
+    }
     
     private Box(Type<T> type, T v) {
         assert v != null;
