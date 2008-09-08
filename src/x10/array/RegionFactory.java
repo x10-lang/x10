@@ -7,6 +7,7 @@
  */
 package x10.array;
 
+import x10.core.Rail;
 import x10.core.ValRail;
 
 
@@ -53,6 +54,13 @@ public class RegionFactory {
      * to the constructor.
      */
     public static Region/* (regions.length) */make(ValRail<Region> regions) {
+        boolean zeroBased = true;
+        for (int i = 0; i < regions.length; i++)
+            zeroBased &= regions.get(i).zeroBased;
+        return new MultiDimRegion(regions, zeroBased);
+    }
+
+    public static Region/* (regions.length) */makeFromRail(Rail<Region> regions) {
         boolean zeroBased = true;
         for (int i = 0; i < regions.length; i++)
             zeroBased &= regions.get(i).zeroBased;
