@@ -18,21 +18,31 @@ public class XEquals_c extends XFormula_c implements XEquals {
 	}
 	
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
-	        XPromise p = c.intern(left());
-	        XPromise q = c.intern(right());
+//	    XTerm left = left();
+//	    XTerm right = right();
+//	    if (left instanceof XLit && right instanceof XLit) {
+//	        if (left.equals(right))
+//	            return XTerms.TRUE.internIntoConstraint(c, last);
+//	        else
+//	            return XTerms.FALSE.internIntoConstraint(c, last);
+//	    }
 
-	        if (p instanceof XLit && q instanceof XLit) {
-	            if (p.equals(q))
-	                return c.intern(XTerms.TRUE);
-	            else
-	                return c.intern(XTerms.FALSE);
-	        }
-	        else {
-	            if (p == q || p.term().equals(q.term()))
-	                return c.intern(XTerms.TRUE);
-	            else
-	                return super.internIntoConstraint(c, last);
-	        }
+	    XPromise p = c.intern(left());
+	    XPromise q = c.intern(right());
+
+	    if (p instanceof XLit && q instanceof XLit) {
+	        if (p.equals(q))
+	            return c.intern(XTerms.TRUE);
+	        else
+	            return c.intern(XTerms.FALSE);
+	    }
+	    else {
+	        if (p == q || p.term().equals(q.term()))
+	            // Handle x==x also
+	            return c.intern(XTerms.TRUE);
+	        else
+	            return super.internIntoConstraint(c, last);
+	    }
 	}
 	
 	@Override
