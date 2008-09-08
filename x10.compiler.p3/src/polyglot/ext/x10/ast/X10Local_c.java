@@ -49,7 +49,7 @@ public class X10Local_c extends Local_c {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		
 		try {
-			Context context = tc.context();
+			X10Context context = (X10Context) tc.context();
 			LocalInstance li = context.findLocal(name.id());
 
 			// if the local is defined in an outer class, then it must be final
@@ -61,15 +61,13 @@ public class X10Local_c extends Local_c {
 							this.position());                     
 				}
 			}
-
+			
 			X10Local_c result = (X10Local_c) super.typeCheck(tc);
 			
-			// Permit occurrences of local variables in the type of the variable.
-			X10Context xtc = (X10Context) tc.context();
-			VarDef dli = xtc.varWhoseTypeIsBeingElaborated();
-			if (xtc.inDepType()) {
+			VarDef dli = context.varWhoseTypeIsBeingElaborated();
+			if (context.inDepType()) {
 				li = result.localInstance();
-				if (! (li.equals(dli)) && ! li.flags().isFinal()) {
+				if (! (li.def().equals(dli)) && ! li.flags().isFinal()) {
 					throw new SemanticError("Local variable " + li.name() 
 							+ " must be final in a dependent clause.", 
 							position());
@@ -80,7 +78,7 @@ public class X10Local_c extends Local_c {
 			result = (X10Local_c) result.type(((X10LocalInstance) li).rightType());
 			
 			// Fold in the method's guard.
-			CodeDef ci = xtc.currentCode();
+			CodeDef ci = context.currentCode();
 			if (ci instanceof X10ProcedureDef) {
 			    X10ProcedureDef pi = (X10ProcedureDef) ci;
 				XConstraint c = Types.get(pi.guard());

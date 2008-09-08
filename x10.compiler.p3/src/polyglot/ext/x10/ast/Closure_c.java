@@ -14,6 +14,7 @@ import polyglot.ast.CodeBlock;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeCheckFragmentGoal;
@@ -39,6 +40,7 @@ import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
@@ -320,7 +322,7 @@ public class Closure_c extends Expr_c implements Closure {
         X10TypeSystem x10ts = (X10TypeSystem) tc.typeSystem();
 
         Context c = tc.context();
-        Closure closure = this;
+        Closure_c n = this;
 
         for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
             TypeNode tn = (TypeNode) i.next();
@@ -331,11 +333,19 @@ public class Closure_c extends Expr_c implements Closure {
                     tn.position());
             }
         }
+        
+        if (n.returnType() instanceof UnknownTypeNode) {
+            NodeFactory nf = tc.nodeFactory();
+            TypeSystem ts = tc.typeSystem();
+            // Body had no return statement.  Set to void.
+            ((Ref<Type>) n.returnType().typeRef()).update(ts.Void());
+            n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), ts.Void()));
+        }
 
         // Create an anonymous subclass of the closure type.
-        ClosureDef def = this.closureDef;
+        ClosureDef def = n.closureDef;
         ClassDef cd = x10ts.closureAnonymousClassDef(def);
-        return type(cd.asType());
+        return n.type(cd.asType());
     }
 
     public Term firstChild() {
