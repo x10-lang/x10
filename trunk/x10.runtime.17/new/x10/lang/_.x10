@@ -54,6 +54,7 @@ public class _ {
     public static type place = Place;
     public static type region = Region;
     public static type dist = Dist;
+    public static type clock = Clock;
     
     public static type Point(r: int) = Point{rank==r};
     public static type point(r: int) = Point{rank==r};
